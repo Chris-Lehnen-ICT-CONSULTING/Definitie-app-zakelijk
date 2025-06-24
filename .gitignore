@@ -1,0 +1,11 @@
+# 💚 Python artefacts
+__pycache__/
+*.py[cod]
+
+# 💚 Virtuele omgeving
+.venv/
+
+# 💚 Build / release
+release/
+*.dmg
+*.zip
