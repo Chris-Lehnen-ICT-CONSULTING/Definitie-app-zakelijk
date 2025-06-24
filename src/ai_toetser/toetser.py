@@ -13,16 +13,27 @@ class Toetser:
 
     def __init__(self, json_path: str | Path = _DEFAULT_JSON) -> None:
         path = Path(json_path)
+
+        # ↪︎ Zoeklogica voor relatieve paden uit tests
+        if not path.is_absolute():
+            candidates = [
+                Path.cwd() / path,                       # ./config/…
+                Path(__file__).parents[1] / path,        # src/config/…
+            ]
+            path = next((p for p in candidates if p.exists()), path)
+
         if not path.exists():
-            raise FileNotFoundError(f"Verboden-woordenlijst niet gevonden: {path}")
+            raise FileNotFoundError(
+                f"Verboden-woordenlijst niet gevonden: {json_path}"
+            )
+
         with path.open(encoding="utf-8") as fh:
             data = json.load(fh)
+
         woorden = data["verboden_woorden"] if isinstance(data, dict) else data
         self._set: Set[str] = {w.lower() for w in woorden}
 
-    def is_verboden(self, woord: str) -> bool:  # noqa: D401
-        """True als `woord` (case-insensitive) in de lijst staat."""
+    def is_verboden(self, woord: str) -> bool:
         return woord.lower() in self._set
 
-    # oude alias voor tests
-    run = is_verboden
+    run = is_verboden  # alias voor oude tests
