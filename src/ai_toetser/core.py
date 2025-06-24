@@ -25,7 +25,21 @@ from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_sta
 
 # 🌱 Initialiseer OpenAI-client
 load_dotenv()
-client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# 💚 --------------- VERPLAATSTE OPENAI-CLIENT ---------------  
+def _get_openai_client() -> OpenAI:          # ✅ privé helper  
+    """
+    # ✅ Maakt OpenAI-client alléén aan wanneer hij voor het eerst nodig is.
+    #    Zo kan het pakket zonder OPENAI_API_KEY geïmporteerd worden.
+    """
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "OPENAI_API_KEY ontbreekt. Zet deze variabele in .env of in je CI-secrets."
+        )
+    return OpenAI(api_key=api_key)
+# 💚 ----------------------------------------------------------
+
 
 # ✅ Toetsing voor regel CON-01 (Contextspecifieke formulering zonder expliciete benoeming)
 # Deze toetsregel controleert of de definitie géén expliciete verwijzing bevat naar de opgegeven context(en).

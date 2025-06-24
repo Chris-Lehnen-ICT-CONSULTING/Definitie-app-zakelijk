@@ -27,7 +27,7 @@ from config.verboden_woorden import (
     sla_verboden_woorden_op,    # ✅ slaat gewijzigde lijst op
     log_test_verboden_woord     # ✅ logt individuele woordtests
 )
-from Definitie_generator.generate_definitie import genereer_definitie  # de centrale definitiegenerator
+from definitie_generator.generator import genereer_definitie  # de centrale definitiegenerator
 
 from prompt_builder.prompt_builder import (
     selecteer_essentiele_regels,
