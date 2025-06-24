@@ -2,6 +2,7 @@
 # 📦 IMPORTS EN INITIALISATIE
 # ================================
 import os
+import json
 import re
 from datetime import datetime
 import streamlit as st
@@ -361,7 +362,7 @@ if actie and begrip:
             max_tokens=1000,
             temperature=0.4,
         )
-        st.session_state.bronnen_gebruikt = antwoord.choices[0].message.content.strip()
+        st.session_state.bronnen_gebruikt = bronnen_tekst.strip()
     except Exception as e:
         st.session_state.bronnen_gebruikt = f"❌ Fout bij ophalen bronnen: {e}"
 
