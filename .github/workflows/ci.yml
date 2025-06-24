@@ -1,0 +1,58 @@
+# CI-pipeline: ruff → mypy → bandit → pytest
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Haal repo op
+      - uses: actions/checkout@v4
+
+      # 2) Installeer Python
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 3) Cache pip-packages
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
+      # 4) Installeer dependencies + tooling
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff mypy bandit
+
+      # 5) Ruff lint
+      - name: Ruff
+        run: ruff check src tests
+
+      # 6) Mypy type-check
+      - name: MyPy
+        run: mypy src
+
+      # 7) Bandit security-scan
+      - name: Bandit
+        run: bandit -r src -ll
+
+      # 8) Pytest
+      - name: Pytest
+        run: |
+          export PYTHONPATH=$PWD/src
+          pytest -q
