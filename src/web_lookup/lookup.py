@@ -111,31 +111,30 @@ def zoek_definitie_combinatie(begrip: str) -> str:
 def is_plurale_tantum(term: str) -> bool:
     """
     Controleert of 'term' alleen in het meervoud voorkomt door:
-      1) UniMorph offline (Number=Sing check) → als enkelvoud bestaat → False
-      2) Scrapen lead-paragrafen van Wiktionary (tot de eerste <h2>)
-      3) Fallback: Wikipedia-heuristiek
-      4) Uitgebreide trefwoorden ‘alleen in het meervoud’, ‘alleen meervoud’, ‘plurale tantum’
+      1) Scrapen van lead-paragrafen op Wiktionary (tot de eerste <h2>)
+      2) Fallback: Wikipedia-heuristiek
     """
-
-      # 1) Wiktionary lead scraping: verzamel ALLE tekst vóór de eerste <h2>
-    resp = requests.get(url_wikt, timeout=5)
-    resp.raise_for_status()
-    soup = BeautifulSoup(resp.text, "html.parser")
-    lead_texts = []
-    for elem in soup.select("div.mw-parser-output > *"):
-        if elem.name == "h2":
-            break
-        # neem alle blokken mee, niet alleen <p>
-        lead_texts.append(elem.get_text().lower())
-    text = " ".join(lead_texts)
-    if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
-        return True
-  
-
-    # 3) Fallback Wikipedia
-    wp_url = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
+    # 1) Wiktionary lead scraping
+    url_wikt = f"https://nl.wiktionary.org/wiki/{term.capitalize()}"
     try:
-        resp = requests.get(wp_url, timeout=5)
+        resp = requests.get(url_wikt, timeout=5)
+        resp.raise_for_status()
+        soup = BeautifulSoup(resp.text, "html.parser")
+        lead_texts = []
+        for elem in soup.select("div.mw-parser-output > *"):
+            if elem.name == "h2":
+                break
+            lead_texts.append(elem.get_text().lower())
+        text = " ".join(lead_texts)
+        if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
+            return True
+    except Exception:
+        pass
+
+    # 2) Fallback: Wikipedia-heuristiek
+    url_wp = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
+    try:
+        resp = requests.get(url_wp, timeout=5)
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, "html.parser")
             eerste_p = soup.find("p")
