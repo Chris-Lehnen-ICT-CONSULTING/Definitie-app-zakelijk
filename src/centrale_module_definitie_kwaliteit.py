@@ -18,7 +18,7 @@ from voorbeelden.voorbeelden import (
     genereer_tegenvoorbeelden
 )
 from ai_toetser import toets_definitie
-from log.log_definitie import log_definitie, parse_toetsing_regels, get_logger
+from log.log_definitie import log_definitie, get_logger
 
 # --- ⚙️ Config-loaders en verboden-woordenbeheer ---
 # ✅ Centrale JSON-loader
@@ -31,9 +31,6 @@ from config.verboden_woorden import (
 from definitie_generator.generator import genereer_definitie  # de centrale definitiegenerator
 
 from prompt_builder.prompt_builder import (
-    selecteer_essentiele_regels,
-    selecteer_aanvullende_regels,
-    bouw_prompt_met_gesplitste_richtlijnen,
     stuur_prompt_naar_gpt,
 )
 

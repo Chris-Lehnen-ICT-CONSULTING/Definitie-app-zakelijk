@@ -1,1 +1,3 @@
-from .opschoning import opschonen # noqa: F401<br># 💚 Exporteert opschonen() voor korte imports<br>
+from .opschoning import opschonen
+
+__all__ = ["opschonen"]

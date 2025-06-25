@@ -57,7 +57,7 @@ def zoek_definitie_op_overheidnl(begrip):
                     paragrafen = content.find_all("p")
                     eerste_alinea = paragrafen[0].get_text(strip=True) if paragrafen else ""
                     detail_tekst = eerste_alinea[:400]
-            except:
+            except Exception:
                 detail_tekst = "(geen extra informatie opgehaald van detailpagina)"
 
         return (

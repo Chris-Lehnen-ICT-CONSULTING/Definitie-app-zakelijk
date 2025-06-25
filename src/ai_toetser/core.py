@@ -1,25 +1,19 @@
 import os
 import re
-from datetime import datetime
 
 # --- 🔪 Externe bibliotheken (via pip) ---
-import streamlit as st
 # 📌 Streamlit pagina-configuratie
 #st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
-import pandas as pd
 from dotenv import load_dotenv
 from openai import OpenAI
 
 # --- 🔄 Eigen modules (projectspecifiek) ---
-from web_lookup import zoek_definitie_combinatie
-from log.log_definitie import log_definitie, parse_toetsing_regels
 
 # --- ⚙️ Config-loaders en verboden-woordenbeheer ---
 # ✅ Centrale JSON-loaders
 from config.config_loader import laad_toetsregels
 # ✅ Opschoning van GPT-definitie (externe module)
-from opschoning.opschoning import opschonen
 from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_startregex
 
 
