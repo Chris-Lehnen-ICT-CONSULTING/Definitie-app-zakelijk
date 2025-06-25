@@ -108,6 +108,8 @@ def zoek_definitie_combinatie(begrip: str) -> str:
 # ────────────────────────────────────────────────────────────────────────
 # Plurale-tantum check: Wiktionary → Wikipedia
 # ────────────────────────────────────────────────────────────────────────
+# web_lookup.py
+
 def is_plurale_tantum(term: str) -> bool:
     """
     Controleert of 'term' alleen in het meervoud voorkomt door:
@@ -126,7 +128,11 @@ def is_plurale_tantum(term: str) -> bool:
                 break
             lead_texts.append(elem.get_text().lower())
         text = " ".join(lead_texts)
-        if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
+        if any(kw in text for kw in (
+            "alleen in het meervoud",
+            "alleen het meervoud",
+            "plurale tantum",
+        )):
             return True
     except Exception:
         pass
@@ -139,7 +145,11 @@ def is_plurale_tantum(term: str) -> bool:
             soup = BeautifulSoup(resp.text, "html.parser")
             eerste_p = soup.find("p")
             text = eerste_p.get_text().lower() if eerste_p else ""
-            if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
+            if any(kw in text for kw in (
+                "alleen in het meervoud",
+                "alleen het meervoud",
+                "plurale tantum",
+            )):
                 return True
     except Exception:
         pass
