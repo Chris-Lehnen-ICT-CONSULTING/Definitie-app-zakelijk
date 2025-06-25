@@ -110,44 +110,49 @@ def zoek_definitie_combinatie(begrip: str) -> str:
 # ────────────────────────────────────────────────────────────────────────
 def is_plurale_tantum(term: str) -> bool:
     """
-    Controleert of 'term' alleen in het meervoud voorkomt:
-      1) Scrape lead-paragrafen tot eerste <h2> op Wiktionary.
-      2) Fallback: Wikipedia-heuristiek.
+    Controleert of 'term' alleen in het meervoud voorkomt door:
+      1) Scrapen van lead-paragrafen op Wiktionary (tot de eerste <h2>).
+      2) Fallback naar Wikipedia-heuristiek.
+      3) We breiden de trefwoorden uit met 'alleen meervoud'.
     """
-    # ── 1) Scrapen van Wiktionary
-    wiktionary_url = f"https://nl.wiktionary.org/wiki/{term.capitalize()}"
+    # 1) Wiktionary lead-paragraph scraping
+    wiki_url = f"https://nl.wiktionary.org/wiki/{term.capitalize()}"
     try:
-        resp = requests.get(wiktionary_url, timeout=5)
+        resp = requests.get(wiki_url, timeout=5)
         resp.raise_for_status()
         soup = BeautifulSoup(resp.text, "html.parser")
         lead = []
-        # Loop door alle elementen in de hoofdcontent
         for elem in soup.select("div.mw-parser-output > *"):
             if elem.name == "h2":
-                # Stop bij de eerste sectiekop
                 break
             if elem.name == "p":
-                # Verzamelt paragrafen in lowercase
                 lead.append(elem.get_text().lower())
         text = " ".join(lead)
-        # Kijk of 'alleen in het meervoud' of 'plurale tantum' erin voorkomt
-        if "alleen in het meervoud" in text or "plurale tantum" in text:
+        # uitbreiden met 'alleen meervoud'
+        if any(kw in text for kw in (
+            "alleen in het meervoud",
+            "alleen meervoud",
+            "plurale tantum"
+        )):
             return True
     except Exception:
-        # Mislukte netwerk- of parse-operatie → verder naar fallback
         pass
 
-    # ── 2) Fallback via Wikipedia-heuristiek
-    wiki_url = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
+    # 2) Fallback Wikipedia-heuristiek
+    wp_url = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
     try:
-        resp = requests.get(wiki_url, timeout=5)
+        resp = requests.get(wp_url, timeout=5)
         if resp.status_code == 200:
             soup = BeautifulSoup(resp.text, "html.parser")
             eerste_p = soup.find("p")
             text = eerste_p.get_text().lower() if eerste_p else ""
-            return "alleen in het meervoud" in text or "plurale tantum" in text
+            if any(kw in text for kw in (
+                "alleen in het meervoud",
+                "alleen meervoud",
+                "plurale tantum"
+            )):
+                return True
     except Exception:
         pass
 
-    # Als geen van beide bronnen iets oplevert, veronderstel geen plurale tantum
     return False
