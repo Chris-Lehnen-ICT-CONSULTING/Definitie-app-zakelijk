@@ -861,20 +861,45 @@ def toets_STR_08(definitie, regel):
 
 ### ✅ Toetsing voor regel STR-09 (Dubbelzinnige 'of' is verboden)
 def toets_STR_09(definitie, regel):
-    patronen = regel.get("herkenbaar_patronen", [])
+    import re
+
+    # ── 1) Combineer JSON-patronen met strikte regex voor "A, B of C" en "X of Y"
+    patronen = list(regel.get("herkenbaar_patronen", [])) + [
+        r"\b\w+,\s*\w+\s+of\s+\w+\b",   # bv. “A, B of C”
+        r"\b\w+\s+of\s+\w+\b",          # bv. “X of Y”
+    ]
+
+    # ── 2) Verzamel alle gevonden ‘of’-constructies
     of_vormen = set()
-    for patroon in patronen:
-        of_vormen.update(re.findall(patroon, definitie, re.IGNORECASE))
+    for pat in patronen:
+        of_vormen.update(re.findall(pat, definitie, re.IGNORECASE))
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    # ── 3) Whitelist uitzonderingen (optioneel)
+    whitelist = {
+        "en/of",
+        "met of zonder",
+        "al dan niet",   # voeg hier meer vaste combinaties toe
+    }
+    ambigue = {ov for ov in of_vormen if ov.lower() not in whitelist}
 
-    if not of_vormen:
+    # ── 4) Controle op goede/foute voorbeelden uit je JSON
+    goed = any(
+        vb.lower() in definitie.lower()
+        for vb in regel.get("goede_voorbeelden", [])
+    )
+    fout = any(
+        vb.lower() in definitie.lower()
+        for vb in regel.get("foute_voorbeelden", [])
+    )
+
+    # ── 5) Beslis en retourneer resultaat
+    if not ambigue:
         return "✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen"
-
+    if ambigue and goed:
+        return "✔️ STR-09: 'of'-constructie komt overeen met goed voorbeeld"
     if fout:
-        return f"❌ STR-09: dubbelzinnige 'of'-constructie(s) gevonden ({', '.join(of_vormen)}) en lijkt op fout voorbeeld"
-    return f"❌ STR-09: dubbelzinnige 'of'-constructie(s) gevonden ({', '.join(of_vormen)}), context verduidelijken"
+        return f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}) en lijkt op fout voorbeeld"
+    return f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}), context verduidelijken"
 
 ### ✅ Toetsing voor regel VER-01 (Term in enkelvoud)
 def toets_VER_01(definitie, regel):
