@@ -130,8 +130,7 @@ def is_plurale_tantum(term: str) -> bool:
     text = " ".join(lead_texts)
     if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
         return True
-    except Exception:
-        pass
+  
 
     # 3) Fallback Wikipedia
     wp_url = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
