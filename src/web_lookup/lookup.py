@@ -111,11 +111,13 @@ def zoek_definitie_combinatie(begrip: str) -> str:
 def is_plurale_tantum(term: str) -> bool:
     """
     Controleert of 'term' alleen in het meervoud voorkomt door:
-      1) Scrapen van lead-paragrafen op Wiktionary (tot de eerste <h2>).
-      2) Fallback naar Wikipedia-heuristiek.
-      3) We breiden de trefwoorden uit met 'alleen meervoud'.
+      1) UniMorph offline (Number=Sing check) → als enkelvoud bestaat → False
+      2) Scrapen lead-paragrafen van Wiktionary (tot de eerste <h2>)
+      3) Fallback: Wikipedia-heuristiek
+      4) Uitgebreide trefwoorden ‘alleen in het meervoud’, ‘alleen meervoud’, ‘plurale tantum’
     """
-    # 1) Wiktionary lead-paragraph scraping
+
+    # 2) Wiktionary lead scraping
     wiki_url = f"https://nl.wiktionary.org/wiki/{term.capitalize()}"
     try:
         resp = requests.get(wiki_url, timeout=5)
@@ -128,17 +130,12 @@ def is_plurale_tantum(term: str) -> bool:
             if elem.name == "p":
                 lead.append(elem.get_text().lower())
         text = " ".join(lead)
-        # uitbreiden met 'alleen meervoud'
-        if any(kw in text for kw in (
-            "alleen in het meervoud",
-            "alleen meervoud",
-            "plurale tantum"
-        )):
+        if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
             return True
     except Exception:
         pass
 
-    # 2) Fallback Wikipedia-heuristiek
+    # 3) Fallback Wikipedia
     wp_url = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
     try:
         resp = requests.get(wp_url, timeout=5)
@@ -146,11 +143,7 @@ def is_plurale_tantum(term: str) -> bool:
             soup = BeautifulSoup(resp.text, "html.parser")
             eerste_p = soup.find("p")
             text = eerste_p.get_text().lower() if eerste_p else ""
-            if any(kw in text for kw in (
-                "alleen in het meervoud",
-                "alleen meervoud",
-                "plurale tantum"
-            )):
+            if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
                 return True
     except Exception:
         pass
