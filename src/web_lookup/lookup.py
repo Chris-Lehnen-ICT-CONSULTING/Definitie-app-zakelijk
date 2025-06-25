@@ -1,8 +1,8 @@
 # web_lookup.py
 import os
+import csv
 import requests
 from bs4 import BeautifulSoup
-import csv
 import xml.etree.ElementTree as ET
 
 # ✅ Wikipedia: haal eerste paragraaf op
