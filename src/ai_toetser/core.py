@@ -818,20 +818,46 @@ def toets_STR_07(definitie, regel):
 
 ### ✅ Toetsing voor regel STR-08 (Dubbelzinnige 'en' is verboden)
 def toets_STR_08(definitie, regel):
-    patronen = regel.get("herkenbaar_patronen", [])
+    import re
+
+    # ── 1) Start met je JSON-patronen en breid uit met strikte regex voor "A, B en C" en "X en Y"
+    patronen = list(regel.get("herkenbaar_patronen", [])) + [
+        r"\b\w+,\s*\w+\s+en\s+\w+\b",   # bv. “A, B en C”
+        r"\b\w+\s+en\s+\w+\b",          # bv. “X en Y”
+    ]
+
+    # ── 2) Match alle gevonden ‘en’-constructies
     en_vormen = set()
-    for patroon in patronen:
-        en_vormen.update(re.findall(patroon, definitie, re.IGNORECASE))
+    for pat in patronen:
+        en_vormen.update(re.findall(pat, definitie, re.IGNORECASE))
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    # ── 3) Whitelist uitzonderingen (optioneel)
+    whitelist = {
+        "in en uitsluiting",
+        "vraag en antwoord",
+        "verificatie en bevestiging",
+        # voeg hier meer vaste combinaties toe
+    }
+    en_vormen = {ev for ev in en_vormen if ev.lower() not in whitelist}
 
+    # ── 4) Controle op goede/foute voorbeelden uit je JSON
+    goed = any(
+        vb.lower() in definitie.lower()
+        for vb in regel.get("goede_voorbeelden", [])
+    )
+    fout = any(
+        vb.lower() in definitie.lower()
+        for vb in regel.get("foute_voorbeelden", [])
+    )
+
+    # ── 5) Beslis en retourneer resultaat
     if not en_vormen:
         return "✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen"
-
+    if en_vormen and goed:
+        return "✔️ STR-08: 'en' staat er wel, maar komt overeen met goed voorbeeld"
     if fout:
-        return f"❌ STR-08: dubbelzinnige 'en'-constructie(s) gevonden ({', '.join(en_vormen)}) en lijkt op fout voorbeeld"
-    return f"❌ STR-08: dubbelzinnige 'en'-constructie(s) gevonden ({', '.join(en_vormen)}), context verduidelijken"
+        return f"❌ STR-08: dubbelzinnige 'en' gevonden ({', '.join(en_vormen)}) en lijkt op fout voorbeeld"
+    return f"❌ STR-08: dubbelzinnige 'en' gevonden ({', '.join(en_vormen)}), context verduidelijken"
 
 ### ✅ Toetsing voor regel STR-09 (Dubbelzinnige 'of' is verboden)
 def toets_STR_09(definitie, regel):
