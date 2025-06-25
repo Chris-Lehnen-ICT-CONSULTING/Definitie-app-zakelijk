@@ -1,6 +1,8 @@
 # web_lookup.py
+import os
 import requests
 from bs4 import BeautifulSoup
+import csv
 import xml.etree.ElementTree as ET
 
 # ✅ Wikipedia: haal eerste paragraaf op
@@ -75,3 +77,76 @@ def zoek_definitie_combinatie(begrip):
     wiki = zoek_definitie_op_wikipedia(begrip)
     overheid = zoek_definitie_op_overheidnl(begrip)
     return f"📚 Wikipedia: {wiki}\n\n📘 Overheid.nl:\n{overheid}"
+
+# ────────────────────────────────────────────────────────────────────────
+#  Plurale-tantum check: UniMorph offline → Wiktionary API → Wikipedia HTML
+# ────────────────────────────────────────────────────────────────────────
+
+# Pad naar je UniMorph-TSV (lemma \t form \t features)
+_UNIMORPH_PATH = os.path.join(os.path.dirname(__file__), "data", "unimorph_nl.tsv")
+
+def _has_singular_unimorph(term: str) -> bool:
+    """
+    Offline UniMorph-check: als er een entry met Number=Sing voor lemma bestaat,
+    is het géén pluralia tantum.
+    """
+    if not os.path.exists(_UNIMORPH_PATH):
+        return False
+    term_lc = term.lower()
+    try:
+        with open(_UNIMORPH_PATH, encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter="\t")
+            for lemma, form, feats in reader:
+                if lemma.lower() == term_lc and "Number=Sing" in feats:
+                    return True
+    except Exception:
+        pass
+    return False
+
+def _is_plurale_tantum_wiktionary(term: str) -> bool:
+    """
+    Online Wiktionary MediaWiki-API: zoekt in de categorieën naar “Plurale tantum”.
+    """
+    api_url = "https://nl.wiktionary.org/w/api.php"
+    params = {
+        "action": "parse",
+        "page": term.capitalize(),
+        "prop": "categories",
+        "format": "json",
+    }
+    try:
+        resp = requests.get(api_url, params=params, timeout=5)
+        resp.raise_for_status()
+        cats = resp.json().get("parse", {}).get("categories", [])
+        return any("Plurale tantum" in c.get("*", "") for c in cats)
+    except Exception:
+        return False
+
+def is_plurale_tantum(term: str) -> bool:
+    """
+    Combinatie-check:
+      1) UniMorph offline → als er enkelvoud is → return False
+      2) Wiktionary API → als plurale tantum-cat → return True
+      3) Fallback Wikipedia-heuristiek → check “alleen in het meervoud” / “plurale tantum”
+    """
+    # 1) Offline
+    if _has_singular_unimorph(term):
+        return False
+
+    # 2) Wiktionary API
+    if _is_plurale_tantum_wiktionary(term):
+        return True
+
+    # 3) Fallback Wikipedia-heuristiek
+    url = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
+    try:
+        resp = requests.get(url, timeout=5)
+        if resp.status_code == 200:
+            soup = BeautifulSoup(resp.text, "html.parser")
+            p = soup.find("p")
+            text = (p.get_text() or "").lower()
+            return "alleen in het meervoud" in text or "plurale tantum" in text
+    except Exception:
+        pass
+
+    return False
