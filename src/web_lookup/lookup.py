@@ -82,14 +82,9 @@ def zoek_definitie_combinatie(begrip):
 #  Plurale-tantum check: UniMorph offline → Wiktionary API → Wikipedia HTML
 # ────────────────────────────────────────────────────────────────────────
 
-# Pad naar je UniMorph-TSV (lemma \t form \t features)
 _UNIMORPH_PATH = os.path.join(os.path.dirname(__file__), "data", "unimorph_nl.tsv")
 
 def _has_singular_unimorph(term: str) -> bool:
-    """
-    Offline UniMorph-check: als er een entry met Number=Sing voor lemma bestaat,
-    is het géén pluralia tantum.
-    """
     if not os.path.exists(_UNIMORPH_PATH):
         return False
     term_lc = term.lower()
@@ -104,9 +99,6 @@ def _has_singular_unimorph(term: str) -> bool:
     return False
 
 def _is_plurale_tantum_wiktionary(term: str) -> bool:
-    """
-    Online Wiktionary MediaWiki-API: zoekt in de categorieën naar “Plurale tantum”.
-    """
     api_url = "https://nl.wiktionary.org/w/api.php"
     params = {
         "action": "parse",
@@ -123,21 +115,13 @@ def _is_plurale_tantum_wiktionary(term: str) -> bool:
         return False
 
 def is_plurale_tantum(term: str) -> bool:
-    """
-    Combinatie-check:
-      1) UniMorph offline → als er enkelvoud is → return False
-      2) Wiktionary API → als plurale tantum-cat → return True
-      3) Fallback Wikipedia-heuristiek → check “alleen in het meervoud” / “plurale tantum”
-    """
-    # 1) Offline
+    # 1) Offline UniMorph
     if _has_singular_unimorph(term):
         return False
-
-    # 2) Wiktionary API
+    # 2) Wiktionary-API
     if _is_plurale_tantum_wiktionary(term):
         return True
-
-    # 3) Fallback Wikipedia-heuristiek
+    # 3) Fallback Wikipedia HTML
     url = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
     try:
         resp = requests.get(url, timeout=5)
@@ -148,5 +132,4 @@ def is_plurale_tantum(term: str) -> bool:
             return "alleen in het meervoud" in text or "plurale tantum" in text
     except Exception:
         pass
-
     return False
