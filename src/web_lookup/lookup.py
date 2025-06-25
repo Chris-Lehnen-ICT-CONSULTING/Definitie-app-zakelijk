@@ -117,21 +117,19 @@ def is_plurale_tantum(term: str) -> bool:
       4) Uitgebreide trefwoorden ‘alleen in het meervoud’, ‘alleen meervoud’, ‘plurale tantum’
     """
 
-    # 2) Wiktionary lead scraping
-    wiki_url = f"https://nl.wiktionary.org/wiki/{term.capitalize()}"
-    try:
-        resp = requests.get(wiki_url, timeout=5)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, "html.parser")
-        lead = []
-        for elem in soup.select("div.mw-parser-output > *"):
-            if elem.name == "h2":
-                break
-            if elem.name == "p":
-                lead.append(elem.get_text().lower())
-        text = " ".join(lead)
-        if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
-            return True
+      # 1) Wiktionary lead scraping: verzamel ALLE tekst vóór de eerste <h2>
+    resp = requests.get(url_wikt, timeout=5)
+    resp.raise_for_status()
+    soup = BeautifulSoup(resp.text, "html.parser")
+    lead_texts = []
+    for elem in soup.select("div.mw-parser-output > *"):
+        if elem.name == "h2":
+            break
+        # neem alle blokken mee, niet alleen <p>
+        lead_texts.append(elem.get_text().lower())
+    text = " ".join(lead_texts)
+    if any(kw in text for kw in ("alleen in het meervoud", "alleen meervoud", "plurale tantum")):
+        return True
     except Exception:
         pass
 
