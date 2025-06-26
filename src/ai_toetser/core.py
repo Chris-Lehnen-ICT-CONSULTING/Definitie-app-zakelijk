@@ -984,20 +984,36 @@ def toets_VER_02(definitie: str, regel: dict, term: str) -> str:
     return "✔️ VER-02: definitie is in enkelvoud geformuleerd"
 
 ### ✅ Toetsing voor regel VER-03 (Werkwoord-term in infinitief)
-def toets_VER_03(definitie, regel):
-    patronen = regel.get("herkenbaar_patronen", [])
-    werkwoorden = set()
-    for patroon in patronen:
-        werkwoorden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_VER_03(term: str, regel: dict) -> str:
+    """
+    VER-03: werkwoord-term in infinitief.
+    1️⃣ Expliciete foute voorbeelden → ❌
+    2️⃣ Expliciete goede voorbeelden → ✔️
+    3️⃣ Eenvoudige vervoegingscheck via regex → ❌
+    4️⃣ Fallback: correct infinitief → ✔️
+    """
+    # ✅ 1️⃣ Expliciete foute voorbeelden eerst (prioriteit)
+    for foute in regel.get("foute_voorbeelden", []):
+        if term.lower() == foute.lower():
+            return f"❌ VER-03: term '{term}' is vervoegd (fout voorbeeld)"
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    # ✅ 2️⃣ Expliciete goede voorbeelden
+    for goed in regel.get("goede_voorbeelden", []):
+        if term.lower() == goed.lower():
+            return "✔️ VER-03: term staat in lijst met goede voorbeelden"
 
-    if not werkwoorden:
-        return "✔️ VER-03: werkwoordterm correct in infinitief"
-    if fout:
-        return f"❌ VER-03: vervoegde vorm gevonden ({', '.join(werkwoorden)}), zoals in fout voorbeeld"
-    return f"❌ VER-03: werkwoord niet in infinitief ({', '.join(werkwoorden)}), controle nodig"
+    # ✅ 3️⃣ Generieke vervoegingscheck: detecteer eindigend op 't' of 'd' (vervoegde vorm)
+    for patroon in regel.get("herkenbaar_patronen", []):
+        if re.fullmatch(patroon, term, re.IGNORECASE):
+            # Als dit patroon een vervoeging is, markeer fout
+            return f"❌ VER-03: vervoegde vorm herkend ('{term}'), niet in infinitief"
+
+    # ✅ 4️⃣ Fallback: eindigt op 'en' → infinitief
+    if term.lower().endswith("en"):
+        return "✔️ VER-03: term is in infinitief (correct)"
+
+    # ❓ Anders: afwijkende vorm → waarschuwing
+    return f"❌ VER-03: term '{term}' lijkt niet in infinitief te staan"
 
 
 # ✅ Toetsing voor regel ARAI01 (geen werkwoord als kern)
