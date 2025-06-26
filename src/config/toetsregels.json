@@ -135,30 +135,32 @@
     },
     "ESS-02": {
       "id": "ESS-02",
-      "naam": "Type of instantie",
-      "uitleg": "Een definitie beschrijft het type entiteit of instantie waar het begrip betrekking op heeft.",
-      "toelichting": "In een goede definitie staat expliciet vermeld of het begrip bijvoorbeeld een proces, gegeven, maatregel, instantie of functie is. Dit zorgt voor duidelijkheid over de aard van het begrip en de positionering ervan in het domein.",
-      "toetsvraag": "Geeft de definitie expliciet aan welk type of welke soort instantie of entiteit bedoeld wordt?",
+      "naam": "Type of individu/particular",
+      "uitleg": "Een definitie moet ondubbelzinnig aangeven of het begrip als algemene **soort (type)** of als **concreet individu/particular** wordt opgevat.",
+      "toelichting": "Begrippen kunnen zowel slaan op een klasse/soort (bijv. proces, maatregel) als op een individueel exemplaar. De definitie moet via een ‘is een/de …’-constructie duidelijk maken welke variant bedoeld is, zodat polysemie (zoals methode vs actie/resultaat) wordt voorkomen.",
+      "toetsvraag": "Geeft de definitie expliciet aan dat het begrip **een type/soort** is of **een concreet individu/particular**?",
       "herkenbaar_patronen": [
-         "\\btype\\b",
-         "\\bproces\\b",
-         "\\bgegeven(s)?\\b",
-         "\\bmaatregel(en)?\\b",
-         "\\bfunctie(s)?\\b",
-         "\\binstantie(s)?\\b",
-         "\\borganisatie\\b",
-         "\\brol\\b",
-         "\\bactor\\b",
-         "\\bactoren\\b"
-       ],
+        "\\btype\\b",
+        "\\bsoort\\b",
+        "\\bproces\\b",
+        "\\bgegeven(s)?\\b",
+        "\\bmaatregel(en)?\\b",
+        "\\bfunctie(s)?\\b",
+        "\\bindividu\\b",
+        "\\bparticular\\b",
+        "\\bentiteitsexemplaar\\b"
+      ],
       "goede_voorbeelden": [
-        "proces dat gericht is op gegevensverzameling",
-        "maatregel die recidive tegengaat",
-        "functie die verantwoordelijk is voor registratie"
+        "X is een proces dat gegevens verzamelt en structureert.",
+        "X is een maatregel die recidive tegengaat.",
+        "X is het individuele verslag van de observatie op 25-12-2024.",
+        "X is een individual particular dat dit proces uitvoert bij casus Z."
       ],
       "foute_voorbeelden": [
-        "de manier waarop registratie wordt gedaan",
-        "de gang van zaken rond opsporing"
+        "X verzamelt gegevens over gebruikersgedrag.",
+        "X ondersteunt de opsporing van fraude.",
+        "De gang van zaken rond gegevensverzameling.",
+        "De manier waarop recidive wordt tegengegaan."
       ],
       "prioriteit": "hoog",
       "aanbeveling": "verplicht",
