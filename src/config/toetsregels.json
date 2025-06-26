@@ -1175,31 +1175,18 @@
     "VER-01": {
       "id": "VER-01",
       "naam": "Term in enkelvoud",
-      "uitleg": "De te definiëren term wordt in het enkelvoud vermeld.",
-      "toelichting": "Gebruik altijd het enkelvoud als lemma voor de term die je definieert, tenzij het meervoud in uitzonderlijke gevallen noodzakelijk is. Dit verhoogt de eenduidigheid van begrippenbeheer en classificatie.",
-      "toetsvraag": "Is de term die gedefinieerd wordt geformuleerd in het enkelvoud?",
-      "herkenbaar_patronen": [
-        "\\bgegevens\\b",
-        "\\bmaatregelen\\b",
-        "\\bvoertuigen\\b",
-        "\\bsystemen\\b",
-        "\\bprocessen\\b",
-        "\\binstellingen\\b"
-      ],
-      "goede_voorbeelden": [
-        "gegeven: een feitelijke eenheid van informatie die kan worden vastgelegd",
-        "voertuig: een middel dat wordt gebruikt om personen of goederen te vervoeren"
-      ],
-      "foute_voorbeelden": [
-        "gegevens: feiten en getallen die zijn verzameld voor analyse",
-        "maatregelen: acties die zijn genomen om een doel te bereiken"
-      ],
-      "prioriteit": "midden",
+      "uitleg": "De te definiëren term moet in het enkelvoud staan, tenzij deze alleen in het meervoud bestaat.",
+      "toelichting": "Gebruik het enkelvoud als lemma. Sommige woorden – zoals 'kosten', 'hersenen' – zijn 'plurale tantum' en mogen als uitzondering in meervoud blijven.",
+      "toetsvraag": "Is de term in het enkelvoud (of een erkende plurale-tantum)?",
+      "herkenbaar_patronen": ["\\b(\\w+en)\\b"],           ← generieke meervoudsvorm
+      "goede_voorbeelden": ["gegeven", "voertuig"],
+      "foute_voorbeelden": ["gegevens", "voertuigen"],
+      "prioriteit": "hoog",                                ← hoog & verplicht
       "aanbeveling": "verplicht",
       "geldigheid": "lemma/term",
       "status": "definitief",
-      "type": "termniveau",
-      "thema": "verwoording van de term",
+      "type": "term",
+      "thema": "verschijningsvorm",
       "brondocument": "ASTRA",
       "relatie": [
         {
@@ -1207,7 +1194,7 @@
           "fullurl": "https://www.astraonline.nl/index.php/Term_in_enkelvoud"
         }
       ]
-    },
+    }
     "VER-02": {
       "id": "VER-02",
       "naam": "Definitie in enkelvoud",

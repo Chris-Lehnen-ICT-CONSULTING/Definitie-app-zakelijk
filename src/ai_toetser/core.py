@@ -1,6 +1,6 @@
 import os
 import re
-
+from web_lookup.lookup import is_plurale_tantum
 # --- 🔪 Externe bibliotheken (via pip) ---
 # 📌 Streamlit pagina-configuratie
 #st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
@@ -902,20 +902,37 @@ def toets_STR_09(definitie, regel):
     return f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}), context verduidelijken"
 
 ### ✅ Toetsing voor regel VER-01 (Term in enkelvoud)
-def toets_VER_01(definitie, regel):
+
+
+def toets_VER_01(term: str, regel: dict) -> str:
+    """
+    VER-01: term in enkelvoud, tenzij plurale tantum.
+    Breidt uit met check op expliciete goede en foute voorbeelden.
+    """
+    # 1️⃣ Uitzondering: plurale tantum
+    if is_plurale_tantum(term):
+        return "✔️ VER-01: term is plurale tantum (uitzondering)"
+
+    # 2️⃣ Expliciete foute voorbeelden?
+    for foute in regel.get("foute_voorbeelden", []):
+        if term.lower() == foute.lower():
+            return f"❌ VER-01: term '{term}' staat in lijst met foute voorbeelden"
+
+    # 3️⃣ Expliciete goede voorbeelden?
+    for goed in regel.get("goede_voorbeelden", []):
+        if term.lower() == goed.lower():
+            return "✔️ VER-01: term staat in lijst met goede voorbeelden"
+
+    # 4️⃣ Regex-patronen op de ingevoerde term
     patronen = regel.get("herkenbaar_patronen", [])
     meervoudig = set()
     for patroon in patronen:
-        meervoudig.update(re.findall(patroon, definitie, re.IGNORECASE))
-
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+        meervoudig.update(re.findall(patroon, term, re.IGNORECASE))
 
     if not meervoudig:
         return "✔️ VER-01: term is enkelvoudig"
-    if fout:
-        return f"❌ VER-01: term in meervoud herkend ({', '.join(meervoudig)}), zoals in fout voorbeeld"
-    return f"❌ VER-01: meervoudsvorm herkend ({', '.join(meervoudig)}), eenduidigheid controleren"
+    gevonden = ", ".join(sorted(meervoudig))
+    return f"❌ VER-01: term in meervoud herkend ({gevonden})"
 
 ### ✅ Toetsing voor regel VER-02 (Definitie in enkelvoud)
 def toets_VER_02(definitie, regel):
