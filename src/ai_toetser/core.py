@@ -942,28 +942,38 @@ def toets_VER_01(term: str, regel: dict) -> str:
     return "✔️ VER-01: term is enkelvoudig"
 
 ### ✅ Toetsing voor regel VER-02 (Definitie in enkelvoud)
+### ✅ Toetsing voor regel VER-02 (Definitie in enkelvoud)
 def toets_VER_02(definitie: str, regel: dict, term: str) -> str:
     """
     VER-02: definitie in enkelvoud, tenzij het begrip alleen meervoud kent.
-    1️⃣ Uitzondering plurale tantum
-    2️⃣ Expliciete foute voorbeelden
-    3️⃣ Expliciete goede voorbeelden
-    4️⃣ Patronen voor meervoudsconstructies
-    5️⃣ Fallback enkelvoud
+      1️⃣ Uitzondering plurale tantum
+      2️⃣ Expliciete foute voorbeelden (gewoon lemma-check)
+      3️⃣ Expliciete goede voorbeelden
+      4️⃣ Patronen voor meervoudsconstructies
+      5️⃣ Fallback enkelvoud
     """
-    # ✅ 1️⃣ Uitzondering: als term plurale tantum is, dan altijd OK
+    # 🔧 Helper: normaliseer tekst (lowercase, verwijder alle niet-alfanumerieke karakters)
+    def _normalize(text: str) -> str:
+        txt = text.lower().strip()
+        # ✅ Alles behalve letters en cijfers weg
+        return re.sub(r"[^\w\s]", "", txt)
+
+    # ✅ 1️⃣ Uitzondering: als term plurale tantum is, altijd OK
     if is_plurale_tantum(term):
         return "✔️ VER-02: definitie in enkelvoud (plurale tantum-uitzondering)"
 
-    # ✅ 2️⃣ Expliciete foute voorbeelden
-    for fout in regel.get("foute_voorbeelden", []):
-        if fout.lower() in definitie.lower():
-            return "❌ VER-02: foute voorbeeldzin in definitie aangetroffen"
+    # 🧽 Genormaliseerde definitie-tekst voor voorbeeld-checks
+    norm_def = _normalize(definitie)
 
-    # ✅ 3️⃣ Expliciete goede voorbeelden
+    # ✅ 2️⃣ Expliciete foute voorbeelden vóórrang geven
+    for fout in regel.get("foute_voorbeelden", []):
+        if _normalize(fout) in norm_def:
+            return "❌ VER-02: foute voorbeeldconstructie in definitie aangetroffen"
+
+    # ✅ 3️⃣ Expliciete goede voorbeelden daarna honoreren
     for goed in regel.get("goede_voorbeelden", []):
-        if goed.lower() in definitie.lower():
-            return "✔️ VER-02: goede voorbeeldzin in definitie aangetroffen"
+        if _normalize(goed) in norm_def:
+            return "✔️ VER-02: goede voorbeeldconstructie in definitie aangetroffen"
 
     # ✅ 4️⃣ Meervoudsconstructies detecteren via patronen
     for patroon in regel.get("herkenbaar_patronen", []):
@@ -972,6 +982,7 @@ def toets_VER_02(definitie: str, regel: dict, term: str) -> str:
 
     # ✅ 5️⃣ Fallback: definitie is enkelvoudig
     return "✔️ VER-02: definitie is in enkelvoud geformuleerd"
+
 ### ✅ Toetsing voor regel VER-03 (Werkwoord-term in infinitief)
 def toets_VER_03(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
