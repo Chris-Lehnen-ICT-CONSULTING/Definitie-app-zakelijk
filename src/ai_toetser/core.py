@@ -178,31 +178,75 @@ def toets_ESS_01(definitie: str, regel: dict) -> str:
     # 2️⃣ fallback: geen enkel doel-patroon gevonden ➞ OK
     return "✔️ ESS-01: geen doelgerichte formuleringen aangetroffen"
 
-# ✅ Toetsing voor regel ESS-02 (Type of instantie)
-def toets_ESS_02(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    types_gevonden = set()
-    for patroon in patroon_lijst:
-        types_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+import re
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+# ESS-02: Type of instantie (individual/particular)
+# Toetsvraag:
+#   "Geeft de definitie expliciet aan dat het begrip als **type/soort** of als **concreet individu/particular** wordt opgevat?"
+#   - Een **type/soort** duidt op een algemene categorie of klasse van entiteiten.
+#     Voorbeeld: "X is een proces dat gegevens verzamelt." → X valt in de categorie (type) ‘proces’.
+#   - Een **concreet individu/particular** duidt op een specifiek, herkenbaar exemplaar.
+#     Voorbeeld: "X is het individuele verslag van de observatie op 25-12-2024." → X verwijst naar een uniek exemplaar.
+#   Dit voorkomt verwarring bij polysemie (bijv. observatie als methode versus observatie als resultaat).
 
-    goede_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+def toets_ESS_02(definitie: str, regel=None) -> str:
+    """
+    Controleert of in de definitie ondubbelzinnig wordt aangegeven
+    of het begrip als **type/soort** of als **concreet individu/particular** wordt opgevat.
 
-    if not types_gevonden:
-        if foute_aanwezig:
-            return "❌ ESS-02: geen type of instantie gevonden, en definitie lijkt op fout voorbeeld"
-        return "❌ ESS-02: geen expliciet type of instantie herkend in de definitie"
+    Retourneert:
+      - ✔️ ESS-02: duidt expliciet op type/soort
+      - ✔️ ESS-02: duidt expliciet op concreet individu
+      - ❌ ESS-02: ambigu—beide varianten genoemd
+      - ❌ ESS-02: geen ondubbelzinnige aanwijzing gevonden
+    """
 
-    if goede_aanwezig:
-        return f"✔️ ESS-02: type(n) herkend ({', '.join(types_gevonden)}) en correct uitgelegd"
+    # Patronen voor type/soort, met contextuele 'is een/de ...'
+    type_patterns = [
+        r"\b(?:is|betreft|wordt beschouwd als)\s+(?:een|de|het)\s+"
+        r"(?:type|soort|proces|gegeven|maatregel|functie)\b",
+    ]
 
-    if foute_aanwezig:
-        return f"❌ ESS-02: type(n) herkend ({', '.join(types_gevonden)}), maar lijkt op fout voorbeeld"
+    # Patronen voor concreet individu/particular
+    instance_patterns = [
+        r"\b(?:is|betreft|wordt gezien als)\s+(?:een|de|het)\s+"
+        r"(?:concrete\s+)?(?:individu|particular|entiteitsexemplaar)\b",
+    ]
 
-    return f"❌ ESS-02: type(n) herkend ({', '.join(types_gevonden)}), maar zonder duidelijke toelichting"
+    gevonden_types = []       # gevonden context-uitdrukkingen voor type
+    gevonden_instances = []   # gevonden context-uitdrukkingen voor individu
+
+    # Detecteer type/soort
+    for pat in type_patterns:
+        for m in re.finditer(pat, definitie, flags=re.IGNORECASE):
+            gevonden_types.append(m.group(0))
+
+    # Detecteer concreet individu/particular
+    for pat in instance_patterns:
+        for m in re.finditer(pat, definitie, flags=re.IGNORECASE):
+            gevonden_instances.append(m.group(0))
+
+    # Evalueer de gevonden aanwijzingen
+    if gevonden_types and not gevonden_instances:
+        unieke = sorted(set(gevonden_types))
+        return f"✔️ ESS-02: duidt expliciet op **type/soort** ({'; '.join(unieke)})"
+
+    if gevonden_instances and not gevonden_types:
+        unieke = sorted(set(gevonden_instances))
+        return f"✔️ ESS-02: duidt expliciet op **concreet individu** ({'; '.join(unieke)})"
+
+    if gevonden_types and gevonden_instances:
+        t = '; '.join(sorted(set(gevonden_types)))
+        i = '; '.join(sorted(set(gevonden_instances)))
+        return (
+            f"❌ ESS-02: ambigu—zowel type/soort ({t}) als concreet individu ({i}) \
+            aangegeven; kies één variant."
+        )
+
+    return (
+        "❌ ESS-02: geen ondubbelzinnige aanwijzing gevonden of "
+        "duidelijk als type of concreet individu opgevat te worden."
+    )
 
 # ✅ Toetsing voor regel ESS-03 (Instanties uniek onderscheidbaar)
 def toets_ESS_03(definitie, regel):
