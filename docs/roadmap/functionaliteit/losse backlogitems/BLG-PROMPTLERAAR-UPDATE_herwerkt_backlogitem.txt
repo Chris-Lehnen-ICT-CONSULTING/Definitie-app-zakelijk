@@ -1,0 +1,41 @@
+📝 Backlogitem: Verbeter zelflerende promptaanpassing op basis van toetsresultaten
+
+🎯 Doel:
+Laat de applicatie zelfstandig verboden constructies toevoegen aan de prompt op basis van eerdere toetsfouten.
+
+📌 Aanleiding:
+Fouten zoals “proces waarbij” of “handeling die” blijven terugkomen. Handmatige correctie is traag en foutgevoelig.
+
+🔍 Probleem:
+- Prompt groeit niet mee met feedback.
+- Lerende werking ontbreekt.
+
+📈 Impact:
+- Definities blijven dezelfde fouten herhalen.
+- Gebrek aan adaptief gedrag.
+
+🛠️ Taken:
+- Breid `prompt_leraar.py` uit met analyse van toetslogs.
+- Voeg geautomatiseerde updates toe aan forbidden_patterns.
+- Log elke toevoeging.
+
+🧪 Tests:
+- Nieuwe patronen verschijnen in prompt na foutherhaling.
+- Geen overaanpassing op incidentele fouten.
+
+✅ Acceptatiecriteria:
+- Prompt groeit mee met foutpatronen.
+- Logging is transparant en uitlegbaar.
+
+📦 Bestand(en):
+- prompt_leraar.py
+- forbidden_patterns.json
+
+👥 Betrokkenen:
+- Ontwikkelaar, AI engineer
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-PROMPTLERAAR-UPDATE
+📅 Datum: 2025-06-23
+📌 Status: to do

@@ -1,0 +1,41 @@
+📝 Backlogitem: Bouw prompt_leraar.py voor lerend AI-systeem
+
+🎯 Doel:
+Ontwikkel een module die feedback gebruikt om AI-prompts automatisch aan te passen en fouten te vermijden.
+
+📌 Aanleiding:
+AI maakt regelmatig dezelfde fouten (zoals 'is een...' of 'de definitie van...'). Feedback wordt nog niet structureel benut om prompts te verbeteren.
+
+🔍 Probleem:
+- Geen leereffect op basis van toetsresultaten of gebruikersfeedback.
+- Prompt blijft generiek en vatbaar voor bekende fouten.
+
+📈 Impact:
+- Trage verbeteringscyclus.
+- Onnodige afkeur op herhaalde fouten.
+
+🛠️ Taken:
+- Bouw prompt_leraar.py met functie `update_prompt_met_verboden_constructies(...)`.
+- Gebruik log van foutmatches.
+- Voeg systeem toe voor toevoegen/verwijderen van zinnen in prompt.
+
+🧪 Tests:
+- Feedback op fout type “is een” wordt opgenomen.
+- Prompt wordt versterkt met instructie “Vermijd begin met ‘is’”.
+
+✅ Acceptatiecriteria:
+- Prompt leert van fouten en versterkt zichzelf.
+- Logica is herbruikbaar en uitbreidbaar.
+
+📦 Bestand(en):
+- prompt_leraar.py
+- verboden_woorden.py
+
+👥 Betrokkenen:
+- Prompt engineer
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 5
+🆔 ID: BLG-PROMPTLEREN-001
+📅 Datum: 2025-06-10
+📌 Status: to do

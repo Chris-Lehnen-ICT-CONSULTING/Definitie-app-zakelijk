@@ -1,0 +1,41 @@
+📝 Backlogitem: Automatisch genereren van unieke Streamlit-widget keys
+
+🎯 Doel:
+Voorkom `DuplicateElementID`-fouten in de Streamlit-interface door automatisch unieke widget keys te genereren.
+
+📌 Aanleiding:
+Wanneer meerdere elementen dezelfde key gebruiken, crasht de app of geeft foutmeldingen in dynamische UI-componenten.
+
+🔍 Probleem:
+- Handmatige keys zijn foutgevoelig bij hergebruik.
+- Bij iteratie of conditionele rendering ontstaan conflicten.
+
+📈 Impact:
+- Crashes bij formulierherlaad of dynamische lijstverwerking.
+- Moeilijker onderhoud van componenten in complexe layout.
+
+🛠️ Taken:
+- Bouw `widget_key(prefix: str)` functie die unieke sleutel genereert.
+- Voeg logica toe op basis van uuid, timestamp of tellers.
+- Pas toe op kritieke knoppen, forms en velden.
+
+🧪 Tests:
+- Geen DuplicateKey-fouten bij herladen.
+- Componenten renderen correct in for-loops en condities.
+- Unieke key is reproduceerbaar bij herstart.
+
+✅ Acceptatiecriteria:
+- Geen fouten in Streamlit-UI door dubbele keys.
+- Functie is herbruikbaar en consistent.
+
+📦 Bestand(en):
+- ui_helpers.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 4
+🆔 ID: BLG-KEY-UNIEK
+📅 Datum: 2025-06-14
+📌 Status: to do

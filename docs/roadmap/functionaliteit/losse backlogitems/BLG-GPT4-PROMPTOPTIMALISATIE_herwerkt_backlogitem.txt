@@ -1,0 +1,40 @@
+📝 Backlogitem: Optimaliseer promptstructuur voor GPT-4-definitiegeneratie
+
+🎯 Doel:
+Verbeter de promptopbouw voor GPT-4 om consistentere, toetsbare en contextspecifieke definities te genereren.
+
+📌 Aanleiding:
+De huidige prompt mist expliciete waarschuwingen tegen verboden constructies en bevat te weinig instructie over semantische nauwkeurigheid.
+
+🔍 Probleem:
+- Output varieert sterk.
+- Foutieve formuleringen worden niet voorkomen.
+
+📈 Impact:
+- Slechte definitiekwaliteit.
+- Meer afkeuring bij toetsing.
+
+🛠️ Taken:
+- Voeg blokken toe: ‘Veelgemaakte fouten’, ‘Verboden beginconstructies’.
+- Voeg toetsregels als instructiefragmenten toe.
+- Integreer dynamische contextinvoer.
+
+🧪 Tests:
+- Definitie bevat geen 'is', 'de', of herhaling.
+- AI-output scoort >80% goed bij toetsing.
+
+✅ Acceptatiecriteria:
+- Prompt bevat duidelijke, toetsbare instructie.
+- GPT-4-output is direct toetsbaar op 40+ regels.
+
+📦 Bestand(en):
+- prompt_generator.py
+
+👥 Betrokkenen:
+- Prompt engineer
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 6
+🆔 ID: BLG-GPT4-PROMPTOPTIMALISATIE
+📅 Datum: 2025-06-23
+📌 Status: to do
