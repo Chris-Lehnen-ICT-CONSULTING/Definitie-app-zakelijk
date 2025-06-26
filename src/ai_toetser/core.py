@@ -160,30 +160,23 @@ def toets_CON_02(definitie: str, regel: dict, bronnen_gebruikt: str = None) -> s
 
 
 # ✅ Toetsing voor regel ESS-01 (Essentie, niet doel)
-def toets_ESS_01(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    doelzinnen_gevonden = set()
-    for patroon in patroon_lijst:
-        doelzinnen_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_ESS_01(definitie: str, regel: dict) -> str:
+    """
+    ESS-01: Beschrijf de essentie, niet het doel.
+    ❌ Als één van de doel-patronen in de definitie opduikt.
+    ✔️ Anders: geen doelgerichte formuleringen aangetroffen.
+    """
+    # 1️⃣ per doel-patroon controleren: zodra er één match is ➞ fout
+    for patroon in regel.get("herkenbaar_patronen", []):
+        match = re.search(patroon, definitie, re.IGNORECASE)
+        if match:
+            return (
+                f"❌ ESS-01: doelpatroon “{match.group(0)}” herkend in definitie "
+                f"(patroon: {patroon})"
+            )
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
-
-    goede_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
-
-    if not doelzinnen_gevonden:
-        if foute_aanwezig:
-            return "❌ ESS-01: geen doelgerichte formuleringen gevonden, maar inhoud lijkt op fout voorbeeld"
-        return "✔️ ESS-01: geen doelgerichte formuleringen aangetroffen in de definitie"
-
-    if goede_aanwezig:
-        return f"✔️ ESS-01: doelgerichte formuleringen herkend ({', '.join(doelzinnen_gevonden)}) en correct zoals goed voorbeeld"
-
-    if foute_aanwezig:
-        return f"❌ ESS-01: doelgerichte formuleringen gevonden ({', '.join(doelzinnen_gevonden)}), en lijkt op fout voorbeeld"
-
-    return f"❌ ESS-01: doelgerichte formuleringen gevonden ({', '.join(doelzinnen_gevonden)}), zonder duidelijke toelichting"
+    # 2️⃣ fallback: geen enkel doel-patroon gevonden ➞ OK
+    return "✔️ ESS-01: geen doelgerichte formuleringen aangetroffen"
 
 # ✅ Toetsing voor regel ESS-02 (Type of instantie)
 def toets_ESS_02(definitie, regel):
