@@ -942,21 +942,36 @@ def toets_VER_01(term: str, regel: dict) -> str:
     return "✔️ VER-01: term is enkelvoudig"
 
 ### ✅ Toetsing voor regel VER-02 (Definitie in enkelvoud)
-def toets_VER_02(definitie, regel):
-    patronen = regel.get("herkenbaar_patronen", [])
-    meervoudig = set()
-    for patroon in patronen:
-        meervoudig.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_VER_02(definitie: str, regel: dict, term: str) -> str:
+    """
+    VER-02: definitie in enkelvoud, tenzij het begrip alleen meervoud kent.
+    1️⃣ Uitzondering plurale tantum
+    2️⃣ Expliciete foute voorbeelden
+    3️⃣ Expliciete goede voorbeelden
+    4️⃣ Patronen voor meervoudsconstructies
+    5️⃣ Fallback enkelvoud
+    """
+    # ✅ 1️⃣ Uitzondering: als term plurale tantum is, dan altijd OK
+    if is_plurale_tantum(term):
+        return "✔️ VER-02: definitie in enkelvoud (plurale tantum-uitzondering)"
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    # ✅ 2️⃣ Expliciete foute voorbeelden
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in definitie.lower():
+            return "❌ VER-02: foute voorbeeldzin in definitie aangetroffen"
 
-    if not meervoudig:
-        return "✔️ VER-02: definitie is enkelvoudig geformuleerd"
-    if fout:
-        return f"❌ VER-02: meervoudsvorm herkend ({', '.join(meervoudig)}), zoals in fout voorbeeld"
-    return f"❌ VER-02: meervoudsvorm herkend ({', '.join(meervoudig)}), eenduidigheid controleren"
+    # ✅ 3️⃣ Expliciete goede voorbeelden
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in definitie.lower():
+            return "✔️ VER-02: goede voorbeeldzin in definitie aangetroffen"
 
+    # ✅ 4️⃣ Meervoudsconstructies detecteren via patronen
+    for patroon in regel.get("herkenbaar_patronen", []):
+        if re.search(patroon, definitie, re.IGNORECASE):
+            return "❌ VER-02: meervoudige formulering herkend"
+
+    # ✅ 5️⃣ Fallback: definitie is enkelvoudig
+    return "✔️ VER-02: definitie is in enkelvoud geformuleerd"
 ### ✅ Toetsing voor regel VER-03 (Werkwoord-term in infinitief)
 def toets_VER_03(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
