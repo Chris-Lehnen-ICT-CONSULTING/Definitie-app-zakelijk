@@ -4,7 +4,9 @@
 # Bibliotheken voor HTTP-verzoeken, HTML-parsing en XML-verwerking
 # ────────────────────────────────────────────────────────────────────────
 import os
+import json
 import requests
+from typing import Optional
 from bs4 import BeautifulSoup
 import xml.etree.ElementTree as ET
 
@@ -110,48 +112,30 @@ def zoek_definitie_combinatie(begrip: str) -> str:
 # ────────────────────────────────────────────────────────────────────────
 # web_lookup.py
 
+
+
+# ✅ Éénmalig JSON inladen
+_PLURALE_TANTUM_SET = None
+
+def _load_plurale_tantum() -> set:
+    """
+    Laadt de lijst van plurale tantum-woorden uit de JSON en
+    retourneert een set voor snelle membership-check.
+    # ✅ Caching in module-variabele voor performance
+    """
+    global _PLURALE_TANTUM_SET
+    if _PLURALE_TANTUM_SET is None:
+        pad = os.path.join(os.path.dirname(__file__), "data", "nl_pluralia_tantum_100.json")
+        with open(pad, encoding="utf-8") as f:
+            data = json.load(f)
+        # Alle termen lowercase maken
+        _PLURALE_TANTUM_SET = {w.lower() for w in data.get("plurale_tantum", [])}
+    return _PLURALE_TANTUM_SET
+
 def is_plurale_tantum(term: str) -> bool:
     """
-    Controleert of 'term' alleen in het meervoud voorkomt door:
-      1) Scrapen van lead-paragrafen op Wiktionary (tot de eerste <h2>)
-      2) Fallback: Wikipedia-heuristiek
+    Controleert of `term` in de plurale tantum-lijst staat.
+    # ✅ Negeert hoofd-/kleine letters en omliggende whitespace
     """
-    # 1) Wiktionary lead scraping
-    url_wikt = f"https://nl.wiktionary.org/wiki/{term.capitalize()}"
-    try:
-        resp = requests.get(url_wikt, timeout=5)
-        resp.raise_for_status()
-        soup = BeautifulSoup(resp.text, "html.parser")
-        lead_texts = []
-        for elem in soup.select("div.mw-parser-output > *"):
-            if elem.name == "h2":
-                break
-            lead_texts.append(elem.get_text().lower())
-        text = " ".join(lead_texts)
-        if any(kw in text for kw in (
-            "alleen in het meervoud",
-            "alleen het meervoud",
-            "plurale tantum",
-        )):
-            return True
-    except Exception:
-        pass
-
-    # 2) Fallback: Wikipedia-heuristiek
-    url_wp = f"https://nl.wikipedia.org/wiki/{term.capitalize()}"
-    try:
-        resp = requests.get(url_wp, timeout=5)
-        if resp.status_code == 200:
-            soup = BeautifulSoup(resp.text, "html.parser")
-            eerste_p = soup.find("p")
-            text = eerste_p.get_text().lower() if eerste_p else ""
-            if any(kw in text for kw in (
-                "alleen in het meervoud",
-                "alleen het meervoud",
-                "plurale tantum",
-            )):
-                return True
-    except Exception:
-        pass
-
-    return False
+    term_norm = term.strip().lower()
+    return term_norm in _load_plurale_tantum()
