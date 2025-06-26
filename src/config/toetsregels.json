@@ -1178,10 +1178,10 @@
       "uitleg": "De te definiëren term moet in het enkelvoud staan, tenzij deze alleen in het meervoud bestaat.",
       "toelichting": "Gebruik het enkelvoud als lemma. Sommige woorden – zoals 'kosten', 'hersenen' – zijn 'plurale tantum' en mogen als uitzondering in meervoud blijven.",
       "toetsvraag": "Is de term in het enkelvoud (of een erkende plurale-tantum)?",
-      "herkenbaar_patronen": ["\\b(\\w+en)\\b"],           ← generieke meervoudsvorm
+      "herkenbaar_patronen": ["\\b(\\w+en)\\b"],           
       "goede_voorbeelden": ["gegeven", "voertuig"],
       "foute_voorbeelden": ["gegevens", "voertuigen"],
-      "prioriteit": "hoog",                                ← hoog & verplicht
+      "prioriteit": "hoog",                               
       "aanbeveling": "verplicht",
       "geldigheid": "lemma/term",
       "status": "definitief",
@@ -1194,7 +1194,7 @@
           "fullurl": "https://www.astraonline.nl/index.php/Term_in_enkelvoud"
         }
       ]
-    }
+    },
     "VER-02": {
       "id": "VER-02",
       "naam": "Definitie in enkelvoud",
@@ -1216,8 +1216,7 @@
       ],
       "foute_voorbeelden": [
         "gegevens zijn feiten en getallen die zijn verzameld voor analyse",
-        "maatregelen zijn acties die genomen worden om een doel te bereiken",
-        
+        "maatregelen zijn acties die genomen worden om een doel te bereiken"        
       ],
       "prioriteit": "midden",
       "aanbeveling": "verplicht",
