@@ -47,30 +47,53 @@ def _get_openai_client() -> OpenAI:          # ✅ privé helper
 # ➤ Goede voorbeelden zijn impliciet afgestemd op context zonder deze te benoemen.
 
 def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
-    contexten = contexten or {}
+    """
+    CON-01: context mag niet letterlijk in de definitie voorkomen.
+    1️⃣ Dynamisch: user-gegeven contexten
+    2️⃣ Statisch: JSON-patronen
+    3️⃣ Expliciete foute voorbeelden
+    4️⃣ Expliciete goede voorbeelden
+    5️⃣ Fallback: ✔️
+    """
     definitie_lc = definitie.lower()
-    expliciete_hits = []
+    contexten = contexten or {}
 
-    # 🟩 1. Controleer op expliciete herhaling van opgegeven contextwaarden
+    # ✅ 1️⃣ Dynamisch: user-gegeven contexten
+    expliciete_hits = []
     for label, waarde in contexten.items():
         if not waarde:
             continue
-        waarde_clean = waarde.lower().strip()
-
-        # Herken ook afleidingen, zoals enkelvoud/meervoud of veelvoorkomende varianten
+        w = waarde.lower().strip()
         varianten = {
-            waarde_clean,
-            waarde_clean + 'e',       # juridisch ➝ juridische
-            waarde_clean + 'en',      # instantie ➝ instanties
-            waarde_clean.rstrip('e')  # juridische ➝ juridisch
+            w,
+            w + "e",
+            w + "en",
+            w.rstrip("e")
         }
-
-        for variant in varianten:
-            if variant and variant in definitie_lc:
-                expliciete_hits.append(variant)
-
+        for var in varianten:
+            if var and var in definitie_lc:
+                expliciete_hits.append(var)
     if expliciete_hits:
-        return f"❌ CON-01: opgegeven context(en) komen expliciet terug in de definitie → {', '.join(set(expliciete_hits))}"
+        gevonden = ", ".join(sorted(set(expliciete_hits)))
+        return f"❌ CON-01: opgegeven context letterlijk in definitie herkend (‘{gevonden}’)"
+
+    # ✅ 2️⃣ Statisch: patronen uit JSON
+    for patroon in regel.get("herkenbaar_patronen", []):
+        if re.search(patroon, definitie, re.IGNORECASE):
+            return "❌ CON-01: contextpatroon herkend in definitie"
+
+    # ✅ 3️⃣ Foute voorbeelden (JSON)
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in definitie_lc:
+            return "❌ CON-01: definitie bevat expliciet fout voorbeeld"
+
+    # ✅ 4️⃣ Goede voorbeelden (JSON)
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in definitie_lc:
+            return "✔️ CON-01: definitie komt overeen met goed voorbeeld"
+
+    # ✅ 5️⃣ Fallback: geen contextuele verwijzing
+    return "✔️ CON-01: geen expliciete contextvermelding in definitie"
 
     # 🟩 2. Herken bredere contexttermen via reguliere patronen uit JSON
     patronen = regel.get("herkenbaar_patronen", [])
