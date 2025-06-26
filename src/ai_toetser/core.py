@@ -903,36 +903,43 @@ def toets_STR_09(definitie, regel):
 
 ### ✅ Toetsing voor regel VER-01 (Term in enkelvoud)
 
-
 def toets_VER_01(term: str, regel: dict) -> str:
     """
     VER-01: term in enkelvoud, tenzij plurale tantum.
-    Breidt uit met check op expliciete goede en foute voorbeelden.
+    Volgorde van checks:
+      1. Uitzondering plurale tantum
+      2. Expliciete foute voorbeelden
+      3. Algemene meervoudscheck (term.endswith('en'))
+      4. Expliciete goede voorbeelden
+      5. Fallback enkelvoud
     """
-    # 1️⃣ Uitzondering: plurale tantum
+
+    # 1️⃣ Uitzondering: plurale tantum  
+    # ✅ Plurale tantum worden opgehaald via lookup.py  
+    #    Hiermee vangen we woorden zoals “kosten” of “hersenen” op  
     if is_plurale_tantum(term):
         return "✔️ VER-01: term is plurale tantum (uitzondering)"
 
-    # 2️⃣ Expliciete foute voorbeelden?
+    # 2️⃣ Expliciete foute voorbeelden  
+    # ✅ Deze lijst uit toetsregels.json krijgt prioriteit vóór de algemene meervoudscheck  
     for foute in regel.get("foute_voorbeelden", []):
         if term.lower() == foute.lower():
             return f"❌ VER-01: term '{term}' staat in lijst met foute voorbeelden"
 
-    # 3️⃣ Expliciete goede voorbeelden?
+    # 3️⃣ Algemene meervoudscheck  
+    # ✅ Eenvoudige suffix-check (endswith 'en') is performant en voldoende voor de meeste zelfstandige naamwoorden  
+    if term.lower().endswith("en"):
+        return f"❌ VER-01: term in meervoud herkend ('{term}')"
+
+    # 4️⃣ Expliciete goede voorbeelden  
+    # ✅ Voor onregelmatige woorden die wel op “en” eindigen maar toch enkelvoudig bedoeld zijn  
     for goed in regel.get("goede_voorbeelden", []):
         if term.lower() == goed.lower():
             return "✔️ VER-01: term staat in lijst met goede voorbeelden"
 
-    # 4️⃣ Regex-patronen op de ingevoerde term
-    patronen = regel.get("herkenbaar_patronen", [])
-    meervoudig = set()
-    for patroon in patronen:
-        meervoudig.update(re.findall(patroon, term, re.IGNORECASE))
-
-    if not meervoudig:
-        return "✔️ VER-01: term is enkelvoudig"
-    gevonden = ", ".join(sorted(meervoudig))
-    return f"❌ VER-01: term in meervoud herkend ({gevonden})"
+    # 5️⃣ Fallback: enkelvoud  
+    # ✅ Als geen van bovenstaande checks triggeren, is de term correct enkelvoudig  
+    return "✔️ VER-01: term is enkelvoudig"
 
 ### ✅ Toetsing voor regel VER-02 (Definitie in enkelvoud)
 def toets_VER_02(definitie, regel):

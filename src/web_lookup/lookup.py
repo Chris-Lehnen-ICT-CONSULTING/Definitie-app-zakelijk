@@ -107,35 +107,59 @@ def zoek_definitie_combinatie(begrip: str) -> str:
     overheid = zoek_definitie_op_overheidnl(begrip)
     return f"📚 Wikipedia: {wiki}\n\n📘 Overheid.nl:\n{overheid}"
 
-# ────────────────────────────────────────────────────────────────────────
-# Plurale-tantum check: Wiktionary → Wikipedia
-# ────────────────────────────────────────────────────────────────────────
-# web_lookup.py
-
-
-
-# ✅ Éénmalig JSON inladen
-_PLURALE_TANTUM_SET = None
+# ─────────────────────────────────────────────────────────────────────────────
+# ✅ Éénmalig JSON inladen en cachen
+# ─────────────────────────────────────────────────────────────────────────────
+_PLURALE_TANTUM_SET = None  # ✅ Module-variabele voor caching: laden we één keer
 
 def _load_plurale_tantum() -> set:
     """
-    Laadt de lijst van plurale tantum-woorden uit de JSON en
-    retourneert een set voor snelle membership-check.
-    # ✅ Caching in module-variabele voor performance
+    Laadt de lijst van plurale-tantum woorden uit de JSON en retouneert een set.
+    
+    # ✅ Caching in module-variabele voor performance:
+    #   Bij de eerste aanroep leest deze functie het JSON-bestand in en zet alle
+    #   termen om naar lowercase in een Python-set. Volgende aanroepen hergebruiken
+    #   deze set, zodat we niet telkens de schijf op hoeven.
+    
+    Stappen:
+    1. Bepaal pad op basis van de bestandslocatie van deze module.
+    2. Open en parse het JSON-bestand `nl_pluralia_tantum_100.json`.
+    3. Haal de lijst op uit de key `"plurale_tantum"`.
+    4. Zet elk woord naar lowercase en stop in een set voor O(1) lookup.
     """
     global _PLURALE_TANTUM_SET
     if _PLURALE_TANTUM_SET is None:
-        pad = os.path.join(os.path.dirname(__file__), "data", "nl_pluralia_tantum_100.json")
+        # 🔧 Bepaal het pad naar de JSON in de submap "data"
+        pad = os.path.join(
+            os.path.dirname(__file__),
+            "data",
+            "nl_pluralia_tantum_100.json"
+        )
+        # 🔧 Open het bestand en laad de JSON
         with open(pad, encoding="utf-8") as f:
             data = json.load(f)
-        # Alle termen lowercase maken
-        _PLURALE_TANTUM_SET = {w.lower() for w in data.get("plurale_tantum", [])}
+        # ✅ Zet alle termen naar lowercase voor betrouwbare, case-insensitive lookup
+        raw_list = data.get("plurale_tantum", [])
+        _PLURALE_TANTUM_SET = {w.strip().lower() for w in raw_list if isinstance(w, str)}
     return _PLURALE_TANTUM_SET
 
 def is_plurale_tantum(term: str) -> bool:
     """
-    Controleert of `term` in de plurale tantum-lijst staat.
-    # ✅ Negeert hoofd-/kleine letters en omliggende whitespace
+    Controleert of `term` een plurale-tantum is, d.w.z. een woord dat alleen in
+    meervoud bestaat (zoals 'kosten' of 'hersenen').
+    
+    Werkwijze:
+    1. Normaliseer de invoer:
+       • Verwijder omliggende whitespace (strip).
+       • Zet om naar lowercase voor case-insensitive vergelijking.
+    2. Kijk of de genormaliseerde term in de gecachte set zit.
+    3. Return True als het woord in de lijst staat, anders False.
+    
+    # ✅ Deze check geeft een stevige exception-vrijstelling voor woorden die
+    #   alleen in meervoud voorkomen, zodat ze niet onterecht als fout
+    #   gemarkeerd worden in VER-01.
     """
+    # 🔧 Normaliseren van de term
     term_norm = term.strip().lower()
+    # 🔍 Membership-test in de gecachte plurale-tantum set
     return term_norm in _load_plurale_tantum()
