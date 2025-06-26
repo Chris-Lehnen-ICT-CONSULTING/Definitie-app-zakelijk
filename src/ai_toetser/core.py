@@ -125,19 +125,38 @@ def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
 # ➤ Als er wel een bron wordt genoemd, maar deze te algemeen is (zoals alleen “de AVG” of “wetgeving”),
 #     volgt een neutrale waarschuwing dat verdere specificatie nodig is.
 # ➤ Alleen concrete verwijzingen zoals “art. 3.2 Besluit justitiële gegevens” of “Titel 1.4 Awb” leiden tot een positief oordeel.
-def toets_CON_02(definitie, regel, bronnen_gebruikt=None):
+#💚 Groene uitlegregels in de code:
+#	•	We laden éénmalig de JSON (regel) vanuit laad_toetsregels().
+#	•	bronpatronen_specifiek en bronpatronen_algemeen worden in de JSON beheerd, niet meer in de code.
+#	•	Zo kun je in één plek (de JSON) de lijst uitbreiden of aanpassen.
+def toets_CON_02(definitie: str, regel: dict, bronnen_gebruikt: str = None) -> str:
+    """
+    CON-02: baseren op authentieke bron.
+    1️⃣ ❌ lege of ontbrekende 'bronnen_gebruikt'
+    2️⃣ ✔️ concrete bronpatronen (art., lid, paragraaf…)
+    3️⃣ 🟡 algemene bronpatronen (wet, AVG…)
+    4️⃣ ❌ anders: niet authentiek genoeg
+    """
+    # 1️⃣ ❌ geen bronnen opgegeven
     if not bronnen_gebruikt or not bronnen_gebruikt.strip():
         return "❌ CON-02: geen opgegeven bronnen gevonden (veld 'bronnen_gebruikt' is leeg of ontbreekt)"
 
-    bronnen_lc = bronnen_gebruikt.lower()
+    bg = bronnen_gebruikt.strip()
+    lc = bg.lower()
 
-    if any(kw in bronnen_lc for kw in ["artikel", "art.", "titel", "hoofdstuk", "lid", "paragraaf"]):
-        return f"✔️ CON-02: bronvermelding aanwezig en voldoende specifiek → {bronnen_gebruikt.strip()}"
+    # 2️⃣ ✔️ check concrete patronen uit JSON
+    for pat in regel.get("bronpatronen_specifiek", []):
+        if re.search(pat, lc):
+            # ✅ concreet genoeg
+            return f"✔️ CON-02: bronvermelding voldoende specifiek → {bg}"
 
-    elif any(kw in bronnen_lc for kw in ["wetboek", "avg", "wet", "beleidsregel", "richtlijn", "verordening"]):
-        return f"🟡 CON-02: bronvermelding aanwezig ({bronnen_gebruikt.strip()}), maar mogelijk te algemeen"
+    # 3️⃣ 🟡 check algemene patronen uit JSON
+    for pat in regel.get("bronpatronen_algemeen", []):
+        if re.search(pat, lc):
+            return f"🟡 CON-02: bronvermelding aanwezig ({bg}), maar mogelijk te algemeen"
 
-    return f"❌ CON-02: bronvermelding gevonden ({bronnen_gebruikt.strip()}), maar niet herkend als authentiek of specifiek"
+    # 4️⃣ ❌ fallback
+    return f"❌ CON-02: bronvermelding gevonden ({bg}), maar niet herkend als authentiek of specifiek"
 
 
 # ✅ Toetsing voor regel ESS-01 (Essentie, niet doel)
