@@ -1206,15 +1206,18 @@
         "\\bmaatregelen zijn\\b",
         "\\bvoertuigen zijn\\b",
         "\\bsystemen zijn\\b",
-        "\\bactiviteiten zijn\\b"
+        "\\bactiviteiten zijn\\b",
+        "\\b\\w+en zijn\\b"
       ],
       "goede_voorbeelden": [
         "gegeven: feitelijke eenheid van informatie die kan worden vastgelegd",
-        "maatregel: actie die is genomen om een doel te bereiken"
+        "maatregel: actie die is genomen om een doel te bereiken",
+        "natuurlijke persoon die wordt vertegenwoordigd"
       ],
       "foute_voorbeelden": [
         "gegevens zijn feiten en getallen die zijn verzameld voor analyse",
-        "maatregelen zijn acties die genomen worden om een doel te bereiken"
+        "maatregelen zijn acties die genomen worden om een doel te bereiken",
+        
       ],
       "prioriteit": "midden",
       "aanbeveling": "verplicht",
