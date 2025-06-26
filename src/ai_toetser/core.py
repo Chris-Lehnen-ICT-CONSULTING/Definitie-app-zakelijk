@@ -987,32 +987,35 @@ def toets_VER_02(definitie: str, regel: dict, term: str) -> str:
 def toets_VER_03(term: str, regel: dict) -> str:
     """
     VER-03: werkwoord-term in infinitief.
-    1️⃣ Expliciete foute voorbeelden → ❌
-    2️⃣ Expliciete goede voorbeelden → ✔️
-    3️⃣ Eenvoudige vervoegingscheck via regex → ❌
-    4️⃣ Fallback: correct infinitief → ✔️
+      1️⃣ Expliciete foute voorbeelden → ❌
+      2️⃣ Expliciete goede voorbeelden → ✔️
+      3️⃣ Generieke vervoegingscheck via regex → ❌
+      4️⃣ Fallback: eindigt op 'en' → infinitief → ✔️
+      5️⃣ Anders: afwijkende vorm → ❌
     """
     # ✅ 1️⃣ Expliciete foute voorbeelden eerst (prioriteit)
     for foute in regel.get("foute_voorbeelden", []):
+        # ✅ Vervoegde term komt exact overeen met foutvoorbeeld
         if term.lower() == foute.lower():
             return f"❌ VER-03: term '{term}' is vervoegd (fout voorbeeld)"
 
-    # ✅ 2️⃣ Expliciete goede voorbeelden
+    # ✅ 2️⃣ Expliciete goede voorbeelden daarna
     for goed in regel.get("goede_voorbeelden", []):
+        # ✅ One-to-one match met goed-voorbeeld
         if term.lower() == goed.lower():
             return "✔️ VER-03: term staat in lijst met goede voorbeelden"
 
-    # ✅ 3️⃣ Generieke vervoegingscheck: detecteer eindigend op 't' of 'd' (vervoegde vorm)
+    # ✅ 3️⃣ Generieke vervoegingscheck: detecteer eindigend op t of d via regex-patronen
     for patroon in regel.get("herkenbaar_patronen", []):
+        # ✅ Gebruik re.fullmatch voor volledige term-match
         if re.fullmatch(patroon, term, re.IGNORECASE):
-            # Als dit patroon een vervoeging is, markeer fout
             return f"❌ VER-03: vervoegde vorm herkend ('{term}'), niet in infinitief"
 
-    # ✅ 4️⃣ Fallback: eindigt op 'en' → infinitief
+    # ✅ 4️⃣ Fallback: eindigt op 'en' → typisch infinitief
     if term.lower().endswith("en"):
         return "✔️ VER-03: term is in infinitief (correct)"
 
-    # ❓ Anders: afwijkende vorm → waarschuwing
+    # ❓ 5️⃣ Anders: geen duidelijk patroon → waarschuwing
     return f"❌ VER-03: term '{term}' lijkt niet in infinitief te staan"
 
 
