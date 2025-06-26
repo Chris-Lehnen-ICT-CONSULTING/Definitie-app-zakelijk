@@ -1216,7 +1216,7 @@
       ],
       "foute_voorbeelden": [
         "gegevens zijn feiten en getallen die zijn verzameld voor analyse",
-        "maatregelen zijn acties die genomen worden om een doel te bereiken"        
+        "maatregelen zijn acties die genomen worden om een doel te bereiken"
       ],
       "prioriteit": "midden",
       "aanbeveling": "verplicht",
@@ -1236,29 +1236,26 @@
       "id": "VER-03",
       "naam": "Werkwoord-term in infinitief",
       "uitleg": "Een werkwoord als term moet in de onbepaalde wijs (infinitief) staan.",
-      "toelichting": "Een werkwoord als term, zoals 'regelen' of 'toezicht houden', moet in de infinitief staan en niet als vervoegd werkwoord. De infinitiefvorm zorgt voor een neutrale, herkenbare en consistente manier van formuleren.",
-      "toetsvraag": "Staat een werkwoord-term in de infinitiefvorm (zoals 'regelen', 'beoordelen') en niet als vervoegd werkwoord?",
+      "toelichting": "Alleen de infinitief wordt als term opgenomen; vervoegde vormen zijn niet gewenst.",
+      "toetsvraag": "Staat de term in de infinitief en niet als vervoegd werkwoord?",
       "herkenbaar_patronen": [
-        "^[a-z]{4,}(t|d|en)?\\b",
-        "\\bbeoordeelt\\b",
-        "\\bhoudt toezicht\\b",
-        "\\bcontroleert\\b",
-        "\\bregistreert\\b"
+        ".+t\\b",      
+        ".+d\\b"       
       ],
       "goede_voorbeelden": [
-        "beoordelen: het systematisch evalueren van een situatie op basis van criteria",
-        "toezicht houden: het actief volgen van naleving van afspraken"
+        "beoordelen",
+        "toezicht houden"
       ],
       "foute_voorbeelden": [
-        "beoordeelt: systematisch evalueren van situaties...",
-        "houdt toezicht: het actief volgen van naleving van afspraken"
+        "beoordeelt",
+        "houdt toezicht"
       ],
       "prioriteit": "midden",
       "aanbeveling": "aanbevolen",
       "geldigheid": "term",
       "status": "definitief",
-      "type": "verwoording",
-      "thema": "verwoording van de term",
+      "type": "samenhang tussen termen",
+      "thema": "verschijningsvorm van de term",
       "brondocument": "ASTRA",
       "relatie": [
         {
