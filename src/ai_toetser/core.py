@@ -263,57 +263,102 @@ def toets_ESS_02(definitie: str, regel: dict) -> str:
         "❌ ESS-02: geen duidelijke aanwijzing voor proces of resultaat in "
         "de definitie gevonden"
     )
-# ✅ Toetsing voor regel ESS-03 (Instanties uniek onderscheidbaar)
-def toets_ESS_03(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    kenmerken_gevonden = set()
-    for patroon in patroon_lijst:
-        kenmerken_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_ESS_03(definitie: str, regel: dict) -> str:
+    """
+    ESS-03: Instanties uniek onderscheidbaar (telbaarheid).
+    1️⃣ Expliciete foute voorbeelden → ❌
+    2️⃣ Expliciete goede voorbeelden → ✔️
+    3️⃣ Detectie unieke-ID-criteria via JSON-patronen → ✔️/❌
+    4️⃣ Fallback: altijd ❌ als niets gevonden.
+    """
+    d_lc = definitie.lower().strip()
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+    # 1️⃣ Expliciete foute voorbeelden eerst afvangen
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in d_lc:
+            return "❌ ESS-03: definitie mist unieke identificatiecriteria (fout voorbeeld aangetroffen)"
 
-    goede_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+    # 2️⃣ Expliciete goede voorbeelden daarna
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in d_lc:
+            return "✔️ ESS-03: expliciete unieke identificatiecriteria gevonden (volgens goed voorbeeld)"
 
-    if not kenmerken_gevonden:
-        if foute_aanwezig:
-            return "❌ ESS-03: geen unieke kenmerken gevonden, en lijkt op fout voorbeeld"
-        return "❌ ESS-03: geen unieke of onderscheidende formuleringen gevonden"
+    # 3️⃣ Detectie via patronen uit JSON
+    gevonden = set()
+    for patroon in regel.get("herkenbaar_patronen", []):
+        for m in re.finditer(patroon, definitie, flags=re.IGNORECASE):
+            gevonden.add(m.group(0).strip())
 
-    if goede_aanwezig:
-        return f"✔️ ESS-03: unieke kenmerken gevonden ({', '.join(kenmerken_gevonden)}) en correct toegelicht"
+    if gevonden:
+        labels = ", ".join(sorted(gevonden))
+        return f"✔️ ESS-03: unieke identificatiecriteria herkend ({labels})"
 
-    if foute_aanwezig:
-        return f"❌ ESS-03: kenmerken gevonden ({', '.join(kenmerken_gevonden)}), maar lijkt op fout voorbeeld"
+    # 4️⃣ Fallback: geen criteria gevonden
+    return "❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar"
+    
 
-    return f"❌ ESS-03: kenmerken gevonden ({', '.join(kenmerken_gevonden)}), zonder duidelijke toelichting"
+def toets_ESS_04(definitie: str, regel: dict) -> str:
+    """
+    ESS-04: Toetsbaarheid.
+    Een definitie moet toetsbare criteria bevatten zodat een gebruiker
+    objectief kan vaststellen of iets wel of niet onder het begrip valt.
 
-# ✅ Toetsing voor regel ESS-04 (Toetsbaarheid)
-def toets_ESS_04(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    toetscriteria_gevonden = set()
-    for patroon in patroon_lijst:
-        toetscriteria_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+    Bron (ASTRA DBT 3.1):
+      • FOUT-voorbeelden: vage bewoordingen als ‘zo snel mogelijk’, ‘zo veel mogelijk’
+      • GOED-voorbeelden: harde deadlines (‘binnen 3 dagen’), percentages (‘tenminste 80%’)
+      • Toetsvraag: “Is het mogelijk op basis van de definitie vast te stellen of iets
+        wel of niet onder het begrip valt?”
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+    JSON-velden gebruikt:
+      - foute_voorbeelden: expliciete vage formuleringsgevallen
+      - goede_voorbeelden: concrete, gewenste toetsformuleringen
+      - herkenbaar_patronen: regex voor tijd/percentage/‘objectieve criteria’ e.d.
+    """
+    d = definitie.lower().strip()
 
-    goede_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+    # ℹ️ 1️⃣ Expliciete FOUT-voorbeelden uit JSON afvangen
+    #   Dit blok pakt zinnen die in de config staan als “foute voorbeelden”.
+    #   Die duiden op vage, niet-toetsbare bewoording.
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in d:
+            return (
+                "❌ ESS-04: bevat vage bewoording "
+                "(bijv. ‘zo snel mogelijk’) – definitie is niet toetsbaar"
+            )
 
-    if not toetscriteria_gevonden:
-        if foute_aanwezig:
-            return "❌ ESS-04: geen toetsbare elementen gevonden, en lijkt op fout voorbeeld"
-        return "❌ ESS-04: geen toetsbare elementen herkend in de definitie"
+    # ℹ️ 2️⃣ Expliciete GOED-voorbeelden uit JSON herkennen
+    #   Hierin staan voorbeelden zoals ‘binnen 3 dagen’, die we direct honoreren.
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in d:
+            return (
+                "✔️ ESS-04: bevat toetsbare criteria "
+                "(volgens goed voorbeeld uit config)"
+            )
 
-    if goede_aanwezig:
-        return f"✔️ ESS-04: toetsbare elementen herkend ({', '.join(toetscriteria_gevonden)}) en correct toegepast"
+    # ℹ️ 3️⃣ Patronen uit JSON op zoek naar harde criteria
+    #   De JSON bevat patronen als '\bbinnen\s+\d+\s+dagen\b', ‘\b\d+ %\b’, etc.
+    gevonden = []
+    for patroon in regel.get("herkenbaar_patronen", []):
+        if re.search(patroon, definitie, flags=re.IGNORECASE):
+            gevonden.append(patroon)
 
-    if foute_aanwezig:
-        return f"❌ ESS-04: toetsbare elementen gevonden ({', '.join(toetscriteria_gevonden)}), maar lijkt op fout voorbeeld"
+    # ℹ️ 3a️⃣ Extra automatische checks voor getallen/tijd/percentage
+    #   Mocht de JSON uit de config niet alle gevallen bevatten,
+    #   dan herkennen we hier nog ruwe numerieke uitdrukkingen.
+    if re.search(r"\b\d+\s*(dagen|weken|uren|maanden)\b", d):
+        gevonden.append("AUTO: numeriek tijdspatroon")
+    if re.search(r"\b\d+\s*%\b", d):
+        gevonden.append("AUTO: percentagepatroon")
 
-    return f"❌ ESS-04: toetsbare elementen gevonden ({', '.join(toetscriteria_gevonden)}), zonder duidelijke toelichting"
+    if gevonden:
+        unieke = ", ".join(sorted(set(gevonden)))
+        return f"✔️ ESS-04: toetsbaar criterium herkend ({unieke})"
+
+    # ℹ️ 4️⃣ Fallback: niets gevonden → definitie is niet toetsbaar
+    return (
+        "❌ ESS-04: geen toetsbare elementen gevonden; "
+        "definitie bevat geen harde criteria voor objectieve toetsing"
+    )
 
 # ✅ Toetsing voor regel ESS-05 (Voldoende onderscheidend)
 def toets_ESS_05(definitie, regel):
