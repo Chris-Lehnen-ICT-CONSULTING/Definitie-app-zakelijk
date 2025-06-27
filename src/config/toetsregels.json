@@ -135,44 +135,39 @@
     },
     "ESS-02": {
       "id": "ESS-02",
-      "naam": "Type of individu/particular",
-      "uitleg": "Een definitie moet ondubbelzinnig aangeven of het begrip als algemene **soort (type)** of als **concreet individu/particular** wordt opgevat.",
-      "toelichting": "Begrippen kunnen zowel slaan op een klasse/soort (bijv. proces, maatregel) als op een individueel exemplaar. De definitie moet via een ‘is een/de …’-constructie duidelijk maken welke variant bedoeld is, zodat polysemie (zoals methode vs actie/resultaat) wordt voorkomen.",
-      "toetsvraag": "Geeft de definitie expliciet aan dat het begrip **een type/soort** is of **een concreet individu/particular**?",
-      "herkenbaar_patronen": [
-        "\\btype\\b",
-        "\\bsoort\\b",
-        "\\bproces\\b",
-        "\\bgegeven(s)?\\b",
-        "\\bmaatregel(en)?\\b",
-        "\\bfunctie(s)?\\b",
-        "\\bindividu\\b",
-        "\\bparticular\\b",
-        "\\bentiteitsexemplaar\\b"
+      "naam": "Polysemie: proces vs. resultaat (type of instantie)",
+      "uitleg": "Maak in de definitie expliciet of het begrip verwijst naar een activiteit/proces of naar de uitkomst/resultaat daarvan.(Indien een begrip betrekking kan hebben op een type of een instantie, dan moet uit de definitie blijken welke van de twee is bedoeld.)",
+      "toelichting": "Begrippen kunnen zowel slaan op de handeling zelf (proces, activiteit) als op het product of effect daarvan (resultaat, uitkomst). Een eenduidige definitie moet aangeven welke betekenislaag bedoeld wordt, om verwarring door polysemie te voorkomen. (In sommige gevallen kan een term zowel een type aanduiden als een instantie (exemplaar). De definitie moet duidelijk maken welke variant er bedoeld wordt.)",
+      "toetsvraag": "Geeft de definitie ondubbelzinnig aan of het begrip een **proces/activiteit** is of een **uitkomst/resultaat**?",
+      "herkenbaar_patronen_proces": [
+        "\\b(is een|betreft een) (proces|activiteit|handeling)\\b",
+        "\\b(methode|activiteit|handelen)\\b",
+        "\\b(doelgericht uitvoeren van)\\b"
+      ],
+      "herkenbaar_patronen_resultaat": [
+        "\\b(is het resultaat van|het resultaat van)\\b",
+        "\\b(uitkomst|effect|gevolg|product)\\b",
+        "\\b(leidt tot|resulteert in)\\b"
       ],
       "goede_voorbeelden": [
-        "X is een proces dat gegevens verzamelt en structureert.",
-        "X is een maatregel die recidive tegengaat.",
-        "X is het individuele verslag van de observatie op 25-12-2024.",
-        "X is een individual particular dat dit proces uitvoert bij casus Z."
+        "observatie is een activiteit waarbij waarnemingen worden vastgelegd.",
+        "rapportage is het resultaat van het verzamelen en analyseren van gegevens."
       ],
       "foute_voorbeelden": [
-        "X verzamelt gegevens over gebruikersgedrag.",
-        "X ondersteunt de opsporing van fraude.",
-        "De gang van zaken rond gegevensverzameling.",
-        "De manier waarop recidive wordt tegengegaan."
+        "observatie is een manier om gegevens te verzamelen.",
+        "rapportage: het documenteren van inzichten als middel."
       ],
       "prioriteit": "hoog",
       "aanbeveling": "verplicht",
       "geldigheid": "gehele definitie",
       "status": "definitief",
-      "type": "essentie",
-      "thema": "begripszuiverheid",
+      "type": "polysemie",
+      "thema": "betekenislagen",
       "brondocument": "ASTRA",
       "relatie": [
         {
-          "fulltext": "Type of instantie",
-          "fullurl": "https://www.astraonline.nl/index.php/Type_of_instantie"
+          "fulltext": "Polysemie: proces vs. resultaat",
+          "fullurl": "https://www.astraonline.nl/index.php/Polysemie_proces_vs_resultaat"
         }
       ]
     },
