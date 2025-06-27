@@ -373,29 +373,30 @@
     "INT-03": {
       "id": "INT-03",
       "naam": "Voornaamwoord-verwijzing duidelijk",
-      "uitleg": "Een definitie bevat geen onduidelijke verwijzingen met voornaamwoorden.",
-      "toelichting": "Voornaamwoorden als 'deze', 'dit', 'die', 'daarvan' kunnen vaag zijn als niet duidelijk is waarnaar ze verwijzen. Een definitie moet zelfstandig leesbaar zijn, zonder afhankelijk te zijn van voorafgaande context.",
-      "toetsvraag": "Bevat de definitie verwijzingen zoals 'deze', 'dit', 'die', enz.? Zo ja, is voor de lezer dan direct duidelijk waarnaar verwezen wordt?",
+      "uitleg": "Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.",
+      "toelichting": "Voornaamwoorden als 'deze', 'dit', 'die', 'daarvan' enzovoort verwijzen naar een antecedent. In een definitie moet altijd in dezelfde zin of zinsdeel staan welk zelfstandig naamwoord bedoeld is, zodat de definitie zelfstandig en eenduidig leesbaar blijft.",
+      "toetsvraag": "Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?",
       "herkenbaar_patronen": [
         "\\bdeze\\b",
         "\\bdit\\b",
         "\\bdie\\b",
         "\\bdaarvan\\b",
         "\\bdaarbij\\b",
-        "\\bwaarin\\b",
-        "\\bwaarmee\\b",
         "\\bwaarvan\\b",
-        "\\bdaarop\\b",
-        "\\bdaaronder\\b",
-        "\\bdaaruit\\b"
+        "\\bwaarmee\\b",
+        "\\binzienelijk maken\\b",    
+        "\\bwaarbij\\b",
+        "\\bin het kader\\b"
       ],
       "goede_voorbeelden": [
-        "Een voorwaarde is een bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan."
+        "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.",
+        "Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan."
       ],
       "foute_voorbeelden": [
-        "Een voorwaarde is een bepaling. Deze geldt bij uitzondering."
+        "Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.",
+        "Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt."
       ],
-      "prioriteit": "midden",
+      "prioriteit": "hoog",
       "aanbeveling": "verplicht",
       "geldigheid": "gehele definitie",
       "status": "definitief",

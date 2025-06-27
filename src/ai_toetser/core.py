@@ -492,26 +492,60 @@ def toets_INT_02(definitie: str, regel: dict) -> str:
 
     # 4️⃣ Fallback: geen beslisregel of voorwaardelijke formulering
     return "✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen"
-# ✅ Toetsing voor regel INT-03 (Voornaamwoord-verwijzing duidelijk)
-def toets_INT_03(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    verwijzingen = set()
-    for patroon in patroon_lijst:
-        verwijzingen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    context_duidelijk = any(
-        vb.lower() in definitie.lower()
-        for vb in goede_voorbeelden
+def toets_INT_03(definitie: str, regel: dict) -> str:
+    """
+    INT-03: Voornaamwoord-verwijzing duidelijk
+    --------------------------------------------------
+    Een definitie mag geen onduidelijke verwijzingen naar 
+    “iets” bevatten via voornaamwoorden als 'deze', 'dit', 'die', enz.
+    Elk voornaamwoord moet in de zin zelf direct naar zijn antecedent
+    verwijzen, zodat de definitie zelfstandig leesbaar is.
+
+    Werkwijze:
+      1️⃣ Zoek alle voornaamwoorden via de regex-patronen uit JSON.
+      2️⃣ Als er géén voornaamwoorden zijn: ✔️ geen probleem.
+      3️⃣ Als er voornaamwoorden zijn:
+         a. Controleer of een expliciet goed voorbeeld uit JSON 
+            in de tekst voorkomt → ✔️
+         b. Anders: ❌ onduidelijke verwijzing
+
+    Uitlegregels:
+      - “deze”, “dit”, etc. zijn pas acceptabel als je in hetzelfde 
+        zinsdeel direct zegt waar “deze” naar verwijst.
+      - Een definitie moet in éé́n keer lezen, zonder dat de lezer
+        achteraf moet gissen welk zelfstandig naamwoord bedoeld is.
+    """
+    tekst = definitie.strip()
+    tekst_lc = tekst.lower()
+
+    # 1️⃣ Verzamel alle voornaamwoordhits
+    patterns = regel.get("herkenbaar_patronen", [])
+    gevonden = []
+    for pat in patterns:
+        for m in re.finditer(pat, tekst, flags=re.IGNORECASE):
+            gevonden.append(m.group(0))
+
+    # 2️⃣ Geen voornaamwoorden → OK
+    if not gevonden:
+        return "✔️ INT-03: geen onduidelijke voornaamwoord-verwijzing aangetroffen"
+
+    # 3️⃣ Controle op expliciet goed voorbeeld
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in tekst_lc:
+            # we vertrouwen hier op de JSON-voorbeeldzin dat die de
+            # pronomen op een correcte manier elimineert
+            return (
+                f"✔️ INT-03: voornaamwoorden gevonden "
+                f"({', '.join(sorted(set(gevonden)))}) maar correct opgehelderd"
+            )
+
+    # 4️⃣ Anders: foutmelding met de gematchte pronomen
+    distinct = ", ".join(sorted(set(gevonden)))
+    return (
+        f"❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen "
+        f"({distinct}); antecedent niet expliciet gemaakt"
     )
-
-    if not verwijzingen:
-        return "✔️ INT-03: geen voornaamwoord-verwijzingen aangetroffen"
-
-    if context_duidelijk:
-        return f"✔️ INT-03: voornaamwoorden gevonden ({', '.join(verwijzingen)}), maar duidelijk verwezen"
-    else:
-        return f"❌ INT-03: voornaamwoorden gevonden ({', '.join(verwijzingen)}), maar onduidelijk waarnaar verwezen wordt"
 
 # ✅ Toetsing voor regel INT-04 (Lidwoord-verwijzing duidelijk)
 def toets_INT_04(definitie, regel):
