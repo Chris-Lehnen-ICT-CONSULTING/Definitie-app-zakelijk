@@ -178,76 +178,91 @@ def toets_ESS_01(definitie: str, regel: dict) -> str:
     # 2️⃣ fallback: geen enkel doel-patroon gevonden ➞ OK
     return "✔️ ESS-01: geen doelgerichte formuleringen aangetroffen"
 
-import re
 
-# ESS-02: Type of instantie (individual/particular)
-# Toetsvraag:
-#   "Geeft de definitie expliciet aan dat het begrip als **type/soort** of als **concreet individu/particular** wordt opgevat?"
-#   - Een **type/soort** duidt op een algemene categorie of klasse van entiteiten.
-#     Voorbeeld: "X is een proces dat gegevens verzamelt." → X valt in de categorie (type) ‘proces’.
-#   - Een **concreet individu/particular** duidt op een specifiek, herkenbaar exemplaar.
-#     Voorbeeld: "X is het individuele verslag van de observatie op 25-12-2024." → X verwijst naar een uniek exemplaar.
-#   Dit voorkomt verwarring bij polysemie (bijv. observatie als methode versus observatie als resultaat).
-
-def toets_ESS_02(definitie: str, regel=None) -> str:
+def toets_ESS_02(definitie: str, regel: dict) -> str:
     """
-    Controleert of in de definitie ondubbelzinnig wordt aangegeven
-    of het begrip als **type/soort** of als **concreet individu/particular** wordt opgevat.
+    ESS-02: Polysemie – proces vs. resultaat.
 
-    Retourneert:
-      - ✔️ ESS-02: duidt expliciet op type/soort
-      - ✔️ ESS-02: duidt expliciet op concreet individu
-      - ❌ ESS-02: ambigu—beide varianten genoemd
-      - ❌ ESS-02: geen ondubbelzinnige aanwijzing gevonden
+    📝 Achtergrond (ASTRA 3.2-discussie):
+        • In de DBT-documentatie wordt gesproken over ‘type vs. instance’, 
+          maar in de praktijk veroorzaakte dat verwarring (methodes vs. acties, 
+          ontologische ‘punning’, etc.). 
+        • Daarom kiezen we hier voor de twee meest voorkomende betekenislagen:
+            1. **Proces/activiteit**  – de handeling zelf (werkwoordelijk karakter)
+            2. **Resultaat/uitkomst** – het product of effect daarvan
+        • Een goede definitie geeft ondubbelzinnig aan welke laag bedoeld wordt,
+          om polysemie (dubbele betekenis) te voorkomen.
+
+    ✅ Toetsvraag:
+      “Geeft de definitie ondubbelzinnig aan of het begrip **een proces/activiteit** is
+       of **een uitkomst/resultaat**?”
+
+    Volgorde van de checks:
+      1️⃣ **Expliciete foute voorbeelden** (JSON ↦ `foute_voorbeelden`): 
+         Vang zinnen af die volgens de ASTRA-voorbeelden absoluut niet mogen voorkomen.
+      2️⃣ **Proces-detectie** (JSON ↦ `herkenbaar_patronen_proces`):
+         Zoek patronen als “is een proces”, “activiteit”, “methode” etc.
+      3️⃣ **Resultaat-detectie** (JSON ↦ `herkenbaar_patronen_resultaat`):
+         Zoek patronen als “is het resultaat van”, “uitkomst”, “effect” etc.
+      4️⃣ **Oordeel**:
+         • Alleen proces → ✔️  
+         • Alleen resultaat → ✔️  
+         • Beide → ❌ (ambiguïteit – kies één betekenislaag)  
+         • Geen van beide → ❌ (geen duidelijke aanwijzing)
+
+    Return-format:
+      • Succes:  "✔️ ESS-02: …"
+      • Fout:     "❌ ESS-02: …"
     """
 
-    # Patronen voor type/soort, met contextuele 'is een/de ...'
-    type_patterns = [
-        r"\b(?:is|betreft|wordt beschouwd als)\s+(?:een|de|het)\s+"
-        r"(?:type|soort|proces|gegeven|maatregel|functie)\b",
-    ]
+    d = definitie.lower().strip()
 
-    # Patronen voor concreet individu/particular
-    instance_patterns = [
-        r"\b(?:is|betreft|wordt gezien als)\s+(?:een|de|het)\s+"
-        r"(?:concrete\s+)?(?:individu|particular|entiteitsexemplaar)\b",
-    ]
+    # 1️⃣ Expliciete foute voorbeelden
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in d:
+            return (
+                "❌ ESS-02: definitie bevat een expliciet fout voorbeeld – "
+                "vermijd deze formulering"
+            )
 
-    gevonden_types = []       # gevonden context-uitdrukkingen voor type
-    gevonden_instances = []   # gevonden context-uitdrukkingen voor individu
+    # 2️⃣ Proces/activiteit detectie
+    proces_hits = []
+    for pat in regel.get("herkenbaar_patronen_proces", []):
+        if re.search(pat, d, flags=re.IGNORECASE):
+            proces_hits.append(pat)
 
-    # Detecteer type/soort
-    for pat in type_patterns:
-        for m in re.finditer(pat, definitie, flags=re.IGNORECASE):
-            gevonden_types.append(m.group(0))
+    # 3️⃣ Resultaat/uitkomst detectie
+    resultaat_hits = []
+    for pat in regel.get("herkenbaar_patronen_resultaat", []):
+        if re.search(pat, d, flags=re.IGNORECASE):
+            resultaat_hits.append(pat)
 
-    # Detecteer concreet individu/particular
-    for pat in instance_patterns:
-        for m in re.finditer(pat, definitie, flags=re.IGNORECASE):
-            gevonden_instances.append(m.group(0))
-
-    # Evalueer de gevonden aanwijzingen
-    if gevonden_types and not gevonden_instances:
-        unieke = sorted(set(gevonden_types))
-        return f"✔️ ESS-02: duidt expliciet op **type/soort** ({'; '.join(unieke)})"
-
-    if gevonden_instances and not gevonden_types:
-        unieke = sorted(set(gevonden_instances))
-        return f"✔️ ESS-02: duidt expliciet op **concreet individu** ({'; '.join(unieke)})"
-
-    if gevonden_types and gevonden_instances:
-        t = '; '.join(sorted(set(gevonden_types)))
-        i = '; '.join(sorted(set(gevonden_instances)))
+    # 4️⃣ Oordeel toekennen
+    if proces_hits and not resultaat_hits:
+        unieke = sorted(set(proces_hits))
         return (
-            f"❌ ESS-02: ambigu—zowel type/soort ({t}) als concreet individu ({i}) \
-            aangegeven; kies één variant."
+            f"✔️ ESS-02: eenduidig als proces/activiteit gedefinieerd "
+            f"({', '.join(unieke)})"
         )
 
-    return (
-        "❌ ESS-02: geen ondubbelzinnige aanwijzing gevonden of "
-        "duidelijk als type of concreet individu opgevat te worden."
-    )
+    if resultaat_hits and not proces_hits:
+        unieke = sorted(set(resultaat_hits))
+        return (
+            f"✔️ ESS-02: eenduidig als resultaat/uitkomst gedefinieerd "
+            f"({', '.join(unieke)})"
+        )
 
+    if proces_hits and resultaat_hits:
+        return (
+            "❌ ESS-02: ambiguïteit – zowel proces/activiteit als resultaat "
+            "herkend; kies één betekenislaag"
+        )
+
+    # Fallback: geen enkele laag herkend
+    return (
+        "❌ ESS-02: geen duidelijke aanwijzing voor proces of resultaat in "
+        "de definitie gevonden"
+    )
 # ✅ Toetsing voor regel ESS-03 (Instanties uniek onderscheidbaar)
 def toets_ESS_03(definitie, regel):
     patroon_lijst = regel.get("herkenbaar_patronen", [])
