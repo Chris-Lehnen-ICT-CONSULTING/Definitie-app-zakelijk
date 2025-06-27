@@ -547,26 +547,55 @@ def toets_INT_03(definitie: str, regel: dict) -> str:
         f"({distinct}); antecedent niet expliciet gemaakt"
     )
 
-# ✅ Toetsing voor regel INT-04 (Lidwoord-verwijzing duidelijk)
-def toets_INT_04(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    verwijzingen = set()
-    for patroon in patroon_lijst:
-        verwijzingen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    context_duidelijk = any(
-        vb.lower() in definitie.lower()
-        for vb in goede_voorbeelden
-    )
+def toets_INT_04(definitie: str, regel: dict) -> str:
+    """
+    INT-04: Lidwoord-verwijzing duidelijk
+    -------------------------------------
+    Bij een bepaald lidwoord (‘de’, ‘het’) in een definitie moet
+    direct helder zijn waarnaar verwezen wordt. Anders is de zin
+    vaag of contextafhankelijk.
 
-    if not verwijzingen:
+    Stappen:
+      1️⃣ Zoek alle ‘de X’ / ‘het Y’ treffers met de JSON-patronen.
+      2️⃣ Als geen treffers: ✔️ geen onduidelijke verwijzingen.
+      3️⃣ Anders:
+         a. Als één van de goede voorbeelden uit JSON voorkomt → ✔️
+         b. Anders → ❌ onduidelijke lidwoord-verwijzing(en).
+
+    Uitleg:
+      • “De instelling” mag alleen als je meteen zegt **welke**
+        instelling (bijv. “de instelling (de Raad voor de Rechtspraak)”).
+      • Zoniet: gebruik “een instelling” of benoem de antecedent direct.
+    """
+    tekst = definitie.strip()
+    tekst_lc = tekst.lower()
+
+    # 1️⃣ Verzamel alle ‘de …’ / ‘het …’ matches
+    hits = []
+    for patroon in regel.get("herkenbaar_patronen", []):
+        for match in re.finditer(patroon, tekst, flags=re.IGNORECASE):
+            hits.append(match.group(0))
+
+    # 2️⃣ Geen onduidelijke lidwoord-verwijzingen
+    if not hits:
         return "✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen"
 
-    if context_duidelijk:
-        return f"✔️ INT-04: lidwoorden gevonden ({', '.join(verwijzingen)}), maar context voldoende duidelijk"
-    else:
-        return f"❌ INT-04: lidwoorden gevonden ({', '.join(verwijzingen)}), context mogelijk onduidelijk"
+    # 3️⃣ Controle op expliciete goede voorbeelden
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in tekst_lc:
+            unieke = ", ".join(sorted(set(hits)))
+            return (
+                f"✔️ INT-04: lidwoord-verwijzingen ({unieke}) "
+                f"maar correct gespecificeerd volgens voorbeeld"
+            )
+
+    # ❌ Fallback: onduidelijke verwijzingen blijven staan
+    unieke = ", ".join(sorted(set(hits)))
+    return (
+        f"❌ INT-04: onduidelijke lidwoord-verwijzingen ({unieke}); "
+        f"specificeer expliciet of gebruik onbepaald lidwoord"
+    )
 
 # ✅ Toetsing voor regel INT-06 (Definitie bevat geen toelichting)
 def toets_INT_06(definitie, regel):
