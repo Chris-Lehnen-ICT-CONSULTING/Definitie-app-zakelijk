@@ -332,8 +332,8 @@
     "INT-02": {
       "id": "INT-02",
       "naam": "Geen beslisregel",
-      "uitleg": "Een definitie bevat geen beslisregels of normen.",
-      "toelichting": "Een definitie beschrijft wat iets *is*, niet wat ermee moet gebeuren of onder welke voorwaarden het wel of niet van toepassing is. Voorwaardelijke formuleringen als 'indien' of 'mits' horen thuis in regelgeving, niet in definities.",
+      "uitleg": "Een definitie bevat geen beslisregels of voorwaarden.",
+      "toelichting": "Een definitie beschrijft wat iets ís, niet wat ermee moet gebeuren of onder welke voorwaarden het geldig is. Voorwaardelijke of normatieve formuleringen zoals 'indien', 'mits' en 'tenzij' horen thuis in regelgeving, niet in definities.",
       "toetsvraag": "Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?",
       "herkenbaar_patronen": [
         "\\bindien\\b",
@@ -345,14 +345,20 @@
         "\\bin geval dat\\b"
       ],
       "goede_voorbeelden": [
-        "Minderjarige: persoon die de leeftijd van 18 jaar nog niet heeft bereikt."
+        "transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+        "Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.",
+        "Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.",
+        "Register: officiële inschrijving in een openbaar register door een bevoegde instantie."
       ],
       "foute_voorbeelden": [
-        "Minderjarige: persoon die jonger is dan 18 jaar, tenzij hij getrouwd is of een kind heeft."
+        "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.",
+        "Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.",
+        "Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.",
+        "Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt."
       ],
-      "prioriteit": "hoog",
-      "aanbeveling": "verplicht",
-      "geldigheid": "gehele definitie",
+      "prioriteit": "midden",
+      "aanbeveling": "aanbevolen",
+      "geldigheid": "alle",
       "status": "definitief",
       "type": "interne structuur",
       "thema": "interne kwaliteit van de definitie",

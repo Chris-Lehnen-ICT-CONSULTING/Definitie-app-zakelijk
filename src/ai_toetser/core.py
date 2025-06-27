@@ -453,32 +453,45 @@ def toets_INT_01(definitie, regel):
             f"maar geen expliciet fout voorbeeld herkend"
         )
 
-# ✅ Toetsing voor regel INT-02 (Geen beslisregel)
-def toets_INT_02(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    besliswoorden = set()
-    for patroon in patroon_lijst:
-        besliswoorden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_INT_02(definitie: str, regel: dict) -> str:
+    """
+    INT-02: Geen beslisregel of voorwaardelijke formuleringen.
 
-    foute_voorbeelden_aanwezig = any(
-        voorbeeld.lower() in definitie.lower()
-        for voorbeeld in regel.get("foute_voorbeelden", [])
-    )
+    1️⃣ Expliciete foute voorbeelden uit JSON → direct ❌  
+    2️⃣ Expliciete goede voorbeelden uit JSON → direct ✔️  
+    3️⃣ Detectie via patronen (zoals 'indien', 'mits', etc.) → ❌  
+    4️⃣ Fallback: geen beslisregels aangetroffen → ✔️  
 
-    if not besliswoorden:
-        return "✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen"
+    Uitleg:
+    - Een definitie mag niet als beslisregel geformuleerd worden;
+      dat hoort in regelgeving, niet in een lemma.
+    - Afleidingsregels (deterministische algoritmen) zijn wél toegestaan,
+      maar vallen buiten INT-02 (toets op voorwaardelijke taal).
+    """
+    tekst = definitie.lower()
 
-    if foute_voorbeelden_aanwezig:
-        return (
-            f"❌ INT-02: beslisformuleringen gevonden ({', '.join(besliswoorden)}), "
-            f"en komt overeen met fout voorbeeld"
-        )
-    else:
-        return (
-            f"❌ INT-02: beslisformuleringen gevonden ({', '.join(besliswoorden)}), "
-            f"maar geen expliciet fout voorbeeld herkend"
-        )
+    # 1️⃣ Expliciete foute voorbeelden krijgen prioriteit
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in tekst:
+            return "❌ INT-02: voorwaardelijke formulering aangetroffen (komt precies overeen met fout voorbeeld)"
 
+    # 2️⃣ Expliciete goede voorbeelden daarna
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in tekst:
+            return "✔️ INT-02: voorbeeldtekst komt overeen met goed voorbeeld (geen beslisregel)"
+
+    # 3️⃣ Patronen voor voorwaardelijke taal detecteren
+    patronen = regel.get("herkenbaar_patronen", [])
+    gevonden = []
+    for pat in patronen:
+        if re.search(pat, definitie, flags=re.IGNORECASE):
+            gevonden.append(pat)
+    if gevonden:
+        labels = ", ".join(sorted(set(gevonden)))
+        return f"❌ INT-02: voorwaardelijke taal herkend ({labels})"
+
+    # 4️⃣ Fallback: geen beslisregel of voorwaardelijke formulering
+    return "✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen"
 # ✅ Toetsing voor regel INT-03 (Voornaamwoord-verwijzing duidelijk)
 def toets_INT_03(definitie, regel):
     patroon_lijst = regel.get("herkenbaar_patronen", [])
