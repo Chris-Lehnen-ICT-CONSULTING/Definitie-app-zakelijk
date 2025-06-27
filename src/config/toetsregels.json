@@ -173,31 +173,28 @@
     },
     "ESS-03": {
       "id": "ESS-03",
-      "naam": "Instanties uniek onderscheidbaar",
-      "uitleg": "Een definitie maakt duidelijk waarin een instantie verschilt van andere instanties.",
-      "toelichting": "Bij instanties (zoals organisaties, functies, systemen) moet de definitie aangeven welke specifieke eigenschappen deze instantie onderscheiden van andere. Dit voorkomt verwarring en overlapping tussen begrippen.",
-      "toetsvraag": "Geeft de definitie aan waardoor de instantie uniek is ten opzichte van andere, vergelijkbare instanties?",
+      "naam": "Instanties uniek onderscheidbaar (telbaarheid)",
+      "uitleg": "Een definitie moet criterium(en) bevatten waarmee afzonderlijke instanties uniek herkenbaar en telbaar zijn (singulariteit of pluraliteit).",
+      "toelichting": "Bij telbare zelfstandige naamwoorden moet de definitie unieke kenmerken of identificatoren noemen (zoals serienummer, kenteken, VIN, ISBN, document-ID, inventarisnummer), zodat verschillende deskundigen in elke situatie tot exact dezelfde telling komen.",
+      "toetsvraag": "Bevat de definitie duidelijke criteria (bijv. serienummer, kenteken, ID) waarmee unieke identificatie van instanties mogelijk is?",
       "herkenbaar_patronen": [
-         "verantwoordelijk.*voor",
-         "gespecialiseerd.*in",
-         "specifiek.*gericht op",
-         "met.*taak.*voor",
-         "instantie.*die.*(coördineert|ondersteunt|uitvoert|verzorgt)",
-         "organisatie.*die.*(exclusief|voornamelijk|specifiek)",
-         "binnen.*(het ministerie|de keten|de sector)"
-       ],
+        "\\b(serienummer|serie?nummer|kenteken|vin|isbn|document-?id|identificatienummer|registratienummer|objectnummer|inventarisnummer)\\b",
+        "\\buniek(e)?\\b"
+      ],
       "goede_voorbeelden": [
-        "JustID: instantie binnen JenV die verantwoordelijk is voor digitale informatievoorziening in de strafrechtketen."
+        "Een auto is een vierwielig motorvoertuig met een uniek chassisnummer (VIN) en kenteken.",
+        "Een boekexemplaar is een fysiek gebonden exemplaar van een titel met eigen ISBN en inventarisnummer."
       ],
       "foute_voorbeelden": [
-        "JustID: dienst binnen JenV."
+        "Een auto is een vervoermiddel op vier wielen met een motor.",
+        "Een boek is een verzameling pagina’s met tekst gebonden in een omslag."
       ],
       "prioriteit": "hoog",
       "aanbeveling": "verplicht",
-      "geldigheid": "alle",
+      "geldigheid": "telbare zelfstandige naamwoorden",
       "status": "definitief",
       "type": "essentie",
-      "thema": "onderscheidbaarheid",
+      "thema": "telbaarheid en onderscheidbaarheid",
       "brondocument": "ASTRA",
       "relatie": [
         {
@@ -205,39 +202,46 @@
           "fullurl": "https://www.astraonline.nl/index.php/Instanties_uniek_onderscheidbaar"
         }
       ]
-    },
+    }, 
+
     "ESS-04": {
       "id": "ESS-04",
       "naam": "Toetsbaarheid",
-      "uitleg": "Een definitie is zodanig geformuleerd dat toetsing op toepassing of juistheid mogelijk is.",
-      "toelichting": "Een goede definitie bevat elementen waaraan objectief getoetst kan worden of iets wel of niet onder het begrip valt. Dit maakt het gebruik van het begrip in beleid, uitvoering of toezicht betrouwbaar.",
-      "toetsvraag": "Is het mogelijk op basis van de definitie vast te stellen of iets wel of niet onder het begrip valt?",
+      "uitleg": "Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).",
+      "toelichting": "Zonder toetsbare criteria kan een lezer niet objectief vaststellen of iets onder de definitie valt. Voorbeelden van *niet*-toetsbaar: ‘zo snel mogelijk’, ‘zo veel mogelijk’. Wél-toetsbaar: ‘binnen 3 dagen’, ‘tenminste 80%’, ‘uiterlijk na 1 week’.",
+      "toetsvraag": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
       "herkenbaar_patronen": [
-        "\\bis een\\b",
-        "\\bwordt gekenmerkt door\\b",
-        "\\bheeft als eigenschap\\b",
+        "\\bbinnen\\s+\\d+\\s+dagen?\\b",
+        "\\buiterlijk\\s+na\\s+\\d+\\s+(dagen?|weken?)\\b",
+        "\\btenminste\\s+\\d+%\\b",
+        "\\bminimaal\\s+\\d+%\\b",
+        "\\bmaximaal\\s+\\d+%\\b",
+        "\\b\\d+\\s+%\\b",
+        "\\baan de hand van\\b",
+        "\\bobjectieve criteria\\b",
         "\\bbevat\\b",
         "\\bomvat\\b",
-        "\\bkan worden vastgesteld\\b",
+        "\\bheeft als eigenschap\\b",
+        "\\bwordt gekenmerkt door\\b",
         "\\bcontrole op\\b",
-        "\\bobjectieve criteria\\b",
-        "\\bonderscheidende kenmerken\\b",
-        "\\baan de hand van\\b",
-        "\\binzichtelijk maken\\b",
         "\\bwaarneembare\\b",
         "\\btoetsbaar\\b"
       ],
       "goede_voorbeelden": [
-        "Beveiligingsincident: gebeurtenis waarbij ongeautoriseerde toegang is verkregen tot systemen of gegevens."
+        "…binnen 3 dagen nadat het verzoek is ingediend…",
+        "…tenminste 80% van de steekproef voldoet…",
+        "…uiterlijk na 1 week na ontvangst…"
       ],
       "foute_voorbeelden": [
-        "Beveiligingsincident: iets dat vervelend is voor de organisatie."
+        "…zo snel mogelijk na ontvangst…",
+        "…zo veel mogelijk resultaten…",
+        "…moet zo mogelijk conform…"
       ],
-      "prioriteit": "hoog",
+      "prioriteit": "midden",
       "aanbeveling": "verplicht",
       "geldigheid": "alle",
       "status": "definitief",
-      "type": "essentie",
+      "type": "element in de definitie",
       "thema": "toepasbaarheid",
       "brondocument": "ASTRA",
       "relatie": [
