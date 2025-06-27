@@ -361,30 +361,61 @@ def toets_ESS_04(definitie: str, regel: dict) -> str:
     )
 
 # ✅ Toetsing voor regel ESS-05 (Voldoende onderscheidend)
-def toets_ESS_05(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    onderscheidingen_gevonden = set()
-    for patroon in patroon_lijst:
-        onderscheidingen_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_ESS_05(definitie: str, regel: dict) -> str:
+    """
+    ESS-05: Voldoende onderscheidend.
+    Een definitie moet expliciet maken waarin het begrip zich onderscheidt
+    van verwante begrippen in hetzelfde domein.
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+    Bron (ASTRA DBT ESS-05):
+      • FOUT-voorbeelden: vage of niet-onderscheidende formuleringen.
+      • GOED-voorbeelden: expliciete tegenstelling of uniek kenmerk.
+      • Toetsvraag: “Maakt de definitie duidelijk waarin het begrip zich
+        onderscheidt van andere begrippen?”
 
-    goede_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+    JSON-velden gebruikt:
+      - foute_voorbeelden: expliciete misser-zinnen uit config
+      - goede_voorbeelden: ideale voorbeeldzinnen uit config
+      - herkenbaar_patronen: regex voor tegenstelling/verschil/unique kenmerken
+    """
+    d = definitie.lower().strip()
 
-    if not onderscheidingen_gevonden:
-        if foute_aanwezig:
-            return "❌ ESS-05: geen onderscheidende elementen en lijkt op fout voorbeeld"
-        return "❌ ESS-05: geen onderscheidende formulering aangetroffen in de definitie"
+    # ℹ️ 1️⃣ Expliciete FOUT-voorbeelden afvangen
+    #    Deze voorbeelden staan in de JSON als “foute_voorbeelden”.
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in d:
+            return (
+                "❌ ESS-05: definitie bevat niet-onderscheidende formulering "
+                f"(fout voorbeeld: “…{fout}…”)"
+            )
 
-    if goede_aanwezig:
-        return f"✔️ ESS-05: onderscheidende elementen gevonden ({', '.join(onderscheidingen_gevonden)}) en correct toegepast"
+    # ℹ️ 2️⃣ Expliciete GOED-voorbeelden direct honoreren
+    #    Deze voorbeelden tonen hoe het wél moet (zichtbare tegenstelling / uniek kenmerk).
+    for goed in regel.get("goede_voorbeelden", []):
+        if goed.lower() in d:
+            return (
+                "✔️ ESS-05: onderscheidende formulering aangetroffen "
+                "(volgens goed voorbeeld)"
+            )
 
-    if foute_aanwezig:
-        return f"❌ ESS-05: onderscheidende elementen gevonden ({', '.join(onderscheidingen_gevonden)}), maar lijkt op fout voorbeeld"
+    # ℹ️ 3️⃣ Patronen uit JSON op zoek naar sleutelwoorden
+    #    Bijvoorbeeld “in tegenstelling tot”, “verschilt van”, “specifiek voor”, etc.
+    gevonden = []
+    for patroon in regel.get("herkenbaar_patronen", []):
+        if re.search(patroon, definitie, flags=re.IGNORECASE):
+            gevonden.append(patroon)
 
-    return f"❌ ESS-05: onderscheidende elementen gevonden ({', '.join(onderscheidingen_gevonden)}), maar geen correcte uitleg of context gevonden"
+    if gevonden:
+        labels = ", ".join(sorted(set(gevonden)))
+        return (
+            f"✔️ ESS-05: onderscheidende patroon(en) herkend ({labels})"
+        )
+
+    # ℹ️ 4️⃣ Fallback: niets gevonden → definitie is onvoldoende onderscheidend
+    return (
+        "❌ ESS-05: geen onderscheidende elementen gevonden; "
+        "definitie maakt niet duidelijk waarin het begrip zich onderscheidt"
+    )
 
 # ✅ Toetsing voor regel INT-01 (Compacte en begrijpelijke zin)
 def toets_INT_01(definitie, regel):
