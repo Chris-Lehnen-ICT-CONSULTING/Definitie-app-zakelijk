@@ -445,26 +445,21 @@
     "INT-06": {
       "id": "INT-06",
       "naam": "Definitie bevat geen toelichting",
-      "uitleg": "Een definitie bevat geen uitleg of toelichting, maar uitsluitend de afbakening van het begrip.",
-      "toelichting": "Definities moeten kort, krachtig en afgebakend zijn. Nadere toelichting, achtergrond of context hoort thuis in aparte toelichtende teksten of notities — niet in de definitie zelf.",
-      "toetsvraag": "Bevat de definitie zinnen of delen die eerder toelichten, verklaren of context bieden dan afbakenen?",
+      "uitleg": "Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.",
+      "toelichting": "Definities moeten kort en krachtig zijn. Een toelichting (bijvoorbeeld een uitwerking of extra context) hoort thuis in een notitie of toelichtende tekst, niet in de definitiezin zelf.",
+      "toetsvraag": "Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?",
       "herkenbaar_patronen": [
-        "bijvoorbeeld",
-        "zoals",
-        "dit houdt in",
-        "waarbij",
-        "in de zin van",
-        "dat wil zeggen",
-        "namelijk",
-        "bedoeld als",
-        "denk aan"
+        "\\bbijvoorbeeld\\b",
+        "\\bzoals\\b",
+        "\\bdit houdt in\\b",
+        "\\bdat wil zeggen\\b",
+        "\\bnamelijk\\b"
       ],
       "goede_voorbeelden": [
-        "gegevensverwerking: het geheel van handelingen met betrekking tot persoonsgegevens"
+        "model: vereenvoudigde weergave van de werkelijkheid"
       ],
       "foute_voorbeelden": [
-        "gegevensverwerking: het geheel van handelingen met betrekking tot persoonsgegevens, zoals verzamelen en opslaan",
-        "toezicht: het volgen van naleving (dit houdt in dat men controleert of regels worden gevolgd)"
+        "model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven"
       ],
       "prioriteit": "hoog",
       "aanbeveling": "verplicht",

@@ -597,29 +597,47 @@ def toets_INT_04(definitie: str, regel: dict) -> str:
         f"specificeer expliciet of gebruik onbepaald lidwoord"
     )
 
-# ✅ Toetsing voor regel INT-06 (Definitie bevat geen toelichting)
-def toets_INT_06(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    toelichting_gevonden = set()
-    for patroon in patroon_lijst:
-        toelichting_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_INT_06(definitie: str, regel: dict) -> str:
+    """
+    INT-06: Definitie bevat geen toelichting.
+    
+    Een definitie moet zelfstandig afbakenen wat een begrip is, zonder
+    nadere uitleg of voorbeelden in dezelfde zin.
+    
+    Toetsstappen:
+      1️⃣ Expliciete foute voorbeelden uit JSON → ❌
+      2️⃣ Detectie toelichtende signalen via regex-patronen → ❌
+      3️⃣ Fallback: geen toelichting aangetroffen → ✔️
 
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
-    foute_aanwezig = any(
-        vb.lower() in definitie.lower()
-        for vb in foute_voorbeelden
-    )
+    JSON-velden gebruikt:
+      • `foute_voorbeelden`: expliciete voorbeeldzinnen die toelichting bevatten
+      • `herkenbaar_patronen`: lijst regex-patronen voor toelichtingssignalen
+    """
+    tekst = definitie.strip().lower()
 
-    if not toelichting_gevonden:
-        return "✔️ INT-06: geen toelichtende elementen in de definitie"
+    # 1️⃣ Expliciete foute voorbeelden eerst (prioriteit)
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in tekst:
+            return (
+                "❌ INT-06: definitie bevat expliciete toelichting "
+                f"(voorbeeld: “{fout}”)."
+            )
 
-    if foute_aanwezig:
+    # 2️⃣ Generieke detectie via toelichtingspatronen
+    gevonden = []
+    for patroon in regel.get("herkenbaar_patronen", []):
+        if re.search(patroon, tekst):
+            gevonden.append(patroon)
+
+    if gevonden:
+        samples = ", ".join(f"“{pat}”" for pat in gevonden)
         return (
-            f"❌ INT-06: toelichtende elementen gevonden ({', '.join(toelichting_gevonden)}), "
-            f"en lijkt op fout voorbeeld"
+            "❌ INT-06: toelichtende signalen herkend via patronen "
+            f"{samples}."
         )
-    else:
-        return f"❌ INT-06: toelichtende elementen gevonden ({', '.join(toelichting_gevonden)}), maar geen expliciet fout voorbeeld herkend"
+
+    # 3️⃣ Fallback: geen toelichting
+    return "✔️ INT-06: geen toelichtende elementen in de definitie gevonden"
 
 # ✅ Toetsing voor regel INT-07 (afkortingen)
 def toets_INT_07(definitie, regel):
