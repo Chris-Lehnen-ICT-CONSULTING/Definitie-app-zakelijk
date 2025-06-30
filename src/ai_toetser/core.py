@@ -694,30 +694,76 @@ def toets_INT_07(definitie: str, regel: dict) -> str:
         return f"❌ INT-07: geen toelichting voor afkorting(en): {labels}"
     return f"✔️ INT-07: alle afkortingen voorzien van directe toelichting of link"
 # ✅ Toetsing voor regel INT-08 (Positieve formulering)
-def toets_INT_08(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    negatieve_vormen = set()
-    for patroon in patroon_lijst:
-        negatieve_vormen.update(re.findall(patroon, definitie, re.IGNORECASE))
+import re
+from typing import Dict
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+def toets_INT_08(definitie: str, regel: Dict) -> str:
+    """
+    INT-08: Positieve formulering
+    -----------------------------
+    Een definitie wordt in principe positief geformuleerd (geen ontkenningen),
+    met uitzondering van specificerende onderdelen (bijv. relatieve bijzinnen).
 
-    uitleg_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+    Stappen:
+      1️⃣ Verzamel alle herkenbare negatieve patronen uit de JSON-regel.
+      2️⃣ Normaliseer naar kleine letters en maak uniek.
+      3️⃣ Identificeer 'allowed' negaties: voorkomen binnen een relatieve bijzin.
+      4️⃣ Bepaal 'disallowed' negaties: alle overige.
+      5️⃣ Controleer aanwezigheid van goede en foute voorbeelden.
+      6️⃣ Formuleer het resultaatbericht (✔️/❌) op basis van disallowed, allowed en voorbeelden.
+    """
+    # 1️⃣ 💚 Haal de herkenbare negatieve patronen op
+    patronen = regel.get("herkenbaar_patronen", [])
 
-    if not negatieve_vormen:
+    # 2️⃣ 💚 Vind alle matches en maak uniek (lowercase)
+    gevonden = []
+    for pat in patronen:
+        gevonden.extend(re.findall(pat, definitie, flags=re.IGNORECASE))
+    negatieve_vormen = {v.lower() for v in gevonden}
+
+    # 3️⃣ 💚 Detecteer allowed negaties in specificerende context (relatieve bijzin)
+    allowed = set()
+    for neg in list(negatieve_vormen):
+        patroon_context = rf'\bdie\b.*\b{re.escape(neg)}\b'
+        if re.search(patroon_context, definitie, flags=re.IGNORECASE):
+            allowed.add(neg)
+
+    # 4️⃣ 💚 Bepaal disallowed negaties
+    disallowed = sorted(nv for nv in negatieve_vormen if nv not in allowed)
+
+    # 5️⃣ 💚 Check voorbeelden
+    goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
+    fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    uitleg_aanwezig = any(v in definitie.lower() for v in goede)
+    fout_aanwezig = any(v in definitie.lower() for v in fout)
+
+    # 6️⃣ 💚 Formuleer resultaat
+    if not disallowed:
+        if allowed:
+            return (
+                f"✅ INT-08: alleen toegestane negatieve termen "
+                f"({', '.join(allowed)}) in specificerende context"
+            )
         if uitleg_aanwezig:
             return "✅ INT-08: geen negatieve formuleringen en komt overeen met goed voorbeeld"
         return "✅ INT-08: definitie bevat geen negatieve formuleringen"
 
+    # Er zijn disallowed negaties
     if uitleg_aanwezig:
-        return f"✅ INT-08: negatieve termen ({', '.join(negatieve_vormen)}) gevonden, maar correct geformuleerd"
+        return (
+            f"✅ INT-08: negatieve termen ({', '.join(disallowed)}) gevonden, "
+            "maar correct geformuleerd volgens goed voorbeeld"
+        )
+    if fout_aanwezig:
+        return (
+            f"❌ INT-08: negatieve termen ({', '.join(disallowed)}) gevonden, "
+            "lijkt op fout voorbeeld"
+        )
+    return (
+        f"❌ INT-08: negatieve termen ({', '.join(disallowed)}) gevonden, "
+        "zonder duidelijke uitleg"
+    )
 
-    if foute_aanwezig:
-        return f"❌ INT-08: negatieve termen ({', '.join(negatieve_vormen)}) gevonden, lijkt op fout voorbeeld"
-
-    return f"❌ INT-08: negatieve termen ({', '.join(negatieve_vormen)}) gevonden, zonder duidelijke uitleg"
 
 # ✅ Toetsing voor regel INT-09 (Opsomming is limitatief)
 def toets_INT_09(definitie, regel):
