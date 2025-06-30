@@ -1,6 +1,6 @@
 import os
 import re
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from web_lookup.lookup import is_plurale_tantum
 # --- 🔪 Externe bibliotheken (via pip) ---
 # 📌 Streamlit pagina-configuratie
@@ -923,24 +923,68 @@ def toets_SAM_01(definitie: str, regel: Dict[str, Any]) -> str:
     return f"❌ SAM-01: kwalificaties ({items}) kunnen afwijken van algemeen aanvaarde betekenis"
 
 #✅ Toetsing voor regel SAM-02 (Kwalificatie omvat geen herhaling)
-def toets_SAM_02(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    herhalingen = set()
-    for patroon in patroon_lijst:
-        herhalingen.update(re.findall(patroon, definitie, re.IGNORECASE))
+def fetch_base_definition(term: str) -> Optional[str]:
+    """
+    Placeholder: haal officiële definitie van 'term' op uit een externe repository.
+    Momenteel nog niet geïmplementeerd → altijd None.
+    """
+    # TODO: vervang deze stub door een echte API- of JSON-lookup.
+    return None
 
-    if not herhalingen:
-        return "✔️ SAM-02: geen herhalingen van de term of elementen ervan in de definitie"
+def toets_SAM_02(definitie: str, regel: Dict[str, Any]) -> str:
+    """
+    SAM-02: Kwalificatie omvat geen herhaling
+    -----------------------------------------
+    Vergelijk een gekwalificeerde definitie met de officiële basisterm-definitie
+    (genus + differentia). Zonder repository valt de controle terug op:
+    maximaal één letterlijke vermelding van de basisterm in de differentia.
 
-    uitleg_aanwezig = any(
-        voorbeeld.lower() in definitie.lower()
-        for voorbeeld in regel.get("goede_voorbeelden", [])
-    )
+    Stappen:
+      1️⃣ Splits basisterm (voor ':') en body (na ':').
+      2️⃣ Probeer de officiële basisterm-definitie op te halen.
+         – Als gevonden: parse genus/differentia en controleer conflict.
+         – Anders: fallback naar regex-based herhalingscheck.
+      3️⃣ Als fallback:
+         • Tel hoe vaak de basisterm in de body voorkomt.
+         • ≤1 → ✔️, >1 → ❌ (met voorbeelden-check).
+    """
+    # 1️⃣ 💚 Splits kop en body
+    kop, _, body = definitie.partition(':')
+    basisterm = kop.strip().lower()
+    body_lc = body.lower()
 
-    if uitleg_aanwezig:
-        return f"✔️ SAM-02: herhaling(en) ({', '.join(herhalingen)}) zijn betekenisvol gebruikt"
-    else:
-        return f"❌ SAM-02: overbodige herhaling(en) gevonden in definitie ({', '.join(herhalingen)})"
+    # 2️⃣ 💚 Probeer officiële definitie op te halen
+    base_def = fetch_base_definition(basisterm)
+    if base_def is not None:
+        # 2a️⃣ 💚 Parse genus + differentia (eenvoudig via split)
+        _, _, base_diff = base_def.partition(':')
+        # Check: genus (basisterm) moet in gekwalificeerde definitie
+        if basisterm not in definitie.lower():
+            return f"❌ SAM-02: genus (‘{basisterm}’) ontbreekt in gekwalificeerde definitie"
+        # Check: geen letterlijke herhaling van basisterm in differentia meer dan eens
+        count = len(re.findall(rf'\b{re.escape(basisterm)}\b', body_lc))
+        if count > 1:
+            return f"❌ SAM-02: overbodige herhaling van '{basisterm}' in differentia"
+        return f"✔️ SAM-02: gekwalificeerde definitie sluit aan op genus+differentia-patroon"
+
+    # 3️⃣ 💚 Fallback: regex-based herhalingscheck
+    count_fallback = len(re.findall(rf'\b{re.escape(basisterm)}\b', body_lc))
+
+    # <=1 vermelding = geen overbodige herhaling
+    if count_fallback <= 1:
+        return "✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie"
+
+    # >1 vermelding = check voorbeelden
+    tekst_lc = definitie.lower()
+    goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
+    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    goed_aanwezig = any(g in tekst_lc for g in goede)
+    fout_aanwezig = any(f in tekst_lc for f in fout)
+    if goed_aanwezig:
+        return f"✔️ SAM-02: meerdere vermeldingen van '{basisterm}' maar betekenisvol volgens goed voorbeeld"
+    if fout_aanwezig:
+        return f"❌ SAM-02: herhaling van '{basisterm}' lijkt op fout voorbeeld"
+    return f"❌ SAM-02: overbodige herhalingen van '{basisterm}' gevonden in de definitie"
 
 #✅ Toetsing voor regel SAM-03 (Definitieteksten niet nesten)
 def toets_SAM_03(definitie, regel):
