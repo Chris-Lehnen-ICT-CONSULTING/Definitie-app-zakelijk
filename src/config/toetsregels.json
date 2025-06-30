@@ -559,9 +559,9 @@
     "INT-09": {
       "id": "INT-09",
       "naam": "Opsomming in extensionele definitie is limitatief",
-      "uitleg": "Een opsomming van voorbeelden in een definitie moet als limitatief worden aangeduid als er geen andere gevallen buiten de lijst vallen.",
-      "toelichting": "Wanneer een definitie gebruikmaakt van een opsomming (bijvoorbeeld: 'zoals X, Y en Z'), moet expliciet zijn of deze opsomming limitatief is. Dit voorkomt verwarring over de vraag of er ook andere mogelijke gevallen zijn. De formulering moet dus zodanig zijn dat duidelijk is of de genoemde elementen de enige mogelijke zijn.",
-      "toetsvraag": "Is het bij een opsomming in de definitie duidelijk of deze limitatief is?",
+      "uitleg": "Een extensionele definitie definieert een begrip door opsomming van alle bedoelde elementen; deze opsomming moet uitsluitend limitatief zijn.",
+      "toelichting": "Een extensionele definitie is een definitie door opsomming van alle bedoelde elementen. Bijvoorbeeld VOERTUIG = AUTO of BOOT of VLIEGTUIG. Wanneer een opsomming in een definitie voorkomt, moet expliciet blijken dat de genoemde elementen de enige mogelijke zijn. Vermijd termen als \"zoals\", \"bijvoorbeeld\", \"onder andere\", \"enz.\" of \"waaronder begrepen\".",
+      "toetsvraag": "Is een opsomming in de definitie uitsluitend limitatief (zonder suggestie van andere mogelijke elementen)?",
       "herkenbaar_patronen": [
         "zoals",
         "bijvoorbeeld",
@@ -569,10 +569,13 @@
         "etc\\.",
         "enz\\.",
         "en andere",
-        "\\bo.a.\\b",
-        "\\binclusief\\b"
+        "\\bo\\.a\\.\\b",
+        "\\binclusief\\b",
+        "waaronder begrepen",
+        "al dan niet"
       ],
       "goede_voorbeelden": [
+        "niet-natuurlijk persoon: rechtspersoon of samenwerkingsverband",
         "voertuig: gemotoriseerd vervoermiddel, zoals auto, motorfiets of brommer (uitsluitend deze types)"
       ],
       "foute_voorbeelden": [
@@ -581,9 +584,9 @@
       ],
       "prioriteit": "midden",
       "aanbeveling": "verplicht",
-      "geldigheid": "gehele definitie",
+      "geldigheid": "termen die door extensionele definities worden gedefinieerd",
       "status": "definitief",
-      "type": "inhoud",
+      "type": "gehele definitie",
       "thema": "interne kwaliteit van de definitie",
       "brondocument": "ASTRA",
       "relatie": [
@@ -593,12 +596,12 @@
         }
       ]
     },
-    "INT-10": {
+  "INT-10": {
       "id": "INT-10",
       "naam": "Geen ontoegankelijke achtergrondkennis nodig",
-      "uitleg": "Een definitie moet begrijpelijk zijn zonder specialistische voorkennis of impliciete kennis van interne structuren.",
-      "toelichting": "Een goede definitie is zelfstandig begrijpelijk. Het mag geen kennis vereisen van contexten, afkortingen of begrippen die alleen binnen een specifieke organisatie bekend zijn. Dit verhoogt de overdraagbaarheid en bruikbaarheid van definities.",
-      "toetsvraag": "Is de definitie begrijpelijk zonder dat er specifieke achtergrondkennis nodig is?",
+      "uitleg": "Een definitie moet begrijpelijk zijn zonder specialistische of niet-openbare kennis; uitzondering: zeer specifieke verwijzing naar openbare bron (bijv. wet met artikel).",
+      "toelichting": "Een goede definitie is zelfstandig begrijpelijk en mag niet verwijzen naar impliciete kennis in hoofden van mensen, interne procedures of niet-openbare documenten. Verwijzen naar een openbare bron (zoals een wet met specifiek artikel en hyperlink) is wel toegestaan mits eenduidig en volledig.",
+      "toetsvraag": "Is de definitie begrijpelijk zonder niet-openbare achtergrondkennis (behalve bij zeer specifieke bronvermelding)?",
       "herkenbaar_patronen": [
         "\\bzie\\b",
         "\\bzoals gedefinieerd in\\b",
@@ -606,14 +609,21 @@
         "\\bzoals bekend binnen\\b",
         "\\bvolgens interne richtlijn\\b",
         "\\binterne notitie\\b",
-        "\\bbekend binnen [a-zA-Z]+\\b"
+        "\\bbekend binnen [A-Za-z]+\\b",
+        "\\bindien\\b",
+        "benodigde bescheiden"
       ],
       "goede_voorbeelden": [
-        "instantie: organisatieonderdeel dat belast is met een bestuurlijke taak"
+        "instantie: organisatieonderdeel dat belast is met een bestuurlijke taak",
+        "… voldoet aan de criteria uit Wet politiegegevens art 13.1.d"
       ],
       "foute_voorbeelden": [
         "instantie: zie definitie in het beleidsdocument X",
-        "gegevens: zoals bekend binnen de sector"
+        "gegevens: zoals bekend binnen de sector",
+        "… voldoen aan wettelijke voorwaarden …",
+        "… indien blijkt uit de aard van het strafbare feit …",
+        "… indien de maatschappelijke impact van het gedrag …",
+        "… benodigde bescheiden …"
       ],
       "prioriteit": "hoog",
       "aanbeveling": "verplicht",
