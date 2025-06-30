@@ -676,28 +676,23 @@
     "SAM-02": {
       "id": "SAM-02",
       "naam": "Kwalificatie omvat geen herhaling",
-      "uitleg": "Een definitie mag geen overbodige herhaling bevatten van de term of elementen daarvan.",
-      "toelichting": "Het komt voor dat de definitie nodeloos herhaalt wat al in de term zelf staat. Dit is overbodig en doet af aan de informatieve waarde van de definitie. Vermijd dus formuleringen waarin het begrip of synoniemen daarvan letterlijk worden herhaald.",
-      "toetsvraag": "Bevat de definitie een overbodige herhaling van de term of van elementen daarvan?",
-      "herkenbaar_patronen": [
-        "\\b\\w*gegevens\\w*\\b",
-        "\\b\\w*registratie\\w*\\b",
-        "\\b\\w*maatregel\\w*\\b"
-      ],
+      "uitleg": "Als een begrip wordt gekwalificeerd, mag de definitie geen herhaling bevatten uit of conflict bevatten met de definitie van het hoofdbegrip.",
+      "toelichting": "Letterlijke herhaling of nauwkeurige paraphrasering van de basisterm of elementen daarvan leidt tot misverstanden en strijdt met andere principes zoals 'Definities niet nesten' en 'Kwalificatie leidt niet tot afwijking'. Gebruik een genus+differentia-patroon zonder herhaling van de eerdere definitie.",
+      "toetsvraag": "Bevat de definitie herhaling of conflict met de definitie van het hoofdbegrip?",
+      "herkenbaar_patronen": [],
       "goede_voorbeelden": [
-        "gegevensbestand: digitale structuur voor het opslaan van informatie",
-        "registratie: handeling waarbij gegevens worden vastgelegd"
+        "delict: menselijke gedraging die binnen de grenzen van een wettelijke strafbepaling valt",
+        "opgehelderd delict: delict waarvoor de politie voldoende bewijs tegen een verdachte heeft om te veroordelen"
       ],
       "foute_voorbeelden": [
-        "gegevensbestand: bestand met gegevens",
-        "registratie: registratie van gegevens"
+        "delict: delict dat binnen de grenzen van een of meer wettelijke strafbepalingen valt en waarvoor de politie voldoende bewijs tegen een verdachte heeft voor een veroordeling"
       ],
-      "prioriteit": "laag",
-      "aanbeveling": "aanbevolen",
+      "prioriteit": "hoog",
+      "aanbeveling": "verplicht",
       "geldigheid": "gehele definitie",
       "status": "definitief",
-      "type": "semantische zuiverheid",
-      "thema": "betekenisconsistentie",
+      "type": "gehele definitie",
+      "thema": "samenhang binnen domein",
       "brondocument": "ASTRA",
       "relatie": [
         {
