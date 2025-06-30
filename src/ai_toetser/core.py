@@ -987,25 +987,49 @@ def toets_SAM_02(definitie: str, regel: Dict[str, Any]) -> str:
     return f"❌ SAM-02: overbodige herhalingen van '{basisterm}' gevonden in de definitie"
 
 #✅ Toetsing voor regel SAM-03 (Definitieteksten niet nesten)
-def toets_SAM_03(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    nesten = set()
-    for patroon in patroon_lijst:
-        nesten.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_SAM_03(definitie: str, regel: Dict[str, Any]) -> str:
+    """
+    SAM-03: Definitieteksten niet nesten
+    ------------------------------------
+    Een definitie van een begrip, of een belangrijk deel daarvan, mag niet
+    letterlijk worden herhaald in de definitie van een ander begrip.
+    
+    Stappen:
+      1️⃣ Haal herkenbare patronen op uit de JSON-regel.
+      2️⃣ Vind alle matches (lowercase, uniek).
+      3️⃣ Als geen matches → ✔️ geen geneste definities.
+      4️⃣ Check op aanwezigheid van goede voorbeelden.
+      5️⃣ Check op aanwezigheid van foute voorbeelden.
+      6️⃣ Formuleer ✔️/❌ op basis van deze checks.
+    """
+    # 1️⃣ 💚 Haal patronen op
+    patronen = regel.get("herkenbaar_patronen", [])
+    
+    # 2️⃣ 💚 Verzamel alle genestelde trefwoorden
+    nesten = {
+        m.group(0).lower()
+        for pat in patronen
+        for m in re.finditer(pat, definitie, flags=re.IGNORECASE)
+    }
 
+    # 3️⃣ 💚 Geen geneste definities
     if not nesten:
         return "✔️ SAM-03: geen geneste of verweven definities aangetroffen"
 
-    uitleg_aanwezig = any(
-        voorbeeld.lower() in definitie.lower()
-        for voorbeeld in regel.get("goede_voorbeelden", [])
-    )
+    # 4️⃣ & 5️⃣ 💚 Voorbeelden-check
+    tekst_lc = definitie.lower()
+    goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
+    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    goed_aanwezig = any(g in tekst_lc for g in goede)
+    fout_aanwezig = any(f in tekst_lc for f in fout)
 
-    if uitleg_aanwezig:
-        return f"✔️ SAM-03: verwijzingen ({', '.join(nesten)}) correct gebruikt"
-    else:
-        return f"❌ SAM-03: definitie bevat geneste verwijzingen ({', '.join(nesten)}), liever afzonderlijk definiëren"
-
+    # 6️⃣ 💚 Resultaatbericht
+    items = ", ".join(sorted(nesten))
+    if goed_aanwezig:
+        return f"✔️ SAM-03: verwijzingen ({items}) correct volgens goed voorbeeld"
+    if fout_aanwezig:
+        return f"❌ SAM-03: definities bevatten ({items}), lijkt op fout voorbeeld"
+    return f"❌ SAM-03: definitie bevat geneste verwijzingen ({items}), definities liever afzonderlijk"
 # ✅ Toetsing voor regel SAM-04 (Begrip-samenstelling strijdt niet met samenstellende begrippen)
 # Deze toets controleert of de definitie van een samengesteld begrip niet in tegenspraak is
 # met de betekenis van de samenstellende begrippen. Het gebruikt regex-patronen om conflicten
