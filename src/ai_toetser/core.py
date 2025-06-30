@@ -1030,38 +1030,51 @@ def toets_SAM_03(definitie: str, regel: Dict[str, Any]) -> str:
     if fout_aanwezig:
         return f"❌ SAM-03: definities bevatten ({items}), lijkt op fout voorbeeld"
     return f"❌ SAM-03: definitie bevat geneste verwijzingen ({items}), definities liever afzonderlijk"
-# ✅ Toetsing voor regel SAM-04 (Begrip-samenstelling strijdt niet met samenstellende begrippen)
-# Deze toets controleert of de definitie van een samengesteld begrip niet in tegenspraak is
-# met de betekenis van de samenstellende begrippen. Het gebruikt regex-patronen om conflicten
-# zoals "geen X" of "niet van toepassing op Y" te detecteren, en vergelijkt de formulering
-# met bekende foute en goede voorbeelden om semantische inconsistentie op te sporen.
-def toets_SAM_04(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    conflicten_gevonden = set()
-    for patroon in patroon_lijst:
-        conflicten_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_SAM_04(definitie: str, regel: Dict[str, Any]) -> str:
+    """
+    SAM-04: Begrip-samenstelling strijdt niet met samenstellende begrippen
+    ---------------------------------------------------------------------
+    De definitie van een samengesteld begrip moet een specialisatie zijn
+    van één van de samenstellende delen (genus). De definitie moet daarom
+    beginnen met dat genus, gevolgd door een differentia.
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+    Stappen:
+      1️⃣ Splits composite_term (kop) en body (na ':').
+      2️⃣ Isolatie van het deel vóór 'van', 'die' of 'dat'.
+      3️⃣ Bepaal genus_word als het laatste woord uit dat fragment.
+      4️⃣ Controleer of composite_term (zonder spaties) eindigt op genus_word.
+      5️⃣ Override met voorbeelden:
+         • ✔️ als goed voorbeeld aanwezig
+         • ❌ als fout voorbeeld aanwezig
+    """
+    # 1️⃣ 💚 Splits kop en body
+    kop, _, body = definitie.partition(':')
+    composite = kop.strip().replace(" ", "").lower()
+    body_lc = body.strip().lower()
 
-    goede_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+    # 2️⃣ 💚 Isolatie vóór de eerste 'van', 'die' of 'dat'
+    intro = re.split(r'\bvan\b|\bdie\b|\bdat\b', body_lc, maxsplit=1)[0]
 
-    if not conflicten_gevonden:
-        if goede_aanwezig:
-            return "✔️ SAM-04: geen semantisch conflict gevonden – consistent met samenstellende begrippen zoals bij goed voorbeeld"
-        return "✔️ SAM-04: geen conflictieve formuleringen aangetroffen – mogelijk correct gedefinieerd"
+    # 3️⃣ 💚 Pak laatste token als genus_word
+    tokens = intro.strip().split()
+    genus_word = tokens[-1] if tokens else ""
 
-    if foute_aanwezig:
-        return (
-            f"❌ SAM-04: mogelijk conflict tussen begrip en deelbegrippen herkend "
-            f"({', '.join(conflicten_gevonden)}), en lijkt sterk op fout voorbeeld"
-        )
+    # 4️⃣ 💚 Genus–check
+    conflict = not composite.endswith(genus_word)
 
-    return (
-        f"❌ SAM-04: potentieel conflict gevonden tussen begrip en samenstellende delen "
-        f"({', '.join(conflicten_gevonden)}), zonder duidelijke toelichting of verantwoording"
-    )
+    # 5️⃣ 💚 Voorbeelden-override
+    tekst_lc = definitie.lower()
+    goed = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
+    fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    if any(g in tekst_lc for g in goed):
+        return "✔️ SAM-04: consistent met samenstellende begrippen (volgens goed voorbeeld)"
+    if any(f in tekst_lc for f in fout):
+        return "❌ SAM-04: strijdig met samenstellende begrippen (volgens fout voorbeeld)"
+
+    # Return op basis van genus-check
+    if not conflict:
+        return f"✔️ SAM-04: genus (‘{genus_word}’) sluit aan op compositie (‘{composite}’)"
+    return f"❌ SAM-04: genus (‘{genus_word}’) komt niet overeen met compositie (‘{composite}’)"
 
 # ✅ SAM-05: gebruikt dezelfde controle als ARAI06 maar focust enkel op cirkeldefinitie
 def toets_SAM_05(definitie: str, regel: dict, begrip: str = None) -> str:
