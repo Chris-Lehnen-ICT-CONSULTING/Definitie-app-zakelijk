@@ -180,90 +180,81 @@ def toets_ESS_01(definitie: str, regel: dict) -> str:
     return "✔️ ESS-01: geen doelgerichte formuleringen aangetroffen"
 
 
-def toets_ESS_02(definitie: str, regel: dict) -> str:
+
+def toets_ESS_02(definitie: str, regel: Dict[str, Any]) -> str:
     """
-    ESS-02: Polysemie – proces vs. resultaat.
+    ESS-02: Ontologische categorie expliciteren (type / particulier / proces / resultaat)
+    -----------------------------------------------------------------------------------
+    Indien een begrip meerdere ontologische categorieën kan aanduiden, 
+    moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt:
+      • type (soort)
+      • particulier (exemplaar)
+      • proces (activiteit)
+      • resultaat (uitkomst)
 
-    📝 Achtergrond (ASTRA 3.2-discussie):
-        • In de DBT-documentatie wordt gesproken over ‘type vs. instance’, 
-          maar in de praktijk veroorzaakte dat verwarring (methodes vs. acties, 
-          ontologische ‘punning’, etc.). 
-        • Daarom kiezen we hier voor de twee meest voorkomende betekenislagen:
-            1. **Proces/activiteit**  – de handeling zelf (werkwoordelijk karakter)
-            2. **Resultaat/uitkomst** – het product of effect daarvan
-        • Een goede definitie geeft ondubbelzinnig aan welke laag bedoeld wordt,
-          om polysemie (dubbele betekenis) te voorkomen.
-
-    ✅ Toetsvraag:
-      “Geeft de definitie ondubbelzinnig aan of het begrip **een proces/activiteit** is
-       of **een uitkomst/resultaat**?”
-
-    Volgorde van de checks:
-      1️⃣ **Expliciete foute voorbeelden** (JSON ↦ `foute_voorbeelden`): 
-         Vang zinnen af die volgens de ASTRA-voorbeelden absoluut niet mogen voorkomen.
-      2️⃣ **Proces-detectie** (JSON ↦ `herkenbaar_patronen_proces`):
-         Zoek patronen als “is een proces”, “activiteit”, “methode” etc.
-      3️⃣ **Resultaat-detectie** (JSON ↦ `herkenbaar_patronen_resultaat`):
-         Zoek patronen als “is het resultaat van”, “uitkomst”, “effect” etc.
-      4️⃣ **Oordeel**:
-         • Alleen proces → ✔️  
-         • Alleen resultaat → ✔️  
-         • Beide → ❌ (ambiguïteit – kies één betekenislaag)  
-         • Geen van beide → ❌ (geen duidelijke aanwijzing)
-
-    Return-format:
-      • Succes:  "✔️ ESS-02: …"
-      • Fout:     "❌ ESS-02: …"
+    Volgorde:
+      1️⃣ Expliciete foute voorbeelden per categorie → ❌
+      2️⃣ Detectie via patronen per categorie
+      3️⃣ Één categorie hit → ✔️
+      4️⃣ Meerdere hits → ❌ ambiguïteit
+      5️⃣ Geen hits → check goede voorbeelden per categorie → ✔️
+      6️⃣ Anders → ❌ geen duidelijke marker
     """
-
     d = definitie.lower().strip()
 
-    # 1️⃣ Expliciete foute voorbeelden
-    for fout in regel.get("foute_voorbeelden", []):
-        if fout.lower() in d:
-            return (
-                "❌ ESS-02: definitie bevat een expliciet fout voorbeeld – "
-                "vermijd deze formulering"
-            )
+    # 1️⃣ Expliciete foute voorbeelden per categorie
+    categories = [
+        ("type", "foute_voorbeelden_type"),
+        ("particulier", "foute_voorbeelden_particulier"),
+        ("proces", "foute_voorbeelden_proces"),
+        ("resultaat", "foute_voorbeelden_resultaat"),
+    ]
+    for cat, key in categories:
+        for voorbeeld in regel.get(key, []):
+            if voorbeeld.lower() in d:
+                return (f"❌ ESS-02: expliciet fout voorbeeld voor {cat} gevonden "
+                        f"– vermijd deze formulering")
 
-    # 2️⃣ Proces/activiteit detectie
-    proces_hits = []
-    for pat in regel.get("herkenbaar_patronen_proces", []):
-        if re.search(pat, d, flags=re.IGNORECASE):
-            proces_hits.append(pat)
+    # 2️⃣ Detectie via patronen per categorie
+    hits: Dict[str, List[str]] = {}
+    pattern_keys = {
+        "type": "herkenbaar_patronen_type",
+        "particulier": "herkenbaar_patronen_particulier",
+        "proces": "herkenbaar_patronen_proces",
+        "resultaat": "herkenbaar_patronen_resultaat",
+    }
+    for cat, pat_key in pattern_keys.items():
+        for pat in regel.get(pat_key, []):
+            if re.search(pat, d, flags=re.IGNORECASE):
+                hits.setdefault(cat, []).append(pat)
 
-    # 3️⃣ Resultaat/uitkomst detectie
-    resultaat_hits = []
-    for pat in regel.get("herkenbaar_patronen_resultaat", []):
-        if re.search(pat, d, flags=re.IGNORECASE):
-            resultaat_hits.append(pat)
+    # 3️⃣ Één categorie → ✔️
+    if len(hits) == 1:
+        cat, pats = next(iter(hits.items()))
+        unieke = ", ".join(sorted(set(pats)))
+        return f"✔️ ESS-02: eenduidig als {cat} gedefinieerd ({unieke})"
 
-    # 4️⃣ Oordeel toekennen
-    if proces_hits and not resultaat_hits:
-        unieke = sorted(set(proces_hits))
-        return (
-            f"✔️ ESS-02: eenduidig als proces/activiteit gedefinieerd "
-            f"({', '.join(unieke)})"
-        )
+    # 4️⃣ Meerdere categorieën → ❌ ambiguïteit
+    if len(hits) > 1:
+        found = ", ".join(sorted(hits.keys()))
+        return (f"❌ ESS-02: ambiguïteit – meerdere categories herkend ({found}); "
+                "kies één betekenislaag")
 
-    if resultaat_hits and not proces_hits:
-        unieke = sorted(set(resultaat_hits))
-        return (
-            f"✔️ ESS-02: eenduidig als resultaat/uitkomst gedefinieerd "
-            f"({', '.join(unieke)})"
-        )
+    # 5️⃣ Geen hits → goede voorbeelden per categorie
+    good_keys = {
+        "type": "goede_voorbeelden_type",
+        "particulier": "goede_voorbeelden_particulier",
+        "proces": "goede_voorbeelden_proces",
+        "resultaat": "goede_voorbeelden_resultaat",
+    }
+    for cat, key in good_keys.items():
+        for voorbeeld in regel.get(key, []):
+            if voorbeeld.lower() in d:
+                return f"✔️ ESS-02: eenduidig als {cat} gedefinieerd (voorbeeld match)"
 
-    if proces_hits and resultaat_hits:
-        return (
-            "❌ ESS-02: ambiguïteit – zowel proces/activiteit als resultaat "
-            "herkend; kies één betekenislaag"
-        )
-
-    # Fallback: geen enkele laag herkend
-    return (
-        "❌ ESS-02: geen duidelijke aanwijzing voor proces of resultaat in "
-        "de definitie gevonden"
-    )
+    # 6️⃣ Fallback → geen marker
+    return ("❌ ESS-02: geen duidelijke ontologische marker "
+            "(type, particulier, proces of resultaat) gevonden")
 def toets_ESS_03(definitie: str, regel: dict) -> str:
     """
     ESS-03: Instanties uniek onderscheidbaar (telbaarheid).
