@@ -1,5 +1,6 @@
 import os
 import re
+from typing import Dict, Any
 from web_lookup.lookup import is_plurale_tantum
 # --- 🔪 Externe bibliotheken (via pip) ---
 # 📌 Streamlit pagina-configuratie
@@ -766,76 +767,160 @@ def toets_INT_08(definitie: str, regel: Dict) -> str:
 
 
 # ✅ Toetsing voor regel INT-09 (Opsomming is limitatief)
-def toets_INT_09(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    opsommingen_gevonden = set()
-    for patroon in patroon_lijst:
-        opsommingen_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_INT_09(definitie: str, regel: Dict) -> str:
+    """
+    INT-09: Opsomming in extensionele definitie is limitatief
+    --------------------------------------------------------
+    In extensionele definities worden alle bedoelde elementen opgesomd.
+    Wanneer een definitie opsommingstermen bevat (zoals 'zoals', 'bijvoorbeeld'),
+    moet expliciet blijken dat de genoemde elementen de enige mogelijke zijn.
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+    Stappen:
+      1️⃣ Haal alle ongewenste opsommingspatronen uit JSON op.
+      2️⃣ Verzamel alle treffers (lowercase, uniek).
+      3️⃣ Check of een goed voorbeeld uit JSON in de definitie staat.
+      4️⃣ Check of een fout voorbeeld uit JSON in de definitie staat.
+      5️⃣ Als geen ongewenste termen gevonden:
+          – Als goed voorbeeld aanwezig → ✅ geen ongewenste termen, komt overeen met goed voorbeeld
+          – Anders            → ✅ geen ongewenste opsommingstermen gevonden
+      6️⃣ Als wel ongewenste termen gevonden:
+          – Als goed voorbeeld aanwezig → ✅ opsommingswoorden (...) voorkomen, maar correct limitatief verwoord
+          – Als fout voorbeeld aanwezig  → ❌ opsommingswoorden (...) lijken op fout voorbeeld
+          – Anders                       → ❌ opsommingswoorden (...) zonder duidelijke limitatieve aanduiding
+    """
+    # 1️⃣ 💚 Haal de herkenbare ongewenste opsommingspatronen op
+    patronen = regel.get("herkenbaar_patronen", [])
 
-    uitleg_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+    # 2️⃣ 💚 Verzamel alle treffers (lowercase, uniek)
+    ongewenste_termen = {
+        match.group(0).lower()
+        for pat in patronen
+        for match in re.finditer(pat, definitie, flags=re.IGNORECASE)
+    }
 
-    if not opsommingen_gevonden:
+    # 3️⃣ & 4️⃣ 💚 Voorbeelden-check
+    tekst_lc = definitie.lower()
+    goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
+    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    uitleg_aanwezig = any(vb in tekst_lc for vb in goede)
+    fout_aanwezig  = any(vb in tekst_lc for vb in fout)
+
+    # 5️⃣ 💚 Geen ongewenste termen gevonden
+    if not ongewenste_termen:
         if uitleg_aanwezig:
-            return "✅ INT-09: geen opsommingen, definitie komt overeen met goed voorbeeld"
-        return "✅ INT-09: geen opsommingen gevonden in de definitie"
+            return "✅ INT-09: geen ongewenste opsommingswoorden, komt overeen met goed voorbeeld"
+        return "✅ INT-09: geen ongewenste opsommingswoorden gevonden"
 
+    # 6️⃣ 💚 Ongewenste termen wél gevonden
+    termen_str = ", ".join(sorted(ongewenste_termen))
     if uitleg_aanwezig:
-        return f"✅ INT-09: opsommingen ({', '.join(opsommingen_gevonden)}) correct als limitatief verwoord"
-
-    if foute_aanwezig:
-        return f"❌ INT-09: opsommingen ({', '.join(opsommingen_gevonden)}) lijken op fout voorbeeld"
-
-    return f"❌ INT-09: opsommingen ({', '.join(opsommingen_gevonden)}) gevonden, maar zonder duidelijke toelichting"
+        return (
+            f"✅ INT-09: opsommingswoorden ({termen_str}) voorkomen, "
+            "maar correct limitatief verwoord volgens goed voorbeeld"
+        )
+    if fout_aanwezig:
+        return f"❌ INT-09: opsommingswoorden ({termen_str}) lijken op fout voorbeeld"
+    return f"❌ INT-09: opsommingswoorden ({termen_str}) zonder duidelijke limitatieve aanduiding"
 
 # ✅ Toetsing voor regel INT-10 (Geen ontoegankelijke achtergrondkennis nodig)
-def toets_INT_10(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    verwijzingen_gevonden = set()
-    for patroon in patroon_lijst:
-        verwijzingen_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+def toets_INT_10(definitie: str, regel: Dict) -> str:
+    """
+    INT-10: Geen ontoegankelijke achtergrondkennis nodig
+    ---------------------------------------------------
+    Een definitie mag niet verwijzen naar impliciete of niet-openbare kennis.
+    Uitzondering: zeer specifieke verwijzing naar openbare bron (bv. wet met artikel).
+    
+    Stappen:
+      1️⃣ Haal alle herkenbare achtergrondverwijzings­patronen op uit JSON.
+      2️⃣ Verzamel alle treffers (lowercase, uniek).
+      3️⃣ Controleer op aanwezigheid van goede voorbeelden.
+      4️⃣ Controleer op aanwezigheid van foute voorbeelden.
+      5️⃣ Als geen ongewenste verwijzingen:
+         – Als goed voorbeeld aanwezig → ✅ komt overeen met voorbeeld
+         – Anders                 → ✅ geen ontoegankelijke verwijzingen
+      6️⃣ Als wel ongewenste verwijzingen:
+         – Als goed voorbeeld aanwezig → ✅ verwijzingen (…) zijn toegestaan volgens voorbeeld
+         – Als fout voorbeeld aanwezig  → ❌ verwijzingen (…) lijken op fout voorbeeld
+         – Anders                       → ❌ verwijzingen (…) zonder toelichting
+    """
+    # 1️⃣ ✅ Haal patronen op
+    patronen = regel.get("herkenbaar_patronen", [])
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+    # 2️⃣ ✅ Verzamel treffers (lowercase, uniek)
+    vondsten = {
+        m.group(0).lower()
+        for pat in patronen
+        for m in re.finditer(pat, definitie, flags=re.IGNORECASE)
+    }
 
-    uitleg_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+    # 3️⃣ & 4️⃣ ✅ Voorbeelden-check
+    tekst_lc = definitie.lower()
+    goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
+    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    goed_aanwezig = any(v in tekst_lc for v in goede)
+    fout_aanwezig = any(v in tekst_lc for v in fout)
 
-    if not verwijzingen_gevonden:
-        if uitleg_aanwezig:
-            return "✅ INT-10: geen ontoegankelijke verwijzingen en komt overeen met goed voorbeeld"
+    # 5️⃣ ✅ Geen ongewenste verwijzingen gevonden
+    if not vondsten:
+        if goed_aanwezig:
+            return "✅ INT-10: geen ontoegankelijke verwijzingen, komt overeen met goed voorbeeld"
         return "✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden"
 
-    if uitleg_aanwezig:
-        return f"✅ INT-10: verwijzingen ({', '.join(verwijzingen_gevonden)}) zijn voldoende verklaard"
+    # 6️⃣ ✅/❌ Ongewenste verwijzingen wél gevonden
+    items = ", ".join(sorted(vondsten))
+    if goed_aanwezig:
+        return f"✅ INT-10: verwijzingen ({items}) zijn toegestaan volgens goed voorbeeld"
+    if fout_aanwezig:
+        return f"❌ INT-10: verwijzingen ({items}) gevonden, formulering lijkt op fout voorbeeld"
+    return f"❌ INT-10: verwijzingen ({items}) gevonden, zonder uitleg of toelichting"
 
-    if foute_aanwezig:
-        return f"❌ INT-10: verwijzingen ({', '.join(verwijzingen_gevonden)}) gevonden, formulering lijkt op fout voorbeeld"
+def toets_SAM_01(definitie: str, regel: Dict[str, Any]) -> str:
+    """
+    SAM-01: Kwalificatie leidt niet tot afwijking
+    --------------------------------------------
+    Een definitie van een gekwalificeerd begrip moet de basisterm expliciet bevatten
+    en mag geen nieuwe betekenis introduceren: de gekwalificeerde term is altijd
+    een subcategorie van de niet-gekwalificeerde term (genus + differentia-patroon).
 
-    return f"❌ INT-10: verwijzingen ({', '.join(verwijzingen_gevonden)}) gevonden, zonder uitleg of toelichting"
+    Stappen:
+      1️⃣ Haal herkenbare kwalificatie-adjectieven op uit de JSON-regel.
+      2️⃣ Verzamel alle kwalificaties (lowercase, uniek).
+      3️⃣ Als er geen kwalificaties zijn → ✔️ geen afwijkende kwalificaties.
+      4️⃣ Controleer op aanwezigheid van goede voorbeelden.
+      5️⃣ Controleer op aanwezigheid van foute voorbeelden.
+      6️⃣ Formuleer resultaatbericht:
+         – ✔️ bij goede voorbeelden
+         – ❌ bij foute voorbeelden
+         – ❌ anders: mogelijke semantische afwijking
+    """
+    # 1️⃣ 💚 Haal patronen voor kwalificaties op
+    patronen = regel.get("herkenbaar_patronen", [])
 
-#✅ Toetsing voor regel SAM-01 (Kwalificatie leidt niet tot afwijking)
-def toets_SAM_01(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    kwalificaties_gevonden = set()
-    for patroon in patroon_lijst:
-        kwalificaties_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+    # 2️⃣ 💚 Verzamel alle matches (lowercase, uniek)
+    kwalificaties = {
+        m.group(0).lower()
+        for pat in patronen
+        for m in re.finditer(pat, definitie, flags=re.IGNORECASE)
+    }
 
-    if not kwalificaties_gevonden:
+    # 3️⃣ 💚 Geen kwalificaties aangetroffen
+    if not kwalificaties:
         return "✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie"
 
-    uitleg_aanwezig = any(
-        voorbeeld.lower() in definitie.lower()
-        for voorbeeld in regel.get("goede_voorbeelden", [])
-    )
+    # 4️⃣ & 5️⃣ 💚 Check voorbeelden
+    tekst_lc = definitie.lower()
+    goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
+    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    goed_aanwezig = any(v in tekst_lc for v in goede)
+    fout_aanwezig = any(v in tekst_lc for v in fout)
 
-    if uitleg_aanwezig:
-        return f"✔️ SAM-01: kwalificaties ({', '.join(kwalificaties_gevonden)}) zijn correct toegepast zoals in goede voorbeelden"
-    else:
-        return f"❌ SAM-01: kwalificaties ({', '.join(kwalificaties_gevonden)}) kunnen afwijken van gebruikelijke betekenis"
+    # 6️⃣ 💚 Resultaatberichten
+    items = ", ".join(sorted(kwalificaties))
+    if goed_aanwezig:
+        return f"✔️ SAM-01: kwalificaties ({items}) correct toegepast volgens goede voorbeelden"
+    if fout_aanwezig:
+        return f"❌ SAM-01: kwalificaties ({items}) wijken af volgens fout voorbeeld"
+    return f"❌ SAM-01: kwalificaties ({items}) kunnen afwijken van algemeen aanvaarde betekenis"
 
 #✅ Toetsing voor regel SAM-02 (Kwalificatie omvat geen herhaling)
 def toets_SAM_02(definitie, regel):
