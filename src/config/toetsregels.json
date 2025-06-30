@@ -736,25 +736,23 @@
     "SAM-04": {
       "id": "SAM-04",
       "naam": "Begrip-samenstelling strijdt niet met samenstellende begrippen",
-      "uitleg": "De betekenis van een samengesteld begrip mag niet in strijd zijn met de betekenissen van de samenstellende begrippen.",
-      "toelichting": "Wanneer een begrip is opgebouwd uit twee of meer termen (bijv. 'beleidsregelgegevens'), moet de definitie van het geheel logisch voortvloeien uit de betekenis van de losse begrippen. Conflicten tussen deel en geheel leiden tot verwarring.",
-      "toetsvraag": "Strookt de definitie van het samengestelde begrip met de betekenissen van de samenstellende begrippen?",
-      "herkenbaar_patronen": [
-        "\\bgeen .*\\b",
-        "\\bniet van toepassing op\\b"
-      ],
+      "uitleg": "De betekenis van een samengesteld begrip mag niet in strijd zijn met de betekenissen van de samenstellende begrippen; de samenstelling leidt tot een specialisatie van één van de delen.",
+      "toelichting": "Een samenstelling (bijv. 'procesmodel') is altijd een specialisatie van één van de componenten (hier: 'model'). De definitie moet beginnen met dat component (genus) en daarna specificeren. Conflict ontstaat als je een ander begrip als genus gebruikt.",
+      "toetsvraag": "Begint de definitie met het onderdeel dat de specialisatie vormt van de samenstelling?",
+      "herkenbaar_patronen": [],
       "goede_voorbeelden": [
-        "persoonsgegevens: gegevens die betrekking hebben op een geïdentificeerde of identificeerbare natuurlijke persoon"
+        "procesmodel: model van een proces",
+        "procesmodel: schematisch model van een proces"
       ],
       "foute_voorbeelden": [
-        "beleidsregelgegevens: gegevens die geen beleidsregel bevatten"
+        "procesmodel: weergave, meestal als diagram, van een proces"
       ],
       "prioriteit": "hoog",
       "aanbeveling": "verplicht",
       "geldigheid": "samengestelde begrippen",
       "status": "definitief",
-      "type": "semantische zuiverheid",
-      "thema": "betekenisconsistentie",
+      "type": "samenhang tussen termen/definities",
+      "thema": "samenhang binnen domein",
       "brondocument": "ASTRA",
       "relatie": [
         {
