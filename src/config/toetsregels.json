@@ -519,12 +519,12 @@
       }
     ]
   },
-    "INT-08": {
+  "INT-08": {
       "id": "INT-08",
       "naam": "Positieve formulering",
-      "uitleg": "Een definitie is positief geformuleerd en vermijdt ontkenningen of formuleringen in de negatieve vorm.",
-      "toelichting": "Negatieve formuleringen kunnen verwarrend zijn of leiden tot onduidelijkheid. Een definitie moet helder en direct aangeven wat iets *wel* is, in plaats van wat het *niet* is. Dit verhoogt de begrijpelijkheid en voorkomt interpretatieverschillen.",
-      "toetsvraag": "Is de definitie positief geformuleerd en vermijdt deze negatieve formuleringen?",
+      "uitleg": "Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).",
+      "toelichting": "Negatieve formuleringen kunnen verwarrend zijn of leiden tot onduidelijkheid. Een definitie moet helder en direct aangeven wat iets *wel* is, in plaats van wat het *niet* is. Elementen die een definitie specifieker maken, bijvoorbeeld via een relatieve bijzin, mogen wél in ontkennende vorm worden geformuleerd.",
+      "toetsvraag": "Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?",
       "herkenbaar_patronen": [
         "\\bniet\\b",
         "\\bgeen\\b",
@@ -535,7 +535,8 @@
         "\\bvermijdt\\b"
       ],
       "goede_voorbeelden": [
-        "bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien"
+        "bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien",
+        "gevangene: persoon die zich niet vrij kan bewegen"
       ],
       "foute_voorbeelden": [
         "bevoegd persoon: iemand die niet onbevoegd is",
