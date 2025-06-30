@@ -640,31 +640,59 @@ def toets_INT_06(definitie: str, regel: dict) -> str:
     return "✔️ INT-06: geen toelichtende elementen in de definitie gevonden"
 
 # ✅ Toetsing voor regel INT-07 (afkortingen)
-def toets_INT_07(definitie, regel):
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    afkortingen_gevonden = set()
-    for patroon in patroon_lijst:
-        afkortingen_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+import re
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+def toets_INT_07(definitie: str, regel: dict) -> str:
+    """
+    INT-07: Alleen toegankelijke afkortingen.
 
-    uitleg_aanwezig = any(uitleg.lower() in definitie.lower() for uitleg in goede_voorbeelden)
-    foute_uitleg_aanwezig = any(fout.lower() in definitie.lower() for fout in foute_voorbeelden)
+    1️⃣ Vind alle afkortingen via JSON-patronen.
+    2️⃣ Expliciete foute voorbeelden eerst (zonder toelichting) → ❌
+    3️⃣ Voor elke gevonden afkorting check:
+         • DJI (Dienst Justitiële Inrichtingen)
+         • AVG (…​)
+         • [AVG](…​)
+         • [[…​]]
+       Zo niet → afkorting missen toelichting.
+    4️⃣ Als alle afkortingen ok zijn → ✔️
+       Anders → ❌ met de lijst van afkortingen zonder toelichting.
+    """
+    tekst = definitie
+    tekst_lc = tekst.lower()
 
-    if not afkortingen_gevonden:
-        if uitleg_aanwezig:
-            return "✅ INT-07: geen afkortingen gevonden, definitie komt overeen met goed voorbeeld"
-        return "✅ INT-07: geen afkortingen gevonden in de definitie"
+    # 1️⃣ Expliciete foute voorbeelden krijgen prioriteit
+    for fout in regel.get("foute_voorbeelden", []):
+        if fout.lower() in tekst_lc:
+            return f"❌ INT-07: afkorting zonder uitleg aangetroffen in voorbeeld (‘{fout}’)"
 
-    if uitleg_aanwezig:
-        return f"✅ INT-07: afkortingen gevonden ({', '.join(afkortingen_gevonden)}) en correct toegelicht"
+    # 2️⃣ Vind álle afkortingen via JSON-patronen
+    afk_patronen = regel.get("herkenbaar_patronen", [])
+    afkorts = set()
+    for pat in afk_patronen:
+        afkorts.update(re.findall(pat, tekst))
 
-    if foute_uitleg_aanwezig:
-        return f"❌ INT-07: afkortingen gevonden ({', '.join(afkortingen_gevonden)}), maar formulering lijkt op fout voorbeeld"
+    if not afkorts:
+        return "✔️ INT-07: geen afkortingen in de definitie"
 
-    return f"❌ INT-07: afkortingen gevonden ({', '.join(afkortingen_gevonden)}), maar geen toelichting of verwijzing gevonden"
+    # 3️⃣ Voor elke afkorting: controleren op uitleg of link
+    zonder_toelichting = []
+    for ab in sorted(afkorts):
+        esc = re.escape(ab)
+        # check op "(…​)" direct na de afkorting
+        has_parenth = bool(re.search(rf"{esc}\s*\([^)]*?\)", tekst))
+        # check op Markdown link [AB](…)
+        has_mdlink  = bool(re.search(rf"\[{esc}\]\(.*?\)", tekst))
+        # check op Wiki-link [[…]]
+        has_wikilink = bool(re.search(rf"\[\[.*?\]\]", tekst))
 
+        if not (has_parenth or has_mdlink or has_wikilink):
+            zonder_toelichting.append(ab)
+
+    # 4️⃣ Eindoordeel
+    if zonder_toelichting:
+        labels = ", ".join(zonder_toelichting)
+        return f"❌ INT-07: geen toelichting voor afkorting(en): {labels}"
+    return f"✔️ INT-07: alle afkortingen voorzien van directe toelichting of link"
 # ✅ Toetsing voor regel INT-08 (Positieve formulering)
 def toets_INT_08(definitie, regel):
     patroon_lijst = regel.get("herkenbaar_patronen", [])
