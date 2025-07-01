@@ -7,7 +7,7 @@ from typing import Optional, List, Dict, Set
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
 from config.verboden_woorden import laad_verboden_woorden
-from config.toetsregels import laad_toetsregels
+from config import laad_toetsregels
 
 # ✅ Initialiseer OpenAI-client slechts één keer
 load_dotenv()
