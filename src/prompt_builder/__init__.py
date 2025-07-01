@@ -6,20 +6,17 @@ imports, bijvoorbeeld:
     from prompt_builder import build_prompt
 """
 
+# 📦 prompt_builder/__init__.py
+# ✅ Centrale export van classgebaseerde promptopbouw
+
 from .prompt_builder import (
-    bouw_prompt_met_gesplitste_richtlijnen,
-    stuur_prompt_naar_gpt,
-    bepaal_term_type,
-    filter_toetsregels_voor_prompt,
+    PromptBouwer,             # ✅ Nieuwe naam voor PromptBuilder
+    PromptConfiguratie,       # ✅ Nieuwe naam voor PromptConfig
+    stuur_prompt_naar_gpt,    # ✅ GPT-aanroepfunctie
 )
 
-# Alias zodat ook 'build_prompt(...)' gebruikt kan worden
-from .prompt_builder import bouw_prompt_met_gesplitste_richtlijnen as build_prompt
-
 __all__ = [
-    "bouw_prompt_met_gesplitste_richtlijnen",
+    "PromptBouwer",
+    "PromptConfiguratie",
     "stuur_prompt_naar_gpt",
-    "bepaal_term_type",
-    "filter_toetsregels_voor_prompt",
-    "build_prompt",
 ]
