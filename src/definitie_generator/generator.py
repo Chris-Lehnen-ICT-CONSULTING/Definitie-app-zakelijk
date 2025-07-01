@@ -7,7 +7,7 @@ from typing import Optional
 from openai import OpenAI, OpenAIError
 
 from web_lookup import zoek_definitie_combinatie              # ✅ extern web‐lookup
-from config.config_loader import laad_toetsregels             # ✅ laad toetsregels
+from config_loader import laad_toetsregels                    # ✅ laad toetsregels
 from prompt_builder import (                                  # ✅ gecentraliseerde prompt‐builder
     selecteer_essentiele_regels,
     selecteer_aanvullende_regels,
