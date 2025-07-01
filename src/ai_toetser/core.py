@@ -1939,7 +1939,7 @@ def toets_op_basis_van_regel(
             return functie(
                 definitie = definitie,
                 regel      = regel,
-                begraip     = begrip,
+                begrip     = begrip,
                 repository = repository
             )
         # ➋ overige regels die enkel een begrip nodig hebben
