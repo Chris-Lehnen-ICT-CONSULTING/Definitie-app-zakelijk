@@ -1,56 +1,74 @@
 import os
-from openai import OpenAI, OpenAIError
-from config.verboden_woorden import laad_verboden_woorden
-from typing import Optional, List, Dict
 from dotenv import load_dotenv
+from openai import OpenAI, OpenAIError
+from typing import Optional, List, Dict
+from config.verboden_woorden import laad_verboden_woorden
 
-
-# 🌱 Initialiseer OpenAI-client
+# ✅ Initialiseer OpenAI-client pas wanneer nodig
 load_dotenv()
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# 💚 --------------- VERPLAATSTE OPENAI-CLIENT ---------------  
-def _get_openai_client() -> OpenAI:          # ✅ privé helper  
+def _get_openai_client() -> OpenAI:
     """
-    # ✅ Maakt OpenAI-client alléén aan wanneer hij voor het eerst nodig is.
-    #    Zo kan het pakket zonder OPENAI_API_KEY geïmporteerd worden.
+    ✅ Initialiseert OpenAI-client als die nog niet bestond.
     """
     api_key = os.getenv("OPENAI_API_KEY")
     if not api_key:
-        raise RuntimeError(
-            "OPENAI_API_KEY ontbreekt. Zet deze variabele in .env of in je CI-secrets."
-        )
+        raise RuntimeError("OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets.")
     return OpenAI(api_key=api_key)
-# 💚 ----------------------------------------------------------
 
+# ✅ Toegestane toetsregels voor AI-generatie van definities
+TOEGESTANE_REGELS_VOOR_PROMPT = {
+    "CON-01", "CON-02",
+    "ESS-01", "ESS-02", "ESS-04", "ESS-05",
+    "INT-01", "INT-02", "INT-03", "INT-04", "INT-06", "INT-07", "INT-08",
+    "SAM-01", "SAM-05",
+    "STR-01", "STR-02", "STR-03", "STR-04", "STR-05", "STR-06", "STR-07", "STR-08", "STR-09",
+    "ARAI01", "ARAI02", "ARAI02SUB1", "ARAI02SUB2", "ARAI03", "ARAI04", "ARAI04SUB1", "ARAI05", "ARAI06"
+}
 
+# ✅ Actuele lijst van context-afkortingen en hun betekenissen
+AFKORTINGEN = {
+    "OM": "Openbaar Ministerie",
+    "ZM": "Zittende Magistratuur",
+    "3RO": "Samenwerkingsverband Reclasseringsorganisaties",
+    "DJI": "Dienst Justitiële Inrichtingen",
+    "KMAR": "Koninklijke Marechaussee",
+    "CJIB": "Centraal Justitieel Incassobureau",
+    "AVG": "Algemene verordening gegevensbescherming"
+}
 
 def bepaal_term_type(begrip: str) -> str:
     """
-    Classificeer het begrip via simpele regex:
-      - werkwoord: eindigt op 'en' (en niet te kort)
-      - deverbaal: eindigt op 'ing', 'atie', 'isatie'
-      - anders: elk ander geval
+    ✅ Bepaalt of begrip een werkwoord, deverbaal of naamwoord is.
     """
     txt = begrip.strip().lower()
-    # ✅ heuristiek: werkwoordificale suffix
     if len(txt) > 4 and txt.endswith("en") and not txt.endswith(("ing", "atie", "isatie")):
         return "werkwoord"
-    # ✅ heuristiek: deverbaal (resultaatswoord)
     if txt.endswith(("ing", "atie", "isatie")):
         return "deverbaal"
-    # ✅ fallback
     return "anders"
 
-def selecteer_essentiele_regels(toetsregels: Dict) -> List[Dict]:
-    """Regels met prioriteit=hoog & aanbeveling=verplicht."""
-    return [r for r in toetsregels.values()
-            if r.get("prioriteit")=="hoog" and r.get("aanbeveling")=="verplicht"]
+def filter_toetsregels_voor_prompt(alle_regels: dict) -> dict:
+    """
+    ✅ Filtert alleen de regels die geschikt zijn voor AI-generatie.
+    """
+    return {k: v for k, v in alle_regels.items() if k in TOEGESTANE_REGELS_VOOR_PROMPT}
 
-def selecteer_aanvullende_regels(toetsregels: Dict) -> List[Dict]:
-    """Overige toetsregels."""
-    return [r for r in toetsregels.values()
-            if not (r.get("prioriteit")=="hoog" and r.get("aanbeveling")=="verplicht")]
+def voeg_contextverboden_toe(prompt: str, context_term: Optional[str]) -> str:
+    """
+    ✅ Voegt verbod toe voor contextterm én bijbehorende betekenis (indien afkorting).
+    Alleen als die term opgegeven is als context.
+    """
+    if not context_term:
+        return prompt
+    context_clean = context_term.strip().upper()
+    forbidden = [context_clean]
+    if context_clean in AFKORTINGEN:
+        forbidden.append(AFKORTINGEN[context_clean])
+    for term in forbidden:
+        prompt += f"- Gebruik de term '{term}' niet letterlijk in de definitie.\n"
+    return prompt
 
 def bouw_prompt_met_gesplitste_richtlijnen(
     begrip: str,
@@ -58,44 +76,29 @@ def bouw_prompt_met_gesplitste_richtlijnen(
     juridische_context: Optional[str],
     wettelijke_basis: Optional[str],
     web_uitleg: str,
-    regels_essentieel: List[Dict],
-    regels_aanvullend: List[Dict]
+    toetsregels: dict
 ) -> str:
-
     """
-    Bouwt GPT-prompt in 7 blokken, met conditionele introductie op basis van term-type:
-      1. Rol-instructie
-      2. Context
-      3. Essentiële regels
-      4. Aanvullende richtlijnen
-      5. Achtergrond (referentie)
-      6. 🚫 Veelgemaakte fouten (uitgebreide lijst + matrix)
-      7. Slotinstructie
+    ✅ Bouwt een robuuste instructieprompt voor GPT o.b.v. geselecteerde regels en context.
     """
 
-
-    """Bouwt GPT-prompt met conditionele introductie op basis van term-type."""
-    # 1️⃣ Term-classificatie
     term_type = bepaal_term_type(begrip)
-    header = ""
-    if term_type == "werkwoord":
-        header = (
-            "Als dit een handeling is, beschrijf het als een proces of activiteit.\n"
-        )
-    elif term_type == "deverbaal":
-        header = (
-            "Als dit een resultaat is van een proces, beschrijf het als het resultaat of uitkomst.\n"
-        )
-    else:
-        header = "Formuleer een generieke, zakelijke definitie in één zin.\n"
+    relevante_regels = filter_toetsregels_voor_prompt(toetsregels)
+    verboden_startwoorden = laad_verboden_woorden()
 
-    # 🧠 1. Rol-instructie
+    # 1️⃣ Rol en term-instructie
     prompt = (
         "Je bent een expert in beleidsmatige definities voor overheidsgebruik.\n"
-        "Formuleer in één zin een heldere, zakelijke definitie.\n"
+        "Formuleer een definitie in één enkele zin, zonder toelichting.\n"
     )
+    if term_type == "werkwoord":
+        prompt += "Als het begrip een handeling beschrijft, definieer het dan als proces of activiteit.\n"
+    elif term_type == "deverbaal":
+        prompt += "Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces.\n"
+    else:
+        prompt += "Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.\n"
 
-    # 📌 2. Context
+    # 2️⃣ Contextvermelding
     kaders = []
     if context:
         kaders.append(f"binnen {context}")
@@ -106,58 +109,70 @@ def bouw_prompt_met_gesplitste_richtlijnen(
     if kaders:
         prompt += "\n📌 Context: " + " en ".join(kaders) + "\n"
 
-    # ✅ 3. Essentiële regels (hoog & verplicht)
-    if regels_essentieel:
-        prompt += "\n✅ Verplichte kwaliteitseisen:\n"
-        for r in regels_essentieel:
-            prompt += f"- {r['id']}: {r['uitleg']}\n"
+    # 3️⃣ Relevante richtlijnen
+    prompt += "\n### ✅ Richtlijnen voor de definitie:\n"
+    for regel_id, regel in relevante_regels.items():
+        prompt += f"\n🔹 **{regel_id} – {regel.get('naam')}**\n"
+        prompt += f"– {regel.get('uitleg')}\n"
+        if 'toetsvraag' in regel:
+            prompt += f"– Toetsvraag: {regel['toetsvraag']}\n"
+        if 'goede_voorbeelden' in regel:
+            prompt += "– Goede voorbeelden:\n"
+            for vb in regel['goede_voorbeelden']:
+                prompt += f"  ✅ {vb}\n"
+        if 'foute_voorbeelden' in regel:
+            prompt += "– Foute voorbeelden:\n"
+            for vb in regel['foute_voorbeelden']:
+                prompt += f"  ❌ {vb}\n"
 
-    # 💡 4. Aanvullende richtlijnen
-    if regels_aanvullend:
-        prompt += "\n💡 Aanvullende richtlijnen:\n"
-        for r in regels_aanvullend:
-            prompt += f"- {r['id']}: {r['uitleg']}\n"
+    # 4️⃣ Webuitleg
+    if web_uitleg.strip():
+        prompt += f"\n📎 Achtergrond (niet letterlijk overnemen):\n{web_uitleg.strip()}\n"
 
-    # 📎 5. Achtergrondinformatie (referentie)
-    prompt += "\n📎 Achtergrond (referentie, niet letterlijk):\n" + web_uitleg + "\n"
+    # 5️⃣ Veelgemaakte fouten
+    prompt += "\n### ⚠️ Veelgemaakte fouten (vermijden!):\n"
+    prompt += "- Begin niet met een lidwoord (‘de’, ‘het’, ‘een’)\n"
+    prompt += "- Gebruik geen koppelwerkwoord aan het begin (‘is’, ‘betekent’, ‘omvat’)\n"
+    prompt += "- Herhaal het begrip niet letterlijk\n"
+    prompt += "- Gebruik geen synoniem als definitie\n"
+    prompt += "- Vermijd containerbegrippen zonder concretisering (‘proces’, ‘activiteit’, ‘ding’)\n"
+    prompt += "- Vermijd bijzinnen zoals 'die', 'waarin', 'waarbij', 'zoals' – schrijf bondig en zelfstandig.\n"
+    prompt += "- Schrijf in het enkelvoud. Gebruik de infinitief als het begrip een werkwoord is.\n"
+    for woord in verboden_startwoorden:
+        prompt += f"- Start niet met '{woord}'\n"
 
-    # 🚫 6. Veelgemaakte fouten & Validatiematrix
-    # --- Haal de actuele verboden startwoordenlijst op ---
-    verboden_startwoorden = laad_verboden_woorden()
+    # 6️⃣ Dynamisch contextverbod
+    prompt = voeg_contextverboden_toe(prompt, context)
+    prompt = voeg_contextverboden_toe(prompt, juridische_context)
+    prompt = voeg_contextverboden_toe(prompt, wettelijke_basis)
 
-    # --- Sterk “Verboden”-blok (inclusief de dynamische lijst) ---
+    # 7️⃣ Validatiematrix
     prompt += (
-        "\n🚫 Verboden (NIET doen):\n"
-        "- Definitie starten met het begrip zelf\n"
-        "- Koppelwerkwoorden aan het begin (bijv. 'is', 'omvat', 'betekent')\n"
-        "- Lidwoorden aan het begin (bijv. 'de', 'het', 'een')\n"
-        "- Abstracte constructies aan het begin (bijv. 'proces waarbij')\n"
-        "- Context, wet of organisatie letterlijk noemen\n"
-        "- Opsommingen, bijzinnen of vage formuleringen\n"
-        "- Subjectieve termen zoals 'essentieel', 'belangrijk', 'relevant'\n"
-        # nu de dynamische verboden-startwoordenlijst:
-        + "".join(f"- Starten met '{w}'\n" for w in verboden_startwoorden)
+        "\n| Probleem                             | Afgedekt? | Toelichting                                |\n"
+        "|--------------------------------------|-----------|---------------------------------------------|\n"
+        "| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |\n"
+        "| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |\n"
+        "| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |\n"
+        "| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |\n"
+        "| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |\n"
+        "| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |\n"
+        "| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |\n"
+        "| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |\n"
     )
 
-    prompt += (
-        "\n| Probleem                             | Afgedekt? | Toelichting                                                                 |\n"
-        "|--------------------------------------|-----------|-----------------------------------------------------------------------------|\n"
-        "| Start met begrip                     | ✅        | Vermijd dat de definitie start met het begrip zelf                           |\n"
-        "| Abstracte constructies               | ✅        | Vermijd zinnen als 'proces waarbij', 'handeling die', 'vorm van'             |\n"
-        "| Gebruik van begrip                   | ✅        | Verboden het begrip te herhalen, parafraseren of gebruiken aan het begin      |\n"
-        "| Koppelwerkwoorden aan het begin      | ✅        | Verboden: 'is', 'omvat', 'betekent', etc.                                     |\n"
-        "| Lidwoorden aan het begin             | ✅        | Verboden: 'de', 'het', 'een'                                                  |\n"
-        "| Organisaties of afkortingen          | ✅        | Vermijd benoemen van 'de KMAR', 'het OM', tenzij strikt noodzakelijk          |\n"
-        "| Letterlijke contextvermelding        | ✅        | Verboden: 'in de context van...', 'volgens de AVG', etc.                      |\n"
-        "| Subjectieve bijvoeglijkheid          | ✅        | Vermijd 'essentieel', 'belangrijk', 'relevant', etc.                          |\n"
-        "| Toelichting of inleiding             | ✅        | Geen toelichting, geen inleiding; alleen de één-zins definitie                |\n"
-    )
+    # 8️⃣ Slotinstructie
+    prompt += f"\n✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting."
 
-    # ✏️ 7. Slotinstructie
-    prompt += (
-        "\n✏️ Geef één enkele zin, voldoe aan alle instructies.\n"
-        f"Begrip: {begrip}"
-    )
+    # 9️⃣ Promptmetadata
+    prompt += "\n\n🆔 Promptmetadata:"
+    prompt += f"\n– Begrip: {begrip}"
+    if context:
+        prompt += f"\n– Context: {context}"
+    if juridische_context:
+        prompt += f"\n– Juridisch: {juridische_context}"
+    if wettelijke_basis:
+        prompt += f"\n– Wettelijke basis: {wettelijke_basis}"
+    prompt += f"\n– Termtype: {term_type}"
 
     return prompt
 
@@ -167,7 +182,9 @@ def stuur_prompt_naar_gpt(
     temperature: float = 0.4,
     max_tokens: int = 300
 ) -> str:
-    
+    """
+    ✅ Roept het GPT-model aan en retourneert de gegenereerde tekst.
+    """
     try:
         resp = _client.chat.completions.create(
             model=model,
