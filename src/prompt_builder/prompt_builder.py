@@ -67,7 +67,7 @@ def voeg_contextverboden_toe(prompt: str, context_term: Optional[str]) -> str:
     if context_clean in AFKORTINGEN:
         forbidden.append(AFKORTINGEN[context_clean])
     for term in forbidden:
-        prompt += f"- Gebruik de term '{term}' niet letterlijk in de definitie.\n"
+        prompt += f"- Gebruik de term '{term}' of een variant daarvan niet letterlijk in de definitie. Vermijd synoniemen, afkortingen en parafrases van '{term}'.\n"
     return prompt
 
 def bouw_prompt_met_gesplitste_richtlijnen(
@@ -125,10 +125,10 @@ def bouw_prompt_met_gesplitste_richtlijnen(
             for vb in regel['foute_voorbeelden']:
                 prompt += f"  ❌ {vb}\n"
     # 💚 3b. Expliciete instructie voor ESS-02 (ontologische categorie)
+    # 💚 Dwing keuze van één ontologische categorie af
     prompt += (
         "\n### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):\n"
-        "Indien een begrip meerdere ontologische categorieën kan aanduiden, "
-        "moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt:\n"
+        "Je **moet** uit de vier categorieën **precies één** kiezen en die expliciet maken in de formulering:\n"
         "• type (soort),\n"
         "• exemplaar (specifiek geval),\n"
         "• proces (activiteit), of\n"
@@ -138,6 +138,7 @@ def bouw_prompt_met_gesplitste_richtlijnen(
         "- 'is het resultaat van...'\n"
         "- 'betreft een specifieke soort...'\n"
         "- 'is een exemplaar van...'\n"
+        "⚠️ Vermijd vaagheid – de betekenislaag **moet ondubbelzinnig blijken uit de formulering**.\n"
     )
 # ✅ Stuurt GPT aan om expliciete ontologische markers toe te voegen ter ondersteuning van ESS-02
     # 4️⃣ Webuitleg
@@ -173,6 +174,14 @@ def bouw_prompt_met_gesplitste_richtlijnen(
         "| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |\n"
         "| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |\n"
         "| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |\n"
+    )
+
+# ✅ Deze waarschuwing staat direct voor de GPT-opdracht → maximale impact
+# ✅ Herformuleert het contextverbod in instructietaal (géén bullets)
+    prompt += (
+        "\n🚫 Let op: de opgegeven context, juridische context of wettelijke basis "
+        "mag **niet letterlijk of herleidbaar** in de definitie voorkomen. "
+        "Verwerk de betekenis impliciet – noem dus géén wetnaam, organisatie of afkorting."
     )
 
     # 8️⃣ Slotinstructie

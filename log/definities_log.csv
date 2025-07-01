@@ -585,3 +585,87 @@ In de strafzaak tegen mevrouw Pietersen heeft de rechter van de rechtbank Zeelan
 3. Stilte
 4. Verzwijging
 5. Geheimhouding",,,2025-07-01,,,2025-07-01T16:58:52.006470,"['""De rechter deed een duidelijke uitspraak in de strafzaak, waarbij de verdachte werd veroordeeld tot vijf jaar gevangenisstraf.""', '""De uitspraak van de directeur tijdens de vergadering was dat er meer focus gelegd moest worden op duurzaamheid binnen het bedrijf.""', '""De uitspraak van het referendum was bindend, waardoor de nieuwe wet werd aangenomen.""']",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,,,,,,,,,,,,,,,2025-07-01,,,2025-07-01T17:17:02.848805,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,uitspraak,,,,,,,,,,,,,,2025-07-01,,,2025-07-01T17:17:07.619303,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,uitspraak,ZM,,,,,,,,,,,,,2025-07-01,,,2025-07-01T17:17:10.149820,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,uitspraak,ZM,Strafrecht,,,,,,,,,,,,2025-07-01,,,2025-07-01T17:17:11.655117,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,uitspraak,ZM,Strafrecht,Wetboek van Strafvordering,,,,,,,,,,,2025-07-01,,,2025-07-01T17:17:14.391464,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,uitspraak,ZM,Strafrecht,Wetboek van Strafvordering,,,,,,,,,,,2025-07-01,,,2025-07-01T17:17:15.875386,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+AI,uitspraak,ZM,Strafrecht,Wetboek van Strafvordering,"Formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.","Uitspraak is het formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.","Formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.",,"Voorbeeld 1:
+Een 30-jarige man wordt verdacht van diefstal van een auto. De man wordt voor de rechter gebracht. Na het horen van de bewijsvoering en het verweer van de verdachte, komt de rechter tot een uitspraak. De rechter, werkzaam bij de rechtbank ZM, oordeelt op basis van het Wetboek van Strafvordering dat de man schuldig is aan diefstal. De man krijgt een gevangenisstraf van twee jaar opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit geschil.
+
+Voorbeeld 2:
+Een vrouw wordt beschuldigd van het mishandelen van haar partner. Na een grondige analyse van het bewijsmateriaal en het horen van getuigen, komt de rechter, werkzaam bij de rechtbank ZM, tot een uitspraak. Op basis van het Wetboek van Strafvordering oordeelt de rechter dat de vrouw schuldig is aan mishandeling. Ze krijgt een taakstraf van 240 uur opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit strafzaak.
+
+Voorbeeld 3:
+Een bedrijf wordt verdacht van belastingontduiking. De zaak wordt voorgelegd aan de rechter van de rechtbank ZM. Na het bestuderen van de aangeleverde documenten en het horen van de verdediging, komt de rechter tot een uitspraak. Gebaseerd op het Wetboek van Strafvordering oordeelt de rechter dat het bedrijf inderdaad schuldig is aan belastingontduiking. Het bedrijf krijgt een boete van 500.000 euro opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit geschil.","'Uitspraak' in overheidsdocumenten, vooral in een juridische context, verwijst naar de formele beslissing of oordeel van een rechter of rechtbank in een juridische zaak. Het is het eindresultaat van een rechtszaak, waarbij de rechter een oordeel velt op basis van het bewijs dat tijdens de rechtszaak is gepresenteerd en de toepasselijke wet- en regelgeving.
+
+In de context van het strafrecht is een uitspraak de beslissing van de rechter over de schuld of onschuld van de verdachte en de op te leggen straf of maatregel. Deze uitspraak wordt gedaan op basis van de Wetboek van Strafvordering, die de procedures regelt voor het onderzoeken en vervolgen van strafbare feiten.
+
+Een uitspraak kan ook een bindende interpretatie of toepassing van de wet zijn in een specifieke situatie. Het kan ook verwijzen naar de formele verklaring van een overheidsorgaan of -functionaris over een bepaald beleid of een bepaalde kwestie.
+
+In de organisatorische context van Zijne Majesteit (ZM), kan een uitspraak verwijzen naar een officiële verklaring of bes","1. Vonnis
+2. Besluit
+3. Oordeel
+4. Verdict
+5. Beschikking","1. Inname
+2. Zwijgen
+3. Geheimhouding
+4. Verzwijging
+5. Stilte",,,2025-07-01,,,2025-07-01T17:18:36.014457,"['""De rechter zal morgen zijn uitspraak doen over de diefstalzaak.""', '""De uitspraak van de directeur tijdens de vergadering zorgde voor veel opschudding binnen het bedrijf.""', '""Volgens de uitspraak in het Wetboek van Strafvordering, moet de verdachte binnen 24 uur na zijn arrestatie worden voorgeleid aan de rechter-commissaris.""']",❌ CON-01: opgegeven context letterlijk in definitie herkend (‘wetboek van strafvordering’),"❌ CON-02: bronvermelding gevonden (De definitie van 'uitspraak' in de context van het strafrecht en de ZM (Zittingzaal Meervoudige kamer) is gebaseerd op verschillende bronnen, waaronder het Wetboek van Strafvordering, juridische literatuur en jurisprudentie.
+
+1. Wetboek van Strafvordering: De uitspraak is het oordeel van de rechter over de zaak. Dit is vastgelegd in het Wetboek van Strafvordering, met name in de artikelen 350-359, die het proces van de uitspraak beschrijven. De uitspraak bevat het oordeel van de rechter over de schuld van de verdachte en de op te leggen straf of maatregel.
+
+2. Juridische literatuur: Verschillende juridische handboeken en commentaren geven verdere uitleg en interpretatie van de wettelijke bepalingen. Hieruit komt naar voren dat de uitspraak een cruciaal onderdeel is van het strafproces, waarin de rechter een definitief oordeel velt over de zaak.
+
+3. Jurisprudentie: Uitspraken van hogere rechtbanken en de Hoge Raad geven verdere invulling aan het begrip 'uitspraak'. In deze uitspraken wordt onder andere bepaald dat de uitspraak duidelijk en begrijpelijk moet zijn en dat de rechter zijn oordeel voldoende moet motiveren.
+
+4. Richtlijnen voor strafvordering: Deze richtlijnen, uitgegeven door het Openbaar Ministerie, geven aan hoe de wet moet worden toegepast in strafzaken. Ze bevatten onder andere bepalingen over de uitspraak en de motivering daarvan.
+
+5. Praktijkervaring: De definitie van 'uitspraak' is ook gebaseerd op de praktijkervaring van juristen en rechters. In de praktijk kan de uitspraak variëren afhankelijk van de specifieke omstandigheden van de zaak.
+
+In de context van de ZM wordt de term 'uitspraak' gebruikt om het oordeel van de meervoudige kamer (een panel van drie rechters) aan te duiden. De ZM behandelt over het algemeen zwaardere en complexere zaken.), maar niet herkend als authentiek of specifiek",✔️ ESS-01: geen doelgerichte formuleringen aangetroffen,"❌ ESS-02: geen duidelijke ontologische marker (type, particulier, proces of resultaat) gevonden",❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar,❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing,❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt,"❌ INT-01: complexe elementen gevonden (of, ,), maar geen expliciet fout voorbeeld herkend",✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen,✔️ INT-03: geen onduidelijke voornaamwoord-verwijzing aangetroffen,✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen,✔️ INT-06: geen toelichtende elementen in de definitie gevonden,✔️ INT-07: geen afkortingen in de definitie,✅ INT-08: definitie bevat geen negatieve formuleringen,✅ INT-09: geen ongewenste opsommingswoorden gevonden,✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden,❌ SAM-01: kwalificaties (juridisch) kunnen afwijken van algemeen aanvaarde betekenis,✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie,✔️ SAM-03: geen geneste of verweven definities aangetroffen,"✔️ SAM-04: genus (‘’) sluit aan op compositie (‘formeeljuridischoordeeldatdooreenrechterwordtgegevenovereengeschilofstrafzaak,gebaseerdophetwetboekvanstrafvordering.’)",✔️ SAM-05: geen cirkeldefinitie herkend,❌ SAM-06: geen voorkeurs-term opgegeven,✔️ SAM-07: geen uitbreidende elementen herkend,✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast,✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd,✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd,✔️ STR-03: geen synonieme formulering gevonden,✔️ STR-04: geen algemene kick-off zonder toespitsing,✔️ STR-05: geen constructie-elementen gevonden,✔️ STR-06: geen formuleringen die informatiebehoefte suggereren,✔️ STR-07: geen dubbele ontkenning aangetroffen,✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen,"❌ STR-09: dubbelzinnige 'of' gevonden (of, geschil of strafzaak), context verduidelijken",✔️ VER-01: term is enkelvoudig,⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term',"❌ VER-03: term 'Formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.' lijkt niet in infinitief te staan","❌ ARAI01: werkwoord(en) als kern gevonden (wordt), geen toelichting herkend",✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen,✔️ ARAI02SUB1: geen containerbegrippen aangetroffen,✔️ ARAI02SUB2: geen ambtelijke containerbegrippen aangetroffen,✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen,✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen,✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie,✔️ ARAI05: geen impliciete aannames aangetroffen,⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+Aangepast,uitspraak,ZM,Strafrecht,Wetboek van Strafvordering,"Uitspraak is het formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.","Uitspraak is het formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.","Formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.",,"Voorbeeld 1:
+Een 30-jarige man wordt verdacht van diefstal van een auto. De man wordt voor de rechter gebracht. Na het horen van de bewijsvoering en het verweer van de verdachte, komt de rechter tot een uitspraak. De rechter, werkzaam bij de rechtbank ZM, oordeelt op basis van het Wetboek van Strafvordering dat de man schuldig is aan diefstal. De man krijgt een gevangenisstraf van twee jaar opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit geschil.
+
+Voorbeeld 2:
+Een vrouw wordt beschuldigd van het mishandelen van haar partner. Na een grondige analyse van het bewijsmateriaal en het horen van getuigen, komt de rechter, werkzaam bij de rechtbank ZM, tot een uitspraak. Op basis van het Wetboek van Strafvordering oordeelt de rechter dat de vrouw schuldig is aan mishandeling. Ze krijgt een taakstraf van 240 uur opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit strafzaak.
+
+Voorbeeld 3:
+Een bedrijf wordt verdacht van belastingontduiking. De zaak wordt voorgelegd aan de rechter van de rechtbank ZM. Na het bestuderen van de aangeleverde documenten en het horen van de verdediging, komt de rechter tot een uitspraak. Gebaseerd op het Wetboek van Strafvordering oordeelt de rechter dat het bedrijf inderdaad schuldig is aan belastingontduiking. Het bedrijf krijgt een boete van 500.000 euro opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit geschil.","'Uitspraak' in overheidsdocumenten, vooral in een juridische context, verwijst naar de formele beslissing of oordeel van een rechter of rechtbank in een juridische zaak. Het is het eindresultaat van een rechtszaak, waarbij de rechter een oordeel velt op basis van het bewijs dat tijdens de rechtszaak is gepresenteerd en de toepasselijke wet- en regelgeving.
+
+In de context van het strafrecht is een uitspraak de beslissing van de rechter over de schuld of onschuld van de verdachte en de op te leggen straf of maatregel. Deze uitspraak wordt gedaan op basis van de Wetboek van Strafvordering, die de procedures regelt voor het onderzoeken en vervolgen van strafbare feiten.
+
+Een uitspraak kan ook een bindende interpretatie of toepassing van de wet zijn in een specifieke situatie. Het kan ook verwijzen naar de formele verklaring van een overheidsorgaan of -functionaris over een bepaald beleid of een bepaalde kwestie.
+
+In de organisatorische context van Zijne Majesteit (ZM), kan een uitspraak verwijzen naar een officiële verklaring of bes","1. Vonnis
+2. Besluit
+3. Oordeel
+4. Verdict
+5. Beschikking","1. Inname
+2. Zwijgen
+3. Geheimhouding
+4. Verzwijging
+5. Stilte",,,2025-07-01,,,2025-07-01T17:18:36.034463,"['""De rechter zal morgen zijn uitspraak doen over de diefstalzaak.""', '""De uitspraak van de directeur tijdens de vergadering zorgde voor veel opschudding binnen het bedrijf.""', '""Volgens de uitspraak in het Wetboek van Strafvordering, moet de verdachte binnen 24 uur na zijn arrestatie worden voorgeleid aan de rechter-commissaris.""']",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,uitspraak,ZM,Strafrecht,Wetboek van Strafvordering,"Uitspraak is het formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.","Uitspraak is het formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.","Formeel juridisch oordeel dat door een rechter wordt gegeven over een geschil of strafzaak, gebaseerd op het Wetboek van Strafvordering.",,"Voorbeeld 1:
+Een 30-jarige man wordt verdacht van diefstal van een auto. De man wordt voor de rechter gebracht. Na het horen van de bewijsvoering en het verweer van de verdachte, komt de rechter tot een uitspraak. De rechter, werkzaam bij de rechtbank ZM, oordeelt op basis van het Wetboek van Strafvordering dat de man schuldig is aan diefstal. De man krijgt een gevangenisstraf van twee jaar opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit geschil.
+
+Voorbeeld 2:
+Een vrouw wordt beschuldigd van het mishandelen van haar partner. Na een grondige analyse van het bewijsmateriaal en het horen van getuigen, komt de rechter, werkzaam bij de rechtbank ZM, tot een uitspraak. Op basis van het Wetboek van Strafvordering oordeelt de rechter dat de vrouw schuldig is aan mishandeling. Ze krijgt een taakstraf van 240 uur opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit strafzaak.
+
+Voorbeeld 3:
+Een bedrijf wordt verdacht van belastingontduiking. De zaak wordt voorgelegd aan de rechter van de rechtbank ZM. Na het bestuderen van de aangeleverde documenten en het horen van de verdediging, komt de rechter tot een uitspraak. Gebaseerd op het Wetboek van Strafvordering oordeelt de rechter dat het bedrijf inderdaad schuldig is aan belastingontduiking. Het bedrijf krijgt een boete van 500.000 euro opgelegd. Deze uitspraak is het formele juridische oordeel van de rechter over dit geschil.","'Uitspraak' in overheidsdocumenten, vooral in een juridische context, verwijst naar de formele beslissing of oordeel van een rechter of rechtbank in een juridische zaak. Het is het eindresultaat van een rechtszaak, waarbij de rechter een oordeel velt op basis van het bewijs dat tijdens de rechtszaak is gepresenteerd en de toepasselijke wet- en regelgeving.
+
+In de context van het strafrecht is een uitspraak de beslissing van de rechter over de schuld of onschuld van de verdachte en de op te leggen straf of maatregel. Deze uitspraak wordt gedaan op basis van de Wetboek van Strafvordering, die de procedures regelt voor het onderzoeken en vervolgen van strafbare feiten.
+
+Een uitspraak kan ook een bindende interpretatie of toepassing van de wet zijn in een specifieke situatie. Het kan ook verwijzen naar de formele verklaring van een overheidsorgaan of -functionaris over een bepaald beleid of een bepaalde kwestie.
+
+In de organisatorische context van Zijne Majesteit (ZM), kan een uitspraak verwijzen naar een officiële verklaring of bes","1. Vonnis
+2. Besluit
+3. Oordeel
+4. Verdict
+5. Beschikking","1. Inname
+2. Zwijgen
+3. Geheimhouding
+4. Verzwijging
+5. Stilte",,,2025-07-01,,,2025-07-01T17:18:56.113425,"['""De rechter zal morgen zijn uitspraak doen over de diefstalzaak.""', '""De uitspraak van de directeur tijdens de vergadering zorgde voor veel opschudding binnen het bedrijf.""', '""Volgens de uitspraak in het Wetboek van Strafvordering, moet de verdachte binnen 24 uur na zijn arrestatie worden voorgeleid aan de rechter-commissaris.""']",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
