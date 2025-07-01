@@ -8,12 +8,11 @@ from openai import OpenAI, OpenAIError
 
 from web_lookup import zoek_definitie_combinatie              # ✅ extern web‐lookup
 from config_loader import laad_toetsregels                    # ✅ laad toetsregels
-from prompt_builder import (                                  # ✅ gecentraliseerde prompt‐builder
-    selecteer_essentiele_regels,
-    selecteer_aanvullende_regels,
+from prompt_builder import (
+    filter_toetsregels_voor_prompt,
     bouw_prompt_met_gesplitste_richtlijnen,
     stuur_prompt_naar_gpt,
-    )
+)
 
 # ✅ Init OpenAI-client (één keer)
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
@@ -24,6 +23,7 @@ def genereer_definitie(
     context: Optional[str] = None,
     juridische_context: Optional[str] = None,
     wettelijke_basis: Optional[str] = None,
+
     model: str = "gpt-4",
     temperature: float = 0.4,
     max_tokens: int = 300
@@ -43,8 +43,7 @@ def genereer_definitie(
 
     # 2️⃣ Toetsregels laden & splitsen
     toetsregels       = laad_toetsregels()
-    regels_essentieel = selecteer_essentiele_regels(toetsregels)
-    regels_aanvullend = selecteer_aanvullende_regels(toetsregels)
+    regels_voor_prompt = filter_toetsregels_voor_prompt(toetsregels)
 
     # 3️⃣ Prompt bouwen
     prompt = bouw_prompt_met_gesplitste_richtlijnen(
@@ -53,8 +52,7 @@ def genereer_definitie(
         juridische_context,
         wettelijke_basis,
         web_uitleg,
-        regels_essentieel,
-        regels_aanvullend
+        regels_voor_prompt
     )
 
     # 4️⃣ GPT-aanroep
