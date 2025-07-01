@@ -1918,7 +1918,11 @@ def toets_op_basis_van_regel(
         bronnen_gebruikt=None, 
         contexten=None,
         repository: Optional[Dict[str, str]] = None,  # ← nieuw
-    )    -> str:    
+        definitie_gecorrigeerd: Optional[str] = None  # 💚 Nieuwe inputparameter
+    )    -> str: 
+
+    # ✅ Overschrijf centraal de ruwe definitie met opgeschoonde versie indien beschikbaar
+    definitie = definitie_gecorrigeerd if definitie_gecorrigeerd else definitie   
     """
     Routeert de definitie en metadata naar de juiste toetsfunctie op basis van het regel-ID.
     Ondersteunt extra argumenten zoals begrip (voor cirkeldefinities), bronnen (voor bronvermelding),
