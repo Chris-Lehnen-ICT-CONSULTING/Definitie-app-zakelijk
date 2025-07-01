@@ -7,19 +7,19 @@ imports, bijvoorbeeld:
 """
 
 from .prompt_builder import (
-    selecteer_essentiele_regels,
-    selecteer_aanvullende_regels,
     bouw_prompt_met_gesplitste_richtlijnen,
     stuur_prompt_naar_gpt,
+    bepaal_term_type,
+    filter_toetsregels_voor_prompt,
 )
 
-# Alias zodat ‘build_prompt’ beschikbaar is
+# Alias zodat ook 'build_prompt(...)' gebruikt kan worden
 from .prompt_builder import bouw_prompt_met_gesplitste_richtlijnen as build_prompt
 
 __all__ = [
-    "selecteer_essentiele_regels",
-    "selecteer_aanvullende_regels",
     "bouw_prompt_met_gesplitste_richtlijnen",
     "stuur_prompt_naar_gpt",
+    "bepaal_term_type",
+    "filter_toetsregels_voor_prompt",
     "build_prompt",
 ]
