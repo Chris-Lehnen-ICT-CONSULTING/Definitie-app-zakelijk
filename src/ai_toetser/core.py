@@ -1,7 +1,7 @@
 import os
 import re
-from typing import Dict, Any, Optional
-from web_lookup.lookup import is_plurale_tantum
+from typing import Dict, Any, List, Optional
+from web_lookup import is_plurale_tantum
 # --- 🔪 Externe bibliotheken (via pip) ---
 # 📌 Streamlit pagina-configuratie
 #st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
@@ -14,6 +14,7 @@ from openai import OpenAI
 # --- ⚙️ Config-loaders en verboden-woordenbeheer ---
 # ✅ Centrale JSON-loaders
 from config.config_loader import laad_toetsregels
+from config.config_loader import load_repository
 # ✅ Opschoning van GPT-definitie (externe module)
 from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_startregex
 
@@ -1067,55 +1068,96 @@ def toets_SAM_04(definitie: str, regel: Dict[str, Any]) -> str:
         return f"✔️ SAM-04: genus (‘{genus_word}’) sluit aan op compositie (‘{composite}’)"
     return f"❌ SAM-04: genus (‘{genus_word}’) komt niet overeen met compositie (‘{composite}’)"
 
-# ✅ SAM-05: gebruikt dezelfde controle als ARAI06 maar focust enkel op cirkeldefinitie
-def toets_SAM_05(definitie: str, regel: dict, begrip: str = None) -> str:
+def fetch_definition(term: str, repository: Dict[str, str]) -> Optional[str]:
     """
-    Controleert of de definitie een cirkeldefinitie is op basis van:
-    - Herhaling van het begrip
-    - Begrip gevolgd door verboden beginconstructie
+    Haal de definitie van 'term' op uit de repository.
     """
-    woordenlijst = laad_verboden_woorden()
-    definitie_gecorrigeerd = definitie.strip().lower()
-    begrip_clean = begrip.strip().lower() if begrip else ""
+    return repository.get(term.lower())
 
-    # 💚 Check op expliciete cirkeldefinitie zoals 'Begrip is ...'
-    patroon_cirkel = rf"^{begrip_clean}\s+(" + "|".join(woordenlijst) + r")\b"
-    expliciet_cirkel = re.search(patroon_cirkel, definitie_gecorrigeerd, flags=re.IGNORECASE)
+def detecteer_cirkels(repository: Dict[str, str]) -> List[List[str]]:
+    """
+    repository: dict met term → definitie
+    retourneert een lijst van lijsten, elke lijst is een cyclus (A→B→…→A).
+    """
+    # 1) Bouw adjacency-list
+    graph: Dict[str, set] = {term.lower(): set() for term in repository}
+    for term, defini in repository.items():
+        term_lc = term.lower()
+        text = defini.lower()
+        for other in repository:
+            other_lc = other.lower()
+            if other_lc != term_lc and re.search(rf'\b{re.escape(other_lc)}\b', text):
+                graph[term_lc].add(other_lc)
 
-    # 💚 Check op begrip elders in de tekst
-    bevat_begrip = begrip_clean in definitie_gecorrigeerd
+    # 2) Vind cycli via DFS
+    visiting, visited = set(), set()
+    cycli: List[List[str]] = []
 
-    if expliciet_cirkel:
-        return "❌ SAM-05: definitie start met cirkeldefinitie (begrip gevolgd door verboden constructie)"
-    if bevat_begrip:
-        return f"❌ SAM-05: definitie bevat het begrip zelf ('{begrip_clean}'), mogelijke cirkeldefinitie"
+    def dfs(path: List[str]):
+        node = path[-1]
+        visiting.add(node)
+        for nbr in graph[node]:
+            if nbr in visiting:
+                idx = path.index(nbr)
+                cycli.append(path[idx:] + [nbr])
+            elif nbr not in visited:
+                dfs(path + [nbr])
+        visiting.remove(node)
+        visited.add(node)
 
+    for n in graph:
+        if n not in visited:
+            dfs([n])
+    return cycli
+
+def toets_SAM_05(
+    definitie: str,
+    regel: Dict[str, Any],
+    begrip: str,
+    repository: Optional[Dict[str, str]] = None
+) -> str:
+    """
+    SAM-05: Geen cirkeldefinities
+    -----------------------------
+    Detecteert cirkeldefinities:
+      • Zelf-referentie (diepte 1)
+      • Wederzijdse verwijzing (diepte 2)
+      • Cycles van willekeurige diepte (diepte ≥2) via repository
+
+    Volgorde:
+      1️⃣ Zelf-referentie
+      2️⃣ Cycle-detectie via repository
+      3️⃣ ✔️ als geen cirkel
+    """
+    term = begrip.strip().lower()
+    text = definitie.strip().lower()
+
+    # 1️⃣ Zelf-referentie
+    if re.search(rf'\b{re.escape(term)}\b', text):
+        return f"❌ SAM-05: definitie bevat eigen begrip '{term}', mogelijke cirkeldefinitie"
+
+    # 2️⃣ Cycle-detectie als repository beschikbaar
+    if repository:
+        cycli = detecteer_cirkels(repository)
+        # vind alle cycli die term bevatten
+        for cycle in cycli:
+            if term in cycle:
+                # rapporteer de cyclus
+                route = " → ".join(cycle)
+                return f"❌ SAM-05: cirkeldefinitie gedetecteerd ({route})"
+
+    # 3️⃣ Geen cirkel herkend
     return "✔️ SAM-05: geen cirkeldefinitie herkend"
 
 # ✅ Toetsing voor regel SAM-06 (Één synoniem krijgt voorkeur)
-def toets_SAM_06(definitie, regel):
-    patronen = regel.get("herkenbaar_patronen", [])
-    matches = set()
-    for patroon in patronen:
-        matches.update(re.findall(patroon, definitie, re.IGNORECASE))
-
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
-
-    goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
-
-    if not matches:
-        if goed:
-            return "✔️ SAM-06: duidelijke voorkeursbenaming, conform goed voorbeeld"
-        return "✔️ SAM-06: geen synoniemgebruik herkend"
-
-    if fout:
-        return f"❌ SAM-06: mogelijke synoniemstructuur herkend ({', '.join(matches)}), lijkt op fout voorbeeld"
-    if not goed:
-        return f"❌ SAM-06: synoniemen herkend ({', '.join(matches)}), maar geen duidelijke voorkeursbenaming"
-
-    return f"✔️ SAM-06: synoniemen correct gebruikt ({', '.join(matches)}) en goed voorbeeld herkend"
+def toets_SAM_06(definitie: str, regel: Dict[str, Any], voorkeursterm: Optional[str] = None) -> str:
+    """
+    SAM-06: Één synoniem krijgt (expliciet) voorkeur.
+    ➤ Enkel toetsen of de gebruiker een voorkeurs-term heeft opgegeven.
+    """
+    if not voorkeursterm:
+        return "❌ SAM-06: geen voorkeurs-term opgegeven"
+    return f"✔️ SAM-06: voorkeurs-term ‘{voorkeursterm}’ opgegeven"
 
 
 # ✅ Toetsing voor regel SAM-07 (Geen betekenisverruiming binnen definitie)
@@ -1742,7 +1784,18 @@ def toets_ARAI06(definitie: str, begrip: str) -> dict[str, str]:
 # Deze functie doorloopt alle toetsregels en roept voor elke regel de centrale dispatcher aan.
 # ➤ Nieuw: met logging wrapper (optioneel aan/uit te zetten via gebruik_logging=True)
 
-def toets_definitie(definitie, regels, begrip=None, bronnen_gebruikt=None, contexten=None, gebruik_logging=False):
+def toets_definitie(
+        definitie, 
+        regels, 
+        begrip=None, 
+        voorkeursterm: Optional[str] = None,      # ← nieuw
+        bronnen_gebruikt=None, 
+        contexten=None, 
+        gebruik_logging=False, 
+                repository: Optional[Dict[str, str]] = None,
+) -> List[str]:
+    
+
     """
     Voert alle toetsregels uit op de opgegeven definitie.
 
@@ -1761,12 +1814,14 @@ def toets_definitie(definitie, regels, begrip=None, bronnen_gebruikt=None, conte
     resultaten = []
     for regel_id, regel_data in regels.items():
         resultaat = toets_op_basis_van_regel(
-            definitie,
-            regel_id,
-            regel_data,
-            begrip=begrip,
-            bronnen_gebruikt=bronnen_gebruikt,
-            contexten=contexten
+            definitie        = definitie,
+            regel_id         = regel_id,
+            regel            = regel_data,
+            begrip           = begrip,
+            voorkeursterm    = voorkeursterm,   # ← nieuw
+            bronnen_gebruikt = bronnen_gebruikt,
+            contexten        = contexten,
+            repository       = repository    # ← propageren
         )
         resultaten.append(resultaat)
 
@@ -1853,7 +1908,16 @@ DISPATCHER = {
 # ➤ Alle fouten worden afgevangen zodat de app niet crasht bij ontbrekende of foutieve aanroepen.
 # ➤ Als er geen toetsfunctie bekend is voor een regel-ID, wordt een waarschuwingsbericht getoond.
 
-def toets_op_basis_van_regel(definitie, regel_id, regel, begrip=None, bronnen_gebruikt=None, contexten=None):
+def toets_op_basis_van_regel(
+        definitie, 
+        regel_id, 
+        regel, 
+        begrip=None, 
+        voorkeursterm: Optional[str] = None, 
+        bronnen_gebruikt=None, 
+        contexten=None,
+        repository: Optional[Dict[str, str]] = None,  # ← nieuw
+    )    -> str:    
     """
     Routeert de definitie en metadata naar de juiste toetsfunctie op basis van het regel-ID.
     Ondersteunt extra argumenten zoals begrip (voor cirkeldefinities), bronnen (voor bronvermelding),
@@ -1869,7 +1933,22 @@ def toets_op_basis_van_regel(definitie, regel_id, regel, begrip=None, bronnen_ge
     regels_met_context = {"CON-01"}
 
     try:
-        if regel_id in regels_met_begrip:
+         # ➊ voor SAM-05 geven we repository expliciet door
+        if regel_id == "SAM-05":
+            return functie(
+                definitie = definitie,
+                regel      = regel,
+                begraip     = begrip,
+                repository = repository
+            )
+        # ➋ overige regels die enkel een begrip nodig hebben
+        elif regel_id == "SAM-06":
+            return functie(
+                definitie      = definitie,
+                regel           = regel,
+                voorkeursterm = voorkeursterm 
+            )
+        elif regel_id in regels_met_begrip:
             return functie(definitie, regel, begrip=begrip)
         elif regel_id in regels_met_bronnen:
             return functie(definitie, regel, bronnen_gebruikt=bronnen_gebruikt)
@@ -1882,8 +1961,25 @@ def toets_op_basis_van_regel(definitie, regel_id, regel, begrip=None, bronnen_ge
         
 # ✅ Voorbeeldgebruik
 if __name__ == "__main__":
+    # 1️⃣ Laad alle officiële definities uit je JSON
+    repository = load_repository("src/config/definities.json")
+
+    # 2️⃣ Laad je toetsregels zoals voorheen
     regels = laad_toetsregels()
-    test_definitie = "DJI is verantwoordelijk voor het detentiebeleid."
-    uitslag = toets_definitie(test_definitie, regels)
-    for r in uitslag:
-        print(r)
+
+    # 3️⃣ Test via de centrale toets_definitie (incl. repo voor SAM-05)
+    test_begrip    = "Object"
+    test_definitie = repository[test_begrip.lower()]
+
+    uitslagen = toets_definitie(
+        definitie       = test_definitie,
+        regels          = regels,
+        begrip          = test_begrip,
+        voorkeursterm   = test_begrip,      # ← nu meegegeven
+        bronnen_gebruikt= None,
+        contexten       = None,
+        gebruik_logging = False,
+        repository      = repository     # ← nieuw argument
+    )
+    for regel_uitkomst in uitslagen:
+        print(regel_uitkomst)
