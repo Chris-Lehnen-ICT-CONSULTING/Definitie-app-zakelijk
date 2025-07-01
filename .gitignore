@@ -9,3 +9,7 @@ __pycache__/
 release/
 *.dmg
 *.zip
+
+# 💚 Environment variables
+.env
+.env.*
