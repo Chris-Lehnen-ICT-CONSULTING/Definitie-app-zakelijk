@@ -13,8 +13,7 @@ from prompt_builder import (                                  # ✅ gecentralise
     selecteer_aanvullende_regels,
     bouw_prompt_met_gesplitste_richtlijnen,
     stuur_prompt_naar_gpt,
-    build_prompt,
-)
+    )
 
 # ✅ Init OpenAI-client (één keer)
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
