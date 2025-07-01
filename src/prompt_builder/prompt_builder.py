@@ -124,7 +124,22 @@ def bouw_prompt_met_gesplitste_richtlijnen(
             prompt += "– Foute voorbeelden:\n"
             for vb in regel['foute_voorbeelden']:
                 prompt += f"  ❌ {vb}\n"
-
+    # 💚 3b. Expliciete instructie voor ESS-02 (ontologische categorie)
+    prompt += (
+        "\n### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):\n"
+        "Indien een begrip meerdere ontologische categorieën kan aanduiden, "
+        "moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt:\n"
+        "• type (soort),\n"
+        "• exemplaar (specifiek geval),\n"
+        "• proces (activiteit), of\n"
+        "• resultaat (uitkomst).\n"
+        "Gebruik formuleringen zoals:\n"
+        "- 'is een activiteit waarbij...'\n"
+        "- 'is het resultaat van...'\n"
+        "- 'betreft een specifieke soort...'\n"
+        "- 'is een exemplaar van...'\n"
+    )
+# ✅ Stuurt GPT aan om expliciete ontologische markers toe te voegen ter ondersteuning van ESS-02
     # 4️⃣ Webuitleg
     if web_uitleg.strip():
         prompt += f"\n📎 Achtergrond (niet letterlijk overnemen):\n{web_uitleg.strip()}\n"
