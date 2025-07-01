@@ -159,7 +159,7 @@ def genereer_toelichting(begrip, context=None, juridische_context=None, wettelij
         f"- Juridische context: {juridische_context or 'geen'}\n"
         f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
     )
-    return stuur_prompt_naar_gpt(prompt, temperature=0.4)
+    return stuur_prompt_naar_gpt(prompt, temperatuur=0.4)
 
 
 # ================================
@@ -174,7 +174,7 @@ def genereer_synoniemen(begrip, context=None, juridische_context=None, wettelijk
         f"- Juridische context: {juridische_context or 'geen'}\n"
         f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
     )
-    return stuur_prompt_naar_gpt(prompt, temperature=0.3, max_tokens=150)
+    return stuur_prompt_naar_gpt(prompt, temperatuur=0.3, max_tokens=150)
 
 
 
@@ -190,7 +190,7 @@ def genereer_antoniemen(begrip, context=None, juridische_context=None, wettelijk
         f"- Juridische context: {juridische_context or 'geen'}\n"
         f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
     )
-    return stuur_prompt_naar_gpt(prompt, temperature=0.3, max_tokens=150)
+    return stuur_prompt_naar_gpt(prompt, temperatuur=0.3, max_tokens=150)
 
 
 # ================================
@@ -365,7 +365,7 @@ if actie and begrip:
             prompt_bronnen,
             model="gpt-4",
             max_tokens=1000,
-            temperature=0.4,
+            temperatuur=0.4,
         )
         st.session_state.bronnen_gebruikt = bronnen_tekst.strip()
     except Exception as e:
