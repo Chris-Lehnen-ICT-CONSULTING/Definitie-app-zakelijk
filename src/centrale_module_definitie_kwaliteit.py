@@ -173,6 +173,7 @@ def genereer_synoniemen(begrip, context=None, juridische_context=None, wettelijk
     return stuur_prompt_naar_gpt(prompt, temperature=0.3, max_tokens=150)
 
 
+
 # ================================
 # 🔁 ANTONIEMEN GENEREREN
 # ================================
@@ -228,6 +229,7 @@ toetsregels = laad_toetsregels()
 # ================================
 st.write("🧾 Definitie Kwaliteit")
 begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gegenereerd")
+
 
 # ✅ Organisatorische context
 contextoptie = st.selectbox(
@@ -321,6 +323,8 @@ if "toelichting" not in st.session_state:
     st.session_state.toelichting = ""
 if "synoniemen" not in st.session_state:
     st.session_state.synoniemen = ""
+if "voorkeursterm" not in st.session_state:
+    st.session_state["voorkeursterm"] = ""
 if "antoniemen" not in st.session_state:
     st.session_state.antoniemen = ""
 
@@ -380,6 +384,7 @@ if actie and begrip:
         definitie_gecorrigeerd,
         toetsregels,
         begrip=begrip,
+        voorkeursterm=st.session_state["voorkeursterm"],
         bronnen_gebruikt=st.session_state.get("bronnen_gebruikt", None),
         contexten={
             "organisatorisch": context,
@@ -498,7 +503,32 @@ with tab_ai:
 
     if st.session_state.synoniemen:
         st.markdown("### 🔁 Synoniemen")
-        st.success(st.session_state.synoniemen)
+
+        # 1️⃣ Parse de rauwe tekst (per regel één synoniem) naar een lijst
+        synoniemen_lijst = [
+            s.strip()
+            for s in st.session_state.synoniemen.split("\n")
+            if s.strip()
+        ]
+
+        # 2️⃣ Toon ze netjes in één regel
+        st.success(", ".join(synoniemen_lijst))
+
+        # 3️⃣ opties: lege placeholder + begrip + synoniemen
+        opties = [""] + [begrip] + synoniemen_lijst
+        keuze = st.selectbox(
+            "Selecteer de voorkeurs-term (lemma)",
+            opties,
+            index=0,
+            format_func=lambda x: x if x else "— kies hier je voorkeurs-term —",
+            help="Laat leeg als je nog geen voorkeurs-term wilt vastleggen"
+        )
+        st.session_state["voorkeursterm"] = keuze
+    else:
+        st.markdown("### 🔁 Synoniemen")
+        st.warning("Geen synoniemen beschikbaar — je kunt nu nog géén voorkeurs-term selecteren.")
+         # geen default naar begrip, hou het leeg
+        st.session_state["voorkeursterm"] = ""
 
     if st.session_state.antoniemen:
         st.markdown("### 🔄 Antoniemen")
@@ -533,6 +563,7 @@ with tab_ai:
     else:
         st.warning("⚠️ Geen toetsresultaten beschikbaar voor de AI-versie.")
 
+
 # ================================
 # ✍️ Tab 2: Aangepaste definitie en toetsing
 # ================================
@@ -551,6 +582,7 @@ with tab_aangepast:
                 st.session_state.aangepaste_definitie,
                 toetsregels,
                 begrip=begrip,
+                voorkeursterm=st.session_state["voorkeursterm"],
                 bronnen_gebruikt=st.session_state.get("bronnen_gebruikt", None),
                 contexten={
                     "organisatorisch": context,

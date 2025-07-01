@@ -789,29 +789,27 @@
     "SAM-05": {
       "id": "SAM-05",
       "naam": "Geen cirkeldefinities",
-      "uitleg": "De definitie mag het te definiëren begrip of afleidingen daarvan niet bevatten.",
-      "toelichting": "Een definitie is cirkelredenerend als zij (een afleiding van) het te definiëren begrip bevat. Dit geeft geen extra informatie over de betekenis van het begrip en maakt de definitie niet begrijpelijk voor buitenstaanders.",
-      "toetsvraag": "Bevat de definitie het te definiëren begrip of een afleiding daarvan?",
-      "herkenbaar_patronen": [
-        "\\b(\\w*toezicht\\w*)\\b",
-        "\\b(\\w*registratie\\w*)\\b"
-      ],
+      "uitleg": "Een cirkeldefinitie (wederzijdse of meerdiepse verwijzing tussen begrippen) mag niet voorkomen.",
+      "toelichting": "Definities zijn circulair als begrip A in definitie B staat en begrip B in definitie A (diepte 2), of dieper (A→B→C→A). Dit leidt tot onbegrijpelijkheid.",
+      "toetsvraag": "Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?",
       "goede_voorbeelden": [
-        "toezicht: actieve controle op de naleving van regels of afspraken"
+        "object: fysiek ding dat bestaat in ruimte en tijd",
+        "entiteit: iets dat bestaat"
       ],
       "foute_voorbeelden": [
-        "toezicht: het houden van toezicht op iets"
+        "object: een ding is een object",
+        "ding: een object is een ding"
       ],
       "prioriteit": "hoog",
       "aanbeveling": "verplicht",
       "geldigheid": "alle",
       "status": "definitief",
-      "type": "inhoudelijke opbouw",
+      "type": "samenhang tussen termen/definities",
       "thema": "begripszuiverheid",
       "brondocument": "ASTRA",
       "relatie": [
         {
-          "fulltext": "Géén cirkeldefinities",
+          "fulltext": "Geen cirkeldefinities",
           "fullurl": "https://www.astraonline.nl/index.php/Géén_cirkeldefinities"
         }
       ]
@@ -819,20 +817,8 @@
     "SAM-06": {
       "id": "SAM-06",
       "naam": "Één synoniem krijgt voorkeur",
-      "uitleg": "Er wordt per begrip één voorkeursbenaming gekozen; synoniemen worden apart vermeld.",
-      "toelichting": "Als meerdere woorden of termen verwijzen naar hetzelfde begrip, wordt één vorm gekozen als lemma en de andere vormen als synoniem opgenomen. Dit verhoogt de eenduidigheid en voorkomt verwarring.",
-      "toetsvraag": "Is één term gekozen als voorkeursbenaming en worden andere vormen alleen als synoniem vermeld?",
-      "herkenbaar_patronen": [
-        "\\bof\\b",
-        "\\(synoniem: .*\\)",
-        "\\bsynoniemen?:\\b"
-      ],
-      "goede_voorbeelden": [
-        "boete: geldelijke straf die wordt opgelegd wegens een overtreding (synoniem: geldstraf)"
-      ],
-      "foute_voorbeelden": [
-        "boete of geldstraf: geldbedrag opgelegd bij overtreding"
-      ],
+      "uitleg": "Kies per begrip één voorkeurs-term (lemma).",
+      "toetsvraag": "Heeft de gebruiker een voorkeurs-term geselecteerd?",
       "prioriteit": "midden",
       "aanbeveling": "verplicht",
       "geldigheid": "termniveau",
@@ -845,7 +831,8 @@
           "fulltext": "Één synoniem krijgt voorkeur",
           "fullurl": "https://www.astraonline.nl/index.php/Één_synoniem_krijgt_voorkeur"
         }
-      ]
+      ],
+      "vereist_param": ["voorkeursterm"]
     },
     "SAM-07": {
       "id": "SAM-07",

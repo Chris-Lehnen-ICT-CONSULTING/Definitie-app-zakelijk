@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Dict
 
 # ✅ Bepaal basis-dir, zodat we altijd vanaf de module-locatie werken
 def _get_base_dir() -> str:
@@ -46,3 +47,11 @@ def laad_verboden_woorden(path: str = _VERBODEN_WOORDEN_PATH) -> dict:
     with open(path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
+def load_repository(path: str) -> Dict[str, str]:
+    """
+    Laadt alle begrips-definities uit een JSON-bestand.
+    JSON-structuur: { "object": "Definitie van object", ... }
+    """
+    with open(path, encoding="utf-8") as f:
+        data = json.load(f)
+    return {term.lower(): defi for term, defi in data.items()}
