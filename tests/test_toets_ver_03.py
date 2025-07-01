@@ -1,4 +1,8 @@
 from ai_toetser.core import toets_VER_03
+from config.config_loader import load_toetsregels
+
+toetsregels = load_toetsregels()
+regel_VER_03 = next(r for r in toetsregels if r["id"] == "VER-03")
 
 # fout: vervoegd
 assert toets_VER_03("beoordeelt", regel_VER_03).startswith("❌ VER-03")
