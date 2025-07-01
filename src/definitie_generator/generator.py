@@ -61,7 +61,7 @@ def genereer_definitie(
         definitie_origineel = stuur_prompt_naar_gpt(
             prompt,
             model=model,
-            temperature=temperature,
+            temperatuur=temperature,  # ✅ let op: 'temperatuur' met 'uur'
             max_tokens=max_tokens
         )
     except OpenAIError as e:
