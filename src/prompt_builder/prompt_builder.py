@@ -2,9 +2,26 @@ import os
 from openai import OpenAI, OpenAIError
 from config.verboden_woorden import laad_verboden_woorden
 from typing import Optional, List, Dict
+from dotenv import load_dotenv
 
-# ✅ Init OpenAI-client centraal
+
+# 🌱 Initialiseer OpenAI-client
+load_dotenv()
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+# 💚 --------------- VERPLAATSTE OPENAI-CLIENT ---------------  
+def _get_openai_client() -> OpenAI:          # ✅ privé helper  
+    """
+    # ✅ Maakt OpenAI-client alléén aan wanneer hij voor het eerst nodig is.
+    #    Zo kan het pakket zonder OPENAI_API_KEY geïmporteerd worden.
+    """
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        raise RuntimeError(
+            "OPENAI_API_KEY ontbreekt. Zet deze variabele in .env of in je CI-secrets."
+        )
+    return OpenAI(api_key=api_key)
+# 💚 ----------------------------------------------------------
 
 
 
