@@ -80,24 +80,6 @@ def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
         gevonden = ", ".join(sorted(set(expliciete_hits)))
         return f"❌ CON-01: opgegeven context letterlijk in definitie herkend (‘{gevonden}’)"
 
-    # ✅ 2️⃣ Statisch: patronen uit JSON
-    for patroon in regel.get("herkenbaar_patronen", []):
-        if re.search(patroon, definitie, re.IGNORECASE):
-            return "❌ CON-01: contextpatroon herkend in definitie"
-
-    # ✅ 3️⃣ Foute voorbeelden (JSON)
-    for fout in regel.get("foute_voorbeelden", []):
-        if fout.lower() in definitie_lc:
-            return "❌ CON-01: definitie bevat expliciet fout voorbeeld"
-
-    # ✅ 4️⃣ Goede voorbeelden (JSON)
-    for goed in regel.get("goede_voorbeelden", []):
-        if goed.lower() in definitie_lc:
-            return "✔️ CON-01: definitie komt overeen met goed voorbeeld"
-
-    # ✅ 5️⃣ Fallback: geen contextuele verwijzing
-    return "✔️ CON-01: geen expliciete contextvermelding in definitie"
-
     # 🟩 2. Herken bredere contexttermen via reguliere patronen uit JSON
     patronen = regel.get("herkenbaar_patronen", [])
     contextuele_term_hits = set()
@@ -115,9 +97,13 @@ def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
             return f"❌ CON-01: bredere contexttermen herkend ({', '.join(contextuele_term_hits)}), en lijkt op fout voorbeeld"
         return f"🟡 CON-01: bredere contexttaal herkend ({', '.join(contextuele_term_hits)}), formulering mogelijk vaag"
 
-    if goede_match:
-        return "✔️ CON-01: geen expliciete context, formulering komt overeen met goed voorbeeld"
+    if foute_match:
+        return "❌ CON-01: definitie bevat expliciet fout voorbeeld"
 
+    if goede_match:
+        return "✔️ CON-01: definitie komt overeen met goed voorbeeld"
+
+    # ✅ 5️⃣ Fallback – niets herkend
     return "✔️ CON-01: geen expliciete contextverwijzing aangetroffen"
 
 # ✅ CON-02: Deze regel controleert of er een expliciete bronvermelding aanwezig is via het veld 'bronnen_gebruikt'.
