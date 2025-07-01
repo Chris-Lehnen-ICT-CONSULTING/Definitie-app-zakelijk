@@ -10,6 +10,15 @@ import streamlit as st
 st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
 import pandas as pd
+
+def check_ascii(label: str, value: str):
+    """Raise fout als string niet ASCII-safe is."""
+    try:
+        value.encode("ascii")
+    except UnicodeEncodeError as e:
+        raise RuntimeError(f"{label} bevat niet-ASCII tekens: {e}")
+
+
 from dotenv import load_dotenv
 
 from voorbeelden.voorbeelden import (
