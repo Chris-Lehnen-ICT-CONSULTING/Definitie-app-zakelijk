@@ -4,6 +4,12 @@ from config.verboden_woorden import laad_verboden_woorden
 from typing import Optional, List, Dict
 from dotenv import load_dotenv
 
+def check_ascii(label: str, value: str):
+    """Raise fout als string niet ASCII-safe is."""
+    try:
+        value.encode("ascii")
+    except UnicodeEncodeError as e:
+        raise RuntimeError(f"{label} bevat niet-ASCII tekens: {e}")
 
 # 🌱 Initialiseer OpenAI-client
 load_dotenv()
@@ -167,7 +173,20 @@ def stuur_prompt_naar_gpt(
     temperature: float = 0.4,
     max_tokens: int = 300
 ) -> str:
-    """Voert GPT-aanroep uit en retourneert resultaat."""
+    """Voert GPT-aanroep uit en valideert input op ASCII-veiligheid."""
+
+    # ✅ 1. Check API-key op niet-ASCII tekens
+    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    check_ascii("API-key", api_key)
+
+    # ✅ 2. Check prompttekst
+    check_ascii("Prompt", prompt)
+
+    # (optioneel) 3. Als je later headers gebruikt, voeg die dan hier toe
+    # headers = {"X-Custom": "…" }  # ← voorbeeld van foute waarde
+    # for k, v in headers.items():
+    #     check_ascii(f"Header '{k}'", v)
+
     try:
         resp = _client.chat.completions.create(
             model=model,
