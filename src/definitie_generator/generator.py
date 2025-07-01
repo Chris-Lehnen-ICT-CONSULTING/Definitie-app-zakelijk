@@ -8,11 +8,12 @@ from openai import OpenAI, OpenAIError
 
 from web_lookup import zoek_definitie_combinatie              # ✅ extern web‐lookup
 from config.config_loader import laad_toetsregels             # ✅ laad toetsregels
-from prompt_builder.prompt_builder import (                                  # ✅ gecentraliseerde prompt‐builder
+from prompt_builder import (                                  # ✅ gecentraliseerde prompt‐builder
     selecteer_essentiele_regels,
     selecteer_aanvullende_regels,
     bouw_prompt_met_gesplitste_richtlijnen,
-    stuur_prompt_naar_gpt
+    stuur_prompt_naar_gpt,
+    build_prompt,
 )
 
 # ✅ Init OpenAI-client (één keer)
