@@ -8,14 +8,6 @@ from web_lookup import is_plurale_tantum
 
 from dotenv import load_dotenv
 
-def check_ascii(label: str, value: str):
-    """Raise fout als string niet ASCII-safe is."""
-    try:
-        value.encode("ascii")
-    except UnicodeEncodeError as e:
-        raise RuntimeError(f"{label} bevat niet-ASCII tekens: {e}")
-
-
 from openai import OpenAI
 
 # --- 🔄 Eigen modules (projectspecifiek) ---
