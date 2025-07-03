@@ -686,8 +686,6 @@ def toets_INT_07(definitie: str, regel: dict) -> str:
         return f"❌ INT-07: geen toelichting voor afkorting(en): {labels}"
     return f"✔️ INT-07: alle afkortingen voorzien van directe toelichting of link"
 # ✅ Toetsing voor regel INT-08 (Positieve formulering)
-from typing import Dict
-
 def toets_INT_08(definitie: str, regel: Dict) -> str:
     """
     INT-08: Positieve formulering
