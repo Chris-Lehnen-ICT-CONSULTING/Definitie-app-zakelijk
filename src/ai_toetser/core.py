@@ -686,7 +686,6 @@ def toets_INT_07(definitie: str, regel: dict) -> str:
         return f"❌ INT-07: geen toelichting voor afkorting(en): {labels}"
     return f"✔️ INT-07: alle afkortingen voorzien van directe toelichting of link"
 # ✅ Toetsing voor regel INT-08 (Positieve formulering)
-import re
 from typing import Dict
 
 def toets_INT_08(definitie: str, regel: Dict) -> str:
@@ -1354,8 +1353,7 @@ def toets_STR_07(definitie, regel):
 
 ### ✅ Toetsing voor regel STR-08 (Dubbelzinnige 'en' is verboden)
 def toets_STR_08(definitie, regel):
-    import re
-
+  
     # ── 1) Start met je JSON-patronen en breid uit met strikte regex voor "A, B en C" en "X en Y"
     patronen = list(regel.get("herkenbaar_patronen", [])) + [
         r"\b\w+,\s*\w+\s+en\s+\w+\b",   # bv. “A, B en C”
@@ -1397,7 +1395,6 @@ def toets_STR_08(definitie, regel):
 
 ### ✅ Toetsing voor regel STR-09 (Dubbelzinnige 'of' is verboden)
 def toets_STR_09(definitie, regel):
-    import re
 
     # ── 1) Combineer JSON-patronen met strikte regex voor "A, B of C" en "X of Y"
     patronen = list(regel.get("herkenbaar_patronen", [])) + [
