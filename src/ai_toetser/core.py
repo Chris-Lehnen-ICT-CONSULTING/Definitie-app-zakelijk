@@ -634,8 +634,6 @@ def toets_INT_06(definitie: str, regel: dict) -> str:
     return "✔️ INT-06: geen toelichtende elementen in de definitie gevonden"
 
 # ✅ Toetsing voor regel INT-07 (afkortingen)
-import re
-
 def toets_INT_07(definitie: str, regel: dict) -> str:
     """
     INT-07: Alleen toegankelijke afkortingen.

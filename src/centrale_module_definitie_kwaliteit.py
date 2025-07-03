@@ -452,7 +452,8 @@ if actie and begrip:
         vrije_input=st.session_state.get("vrije_input", ""),
         datum=datum,
         voorsteller=voorsteller,
-        ketenpartners=ketenpartners
+        ketenpartners=ketenpartners,
+        expert_review=st.session_state.get("expert_review", "")
 )
 
     # 📊 Toggle AI-toetsing zichtbaar maken
@@ -495,7 +496,9 @@ tab_ai, tab_aangepast, tab_expert = st.tabs([
 with tab_ai:
     st.markdown("### 📘 AI-gegenereerde definitie")
     st.markdown(st.session_state.gegenereerd)
-    
+    if st.session_state.get("marker"):
+         st.markdown(f"**Ontologische categorie (metadata):** {st.session_state['marker'].capitalize()}")
+         
     st.markdown("### ✨ Opgeschoonde definitie (gecorrigeerde versie)")
     st.markdown(st.session_state.get("definitie_gecorrigeerd", ""))  # 💚 Verwijdert verboden constructies
 
@@ -664,7 +667,8 @@ with tab_expert:
         vrije_input=st.session_state.get("vrije_input", ""),
         datum=datum,
         voorsteller=voorsteller,
-        ketenpartners=ketenpartners
+        ketenpartners=ketenpartners,
+        expert_review=st.session_state.get("expert_review", "")
     )
     st.success("✅ Aangepaste definitie en toetsing opgeslagen.")
     
