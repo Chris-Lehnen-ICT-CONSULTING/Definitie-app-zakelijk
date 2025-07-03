@@ -40,14 +40,36 @@ def log_definitie(
     synoniemen: str,
     antoniemen: str,
     vrije_input: str,
-    datum,
     voorsteller: str,
-    ketenpartners: list,
-    expert_review: str = ""
+    prompt_text: str,   
+    datum=None,
+    ketenpartners: list = [],
+    expert_review: str = "",
+    
 ):
+    """
+    Logt de definitie inclusief JSON- en CSV-weergave.
+
+    Parameters:
+    - versietype: Type van de definitieversie.
+    - begrip: Het gedefinieerde begrip.
+    - context, juridische_context, wet_basis: Aangegeven context.
+    - definitie_origineel: AI gegenereerde definitie.
+    - definitie_gecorrigeerd: Opgeschoonde definitie.
+    - definitie_aangepast: Aangepaste definitie.
+    - toetsing: Lijst met toetsregels.
+    - voorbeeld_zinnen, praktijkvoorbeelden, toelichting, synoniemen, antoniemen, vrije_input: Extra metadata.
+    - voorsteller: Naam van de indiener.
+    - prompt_text: De exacte prompt-tekst die naar ChatGPT is gestuurd.
+    - datum: Datum van inbrengen.
+    - ketenpartners: Eventuele ketenpartners.
+    - expert_review: Notities uit expert-review.
+    """
     # ✅ Haal logger op
     logger = get_logger(__name__)
     logger.debug(f"Start log_definitie voor begrip={begrip} (versie={versietype})")
+
+
 
     # 💚 Stap 1: JSON-log (per rij → analyse/hergebruik)
     metadata = {
@@ -56,10 +78,10 @@ def log_definitie(
         "context": context,
         "juridische_context": juridische_context,
         "wettelijke_basis": wet_basis,
+        "prompt": prompt_text,
         "definitie_origineel": definitie_origineel,
         "definitie_gecorrigeerd": definitie_gecorrigeerd,
         "definitie_aangepast": definitie_aangepast,
-        "definitie": definitie_aangepast or definitie_gecorrigeerd,
         "toetsing": toetsing,
         "voorbeeld_zinnen": voorbeeld_zinnen,
         "praktijkvoorbeelden": praktijkvoorbeelden,
@@ -86,7 +108,7 @@ def log_definitie(
     else:
         df_bestaand = pd.DataFrame(columns=[
             "Versietype", "Begrip", "Context", "Juridische context",
-            "Wettelijke basis", "Definitie", "Definitie_origineel",
+            "Wettelijke basis", "Prompt", "Definitie_origineel",
             "Definitie_gecorrigeerd", "Voorbeeld_zinnen", "Praktijkvoorbeelden", "Toelichting",
             "Synoniemen", "Antoniemen", "Vrije input", "Expert-review",
             "Datum", "Voorsteller", "Ketenpartners", "Timestamp"
@@ -100,6 +122,7 @@ def log_definitie(
         "Context": context,
         "Juridische context": juridische_context,
         "Wettelijke basis": wet_basis,
+        "Prompt": prompt_text,
         "Definitie_origineel": definitie_origineel,
         "Definitie_gecorrigeerd": definitie_gecorrigeerd,
         "Definitie_aangepast": definitie_aangepast,
