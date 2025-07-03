@@ -58,6 +58,7 @@ def log_definitie(
         "wettelijke_basis": wet_basis,
         "definitie_origineel": definitie_origineel,
         "definitie_gecorrigeerd": definitie_gecorrigeerd,
+        "definitie_aangepast": definitie_aangepast,
         "definitie": definitie_aangepast or definitie_gecorrigeerd,
         "toetsing": toetsing,
         "voorbeeld_zinnen": voorbeeld_zinnen,
@@ -86,7 +87,7 @@ def log_definitie(
         df_bestaand = pd.DataFrame(columns=[
             "Versietype", "Begrip", "Context", "Juridische context",
             "Wettelijke basis", "Definitie", "Definitie_origineel",
-            "Definitie_gecorrigeerd", "voorbeeld_zinnen", "Praktijkvoorbeelden", "Toelichting",
+            "Definitie_gecorrigeerd", "Voorbeeld_zinnen", "Praktijkvoorbeelden", "Toelichting",
             "Synoniemen", "Antoniemen", "Vrije input", "Expert-review",
             "Datum", "Voorsteller", "Ketenpartners", "Timestamp"
         ] + [f"Regel {i}" for i in range(1, len(toetsing)+1)])
@@ -99,9 +100,9 @@ def log_definitie(
         "Context": context,
         "Juridische context": juridische_context,
         "Wettelijke basis": wet_basis,
-        "Definitie": definitie_aangepast or definitie_gecorrigeerd,
         "Definitie_origineel": definitie_origineel,
         "Definitie_gecorrigeerd": definitie_gecorrigeerd,
+        "Definitie_aangepast": definitie_aangepast,
         "Voorbeeld_zinnen": voorbeeld_zinnen,
         "Praktijkvoorbeelden": "; ".join(praktijkvoorbeelden),
         "Toelichting": toelichting,
