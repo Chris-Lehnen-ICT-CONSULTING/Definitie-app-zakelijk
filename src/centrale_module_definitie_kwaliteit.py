@@ -655,6 +655,7 @@ with tab_expert:
         context=context,
         juridische_context=juridische_context,
         wet_basis=wet_basis,
+        prompt_text=st.session_state.get("prompt_text", ""),
         definitie_origineel=st.session_state.get("definitie_origineel", ""),
         definitie_gecorrigeerd=st.session_state.get("definitie_gecorrigeerd", ""),
         definitie_aangepast=st.session_state.aangepaste_definitie,
