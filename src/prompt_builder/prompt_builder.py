@@ -179,6 +179,8 @@ Gebruik formuleringen zoals:
 
         # ✅ Definitie-opdracht
         regels.append("🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen.")
+        regels.append("\n📋 **Ontologische marker (lever als eerste regel):**")
+        regels.append("- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]")
         regels.append(f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting.")
 
         # ✅ Metadata

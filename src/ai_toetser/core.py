@@ -169,7 +169,9 @@ def toets_ESS_01(definitie: str, regel: dict) -> str:
 
 
 
-def toets_ESS_02(definitie: str, regel: Dict[str, Any]) -> str:
+def toets_ESS_02(definitie: str,
+                regel: Dict[str, Any],
+                marker: Optional[str] = None) -> str:
     """
     ESS-02: Ontologische categorie expliciteren (type / particulier / proces / resultaat)
     -----------------------------------------------------------------------------------
@@ -189,6 +191,18 @@ def toets_ESS_02(definitie: str, regel: Dict[str, Any]) -> str:
       6️⃣ Anders → ❌ geen duidelijke marker
     """
     d = definitie.lower().strip()
+    # 0️⃣ Metadata-override indien meegeleverd
+    if marker:
+        m = marker.lower()
+        if m in {"soort", "type"}:
+            return "✔️ ESS-02: eenduidig als soort gedefinieerd (via metadata)"
+        if m in {"exemplaar", "particulier"}:
+            return "✔️ ESS-02: eenduidig als exemplaar gedefinieerd (via metadata)"
+        if m in {"proces", "activiteit"}:
+            return "✔️ ESS-02: eenduidig als proces gedefinieerd (via metadata)"
+        if m in {"resultaat", "uitkomst"}:
+            return "✔️ ESS-02: eenduidig als resultaat gedefinieerd (via metadata)"
+        return f"❌ ESS-02: ongeldige marker ‘{marker}’; gebruik soort/exemplaar/proces/resultaat"
 
     # 1️⃣ Expliciete foute voorbeelden per categorie
     categories = [
@@ -1953,7 +1967,7 @@ def toets_op_basis_van_regel(
 # ✅ Voorbeeldgebruik
 if __name__ == "__main__":
     # 1️⃣ Laad alle officiële definities uit je JSON
-    repository = load_repository("src/config/definities.json")
+    repository = load_repository("src/config/definities.json ")
 
     # 2️⃣ Laad je toetsregels zoals voorheen
     regels = laad_toetsregels()

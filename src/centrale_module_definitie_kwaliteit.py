@@ -338,15 +338,28 @@ if "antoniemen" not in st.session_state:
 if actie and begrip:
 
     # 🧠 Genereer alleen de originele definitie
-    definitie_origineel = genereer_definitie(
+    # 1️⃣ Genereer volledige GPT-respons (inclusief metadata)
+    raw = genereer_definitie(
         begrip, context, juridische_context, wet_basis
     )
-    # 🧽 Maak zelf de opgeschoonde versie via opschoning.py
+    # 2️⃣ Parse metadata-marker en zuivere definitietekst
+    marker = None
+    regels = raw.splitlines()
+    tekstregels = []
+    for regel in regels:
+        if regel.lower().startswith("ontologische categorie:"):
+            marker = regel.split(":",1)[1].strip()
+        else:
+            tekstregels.append(regel)
+    definitie_origineel = "\n".join(tekstregels).strip()
+
+    # 3️⃣ Opschonen
     from opschoning.opschoning import opschonen
     definitie_gecorrigeerd = opschonen(definitie_origineel, begrip)
     
     # 💚 Sla beide versies apart op in de sessiestatus (voor UI + logging + toetsing)
     st.session_state["definitie_origineel"] = definitie_origineel
+    st.session_state["marker"] = marker or ""
     st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd
     st.session_state["gegenereerd"] = definitie_origineel  # deze blijft zichtbaar in Tab 1
 
@@ -388,6 +401,7 @@ if actie and begrip:
         definitie_gecorrigeerd,
         toetsregels,
         begrip=begrip,
+        marker=marker,                               # ← nieuw
         voorkeursterm=st.session_state["voorkeursterm"],
         bronnen_gebruikt=st.session_state.get("bronnen_gebruikt", None),
         contexten={
