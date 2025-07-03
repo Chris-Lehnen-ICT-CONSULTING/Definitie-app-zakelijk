@@ -450,6 +450,7 @@ if actie and begrip:
         synoniemen=st.session_state.synoniemen,
         antoniemen=st.session_state.antoniemen,
         vrije_input=st.session_state.get("vrije_input", ""),
+        prompt_text=st.session_state.get("prompt_text", ""),
         datum=datum,
         voorsteller=voorsteller,
         ketenpartners=ketenpartners,
