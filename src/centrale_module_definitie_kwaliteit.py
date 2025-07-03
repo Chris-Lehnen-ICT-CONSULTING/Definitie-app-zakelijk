@@ -308,6 +308,17 @@ gebruik_logging = st.checkbox("🛠️ Log detailinformatie per toetsregel (alle
 #st.markdown("### 📏 Toetsregels meegenomen in de definitie-opbouw")
 #st.markdown(selecteer_richtlijnen(toetsregels))  # geeft meteen de string die nodig is
 
+from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
+
+prompt_config = PromptConfiguratie(
+    begrip=begrip,
+    context=context,
+    juridische_context=juridische_context,
+    wettelijke_basis=wet_basis
+)
+pb = PromptBouwer(prompt_config)
+st.session_state["prompt_text"] = pb.bouw_prompt()
+
 actie = st.button("Genereer definitie")
 
 # ✅ Initialiseer sessiestatus
@@ -585,6 +596,14 @@ with tab_ai:
     else:
         st.warning("⚠️ Geen toetsresultaten beschikbaar voor de AI-versie.")
 
+    if st.session_state.get("prompt_text"):
+        with st.expander("📄 Bekijk volledige gegenereerde prompt", expanded=False):
+            st.text_area(
+                "Prompttekst verstuurd naar GPT",
+                value=st.session_state["prompt_text"],
+                height=500,
+                disabled=True
+            )
 
 # ================================
 # ✍️ Tab 2: Aangepaste definitie en toetsing
