@@ -1788,6 +1788,7 @@ def toets_ARAI06(definitie: str, begrip: str) -> dict[str, str]:
 def toets_definitie(
         definitie, 
         regels, 
+        marker: Optional[str] = None,      # ← nieuw
         begrip=None, 
         voorkeursterm: Optional[str] = None,      # ← nieuw
         bronnen_gebruikt=None, 
