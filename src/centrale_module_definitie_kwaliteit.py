@@ -310,16 +310,18 @@ gebruik_logging = st.checkbox("🛠️ Log detailinformatie per toetsregel (alle
 
 from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 
-prompt_config = PromptConfiguratie(
-    begrip=begrip,
-    context=context,
-    juridische_context=juridische_context,
-    wettelijke_basis=wet_basis
-)
-pb = PromptBouwer(prompt_config)
-st.session_state["prompt_text"] = pb.bouw_prompt()
-
+# ✅ Prompt pas bouwen na actie én ingevuld begrip
 actie = st.button("Genereer definitie")
+
+if actie and begrip.strip():
+    prompt_config = PromptConfiguratie(
+        begrip=begrip,
+        context=context,
+        juridische_context=juridische_context,
+        wettelijke_basis=wet_basis
+    )
+    pb = PromptBouwer(prompt_config)
+    st.session_state["prompt_text"] = pb.bouw_prompt()
 
 # ✅ Initialiseer sessiestatus
 if "gegenereerd" not in st.session_state:
