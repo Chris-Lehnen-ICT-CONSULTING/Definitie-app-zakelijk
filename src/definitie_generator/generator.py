@@ -2,7 +2,7 @@
 # 📍 in de root van je project
 
 import os
-from typing import Optional
+from typing import Optional, Dict, List
 
 from openai import OpenAI, OpenAIError
 
@@ -19,10 +19,7 @@ _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 def genereer_definitie(
     begrip: str,
-    context: Optional[str] = None,
-    juridische_context: Optional[str] = None,
-    wettelijke_basis: Optional[str] = None,
-
+    context_dict: Dict[str, List[str]],
     model: str = "gpt-4",
     temperature: float = 0.1,
     max_tokens: int = 350
@@ -47,9 +44,7 @@ def genereer_definitie(
     # 3️⃣ Prompt bouwen
     configuratie = PromptConfiguratie(
         begrip=begrip,
-        context=context,
-        juridische_context=juridische_context,
-        wettelijke_basis=wettelijke_basis,
+        context_dict=context_dict,
         web_uitleg=web_uitleg,
         toetsregels=toetsregels
     )
