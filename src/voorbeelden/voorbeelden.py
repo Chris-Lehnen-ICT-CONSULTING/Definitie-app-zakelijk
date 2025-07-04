@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 import os
 import re
 from dotenv import load_dotenv
@@ -13,17 +13,15 @@ _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def genereer_voorbeeld_zinnen(
     begrip: str,
     definitie: str,
-    context: Optional[str] = None,
-    juridische_context: Optional[str] = None,
-    wettelijke_basis: Optional[str] = None
+    context_dict: Dict[str, List[str]]
 ) -> List[str]:
     prompt = (
         f"Geef 2 tot 3 korte voorbeeldzinnen waarin het begrip '{begrip}' "
         "op een duidelijke manier wordt gebruikt.\n"
         "Gebruik onderstaande contexten alleen als achtergrond, maar noem ze niet letterlijk:\n\n"
-        f"- Organisatorische context: {context or 'geen'}\n"
-        f"- Juridische context: {juridische_context or 'geen'}\n"
-        f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
+        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
+        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
+        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
     )
     try:
         resp = _client.chat.completions.create(
@@ -50,9 +48,7 @@ def genereer_voorbeeld_zinnen(
 def genereer_praktijkvoorbeelden(
     begrip: str,
     definitie: str,
-    context: Optional[str] = None,
-    juridische_context: Optional[str] = None,
-    wettelijke_basis: Optional[str] = None,
+    context_dict: Dict[str, List[str]],
     aantal: int = 3
 ) -> List[str]:
     """
@@ -66,9 +62,9 @@ def genereer_praktijkvoorbeelden(
         "Zorg dat elk voorbeeld:\n"
         "  • Alle onderdelen uit de definitie concreet invult (dus alle variabelen).\n"
         "  • De organisatie-, juridische- en wettelijke context duidelijk bevat.\n\n"
-        f"Organisatorische context: {context or 'geen'}\n"
-        f"Juridische context:      {juridische_context or 'geen'}\n"
-        f"Wettelijke basis:        {wettelijke_basis or 'geen'}"
+        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
+        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
+        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
     )
     try:
         resp = _client.chat.completions.create(
@@ -101,9 +97,7 @@ def genereer_praktijkvoorbeelden(
 def genereer_tegenvoorbeelden(
     begrip: str,
     definitie: str,
-    context: Optional[str] = None,
-    juridische_context: Optional[str] = None,
-    wettelijke_basis: Optional[str] = None,
+    context_dict: Dict[str, List[str]],
     aantal: int = 2
 ) -> List[str]:
     """
@@ -116,9 +110,9 @@ def genereer_tegenvoorbeelden(
         f"Geef {aantal} korte tegenvoorbeelden voor het begrip '{begrip}' met definitie:\n"
         f"  \"{definitie.strip()}\"\n"
         "Elk voorbeeld moet kort aangeven **welke** variabelen of contextregels **niet** worden gevolgd.\n\n"
-        f"Organisatorische context: {context or 'geen'}\n"
-        f"Juridische context:      {juridische_context or 'geen'}\n"
-        f"Wettelijke basis:        {wettelijke_basis or 'geen'}"
+        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
+        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
+        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
     )
     try:
         resp = _client.chat.completions.create(
