@@ -236,30 +236,40 @@ begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gege
 
 
 # ✅ Organisatorische context
-contextoptie = st.selectbox(
-    "Organisatorische context (of vul zelf iets in)",
+contextopties = st.multiselect(
+    "Organisatorische context (meerdere mogelijk)",
     [
         "",
         "OM",
         "ZM",
         "Reclassering",
         "DJI",
+        "NP",
+        "Justid",
         "KMAR",
+        'FIOD",'
         "CJIB",
-        "Justitiebreed",
-        "Juridisch",
+        "Strafrechtketen",
+        "Migratieketen",
+        "Justitie en Veiligheid",
         "Anders..."
-    ]
+    ],
+    default=[]
 )
 
-if contextoptie == "Anders...":
-    context = st.text_input("Voer zelf een organisatorische context in")
-else:
-    context = contextoptie
+custom_context = ""
+if "Anders..." in contextopties:
+    custom_context = st.text_input("Voer aanvullende organisatorische context in", key="custom_context")
+
+contexten_compleet = [opt for opt in contextopties if opt != "Anders..."]
+if custom_context.strip():
+    contexten_compleet.append(custom_context.strip())
+
+context = ", ".join(contexten_compleet)
     
 # ✅ Juridische context
-juridische_contextoptie = st.selectbox(
-    "Juridische context (of kies anders...)",
+juridische_opties = st.multiselect(
+    "Juridische context (meerdere mogelijk)",
     [
         "",
         "Strafrecht",
@@ -267,31 +277,45 @@ juridische_contextoptie = st.selectbox(
         "Bestuursrecht",
         "Internationaal recht",
         "Anders..."
-    ]
+    ],
+    default=[]
 )
 
-if juridische_contextoptie == "Anders...":
-    juridische_context = st.text_input("Voer zelf een juridische context in")
-else:
-    juridische_context = juridische_contextoptie
+custom_juridisch = ""
+if "Anders..." in juridische_opties:
+    custom_juridisch = st.text_input("Voer aanvullende juridische context in", key="custom_juridische_context")
+
+juridische_contexten = [opt for opt in juridische_opties if opt != "Anders..."]
+if custom_juridisch.strip():
+    juridische_contexten.append(custom_juridisch.strip())
+
+juridische_context = ", ".join(juridische_contexten)
 
 # ✅ Wettelijke basis
-wet_basisoptie = st.selectbox(
-    "Wettelijke basis (of kies anders...)",
+wetopties = st.multiselect(
+    "Wettelijke basis (meerdere mogelijk)",
     [
         "",
-        "Wetboek van Strafvordering",
+        "Wetboek van Strafvordering (huidige versie)",
+        "Wetboek van strafvordering (nieuwe versie)",
+        "Wet op de Identificatieplicht",
+        "Wet op de politiegegevens",
         "Wetboek van Strafrecht",
         "Politiegegevenswet",
-        "AVG",
+        "Algemene verordening gegevensbescherming",
         "Anders..."
-    ]
+    ],
+    default=[]
 )
+custom_wet = ""
+if "Anders..." in wetopties:
+    custom_wet = st.text_input("Voer aanvullende wettelijke basis in", key="custom_wettelijke_basis")
 
-if wet_basisoptie == "Anders...":
-    wet_basis = st.text_input("Voer zelf een wettelijke basis in")
-else:
-    wet_basis = wet_basisoptie
+wet_bases = [opt for opt in wetopties if opt != "Anders..."]
+if custom_wet.strip():
+    wet_bases.append(custom_wet.strip())
+
+wet_basis = ", ".join(wet_bases)
 
 datum = st.date_input("Datum voorstel", value=datetime.today())
 
@@ -381,8 +405,8 @@ if actie and begrip:
         f"Geef een overzicht van de bronnen of kennis waarop je de volgende definitie hebt gebaseerd. "
         f"Noem expliciet wetten, richtlijnen of veelgebruikte definities indien van toepassing. "
         f"Begrip: '{begrip}'\n"
-        f"Organisatorische context: '{contextoptie}'\n"
-        f"Juridische context: '{juridische_contextoptie}'\n"
+        f"Organisatorische context: '{context}'\n"
+        f"Juridische context: '{juridische_context}'\n"
         f"Wettelijke basis: '{wet_basis}'"
     )
     try:
