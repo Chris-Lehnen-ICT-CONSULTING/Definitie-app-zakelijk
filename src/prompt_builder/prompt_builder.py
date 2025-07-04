@@ -26,6 +26,9 @@ AFKORTINGEN = {
     "ZM": "Zittende Magistratuur",
     "3RO": "Samenwerkingsverband Reclasseringsorganisaties",
     "DJI": "Dienst Justitiële Inrichtingen",
+    "NP" : "Nederlands Politie",
+    "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst",
+    "Justid": "Dienst Justitiële Informatievoorziening",
     "KMAR": "Koninklijke Marechaussee",
     "CJIB": "Centraal Justitieel Incassobureau",
     "AVG": "Algemene verordening gegevensbescherming"
@@ -107,10 +110,18 @@ class PromptBouwer:
         else:
             regels.append("Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.")
 
-        # ✅ Contextkaders
+        # ✅ Contextkaders (meervoudcorrectie)
         contextvelden = ["context", "juridische_context", "wettelijke_basis"]
-        contextregels = [f"{v.replace('_', ' ')}: {getattr(self.configuratie, v)}"
-                         for v in contextvelden if getattr(self.configuratie, v)]
+        labelmapping = {
+            "context": "Organisatorische context(en)",
+            "juridische_context": "Juridische context(en)",
+            "wettelijke_basis": "Wettelijke basis(sen)"
+        }
+
+        contextregels = [
+            f"{labelmapping[v]}: {getattr(self.configuratie, v)}"
+            for v in contextvelden if getattr(self.configuratie, v)
+        ]
         if contextregels:
             regels.append("\n📌 Context:")
             regels.extend(contextregels)
