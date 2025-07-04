@@ -236,6 +236,17 @@ begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gege
 
 
 # ✅ Organisatorische context
+# ✅ Stap 1: haal vrije invoer op vóór je de multiselect tekent
+extra = st.session_state.get("custom_organisatorische_context_input", "").strip()
+
+# ✅ Stap 2: toon aangepaste selectie (vervang "Anders..." door vrije invoer)
+geselecteerde_waarden = st.session_state.get("keuze_organisatorische_context", [])
+toonwaarden = [
+    v if v != "Anders..." else extra
+    for v in geselecteerde_waarden
+    if v != "Anders..." or extra
+]
+# ✅ Stap 3: toon multiselect met aangepaste default
 contextopties = st.multiselect(
     "Organisatorische context (meerdere mogelijk)",
     [
@@ -253,23 +264,19 @@ contextopties = st.multiselect(
         "Justitie en Veiligheid",
         "Anders..."
     ],
-    default=[],
+    default=toonwaarden,
     key="keuze_organisatorische_context"
 )
 
-# ✅ Toon tekstinvoer altijd zodra 'Anders...' is geselecteerd
-toon_extra_org = "Anders..." in st.session_state.get("keuze_organisatorische_context", [])
-if toon_extra_org:
-    if "custom_organisatorische_context_input" not in st.session_state:
-        st.session_state["custom_organisatorische_context_input"] = ""
-
+# ✅ Stap 4: toon invoerveld zodra "Anders..." is geselecteerd
+if "Anders..." in st.session_state.get("keuze_organisatorische_context", []):
     extra_input = st.text_input(
         "Voer aanvullende organisatorische context in",
-        value=st.session_state.get("custom_organisatorische_context_input", ""),
+        value=extra,
         key="custom_organisatorische_context_input",
         placeholder="Bijv. 'project NWvSv'"
     )
-
+    
 # ✅ Verzamel volledige context
 contexten_compleet = [
     opt for opt in st.session_state.keuze_organisatorische_context if opt != "Anders..."
