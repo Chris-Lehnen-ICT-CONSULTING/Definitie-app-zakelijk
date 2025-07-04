@@ -1,3 +1,19 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# 🔍 Clusteranalyse bronnen (Lookup-Clusteranalyse – 2025-07-04)
+# Doel: classificatie van bronnen op implementatiecomplexiteit
+# Categorie 1: Eenvoudig te implementeren (Quick Wins)
+#  • Wikipedia (MediaWiki API)
+#  • Wiktionary (MediaWiki API of wiktionaryparser)
+#  • Ensie.nl (eenvoudige HTML)
+#  • Overheid.nl / Wetten.nl (gestructureerde HTML)
+#  • Strafrechtketen.nl (eenvoudige structuur)
+#  • IATE (downloadbare dataset)
+#  • Kamerstukken.nl (semi-gestructureerde HTML)
+# Deze bronnen vormen fase 1 van het roadmapplan (Sprint 1)
+#
+# Latere clusters (matig complex, complex) volgen in roadmapdocumentatie.
+# Deze analyse is leidend voor prioritering en PO-besluitvorming.
+# ─────────────────────────────────────────────────────────────────────────────
 # web_lookup.py
 
 # ────────────────────────────────────────────────────────────────────────
@@ -38,14 +54,67 @@ def zoek_definitie_op_wikipedia(begrip: str) -> str:
         return f"❌ Fout bij ophalen van Wikipedia: {e}"
 
 # ────────────────────────────────────────────────────────────────────────
-# Functie: placeholder voor bredere websearch (nog niet geïmplementeerd)
+# Functie: definities ophalen van Wiktionary (MediaWiki API)
 # ────────────────────────────────────────────────────────────────────────
-def zoek_definitie_via_websearch(begrip: str) -> str:
+def zoek_definitie_op_wiktionary(begrip: str) -> str:
     """
-    Stubfunctie: toont dat we hier later een echte websearch kunnen doen
-    (bv. via SerpAPI of een andere zoek-API).
+    Vraagt de Nederlandstalige Wiktionary API aan voor 'begrip'
+    en retourneert de eerste definitie van het lemma.
     """
-    return f"(🔍 Zoeken op web naar: '{begrip}' — deze functie is nog niet geïmplementeerd)"
+    zoekterm = begrip.replace(" ", "_")
+    url = f"https://nl.wiktionary.org/w/api.php"
+    params = {
+        "action": "query",
+        "format": "json",
+        "prop": "extracts",
+        "exintro": True,
+        "titles": zoekterm,
+        "redirects": 1,
+    }
+    try:
+        r = requests.get(url, params=params, timeout=5)
+        if r.status_code == 200:
+            data = r.json()
+            pages = data.get("query", {}).get("pages", {})
+            for page_id, page in pages.items():
+                extract = page.get("extract", "")
+                if extract:
+                    # Strip HTML tags
+                    soup = BeautifulSoup(extract, "html.parser")
+                    text = soup.get_text(separator="\n").strip()
+                    if text:
+                        return text
+            return "⚠️ Geen duidelijke definitie gevonden op Wiktionary."
+        return f"⚠️ Wiktionary gaf statuscode {r.status_code}"
+    except Exception as e:
+        return f"❌ Fout bij ophalen van Wiktionary: {e}"
+
+# ────────────────────────────────────────────────────────────────────────
+# Functie: definities ophalen van Ensie.nl (eenvoudige HTML)
+# ────────────────────────────────────────────────────────────────────────
+def zoek_definitie_op_ensie(begrip: str) -> str:
+    """
+    Scrape de Ensie.nl pagina voor 'begrip' en retourneert de eerste alinea.
+    """
+    zoekterm = begrip.replace(" ", "-")
+    url = f"https://www.ensie.nl/definitie/{zoekterm}"
+    try:
+        r = requests.get(url, timeout=5)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, "html.parser")
+            # De definitie staat vaak in <div class="definition"> of eerste <p> in main
+            div_def = soup.find("div", class_="definition")
+            if div_def and div_def.text.strip():
+                return div_def.text.strip()
+            main = soup.find("main")
+            if main:
+                p = main.find("p")
+                if p and p.text.strip():
+                    return p.text.strip()
+            return "⚠️ Geen duidelijke definitie gevonden op Ensie.nl."
+        return f"⚠️ Ensie.nl gaf statuscode {r.status_code}"
+    except Exception as e:
+        return f"❌ Fout bij ophalen van Ensie.nl: {e}"
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen via Overheid.nl SRU-zoekservice
@@ -95,6 +164,94 @@ def zoek_definitie_op_overheidnl(begrip: str) -> str:
         )
     except Exception as e:
         return f"❌ Fout bij ophalen van Overheid.nl: {e}"
+
+# ────────────────────────────────────────────────────────────────────────
+# Functie: definities ophalen van Strafrechtketen.nl (eenvoudige structuur)
+# ────────────────────────────────────────────────────────────────────────
+def zoek_definitie_op_strafrechtketen(begrip: str) -> str:
+    """
+    Scrape Strafrechtketen.nl voor 'begrip' en retourneert de eerste alinea.
+    """
+    zoekterm = begrip.replace(" ", "-").lower()
+    url = f"https://www.strafrechtketen.nl/kennisbank/definities/{zoekterm}"
+    try:
+        r = requests.get(url, timeout=5)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, "html.parser")
+            # Zoek eerste <p> binnen main of content div
+            main = soup.find("main") or soup.find("div", class_="content")
+            if main:
+                p = main.find("p")
+                if p and p.text.strip():
+                    return p.text.strip()
+            return "⚠️ Geen duidelijke definitie gevonden op Strafrechtketen.nl."
+        return f"⚠️ Strafrechtketen.nl gaf statuscode {r.status_code}"
+    except Exception as e:
+        return f"❌ Fout bij ophalen van Strafrechtketen.nl: {e}"
+
+# ────────────────────────────────────────────────────────────────────────
+# Functie: definities ophalen van Kamerstukken.nl (semi-gestructureerde HTML)
+# ────────────────────────────────────────────────────────────────────────
+def zoek_definitie_op_kamerstukken(begrip: str) -> str:
+    """
+    Scrape Kamerstukken.nl voor 'begrip' en retourneert de eerste alinea.
+    """
+    zoekterm = begrip.replace(" ", "+")
+    url = f"https://www.kamerstukken.nl/search?k={zoekterm}"
+    try:
+        r = requests.get(url, timeout=5)
+        if r.status_code == 200:
+            soup = BeautifulSoup(r.text, "html.parser")
+            # Zoek eerste resultaat en pak eerste alinea van samenvatting
+            result = soup.find("div", class_="search-result")
+            if result:
+                summary = result.find("p")
+                if summary and summary.text.strip():
+                    return summary.text.strip()
+            return "⚠️ Geen duidelijke definitie gevonden op Kamerstukken.nl."
+        return f"⚠️ Kamerstukken.nl gaf statuscode {r.status_code}"
+    except Exception as e:
+        return f"❌ Fout bij ophalen van Kamerstukken.nl: {e}"
+
+# ────────────────────────────────────────────────────────────────────────
+# Functie: definities ophalen van IATE (downloadbare dataset)
+# ────────────────────────────────────────────────────────────────────────
+def zoek_definitie_op_iate(begrip: str) -> str:
+    """
+    Stubfunctie voor IATE: omdat IATE dataset gedownload moet worden,
+    hier een placeholder die aangeeft dat deze bron nog niet geïmplementeerd is.
+    """
+    return "(ℹ️ IATE-lookup nog niet geïmplementeerd; dataset vereist aparte verwerking)"
+
+# ────────────────────────────────────────────────────────────────────────
+# Centrale routeringsfunctie: lookup_definitie
+# ────────────────────────────────────────────────────────────────────────
+def lookup_definitie(begrip: str, bron: Optional[str] = None) -> str:
+    """
+    Haalt de definitie op van 'begrip' via de opgegeven bron.
+    Beschikbare bronnen: wikipedia, wiktionary, ensie, overheidnl,
+    strafrechtketen, kamerstukken, iate, combinatie.
+    Als bron niet gespecificeerd is, wordt 'combinatie' gebruikt.
+    """
+    bron = (bron or "combinatie").lower()
+    if bron == "wikipedia":
+        return zoek_definitie_op_wikipedia(begrip)
+    elif bron == "wiktionary":
+        return zoek_definitie_op_wiktionary(begrip)
+    elif bron == "ensie":
+        return zoek_definitie_op_ensie(begrip)
+    elif bron == "overheidnl":
+        return zoek_definitie_op_overheidnl(begrip)
+    elif bron == "strafrechtketen":
+        return zoek_definitie_op_strafrechtketen(begrip)
+    elif bron == "kamerstukken":
+        return zoek_definitie_op_kamerstukken(begrip)
+    elif bron == "iate":
+        return zoek_definitie_op_iate(begrip)
+    elif bron == "combinatie":
+        return zoek_definitie_combinatie(begrip)
+    else:
+        return f"⚠️ Onbekende bron '{bron}'. Beschikbare bronnen: wikipedia, wiktionary, ensie, overheidnl, strafrechtketen, kamerstukken, iate, combinatie."
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: combinatieresultaat Wikipedia + Overheid.nl
