@@ -236,17 +236,7 @@ begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gege
 
 
 # ✅ Organisatorische context
-# ✅ Stap 1: haal vrije invoer op vóór je de multiselect tekent
-extra = st.session_state.get("custom_organisatorische_context_input", "").strip()
-
-# ✅ Stap 2: toon aangepaste selectie (vervang "Anders..." door vrije invoer)
-geselecteerde_waarden = st.session_state.get("keuze_organisatorische_context", [])
-toonwaarden = [
-    v if v != "Anders..." else extra
-    for v in geselecteerde_waarden
-    if v != "Anders..." or extra
-]
-# ✅ Stap 3: toon multiselect met aangepaste default
+# ✅ Stap 1: toon altijd multiselect met vaste opties
 contextopties = st.multiselect(
     "Organisatorische context (meerdere mogelijk)",
     [
@@ -264,19 +254,31 @@ contextopties = st.multiselect(
         "Justitie en Veiligheid",
         "Anders..."
     ],
-    default=toonwaarden,
+    default=st.session_state.get("keuze_organisatorische_context", []),
     key="keuze_organisatorische_context"
 )
 
-# ✅ Stap 4: toon invoerveld zodra "Anders..." is geselecteerd
-if "Anders..." in st.session_state.get("keuze_organisatorische_context", []):
+# ✅ Stap 2: toon tekstveld bij "Anders..."
+extra = st.session_state.get("custom_organisatorische_context_input", "").strip()
+if "Anders..." in st.session_state.keuze_organisatorische_context:
     extra_input = st.text_input(
         "Voer aanvullende organisatorische context in",
         value=extra,
         key="custom_organisatorische_context_input",
         placeholder="Bijv. 'project NWvSv'"
     )
-    
+
+# ✅ Stap 3: toon visuele weergave mét vrije invoer apart
+contextchips = [
+    opt for opt in st.session_state.keuze_organisatorische_context if opt != "Anders..."
+]
+if extra_input:
+    contextchips.append(extra_input)
+
+# ✅ Visuele weergave van gekozen contexten
+st.markdown("**Gekozen organisatorische context(en):**")
+st.markdown(", ".join(contextchips))
+
 # ✅ Verzamel volledige context
 contexten_compleet = [
     opt for opt in st.session_state.keuze_organisatorische_context if opt != "Anders..."
