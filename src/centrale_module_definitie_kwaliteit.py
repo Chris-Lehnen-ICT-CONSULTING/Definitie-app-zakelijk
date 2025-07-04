@@ -277,39 +277,45 @@ if extra:
 context = contexten_compleet  # ✅ Deze lijst is nu veilig en volledig
     
 # ✅ Juridische context
-juridische_context_default = st.session_state.get("keuze_juridische_context", [])
 juridische_opties = st.multiselect(
     "Juridische context (meerdere mogelijk)",
-    [ 
+    [
         "Strafrecht",
         "Civiel recht",
         "Bestuursrecht",
         "Internationaal recht",
         "Anders..."
     ],
-    default=juridische_context_default,
+    default=st.session_state.get("keuze_juridische_context", []),
     key="keuze_juridische_context"
 )
 
-custom_juridisch_tekst = ""
-if "Anders..." in st.session_state.get("keuze_juridische_context", []):
-    custom_juridisch_tekst = st.text_input(
+# ✅ Veilig ophalen
+geselecteerd_juridisch = st.session_state.get("keuze_juridische_context", [])
+
+# ✅ Extra input bij 'Anders...'
+extra_juridisch = ""
+if "Anders..." in geselecteerd_juridisch:
+    extra_juridisch = st.text_input(
         "Voer aanvullende juridische context in",
-        value=st.session_state.get("custom_juridische_context", ""),
-        key="custom_juridische_context_input"
+        value=st.session_state.get("custom_juridische_context_input", "").strip(),
+        key="custom_juridische_context_input",
+        placeholder="Bijv. 'militair strafrecht'"
     )
 
-juridische_contexten = [
-    opt for opt in st.session_state.get("keuze_juridische_context", []) if opt != "Anders..."
-]
-if custom_juridisch_tekst.strip():
-    juridische_contexten.append(custom_juridisch_tekst.strip())
+# ✅ Chipsweergave
+juridische_chips = [opt for opt in geselecteerd_juridisch if opt != "Anders..."]
+if extra_juridisch:
+    juridische_chips.append(extra_juridisch)
 
-juridische_context = juridische_contexten  # ✅ altijd als lijst beschikbaar
+st.markdown("**Gekozen juridische context(en):**")
+st.markdown(", ".join(juridische_chips))
+
+# ✅ Definitieve lijst
+juridische_context = juridische_chips
 
 
 # ✅ Wettelijke basis
-wettelijke_basis_default = st.session_state.get("keuze_wettelijke_basis", [])
 wetopties = st.multiselect(
     "Wettelijke basis (meerdere mogelijk)",
     [
@@ -321,24 +327,33 @@ wetopties = st.multiselect(
         "Algemene verordening gegevensbescherming",
         "Anders..."
     ],
-    default=wettelijke_basis_default,
+    default=st.session_state.get("keuze_wettelijke_basis", []),
     key="keuze_wettelijke_basis"
 )
 
-custom_wettelijk_tekst = ""
-if "Anders..." in st.session_state.get("keuze_wettelijke_basis", []):
-    custom_wettelijk_tekst = st.text_input(
+# ✅ Veilig ophalen
+geselecteerd_wet = st.session_state.get("keuze_wettelijke_basis", [])
+
+# ✅ Extra input bij 'Anders...'
+extra_wet = ""
+if "Anders..." in geselecteerd_wet:
+    extra_wet = st.text_input(
         "Voer aanvullende wettelijke basis in",
-        value=st.session_state.get("custom_wettelijke_basis", ""),
-        key="custom_wettelijke_basis_input"
+        value=st.session_state.get("custom_wettelijke_basis_input", "").strip(),
+        key="custom_wettelijke_basis_input",
+        placeholder="Bijv. 'Wet forensische zorg'"
     )
 
-wet_basis = [
-    opt for opt in st.session_state.get("keuze_wettelijke_basis", []) if opt != "Anders..."
-]
-if custom_wettelijk_tekst.strip():
-    wet_basis.append(custom_wettelijk_tekst.strip())
+# ✅ Chipsweergave
+wet_chips = [opt for opt in geselecteerd_wet if opt != "Anders..."]
+if extra_wet:
+    wet_chips.append(extra_wet)
 
+st.markdown("**Gekozen wettelijke basis(sen):**")
+st.markdown(", ".join(wet_chips))
+
+# ✅ Definitieve lijst
+wet_basis = wet_chips
 # ✅ Bundel alles voor latere logica
 context_dict = {
     "organisatorisch": context,       # eerder gedefinieerd
