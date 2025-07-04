@@ -257,20 +257,21 @@ contextopties = st.multiselect(
     key="keuze_organisatorische_context"
 )
 
-# ✅ Zorg dat tekstinput altijd zichtbaar is, maar alleen actief bij 'Anders...'
-toon_anders_organisatorisch = "Anders..." in st.session_state.keuze_organisatorische_context
+# ✅ Toon tekstinvoer alleen als Anders... is geselecteerd (zichtbaar en bewerkbaar)
+if "Anders..." in st.session_state.get("keuze_organisatorische_context", []):
+    st.text_input(
+        "Voer aanvullende organisatorische context in",
+        key="custom_organisatorische_context_input",
+        placeholder="Bijv. 'project NWvSv'"
+    )
 
-st.text_input(
-    "Voer aanvullende organisatorische context in",
-    key="custom_organisatorische_context_input",
-    disabled=not toon_anders_organisatorisch
-)
-
+# ✅ Verzamel volledige context
 contexten_compleet = [
     opt for opt in st.session_state.keuze_organisatorische_context if opt != "Anders..."
 ]
-if st.session_state.get("custom_organisatorische_context_input", "").strip():
-    contexten_compleet.append(st.session_state.custom_organisatorische_context_input.strip())
+extra = st.session_state.get("custom_organisatorische_context_input", "").strip()
+if extra:
+    contexten_compleet.append(extra)
 
 context = contexten_compleet
     
