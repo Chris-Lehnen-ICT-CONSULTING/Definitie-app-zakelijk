@@ -1,0 +1,121 @@
+# Backlogitem Lookup.py – Clusteranalyse op Implementatiecomplexiteit
+
+🆔 ID: Lookup-Clusteranalyse
+📅 Datum: 2025-07-04
+🎯 Doel: Bronnen clusteren op implementatiecomplexiteit voor gefaseerde ontwikkeling
+🔍 Probleem: Geen duidelijk onderscheid tussen eenvoudig en complex te ontsluiten bronnen
+📈 Impact: Inefficiëntie in ontwikkelplanning en mogelijk vertragende factor voor definities
+✅ Acceptatiecriteria:
+
+* Alle bronnen zijn gecategoriseerd op basis van implementatiecomplexiteit (eenvoudig, matig complex, complex)
+* Per cluster is een PO-advies over volgorde van implementatie
+* Resultaat is bruikbaar als roadmap/ontwikkelplan voor lookup.py
+  📦 Bestand: lookup.py
+  👥 Betrokkenen: Product Owner, Ontwikkelaar
+  ⏱️ Prioriteit: Hoog
+  🗓️ Sprint: 1
+  Status: To do
+
+---
+
+## 1️⃣ Analyse bestaande situatie
+
+* De volledige bronnenlijst is nu beschikbaar, maar niet geclusterd op technische of juridische implementatiezwaarte.
+* Onvoldoende sturing op quick wins versus complexe integraties.
+* Impact: kans op vertraging of inefficiënte inzet van ontwikkeltijd.
+
+---
+
+## 2️⃣ Wat moet worden aangepast en waarom
+
+* Alle bronnen worden ingedeeld in drie clusters: **eenvoudig, matig complex, complex/specialistisch**.
+* Per cluster wordt een implementatiestrategie en prioriteringsvoorstel toegevoegd.
+* Hiermee wordt de ontwikkelvolgorde gefaseerd en waardegericht, conform agile/scrum.
+
+---
+
+## 3️⃣ Clusteranalyse (volledig)
+
+### 1. Eenvoudig te implementeren (Quick wins)
+
+* Open, vrij toegankelijke API’s en publieke sites. Minimale registratie, eenvoudige structuur.
+
+| Organisatie / Bron      | Toegangsmethode                | API | Open Data | Reden eenvoud                      |
+| ----------------------- | ------------------------------ | --- | --------- | ---------------------------------- |
+| Wikipedia (NL/EN)       | MediaWiki API                  | ✅   | Ja        | Open API, breed bekend             |
+| Wiktionary (NL/EN)      | MediaWiki API/wiktionaryparser | ✅   | Ja        | Open API, veel tools               |
+| Ensie.nl                | Handmatig via website          | ❌   | Ja        | Open, eenvoudige HTML              |
+| Overheid.nl / Wetten.nl | Handmatig via scraping         | ❌   | Ja        | Goed gestructureerde HTML, publiek |
+| Strafrechtketen.nl      | Handmatig via website          | ❌   | Ja        | Open, eenvoudige structuur         |
+| IATE (EU Termbank)      | Dataset-download               | ❌   | Ja        | Dataset, geen scraping             |
+| Kamerstukken.nl         | Handmatig via website          | ❌   | Ja        | Structuur, bulkdownload mogelijk   |
+
+---
+
+### 2. Matig complex
+
+* Publiek, maar vereist API-key, beperkte documentatie of complexere scraping.
+
+| Organisatie / Bron                   | Toegangsmethode                 | API     | Open Data    | Reden matige complexiteit                   |
+| ------------------------------------ | ------------------------------- | ------- | ------------ | ------------------------------------------- |
+| Rijksoverheid.nl                     | REST API                        | ✅       | Ja           | API-key vereist, redelijk open              |
+| Ministerie van JenV                  | REST API                        | ✅       | Ja           | API-key vereist, redelijk open              |
+| Justitiële Informatiedienst (Justid) | REST API via JenV API-catalogus | ✅       | Beperkt      | API-key, beperkt toegang                    |
+| CJIB                                 | REST API                        | ✅       | Beperkt      | API-key, deels niet openbaar                |
+| TermTreffer / NL-Term                | Handmatig via website           | ❓       | Beperkt      | Onbekende voorwaarden                       |
+| Rechtspraak.nl                       | Handmatig via website/scraping  | ❌       | Ja           | Publieke uitspraken, structuur soms complex |
+| Officielebekendmakingen.nl           | Handmatig via website           | ❌       | Ja           | Veel data, niet altijd consistente HTML     |
+| Belastingdienst                      | Website/ondersteuning           | Beperkt | Gedeeltelijk | Soms afgeschermd, ontwikkelaarsportaal      |
+
+---
+
+### 3. Complex / specialistisch
+
+* Gesloten omgeving, alleen intern, privacy, of technisch uitdagend (scraping/inlogs).
+
+| Organisatie / Bron                        | Toegangsmethode           | API     | Open Data | Reden complexiteit                        |
+| ----------------------------------------- | ------------------------- | ------- | --------- | ----------------------------------------- |
+| Politieacademie                           | Interne kennisbank/inlog  | Beperkt | Nee       | Alleen intern, geen scraping              |
+| Dienst Justitiële Inrichtingen (DJI)      | Handmatig via website     | ❌       | Beperkt   | Privacygevoelig, beperkte data            |
+| Forensische zorginstellingen (FZJ, DJGZ)  | Handmatig via website     | ❌       | Ja        | Medisch, privacygevoelig                  |
+| Nederlands Jeugdinstituut (NJi)           | Handmatig via website     | ❌       | Ja        | Privacy, minder gestructureerd            |
+| Reclassering Nederland                    | Handmatig via website     | ❌       | Ja        | Minder actueel, minder gestructureerd     |
+| Slachtofferhulp Nederland                 | Handmatig via website     | ❌       | Ja        | Privacy, minder gestructureerd            |
+| Openbaar Ministerie (OM)                  | Handmatig via om.nl       | ❌       | Ja        | Meeste data niet machine-leesbaar         |
+| Nationale Politie                         | Handmatig via politie.nl  | ❌       | Ja        | Niet gestandaardiseerd                    |
+| Koninklijke Marechaussee (KMAR)           | Handmatig via defensie.nl | ❌       | Ja        | Gesloten cultuur, weinig machine-leesbaar |
+| Centrum voor Justitiële Jeugdinrichtingen | Handmatig via dji.nl      | ❌       | Ja        | Privacy, minder gestructureerd            |
+
+---
+
+## 4️⃣ PO-advies & prioriteringsvoorstel
+
+### **Sprint 1 (Quick wins):**
+
+* Implementeer alle eenvoudig te ontsluiten bronnen (cluster 1)
+* Realiseer minimaal 5 werkende API- of scraping-integraties
+
+### **Sprint 2:**
+
+* Implementeer matig complexe bronnen, inclusief API-registratie of complexere scraping
+
+### **Sprint 3+:**
+
+* Onderzoek en ontwikkel strategieën voor complexe/specialistische bronnen (cluster 3)
+* Werk samen met privacy/juridisch indien noodzakelijk
+
+---
+
+## 5️⃣ Validatie / zelfcontrole
+
+* Bronnen zijn correct geclusterd per implementatiezwaarte
+* Elk cluster bevat duidelijke motivatie voor volgorde/complexiteit
+* Advies en roadmap zijn direct bruikbaar als PO- of sprintnotitie
+
+---
+
+## 🔁 Kwaliteitsopmerkingen conform werkafspraak
+
+* Geen clustering van bronnen in hoofdbronlijst; clustering uitsluitend voor ontwikkelvolgorde
+* Advies is herbruikbaar, iteratief uit te breiden en geschikt als PO-roadmap
+* **Werkafspraak toegepast:** structuur, motivatie, validatie en hergebruik gegarandeerd
