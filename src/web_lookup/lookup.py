@@ -24,6 +24,7 @@ import json
 import requests
 from typing import Optional
 from bs4 import BeautifulSoup
+from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
 import xml.etree.ElementTree as ET
 
 # ────────────────────────────────────────────────────────────────────────
