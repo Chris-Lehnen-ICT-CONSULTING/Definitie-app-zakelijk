@@ -264,6 +264,16 @@ def zoek_definitie_combinatie(begrip: str) -> str:
     overheid = zoek_definitie_op_overheidnl(begrip)
     return f"📚 Wikipedia: {wiki}\n\n📘 Overheid.nl:\n{overheid}"
 
+# ✅ Deze functie bestond in de vorige versie en wordt elders nog geïmporteerd.
+# ✅ Zorgt voor backward compatibility met bestaande modules zoals ai_toetser.core
+# ✅ Verwijst door naar lookup_definitie (de centrale router)
+def zoek_definitie_via_websearch(begrip: str, context: Optional[str] = None) -> Optional[str]:
+    """
+    ✅ Legacy-ondersteuning voor oudere modules
+    ✅ Verwijst intern door naar de nieuwe lookup_definitie(...) router
+    """
+    return lookup_definitie(begrip, context)
+
 # ─────────────────────────────────────────────────────────────────────────────
 # ✅ Éénmalig JSON inladen en cachen
 # ─────────────────────────────────────────────────────────────────────────────
