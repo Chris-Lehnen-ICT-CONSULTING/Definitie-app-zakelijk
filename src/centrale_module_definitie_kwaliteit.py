@@ -155,9 +155,9 @@ def genereer_toelichting(begrip, context=None, juridische_context=None, wettelij
     prompt = (
         f"Geef een korte toelichting op de betekenis en toepassing van het begrip '{begrip}', zoals het zou kunnen voorkomen in overheidsdocumenten.\n"
         f"Gebruik de contexten hieronder alleen als achtergrond en noem ze niet letterlijk:\n\n"
-        f"- Organisatorische context: {context or 'geen'}\n"
-        f"- Juridische context: {juridische_context or 'geen'}\n"
-        f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
+        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
+        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
+        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
     )
     return stuur_prompt_naar_gpt(prompt, temperatuur=0.3)
 
@@ -170,9 +170,9 @@ def genereer_synoniemen(begrip, context=None, juridische_context=None, wettelijk
     prompt = (
         f"Geef maximaal 5 synoniemen voor het begrip '{begrip}', relevant binnen de context van overheidsgebruik.\n"
         f"Gebruik onderstaande contexten als achtergrond. Geef de synoniemen als een lijst, zonder toelichting:\n\n"
-        f"- Organisatorische context: {context or 'geen'}\n"
-        f"- Juridische context: {juridische_context or 'geen'}\n"
-        f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
+        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
+        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
+        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
     )
     return stuur_prompt_naar_gpt(prompt, temperatuur=0.2, max_tokens=150)
 
@@ -186,9 +186,9 @@ def genereer_antoniemen(begrip, context=None, juridische_context=None, wettelijk
     prompt = (
         f"Geef maximaal 5 antoniemen voor het begrip '{begrip}', binnen de context van overheidsgebruik.\n"
         f"Gebruik onderstaande contexten alleen als achtergrond. Geef de antoniemen als een lijst, zonder toelichting:\n\n"
-        f"- Organisatorische context: {context or 'geen'}\n"
-        f"- Juridische context: {juridische_context or 'geen'}\n"
-        f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
+        f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
+        f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
+        f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
     )
     return stuur_prompt_naar_gpt(prompt, temperatuur=0.2, max_tokens=150)
 
