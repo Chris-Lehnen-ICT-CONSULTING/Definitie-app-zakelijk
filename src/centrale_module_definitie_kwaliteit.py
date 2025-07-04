@@ -277,6 +277,7 @@ if extra:
 context = contexten_compleet  # ✅ Deze lijst is nu veilig en volledig
     
 # ✅ Juridische context
+juridische_context_default = st.session_state.get("keuze_juridische_context", [])
 juridische_opties = st.multiselect(
     "Juridische context (meerdere mogelijk)",
     [ 
@@ -286,31 +287,29 @@ juridische_opties = st.multiselect(
         "Internationaal recht",
         "Anders..."
     ],
-    default=[],
+    default=juridische_context_default,
     key="keuze_juridische_context"
 )
 
-if "Anders..." in st.session_state.keuze_juridische_context:
-    st.session_state["custom_juridische_context_visible"] = True
-else:
-    st.session_state["custom_juridische_context_visible"] = False
-
-if st.session_state.get("custom_juridische_context_visible", False):
-    st.session_state.custom_juridische_context = st.text_input(
+custom_juridisch_tekst = ""
+if "Anders..." in st.session_state.get("keuze_juridische_context", []):
+    custom_juridisch_tekst = st.text_input(
         "Voer aanvullende juridische context in",
         value=st.session_state.get("custom_juridische_context", ""),
         key="custom_juridische_context_input"
     )
 
 juridische_contexten = [
-    opt for opt in st.session_state.keuze_juridische_context if opt != "Anders..."
+    opt for opt in st.session_state.get("keuze_juridische_context", []) if opt != "Anders..."
 ]
-if st.session_state.get("custom_juridische_context", "").strip():
-    juridische_contexten.append(st.session_state.custom_juridische_context.strip())
+if custom_juridisch_tekst.strip():
+    juridische_contexten.append(custom_juridisch_tekst.strip())
 
-juridische_context = juridische_contexten
+juridische_context = juridische_contexten  # ✅ altijd als lijst beschikbaar
+
 
 # ✅ Wettelijke basis
+wettelijke_basis_default = st.session_state.get("keuze_wettelijke_basis", [])
 wetopties = st.multiselect(
     "Wettelijke basis (meerdere mogelijk)",
     [
@@ -322,35 +321,30 @@ wetopties = st.multiselect(
         "Algemene verordening gegevensbescherming",
         "Anders..."
     ],
-    default=[],
+    default=wettelijke_basis_default,
     key="keuze_wettelijke_basis"
 )
 
-if "Anders..." in st.session_state.keuze_wettelijke_basis:
-    st.session_state["custom_wettelijke_basis_visible"] = True
-else:
-    st.session_state["custom_wettelijke_basis_visible"] = False
-
-if st.session_state.get("custom_wettelijke_basis_visible", False):
-    st.session_state.custom_wettelijke_basis = st.text_input(
+custom_wettelijk_tekst = ""
+if "Anders..." in st.session_state.get("keuze_wettelijke_basis", []):
+    custom_wettelijk_tekst = st.text_input(
         "Voer aanvullende wettelijke basis in",
         value=st.session_state.get("custom_wettelijke_basis", ""),
         key="custom_wettelijke_basis_input"
     )
 
 wet_basis = [
-    opt for opt in st.session_state.keuze_wettelijke_basis if opt != "Anders..."
+    opt for opt in st.session_state.get("keuze_wettelijke_basis", []) if opt != "Anders..."
 ]
-if st.session_state.get("custom_wettelijke_basis", "").strip():
-    wet_basis.append(st.session_state.custom_wettelijke_basis.strip())
+if custom_wettelijk_tekst.strip():
+    wet_basis.append(custom_wettelijk_tekst.strip())
 
+# ✅ Bundel alles voor latere logica
 context_dict = {
-    "organisatorisch": context,
+    "organisatorisch": context,       # eerder gedefinieerd
     "juridisch": juridische_context,
     "wettelijk": wet_basis
 }
-
-wet_basis = wet_basis  # ✅ gebruik als lijst in context_dict
 
 datum = st.date_input("Datum voorstel", value=datetime.today())
 
