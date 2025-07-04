@@ -159,7 +159,7 @@ def genereer_toelichting(begrip, context=None, juridische_context=None, wettelij
         f"- Juridische context: {juridische_context or 'geen'}\n"
         f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
     )
-    return stuur_prompt_naar_gpt(prompt, temperatuur=0.4)
+    return stuur_prompt_naar_gpt(prompt, temperatuur=0.3)
 
 
 # ================================
@@ -174,7 +174,7 @@ def genereer_synoniemen(begrip, context=None, juridische_context=None, wettelijk
         f"- Juridische context: {juridische_context or 'geen'}\n"
         f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
     )
-    return stuur_prompt_naar_gpt(prompt, temperatuur=0.3, max_tokens=150)
+    return stuur_prompt_naar_gpt(prompt, temperatuur=0.2, max_tokens=150)
 
 
 
@@ -190,7 +190,7 @@ def genereer_antoniemen(begrip, context=None, juridische_context=None, wettelijk
         f"- Juridische context: {juridische_context or 'geen'}\n"
         f"- Wettelijke basis: {wettelijke_basis or 'geen'}"
     )
-    return stuur_prompt_naar_gpt(prompt, temperatuur=0.3, max_tokens=150)
+    return stuur_prompt_naar_gpt(prompt, temperatuur=0.2, max_tokens=150)
 
 
 # ================================
@@ -247,7 +247,7 @@ contextopties = st.multiselect(
         "NP",
         "Justid",
         "KMAR",
-        'FIOD",'
+        "FIOD",
         "CJIB",
         "Strafrechtketen",
         "Migratieketen",
@@ -265,13 +265,12 @@ contexten_compleet = [opt for opt in contextopties if opt != "Anders..."]
 if custom_context.strip():
     contexten_compleet.append(custom_context.strip())
 
-context = ", ".join(contexten_compleet)
+context = contexten_compleet
     
 # ✅ Juridische context
 juridische_opties = st.multiselect(
     "Juridische context (meerdere mogelijk)",
-    [
-        "",
+    [ 
         "Strafrecht",
         "Civiel recht",
         "Bestuursrecht",
@@ -289,13 +288,12 @@ juridische_contexten = [opt for opt in juridische_opties if opt != "Anders..."]
 if custom_juridisch.strip():
     juridische_contexten.append(custom_juridisch.strip())
 
-juridische_context = ", ".join(juridische_contexten)
+juridische_context = juridische_contexten  # ✅ GEEN .join() meer — nu als lijst
 
 # ✅ Wettelijke basis
 wetopties = st.multiselect(
     "Wettelijke basis (meerdere mogelijk)",
     [
-        "",
         "Wetboek van Strafvordering (huidige versie)",
         "Wetboek van strafvordering (nieuwe versie)",
         "Wet op de Identificatieplicht",
@@ -311,11 +309,17 @@ custom_wet = ""
 if "Anders..." in wetopties:
     custom_wet = st.text_input("Voer aanvullende wettelijke basis in", key="custom_wettelijke_basis")
 
-wet_bases = [opt for opt in wetopties if opt != "Anders..."]
+wet_basis = [opt for opt in wetopties if opt != "Anders..."]
 if custom_wet.strip():
-    wet_bases.append(custom_wet.strip())
+    wet_basis.append(custom_wet.strip())
 
-wet_basis = ", ".join(wet_bases)
+    context_dict = {
+    "organisatorisch": context,
+    "juridisch": juridische_context,
+    "wettelijk": wet_basis
+}
+
+wet_basis = wet_basis  # ✅ gebruik als lijst in context_dict
 
 datum = st.date_input("Datum voorstel", value=datetime.today())
 
@@ -405,9 +409,9 @@ if actie and begrip:
         f"Geef een overzicht van de bronnen of kennis waarop je de volgende definitie hebt gebaseerd. "
         f"Noem expliciet wetten, richtlijnen of veelgebruikte definities indien van toepassing. "
         f"Begrip: '{begrip}'\n"
-        f"Organisatorische context: '{context}'\n"
-        f"Juridische context: '{juridische_context}'\n"
-        f"Wettelijke basis: '{wet_basis}'"
+        f"Organisatorische context: '{', '.join(context)}'\n"
+        f"Juridische context: '{', '.join(juridische_context)}'\n"
+        f"Wettelijke basis: '{', '.join(wet_basis)}'"
     )
     try:
         # ✅ Gebruik de centrale GPT-aanroep
@@ -415,7 +419,7 @@ if actie and begrip:
             prompt_bronnen,
             model="gpt-4",
             max_tokens=1000,
-            temperatuur=0.4,
+            temperatuur=0.2,
         )
         st.session_state.bronnen_gebruikt = bronnen_tekst.strip()
     except Exception as e:

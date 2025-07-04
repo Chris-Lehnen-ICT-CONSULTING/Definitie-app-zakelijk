@@ -24,8 +24,8 @@ def genereer_definitie(
     wettelijke_basis: Optional[str] = None,
 
     model: str = "gpt-4",
-    temperature: float = 0.4,
-    max_tokens: int = 300
+    temperature: float = 0.1,
+    max_tokens: int = 350
 ) -> str:
     """
     Genereert via GPT-4 een *ongecorrigeerde* definitie voor het opgegeven begrip:
