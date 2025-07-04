@@ -313,7 +313,7 @@ wet_basis = [opt for opt in wetopties if opt != "Anders..."]
 if custom_wet.strip():
     wet_basis.append(custom_wet.strip())
 
-    context_dict = {
+context_dict = {
     "organisatorisch": context,
     "juridisch": juridische_context,
     "wettelijk": wet_basis
