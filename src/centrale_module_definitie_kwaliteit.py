@@ -239,7 +239,6 @@ begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gege
 contextopties = st.multiselect(
     "Organisatorische context (meerdere mogelijk)",
     [
-        "",
         "OM",
         "ZM",
         "Reclassering",
@@ -299,7 +298,6 @@ wetopties = st.multiselect(
         "Wet op de Identificatieplicht",
         "Wet op de politiegegevens",
         "Wetboek van Strafrecht",
-        "Politiegegevenswet",
         "Algemene verordening gegevensbescherming",
         "Anders..."
     ],
@@ -441,11 +439,7 @@ if actie and begrip:
         marker=marker,                               # ← nieuw
         voorkeursterm=st.session_state["voorkeursterm"],
         bronnen_gebruikt=st.session_state.get("bronnen_gebruikt", None),
-        contexten={
-            "organisatorisch": context,
-            "juridisch": juridische_context,
-            "wettelijk": wet_basis
-        },
+        contexten=context_dict,
         gebruik_logging=gebruik_logging  # ✅ logging nu dynamisch
     )
 
@@ -453,30 +447,30 @@ if actie and begrip:
     st.session_state.voorbeeld_zinnen = genereer_voorbeeld_zinnen(
         begrip,
         definitie_origineel,
-        context, juridische_context, wet_basis
+        context_dict
     )
     st.session_state.praktijkvoorbeelden = genereer_praktijkvoorbeelden(
         begrip,
         definitie_origineel,
-        context, juridische_context, wet_basis
+        context_dict
     )
     st.session_state.tegenvoorbeelden = genereer_tegenvoorbeelden(
         begrip,
         definitie_origineel,
-        context, juridische_context, wet_basis
+        context_dict
     )
     
-    st.session_state.toelichting = genereer_toelichting(begrip, context, juridische_context, wet_basis)
-    st.session_state.synoniemen = genereer_synoniemen(begrip, context, juridische_context, wet_basis)
-    st.session_state.antoniemen = genereer_antoniemen(begrip, context, juridische_context, wet_basis)
+    st.session_state.toelichting = genereer_toelichting(begrip, context_dict)
+    st.session_state.synoniemen = genereer_synoniemen(begrip, context_dict)
+    st.session_state.antoniemen = genereer_antoniemen(begrip, context_dict)
 
     # ✅ Centrale logging voor AI-versie
     log_definitie(
         versietype="AI",
         begrip=begrip,
-        context=context,
-        juridische_context=juridische_context,
-        wet_basis=wet_basis,
+        context=context_dict.get("organisatorisch", []),
+        juridische_context=context_dict.get("juridisch", []),
+        wet_basis=context_dict.get("wettelijk", []),
         definitie_origineel=definitie_origineel,
         definitie_gecorrigeerd=definitie_gecorrigeerd,
         definitie_aangepast="",
@@ -651,11 +645,7 @@ with tab_aangepast:
                 begrip=begrip,
                 voorkeursterm=st.session_state["voorkeursterm"],
                 bronnen_gebruikt=st.session_state.get("bronnen_gebruikt", None),
-                contexten={
-                    "organisatorisch": context,
-                    "juridisch": juridische_context,
-                    "wettelijk": wet_basis
-                },
+                contexten=context_dict,
                 gebruik_logging=gebruik_logging  # ✅ logging nu ook hier instelbaar
             )
         else:
