@@ -236,31 +236,23 @@ begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gege
 
 
 # ✅ Organisatorische context
-# ✅ Stap 1: toon altijd multiselect met vaste opties
+# ✅ Multiselect-widget: altijd key instellen én initialiseren
 contextopties = st.multiselect(
     "Organisatorische context (meerdere mogelijk)",
     [
-        "OM",
-        "ZM",
-        "Reclassering",
-        "DJI",
-        "NP",
-        "Justid",
-        "KMAR",
-        "FIOD",
-        "CJIB",
-        "Strafrechtketen",
-        "Migratieketen",
-        "Justitie en Veiligheid",
-        "Anders..."
+        "OM", "ZM", "Reclassering", "DJI", "NP", "Justid", "KMAR", "FIOD",
+        "CJIB", "Strafrechtketen", "Migratieketen", "Justitie en Veiligheid", "Anders..."
     ],
     default=st.session_state.get("keuze_organisatorische_context", []),
     key="keuze_organisatorische_context"
 )
 
-# ✅ Stap 2: toon tekstveld als 'Anders...' is gekozen
-extra_input = ""  # ✅ Initialisatie voorkomt NameError
-if "Anders..." in st.session_state.get("keuze_organisatorische_context", []):
+# ✅ Veilig: toegang altijd via get() om KeyError te voorkomen
+geselecteerd = st.session_state.get("keuze_organisatorische_context", [])
+
+# ✅ Stap 2: extra input tonen als "Anders..." is gekozen
+extra_input = ""
+if "Anders..." in geselecteerd:
     extra_input = st.text_input(
         "Voer aanvullende organisatorische context in",
         value=st.session_state.get("custom_organisatorische_context_input", "").strip(),
@@ -268,25 +260,21 @@ if "Anders..." in st.session_state.get("keuze_organisatorische_context", []):
         placeholder="Bijv. 'project NWvSv'"
     )
 
-# ✅ Stap 3: toon visuele chipsweergave (exclusief 'Anders...')
-contextchips = [
-    opt for opt in st.session_state.get("keuze_organisatorische_context", []) if opt != "Anders..."
-]
+# ✅ Stap 3: visuele chipsweergave
+contextchips = [opt for opt in geselecteerd if opt != "Anders..."]
 if extra_input:
-    contextchips.append(extra_input)  # ✅ Voeg vrije invoer toe als niet leeg
+    contextchips.append(extra_input)
 
 st.markdown("**Gekozen organisatorische context(en):**")
 st.markdown(", ".join(contextchips))
 
-# ✅ Stap 4: verzamel gecombineerde context
-contexten_compleet = [
-    opt for opt in st.session_state.keuze_organisatorische_context if opt != "Anders..."
-]
+# ✅ Stap 4: volledige context verzamelen
+contexten_compleet = [opt for opt in geselecteerd if opt != "Anders..."]
 extra = st.session_state.get("custom_organisatorische_context_input", "").strip()
 if extra:
     contexten_compleet.append(extra)
 
-context = contexten_compleet  # ✅ Deze waarde kun je direct doorgeven aan de generator
+context = contexten_compleet  # ✅ Deze lijst is nu veilig en volledig
     
 # ✅ Juridische context
 juridische_opties = st.multiselect(
