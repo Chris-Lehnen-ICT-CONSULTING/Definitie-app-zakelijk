@@ -344,9 +344,7 @@ actie = st.button("Genereer definitie")
 if actie and begrip.strip():
     prompt_config = PromptConfiguratie(
         begrip=begrip,
-        context=context,
-        juridische_context=juridische_context,
-        wettelijke_basis=wet_basis
+        context_dict=context_dict
     )
     pb = PromptBouwer(prompt_config)
     st.session_state["prompt_text"] = pb.bouw_prompt()
@@ -380,9 +378,7 @@ if actie and begrip:
 
     # 🧠 Genereer alleen de originele definitie
     # 1️⃣ Genereer volledige GPT-respons (inclusief metadata)
-    raw = genereer_definitie(
-        begrip, context, juridische_context, wet_basis
-    )
+    raw = genereer_definitie(begrip, context_dict)
     # 2️⃣ Parse metadata-marker en zuivere definitietekst
     marker = None
     regels = raw.splitlines()

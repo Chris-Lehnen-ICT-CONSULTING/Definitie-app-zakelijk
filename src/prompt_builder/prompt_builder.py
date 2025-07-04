@@ -44,16 +44,13 @@ TOEGESTANE_TOETSREGELS = {
     "ARAI01", "ARAI02", "ARAI02SUB1", "ARAI02SUB2", "ARAI03", "ARAI04", "ARAI04SUB1", "ARAI05", "ARAI06"
 }
 
-# ✅ Nederlandse dataklasse voor configuratie van de prompt
+## ✅ Nieuwe versie van PromptConfiguratie: gebruikt context_dict in plaats van losse velden
 @dataclass
 class PromptConfiguratie:
     begrip: str
-    context: Optional[str] = None
-    juridische_context: Optional[str] = None
-    wettelijke_basis: Optional[str] = None
+    context_dict: Dict[str, List[str]]  # verwacht sleutels: 'organisatorisch', 'juridisch', 'wettelijk'
     web_uitleg: str = ""
     toetsregels: Dict[str, Dict] = field(default_factory=laad_toetsregels)
-
 # ✅ PromptBouwer – genereert de volledige instructietekst
 class PromptBouwer:
     def __init__(self, configuratie: PromptConfiguratie):
@@ -111,16 +108,16 @@ class PromptBouwer:
             regels.append("Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.")
 
         # ✅ Contextkaders (meervoudcorrectie)
-        contextvelden = ["context", "juridische_context", "wettelijke_basis"]
+        context_dict = self.configuratie.context_dict
         labelmapping = {
-            "context": "Organisatorische context(en)",
-            "juridische_context": "Juridische context(en)",
-            "wettelijke_basis": "Wettelijke basis(sen)"
-        }
+            "organisatorisch": "Organisatorische context(en)",
+            "juridisch": "Juridische context(en)",
+            "wettelijk": "Wettelijke basis(sen)"
+     }
 
         contextregels = [
-            f"{labelmapping[v]}: {getattr(self.configuratie, v)}"
-            for v in contextvelden if getattr(self.configuratie, v)
+            f"{labelmapping[v]}: {', '.join(context_dict[v])}"
+            for v in context_dict if context_dict[v]
         ]
         if contextregels:
             regels.append("\n📌 Context:")
@@ -171,9 +168,9 @@ Gebruik formuleringen zoals:
         regels.extend(fouten + [f"- ❌ Start niet met '{w}'" for w in self.verboden_startwoorden])
 
         # ✅ Dynamisch contextverbod (CON-01)
-        for veld in contextvelden:
-            self.voeg_contextverbod_toe(regels, getattr(self.configuratie, veld))
-
+        for v in context_dict:
+            for item in context_dict[v]:
+                self.voeg_contextverbod_toe(regels, item)
         # ✅ Validatiematrix
         regels.append("""
 | Probleem                             | Afgedekt? | Toelichting                                |
@@ -198,11 +195,11 @@ Gebruik formuleringen zoals:
         regels.append("\n🆔 Promptmetadata:")
         regels.append(f"– Begrip: {begrip}")
         regels.append(f"– Termtype: {woordsoort}")
-        for veld in contextvelden:
-            waarde = getattr(self.configuratie, veld)
-            if waarde:
-                regels.append(f"– {veld.replace('_', ' ').capitalize()}: {waarde}")
-
+        for v in context_dict:
+            waarden = context_dict[v]
+            if waarden:
+                regels.append(f"– {labelmapping[v]}: {', '.join(waarden)}")
+ 
         return "\n".join(regels)
 
 # ✅ Functie om prompt aan GPT te sturen
