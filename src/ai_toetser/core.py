@@ -63,19 +63,20 @@ def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
 
     # ✅ 1️⃣ Dynamisch: user-gegeven contexten
     expliciete_hits = []
-    for label, waarde in contexten.items():
-        if not waarde:
+    for label, waardelijst in contexten.items():
+        if not waardelijst:
             continue
-        w = waarde.lower().strip()
-        varianten = {
-            w,
-            w + "e",
-            w + "en",
-            w.rstrip("e")
-        }
-        for var in varianten:
-            if var and var in definitie_lc:
-                expliciete_hits.append(var)
+        for w in waardelijst:
+            w = w.lower().strip()
+            varianten = {
+                w,
+                w + "e",
+                w + "en",
+                w.rstrip("e")
+            }
+            for var in varianten:
+                if var and var in definitie_lc:
+                    expliciete_hits.append(var)
     if expliciete_hits:
         gevonden = ", ".join(sorted(set(expliciete_hits)))
         return f"❌ CON-01: opgegeven context letterlijk in definitie herkend (‘{gevonden}’)"
