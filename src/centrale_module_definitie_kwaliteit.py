@@ -239,9 +239,12 @@ from web_lookup.lookup import lookup_definitie as zoek_definitie  # ✅ alias vo
 st.write("🧾 Definitie Kwaliteit")
 begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gegenereerd")
 
-# ✅ Haalt lookup-resultaten op uit wetten.nl, Wikipedia en Overheid.nl
-lookup_resultaten = zoek_definitie(begrip)
-st.session_state["lookup_uitgevoerd"] = True  # ✅ Markeert dat lookup is uitgevoerd
+lookup_resultaten = []
+
+# ✅ Voer alleen lookup uit als gebruiker op knop heeft geklikt
+if st.session_state.get("definitie_actie", False) and begrip.strip():
+    lookup_resultaten = zoek_definitie(begrip)
+    st.session_state["lookup_uitgevoerd"] = True  # ✅ Markeer dat lookup heeft plaatsgevonden
 
 # ✅ Organisatorische context
 # ✅ Multiselect-widget: altijd key instellen én initialiseren
@@ -387,7 +390,10 @@ gebruik_logging = st.checkbox("🛠️ Log detailinformatie per toetsregel (alle
 from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 
 # ✅ Prompt pas bouwen na actie én ingevuld begrip
-actie = st.button("Genereer definitie")
+if st.button("Genereer definitie"):
+    st.session_state["definitie_actie"] = True  # ✅ Markeer expliciete actie
+
+actie = st.session_state.get("definitie_actie", False)
 
 if actie and begrip.strip():
     prompt_config = PromptConfiguratie(
