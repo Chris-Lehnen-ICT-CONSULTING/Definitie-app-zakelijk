@@ -398,7 +398,12 @@ if st.button("Genereer definitie"):
     st.session_state["definitie_origineel"] = definitie_origineel
     st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd
 
-    resultaten_per_regel = toets_definitie(definitie_gecorrigeerd, begrip, context)
+    resultaten_per_regel = toets_definitie(
+        definitie_gecorrigeerd,
+        begrip=begrip,
+        contexten=context_dict,
+        regels=toetsregels
+    )
     st.session_state["toetsresultaten"] = resultaten_per_regel
 
     lookup_resultaten = zoek_definitie(begrip)
