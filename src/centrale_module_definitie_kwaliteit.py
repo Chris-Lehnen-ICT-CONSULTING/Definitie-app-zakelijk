@@ -650,6 +650,13 @@ if (
             "context_dict": st.session_state.get("context", {}),
             "toetsresultaten": st.session_state.get("toetsresultaten", {}),
             "bronnen": st.session_state.get("bronnen_gebruikt", "").splitlines(),
+            "voorbeeld_zinnen": st.session_state.get("voorbeeld_zinnen", []),
+            "praktijkvoorbeelden": st.session_state.get("praktijkvoorbeelden", []),
+            "tegenvoorbeelden": st.session_state.get("tegenvoorbeelden", []),
+            "toelichting": st.session_state.get("toelichting", ""),
+            "synoniemen": st.session_state.get("synoniemen", ""),
+            "antoniemen": st.session_state.get("antoniemen", ""),
+            "voorkeursterm": st.session_state.get("voorkeursterm", "")
         }
 
         pad = exporteer_naar_txt(gegevens)  # ✅ Correcte aanroep met één dict
