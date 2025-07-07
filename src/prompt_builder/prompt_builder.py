@@ -148,11 +148,15 @@ Gebruik formuleringen zoals:
             for fout in inhoud.get("foute_voorbeelden", []):
                 regels.append(f"  ❌ {fout}")
 
-        # ✅ Webuitleg (optioneel)
-        uitleg = self.configuratie.web_uitleg.strip()
-        if uitleg:
-            regels.append("\n📎 Achtergrond (niet letterlijk overnemen):")
-            regels.append(uitleg)
+        # ✅ Verwerk web_uitleg als lijst van dicts of fallback naar string
+        if isinstance(self.configuratie.web_uitleg, list):
+            uitleg = "\n\n".join(
+                f"[{blok['bron']}] {blok['definitie']}"
+                for blok in self.configuratie.web_uitleg
+                if isinstance(blok, dict) and blok.get("status") == "ok"
+            ).strip()
+        else:
+            uitleg = str(self.configuratie.web_uitleg).strip()
 
         # ✅ Veelgemaakte fouten
         fouten = [
