@@ -117,12 +117,16 @@ class PromptBouwer:
             "Anders": "Overige context",
         }
 
-        # ✅ Veilige check: alleen toevoegen als context actief is (boolean True), geen iteratie nodig
+        # ✅ Flexibele verwerking: werkt zowel met booleans (True/False) als met lijsten (zoals ['penitentiair'])
         contextregels = []
         for v in context_dict:
-            # ✅ Veilige check: alleen toevoegen als context actief is (boolean True), geen iteratie nodig
-            if context_dict.get(v):
-                contextregels.append(f"- {labelmapping.get(v, v)}")
+            waarde = context_dict.get(v)
+            if isinstance(waarde, bool):
+                if waarde:
+                    contextregels.append(f"- {labelmapping.get(v, v)}")
+            elif isinstance(waarde, list):
+                if waarde:  # alleen toevoegen als lijst niet leeg is
+                    contextregels.append(f"- {labelmapping.get(v, v)}: {', '.join(waarde)}")
         if contextregels:
             regels.append("\n📌 Context:")
             regels.extend(contextregels)
@@ -177,8 +181,13 @@ Gebruik formuleringen zoals:
 
         # ✅ Dynamisch contextverbod (CON-01)
         for v in context_dict:
-            for item in context_dict[v]:
-                self.voeg_contextverbod_toe(regels, item)
+            # Flexibele verwerking: kan bool of list zijn
+            if isinstance(context_dict.get(v), list):
+                for item in context_dict[v]:
+                    self.voeg_contextverbod_toe(regels, item)
+            elif isinstance(context_dict.get(v), bool):
+                if context_dict.get(v):
+                    self.voeg_contextverbod_toe(regels, v)
         # ✅ Validatiematrix
         regels.append("""
 | Probleem                             | Afgedekt? | Toelichting                                |
