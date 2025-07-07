@@ -6,12 +6,12 @@ import json
 import re
 from datetime import datetime
 import streamlit as st
+
+from opschoning.opschoning import opschonen
 # 📌 Streamlit pagina-configuratie
 st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
 import pandas as pd
-
-
 
 
 from dotenv import load_dotenv
@@ -393,7 +393,8 @@ from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 # ✅ Prompt pas bouwen na actie én ingevuld begrip
 if st.button("Genereer definitie"):
     st.session_state["definitie_actie"] = True  # ✅ trigger actief
-    definitie_origineel, definitie_gecorrigeerd = genereer_definitie(begrip, context)
+    definitie_origineel = genereer_definitie(begrip, context_dict)
+    definitie_gecorrigeerd = opschonen(definitie_origineel, begrip)
     st.session_state["definitie_origineel"] = definitie_origineel
     st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd
 
