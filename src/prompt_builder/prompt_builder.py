@@ -117,9 +117,10 @@ class PromptBouwer:
             "Anders": "Overige context",
         }
 
-        # ✅ Gebruik veilige fallback: als 'v' niet in labelmapping staat, toon dan gewoon 'v' als label
+        # ✅ Toon alleen de contextlabel; geen join meer nodig omdat context_dict[v] een boolean is (geen lijst)
         contextregels = [
-            f"{labelmapping.get(v, v)}: {', '.join(context_dict[v])}"
+            # ✅ Toon alleen de contextlabel; geen join meer nodig omdat context_dict[v] een boolean is (geen lijst)
+            f"- {labelmapping.get(v, v)}"
             for v in context_dict if context_dict[v]
         ]
         if contextregels:
