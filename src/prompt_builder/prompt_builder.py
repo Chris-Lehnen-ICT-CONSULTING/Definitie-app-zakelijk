@@ -112,11 +112,14 @@ class PromptBouwer:
         labelmapping = {
             "organisatorisch": "Organisatorische context(en)",
             "juridisch": "Juridische context(en)",
-            "wettelijk": "Wettelijke basis(sen)"
-     }
+            "wettelijk": "Wettelijke basis(sen)",
+            "Strafrechtketen": "Samenwerkingsverband Strafrechtketen",
+            "Anders": "Overige context",
+        }
 
+        # ✅ Gebruik veilige fallback: als 'v' niet in labelmapping staat, toon dan gewoon 'v' als label
         contextregels = [
-            f"{labelmapping[v]}: {', '.join(context_dict[v])}"
+            f"{labelmapping.get(v, v)}: {', '.join(context_dict[v])}"
             for v in context_dict if context_dict[v]
         ]
         if contextregels:
@@ -202,7 +205,7 @@ Gebruik formuleringen zoals:
         for v in context_dict:
             waarden = context_dict[v]
             if waarden:
-                regels.append(f"– {labelmapping[v]}: {', '.join(waarden)}")
+                regels.append(f"– {labelmapping.get(v, v)}: {', '.join(waarden)}")
  
         return "\n".join(regels)
 
