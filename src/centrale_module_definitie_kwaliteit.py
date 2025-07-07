@@ -629,7 +629,10 @@ if (
 ):
     if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
         from export import exporteer_naar_txt  # ✅ Correcte module-import volgens projectstructuur
-
+        # ✅ Zorg dat alle benodigde gegevens in de sessiestatus staan
+        st.session_state["begrip"] = begrip
+        st.session_state["context"] = context_dict
+        st.session_state["toetsresultaten"] = st.session_state.get("beoordeling_gen", [])
         # ✅ Bundel alle relevante gegevens in één dict zoals vereist door de functie
         gegevens = {
             "begrip": st.session_state.get("begrip", ""),
@@ -638,7 +641,7 @@ if (
             "metadata": st.session_state.get("metadata", {}),
             "context_dict": st.session_state.get("context", {}),
             "toetsresultaten": st.session_state.get("toetsresultaten", {}),
-            "bronnen": st.session_state.get("bronnen", []),
+            "bronnen": st.session_state.get("bronnen_gebruikt", "").splitlines(),
         }
 
         pad = exporteer_naar_txt(gegevens)  # ✅ Correcte aanroep met één dict
