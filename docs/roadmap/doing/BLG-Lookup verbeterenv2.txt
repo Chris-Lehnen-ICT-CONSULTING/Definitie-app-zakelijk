@@ -61,8 +61,7 @@
 | Rijksoverheid.nl                     | REST API                        | ✅       | Ja           | API-key vereist, redelijk open              |
 | Ministerie van JenV                  | REST API                        | ✅       | Ja           | API-key vereist, redelijk open              |
 | Justitiële Informatiedienst (Justid) | REST API via JenV API-catalogus | ✅       | Beperkt      | API-key, beperkt toegang                    |
-| CJIB                                 | REST API                        | ✅       | Beperkt      | API-key, deels niet openbaar                |
-| TermTreffer / NL-Term                | Handmatig via website           | ❓       | Beperkt      | Onbekende voorwaarden                       |
+| CJIB                                 | REST API                        | ✅       | Beperkt      | API-key, deels niet openbaar                |                |
 | Rechtspraak.nl                       | Handmatig via website/scraping  | ❌       | Ja           | Publieke uitspraken, structuur soms complex |
 | Officielebekendmakingen.nl           | Handmatig via website           | ❌       | Ja           | Veel data, niet altijd consistente HTML     |
 | Belastingdienst                      | Website/ondersteuning           | Beperkt | Gedeeltelijk | Soms afgeschermd, ontwikkelaarsportaal      |

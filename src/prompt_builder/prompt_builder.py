@@ -203,7 +203,11 @@ Gebruik formuleringen zoals:
         return "\n".join(regels)
 
 # ✅ Functie om prompt aan GPT te sturen
-def stuur_prompt_naar_gpt(prompt: str, model: str = "gpt-4", temperatuur: float = 0.4, max_tokens: int = 300) -> str:
+def stuur_prompt_naar_gpt(prompt: str, model: str = "gpt-4", temperatuur: float = 0.01, max_tokens: int = 300) -> str:
+    """
+    ✅ Standaardtemperatuur verlaagd naar 0.01 voor maximale voorspelbaarheid en herhaalbaarheid.
+    ✅ Deze aanpassing zorgt ervoor dat de GPT-output bij gelijke input zo identiek mogelijk blijft.
+    """
     try:
         antwoord = _client.chat.completions.create(
             model=model,
@@ -214,3 +218,4 @@ def stuur_prompt_naar_gpt(prompt: str, model: str = "gpt-4", temperatuur: float 
         return antwoord.choices[0].message.content.strip()
     except OpenAIError as fout:
         raise RuntimeError(f"GPT-aanroep mislukt: {fout}") from fout
+# ✅ Temperatuur nu standaard 0.01. Dit is zeer voorspelbaar, dus zeer geschikt voor strikte validatie- en logtoepassingen.
