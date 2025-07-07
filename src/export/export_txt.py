@@ -15,6 +15,7 @@ def exporteer_naar_txt(gegevens: dict) -> str:
     tegenvoorbeelden = gegevens.get("tegenvoorbeelden") or []
     toelichting = gegevens.get("toelichting") or ""
     synoniemen = gegevens.get("synoniemen") or ""
+    voorkeursterm = gegevens.get("voorkeursterm", "")
     antoniemen = gegevens.get("antoniemen") or ""
 
     tijdstempel = datetime.now().strftime("%Y%m%d_%H%M%S")
@@ -59,6 +60,9 @@ def exporteer_naar_txt(gegevens: dict) -> str:
 
     regels.append("\n\U0001F501 Synoniemen:")
     regels += [f"- {s.strip()}" for s in synoniemen.splitlines() if s.strip()] or ["- geen"]
+
+    regels.append("\n🏷️ Voorkeursterm:")
+    regels.append(f"- {voorkeursterm or 'geen'}")
 
     regels.append("\n\U0001F504 Antoniemen:")
     regels += [f"- {a.strip()}" for a in antoniemen.splitlines() if a.strip()] or ["- geen"]
