@@ -214,8 +214,13 @@ Gebruik formuleringen zoals:
         regels.append(f"– Termtype: {woordsoort}")
         for v in context_dict:
             waarden = context_dict[v]
-            if waarden:
+            if isinstance(waarden, list) and waarden:
                 regels.append(f"– {labelmapping.get(v, v)}: {', '.join(waarden)}")
+            elif isinstance(waarden, bool) and waarden:
+                regels.append(f"– {labelmapping.get(v, v)}")
+# ✅ Voorkomt TypeError door alleen lists te joinen
+# ✅ Booleans (zoals True bij "Organisatorisch") geven correcte promptregel
+# ✅ False en lege lijsten worden genegeerd
  
         return "\n".join(regels)
 
