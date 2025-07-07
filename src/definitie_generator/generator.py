@@ -21,7 +21,7 @@ def genereer_definitie(
     begrip: str,
     context_dict: Dict[str, List[str]],
     model: str = "gpt-4",
-    temperature: float = 0.1,
+    temperature: float = 0.01,   # ✅ Verlaagd naar 0.01 voor maximale consistentie en contextfocus
     max_tokens: int = 350
 ) -> str:
     """
@@ -39,7 +39,6 @@ def genereer_definitie(
 
     # 2️⃣ Toetsregels laden & splitsen
     toetsregels       = laad_toetsregels()
-
 
     # 3️⃣ Prompt bouwen
     configuratie = PromptConfiguratie(
@@ -64,3 +63,5 @@ def genereer_definitie(
 
     # 5️⃣ Return alleen ongecorrigeerde definitie
     return definitie_origineel
+
+# ✅ Default temperatuur nu 0.01: minimaliseert willekeur, maximaliseert contextuele precisie.

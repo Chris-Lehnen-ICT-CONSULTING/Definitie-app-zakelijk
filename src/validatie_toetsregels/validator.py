@@ -1,6 +1,8 @@
 # 🔧 Bestand: validatie_toetsregels.py
 # 📍 Locatie: vervang bestaande functie lade_json_ids
-
+import os
+import re
+from typing import Optional, List, Dict, Set, Any
 from config.config_loader import load_toetsregels  # ✅ Centrale JSON‐loader
 
 def laad_json_ids(path: str = None) -> Dict[str, Dict[str, Any]]:
