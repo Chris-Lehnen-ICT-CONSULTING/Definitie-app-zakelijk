@@ -1038,9 +1038,13 @@ with tab_expert:
 # ================================
 if lookup_resultaten:
     with st.expander("🔍 Informatie gevonden via web lookup", expanded=True):
-        for bron, resultaat in lookup_resultaten.items():
-            if resultaat:
+        for resultaat in lookup_resultaten:
+            bron = resultaat.get("bron", "onbekend")
+            tekst = resultaat.get("definitie", "")
+            status = resultaat.get("status", "onbekend")
+
+            if tekst and status == "ok":
                 st.markdown(f"**Bron: {bron}**")
-                st.markdown(resultaat.strip()[:1000] + "..." if len(resultaat) > 1000 else resultaat)
+                st.markdown(tekst.strip()[:1000] + "..." if len(tekst) > 1000 else tekst)
             else:
-                st.markdown(f"**Bron: {bron}** – _geen resultaat gevonden_")
+                st.markdown(f"**Bron: {bron}** – _geen bruikbaar resultaat gevonden_")
