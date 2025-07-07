@@ -308,25 +308,65 @@ def lookup_definitie(begrip: str, bron: Optional[str] = None):
         return f"⚠️ Onbekende bron '{bron}'. Beschikbare bronnen: wikipedia, wiktionary, ensie, overheidnl, strafrechtketen, kamerstukken, wettennl, iate, combinatie."
 
 # ────────────────────────────────────────────────────────────────────────
-# Functie: combinatieresultaat Wikipedia + Overheid.nl
+# Functie: combinatieresultaat Wikipedia + Overheid.nl + wetten.nl + overige bronnen
 # ────────────────────────────────────────────────────────────────────────
+# ✅ Zoekt in alle bronnen en combineert tekstueel in één string voor UI/weergave
+# ✅ Biedt backward compatibility met eerdere versie die alleen Wikipedia/Overheid.nl gebruikte
 def zoek_definitie_combinatie(begrip: str) -> str:
     """
-    Levert zowel Wikipedia- als Overheid.nl-resultaat in één string.
+    Levert een combinatie van resultaten uit alle beschikbare bronnen.
     """
     wiki = zoek_definitie_op_wikipedia(begrip)
     overheid = zoek_definitie_op_overheidnl(begrip)
-    return f"📚 Wikipedia: {wiki}\n\n📘 Overheid.nl:\n{overheid}"
+    wettennl = zoek_definitie_op_wettennl(begrip)
+    wiktionary = zoek_definitie_op_wiktionary(begrip)
+    ensie = zoek_definitie_op_ensie(begrip)
+    strafrechtketen = zoek_definitie_op_strafrechtketen(begrip)
+    kamerstukken = zoek_definitie_op_kamerstukken(begrip)
+    iate = zoek_definitie_op_iate(begrip)
+
+    return (
+        f"📚 Wikipedia: {wiki}\n\n"
+        f"📘 Overheid.nl:\n{overheid}\n\n"
+        f"📜 Wetten.nl:\n{wettennl}\n\n"
+        f"📖 Wiktionary:\n{wiktionary}\n\n"
+        f"🧠 Ensie:\n{ensie}\n\n"
+        f"🏛️ Strafrechtketen:\n{strafrechtketen}\n\n"
+        f"📂 Kamerstukken:\n{kamerstukken}\n\n"
+        f"🌐 IATE:\n{iate}"
+    )
+
+# ✅ Biedt dispatch op basis van bronnaam voor eenvoudige extensie
+#from typing import Optional
+#def zoek_definitie_op_basis_van_bron(begrip: str, bron: str) -> Optional[str]:
+#    if bron == "wikipedia":
+#        return zoek_definitie_op_wikipedia(begrip)
+#    elif bron == "wiktionary":
+#        return zoek_definitie_op_wiktionary(begrip)
+#    elif bron == "ensie":
+#        return zoek_definitie_op_ensie(begrip)
+#    elif bron == "overheidnl":
+#        return zoek_definitie_op_overheidnl(begrip)
+#    elif bron == "strafrechtketen":
+#        return zoek_definitie_op_strafrechtketen(begrip)
+#    elif bron == "kamerstukken":
+#        return zoek_definitie_op_kamerstukken(begrip)
+#    elif bron == "wettennl":
+#        return zoek_definitie_op_wettennl(begrip)
+#    elif bron == "iate":
+#        return zoek_definitie_op_iate(begrip)
+#    else:
+#        return None
 
 # ✅ Deze functie bestond in de vorige versie en wordt elders nog geïmporteerd.
 # ✅ Zorgt voor backward compatibility met bestaande modules zoals ai_toetser.core
 # ✅ Verwijst door naar lookup_definitie (de centrale router)
-def zoek_definitie_via_websearch(begrip: str, context: Optional[str] = None) -> Optional[str]:
-    """
-    ✅ Legacy-ondersteuning voor oudere modules
-    ✅ Verwijst intern door naar de nieuwe lookup_definitie(...) router
-    """
-    return lookup_definitie(begrip, context)
+#def zoek_definitie_via_websearch(begrip: str, context: Optional[str] = None) -> Optional[str]:
+#    """
+#    ✅ Legacy-ondersteuning voor oudere modules
+#    ✅ Verwijst intern door naar de nieuwe lookup_definitie(...) router
+#    """
+#    return lookup_definitie(begrip, context)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # ✅ Éénmalig JSON inladen en cachen
@@ -384,6 +424,46 @@ def is_plurale_tantum(term: str) -> bool:
     term_norm = term.strip().lower()
     # 🔍 Membership-test in de gecachte plurale-tantum set
     return term_norm in _load_plurale_tantum()
+
+# ✅ Gestandaardiseerde wrapper per bron
+def _maak_resultaat(bron: str, output) -> dict:
+    if isinstance(output, tuple):
+        tekst, verwijzingen = output
+    else:
+        tekst, verwijzingen = output, []
+    return {
+        "bron": bron,
+        "definitie": tekst,
+        "verwijzingen": verwijzingen,
+        "status": "ok" if not tekst.startswith("⚠️") and not tekst.startswith("❌") else "error"
+    }
+
+# ✅ Gestandaardiseerde combinatiefunctie met bruikbare datastructuur
+def zoek_definitie_combinatie(begrip: str) -> list[dict]:
+    bronnen = {
+        "wikipedia": zoek_definitie_op_wikipedia,
+        "overheidnl": zoek_definitie_op_overheidnl,
+        "wettennl": zoek_definitie_op_wettennl,
+        "wiktionary": zoek_definitie_op_wiktionary,
+        "ensie": zoek_definitie_op_ensie,
+        "strafrechtketen": zoek_definitie_op_strafrechtketen,
+        "kamerstukken": zoek_definitie_op_kamerstukken,
+        "iate": zoek_definitie_op_iate,
+    }
+    resultaten = []
+    for bron, functie in bronnen.items():
+        try:
+            res = functie(begrip)
+            resultaten.append(_maak_resultaat(bron, res))
+        except Exception as e:
+            resultaten.append({
+                "bron": bron,
+                "definitie": f"❌ Fout bij ophalen van {bron}: {e}",
+                "verwijzingen": [],
+                "status": "error"
+            })
+    return resultaten
+
 # ✅ Context-mapping laden vanuit JSON-config
 def laad_context_wet_mapping() -> dict:
     pad = os.path.join(
