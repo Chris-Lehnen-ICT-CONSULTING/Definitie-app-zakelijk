@@ -1,0 +1,109 @@
+📘 Begrip: authenticeren
+
+✏️ Definitie (gecorrigeerd): Activiteit waarbij de identiteit van een gebruiker of systeem wordt geverifieerd door het controleren van aangeleverde bewijsstukken, zoals gebruikersnaam en wachtwoord, tegen een geautoriseerde bron.
+
+📎 Oorspronkelijke definitie: Authenticeren is een activiteit waarbij de identiteit van een gebruiker of systeem wordt geverifieerd door het controleren van aangeleverde bewijsstukken, zoals gebruikersnaam en wachtwoord, tegen een geautoriseerde bron.
+
+🧾 Metadata:
+- geen
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ⚠️ CON-01: fout bij uitvoeren toetsfunctie – 'list' object has no attribute 'lower'
+- ❌ CON-02: bronvermelding gevonden (Authenticeren is een term die vaak wordt gebruikt in de context van informatiebeveiliging en digitale technologie. Het is het proces van het verifiëren van de identiteit van een persoon, systeem of entiteit. Authenticatie kan worden bereikt door het controleren van een gebruikersnaam en wachtwoord, biometrische gegevens, of andere vormen van identificatie. 
+
+In de context van de strafrechtketen kan authenticatie bijvoorbeeld betrekking hebben op het verifiëren van de identiteit van een persoon die toegang probeert te krijgen tot bepaalde juridische documenten of systemen. Dit kan van cruciaal belang zijn om de integriteit en vertrouwelijkheid van gevoelige informatie te waarborgen.
+
+Deze definitie is gebaseerd op algemene kennis over informatiebeveiliging en digitale technologie, evenals op de specifieke context van de strafrechtketen. Er zijn geen specifieke wetten, richtlijnen of veelgebruikte definities die expliciet van toepassing zijn op deze definitie in deze context. Echter, algemene wetten en richtlijnen over gegevensbescherming en privacy, zoals de Algemene Verordening Gegevensbescherming (AVG) in de EU, kunnen relevant zijn voor de manier waarop authenticatie wordt uitgevoerd.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ✔️ ESS-02: eenduidig als proces gedefinieerd (\b(proces|activiteit|handeling|gebeurtenis)\b)
+- ❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (en, waarbij, ,, of), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (waarbij); antecedent niet expliciet gemaakt
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ❌ INT-06: toelichtende signalen herkend via patronen “\bzoals\b”.
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ❌ INT-09: opsommingswoorden (zoals) zonder duidelijke limitatieve aanduiding
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘activiteitwaarbijdeidentiteitvaneengebruikerofsysteemwordtgeverifieerddoorhetcontrolerenvanaangeleverdebewijsstukken,zoalsgebruikersnaamenwachtwoord,tegeneengeautoriseerdebron.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ❌ STR-08: dubbelzinnige 'en' gevonden (, gebruikersnaam en wachtwoord), context verduidelijken
+- ❌ STR-09: dubbelzinnige 'of' gevonden (of, gebruiker of systeem), context verduidelijken
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Activiteit waarbij de identiteit van een gebruiker of systeem wordt geverifieerd door het controleren van aangeleverde bewijsstukken, zoals gebruikersnaam en wachtwoord, tegen een geautoriseerde bron.' lijkt niet in infinitief te staan
+- ❌ ARAI01: werkwoord(en) als kern gevonden (wordt), geen toelichting herkend
+- ❌ ARAI02: containerbegrippen zonder specificatie gevonden (systeem, Activiteit), onvoldoende concreet
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ❌ ARAI02SUB2: containerbegrippen gevonden (Activiteit), onvoldoende specifiek
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Authenticeren is een term die vaak wordt gebruikt in de context van informatiebeveiliging en digitale technologie. Het is het proces van het verifiëren van de identiteit van een persoon, systeem of entiteit. Authenticatie kan worden bereikt door het controleren van een gebruikersnaam en wachtwoord, biometrische gegevens, of andere vormen van identificatie. 
+- In de context van de strafrechtketen kan authenticatie bijvoorbeeld betrekking hebben op het verifiëren van de identiteit van een persoon die toegang probeert te krijgen tot bepaalde juridische documenten of systemen. Dit kan van cruciaal belang zijn om de integriteit en vertrouwelijkheid van gevoelige informatie te waarborgen.
+- Deze definitie is gebaseerd op algemene kennis over informatiebeveiliging en digitale technologie, evenals op de specifieke context van de strafrechtketen. Er zijn geen specifieke wetten, richtlijnen of veelgebruikte definities die expliciet van toepassing zijn op deze definitie in deze context. Echter, algemene wetten en richtlijnen over gegevensbescherming en privacy, zoals de Algemene Verordening Gegevensbescherming (AVG) in de EU, kunnen relevant zijn voor de manier waarop authenticatie wordt uitgevoerd.
+
+💡 Toelichting:
+Authenticeren is het proces van het verifiëren van de identiteit van een persoon, systeem of entiteit. In de context van overheidsdocumenten, kan dit betekenen dat de overheid de identiteit van een individu controleert voordat ze toegang krijgen tot bepaalde informatie of diensten. Dit kan bijvoorbeeld gebeuren door het controleren van identiteitsbewijzen, het gebruik van digitale handtekeningen of het invoeren van persoonlijke identificatie-informatie. Authenticatie is cruciaal om de veiligheid en privacy van informatie te waarborgen en om fraude en misbruik te voorkomen. In de strafrechtketen kan authenticatie bijvoorbeeld worden gebruikt om de identiteit van een verdachte, getuige of rechtshandhaver te verifiëren.
+
+🧢 Voorbeeldzinnen:
+- "Voordat we toegang krijgen tot de gevoelige informatie, moeten we ons eerst authenticeren bij het systeem."
+- "Om te voorkomen dat onbevoegden toegang krijgen, wordt iedereen die het gebouw binnenkomt gevraagd zich te authenticeren met hun ID-kaart."
+- "Het authenticeren van gebruikers is een cruciale stap in het waarborgen van de veiligheid van onze databanken."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1: Authenticatie bij een Bank
+In de organisatorische context van een bank, moet een klant zich authenticeren voordat hij toegang krijgt tot zijn bankrekening online. De klant levert bewijsstukken aan zoals zijn gebruikersnaam en wachtwoord, en soms een tweede vorm van authenticatie zoals een unieke code die naar zijn telefoon wordt gestuurd. De bank controleert deze gegevens tegen hun eigen geautoriseerde bron (de klantendatabase). Als de gegevens overeenkomen, wordt de klant geauthenticeerd en krijgt hij toegang tot zijn rekening. Deze authenticatieprocedure is nodig om te voldoen aan wettelijke voorschriften voor financiële instellingen om de veiligheid van klantgegevens te waarborgen.
+
+Voorbeeld 2: Authenticatie bij een Ziekenhuis
+In een ziekenhuisomgeving moet een arts zich authenticeren voordat hij toegang krijgt tot patiëntendossiers. De arts levert zijn gebruikersnaam en wachtwoord aan, die worden gecontroleerd tegen een geautoriseerde bron (het ziekenhuispersoneel database). Als de gegevens overeenkomen, wordt de arts geauthenticeerd en krijgt hij toegang tot de patiëntendossiers. Deze authenticatieprocedure is vereist om te voldoen aan de wetgeving inzake gegevensbescherming en om de privacy van patiënten te waarborgen.
+
+Voorbeeld 3: Authenticatie bij een Online Winkel
+Bij een online winkel moet een klant zich authenticeren voordat hij een aankoop kan doen. De klant levert zijn e-mailadres en wachtwoord aan, die worden gecontroleerd tegen een geautoriseerde bron (de klantendatabase van de winkel). Als de gegevens overeenkomen, wordt de klant geauthenticeerd en kan hij doorgaan met zijn aankoop. Deze authenticatieprocedure is nodig om fraude te voorkomen en om te voldoen aan wettelijke voorschriften voor online handel.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1: Een medewerker van de strafrechtketen gebruikt het wachtwoord en de gebruikersnaam van een collega om in te loggen op het systeem. Hoewel de inloggegevens correct zijn, is de authenticatie niet correct omdat de identiteit van de gebruiker (de medewerker die de inloggegevens van zijn collega gebruikt) niet correct is geverifieerd.
+
+Voorbeeld 2: Een persoon die geen deel uitmaakt van de strafrechtketen, heeft op een of andere manier toegang gekregen tot een gebruikersnaam en wachtwoord. Deze persoon kan inloggen op het systeem, maar de authenticatie is niet correct omdat deze persoon geen geautoriseerde gebruiker is. De contextregel dat alleen geautoriseerde gebruikers toegang mogen hebben tot het systeem, wordt dus niet gevolgd.
+
+🔁 Synoniemen:
+- 1. Verifiëren
+- 2. Valideren
+- 3. Bevestigen
+- 4. Certificeren
+- 5. Identificeren
+
+🏷️ Voorkeursterm:
+- authenticeren
+
+🔄 Antoniemen:
+- 1. Vervalsen
+- 2. Verdraaien
+- 3. Verhullen
+- 4. Verbergen
+- 5. Verdoezelen
