@@ -396,23 +396,6 @@ if actie and begrip:
     st.session_state["definitie_origineel"] = definitie_origineel
     st.session_state["marker"] = marker or ""
     st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd
-
-
-    # ✅ Toon exportknop alleen als er een definitie beschikbaar is
-    if 'definitie_gecorrigeerd' in st.session_state and st.session_state['definitie_gecorrigeerd']:
-        if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
-            from exports.export_txt import exporteer_naar_txt
-
-            exporteer_naar_txt(
-                begrip=st.session_state.get("begrip", ""),
-                definitie_gecorrigeerd=st.session_state.get("definitie_gecorrigeerd", ""),
-                definitie_origineel=st.session_state.get("definitie_origineel", ""),
-                metadata=st.session_state.get("metadata", {}),
-                context_dict=st.session_state.get("context", {}),
-                toetsresultaten=st.session_state.get("toetsresultaten", {})
-            )
-            st.success("✅ TXT-bestand succesvol geëxporteerd naar 'export_definitie.txt'")
-            
     st.session_state["gegenereerd"] = definitie_origineel  # deze blijft zichtbaar in Tab 1
 
     # 📚 AI-bronnen opvragen
@@ -554,18 +537,6 @@ with tab_ai:
          
     st.markdown("### ✨ Opgeschoonde definitie (gecorrigeerde versie)")
     st.markdown(st.session_state.get("definitie_gecorrigeerd", ""))  # 💚 Verwijdert verboden constructies
-
-    # ✅ Exportknop voor .txt-bestand van huidige definitie
-    if st.button("📤 Exporteer deze definitie als .txt", key="exporteer_definitie_txt"):
-        from export import exporteer_naar_txt
-        exporteer_naar_txt(
-            begrip=begrip,
-            definitie_gegenereerd=st.session_state.get("definitie_origineel", ""),
-            definitie_gecorrigeerd=st.session_state.get("definitie_gecorrigeerd", ""),
-            woordsoort="",  # Voeg hier de juiste variabele toe als beschikbaar
-            context=context
-        )
-        st.success("✅ Definitie succesvol geëxporteerd naar 'export_definitie.txt'")
 
        
     if st.session_state.get("voorbeeld_zinnen"):
