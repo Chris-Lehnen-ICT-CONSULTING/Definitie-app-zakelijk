@@ -5,6 +5,7 @@
 # ✅ Alle projectmodules zijn gegroepeerd per functiegebied (log, config, AI)
 # ✅ Streamlitconfig staat direct na eerste import – wordt vroeg geïnitialiseerd
 # ✅ load_dotenv() en logger-init onderaan voor juiste volgorde
+
 # ✅ Standaardbibliotheek
 import os
 import json
