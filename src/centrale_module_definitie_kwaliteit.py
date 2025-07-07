@@ -401,7 +401,7 @@ if actie and begrip:
     # ✅ Toon exportknop alleen als er een definitie beschikbaar is
     if 'definitie_gecorrigeerd' in st.session_state and st.session_state['definitie_gecorrigeerd']:
         if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
-            from exports.export_txt import exporteer_naar_txt
+            from exports import exporteer_naar_txt
 
             exporteer_naar_txt(
                 begrip=st.session_state.get("begrip", ""),
