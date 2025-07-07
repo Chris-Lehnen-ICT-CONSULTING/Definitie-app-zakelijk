@@ -165,6 +165,41 @@ def zoek_definitie_op_overheidnl(begrip: str) -> tuple[str, list[dict]]:
         return f"❌ Fout bij ophalen van Overheid.nl: {e}", []
 
 # ────────────────────────────────────────────────────────────────────────
+# Functie: definities ophalen van wetten.nl (scrape + juridische verwijzingen)
+# ────────────────────────────────────────────────────────────────────────
+def zoek_definitie_op_wettennl(begrip: str) -> tuple[str, list[dict]]:
+    """
+    ✅ Zoekt via wetten.nl/search en scrape eerste resultaat.
+    ✅ Retourneert de titel + eerste paragraaf van de gevonden wet/artikel.
+    ✅ Herkent juridische verwijzingen via zoek_wetsartikelstructuur.
+    """
+    zoekterm = begrip.replace(" ", "+")
+    url = f"https://wetten.overheid.nl/zoeken/resultaat?zoekwoorden={zoekterm}&zoekopties=wet"
+    try:
+        r = requests.get(url, timeout=5)
+        if r.status_code != 200:
+            return f"⚠️ wetten.nl gaf statuscode {r.status_code}", []
+        soup = BeautifulSoup(r.text, "html.parser")
+        resultaat = soup.find("a", class_="search-result-title")
+        if not resultaat or not resultaat.get("href"):
+            return "⚠️ Geen resultaten gevonden op wetten.nl.", []
+
+        detail_url = "https://wetten.overheid.nl" + resultaat["href"]
+        detail_r = requests.get(detail_url, timeout=5)
+        if detail_r.status_code != 200:
+            return f"⚠️ Detailpagina gaf statuscode {detail_r.status_code}", []
+
+        detail_soup = BeautifulSoup(detail_r.text, "html.parser")
+        artikeltekst = detail_soup.find("div", class_="artikeltekst")
+        if artikeltekst:
+            tekst = artikeltekst.get_text(separator=" ", strip=True)
+            verwijzingen = zoek_wetsartikelstructuur(tekst)
+            return f"{resultaat.text.strip()}:\n{tekst[:400]}...", verwijzingen
+        return "⚠️ Geen artikeltekst gevonden op detailpagina.", []
+    except Exception as e:
+        return f"❌ Fout bij ophalen van wetten.nl: {e}", []
+
+# ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Strafrechtketen.nl (eenvoudige structuur)
 # ────────────────────────────────────────────────────────────────────────
 def zoek_definitie_op_strafrechtketen(begrip: str) -> tuple[str, list[dict]]:
@@ -227,11 +262,11 @@ def zoek_definitie_op_iate(begrip: str) -> str:
 # ────────────────────────────────────────────────────────────────────────
 # Centrale routeringsfunctie: lookup_definitie
 # ────────────────────────────────────────────────────────────────────────
-def lookup_definitie(begrip: str, bron: Optional[str] = None) -> str:
+def lookup_definitie(begrip: str, bron: Optional[str] = None):
     """
     Haalt de definitie op van 'begrip' via de opgegeven bron.
     Beschikbare bronnen: wikipedia, wiktionary, ensie, overheidnl,
-    strafrechtketen, kamerstukken, iate, combinatie.
+    strafrechtketen, kamerstukken, wettennl, iate, combinatie.
     Als bron niet gespecificeerd is, wordt 'combinatie' gebruikt.
     """
     bron = (bron or "combinatie").lower()
@@ -247,12 +282,14 @@ def lookup_definitie(begrip: str, bron: Optional[str] = None) -> str:
         return zoek_definitie_op_strafrechtketen(begrip)
     elif bron == "kamerstukken":
         return zoek_definitie_op_kamerstukken(begrip)
+    elif bron == "wettennl":
+        return zoek_definitie_op_wettennl(begrip)
     elif bron == "iate":
         return zoek_definitie_op_iate(begrip)
     elif bron == "combinatie":
         return zoek_definitie_combinatie(begrip)
     else:
-        return f"⚠️ Onbekende bron '{bron}'. Beschikbare bronnen: wikipedia, wiktionary, ensie, overheidnl, strafrechtketen, kamerstukken, iate, combinatie."
+        return f"⚠️ Onbekende bron '{bron}'. Beschikbare bronnen: wikipedia, wiktionary, ensie, overheidnl, strafrechtketen, kamerstukken, wettennl, iate, combinatie."
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: combinatieresultaat Wikipedia + Overheid.nl
