@@ -241,7 +241,7 @@ begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gege
 
 # ✅ Haalt lookup-resultaten op uit wetten.nl, Wikipedia en Overheid.nl
 lookup_resultaten = zoek_definitie(begrip)
-
+st.session_state["lookup_uitgevoerd"] = True  # ✅ Markeert dat lookup is uitgevoerd
 
 # ✅ Organisatorische context
 # ✅ Multiselect-widget: altijd key instellen én initialiseren
@@ -1035,8 +1035,9 @@ with tab_expert:
 
 # ================================
 # ✅ Toon lookup-resultaten per bron boven het prompt-blok
+# Alleen zichtbaar ná uitgevoerde lookup
 # ================================
-if lookup_resultaten:
+if st.session_state.get("lookup_uitgevoerd", False) and lookup_resultaten:
     with st.expander("🔍 Informatie gevonden via web lookup", expanded=True):
         for resultaat in lookup_resultaten:
             bron = resultaat.get("bron", "onbekend")
