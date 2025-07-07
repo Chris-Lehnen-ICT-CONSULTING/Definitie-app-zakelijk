@@ -44,7 +44,12 @@ def zoek_definitie_op_wikipedia(begrip: str) -> tuple[str, list[dict]]:
             eerste_paragraaf = soup.find("p")
             if eerste_paragraaf and eerste_paragraaf.text.strip():
                 tekst = eerste_paragraaf.text.strip()
-                verwijzingen = zoek_wetsartikelstructuur(tekst)
+                verwijzingen = zoek_wetsartikelstructuur(
+                    tekst,
+                    log_jsonl=True,
+                    bron="wikipedia",
+                    begrip=begrip
+                )
                 return tekst, verwijzingen
             return "⚠️ Geen duidelijke definitie gevonden op Wikipedia.", []
         return f"⚠️ Wikipedia gaf statuscode {r.status_code}", []
@@ -160,7 +165,13 @@ def zoek_definitie_op_overheidnl(begrip: str) -> tuple[str, list[dict]]:
             f"Details: {detail_tekst}...\n"
             f"(bron: Overheid.nl)"
         )
-        return tekst, zoek_wetsartikelstructuur(detail_tekst)
+        matches = zoek_wetsartikelstructuur(
+            detail_tekst,
+            log_jsonl=True,
+            bron="overheidnl",
+            begrip=begrip
+        )
+        return tekst, matches
     except Exception as e:
         return f"❌ Fout bij ophalen van Overheid.nl: {e}", []
 
@@ -193,8 +204,13 @@ def zoek_definitie_op_wettennl(begrip: str) -> tuple[str, list[dict]]:
         artikeltekst = detail_soup.find("div", class_="artikeltekst")
         if artikeltekst:
             tekst = artikeltekst.get_text(separator=" ", strip=True)
-            verwijzingen = zoek_wetsartikelstructuur(tekst)
-            return f"{resultaat.text.strip()}:\n{tekst[:400]}...", verwijzingen
+            matches = zoek_wetsartikelstructuur(
+                tekst,
+                log_jsonl=True,
+                bron="wettennl",
+                begrip=begrip
+            )
+            return f"{resultaat.text.strip()}:\n{tekst[:400]}...", matches
         return "⚠️ Geen artikeltekst gevonden op detailpagina.", []
     except Exception as e:
         return f"❌ Fout bij ophalen van wetten.nl: {e}", []
