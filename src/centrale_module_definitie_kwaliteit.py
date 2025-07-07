@@ -24,7 +24,7 @@ st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 from log.log_definitie import log_definitie, get_logger
 from config.config_loader import laad_toetsregels, laad_verboden_woorden
 from config.verboden_woorden import sla_verboden_woorden_op, log_test_verboden_woord
-from export import exporteer_naar_txt
+
 
 # ✅ AI & promptfunctionaliteit
 from definitie_generator.generator import genereer_definitie
@@ -539,19 +539,7 @@ with tab_ai:
     st.markdown("### ✨ Opgeschoonde definitie (gecorrigeerde versie)")
     st.markdown(st.session_state.get("definitie_gecorrigeerd", ""))  # 💚 Verwijdert verboden constructies
 
-    # ✅ Exportknop voor .txt-bestand van huidige definitie
-    if st.button("📤 Exporteer deze definitie als .txt", key="exporteer_definitie_txt"):
-        from export import exporteer_naar_txt
-        exporteer_naar_txt(
-            begrip=begrip,
-            definitie_gegenereerd=st.session_state.get("definitie_origineel", ""),
-            definitie_gecorrigeerd=st.session_state.get("definitie_gecorrigeerd", ""),
-            woordsoort="",  # Voeg hier de juiste variabele toe als beschikbaar
-            context=context
-        )
-        st.success("✅ Definitie succesvol geëxporteerd naar 'export_definitie.txt'")
 
-       
     if st.session_state.get("voorbeeld_zinnen"):
         st.markdown("### 🔍 korte voorbeeldzinnen")
         for casus in st.session_state.voorbeeld_zinnen:
@@ -633,27 +621,28 @@ with tab_ai:
     else:
         st.warning("⚠️ Geen toetsresultaten beschikbaar voor de AI-versie.")
 
-    # ✅ Toon exportknop alleen als er een niet-lege, gegenereerde definitie beschikbaar is
-    if (
-        'definitie_gecorrigeerd' in st.session_state 
-        and isinstance(st.session_state['definitie_gecorrigeerd'], str)
-        and len(st.session_state['definitie_gecorrigeerd'].strip()) > 3
-    ):
-        if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
+ # ✅ Toon exportknop alleen als er een niet-lege, gegenereerde definitie beschikbaar is
+if (
+    'definitie_gecorrigeerd' in st.session_state 
+    and isinstance(st.session_state['definitie_gecorrigeerd'], str)
+    and len(st.session_state['definitie_gecorrigeerd'].strip()) > 3
+):
+    if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
+        from export import exporteer_naar_txt  # ✅ Correcte module-import volgens projectstructuur
 
-            # ✅ Bundel alle benodigde gegevens in één dictionary
-            gegevens = {
-                "begrip": st.session_state.get("begrip", ""),
-                "definitie_gecorrigeerd": st.session_state.get("definitie_gecorrigeerd", ""),
-                "definitie_origineel": st.session_state.get("definitie_origineel", ""),
-                "metadata": st.session_state.get("metadata", {}),
-                "context_dict": st.session_state.get("context", {}),
-                "toetsresultaten": st.session_state.get("toetsresultaten", {}),
-                "bronnen": st.session_state.get("bronnen", []),
-            }
+        # ✅ Bundel alle relevante gegevens in één dict zoals vereist door de functie
+        gegevens = {
+            "begrip": st.session_state.get("begrip", ""),
+            "definitie_gecorrigeerd": st.session_state.get("definitie_gecorrigeerd", ""),
+            "definitie_origineel": st.session_state.get("definitie_origineel", ""),
+            "metadata": st.session_state.get("metadata", {}),
+            "context_dict": st.session_state.get("context", {}),
+            "toetsresultaten": st.session_state.get("toetsresultaten", {}),
+            "bronnen": st.session_state.get("bronnen", []),
+        }
 
-            pad = exporteer_naar_txt(gegevens)  # ✅ Corrigeerde aanroep met juiste argumentstructuur
-            st.success(f"✅ TXT-bestand succesvol geëxporteerd naar: {pad}")    
+        pad = exporteer_naar_txt(gegevens)  # ✅ Correcte aanroep met één dict
+        st.success(f"✅ TXT-bestand succesvol geëxporteerd naar: {pad}")
 
     if st.session_state.get("prompt_text"):
         with st.expander("📄 Bekijk volledige gegenereerde prompt", expanded=False):
