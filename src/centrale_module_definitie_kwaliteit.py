@@ -230,7 +230,9 @@ toetsregels = laad_toetsregels()
 
 # ✅ Import aangepast: lookup.py zit in /src/web_lookup/, dus juiste modulepad is web_lookup.lookup
 # ✅ Import aangepast: lookup.py zit in /src/web_lookup/, dus juiste modulepad is web_lookup.lookup
-from web_lookup.lookup import zoek_definitie
+# ✅ Correcte import van de centrale routerfunctie
+from web_lookup.lookup import lookup_definitie as zoek_definitie  # ✅ alias voor consistentie in bestaande code
+# ✅ Hiermee blijft de rest van het script bruikbaar zonder extra aanpassingen
 # ================================
 # 🖥️ STREAMLIT INTERFACE
 # ================================
