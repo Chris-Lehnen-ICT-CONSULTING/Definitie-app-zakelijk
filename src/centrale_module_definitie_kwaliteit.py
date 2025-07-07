@@ -228,11 +228,17 @@ toetsregels = laad_toetsregels()
 #with st.expander("📏 Toetsregels meegenomen in de definitie-opbouw", expanded=False, key="expander_toetsregels_prompt"):
 #    st.markdown(selecteer_richtlijnen(toetsregels))
 
+# ✅ Import aangepast: lookup.py zit in /src/web_lookup/, dus juiste modulepad is web_lookup.lookup
+# ✅ Import aangepast: lookup.py zit in /src/web_lookup/, dus juiste modulepad is web_lookup.lookup
+from web_lookup.lookup import zoek_definitie
 # ================================
 # 🖥️ STREAMLIT INTERFACE
 # ================================
 st.write("🧾 Definitie Kwaliteit")
 begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gegenereerd")
+
+# ✅ Haalt lookup-resultaten op uit wetten.nl, Wikipedia en Overheid.nl
+lookup_resultaten = zoek_definitie(begrip)
 
 
 # ✅ Organisatorische context
@@ -1024,3 +1030,15 @@ with tab_expert:
         else:
             st.success("✅ Loggingstructuur is compleet. 'expert_review' is aanwezig in zowel JSON als CSV.")
 
+
+# ================================
+# ✅ Toon lookup-resultaten per bron boven het prompt-blok
+# ================================
+if lookup_resultaten:
+    with st.expander("🔍 Informatie gevonden via web lookup", expanded=True):
+        for bron, resultaat in lookup_resultaten.items():
+            if resultaat:
+                st.markdown(f"**Bron: {bron}**")
+                st.markdown(resultaat.strip()[:1000] + "..." if len(resultaat) > 1000 else resultaat)
+            else:
+                st.markdown(f"**Bron: {bron}** – _geen resultaat gevonden_")
