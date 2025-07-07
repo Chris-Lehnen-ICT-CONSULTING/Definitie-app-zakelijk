@@ -632,6 +632,7 @@ if (
         # ✅ Zorg dat alle benodigde gegevens in de sessiestatus staan
         st.session_state["begrip"] = begrip
         st.session_state["context"] = context_dict
+        st.session_state["metadata"] = {"marker": st.session_state.get("marker", "")}
         st.session_state["toetsresultaten"] = st.session_state.get("beoordeling_gen", [])
 
         st.session_state["voorbeeld_zinnen"] = st.session_state.get("voorbeeld_zinnen", [])
