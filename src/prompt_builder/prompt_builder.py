@@ -117,12 +117,12 @@ class PromptBouwer:
             "Anders": "Overige context",
         }
 
-        # ✅ Toon alleen de contextlabel; geen join meer nodig omdat context_dict[v] een boolean is (geen lijst)
-        contextregels = [
-            # ✅ Toon alleen de contextlabel; geen join meer nodig omdat context_dict[v] een boolean is (geen lijst)
-            f"- {labelmapping.get(v, v)}"
-            for v in context_dict if context_dict[v]
-        ]
+        # ✅ Veilige check: alleen toevoegen als context actief is (boolean True), geen iteratie nodig
+        contextregels = []
+        for v in context_dict:
+            # ✅ Veilige check: alleen toevoegen als context actief is (boolean True), geen iteratie nodig
+            if context_dict.get(v):
+                contextregels.append(f"- {labelmapping.get(v, v)}")
         if contextregels:
             regels.append("\n📌 Context:")
             regels.extend(contextregels)
