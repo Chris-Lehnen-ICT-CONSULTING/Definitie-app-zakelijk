@@ -1,45 +1,44 @@
 # ================================
 # 📦 IMPORTS EN INITIALISATIE
 # ================================
+# ✅ Indeling volgens conventie: standaardlib, 3rd-party, eigen modules
+# ✅ Alle projectmodules zijn gegroepeerd per functiegebied (log, config, AI)
+# ✅ Streamlitconfig staat direct na eerste import – wordt vroeg geïnitialiseerd
+# ✅ load_dotenv() en logger-init onderaan voor juiste volgorde
+# ✅ Standaardbibliotheek
 import os
 import json
 import re
 from datetime import datetime
+
+# ✅ Externe modules
 import streamlit as st
-# 📌 Streamlit pagina-configuratie
-st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
-
 import pandas as pd
-
-
-
-
 from dotenv import load_dotenv
 
+# ✅ Streamlit pagina-configuratie
+st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
+
+# ✅ Configuratie en logging
+from log.log_definitie import log_definitie, get_logger
+from config.config_loader import laad_toetsregels, laad_verboden_woorden
+from config.verboden_woorden import sla_verboden_woorden_op, log_test_verboden_woord
+
+# ✅ AI & promptfunctionaliteit
+from definitie_generator.generator import genereer_definitie
+from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+from ai_toetser import toets_definitie
+
+# ✅ Voorbeeldgeneratie
 from voorbeelden.voorbeelden import (
     genereer_voorbeeld_zinnen,
     genereer_praktijkvoorbeelden,
     genereer_tegenvoorbeelden
 )
-from ai_toetser import toets_definitie
-from log.log_definitie import log_definitie, get_logger
 
-# --- ⚙️ Config-loaders en verboden-woordenbeheer ---
-# ✅ Centrale JSON-loader
-from config.config_loader import laad_toetsregels, laad_verboden_woorden
-# ✅ Eén keer importeren van verboden-woorden functies
-from config.verboden_woorden import (
-    sla_verboden_woorden_op,    # ✅ slaat gewijzigde lijst op
-    log_test_verboden_woord     # ✅ logt individuele woordtests
-)
-from definitie_generator.generator import genereer_definitie  # de centrale definitiegenerator
-
-from prompt_builder.prompt_builder import (
-    stuur_prompt_naar_gpt,
-)
-
-logger = get_logger(__name__)
+# ✅ Initialisatie
 load_dotenv()
+logger = get_logger(__name__)
 
 
 
@@ -401,8 +400,7 @@ if actie and begrip:
     # ✅ Toon exportknop alleen als er een definitie beschikbaar is
     if 'definitie_gecorrigeerd' in st.session_state and st.session_state['definitie_gecorrigeerd']:
         if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
-            from exports import exporteer_naar_txt
-
+            
             exporteer_naar_txt(
                 begrip=st.session_state.get("begrip", ""),
                 definitie_gecorrigeerd=st.session_state.get("definitie_gecorrigeerd", ""),
