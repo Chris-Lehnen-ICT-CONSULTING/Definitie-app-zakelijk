@@ -1,0 +1,101 @@
+{
+  "organisatorisch": {
+    "OM": [
+      "Wetboek van Strafvordering",
+      "Wetboek van Strafrecht",
+      "Wet op de economische delicten"
+    ],
+    "ZM": [
+      "Wetboek van Strafvordering",
+      "Wet op de rechterlijke organisatie",
+      "Wetboek van Strafrecht"
+    ],
+    "Reclassering": [
+      "Penitentiaire beginselenwet",
+      "Wetboek van Strafrecht",
+      "Wet forensische zorg"
+    ],
+    "DJI": [
+      "Penitentiaire beginselenwet",
+      "Penitentiaire maatregel",
+      "Wet langdurige zorg",
+      "Vreemdelingenwet 2000",
+      "Vreemdelingenbesluit 2000"
+    ],
+    "NP": [
+      "Wet politiegegevens",
+      "Politiewet 2012",
+      "Wetboek van Strafvordering",
+      "Vreemdelingenwet 2000",
+      "Vreemdelingenbesluit 2000"
+    ],
+    "Justid": [
+      "Wet politiegegevens",
+      "Algemene verordening gegevensbescherming (AVG)",
+      "Wet justitiële en strafvorderlijke gegevens"
+    ],
+    "KMAR": [
+      "Wet op de KMar",
+      "Wetboek van Strafrecht",
+      "Wetboek van Strafvordering",
+      "Vreemdelingenwet 2000",
+      "Vreemdelingenbesluit 2000"
+    ],
+    "FIOD": [
+      "Wet op de economische delicten",
+      "Wetboek van Strafrecht",
+      "Algemene wet inzake rijksbelastingen"
+    ],
+    "CJIB": [
+      "Wet administratiefrechtelijke handhaving verkeersvoorschriften",
+      "Wetboek van Strafrecht"
+    ],
+    "Strafrechtketen": [
+      "Wetboek van Strafrecht",
+      "Wetboek van Strafvordering",
+      "Wet verplichte geestelijke gezondheidszorg"
+    ],
+    "Migratieketen": [
+      "Vreemdelingenwet 2000",
+      "Vreemdelingenbesluit 2000",
+      "Wet Centraal Orgaan opvang asielzoekers"
+    ],
+    "Justitie en Veiligheid": [
+      "Wet politiegegevens",
+      "Wetboek van Strafvordering",
+      "Algemene verordening gegevensbescherming (AVG)"
+    ],
+    "Anders...": []
+  },
+  "juridisch": {
+    "Strafrecht": [
+      "Wetboek van Strafrecht",
+      "Wetboek van Strafvordering",
+      "Wet op de economische delicten"
+    ],
+    "Civiel recht": [
+      "Burgerlijk Wetboek",
+      "Wetboek van Burgerlijke Rechtsvordering"
+    ],
+    "Bestuursrecht": [
+      "Algemene wet bestuursrecht",
+      "Wet open overheid",
+      "Wet politiegegevens"
+    ],
+    "Internationaal recht": [
+      "Verdrag betreffende de Europese Unie",
+      "Europees Verdrag voor de Rechten van de Mens (EVRM)",
+      "Internationaal verdrag inzake burgerrechten en politieke rechten"
+    ],
+    "Anders...": []
+  },
+  "wettelijk": {
+    "Wetboek van Strafvordering (huidige versie)": [],
+    "Wetboek van strafvordering (nieuwe versie)": [],
+    "Wet op de Identificatieplicht": [],
+    "Wet op de politiegegevens": [],
+    "Wetboek van Strafrecht": [],
+    "Algemene verordening gegevensbescherming": [],
+    "Anders...": []
+  }
+}

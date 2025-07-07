@@ -30,29 +30,26 @@ import xml.etree.ElementTree as ET
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Wikipedia (eerste paragraaf)
 # ────────────────────────────────────────────────────────────────────────
-def zoek_definitie_op_wikipedia(begrip: str) -> str:
+def zoek_definitie_op_wikipedia(begrip: str) -> tuple[str, list[dict]]:
     """
-    Vraagt de Nederlandstalige Wikipedia-pagina op voor 'begrip'
-    en retourneert de eerste alinea als definitie.
+    ✅ Vraagt de Nederlandstalige Wikipedia-pagina op voor 'begrip'
+    ✅ Retourneert de eerste alinea én herkende juridische verwijzingen.
     """
     zoekterm = begrip.replace(" ", "_")
     url = f"https://nl.wikipedia.org/wiki/{zoekterm}"
     try:
         r = requests.get(url, timeout=5)
-        # Als de pagina gevonden is, parse de HTML
         if r.status_code == 200:
             soup = BeautifulSoup(r.text, "html.parser")
             eerste_paragraaf = soup.find("p")
-            # Controleer of de paragraaf niet leeg is
             if eerste_paragraaf and eerste_paragraaf.text.strip():
-                return eerste_paragraaf.text.strip()
-            # Fallback bij lege alinea
-            return "⚠️ Geen duidelijke definitie gevonden op Wikipedia."
-        # Foutmelding bij andere HTTP-status
-        return f"⚠️ Wikipedia gaf statuscode {r.status_code}"
+                tekst = eerste_paragraaf.text.strip()
+                verwijzingen = zoek_wetsartikelstructuur(tekst)
+                return tekst, verwijzingen
+            return "⚠️ Geen duidelijke definitie gevonden op Wikipedia.", []
+        return f"⚠️ Wikipedia gaf statuscode {r.status_code}", []
     except Exception as e:
-        # Netwerk- of parsefout
-        return f"❌ Fout bij ophalen van Wikipedia: {e}"
+        return f"❌ Fout bij ophalen van Wikipedia: {e}", []
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Wiktionary (MediaWiki API)
@@ -120,7 +117,7 @@ def zoek_definitie_op_ensie(begrip: str) -> str:
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen via Overheid.nl SRU-zoekservice
 # ────────────────────────────────────────────────────────────────────────
-def zoek_definitie_op_overheidnl(begrip: str) -> str:
+def zoek_definitie_op_overheidnl(begrip: str) -> tuple[str, list[dict]]:
     """
     Vraagt Overheid.nl SRU API aan met 'begrip' in de titel
     en retourneert titel + eerste alinea van de gevonden publicatie.
@@ -130,13 +127,13 @@ def zoek_definitie_op_overheidnl(begrip: str) -> str:
     try:
         response = requests.get(url, timeout=5)
         if response.status_code != 200:
-            return f"⚠️ Overheid.nl gaf statuscode {response.status_code}"
+            return f"⚠️ Overheid.nl gaf statuscode {response.status_code}", []
 
         # Parse XML-response
         root = ET.fromstring(response.content)
         record = root.find(".//{http://www.loc.gov/zing/srw/}recordData")
         if record is None:
-            return "⚠️ Geen resultaten via Overheid.nl API."
+            return "⚠️ Geen resultaten via Overheid.nl API.", []
 
         # Haal titel en link naar detailpagina op
         title_el = record.find(".//{http://purl.org/dc/elements/1.1/}title")
@@ -158,18 +155,19 @@ def zoek_definitie_op_overheidnl(begrip: str) -> str:
             except Exception:
                 detail_tekst = "(geen extra informatie opgehaald van detailpagina)"
 
-        return (
+        tekst = (
             f"Titel: {title_el.text if title_el is not None else '(titel onbekend)'}\n"
             f"Details: {detail_tekst}...\n"
             f"(bron: Overheid.nl)"
         )
+        return tekst, zoek_wetsartikelstructuur(detail_tekst)
     except Exception as e:
-        return f"❌ Fout bij ophalen van Overheid.nl: {e}"
+        return f"❌ Fout bij ophalen van Overheid.nl: {e}", []
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Strafrechtketen.nl (eenvoudige structuur)
 # ────────────────────────────────────────────────────────────────────────
-def zoek_definitie_op_strafrechtketen(begrip: str) -> str:
+def zoek_definitie_op_strafrechtketen(begrip: str) -> tuple[str, list[dict]]:
     """
     Scrape Strafrechtketen.nl voor 'begrip' en retourneert de eerste alinea.
     """
@@ -184,16 +182,17 @@ def zoek_definitie_op_strafrechtketen(begrip: str) -> str:
             if main:
                 p = main.find("p")
                 if p and p.text.strip():
-                    return p.text.strip()
-            return "⚠️ Geen duidelijke definitie gevonden op Strafrechtketen.nl."
-        return f"⚠️ Strafrechtketen.nl gaf statuscode {r.status_code}"
+                    tekst = p.text.strip()
+                    return tekst, zoek_wetsartikelstructuur(tekst)
+            return "⚠️ Geen duidelijke definitie gevonden op Strafrechtketen.nl.", []
+        return f"⚠️ Strafrechtketen.nl gaf statuscode {r.status_code}", []
     except Exception as e:
-        return f"❌ Fout bij ophalen van Strafrechtketen.nl: {e}"
+        return f"❌ Fout bij ophalen van Strafrechtketen.nl: {e}", []
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Kamerstukken.nl (semi-gestructureerde HTML)
 # ────────────────────────────────────────────────────────────────────────
-def zoek_definitie_op_kamerstukken(begrip: str) -> str:
+def zoek_definitie_op_kamerstukken(begrip: str) -> tuple[str, list[dict]]:
     """
     Scrape Kamerstukken.nl voor 'begrip' en retourneert de eerste alinea.
     """
@@ -208,11 +207,12 @@ def zoek_definitie_op_kamerstukken(begrip: str) -> str:
             if result:
                 summary = result.find("p")
                 if summary and summary.text.strip():
-                    return summary.text.strip()
-            return "⚠️ Geen duidelijke definitie gevonden op Kamerstukken.nl."
-        return f"⚠️ Kamerstukken.nl gaf statuscode {r.status_code}"
+                    tekst = summary.text.strip()
+                    return tekst, zoek_wetsartikelstructuur(tekst)
+            return "⚠️ Geen duidelijke definitie gevonden op Kamerstukken.nl.", []
+        return f"⚠️ Kamerstukken.nl gaf statuscode {r.status_code}", []
     except Exception as e:
-        return f"❌ Fout bij ophalen van Kamerstukken.nl: {e}"
+        return f"❌ Fout bij ophalen van Kamerstukken.nl: {e}", []
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van IATE (downloadbare dataset)
@@ -331,3 +331,13 @@ def is_plurale_tantum(term: str) -> bool:
     term_norm = term.strip().lower()
     # 🔍 Membership-test in de gecachte plurale-tantum set
     return term_norm in _load_plurale_tantum()
+# ✅ Context-mapping laden vanuit JSON-config
+def laad_context_wet_mapping() -> dict:
+    pad = os.path.join(
+        os.path.dirname(__file__),
+        "..", "config", "context_wet_mapping.json"
+    )
+    with open(pad, encoding="utf-8") as f:
+        return json.load(f)
+
+CONTEXT_WET_MAPPING = laad_context_wet_mapping()
