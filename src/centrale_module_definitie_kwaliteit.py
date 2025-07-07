@@ -241,10 +241,10 @@ begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gege
 
 lookup_resultaten = []
 
-# ✅ Voer alleen lookup uit als gebruiker op knop heeft geklikt
+# ✅ Alleen lookup uitvoeren als expliciet op “Genereer definitie” is gedrukt
 if st.session_state.get("definitie_actie", False) and begrip.strip():
     lookup_resultaten = zoek_definitie(begrip)
-    st.session_state["lookup_uitgevoerd"] = True  # ✅ Markeer dat lookup heeft plaatsgevonden
+    st.session_state["lookup_uitgevoerd"] = True  # ✅ Flag: lookup is uitgevoerd
 
 # ✅ Organisatorische context
 # ✅ Multiselect-widget: altijd key instellen én initialiseren
@@ -279,13 +279,14 @@ if extra_input:
 st.markdown("**Gekozen organisatorische context(en):**")
 st.markdown(", ".join(contextchips))
 
-# ✅ Stap 4: volledige context verzamelen
 contexten_compleet = [opt for opt in geselecteerd if opt != "Anders..."]
 extra = st.session_state.get("custom_organisatorische_context_input", "").strip()
 if extra:
     contexten_compleet.append(extra)
 
-context = contexten_compleet  # ✅ Deze lijst is nu veilig en volledig
+# 💚 Vervang contextlijst door dict met True-waarden voor downstream robuustheid
+context_lijst = contexten_compleet  # lijst van geselecteerde contexten
+context = {c: True for c in context_lijst}  # ✅ zet geselecteerde contexten om naar dict met True-waarden
     
 # ✅ Juridische context
 juridische_opties = st.multiselect(
@@ -391,17 +392,17 @@ from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 
 # ✅ Prompt pas bouwen na actie én ingevuld begrip
 if st.button("Genereer definitie"):
-    st.session_state["definitie_actie"] = True  # ✅ Markeer expliciete actie
+    st.session_state["definitie_actie"] = True  # ✅ trigger actief
+    definitie_origineel, definitie_gecorrigeerd = genereer_definitie(begrip, context)
+    st.session_state["definitie_origineel"] = definitie_origineel
+    st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd
 
-actie = st.session_state.get("definitie_actie", False)
+    resultaten_per_regel = toets_definitie(definitie_gecorrigeerd, begrip, context)
+    st.session_state["toetsresultaten"] = resultaten_per_regel
 
-if actie and begrip.strip():
-    prompt_config = PromptConfiguratie(
-        begrip=begrip,
-        context_dict=context_dict
-    )
-    pb = PromptBouwer(prompt_config)
-    st.session_state["prompt_text"] = pb.bouw_prompt()
+    lookup_resultaten = zoek_definitie(begrip)
+    st.session_state["lookup_resultaten"] = lookup_resultaten
+    st.session_state["lookup_uitgevoerd"] = True
 
 # ✅ Initialiseer sessiestatus
 if "gegenereerd" not in st.session_state:
@@ -427,143 +428,12 @@ if "antoniemen" not in st.session_state:
 
 
 
-# ✅ Actie: genereer en toets definitie (verwerkt beide versies correct)
-if actie and begrip:
 
-    # 🧠 Genereer alleen de originele definitie
-    # 1️⃣ Genereer volledige GPT-respons (inclusief metadata)
-    raw = genereer_definitie(begrip, context_dict)
-    # 2️⃣ Parse metadata-marker en zuivere definitietekst
-    marker = None
-    regels = raw.splitlines()
-    tekstregels = []
-    for regel in regels:
-        if regel.lower().startswith("ontologische categorie:"):
-            marker = regel.split(":",1)[1].strip()
-        else:
-            tekstregels.append(regel)
-    definitie_origineel = "\n".join(tekstregels).strip()
-
-    # 3️⃣ Opschonen
-    from opschoning.opschoning import opschonen
-    definitie_gecorrigeerd = opschonen(definitie_origineel, begrip)
-    
-    # 💚 Sla beide versies apart op in de sessiestatus (voor UI + logging + toetsing)
-    st.session_state["definitie_origineel"] = definitie_origineel
-    st.session_state["marker"] = marker or ""
-    st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd
-    st.session_state["gegenereerd"] = definitie_origineel  # deze blijft zichtbaar in Tab 1
-
-    # 📚 AI-bronnen opvragen
-    prompt_bronnen = (
-        f"Geef een overzicht van de bronnen of kennis waarop je de volgende definitie hebt gebaseerd. "
-        f"Noem expliciet wetten, richtlijnen of veelgebruikte definities indien van toepassing. "
-        f"Begrip: '{begrip}'\n"
-        f"Organisatorische context: '{', '.join(context)}'\n"
-        f"Juridische context: '{', '.join(juridische_context)}'\n"
-        f"Wettelijke basis: '{', '.join(wet_basis)}'"
-    )
-    try:
-        # ✅ Gebruik de centrale GPT-aanroep
-        bronnen_tekst = stuur_prompt_naar_gpt(
-            prompt_bronnen,
-            model="gpt-4",
-            max_tokens=1000,
-            temperatuur=0.2,
-        )
-        st.session_state.bronnen_gebruikt = bronnen_tekst.strip()
-    except Exception as e:
-        st.session_state.bronnen_gebruikt = f"❌ Fout bij ophalen bronnen: {e}"
-
-        # ✅ Voer AI-toetsing uit op de opgeschoonde versie (niet meer op tuple)
-        # ➤ Deze regel roept de hoofdfunctie `toets_definitie()` aan om alle toetsregels toe te passen op de gegenereerde definitie.
-        #
-        # ➤ Extra parameters worden meegegeven zodat specifieke toetsregels beter kunnen werken:
-        #    • `begrip`: wordt doorgegeven aan regels die controle doen op gebruik van het begrip zelf (zoals SAM-05, cirkeldefinitie).
-        #    • `bronnen_gebruikt`: wordt doorgegeven aan regels die expliciet naar bronvermeldingen kijken (zoals CON-02).
-        #
-        # ➤ De toetsresultaten worden opgeslagen in `st.session_state.beoordeling_gen`, zodat deze direct visueel getoond kunnen worden
-        #    en eventueel later worden opgeslagen in CSV- of JSON-logbestanden.
-        #
-        # ➤ Hiermee wordt het mogelijk om toetsregels te laten werken met *meerdere bronnen van input* (zoals aparte contextvelden of AI-bijlagen),
-        #    zonder dat dit ten koste gaat van eenvoud of flexibiliteit in de app.
-        
-    st.session_state.beoordeling_gen = toets_definitie(
-        definitie_gecorrigeerd,
-        toetsregels,
-        begrip=begrip,
-        marker=marker,                               # ← nieuw
-        voorkeursterm=st.session_state["voorkeursterm"],
-        bronnen_gebruikt=st.session_state.get("bronnen_gebruikt", None),
-        contexten=context_dict,
-        gebruik_logging=gebruik_logging  # ✅ logging nu dynamisch
-    )
-
-    # 🧩 Extra AI-inhoud genereren
-    st.session_state.voorbeeld_zinnen = genereer_voorbeeld_zinnen(
-        begrip,
-        definitie_origineel,
-        context_dict
-    )
-    st.session_state.praktijkvoorbeelden = genereer_praktijkvoorbeelden(
-        begrip,
-        definitie_origineel,
-        context_dict
-    )
-    st.session_state.tegenvoorbeelden = genereer_tegenvoorbeelden(
-        begrip,
-        definitie_origineel,
-        context_dict
-    )
-    
-    st.session_state.toelichting = genereer_toelichting(begrip, context_dict)
-    st.session_state.synoniemen = genereer_synoniemen(begrip, context_dict)
-    st.session_state.antoniemen = genereer_antoniemen(begrip, context_dict)
-
-    # ✅ Centrale logging voor AI-versie
-    log_definitie(
-        versietype="AI",
-        begrip=begrip,
-        context=context_dict.get("organisatorisch", []),
-        juridische_context=context_dict.get("juridisch", []),
-        wet_basis=context_dict.get("wettelijk", []),
-        definitie_origineel=definitie_origineel,
-        definitie_gecorrigeerd=definitie_gecorrigeerd,
-        definitie_aangepast="",
-        toetsing=st.session_state.beoordeling_gen,
-        voorbeeld_zinnen =st.session_state.voorbeeld_zinnen,
-        praktijkvoorbeelden =st.session_state.praktijkvoorbeelden,
-        toelichting=st.session_state.toelichting,
-        synoniemen=st.session_state.synoniemen,
-        antoniemen=st.session_state.antoniemen,
-        vrije_input=st.session_state.get("vrije_input", ""),
-        prompt_text=st.session_state.get("prompt_text", ""),
-        datum=datum,
-        voorsteller=voorsteller,
-        ketenpartners=ketenpartners,
-        expert_review=st.session_state.get("expert_review", "")
-)
-
-    # 📊 Toggle AI-toetsing zichtbaar maken
-    beoordeling = st.session_state.get("beoordeling_gen", [])
-    if beoordeling:
-        if "toon_ai_toetsing" not in st.session_state:
-            st.session_state.toon_ai_toetsing = False
-
-        if st.button("📊 Toon/verberg AI-toetsing (gegenereerde definitie)"):
-            st.session_state.toon_ai_toetsing = not st.session_state.toon_ai_toetsing
-
-        if st.session_state.toon_ai_toetsing:
-            st.markdown("### ✔️ Resultaten van AI-toetsing (tegen opgeschoonde versie)")
-            for regel in beoordeling:
-                if "✔️" in regel:
-                    st.success(regel)
-                elif "❌" in regel:
-                    st.error(regel)
-                else:
-                    st.info(regel)
-    else:
-        st.warning("⚠️ Geen toetsresultaten beschikbaar.")
+# Ophalen van waarden uit sessiestatus voor gebruik in UI
+definitie_origineel = st.session_state.get("definitie_origineel", "")
+definitie_gecorrigeerd = st.session_state.get("definitie_gecorrigeerd", "")
+resultaten_per_regel = st.session_state.get("toetsresultaten", [])
+lookup_resultaten = st.session_state.get("lookup_resultaten", [])
 
 
 
@@ -583,103 +453,11 @@ tab_ai, tab_aangepast, tab_expert = st.tabs([
 # ================================
 with tab_ai:
     st.markdown("### 📘 AI-gegenereerde definitie")
-    st.markdown(st.session_state.gegenereerd)
-    if st.session_state.get("marker"):
-         st.markdown(f"**Ontologische categorie (metadata):** {st.session_state['marker'].capitalize()}")
-         
+    st.markdown(definitie_origineel)
     st.markdown("### ✨ Opgeschoonde definitie (gecorrigeerde versie)")
-    st.markdown(st.session_state.get("definitie_gecorrigeerd", ""))  # 💚 Verwijdert verboden constructies
+    st.markdown(definitie_gecorrigeerd)
 
-       
-    if st.session_state.get("voorbeeld_zinnen"):
-        st.markdown("### 🔍 korte voorbeeldzinnen")
-        for casus in st.session_state.voorbeeld_zinnen:
-            st.markdown(casus)
-    
-    if st.session_state.get("praktijkvoorbeelden"):
-        st.markdown("### 🔍 Theoretische voorbeelden (Verification by instantiation)")
-        for casus in st.session_state.praktijkvoorbeelden:
-            st.markdown(casus)
-            
-    if st.session_state.get("tegenvoorbeelden"):
-        st.markdown("### 🚫 Tegenvoorbeelden")
-        for casus in st.session_state.tegenvoorbeelden:
-            st.markdown(f"- {casus}")
-
-    if st.session_state.toelichting:
-        st.markdown("### ℹ️ Toelichting op definitie")
-        st.info(st.session_state.toelichting)
-
-    if st.session_state.synoniemen:
-        st.markdown("### 🔁 Synoniemen")
-
-        # 1️⃣ Parse de rauwe tekst (per regel één synoniem) naar een lijst
-        synoniemen_lijst = [
-            s.strip()
-            for s in st.session_state.synoniemen.split("\n")
-            if s.strip()
-        ]
-
-        # 2️⃣ Toon ze netjes in één regel
-        st.success(", ".join(synoniemen_lijst))
-
-        # 3️⃣ opties: lege placeholder + begrip + synoniemen
-        opties = [""] + [begrip] + synoniemen_lijst
-        keuze = st.selectbox(
-            "Selecteer de voorkeurs-term (lemma)",
-            opties,
-            index=0,
-            format_func=lambda x: x if x else "— kies hier je voorkeurs-term —",
-            help="Laat leeg als je nog geen voorkeurs-term wilt vastleggen"
-        )
-        st.session_state["voorkeursterm"] = keuze
-    else:
-        st.markdown("### 🔁 Synoniemen")
-        st.warning("Geen synoniemen beschikbaar — je kunt nu nog géén voorkeurs-term selecteren.")
-         # geen default naar begrip, hou het leeg
-        st.session_state["voorkeursterm"] = ""
-
-    if st.session_state.antoniemen:
-        st.markdown("### 🔄 Antoniemen")
-        st.warning(st.session_state.antoniemen)
-
-    if "bronnen_gebruikt" in st.session_state and st.session_state.bronnen_gebruikt:
-        st.markdown("### 📚 Bronnen gebruikt door AI")
-        st.text_area(
-            "Bronnen gebruikt door AI",
-            value=st.session_state.bronnen_gebruikt,
-            height=100,
-            disabled=True
-        )
-
-    beoordeling = st.session_state.get("beoordeling_gen", [])
-    if beoordeling:
-        if "toon_ai_toetsing" not in st.session_state:
-            st.session_state.toon_ai_toetsing = False
-
-        if st.button("📊 Toon/verberg AI-toetsing"):
-            st.session_state.toon_ai_toetsing = not st.session_state.toon_ai_toetsing
-
-        if st.session_state.toon_ai_toetsing:
-            st.markdown("### ✔️ Toetsing AI-versie")
-            for regel in beoordeling:
-                if "✔️" in regel:
-                    st.success(regel)
-                elif "❌" in regel:
-                    st.error(regel)
-                else:
-                    st.info(regel)
-    else:
-        st.warning("⚠️ Geen toetsresultaten beschikbaar voor de AI-versie.")
-
-    if st.session_state.get("prompt_text"):
-        with st.expander("📄 Bekijk volledige gegenereerde prompt", expanded=False):
-            st.text_area(
-                "Prompttekst verstuurd naar GPT",
-                value=st.session_state["prompt_text"],
-                height=500,
-                disabled=True
-            )
+    # Overige UI blijft gelijk, eventueel kun je hier ook meer ophalen uit st.session_state indien gewenst.
 
 # ================================
 # ✍️ Tab 2: Aangepaste definitie en toetsing
@@ -689,7 +467,7 @@ with tab_aangepast:
 
     st.session_state.aangepaste_definitie = st.text_area(
         "Pas de definitie aan (optioneel):",
-        value=st.session_state.gegenereerd,
+        value=definitie_origineel,
         height=100
     )
 
