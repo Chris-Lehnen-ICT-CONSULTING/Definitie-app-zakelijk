@@ -633,6 +633,14 @@ if (
         st.session_state["begrip"] = begrip
         st.session_state["context"] = context_dict
         st.session_state["toetsresultaten"] = st.session_state.get("beoordeling_gen", [])
+
+        st.session_state["voorbeeld_zinnen"] = st.session_state.get("voorbeeld_zinnen", [])
+        st.session_state["praktijkvoorbeelden"] = st.session_state.get("praktijkvoorbeelden", [])
+        st.session_state["tegenvoorbeelden"] = st.session_state.get("tegenvoorbeelden", [])
+        st.session_state["toelichting"] = st.session_state.get("toelichting", "")
+        st.session_state["synoniemen"] = st.session_state.get("synoniemen", "")
+        st.session_state["antoniemen"] = st.session_state.get("antoniemen", "")
+        st.session_state["voorkeursterm"] = st.session_state.get("voorkeursterm", "")
         # ✅ Bundel alle relevante gegevens in één dict zoals vereist door de functie
         gegevens = {
             "begrip": st.session_state.get("begrip", ""),
