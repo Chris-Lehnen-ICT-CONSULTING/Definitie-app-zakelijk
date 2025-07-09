@@ -67027,3 +67027,1609 @@ Hoewel er geen specifieke wettelijke basis is voor het verifiëren van identitei
 ontologischemarker’)",✔️ SAM-05: geen cirkeldefinitie herkend,❌ SAM-06: geen voorkeurs-term opgegeven,✔️ SAM-07: geen uitbreidende elementen herkend,✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast,✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd,✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd,✔️ STR-03: geen synonieme formulering gevonden,✔️ STR-04: geen algemene kick-off zonder toespitsing,✔️ STR-05: geen constructie-elementen gevonden,✔️ STR-06: geen formuleringen die informatiebehoefte suggereren,✔️ STR-07: geen dubbele ontkenning aangetroffen,✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen,✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen,✔️ VER-01: term is enkelvoudig,⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term',"❌ VER-03: term 'Vaststellen van zowel echtheid als oorsprong als rechtsgeldigheid van een identiteitsbewijs  door het vergelijken van beveiligingselementen met officiële bronnen.
 
 ontologische marker: proces' lijkt niet in infinitief te staan",✔️ ARAI01: geen werkwoorden als kern gevonden in de definitie,"❌ ARAI02: containerbegrippen zonder specificatie gevonden (proces), onvoldoende concreet",✔️ ARAI02SUB1: geen containerbegrippen aangetroffen,"❌ ARAI02SUB2: containerbegrippen gevonden (proces), onvoldoende specifiek",✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen,✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen,✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie,✔️ ARAI05: geen impliciete aannames aangetroffen,⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+Aangepast,,[],[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:38:58.304840,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,,[],[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:39:56.509495,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,identiteitsbehandeling,[],[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:40:08.209594,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,,[],[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:42:13.873519,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,identiteitsbehandeling,[],[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:42:25.374622,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,identiteitsbehandeling,['Strafrechtketen'],[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:42:28.425198,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,identiteitsbehandeling,['Strafrechtketen'],[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:42:32.805822,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,identiteitsbehandeling,"['Strafrechtketen', 'Project Identiteitsbehandeling']",[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:42:42.674165,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,identiteitsbehandeling,"['Strafrechtketen', 'Project Identiteitsbehandeling']",[],[],,,,,,,,,,,2025-07-09,,,2025-07-09T11:42:44.871591,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+AI,identiteitsbehandeling,"['Strafrechtketen', 'Project Identiteitsbehandeling']",[],[],"Je bent een expert in beleidsmatige definities voor overheidsgebruik.
+Formuleer een definitie in één enkele zin, zonder toelichting.
+Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces.
+
+📌 Context:
+- Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling
+
+### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):
+Je **moet** één van de vier categorieën expliciet maken:
+• type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
+Gebruik formuleringen zoals:
+- 'is een activiteit waarbij...'
+- 'is het resultaat van...'
+- 'betreft een specifieke soort...'
+- 'is een exemplaar van...'
+⚠️ Ondubbelzinnigheid is vereist.
+
+
+### ✅ Richtlijnen voor de definitie:
+🔹 **CON-01 – Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming**
+– Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet te benoemen in de definitie zelf.
+– Toetsvraag: Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?
+  ✅ Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.
+  ✅ Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem.
+  ✅ Een maatregel is een opgelegde beperking of correctie bij vastgestelde overtredingen.
+  ❌ Toezicht is controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering.
+  ❌ Registratie: het vastleggen van persoonsgegevens binnen de organisatie DJI, in strafrechtelijke context.
+  ❌ Een maatregel is, binnen de context van het strafrecht, een corrigerende sanctie.
+🔹 **CON-02 – Baseren op authentieke bron**
+– Gebruik een gezaghebbende of officiële bron als basis voor de definitie.
+– Toetsvraag: Is duidelijk op welke authentieke of officiële bron de definitie is gebaseerd?
+  ✅ gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG
+  ✅ delict: gedraging die volgens het Wetboek van Strafrecht strafbaar is gesteld
+  ❌ gegevensverwerking: handeling met gegevens (geen bron vermeld)
+  ❌ delict: iets strafbaars (geen verwijzing naar wet)
+🔹 **ESS-01 – Essentie, niet doel**
+– Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.
+– Toetsvraag: Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?
+  ✅ meldpunt: instantie die meldingen registreert over strafbare feiten
+  ✅ sanctie: maatregel die volgt op normovertreding
+  ❌ meldpunt: instantie om meldingen te kunnen verwerken
+  ❌ sanctie: maatregel met als doel naleving te bevorderen
+🔹 **ESS-02 – Ontologische categorie expliciteren (type / particulier / proces / resultaat)**
+– Indien een begrip meerdere ontologische categorieën kan aanduiden, moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt: soort (type), exemplaar (particulier), proces (activiteit) of resultaat (uitkomst).
+– Toetsvraag: Geeft de definitie ondubbelzinnig aan of het begrip een type, een particular, een proces of een resultaat is?
+🔹 **ESS-04 – Toetsbaarheid**
+– Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).
+– Toetsvraag: Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?
+  ✅ …binnen 3 dagen nadat het verzoek is ingediend…
+  ✅ …tenminste 80% van de steekproef voldoet…
+  ✅ …uiterlijk na 1 week na ontvangst…
+  ❌ …zo snel mogelijk na ontvangst…
+  ❌ …zo veel mogelijk resultaten…
+  ❌ …moet zo mogelijk conform…
+🔹 **ESS-05 – Voldoende onderscheidend**
+– Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.
+– Toetsvraag: Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?
+  ✅ Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming.
+  ✅ Een onttrekking is een incident waarbij een jeugdige zonder toestemming één van de volgende voorzieningen verlaat: open justitiële inrichting of gesloten inrichtingsgebied.
+  ✅ Auto: vierwielig motorvoertuig met uniek chassisnummer en kenteken, waardoor elke auto individueel wordt geïdentificeerd.
+  ❌ Toezicht: het houden van toezicht op iemand.
+  ❌ Een onttrekking is een incident waarbij een jeugdige zonder toestemming de inrichting verlaat.
+🔹 **INT-01 – Compacte en begrijpelijke zin**
+– Een definitie is compact en in één enkele zin geformuleerd.
+– Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
+  ✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+🔹 **INT-02 – Geen beslisregel**
+– Een definitie bevat geen beslisregels of voorwaarden.
+– Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?
+  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ✅ Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.
+  ✅ Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.
+  ✅ Register: officiële inschrijving in een openbaar register door een bevoegde instantie.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.
+  ❌ Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.
+  ❌ Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt.
+🔹 **INT-03 – Voornaamwoord-verwijzing duidelijk**
+– Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+– Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?
+  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.
+  ✅ Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan.
+  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.
+  ❌ Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt.
+🔹 **INT-04 – Lidwoord-verwijzing duidelijk**
+– Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten.
+– Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?
+  ✅ Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem.
+  ✅ Het systeem (Reclasseringsapplicatie) voert controles automatisch uit.
+  ❌ De instelling neemt beslissingen binnen het strafrechtelijk systeem.
+  ❌ Het systeem voert controles uit zonder verdere specificatie.
+🔹 **INT-06 – Definitie bevat geen toelichting**
+– Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.
+– Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?
+  ✅ model: vereenvoudigde weergave van de werkelijkheid
+  ❌ model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven
+🔹 **INT-07 – Alleen toegankelijke afkortingen**
+– In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.
+– Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ OM (Openbaar Ministerie)
+  ✅ AVG (Algemene verordening gegevensbescherming)
+  ✅ KvK (Kamer van Koophandel)
+  ✅ [[Algemene verordening gegevensbescherming]]
+  ❌ DJI voert toezicht uit.
+  ❌ De AVG vereist naleving.
+  ❌ OM is bevoegd tot vervolging.
+  ❌ KvK registreert bedrijven.
+🔹 **INT-08 – Positieve formulering**
+– Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).
+– Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?
+  ✅ bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien
+  ✅ gevangene: persoon die zich niet vrij kan bewegen
+  ❌ bevoegd persoon: iemand die niet onbevoegd is
+  ❌ toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden
+🔹 **SAM-01 – Kwalificatie leidt niet tot afwijking**
+– Een definitie mag niet zodanig zijn geformuleerd dat deze afwijkt van de betekenis die de term in andere contexten heeft.
+– Toetsvraag: Leidt de gebruikte kwalificatie in de definitie tot een betekenis die wezenlijk afwijkt van het algemeen aanvaarde begrip?
+  ✅ proces: reeks activiteiten met een gemeenschappelijk doel
+  ✅ juridisch proces: proces binnen de context van rechtspleging
+  ❌ proces: technische afhandeling van informatie tussen systemen (terwijl 'proces' elders breder wordt gebruikt)
+🔹 **SAM-05 – Geen cirkeldefinities**
+– Een cirkeldefinitie (wederzijdse of meerdiepse verwijzing tussen begrippen) mag niet voorkomen.
+– Toetsvraag: Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?
+  ✅ object: fysiek ding dat bestaat in ruimte en tijd
+  ✅ entiteit: iets dat bestaat
+  ❌ object: een ding is een object
+  ❌ ding: een object is een ding
+🔹 **SAM-07 – Geen betekenisverruiming binnen definitie**
+– De definitie mag de betekenis van de term niet uitbreiden met extra elementen die niet in de term besloten liggen.
+– Toetsvraag: Bevat de definitie uitsluitend elementen die inherent zijn aan de term, zonder aanvullende uitbreidingen?
+  ✅ toezicht houden: het controleren of regels worden nageleefd
+  ❌ toezicht houden: het controleren en indien nodig corrigeren van gedrag
+🔹 **STR-01 – definitie start met zelfstandig naamwoord**
+– De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord.
+– Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?
+  ✅ proces dat beslissers identificeert...
+  ✅ maatregel die recidive voorkomt...
+  ❌ is een maatregel die recidive voorkomt
+  ❌ wordt toegepast in het gevangeniswezen
+🔹 **STR-02 – Kick-off ≠ de term**
+– De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.
+– Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?
+  ✅ analist: professional verantwoordelijk voor …
+  ❌ analist: analist die verantwoordelijk is voor …
+🔹 **STR-03 – Definitie ≠ synoniem**
+– De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term.
+– Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?
+  ✅ evaluatie: resultaat van iets beoordelen, appreciëren of interpreteren
+  ❌ evaluatie: beoordeling
+  ❌ registratie: vastlegging (in een systeem)
+🔹 **STR-04 – Kick-off vervolgen met toespitsing**
+– Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip.
+– Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?
+  ✅ proces dat beslissers informeert
+  ✅ gegeven over de verblijfplaats van een betrokkene
+  ❌ proces
+  ❌ gegeven
+  ❌ activiteit die plaatsvindt
+🔹 **STR-05 – Definitie ≠ constructie**
+– Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.
+– Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?
+  ✅ motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto’s, vrachtwagens en bussen
+  ❌ motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc
+🔹 **STR-06 – Essentie ≠ informatiebehoefte**
+– Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is.
+– Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+🔹 **STR-07 – Geen dubbele ontkenning**
+– Een definitie bevat geen dubbele ontkenning.
+– Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+  ✅ Beveiliging: maatregelen die toegang beperken tot bevoegde personen
+  ❌ Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen
+🔹 **STR-08 – Dubbelzinnige 'en' is verboden**
+– Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide.
+– Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?
+  ✅ Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming
+  ❌ Toegang is beperkt tot personen met een pasje en toestemming
+  ❌ Het systeem vereist login en verificatie
+🔹 **STR-09 – Dubbelzinnige 'of' is verboden**
+– Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.
+– Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?
+  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  ❌ Een persoon met een paspoort of identiteitskaart
+  ❌ Een verdachte is iemand die een misdrijf beraamt of uitvoert
+🔹 **ARAI01 – geen werkwoord als kern (afgeleid)**
+– De kern van de definitie mag geen werkwoord zijn, om verwarring tussen handelingen en concepten te voorkomen.
+– Toetsvraag: Is de kern van de definitie een zelfstandig naamwoord (en geen werkwoord)?
+  ✅ proces dat beslissers identificeert
+  ✅ instelling die zorg verleent
+  ❌ Een systeem dat registreert...
+  ❌ Een functie die uitvoert...
+🔹 **ARAI02 – Vermijd vage containerbegrippen**
+– De definitie mag geen containerbegrippen bevatten die op zichzelf weinig verklarende waarde hebben.
+– Toetsvraag: Bevat de definitie containerbegrippen zonder verdere concretisering of specificatie?
+  ✅ proces dat gegevens verzamelt voor analyse
+  ✅ activiteit die gericht is op toezicht
+  ❌ proces ter ondersteuning
+  ❌ activiteit binnen het systeem
+🔹 **ARAI02SUB1 – Lexicale containerbegrippen vermijden**
+– Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in definities.
+– Toetsvraag: Bevat de definitie algemene containertermen die geen concrete of specifieke betekenis toevoegen?
+  ✅ maatregel die gericht is op risicobeheersing
+  ✅ gegeven dat betrekking heeft op de identiteit van een persoon
+  ❌ iets dat helpt bij het beheersen van risico’s
+  ❌ element dat informatie bevat
+🔹 **ARAI02SUB2 – Ambtelijke containerbegrippen vermijden**
+– Vermijd vaagtaal zoals ‘proces’, ‘voorziening’ of ‘activiteit’ als deze niet worden gespecificeerd.
+– Toetsvraag: Bevat de definitie containerbegrippen die onvoldoende duidelijk maken wat het begrip inhoudt?
+  ✅ systeem: geautomatiseerd hulpmiddel dat beslissingen registreert
+  ✅ voorziening: softwarecomponent die inloggegevens valideert
+  ❌ voorziening die iets mogelijk maakt
+  ❌ element dat hoort bij het systeem
+🔹 **ARAI03 – Beperk gebruik van bijvoeglijke naamwoorden**
+– Definities bevatten zo min mogelijk subjectieve of contextafhankelijke bijvoeglijke naamwoorden.
+– Toetsvraag: Bevat de definitie subjectieve of contextgevoelige bijvoeglijke naamwoorden die de duidelijkheid of toetsbaarheid verminderen?
+  ✅ maatregel die leidt tot het voorkomen van recidive
+  ✅ gegeven dat unieke identificatie mogelijk maakt
+  ❌ belangrijke maatregel ter bevordering van veiligheid
+  ❌ adequaat systeem voor gegevensuitwisseling
+🔹 **ARAI04 – Vermijd modale hulpwerkwoorden**
+– Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'mogen', 'moeten' of 'zullen'.
+– Toetsvraag: Bevat de definitie modale hulpwerkwoorden die wijzen op mogelijkheid, plicht of wenselijkheid?
+  ✅ maatregel die toegang beperkt tot bevoegde personen
+  ✅ procedure die leidt tot besluitvorming
+  ❌ maatregel die toegang kan beperken
+  ❌ procedure die tot besluitvorming zou kunnen leiden
+🔹 **ARAI04SUB1 – Beperk gebruik van modale werkwoorden**
+– Definities vermijden modale werkwoorden zoals ‘kan’, ‘mag’, ‘moet’, omdat deze onduidelijkheid scheppen over de essentie van het begrip.
+– Toetsvraag: Bevat de definitie modale werkwoorden die verwarring kunnen veroorzaken over wat het begrip is?
+  ✅ proces dat persoonsgegevens verwerkt
+  ✅ maatregel die tot gedragsverandering leidt
+  ❌ proces dat gegevens *kan* verwerken
+  ❌ maatregel die *moet* worden genomen bij overtreding
+🔹 **ARAI05 – Vermijd impliciete aannames**
+– Een definitie bevat geen impliciete aannames die alleen met voorkennis begrepen kunnen worden.
+– Toetsvraag: Bevat de definitie formuleringen die impliciet verwijzen naar aannames, gewoonten of contexten die niet worden toegelicht?
+  ✅ procedure: vastgelegde reeks stappen die wordt uitgevoerd bij het registreren van incidenten
+  ❌ procedure: zoals gebruikelijk uitgevoerd binnen het systeem
+  ❌ gegeven: informatie zoals bekend in de registratiepraktijk
+🔹 **ARAI06 – Correcte definitiestart: geen lidwoord, geen koppelwerkwoord, geen herhaling begrip**
+– De definitie mag niet beginnen met een lidwoord, geen koppelwerkwoord bevatten aan het begin en het begrip mag niet herhaald worden in de definitie.
+– Toetsvraag: Begint de definitie correct zonder lidwoord, zonder koppelwerkwoord en zonder herhaling van het begrip?
+  ✅ proces waarbij toezicht plaatsvindt op naleving van wetgeving.
+  ✅ maatregel die wordt ingezet bij overtredingen van regels.
+  ❌ De maatregel is bedoeld voor naleving.
+  ❌ Het begrip betekent: een controlemechanisme.
+  ❌ Registratie is een registratie van gegevens.
+
+### ⚠️ Veelgemaakte fouten (vermijden!):
+- ❌ Begin niet met lidwoorden (‘de’, ‘het’, ‘een’)
+- ❌ Gebruik geen koppelwerkwoord aan het begin (‘is’, ‘betekent’, ‘omvat’)
+- ❌ Herhaal het begrip niet letterlijk
+- ❌ Gebruik geen synoniem als definitie
+- ❌ Vermijd containerbegrippen (‘proces’, ‘activiteit’)
+- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'
+- ❌ Gebruik enkelvoud; infinitief bij werkwoorden
+- ❌ Start niet met 'is'
+- ❌ Start niet met 'omvat'
+- ❌ Start niet met 'betekent'
+- ❌ Start niet met 'verwijst naar'
+- ❌ Start niet met 'de'
+- ❌ Start niet met 'het'
+- ❌ Start niet met 'een'
+- ❌ Start niet met 'proces waarbij'
+- ❌ Start niet met 'handeling die'
+- ❌ Start niet met 'vorm van'
+- ❌ Start niet met 'een belangrijk'
+- ❌ Start niet met 'een essentieel'
+- ❌ Start niet met 'een vaak gebruikte'
+- ❌ Start niet met 'een veelvoorkomende'
+- Gebruik de term 'STRAFRECHTKETEN' of een variant daarvan niet letterlijk in de definitie.
+- Gebruik de term 'PROJECT IDENTITEITSBEHANDELING' of een variant daarvan niet letterlijk in de definitie.
+
+| Probleem                             | Afgedekt? | Toelichting                                |
+|--------------------------------------|-----------|---------------------------------------------|
+| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
+| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |
+| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |
+| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |
+| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |
+| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
+| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
+| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |
+
+🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen.
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+✏️ Geef nu de definitie van het begrip **identiteitsbehandeling** in één enkele zin, zonder toelichting.
+
+🆔 Promptmetadata:
+– Begrip: identiteitsbehandeling
+– Termtype: deverbaal
+– Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling","Identiteitsbehandeling betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.","Betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.","['""Binnen het project Identiteitsbehandeling wordt er gewerkt aan verbeterde methodes om de identiteit van verdachten te verifiëren.""', '""In de strafrechtketen speelt identiteitsbehandeling een cruciale rol om ervoor te zorgen dat de juiste persoon wordt aangeklaagd en berecht.""', '""Door middel van identiteitsbehandeling kunnen we voorkomen dat iemand anders de straf voor een misdrijf draagt.""']","Voorbeeld 1: Banksector
+
+In de banksector is identiteitsbehandeling een essentieel onderdeel van het klantacceptatieproces. Wanneer een klant een nieuwe bankrekening wil openen, moet de bank de identiteit van de klant verifiëren en valideren. Dit wordt gedaan door het controleren van officiële identificatiedocumenten zoals een paspoort of rijbewijs. De bank maakt een kopie van deze documenten en registreert de gegevens in hun systeem. Deze procedure is niet alleen een organisatorische vereiste, maar is ook wettelijk verplicht onder de Wet ter voorkoming van witwassen en financieren van terrorisme (Wwft). 
+
+Voorbeeld 2: Gezondheidszorg
+
+In de gezondheidszorg is identiteitsbehandeling een belangrijk aspect van patiëntregistratie. Wanneer een patiënt zich voor het eerst meldt bij een zorginstelling, wordt zijn of haar identiteit geverifieerd en gevalideerd door het controleren van een officieel identificatiedocument zoals een identiteitskaart of paspoort. De zorginstelling registreert de identiteitsgegevens in het patiëntendossier. Deze procedure is een organisatorische vereiste en is daarnaast wettelijk verplicht onder de Wet op de geneeskundige behandelingsovereenkomst (WGBO).
+
+Voorbeeld 3: Werkgevers en werknemers
+
+Bij het aannemen van nieuwe werknemers is identiteitsbehandeling een belangrijk onderdeel van het aanstellingsproces. De werkgever moet de identiteit van de nieuwe werknemer verifiëren en valideren door het controleren van een officieel identificatiedocument zoals een paspoort. De werkgever maakt een kopie van dit document en registreert de gegevens in het personeelsdossier. Deze procedure is een organisatorische vereiste en is daarnaast wettelijk verplicht onder de Wet op de identificatieplicht (WID).","Het begrip 'identiteitsbehandeling' is niet standaard gedefinieerd in overheidsdocumenten, maar in de context van de strafrechtketen zou het kunnen verwijzen naar procedures en processen die gericht zijn op het vaststellen, verifiëren en beheren van de identiteit van personen. Dit kan bijvoorbeeld relevant zijn bij de registratie van verdachten, veroordeelden of andere betrokkenen in strafrechtelijke procedures. Het doel van een dergelijke 'identiteitsbehandeling' kan zijn om misverstanden of fouten te voorkomen, om fraude of misbruik te bestrijden, of om de rechten van betrokkenen te beschermen. 
+
+In het kader van een project kan 'identiteitsbehandeling' bijvoorbeeld betrekking hebben op het ontwikkelen of verbeteren van dergelijke procedures en processen, of op het trainen van medewerkers in het correct omgaan met identiteitsgegevens.","1. Identiteitsverificatie
+2. Identiteitscontrole
+3. Identiteitsmanagement
+4. Identiteitsbevestiging
+5. Identiteitsvalidatie","1. Anonimiteitsbehandeling
+2. Identiteitsverwaarlozing
+3. Identiteitsveronachtzaming
+4. Identiteitsontkenning
+5. Identiteitsvermijding",,,2025-07-09,,,2025-07-09T11:44:01.075436,,✔️ CON-01: geen expliciete contextverwijzing aangetroffen,"❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een breed scala aan beschikbare digitale bronnen. Voor de term 'identiteitsbehandeling' in de context van de strafrechtketen, zijn er geen specifieke wetten, richtlijnen of veelgebruikte definities die direct beschikbaar zijn in mijn huidige kennisbank. 
+
+Het lijkt erop dat 'identiteitsbehandeling' mogelijk kan verwijzen naar procedures of processen die betrekking hebben op de verificatie en het beheer van de identiteit van individuen binnen de strafrechtketen. Dit kan onder meer betrekking hebben op identificatie, authenticatie en autorisatieprocessen.
+
+Het is echter belangrijk op te merken dat dit een interpretatie is en dat de specifieke betekenis van 'identiteitsbehandeling' kan variëren afhankelijk van de specifieke context en het gebruik binnen de strafrechtketen. Voor een nauwkeurige definitie zou het raadzaam zijn om rechtstreeks contact op te nemen met de relevante autoriteiten of organisaties binnen de strafrechtketen.), maar niet herkend als authentiek of specifiek",❌ ESS-01: doelpatroon 'gericht op' herkend in definitie (patroon: \bgericht op\b),✔️ ESS-02: eenduidig als proces gedefinieerd (via metadata),❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar,❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing,❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt,✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd,✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd,✔️ STR-03: geen synonieme formulering gevonden,✔️ STR-04: geen specifiek kick-off patroon herkend,✔️ STR-05: geen bijzinnen gevonden,"🟡 STR-06: meervoud gevonden (gericht op), gebruik enkelvoud",✔️ STR-07: geen opsomming aangetroffen,"🟡 STR-08: negatieve formulering gevonden (), formuleer positief",✔️ STR-09: geen circulaire formulering aangetroffen,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,identiteitsbehandeling,"['Strafrechtketen', 'Project Identiteitsbehandeling']",[],[],"Je bent een expert in beleidsmatige definities voor overheidsgebruik.
+Formuleer een definitie in één enkele zin, zonder toelichting.
+Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces.
+
+📌 Context:
+- Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling
+
+### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):
+Je **moet** één van de vier categorieën expliciet maken:
+• type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
+Gebruik formuleringen zoals:
+- 'is een activiteit waarbij...'
+- 'is het resultaat van...'
+- 'betreft een specifieke soort...'
+- 'is een exemplaar van...'
+⚠️ Ondubbelzinnigheid is vereist.
+
+
+### ✅ Richtlijnen voor de definitie:
+🔹 **CON-01 – Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming**
+– Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet te benoemen in de definitie zelf.
+– Toetsvraag: Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?
+  ✅ Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.
+  ✅ Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem.
+  ✅ Een maatregel is een opgelegde beperking of correctie bij vastgestelde overtredingen.
+  ❌ Toezicht is controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering.
+  ❌ Registratie: het vastleggen van persoonsgegevens binnen de organisatie DJI, in strafrechtelijke context.
+  ❌ Een maatregel is, binnen de context van het strafrecht, een corrigerende sanctie.
+🔹 **CON-02 – Baseren op authentieke bron**
+– Gebruik een gezaghebbende of officiële bron als basis voor de definitie.
+– Toetsvraag: Is duidelijk op welke authentieke of officiële bron de definitie is gebaseerd?
+  ✅ gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG
+  ✅ delict: gedraging die volgens het Wetboek van Strafrecht strafbaar is gesteld
+  ❌ gegevensverwerking: handeling met gegevens (geen bron vermeld)
+  ❌ delict: iets strafbaars (geen verwijzing naar wet)
+🔹 **ESS-01 – Essentie, niet doel**
+– Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.
+– Toetsvraag: Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?
+  ✅ meldpunt: instantie die meldingen registreert over strafbare feiten
+  ✅ sanctie: maatregel die volgt op normovertreding
+  ❌ meldpunt: instantie om meldingen te kunnen verwerken
+  ❌ sanctie: maatregel met als doel naleving te bevorderen
+🔹 **ESS-02 – Ontologische categorie expliciteren (type / particulier / proces / resultaat)**
+– Indien een begrip meerdere ontologische categorieën kan aanduiden, moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt: soort (type), exemplaar (particulier), proces (activiteit) of resultaat (uitkomst).
+– Toetsvraag: Geeft de definitie ondubbelzinnig aan of het begrip een type, een particular, een proces of een resultaat is?
+🔹 **ESS-04 – Toetsbaarheid**
+– Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).
+– Toetsvraag: Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?
+  ✅ …binnen 3 dagen nadat het verzoek is ingediend…
+  ✅ …tenminste 80% van de steekproef voldoet…
+  ✅ …uiterlijk na 1 week na ontvangst…
+  ❌ …zo snel mogelijk na ontvangst…
+  ❌ …zo veel mogelijk resultaten…
+  ❌ …moet zo mogelijk conform…
+🔹 **ESS-05 – Voldoende onderscheidend**
+– Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.
+– Toetsvraag: Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?
+  ✅ Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming.
+  ✅ Een onttrekking is een incident waarbij een jeugdige zonder toestemming één van de volgende voorzieningen verlaat: open justitiële inrichting of gesloten inrichtingsgebied.
+  ✅ Auto: vierwielig motorvoertuig met uniek chassisnummer en kenteken, waardoor elke auto individueel wordt geïdentificeerd.
+  ❌ Toezicht: het houden van toezicht op iemand.
+  ❌ Een onttrekking is een incident waarbij een jeugdige zonder toestemming de inrichting verlaat.
+🔹 **INT-01 – Compacte en begrijpelijke zin**
+– Een definitie is compact en in één enkele zin geformuleerd.
+– Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
+  ✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+🔹 **INT-02 – Geen beslisregel**
+– Een definitie bevat geen beslisregels of voorwaarden.
+– Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?
+  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ✅ Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.
+  ✅ Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.
+  ✅ Register: officiële inschrijving in een openbaar register door een bevoegde instantie.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.
+  ❌ Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.
+  ❌ Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt.
+🔹 **INT-03 – Voornaamwoord-verwijzing duidelijk**
+– Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+– Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?
+  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.
+  ✅ Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan.
+  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.
+  ❌ Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt.
+🔹 **INT-04 – Lidwoord-verwijzing duidelijk**
+– Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten.
+– Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?
+  ✅ Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem.
+  ✅ Het systeem (Reclasseringsapplicatie) voert controles automatisch uit.
+  ❌ De instelling neemt beslissingen binnen het strafrechtelijk systeem.
+  ❌ Het systeem voert controles uit zonder verdere specificatie.
+🔹 **INT-06 – Definitie bevat geen toelichting**
+– Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.
+– Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?
+  ✅ model: vereenvoudigde weergave van de werkelijkheid
+  ❌ model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven
+🔹 **INT-07 – Alleen toegankelijke afkortingen**
+– In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.
+– Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ OM (Openbaar Ministerie)
+  ✅ AVG (Algemene verordening gegevensbescherming)
+  ✅ KvK (Kamer van Koophandel)
+  ✅ [[Algemene verordening gegevensbescherming]]
+  ❌ DJI voert toezicht uit.
+  ❌ De AVG vereist naleving.
+  ❌ OM is bevoegd tot vervolging.
+  ❌ KvK registreert bedrijven.
+🔹 **INT-08 – Positieve formulering**
+– Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).
+– Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?
+  ✅ bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien
+  ✅ gevangene: persoon die zich niet vrij kan bewegen
+  ❌ bevoegd persoon: iemand die niet onbevoegd is
+  ❌ toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden
+🔹 **SAM-01 – Kwalificatie leidt niet tot afwijking**
+– Een definitie mag niet zodanig zijn geformuleerd dat deze afwijkt van de betekenis die de term in andere contexten heeft.
+– Toetsvraag: Leidt de gebruikte kwalificatie in de definitie tot een betekenis die wezenlijk afwijkt van het algemeen aanvaarde begrip?
+  ✅ proces: reeks activiteiten met een gemeenschappelijk doel
+  ✅ juridisch proces: proces binnen de context van rechtspleging
+  ❌ proces: technische afhandeling van informatie tussen systemen (terwijl 'proces' elders breder wordt gebruikt)
+🔹 **SAM-05 – Geen cirkeldefinities**
+– Een cirkeldefinitie (wederzijdse of meerdiepse verwijzing tussen begrippen) mag niet voorkomen.
+– Toetsvraag: Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?
+  ✅ object: fysiek ding dat bestaat in ruimte en tijd
+  ✅ entiteit: iets dat bestaat
+  ❌ object: een ding is een object
+  ❌ ding: een object is een ding
+🔹 **SAM-07 – Geen betekenisverruiming binnen definitie**
+– De definitie mag de betekenis van de term niet uitbreiden met extra elementen die niet in de term besloten liggen.
+– Toetsvraag: Bevat de definitie uitsluitend elementen die inherent zijn aan de term, zonder aanvullende uitbreidingen?
+  ✅ toezicht houden: het controleren of regels worden nageleefd
+  ❌ toezicht houden: het controleren en indien nodig corrigeren van gedrag
+🔹 **STR-01 – definitie start met zelfstandig naamwoord**
+– De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord.
+– Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?
+  ✅ proces dat beslissers identificeert...
+  ✅ maatregel die recidive voorkomt...
+  ❌ is een maatregel die recidive voorkomt
+  ❌ wordt toegepast in het gevangeniswezen
+🔹 **STR-02 – Kick-off ≠ de term**
+– De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.
+– Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?
+  ✅ analist: professional verantwoordelijk voor …
+  ❌ analist: analist die verantwoordelijk is voor …
+🔹 **STR-03 – Definitie ≠ synoniem**
+– De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term.
+– Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?
+  ✅ evaluatie: resultaat van iets beoordelen, appreciëren of interpreteren
+  ❌ evaluatie: beoordeling
+  ❌ registratie: vastlegging (in een systeem)
+🔹 **STR-04 – Kick-off vervolgen met toespitsing**
+– Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip.
+– Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?
+  ✅ proces dat beslissers informeert
+  ✅ gegeven over de verblijfplaats van een betrokkene
+  ❌ proces
+  ❌ gegeven
+  ❌ activiteit die plaatsvindt
+🔹 **STR-05 – Definitie ≠ constructie**
+– Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.
+– Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?
+  ✅ motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto’s, vrachtwagens en bussen
+  ❌ motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc
+🔹 **STR-06 – Essentie ≠ informatiebehoefte**
+– Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is.
+– Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+🔹 **STR-07 – Geen dubbele ontkenning**
+– Een definitie bevat geen dubbele ontkenning.
+– Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+  ✅ Beveiliging: maatregelen die toegang beperken tot bevoegde personen
+  ❌ Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen
+🔹 **STR-08 – Dubbelzinnige 'en' is verboden**
+– Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide.
+– Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?
+  ✅ Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming
+  ❌ Toegang is beperkt tot personen met een pasje en toestemming
+  ❌ Het systeem vereist login en verificatie
+🔹 **STR-09 – Dubbelzinnige 'of' is verboden**
+– Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.
+– Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?
+  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  ❌ Een persoon met een paspoort of identiteitskaart
+  ❌ Een verdachte is iemand die een misdrijf beraamt of uitvoert
+🔹 **ARAI01 – geen werkwoord als kern (afgeleid)**
+– De kern van de definitie mag geen werkwoord zijn, om verwarring tussen handelingen en concepten te voorkomen.
+– Toetsvraag: Is de kern van de definitie een zelfstandig naamwoord (en geen werkwoord)?
+  ✅ proces dat beslissers identificeert
+  ✅ instelling die zorg verleent
+  ❌ Een systeem dat registreert...
+  ❌ Een functie die uitvoert...
+🔹 **ARAI02 – Vermijd vage containerbegrippen**
+– De definitie mag geen containerbegrippen bevatten die op zichzelf weinig verklarende waarde hebben.
+– Toetsvraag: Bevat de definitie containerbegrippen zonder verdere concretisering of specificatie?
+  ✅ proces dat gegevens verzamelt voor analyse
+  ✅ activiteit die gericht is op toezicht
+  ❌ proces ter ondersteuning
+  ❌ activiteit binnen het systeem
+🔹 **ARAI02SUB1 – Lexicale containerbegrippen vermijden**
+– Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in definities.
+– Toetsvraag: Bevat de definitie algemene containertermen die geen concrete of specifieke betekenis toevoegen?
+  ✅ maatregel die gericht is op risicobeheersing
+  ✅ gegeven dat betrekking heeft op de identiteit van een persoon
+  ❌ iets dat helpt bij het beheersen van risico’s
+  ❌ element dat informatie bevat
+🔹 **ARAI02SUB2 – Ambtelijke containerbegrippen vermijden**
+– Vermijd vaagtaal zoals ‘proces’, ‘voorziening’ of ‘activiteit’ als deze niet worden gespecificeerd.
+– Toetsvraag: Bevat de definitie containerbegrippen die onvoldoende duidelijk maken wat het begrip inhoudt?
+  ✅ systeem: geautomatiseerd hulpmiddel dat beslissingen registreert
+  ✅ voorziening: softwarecomponent die inloggegevens valideert
+  ❌ voorziening die iets mogelijk maakt
+  ❌ element dat hoort bij het systeem
+🔹 **ARAI03 – Beperk gebruik van bijvoeglijke naamwoorden**
+– Definities bevatten zo min mogelijk subjectieve of contextafhankelijke bijvoeglijke naamwoorden.
+– Toetsvraag: Bevat de definitie subjectieve of contextgevoelige bijvoeglijke naamwoorden die de duidelijkheid of toetsbaarheid verminderen?
+  ✅ maatregel die leidt tot het voorkomen van recidive
+  ✅ gegeven dat unieke identificatie mogelijk maakt
+  ❌ belangrijke maatregel ter bevordering van veiligheid
+  ❌ adequaat systeem voor gegevensuitwisseling
+🔹 **ARAI04 – Vermijd modale hulpwerkwoorden**
+– Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'mogen', 'moeten' of 'zullen'.
+– Toetsvraag: Bevat de definitie modale hulpwerkwoorden die wijzen op mogelijkheid, plicht of wenselijkheid?
+  ✅ maatregel die toegang beperkt tot bevoegde personen
+  ✅ procedure die leidt tot besluitvorming
+  ❌ maatregel die toegang kan beperken
+  ❌ procedure die tot besluitvorming zou kunnen leiden
+🔹 **ARAI04SUB1 – Beperk gebruik van modale werkwoorden**
+– Definities vermijden modale werkwoorden zoals ‘kan’, ‘mag’, ‘moet’, omdat deze onduidelijkheid scheppen over de essentie van het begrip.
+– Toetsvraag: Bevat de definitie modale werkwoorden die verwarring kunnen veroorzaken over wat het begrip is?
+  ✅ proces dat persoonsgegevens verwerkt
+  ✅ maatregel die tot gedragsverandering leidt
+  ❌ proces dat gegevens *kan* verwerken
+  ❌ maatregel die *moet* worden genomen bij overtreding
+🔹 **ARAI05 – Vermijd impliciete aannames**
+– Een definitie bevat geen impliciete aannames die alleen met voorkennis begrepen kunnen worden.
+– Toetsvraag: Bevat de definitie formuleringen die impliciet verwijzen naar aannames, gewoonten of contexten die niet worden toegelicht?
+  ✅ procedure: vastgelegde reeks stappen die wordt uitgevoerd bij het registreren van incidenten
+  ❌ procedure: zoals gebruikelijk uitgevoerd binnen het systeem
+  ❌ gegeven: informatie zoals bekend in de registratiepraktijk
+🔹 **ARAI06 – Correcte definitiestart: geen lidwoord, geen koppelwerkwoord, geen herhaling begrip**
+– De definitie mag niet beginnen met een lidwoord, geen koppelwerkwoord bevatten aan het begin en het begrip mag niet herhaald worden in de definitie.
+– Toetsvraag: Begint de definitie correct zonder lidwoord, zonder koppelwerkwoord en zonder herhaling van het begrip?
+  ✅ proces waarbij toezicht plaatsvindt op naleving van wetgeving.
+  ✅ maatregel die wordt ingezet bij overtredingen van regels.
+  ❌ De maatregel is bedoeld voor naleving.
+  ❌ Het begrip betekent: een controlemechanisme.
+  ❌ Registratie is een registratie van gegevens.
+
+### ⚠️ Veelgemaakte fouten (vermijden!):
+- ❌ Begin niet met lidwoorden (‘de’, ‘het’, ‘een’)
+- ❌ Gebruik geen koppelwerkwoord aan het begin (‘is’, ‘betekent’, ‘omvat’)
+- ❌ Herhaal het begrip niet letterlijk
+- ❌ Gebruik geen synoniem als definitie
+- ❌ Vermijd containerbegrippen (‘proces’, ‘activiteit’)
+- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'
+- ❌ Gebruik enkelvoud; infinitief bij werkwoorden
+- ❌ Start niet met 'is'
+- ❌ Start niet met 'omvat'
+- ❌ Start niet met 'betekent'
+- ❌ Start niet met 'verwijst naar'
+- ❌ Start niet met 'de'
+- ❌ Start niet met 'het'
+- ❌ Start niet met 'een'
+- ❌ Start niet met 'proces waarbij'
+- ❌ Start niet met 'handeling die'
+- ❌ Start niet met 'vorm van'
+- ❌ Start niet met 'een belangrijk'
+- ❌ Start niet met 'een essentieel'
+- ❌ Start niet met 'een vaak gebruikte'
+- ❌ Start niet met 'een veelvoorkomende'
+- Gebruik de term 'STRAFRECHTKETEN' of een variant daarvan niet letterlijk in de definitie.
+- Gebruik de term 'PROJECT IDENTITEITSBEHANDELING' of een variant daarvan niet letterlijk in de definitie.
+
+| Probleem                             | Afgedekt? | Toelichting                                |
+|--------------------------------------|-----------|---------------------------------------------|
+| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
+| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |
+| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |
+| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |
+| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |
+| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
+| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
+| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |
+
+🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen.
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+✏️ Geef nu de definitie van het begrip **identiteitsbehandeling** in één enkele zin, zonder toelichting.
+
+🆔 Promptmetadata:
+– Begrip: identiteitsbehandeling
+– Termtype: deverbaal
+– Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling","Identiteitsbehandeling betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.","Betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.","['""Binnen het project Identiteitsbehandeling wordt er gewerkt aan verbeterde methodes om de identiteit van verdachten te verifiëren.""', '""In de strafrechtketen speelt identiteitsbehandeling een cruciale rol om ervoor te zorgen dat de juiste persoon wordt aangeklaagd en berecht.""', '""Door middel van identiteitsbehandeling kunnen we voorkomen dat iemand anders de straf voor een misdrijf draagt.""']","Voorbeeld 1: Banksector
+
+In de banksector is identiteitsbehandeling een essentieel onderdeel van het klantacceptatieproces. Wanneer een klant een nieuwe bankrekening wil openen, moet de bank de identiteit van de klant verifiëren en valideren. Dit wordt gedaan door het controleren van officiële identificatiedocumenten zoals een paspoort of rijbewijs. De bank maakt een kopie van deze documenten en registreert de gegevens in hun systeem. Deze procedure is niet alleen een organisatorische vereiste, maar is ook wettelijk verplicht onder de Wet ter voorkoming van witwassen en financieren van terrorisme (Wwft). 
+
+Voorbeeld 2: Gezondheidszorg
+
+In de gezondheidszorg is identiteitsbehandeling een belangrijk aspect van patiëntregistratie. Wanneer een patiënt zich voor het eerst meldt bij een zorginstelling, wordt zijn of haar identiteit geverifieerd en gevalideerd door het controleren van een officieel identificatiedocument zoals een identiteitskaart of paspoort. De zorginstelling registreert de identiteitsgegevens in het patiëntendossier. Deze procedure is een organisatorische vereiste en is daarnaast wettelijk verplicht onder de Wet op de geneeskundige behandelingsovereenkomst (WGBO).
+
+Voorbeeld 3: Werkgevers en werknemers
+
+Bij het aannemen van nieuwe werknemers is identiteitsbehandeling een belangrijk onderdeel van het aanstellingsproces. De werkgever moet de identiteit van de nieuwe werknemer verifiëren en valideren door het controleren van een officieel identificatiedocument zoals een paspoort. De werkgever maakt een kopie van dit document en registreert de gegevens in het personeelsdossier. Deze procedure is een organisatorische vereiste en is daarnaast wettelijk verplicht onder de Wet op de identificatieplicht (WID).","Het begrip 'identiteitsbehandeling' is niet standaard gedefinieerd in overheidsdocumenten, maar in de context van de strafrechtketen zou het kunnen verwijzen naar procedures en processen die gericht zijn op het vaststellen, verifiëren en beheren van de identiteit van personen. Dit kan bijvoorbeeld relevant zijn bij de registratie van verdachten, veroordeelden of andere betrokkenen in strafrechtelijke procedures. Het doel van een dergelijke 'identiteitsbehandeling' kan zijn om misverstanden of fouten te voorkomen, om fraude of misbruik te bestrijden, of om de rechten van betrokkenen te beschermen. 
+
+In het kader van een project kan 'identiteitsbehandeling' bijvoorbeeld betrekking hebben op het ontwikkelen of verbeteren van dergelijke procedures en processen, of op het trainen van medewerkers in het correct omgaan met identiteitsgegevens.","1. Identiteitsverificatie
+2. Identiteitscontrole
+3. Identiteitsmanagement
+4. Identiteitsbevestiging
+5. Identiteitsvalidatie","1. Anonimiteitsbehandeling
+2. Identiteitsverwaarlozing
+3. Identiteitsveronachtzaming
+4. Identiteitsontkenning
+5. Identiteitsvermijding",,,2025-07-09,,,2025-07-09T11:44:01.215263,"Identiteitsbehandeling betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,authenticeren identiteitsbewijs,"['Strafrechtketen', 'Project Identiteitsbehandeling']",[],[],"Je bent een expert in beleidsmatige definities voor overheidsgebruik.
+Formuleer een definitie in één enkele zin, zonder toelichting.
+Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces.
+
+📌 Context:
+- Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling
+
+### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):
+Je **moet** één van de vier categorieën expliciet maken:
+• type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
+Gebruik formuleringen zoals:
+- 'is een activiteit waarbij...'
+- 'is het resultaat van...'
+- 'betreft een specifieke soort...'
+- 'is een exemplaar van...'
+⚠️ Ondubbelzinnigheid is vereist.
+
+
+### ✅ Richtlijnen voor de definitie:
+🔹 **CON-01 – Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming**
+– Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet te benoemen in de definitie zelf.
+– Toetsvraag: Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?
+  ✅ Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.
+  ✅ Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem.
+  ✅ Een maatregel is een opgelegde beperking of correctie bij vastgestelde overtredingen.
+  ❌ Toezicht is controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering.
+  ❌ Registratie: het vastleggen van persoonsgegevens binnen de organisatie DJI, in strafrechtelijke context.
+  ❌ Een maatregel is, binnen de context van het strafrecht, een corrigerende sanctie.
+🔹 **CON-02 – Baseren op authentieke bron**
+– Gebruik een gezaghebbende of officiële bron als basis voor de definitie.
+– Toetsvraag: Is duidelijk op welke authentieke of officiële bron de definitie is gebaseerd?
+  ✅ gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG
+  ✅ delict: gedraging die volgens het Wetboek van Strafrecht strafbaar is gesteld
+  ❌ gegevensverwerking: handeling met gegevens (geen bron vermeld)
+  ❌ delict: iets strafbaars (geen verwijzing naar wet)
+🔹 **ESS-01 – Essentie, niet doel**
+– Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.
+– Toetsvraag: Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?
+  ✅ meldpunt: instantie die meldingen registreert over strafbare feiten
+  ✅ sanctie: maatregel die volgt op normovertreding
+  ❌ meldpunt: instantie om meldingen te kunnen verwerken
+  ❌ sanctie: maatregel met als doel naleving te bevorderen
+🔹 **ESS-02 – Ontologische categorie expliciteren (type / particulier / proces / resultaat)**
+– Indien een begrip meerdere ontologische categorieën kan aanduiden, moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt: soort (type), exemplaar (particulier), proces (activiteit) of resultaat (uitkomst).
+– Toetsvraag: Geeft de definitie ondubbelzinnig aan of het begrip een type, een particular, een proces of een resultaat is?
+🔹 **ESS-04 – Toetsbaarheid**
+– Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).
+– Toetsvraag: Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?
+  ✅ …binnen 3 dagen nadat het verzoek is ingediend…
+  ✅ …tenminste 80% van de steekproef voldoet…
+  ✅ …uiterlijk na 1 week na ontvangst…
+  ❌ …zo snel mogelijk na ontvangst…
+  ❌ …zo veel mogelijk resultaten…
+  ❌ …moet zo mogelijk conform…
+🔹 **ESS-05 – Voldoende onderscheidend**
+– Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.
+– Toetsvraag: Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?
+  ✅ Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming.
+  ✅ Een onttrekking is een incident waarbij een jeugdige zonder toestemming één van de volgende voorzieningen verlaat: open justitiële inrichting of gesloten inrichtingsgebied.
+  ✅ Auto: vierwielig motorvoertuig met uniek chassisnummer en kenteken, waardoor elke auto individueel wordt geïdentificeerd.
+  ❌ Toezicht: het houden van toezicht op iemand.
+  ❌ Een onttrekking is een incident waarbij een jeugdige zonder toestemming de inrichting verlaat.
+🔹 **INT-01 – Compacte en begrijpelijke zin**
+– Een definitie is compact en in één enkele zin geformuleerd.
+– Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
+  ✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+🔹 **INT-02 – Geen beslisregel**
+– Een definitie bevat geen beslisregels of voorwaarden.
+– Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?
+  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ✅ Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.
+  ✅ Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.
+  ✅ Register: officiële inschrijving in een openbaar register door een bevoegde instantie.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.
+  ❌ Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.
+  ❌ Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt.
+🔹 **INT-03 – Voornaamwoord-verwijzing duidelijk**
+– Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+– Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?
+  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.
+  ✅ Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan.
+  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.
+  ❌ Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt.
+🔹 **INT-04 – Lidwoord-verwijzing duidelijk**
+– Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten.
+– Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?
+  ✅ Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem.
+  ✅ Het systeem (Reclasseringsapplicatie) voert controles automatisch uit.
+  ❌ De instelling neemt beslissingen binnen het strafrechtelijk systeem.
+  ❌ Het systeem voert controles uit zonder verdere specificatie.
+🔹 **INT-06 – Definitie bevat geen toelichting**
+– Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.
+– Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?
+  ✅ model: vereenvoudigde weergave van de werkelijkheid
+  ❌ model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven
+🔹 **INT-07 – Alleen toegankelijke afkortingen**
+– In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.
+– Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ OM (Openbaar Ministerie)
+  ✅ AVG (Algemene verordening gegevensbescherming)
+  ✅ KvK (Kamer van Koophandel)
+  ✅ [[Algemene verordening gegevensbescherming]]
+  ❌ DJI voert toezicht uit.
+  ❌ De AVG vereist naleving.
+  ❌ OM is bevoegd tot vervolging.
+  ❌ KvK registreert bedrijven.
+🔹 **INT-08 – Positieve formulering**
+– Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).
+– Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?
+  ✅ bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien
+  ✅ gevangene: persoon die zich niet vrij kan bewegen
+  ❌ bevoegd persoon: iemand die niet onbevoegd is
+  ❌ toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden
+🔹 **SAM-01 – Kwalificatie leidt niet tot afwijking**
+– Een definitie mag niet zodanig zijn geformuleerd dat deze afwijkt van de betekenis die de term in andere contexten heeft.
+– Toetsvraag: Leidt de gebruikte kwalificatie in de definitie tot een betekenis die wezenlijk afwijkt van het algemeen aanvaarde begrip?
+  ✅ proces: reeks activiteiten met een gemeenschappelijk doel
+  ✅ juridisch proces: proces binnen de context van rechtspleging
+  ❌ proces: technische afhandeling van informatie tussen systemen (terwijl 'proces' elders breder wordt gebruikt)
+🔹 **SAM-05 – Geen cirkeldefinities**
+– Een cirkeldefinitie (wederzijdse of meerdiepse verwijzing tussen begrippen) mag niet voorkomen.
+– Toetsvraag: Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?
+  ✅ object: fysiek ding dat bestaat in ruimte en tijd
+  ✅ entiteit: iets dat bestaat
+  ❌ object: een ding is een object
+  ❌ ding: een object is een ding
+🔹 **SAM-07 – Geen betekenisverruiming binnen definitie**
+– De definitie mag de betekenis van de term niet uitbreiden met extra elementen die niet in de term besloten liggen.
+– Toetsvraag: Bevat de definitie uitsluitend elementen die inherent zijn aan de term, zonder aanvullende uitbreidingen?
+  ✅ toezicht houden: het controleren of regels worden nageleefd
+  ❌ toezicht houden: het controleren en indien nodig corrigeren van gedrag
+🔹 **STR-01 – definitie start met zelfstandig naamwoord**
+– De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord.
+– Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?
+  ✅ proces dat beslissers identificeert...
+  ✅ maatregel die recidive voorkomt...
+  ❌ is een maatregel die recidive voorkomt
+  ❌ wordt toegepast in het gevangeniswezen
+🔹 **STR-02 – Kick-off ≠ de term**
+– De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.
+– Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?
+  ✅ analist: professional verantwoordelijk voor …
+  ❌ analist: analist die verantwoordelijk is voor …
+🔹 **STR-03 – Definitie ≠ synoniem**
+– De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term.
+– Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?
+  ✅ evaluatie: resultaat van iets beoordelen, appreciëren of interpreteren
+  ❌ evaluatie: beoordeling
+  ❌ registratie: vastlegging (in een systeem)
+🔹 **STR-04 – Kick-off vervolgen met toespitsing**
+– Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip.
+– Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?
+  ✅ proces dat beslissers informeert
+  ✅ gegeven over de verblijfplaats van een betrokkene
+  ❌ proces
+  ❌ gegeven
+  ❌ activiteit die plaatsvindt
+🔹 **STR-05 – Definitie ≠ constructie**
+– Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.
+– Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?
+  ✅ motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto’s, vrachtwagens en bussen
+  ❌ motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc
+🔹 **STR-06 – Essentie ≠ informatiebehoefte**
+– Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is.
+– Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+🔹 **STR-07 – Geen dubbele ontkenning**
+– Een definitie bevat geen dubbele ontkenning.
+– Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+  ✅ Beveiliging: maatregelen die toegang beperken tot bevoegde personen
+  ❌ Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen
+🔹 **STR-08 – Dubbelzinnige 'en' is verboden**
+– Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide.
+– Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?
+  ✅ Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming
+  ❌ Toegang is beperkt tot personen met een pasje en toestemming
+  ❌ Het systeem vereist login en verificatie
+🔹 **STR-09 – Dubbelzinnige 'of' is verboden**
+– Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.
+– Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?
+  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  ❌ Een persoon met een paspoort of identiteitskaart
+  ❌ Een verdachte is iemand die een misdrijf beraamt of uitvoert
+🔹 **ARAI01 – geen werkwoord als kern (afgeleid)**
+– De kern van de definitie mag geen werkwoord zijn, om verwarring tussen handelingen en concepten te voorkomen.
+– Toetsvraag: Is de kern van de definitie een zelfstandig naamwoord (en geen werkwoord)?
+  ✅ proces dat beslissers identificeert
+  ✅ instelling die zorg verleent
+  ❌ Een systeem dat registreert...
+  ❌ Een functie die uitvoert...
+🔹 **ARAI02 – Vermijd vage containerbegrippen**
+– De definitie mag geen containerbegrippen bevatten die op zichzelf weinig verklarende waarde hebben.
+– Toetsvraag: Bevat de definitie containerbegrippen zonder verdere concretisering of specificatie?
+  ✅ proces dat gegevens verzamelt voor analyse
+  ✅ activiteit die gericht is op toezicht
+  ❌ proces ter ondersteuning
+  ❌ activiteit binnen het systeem
+🔹 **ARAI02SUB1 – Lexicale containerbegrippen vermijden**
+– Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in definities.
+– Toetsvraag: Bevat de definitie algemene containertermen die geen concrete of specifieke betekenis toevoegen?
+  ✅ maatregel die gericht is op risicobeheersing
+  ✅ gegeven dat betrekking heeft op de identiteit van een persoon
+  ❌ iets dat helpt bij het beheersen van risico’s
+  ❌ element dat informatie bevat
+🔹 **ARAI02SUB2 – Ambtelijke containerbegrippen vermijden**
+– Vermijd vaagtaal zoals ‘proces’, ‘voorziening’ of ‘activiteit’ als deze niet worden gespecificeerd.
+– Toetsvraag: Bevat de definitie containerbegrippen die onvoldoende duidelijk maken wat het begrip inhoudt?
+  ✅ systeem: geautomatiseerd hulpmiddel dat beslissingen registreert
+  ✅ voorziening: softwarecomponent die inloggegevens valideert
+  ❌ voorziening die iets mogelijk maakt
+  ❌ element dat hoort bij het systeem
+🔹 **ARAI03 – Beperk gebruik van bijvoeglijke naamwoorden**
+– Definities bevatten zo min mogelijk subjectieve of contextafhankelijke bijvoeglijke naamwoorden.
+– Toetsvraag: Bevat de definitie subjectieve of contextgevoelige bijvoeglijke naamwoorden die de duidelijkheid of toetsbaarheid verminderen?
+  ✅ maatregel die leidt tot het voorkomen van recidive
+  ✅ gegeven dat unieke identificatie mogelijk maakt
+  ❌ belangrijke maatregel ter bevordering van veiligheid
+  ❌ adequaat systeem voor gegevensuitwisseling
+🔹 **ARAI04 – Vermijd modale hulpwerkwoorden**
+– Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'mogen', 'moeten' of 'zullen'.
+– Toetsvraag: Bevat de definitie modale hulpwerkwoorden die wijzen op mogelijkheid, plicht of wenselijkheid?
+  ✅ maatregel die toegang beperkt tot bevoegde personen
+  ✅ procedure die leidt tot besluitvorming
+  ❌ maatregel die toegang kan beperken
+  ❌ procedure die tot besluitvorming zou kunnen leiden
+🔹 **ARAI04SUB1 – Beperk gebruik van modale werkwoorden**
+– Definities vermijden modale werkwoorden zoals ‘kan’, ‘mag’, ‘moet’, omdat deze onduidelijkheid scheppen over de essentie van het begrip.
+– Toetsvraag: Bevat de definitie modale werkwoorden die verwarring kunnen veroorzaken over wat het begrip is?
+  ✅ proces dat persoonsgegevens verwerkt
+  ✅ maatregel die tot gedragsverandering leidt
+  ❌ proces dat gegevens *kan* verwerken
+  ❌ maatregel die *moet* worden genomen bij overtreding
+🔹 **ARAI05 – Vermijd impliciete aannames**
+– Een definitie bevat geen impliciete aannames die alleen met voorkennis begrepen kunnen worden.
+– Toetsvraag: Bevat de definitie formuleringen die impliciet verwijzen naar aannames, gewoonten of contexten die niet worden toegelicht?
+  ✅ procedure: vastgelegde reeks stappen die wordt uitgevoerd bij het registreren van incidenten
+  ❌ procedure: zoals gebruikelijk uitgevoerd binnen het systeem
+  ❌ gegeven: informatie zoals bekend in de registratiepraktijk
+🔹 **ARAI06 – Correcte definitiestart: geen lidwoord, geen koppelwerkwoord, geen herhaling begrip**
+– De definitie mag niet beginnen met een lidwoord, geen koppelwerkwoord bevatten aan het begin en het begrip mag niet herhaald worden in de definitie.
+– Toetsvraag: Begint de definitie correct zonder lidwoord, zonder koppelwerkwoord en zonder herhaling van het begrip?
+  ✅ proces waarbij toezicht plaatsvindt op naleving van wetgeving.
+  ✅ maatregel die wordt ingezet bij overtredingen van regels.
+  ❌ De maatregel is bedoeld voor naleving.
+  ❌ Het begrip betekent: een controlemechanisme.
+  ❌ Registratie is een registratie van gegevens.
+
+### ⚠️ Veelgemaakte fouten (vermijden!):
+- ❌ Begin niet met lidwoorden (‘de’, ‘het’, ‘een’)
+- ❌ Gebruik geen koppelwerkwoord aan het begin (‘is’, ‘betekent’, ‘omvat’)
+- ❌ Herhaal het begrip niet letterlijk
+- ❌ Gebruik geen synoniem als definitie
+- ❌ Vermijd containerbegrippen (‘proces’, ‘activiteit’)
+- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'
+- ❌ Gebruik enkelvoud; infinitief bij werkwoorden
+- ❌ Start niet met 'is'
+- ❌ Start niet met 'omvat'
+- ❌ Start niet met 'betekent'
+- ❌ Start niet met 'verwijst naar'
+- ❌ Start niet met 'de'
+- ❌ Start niet met 'het'
+- ❌ Start niet met 'een'
+- ❌ Start niet met 'proces waarbij'
+- ❌ Start niet met 'handeling die'
+- ❌ Start niet met 'vorm van'
+- ❌ Start niet met 'een belangrijk'
+- ❌ Start niet met 'een essentieel'
+- ❌ Start niet met 'een vaak gebruikte'
+- ❌ Start niet met 'een veelvoorkomende'
+- Gebruik de term 'STRAFRECHTKETEN' of een variant daarvan niet letterlijk in de definitie.
+- Gebruik de term 'PROJECT IDENTITEITSBEHANDELING' of een variant daarvan niet letterlijk in de definitie.
+
+| Probleem                             | Afgedekt? | Toelichting                                |
+|--------------------------------------|-----------|---------------------------------------------|
+| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
+| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |
+| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |
+| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |
+| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |
+| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
+| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
+| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |
+
+🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen.
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+✏️ Geef nu de definitie van het begrip **identiteitsbehandeling** in één enkele zin, zonder toelichting.
+
+🆔 Promptmetadata:
+– Begrip: identiteitsbehandeling
+– Termtype: deverbaal
+– Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling","Identiteitsbehandeling betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.","Betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.","['""Binnen het project Identiteitsbehandeling wordt er gewerkt aan verbeterde methodes om de identiteit van verdachten te verifiëren.""', '""In de strafrechtketen speelt identiteitsbehandeling een cruciale rol om ervoor te zorgen dat de juiste persoon wordt aangeklaagd en berecht.""', '""Door middel van identiteitsbehandeling kunnen we voorkomen dat iemand anders de straf voor een misdrijf draagt.""']","Voorbeeld 1: Banksector
+
+In de banksector is identiteitsbehandeling een essentieel onderdeel van het klantacceptatieproces. Wanneer een klant een nieuwe bankrekening wil openen, moet de bank de identiteit van de klant verifiëren en valideren. Dit wordt gedaan door het controleren van officiële identificatiedocumenten zoals een paspoort of rijbewijs. De bank maakt een kopie van deze documenten en registreert de gegevens in hun systeem. Deze procedure is niet alleen een organisatorische vereiste, maar is ook wettelijk verplicht onder de Wet ter voorkoming van witwassen en financieren van terrorisme (Wwft). 
+
+Voorbeeld 2: Gezondheidszorg
+
+In de gezondheidszorg is identiteitsbehandeling een belangrijk aspect van patiëntregistratie. Wanneer een patiënt zich voor het eerst meldt bij een zorginstelling, wordt zijn of haar identiteit geverifieerd en gevalideerd door het controleren van een officieel identificatiedocument zoals een identiteitskaart of paspoort. De zorginstelling registreert de identiteitsgegevens in het patiëntendossier. Deze procedure is een organisatorische vereiste en is daarnaast wettelijk verplicht onder de Wet op de geneeskundige behandelingsovereenkomst (WGBO).
+
+Voorbeeld 3: Werkgevers en werknemers
+
+Bij het aannemen van nieuwe werknemers is identiteitsbehandeling een belangrijk onderdeel van het aanstellingsproces. De werkgever moet de identiteit van de nieuwe werknemer verifiëren en valideren door het controleren van een officieel identificatiedocument zoals een paspoort. De werkgever maakt een kopie van dit document en registreert de gegevens in het personeelsdossier. Deze procedure is een organisatorische vereiste en is daarnaast wettelijk verplicht onder de Wet op de identificatieplicht (WID).","Het begrip 'identiteitsbehandeling' is niet standaard gedefinieerd in overheidsdocumenten, maar in de context van de strafrechtketen zou het kunnen verwijzen naar procedures en processen die gericht zijn op het vaststellen, verifiëren en beheren van de identiteit van personen. Dit kan bijvoorbeeld relevant zijn bij de registratie van verdachten, veroordeelden of andere betrokkenen in strafrechtelijke procedures. Het doel van een dergelijke 'identiteitsbehandeling' kan zijn om misverstanden of fouten te voorkomen, om fraude of misbruik te bestrijden, of om de rechten van betrokkenen te beschermen. 
+
+In het kader van een project kan 'identiteitsbehandeling' bijvoorbeeld betrekking hebben op het ontwikkelen of verbeteren van dergelijke procedures en processen, of op het trainen van medewerkers in het correct omgaan met identiteitsgegevens.","1. Identiteitsverificatie
+2. Identiteitscontrole
+3. Identiteitsmanagement
+4. Identiteitsbevestiging
+5. Identiteitsvalidatie","1. Anonimiteitsbehandeling
+2. Identiteitsverwaarlozing
+3. Identiteitsveronachtzaming
+4. Identiteitsontkenning
+5. Identiteitsvermijding",,,2025-07-09,,,2025-07-09T11:44:44.539978,"Identiteitsbehandeling betreft een reeks activiteiten gericht op het verifiëren, valideren en vastleggen van de identiteit van een persoon op basis van officiële identificatiedocumenten.",,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+AI,authenticeren identiteitsbewijs,"['Strafrechtketen', 'Project Identiteitsbehandeling']",[],[],"Je bent een expert in beleidsmatige definities voor overheidsgebruik.
+Formuleer een definitie in één enkele zin, zonder toelichting.
+Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.
+
+📌 Context:
+- Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling
+
+### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):
+Je **moet** één van de vier categorieën expliciet maken:
+• type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
+Gebruik formuleringen zoals:
+- 'is een activiteit waarbij...'
+- 'is het resultaat van...'
+- 'betreft een specifieke soort...'
+- 'is een exemplaar van...'
+⚠️ Ondubbelzinnigheid is vereist.
+
+
+### ✅ Richtlijnen voor de definitie:
+🔹 **CON-01 – Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming**
+– Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet te benoemen in de definitie zelf.
+– Toetsvraag: Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?
+  ✅ Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.
+  ✅ Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem.
+  ✅ Een maatregel is een opgelegde beperking of correctie bij vastgestelde overtredingen.
+  ❌ Toezicht is controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering.
+  ❌ Registratie: het vastleggen van persoonsgegevens binnen de organisatie DJI, in strafrechtelijke context.
+  ❌ Een maatregel is, binnen de context van het strafrecht, een corrigerende sanctie.
+🔹 **CON-02 – Baseren op authentieke bron**
+– Gebruik een gezaghebbende of officiële bron als basis voor de definitie.
+– Toetsvraag: Is duidelijk op welke authentieke of officiële bron de definitie is gebaseerd?
+  ✅ gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG
+  ✅ delict: gedraging die volgens het Wetboek van Strafrecht strafbaar is gesteld
+  ❌ gegevensverwerking: handeling met gegevens (geen bron vermeld)
+  ❌ delict: iets strafbaars (geen verwijzing naar wet)
+🔹 **ESS-01 – Essentie, niet doel**
+– Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.
+– Toetsvraag: Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?
+  ✅ meldpunt: instantie die meldingen registreert over strafbare feiten
+  ✅ sanctie: maatregel die volgt op normovertreding
+  ❌ meldpunt: instantie om meldingen te kunnen verwerken
+  ❌ sanctie: maatregel met als doel naleving te bevorderen
+🔹 **ESS-02 – Ontologische categorie expliciteren (type / particulier / proces / resultaat)**
+– Indien een begrip meerdere ontologische categorieën kan aanduiden, moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt: soort (type), exemplaar (particulier), proces (activiteit) of resultaat (uitkomst).
+– Toetsvraag: Geeft de definitie ondubbelzinnig aan of het begrip een type, een particular, een proces of een resultaat is?
+🔹 **ESS-04 – Toetsbaarheid**
+– Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).
+– Toetsvraag: Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?
+  ✅ …binnen 3 dagen nadat het verzoek is ingediend…
+  ✅ …tenminste 80% van de steekproef voldoet…
+  ✅ …uiterlijk na 1 week na ontvangst…
+  ❌ …zo snel mogelijk na ontvangst…
+  ❌ …zo veel mogelijk resultaten…
+  ❌ …moet zo mogelijk conform…
+🔹 **ESS-05 – Voldoende onderscheidend**
+– Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.
+– Toetsvraag: Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?
+  ✅ Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming.
+  ✅ Een onttrekking is een incident waarbij een jeugdige zonder toestemming één van de volgende voorzieningen verlaat: open justitiële inrichting of gesloten inrichtingsgebied.
+  ✅ Auto: vierwielig motorvoertuig met uniek chassisnummer en kenteken, waardoor elke auto individueel wordt geïdentificeerd.
+  ❌ Toezicht: het houden van toezicht op iemand.
+  ❌ Een onttrekking is een incident waarbij een jeugdige zonder toestemming de inrichting verlaat.
+🔹 **INT-01 – Compacte en begrijpelijke zin**
+– Een definitie is compact en in één enkele zin geformuleerd.
+– Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
+  ✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+🔹 **INT-02 – Geen beslisregel**
+– Een definitie bevat geen beslisregels of voorwaarden.
+– Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?
+  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ✅ Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.
+  ✅ Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.
+  ✅ Register: officiële inschrijving in een openbaar register door een bevoegde instantie.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.
+  ❌ Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.
+  ❌ Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt.
+🔹 **INT-03 – Voornaamwoord-verwijzing duidelijk**
+– Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+– Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?
+  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.
+  ✅ Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan.
+  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.
+  ❌ Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt.
+🔹 **INT-04 – Lidwoord-verwijzing duidelijk**
+– Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten.
+– Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?
+  ✅ Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem.
+  ✅ Het systeem (Reclasseringsapplicatie) voert controles automatisch uit.
+  ❌ De instelling neemt beslissingen binnen het strafrechtelijk systeem.
+  ❌ Het systeem voert controles uit zonder verdere specificatie.
+🔹 **INT-06 – Definitie bevat geen toelichting**
+– Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.
+– Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?
+  ✅ model: vereenvoudigde weergave van de werkelijkheid
+  ❌ model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven
+🔹 **INT-07 – Alleen toegankelijke afkortingen**
+– In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.
+– Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ OM (Openbaar Ministerie)
+  ✅ AVG (Algemene verordening gegevensbescherming)
+  ✅ KvK (Kamer van Koophandel)
+  ✅ [[Algemene verordening gegevensbescherming]]
+  ❌ DJI voert toezicht uit.
+  ❌ De AVG vereist naleving.
+  ❌ OM is bevoegd tot vervolging.
+  ❌ KvK registreert bedrijven.
+🔹 **INT-08 – Positieve formulering**
+– Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).
+– Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?
+  ✅ bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien
+  ✅ gevangene: persoon die zich niet vrij kan bewegen
+  ❌ bevoegd persoon: iemand die niet onbevoegd is
+  ❌ toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden
+🔹 **SAM-01 – Kwalificatie leidt niet tot afwijking**
+– Een definitie mag niet zodanig zijn geformuleerd dat deze afwijkt van de betekenis die de term in andere contexten heeft.
+– Toetsvraag: Leidt de gebruikte kwalificatie in de definitie tot een betekenis die wezenlijk afwijkt van het algemeen aanvaarde begrip?
+  ✅ proces: reeks activiteiten met een gemeenschappelijk doel
+  ✅ juridisch proces: proces binnen de context van rechtspleging
+  ❌ proces: technische afhandeling van informatie tussen systemen (terwijl 'proces' elders breder wordt gebruikt)
+🔹 **SAM-05 – Geen cirkeldefinities**
+– Een cirkeldefinitie (wederzijdse of meerdiepse verwijzing tussen begrippen) mag niet voorkomen.
+– Toetsvraag: Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?
+  ✅ object: fysiek ding dat bestaat in ruimte en tijd
+  ✅ entiteit: iets dat bestaat
+  ❌ object: een ding is een object
+  ❌ ding: een object is een ding
+🔹 **SAM-07 – Geen betekenisverruiming binnen definitie**
+– De definitie mag de betekenis van de term niet uitbreiden met extra elementen die niet in de term besloten liggen.
+– Toetsvraag: Bevat de definitie uitsluitend elementen die inherent zijn aan de term, zonder aanvullende uitbreidingen?
+  ✅ toezicht houden: het controleren of regels worden nageleefd
+  ❌ toezicht houden: het controleren en indien nodig corrigeren van gedrag
+🔹 **STR-01 – definitie start met zelfstandig naamwoord**
+– De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord.
+– Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?
+  ✅ proces dat beslissers identificeert...
+  ✅ maatregel die recidive voorkomt...
+  ❌ is een maatregel die recidive voorkomt
+  ❌ wordt toegepast in het gevangeniswezen
+🔹 **STR-02 – Kick-off ≠ de term**
+– De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.
+– Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?
+  ✅ analist: professional verantwoordelijk voor …
+  ❌ analist: analist die verantwoordelijk is voor …
+🔹 **STR-03 – Definitie ≠ synoniem**
+– De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term.
+– Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?
+  ✅ evaluatie: resultaat van iets beoordelen, appreciëren of interpreteren
+  ❌ evaluatie: beoordeling
+  ❌ registratie: vastlegging (in een systeem)
+🔹 **STR-04 – Kick-off vervolgen met toespitsing**
+– Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip.
+– Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?
+  ✅ proces dat beslissers informeert
+  ✅ gegeven over de verblijfplaats van een betrokkene
+  ❌ proces
+  ❌ gegeven
+  ❌ activiteit die plaatsvindt
+🔹 **STR-05 – Definitie ≠ constructie**
+– Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.
+– Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?
+  ✅ motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto’s, vrachtwagens en bussen
+  ❌ motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc
+🔹 **STR-06 – Essentie ≠ informatiebehoefte**
+– Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is.
+– Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+🔹 **STR-07 – Geen dubbele ontkenning**
+– Een definitie bevat geen dubbele ontkenning.
+– Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+  ✅ Beveiliging: maatregelen die toegang beperken tot bevoegde personen
+  ❌ Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen
+🔹 **STR-08 – Dubbelzinnige 'en' is verboden**
+– Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide.
+– Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?
+  ✅ Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming
+  ❌ Toegang is beperkt tot personen met een pasje en toestemming
+  ❌ Het systeem vereist login en verificatie
+🔹 **STR-09 – Dubbelzinnige 'of' is verboden**
+– Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.
+– Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?
+  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  ❌ Een persoon met een paspoort of identiteitskaart
+  ❌ Een verdachte is iemand die een misdrijf beraamt of uitvoert
+🔹 **ARAI01 – geen werkwoord als kern (afgeleid)**
+– De kern van de definitie mag geen werkwoord zijn, om verwarring tussen handelingen en concepten te voorkomen.
+– Toetsvraag: Is de kern van de definitie een zelfstandig naamwoord (en geen werkwoord)?
+  ✅ proces dat beslissers identificeert
+  ✅ instelling die zorg verleent
+  ❌ Een systeem dat registreert...
+  ❌ Een functie die uitvoert...
+🔹 **ARAI02 – Vermijd vage containerbegrippen**
+– De definitie mag geen containerbegrippen bevatten die op zichzelf weinig verklarende waarde hebben.
+– Toetsvraag: Bevat de definitie containerbegrippen zonder verdere concretisering of specificatie?
+  ✅ proces dat gegevens verzamelt voor analyse
+  ✅ activiteit die gericht is op toezicht
+  ❌ proces ter ondersteuning
+  ❌ activiteit binnen het systeem
+🔹 **ARAI02SUB1 – Lexicale containerbegrippen vermijden**
+– Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in definities.
+– Toetsvraag: Bevat de definitie algemene containertermen die geen concrete of specifieke betekenis toevoegen?
+  ✅ maatregel die gericht is op risicobeheersing
+  ✅ gegeven dat betrekking heeft op de identiteit van een persoon
+  ❌ iets dat helpt bij het beheersen van risico’s
+  ❌ element dat informatie bevat
+🔹 **ARAI02SUB2 – Ambtelijke containerbegrippen vermijden**
+– Vermijd vaagtaal zoals ‘proces’, ‘voorziening’ of ‘activiteit’ als deze niet worden gespecificeerd.
+– Toetsvraag: Bevat de definitie containerbegrippen die onvoldoende duidelijk maken wat het begrip inhoudt?
+  ✅ systeem: geautomatiseerd hulpmiddel dat beslissingen registreert
+  ✅ voorziening: softwarecomponent die inloggegevens valideert
+  ❌ voorziening die iets mogelijk maakt
+  ❌ element dat hoort bij het systeem
+🔹 **ARAI03 – Beperk gebruik van bijvoeglijke naamwoorden**
+– Definities bevatten zo min mogelijk subjectieve of contextafhankelijke bijvoeglijke naamwoorden.
+– Toetsvraag: Bevat de definitie subjectieve of contextgevoelige bijvoeglijke naamwoorden die de duidelijkheid of toetsbaarheid verminderen?
+  ✅ maatregel die leidt tot het voorkomen van recidive
+  ✅ gegeven dat unieke identificatie mogelijk maakt
+  ❌ belangrijke maatregel ter bevordering van veiligheid
+  ❌ adequaat systeem voor gegevensuitwisseling
+🔹 **ARAI04 – Vermijd modale hulpwerkwoorden**
+– Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'mogen', 'moeten' of 'zullen'.
+– Toetsvraag: Bevat de definitie modale hulpwerkwoorden die wijzen op mogelijkheid, plicht of wenselijkheid?
+  ✅ maatregel die toegang beperkt tot bevoegde personen
+  ✅ procedure die leidt tot besluitvorming
+  ❌ maatregel die toegang kan beperken
+  ❌ procedure die tot besluitvorming zou kunnen leiden
+🔹 **ARAI04SUB1 – Beperk gebruik van modale werkwoorden**
+– Definities vermijden modale werkwoorden zoals ‘kan’, ‘mag’, ‘moet’, omdat deze onduidelijkheid scheppen over de essentie van het begrip.
+– Toetsvraag: Bevat de definitie modale werkwoorden die verwarring kunnen veroorzaken over wat het begrip is?
+  ✅ proces dat persoonsgegevens verwerkt
+  ✅ maatregel die tot gedragsverandering leidt
+  ❌ proces dat gegevens *kan* verwerken
+  ❌ maatregel die *moet* worden genomen bij overtreding
+🔹 **ARAI05 – Vermijd impliciete aannames**
+– Een definitie bevat geen impliciete aannames die alleen met voorkennis begrepen kunnen worden.
+– Toetsvraag: Bevat de definitie formuleringen die impliciet verwijzen naar aannames, gewoonten of contexten die niet worden toegelicht?
+  ✅ procedure: vastgelegde reeks stappen die wordt uitgevoerd bij het registreren van incidenten
+  ❌ procedure: zoals gebruikelijk uitgevoerd binnen het systeem
+  ❌ gegeven: informatie zoals bekend in de registratiepraktijk
+🔹 **ARAI06 – Correcte definitiestart: geen lidwoord, geen koppelwerkwoord, geen herhaling begrip**
+– De definitie mag niet beginnen met een lidwoord, geen koppelwerkwoord bevatten aan het begin en het begrip mag niet herhaald worden in de definitie.
+– Toetsvraag: Begint de definitie correct zonder lidwoord, zonder koppelwerkwoord en zonder herhaling van het begrip?
+  ✅ proces waarbij toezicht plaatsvindt op naleving van wetgeving.
+  ✅ maatregel die wordt ingezet bij overtredingen van regels.
+  ❌ De maatregel is bedoeld voor naleving.
+  ❌ Het begrip betekent: een controlemechanisme.
+  ❌ Registratie is een registratie van gegevens.
+
+### ⚠️ Veelgemaakte fouten (vermijden!):
+- ❌ Begin niet met lidwoorden (‘de’, ‘het’, ‘een’)
+- ❌ Gebruik geen koppelwerkwoord aan het begin (‘is’, ‘betekent’, ‘omvat’)
+- ❌ Herhaal het begrip niet letterlijk
+- ❌ Gebruik geen synoniem als definitie
+- ❌ Vermijd containerbegrippen (‘proces’, ‘activiteit’)
+- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'
+- ❌ Gebruik enkelvoud; infinitief bij werkwoorden
+- ❌ Start niet met 'is'
+- ❌ Start niet met 'omvat'
+- ❌ Start niet met 'betekent'
+- ❌ Start niet met 'verwijst naar'
+- ❌ Start niet met 'de'
+- ❌ Start niet met 'het'
+- ❌ Start niet met 'een'
+- ❌ Start niet met 'proces waarbij'
+- ❌ Start niet met 'handeling die'
+- ❌ Start niet met 'vorm van'
+- ❌ Start niet met 'een belangrijk'
+- ❌ Start niet met 'een essentieel'
+- ❌ Start niet met 'een vaak gebruikte'
+- ❌ Start niet met 'een veelvoorkomende'
+- Gebruik de term 'STRAFRECHTKETEN' of een variant daarvan niet letterlijk in de definitie.
+- Gebruik de term 'PROJECT IDENTITEITSBEHANDELING' of een variant daarvan niet letterlijk in de definitie.
+
+| Probleem                             | Afgedekt? | Toelichting                                |
+|--------------------------------------|-----------|---------------------------------------------|
+| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
+| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |
+| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |
+| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |
+| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |
+| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
+| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
+| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |
+
+🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen.
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+✏️ Geef nu de definitie van het begrip **authenticeren identiteitsbewijs** in één enkele zin, zonder toelichting.
+
+🆔 Promptmetadata:
+– Begrip: authenticeren identiteitsbewijs
+– Termtype: anders
+– Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling",Authenticeren identiteitsbewijs betreft de activiteit waarbij de echtheid en geldigheid van een identiteitsbewijs worden geverifieerd door vergelijking met officiële kenmerken en gegevens.,Betreft de activiteit waarbij de echtheid en geldigheid van een identiteitsbewijs worden geverifieerd door vergelijking met officiële kenmerken en gegevens.,"['""Voordat ze toegang kreeg tot het gebouw, moest ze haar identiteitsbewijs authenticeren bij de beveiliging.""', '""De bankmedewerker zal uw identiteitsbewijs authenticeren voordat hij uw nieuwe bankrekening opent.""', '""Om fraude te voorkomen, is het belangrijk om de authenticiteit van een identiteitsbewijs te controleren.""']","Voorbeeld 1: Politiecontrole
+In de organisatorische context van de strafrechtketen, voert een politieagent tijdens een routinecontrole de activiteit uit van het authenticeren van een identiteitsbewijs. De bestuurder van een voertuig overhandigt zijn rijbewijs als identiteitsbewijs. De politieagent verifieert de echtheid en geldigheid van het rijbewijs door het te vergelijken met officiële kenmerken en gegevens. Dit doet hij door het rijbewijs visueel te inspecteren op kenmerken zoals het watermerk, de foto en de handtekening, maar ook door het nummer van het rijbewijs in te voeren in een landelijk systeem om te controleren of het rijbewijs niet als verloren of gestolen is opgegeven.
+
+Voorbeeld 2: Banktransactie
+In de organisatorische context van een bank, wordt het authenticeren van een identiteitsbewijs uitgevoerd bij het openen van een nieuwe bankrekening. De klant overhandigt zijn paspoort als identiteitsbewijs. De bankmedewerker verifieert de echtheid en geldigheid van het paspoort door het te vergelijken met officiële kenmerken en gegevens. Dit doet hij door het paspoort visueel te inspecteren op kenmerken zoals het watermerk, de foto en de handtekening, maar ook door het nummer van het paspoort in te voeren in een landelijk systeem om te controleren of het paspoort niet als verloren of gestolen is opgegeven.
+
+Voorbeeld 3: Project Identiteitsbehandeling
+In de organisatorische context van het Project Identiteitsbehandeling, wordt het authenticeren van een identiteitsbewijs uitgevoerd bij het aanvragen van een nieuwe identiteitskaart. De aanvrager overhandigt zijn oude identiteitskaart als identiteitsbewijs. De medewerker van de gemeente verifieert de echtheid en geldigheid van de oude identiteitskaart door het te vergelijken met officiële kenmerken en gegevens. Dit doet hij door de oude identiteitskaart visueel te inspecteren op kenmerken zoals het watermerk, de foto en de handtekening, maar ook door het nummer van de oude identiteitskaart in te voeren in een landelijk systeem om te controleren of de oude identiteitskaart niet als verloren of gestolen is opgegeven.","Het begrip 'authenticeren identiteitsbewijs' verwijst naar het proces waarbij de geldigheid en echtheid van een identiteitsbewijs wordt geverifieerd. Dit kan een paspoort, rijbewijs, identiteitskaart of een ander officieel document zijn dat een persoon identificeert. Authenticatie kan worden uitgevoerd door verschillende methoden, zoals het controleren van de fysieke kenmerken van het document, het verifiëren van de gegevens in een databank of het gebruik van digitale technologieën zoals biometrische gegevens.
+
+In de context van de overheid en specifiek de strafrechtketen, is het authenticeren van identiteitsbewijzen van cruciaal belang om de identiteit van een persoon te bevestigen. Dit kan bijvoorbeeld nodig zijn bij het opsporen en vervolgen van misdrijven, het controleren van de identiteit van een verdachte of het verifiëren van de identiteit van een persoon bij het verlenen van overheidsdiensten. Het kan ook worden gebruikt in het kader van het Project Identiteitsbehandeling, dat gericht is op het verbeteren van de identiteitsvaststelling en -verificatie binnen de strafrechtketen. 
+
+Het","1. Verifiëren van identiteitsdocument
+2. Controleren van identiteitskaart
+3. Bevestigen van identiteitsbewijs
+4. Valideren van identificatiedocument
+5. Beoordelen van legitimatiebewijs","1. Vervalsen identiteitsbewijs
+2. Verkeerd voorstellen identiteitsbewijs
+3. Verhullen identiteitsbewijs
+4. Verdraaien identiteitsbewijs
+5. Verbergen identiteitsbewijs",,,2025-07-09,,,2025-07-09T11:46:25.423561,,✔️ CON-01: geen expliciete contextverwijzing aangetroffen,"❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een breed scala aan beschikbare bronnen. Voor de definitie van 'authenticeren identiteitsbewijs' in de context van de strafrechtketen en het project Identiteitsbehandeling, zou ik me baseren op de volgende bronnen:
+
+1. Wetten en richtlijnen: In Nederland zijn er verschillende wetten en richtlijnen die betrekking hebben op identiteitsbewijzen en hun authenticatie. Dit omvat de Paspoortwet, de Wet op de identificatieplicht en de Wet op de uitgebreide identificatieplicht. Deze wetten stellen de eisen voor identiteitsbewijzen en de procedures voor hun uitgifte en authenticatie.
+
+2. Veelgebruikte definities: In de context van identiteitsbewijzen verwijst authenticatie naar het proces van het verifiëren van de geldigheid van een identiteitsbewijs. Dit kan onder andere het controleren van de fysieke kenmerken van het document, het controleren van de informatie tegen een database en het controleren van de identiteit van de houder omvatten.
+
+3. Organisatorische bronnen: In de context van de strafrechtketen en het project Identiteitsbehandeling, kunnen er specifieke procedures en richtlijnen zijn voor het authenticeren van identiteitsbewijzen. Dit kan informatie omvatten van organisaties zoals het Openbaar Ministerie, de politie en de Dienst Justitiële Inrichtingen.
+
+4. Technische bronnen: Er zijn verschillende technologieën en methoden die worden gebruikt voor het authenticeren van identiteitsbewijzen, waaronder biometrische technologieën, holografische kenmerken, RFID-chips en andere beveiligingskenmerken. Informatie over deze technologieën kan worden gevonden in technische literatuur en bronnen van fabrikanten van identiteitsbewijzen.
+
+5. Academische bronnen: Er is uitgebreid academisch onderzoek gedaan naar de authenticatie van identiteitsbewijzen, met inbegrip van studies naar de effectiviteit van verschillende methoden en technologieën, en de sociale en juridische implicaties van identiteitsauthenticatie.), maar niet herkend als authentiek of specifiek",✔️ ESS-01: geen doelgerichte formuleringen aangetroffen,✔️ ESS-02: eenduidig als proces gedefinieerd (via metadata),❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar,❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing,❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt,✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd,✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd,✔️ STR-03: geen synonieme formulering gevonden,✔️ STR-04: geen specifiek kick-off patroon herkend,✔️ STR-05: geen bijzinnen gevonden,✔️ STR-06: geen meervoud aangetroffen,✔️ STR-07: geen opsomming aangetroffen,"🟡 STR-08: negatieve formulering gevonden (, en), formuleer positief",✔️ STR-09: geen circulaire formulering aangetroffen,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
+Aangepast,authenticeren identiteitsbewijs,"['Strafrechtketen', 'Project Identiteitsbehandeling']",[],[],"Je bent een expert in beleidsmatige definities voor overheidsgebruik.
+Formuleer een definitie in één enkele zin, zonder toelichting.
+Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.
+
+📌 Context:
+- Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling
+
+### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):
+Je **moet** één van de vier categorieën expliciet maken:
+• type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
+Gebruik formuleringen zoals:
+- 'is een activiteit waarbij...'
+- 'is het resultaat van...'
+- 'betreft een specifieke soort...'
+- 'is een exemplaar van...'
+⚠️ Ondubbelzinnigheid is vereist.
+
+
+### ✅ Richtlijnen voor de definitie:
+🔹 **CON-01 – Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming**
+– Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet te benoemen in de definitie zelf.
+– Toetsvraag: Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?
+  ✅ Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.
+  ✅ Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem.
+  ✅ Een maatregel is een opgelegde beperking of correctie bij vastgestelde overtredingen.
+  ❌ Toezicht is controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering.
+  ❌ Registratie: het vastleggen van persoonsgegevens binnen de organisatie DJI, in strafrechtelijke context.
+  ❌ Een maatregel is, binnen de context van het strafrecht, een corrigerende sanctie.
+🔹 **CON-02 – Baseren op authentieke bron**
+– Gebruik een gezaghebbende of officiële bron als basis voor de definitie.
+– Toetsvraag: Is duidelijk op welke authentieke of officiële bron de definitie is gebaseerd?
+  ✅ gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG
+  ✅ delict: gedraging die volgens het Wetboek van Strafrecht strafbaar is gesteld
+  ❌ gegevensverwerking: handeling met gegevens (geen bron vermeld)
+  ❌ delict: iets strafbaars (geen verwijzing naar wet)
+🔹 **ESS-01 – Essentie, niet doel**
+– Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.
+– Toetsvraag: Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?
+  ✅ meldpunt: instantie die meldingen registreert over strafbare feiten
+  ✅ sanctie: maatregel die volgt op normovertreding
+  ❌ meldpunt: instantie om meldingen te kunnen verwerken
+  ❌ sanctie: maatregel met als doel naleving te bevorderen
+🔹 **ESS-02 – Ontologische categorie expliciteren (type / particulier / proces / resultaat)**
+– Indien een begrip meerdere ontologische categorieën kan aanduiden, moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt: soort (type), exemplaar (particulier), proces (activiteit) of resultaat (uitkomst).
+– Toetsvraag: Geeft de definitie ondubbelzinnig aan of het begrip een type, een particular, een proces of een resultaat is?
+🔹 **ESS-04 – Toetsbaarheid**
+– Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).
+– Toetsvraag: Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?
+  ✅ …binnen 3 dagen nadat het verzoek is ingediend…
+  ✅ …tenminste 80% van de steekproef voldoet…
+  ✅ …uiterlijk na 1 week na ontvangst…
+  ❌ …zo snel mogelijk na ontvangst…
+  ❌ …zo veel mogelijk resultaten…
+  ❌ …moet zo mogelijk conform…
+🔹 **ESS-05 – Voldoende onderscheidend**
+– Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.
+– Toetsvraag: Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?
+  ✅ Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming.
+  ✅ Een onttrekking is een incident waarbij een jeugdige zonder toestemming één van de volgende voorzieningen verlaat: open justitiële inrichting of gesloten inrichtingsgebied.
+  ✅ Auto: vierwielig motorvoertuig met uniek chassisnummer en kenteken, waardoor elke auto individueel wordt geïdentificeerd.
+  ❌ Toezicht: het houden van toezicht op iemand.
+  ❌ Een onttrekking is een incident waarbij een jeugdige zonder toestemming de inrichting verlaat.
+🔹 **INT-01 – Compacte en begrijpelijke zin**
+– Een definitie is compact en in één enkele zin geformuleerd.
+– Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
+  ✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+🔹 **INT-02 – Geen beslisregel**
+– Een definitie bevat geen beslisregels of voorwaarden.
+– Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?
+  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ✅ Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.
+  ✅ Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.
+  ✅ Register: officiële inschrijving in een openbaar register door een bevoegde instantie.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.
+  ❌ Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.
+  ❌ Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt.
+🔹 **INT-03 – Voornaamwoord-verwijzing duidelijk**
+– Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+– Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?
+  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.
+  ✅ Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan.
+  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.
+  ❌ Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt.
+🔹 **INT-04 – Lidwoord-verwijzing duidelijk**
+– Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten.
+– Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?
+  ✅ Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem.
+  ✅ Het systeem (Reclasseringsapplicatie) voert controles automatisch uit.
+  ❌ De instelling neemt beslissingen binnen het strafrechtelijk systeem.
+  ❌ Het systeem voert controles uit zonder verdere specificatie.
+🔹 **INT-06 – Definitie bevat geen toelichting**
+– Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.
+– Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?
+  ✅ model: vereenvoudigde weergave van de werkelijkheid
+  ❌ model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven
+🔹 **INT-07 – Alleen toegankelijke afkortingen**
+– In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.
+– Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ OM (Openbaar Ministerie)
+  ✅ AVG (Algemene verordening gegevensbescherming)
+  ✅ KvK (Kamer van Koophandel)
+  ✅ [[Algemene verordening gegevensbescherming]]
+  ❌ DJI voert toezicht uit.
+  ❌ De AVG vereist naleving.
+  ❌ OM is bevoegd tot vervolging.
+  ❌ KvK registreert bedrijven.
+🔹 **INT-08 – Positieve formulering**
+– Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).
+– Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?
+  ✅ bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien
+  ✅ gevangene: persoon die zich niet vrij kan bewegen
+  ❌ bevoegd persoon: iemand die niet onbevoegd is
+  ❌ toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden
+🔹 **SAM-01 – Kwalificatie leidt niet tot afwijking**
+– Een definitie mag niet zodanig zijn geformuleerd dat deze afwijkt van de betekenis die de term in andere contexten heeft.
+– Toetsvraag: Leidt de gebruikte kwalificatie in de definitie tot een betekenis die wezenlijk afwijkt van het algemeen aanvaarde begrip?
+  ✅ proces: reeks activiteiten met een gemeenschappelijk doel
+  ✅ juridisch proces: proces binnen de context van rechtspleging
+  ❌ proces: technische afhandeling van informatie tussen systemen (terwijl 'proces' elders breder wordt gebruikt)
+🔹 **SAM-05 – Geen cirkeldefinities**
+– Een cirkeldefinitie (wederzijdse of meerdiepse verwijzing tussen begrippen) mag niet voorkomen.
+– Toetsvraag: Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?
+  ✅ object: fysiek ding dat bestaat in ruimte en tijd
+  ✅ entiteit: iets dat bestaat
+  ❌ object: een ding is een object
+  ❌ ding: een object is een ding
+🔹 **SAM-07 – Geen betekenisverruiming binnen definitie**
+– De definitie mag de betekenis van de term niet uitbreiden met extra elementen die niet in de term besloten liggen.
+– Toetsvraag: Bevat de definitie uitsluitend elementen die inherent zijn aan de term, zonder aanvullende uitbreidingen?
+  ✅ toezicht houden: het controleren of regels worden nageleefd
+  ❌ toezicht houden: het controleren en indien nodig corrigeren van gedrag
+🔹 **STR-01 – definitie start met zelfstandig naamwoord**
+– De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord.
+– Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?
+  ✅ proces dat beslissers identificeert...
+  ✅ maatregel die recidive voorkomt...
+  ❌ is een maatregel die recidive voorkomt
+  ❌ wordt toegepast in het gevangeniswezen
+🔹 **STR-02 – Kick-off ≠ de term**
+– De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.
+– Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?
+  ✅ analist: professional verantwoordelijk voor …
+  ❌ analist: analist die verantwoordelijk is voor …
+🔹 **STR-03 – Definitie ≠ synoniem**
+– De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term.
+– Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?
+  ✅ evaluatie: resultaat van iets beoordelen, appreciëren of interpreteren
+  ❌ evaluatie: beoordeling
+  ❌ registratie: vastlegging (in een systeem)
+🔹 **STR-04 – Kick-off vervolgen met toespitsing**
+– Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip.
+– Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?
+  ✅ proces dat beslissers informeert
+  ✅ gegeven over de verblijfplaats van een betrokkene
+  ❌ proces
+  ❌ gegeven
+  ❌ activiteit die plaatsvindt
+🔹 **STR-05 – Definitie ≠ constructie**
+– Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.
+– Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?
+  ✅ motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto’s, vrachtwagens en bussen
+  ❌ motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc
+🔹 **STR-06 – Essentie ≠ informatiebehoefte**
+– Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is.
+– Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+🔹 **STR-07 – Geen dubbele ontkenning**
+– Een definitie bevat geen dubbele ontkenning.
+– Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+  ✅ Beveiliging: maatregelen die toegang beperken tot bevoegde personen
+  ❌ Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen
+🔹 **STR-08 – Dubbelzinnige 'en' is verboden**
+– Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide.
+– Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?
+  ✅ Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming
+  ❌ Toegang is beperkt tot personen met een pasje en toestemming
+  ❌ Het systeem vereist login en verificatie
+🔹 **STR-09 – Dubbelzinnige 'of' is verboden**
+– Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.
+– Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?
+  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  ❌ Een persoon met een paspoort of identiteitskaart
+  ❌ Een verdachte is iemand die een misdrijf beraamt of uitvoert
+🔹 **ARAI01 – geen werkwoord als kern (afgeleid)**
+– De kern van de definitie mag geen werkwoord zijn, om verwarring tussen handelingen en concepten te voorkomen.
+– Toetsvraag: Is de kern van de definitie een zelfstandig naamwoord (en geen werkwoord)?
+  ✅ proces dat beslissers identificeert
+  ✅ instelling die zorg verleent
+  ❌ Een systeem dat registreert...
+  ❌ Een functie die uitvoert...
+🔹 **ARAI02 – Vermijd vage containerbegrippen**
+– De definitie mag geen containerbegrippen bevatten die op zichzelf weinig verklarende waarde hebben.
+– Toetsvraag: Bevat de definitie containerbegrippen zonder verdere concretisering of specificatie?
+  ✅ proces dat gegevens verzamelt voor analyse
+  ✅ activiteit die gericht is op toezicht
+  ❌ proces ter ondersteuning
+  ❌ activiteit binnen het systeem
+🔹 **ARAI02SUB1 – Lexicale containerbegrippen vermijden**
+– Vermijd algemene termen als 'aspect', 'ding', 'iets' of 'element' in definities.
+– Toetsvraag: Bevat de definitie algemene containertermen die geen concrete of specifieke betekenis toevoegen?
+  ✅ maatregel die gericht is op risicobeheersing
+  ✅ gegeven dat betrekking heeft op de identiteit van een persoon
+  ❌ iets dat helpt bij het beheersen van risico’s
+  ❌ element dat informatie bevat
+🔹 **ARAI02SUB2 – Ambtelijke containerbegrippen vermijden**
+– Vermijd vaagtaal zoals ‘proces’, ‘voorziening’ of ‘activiteit’ als deze niet worden gespecificeerd.
+– Toetsvraag: Bevat de definitie containerbegrippen die onvoldoende duidelijk maken wat het begrip inhoudt?
+  ✅ systeem: geautomatiseerd hulpmiddel dat beslissingen registreert
+  ✅ voorziening: softwarecomponent die inloggegevens valideert
+  ❌ voorziening die iets mogelijk maakt
+  ❌ element dat hoort bij het systeem
+🔹 **ARAI03 – Beperk gebruik van bijvoeglijke naamwoorden**
+– Definities bevatten zo min mogelijk subjectieve of contextafhankelijke bijvoeglijke naamwoorden.
+– Toetsvraag: Bevat de definitie subjectieve of contextgevoelige bijvoeglijke naamwoorden die de duidelijkheid of toetsbaarheid verminderen?
+  ✅ maatregel die leidt tot het voorkomen van recidive
+  ✅ gegeven dat unieke identificatie mogelijk maakt
+  ❌ belangrijke maatregel ter bevordering van veiligheid
+  ❌ adequaat systeem voor gegevensuitwisseling
+🔹 **ARAI04 – Vermijd modale hulpwerkwoorden**
+– Definities vermijden het gebruik van modale hulpwerkwoorden zoals 'kunnen', 'mogen', 'moeten' of 'zullen'.
+– Toetsvraag: Bevat de definitie modale hulpwerkwoorden die wijzen op mogelijkheid, plicht of wenselijkheid?
+  ✅ maatregel die toegang beperkt tot bevoegde personen
+  ✅ procedure die leidt tot besluitvorming
+  ❌ maatregel die toegang kan beperken
+  ❌ procedure die tot besluitvorming zou kunnen leiden
+🔹 **ARAI04SUB1 – Beperk gebruik van modale werkwoorden**
+– Definities vermijden modale werkwoorden zoals ‘kan’, ‘mag’, ‘moet’, omdat deze onduidelijkheid scheppen over de essentie van het begrip.
+– Toetsvraag: Bevat de definitie modale werkwoorden die verwarring kunnen veroorzaken over wat het begrip is?
+  ✅ proces dat persoonsgegevens verwerkt
+  ✅ maatregel die tot gedragsverandering leidt
+  ❌ proces dat gegevens *kan* verwerken
+  ❌ maatregel die *moet* worden genomen bij overtreding
+🔹 **ARAI05 – Vermijd impliciete aannames**
+– Een definitie bevat geen impliciete aannames die alleen met voorkennis begrepen kunnen worden.
+– Toetsvraag: Bevat de definitie formuleringen die impliciet verwijzen naar aannames, gewoonten of contexten die niet worden toegelicht?
+  ✅ procedure: vastgelegde reeks stappen die wordt uitgevoerd bij het registreren van incidenten
+  ❌ procedure: zoals gebruikelijk uitgevoerd binnen het systeem
+  ❌ gegeven: informatie zoals bekend in de registratiepraktijk
+🔹 **ARAI06 – Correcte definitiestart: geen lidwoord, geen koppelwerkwoord, geen herhaling begrip**
+– De definitie mag niet beginnen met een lidwoord, geen koppelwerkwoord bevatten aan het begin en het begrip mag niet herhaald worden in de definitie.
+– Toetsvraag: Begint de definitie correct zonder lidwoord, zonder koppelwerkwoord en zonder herhaling van het begrip?
+  ✅ proces waarbij toezicht plaatsvindt op naleving van wetgeving.
+  ✅ maatregel die wordt ingezet bij overtredingen van regels.
+  ❌ De maatregel is bedoeld voor naleving.
+  ❌ Het begrip betekent: een controlemechanisme.
+  ❌ Registratie is een registratie van gegevens.
+
+### ⚠️ Veelgemaakte fouten (vermijden!):
+- ❌ Begin niet met lidwoorden (‘de’, ‘het’, ‘een’)
+- ❌ Gebruik geen koppelwerkwoord aan het begin (‘is’, ‘betekent’, ‘omvat’)
+- ❌ Herhaal het begrip niet letterlijk
+- ❌ Gebruik geen synoniem als definitie
+- ❌ Vermijd containerbegrippen (‘proces’, ‘activiteit’)
+- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'
+- ❌ Gebruik enkelvoud; infinitief bij werkwoorden
+- ❌ Start niet met 'is'
+- ❌ Start niet met 'omvat'
+- ❌ Start niet met 'betekent'
+- ❌ Start niet met 'verwijst naar'
+- ❌ Start niet met 'de'
+- ❌ Start niet met 'het'
+- ❌ Start niet met 'een'
+- ❌ Start niet met 'proces waarbij'
+- ❌ Start niet met 'handeling die'
+- ❌ Start niet met 'vorm van'
+- ❌ Start niet met 'een belangrijk'
+- ❌ Start niet met 'een essentieel'
+- ❌ Start niet met 'een vaak gebruikte'
+- ❌ Start niet met 'een veelvoorkomende'
+- Gebruik de term 'STRAFRECHTKETEN' of een variant daarvan niet letterlijk in de definitie.
+- Gebruik de term 'PROJECT IDENTITEITSBEHANDELING' of een variant daarvan niet letterlijk in de definitie.
+
+| Probleem                             | Afgedekt? | Toelichting                                |
+|--------------------------------------|-----------|---------------------------------------------|
+| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
+| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |
+| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |
+| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |
+| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |
+| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
+| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
+| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |
+
+🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen.
+
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+✏️ Geef nu de definitie van het begrip **authenticeren identiteitsbewijs** in één enkele zin, zonder toelichting.
+
+🆔 Promptmetadata:
+– Begrip: authenticeren identiteitsbewijs
+– Termtype: anders
+– Organisatorische context(en): Strafrechtketen, Project Identiteitsbehandeling",Authenticeren identiteitsbewijs betreft de activiteit waarbij de echtheid en geldigheid van een identiteitsbewijs worden geverifieerd door vergelijking met officiële kenmerken en gegevens.,Betreft de activiteit waarbij de echtheid en geldigheid van een identiteitsbewijs worden geverifieerd door vergelijking met officiële kenmerken en gegevens.,"['""Voordat ze toegang kreeg tot het gebouw, moest ze haar identiteitsbewijs authenticeren bij de beveiliging.""', '""De bankmedewerker zal uw identiteitsbewijs authenticeren voordat hij uw nieuwe bankrekening opent.""', '""Om fraude te voorkomen, is het belangrijk om de authenticiteit van een identiteitsbewijs te controleren.""']","Voorbeeld 1: Politiecontrole
+In de organisatorische context van de strafrechtketen, voert een politieagent tijdens een routinecontrole de activiteit uit van het authenticeren van een identiteitsbewijs. De bestuurder van een voertuig overhandigt zijn rijbewijs als identiteitsbewijs. De politieagent verifieert de echtheid en geldigheid van het rijbewijs door het te vergelijken met officiële kenmerken en gegevens. Dit doet hij door het rijbewijs visueel te inspecteren op kenmerken zoals het watermerk, de foto en de handtekening, maar ook door het nummer van het rijbewijs in te voeren in een landelijk systeem om te controleren of het rijbewijs niet als verloren of gestolen is opgegeven.
+
+Voorbeeld 2: Banktransactie
+In de organisatorische context van een bank, wordt het authenticeren van een identiteitsbewijs uitgevoerd bij het openen van een nieuwe bankrekening. De klant overhandigt zijn paspoort als identiteitsbewijs. De bankmedewerker verifieert de echtheid en geldigheid van het paspoort door het te vergelijken met officiële kenmerken en gegevens. Dit doet hij door het paspoort visueel te inspecteren op kenmerken zoals het watermerk, de foto en de handtekening, maar ook door het nummer van het paspoort in te voeren in een landelijk systeem om te controleren of het paspoort niet als verloren of gestolen is opgegeven.
+
+Voorbeeld 3: Project Identiteitsbehandeling
+In de organisatorische context van het Project Identiteitsbehandeling, wordt het authenticeren van een identiteitsbewijs uitgevoerd bij het aanvragen van een nieuwe identiteitskaart. De aanvrager overhandigt zijn oude identiteitskaart als identiteitsbewijs. De medewerker van de gemeente verifieert de echtheid en geldigheid van de oude identiteitskaart door het te vergelijken met officiële kenmerken en gegevens. Dit doet hij door de oude identiteitskaart visueel te inspecteren op kenmerken zoals het watermerk, de foto en de handtekening, maar ook door het nummer van de oude identiteitskaart in te voeren in een landelijk systeem om te controleren of de oude identiteitskaart niet als verloren of gestolen is opgegeven.","Het begrip 'authenticeren identiteitsbewijs' verwijst naar het proces waarbij de geldigheid en echtheid van een identiteitsbewijs wordt geverifieerd. Dit kan een paspoort, rijbewijs, identiteitskaart of een ander officieel document zijn dat een persoon identificeert. Authenticatie kan worden uitgevoerd door verschillende methoden, zoals het controleren van de fysieke kenmerken van het document, het verifiëren van de gegevens in een databank of het gebruik van digitale technologieën zoals biometrische gegevens.
+
+In de context van de overheid en specifiek de strafrechtketen, is het authenticeren van identiteitsbewijzen van cruciaal belang om de identiteit van een persoon te bevestigen. Dit kan bijvoorbeeld nodig zijn bij het opsporen en vervolgen van misdrijven, het controleren van de identiteit van een verdachte of het verifiëren van de identiteit van een persoon bij het verlenen van overheidsdiensten. Het kan ook worden gebruikt in het kader van het Project Identiteitsbehandeling, dat gericht is op het verbeteren van de identiteitsvaststelling en -verificatie binnen de strafrechtketen. 
+
+Het","1. Verifiëren van identiteitsdocument
+2. Controleren van identiteitskaart
+3. Bevestigen van identiteitsbewijs
+4. Valideren van identificatiedocument
+5. Beoordelen van legitimatiebewijs","1. Vervalsen identiteitsbewijs
+2. Verkeerd voorstellen identiteitsbewijs
+3. Verhullen identiteitsbewijs
+4. Verdraaien identiteitsbewijs
+5. Verbergen identiteitsbewijs",,,2025-07-09,,,2025-07-09T11:46:25.564172,Authenticeren identiteitsbewijs betreft de activiteit waarbij de echtheid en geldigheid van een identiteitsbewijs worden geverifieerd door vergelijking met officiële kenmerken en gegevens.,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
