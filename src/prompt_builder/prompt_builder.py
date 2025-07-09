@@ -224,20 +224,36 @@ Gebruik formuleringen zoals:
  
         return "\n".join(regels)
 
-# ✅ Functie om prompt aan GPT te sturen
+# ✅ Functie om prompt aan GPT te sturen (with caching)
 def stuur_prompt_naar_gpt(prompt: str, model: str = "gpt-4", temperatuur: float = 0.01, max_tokens: int = 300) -> str:
     """
     ✅ Standaardtemperatuur verlaagd naar 0.01 voor maximale voorspelbaarheid en herhaalbaarheid.
     ✅ Deze aanpassing zorgt ervoor dat de GPT-output bij gelijke input zo identiek mogelijk blijft.
+    ✅ Now includes intelligent caching to avoid redundant API calls.
     """
-    try:
-        antwoord = _client.chat.completions.create(
-            model=model,
-            messages=[{"role": "user", "content": prompt}],
-            temperature=temperatuur,
-            max_tokens=max_tokens,
-        )
-        return antwoord.choices[0].message.content.strip()
-    except OpenAIError as fout:
-        raise RuntimeError(f"GPT-aanroep mislukt: {fout}") from fout
+    from utils.cache import cached, cache_gpt_call
+    
+    # Generate cache key for this specific call
+    cache_key = cache_gpt_call(
+        prompt=prompt,
+        model=model,
+        temperature=temperatuur,
+        max_tokens=max_tokens
+    )
+    
+    # Use cached decorator for the actual GPT call
+    @cached(ttl=3600)  # Cache for 1 hour
+    def _make_gpt_call(cache_key: str, prompt: str, model: str, temperatuur: float, max_tokens: int) -> str:
+        try:
+            antwoord = _client.chat.completions.create(
+                model=model,
+                messages=[{"role": "user", "content": prompt}],
+                temperature=temperatuur,
+                max_tokens=max_tokens,
+            )
+            return antwoord.choices[0].message.content.strip()
+        except OpenAIError as fout:
+            raise RuntimeError(f"GPT-aanroep mislukt: {fout}") from fout
+    
+    return _make_gpt_call(cache_key, prompt, model, temperatuur, max_tokens)
 # ✅ Temperatuur nu standaard 0.01. Dit is zeer voorspelbaar, dus zeer geschikt voor strikte validatie- en logtoepassingen.

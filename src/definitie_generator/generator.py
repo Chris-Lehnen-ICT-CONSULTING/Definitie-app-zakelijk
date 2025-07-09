@@ -29,39 +29,45 @@ def genereer_definitie(
       • haalt achtergrondinformatie op
       • laadt en splitst toetsregels
       • bouwt de prompt
-      • voert GPT-aanroep uit
+      • voert GPT-aanroep uit (with intelligent caching)
 
     Retourneert:
         definitie_origineel (str): exact wat GPT-4 teruggeeft
     """
-    # 1️⃣ Achtergrond ophalen
-    web_uitleg = zoek_definitie_combinatie(begrip)
+    from utils.cache import cache_definition_generation
+    # Use caching for the entire definition generation process
+    @cache_definition_generation(ttl=3600)  # Cache for 1 hour
+    def _generate_cached_definition(begrip: str, context_dict: Dict[str, List[str]], model: str, temperature: float, max_tokens: int) -> str:
+        # 1️⃣ Achtergrond ophalen
+        web_uitleg = zoek_definitie_combinatie(begrip)
 
-    # 2️⃣ Toetsregels laden & splitsen
-    toetsregels       = laad_toetsregels()
+        # 2️⃣ Toetsregels laden & splitsen
+        toetsregels = laad_toetsregels()
 
-    # 3️⃣ Prompt bouwen
-    configuratie = PromptConfiguratie(
-        begrip=begrip,
-        context_dict=context_dict,
-        web_uitleg=web_uitleg,
-        toetsregels=toetsregels
-    )
-    bouwer = PromptBouwer(configuratie)
-    prompt = bouwer.bouw_prompt()
-
-    # 4️⃣ GPT-aanroep
-    try:
-        definitie_origineel = stuur_prompt_naar_gpt(
-            prompt,
-            model=model,
-            temperatuur=temperature,  # ✅ let op: 'temperatuur' met 'uur'
-            max_tokens=max_tokens
+        # 3️⃣ Prompt bouwen
+        configuratie = PromptConfiguratie(
+            begrip=begrip,
+            context_dict=context_dict,
+            web_uitleg=web_uitleg,
+            toetsregels=toetsregels
         )
-    except OpenAIError as e:
-        raise RuntimeError(f"Fout bij definitiegeneratie: {e}") from e
+        bouwer = PromptBouwer(configuratie)
+        prompt = bouwer.bouw_prompt()
 
-    # 5️⃣ Return alleen ongecorrigeerde definitie
-    return definitie_origineel
+        # 4️⃣ GPT-aanroep
+        try:
+            definitie_origineel = stuur_prompt_naar_gpt(
+                prompt,
+                model=model,
+                temperatuur=temperature,  # ✅ let op: 'temperatuur' met 'uur'
+                max_tokens=max_tokens
+            )
+        except OpenAIError as e:
+            raise RuntimeError(f"Fout bij definitiegeneratie: {e}") from e
+
+        # 5️⃣ Return alleen ongecorrigeerde definitie
+        return definitie_origineel
+    
+    return _generate_cached_definition(begrip, context_dict, model, temperature, max_tokens)
 
 # ✅ Default temperatuur nu 0.01: minimaliseert willekeur, maximaliseert contextuele precisie.

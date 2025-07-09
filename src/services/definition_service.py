@@ -17,10 +17,14 @@ from definitie_generator.generator import genereer_definitie
 from prompt_builder.prompt_builder import stuur_prompt_naar_gpt, PromptBouwer, PromptConfiguratie
 from ai_toetser import toets_definitie
 from opschoning.opschoning import opschonen
-from voorbeelden.voorbeelden import (
+# Use cached versions for better performance
+from voorbeelden.cached_voorbeelden import (
     genereer_voorbeeld_zinnen,
     genereer_praktijkvoorbeelden,
-    genereer_tegenvoorbeelden
+    genereer_tegenvoorbeelden,
+    genereer_synoniemen,
+    genereer_antoniemen,
+    genereer_toelichting
 )
 from log.log_definitie import log_definitie
 
@@ -215,17 +219,17 @@ class DefinitionService:
         try:
             return {
                 "toelichting": safe_execute(
-                    lambda: self._generate_explanation(begrip, context_dict),
+                    lambda: genereer_toelichting(begrip, context_dict),
                     default_value="",
                     error_message="Explanation generation failed"
                 ),
                 "synoniemen": safe_execute(
-                    lambda: self._generate_synonyms(begrip, context_dict),
+                    lambda: genereer_synoniemen(begrip, context_dict),
                     default_value="",
                     error_message="Synonyms generation failed"
                 ),
                 "antoniemen": safe_execute(
-                    lambda: self._generate_antonyms(begrip, context_dict),
+                    lambda: genereer_antoniemen(begrip, context_dict),
                     default_value="",
                     error_message="Antonyms generation failed"
                 )
@@ -235,41 +239,6 @@ class DefinitionService:
             self.logger.error(f"Additional content generation failed: {str(e)}")
             raise APIError(f"Aanvullende content generatie mislukt: {str(e)}")
     
-    def _generate_explanation(self, begrip: str, context_dict: Dict[str, List[str]]) -> str:
-        """Generate explanation for the term."""
-        prompt = (
-            f"Geef een korte toelichting op de betekenis en toepassing van het begrip '{begrip}', "
-            f"zoals het zou kunnen voorkomen in overheidsdocumenten.\n"
-            f"Gebruik de contexten hieronder alleen als achtergrond en noem ze niet letterlijk:\n\n"
-            f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-            f"Juridische context: {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-            f"Wettelijke basis: {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
-        )
-        return stuur_prompt_naar_gpt(prompt, temperatuur=0.3)
-    
-    def _generate_synonyms(self, begrip: str, context_dict: Dict[str, List[str]]) -> str:
-        """Generate synonyms for the term."""
-        prompt = (
-            f"Geef maximaal 5 synoniemen voor het begrip '{begrip}', "
-            f"relevant binnen de context van overheidsgebruik.\n"
-            f"Gebruik onderstaande contexten als achtergrond. Geef de synoniemen als een lijst, zonder toelichting:\n\n"
-            f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-            f"Juridische context: {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-            f"Wettelijke basis: {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
-        )
-        return stuur_prompt_naar_gpt(prompt, temperatuur=0.2, max_tokens=150)
-    
-    def _generate_antonyms(self, begrip: str, context_dict: Dict[str, List[str]]) -> str:
-        """Generate antonyms for the term."""
-        prompt = (
-            f"Geef maximaal 5 antoniemen voor het begrip '{begrip}', "
-            f"binnen de context van overheidsgebruik.\n"
-            f"Gebruik onderstaande contexten alleen als achtergrond. Geef de antoniemen als een lijst, zonder toelichting:\n\n"
-            f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-            f"Juridische context: {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-            f"Wettelijke basis: {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
-        )
-        return stuur_prompt_naar_gpt(prompt, temperatuur=0.2, max_tokens=150)
     
     def build_prompt(self, begrip: str, context_dict: Dict[str, List[str]]) -> str:
         """

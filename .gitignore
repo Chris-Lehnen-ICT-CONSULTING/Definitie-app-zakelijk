@@ -13,3 +13,7 @@ release/
 # 💚 Environment variables
 .env
 .env.*
+
+# 💚 Cache directories
+cache/
+test_cache/
