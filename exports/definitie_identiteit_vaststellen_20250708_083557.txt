@@ -1,0 +1,136 @@
+📘 Begrip: Identiteit vaststellen
+
+✏️ Definitie (gecorrigeerd): Betreft een activiteit waarbij op basis van unieke persoonskenmerken en officiële documenten de identiteit van een individu ondubbelzinnig wordt bepaald.
+
+📎 Oorspronkelijke definitie: Identiteit vaststellen betreft een activiteit waarbij op basis van unieke persoonskenmerken en officiële documenten de identiteit van een individu ondubbelzinnig wordt bepaald.
+
+🧾 Metadata:
+- marker: proces
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Het vaststellen van iemands identiteit is een proces waarbij de unieke kenmerken van een individu worden geverifieerd om te bevestigen wie ze beweren te zijn. Dit kan worden gedaan door het controleren van persoonlijke documenten, biometrische gegevens, digitale gegevens, enzovoort. 
+
+In de context van de strafrechtketen en het project Identiteitsbehandeling, zou dit proces kunnen verwijzen naar het verifiëren van de identiteit van een verdachte, slachtoffer, getuige of een andere betrokkene in een strafzaak. 
+
+De bronnen en kennis waarop deze definitie is gebaseerd, zijn onder andere:
+
+1. Wetboek van Strafvordering: Dit wettelijk kader bevat bepalingen over de procedures die moeten worden gevolgd bij het vaststellen van de identiteit van personen in strafzaken.
+
+2. Wet op de identificatieplicht: Deze wet verplicht iedereen in Nederland vanaf 14 jaar om een geldig identiteitsbewijs te kunnen tonen wanneer daarom wordt gevraagd door bevoegde autoriteiten.
+
+3. Richtlijnen van de Raad van Europa over identiteitscontrole: Deze richtlijnen bieden een kader voor het respecteren van de mensenrechten en de rechtsstaat bij het uitvoeren van identiteitscontroles.
+
+4. Algemene kennis over identiteitsverificatie en -beheer: Dit omvat best practices en standaarden in het veld, zoals het gebruik van biometrische gegevens, digitale identiteitsverificatie, enzovoort.
+
+5. Project Identiteitsbehandeling: Dit specifieke project kan eigen richtlijnen en procedures hebben voor het vaststellen van de identiteit, die zijn afgestemd op de specifieke behoeften en uitdagingen van de strafrechtketen. 
+
+Let op: zonder specifieke details over de juridische en wettelijke basis, is dit een algemene interpretatie van het begrip 'identiteit vaststellen' in de gegeven context.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ✔️ ESS-02: eenduidig als proces gedefinieerd (\b(is een|betreft een) (proces|activiteit|handeling|gebeurtenis)\b, \b(proces|activiteit|handeling|gebeurtenis)\b)
+- ✔️ ESS-03: unieke identificatiecriteria herkend (unieke)
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (waarbij, en), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (waarbij); antecedent niet expliciet gemaakt
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘betrefteenactiviteitwaarbijopbasisvanuniekepersoonskenmerkenenofficiëledocumentendeidentiteitvaneenindividuondubbelzinnigwordtbepaald.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ❌ STR-08: dubbelzinnige 'en' gevonden (, persoonskenmerken en officiële), context verduidelijken
+- ✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Betreft een activiteit waarbij op basis van unieke persoonskenmerken en officiële documenten de identiteit van een individu ondubbelzinnig wordt bepaald.' lijkt niet in infinitief te staan
+- ❌ ARAI01: werkwoord(en) als kern gevonden (wordt), geen toelichting herkend
+- ❌ ARAI02: containerbegrippen zonder specificatie gevonden (activiteit), onvoldoende concreet
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ❌ ARAI02SUB2: containerbegrippen gevonden (activiteit), onvoldoende specifiek
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Het vaststellen van iemands identiteit is een proces waarbij de unieke kenmerken van een individu worden geverifieerd om te bevestigen wie ze beweren te zijn. Dit kan worden gedaan door het controleren van persoonlijke documenten, biometrische gegevens, digitale gegevens, enzovoort. 
+- In de context van de strafrechtketen en het project Identiteitsbehandeling, zou dit proces kunnen verwijzen naar het verifiëren van de identiteit van een verdachte, slachtoffer, getuige of een andere betrokkene in een strafzaak. 
+- De bronnen en kennis waarop deze definitie is gebaseerd, zijn onder andere:
+- 1. Wetboek van Strafvordering: Dit wettelijk kader bevat bepalingen over de procedures die moeten worden gevolgd bij het vaststellen van de identiteit van personen in strafzaken.
+- 2. Wet op de identificatieplicht: Deze wet verplicht iedereen in Nederland vanaf 14 jaar om een geldig identiteitsbewijs te kunnen tonen wanneer daarom wordt gevraagd door bevoegde autoriteiten.
+- 3. Richtlijnen van de Raad van Europa over identiteitscontrole: Deze richtlijnen bieden een kader voor het respecteren van de mensenrechten en de rechtsstaat bij het uitvoeren van identiteitscontroles.
+- 4. Algemene kennis over identiteitsverificatie en -beheer: Dit omvat best practices en standaarden in het veld, zoals het gebruik van biometrische gegevens, digitale identiteitsverificatie, enzovoort.
+- 5. Project Identiteitsbehandeling: Dit specifieke project kan eigen richtlijnen en procedures hebben voor het vaststellen van de identiteit, die zijn afgestemd op de specifieke behoeften en uitdagingen van de strafrechtketen. 
+- Let op: zonder specifieke details over de juridische en wettelijke basis, is dit een algemene interpretatie van het begrip 'identiteit vaststellen' in de gegeven context.
+
+💡 Toelichting:
+'Identiteit vaststellen' verwijst naar het proces waarbij de identiteit van een persoon wordt bevestigd of geverifieerd. Dit kan gebeuren door middel van verschillende methoden, zoals het controleren van officiële documenten (bijvoorbeeld paspoorten, rijbewijzen), biometrische gegevens (zoals vingerafdrukken of gezichtsherkenning) of digitale identificatiemethoden (zoals DigiD in Nederland).
+
+In de context van overheidsdocumenten kan 'identiteit vaststellen' bijvoorbeeld worden gebruikt in procedures rondom immigratie, sociale zekerheid, belastingen, of strafrecht. Het is een cruciale stap om ervoor te zorgen dat diensten en rechten worden verleend aan de juiste persoon en om fraude, misbruik of andere vormen van criminaliteit te voorkomen.
+
+Bijvoorbeeld, in het kader van het Project Identiteitsbehandeling binnen de strafrechtketen, kan het vaststellen van de identiteit van een verdachte of veroordeelde persoon van groot belang zijn voor het correct toepassen van de wet en het waarborgen van de rechten van het individu. Het kan ook helpen om te zorgen voor een efficiënte en effectieve werking van het str
+
+🧢 Voorbeeldzinnen:
+- "Voordat we de transactie kunnen voltooien, moeten we eerst uw identiteit vaststellen."
+- "Bij het inchecken in het hotel, werd gevraagd mijn paspoort te tonen om mijn identiteit vast te stellen."
+- "De politie kon de identiteit van de verdachte vaststellen aan de hand van vingerafdrukken."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1: Politieonderzoek naar identiteitsfraude
+
+In een politieonderzoek naar identiteitsfraude wordt de identiteit van een verdachte vastgesteld. De unieke persoonskenmerken die in dit geval worden gebruikt, zijn de vingerafdrukken van de verdachte. Deze worden vergeleken met vingerafdrukken die zijn gevonden op de plaats delict. Tevens wordt een paspoort of identiteitskaart van de verdachte opgevraagd om zijn identiteit verder te bevestigen. De organisatorische context is hier de strafrechtketen, waarin de politie een belangrijke rol speelt. Hoewel er geen specifieke juridische of wettelijke context is, valt deze activiteit onder de algemene verantwoordelijkheid van de politie om misdrijven te onderzoeken.
+
+Voorbeeld 2: Identiteitscontrole bij een bank
+
+Een bank is wettelijk verplicht om de identiteit van haar klanten vast te stellen. Dit gebeurt op basis van unieke persoonskenmerken en officiële documenten. De klant moet bijvoorbeeld een geldig paspoort of identiteitskaart tonen. Daarnaast kan de bank aanvullende informatie vragen, zoals een bewijs van woonadres. De organisatorische context is in dit geval de financiële sector, met specifieke regelgeving rondom klantidentificatie (Know Your Customer). De juridische en wettelijke context wordt gevormd door de Wet ter voorkoming van witwassen en financieren van terrorisme (Wwft).
+
+Voorbeeld 3: Verificatie van identiteit bij online dienstverlening
+
+Bij online dienstverlening, bijvoorbeeld door de overheid of een zorginstelling, wordt de identiteit van een gebruiker vastgesteld door middel van unieke persoonskenmerken en officiële documenten. Hierbij kan gedacht worden aan het inloggen met DigiD, waarbij de combinatie van gebruikersnaam, wachtwoord en een unieke code via SMS of de DigiD app de identiteit van de gebruiker bevestigt. De organisatorische context is de digitale dienstverlening, met specifieke aandacht voor veiligheid en privacy. De juridische en wettelijke context wordt gevormd door de Algemene verordening gegevensbescherming (AVG) en de Wet digitale overheid.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1:
+Een politieagent houdt een verdachte aan op straat en vraagt om identificatie. De verdachte toont een rijbewijs, maar de agent maakt geen gebruik van een mobiel identificatieapparaat om de echtheid van het document te controleren. In dit geval is de variabele 'gebruik van technologie om de echtheid van officiële documenten te verifiëren' niet gevolgd.
+
+Voorbeeld 2:
+Bij een incheckbalie op een luchthaven moet een passagier zijn identiteit bewijzen. De medewerker controleert alleen het paspoort en neemt geen aanvullende stappen om de unieke persoonskenmerken van de passagier te verifiëren, zoals het vergelijken van de foto op het paspoort met het gezicht van de passagier. Hier wordt de contextregel 'verifiëren van unieke persoonskenmerken' niet gevolgd.
+
+🔁 Synoniemen:
+- 1. Identificatieproces
+- 2. Identiteitsverificatie
+- 3. Identiteitscontrole
+- 4. Identiteitsbeoordeling
+- 5. Identiteitsbepaling
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Identiteit negeren
+- 2. Identiteit verwaarlozen
+- 3. Identiteit overslaan
+- 4. Identiteit verbergen
+- 5. Identiteit ontkennen
