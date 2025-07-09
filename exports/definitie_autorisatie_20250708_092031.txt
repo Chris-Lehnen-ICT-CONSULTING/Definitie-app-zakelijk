@@ -1,0 +1,125 @@
+📘 Begrip: autorisatie
+
+✏️ Definitie (gecorrigeerd): Bevoegde instantie formele toestemming verleent voor toegang tot of gebruik van specifieke middelen, informatie of functionaliteiten.
+
+📎 Oorspronkelijke definitie: Autorisatie is het proces waarbij een bevoegde instantie formele toestemming verleent voor toegang tot of gebruik van specifieke middelen, informatie of functionaliteiten.
+
+🧾 Metadata:
+- marker: proces
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaring of kennis, maar ik kan informatie verstrekken op basis van een breed scala aan bronnen. 
+
+De definitie van 'autorisatie' is gebaseerd op algemene definities uit informatietechnologie en informatiebeveiliging. Autorisatie is het proces waarbij een entiteit de goedkeuring krijgt om toegang te krijgen tot een bron of om een bepaalde actie uit te voeren. In de context van de strafrechtketen en het project Identiteitsbehandeling kan dit betrekking hebben op het verlenen van toegang tot bepaalde systemen, databases of informatie op basis van de identiteit en rol van een individu.
+
+Er zijn verschillende normen en richtlijnen die betrekking hebben op autorisatie, zoals de ISO/IEC 27001 norm voor informatiebeveiliging, die vereist dat toegangsrechten worden beperkt tot een 'need-to-know' basis. 
+
+In de Nederlandse context kan de Algemene Verordening Gegevensbescherming (AVG) ook relevant zijn, aangezien deze wet regels stelt voor de verwerking van persoonsgegevens, waaronder regels voor toegang en autorisatie.
+
+Daarnaast kunnen er specifieke wetten en richtlijnen zijn die van toepassing zijn op de strafrechtketen, zoals de Wet justitiële en strafvorderlijke gegevens, die regels stelt voor de verwerking van justitiële gegevens.
+
+Let op: deze informatie is algemeen en mogelijk niet volledig van toepassing op de specifieke context van de strafrechtketen en het project Identiteitsbehandeling. Voor een volledig overzicht van de relevante wetten en richtlijnen zou een juridisch expert geraadpleegd moeten worden.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ❌ ESS-02: geen duidelijke ontologische marker (type, particulier, proces of resultaat) gevonden
+- ❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (,, of), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ✔️ INT-03: geen onduidelijke voornaamwoord-verwijzing aangetroffen
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘bevoegdeinstantieformeletoestemmingverleentvoortoegangtotofgebruikvanspecifiekemiddelen,informatieoffunctionaliteiten.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen
+- ❌ STR-09: dubbelzinnige 'of' gevonden (middelen, informatie of functionaliteiten, informatie of functionaliteiten, tot of gebruik, of), context verduidelijken
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Bevoegde instantie formele toestemming verleent voor toegang tot of gebruik van specifieke middelen, informatie of functionaliteiten.' lijkt niet in infinitief te staan
+- ✔️ ARAI01: geen werkwoorden als kern gevonden in de definitie
+- ✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ✔️ ARAI02SUB2: geen ambtelijke containerbegrippen aangetroffen
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Als AI heb ik geen persoonlijke ervaring of kennis, maar ik kan informatie verstrekken op basis van een breed scala aan bronnen. 
+- De definitie van 'autorisatie' is gebaseerd op algemene definities uit informatietechnologie en informatiebeveiliging. Autorisatie is het proces waarbij een entiteit de goedkeuring krijgt om toegang te krijgen tot een bron of om een bepaalde actie uit te voeren. In de context van de strafrechtketen en het project Identiteitsbehandeling kan dit betrekking hebben op het verlenen van toegang tot bepaalde systemen, databases of informatie op basis van de identiteit en rol van een individu.
+- Er zijn verschillende normen en richtlijnen die betrekking hebben op autorisatie, zoals de ISO/IEC 27001 norm voor informatiebeveiliging, die vereist dat toegangsrechten worden beperkt tot een 'need-to-know' basis. 
+- In de Nederlandse context kan de Algemene Verordening Gegevensbescherming (AVG) ook relevant zijn, aangezien deze wet regels stelt voor de verwerking van persoonsgegevens, waaronder regels voor toegang en autorisatie.
+- Daarnaast kunnen er specifieke wetten en richtlijnen zijn die van toepassing zijn op de strafrechtketen, zoals de Wet justitiële en strafvorderlijke gegevens, die regels stelt voor de verwerking van justitiële gegevens.
+- Let op: deze informatie is algemeen en mogelijk niet volledig van toepassing op de specifieke context van de strafrechtketen en het project Identiteitsbehandeling. Voor een volledig overzicht van de relevante wetten en richtlijnen zou een juridisch expert geraadpleegd moeten worden.
+
+💡 Toelichting:
+Autorisatie in overheidsdocumenten verwijst naar het proces waarbij een individu of entiteit de officiële toestemming krijgt om bepaalde acties uit te voeren of toegang te krijgen tot bepaalde informatie. Het is een belangrijk aspect van informatiebeveiliging en gegevensbeheer. Autorisatie kan bijvoorbeeld betrekking hebben op het verlenen van toegang tot een bepaald systeem, het goedkeuren van een bepaalde procedure of het toestaan van bepaalde handelingen.
+
+In de context van de strafrechtketen kan autorisatie bijvoorbeeld betrekking hebben op wie toegang heeft tot bepaalde juridische documenten of wie bevoegd is om bepaalde beslissingen te nemen. In een project zoals Identiteitsbehandeling kan autorisatie betrekking hebben op wie toegang heeft tot persoonlijke identiteitsgegevens en wie bevoegd is om deze te wijzigen of te verwerken. 
+
+Het is belangrijk om op te merken dat autorisatie altijd moet worden beheerd en gecontroleerd om misbruik van informatie of bevoegdheden te voorkomen. Het moet ook altijd worden gedocumenteerd om verantwoording en
+
+🧢 Voorbeeldzinnen:
+- "Voordat je toegang krijgt tot deze gevoelige informatie, moet je eerst de nodige autorisatie ontvangen van de beveiligingsmanager."
+- "Ondanks dat ze de juiste inloggegevens had, kon ze de database niet openen omdat ze niet de benodigde autorisatie had."
+- "De directeur gaf de nodige autorisatie aan de projectleider om de volgende fase van het project Identiteitsbehandeling te starten."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1: Toegang tot gevoelige informatie in een ziekenhuis
+
+In een ziekenhuis is autorisatie van groot belang voor de bescherming van patiëntengegevens. In dit geval is de bevoegde instantie het ziekenhuisbestuur of de IT-afdeling. Zij verlenen formele toestemming aan specifieke medewerkers, zoals artsen en verpleegkundigen, om toegang te krijgen tot patiëntendossiers. Deze autorisatie is noodzakelijk om de privacy van patiënten te waarborgen en te voldoen aan de wetgeving op het gebied van gegevensbescherming, zoals de AVG in Europa.
+
+Voorbeeld 2: Gebruik van specifieke software in een bedrijf
+
+In een bedrijf kan autorisatie betrekking hebben op het gebruik van specifieke software. De IT-afdeling, als bevoegde instantie, verleent formele toestemming aan bepaalde werknemers om bepaalde software te gebruiken die nodig is voor hun werk. Deze autorisatie kan ook beperkingen bevatten, bijvoorbeeld dat de software alleen mag worden gebruikt voor werkdoeleinden en niet voor persoonlijk gebruik. Het niet naleven van deze autorisatie kan juridische gevolgen hebben, zoals disciplinaire maatregelen of ontslag.
+
+Voorbeeld 3: Toegang tot beveiligde gebieden in een luchthaven
+
+Op een luchthaven is autorisatie vereist voor toegang tot beveiligde gebieden, zoals de landingsbaan of de bagageafhandelingsruimte. De bevoegde instantie in dit geval zou de luchthavenbeveiliging kunnen zijn. Zij verlenen formele toestemming aan specifieke werknemers of aannemers om deze gebieden te betreden. Deze autorisatie is noodzakelijk om de veiligheid op de luchthaven te waarborgen en te voldoen aan de nationale en internationale veiligheidsvoorschriften. Het overtreden van deze autorisatie kan leiden tot ernstige juridische en wettelijke gevolgen, waaronder boetes en gevangenisstraf.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1: Een medewerker van de politie heeft zonder toestemming toegang verkregen tot vertrouwelijke informatie over een lopend onderzoek. In dit geval is er geen autorisatie verleend door een bevoegde instantie, wat betekent dat de medewerker de regels rondom autorisatie niet heeft gevolgd.
+
+Voorbeeld 2: Een IT-medewerker binnen het Project Identiteitsbehandeling heeft zonder formele toestemming wijzigingen aangebracht in de systeemconfiguratie. Dit is een overtreding van het autorisatieproces, aangezien de IT-medewerker geen formele toestemming had gekregen van een bevoegde instantie om deze specifieke functionaliteit te gebruiken of te wijzigen.
+
+🔁 Synoniemen:
+- 1. Toestemming
+- 2. Goedkeuring
+- 3. Bevoegdheid
+- 4. Machtiging
+- 5. Accreditatie
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Verbod
+- 2. Weigering
+- 3. Ontzegging
+- 4. Intrekking
+- 5. Blokkade
