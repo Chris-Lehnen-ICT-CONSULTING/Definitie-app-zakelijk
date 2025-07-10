@@ -3,12 +3,11 @@ Async voorbeelden (examples) generation for DefinitieAgent.
 Provides concurrent generation of all example types for improved performance.
 """
 
-import asyncio
 import logging
-from typing import List, Dict, Tuple, Optional, Callable
+from typing import List, Dict, Optional, Callable
 from dataclasses import dataclass
 
-from utils.async_api import async_gpt_call, async_batch_gpt_calls, async_cached
+from utils.async_api import async_gpt_call, async_cached
 
 logger = logging.getLogger(__name__)
 

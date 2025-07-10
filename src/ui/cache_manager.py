@@ -4,7 +4,6 @@ Provides interface for monitoring and managing the caching system.
 """
 
 import streamlit as st
-from typing import Dict, Any
 from utils.cache import get_cache_stats, clear_cache, configure_cache
 
 

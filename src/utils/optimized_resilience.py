@@ -6,7 +6,7 @@ Consolidates resilience.py, integrated_resilience.py, and resilience_summary.py.
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Callable, Any, Union
+from typing import Dict, List, Optional, Callable, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import wraps
@@ -300,7 +300,7 @@ class OptimizedResilienceSystem:
             
             return result
             
-        except Exception as e:
+        except Exception:
             # Record failure
             duration = time.time() - time.time()  # Would be tracked properly
             await self.rate_limiter.record_response(duration, False, priority)
@@ -656,14 +656,14 @@ async def test_optimized_resilience():
         system = await get_resilience_system()
         status = system.get_system_status()
         
-        print(f"\n📊 System Status:")
+        print("\n📊 System Status:")
         print(f"  Started: {status['system_started']}")
         print(f"  Endpoints monitored: {len(status['health_metrics'])}")
         print(f"  Failed requests: {status['failed_requests_count']}")
         
         # Get health report
         health = system.get_health_report()
-        print(f"\n🏥 Health Report:")
+        print("\n🏥 Health Report:")
         print(f"  Overall health: {health['overall_health']}")
         print(f"  Healthy endpoints: {health['healthy_count']}/{health['total_endpoints']}")
         

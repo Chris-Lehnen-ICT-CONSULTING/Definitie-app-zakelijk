@@ -3,8 +3,7 @@ Session state management for DefinitieAgent Streamlit application.
 """
 
 import streamlit as st
-from typing import Dict, Any, Optional, List
-from datetime import datetime
+from typing import Dict, Any, List
 
 
 class SessionStateManager:

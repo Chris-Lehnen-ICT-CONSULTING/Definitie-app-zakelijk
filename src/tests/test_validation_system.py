@@ -4,12 +4,10 @@ Tests input validation, sanitization, Dutch text validation, and security middle
 """
 
 import asyncio
-import pytest
 from datetime import datetime
-from typing import Dict, Any
 
 from validation.input_validator import (
-    get_validator, ValidationSeverity, ValidationType, ValidationSchema
+    get_validator, ValidationSeverity, ValidationSchema
 )
 from validation.sanitizer import (
     get_sanitizer, SanitizationLevel, ContentType

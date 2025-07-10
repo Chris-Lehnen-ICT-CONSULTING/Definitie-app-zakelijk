@@ -7,15 +7,12 @@ import asyncio
 import logging
 import time
 from typing import Dict, List, Any, Optional, Tuple, Callable
-from datetime import datetime
 from dataclasses import dataclass
 
 from utils.exceptions import (
-    handle_api_error, handle_validation_error, 
-    APIError, ValidationError, safe_execute,
-    log_and_display_error
+    APIError, ValidationError
 )
-from utils.async_api import async_gpt_call, get_async_client
+from utils.async_api import async_gpt_call
 from ui.session_state import SessionStateManager
 from voorbeelden.async_voorbeelden import async_generate_all_examples, ExampleGenerationResult
 from definitie_generator.generator import genereer_definitie

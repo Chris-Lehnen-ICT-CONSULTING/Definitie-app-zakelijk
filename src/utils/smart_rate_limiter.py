@@ -6,9 +6,9 @@ Implements token bucket algorithm, dynamic rate adjustment, and priority queuing
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Callable, Any, Tuple
+from typing import Dict, Optional, Callable, Any
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime
 from enum import Enum
 from collections import deque
 import json
@@ -468,7 +468,7 @@ def with_smart_rate_limit(
                 await limiter.record_response(response_time, True, priority)
                 return result
                 
-            except Exception as e:
+            except Exception:
                 response_time = time.time() - function_start
                 await limiter.record_response(response_time, False, priority)
                 raise

@@ -7,16 +7,15 @@ import asyncio
 import logging
 import json
 import time
-from typing import Dict, List, Optional, Callable, Any, Union, Tuple
-from dataclasses import dataclass, field, asdict
+from typing import Dict, List, Optional, Callable, Any, Tuple
+from dataclasses import dataclass, asdict
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
 import pickle
 
-from openai import OpenAIError
-from utils.enhanced_retry import AdaptiveRetryManager, RetryConfig
-from utils.smart_rate_limiter import SmartRateLimiter, RateLimitConfig, RequestPriority
+from utils.enhanced_retry import AdaptiveRetryManager
+from utils.smart_rate_limiter import SmartRateLimiter, RequestPriority
 
 logger = logging.getLogger(__name__)
 
@@ -650,7 +649,7 @@ async def test_resilience_framework():
         
         # Show system health
         health = framework.get_system_health()
-        print(f"📊 System Health:")
+        print("📊 System Health:")
         for endpoint, metrics in health['health_monitor'].items():
             print(f"  {endpoint}: {metrics.get('status', 'unknown')}")
         

@@ -5,12 +5,10 @@ Handles the complete definition generation and validation workflow.
 
 import logging
 from typing import Dict, List, Any, Optional, Tuple
-from datetime import datetime
 
 from utils.exceptions import (
     handle_api_error, handle_validation_error, 
-    APIError, ValidationError, safe_execute,
-    log_and_display_error
+    APIError, ValidationError, safe_execute
 )
 from ui.session_state import SessionStateManager
 from definitie_generator.generator import genereer_definitie

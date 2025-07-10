@@ -3,7 +3,6 @@ Main application file for DefinitieAgent - refactored version.
 A Streamlit application for generating and validating legal definitions.
 """
 
-import os
 import streamlit as st
 from dotenv import load_dotenv
 

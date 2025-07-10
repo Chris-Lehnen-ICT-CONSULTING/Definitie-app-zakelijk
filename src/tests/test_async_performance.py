@@ -5,7 +5,6 @@ Demonstrates the speed improvements of parallel processing.
 
 import asyncio
 import time
-import logging
 from typing import Dict, List
 
 # Mock implementations for testing without API calls
