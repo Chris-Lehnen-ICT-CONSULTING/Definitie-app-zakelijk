@@ -7,15 +7,15 @@ import asyncio
 import logging
 import random
 import time
-from typing import Dict, List, Optional, Callable, Any, Union
-from dataclasses import dataclass, field
+from typing import Dict, List, Optional, Callable, Any
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
 import json
 from pathlib import Path
 
-from openai import OpenAIError, RateLimitError, APIError, APIConnectionError
+from openai import RateLimitError, APIError, APIConnectionError
 
 logger = logging.getLogger(__name__)
 

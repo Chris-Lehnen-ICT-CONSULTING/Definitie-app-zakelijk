@@ -6,7 +6,6 @@ Shows the complete Phase 2.3 implementation with all features.
 import asyncio
 import logging
 import time
-from typing import Dict, Any
 from utils.integrated_resilience import (
     IntegratedResilienceSystem, 
     IntegratedConfig,

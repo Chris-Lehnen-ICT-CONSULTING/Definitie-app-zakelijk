@@ -10,13 +10,12 @@ from typing import List, Dict, Any, Optional, Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import wraps
-import time
 
 from openai import AsyncOpenAI
 from openai import OpenAIError
 from dotenv import load_dotenv
 
-from utils.cache import cached, cache_gpt_call
+from utils.cache import cache_gpt_call
 
 load_dotenv()
 logger = logging.getLogger(__name__)

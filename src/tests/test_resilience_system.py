@@ -7,8 +7,7 @@ import asyncio
 import pytest
 import random
 import time
-from typing import Dict, Any
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 
 from utils.enhanced_retry import AdaptiveRetryManager, RetryConfig, with_enhanced_retry
 from utils.smart_rate_limiter import SmartRateLimiter, RateLimitConfig, RequestPriority
