@@ -48,23 +48,29 @@ class DefinitionGeneratorTab:
             SessionStateManager.set_value("begrip", begrip)
         
         with col2:
-            # Ontologische categorie
-            categorie_options = {
-                "Type/Soort": "type",
-                "Proces/Activiteit": "proces", 
-                "Resultaat/Uitkomst": "resultaat",
-                "Exemplaar/Instantie": "exemplaar"
-            }
+            # AI categorie informatie
+            st.markdown("🤖 **AI Categorie Bepaling**")
+            st.info("De ontologische categorie wordt automatisch door de AI bepaald")
             
-            selected_cat = st.selectbox(
-                "Ontologische categorie",
-                options=list(categorie_options.keys()),
-                index=0,
-                help="Bepaalt het type definitie dat gegenereerd wordt"
-            )
-            
-            categorie = categorie_options[selected_cat]
-            SessionStateManager.set_value("categorie", categorie)
+            # Handmatige override (voor advanced users)
+            with st.expander("🔧 Handmatige Override (Advanced)", expanded=False):
+                categorie_options = {
+                    "Auto-bepaald door AI": "auto",
+                    "Type/Soort": "type",
+                    "Proces/Activiteit": "proces", 
+                    "Resultaat/Uitkomst": "resultaat",
+                    "Exemplaar/Instantie": "exemplaar"
+                }
+                
+                selected_cat = st.selectbox(
+                    "Forceer categorie",
+                    options=list(categorie_options.keys()),
+                    index=0,
+                    help="Alleen voor experts - laat AI automatisch bepalen tenzij specifieke reden"
+                )
+                
+                categorie = categorie_options[selected_cat]
+                SessionStateManager.set_value("categorie_override", categorie)
         
         # Advanced options
         with st.expander("🔧 Geavanceerde Opties", expanded=False):
