@@ -1,0 +1,32 @@
+{
+  "id": "STR-09",
+  "naam": "Dubbelzinnige 'of' is verboden",
+  "uitleg": "Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.",
+  "toelichting": "Het gebruik van 'of' kan leiden tot verwarring als niet duidelijk is of beide alternatieven toegestaan zijn (inclusief of) of slechts één (exclusief of). In definities moet dit expliciet zijn.",
+  "toetsvraag": "Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?",
+  "herkenbaar_patronen": [
+    "\\bof\\b",
+    "\\b(paspoort|identiteitskaart)\\b.*\\bof\\b.*\\b(paspoort|identiteitskaart)\\b",
+    "\\bofwel\\b"
+  ],
+  "goede_voorbeelden": [
+    "Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart"
+  ],
+  "foute_voorbeelden": [
+    "Een persoon met een paspoort of identiteitskaart",
+    "Een verdachte is iemand die een misdrijf beraamt of uitvoert"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "gehele definitie",
+  "thema": "structuur van de definitie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Dubbelzinnige 'of' is verboden",
+      "fullurl": "https://www.astraonline.nl/index.php/Dubbelzinnige_'of'_is_verboden"
+    }
+  ]
+}

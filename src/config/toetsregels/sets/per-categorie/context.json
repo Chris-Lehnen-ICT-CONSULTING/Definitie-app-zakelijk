@@ -1,0 +1,8 @@
+{
+  "naam": "Context Regels (CON)",
+  "beschrijving": "Regels voor contextuele formulering",
+  "regels": [
+    "CON-01",
+    "CON-02"
+  ]
+}

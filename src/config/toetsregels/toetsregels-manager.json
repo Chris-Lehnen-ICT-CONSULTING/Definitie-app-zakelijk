@@ -1,0 +1,37 @@
+{
+  "versie": "1.0.0",
+  "beschrijving": "Centrale configuratie voor modulaire toetsregels",
+  "directories": {
+    "regels": "regels/",
+    "sets": "sets/",
+    "cache": "cache/"
+  },
+  "default_sets": {
+    "basis": "sets/per-prioriteit/verplicht-hoog.json",
+    "volledig": "sets/per-prioriteit/verplicht.json"
+  },
+  "cache_settings": {
+    "enabled": true,
+    "ttl_seconds": 3600,
+    "max_items": 1000
+  },
+  "validatie": {
+    "verplichte_velden": [
+      "id",
+      "naam",
+      "uitleg",
+      "prioriteit",
+      "aanbeveling"
+    ],
+    "toegestane_prioriteiten": [
+      "hoog",
+      "midden",
+      "laag"
+    ],
+    "toegestane_aanbevelingen": [
+      "verplicht",
+      "aanbevolen",
+      "optioneel"
+    ]
+  }
+}

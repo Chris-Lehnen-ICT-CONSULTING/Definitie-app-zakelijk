@@ -1,0 +1,28 @@
+{
+  "naam": "Kritieke Regels",
+  "beschrijving": "Regels die zowel verplicht als hoge prioriteit hebben",
+  "regels": [
+    "SAM-03",
+    "STR-06",
+    "SAM-04",
+    "ESS-02",
+    "CON-02",
+    "ARAI06",
+    "STR-04",
+    "ESS-03",
+    "INT-10",
+    "VER-01",
+    "INT-06",
+    "SAM-02",
+    "INT-03",
+    "SAM-08",
+    "SAM-07",
+    "ESS-01",
+    "STR-01",
+    "ESS-05",
+    "SAM-05",
+    "STR-02",
+    "CON-01",
+    "STR-03"
+  ]
+}
