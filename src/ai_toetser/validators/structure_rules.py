@@ -4,7 +4,6 @@ These rules validate the structural aspects of definitions.
 """
 
 import re
-from typing import Set
 from .base_validator import BaseValidator, ValidationContext, ValidationOutput, ValidationResult
 
 

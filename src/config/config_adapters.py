@@ -9,8 +9,7 @@ from typing import Dict, Any, Optional
 from dataclasses import asdict
 
 from config.config_manager import (
-    get_config_manager, get_config, ConfigSection,
-    APIConfig, CacheConfig, RateLimitingConfig, ResilienceConfig
+    get_config_manager, get_config, ConfigSection
 )
 from utils.enhanced_retry import RetryConfig
 from utils.smart_rate_limiter import RateLimitConfig
@@ -476,7 +475,7 @@ if __name__ == "__main__":
     print(f"Organizational contexts: {len(ui_config.config.organizational_contexts)}")
     
     # Test backward compatibility
-    print(f"\nBackward compatibility:")
+    print("\nBackward compatibility:")
     print(f"Default model: {get_default_model()}")
     print(f"Cache directory: {get_cache_directory()}")
     print(f"Allowed toetsregels: {len(get_allowed_toetsregels())}")

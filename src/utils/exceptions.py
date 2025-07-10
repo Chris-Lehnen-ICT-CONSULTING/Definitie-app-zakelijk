@@ -3,7 +3,7 @@ Custom exceptions and error handling utilities for DefinitieAgent.
 """
 
 import logging
-from typing import Optional, Any
+from typing import Any
 from functools import wraps
 
 

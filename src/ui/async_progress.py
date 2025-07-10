@@ -6,14 +6,13 @@ Provides real-time progress tracking for async operations.
 import streamlit as st
 import asyncio
 import time
-from typing import Optional, Callable, Any, Dict
+from typing import Any, Dict
 from dataclasses import dataclass
 
 from services.async_definition_service import (
     get_async_definition_service, 
     AsyncProcessingResult
 )
-from voorbeelden.async_voorbeelden import ExampleGenerationResult
 
 
 @dataclass

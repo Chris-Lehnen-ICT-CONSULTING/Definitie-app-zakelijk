@@ -2,7 +2,7 @@
 # 📍 in de root van je project
 
 import os
-from typing import Optional, Dict, List
+from typing import Dict, List
 
 from openai import OpenAI, OpenAIError
 

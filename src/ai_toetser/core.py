@@ -676,7 +676,7 @@ def toets_INT_07(definitie: str, regel: dict) -> str:
         # check op Markdown link [AB](…)
         has_mdlink  = bool(re.search(rf"\[{esc}\]\(.*?\)", tekst))
         # check op Wiki-link [[…]]
-        has_wikilink = bool(re.search(rf"\[\[.*?\]\]", tekst))
+        has_wikilink = bool(re.search(r"\[\[.*?\]\]", tekst))
 
         if not (has_parenth or has_mdlink or has_wikilink):
             zonder_toelichting.append(ab)
@@ -685,7 +685,7 @@ def toets_INT_07(definitie: str, regel: dict) -> str:
     if zonder_toelichting:
         labels = ", ".join(zonder_toelichting)
         return f"❌ INT-07: geen toelichting voor afkorting(en): {labels}"
-    return f"✔️ INT-07: alle afkortingen voorzien van directe toelichting of link"
+    return "✔️ INT-07: alle afkortingen voorzien van directe toelichting of link"
 # ✅ Toetsing voor regel INT-08 (Positieve formulering)
 def toets_INT_08(definitie: str, regel: Dict) -> str:
     """
@@ -954,7 +954,7 @@ def toets_SAM_02(definitie: str, regel: Dict[str, Any]) -> str:
         count = len(re.findall(rf'\b{re.escape(basisterm)}\b', body_lc))
         if count > 1:
             return f"❌ SAM-02: overbodige herhaling van '{basisterm}' in differentia"
-        return f"✔️ SAM-02: gekwalificeerde definitie sluit aan op genus+differentia-patroon"
+        return "✔️ SAM-02: gekwalificeerde definitie sluit aan op genus+differentia-patroon"
 
     # 3️⃣ 💚 Fallback: regex-based herhalingscheck
     count_fallback = len(re.findall(rf'\b{re.escape(basisterm)}\b', body_lc))

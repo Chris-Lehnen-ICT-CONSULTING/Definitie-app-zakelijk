@@ -5,7 +5,7 @@ Provides specialized validation for Dutch language content, government terminolo
 
 import re
 import logging
-from typing import Dict, List, Any, Optional, Set, Tuple
+from typing import Dict, List, Any, Optional, Set
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime
@@ -590,7 +590,7 @@ async def test_dutch_validator():
     
     # Show statistics
     stats = validator.get_validation_statistics()
-    print(f"\n📊 Validation Statistics:")
+    print("\n📊 Validation Statistics:")
     print(f"   Total validations: {stats['total_validations']}")
     print(f"   Success rate: {stats['success_rate']:.1%}")
     print(f"   Average issues per validation: {stats['avg_issues_per_validation']:.1f}")
@@ -606,7 +606,7 @@ async def test_dutch_validator():
     complex_text = "De implementatie van een geïntegreerd identiteitsmanagementsysteem vereist een uitgebreide evaluatie van de bestaande infrastructuur en de ontwikkeling van nieuwe beveiligingsprotocollen."
     result = validator.validate_text(complex_text, DutchTextType.TECHNICAL)
     if result.statistics:
-        print(f"\n📈 Text Statistics:")
+        print("\n📈 Text Statistics:")
         print(f"   Readability score: {result.statistics.get('readability_score', 0):.1f}/100")
         print(f"   Average word length: {result.statistics.get('avg_word_length', 0):.1f}")
         print(f"   Average sentence length: {result.statistics.get('avg_sentence_length', 0):.1f} words")

@@ -5,7 +5,7 @@ Consolidates synchronous, asynchronous, and cached example generation.
 
 import asyncio
 import logging
-from typing import List, Optional, Dict, Any, Union
+from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
 from enum import Enum
 import re
@@ -530,7 +530,7 @@ async def test_unified_examples():
     
     # Show statistics
     stats = generator.get_statistics()
-    print(f"\n📊 Statistics:")
+    print("\n📊 Statistics:")
     print(f"   Total generations: {stats['total_generations']}")
     print(f"   Success rate: {stats['success_rate']:.1%}")
     print(f"   Cache hits: {stats['cache_hits']}")

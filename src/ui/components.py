@@ -6,11 +6,11 @@ import streamlit as st
 import pandas as pd
 import json
 import os
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any
 from datetime import datetime
 
 from ui.session_state import SessionStateManager
-from utils.exceptions import log_and_display_error, safe_execute
+from utils.exceptions import log_and_display_error
 from config.verboden_woorden import laad_verboden_woorden, sla_verboden_woorden_op, log_test_verboden_woord
 
 

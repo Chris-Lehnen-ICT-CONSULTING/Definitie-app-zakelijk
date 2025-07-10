@@ -5,19 +5,16 @@ Provides comprehensive request validation, threat detection, and security monito
 
 import asyncio
 import logging
-import time
-from typing import Dict, List, Any, Optional, Callable, Union
+from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
 from datetime import datetime, timedelta
 import json
 from pathlib import Path
-import hashlib
 import re
-from urllib.parse import urlparse
 
 from validation.input_validator import get_validator, ValidationSeverity
-from validation.sanitizer import get_sanitizer, SanitizationLevel, ContentType
+from validation.sanitizer import get_sanitizer
 
 logger = logging.getLogger(__name__)
 
@@ -675,7 +672,7 @@ async def test_security_middleware():
     
     # Generate security report
     report = middleware.get_security_report()
-    print(f"\n📊 Security Report:")
+    print("\n📊 Security Report:")
     print(f"  Total events: {report['total_security_events']}")
     print(f"  Blocked requests: {report['blocked_requests']}")
     print(f"  Block rate: {report['block_rate']:.1%}")

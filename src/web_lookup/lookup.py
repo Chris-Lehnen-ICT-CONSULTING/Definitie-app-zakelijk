@@ -65,7 +65,7 @@ def zoek_definitie_op_wiktionary(begrip: str) -> str:
     en retourneert de eerste definitie van het lemma.
     """
     zoekterm = begrip.replace(" ", "_")
-    url = f"https://nl.wiktionary.org/w/api.php"
+    url = "https://nl.wiktionary.org/w/api.php"
     params = {
         "action": "query",
         "format": "json",

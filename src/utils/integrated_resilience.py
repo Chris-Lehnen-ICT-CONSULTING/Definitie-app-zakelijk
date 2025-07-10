@@ -6,19 +6,18 @@ Combines enhanced retry logic, smart rate limiting, resilience framework, and mo
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Callable, Any, Union
+from typing import Dict, Optional, Callable, Any
 from dataclasses import dataclass
-from datetime import datetime
 from functools import wraps
 
 from utils.enhanced_retry import (
-    AdaptiveRetryManager, RetryConfig, with_enhanced_retry
+    AdaptiveRetryManager, RetryConfig
 )
 from utils.smart_rate_limiter import (
-    SmartRateLimiter, RateLimitConfig, RequestPriority, with_smart_rate_limit
+    SmartRateLimiter, RateLimitConfig, RequestPriority
 )
 from utils.resilience import (
-    ResilienceFramework, ResilienceConfig, with_resilience
+    ResilienceFramework, ResilienceConfig
 )
 from monitoring.api_monitor import (
     get_metrics_collector, record_api_call
@@ -416,7 +415,7 @@ async def test_integrated_system():
         system = await get_integrated_system()
         status = system.get_system_status()
         
-        print(f"\n📊 System Status:")
+        print("\n📊 System Status:")
         print(f"  Started: {status['system_started']}")
         print(f"  Retry Manager State: {status['retry_manager']['circuit_state']}")
         print(f"  Rate Limiter Rate: {status['rate_limiter']['current_rate']:.2f} req/sec")
