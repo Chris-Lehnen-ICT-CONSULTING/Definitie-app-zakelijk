@@ -253,7 +253,7 @@ class ContentSanitizer:
                         changes_made.append("HTML entity encoding applied")
                 
                 # Path traversal prevention
-                if "../" in sanitized_value or "..\\\" in sanitized_value:
+                if "../" in sanitized_value or "..\\" in sanitized_value:
                     sanitized_value = sanitized_value.replace("../", "").replace("..\\", "")
                     changes_made.append("Path traversal patterns removed")
                     warnings.append("Potential path traversal attempt detected")

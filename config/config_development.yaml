@@ -1,107 +1,197 @@
-# Development Environment Configuration
-# Settings specific to development environment
-
-# API Configuration - Development settings
 api:
-  default_temperature: 0.1  # Higher for more variation in development
-  request_timeout: 60.0  # Longer timeout for debugging
-  max_retries: 5  # More retries for unstable development
-
-# Cache Configuration - Development settings
+  default_max_tokens: 300
+  default_model: gpt-4
+  default_temperature: 0.9
+  max_retries: 5
+  model_settings:
+    gpt-3.5-turbo:
+      cost_per_token: 1.5e-06
+      max_tokens: 350
+      temperature: 0.1
+    gpt-4:
+      cost_per_token: 3.0e-05
+      max_tokens: 300
+      temperature: 0.01
+  openai_api_key: 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
+  request_timeout: 60.0
+  retry_backoff_factor: 1.5
 cache:
-  default_ttl: 600  # Shorter TTL for development (10 minutes)
-  max_cache_size: 500  # Smaller cache for development
-  cleanup_interval: 120  # More frequent cleanup
-
-# Monitoring Configuration - Development settings
-monitoring:
+  cache_dir: cache
+  cleanup_interval: 120
+  default_ttl: 600
+  definition_ttl: 3600
   enabled: true
+  examples_ttl: 1800
+  max_cache_size: 500
+  synonyms_ttl: 7200
+  validation_ttl: 900
+logging:
+  backup_count: 5
+  console_enabled: true
+  date_format: '%Y-%m-%d %H:%M:%S'
+  file_enabled: true
+  format: '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+  level: DEBUG
+  log_file: log/definitie_agent_dev.log
+  max_log_size: 10485760
+  module_levels:
+    definitie_agent: DEBUG
+    openai: INFO
+    requests: INFO
+    urllib3: INFO
+monitoring:
   collect_metrics: true
-  export_metrics: true  # Enable export in development
-  
-  # Lower thresholds for development
-  error_rate_threshold: 0.2
-  response_time_threshold: 10.0
+  cost_calculation_interval: 120
   cost_threshold_daily: 5.0
   cost_threshold_monthly: 50.0
-  
-  # More frequent monitoring in development
-  metrics_interval: 30
+  enabled: true
+  error_rate_threshold: 0.2
+  export_metrics: true
   health_check_interval: 15
-  cost_calculation_interval: 120
-
-# Logging Configuration - Development settings
-logging:
-  level: "DEBUG"
-  console_enabled: true
-  file_enabled: true
-  log_file: "log/definitie_agent_dev.log"
-  
-  # More verbose logging in development
-  module_levels:
-    openai: "INFO"
-    urllib3: "INFO"
-    requests: "INFO"
-    definitie_agent: "DEBUG"
-
-# Rate Limiting Configuration - Development settings
+  metrics_interval: 30
+  openai_pricing:
+    gpt-3.5-turbo: 0.0015
+    gpt-4: 0.03
+  response_time_threshold: 10.0
+paths:
+  base_dir: .
+  cache_dir: cache
+  config_dir: config
+  context_mapping_file: config/context_wet_mapping.json
+  exports_dir: exports
+  logs_dir: log
+  rate_limit_history_file: cache/rate_limit_history.json
+  reports_dir: reports
+  toetsregels_file: config/toetsregels.json
+  verboden_woorden_file: config/verboden_woorden.json
 rate_limiting:
-  enabled: true
-  
-  # More lenient rate limits for development
-  requests_per_minute: 120
-  requests_per_hour: 5000
-  max_concurrent: 15
-  
-  # Faster rate limiting for development
-  tokens_per_second: 2.0
-  bucket_capacity: 15
-  target_response_time: 3.0
   adjustment_factor: 0.2
-
-# Resilience Configuration - Development settings
+  bucket_capacity: 15
+  enabled: true
+  max_concurrent: 15
+  max_rate: 10.0
+  min_rate: 0.1
+  priority_weights:
+    background: 0.2
+    critical: 1.0
+    high: 0.8
+    low: 0.4
+    normal: 0.6
+  requests_per_hour: 5000
+  requests_per_minute: 120
+  target_response_time: 3.0
+  tokens_per_second: 2.0
 resilience:
-  enabled: true
-  
-  # More aggressive retries in development
-  max_retries: 5
   base_delay: 0.5
-  max_delay: 15.0
-  
-  # More sensitive circuit breaker
-  failure_threshold: 2
-  recovery_timeout: 15.0
-  
-  # More frequent health checks
-  health_check_interval: 15.0
   degraded_threshold: 0.9
+  enable_fallback: true
+  enabled: true
+  failure_threshold: 2
+  fallback_cache_duration: 300.0
+  health_check_interval: 15.0
+  max_delay: 15.0
+  max_retries: 5
+  persist_failed_requests: true
+  recovery_timeout: 15.0
+  retry_strategy: adaptive
   unhealthy_threshold: 0.7
-
-# Security Configuration - Development settings
 security:
-  enabled: true
-  
-  # Relaxed validation for development
-  validate_inputs: true
-  sanitize_inputs: true
-  max_input_length: 15000
-  
-  # More lenient rate limiting
-  security_rate_limit: 200
+  api_key_validation: true
   block_duration: 60
-  
-  # All threat detection enabled for testing
-  detect_xss: true
-  detect_sql_injection: true
   detect_path_traversal: true
-
-# Validation Configuration - Development settings
-validation:
+  detect_sql_injection: true
+  detect_xss: true
   enabled: true
-  strict_mode: false  # Relaxed validation in development
-  
-  # Higher limits for development testing
-  max_text_length: 15000
-  min_definition_length: 5
+  max_input_length: 15000
+  require_api_key: true
+  sanitize_inputs: true
+  security_rate_limit: 200
+  validate_inputs: true
+ui:
+  afkortingen:
+    3RO: Samenwerkingsverband Reclasseringsorganisaties
+    AVG: Algemene verordening gegevensbescherming
+    CJIB: Centraal Justitieel Incassobureau
+    DJI: "Dienst Justiti\xEBle Inrichtingen"
+    FIOD: Fiscale Inlichtingen- en Opsporingsdienst
+    Justid: "Dienst Justiti\xEBle Informatievoorziening"
+    KMAR: Koninklijke Marechaussee
+    NP: Nederlands Politie
+    OM: Openbaar Ministerie
+    ZM: Zittende Magistratuur
+  ketenpartners:
+  - ZM
+  - DJI
+  - KMAR
+  - CJIB
+  - JUSTID
+  - OM
+  - Politie
+  - Reclassering
+  - Halt
+  - Raad voor de Kinderbescherming
+  legal_contexts:
+  - Strafrecht
+  - Civiel recht
+  - Bestuursrecht
+  - Internationaal recht
+  - Anders...
+  organizational_contexts:
+  - OM
+  - ZM
+  - Reclassering
+  - DJI
+  - NP
+  - Justid
+  - KMAR
+  - FIOD
+  - CJIB
+  - Strafrechtketen
+  - Migratieketen
+  - Justitie en Veiligheid
+  - Anders...
+  page_icon: "\U0001F9E0"
+  page_title: DefinitieAgent
+  sidebar_width: 300
+validation:
+  allowed_toetsregels:
+  - CON-01
+  - CON-02
+  - ESS-01
+  - ESS-02
+  - ESS-04
+  - ESS-05
+  - INT-01
+  - INT-02
+  - INT-03
+  - INT-04
+  - INT-06
+  - INT-07
+  - INT-08
+  - SAM-01
+  - SAM-05
+  - SAM-07
+  - STR-01
+  - STR-02
+  - STR-03
+  - STR-04
+  - STR-05
+  - STR-06
+  - STR-07
+  - STR-08
+  - STR-09
+  - ARAI01
+  - ARAI02
+  - ARAI02SUB1
+  - ARAI02SUB2
+  - ARAI03
+  - ARAI04
+  - ARAI04SUB1
+  - ARAI05
+  - ARAI06
+  enabled: true
   max_definition_length: 1000
+  max_text_length: 15000
   max_validation_errors: 20
+  min_definition_length: 5
+  strict_mode: false
