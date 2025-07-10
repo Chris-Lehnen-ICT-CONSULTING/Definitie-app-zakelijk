@@ -1,0 +1,107 @@
+# Development Environment Configuration
+# Settings specific to development environment
+
+# API Configuration - Development settings
+api:
+  default_temperature: 0.1  # Higher for more variation in development
+  request_timeout: 60.0  # Longer timeout for debugging
+  max_retries: 5  # More retries for unstable development
+
+# Cache Configuration - Development settings
+cache:
+  default_ttl: 600  # Shorter TTL for development (10 minutes)
+  max_cache_size: 500  # Smaller cache for development
+  cleanup_interval: 120  # More frequent cleanup
+
+# Monitoring Configuration - Development settings
+monitoring:
+  enabled: true
+  collect_metrics: true
+  export_metrics: true  # Enable export in development
+  
+  # Lower thresholds for development
+  error_rate_threshold: 0.2
+  response_time_threshold: 10.0
+  cost_threshold_daily: 5.0
+  cost_threshold_monthly: 50.0
+  
+  # More frequent monitoring in development
+  metrics_interval: 30
+  health_check_interval: 15
+  cost_calculation_interval: 120
+
+# Logging Configuration - Development settings
+logging:
+  level: "DEBUG"
+  console_enabled: true
+  file_enabled: true
+  log_file: "log/definitie_agent_dev.log"
+  
+  # More verbose logging in development
+  module_levels:
+    openai: "INFO"
+    urllib3: "INFO"
+    requests: "INFO"
+    definitie_agent: "DEBUG"
+
+# Rate Limiting Configuration - Development settings
+rate_limiting:
+  enabled: true
+  
+  # More lenient rate limits for development
+  requests_per_minute: 120
+  requests_per_hour: 5000
+  max_concurrent: 15
+  
+  # Faster rate limiting for development
+  tokens_per_second: 2.0
+  bucket_capacity: 15
+  target_response_time: 3.0
+  adjustment_factor: 0.2
+
+# Resilience Configuration - Development settings
+resilience:
+  enabled: true
+  
+  # More aggressive retries in development
+  max_retries: 5
+  base_delay: 0.5
+  max_delay: 15.0
+  
+  # More sensitive circuit breaker
+  failure_threshold: 2
+  recovery_timeout: 15.0
+  
+  # More frequent health checks
+  health_check_interval: 15.0
+  degraded_threshold: 0.9
+  unhealthy_threshold: 0.7
+
+# Security Configuration - Development settings
+security:
+  enabled: true
+  
+  # Relaxed validation for development
+  validate_inputs: true
+  sanitize_inputs: true
+  max_input_length: 15000
+  
+  # More lenient rate limiting
+  security_rate_limit: 200
+  block_duration: 60
+  
+  # All threat detection enabled for testing
+  detect_xss: true
+  detect_sql_injection: true
+  detect_path_traversal: true
+
+# Validation Configuration - Development settings
+validation:
+  enabled: true
+  strict_mode: false  # Relaxed validation in development
+  
+  # Higher limits for development testing
+  max_text_length: 15000
+  min_definition_length: 5
+  max_definition_length: 1000
+  max_validation_errors: 20
