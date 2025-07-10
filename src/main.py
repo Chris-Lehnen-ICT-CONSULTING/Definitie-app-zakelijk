@@ -21,8 +21,6 @@ load_dotenv()
 from log.log_definitie import get_logger
 from ui.session_state import SessionStateManager
 from ui.tabbed_interface import TabbedInterface
-from database.definitie_repository import DefinitieRepository
-from integration.definitie_checker import DefinitieChecker
 from utils.exceptions import log_and_display_error
 
 # Initialize logger
@@ -35,12 +33,8 @@ def main():
         # Initialize session state
         SessionStateManager.initialize_session_state()
         
-        # Initialize database and services
-        repository = DefinitieRepository()
-        checker = DefinitieChecker(repository)
-        
         # Create and render tabbed interface
-        interface = TabbedInterface(checker, repository)
+        interface = TabbedInterface()
         interface.render()
             
     except Exception as e:
