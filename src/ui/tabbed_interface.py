@@ -90,12 +90,15 @@ class TabbedInterface:
                 primary_org = org_context[0] if org_context else ""
                 primary_jur = jur_context[0] if jur_context else ""
                 
+                # Bepaal automatisch de ontologische categorie via AI
+                auto_categorie = self._determine_ontological_category(begrip, primary_org, primary_jur)
+                
                 # Voer complete workflow uit
                 check_result, agent_result, saved_record = self.checker.generate_with_check(
                     begrip=begrip,
                     organisatorische_context=primary_org,
                     juridische_context=primary_jur,
-                    categorie=OntologischeCategorie(categorie),
+                    categorie=auto_categorie,
                     force_generate=False,
                     created_by=voorsteller or "quick_user"
                 )
@@ -106,6 +109,7 @@ class TabbedInterface:
                     "agent_result": agent_result,
                     "saved_record": saved_record,
                     "include_examples": include_examples,
+                    "determined_category": auto_categorie.value,
                     "timestamp": datetime.now()
                 })
                 
@@ -192,6 +196,10 @@ class TabbedInterface:
             st.markdown("##### 📝 Gegenereerde Definitie")
             st.info(agent_result.final_definitie)
             
+            # Toon automatisch bepaalde categorie
+            determined_category = result_data.get("determined_category", "proces")
+            st.success(f"🤖 **Ontologische categorie (AI bepaald):** {determined_category.capitalize()}")
+            
             # Metadata
             col1, col2, col3 = st.columns(3)
             with col1:
@@ -253,6 +261,82 @@ GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
         else:
             st.error("❌ Generatie gefaald")
     
+    def _determine_ontological_category(self, begrip, org_context, jur_context):
+        """Bepaal automatisch de ontologische categorie via AI analyse."""
+        try:
+            # Eenvoudige heuristic gebaseerd op woord patronen
+            # Later kan dit vervangen worden door GPT call
+            
+            begrip_lower = begrip.lower()
+            
+            # Proces patronen
+            proces_indicators = [
+                'atie', 'eren', 'ing', 'verificatie', 'authenticatie', 'validatie',
+                'controle', 'check', 'beoordeling', 'analyse', 'behandeling',
+                'vaststelling', 'bepaling', 'registratie', 'identificatie'
+            ]
+            
+            # Type patronen  
+            type_indicators = [
+                'bewijs', 'document', 'middel', 'systeem', 'methode', 'tool',
+                'instrument', 'gegeven', 'kenmerk', 'eigenschap'
+            ]
+            
+            # Resultaat patronen
+            resultaat_indicators = [
+                'besluit', 'uitslag', 'rapport', 'conclusie', 'bevinding',
+                'resultaat', 'uitkomst', 'advies', 'oordeel'
+            ]
+            
+            # Exemplaar patronen
+            exemplaar_indicators = [
+                'specifiek', 'individueel', 'uniek', 'persoon', 'zaak',
+                'instantie', 'geval', 'situatie'
+            ]
+            
+            # Score per categorie
+            scores = {
+                'proces': 0,
+                'type': 0, 
+                'resultaat': 0,
+                'exemplaar': 0
+            }
+            
+            # Check proces indicators
+            for indicator in proces_indicators:
+                if indicator in begrip_lower:
+                    scores['proces'] += 1
+            
+            # Check type indicators  
+            for indicator in type_indicators:
+                if indicator in begrip_lower:
+                    scores['type'] += 1
+                    
+            # Check resultaat indicators
+            for indicator in resultaat_indicators:
+                if indicator in begrip_lower:
+                    scores['resultaat'] += 1
+                    
+            # Check exemplaar indicators
+            for indicator in exemplaar_indicators:
+                if indicator in begrip_lower:
+                    scores['exemplaar'] += 1
+            
+            # Bepaal hoogste score
+            best_category = max(scores, key=scores.get)
+            
+            # Default naar proces als geen duidelijke match
+            if scores[best_category] == 0:
+                best_category = 'proces'
+            
+            logger.info(f"Auto-determined category voor '{begrip}': {best_category} (scores: {scores})")
+            return OntologischeCategorie(best_category)
+            
+        except Exception as e:
+            logger.warning(f"Failed to auto-determine category: {e}")
+            # Default naar proces
+            return OntologischeCategorie.PROCES
+    
     def _render_quick_start_section(self):
         """Render quick start sectie met oorspronkelijke workflow."""
         st.markdown("### 🚀 Snelle Definitie Generatie")
@@ -272,23 +356,16 @@ GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
             SessionStateManager.set_value("quick_begrip", begrip)
             
         with col2:
-            # Ontologische categorie
-            categorie_options = {
-                "Type/Soort": "type",
-                "Proces/Activiteit": "proces", 
-                "Resultaat/Uitkomst": "resultaat",
-                "Exemplaar/Instantie": "exemplaar"
-            }
+            # AI informatie / status
+            st.markdown("🤖 **AI Analyse**")
+            st.info("De ontologische categorie wordt automatisch bepaald door de AI op basis van de term en context")
             
-            selected_cat = st.selectbox(
-                "🎯 Ontologische categorie",
-                options=list(categorie_options.keys()),
-                index=1,  # Default naar proces
-                help="Bepaalt het type definitie dat gegenereerd wordt"
-            )
-            
-            categorie = categorie_options[selected_cat]
-            SessionStateManager.set_value("quick_categorie", categorie)
+            # Optionele hint voor gebruiker
+            st.markdown("💡 **Tips:**")
+            st.caption("• Processen: authenticatie, verificatie")
+            st.caption("• Types: identiteitsbewijs, document") 
+            st.caption("• Resultaten: besluit, rapport")
+            st.caption("• Exemplaren: specifiek document, persoon")
         
         # Context sectie (vereenvoudigd)
         st.markdown("#### 📋 Context Selectie")
@@ -366,7 +443,7 @@ GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
             # Main generate button
             if st.button("🚀 Genereer Definitie", type="primary", help="Start definitie generatie met opgegeven parameters"):
                 if begrip.strip() and org_context:
-                    self._handle_quick_generation(begrip, categorie, org_context, jur_context, wet_basis, voorsteller, include_examples)
+                    self._handle_quick_generation(begrip, None, org_context, jur_context, wet_basis, voorsteller, include_examples)
                 else:
                     if not begrip.strip():
                         st.error("❌ Voer eerst een begrip in")
