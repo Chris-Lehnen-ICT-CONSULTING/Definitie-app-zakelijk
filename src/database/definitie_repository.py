@@ -113,6 +113,55 @@ class DefinitieRecord:
 
 
 @dataclass
+class VoorbeeldenRecord:
+    """Representatie van een voorbeelden record in de database."""
+    id: Optional[int] = None
+    definitie_id: int = 0
+    voorbeeld_type: str = ""  # sentence, practical, counter, etc.
+    voorbeeld_tekst: str = ""
+    voorbeeld_volgorde: int = 1
+    
+    # Generation metadata
+    gegenereerd_door: str = "system"
+    generation_model: Optional[str] = None
+    generation_parameters: Optional[str] = None  # JSON string
+    
+    # Status
+    actief: bool = True
+    beoordeeld: bool = False
+    beoordeeling: Optional[str] = None  # 'goed', 'matig', 'slecht'
+    beoordeeling_notities: Optional[str] = None
+    beoordeeld_door: Optional[str] = None
+    beoordeeld_op: Optional[datetime] = None
+    
+    # Metadata
+    aangemaakt_op: Optional[datetime] = None
+    bijgewerkt_op: Optional[datetime] = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Converteer naar dictionary voor JSON serialization."""
+        result = asdict(self)
+        # Convert datetime objects to ISO strings
+        for key, value in result.items():
+            if isinstance(value, datetime):
+                result[key] = value.isoformat()
+        return result
+    
+    def get_generation_parameters_dict(self) -> Dict[str, Any]:
+        """Haal generation parameters op als dictionary."""
+        if not self.generation_parameters:
+            return {}
+        try:
+            return json.loads(self.generation_parameters)
+        except json.JSONDecodeError:
+            return {}
+    
+    def set_generation_parameters(self, params: Dict[str, Any]):
+        """Set generation parameters als JSON string."""
+        self.generation_parameters = json.dumps(params, ensure_ascii=False)
+
+
+@dataclass
 class DuplicateMatch:
     """Representatie van een mogelijk duplicaat."""
     definitie_record: DefinitieRecord
@@ -696,6 +745,252 @@ class DefinitieRepository:
         union = len(set1.union(set2))
         
         return intersection / union if union > 0 else 0.0
+    
+    # ========================================
+    # VOORBEELDEN MANAGEMENT
+    # ========================================
+    
+    def save_voorbeelden(
+        self,
+        definitie_id: int,
+        voorbeelden_dict: Dict[str, List[str]],
+        generation_model: str = "gpt-4",
+        generation_params: Dict[str, Any] = None,
+        gegenereerd_door: str = "system"
+    ) -> List[int]:
+        """
+        Sla voorbeelden op voor een definitie.
+        
+        Args:
+            definitie_id: ID van de definitie
+            voorbeelden_dict: Dictionary met voorbeelden per type
+            generation_model: Model gebruikt voor generatie
+            generation_params: Parameters gebruikt voor generatie
+            gegenereerd_door: Wie heeft de voorbeelden gegenereerd
+            
+        Returns:
+            List van IDs van de opgeslagen voorbeelden
+        """
+        logger.info(f"Saving voorbeelden voor definitie {definitie_id}")
+        
+        try:
+            cursor = self.conn.cursor()
+            saved_ids = []
+            
+            # Verwijder bestaande voorbeelden voor deze definitie (indien gewenst)
+            cursor.execute("""
+                UPDATE definitie_voorbeelden 
+                SET actief = FALSE 
+                WHERE definitie_id = ? AND actief = TRUE
+            """, (definitie_id,))
+            
+            # Voeg nieuwe voorbeelden toe
+            for voorbeeld_type, examples in voorbeelden_dict.items():
+                if not examples:  # Skip lege lists
+                    continue
+                    
+                for idx, voorbeeld_tekst in enumerate(examples, 1):
+                    if not voorbeeld_tekst.strip():  # Skip lege voorbeelden
+                        continue
+                        
+                    # Maak VoorbeeldenRecord
+                    record = VoorbeeldenRecord(
+                        definitie_id=definitie_id,
+                        voorbeeld_type=voorbeeld_type,
+                        voorbeeld_tekst=voorbeeld_tekst.strip(),
+                        voorbeeld_volgorde=idx,
+                        gegenereerd_door=gegenereerd_door,
+                        generation_model=generation_model,
+                        actief=True
+                    )
+                    
+                    if generation_params:
+                        record.set_generation_parameters(generation_params)
+                    
+                    # Insert in database
+                    cursor.execute("""
+                        INSERT INTO definitie_voorbeelden (
+                            definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
+                            gegenereerd_door, generation_model, generation_parameters, actief
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    """, (
+                        record.definitie_id, record.voorbeeld_type, record.voorbeeld_tekst,
+                        record.voorbeeld_volgorde, record.gegenereerd_door, 
+                        record.generation_model, record.generation_parameters, record.actief
+                    ))
+                    
+                    saved_ids.append(cursor.lastrowid)
+                    
+                    logger.debug(f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}...")
+            
+            self.conn.commit()
+            logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
+            return saved_ids
+            
+        except Exception as e:
+            self.conn.rollback()
+            logger.error(f"Failed to save voorbeelden: {e}")
+            raise
+    
+    def get_voorbeelden(
+        self,
+        definitie_id: int,
+        voorbeeld_type: str = None,
+        actief_only: bool = True
+    ) -> List[VoorbeeldenRecord]:
+        """
+        Haal voorbeelden op voor een definitie.
+        
+        Args:
+            definitie_id: ID van de definitie
+            voorbeeld_type: Specifiek type voorbeelden (optioneel)
+            actief_only: Alleen actieve voorbeelden
+            
+        Returns:
+            List van VoorbeeldenRecord objecten
+        """
+        cursor = self.conn.cursor()
+        
+        query = """
+            SELECT id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
+                   gegenereerd_door, generation_model, generation_parameters, actief,
+                   beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door,
+                   beoordeeld_op, aangemaakt_op, bijgewerkt_op
+            FROM definitie_voorbeelden
+            WHERE definitie_id = ?
+        """
+        params = [definitie_id]
+        
+        if voorbeeld_type:
+            query += " AND voorbeeld_type = ?"
+            params.append(voorbeeld_type)
+            
+        if actief_only:
+            query += " AND actief = TRUE"
+            
+        query += " ORDER BY voorbeeld_type, voorbeeld_volgorde"
+        
+        cursor.execute(query, params)
+        rows = cursor.fetchall()
+        
+        voorbeelden = []
+        for row in rows:
+            record = VoorbeeldenRecord(
+                id=row['id'],
+                definitie_id=row['definitie_id'],
+                voorbeeld_type=row['voorbeeld_type'],
+                voorbeeld_tekst=row['voorbeeld_tekst'],
+                voorbeeld_volgorde=row['voorbeeld_volgorde'],
+                gegenereerd_door=row['gegenereerd_door'],
+                generation_model=row['generation_model'],
+                generation_parameters=row['generation_parameters'],
+                actief=bool(row['actief']),
+                beoordeeld=bool(row['beoordeeld']),
+                beoordeeling=row['beoordeeling'],
+                beoordeeling_notities=row['beoordeeling_notities'],
+                beoordeeld_door=row['beoordeeld_door'],
+                beoordeeld_op=datetime.fromisoformat(row['beoordeeld_op']) if row['beoordeeld_op'] else None,
+                aangemaakt_op=datetime.fromisoformat(row['aangemaakt_op']) if row['aangemaakt_op'] else None,
+                bijgewerkt_op=datetime.fromisoformat(row['bijgewerkt_op']) if row['bijgewerkt_op'] else None
+            )
+            voorbeelden.append(record)
+        
+        return voorbeelden
+    
+    def get_voorbeelden_by_type(self, definitie_id: int) -> Dict[str, List[str]]:
+        """
+        Haal voorbeelden op gegroepeerd per type.
+        
+        Args:
+            definitie_id: ID van de definitie
+            
+        Returns:
+            Dictionary met voorbeelden per type
+        """
+        voorbeelden_records = self.get_voorbeelden(definitie_id)
+        
+        voorbeelden_dict = {}
+        for record in voorbeelden_records:
+            if record.voorbeeld_type not in voorbeelden_dict:
+                voorbeelden_dict[record.voorbeeld_type] = []
+            voorbeelden_dict[record.voorbeeld_type].append(record.voorbeeld_tekst)
+        
+        return voorbeelden_dict
+    
+    def beoordeel_voorbeeld(
+        self,
+        voorbeeld_id: int,
+        beoordeeling: str,
+        beoordeeling_notities: str = "",
+        beoordeeld_door: str = "user"
+    ) -> bool:
+        """
+        Beoordeel een voorbeeld.
+        
+        Args:
+            voorbeeld_id: ID van het voorbeeld
+            beoordeeling: 'goed', 'matig', 'slecht'
+            beoordeeling_notities: Optionele notities
+            beoordeeld_door: Wie beoordeelt het voorbeeld
+            
+        Returns:
+            True als succesvol
+        """
+        if beoordeeling not in ['goed', 'matig', 'slecht']:
+            raise ValueError("Beoordeeling moet 'goed', 'matig' of 'slecht' zijn")
+        
+        try:
+            cursor = self.conn.cursor()
+            cursor.execute("""
+                UPDATE definitie_voorbeelden
+                SET beoordeeld = TRUE, beoordeeling = ?, beoordeeling_notities = ?, 
+                    beoordeeld_door = ?, beoordeeld_op = CURRENT_TIMESTAMP
+                WHERE id = ?
+            """, (beoordeeling, beoordeeling_notities, beoordeeld_door, voorbeeld_id))
+            
+            self.conn.commit()
+            
+            if cursor.rowcount > 0:
+                logger.info(f"Voorbeeld {voorbeeld_id} beoordeeld als '{beoordeeling}'")
+                return True
+            else:
+                logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
+                return False
+                
+        except Exception as e:
+            self.conn.rollback()
+            logger.error(f"Failed to beoordeel voorbeeld {voorbeeld_id}: {e}")
+            raise
+    
+    def delete_voorbeelden(self, definitie_id: int, voorbeeld_type: str = None) -> int:
+        """
+        Verwijder voorbeelden voor een definitie.
+        
+        Args:
+            definitie_id: ID van de definitie
+            voorbeeld_type: Specifiek type om te verwijderen (optioneel)
+            
+        Returns:
+            Aantal verwijderde voorbeelden
+        """
+        cursor = self.conn.cursor()
+        
+        if voorbeeld_type:
+            cursor.execute("""
+                DELETE FROM definitie_voorbeelden 
+                WHERE definitie_id = ? AND voorbeeld_type = ?
+            """, (definitie_id, voorbeeld_type))
+        else:
+            cursor.execute("""
+                DELETE FROM definitie_voorbeelden 
+                WHERE definitie_id = ?
+            """, (definitie_id,))
+        
+        deleted_count = cursor.rowcount
+        self.conn.commit()
+        
+        logger.info(f"Deleted {deleted_count} voorbeelden voor definitie {definitie_id}")
+        return deleted_count
 
 
 # Convenience functions
