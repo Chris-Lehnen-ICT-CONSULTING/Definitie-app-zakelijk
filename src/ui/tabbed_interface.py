@@ -13,8 +13,12 @@ from ui.components.expert_review_tab import ExpertReviewTab
 from ui.components.history_tab import HistoryTab
 from ui.components.export_tab import ExportTab
 from ui.session_state import SessionStateManager
-from database.definitie_repository import get_definitie_repository, DefinitieRecord
+from database.definitie_repository import get_definitie_repository, DefinitieRecord, DefinitieStatus
 from integration.definitie_checker import DefinitieChecker
+from generation.definitie_generator import OntologischeCategorie
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class TabbedInterface:
@@ -61,6 +65,14 @@ class TabbedInterface:
         # App header
         self._render_header()
         
+        # Quick Start sectie (oorspronkelijke workflow)
+        self._render_quick_start_section()
+        
+        st.markdown("---")
+        
+        # Advanced sectie met tabs
+        st.markdown("### 🔧 Geavanceerde Functies")
+        
         # Global context selector (boven tabs)
         self._render_global_context()
         
@@ -69,6 +81,316 @@ class TabbedInterface:
         
         # Footer met systeem informatie
         self._render_footer()
+    
+    def _handle_quick_generation(self, begrip, categorie, org_context, jur_context, wet_basis, voorsteller, include_examples):
+        """Handle snelle definitie generatie."""
+        try:
+            with st.spinner("🔄 Genereren van definitie..."):
+                # Gebruik de eerste organisatorische context voor generatie
+                primary_org = org_context[0] if org_context else ""
+                primary_jur = jur_context[0] if jur_context else ""
+                
+                # Voer complete workflow uit
+                check_result, agent_result, saved_record = self.checker.generate_with_check(
+                    begrip=begrip,
+                    organisatorische_context=primary_org,
+                    juridische_context=primary_jur,
+                    categorie=OntologischeCategorie(categorie),
+                    force_generate=False,
+                    created_by=voorsteller or "quick_user"
+                )
+                
+                # Store results in session voor display
+                SessionStateManager.set_value("quick_last_result", {
+                    "check_result": check_result,
+                    "agent_result": agent_result,
+                    "saved_record": saved_record,
+                    "include_examples": include_examples,
+                    "timestamp": datetime.now()
+                })
+                
+                st.success("✅ Definitie succesvol gegenereerd!")
+                st.rerun()
+                
+        except Exception as e:
+            st.error(f"❌ Fout bij generatie: {str(e)}")
+            logger.error(f"Quick generation failed: {e}")
+    
+    def _handle_quick_duplicate_check(self, begrip, org_context, jur_context):
+        """Handle snelle duplicate check."""
+        try:
+            with st.spinner("🔍 Controleren op duplicates..."):
+                from generation.definitie_generator import OntologischeCategorie
+                
+                check_result = self.checker.check_before_generation(
+                    begrip=begrip,
+                    organisatorische_context=org_context,
+                    juridische_context=jur_context,
+                    categorie=OntologischeCategorie.PROCES  # Default
+                )
+                
+                SessionStateManager.set_value("quick_duplicate_result", {
+                    "check_result": check_result,
+                    "timestamp": datetime.now()
+                })
+                
+                st.rerun()
+                
+        except Exception as e:
+            st.error(f"❌ Fout bij duplicate check: {str(e)}")
+            logger.error(f"Quick duplicate check failed: {e}")
+    
+    def _clear_quick_form(self):
+        """Wis alle quick form velden."""
+        keys_to_clear = [
+            "quick_begrip", "quick_categorie", "quick_org_context", 
+            "quick_jur_context", "quick_wet_basis", "quick_voorsteller",
+            "quick_ketenpartners", "quick_include_examples",
+            "quick_last_result", "quick_duplicate_result"
+        ]
+        
+        for key in keys_to_clear:
+            SessionStateManager.clear_value(key)
+    
+    def _render_quick_results(self):
+        """Render resultaten van quick generation."""
+        # Check voor generatie resultaten
+        last_result = SessionStateManager.get_value("quick_last_result")
+        duplicate_result = SessionStateManager.get_value("quick_duplicate_result")
+        
+        if duplicate_result:
+            self._render_quick_duplicate_results(duplicate_result["check_result"])
+        
+        if last_result:
+            self._render_quick_generation_results(last_result)
+    
+    def _render_quick_duplicate_results(self, check_result):
+        """Render duplicate check resultaten."""
+        st.markdown("#### 🔍 Duplicate Check Resultaten")
+        
+        if check_result.action.value == "proceed":
+            st.success(f"✅ {check_result.message}")
+        elif check_result.action.value == "use_existing":
+            st.warning(f"⚠️ {check_result.message}")
+            
+            if check_result.existing_definitie:
+                with st.expander("📋 Bestaande definitie details", expanded=True):
+                    st.info(check_result.existing_definitie.definitie)
+                    st.caption(f"Context: {check_result.existing_definitie.organisatorische_context} | Status: {check_result.existing_definitie.status}")
+        else:
+            st.info(f"ℹ️ {check_result.message}")
+    
+    def _render_quick_generation_results(self, result_data):
+        """Render generatie resultaten."""
+        st.markdown("#### 🚀 Generatie Resultaten")
+        
+        agent_result = result_data.get("agent_result")
+        saved_record = result_data.get("saved_record")
+        
+        if agent_result and agent_result.success:
+            # Toon gegenereerde definitie
+            st.markdown("##### 📝 Gegenereerde Definitie")
+            st.info(agent_result.final_definitie)
+            
+            # Metadata
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Kwaliteitsscore", f"{agent_result.final_score:.2f}")
+            with col2:
+                st.metric("Iteraties", agent_result.iteration_count)
+            with col3:
+                st.metric("Verwerkingstijd", f"{agent_result.total_processing_time:.1f}s")
+            
+            # Database info
+            if saved_record:
+                st.success(f"✅ Definitie opgeslagen in database (ID: {saved_record.id})")
+                
+                # Action buttons
+                col1, col2, col3 = st.columns(3)
+                
+                with col1:
+                    if st.button("📝 Submit voor Review"):
+                        try:
+                            success = self.repository.change_status(
+                                saved_record.id, 
+                                DefinitieStatus.REVIEW, 
+                                "quick_user", 
+                                "Submitted via quick interface"
+                            )
+                            if success:
+                                st.success("✅ Ingediend voor expert review")
+                            else:
+                                st.error("❌ Kon status niet wijzigen")
+                        except Exception as e:
+                            st.error(f"❌ Fout: {str(e)}")
+                
+                with col2:
+                    if st.button("📤 Exporteer TXT"):
+                        # Quick TXT export
+                        export_text = f"""BEGRIP: {saved_record.begrip}
+DEFINITIE: {saved_record.definitie}
+CATEGORIE: {saved_record.categorie}
+CONTEXT: {saved_record.organisatorische_context}
+STATUS: {saved_record.status}
+SCORE: {agent_result.final_score:.2f}
+GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+"""
+                        st.download_button(
+                            "💾 Download TXT",
+                            export_text,
+                            file_name=f"definitie_{saved_record.begrip}_{datetime.now().strftime('%Y%m%d_%H%M')}.txt",
+                            mime="text/plain"
+                        )
+                
+                with col3:
+                    if st.button("🗑️ Wis Resultaten"):
+                        SessionStateManager.clear_value("quick_last_result")
+                        SessionStateManager.clear_value("quick_duplicate_result")
+                        st.rerun()
+        
+        elif agent_result:
+            st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
+        else:
+            st.error("❌ Generatie gefaald")
+    
+    def _render_quick_start_section(self):
+        """Render quick start sectie met oorspronkelijke workflow."""
+        st.markdown("### 🚀 Snelle Definitie Generatie")
+        st.markdown("*Voor eenvoudige definities - gebruik direct onderstaande velden en klik op 'Genereer'*")
+        
+        # Main form in columns
+        col1, col2 = st.columns([2, 1])
+        
+        with col1:
+            # Term input (hoofdveld)
+            begrip = st.text_input(
+                "📝 Voer een term in waarvoor een definitie moet worden gegenereerd",
+                value=SessionStateManager.get_value("quick_begrip", ""),
+                placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
+                help="Het centrale begrip waarvoor een definitie gegenereerd wordt"
+            )
+            SessionStateManager.set_value("quick_begrip", begrip)
+            
+        with col2:
+            # Ontologische categorie
+            categorie_options = {
+                "Type/Soort": "type",
+                "Proces/Activiteit": "proces", 
+                "Resultaat/Uitkomst": "resultaat",
+                "Exemplaar/Instantie": "exemplaar"
+            }
+            
+            selected_cat = st.selectbox(
+                "🎯 Ontologische categorie",
+                options=list(categorie_options.keys()),
+                index=1,  # Default naar proces
+                help="Bepaalt het type definitie dat gegenereerd wordt"
+            )
+            
+            categorie = categorie_options[selected_cat]
+            SessionStateManager.set_value("quick_categorie", categorie)
+        
+        # Context sectie (vereenvoudigd)
+        st.markdown("#### 📋 Context Selectie")
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            # Organisatorische context (direct multiselect)
+            org_context = st.multiselect(
+                "🏢 Organisatorische context",
+                options=["OM", "ZM", "Reclassering", "DJI", "NP", "Justid", "KMAR", "FIOD", "CJIB", "Strafrechtketen", "Migratieketen"],
+                default=SessionStateManager.get_value("quick_org_context", []),
+                help="Selecteer één of meerdere organisaties"
+            )
+            SessionStateManager.set_value("quick_org_context", org_context)
+            
+        with col2:
+            # Juridische context
+            jur_context = st.multiselect(
+                "⚖️ Juridische context",
+                options=["Strafrecht", "Civiel recht", "Bestuursrecht", "Internationaal recht", "Europees recht"],
+                default=SessionStateManager.get_value("quick_jur_context", []),
+                help="Selecteer juridische gebieden"
+            )
+            SessionStateManager.set_value("quick_jur_context", jur_context)
+            
+        with col3:
+            # Wettelijke basis
+            wet_basis = st.multiselect(
+                "📜 Wettelijke basis",
+                options=[
+                    "Wetboek van Strafvordering (huidige versie)",
+                    "Wetboek van strafvordering (nieuwe versie)", 
+                    "Wet op de Identificatieplicht",
+                    "Wetboek van Strafrecht",
+                    "Algemene verordening gegevensbescherming"
+                ],
+                default=SessionStateManager.get_value("quick_wet_basis", []),
+                help="Selecteer relevante wetgeving"
+            )
+            SessionStateManager.set_value("quick_wet_basis", wet_basis)
+        
+        # Metadata sectie (inklapbaar)
+        with st.expander("📊 Metadata (optioneel)", expanded=False):
+            col1, col2, col3 = st.columns(3)
+            
+            with col1:
+                voorsteller = st.text_input(
+                    "Voorgesteld door",
+                    value=SessionStateManager.get_value("quick_voorsteller", ""),
+                    placeholder="Naam van voorsteller"
+                )
+                SessionStateManager.set_value("quick_voorsteller", voorsteller)
+                
+            with col2:
+                ketenpartners = st.multiselect(
+                    "Akkoord ketenpartners",
+                    options=["ZM", "DJI", "KMAR", "CJIB", "JUSTID"],
+                    default=SessionStateManager.get_value("quick_ketenpartners", [])
+                )
+                SessionStateManager.set_value("quick_ketenpartners", ketenpartners)
+                
+            with col3:
+                include_examples = st.checkbox(
+                    "📝 Genereer voorbeelden",
+                    value=SessionStateManager.get_value("quick_include_examples", True),
+                    help="Voeg praktische voorbeelden toe aan de definitie"
+                )
+                SessionStateManager.set_value("quick_include_examples", include_examples)
+        
+        # Action buttons
+        st.markdown("---")
+        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
+        
+        with col1:
+            # Main generate button
+            if st.button("🚀 Genereer Definitie", type="primary", help="Start definitie generatie met opgegeven parameters"):
+                if begrip.strip() and org_context:
+                    self._handle_quick_generation(begrip, categorie, org_context, jur_context, wet_basis, voorsteller, include_examples)
+                else:
+                    if not begrip.strip():
+                        st.error("❌ Voer eerst een begrip in")
+                    if not org_context:
+                        st.error("❌ Selecteer minimaal één organisatorische context")
+        
+        with col2:
+            if st.button("🔍 Check Duplicates", help="Controleer alleen op bestaande definities"):
+                if begrip.strip() and org_context:
+                    self._handle_quick_duplicate_check(begrip, org_context[0], jur_context[0] if jur_context else "")
+                else:
+                    st.error("❌ Voer begrip en context in voor duplicate check")
+        
+        with col3:
+            if st.button("🗑️ Wis Velden", help="Maak alle velden leeg"):
+                self._clear_quick_form()
+                st.rerun()
+                
+        with col4:
+            if st.button("🔧 Meer Opties", help="Ga naar geavanceerde interface"):
+                st.info("👇 Scroll naar beneden voor geavanceerde functies")
+        
+        # Show results if available
+        self._render_quick_results()
     
     def _render_header(self):
         """Render applicatie header."""
