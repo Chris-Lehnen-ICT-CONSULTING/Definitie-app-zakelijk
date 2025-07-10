@@ -1,0 +1,37 @@
+{
+  "export_info": {
+    "timestamp": "2025-07-10T16:12:46.181895",
+    "total_count": 1,
+    "filters_applied": {
+      "status": "established"
+    }
+  },
+  "definities": [
+    {
+      "id": 1,
+      "begrip": "verificatie",
+      "definitie": "Proces waarbij identiteitsgegevens systematisch worden gecontroleerd tegen authentieke bronregistraties",
+      "categorie": "proces",
+      "organisatorische_context": "DJI",
+      "juridische_context": "strafrecht",
+      "status": "established",
+      "version_number": 1,
+      "previous_version_id": null,
+      "validation_score": 0.95,
+      "validation_date": null,
+      "validation_issues": null,
+      "source_type": "generated",
+      "source_reference": null,
+      "imported_from": null,
+      "created_at": "2025-07-10T14:11:09",
+      "updated_at": "2025-07-10T14:11:09",
+      "created_by": "system",
+      "updated_by": null,
+      "approved_by": null,
+      "approved_at": null,
+      "approval_notes": null,
+      "last_exported_at": null,
+      "export_destinations": null
+    }
+  ]
+}
