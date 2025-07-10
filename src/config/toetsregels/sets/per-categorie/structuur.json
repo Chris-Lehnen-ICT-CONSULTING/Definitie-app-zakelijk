@@ -1,0 +1,15 @@
+{
+  "naam": "Structuur Regels (STR)",
+  "beschrijving": "Regels voor structuur en opbouw",
+  "regels": [
+    "STR-01",
+    "STR-02",
+    "STR-03",
+    "STR-04",
+    "STR-05",
+    "STR-06",
+    "STR-07",
+    "STR-08",
+    "STR-09"
+  ]
+}

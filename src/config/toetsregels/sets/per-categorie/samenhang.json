@@ -1,0 +1,14 @@
+{
+  "naam": "Samenhang Regels (SAM)",
+  "beschrijving": "Regels voor samenhang en consistentie",
+  "regels": [
+    "SAM-01",
+    "SAM-02",
+    "SAM-03",
+    "SAM-04",
+    "SAM-05",
+    "SAM-06",
+    "SAM-07",
+    "SAM-08"
+  ]
+}

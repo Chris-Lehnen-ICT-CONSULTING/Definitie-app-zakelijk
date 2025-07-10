@@ -1,0 +1,11 @@
+{
+  "naam": "Essentie Regels (ESS)",
+  "beschrijving": "Regels voor begripsinhoud en -zuiverheid",
+  "regels": [
+    "ESS-01",
+    "ESS-02",
+    "ESS-03",
+    "ESS-04",
+    "ESS-05"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "id": "ESS-05",
+  "naam": "Voldoende onderscheidend",
+  "uitleg": "Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.",
+  "toelichting": "De definitie moet aangeven waarin het begrip zich onderscheidt van andere begrippen binnen hetzelfde domein, bijvoorbeeld via een expliciete tegenstelling, verschil- of unieke kenmerken. Zonder dit onderscheid zijn definities verwarrend en overlappend.",
+  "toetsvraag": "Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?",
+  "herkenbaar_patronen": [
+    "\\bonderscheidt zich door\\b",
+    "\\bspecifiek voor\\b",
+    "\\bin tegenstelling tot\\b",
+    "\\bverschilt van\\b",
+    "\\bonderscheidend kenmerk\\b",
+    "\\bonderscheidend vermogen\\b",
+    "\\bonderscheiden door\\b",
+    "\\buniek ten opzichte van\\b"
+  ],
+  "goede_voorbeelden": [
+    "Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming.",
+    "Een onttrekking is een incident waarbij een jeugdige zonder toestemming één van de volgende voorzieningen verlaat: open justitiële inrichting of gesloten inrichtingsgebied.",
+    "Auto: vierwielig motorvoertuig met uniek chassisnummer en kenteken, waardoor elke auto individueel wordt geïdentificeerd."
+  ],
+  "foute_voorbeelden": [
+    "Toezicht: het houden van toezicht op iemand.",
+    "Een onttrekking is een incident waarbij een jeugdige zonder toestemming de inrichting verlaat."
+  ],
+  "prioriteit": "hoog",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "essentie",
+  "thema": "onderscheidend vermogen",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Voldoende onderscheidend",
+      "fullurl": "https://www.astraonline.nl/index.php/Voldoende_onderscheidend"
+    }
+  ]
+}
