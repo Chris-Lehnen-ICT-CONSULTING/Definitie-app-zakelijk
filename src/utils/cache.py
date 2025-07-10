@@ -309,11 +309,18 @@ def configure_cache(
 # Specialized cache decorators for common use cases
 def cache_definition_generation(ttl: int = 3600):
     """Cache decorator specifically for definition generation."""
-    def cache_key_func(begrip: str, context_dict: Dict, **kwargs):
+    def cache_key_func(begrip: str, context_dict: Dict, model: str = None, temperature: float = None, max_tokens: int = None, **kwargs):
+        # Include all parameters in cache key to ensure proper caching
+        cache_params = {
+            'model': model,
+            'temperature': temperature, 
+            'max_tokens': max_tokens,
+            **kwargs
+        }
         return cache_gpt_call(
             prompt=f"definition_{begrip}",
             context=json.dumps(context_dict, sort_keys=True),
-            **kwargs
+            **cache_params
         )
     
     return cached(ttl=ttl, cache_key_func=cache_key_func)
