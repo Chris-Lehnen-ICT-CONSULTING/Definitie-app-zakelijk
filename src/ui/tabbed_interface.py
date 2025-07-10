@@ -72,12 +72,6 @@ class TabbedInterface:
     
     def _render_header(self):
         """Render applicatie header."""
-        st.set_page_config(
-            page_title="DefinitieAgent 2.0",
-            page_icon="🧠",
-            layout="wide",
-            initial_sidebar_state="collapsed"
-        )
         
         # Header met logo en titel
         col1, col2, col3 = st.columns([1, 2, 1])
