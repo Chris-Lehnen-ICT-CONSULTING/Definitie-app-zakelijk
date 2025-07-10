@@ -1,0 +1,44 @@
+{
+  "id": "INT-07",
+  "naam": "Alleen toegankelijke afkortingen",
+  "uitleg": "In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.",
+  "toelichting": "Het vermijden van onverklaarde afkortingen bevordert leesbaarheid. Elke afkorting moet in de definitie direct worden toegelicht(bijv. DJI (Dienst Justitiële Inrichtingen), OM (Openbaar Ministerie)), of worden aangeboden als hyperlink of Wiki-link.",
+  "toetsvraag": "Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?",
+  "herkenbaar_patronen": [
+    "\\b[A-Z]{2,6}\\b",
+    "\\bDJI\\b",
+    "\\bOM\\b",
+    "\\bICT\\b",
+    "\\bAVG\\b",
+    "\\bWpg\\b",
+    "\\bGGZ\\b",
+    "\\bNCTV\\b",
+    "\\bKvK\\b"
+  ],
+  "goede_voorbeelden": [
+    "Dienst Justitiële Inrichtingen (DJI)",
+    "OM (Openbaar Ministerie)",
+    "AVG (Algemene verordening gegevensbescherming)",
+    "KvK (Kamer van Koophandel)",
+    "[[Algemene verordening gegevensbescherming]]"
+  ],
+  "foute_voorbeelden": [
+    "DJI voert toezicht uit.",
+    "De AVG vereist naleving.",
+    "OM is bevoegd tot vervolging.",
+    "KvK registreert bedrijven."
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "gehele definitie",
+  "thema": "interne kwaliteit van de definitie",
+  "brondocument": "MAS",
+  "relatie": [
+    {
+      "fulltext": "Geen ontoegankelijke achtergrondkennis nodig",
+      "fullurl": "https://www.astraonline.nl/index.php/Geen_ontoegankelijke_achtergrondkennis_nodig"
+    }
+  ]
+}

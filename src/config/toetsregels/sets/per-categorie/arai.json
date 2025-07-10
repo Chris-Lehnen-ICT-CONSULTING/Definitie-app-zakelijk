@@ -1,0 +1,15 @@
+{
+  "naam": "ARAI Regels",
+  "beschrijving": "Architectuur regels voor begrippen",
+  "regels": [
+    "ARAI01",
+    "ARAI02",
+    "ARAI02SUB1",
+    "ARAI02SUB2",
+    "ARAI03",
+    "ARAI04",
+    "ARAI04SUB1",
+    "ARAI05",
+    "ARAI06"
+  ]
+}
