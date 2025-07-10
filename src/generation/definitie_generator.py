@@ -11,6 +11,10 @@ import json
 
 from config.toetsregel_manager import get_toetsregel_manager, ToetsregelManager
 from config.config_adapters import get_api_config
+from voorbeelden.unified_voorbeelden import (
+    get_examples_generator, ExampleRequest, ExampleType, GenerationMode,
+    genereer_alle_voorbeelden
+)
 
 logger = logging.getLogger(__name__)
 
@@ -65,6 +69,14 @@ class GenerationResult:
     prompt_template: str
     iteration_nummer: int = 1
     context: GenerationContext = None
+    # Voorbeelden uitbreidingen
+    voorbeelden: Dict[str, List[str]] = None
+    voorbeelden_gegenereerd: bool = False
+    voorbeelden_error: Optional[str] = None
+    
+    def __post_init__(self):
+        if self.voorbeelden is None:
+            self.voorbeelden = {}
 
 
 class RegelInterpreter:
@@ -255,13 +267,162 @@ class DefinitieGenerator:
         # 3. Roep GPT aan
         definitie = self._call_gpt(prompt, model, temperature, max_tokens)
         
-        # 4. Return resultaat
-        return GenerationResult(
+        # 4. Return resultaat met basis definitie
+        result = GenerationResult(
             definitie=definitie,
             gebruikte_instructies=instructies,
             prompt_template=prompt,
             context=context
         )
+        
+        return result
+    
+    def generate_with_examples(
+        self,
+        context: GenerationContext,
+        model: str = None,
+        temperature: float = None,
+        max_tokens: int = None,
+        generate_examples: bool = True,
+        example_types: List[ExampleType] = None
+    ) -> GenerationResult:
+        """
+        Genereer definitie met voorbeelden.
+        
+        Args:
+            context: GenerationContext met begrip en context info
+            model: GPT model override
+            temperature: Temperature override  
+            max_tokens: Max tokens override
+            generate_examples: Of voorbeelden gegenereerd moeten worden
+            example_types: Specifieke types voorbeelden (standaard: sentence, practical, counter)
+            
+        Returns:
+            GenerationResult met definitie en voorbeelden
+        """
+        logger.info(f"Generating definitie met voorbeelden voor '{context.begrip}'")
+        
+        # 1. Genereer basis definitie
+        result = self.generate(context, model, temperature, max_tokens)
+        
+        # 2. Genereer voorbeelden indien gewenst
+        if generate_examples and result.definitie:
+            try:
+                # Standaard example types
+                if example_types is None:
+                    example_types = [ExampleType.SENTENCE, ExampleType.PRACTICAL, ExampleType.COUNTER]
+                
+                # Context dictionary voorbereiden
+                context_dict = {
+                    'organisatorisch': [context.organisatorische_context] if context.organisatorische_context else [],
+                    'juridisch': [context.juridische_context] if context.juridische_context else [],
+                    'wettelijk': []  # Kan later uitgebreid worden
+                }
+                
+                # Genereer alle gevraagde voorbeelden
+                voorbeelden_result = {}
+                examples_generator = get_examples_generator()
+                
+                for example_type in example_types:
+                    logger.debug(f"Generating {example_type.value} examples")
+                    
+                    request = ExampleRequest(
+                        begrip=context.begrip,
+                        definitie=result.definitie,
+                        context_dict=context_dict,
+                        example_type=example_type,
+                        generation_mode=GenerationMode.RESILIENT,
+                        max_examples=3
+                    )
+                    
+                    response = examples_generator.generate_examples(request)
+                    
+                    if response.success:
+                        voorbeelden_result[example_type.value] = response.examples
+                        logger.debug(f"Generated {len(response.examples)} {example_type.value} examples")
+                    else:
+                        logger.warning(f"Failed to generate {example_type.value}: {response.error_message}")
+                        voorbeelden_result[example_type.value] = []
+                
+                # Update result met voorbeelden
+                result.voorbeelden = voorbeelden_result
+                result.voorbeelden_gegenereerd = True
+                
+                logger.info(f"Successfully generated examples for {len(voorbeelden_result)} types")
+                
+            except Exception as e:
+                logger.error(f"Voorbeelden generatie gefaald: {e}")
+                result.voorbeelden_error = str(e)
+                result.voorbeelden_gegenereerd = False
+        
+        return result
+    
+    def generate_examples_only(
+        self,
+        begrip: str,
+        definitie: str,
+        organisatorische_context: str = "",
+        juridische_context: str = "",
+        example_types: List[ExampleType] = None
+    ) -> Dict[str, List[str]]:
+        """
+        Genereer alleen voorbeelden voor een bestaande definitie.
+        
+        Args:
+            begrip: Het begrip waarvoor voorbeelden gegenereerd worden
+            definitie: De bestaande definitie
+            organisatorische_context: Organisatorische context
+            juridische_context: Juridische context
+            example_types: Types voorbeelden (standaard: sentence, practical, counter)
+            
+        Returns:
+            Dictionary met voorbeelden per type
+        """
+        logger.info(f"Generating examples only voor '{begrip}'")
+        
+        # Standaard example types
+        if example_types is None:
+            example_types = [ExampleType.SENTENCE, ExampleType.PRACTICAL, ExampleType.COUNTER]
+        
+        # Context dictionary voorbereiden
+        context_dict = {
+            'organisatorisch': [organisatorische_context] if organisatorische_context else [],
+            'juridisch': [juridische_context] if juridische_context else [],
+            'wettelijk': []
+        }
+        
+        # Genereer voorbeelden
+        voorbeelden_result = {}
+        examples_generator = get_examples_generator()
+        
+        for example_type in example_types:
+            try:
+                logger.debug(f"Generating {example_type.value} examples")
+                
+                request = ExampleRequest(
+                    begrip=begrip,
+                    definitie=definitie,
+                    context_dict=context_dict,
+                    example_type=example_type,
+                    generation_mode=GenerationMode.RESILIENT,
+                    max_examples=3
+                )
+                
+                response = examples_generator.generate_examples(request)
+                
+                if response.success:
+                    voorbeelden_result[example_type.value] = response.examples
+                    logger.debug(f"Generated {len(response.examples)} {example_type.value} examples")
+                else:
+                    logger.warning(f"Failed to generate {example_type.value}: {response.error_message}")
+                    voorbeelden_result[example_type.value] = []
+                    
+            except Exception as e:
+                logger.error(f"Failed to generate {example_type.value} examples: {e}")
+                voorbeelden_result[example_type.value] = []
+        
+        logger.info(f"Generated examples for {len([k for k, v in voorbeelden_result.items() if v])} types")
+        return voorbeelden_result
     
     def _load_generation_instructions(self, context: GenerationContext) -> List[GenerationInstruction]:
         """Laad relevante toetsregels als generatie instructies."""

@@ -228,6 +228,51 @@ BEGIN
     );
 END;
 
+-- Voorbeelden tabel - voor gegenereerde voorbeelden bij definities  
+CREATE TABLE definitie_voorbeelden (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    
+    -- Referentie naar definitie
+    definitie_id INTEGER NOT NULL REFERENCES definities(id) ON DELETE CASCADE,
+    
+    -- Voorbeeld informatie
+    voorbeeld_type VARCHAR(50) NOT NULL CHECK (voorbeeld_type IN ('sentence', 'practical', 'counter', 'synonyms', 'antonyms', 'explanation')),
+    voorbeeld_tekst TEXT NOT NULL,
+    voorbeeld_volgorde INTEGER DEFAULT 1,
+    
+    -- Generation metadata
+    gegenereerd_door VARCHAR(50) DEFAULT 'system',
+    generation_model VARCHAR(50),
+    generation_parameters TEXT, -- JSON met generation parameters
+    
+    -- Status
+    actief BOOLEAN NOT NULL DEFAULT TRUE,
+    beoordeeld BOOLEAN NOT NULL DEFAULT FALSE,
+    beoordeeling VARCHAR(50), -- 'goed', 'matig', 'slecht'
+    beoordeeling_notities TEXT,
+    beoordeeld_door VARCHAR(255),
+    beoordeeld_op TIMESTAMP,
+    
+    -- Metadata
+    aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    bijgewerkt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    
+    UNIQUE(definitie_id, voorbeeld_type, voorbeeld_volgorde)
+);
+
+CREATE INDEX idx_voorbeelden_definitie_id ON definitie_voorbeelden(definitie_id);
+CREATE INDEX idx_voorbeelden_type ON definitie_voorbeelden(voorbeeld_type);
+CREATE INDEX idx_voorbeelden_actief ON definitie_voorbeelden(actief);
+
+-- Trigger voor bijgewerkt_op timestamp
+CREATE TRIGGER update_voorbeelden_timestamp
+    AFTER UPDATE ON definitie_voorbeelden
+    FOR EACH ROW
+    WHEN NEW.bijgewerkt_op = OLD.bijgewerkt_op
+BEGIN
+    UPDATE definitie_voorbeelden SET bijgewerkt_op = CURRENT_TIMESTAMP WHERE id = NEW.id;
+END;
+
 -- ========================================
 -- SAMPLE DATA (voor testing)
 -- ========================================
