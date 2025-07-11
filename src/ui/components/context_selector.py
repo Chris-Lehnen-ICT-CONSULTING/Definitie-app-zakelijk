@@ -109,7 +109,7 @@ class ContextSelector:
             org_options = [
                 "OM", "ZM", "Reclassering", "DJI", "NP", "Justid",
                 "KMAR", "FIOD", "CJIB", "Strafrechtketen", "Migratieketen",
-                "Justitie en Veiligheid"
+                "Justitie en Veiligheid", "Anders..."
             ]
             
             selected_org = st.multiselect(
@@ -120,13 +120,20 @@ class ContextSelector:
             )
             
             # Custom org context
-            custom_org = st.text_input(
-                "Aangepaste organisatorische context",
-                placeholder="Voer andere organisatie in..."
-            )
+            custom_org = ""
+            if "Anders..." in selected_org:
+                custom_org = st.text_input(
+                    "Aangepaste organisatorische context",
+                    placeholder="Voer andere organisatie in..."
+                )
             
+            # Combineer contexts
+            final_org = [opt for opt in selected_org if opt != "Anders..."]
             if custom_org.strip():
-                selected_org.append(custom_org.strip())
+                final_org.append(custom_org.strip())
+            
+            # Update selected_org with final list
+            selected_org = final_org
             
             # Wettelijke basis
             wet_options = [
@@ -135,7 +142,8 @@ class ContextSelector:
                 "Wet op de Identificatieplicht",
                 "Wet op de politiegegevens",
                 "Wetboek van Strafrecht",
-                "Algemene verordening gegevensbescherming"
+                "Algemene verordening gegevensbescherming",
+                "Anders..."
             ]
             
             selected_wet = st.multiselect(
@@ -146,19 +154,27 @@ class ContextSelector:
             )
             
             # Custom legal basis
-            custom_wet = st.text_input(
-                "Aangepaste wettelijke basis",
-                placeholder="Voer andere wetgeving in..."
-            )
+            custom_wet = ""
+            if "Anders..." in selected_wet:
+                custom_wet = st.text_input(
+                    "Aangepaste wettelijke basis",
+                    placeholder="Voer andere wetgeving in..."
+                )
             
+            # Combineer wettelijke basis
+            final_wet = [opt for opt in selected_wet if opt != "Anders..."]
             if custom_wet.strip():
-                selected_wet.append(custom_wet.strip())
+                final_wet.append(custom_wet.strip())
+            
+            # Update selected_wet with final list
+            selected_wet = final_wet
         
         with col2:
             # Juridische context
             jur_options = [
                 "Strafrecht", "Civiel recht", "Bestuursrecht", 
-                "Internationaal recht", "Europees recht", "Migratierecht"
+                "Internationaal recht", "Europees recht", "Migratierecht",
+                "Anders..."
             ]
             
             selected_jur = st.multiselect(
@@ -169,13 +185,20 @@ class ContextSelector:
             )
             
             # Custom juridical context
-            custom_jur = st.text_input(
-                "Aangepaste juridische context",
-                placeholder="Voer ander rechtsgebied in..."
-            )
+            custom_jur = ""
+            if "Anders..." in selected_jur:
+                custom_jur = st.text_input(
+                    "Aangepaste juridische context",
+                    placeholder="Voer ander rechtsgebied in..."
+                )
             
+            # Combineer juridische context
+            final_jur = [opt for opt in selected_jur if opt != "Anders..."]
             if custom_jur.strip():
-                selected_jur.append(custom_jur.strip())
+                final_jur.append(custom_jur.strip())
+            
+            # Update selected_jur with final list
+            selected_jur = final_jur
             
             # Additional metadata
             st.markdown("##### 📝 Metadata")
