@@ -112,10 +112,14 @@ class DefinitieChecker:
         juridische_context: str = "",
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
         force_generate: bool = False,
-        created_by: str = None
+        created_by: str = None,
+        # Hybrid context parameters
+        selected_document_ids: Optional[List[str]] = None,
+        enable_hybrid: bool = False
     ) -> Tuple[DefinitieCheckResult, Optional[AgentResult], Optional[DefinitieRecord]]:
         """
         Voer complete workflow uit: check + eventuele generatie + opslag.
+        Ondersteunt hybrid context enhancement met document integration.
         
         Args:
             begrip: Het begrip om te definiëren
@@ -124,6 +128,8 @@ class DefinitieChecker:
             categorie: Ontologische categorie
             force_generate: Forceer nieuwe generatie ondanks duplicates
             created_by: Wie de definitie aanmaakt
+            selected_document_ids: IDs van documenten voor hybrid context
+            enable_hybrid: Of hybrid context enhancement gebruikt moet worden
             
         Returns:
             Tuple van (check_result, agent_result, saved_record)
@@ -138,14 +144,20 @@ class DefinitieChecker:
             # Return bestaande definitie zonder nieuwe generatie
             return check_result, None, check_result.existing_definitie
         
-        # Stap 3: Genereer nieuwe definitie
-        logger.info(f"Generating new definition for '{begrip}'")
+        # Stap 3: Genereer nieuwe definitie (mogelijk met hybrid context)
+        if enable_hybrid and selected_document_ids:
+            logger.info(f"Generating new definition for '{begrip}' with hybrid context ({len(selected_document_ids)} documents)")
+        else:
+            logger.info(f"Generating new definition for '{begrip}' (standard context)")
         
         agent_result = self.agent.generate_definition(
             begrip=begrip,
             organisatorische_context=organisatorische_context,
             juridische_context=juridische_context,
-            categorie=categorie
+            categorie=categorie,
+            # Pass hybrid context parameters
+            selected_document_ids=selected_document_ids,
+            enable_hybrid=enable_hybrid
         )
         
         # Stap 4: Sla definitie op in database

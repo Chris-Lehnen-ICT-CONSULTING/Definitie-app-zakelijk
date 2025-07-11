@@ -350,10 +350,14 @@ class DefinitieAgent:
         organisatorische_context: str,
         juridische_context: str = "",
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
-        initial_feedback: List[str] = None
+        initial_feedback: List[str] = None,
+        # Hybrid context parameters
+        selected_document_ids: Optional[List[str]] = None,
+        enable_hybrid: bool = False
     ) -> AgentResult:
         """
         Genereer definitie met iteratieve verbetering.
+        Ondersteunt hybrid context enhancement met document integration.
         
         Args:
             begrip: Het te definiëren begrip
@@ -361,6 +365,8 @@ class DefinitieAgent:
             juridische_context: Juridische context
             categorie: Ontologische categorie
             initial_feedback: Optionele initiële feedback
+            selected_document_ids: IDs van documenten voor hybrid context
+            enable_hybrid: Of hybrid context enhancement gebruikt moet worden
             
         Returns:
             AgentResult met eindresultaat en iteratie geschiedenis
@@ -371,14 +377,22 @@ class DefinitieAgent:
         self.current_status = AgentStatus.INITIALIZING
         self.iterations = []
         
-        # Bouw initiële context
+        # Bouw initiële context met mogelijke hybrid enhancement
         generation_context = GenerationContext(
             begrip=begrip,
             organisatorische_context=organisatorische_context,
             juridische_context=juridische_context,
             categorie=categorie,
-            feedback_history=initial_feedback or []
+            feedback_history=initial_feedback or [],
+            # Hybrid context ondersteuning
+            use_hybrid_enhancement=enable_hybrid,
+            hybrid_context=None  # Wordt later gevuld door generator
         )
+        
+        # Voeg selected_document_ids toe als attribuut voor hybrid context
+        if selected_document_ids and enable_hybrid:
+            generation_context.selected_document_ids = selected_document_ids
+            logger.info(f"Hybrid context enabled with {len(selected_document_ids)} documents")
         
         best_iteration = None
         success = False

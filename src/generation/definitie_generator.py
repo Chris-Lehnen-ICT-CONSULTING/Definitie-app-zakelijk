@@ -15,6 +15,14 @@ from voorbeelden.unified_voorbeelden import (
     get_examples_generator, ExampleRequest, ExampleType, GenerationMode,
     genereer_alle_voorbeelden
 )
+# Hybride context imports
+try:
+    from hybrid_context.hybrid_context_engine import get_hybrid_context_engine, HybridContext
+    HYBRID_CONTEXT_AVAILABLE = True
+except ImportError:
+    HYBRID_CONTEXT_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("Hybrid context module niet beschikbaar - fallback naar standaard generatie")
 
 logger = logging.getLogger(__name__)
 
@@ -53,6 +61,11 @@ class GenerationContext:
     categorie: OntologischeCategorie
     feedback_history: List[str] = None
     custom_instructions: List[str] = None
+    # Hybride context uitbreidingen
+    hybrid_context: Optional[Any] = None  # HybridContext object
+    use_hybrid_enhancement: bool = False
+    web_context: Optional[Dict[str, Any]] = None
+    document_context: Optional[Dict[str, Any]] = None
     
     def __post_init__(self):
         if self.feedback_history is None:
@@ -246,6 +259,7 @@ class DefinitieGenerator:
     ) -> GenerationResult:
         """
         Genereer definitie op basis van context en toetsregels.
+        Ondersteunt hybride context verrijking wanneer beschikbaar.
         
         Args:
             context: GenerationContext met begrip en context info
@@ -258,16 +272,20 @@ class DefinitieGenerator:
         """
         logger.info(f"Generating definitie voor '{context.begrip}' categorie {context.categorie.value}")
         
-        # 1. Laad relevante regels
+        # 1. Check voor hybrid context enhancement
+        if context.use_hybrid_enhancement and HYBRID_CONTEXT_AVAILABLE:
+            context = self._enhance_with_hybrid_context(context)
+        
+        # 2. Laad relevante regels
         instructies = self._load_generation_instructions(context)
         
-        # 2. Bouw prompt
+        # 3. Bouw prompt (nu mogelijk met hybrid context)
         prompt = self._build_generation_prompt(context, instructies)
         
-        # 3. Roep GPT aan
+        # 4. Roep GPT aan
         definitie = self._call_gpt(prompt, model, temperature, max_tokens)
         
-        # 4. Return resultaat met basis definitie
+        # 5. Return resultaat met definitie
         result = GenerationResult(
             definitie=definitie,
             gebruikte_instructies=instructies,
@@ -449,59 +467,7 @@ class DefinitieGenerator:
         logger.debug(f"Loaded {len(instructies)} generatie instructies")
         return instructies
     
-    def _build_generation_prompt(
-        self, 
-        context: GenerationContext, 
-        instructies: List[GenerationInstruction]
-    ) -> str:
-        """Bouw intelligente GPT prompt voor definitie generatie."""
-        
-        # Basis template voor categorie
-        category_template = self.category_templates[context.categorie]
-        
-        # Kern instructies
-        kern_instructies = []
-        for instructie in instructies[:8]:  # Top 8 belangrijkste
-            kern_instructies.append(f"• {instructie.guidance}")
-        
-        # Feedback integration
-        feedback_section = ""
-        if context.feedback_history:
-            feedback_section = f"""
-VERBETERINGEN OP BASIS VAN VORIGE VERSIE:
-{chr(10).join(f"• {feedback}" for feedback in context.feedback_history[-3:])}
-"""
-        
-        # Bouw complete prompt
-        prompt = f"""TAAK: Genereer een professionele definitie voor '{context.begrip}'
-
-CONTEXT:
-• Organisatorisch: {context.organisatorische_context}
-• Juridisch: {context.juridische_context}  
-• Ontologische categorie: {context.categorie.value.upper()}
-
-STRUCTUUR TEMPLATE ({context.categorie.value}):
-{category_template['base_structure']}
-
-VOORBEELDEN VAN GOEDE {context.categorie.value.upper()} DEFINITIES:
-{chr(10).join(f"• {example}" for example in category_template['examples'])}
-
-ESSENTIËLE VEREISTEN:
-{chr(10).join(kern_instructies)}
-
-FOCUS GEBIEDEN VOOR {context.categorie.value.upper()}:
-{chr(10).join(f"• {focus}" for focus in category_template['focus'])}
-{feedback_section}
-OPDRACHT:
-Genereer nu een definitie voor '{context.begrip}' die:
-1. Voldoet aan alle essentiële vereisten
-2. Past bij de {context.categorie.value} categorie structuur  
-3. Specifiek is voor de gegeven context zonder deze expliciet te noemen
-4. Professional en helder geformuleerd is
-
-DEFINITIE:"""
-
-        return prompt
+    # Oude _build_generation_prompt methode vervangen door hybrid versie hierboven
     
     def _call_gpt(
         self, 
@@ -540,6 +506,187 @@ DEFINITIE:"""
         """
         # Voor nu simpele generatie - wordt uitgebreid in Fase 2
         return self.generate(context)
+    
+    def _enhance_with_hybrid_context(self, context: GenerationContext) -> GenerationContext:
+        """
+        Enhance generation context met hybrid context verrijking.
+        
+        Args:
+            context: Basis generation context
+            
+        Returns:
+            Enhanced context met hybrid data
+        """
+        try:
+            if not HYBRID_CONTEXT_AVAILABLE:
+                logger.warning("Hybrid context niet beschikbaar - skip enhancement")
+                return context
+            
+            logger.info(f"Enhancing context voor '{context.begrip}' met hybrid context")
+            
+            # Gebruik bestaande hybrid context of creëer nieuwe
+            if context.hybrid_context is None:
+                hybrid_engine = get_hybrid_context_engine()
+                
+                # Bepaal selected document IDs (zou uit context moeten komen)
+                selected_doc_ids = getattr(context, 'selected_document_ids', None)
+                
+                # Creëer hybrid context
+                hybrid_context = hybrid_engine.create_hybrid_context(
+                    begrip=context.begrip,
+                    organisatorische_context=context.organisatorische_context,
+                    juridische_context=context.juridische_context,
+                    selected_document_ids=selected_doc_ids
+                )
+                
+                # Update context
+                context.hybrid_context = hybrid_context
+                context.web_context = hybrid_context.web_context
+                context.document_context = hybrid_context.document_context
+            
+            logger.info(f"Hybrid context enhanced (confidence: {context.hybrid_context.confidence_score:.2f})")
+            return context
+            
+        except Exception as e:
+            logger.error(f"Fout bij hybrid context enhancement: {e}")
+            # Return original context als fallback
+            return context
+    
+    def _build_generation_prompt(self, context: GenerationContext, instructies: List[GenerationInstruction]) -> str:
+        """
+        Bouw generation prompt, mogelijk met hybrid context enhancement.
+        
+        Args:
+            context: Generation context (mogelijk enhanced)
+            instructies: Generation instructies uit toetsregels
+            
+        Returns:
+            Complete generation prompt
+        """
+        # Basis prompt onderdelen
+        prompt_sections = []
+        
+        # Systeem instructies
+        prompt_sections.append("=== SYSTEEM INSTRUCTIE ===")
+        prompt_sections.append("Je bent een expert in juridische definitie generatie.")
+        prompt_sections.append("Genereer een precieze, juridisch correcte definitie.")
+        
+        # Ontologische categorie template
+        category_template = self.category_templates.get(context.categorie, {})
+        if category_template:
+            prompt_sections.append(f"\n=== STRUCTUUR TEMPLATE ({context.categorie.value.upper()}) ===")
+            prompt_sections.append(f"Basis structuur: {category_template.get('base_structure', '')}")
+            prompt_sections.append(f"Focus op: {', '.join(category_template.get('focus', []))}")
+        
+        # Toetsregel instructies
+        if instructies:
+            prompt_sections.append("\n=== GENERATIE RICHTLIJNEN ===")
+            for instructie in instructies:
+                prompt_sections.append(f"• {instructie.guidance}")
+                if instructie.focus_areas:
+                    prompt_sections.append(f"  Focus: {', '.join(instructie.focus_areas)}")
+        
+        # Hybrid context (indien beschikbaar)
+        if context.use_hybrid_enhancement and context.hybrid_context:
+            hybrid_section = self._build_hybrid_context_section(context.hybrid_context)
+            prompt_sections.append(hybrid_section)
+        
+        # Basis context informatie
+        prompt_sections.append(f"\n=== CONTEXT INFORMATIE ===")
+        prompt_sections.append(f"Begrip: {context.begrip}")
+        prompt_sections.append(f"Organisatorische context: {context.organisatorische_context}")
+        prompt_sections.append(f"Juridische context: {context.juridische_context}")
+        prompt_sections.append(f"Ontologische categorie: {context.categorie.value}")
+        
+        # Custom instructies
+        if context.custom_instructions:
+            prompt_sections.append("\n=== AANVULLENDE INSTRUCTIES ===")
+            for instruction in context.custom_instructions:
+                prompt_sections.append(f"• {instruction}")
+        
+        # Feedback history
+        if context.feedback_history:
+            prompt_sections.append("\n=== FEEDBACK HISTORIE ===")
+            for feedback in context.feedback_history[-3:]:  # Laatste 3 feedback items
+                prompt_sections.append(f"• {feedback}")
+        
+        # Generatie opdracht
+        prompt_sections.append(f"\n=== OPDRACHT ===")
+        prompt_sections.append(f"Genereer een definitie voor '{context.begrip}' volgens bovenstaande richtlijnen.")
+        prompt_sections.append("Zorg voor:")
+        prompt_sections.append("- Juridische precisie en correctheid")
+        prompt_sections.append("- Duidelijke afbakening en scope")
+        prompt_sections.append("- Praktische toepasbaarheid")
+        prompt_sections.append("- Consistentie met bestaande terminologie")
+        
+        if context.hybrid_context:
+            confidence = context.hybrid_context.confidence_score
+            if confidence > 0.8:
+                prompt_sections.append("- Integreer de rijke context uit bronnen optimaal")
+            elif confidence > 0.6:
+                prompt_sections.append("- Gebruik beschikbare context waar relevant")
+            else:
+                prompt_sections.append("- Gebruik context zorgvuldig, valideer waar mogelijk")
+        
+        return "\n".join(prompt_sections)
+    
+    def _build_hybrid_context_section(self, hybrid_context) -> str:
+        """
+        Bouw hybrid context sectie voor de prompt.
+        
+        Args:
+            hybrid_context: HybridContext object
+            
+        Returns:
+            Formatted context sectie
+        """
+        try:
+            sections = ["\n=== HYBRIDE CONTEXT VERRIJKING ==="]
+            
+            # Context quality en confidence
+            sections.append(f"Context kwaliteit: {hybrid_context.context_quality}")
+            sections.append(f"Betrouwbaarheidscore: {hybrid_context.confidence_score:.2f}")
+            sections.append(f"Fusion strategie: {hybrid_context.fusion_strategy}")
+            
+            # Unified context (de geaggregeerde context)
+            if hybrid_context.unified_context:
+                sections.append(f"\n=== GEAGGREGEERDE CONTEXT ===")
+                # Limiteer context lengte voor prompt efficiency
+                context_text = hybrid_context.unified_context
+                if len(context_text) > 2000:
+                    context_text = context_text[:2000] + "... (afgekapt)"
+                sections.append(context_text)
+            
+            # Bronvermelding
+            all_sources = []
+            if hybrid_context.web_sources:
+                all_sources.extend([f"Web: {src}" for src in hybrid_context.web_sources])
+            if hybrid_context.document_sources:
+                all_sources.extend([f"Doc: {src.get('filename', 'onbekend')}" for src in hybrid_context.document_sources])
+            
+            if all_sources:
+                sections.append(f"\n=== BRONNEN ===")
+                sections.append(f"Primaire bronnen: {', '.join(hybrid_context.primary_sources)}")
+                if hybrid_context.supporting_sources:
+                    sections.append(f"Ondersteunende bronnen: {', '.join(hybrid_context.supporting_sources)}")
+            
+            # Instructie voor context gebruik
+            sections.append(f"\n=== CONTEXT GEBRUIK INSTRUCTIE ===")
+            if hybrid_context.confidence_score > 0.8:
+                sections.append("Gebruik deze rijke context optimaal voor een uitgebreide, goed onderbouwde definitie.")
+            elif hybrid_context.confidence_score > 0.6:
+                sections.append("Integreer relevante elementen uit deze context in je definitie.")
+            else:
+                sections.append("Gebruik deze context ondersteunend, maar blijf kritisch op relevantie.")
+            
+            if hybrid_context.conflicts_resolved > 0:
+                sections.append(f"Let op: {hybrid_context.conflicts_resolved} conflict(en) zijn opgelost in deze context.")
+            
+            return "\n".join(sections)
+            
+        except Exception as e:
+            logger.error(f"Fout bij bouwen hybrid context sectie: {e}")
+            return "\n=== HYBRID CONTEXT === (fout bij verwerking)"
 
 
 # Convenience functions
@@ -556,6 +703,42 @@ def create_generation_context(
         juridische_context=juridische_context,
         categorie=categorie
     )
+
+def create_hybrid_generation_context(
+    begrip: str,
+    organisatorische_context: str,
+    juridische_context: str = "",
+    categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
+    selected_document_ids: Optional[List[str]] = None,
+    enable_hybrid: bool = True
+) -> GenerationContext:
+    """
+    Helper functie om GenerationContext met hybrid context support te maken.
+    
+    Args:
+        begrip: Het te definiëren begrip
+        organisatorische_context: Organisatorische context
+        juridische_context: Juridische context
+        categorie: Ontologische categorie
+        selected_document_ids: IDs van geselecteerde documenten
+        enable_hybrid: Of hybrid context enhancement gebruikt moet worden
+        
+    Returns:
+        GenerationContext klaar voor hybrid enhancement
+    """
+    context = GenerationContext(
+        begrip=begrip,
+        organisatorische_context=organisatorische_context,
+        juridische_context=juridische_context,
+        categorie=categorie,
+        use_hybrid_enhancement=enable_hybrid and HYBRID_CONTEXT_AVAILABLE
+    )
+    
+    # Voeg selected_document_ids toe als attribuut
+    if selected_document_ids:
+        context.selected_document_ids = selected_document_ids
+    
+    return context
 
 
 def generate_definitie(
