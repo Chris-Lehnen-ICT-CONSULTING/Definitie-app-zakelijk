@@ -13,9 +13,11 @@ from ui.components.expert_review_tab import ExpertReviewTab
 from ui.components.history_tab import HistoryTab
 from ui.components.export_tab import ExportTab
 from ui.session_state import SessionStateManager
-from database.definitie_repository import get_definitie_repository, DefinitieRecord, DefinitieStatus
+from database.definitie_repository import get_definitie_repository
 from integration.definitie_checker import DefinitieChecker
 from generation.definitie_generator import OntologischeCategorie
+from document_processing.document_processor import get_document_processor
+from document_processing.document_extractor import supported_file_types
 import logging
 
 logger = logging.getLogger(__name__)
@@ -65,14 +67,6 @@ class TabbedInterface:
         # App header
         self._render_header()
         
-        # Quick Start sectie (oorspronkelijke workflow)
-        self._render_quick_start_section()
-        
-        st.markdown("---")
-        
-        # Advanced sectie met tabs
-        st.markdown("### 🔧 Geavanceerde Functies")
-        
         # Global context selector (boven tabs)
         self._render_global_context()
         
@@ -82,184 +76,6 @@ class TabbedInterface:
         # Footer met systeem informatie
         self._render_footer()
     
-    def _handle_quick_generation(self, begrip, categorie, org_context, jur_context, wet_basis, voorsteller, include_examples):
-        """Handle snelle definitie generatie."""
-        try:
-            with st.spinner("🔄 Genereren van definitie..."):
-                # Gebruik de eerste organisatorische context voor generatie
-                primary_org = org_context[0] if org_context else ""
-                primary_jur = jur_context[0] if jur_context else ""
-                
-                # Bepaal automatisch de ontologische categorie via AI
-                auto_categorie = self._determine_ontological_category(begrip, primary_org, primary_jur)
-                
-                # Voer complete workflow uit
-                check_result, agent_result, saved_record = self.checker.generate_with_check(
-                    begrip=begrip,
-                    organisatorische_context=primary_org,
-                    juridische_context=primary_jur,
-                    categorie=auto_categorie,
-                    force_generate=False,
-                    created_by=voorsteller or "quick_user"
-                )
-                
-                # Store results in session voor display
-                SessionStateManager.set_value("quick_last_result", {
-                    "check_result": check_result,
-                    "agent_result": agent_result,
-                    "saved_record": saved_record,
-                    "include_examples": include_examples,
-                    "determined_category": auto_categorie.value,
-                    "timestamp": datetime.now()
-                })
-                
-                st.success("✅ Definitie succesvol gegenereerd!")
-                st.rerun()
-                
-        except Exception as e:
-            st.error(f"❌ Fout bij generatie: {str(e)}")
-            logger.error(f"Quick generation failed: {e}")
-    
-    def _handle_quick_duplicate_check(self, begrip, org_context, jur_context):
-        """Handle snelle duplicate check."""
-        try:
-            with st.spinner("🔍 Controleren op duplicates..."):
-                from generation.definitie_generator import OntologischeCategorie
-                
-                check_result = self.checker.check_before_generation(
-                    begrip=begrip,
-                    organisatorische_context=org_context,
-                    juridische_context=jur_context,
-                    categorie=OntologischeCategorie.PROCES  # Default
-                )
-                
-                SessionStateManager.set_value("quick_duplicate_result", {
-                    "check_result": check_result,
-                    "timestamp": datetime.now()
-                })
-                
-                st.rerun()
-                
-        except Exception as e:
-            st.error(f"❌ Fout bij duplicate check: {str(e)}")
-            logger.error(f"Quick duplicate check failed: {e}")
-    
-    def _clear_quick_form(self):
-        """Wis alle quick form velden."""
-        keys_to_clear = [
-            "quick_begrip", "quick_categorie", "quick_org_context", 
-            "quick_jur_context", "quick_wet_basis", "quick_voorsteller",
-            "quick_ketenpartners", "quick_include_examples",
-            "quick_last_result", "quick_duplicate_result"
-        ]
-        
-        for key in keys_to_clear:
-            SessionStateManager.clear_value(key)
-    
-    def _render_quick_results(self):
-        """Render resultaten van quick generation."""
-        # Check voor generatie resultaten
-        last_result = SessionStateManager.get_value("quick_last_result")
-        duplicate_result = SessionStateManager.get_value("quick_duplicate_result")
-        
-        if duplicate_result:
-            self._render_quick_duplicate_results(duplicate_result["check_result"])
-        
-        if last_result:
-            self._render_quick_generation_results(last_result)
-    
-    def _render_quick_duplicate_results(self, check_result):
-        """Render duplicate check resultaten."""
-        st.markdown("#### 🔍 Duplicate Check Resultaten")
-        
-        if check_result.action.value == "proceed":
-            st.success(f"✅ {check_result.message}")
-        elif check_result.action.value == "use_existing":
-            st.warning(f"⚠️ {check_result.message}")
-            
-            if check_result.existing_definitie:
-                with st.expander("📋 Bestaande definitie details", expanded=True):
-                    st.info(check_result.existing_definitie.definitie)
-                    st.caption(f"Context: {check_result.existing_definitie.organisatorische_context} | Status: {check_result.existing_definitie.status}")
-        else:
-            st.info(f"ℹ️ {check_result.message}")
-    
-    def _render_quick_generation_results(self, result_data):
-        """Render generatie resultaten."""
-        st.markdown("#### 🚀 Generatie Resultaten")
-        
-        agent_result = result_data.get("agent_result")
-        saved_record = result_data.get("saved_record")
-        
-        if agent_result and agent_result.success:
-            # Toon gegenereerde definitie
-            st.markdown("##### 📝 Gegenereerde Definitie")
-            st.info(agent_result.final_definitie)
-            
-            # Toon automatisch bepaalde categorie
-            determined_category = result_data.get("determined_category", "proces")
-            st.success(f"🤖 **Ontologische categorie (AI bepaald):** {determined_category.capitalize()}")
-            
-            # Metadata
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Kwaliteitsscore", f"{agent_result.final_score:.2f}")
-            with col2:
-                st.metric("Iteraties", agent_result.iteration_count)
-            with col3:
-                st.metric("Verwerkingstijd", f"{agent_result.total_processing_time:.1f}s")
-            
-            # Database info
-            if saved_record:
-                st.success(f"✅ Definitie opgeslagen in database (ID: {saved_record.id})")
-                
-                # Action buttons
-                col1, col2, col3 = st.columns(3)
-                
-                with col1:
-                    if st.button("📝 Submit voor Review"):
-                        try:
-                            success = self.repository.change_status(
-                                saved_record.id, 
-                                DefinitieStatus.REVIEW, 
-                                "quick_user", 
-                                "Submitted via quick interface"
-                            )
-                            if success:
-                                st.success("✅ Ingediend voor expert review")
-                            else:
-                                st.error("❌ Kon status niet wijzigen")
-                        except Exception as e:
-                            st.error(f"❌ Fout: {str(e)}")
-                
-                with col2:
-                    if st.button("📤 Exporteer TXT"):
-                        # Quick TXT export
-                        export_text = f"""BEGRIP: {saved_record.begrip}
-DEFINITIE: {saved_record.definitie}
-CATEGORIE: {saved_record.categorie}
-CONTEXT: {saved_record.organisatorische_context}
-STATUS: {saved_record.status}
-SCORE: {agent_result.final_score:.2f}
-GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
-"""
-                        st.download_button(
-                            "💾 Download TXT",
-                            export_text,
-                            file_name=f"definitie_{saved_record.begrip}_{datetime.now().strftime('%Y%m%d_%H%M')}.txt",
-                            mime="text/plain"
-                        )
-                
-                with col3:
-                    if st.button("🗑️ Wis Resultaten"):
-                        SessionStateManager.clear_value("quick_last_result")
-                        SessionStateManager.clear_value("quick_duplicate_result")
-                        st.rerun()
-        
-        elif agent_result:
-            st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
-        else:
-            st.error("❌ Generatie gefaald")
     
     def _determine_ontological_category(self, begrip, org_context, jur_context):
         """Bepaal automatisch de ontologische categorie via AI analyse."""
@@ -337,137 +153,6 @@ GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
             # Default naar proces
             return OntologischeCategorie.PROCES
     
-    def _render_quick_start_section(self):
-        """Render quick start sectie met oorspronkelijke workflow."""
-        st.markdown("### 🚀 Snelle Definitie Generatie")
-        st.markdown("*Voor eenvoudige definities - gebruik direct onderstaande velden en klik op 'Genereer'*")
-        
-        # Main form in columns
-        col1, col2 = st.columns([2, 1])
-        
-        with col1:
-            # Term input (hoofdveld)
-            begrip = st.text_input(
-                "📝 Voer een term in waarvoor een definitie moet worden gegenereerd",
-                value=SessionStateManager.get_value("quick_begrip", ""),
-                placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
-                help="Het centrale begrip waarvoor een definitie gegenereerd wordt"
-            )
-            SessionStateManager.set_value("quick_begrip", begrip)
-            
-        with col2:
-            # AI informatie / status
-            st.markdown("🤖 **AI Analyse**")
-            st.info("De ontologische categorie wordt automatisch bepaald door de AI op basis van de term en context")
-            
-            # Optionele hint voor gebruiker
-            st.markdown("💡 **Tips:**")
-            st.caption("• Processen: authenticatie, verificatie")
-            st.caption("• Types: identiteitsbewijs, document") 
-            st.caption("• Resultaten: besluit, rapport")
-            st.caption("• Exemplaren: specifiek document, persoon")
-        
-        # Context sectie (vereenvoudigd)
-        st.markdown("#### 📋 Context Selectie")
-        col1, col2, col3 = st.columns(3)
-        
-        with col1:
-            # Organisatorische context (direct multiselect)
-            org_context = st.multiselect(
-                "🏢 Organisatorische context",
-                options=["OM", "ZM", "Reclassering", "DJI", "NP", "Justid", "KMAR", "FIOD", "CJIB", "Strafrechtketen", "Migratieketen"],
-                default=SessionStateManager.get_value("quick_org_context", []),
-                help="Selecteer één of meerdere organisaties"
-            )
-            SessionStateManager.set_value("quick_org_context", org_context)
-            
-        with col2:
-            # Juridische context
-            jur_context = st.multiselect(
-                "⚖️ Juridische context",
-                options=["Strafrecht", "Civiel recht", "Bestuursrecht", "Internationaal recht", "Europees recht"],
-                default=SessionStateManager.get_value("quick_jur_context", []),
-                help="Selecteer juridische gebieden"
-            )
-            SessionStateManager.set_value("quick_jur_context", jur_context)
-            
-        with col3:
-            # Wettelijke basis
-            wet_basis = st.multiselect(
-                "📜 Wettelijke basis",
-                options=[
-                    "Wetboek van Strafvordering (huidige versie)",
-                    "Wetboek van strafvordering (nieuwe versie)", 
-                    "Wet op de Identificatieplicht",
-                    "Wetboek van Strafrecht",
-                    "Algemene verordening gegevensbescherming"
-                ],
-                default=SessionStateManager.get_value("quick_wet_basis", []),
-                help="Selecteer relevante wetgeving"
-            )
-            SessionStateManager.set_value("quick_wet_basis", wet_basis)
-        
-        # Metadata sectie (inklapbaar)
-        with st.expander("📊 Metadata (optioneel)", expanded=False):
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                voorsteller = st.text_input(
-                    "Voorgesteld door",
-                    value=SessionStateManager.get_value("quick_voorsteller", ""),
-                    placeholder="Naam van voorsteller"
-                )
-                SessionStateManager.set_value("quick_voorsteller", voorsteller)
-                
-            with col2:
-                ketenpartners = st.multiselect(
-                    "Akkoord ketenpartners",
-                    options=["ZM", "DJI", "KMAR", "CJIB", "JUSTID"],
-                    default=SessionStateManager.get_value("quick_ketenpartners", [])
-                )
-                SessionStateManager.set_value("quick_ketenpartners", ketenpartners)
-                
-            with col3:
-                include_examples = st.checkbox(
-                    "📝 Genereer voorbeelden",
-                    value=SessionStateManager.get_value("quick_include_examples", True),
-                    help="Voeg praktische voorbeelden toe aan de definitie"
-                )
-                SessionStateManager.set_value("quick_include_examples", include_examples)
-        
-        # Action buttons
-        st.markdown("---")
-        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
-        
-        with col1:
-            # Main generate button
-            if st.button("🚀 Genereer Definitie", type="primary", help="Start definitie generatie met opgegeven parameters"):
-                if begrip.strip() and org_context:
-                    self._handle_quick_generation(begrip, None, org_context, jur_context, wet_basis, voorsteller, include_examples)
-                else:
-                    if not begrip.strip():
-                        st.error("❌ Voer eerst een begrip in")
-                    if not org_context:
-                        st.error("❌ Selecteer minimaal één organisatorische context")
-        
-        with col2:
-            if st.button("🔍 Check Duplicates", help="Controleer alleen op bestaande definities"):
-                if begrip.strip() and org_context:
-                    self._handle_quick_duplicate_check(begrip, org_context[0], jur_context[0] if jur_context else "")
-                else:
-                    st.error("❌ Voer begrip en context in voor duplicate check")
-        
-        with col3:
-            if st.button("🗑️ Wis Velden", help="Maak alle velden leeg"):
-                self._clear_quick_form()
-                st.rerun()
-                
-        with col4:
-            if st.button("🔧 Meer Opties", help="Ga naar geavanceerde interface"):
-                st.info("👇 Scroll naar beneden voor geavanceerde functies")
-        
-        # Show results if available
-        self._render_quick_results()
     
     def _render_header(self):
         """Render applicatie header."""
@@ -502,17 +187,262 @@ GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
     
     def _render_global_context(self):
         """Render globale context selector."""
+        # Begrip invoer als eerste
+        st.markdown("### 📝 Definitie Aanvraag")
+        begrip = st.text_input(
+            "Voer een term in waarvoor een definitie moet worden gegenereerd",
+            value=SessionStateManager.get_value("begrip", ""),
+            placeholder="bijv. authenticatie, verificatie, identiteitsvaststelling...",
+            help="Het centrale begrip waarvoor een definitie gegenereerd wordt"
+        )
+        SessionStateManager.set_value("begrip", begrip)
+        
         st.markdown("### 🎯 Context Configuratie")
         
-        with st.expander("Selecteer context voor definitie generatie", expanded=False):
-            context_data = self.context_selector.render()
+        # Document upload sectie
+        self._render_document_upload_section()
+        
+        # Context selector zonder presets - direct handmatige selectie
+        context_data = self._render_simplified_context_selector()
+        
+        # Store in session state voor gebruik in tabs
+        SessionStateManager.set_value("global_context", context_data)
+        
+        # Show selected context summary
+        if any(context_data.values()):
+            self._render_context_summary(context_data)
+        
+        # Genereer definitie knop direct na context
+        st.markdown("---")
+        self._render_quick_generate_button(begrip, context_data)
+    
+    def _render_simplified_context_selector(self) -> Dict[str, Any]:
+        """Render vereenvoudigde context selector zonder presets."""
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            # Organisatorische context
+            org_options = [
+                "OM", "ZM", "Reclassering", "DJI", "NP", "Justid",
+                "KMAR", "FIOD", "CJIB", "Strafrechtketen", "Migratieketen",
+                "Justitie en Veiligheid", "Anders..."
+            ]
             
-            # Store in session state voor gebruik in tabs
-            SessionStateManager.set_value("global_context", context_data)
+            selected_org = st.multiselect(
+                "📋 Organisatorische context",
+                options=org_options,
+                default=SessionStateManager.get_value("org_context", []),
+                help="Selecteer één of meerdere organisaties"
+            )
             
-            # Show selected context summary
-            if any(context_data.values()):
-                self._render_context_summary(context_data)
+            # Custom org context
+            custom_org = ""
+            if "Anders..." in selected_org:
+                custom_org = st.text_input(
+                    "Aangepaste organisatorische context",
+                    placeholder="Voer andere organisatie in...",
+                    key="custom_org_global"
+                )
+            
+            # Combineer contexts
+            final_org = [opt for opt in selected_org if opt != "Anders..."]
+            if custom_org.strip():
+                final_org.append(custom_org.strip())
+            
+            SessionStateManager.set_value("org_context", final_org)
+            
+        with col2:
+            # Juridische context
+            jur_options = [
+                "Strafrecht", "Civiel recht", "Bestuursrecht", 
+                "Internationaal recht", "Europees recht", "Migratierecht",
+                "Anders..."
+            ]
+            
+            selected_jur = st.multiselect(
+                "⚖️ Juridische context",
+                options=jur_options,
+                default=SessionStateManager.get_value("jur_context", []),
+                help="Selecteer juridische gebieden"
+            )
+            
+            # Custom juridical context
+            custom_jur = ""
+            if "Anders..." in selected_jur:
+                custom_jur = st.text_input(
+                    "Aangepaste juridische context",
+                    placeholder="Voer ander rechtsgebied in...",
+                    key="custom_jur_global"
+                )
+            
+            # Combineer juridische context
+            final_jur = [opt for opt in selected_jur if opt != "Anders..."]
+            if custom_jur.strip():
+                final_jur.append(custom_jur.strip())
+            
+            SessionStateManager.set_value("jur_context", final_jur)
+            
+        with col3:
+            # Wettelijke basis
+            wet_options = [
+                "Wetboek van Strafvordering (huidige versie)",
+                "Wetboek van strafvordering (nieuwe versie)",
+                "Wet op de Identificatieplicht",
+                "Wet op de politiegegevens",
+                "Wetboek van Strafrecht",
+                "Algemene verordening gegevensbescherming",
+                "Anders..."
+            ]
+            
+            selected_wet = st.multiselect(
+                "📜 Wettelijke basis",
+                options=wet_options,
+                default=SessionStateManager.get_value("wet_basis", []),
+                help="Selecteer relevante wetgeving"
+            )
+            
+            # Custom legal basis
+            custom_wet = ""
+            if "Anders..." in selected_wet:
+                custom_wet = st.text_input(
+                    "Aangepaste wettelijke basis",
+                    placeholder="Voer andere wetgeving in...",
+                    key="custom_wet_global"
+                )
+            
+            # Combineer wettelijke basis
+            final_wet = [opt for opt in selected_wet if opt != "Anders..."]
+            if custom_wet.strip():
+                final_wet.append(custom_wet.strip())
+            
+            SessionStateManager.set_value("wet_basis", final_wet)
+        
+        return {
+            "organisatorische_context": final_org,
+            "juridische_context": final_jur,
+            "wettelijke_basis": final_wet
+        }
+    
+    def _render_quick_generate_button(self, begrip: str, context_data: Dict[str, Any]):
+        """Render snelle genereer definitie knop."""
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            if st.button("🚀 Genereer Definitie", type="primary", help="Start definitie generatie", key="main_generate_btn"):
+                if begrip.strip():
+                    self._handle_definition_generation(begrip, context_data)
+                else:
+                    st.error("❌ Voer eerst een begrip in")
+        
+        with col2:
+            if st.button("🔍 Check Duplicates", help="Controleer op bestaande definities", key="main_check_btn"):
+                if begrip.strip():
+                    self._handle_duplicate_check(begrip, context_data)
+                else:
+                    st.error("❌ Voer eerst een begrip in")
+        
+        with col3:
+            if st.button("🗑️ Wis Velden", help="Maak alle velden leeg", key="main_clear_btn"):
+                self._clear_all_fields()
+                st.rerun()
+    
+    def _handle_definition_generation(self, begrip: str, context_data: Dict[str, Any]):
+        """Handle definitie generatie vanaf hoofdniveau."""
+        try:
+            with st.spinner("🔄 Genereren van definitie..."):
+                org_context = context_data.get("organisatorische_context", [])
+                jur_context = context_data.get("juridische_context", [])
+                
+                # Bepaal automatisch de ontologische categorie
+                primary_org = org_context[0] if org_context else ""
+                primary_jur = jur_context[0] if jur_context else ""
+                auto_categorie = self._determine_ontological_category(begrip, primary_org, primary_jur)
+                
+                # Krijg document context als beschikbaar
+                document_context = self._get_document_context()
+                
+                # Voer complete workflow uit met document enrichment
+                check_result, agent_result, saved_record = self.checker.generate_with_check(
+                    begrip=begrip,
+                    organisatorische_context=primary_org,
+                    juridische_context=primary_jur,
+                    categorie=auto_categorie,
+                    force_generate=False,
+                    created_by="global_user"
+                )
+                
+                # Store results voor display in tabs
+                SessionStateManager.set_value("last_generation_result", {
+                    "check_result": check_result,
+                    "agent_result": agent_result,
+                    "saved_record": saved_record,
+                    "determined_category": auto_categorie.value,
+                    "document_context": document_context,
+                    "timestamp": datetime.now()
+                })
+                
+                # Toon document context info als gebruikt
+                if document_context and document_context.get('document_count', 0) > 0:
+                    st.success(f"✅ Definitie gegenereerd met context van {document_context['document_count']} document(en)! Bekijk resultaten in de 'Definitie Generatie' tab.")
+                else:
+                    st.success("✅ Definitie succesvol gegenereerd! Bekijk resultaten in de 'Definitie Generatie' tab.")
+                
+        except Exception as e:
+            st.error(f"❌ Fout bij generatie: {str(e)}")
+            logger.error(f"Global generation failed: {e}")
+    
+    def _get_document_context(self) -> Optional[Dict[str, Any]]:
+        """Krijg document context voor definitie generatie."""
+        try:
+            selected_docs = SessionStateManager.get_value("selected_documents", [])
+            if not selected_docs:
+                return None
+            
+            processor = get_document_processor()
+            aggregated_context = processor.get_aggregated_context(selected_docs)
+            
+            if aggregated_context['document_count'] == 0:
+                return None
+            
+            return aggregated_context
+            
+        except Exception as e:
+            logger.error(f"Fout bij ophalen document context: {e}")
+            return None
+    
+    def _handle_duplicate_check(self, begrip: str, context_data: Dict[str, Any]):
+        """Handle duplicate check vanaf hoofdniveau."""
+        try:
+            with st.spinner("🔍 Controleren op duplicates..."):
+                org_context = context_data.get("organisatorische_context", [])
+                jur_context = context_data.get("juridische_context", [])
+                
+                primary_org = org_context[0] if org_context else ""
+                primary_jur = jur_context[0] if jur_context else ""
+                
+                check_result = self.checker.check_before_generation(
+                    begrip=begrip,
+                    organisatorische_context=primary_org,
+                    juridische_context=primary_jur,
+                    categorie=OntologischeCategorie.PROCES  # Default
+                )
+                
+                SessionStateManager.set_value("last_check_result", check_result)
+                st.success("✅ Duplicate check voltooid! Bekijk resultaten in de 'Definitie Generatie' tab.")
+                
+        except Exception as e:
+            st.error(f"❌ Fout bij duplicate check: {str(e)}")
+            logger.error(f"Global duplicate check failed: {e}")
+    
+    def _clear_all_fields(self):
+        """Wis alle velden."""
+        fields_to_clear = [
+            "begrip", "org_context", "jur_context", "wet_basis",
+            "last_generation_result", "last_check_result"
+        ]
+        
+        for field in fields_to_clear:
+            SessionStateManager.clear_value(field)
     
     def _render_context_summary(self, context_data: Dict[str, Any]):
         """Render samenvatting van geselecteerde context."""
@@ -529,6 +459,161 @@ GEGENEREERD: {datetime.now().strftime('%Y-%m-%d %H:%M')}
         
         if summary_parts:
             st.info(" | ".join(summary_parts))
+    
+    def _render_document_upload_section(self):
+        """Render document upload sectie voor context enrichment."""
+        with st.expander("📄 Document Upload voor Context Verrijking", expanded=False):
+            st.markdown("Upload documenten die relevante context bevatten voor de definitie generatie.")
+            
+            # File uploader
+            uploaded_files = st.file_uploader(
+                "Selecteer documenten",
+                type=['txt', 'pdf', 'docx', 'doc', 'md', 'csv', 'json', 'html', 'rtf'],
+                accept_multiple_files=True,
+                help="Ondersteunde formaten: TXT, PDF, Word, Markdown, CSV, JSON, HTML, RTF"
+            )
+            
+            # Toon ondersteunde bestandstypen in sidebar of als tekst
+            if st.checkbox("ℹ️ Toon ondersteunde bestandstypen", value=False):
+                supported_types = supported_file_types()
+                st.markdown("**Ondersteunde bestandstypen:**")
+                for mime_type, description in supported_types.items():
+                    st.write(f"• {description}")
+            
+            # Process uploaded files
+            if uploaded_files:
+                self._process_uploaded_files(uploaded_files)
+            
+            # Toon bestaande documenten
+            self._render_uploaded_documents_list()
+    
+    def _process_uploaded_files(self, uploaded_files):
+        """Verwerk geüploade bestanden."""
+        processor = get_document_processor()
+        
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+        
+        processed_docs = []
+        
+        for i, uploaded_file in enumerate(uploaded_files):
+            try:
+                status_text.text(f"Verwerken van {uploaded_file.name}...")
+                progress_bar.progress((i + 1) / len(uploaded_files))
+                
+                # Lees bestandsinhoud
+                file_content = uploaded_file.read()
+                
+                # Verwerk document
+                processed_doc = processor.process_uploaded_file(
+                    file_content, 
+                    uploaded_file.name, 
+                    uploaded_file.type
+                )
+                
+                processed_docs.append(processed_doc)
+                
+            except Exception as e:
+                st.error(f"Fout bij verwerken van {uploaded_file.name}: {str(e)}")
+        
+        progress_bar.empty()
+        status_text.empty()
+        
+        # Toon resultaten
+        if processed_docs:
+            st.success(f"✅ {len(processed_docs)} document(en) verwerkt!")
+            
+            for doc in processed_docs:
+                if doc.processing_status == "success":
+                    st.success(f"✅ {doc.filename}: {doc.text_length} karakters geëxtraheerd")
+                else:
+                    st.error(f"❌ {doc.filename}: {doc.error_message}")
+            
+            # Update session state
+            SessionStateManager.set_value("documents_updated", True)
+    
+    def _render_uploaded_documents_list(self):
+        """Render lijst van geüploade documenten."""
+        processor = get_document_processor()
+        documents = processor.get_processed_documents()
+        
+        if not documents:
+            st.info("Geen documenten geüpload")
+            return
+        
+        st.markdown("#### 📚 Geüploade Documenten")
+        
+        # Document selectie voor context enrichment
+        doc_options = []
+        doc_labels = []
+        
+        for doc in documents:
+            if doc.processing_status == "success":
+                label = f"{doc.filename} ({doc.text_length:,} chars, {len(doc.keywords)} keywords)"
+                doc_options.append(doc.id)
+                doc_labels.append(label)
+        
+        if doc_options:
+            selected_docs = st.multiselect(
+                "Selecteer documenten voor context verrijking",
+                options=doc_options,
+                format_func=lambda x: next(label for doc_id, label in zip(doc_options, doc_labels) if doc_id == x),
+                default=SessionStateManager.get_value("selected_documents", []),
+                help="Geselecteerde documenten worden gebruikt voor context en bronvermelding"
+            )
+            
+            SessionStateManager.set_value("selected_documents", selected_docs)
+            
+            # Toon document details
+            if selected_docs:
+                st.markdown(f"#### 📋 Details van {len(selected_docs)} geselecteerde document(en)")
+                aggregated = processor.get_aggregated_context(selected_docs)
+                
+                col1, col2 = st.columns(2)
+                
+                with col1:
+                    st.metric("Documenten", aggregated['document_count'])
+                    st.metric("Totale tekst", f"{aggregated['total_text_length']:,} chars")
+                    
+                with col2:
+                    st.metric("Keywords", len(aggregated['aggregated_keywords']))
+                    st.metric("Concepten", len(aggregated['aggregated_concepts']))
+                
+                # Toon keywords en concepten
+                if aggregated['aggregated_keywords']:
+                    st.markdown("**Top Keywords:**")
+                    st.write(", ".join(aggregated['aggregated_keywords'][:10]))
+                
+                if aggregated['aggregated_concepts']:
+                    st.markdown("**Key Concepten:**")
+                    st.write(", ".join(aggregated['aggregated_concepts'][:5]))
+                
+                if aggregated['aggregated_legal_refs']:
+                    st.markdown("**Juridische Verwijzingen:**")
+                    st.write(", ".join(aggregated['aggregated_legal_refs'][:5]))
+        
+        # Document management - buiten expander om nesting te voorkomen
+        if documents and st.checkbox("🗂️ Toon document beheer", value=False):
+            st.markdown("#### 🗂️ Document Beheer")
+            for doc in documents:
+                col1, col2, col3 = st.columns([3, 1, 1])
+                
+                with col1:
+                    status_emoji = "✅" if doc.processing_status == "success" else "❌"
+                    st.write(f"{status_emoji} {doc.filename}")
+                    if doc.processing_status == "success":
+                        st.caption(f"{doc.text_length:,} chars, {len(doc.keywords)} keywords")
+                    else:
+                        st.caption(f"Error: {doc.error_message}")
+                
+                with col2:
+                    upload_date = doc.uploaded_at.strftime("%d-%m %H:%M")
+                    st.caption(upload_date)
+                
+                with col3:
+                    if st.button("🗑️", key=f"delete_{doc.id}", help=f"Verwijder {doc.filename}"):
+                        processor.remove_document(doc.id)
+                        st.rerun()
     
     def _render_main_tabs(self):
         """Render de hoofdtabbladen."""
