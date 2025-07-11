@@ -1,0 +1,30 @@
+{
+  "documents": [
+    {
+      "id": "f451ea94e4e8e0a1",
+      "filename": "test.txt",
+      "mime_type": "text/plain",
+      "size": 74,
+      "uploaded_at": "2025-07-11T10:42:04.398766",
+      "extracted_text": "Dit is een test document met belangrijke context voor definitie generatie.",
+      "text_length": 74,
+      "keywords": [
+        "test",
+        "document",
+        "belangrijke",
+        "context",
+        "definitie",
+        "generatie"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context",
+        "Document bevat definities"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    }
+  ],
+  "last_updated": "2025-07-11T10:42:04.398806"
+}

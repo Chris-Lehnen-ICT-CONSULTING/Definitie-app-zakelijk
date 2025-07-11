@@ -52,7 +52,7 @@ class UIComponents:
         # Juridical context
         juridische_opties = st.multiselect(
             "Juridische context (meerdere mogelijk)",
-            ["Strafrecht", "Civiel recht", "Bestuursrecht", "Internationaal recht", "Anders..."],
+            ["Strafrecht", "Civiel recht", "Bestuursrecht", "Internationaal recht", "Europees recht", "Anders..."],
             default=[]
         )
         
