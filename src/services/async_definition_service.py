@@ -19,7 +19,7 @@ from definitie_generator.generator import genereer_definitie
 from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 from ai_toetser import toets_definitie
 from opschoning.opschoning import opschonen
-from log.log_definitie import log_definitie
+from logs.application.log_definitie import log_definitie
 
 
 @dataclass

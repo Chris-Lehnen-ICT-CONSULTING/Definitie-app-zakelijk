@@ -15,6 +15,7 @@ from database.definitie_repository import (
 from generation.definitie_generator import GenerationContext, OntologischeCategorie
 from validation.definitie_validator import ValidationResult
 from orchestration.definitie_agent import DefinitieAgent, AgentResult
+# Integrated service imports moved to function level to avoid circular import
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +57,16 @@ class DefinitieChecker:
         """
         self.repository = repository or get_definitie_repository()
         self.agent = DefinitieAgent()
+        
+        # Initialize integrated service with local imports
+        from services.integrated_service import get_integrated_service, ServiceConfig, ServiceMode
+        service_config = ServiceConfig(
+            mode=ServiceMode.AUTO,
+            enable_web_lookup=True,
+            enable_monitoring=True,
+            enable_validation=True
+        )
+        self.integrated_service = get_integrated_service(service_config)
     
     def check_before_generation(
         self, 
@@ -479,3 +490,172 @@ def generate_or_retrieve_definition(
             "check_action": check_result.action.value,
             "error": agent_result.reason if agent_result else "Unknown error"
         }
+    
+    async def generate_with_integrated_service(
+        self,
+        begrip: str,
+        organisatorische_context: str,
+        juridische_context: str = "",
+        categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
+        force_generate: bool = False,
+        created_by: str = None
+    ) -> Tuple[DefinitieCheckResult, Optional[Any], Optional[DefinitieRecord]]:
+        """
+        Generate definition using integrated service layer.
+        Provides modern service architecture with legacy fallback.
+        
+        Args:
+            begrip: Term to define
+            organisatorische_context: Organizational context
+            juridische_context: Legal context
+            categorie: Ontological category
+            force_generate: Skip duplicate check
+            created_by: Creator identifier
+            
+        Returns:
+            Tuple of (check_result, integrated_result, saved_record)
+        """
+        logger.info(f"Generating definition with integrated service: '{begrip}' in {organisatorische_context}")
+        
+        # Step 1: Check for duplicates (unless forced)
+        check_result = self.check_before_generation(
+            begrip, organisatorische_context, juridische_context, categorie
+        )
+        
+        if not force_generate and check_result.action != CheckAction.PROCEED:
+            # Return existing without new generation
+            return check_result, None, check_result.existing_definitie
+        
+        # Step 2: Prepare context for integrated service
+        context = {
+            "organisatorische_context": [organisatorische_context] if organisatorische_context else [],
+            "juridische_context": [juridische_context] if juridische_context else [],
+            "categorie": categorie.value
+        }
+        
+        # Step 3: Generate using integrated service
+        try:
+            integrated_result = await self.integrated_service.generate_definition(
+                begrip, context
+            )
+            
+            if integrated_result.success:
+                # Save to database if we have a definitie_record
+                if integrated_result.definitie_record:
+                    # Update record with additional metadata
+                    integrated_result.definitie_record.created_by = created_by or "integrated_service"
+                    
+                    # Save to database
+                    saved_id = self.repository.create_definitie(integrated_result.definitie_record)
+                    
+                    if saved_id:
+                        # Retrieve saved record
+                        saved_record = self.repository.get_definitie(saved_id)
+                        logger.info(f"Successfully saved definition for '{begrip}' with ID {saved_id}")
+                        return check_result, integrated_result, saved_record
+                    else:
+                        logger.error(f"Failed to save definition for '{begrip}' to database")
+                        return check_result, integrated_result, None
+                else:
+                    # Handle legacy result format
+                    if integrated_result.definitie_gecorrigeerd:
+                        # Create record from legacy format
+                        record = DefinitieRecord(
+                            begrip=begrip,
+                            definitie=integrated_result.definitie_gecorrigeerd,
+                            categorie=categorie.value,
+                            organisatorische_context=organisatorische_context,
+                            juridische_context=juridische_context,
+                            status=DefinitieStatus.REVIEW.value,
+                            validation_score=integrated_result.validation_result.overall_score if integrated_result.validation_result else None,
+                            source_type=SourceType.GENERATED.value,
+                            source_reference=f"IntegratedService_{integrated_result.service_mode.value}",
+                            created_by=created_by or "integrated_service"
+                        )
+                        
+                        saved_id = self.repository.create_definitie(record)
+                        if saved_id:
+                            saved_record = self.repository.get_definitie(saved_id)
+                            return check_result, integrated_result, saved_record
+                
+                return check_result, integrated_result, None
+            else:
+                logger.warning(f"Integrated service failed for '{begrip}': {integrated_result.error_message}")
+                return check_result, integrated_result, None
+                
+        except Exception as e:
+            logger.error(f"Integrated service error for '{begrip}': {str(e)}")
+            # Create error result
+            from services.integrated_service import IntegratedResult
+            error_result = IntegratedResult(
+                success=False,
+                operation="generate_definition",
+                processing_time=0.0,
+                service_mode=self.integrated_service.active_mode,
+                error_message=str(e)
+            )
+            return check_result, error_result, None
+    
+    async def validate_with_integrated_service(
+        self,
+        definitie: str,
+        categorie: str,
+        context: Optional[Dict[str, Any]] = None
+    ):
+        """
+        Validate definition using integrated service layer.
+        
+        Args:
+            definitie: Definition to validate
+            categorie: Ontological category
+            context: Optional context
+            
+        Returns:
+            IntegratedResult with validation results
+        """
+        from services.integrated_service import IntegratedResult
+        try:
+            return await self.integrated_service.validate_definition(definitie, categorie, context)
+        except Exception as e:
+            logger.error(f"Integrated validation error: {str(e)}")
+            return IntegratedResult(
+                success=False,
+                operation="validate_definition",
+                processing_time=0.0,
+                service_mode=self.integrated_service.active_mode,
+                error_message=str(e)
+            )
+    
+    async def check_duplicates_with_integrated_service(
+        self,
+        begrip: str,
+        definitie: str,
+        threshold: float = 0.8
+    ):
+        """
+        Check duplicates using integrated service layer.
+        
+        Args:
+            begrip: Term to check
+            definitie: Definition to check
+            threshold: Similarity threshold
+            
+        Returns:
+            IntegratedResult with duplicate analysis
+        """
+        from services.integrated_service import IntegratedResult
+        try:
+            return await self.integrated_service.check_duplicates(begrip, definitie, threshold)
+        except Exception as e:
+            logger.error(f"Integrated duplicate check error: {str(e)}")
+            return IntegratedResult(
+                success=False,
+                operation="check_duplicates",
+                processing_time=0.0,
+                service_mode=self.integrated_service.active_mode,
+                error_message=str(e)
+            )
+    
+    def get_service_info(self) -> Dict[str, Any]:
+        """Get information about available services."""
+        return self.integrated_service.get_service_info()

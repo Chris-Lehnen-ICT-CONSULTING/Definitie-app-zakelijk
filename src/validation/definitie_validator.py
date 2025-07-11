@@ -633,6 +633,155 @@ def validate_definitie(
     return validator.validate(definitie, cat_enum, context)
 
 
+# Additional validator functionality from validatie_toetsregels/validator.py
+def valideer_toetsregels_consistentie(
+    json_path: Optional[str] = None,
+    python_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Valideer consistentie tussen JSON toetsregels en Python implementaties.
+    Geïntegreerde versie van validatie_toetsregels/validator.py
+    
+    Args:
+        json_path: Pad naar toetsregels JSON (optioneel)
+        python_path: Pad naar Python implementatie (optioneel)
+        
+    Returns:
+        Dictionary met validatie resultaten
+    """
+    import os
+    from pathlib import Path
+    from config.config_loader import load_toetsregels
+    
+    # Default paths
+    if not json_path:
+        json_path = Path(__file__).parents[1] / "config" / "toetsregels.json"
+    if not python_path:
+        python_path = Path(__file__).parents[1] / "ai_toetser" / "core.py"
+    
+    # Load JSON rules
+    try:
+        data = load_toetsregels(str(json_path)) if json_path else load_toetsregels()
+        json_regels = data.get("regels", {})
+    except Exception as e:
+        return {"error": f"Kon JSON niet laden: {str(e)}"}
+    
+    # Detect functions in Python code
+    try:
+        with open(python_path, "r", encoding="utf-8") as f:
+            inhoud = f.read()
+        
+        matches = re.findall(r"def\s+toets_([A-Z0-9_]+)\s*\(", inhoud)
+        code_ids = {match.replace("_", "-") for match in matches}
+    except Exception as e:
+        return {"error": f"Kon Python code niet analyseren: {str(e)}"}
+    
+    # Perform validation
+    results = {
+        "json_rules_count": len(json_regels),
+        "python_functions_count": len(code_ids),
+        "missing_in_code": [],
+        "missing_in_json": [],
+        "incomplete_rules": [],
+        "consistent_rules": [],
+        "consistency_percentage": 0.0
+    }
+    
+    # Check missing functions
+    results["missing_in_code"] = [rid for rid in json_regels if rid not in code_ids]
+    
+    # Check missing JSON entries
+    results["missing_in_json"] = [cid for cid in code_ids if cid not in json_regels]
+    
+    # Check incomplete rules
+    for rid, data in json_regels.items():
+        issues = []
+        if "uitleg" not in data or not isinstance(data["uitleg"], str) or not data["uitleg"].strip():
+            issues.append("uitleg ontbreekt")
+        if "herkenbaar_patronen" not in data or not data["herkenbaar_patronen"]:
+            issues.append("herkenbare patronen ontbreken")
+        
+        if issues:
+            results["incomplete_rules"].append({
+                "rule_id": rid,
+                "issues": issues
+            })
+    
+    # Check consistent rules
+    results["consistent_rules"] = [
+        rid for rid in json_regels
+        if rid in code_ids
+        and isinstance(json_regels[rid].get("uitleg"), str) and json_regels[rid]["uitleg"].strip()
+        and "herkenbaar_patronen" in json_regels[rid] and json_regels[rid]["herkenbaar_patronen"]
+    ]
+    
+    # Calculate consistency percentage
+    if json_regels:
+        results["consistency_percentage"] = (len(results["consistent_rules"]) / len(json_regels)) * 100
+    
+    return results
+
+
+def format_consistency_report(results: Dict[str, Any]) -> str:
+    """
+    Format consistency validation results as a readable report.
+    
+    Args:
+        results: Results from valideer_toetsregels_consistentie()
+        
+    Returns:
+        Formatted report string
+    """
+    if "error" in results:
+        return f"❌ Fout: {results['error']}"
+    
+    report_lines = [
+        "\n📊 VALIDATIERAPPORT TOETSREGELS CONSISTENTIE",
+        "=" * 50,
+        f"📋 JSON regels: {results['json_rules_count']}",
+        f"🐍 Python functies: {results['python_functions_count']}",
+        f"✅ Consistente regels: {len(results['consistent_rules'])} ({results['consistency_percentage']:.1f}%)",
+        ""
+    ]
+    
+    # Missing functions
+    if results["missing_in_code"]:
+        report_lines.append("🟥 ONTBREKENDE FUNCTIES IN PYTHON:")
+        for rule_id in results["missing_in_code"]:
+            report_lines.append(f"   - {rule_id}")
+        report_lines.append("")
+    else:
+        report_lines.append("✅ Alle JSON regels hebben een Python functie")
+        report_lines.append("")
+    
+    # Missing JSON entries
+    if results["missing_in_json"]:
+        report_lines.append("🟨 PYTHON FUNCTIES ZONDER JSON REGEL:")
+        for func_id in results["missing_in_json"]:
+            report_lines.append(f"   - {func_id}")
+        report_lines.append("")
+    
+    # Incomplete rules
+    if results["incomplete_rules"]:
+        report_lines.append("🟨 ONVOLLEDIGE REGELS IN JSON:")
+        for incomplete in results["incomplete_rules"]:
+            issues_str = " | ".join(incomplete["issues"])
+            report_lines.append(f"   - {incomplete['rule_id']}: {issues_str}")
+        report_lines.append("")
+    
+    # Summary
+    if results["consistency_percentage"] >= 90:
+        report_lines.append("🎉 UITSTEKENDE CONSISTENTIE!")
+    elif results["consistency_percentage"] >= 75:
+        report_lines.append("✅ GOEDE CONSISTENTIE")
+    elif results["consistency_percentage"] >= 50:
+        report_lines.append("⚠️ MATIGE CONSISTENTIE - VERBETERING NODIG")
+    else:
+        report_lines.append("❌ SLECHTE CONSISTENTIE - ACTIE VEREIST")
+    
+    return "\n".join(report_lines)
+
+
 if __name__ == "__main__":
     # Test de DefinitieValidator
     print("🔍 Testing DefinitieValidator")
@@ -680,5 +829,11 @@ if __name__ == "__main__":
     # Test convenience function
     quick_result = validate_definitie("Registratie is het vastleggen van gegevens", "proces")
     print(f"\n🔧 Quick validatie: Score {quick_result.overall_score:.2f}, Violations: {len(quick_result.violations)}")
+    
+    # Test consistentie validatie
+    print("\n🔍 Testing Consistentie Validatie:")
+    consistency_results = valideer_toetsregels_consistentie()
+    consistency_report = format_consistency_report(consistency_results)
+    print(consistency_report)
     
     print("\n🎯 DefinitieValidator test voltooid!")

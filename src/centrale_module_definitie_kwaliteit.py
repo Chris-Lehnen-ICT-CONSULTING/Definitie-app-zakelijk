@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
 # ✅ Configuratie en logging
-from log.log_definitie import log_definitie, get_logger
+from logs.application.log_definitie import get_logger, log_definitie
 from config.config_loader import laad_toetsregels, laad_verboden_woorden
 from config.verboden_woorden import sla_verboden_woorden_op, log_test_verboden_woord
 
