@@ -1,12 +1,17 @@
 # 💚 Python artefacts
 __pycache__/
 *.py[cod]
+*$py.class
 
 # 💚 Virtuele omgeving
 .venv/
+venv/
+env/
 
-# 💚 Build / release
-release/
+# 💚 Build / release - NEW STRUCTURE
+build/
+dist/
+*.egg-info/
 *.dmg
 *.zip
 
@@ -14,6 +19,45 @@ release/
 .env
 .env.*
 
-# 💚 Cache directories
-cache/
-test_cache/
+# 💚 Data files - NEW STRUCTURE
+data/cache/
+data/database/*.db-journal
+data/uploads/
+*.db-journal
+
+# 💚 Logs - NEW STRUCTURE
+logs/
+*.log
+
+# 💚 Exports (generated files) - NEW STRUCTURE
+exports/definitions/
+exports/reports/
+
+# 💚 OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# 💚 IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 💚 Coverage reports
+.coverage
+htmlcov/
+
+# 💚 Test artifacts
+.pytest_cache/
+.tox/
+
+# 💚 Temporary files
+*.tmp
+*.temp
+build/temp/
