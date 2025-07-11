@@ -14,9 +14,10 @@ from .toetser import Toetser  # noqa: F401
 
 # Import from new modular architecture while maintaining compatibility
 try:
-    from .modular_toetser import toets_definitie  # noqa: F401
+    from .modular_toetser import toets_definitie, ModularToetser  # noqa: F401
 except ImportError:
     # Fallback to old implementation if modular version fails
     from .core import toets_definitie  # noqa: F401
+    ModularToetser = None
 
-__all__ = ["Toetser", "toets_definitie"]
+__all__ = ["Toetser", "toets_definitie", "ModularToetser"]
