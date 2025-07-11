@@ -18,7 +18,7 @@ st.set_page_config(
 load_dotenv()
 
 # Import application modules
-from log.log_definitie import get_logger
+from logs.application.log_definitie import get_logger
 from ui.session_state import SessionStateManager
 from ui.tabbed_interface import TabbedInterface
 from utils.exceptions import log_and_display_error
