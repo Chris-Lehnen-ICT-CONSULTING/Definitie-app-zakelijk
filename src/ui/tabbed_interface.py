@@ -18,6 +18,12 @@ from integration.definitie_checker import DefinitieChecker
 from generation.definitie_generator import OntologischeCategorie
 from document_processing.document_processor import get_document_processor
 from document_processing.document_extractor import supported_file_types
+# Hybrid context imports
+try:
+    from hybrid_context.hybrid_context_engine import get_hybrid_context_engine
+    HYBRID_CONTEXT_AVAILABLE = True
+except ImportError:
+    HYBRID_CONTEXT_AVAILABLE = False
 import logging
 
 logger = logging.getLogger(__name__)
@@ -347,9 +353,9 @@ class TabbedInterface:
                 st.rerun()
     
     def _handle_definition_generation(self, begrip: str, context_data: Dict[str, Any]):
-        """Handle definitie generatie vanaf hoofdniveau."""
+        """Handle definitie generatie vanaf hoofdniveau met hybrid context ondersteuning."""
         try:
-            with st.spinner("🔄 Genereren van definitie..."):
+            with st.spinner("🔄 Genereren van definitie met hybride context..."):
                 org_context = context_data.get("organisatorische_context", [])
                 jur_context = context_data.get("juridische_context", [])
                 
@@ -358,17 +364,28 @@ class TabbedInterface:
                 primary_jur = jur_context[0] if jur_context else ""
                 auto_categorie = self._determine_ontological_category(begrip, primary_org, primary_jur)
                 
-                # Krijg document context als beschikbaar
+                # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
+                selected_doc_ids = SessionStateManager.get_value("selected_documents", [])
                 
-                # Voer complete workflow uit met document enrichment
+                # Check of hybrid context gebruikt moet worden
+                use_hybrid = (HYBRID_CONTEXT_AVAILABLE and 
+                             (len(selected_doc_ids) > 0 or document_context.get('document_count', 0) > 0))
+                
+                if use_hybrid:
+                    st.info("🔄 Hybrid context activief - combineer document en web context...")
+                
+                # Voer complete workflow uit met mogelijke hybrid enhancement
                 check_result, agent_result, saved_record = self.checker.generate_with_check(
                     begrip=begrip,
                     organisatorische_context=primary_org,
                     juridische_context=primary_jur,
                     categorie=auto_categorie,
                     force_generate=False,
-                    created_by="global_user"
+                    created_by="global_user",
+                    # Hybride context parameters
+                    selected_document_ids=selected_doc_ids if use_hybrid else None,
+                    enable_hybrid=use_hybrid
                 )
                 
                 # Store results voor display in tabs
