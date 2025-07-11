@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from enum import Enum
 import json
 from pathlib import Path
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -118,7 +119,7 @@ class ContentSanitizer:
             ),
             SanitizationRule(
                 name="sql_injection_patterns",
-                pattern=r"('|(\\')|(;)|(--)|(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)",
+                pattern=r"(';)|(\b(union|select|insert|update|delete|drop|create|alter|exec|execute)\b)",
                 replacement="",
                 content_types=[ContentType.PLAIN_TEXT],
                 level=SanitizationLevel.STRICT,
