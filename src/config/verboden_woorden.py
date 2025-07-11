@@ -3,7 +3,7 @@ import json
 import re
 import streamlit as st
 from datetime import datetime
-from log.log_definitie import get_logger
+from logs.application.log_definitie import get_logger
 logger = get_logger(__name__)
 from config.config_loader import laad_verboden_woorden as _config_loader_verboden
 # ✅ Laadt de lijst met verboden woorden, met override-optie vanuit Streamlit UI

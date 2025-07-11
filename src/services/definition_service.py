@@ -24,7 +24,7 @@ from voorbeelden.cached_voorbeelden import (
     genereer_antoniemen,
     genereer_toelichting
 )
-from log.log_definitie import log_definitie
+from logs.application.log_definitie import log_definitie
 
 
 class DefinitionService:

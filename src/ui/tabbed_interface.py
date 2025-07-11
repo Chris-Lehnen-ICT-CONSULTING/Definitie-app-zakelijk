@@ -12,6 +12,12 @@ from ui.components.definition_generator_tab import DefinitionGeneratorTab
 from ui.components.expert_review_tab import ExpertReviewTab
 from ui.components.history_tab import HistoryTab
 from ui.components.export_tab import ExportTab
+from ui.components.quality_control_tab import QualityControlTab
+from ui.components.external_sources_tab import ExternalSourcesTab
+from ui.components.monitoring_tab import MonitoringTab
+from ui.components.web_lookup_tab import WebLookupTab
+from ui.components.orchestration_tab import OrchestrationTab
+from ui.components.management_tab import ManagementTab
 from ui.session_state import SessionStateManager
 from database.definitie_repository import get_definitie_repository
 from integration.definitie_checker import DefinitieChecker
@@ -43,6 +49,12 @@ class TabbedInterface:
         self.expert_tab = ExpertReviewTab(self.repository)
         self.history_tab = HistoryTab(self.repository)
         self.export_tab = ExportTab(self.repository)
+        self.quality_tab = QualityControlTab(self.repository)
+        self.external_tab = ExternalSourcesTab(self.repository)
+        self.monitoring_tab = MonitoringTab(self.repository)
+        self.web_lookup_tab = WebLookupTab(self.repository)
+        self.orchestration_tab = OrchestrationTab(self.repository)
+        self.management_tab = ManagementTab(self.repository)
         
         # Tab configuration
         self.tab_config = {
@@ -65,6 +77,36 @@ class TabbedInterface:
                 "title": "📤 Export & Beheer",
                 "icon": "📤",
                 "description": "Exporteer en beheer definities"
+            },
+            "quality": {
+                "title": "🔧 Kwaliteitscontrole",
+                "icon": "🔧",
+                "description": "Toetsregels analyse en system health"
+            },
+            "external": {
+                "title": "🔌 Externe Bronnen",
+                "icon": "🔌",
+                "description": "Import van externe definitie bronnen"
+            },
+            "monitoring": {
+                "title": "📈 Monitoring",
+                "icon": "📈",
+                "description": "Performance monitoring en API cost tracking"
+            },
+            "web_lookup": {
+                "title": "🔍 Web Lookup",
+                "icon": "🔍",
+                "description": "Zoek definities en bronnen, valideer duplicaten"
+            },
+            "orchestration": {
+                "title": "🤖 Orchestratie",
+                "icon": "🤖",
+                "description": "Intelligente definitie orchestratie en iteratieve verbetering"
+            },
+            "management": {
+                "title": "🛠️ Management",
+                "icon": "🛠️",
+                "description": "Database beheer, import/export en system administratie"
             }
         }
     
@@ -672,6 +714,18 @@ class TabbedInterface:
             self.history_tab.render()
         elif tab_key == "export":
             self.export_tab.render()
+        elif tab_key == "quality":
+            self.quality_tab.render()
+        elif tab_key == "external":
+            self.external_tab.render()
+        elif tab_key == "monitoring":
+            self.monitoring_tab.render()
+        elif tab_key == "web_lookup":
+            self.web_lookup_tab.render()
+        elif tab_key == "orchestration":
+            self.orchestration_tab.render()
+        elif tab_key == "management":
+            self.management_tab.render()
     
     def _render_footer(self):
         """Render applicatie footer."""
