@@ -1,0 +1,132 @@
+📘 Begrip: Gekwalificeerd zijn van een identiteitsmiddel (voor een zeker doel)
+
+✏️ Definitie (gecorrigeerd): Gekwalificeerd zijn van een identiteitsmiddel voor een zeker doel betreft de status die aangeeft dat een specifiek identiteitsmiddel voldoet aan vastgestelde criteria en daarmee geschikt is bevonden voor een specifieke toepassing.
+
+📎 Oorspronkelijke definitie: Gekwalificeerd zijn van een identiteitsmiddel voor een zeker doel betreft de status die aangeeft dat een specifiek identiteitsmiddel voldoet aan vastgestelde criteria en daarmee geschikt is bevonden voor een specifieke toepassing.
+
+🧾 Metadata:
+- marker: resultaat
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaring of kennis, maar ik kan informatie verstrekken op basis van beschikbare data. De definitie van 'gekwalificeerd zijn van een identiteitsmiddel (voor een zeker doel)' is niet expliciet gedefinieerd in de wet of in algemeen aanvaarde richtlijnen. Het lijkt echter te verwijzen naar de geschiktheid of geldigheid van een identiteitsbewijs voor een bepaald doel.
+
+In de context van de strafrechtketen en het project Identiteitsbehandeling, zou dit kunnen betekenen dat een identiteitsmiddel (zoals een paspoort, rijbewijs, of ID-kaart) voldoet aan bepaalde criteria of normen om als geldig te worden beschouwd voor identificatie in strafrechtelijke procedures.
+
+Deze criteria of normen kunnen worden bepaald door verschillende bronnen, waaronder:
+
+1. Wet- en regelgeving: In Nederland zijn de belangrijkste wetten die de uitgifte en het gebruik van identiteitsbewijzen regelen de Paspoortwet en de Wet op de identificatieplicht. Deze wetten stellen de eisen voor de uitgifte van identiteitsbewijzen en de omstandigheden waarin personen verplicht kunnen worden om zich te identificeren.
+
+2. Beleidsrichtlijnen: Beleidsrichtlijnen van relevante overheidsinstanties, zoals het Ministerie van Justitie en Veiligheid, kunnen ook criteria vaststellen voor de geschiktheid van identiteitsmiddelen in de strafrechtketen.
+
+3. Best practices: In de praktijk kunnen ook best practices of algemeen aanvaarde normen de criteria bepalen voor wat een 'gekwalificeerd' identiteitsmiddel is. Deze kunnen bijvoorbeeld worden ontwikkeld door professionele organisaties, zoals de Nederlandse Vereniging voor Rechtspraak.
+
+4. Technische normen: In sommige gevallen kunnen technische normen of standaarden, zoals de ISO/IEC 7810 norm voor identiteitskaarten, ook bepalen wat een 'gekwalificeerd' identiteitsmiddel is.
+
+Het is belangrijk op te merken dat de specifieke criteria voor 'gekwalificeerd zijn' kunnen variëren afhankelijk van de specifieke context en het beoogde doel van het identiteitsmiddel.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ❌ ESS-02: geen duidelijke ontologische marker (type, particulier, proces of resultaat) gevonden
+- ❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (en, die), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (die); antecedent niet expliciet gemaakt
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘gekwalificeerdzijnvaneenidentiteitsmiddelvooreenzekerdoelbetreftdestatusdieaangeeftdateenspecifiekidentiteitsmiddelvoldoetaanvastgesteldecriteriaendaarmeegeschiktisbevondenvooreenspecifieketoepassing.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ❌ STR-08: dubbelzinnige 'en' gevonden (, criteria en daarmee), context verduidelijken
+- ✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Gekwalificeerd zijn van een identiteitsmiddel voor een zeker doel betreft de status die aangeeft dat een specifiek identiteitsmiddel voldoet aan vastgestelde criteria en daarmee geschikt is bevonden voor een specifieke toepassing.' lijkt niet in infinitief te staan
+- ❌ ARAI01: werkwoord(en) als kern gevonden (is, zijn), geen toelichting herkend
+- ✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ✔️ ARAI02SUB2: geen ambtelijke containerbegrippen aangetroffen
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Als AI heb ik geen persoonlijke ervaring of kennis, maar ik kan informatie verstrekken op basis van beschikbare data. De definitie van 'gekwalificeerd zijn van een identiteitsmiddel (voor een zeker doel)' is niet expliciet gedefinieerd in de wet of in algemeen aanvaarde richtlijnen. Het lijkt echter te verwijzen naar de geschiktheid of geldigheid van een identiteitsbewijs voor een bepaald doel.
+- In de context van de strafrechtketen en het project Identiteitsbehandeling, zou dit kunnen betekenen dat een identiteitsmiddel (zoals een paspoort, rijbewijs, of ID-kaart) voldoet aan bepaalde criteria of normen om als geldig te worden beschouwd voor identificatie in strafrechtelijke procedures.
+- Deze criteria of normen kunnen worden bepaald door verschillende bronnen, waaronder:
+- 1. Wet- en regelgeving: In Nederland zijn de belangrijkste wetten die de uitgifte en het gebruik van identiteitsbewijzen regelen de Paspoortwet en de Wet op de identificatieplicht. Deze wetten stellen de eisen voor de uitgifte van identiteitsbewijzen en de omstandigheden waarin personen verplicht kunnen worden om zich te identificeren.
+- 2. Beleidsrichtlijnen: Beleidsrichtlijnen van relevante overheidsinstanties, zoals het Ministerie van Justitie en Veiligheid, kunnen ook criteria vaststellen voor de geschiktheid van identiteitsmiddelen in de strafrechtketen.
+- 3. Best practices: In de praktijk kunnen ook best practices of algemeen aanvaarde normen de criteria bepalen voor wat een 'gekwalificeerd' identiteitsmiddel is. Deze kunnen bijvoorbeeld worden ontwikkeld door professionele organisaties, zoals de Nederlandse Vereniging voor Rechtspraak.
+- 4. Technische normen: In sommige gevallen kunnen technische normen of standaarden, zoals de ISO/IEC 7810 norm voor identiteitskaarten, ook bepalen wat een 'gekwalificeerd' identiteitsmiddel is.
+- Het is belangrijk op te merken dat de specifieke criteria voor 'gekwalificeerd zijn' kunnen variëren afhankelijk van de specifieke context en het beoogde doel van het identiteitsmiddel.
+
+💡 Toelichting:
+Het begrip 'gekwalificeerd zijn van een identiteitsmiddel (voor een zeker doel)' verwijst naar de geschiktheid en betrouwbaarheid van een bepaald identificatiemiddel voor een specifiek doel. Het houdt in dat het identiteitsmiddel voldoet aan bepaalde normen of criteria die zijn vastgesteld om de identiteit van een persoon met een hoge mate van zekerheid te kunnen vaststellen. 
+
+Bijvoorbeeld, in de context van de strafrechtketen kan een gekwalificeerd identiteitsmiddel worden gebruikt om de identiteit van een verdachte, getuige of slachtoffer betrouwbaar vast te stellen. Dit kan een officieel identiteitsbewijs zijn zoals een paspoort of rijbewijs, maar ook biometrische gegevens zoals vingerafdrukken of DNA-profielen. 
+
+Het is belangrijk dat een identiteitsmiddel gekwalificeerd is voor het beoogde doel, omdat het de basis vormt voor juridische en administratieve processen. Het helpt om fraude, misbruik en fouten te voorkomen en draagt bij aan de rechtszekerheid en het vertrouwen in de overheid. 
+
+Het proces van het kwal
+
+🧢 Voorbeeldzinnen:
+- "Om toegang te krijgen tot het gebouw, moet je gekwalificeerd zijn van een identiteitsmiddel, zoals een pasje of biometrische gegevens."
+- "Voor deelname aan het examen moet je gekwalificeerd zijn van een identiteitsmiddel, zoals een geldig paspoort of identiteitskaart."
+- "Om een bankrekening te openen, moet je gekwalificeerd zijn van een identiteitsmiddel, zoals een rijbewijs of een geboortecertificaat."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1:
+In de context van de strafrechtketen, wordt een specifiek project uitgevoerd genaamd 'Identiteitsbehandeling'. Het doel van dit project is om de identiteit van een verdachte onomstotelijk vast te stellen om zo te voorkomen dat er persoonsverwisselingen plaatsvinden. Het identiteitsmiddel dat in dit geval gekwalificeerd moet worden, is een vingerafdruk. De criteria waar de vingerafdruk aan moet voldoen, zijn onder andere dat deze duidelijk leesbaar moet zijn en dat deze overeenkomt met de vingerafdruk die in de database van de politie is opgeslagen. Wanneer de vingerafdruk aan deze criteria voldoet, is deze gekwalificeerd en kan deze worden gebruikt om de identiteit van de verdachte vast te stellen.
+
+Voorbeeld 2:
+Binnen het project 'Identiteitsbehandeling' in de strafrechtketen, wordt er ook gebruik gemaakt van gezichtsherkenningstechnologie als identiteitsmiddel. Deze technologie moet voldoen aan bepaalde criteria om gekwalificeerd te zijn voor gebruik. Deze criteria kunnen bijvoorbeeld zijn dat de technologie in staat moet zijn om gezichten te herkennen met een nauwkeurigheid van 99%. Daarnaast moet de technologie in staat zijn om gezichten te herkennen ongeacht de lichtomstandigheden en moet het gezicht overeenkomen met de foto die in de database van de politie is opgeslagen. Wanneer de gezichtsherkenningstechnologie aan deze criteria voldoet, is deze gekwalificeerd en kan deze worden gebruikt om de identiteit van de verdachte vast te stellen.
+
+Voorbeeld 3:
+In de strafrechtketen wordt ook gebruik gemaakt van DNA-profielen als identiteitsmiddel binnen het project 'Identiteitsbehandeling'. Om gekwalificeerd te zijn voor gebruik, moet een DNA-profiel voldoen aan bepaalde criteria. Deze criteria kunnen bijvoorbeeld zijn dat het DNA-profiel een unieke match moet zijn met het DNA-profiel dat in de database van de politie is opgeslagen. Daarnaast moet het DNA-profiel afkomstig zijn van een betrouwbare bron, zoals een bloedmonster of een haar. Wanneer het DNA-profiel aan deze criteria voldoet, is deze gekwalificeerd en kan deze worden gebruikt om de identiteit van de verdachte vast te stellen.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1:
+Een paspoort wordt normaal gesproken beschouwd als een gekwalificeerd identiteitsmiddel voor internationaal reizen. Echter, als het paspoort is verlopen, voldoet het niet meer aan de vastgestelde criteria (geldigheidsduur) en is het dus niet meer gekwalificeerd voor dit doel.
+
+Voorbeeld 2:
+Een rijbewijs is een gekwalificeerd identiteitsmiddel voor het aantonen van rijbevoegdheid. Echter, als iemand zijn rijbewijs gebruikt om leeftijd te verifiëren bij de aankoop van alcohol, dan is dit identiteitsmiddel niet gekwalificeerd voor dit doel in landen waar een rijbewijs niet als geldig leeftijdsbewijs wordt beschouwd. De variabele die niet wordt gevolgd is hier de toepassing waarvoor het identiteitsmiddel is bedoeld.
+
+🔁 Synoniemen:
+- 1. Geautoriseerd zijn voor een identificatiemethode
+- 2. Bevoegd zijn voor een identiteitsinstrument
+- 3. Gecertificeerd zijn voor een identificatieprocedure
+- 4. Gevalideerd zijn voor een identiteitsmechanisme
+- 5. Geaccrediteerd zijn voor een identificatiesysteem
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Ongeschikt zijn van een identiteitsmiddel
+- 2. Onbevoegd zijn van een identiteitsmiddel
+- 3. Onbekwaam zijn van een identiteitsmiddel
+- 4. Ongekwalificeerd zijn van een identiteitsmiddel
+- 5. Niet toegestaan zijn van een identiteitsmiddel

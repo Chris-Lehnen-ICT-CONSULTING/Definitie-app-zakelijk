@@ -1,0 +1,133 @@
+📘 Begrip: Authenticeren
+
+✏️ Definitie (gecorrigeerd): Betreft de activiteit waarbij de identiteit van een entiteit wordt geverifieerd door het controleren van de geldigheid van een of meerdere identificerende kenmerken.
+
+📎 Oorspronkelijke definitie: Authenticeren betreft de activiteit waarbij de identiteit van een entiteit wordt geverifieerd door het controleren van de geldigheid van een of meerdere identificerende kenmerken.
+
+🧾 Metadata:
+- marker: proces
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Authenticeren is een term die vaak wordt gebruikt in de context van informatiebeveiliging en identiteitsverificatie. Het verwijst naar het proces van het verifiëren van de identiteit van een persoon, systeem of entiteit. 
+
+De definitie van authenticeren is gebaseerd op verschillende bronnen, waaronder:
+
+1. ISO/IEC 27000: Deze internationale standaard voor informatiebeveiliging definieert authenticatie als "het proces van het verifiëren van een bewering van een vermeende identiteit".
+
+2. NIST Special Publication 800-63: Deze publicatie van het National Institute of Standards and Technology (NIST) in de Verenigde Staten biedt uitgebreide richtlijnen voor digitale identiteitsverificatie, waaronder authenticatie.
+
+3. Wet op de identificatieplicht (WID): In de Nederlandse context is de Wet op de identificatieplicht relevant, die stelt dat iedereen vanaf 14 jaar een geldig identiteitsbewijs moet kunnen tonen als de politie of andere toezichthouders daar om vragen.
+
+4. Wet bescherming persoonsgegevens (Wbp): Deze wet regelt hoe er met persoonsgegevens omgegaan moet worden, wat ook relevant is voor authenticatieprocessen.
+
+5. Algemene Verordening Gegevensbescherming (AVG): Deze Europese verordening heeft ook invloed op authenticatieprocessen, omdat het regels stelt voor de verwerking van persoonsgegevens.
+
+6. Richtlijnen van de Autoriteit Persoonsgegevens: Deze Nederlandse instantie geeft richtlijnen voor de omgang met persoonsgegevens, wat ook relevant is voor authenticatie.
+
+7. Veelgebruikte definities in de IT en informatiebeveiliging, zoals die van het Information Systems Audit and Control Association (ISACA) en het IT Governance Institute (ITGI).
+
+In de context van de strafrechtketen en het project Identiteitsbehandeling zou authenticatie kunnen verwijzen naar het proces van het verifiëren van de identiteit van verdachten, getuigen, slachtoffers, medewerkers en andere betrokkenen.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ✔️ ESS-02: eenduidig als proces gedefinieerd (\b(proces|activiteit|handeling|gebeurtenis)\b)
+- ❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (waarbij, of), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (waarbij); antecedent niet expliciet gemaakt
+- ❌ INT-04: onduidelijke lidwoord-verwijzingen (de activiteit); specificeer expliciet of gebruik onbepaald lidwoord
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘betreftdeactiviteitwaarbijdeidentiteitvaneenentiteitwordtgeverifieerddoorhetcontrolerenvandegeldigheidvaneenofmeerdereidentificerendekenmerken.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen
+- ❌ STR-09: dubbelzinnige 'of' gevonden (een of meerdere, of), context verduidelijken
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Betreft de activiteit waarbij de identiteit van een entiteit wordt geverifieerd door het controleren van de geldigheid van een of meerdere identificerende kenmerken.' lijkt niet in infinitief te staan
+- ❌ ARAI01: werkwoord(en) als kern gevonden (wordt), geen toelichting herkend
+- ❌ ARAI02: containerbegrippen zonder specificatie gevonden (activiteit), onvoldoende concreet
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ❌ ARAI02SUB2: containerbegrippen gevonden (activiteit), onvoldoende specifiek
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Authenticeren is een term die vaak wordt gebruikt in de context van informatiebeveiliging en identiteitsverificatie. Het verwijst naar het proces van het verifiëren van de identiteit van een persoon, systeem of entiteit. 
+- De definitie van authenticeren is gebaseerd op verschillende bronnen, waaronder:
+- 1. ISO/IEC 27000: Deze internationale standaard voor informatiebeveiliging definieert authenticatie als "het proces van het verifiëren van een bewering van een vermeende identiteit".
+- 2. NIST Special Publication 800-63: Deze publicatie van het National Institute of Standards and Technology (NIST) in de Verenigde Staten biedt uitgebreide richtlijnen voor digitale identiteitsverificatie, waaronder authenticatie.
+- 3. Wet op de identificatieplicht (WID): In de Nederlandse context is de Wet op de identificatieplicht relevant, die stelt dat iedereen vanaf 14 jaar een geldig identiteitsbewijs moet kunnen tonen als de politie of andere toezichthouders daar om vragen.
+- 4. Wet bescherming persoonsgegevens (Wbp): Deze wet regelt hoe er met persoonsgegevens omgegaan moet worden, wat ook relevant is voor authenticatieprocessen.
+- 5. Algemene Verordening Gegevensbescherming (AVG): Deze Europese verordening heeft ook invloed op authenticatieprocessen, omdat het regels stelt voor de verwerking van persoonsgegevens.
+- 6. Richtlijnen van de Autoriteit Persoonsgegevens: Deze Nederlandse instantie geeft richtlijnen voor de omgang met persoonsgegevens, wat ook relevant is voor authenticatie.
+- 7. Veelgebruikte definities in de IT en informatiebeveiliging, zoals die van het Information Systems Audit and Control Association (ISACA) en het IT Governance Institute (ITGI).
+- In de context van de strafrechtketen en het project Identiteitsbehandeling zou authenticatie kunnen verwijzen naar het proces van het verifiëren van de identiteit van verdachten, getuigen, slachtoffers, medewerkers en andere betrokkenen.
+
+💡 Toelichting:
+'Authenticeren' is een proces waarbij de identiteit van een persoon, systeem of entiteit wordt geverifieerd. Het is een cruciale stap in veel procedures om de veiligheid en integriteit van informatie te waarborgen. In de context van overheidsdocumenten kan authenticeren bijvoorbeeld betekenen dat de identiteit van een persoon wordt gecontroleerd voordat toegang wordt verleend tot gevoelige informatie of diensten. Dit kan gebeuren door het controleren van identiteitsdocumenten, het invoeren van een wachtwoord of via biometrische gegevens zoals vingerafdrukken of gezichtsherkenning. Authenticatie is cruciaal om fraude en misbruik te voorkomen en om te zorgen dat alleen geautoriseerde personen toegang hebben tot bepaalde informatie of diensten.
+
+🧢 Voorbeeldzinnen:
+- "Voordat je toegang krijgt tot het systeem, moet je jezelf authenticeren met je unieke gebruikersnaam en wachtwoord."
+- "Om de veiligheid van de transactie te garanderen, moet de bank de identiteit van de klant authenticeren."
+- "Het authenticeren van de gebruiker is een cruciale stap in het proces om fraude te voorkomen."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1: Authenticatie bij een bank
+
+In een bankomgeving is authenticatie een cruciaal onderdeel van het beveiligingsproces. Wanneer een klant probeert toegang te krijgen tot zijn of haar bankrekening via een online platform, moet de bank de identiteit van de klant verifiëren. Dit gebeurt vaak door het controleren van identificerende kenmerken zoals een gebruikersnaam en wachtwoord. In sommige gevallen kan er ook een tweede verificatiestap nodig zijn, zoals het invoeren van een unieke code die naar de mobiele telefoon van de klant is gestuurd. Deze authenticatieprocessen zijn essentieel om te voorkomen dat onbevoegde personen toegang krijgen tot de financiële gegevens van de klant. 
+
+Voorbeeld 2: Authenticatie bij de douane
+
+Bij de douane is authenticatie een belangrijk onderdeel van het proces om de identiteit van reizigers te verifiëren. Dit kan gebeuren door het controleren van de geldigheid van een paspoort of ander identiteitsbewijs. In sommige gevallen kan er ook biometrische authenticatie nodig zijn, zoals het scannen van vingerafdrukken of het nemen van een gezichtsscan. Deze authenticatieprocessen zijn essentieel om de veiligheid van het land te waarborgen en om illegale activiteiten zoals mensensmokkel of terrorisme te voorkomen. 
+
+Voorbeeld 3: Authenticatie in de gezondheidszorg
+
+In de gezondheidszorg is authenticatie een belangrijk onderdeel van het proces om de identiteit van patiënten te verifiëren. Dit kan gebeuren door het controleren van identificerende kenmerken zoals een patiëntenkaart of andere identiteitsbewijzen. In sommige gevallen kan er ook biometrische authenticatie nodig zijn, zoals het scannen van vingerafdrukken. Deze authenticatieprocessen zijn essentieel om de privacy van patiënten te beschermen en om te voorkomen dat onbevoegde personen toegang krijgen tot gevoelige medische informatie.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1: Een politieagent houdt een verdachte aan en vraagt om identificatie. De verdachte toont een rijbewijs, maar de agent controleert niet de geldigheid van het rijbewijs (bijvoorbeeld door te kijken naar de vervaldatum of door de gegevens te verifiëren in een database). In dit geval is de identiteit van de verdachte niet adequaat geverifieerd volgens de definitie van authenticeren, omdat de geldigheid van het identificerende kenmerk (het rijbewijs) niet is gecontroleerd.
+
+Voorbeeld 2: In een gevangenis wordt een gevangene vrijgelaten op basis van een document dat stelt dat zijn straf is voltooid. Echter, de gevangenismedewerker controleert niet de authenticiteit van het document door het te vergelijken met de gegevens in het gevangenissysteem. Hier is de identiteit van de entiteit (het document) niet adequaat geverifieerd volgens de definitie van authenticeren, omdat de geldigheid van het identificerende kenmerk (het document) niet is gecontroleerd.
+
+🔁 Synoniemen:
+- 1. Verifiëren
+- 2. Identificeren
+- 3. Valideren
+- 4. Bevestigen
+- 5. Certificeren
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Vervalsen
+- 2. Verdraaien
+- 3. Verzinnen
+- 4. Verhullen
+- 5. Verbergen

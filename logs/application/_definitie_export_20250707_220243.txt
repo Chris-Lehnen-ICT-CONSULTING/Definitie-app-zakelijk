@@ -1,0 +1,78 @@
+📘 Begrip: identiteit 
+
+✏️ Definitie (gecorrigeerd): Betreft een unieke set van persoonsgebonden kenmerken die een individu of entiteit onderscheidt van anderen.
+
+📎 Oorspronkelijke definitie: Identiteit betreft een unieke set van persoonsgebonden kenmerken die een individu of entiteit onderscheidt van anderen.
+
+🧾 Metadata:
+
+🏛️ Contexten:
+- Organisatorisch: OM
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ⚠️ CON-01: fout bij uitvoeren toetsfunctie – 'list' object has no attribute 'lower'
+- ❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaringen of kennis, maar mijn antwoorden zijn gebaseerd op een grote hoeveelheid gegevens en informatie die ik heb geleerd. Voor de definitie van 'identiteit' in een organisatorische context zoals 'OM' (wat kan verwijzen naar Organisatie Management), zou ik me baseren op algemene zakelijke en managementliteratuur, evenals op specifieke bronnen gerelateerd aan organisatiemanagement.
+
+1. Algemene zakelijke en managementliteratuur: Deze bronnen bieden inzicht in hoe 'identiteit' wordt gedefinieerd en begrepen in een organisatorische context. Ze kunnen uitleggen dat de identiteit van een organisatie verwijst naar de kenmerken die een organisatie onderscheiden van andere en hoe het zichzelf ziet. Dit kan onder meer de missie, visie, waarden, cultuur en merk van een organisatie omvatten.
+
+2. Specifieke bronnen gerelateerd aan organisatiemanagement: Deze bronnen kunnen meer gedetailleerde informatie bieden over hoe 'identiteit' wordt begrepen in de context van organisatiemanagement. Ze kunnen bijvoorbeeld uitleggen dat de identiteit van een organisatie een rol speelt bij het vormgeven van haar strategieën, doelen en activiteiten.
+
+3. Wetten en richtlijnen: Hoewel er mogelijk geen specifieke wetten of richtlijnen zijn die de definitie van 'identiteit' in een organisatorische context voorschrijven, kunnen er wel relevante wetten en richtlijnen zijn die van invloed zijn op hoe organisaties hun identiteit vormgeven en beheren. Dit kan bijvoorbeeld wetgeving zijn op het gebied van merkenrecht, handelsrecht of gegevensbescherming.
+
+4. Veelgebruikte definities: Er zijn verschillende veelgebruikte definities van 'identiteit' in een organisatorische context. Een veelgebruikte definitie is bijvoorbeeld die van de Amerikaanse managementwetenschapper Albert en Whetten (1985), die stellen dat organisatorische identiteit wordt gedefinieerd door die kenmerken van een organisatie die als centraal, onderscheidend en duurzaam worden beschouwd.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ❌ ESS-02: geen duidelijke ontologische marker (type, particulier, proces of resultaat) gevonden
+- ✔️ ESS-03: unieke identificatiecriteria herkend (unieke)
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (of, die), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (die); antecedent niet expliciet gemaakt
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘betrefteenuniekesetvanpersoonsgebondenkenmerkendieeenindividuofentiteitonderscheidtvananderen.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen
+- ❌ STR-09: dubbelzinnige 'of' gevonden (of, individu of entiteit), context verduidelijken
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Betreft een unieke set van persoonsgebonden kenmerken die een individu of entiteit onderscheidt van anderen.' lijkt niet in infinitief te staan
+- ✔️ ARAI01: geen werkwoorden als kern gevonden in de definitie
+- ✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ✔️ ARAI02SUB2: geen ambtelijke containerbegrippen aangetroffen
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Als AI heb ik geen persoonlijke ervaringen of kennis, maar mijn antwoorden zijn gebaseerd op een grote hoeveelheid gegevens en informatie die ik heb geleerd. Voor de definitie van 'identiteit' in een organisatorische context zoals 'OM' (wat kan verwijzen naar Organisatie Management), zou ik me baseren op algemene zakelijke en managementliteratuur, evenals op specifieke bronnen gerelateerd aan organisatiemanagement.
+- 
+- 1. Algemene zakelijke en managementliteratuur: Deze bronnen bieden inzicht in hoe 'identiteit' wordt gedefinieerd en begrepen in een organisatorische context. Ze kunnen uitleggen dat de identiteit van een organisatie verwijst naar de kenmerken die een organisatie onderscheiden van andere en hoe het zichzelf ziet. Dit kan onder meer de missie, visie, waarden, cultuur en merk van een organisatie omvatten.
+- 
+- 2. Specifieke bronnen gerelateerd aan organisatiemanagement: Deze bronnen kunnen meer gedetailleerde informatie bieden over hoe 'identiteit' wordt begrepen in de context van organisatiemanagement. Ze kunnen bijvoorbeeld uitleggen dat de identiteit van een organisatie een rol speelt bij het vormgeven van haar strategieën, doelen en activiteiten.
+- 
+- 3. Wetten en richtlijnen: Hoewel er mogelijk geen specifieke wetten of richtlijnen zijn die de definitie van 'identiteit' in een organisatorische context voorschrijven, kunnen er wel relevante wetten en richtlijnen zijn die van invloed zijn op hoe organisaties hun identiteit vormgeven en beheren. Dit kan bijvoorbeeld wetgeving zijn op het gebied van merkenrecht, handelsrecht of gegevensbescherming.
+- 
+- 4. Veelgebruikte definities: Er zijn verschillende veelgebruikte definities van 'identiteit' in een organisatorische context. Een veelgebruikte definitie is bijvoorbeeld die van de Amerikaanse managementwetenschapper Albert en Whetten (1985), die stellen dat organisatorische identiteit wordt gedefinieerd door die kenmerken van een organisatie die als centraal, onderscheidend en duurzaam worden beschouwd.

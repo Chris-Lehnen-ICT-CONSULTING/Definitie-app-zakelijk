@@ -28,7 +28,15 @@ def exporteer_naar_txt(gegevens: dict) -> str:
     regels.append(f"\U0001F4CE Oorspronkelijke definitie: {definitie_orig}\n")
 
     regels.append("\U0001F9FE Metadata:")
-    regels += [f"- {k}: {v}" for k, v in metadata.items()] or ["- geen"]
+    for k, v in metadata.items():
+        if k == "ketenpartners" and isinstance(v, list):
+            regels.append(f"- {k}: {', '.join(v) if v else 'geen'}")
+        elif k == "datum_voorstel" and v:
+            regels.append(f"- {k}: {v.strftime('%d-%m-%Y') if hasattr(v, 'strftime') else str(v)}")
+        elif v:
+            regels.append(f"- {k}: {v}")
+        else:
+            regels.append(f"- {k}: geen")
 
     regels.append("\n\U0001F3E9 Contexten:")
     for ctx_type, waarden in context_dict.items():
