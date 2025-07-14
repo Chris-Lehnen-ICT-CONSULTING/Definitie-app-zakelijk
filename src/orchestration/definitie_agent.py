@@ -476,8 +476,18 @@ class DefinitieAgent:
         self.current_status = AgentStatus.GENERATING
         logger.debug(f"Generating definition with {len(generation_context.feedback_history)} feedback items")
         
-        generation_result = self.generator.generate(generation_context)
-        definitie = generation_result.definitie
+        # Genereer definitie met voorbeelden
+        try:
+            generation_result = self.generator.generate_with_examples(
+                generation_context,
+                generate_examples=True,
+                example_types=None  # Gebruik standaard: sentence, practical, counter
+            )
+            definitie = generation_result.definitie
+        except Exception as e:
+            logger.error(f"Error in generate_with_examples: {e}")
+            logger.error(f"Generation context: {generation_context}")
+            raise
         
         # 2. Validate definitie
         self.current_status = AgentStatus.VALIDATING
