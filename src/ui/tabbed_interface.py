@@ -448,11 +448,10 @@ class TabbedInterface:
                 # Store detailed validation results for display
                 if agent_result and agent_result.best_iteration:
                     from ai_toetser.modular_toetser import toets_definitie
-                    from config.toetsregel_manager import get_toetsregel_manager
+                    from config.config_loader import laad_toetsregels
                     
                     # Get detailed validation results with proper context
-                    toetsregel_manager = get_toetsregel_manager()
-                    toetsregels = toetsregel_manager.get_all_rules()
+                    toetsregels = laad_toetsregels()
                     
                     # Create contexten dictionary for validation
                     contexten = {
