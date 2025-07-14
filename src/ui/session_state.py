@@ -39,7 +39,11 @@ class SessionStateManager:
         "toon_ai_toetsing": False,
         "toon_toetsing_hercontrole": True,
         "override_actief": False,
-        "override_verboden_woorden": []
+        "override_verboden_woorden": [],
+        # Metadata velden (legacy restoration)
+        "datum_voorstel": None,
+        "voorgesteld_door": "",
+        "ketenpartners": []
     }
     
     @staticmethod
@@ -181,7 +185,12 @@ class SessionStateManager:
             "begrip": st.session_state.get("begrip", ""),  # Het begrip zelf
             "definitie_gecorrigeerd": st.session_state.get("definitie_gecorrigeerd", ""),  # Gecorrigeerde definitie
             "definitie_origineel": st.session_state.get("definitie_origineel", ""),  # Originele definitie
-            "metadata": {"marker": st.session_state.get("marker", "")},  # Metadata met marker
+            "metadata": {
+                "marker": st.session_state.get("marker", ""),  # Marker voor identificatie
+                "datum_voorstel": st.session_state.get("datum_voorstel"),  # Datum van voorstel
+                "voorgesteld_door": st.session_state.get("voorgesteld_door", ""),  # Voorsteller
+                "ketenpartners": st.session_state.get("ketenpartners", [])  # Ketenpartners
+            },
             "context_dict": SessionStateManager.get_context_dict(),  # Context informatie
             "toetsresultaten": st.session_state.get("beoordeling_gen", []),  # Kwaliteitstoets resultaten
             "bronnen": st.session_state.get("bronnen_gebruikt", "").splitlines(),  # Gebruikte bronnen (gesplitst op regels)

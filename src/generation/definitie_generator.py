@@ -358,9 +358,16 @@ class DefinitieGenerator:
         # 2. Genereer voorbeelden indien gewenst
         if generate_examples and result.definitie:
             try:
-                # Standaard example types
+                # Standaard example types - inclusief synoniemen, antoniemen en toelichting
                 if example_types is None:
-                    example_types = [ExampleType.SENTENCE, ExampleType.PRACTICAL, ExampleType.COUNTER]
+                    example_types = [
+                        ExampleType.SENTENCE, 
+                        ExampleType.PRACTICAL, 
+                        ExampleType.COUNTER,
+                        ExampleType.SYNONYMS,
+                        ExampleType.ANTONYMS,
+                        ExampleType.EXPLANATION
+                    ]
                 
                 # Context dictionary voorbereiden
                 context_dict = {
@@ -478,23 +485,58 @@ class DefinitieGenerator:
         """Laad relevante toetsregels als generatie instructies."""
         instructies = []
         
-        # Laad kritieke regels (verplicht + hoog prioriteit)
-        kritieke_regels = self.rule_manager.get_kritieke_regels()
-        
-        # Laad categorie-specifieke regels
-        categorie_regels = self.rule_manager.get_regels_voor_categorie(context.categorie.value)
-        
-        # Combineer en deduplicate
-        alle_regels = {regel['id']: regel for regel in kritieke_regels + categorie_regels}
-        
-        # Converteer naar instructies
-        for regel_data in alle_regels.values():
-            instructie = self.interpreter.for_generation(regel_data)
-            instructies.append(instructie)
-        
-        # Sorteer op prioriteit
-        prioriteit_order = {"hoog": 3, "midden": 2, "laag": 1}
-        instructies.sort(key=lambda x: prioriteit_order.get(x.priority, 1), reverse=True)
+        try:
+            # Laad kritieke regels (verplicht + hoog prioriteit)
+            kritieke_regels = self.rule_manager.get_kritieke_regels()
+            
+            # Laad categorie-specifieke regels
+            categorie_regels = self.rule_manager.get_regels_voor_categorie(context.categorie.value)
+            
+            # Combineer en deduplicate
+            alle_regels = {regel['id']: regel for regel in kritieke_regels + categorie_regels}
+            
+            # Converteer naar instructies
+            for regel_data in alle_regels.values():
+                if regel_data:  # Check if regel_data is not None
+                    instructie = self.interpreter.for_generation(regel_data)
+                    instructies.append(instructie)
+            
+            # Sorteer op prioriteit
+            prioriteit_order = {"hoog": 3, "midden": 2, "laag": 1}
+            instructies.sort(key=lambda x: prioriteit_order.get(x.priority, 1), reverse=True)
+            
+        except Exception as e:
+            logger.error(f"Error loading generation instructions: {e}")
+            # Fallback: laad basis instructies uit legacy bestand
+            try:
+                import json
+                import os
+                base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+                legacy_path = os.path.join(base_path, "config", "toetsregels.json")
+                
+                if os.path.exists(legacy_path):
+                    with open(legacy_path, 'r', encoding='utf-8') as f:
+                        legacy_data = json.load(f)
+                    
+                    # Gebruik alleen essentiële regels voor fallback
+                    essential_rules = ["ESS-01", "ESS-02", "STR-01", "INT-01", "CON-01"]
+                    for regel_id in essential_rules:
+                        if regel_id in legacy_data.get("regels", {}):
+                            regel_data = legacy_data["regels"][regel_id]
+                            instructie = self.interpreter.for_generation(regel_data)
+                            instructies.append(instructie)
+                    
+                    logger.info(f"Loaded {len(instructies)} instructions from legacy fallback")
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {fallback_error}")
+                # Minimale default instructies
+                instructies = [
+                    GenerationInstruction(
+                        rule_id="DEFAULT",
+                        guidance="Formuleer een heldere definitie in één zin",
+                        priority="hoog"
+                    )
+                ]
         
         logger.debug(f"Loaded {len(instructies)} generatie instructies")
         return instructies
@@ -520,28 +562,36 @@ class DefinitieGenerator:
         
         logger.info(f"Calling GPT with model {gpt_params['model']}, temp {gpt_params['temperature']}")
         
+        # Import OpenAI client
+        import os
+        from openai import OpenAI, OpenAIError
+        
         try:
-            # Import OpenAI client
-            from ai_toetser.core import _get_openai_client
-            
-            # Get OpenAI client
-            client = _get_openai_client()
+            # Initialize OpenAI client
+            client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
             
             # Make API call
             response = client.chat.completions.create(
                 model=gpt_params['model'],
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": "Je bent een expert in het schrijven van definitieven Nederlandse definities voor juridische en beleidsbegrippen."},
+                    {"role": "user", "content": prompt}
+                ],
                 temperature=gpt_params['temperature'],
                 max_tokens=gpt_params['max_tokens']
             )
             
-            # Extract and return content
-            return response.choices[0].message.content.strip()
+            # Extract and return the generated definition
+            definitie = response.choices[0].message.content.strip()
+            logger.info(f"GPT generated definition of {len(definitie)} characters")
+            return definitie
             
+        except OpenAIError as e:
+            logger.error(f"OpenAI API error: {e}")
+            raise Exception(f"Fout bij OpenAI API aanroep: {str(e)}")
         except Exception as e:
-            logger.error(f"GPT API call failed: {e}")
-            # Return placeholder on error
-            return f"[PLACEHOLDER] Definitie voor begrip zou hier komen op basis van prompt met {len(prompt)} karakters"
+            logger.error(f"Unexpected error calling GPT: {e}")
+            raise Exception(f"Onverwachte fout bij genereren definitie: {str(e)}")
     
     def generate_with_feedback(
         self,

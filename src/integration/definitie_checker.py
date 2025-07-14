@@ -7,6 +7,7 @@ wordt gegenereerd, om duplicaten te voorkomen.
 """
 
 import logging  # Logging faciliteiten voor debug en monitoring
+import json  # JSON verwerking voor metadata
 from typing import Optional, List, Dict, Any, Tuple  # Type hints voor betere code documentatie
 from dataclasses import dataclass  # Dataklassen voor gestructureerde data
 from enum import Enum  # Enumeraties voor actie types
@@ -391,6 +392,9 @@ class DefinitieChecker:
             first_iteration = agent_result.iterations[0]
             context = first_iteration.generation_result.context
             
+            # Get metadata from session state
+            from ui.session_state import SessionStateManager
+            
             # Create record
             record = DefinitieRecord(
                 begrip=context.begrip,
@@ -402,7 +406,9 @@ class DefinitieChecker:
                 validation_score=agent_result.final_score,
                 source_type=SourceType.GENERATED.value,
                 source_reference=f"DefinitieAgent v{agent_result.iteration_count} iterations",
-                created_by=created_by or "system"
+                created_by=created_by or SessionStateManager.get_value("voorgesteld_door") or "system",
+                datum_voorstel=SessionStateManager.get_value("datum_voorstel"),
+                ketenpartners=json.dumps(SessionStateManager.get_value("ketenpartners", []))
             )
             
             # Add validation issues if any

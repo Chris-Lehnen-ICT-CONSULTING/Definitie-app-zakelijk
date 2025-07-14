@@ -169,6 +169,19 @@ class DefinitionGeneratorTab:
             # Validation results
             if agent_result.best_iteration:
                 self._render_validation_results(agent_result.best_iteration.validation_result)
+                
+                # Render voorbeelden als deze gegenereerd zijn
+                if hasattr(agent_result.best_iteration.generation_result, 'voorbeelden') and agent_result.best_iteration.generation_result.voorbeelden:
+                    self._render_voorbeelden_section(agent_result.best_iteration.generation_result.voorbeelden)
+                    
+                    # Store voorbeelden in session state voor export
+                    voorbeelden = agent_result.best_iteration.generation_result.voorbeelden
+                    SessionStateManager.set_value("voorbeeld_zinnen", voorbeelden.get('sentence', []))
+                    SessionStateManager.set_value("praktijkvoorbeelden", voorbeelden.get('practical', []))
+                    SessionStateManager.set_value("tegenvoorbeelden", voorbeelden.get('counter', []))
+                    SessionStateManager.set_value("synoniemen", "\n".join(voorbeelden.get('synonyms', [])))
+                    SessionStateManager.set_value("antoniemen", "\n".join(voorbeelden.get('antonyms', [])))
+                    SessionStateManager.set_value("toelichting", voorbeelden.get('explanation', [""])[0] if voorbeelden.get('explanation') else "")
         
         # Saved record info
         if saved_record:
@@ -269,6 +282,43 @@ class DefinitionGeneratorTab:
         """Exporteer definitie."""
         # TODO: Implement export functionality
         st.info("📤 Export functionality coming soon...")
+    
+    def _render_voorbeelden_section(self, voorbeelden: Dict[str, List[str]]):
+        """Render sectie met gegenereerde voorbeelden."""
+        st.markdown("#### 📚 Gegenereerde Content")
+        
+        # Voorbeeldzinnen
+        if voorbeelden.get('sentence'):
+            with st.expander("🔤 Voorbeeldzinnen", expanded=True):
+                for i, voorbeeld in enumerate(voorbeelden['sentence'], 1):
+                    st.write(f"{i}. {voorbeeld}")
+        
+        # Praktijkvoorbeelden
+        if voorbeelden.get('practical'):
+            with st.expander("💼 Praktijkvoorbeelden", expanded=True):
+                for i, voorbeeld in enumerate(voorbeelden['practical'], 1):
+                    st.info(voorbeeld)
+        
+        # Tegenvoorbeelden
+        if voorbeelden.get('counter'):
+            with st.expander("❌ Tegenvoorbeelden (wat het NIET is)", expanded=False):
+                for i, voorbeeld in enumerate(voorbeelden['counter'], 1):
+                    st.warning(voorbeeld)
+        
+        # Synoniemen
+        if voorbeelden.get('synonyms'):
+            with st.expander("🔄 Synoniemen", expanded=False):
+                st.write(", ".join(voorbeelden['synonyms']))
+        
+        # Antoniemen
+        if voorbeelden.get('antonyms'):
+            with st.expander("↔️ Antoniemen", expanded=False):
+                st.write(", ".join(voorbeelden['antonyms']))
+        
+        # Toelichting
+        if voorbeelden.get('explanation'):
+            with st.expander("💡 Toelichting", expanded=True):
+                st.write(voorbeelden['explanation'][0] if isinstance(voorbeelden['explanation'], list) else voorbeelden['explanation'])
     
     def _clear_results(self):
         """Wis alle resultaten."""
