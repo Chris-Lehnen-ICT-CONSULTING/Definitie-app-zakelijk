@@ -61,8 +61,12 @@ class DefinitieRecord:
     # Metadata
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-    created_by: Optional[str] = None
+    created_by: Optional[str] = None  # Dit wordt ook gebruikt voor voorgesteld_door
     updated_by: Optional[str] = None
+    
+    # Legacy metadata fields
+    datum_voorstel: Optional[datetime] = None
+    ketenpartners: Optional[str] = None  # JSON string van ketenpartner array
     
     # Approval
     approved_by: Optional[str] = None
@@ -110,6 +114,19 @@ class DefinitieRecord:
         if destination not in destinations:
             destinations.append(destination)
             self.export_destinations = json.dumps(destinations)
+    
+    def get_ketenpartners_list(self) -> List[str]:
+        """Haal ketenpartners op als list."""
+        if not self.ketenpartners:
+            return []
+        try:
+            return json.loads(self.ketenpartners)
+        except json.JSONDecodeError:
+            return []
+    
+    def set_ketenpartners(self, partners: List[str]):
+        """Set ketenpartners als JSON string."""
+        self.ketenpartners = json.dumps(partners, ensure_ascii=False)
 
 
 @dataclass
@@ -268,8 +285,9 @@ class DefinitieRepository:
                     source_type, source_reference, imported_from,
                     created_at, updated_at, created_by, updated_by,
                     approved_by, approved_at, approval_notes,
-                    last_exported_at, export_destinations
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    last_exported_at, export_destinations,
+                    datum_voorstel, ketenpartners
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 record.begrip, record.definitie, record.categorie,
                 record.organisatorische_context, record.juridische_context,
@@ -278,7 +296,8 @@ class DefinitieRepository:
                 record.source_type, record.source_reference, record.imported_from,
                 record.created_at, record.updated_at, record.created_by, record.updated_by,
                 record.approved_by, record.approved_at, record.approval_notes,
-                record.last_exported_at, record.export_destinations
+                record.last_exported_at, record.export_destinations,
+                record.datum_voorstel, record.ketenpartners
             ))
             
             record_id = cursor.lastrowid

@@ -4,6 +4,7 @@ Voorkomt dubbele generatie door bestaande definities te checken.
 """
 
 import logging
+import json
 from typing import Optional, List, Dict, Any, Tuple
 from dataclasses import dataclass
 from enum import Enum
@@ -364,6 +365,9 @@ class DefinitieChecker:
             first_iteration = agent_result.iterations[0]
             context = first_iteration.generation_result.context
             
+            # Get metadata from session state
+            from ui.session_state import SessionStateManager
+            
             # Create record
             record = DefinitieRecord(
                 begrip=context.begrip,
@@ -375,7 +379,9 @@ class DefinitieChecker:
                 validation_score=agent_result.final_score,
                 source_type=SourceType.GENERATED.value,
                 source_reference=f"DefinitieAgent v{agent_result.iteration_count} iterations",
-                created_by=created_by or "system"
+                created_by=created_by or SessionStateManager.get_value("voorgesteld_door") or "system",
+                datum_voorstel=SessionStateManager.get_value("datum_voorstel"),
+                ketenpartners=json.dumps(SessionStateManager.get_value("ketenpartners", []))
             )
             
             # Add validation issues if any
