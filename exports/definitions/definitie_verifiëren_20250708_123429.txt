@@ -1,0 +1,134 @@
+📘 Begrip: verifiëren
+
+✏️ Definitie (gecorrigeerd): Betreft een activiteit waarbij de juistheid, geldigheid of authenticiteit van informatie of een identiteit systematisch wordt gecontroleerd en bevestigd.
+
+📎 Oorspronkelijke definitie: Verifiëren betreft een activiteit waarbij de juistheid, geldigheid of authenticiteit van informatie of een identiteit systematisch wordt gecontroleerd en bevestigd.
+
+🧾 Metadata:
+- marker: proces
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Het begrip 'verifiëren' wordt in veel verschillende contexten gebruikt, maar in het algemeen verwijst het naar het proces van het controleren of bevestigen van de juistheid, geldigheid of authenticiteit van iets. 
+
+In de context van de 'Strafrechtketen, Project Identiteitsbehandeling' zou dit kunnen verwijzen naar het proces van het controleren van de identiteit van een persoon, bijvoorbeeld door het controleren van identiteitsdocumenten of biometrische gegevens.
+
+Er zijn geen specifieke wetten of richtlijnen die een definitie van 'verifiëren' geven in deze context, maar het concept is inherent aan veel processen in de strafrechtketen. Bijvoorbeeld, de Politiewet 2012 geeft de politie de bevoegdheid om de identiteit van personen te controleren in bepaalde situaties.
+
+Daarnaast zijn er verschillende standaarden en best practices die relevant kunnen zijn, afhankelijk van de specifieke details van het project. Bijvoorbeeld, de ISO 27001 norm voor informatiebeveiliging bevat richtlijnen voor het verifiëren van de identiteit van gebruikers van informatiesystemen.
+
+Ten slotte, in de wetenschappelijke literatuur en in de praktijk van projectmanagement en systeemontwikkeling, wordt 'verifiëren' vaak gedefinieerd in contrast met 'valideren'. Verificatie gaat over het controleren of een systeem (of een deel daarvan) voldoet aan de gespecificeerde eisen, terwijl validatie gaat over het controleren of het systeem als geheel voldoet aan de behoeften en verwachtingen van de gebruikers en andere stakeholders.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ✔️ ESS-02: eenduidig als proces gedefinieerd (\b(is een|betreft een) (proces|activiteit|handeling|gebeurtenis)\b, \b(proces|activiteit|handeling|gebeurtenis)\b)
+- ❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (en, of, ,, waarbij), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (waarbij); antecedent niet expliciet gemaakt
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘betrefteenactiviteitwaarbijdejuistheid,geldigheidofauthenticiteitvaninformatieofeenidentiteitsystematischwordtgecontroleerdenbevestigd.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ❌ STR-08: dubbelzinnige 'en' gevonden (, gecontroleerd en bevestigd), context verduidelijken
+- ❌ STR-09: dubbelzinnige 'of' gevonden (informatie of een, of, geldigheid of authenticiteit, juistheid, geldigheid of authenticiteit), context verduidelijken
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Betreft een activiteit waarbij de juistheid, geldigheid of authenticiteit van informatie of een identiteit systematisch wordt gecontroleerd en bevestigd.' lijkt niet in infinitief te staan
+- ❌ ARAI01: werkwoord(en) als kern gevonden (wordt), geen toelichting herkend
+- ❌ ARAI02: containerbegrippen zonder specificatie gevonden (activiteit), onvoldoende concreet
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ❌ ARAI02SUB2: containerbegrippen gevonden (activiteit), onvoldoende specifiek
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Het begrip 'verifiëren' wordt in veel verschillende contexten gebruikt, maar in het algemeen verwijst het naar het proces van het controleren of bevestigen van de juistheid, geldigheid of authenticiteit van iets. 
+- In de context van de 'Strafrechtketen, Project Identiteitsbehandeling' zou dit kunnen verwijzen naar het proces van het controleren van de identiteit van een persoon, bijvoorbeeld door het controleren van identiteitsdocumenten of biometrische gegevens.
+- Er zijn geen specifieke wetten of richtlijnen die een definitie van 'verifiëren' geven in deze context, maar het concept is inherent aan veel processen in de strafrechtketen. Bijvoorbeeld, de Politiewet 2012 geeft de politie de bevoegdheid om de identiteit van personen te controleren in bepaalde situaties.
+- Daarnaast zijn er verschillende standaarden en best practices die relevant kunnen zijn, afhankelijk van de specifieke details van het project. Bijvoorbeeld, de ISO 27001 norm voor informatiebeveiliging bevat richtlijnen voor het verifiëren van de identiteit van gebruikers van informatiesystemen.
+- Ten slotte, in de wetenschappelijke literatuur en in de praktijk van projectmanagement en systeemontwikkeling, wordt 'verifiëren' vaak gedefinieerd in contrast met 'valideren'. Verificatie gaat over het controleren of een systeem (of een deel daarvan) voldoet aan de gespecificeerde eisen, terwijl validatie gaat over het controleren of het systeem als geheel voldoet aan de behoeften en verwachtingen van de gebruikers en andere stakeholders.
+
+💡 Toelichting:
+Het begrip 'verifiëren' verwijst naar het proces van het controleren of bevestigen van de juistheid, nauwkeurigheid of geldigheid van informatie, gegevens of feiten. In de context van overheidsdocumenten kan dit betekenen dat de overheid de juistheid van de verstrekte informatie controleert, bijvoorbeeld de identiteitsinformatie van een individu, of de nauwkeurigheid van gegevens die zijn verzameld in het kader van een bepaald project of initiatief.
+
+Verificatie kan op verschillende manieren plaatsvinden, afhankelijk van de aard van de informatie of gegevens die moeten worden geverifieerd. Dit kan variëren van het simpelweg controleren van documenten of gegevens tegen een betrouwbare bron, tot het uitvoeren van complexe dataverificatieprocessen met behulp van geavanceerde technologieën.
+
+De toepassing van verificatie in overheidsdocumenten is cruciaal om de integriteit en betrouwbaarheid van de informatie en gegevens die door de overheid worden beheerd, te waarborgen. Het helpt ook om fraude, misbruik en andere vormen van onregelmatigheden te voorkomen.
+
+🧢 Voorbeeldzinnen:
+- "Voordat we verder gaan met de procedure, moeten we eerst je identiteit verifiëren."
+- "Het is belangrijk om de gegevens te verifiëren voordat we het project Identiteitsbehandeling starten."
+- "In het kader van de strafrechtketen, is het essentieel om de bewijsmaterialen te verifiëren."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1: Verificatie van een paspoort bij een luchthaven
+
+In een luchthaven controleert een beveiligingsmedewerker de paspoorten van reizigers om hun identiteit te verifiëren voordat ze aan boord van een vliegtuig mogen gaan. De medewerker controleert de foto en de persoonlijke gegevens in het paspoort en vergelijkt deze met de persoon die voor hem staat. Daarnaast controleert hij of het paspoort niet is verlopen en of het geen tekenen van vervalsing vertoont, zoals ongewone lettertypes of afwijkingen in het watermerk. Deze activiteit is essentieel om de veiligheid van het luchtverkeer te waarborgen en illegale activiteiten zoals identiteitsfraude en terrorisme te voorkomen.
+
+Organisatorische context: Luchthavenbeveiliging
+Juridische context: Internationale luchtvaartwetgeving, paspoortwetgeving
+Wettelijke basis: Verdrag van Chicago (Internationale Burgerluchtvaartorganisatie)
+
+Voorbeeld 2: Verificatie van een bankrekening bij een online betaling
+
+Bij het doen van een online betaling moet de identiteit van de rekeninghouder worden geverifieerd. Dit gebeurt door middel van een twee-staps verificatieproces waarbij de rekeninghouder eerst zijn bankrekeningnummer moet invoeren en vervolgens een unieke code moet invoeren die naar zijn mobiele telefoon wordt gestuurd. Dit proces verifieert de juistheid van de bankrekeninginformatie en de authenticiteit van de rekeninghouder. Het voorkomt fraude en beschermt de financiële gegevens van de klant.
+
+Organisatorische context: Online betalingsplatform
+Juridische context: Elektronisch bankieren en online betalingswetgeving
+Wettelijke basis: Wet op het financieel toezicht (Wft)
+
+Voorbeeld 3: Verificatie van medische gegevens bij een ziekenhuis
+
+In een ziekenhuis moet het medisch personeel de medische geschiedenis en huidige gezondheidsinformatie van een patiënt verifiëren voordat ze een behandeling starten. Ze controleren de juistheid van de informatie door deze te vergelijken met de medische dossiers en door te praten met de patiënt. Dit zorgt ervoor dat de patiënt de juiste behandeling krijgt en voorkomt medische fouten.
+
+Organisatorische context: Ziekenhuis, medisch team
+Juridische context: Medische ethiek, patiëntenrechten
+Wettelijke basis: Wet op de geneeskundige behandelingsovereenkomst (WGBO)
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1: Een politieagent houdt een verdachte aan en controleert zijn identiteitsbewijs. De agent gaat echter niet verder met het verifiëren van de identiteit door bijvoorbeeld de gegevens in het systeem te controleren of vingerafdrukken te nemen. In dit geval wordt de activiteit van systematische controle en bevestiging van de authenticiteit van de identiteit niet volledig gevolgd.
+
+Voorbeeld 2: In het Project Identiteitsbehandeling wordt een persoon geïdentificeerd op basis van een enkel document, zoals een rijbewijs, zonder verdere verificatie van andere documenten of gegevensbronnen. Dit is een voorbeeld waarbij de juistheid en geldigheid van de informatie niet volledig wordt gecontroleerd en bevestigd, waardoor het begrip 'verifiëren' niet correct wordt toegepast.
+
+🔁 Synoniemen:
+- 1. Controleren
+- 2. Nagaan
+- 3. Toetsen
+- 4. Bevestigen
+- 5. Onderzoeken
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Negeren
+- 2. Verwaarlozen
+- 3. Overslaan
+- 4. Veronachtzamen
+- 5. Afwijzen

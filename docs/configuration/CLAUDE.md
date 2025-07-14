@@ -15,10 +15,19 @@ This is a **DefinitieAgent** (Dutch Definition Agent) - a Streamlit-based applic
 streamlit run src/main.py
 ```
 
-**Original Version (Backup):**
+**Legacy Version (Do NOT use - Missing features being migrated):**
 ```bash
-streamlit run src/centrale_module_definitie_kwaliteit.py
+# streamlit run src/centrale_module_definitie_kwaliteit.py  # DEPRECATED
 ```
+
+### ⚠️ Legacy Migration Status
+The application is currently missing critical features from the legacy version:
+- **AI Content Generation**: Voorbeeldzinnen, synoniemen, toelichting (Week 2-3)
+- **Custom Definition Tab**: Manual editing workflow (Week 2-3)
+- **Developer Tools**: Forbidden words management, debugging (Week 3)
+- **Metadata Fields**: Datum voorstel, voorsteller, ketenpartners (Week 1)
+
+See `LEGACY_FEATURE_IMPLEMENTATION_PLAN.md` for migration progress.
 
 ### Testing
 ```bash
@@ -34,6 +43,17 @@ pip install -r requirements.txt
 ```
 
 ## Refactored Architecture Overview
+
+### ⚠️ Current Limitations
+The refactored version is missing several features from the original:
+1. **Content Generation**: No voorbeeldzinnen, synoniemen, antoniemen generation
+2. **Custom Editing**: No manual definition editing capability
+3. **Developer Tools**: No forbidden words management or debugging tools
+4. **Metadata**: Missing datum voorstel, voorsteller, ketenpartners fields
+
+These features are being migrated - see roadmap in architecture docs.
+
+## Architecture Details
 
 The application has been refactored into a modular structure with proper separation of concerns:
 

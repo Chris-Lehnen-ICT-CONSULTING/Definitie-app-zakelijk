@@ -265,6 +265,10 @@ class TabbedInterface:
         if any(context_data.values()):
             self._render_context_summary(context_data)
         
+        # Metadata velden (legacy restoration)
+        st.markdown("### 📝 Metadata")
+        self._render_metadata_fields()
+        
         # Genereer definitie knop direct na context
         st.markdown("---")
         self._render_quick_generate_button(begrip, context_data)
@@ -375,6 +379,42 @@ class TabbedInterface:
             "juridische_context": final_jur,
             "wettelijke_basis": final_wet
         }
+    
+    def _render_metadata_fields(self):
+        """Render metadata velden voor definitie voorstel."""
+        from datetime import datetime
+        
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            # Datum voorstel
+            datum_voorstel = st.date_input(
+                "📅 Datum voorstel",
+                value=SessionStateManager.get_value("datum_voorstel", datetime.today()),
+                help="Datum waarop deze definitie wordt voorgesteld"
+            )
+            SessionStateManager.set_value("datum_voorstel", datum_voorstel)
+        
+        with col2:
+            # Voorgesteld door
+            voorgesteld_door = st.text_input(
+                "👤 Voorgesteld door",
+                value=SessionStateManager.get_value("voorgesteld_door", ""),
+                placeholder="Naam van voorsteller",
+                help="Persoon of organisatie die deze definitie voorstelt"
+            )
+            SessionStateManager.set_value("voorgesteld_door", voorgesteld_door)
+        
+        with col3:
+            # Ketenpartners
+            ketenpartner_opties = ["ZM", "DJI", "KMAR", "CJIB", "JUSTID", "OM", "Reclassering", "NP"]
+            ketenpartners = st.multiselect(
+                "🤝 Ketenpartners die akkoord zijn",
+                options=ketenpartner_opties,
+                default=SessionStateManager.get_value("ketenpartners", []),
+                help="Partners die akkoord zijn met deze definitie"
+            )
+            SessionStateManager.set_value("ketenpartners", ketenpartners)
     
     def _render_quick_generate_button(self, begrip: str, context_data: Dict[str, Any]):
         """Render snelle genereer definitie knop."""
