@@ -1,0 +1,124 @@
+📘 Begrip: (pre-)registratie 
+
+✏️ Definitie (gecorrigeerd): Pre-registratie is een activiteit waarbij voorlopige gegevens worden verzameld en vastgelegd voorafgaand aan een formele registratie.
+
+📎 Oorspronkelijke definitie: Pre-registratie is een activiteit waarbij voorlopige gegevens worden verzameld en vastgelegd voorafgaand aan een formele registratie.
+
+🧾 Metadata:
+- marker: proces
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een grote hoeveelheid gegevens en bronnen die ik heb geanalyseerd. Voor de term '(pre-)registratie' in de context van de strafrechtketen en het project Identiteitsbehandeling, zou ik me baseren op bronnen zoals wetboeken, juridische teksten, overheidsdocumenten en academische literatuur over strafrecht en identiteitsbehandeling.
+
+1. Wetboeken en juridische teksten: Deze bronnen kunnen inzicht geven in de wettelijke en juridische aspecten van (pre-)registratie in de strafrechtketen. Ze kunnen ook informatie bevatten over de rechten en plichten van betrokkenen in dit proces.
+
+2. Overheidsdocumenten: Documenten van bijvoorbeeld het Ministerie van Justitie en Veiligheid of de Dienst Justitiële Inrichtingen kunnen specifieke informatie bevatten over de procedures en praktijken rond (pre-)registratie in de strafrechtketen.
+
+3. Academische literatuur: Onderzoeken en studies over strafrecht en identiteitsbehandeling kunnen inzicht geven in de theoretische en praktische aspecten van (pre-)registratie. Ze kunnen ook informatie bevatten over de effectiviteit en de gevolgen van deze praktijken.
+
+4. Richtlijnen en protocollen: Deze kunnen specifieke procedures en best practices bevatten voor (pre-)registratie in de strafrechtketen.
+
+Het is belangrijk op te merken dat de specifieke definitie en interpretatie van '(pre-)registratie' kan variëren afhankelijk van de context en de bron. Daarom is het belangrijk om meerdere bronnen te raadplegen en te analyseren om een volledig en nauwkeurig beeld te krijgen.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ✔️ ESS-02: eenduidig als proces gedefinieerd (\b(is een|betreft een) (proces|activiteit|handeling|gebeurtenis)\b, \b(proces|activiteit|handeling|gebeurtenis)\b)
+- ❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (waarbij, en), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (waarbij); antecedent niet expliciet gemaakt
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘pre-registratieiseenactiviteitwaarbijvoorlopigegegevenswordenverzameldenvastgelegdvoorafgaandaaneenformeleregistratie.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ❌ STR-08: dubbelzinnige 'en' gevonden (, verzameld en vastgelegd), context verduidelijken
+- ✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Pre-registratie is een activiteit waarbij voorlopige gegevens worden verzameld en vastgelegd voorafgaand aan een formele registratie.' lijkt niet in infinitief te staan
+- ❌ ARAI01: werkwoord(en) als kern gevonden (is), geen toelichting herkend
+- ❌ ARAI02: containerbegrippen zonder specificatie gevonden (activiteit), onvoldoende concreet
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ❌ ARAI02SUB2: containerbegrippen gevonden (activiteit), onvoldoende specifiek
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een grote hoeveelheid gegevens en bronnen die ik heb geanalyseerd. Voor de term '(pre-)registratie' in de context van de strafrechtketen en het project Identiteitsbehandeling, zou ik me baseren op bronnen zoals wetboeken, juridische teksten, overheidsdocumenten en academische literatuur over strafrecht en identiteitsbehandeling.
+- 1. Wetboeken en juridische teksten: Deze bronnen kunnen inzicht geven in de wettelijke en juridische aspecten van (pre-)registratie in de strafrechtketen. Ze kunnen ook informatie bevatten over de rechten en plichten van betrokkenen in dit proces.
+- 2. Overheidsdocumenten: Documenten van bijvoorbeeld het Ministerie van Justitie en Veiligheid of de Dienst Justitiële Inrichtingen kunnen specifieke informatie bevatten over de procedures en praktijken rond (pre-)registratie in de strafrechtketen.
+- 3. Academische literatuur: Onderzoeken en studies over strafrecht en identiteitsbehandeling kunnen inzicht geven in de theoretische en praktische aspecten van (pre-)registratie. Ze kunnen ook informatie bevatten over de effectiviteit en de gevolgen van deze praktijken.
+- 4. Richtlijnen en protocollen: Deze kunnen specifieke procedures en best practices bevatten voor (pre-)registratie in de strafrechtketen.
+- Het is belangrijk op te merken dat de specifieke definitie en interpretatie van '(pre-)registratie' kan variëren afhankelijk van de context en de bron. Daarom is het belangrijk om meerdere bronnen te raadplegen en te analyseren om een volledig en nauwkeurig beeld te krijgen.
+
+💡 Toelichting:
+(Pre-)registratie is een term die vaak gebruikt wordt in de context van gegevensbeheer en administratie. Het verwijst naar het proces van het vastleggen en opslaan van informatie over een individu, een object of een gebeurtenis voordat een bepaalde actie of procedure plaatsvindt. 
+
+In de context van de overheid kan (pre-)registratie bijvoorbeeld betrekking hebben op het verzamelen en registreren van persoonlijke gegevens van burgers voordat ze gebruik maken van bepaalde overheidsdiensten. Het kan ook betrekking hebben op het vastleggen van informatie over een strafbaar feit in de strafrechtketen voordat de rechtszaak begint. 
+
+Het doel van (pre-)registratie is om een nauwkeurige en betrouwbare administratie te waarborgen die kan worden gebruikt voor verschillende doeleinden, zoals het verifiëren van identiteiten, het opsporen van misdaad, het leveren van diensten, enz. Het helpt ook om transparantie en verantwoording te bevorderen, omdat alle acties en beslissingen kunnen worden getraceerd en gecontroleerd op basis van de geregistreerde informatie. 
+
+Het is belangrijk op te
+
+🧢 Voorbeeldzinnen:
+- "Voordat je deelneemt aan de marathon, is het noodzakelijk om een pre-registratie te voltooien om je plek te verzekeren."
+- "De politie voert een pre-registratie uit van alle nieuwe bewoners in de buurt als onderdeel van hun veiligheidsprotocol."
+- "In het kader van het Project Identiteitsbehandeling, wordt een registratie van alle deelnemers vereist voor de aanvang van het programma."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1: Pre-registratie in de gezondheidszorg
+In een ziekenhuis is pre-registratie een cruciaal onderdeel van de patiëntenzorg. Voordat een patiënt een formele registratie ondergaat (bijvoorbeeld voor een operatie of behandeling), worden er voorlopige gegevens verzameld en vastgelegd. Deze kunnen basisinformatie bevatten zoals de naam, het adres en de contactgegevens van de patiënt, maar ook medische informatie zoals symptomen, medische geschiedenis en eventuele allergieën. Deze informatie wordt verzameld tijdens het eerste contact met de patiënt, meestal tijdens een consultatie of een bezoek aan de spoedafdeling. De pre-registratie helpt de zorgverleners om een voorlopig zorgplan op te stellen en de patiënt voor te bereiden op de volgende stappen van de behandeling.
+
+Voorbeeld 2: Pre-registratie in het onderwijs
+In een universiteit of hogeschool worden studenten vaak aangemoedigd om zich vooraf te registreren voor de vakken die ze het volgende semester willen volgen. Tijdens deze pre-registratieperiode verzamelt de onderwijsinstelling voorlopige gegevens over de studenten, zoals hun naam, studentennummer en de vakken die ze willen volgen. Deze informatie wordt dan gebruikt om de roosters voor het volgende semester te plannen en om te zorgen voor voldoende capaciteit in de klassen. De pre-registratie is meestal niet bindend en studenten kunnen hun vakkenkeuze nog wijzigen tijdens de eerste weken van het semester.
+
+Voorbeeld 3: Pre-registratie bij evenementen
+Bij grote evenementen zoals festivals of conferenties wordt vaak een pre-registratieproces gebruikt om voorlopige gegevens over de deelnemers te verzamelen. Dit kan basisinformatie zijn zoals naam en contactgegevens, maar ook specifieke informatie zoals dieetvoorkeuren of toegankelijkheidsbehoeften. Deze informatie wordt dan gebruikt om het evenement te plannen en om ervoor te zorgen dat aan de behoeften van alle deelnemers wordt voldaan. De pre-registratie is meestal niet bindend en deelnemers kunnen zich nog steeds afmelden of hun gegevens wijzigen tot een bepaalde datum voor het evenement.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1: Een politieagent houdt een verdachte aan voor een vermeend misdrijf, maar registreert niet voorafgaand de relevante gegevens zoals de naam, het adres en de aard van het vermeende misdrijf. In plaats daarvan neemt de agent de verdachte direct mee naar het politiebureau voor formele registratie. Hier worden de regels voor pre-registratie niet gevolgd, omdat de voorlopige gegevens niet zijn verzameld en vastgelegd voorafgaand aan de formele registratie.
+
+Voorbeeld 2: In het Project Identiteitsbehandeling worden mensen die zich aanmelden voor een identiteitsverandering meteen formeel geregistreerd, zonder dat er eerst voorlopige gegevens worden verzameld. Hier worden de regels voor pre-registratie niet gevolgd, omdat er geen voorlopige gegevens worden verzameld en vastgelegd voorafgaand aan de formele registratie.
+
+🔁 Synoniemen:
+- 1. Voorinschrijving
+- 2. Voorregistratie
+- 3. Aanmelding
+- 4. Inschrijving
+- 5. Registratie vooraf
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Deregistratie
+- 2. Uitschrijving
+- 3. Verwijdering
+- 4. Annulering
+- 5. Ontbinding

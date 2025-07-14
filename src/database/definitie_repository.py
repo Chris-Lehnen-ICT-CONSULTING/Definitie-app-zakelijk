@@ -67,7 +67,6 @@ class DefinitieRecord:
     validation_score: Optional[float] = None  # Kwaliteitsscore (0.0-1.0)
     validation_date: Optional[datetime] = None  # Wanneer laatste validatie plaatsvond
     validation_issues: Optional[str] = None  # JSON string met gevonden problemen
-    
     # Source tracking - Herkomst van de definitie
     source_type: str = SourceType.GENERATED.value  # Hoe is definitie ontstaan
     source_reference: Optional[str] = None  # Referentie naar originele bron
@@ -76,8 +75,12 @@ class DefinitieRecord:
     # Metadata - Algemene record informatie
     created_at: Optional[datetime] = None  # Wanneer record is aangemaakt
     updated_at: Optional[datetime] = None  # Laatste wijziging
-    created_by: Optional[str] = None  # Wie heeft record aangemaakt
+    created_by: Optional[str] = None  # Wie heeft record aangemaakt (ook gebruikt voor voorgesteld_door)
     updated_by: Optional[str] = None  # Wie heeft record laatst gewijzigd
+    
+    # Legacy metadata fields
+    datum_voorstel: Optional[datetime] = None  # Datum van voorstel
+    ketenpartners: Optional[str] = None  # JSON string van ketenpartner array
     
     # Approval - Goedkeuring workflow informatie
     approved_by: Optional[str] = None  # Wie heeft definitie goedgekeurd
@@ -156,6 +159,19 @@ class DefinitieRecord:
             destinations.append(destination)  # Voeg toe aan lijst
             # Sla bijgewerkte lijst op als JSON string
             self.export_destinations = json.dumps(destinations)
+    
+    def get_ketenpartners_list(self) -> List[str]:
+        """Haal ketenpartners op als list."""
+        if not self.ketenpartners:
+            return []
+        try:
+            return json.loads(self.ketenpartners)
+        except json.JSONDecodeError:
+            return []
+    
+    def set_ketenpartners(self, partners: List[str]):
+        """Set ketenpartners als JSON string."""
+        self.ketenpartners = json.dumps(partners, ensure_ascii=False)
 
 
 @dataclass
@@ -363,8 +379,9 @@ class DefinitieRepository:
                     source_type, source_reference, imported_from,
                     created_at, updated_at, created_by, updated_by,
                     approved_by, approved_at, approval_notes,
-                    last_exported_at, export_destinations
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    last_exported_at, export_destinations,
+                    datum_voorstel, ketenpartners
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 record.begrip, record.definitie, record.categorie,
                 record.organisatorische_context, record.juridische_context,
@@ -373,7 +390,8 @@ class DefinitieRepository:
                 record.source_type, record.source_reference, record.imported_from,
                 record.created_at, record.updated_at, record.created_by, record.updated_by,
                 record.approved_by, record.approved_at, record.approval_notes,
-                record.last_exported_at, record.export_destinations
+                record.last_exported_at, record.export_destinations,
+                record.datum_voorstel, record.ketenpartners
             ))
             
             record_id = cursor.lastrowid
