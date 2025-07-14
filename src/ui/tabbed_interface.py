@@ -445,6 +445,24 @@ class TabbedInterface:
                     "timestamp": datetime.now()
                 })
                 
+                # Store detailed validation results for display
+                if agent_result and agent_result.best_iteration:
+                    from ai_toetser.modular_toetser import toets_definitie
+                    from config.toetsregel_manager import get_toetsregel_manager
+                    
+                    # Get detailed validation results
+                    toetsregel_manager = get_toetsregel_manager()
+                    toetsregels = toetsregel_manager.get_all_rules()
+                    
+                    detailed_results = toets_definitie(
+                        definitie=agent_result.final_definitie,
+                        toetsregels=toetsregels,
+                        begrip=begrip,
+                        gebruik_logging=True
+                    )
+                    
+                    SessionStateManager.set_value("beoordeling_gen", detailed_results)
+                
                 # Toon document context info als gebruikt
                 if document_context and document_context.get('document_count', 0) > 0:
                     st.success(f"✅ Definitie gegenereerd met context van {document_context['document_count']} document(en)! Bekijk resultaten in de 'Definitie Generatie' tab.")
