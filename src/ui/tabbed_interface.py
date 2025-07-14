@@ -450,18 +450,28 @@ class TabbedInterface:
                     from ai_toetser.modular_toetser import toets_definitie
                     from config.toetsregel_manager import get_toetsregel_manager
                     
-                    # Get detailed validation results
+                    # Get detailed validation results with proper context
                     toetsregel_manager = get_toetsregel_manager()
                     toetsregels = toetsregel_manager.get_all_rules()
+                    
+                    # Create contexten dictionary for validation
+                    contexten = {
+                        "organisatorisch": org_context,
+                        "juridisch": jur_context,
+                        "wettelijk": context_data.get("wettelijke_basis", [])
+                    }
                     
                     detailed_results = toets_definitie(
                         definitie=agent_result.final_definitie,
                         toetsregels=toetsregels,
                         begrip=begrip,
+                        marker=auto_categorie.value,
+                        contexten=contexten,
                         gebruik_logging=True
                     )
                     
                     SessionStateManager.set_value("beoordeling_gen", detailed_results)
+                    logger.info(f"Stored {len(detailed_results)} detailed validation results in session state")
                 
                 # Toon document context info als gebruikt
                 if document_context and document_context.get('document_count', 0) > 0:
