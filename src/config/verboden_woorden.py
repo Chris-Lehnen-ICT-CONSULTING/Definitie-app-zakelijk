@@ -3,7 +3,11 @@ import json
 import re
 import streamlit as st
 from datetime import datetime
-from logs.application.log_definitie import get_logger
+import sys
+# Voeg root directory toe aan Python path voor logs module toegang
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+
+from logs.application.log_definitie import get_logger  # Logging uit root logs directory
 logger = get_logger(__name__)
 from config.config_loader import laad_verboden_woorden as _config_loader_verboden
 # ✅ Laadt de lijst met verboden woorden, met override-optie vanuit Streamlit UI

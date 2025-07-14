@@ -1,5 +1,8 @@
 """
-Custom exceptions and error handling utilities for DefinitieAgent.
+Aangepaste uitzonderingen en foutafhandeling utilities voor DefinitieAgent.
+
+Deze module definieert alle aangepaste exception types en utilities
+voor elegante foutafhandeling in de hele applicatie.
 """
 
 import logging
@@ -58,47 +61,51 @@ def handle_validation_error(func):
 
 def safe_execute(func, default_value: Any = None, error_message: str = ""):
     """
-    Safely execute a function and return default value on error.
+    Voer een functie veilig uit en geef standaardwaarde terug bij fout.
     
     Args:
-        func: Function to execute
-        default_value: Value to return on error
-        error_message: Custom error message to log
+        func: Functie om uit te voeren
+        default_value: Waarde om terug te geven bij fout
+        error_message: Aangepast foutbericht voor logging
         
     Returns:
-        Function result or default_value on error
+        Functie resultaat of default_value bij fout
     """
     try:
+        # Probeer de functie uit te voeren
         return func()
     except Exception as e:
+        # Log de fout met aangepast of standaard bericht
         if error_message:
             logging.error(f"{error_message}: {str(e)}")
         else:
-            logging.error(f"Error in {func.__name__}: {str(e)}")
+            logging.error(f"Fout in {func.__name__}: {str(e)}")
+        # Geef standaardwaarde terug bij fout
         return default_value
 
 
 def log_and_display_error(error: Exception, context: str = "", show_technical: bool = False):
     """
-    Log error and return user-friendly message.
+    Log fout en geef gebruikersvriendelijk bericht terug.
     
     Args:
-        error: The exception that occurred
-        context: Additional context about where the error occurred
-        show_technical: Whether to show technical details to user
+        error: De uitzondering die opgetreden is
+        context: Aanvullende context over waar de fout optrad
+        show_technical: Of technische details getoond moeten worden aan gebruiker
         
     Returns:
-        User-friendly error message
+        Gebruikersvriendelijk foutbericht
     """
+    # Converteer fout naar string voor logging
     error_msg = str(error)
     
-    # Log technical details
+    # Log technische details voor debugging
     if context:
-        logging.error(f"Error in {context}: {error_msg}")
+        logging.error(f"Fout in {context}: {error_msg}")
     else:
-        logging.error(f"Error: {error_msg}")
+        logging.error(f"Fout: {error_msg}")
     
-    # Return user-friendly message
+    # Geef gebruikersvriendelijk bericht terug op basis van fout type
     if isinstance(error, APIError):
         return "❌ Er is een probleem met de AI-service. Probeer het later opnieuw."
     elif isinstance(error, ValidationError):
@@ -108,6 +115,7 @@ def log_and_display_error(error: Exception, context: str = "", show_technical: b
     elif isinstance(error, ExportError):
         return "❌ Er is een probleem met het exporteren. Probeer opnieuw."
     else:
+        # Voor onbekende fouten, toon technische details indien gevraagd
         if show_technical:
             return f"❌ Onverwachte fout: {error_msg}"
         else:

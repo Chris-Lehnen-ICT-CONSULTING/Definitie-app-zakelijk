@@ -1,39 +1,41 @@
 """
-API monitoring and analytics for DefinitieAgent.
-Provides real-time performance tracking, error analysis, and cost optimization.
+API monitoring en analytics voor DefinitieAgent.
+
+Biedt real-time prestatie monitoring, fout analyse, en kosten optimalisatie
+voor alle API calls en systeem operaties.
 """
 
-import asyncio
-import logging
-import json
-import time
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from datetime import datetime, timedelta
-from enum import Enum
-from collections import defaultdict, deque
-from pathlib import Path
-import csv
+import asyncio  # Asynchrone programmering voor real-time monitoring
+import logging  # Logging faciliteiten voor debug en monitoring
+import json  # JSON verwerking voor data serialisatie
+import time  # Tijd functies voor prestatie metingen
+from typing import Dict, List, Optional, Any  # Type hints voor betere code documentatie
+from dataclasses import dataclass, asdict  # Dataklassen voor gestructureerde monitoring data
+from datetime import datetime, timedelta  # Datum en tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeraties voor monitoring types en severity levels
+from collections import defaultdict, deque  # Efficiënte data structuren voor metrics
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+import csv  # CSV export functionaliteit voor rapportage
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor API monitor module
 
 
 class AlertSeverity(Enum):
-    """Alert severity levels."""
-    INFO = "info"
-    WARNING = "warning"
-    ERROR = "error"
-    CRITICAL = "critical"
+    """Alert ernst niveaus voor monitoring meldingen."""
+    INFO = "info"          # Informatieve meldingen
+    WARNING = "warning"    # Waarschuwingen, aandacht vereist
+    ERROR = "error"        # Fouten die actie vereisen
+    CRITICAL = "critical"  # Kritieke situaties, directe actie nodig
 
 
 class MetricType(Enum):
-    """Types of metrics to track."""
-    RESPONSE_TIME = "response_time"
-    ERROR_RATE = "error_rate"
-    THROUGHPUT = "throughput"
-    COST = "cost"
-    CACHE_HIT_RATE = "cache_hit_rate"
-    QUEUE_LENGTH = "queue_length"
+    """Types van metrics die getrackt worden voor performance monitoring."""
+    RESPONSE_TIME = "response_time"      # API response tijden
+    ERROR_RATE = "error_rate"            # Fout percentages
+    THROUGHPUT = "throughput"            # Aantal requests per seconde
+    COST = "cost"                        # API kosten tracking
+    CACHE_HIT_RATE = "cache_hit_rate"    # Cache hit ratio
+    QUEUE_LENGTH = "queue_length"        # Lengte van request queues
 
 
 @dataclass

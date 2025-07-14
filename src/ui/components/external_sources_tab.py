@@ -2,57 +2,62 @@
 External Sources Tab - Interface voor externe definitie bronnen.
 """
 
-import streamlit as st
-import json
-from typing import Dict, Any, Optional, List
-from datetime import datetime
-from pathlib import Path
+import streamlit as st  # Streamlit web interface framework
+import json  # JSON data verwerking voor configuraties
+from typing import Dict, Any, Optional, List  # Type hints voor code documentatie
+from datetime import datetime  # Datum en tijd functionaliteit
+from pathlib import Path  # Bestandspad manipulatie
 
-from database.definitie_repository import DefinitieRepository, DefinitieRecord, DefinitieStatus
-from ui.session_state import SessionStateManager
+from database.definitie_repository import DefinitieRepository, DefinitieRecord, DefinitieStatus  # Database toegang voor definities
+from ui.session_state import SessionStateManager  # Sessie status management voor Streamlit
 
 
 class ExternalSourcesTab:
-    """Tab voor externe bronnen beheer."""
+    """Tab voor externe bronnen beheer.
+    
+    Beheert verbindingen met externe definitie bronnen en importeert
+    definities van verschillende externe systemen en databases.
+    """
     
     def __init__(self, repository: DefinitieRepository):
-        """Initialiseer external sources tab."""
-        self.repository = repository
-        self._init_external_adapter()
+        """Initialiseer external sources tab met database repository."""
+        self.repository = repository  # Database repository voor definitie opslag
+        self._init_external_adapter()  # Initialiseer externe bron adapters
     
     def _init_external_adapter(self):
-        """Initialiseer external source adapter."""
+        """Initialiseer external source adapter voor externe bronnen."""
         try:
-            import sys
-            from pathlib import Path
-            sys.path.append(str(Path(__file__).parents[2] / "external"))
+            import sys  # Systeem interface voor path manipulatie
+            from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
+            sys.path.append(str(Path(__file__).parents[2] / "external"))  # Voeg externe module pad toe
             
+            # Importeer externe bron adapter componenten
             from external_source_adapter import (
-                ExternalSourceManager, 
-                create_mock_source, 
-                create_file_source,
-                ExternalSourceConfig,
-                ExternalSourceType,
-                MockExternalAdapter,
-                FileSystemAdapter
+                ExternalSourceManager,   # Manager voor externe bronnen
+                create_mock_source,      # Factory voor mock bronnen (testing)
+                create_file_source,      # Factory voor bestandssysteem bronnen
+                ExternalSourceConfig,    # Configuratie container voor bronnen
+                ExternalSourceType,      # Enumeratie van bron types
+                MockExternalAdapter,     # Mock adapter voor development
+                FileSystemAdapter        # Bestandssysteem adapter
             )
             
-            # Store classes for use
-            self.ExternalSourceManager = ExternalSourceManager
-            self.create_mock_source = create_mock_source
-            self.create_file_source = create_file_source
-            self.ExternalSourceConfig = ExternalSourceConfig
-            self.ExternalSourceType = ExternalSourceType
-            self.MockExternalAdapter = MockExternalAdapter
-            self.FileSystemAdapter = FileSystemAdapter
+            # Sla klassen op voor gebruik in de tab
+            self.ExternalSourceManager = ExternalSourceManager      # Manager klasse referentie
+            self.create_mock_source = create_mock_source            # Mock bron factory referentie
+            self.create_file_source = create_file_source            # Bestand bron factory referentie
+            self.ExternalSourceConfig = ExternalSourceConfig        # Config klasse referentie
+            self.ExternalSourceType = ExternalSourceType            # Type enum referentie
+            self.MockExternalAdapter = MockExternalAdapter          # Mock adapter referentie
+            self.FileSystemAdapter = FileSystemAdapter              # Bestandssysteem adapter referentie
             
-            # Initialize manager
+            # Initialiseer manager in sessie state voor persistentie
             if "external_source_manager" not in st.session_state:
-                st.session_state.external_source_manager = self.ExternalSourceManager()
+                st.session_state.external_source_manager = self.ExternalSourceManager()  # Maak nieuwe manager instantie
                 
         except Exception as e:
-            st.error(f"❌ Kon external source adapter niet laden: {str(e)}")
-            self.ExternalSourceManager = None
+            st.error(f"❌ Kon external source adapter niet laden: {str(e)}")  # Toon foutmelding aan gebruiker
+            self.ExternalSourceManager = None  # Zet manager op None bij falen
     
     def render(self):
         """Render external sources tab."""

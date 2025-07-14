@@ -1,49 +1,54 @@
 """
 DefinitieGenerator Module - Intelligente definitie generatie met feedback integration.
 Interpreteert toetsregels als creatieve richtlijnen voor optimale GPT prompts.
+
+Deze module bevat de kern AI definitie generatie logica,
+inclusief context verwerking en hybride bron integratie.
 """
 
-import logging
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass
-from enum import Enum
-import json
+import logging  # Logging faciliteiten voor debug en monitoring
+from typing import Dict, List, Any, Optional  # Type hints voor betere code documentatie
+from dataclasses import dataclass  # Dataklassen voor gestructureerde generatie data
+from enum import Enum  # Enumeraties voor categorieën
+import json  # JSON verwerking voor API communicatie
 
-from config.toetsregel_manager import get_toetsregel_manager, ToetsregelManager
-from config.config_adapters import get_api_config
+# Importeer configuratie en voorbeeld generatie componenten
+from config.toetsregel_manager import get_toetsregel_manager, ToetsregelManager  # Toetsregel beheer
+from config.config_adapters import get_api_config  # API configuratie toegang
 from voorbeelden.unified_voorbeelden import (
-    get_examples_generator, ExampleRequest, ExampleType, GenerationMode,
-    genereer_alle_voorbeelden
+    get_examples_generator, ExampleRequest, ExampleType, GenerationMode,  # Voorbeeld generatie klassen
+    genereer_alle_voorbeelden  # Bulk voorbeeld generatie functie
 )
 # Hybride context imports
 try:
     from hybrid_context.hybrid_context_engine import get_hybrid_context_engine, HybridContext
     HYBRID_CONTEXT_AVAILABLE = True
 except ImportError:
-    HYBRID_CONTEXT_AVAILABLE = False
-    logger = logging.getLogger(__name__)
+    # Fallback als hybride context niet beschikbaar is
+    HYBRID_CONTEXT_AVAILABLE = False  # Markeer als niet beschikbaar
+    logger = logging.getLogger(__name__)  # Verkrijg logger
     logger.warning("Hybrid context module niet beschikbaar - fallback naar standaard generatie")
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor dit bestand
 
 
 class OntologischeCategorie(Enum):
-    """Ontologische categorieën voor begrippen."""
-    TYPE = "type"
-    PROCES = "proces" 
-    RESULTAAT = "resultaat"
-    EXEMPLAAR = "exemplaar"
+    """Ontologische categorieën voor begrippen classificatie."""
+    TYPE = "type"              # Categorie voor types/klassen
+    PROCES = "proces"          # Categorie voor processen/activiteiten
+    RESULTAAT = "resultaat"    # Categorie voor uitkomsten/resultaten
+    EXEMPLAAR = "exemplaar"    # Categorie voor specifieke instanties
 
 
 @dataclass
 class GenerationInstruction:
     """Instructie voor definitie generatie uit een toetsregel."""
-    rule_id: str
-    guidance: str                    # Positieve instructie
-    template: Optional[str] = None   # Template structuur
-    examples: List[str] = None       # Goede voorbeelden
-    focus_areas: List[str] = None    # Waar op te focussen
-    priority: str = "medium"         # Prioriteit van deze instructie
+    rule_id: str                     # Unieke identificatie van de toetsregel
+    guidance: str                    # Positieve instructie voor definitie generatie
+    template: Optional[str] = None   # Template structuur voor consistente opbouw
+    examples: List[str] = None       # Goede voorbeelden ter referentie
+    focus_areas: List[str] = None    # Aandachtsgebieden voor kwaliteit
+    priority: str = "medium"         # Prioriteit niveau van deze instructie
     
     def __post_init__(self):
         if self.examples is None:
@@ -54,48 +59,75 @@ class GenerationInstruction:
 
 @dataclass
 class GenerationContext:
-    """Context voor definitie generatie."""
-    begrip: str
-    organisatorische_context: str
-    juridische_context: str
-    categorie: OntologischeCategorie
-    feedback_history: List[str] = None
-    custom_instructions: List[str] = None
-    # Hybride context uitbreidingen
-    hybrid_context: Optional[Any] = None  # HybridContext object
-    use_hybrid_enhancement: bool = False
-    web_context: Optional[Dict[str, Any]] = None
-    document_context: Optional[Dict[str, Any]] = None
+    """Context voor definitie generatie.
+    
+    Bevat alle informatie die nodig is voor het genereren van een definitie,
+    inclusief basis context en optionele hybride uitbreidingen.
+    """
+    # Basis context informatie
+    begrip: str  # Het begrip dat gedefinieerd moet worden
+    organisatorische_context: str  # Organisatorische context (bijv. OM, DJI)
+    juridische_context: str  # Juridische context (bijv. Strafrecht)
+    categorie: OntologischeCategorie  # Ontologische categorie van het begrip
+    
+    # Feedback en instructies
+    feedback_history: List[str] = None  # Eerdere feedback voor iteratieve verbetering
+    custom_instructions: List[str] = None  # Aangepaste instructies van gebruiker
+    
+    # Hybride context uitbreidingen voor document/web integratie
+    hybrid_context: Optional[Any] = None  # HybridContext object voor uitgebreide context
+    use_hybrid_enhancement: bool = False  # Of hybride verrijking gebruikt moet worden
+    web_context: Optional[Dict[str, Any]] = None  # Context uit web bronnen
+    document_context: Optional[Dict[str, Any]] = None  # Context uit geüploade documenten
     
     def __post_init__(self):
+        """Initialiseer lege lijsten voor optionele velden."""
+        # Initialiseer feedback history als lege lijst indien None
         if self.feedback_history is None:
             self.feedback_history = []
+        # Initialiseer custom instructions als lege lijst indien None
         if self.custom_instructions is None:
             self.custom_instructions = []
 
 
 @dataclass
 class GenerationResult:
-    """Resultaat van definitie generatie."""
-    definitie: str
-    gebruikte_instructies: List[GenerationInstruction]
-    prompt_template: str
-    iteration_nummer: int = 1
-    context: GenerationContext = None
-    # Voorbeelden uitbreidingen
-    voorbeelden: Dict[str, List[str]] = None
-    voorbeelden_gegenereerd: bool = False
-    voorbeelden_error: Optional[str] = None
+    """Resultaat van definitie generatie.
+    
+    Bevat de gegenereerde definitie plus alle metadata over
+    hoe de definitie is gegenereerd.
+    """
+    # Kern resultaat
+    definitie: str  # De gegenereerde definitie tekst
+    gebruikte_instructies: List[GenerationInstruction]  # Welke regels zijn gebruikt
+    prompt_template: str  # De gebruikte AI prompt template
+    
+    # Metadata
+    iteration_nummer: int = 1  # Welke iteratie van verbetering
+    context: GenerationContext = None  # Context die gebruikt is
+    
+    # Voorbeelden uitbreidingen voor aanvullende content
+    voorbeelden: Dict[str, List[str]] = None  # Gegenereerde voorbeelden per type
+    voorbeelden_gegenereerd: bool = False  # Of voorbeelden succesvol zijn gegenereerd
+    voorbeelden_error: Optional[str] = None  # Eventuele fout bij voorbeelden generatie
     
     def __post_init__(self):
+        """Initialiseer lege dictionary voor voorbeelden."""
+        # Initialiseer voorbeelden als lege dictionary indien None
         if self.voorbeelden is None:
             self.voorbeelden = {}
 
 
 class RegelInterpreter:
-    """Interpreteert toetsregels voor definitie generatie."""
+    """Interpreteert toetsregels voor definitie generatie.
+    
+    Deze klasse vertaalt kwaliteitstoetsregels naar positieve
+    instructies die gebruikt kunnen worden in AI prompts.
+    """
     
     def __init__(self):
+        """Initialiseer regel interpreter met toetsregel manager."""
+        # Verkrijg toetsregel manager voor toegang tot regels
         self.rule_manager = get_toetsregel_manager()
     
     def for_generation(self, regel_data: Dict[str, Any]) -> GenerationInstruction:

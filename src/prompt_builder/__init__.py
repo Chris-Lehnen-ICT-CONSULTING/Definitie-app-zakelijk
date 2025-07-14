@@ -1,9 +1,11 @@
 """
 Package `prompt_builder`: centraal opbouwen en uitvoeren van GPT-prompts
-voor definitiegeneratie.  Exporteert alle publieke functies voor korte
-imports, bijvoorbeeld:
+voor definitiegeneratie.
 
-    from prompt_builder import build_prompt
+Exporteert alle publieke functies voor korte imports, bijvoorbeeld:
+    from prompt_builder import PromptBouwer
+    
+Dit module biedt legacy functionaliteit voor het bouwen van AI prompts.
 """
 
 # 📦 prompt_builder/__init__.py

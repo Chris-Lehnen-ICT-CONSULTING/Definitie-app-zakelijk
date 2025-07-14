@@ -1,26 +1,30 @@
-import os
-from datetime import datetime
+import os  # Operating system interface voor bestandsoperaties
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 
 def exporteer_naar_txt(gegevens: dict) -> str:
-    begrip = gegevens.get("begrip", "")
-    definitie = gegevens.get("definitie_gecorrigeerd", "")
-    definitie_orig = gegevens.get("definitie_origineel", "")
-    metadata = gegevens.get("metadata", {})
-    context_dict = gegevens.get("context_dict", {})
-    toetsresultaten = gegevens.get("toetsresultaten", {})
-    bronnen = gegevens.get("bronnen", [])
+    """Exporteert definitie gegevens naar een geformatteerd TXT bestand."""
+    # Haal alle benodigde gegevens op uit de data dictionary
+    begrip = gegevens.get("begrip", "")  # Het gedefinieerde begrip
+    definitie = gegevens.get("definitie_gecorrigeerd", "")  # Finale gecorrigeerde definitie
+    definitie_orig = gegevens.get("definitie_origineel", "")  # Oorspronkelijke AI-gegenereerde definitie
+    metadata = gegevens.get("metadata", {})  # Extra metadata informatie
+    context_dict = gegevens.get("context_dict", {})  # Context categorieën en waarden
+    toetsresultaten = gegevens.get("toetsresultaten", {})  # Resultaten van kwaliteitstoetsen
+    bronnen = gegevens.get("bronnen", [])  # Gebruikte bronnen voor de definitie
 
-    voorbeeld_zinnen = gegevens.get("voorbeeld_zinnen") or []
-    praktijkvoorbeelden = gegevens.get("praktijkvoorbeelden") or []
-    tegenvoorbeelden = gegevens.get("tegenvoorbeelden") or []
-    toelichting = gegevens.get("toelichting") or ""
-    synoniemen = gegevens.get("synoniemen") or ""
-    voorkeursterm = gegevens.get("voorkeursterm", "")
-    antoniemen = gegevens.get("antoniemen") or ""
+    # Haal optionele voorbeelden en aanvullende informatie op
+    voorbeeld_zinnen = gegevens.get("voorbeeld_zinnen") or []  # Voorbeeldzinnen met het begrip
+    praktijkvoorbeelden = gegevens.get("praktijkvoorbeelden") or []  # Praktische gebruiksvoorbeelden
+    tegenvoorbeelden = gegevens.get("tegenvoorbeelden") or []  # Tegenvoorbeelden ter verduidelijking
+    toelichting = gegevens.get("toelichting") or ""  # Uitgebreide toelichting
+    synoniemen = gegevens.get("synoniemen") or ""  # Synoniemen van het begrip
+    voorkeursterm = gegevens.get("voorkeursterm", "")  # Voorkeursterm indien anders
+    antoniemen = gegevens.get("antoniemen") or ""  # Antoniemen van het begrip
 
-    tijdstempel = datetime.now().strftime("%Y%m%d_%H%M%S")
-    bestandsnaam = f"definitie_{begrip.replace(' ', '_').lower()}_{tijdstempel}.txt"
-    pad = os.path.join("exports", bestandsnaam)
+    # Genereer unieke bestandsnaam met timestamp
+    tijdstempel = datetime.now().strftime("%Y%m%d_%H%M%S")  # Format: YYYYMMDD_HHMMSS
+    bestandsnaam = f"definitie_{begrip.replace(' ', '_').lower()}_{tijdstempel}.txt"  # Normaliseer begrip voor bestandsnaam
+    pad = os.path.join("exports", bestandsnaam)  # Volledig pad naar export bestand
 
     regels = []
     regels.append(f"\U0001F4D8 Begrip: {begrip}\n")

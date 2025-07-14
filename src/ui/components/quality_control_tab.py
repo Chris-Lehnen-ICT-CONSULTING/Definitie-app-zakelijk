@@ -2,21 +2,25 @@
 Quality Control Tab - Interface voor kwaliteitscontrole en toetsregels analyse.
 """
 
-import streamlit as st
-import asyncio
-from typing import Dict, Any, Optional, List
-from datetime import datetime
+import streamlit as st  # Streamlit web interface framework
+import asyncio  # Asynchrone programmering voor niet-blokkerende operaties
+from typing import Dict, Any, Optional, List  # Type hints voor code documentatie
+from datetime import datetime  # Datum en tijd functionaliteit
 
-from database.definitie_repository import DefinitieRepository
-from ui.session_state import SessionStateManager
+from database.definitie_repository import DefinitieRepository  # Database toegang voor definities
+from ui.session_state import SessionStateManager  # Sessie status management voor Streamlit
 
 
 class QualityControlTab:
-    """Tab voor kwaliteitscontrole en system health."""
+    """Tab voor kwaliteitscontrole en system health.
+    
+    Biedt dashboard voor kwaliteitsmetriek monitoring, toetsregel analyse,
+    en systeem gezondheid controle van de DefinitieAgent applicatie.
+    """
     
     def __init__(self, repository: DefinitieRepository):
-        """Initialiseer quality control tab."""
-        self.repository = repository
+        """Initialiseer quality control tab met database repository."""
+        self.repository = repository  # Database repository voor definitie data toegang
     
     def render(self):
         """Render quality control tab."""

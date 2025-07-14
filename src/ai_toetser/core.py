@@ -1,40 +1,40 @@
-import os
-import re
-from typing import Dict, Any, List, Optional
-from web_lookup import is_plurale_tantum
+import os  # Operating system interface voor environment variabelen
+import re  # Reguliere expressies voor patroon matching en validatie
+from typing import Dict, Any, List, Optional  # Type hints voor betere code documentatie
+from web_lookup import is_plurale_tantum  # Importeer plurale tantum detectie functie
 # --- 🔪 Externe bibliotheken (via pip) ---
 # 📌 Streamlit pagina-configuratie
 #st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
-from dotenv import load_dotenv
+from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
 
-from openai import OpenAI
+from openai import OpenAI  # OpenAI API client voor AI communicatie
 
 # --- 🔄 Eigen modules (projectspecifiek) ---
 
 # --- ⚙️ Config-loaders en verboden-woordenbeheer ---
-# ✅ Centrale JSON-loaders
-from config.config_loader import laad_toetsregels
-from config.config_loader import load_repository
+# ✅ Centrale JSON-loaders voor configuratie management
+from config.config_loader import laad_toetsregels  # Laadt toetsregels uit JSON configuratie
+from config.config_loader import load_repository  # Repository loader functie
 # ✅ Opschoning van GPT-definitie (externe module)
-from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_startregex
+from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_startregex  # Verboden woorden management
 
 
-# 🌱 Initialiseer OpenAI-client
-load_dotenv()
+# 🌱 Initialiseer OpenAI-client configuratie
+load_dotenv()  # Laad environment variabelen uit .env bestand
 
 # 💚 --------------- VERPLAATSTE OPENAI-CLIENT ---------------  
-def _get_openai_client() -> OpenAI:          # ✅ privé helper  
+def _get_openai_client() -> OpenAI:          # ✅ Privé helper functie voor lazy loading
     """
-    # ✅ Maakt OpenAI-client alléén aan wanneer hij voor het eerst nodig is.
-    #    Zo kan het pakket zonder OPENAI_API_KEY geïmporteerd worden.
+    Maakt OpenAI-client alléén aan wanneer hij voor het eerst nodig is.
+    Zo kan het pakket zonder OPENAI_API_KEY geïmporteerd worden.
     """
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        raise RuntimeError(
+    api_key = os.getenv("OPENAI_API_KEY")  # Haal API key op uit environment
+    if not api_key:  # Controleer of API key bestaat
+        raise RuntimeError(  # Gooi runtime error bij ontbrekende key
             "OPENAI_API_KEY ontbreekt. Zet deze variabele in .env of in je CI-secrets."
         )
-    return OpenAI(api_key=api_key)
+    return OpenAI(api_key=api_key)  # Retourneer nieuwe OpenAI client instantie
 # 💚 ----------------------------------------------------------
 
 

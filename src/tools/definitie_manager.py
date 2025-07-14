@@ -4,37 +4,38 @@ Definitie Manager CLI Tool - Command line interface voor definitie database mana
 Biedt functionaliteit voor CRUD operaties, import/export, en duplicate checking.
 """
 
-import argparse
-import sys
-import json
-from pathlib import Path
-from typing import List, Dict, Any
-import logging
+import argparse  # Command line argument parsing voor CLI interface
+import sys  # Systeem interface voor path manipulatie
+import json  # JSON verwerking voor data import/export
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import List, Dict, Any  # Type hints voor betere code documentatie
+import logging  # Logging faciliteiten voor debug en monitoring
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Voeg src directory toe aan Python path voor module imports
+sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
 
+# Importeer database en core componenten voor definitie management
 from database.definitie_repository import (
-    get_definitie_repository, DefinitieRepository, DefinitieRecord, 
-    DefinitieStatus, SourceType
+    get_definitie_repository, DefinitieRepository, DefinitieRecord,  # Repository toegang en data modellen
+    DefinitieStatus, SourceType  # Status en bron type enumeraties
 )
 from integration.definitie_checker import (
-    DefinitieChecker, CheckAction, generate_or_retrieve_definition
+    DefinitieChecker, CheckAction, generate_or_retrieve_definition  # Integratie en duplicaat checking
 )
-from generation.definitie_generator import OntologischeCategorie
+from generation.definitie_generator import OntologischeCategorie  # Ontologische categorieën
 
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Setup logging configuratie voor CLI tool
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')  # Configureer logging format
+logger = logging.getLogger(__name__)  # Logger instantie voor CLI tool
 
 
 class DefinitieManagerCLI:
-    """Command line interface voor definitie management."""
+    """Command line interface voor definitie database management en operaties."""
     
     def __init__(self, db_path: str = None):
-        """Initialiseer CLI met database."""
-        self.repository = get_definitie_repository(db_path)
-        self.checker = DefinitieChecker(self.repository)
+        """Initialiseer CLI met database repository en checker."""
+        self.repository = get_definitie_repository(db_path)  # Haal database repository op
+        self.checker = DefinitieChecker(self.repository)     # Maak definitie checker instantie
         
     def cmd_list(self, args):
         """List definities met optionele filters."""
