@@ -199,9 +199,32 @@ class DefinitionGeneratorTab:
         st.markdown(f"**Overall Score:** <span style='color: {score_color}'>{validation_result.overall_score:.2f}</span>", 
                    unsafe_allow_html=True)
         
-        # Violations
+        # Toggle button for detailed results
+        if st.button("📊 Toon/verberg gedetailleerde toetsresultaten"):
+            current_state = SessionStateManager.get_value("toon_detailleerde_toetsing", False)
+            SessionStateManager.set_value("toon_detailleerde_toetsing", not current_state)
+        
+        # Show detailed results if toggled
+        if SessionStateManager.get_value("toon_detailleerde_toetsing", False):
+            # Get all test results from session state
+            beoordeling = SessionStateManager.get_value("beoordeling_gen", [])
+            if beoordeling:
+                st.markdown("### 📋 Alle Toetsregels Resultaten")
+                for regel in beoordeling:
+                    if "✔️" in regel:
+                        st.success(regel)
+                    elif "❌" in regel:
+                        st.error(regel)
+                    elif "🟡" in regel or "⚠️" in regel:
+                        st.warning(regel)
+                    else:
+                        st.info(regel)
+            else:
+                st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
+        
+        # Show only violations summary when collapsed
         if validation_result.violations:
-            st.markdown("**Gevonden Issues:**")
+            st.markdown("**Gevonden Issues (samenvatting):**")
             for violation in validation_result.violations[:5]:  # Toon max 5
                 severity_emoji = {"critical": "🚨", "high": "⚠️", "medium": "🔶", "low": "ℹ️"}
                 emoji = severity_emoji.get(violation.severity.value, "📋")
