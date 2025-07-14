@@ -5,6 +5,7 @@ Beheert het laden en cachen van toetsregels uit de nieuwe modulaire structuur.
 
 import json
 import logging
+import os
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Set
 from functools import lru_cache
@@ -87,7 +88,12 @@ class ToetsregelManager:
         Args:
             base_dir: Base directory voor toetsregels
         """
-        self.base_dir = Path(base_dir)
+        # Maak pad absoluut relatief aan src directory
+        if not os.path.isabs(base_dir):
+            src_dir = Path(__file__).parent.parent
+            self.base_dir = src_dir / base_dir
+        else:
+            self.base_dir = Path(base_dir)
         self.regels_dir = self.base_dir / "regels"
         self.sets_dir = self.base_dir / "sets"
         self.config_file = self.base_dir / "toetsregels-manager.json"
