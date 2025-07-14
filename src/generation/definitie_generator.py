@@ -510,9 +510,6 @@ class DefinitieGenerator:
     ) -> str:
         """
         Roep GPT API aan voor definitie generatie.
-        
-        Note: Dit is een placeholder implementatie.
-        In productie zou dit de echte OpenAI API aanroepen.
         """
         # Get config parameters
         gpt_params = self.api_config.get_gpt_call_params(
@@ -523,9 +520,28 @@ class DefinitieGenerator:
         
         logger.info(f"Calling GPT with model {gpt_params['model']}, temp {gpt_params['temperature']}")
         
-        # TODO: Implement actual OpenAI API call
-        # Voor nu returnen we een placeholder
-        return f"[PLACEHOLDER] Definitie voor begrip zou hier komen op basis van prompt met {len(prompt)} karakters"
+        try:
+            # Import OpenAI client
+            from ai_toetser.core import _get_openai_client
+            
+            # Get OpenAI client
+            client = _get_openai_client()
+            
+            # Make API call
+            response = client.chat.completions.create(
+                model=gpt_params['model'],
+                messages=[{"role": "user", "content": prompt}],
+                temperature=gpt_params['temperature'],
+                max_tokens=gpt_params['max_tokens']
+            )
+            
+            # Extract and return content
+            return response.choices[0].message.content.strip()
+            
+        except Exception as e:
+            logger.error(f"GPT API call failed: {e}")
+            # Return placeholder on error
+            return f"[PLACEHOLDER] Definitie voor begrip zou hier komen op basis van prompt met {len(prompt)} karakters"
     
     def generate_with_feedback(
         self,
