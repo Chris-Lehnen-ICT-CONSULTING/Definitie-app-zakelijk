@@ -19,6 +19,11 @@ class ExpertReviewTab:
     
     def render(self):
         """Render expert review tab."""
+        # Verboden woorden management sectie
+        self._render_verboden_woorden_management()
+        
+        st.markdown("---")
+        
         # Review queue sectie
         self._render_review_queue()
         
@@ -421,3 +426,114 @@ class ExpertReviewTab:
             filtered.sort(key=lambda x: x.validation_score or 0, reverse=True)
         
         return filtered
+    
+    def _render_verboden_woorden_management(self):
+        """Render verboden woorden runtime management interface."""
+        st.markdown("### 🚫 Verboden Woorden Management")
+        
+        with st.expander("Configureer verboden woorden voor definitie opschoning", expanded=False):
+            col1, col2 = st.columns([2, 1])
+            
+            with col1:
+                # Import verboden woorden functionaliteit
+                try:
+                    from config.verboden_woorden import laad_verboden_woorden, sla_verboden_woorden_op
+                    
+                    # Huidige verboden woorden laden
+                    huidige_woorden = laad_verboden_woorden()
+                    woorden_str = ", ".join(huidige_woorden) if huidige_woorden else ""
+                    
+                    # Text area voor editing
+                    nieuwe_woorden = st.text_area(
+                        "Verboden woorden (gescheiden door komma's)",
+                        value=woorden_str,
+                        height=100,
+                        help="Deze woorden worden automatisch verwijderd uit het begin van definities"
+                    )
+                    
+                    # Override toggle
+                    override_actief = st.checkbox(
+                        "Activeer runtime override",
+                        value=SessionStateManager.get_value("override_actief", False),
+                        help="Overschrijft de standaard configuratie met deze woorden"
+                    )
+                    
+                    # Update session state
+                    SessionStateManager.set_value("override_actief", override_actief)
+                    SessionStateManager.set_value("override_verboden_woorden", nieuwe_woorden)
+                    
+                    # Test sectie
+                    st.markdown("#### 🧪 Test Opschoning")
+                    test_definitie = st.text_input(
+                        "Test definitie",
+                        placeholder="bijv. 'Is het proces waarbij een persoon wordt geïdentificeerd.'",
+                        help="Test hoe de opschoning werkt met je verboden woorden"
+                    )
+                    
+                    test_begrip = st.text_input(
+                        "Test begrip",
+                        placeholder="bijv. 'identificatie'",
+                        help="Het begrip dat gedefinieerd wordt"
+                    )
+                    
+                    if st.button("🔄 Test Opschoning"):
+                        if test_definitie and test_begrip:
+                            try:
+                                from opschoning.opschoning import opschonen
+                                opgeschoond = opschonen(test_definitie, test_begrip)
+                                
+                                st.markdown("**Resultaat:**")
+                                col_orig, col_clean = st.columns(2)
+                                
+                                with col_orig:
+                                    st.markdown("*Origineel:*")
+                                    st.error(test_definitie)
+                                
+                                with col_clean:
+                                    st.markdown("*Opgeschoond:*")
+                                    st.success(opgeschoond)
+                                
+                                if test_definitie != opgeschoond:
+                                    st.info("✅ Opschoning heeft wijzigingen aangebracht")
+                                else:
+                                    st.warning("ℹ️ Geen wijzigingen nodig")
+                                    
+                            except ImportError:
+                                st.error("❌ Opschoning module niet beschikbaar")
+                            except Exception as e:
+                                st.error(f"❌ Fout bij opschoning: {e}")
+                        else:
+                            st.warning("⚠️ Voer zowel een definitie als begrip in")
+                    
+                except ImportError:
+                    st.error("❌ Verboden woorden management niet beschikbaar")
+                except Exception as e:
+                    st.error(f"❌ Fout bij laden verboden woorden: {e}")
+            
+            with col2:
+                st.markdown("#### 📋 Standaard Verboden Woorden")
+                default_words = [
+                    "is", "zijn", "wordt", "betekent", "omvat", "behelst",
+                    "houdt in", "betreft", "gaat over", "heeft betrekking op",
+                    "de", "het", "een", "proces waarbij", "handeling waarbij",
+                    "activiteit waarbij", "methode waarbij"
+                ]
+                
+                for word in default_words[:8]:  # Toon eerste 8
+                    st.code(word)
+                
+                if len(default_words) > 8:
+                    st.caption(f"... en {len(default_words) - 8} meer")
+                
+                # Status indicator
+                st.markdown("#### 🔧 Status")
+                if SessionStateManager.get_value("override_actief", False):
+                    st.success("✅ Runtime override actief")
+                else:
+                    st.info("ℹ️ Standaard configuratie")
+                
+                # Quick actions
+                if st.button("🔄 Reset naar standaard"):
+                    SessionStateManager.set_value("override_actief", False)
+                    SessionStateManager.set_value("override_verboden_woorden", "")
+                    st.rerun()

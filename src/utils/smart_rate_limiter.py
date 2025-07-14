@@ -1,29 +1,31 @@
 """
-Smart rate limiting system for DefinitieAgent.
-Implements token bucket algorithm, dynamic rate adjustment, and priority queuing.
+Smart rate limiting systeem voor DefinitieAgent.
+
+Implementeert token bucket algoritme, dynamische rate aanpassing, en prioriteit wachtrijen
+voor efficiënte API rate limiting met intelligente load balancing.
 """
 
-import asyncio
-import logging
-import time
-from typing import Dict, Optional, Callable, Any
-from dataclasses import dataclass, field
-from datetime import datetime
-from enum import Enum
-from collections import deque
-import json
-from pathlib import Path
+import asyncio  # Asynchrone programmering voor niet-blokkerende rate limiting
+import logging  # Logging faciliteiten voor debug en monitoring
+import time  # Tijd functies voor token bucket timing
+from typing import Dict, Optional, Callable, Any  # Type hints voor betere code documentatie
+from dataclasses import dataclass, field  # Dataklassen voor gestructureerde configuratie
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeraties voor prioriteit levels
+from collections import deque  # Efficiënte queue implementatie
+import json  # JSON verwerking voor configuratie opslag
+from pathlib import Path  # Object-georiënteerde pad manipulatie
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor smart rate limiter module
 
 
 class RequestPriority(Enum):
-    """Request priority levels."""
-    CRITICAL = 0    # User-facing, immediate responses needed
-    HIGH = 1        # Important operations, slight delay acceptable
-    NORMAL = 2      # Standard operations
-    LOW = 3         # Background tasks, can wait
-    BACKGROUND = 4  # Cleanup, analytics, non-urgent
+    """Request prioriteit levels voor intelligente queue management."""
+    CRITICAL = 0    # Gebruiker-gerichte operaties, directe respons vereist
+    HIGH = 1        # Belangrijke operaties, lichte vertraging acceptabel
+    NORMAL = 2      # Standaard operaties, normale prioriteit
+    LOW = 3         # Achtergrond taken, kunnen wachten
+    BACKGROUND = 4  # Cleanup, analytics, niet-urgente taken
 
 
 @dataclass

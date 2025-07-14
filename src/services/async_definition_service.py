@@ -19,7 +19,12 @@ from definitie_generator.generator import genereer_definitie
 from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 from ai_toetser import toets_definitie
 from opschoning.opschoning import opschonen
-from logs.application.log_definitie import log_definitie
+import sys
+import os
+# Voeg root directory toe aan Python path voor logs module toegang
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+
+from logs.application.log_definitie import log_definitie  # Logging functie uit root logs directory
 
 
 @dataclass

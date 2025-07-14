@@ -1,24 +1,25 @@
 # ✅ PromptBouwer – genereert Nederlandstalige GPT-instructie op basis van begripsdata en toetsregels
 
-import logging
-import os
-from dataclasses import dataclass, field
-from typing import Optional, List, Dict, Set
-from dotenv import load_dotenv
-from openai import OpenAI, OpenAIError
-from config.verboden_woorden import laad_verboden_woorden
-from config import laad_toetsregels
+import logging  # Logging faciliteiten voor debug en monitoring
+import os  # Operating system interface voor environment variabelen
+from dataclasses import dataclass, field  # Dataklassen voor gestructureerde prompt configuratie
+from typing import Optional, List, Dict, Set  # Type hints voor betere code documentatie
+from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
+from openai import OpenAI, OpenAIError  # OpenAI API client en foutafhandeling
+from config.verboden_woorden import laad_verboden_woorden  # Verboden woorden configuratie
+from config import laad_toetsregels  # Toetsregels configuratie loader
 
-# ✅ Initialiseer OpenAI-client slechts één keer
-load_dotenv()
-_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+# ✅ Initialiseer OpenAI-client slechts één keer voor hergebruik
+load_dotenv()  # Laad environment variabelen uit .env bestand
+_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # Maak globale OpenAI client instantie
 
 # ✅ Alternatieve clientfunctie als _client niet bruikbaar is
 def verkrijg_openai_client() -> OpenAI:
-    sleutel = os.getenv("OPENAI_API_KEY")
-    if not sleutel:
-        raise RuntimeError("OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets.")
-    return OpenAI(api_key=sleutel)
+    """Verkrijgt OpenAI client met error handling voor ontbrekende API key."""
+    sleutel = os.getenv("OPENAI_API_KEY")  # Haal API key op uit environment
+    if not sleutel:  # Controleer of key bestaat
+        raise RuntimeError("OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets.")  # Gooi fout bij ontbrekende key
+    return OpenAI(api_key=sleutel)  # Retourneer nieuwe client instantie
 
 # ✅ Bekende contextafkortingen voor CON-01-blokkade
 AFKORTINGEN = {

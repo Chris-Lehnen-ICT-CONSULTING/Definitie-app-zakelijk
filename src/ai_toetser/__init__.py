@@ -1,23 +1,26 @@
 """
-ai_toetser package
+ai_toetser package voor DefinitieAgent.
 
 Publieke API:
-    Toetser         – OO-wrapper met `.is_verboden()`
-    toets_definitie – functiebasis voor definitie-toetsing
+    Toetser         – OO-wrapper met `.is_verboden()` functionaliteit
+    toets_definitie – functie basis voor definitie-toetsing tegen verboden woorden
 
-The package now uses a modular architecture but maintains backward compatibility.
-The old monolithic core.py is still available, but the new modular_toetser.py
-provides the same API with better maintainability.
+Het package gebruikt nu een modulaire architectuur maar behoudt achterwaartse compatibiliteit.
+De oude monolithische core.py is nog steeds beschikbaar, maar de nieuwe modular_toetser.py
+biedt dezelfde API met betere onderhoudbaarheid en flexibiliteit.
 """
 
-from .toetser import Toetser  # noqa: F401
+# Importeer hoofdklasse voor AI toetsing functionaliteit
+from .toetser import Toetser  # OO-wrapper klasse voor verboden woorden toetsing
 
-# Import from new modular architecture while maintaining compatibility
+# Importeer van nieuwe modulaire architectuur met achterwaartse compatibiliteit
 try:
-    from .modular_toetser import toets_definitie, ModularToetser  # noqa: F401
+    # Probeer nieuwe modulaire implementatie te laden
+    from .modular_toetser import toets_definitie, ModularToetser  # Modulaire toetser implementatie
 except ImportError:
-    # Fallback to old implementation if modular version fails
-    from .core import toets_definitie  # noqa: F401
-    ModularToetser = None
+    # Fallback naar oude implementatie als modulaire versie faalt
+    from .core import toets_definitie  # Legacy toets_definitie functie
+    ModularToetser = None  # Modulaire versie niet beschikbaar
 
-__all__ = ["Toetser", "toets_definitie", "ModularToetser"]
+# Exporteer publieke interface - alle toetsing componenten
+__all__ = ["Toetser", "toets_definitie", "ModularToetser"]  # Beschikbare klassen en functies

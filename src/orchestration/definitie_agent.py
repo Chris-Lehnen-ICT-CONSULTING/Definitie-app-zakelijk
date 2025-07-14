@@ -1,32 +1,37 @@
 """
 DefinitieAgent - Intelligente orchestrator voor iteratieve definitie verbetering.
 Combineert DefinitieGenerator en DefinitieValidator in een zelf-verbeterende feedback loop.
+
+Deze module bevat de hoofdorchestrator die AI generatie en validatie
+combineert in een iteratief verbeteringsproces.
 """
 
-import logging
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass, field
-from enum import Enum
-import time
+import logging  # Logging faciliteiten voor debug en monitoring
+from typing import Dict, List, Any, Optional  # Type hints voor betere code documentatie
+from dataclasses import dataclass, field  # Dataklassen voor gestructureerde resultaat data
+from enum import Enum  # Enumeraties voor agent status tracking
+import time  # Tijd functies voor prestatie meting
 
+# Importeer generatie componenten voor AI definitie creatie
 from generation.definitie_generator import (
-    DefinitieGenerator, GenerationContext, GenerationResult, OntologischeCategorie
+    DefinitieGenerator, GenerationContext, GenerationResult, OntologischeCategorie  # Generatie klassen
 )
+# Importeer validatie componenten voor kwaliteitscontrole
 from validation.definitie_validator import (
-    DefinitieValidator, ValidationResult, RuleViolation, ViolationSeverity, ViolationType
+    DefinitieValidator, ValidationResult, RuleViolation, ViolationSeverity, ViolationType  # Validatie klassen
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor orchestration module
 
 
 class AgentStatus(Enum):
-    """Status van de DefinitieAgent workflow."""
-    INITIALIZING = "initializing"
-    GENERATING = "generating"
-    VALIDATING = "validating"
-    IMPROVING = "improving"
-    COMPLETED = "completed"
-    FAILED = "failed"
+    """Status van de DefinitieAgent workflow voor voortgangsmonitoring."""
+    INITIALIZING = "initializing"  # Agent wordt geïnitialiseerd
+    GENERATING = "generating"      # Bezig met definitie generatie
+    VALIDATING = "validating"      # Bezig met definitie validatie
+    IMPROVING = "improving"        # Bezig met iteratieve verbetering
+    COMPLETED = "completed"        # Workflow succesvol voltooid
+    FAILED = "failed"              # Workflow mislukt
 
 
 @dataclass
@@ -42,7 +47,7 @@ class IterationResult:
     
     def is_successful(self) -> bool:
         """Check of deze iteratie succesvol was."""
-        return self.validation_result.is_acceptable
+        return self.validation_result.is_acceptable  # Retourneer of validatie acceptabel was
     
     def get_score_improvement(self, previous_iteration: 'IterationResult' = None) -> float:
         """Bereken score verbetering t.o.v. vorige iteratie."""

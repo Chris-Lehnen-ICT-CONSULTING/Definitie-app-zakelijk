@@ -1,24 +1,34 @@
 """
-Integrated Service Layer - Unified interface for all definition processing services.
-Bridges legacy and modern architectures while providing consistent API.
+Geïntegreerde Service Laag - Uniform interface voor alle definitie verwerkingsdiensten.
+
+Verbindt legacy en moderne architecturen met een consistente API.
+Biedt centrale toegang tot alle definitie generatie en validatie functionaliteiten.
 """
 
-import asyncio
-import logging
-from typing import Dict, List, Any, Optional, Tuple, Union
-from dataclasses import dataclass, field
-from datetime import datetime
-from enum import Enum
+import asyncio  # Asynchrone programmering voor niet-blokkerende operaties
+import logging  # Logging faciliteiten voor debug en monitoring
+from typing import Dict, List, Any, Optional, Tuple, Union  # Type hints voor betere code documentatie
+from dataclasses import dataclass, field  # Dataklassen voor gestructureerde data
+from datetime import datetime  # Datum en tijd functionaliteit
+from enum import Enum  # Enumeraties voor constante waarden
 
-# Modern imports
-from database.definitie_repository import DefinitieRepository, DefinitieRecord, DefinitieStatus, get_definitie_repository
-from generation.definitie_generator import DefinitieGenerator, GenerationContext, OntologischeCategorie
-from validation.definitie_validator import DefinitieValidator, validate_definitie, ValidationResult
-from integration.definitie_checker import DefinitieChecker
+# Moderne architectuur imports - nieuwe modulaire systeem componenten
+from database.definitie_repository import DefinitieRepository, DefinitieRecord, DefinitieStatus, get_definitie_repository  # Database toegang
+from generation.definitie_generator import DefinitieGenerator, GenerationContext, OntologischeCategorie  # Definitie generatie
+from validation.definitie_validator import DefinitieValidator, validate_definitie, ValidationResult  # Definitie validatie
+from integration.definitie_checker import DefinitieChecker  # Definitie integratie controle
 
-# Legacy imports  
-from services.definition_service import DefinitionService
-from services.async_definition_service import AsyncDefinitionService
+# Legacy imports - bestaande service implementaties voor achterwaartse compatibiliteit
+from services.definition_service import DefinitionService  # Synchrone legacy service
+from services.async_definition_service import AsyncDefinitionService  # Asynchrone legacy service
+
+# Opschoning module import - voor het opschonen van gegenereerde definities
+try:
+    from opschoning.opschoning import opschonen  # Importeer opschoning functie
+    OPSCHONING_AVAILABLE = True  # Module succesvol geladen
+except ImportError:
+    print("Opschoning module niet beschikbaar")  # Log waarschuwing
+    OPSCHONING_AVAILABLE = False  # Module niet beschikbaar
 
 # Web lookup imports
 try:
@@ -34,29 +44,29 @@ try:
     from monitoring.api_monitor import record_api_call
     MONITORING_AVAILABLE = True
 except ImportError:
-    MONITORING_AVAILABLE = False
+    MONITORING_AVAILABLE = False  # Monitoring niet beschikbaar
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
 class ServiceMode(Enum):
-    """Service operation modes."""
-    LEGACY = "legacy"
-    MODERN = "modern"
-    HYBRID = "hybrid"
-    AUTO = "auto"
+    """Service operatie modi voor verschillende architectuur integraties."""
+    LEGACY = "legacy"  # Gebruik alleen legacy systeem componenten
+    MODERN = "modern"  # Gebruik alleen moderne modulaire componenten
+    HYBRID = "hybrid"  # Combineer legacy en moderne componenten
+    AUTO = "auto"      # Automatisch kiezen op basis van beschikbaarheid
 
 
 @dataclass
 class ServiceConfig:
-    """Configuration for integrated service."""
-    mode: ServiceMode = ServiceMode.AUTO
-    enable_caching: bool = True
-    enable_monitoring: bool = True
-    enable_web_lookup: bool = True
-    enable_validation: bool = True
-    default_timeout: float = 30.0
-    max_retries: int = 3
+    """Configuratie voor geïntegreerde service met standaard instellingen."""
+    mode: ServiceMode = ServiceMode.AUTO      # Service modus (auto-detectie standaard)
+    enable_caching: bool = True               # Cache resultaten voor snellere responses
+    enable_monitoring: bool = True            # Monitor API gebruik en prestaties
+    enable_web_lookup: bool = True            # Zoek in externe web bronnen
+    enable_validation: bool = True            # Valideer gegenereerde definities
+    default_timeout: float = 30.0             # Standaard timeout in seconden
+    max_retries: int = 3                      # Maximum aantal herhaalpogingen bij fouten
     parallel_processing: bool = True
 
 
@@ -223,6 +233,12 @@ class IntegratedDefinitionService:
             # Use modern generator
             generation_result = self.modern_generator.generate(generation_context)
             
+            # Apply opschoning if available
+            definitie_origineel = generation_result.definitie
+            definitie_gecorrigeerd = definitie_origineel
+            if OPSCHONING_AVAILABLE:
+                definitie_gecorrigeerd = opschonen(definitie_origineel, begrip)
+            
             # Validate result
             validation_result = None
             if self.config.enable_validation:
@@ -234,7 +250,7 @@ class IntegratedDefinitionService:
             # Create database record
             definitie_record = DefinitieRecord(
                 begrip=begrip,
-                definitie=generation_result.definitie,
+                definitie=definitie_gecorrigeerd,
                 categorie=generation_context.categorie.value,
                 organisatorische_context=generation_context.organisatorische_context,
                 juridische_context=generation_context.juridische_context,
@@ -254,11 +270,13 @@ class IntegratedDefinitionService:
                 service_mode=ServiceMode.MODERN,
                 definitie_record=definitie_record,
                 validation_result=validation_result,
-                definitie_origineel=generation_result.definitie,
-                definitie_gecorrigeerd=generation_result.definitie,
+                definitie_origineel=definitie_origineel,
+                definitie_gecorrigeerd=definitie_gecorrigeerd,
                 metadata={
                     "generation_strategy": "modern_ai",
-                    "used_rules": [instr.rule_id for instr in generation_result.gebruikte_instructies]
+                    "used_rules": [instr.rule_id for instr in generation_result.gebruikte_instructies],
+                    "opschoning_applied": OPSCHONING_AVAILABLE,
+                    "opschoning_changed": definitie_origineel != definitie_gecorrigeerd if OPSCHONING_AVAILABLE else False
                 }
             )
             
@@ -282,13 +300,18 @@ class IntegratedDefinitionService:
                     begrip, context_dict
                 )
                 
+                # Apply opschoning to legacy result
+                definitie_gecorrigeerd = async_result.definitie_gecorrigeerd
+                if OPSCHONING_AVAILABLE and definitie_gecorrigeerd:
+                    definitie_gecorrigeerd = opschonen(definitie_gecorrigeerd, begrip)
+                
                 return IntegratedResult(
                     success=async_result.success,
                     operation="generate_legacy_async",
                     processing_time=async_result.processing_time,
                     service_mode=ServiceMode.LEGACY,
                     definitie_origineel=async_result.definitie_origineel,
-                    definitie_gecorrigeerd=async_result.definitie_gecorrigeerd,
+                    definitie_gecorrigeerd=definitie_gecorrigeerd,
                     marker=async_result.marker,
                     toetsresultaten=async_result.toetsresultaten or [],
                     examples=async_result.additional_content or {},
@@ -301,6 +324,10 @@ class IntegratedDefinitionService:
                 definitie_orig, definitie_clean, marker = self.legacy_service.generate_definition(
                     begrip, context_dict
                 )
+                
+                # Apply opschoning to sync legacy result
+                if OPSCHONING_AVAILABLE and definitie_clean:
+                    definitie_clean = opschonen(definitie_clean, begrip)
                 
                 return IntegratedResult(
                     success=True,

@@ -1,6 +1,9 @@
 """
 DefinitieValidator Module - Intelligente definitie validatie met gedetailleerde feedback.
 Interpreteert toetsregels als validatie criteria voor kwalitatieve beoordeling.
+
+Deze module bevat de kwaliteitscontrole logica voor gegenereerde definities,
+inclusief regel-gebaseerde validatie en score berekening.
 """
 
 import re
@@ -42,9 +45,9 @@ class ValidationCriterion:
     required_elements: List[str] = None       # Vereiste elementen
     structure_checks: List[str] = None        # Structurele controles
     scoring_weight: float = 1.0               # Gewicht in totaalscore
-    severity: ViolationSeverity = ViolationSeverity.MEDIUM
+    severity: ViolationSeverity = ViolationSeverity.MEDIUM  # Ernst niveau van de validatie regel
     
-    def __post_init__(self):
+    def __post_init__(self):  # Post-initialisatie voor default waarden
         if self.patterns_to_avoid is None:
             self.patterns_to_avoid = []
         if self.required_elements is None:
@@ -95,7 +98,11 @@ class ValidationResult:
 
 
 class ValidationRegelInterpreter:
-    """Interpreteert toetsregels voor validatie doeleinden."""
+    """Interpreteert toetsregels voor validatie doeleinden.
+    
+    Deze klasse converteerd toetsregels naar validatie criteria
+    die gebruikt kunnen worden voor automatische kwaliteitscontrole.
+    """
     
     def __init__(self):
         self.rule_manager = get_toetsregel_manager()
@@ -103,6 +110,9 @@ class ValidationRegelInterpreter:
     def for_validation(self, regel_data: Dict[str, Any]) -> ValidationCriterion:
         """
         Converteer toetsregel naar validatie criterium.
+        
+        Deze methode transformeert een toetsregel uit de configuratie
+        naar een uitvoerbaar validatie criterium met patronen en checks.
         
         Args:
             regel_data: Regel data uit ToetsregelManager
@@ -113,19 +123,19 @@ class ValidationRegelInterpreter:
         regel_id = regel_data.get("id", "")
         description = regel_data.get("uitleg", "")
         
-        # Extract patterns to avoid
+        # Extraheer verboden patronen uit regel definitie
         patterns = self._extract_forbidden_patterns(regel_data)
         
-        # Extract required elements
+        # Extraheer vereiste elementen voor validatie
         required = self._extract_required_elements(regel_data)
         
-        # Structure checks
+        # Structurele controles voor definitie kwaliteit
         structure = self._extract_structure_checks(regel_data)
         
-        # Determine severity
+        # Bepaal ernst niveau van regel overtreding
         severity = self._determine_severity(regel_data)
         
-        # Scoring weight based on priority and requirement
+        # Bereken scoring gewicht op basis van prioriteit
         weight = self._calculate_weight(regel_data)
         
         return ValidationCriterion(
@@ -139,13 +149,20 @@ class ValidationRegelInterpreter:
         )
     
     def _extract_forbidden_patterns(self, regel_data: Dict[str, Any]) -> List[str]:
-        """Extraheer verboden patronen uit regel."""
+        """Extraheer verboden patronen uit regel.
+        
+        Args:
+            regel_data: Regel configuratie data
+            
+        Returns:
+            Lijst met regex patronen die vermeden moeten worden
+        """
         regel_id = regel_data.get("id", "")
         
-        # Gebruik bestaande herkenbare patronen uit regel
+        # Gebruik bestaande herkenbare patronen uit regel configuratie
         base_patterns = regel_data.get("herkenbaar_patronen", [])
         
-        # Regel-specifieke aanvullingen
+        # Regel-specifieke aanvullingen voor betere detectie
         additional_patterns = {
             "CON-01": [
                 r"\b(in de context van|binnen de context|juridische context)\b",
@@ -175,7 +192,14 @@ class ValidationRegelInterpreter:
         return [pattern for pattern in all_patterns if pattern]  # Filter lege patronen
     
     def _extract_required_elements(self, regel_data: Dict[str, Any]) -> List[str]:
-        """Extraheer vereiste elementen uit regel."""
+        """Extraheer vereiste elementen uit regel.
+        
+        Args:
+            regel_data: Regel configuratie data
+            
+        Returns:
+            Lijst met vereiste elementen die aanwezig moeten zijn
+        """
         regel_id = regel_data.get("id", "")
         
         requirements = {
@@ -191,7 +215,14 @@ class ValidationRegelInterpreter:
         return requirements.get(regel_id, [])
     
     def _extract_structure_checks(self, regel_data: Dict[str, Any]) -> List[str]:
-        """Extraheer structurele controles uit regel."""
+        """Extraheer structurele controles uit regel.
+        
+        Args:
+            regel_data: Regel configuratie data
+            
+        Returns:
+            Lijst met structurele controles die uitgevoerd moeten worden
+        """
         regel_id = regel_data.get("id", "")
         
         structure_checks = {
@@ -206,7 +237,14 @@ class ValidationRegelInterpreter:
         return structure_checks.get(regel_id, [])
     
     def _determine_severity(self, regel_data: Dict[str, Any]) -> ViolationSeverity:
-        """Bepaal severity op basis van prioriteit en aanbeveling."""
+        """Bepaal severity op basis van prioriteit en aanbeveling.
+        
+        Args:
+            regel_data: Regel configuratie data
+            
+        Returns:
+            ViolationSeverity enum waarde
+        """
         prioriteit = regel_data.get("prioriteit", "midden")
         aanbeveling = regel_data.get("aanbeveling", "optioneel")
         
@@ -220,7 +258,14 @@ class ValidationRegelInterpreter:
             return ViolationSeverity.LOW
     
     def _calculate_weight(self, regel_data: Dict[str, Any]) -> float:
-        """Bereken scoring weight voor regel."""
+        """Bereken scoring weight voor regel.
+        
+        Args:
+            regel_data: Regel configuratie data
+            
+        Returns:
+            Float waarde voor scoring gewicht
+        """
         prioriteit = regel_data.get("prioriteit", "midden")
         aanbeveling = regel_data.get("aanbeveling", "optioneel")
         
@@ -236,17 +281,21 @@ class ValidationRegelInterpreter:
 
 
 class DefinitieValidator:
-    """Intelligente validator voor definities met gedetailleerde feedback."""
+    """Intelligente validator voor definities met gedetailleerde feedback.
+    
+    Deze klasse voert uitgebreide validatie uit op definities door toetsregels
+    te interpreteren en toe te passen. Biedt gedetailleerde feedback en scores.
+    """
     
     def __init__(self):
         self.rule_manager = get_toetsregel_manager()
         self.interpreter = ValidationRegelInterpreter()
         
-        # Acceptatie criteria
+        # Acceptatie criteria voor definitie goedkeuring
         self.acceptance_thresholds = {
-            "overall_score": 0.8,           # 80% overall compliance
+            "overall_score": 0.8,           # 80% algehele naleving
             "critical_violations": 0,        # Geen kritieke violations
-            "category_compliance": 0.75      # 75% categorie-specifieke compliance
+            "category_compliance": 0.75      # 75% categorie-specifieke naleving
         }
     
     def validate(
@@ -258,6 +307,9 @@ class DefinitieValidator:
         """
         Valideer definitie tegen toetsregels.
         
+        Voert uitgebreide validatie uit door toetsregels te interpreteren
+        en toe te passen op de definitie. Genereert gedetailleerde feedback.
+        
         Args:
             definitie: Te valideren definitie
             categorie: Ontologische categorie
@@ -266,12 +318,12 @@ class DefinitieValidator:
         Returns:
             ValidationResult met gedetailleerde feedback
         """
-        logger.info(f"Validating definitie voor categorie {categorie.value}: '{definitie[:50]}...'")
+        logger.info(f"Valideren definitie voor categorie {categorie.value}: '{definitie[:50]}...'")
         
-        # 1. Laad validatie criteria
+        # 1. Laad validatie criteria voor deze categorie
         criteria = self._load_validation_criteria(categorie)
         
-        # 2. Voer validaties uit
+        # 2. Voer validaties uit tegen alle criteria
         violations = []
         passed_rules = []
         detailed_scores = {}
@@ -286,14 +338,14 @@ class DefinitieValidator:
             else:
                 passed_rules.append(criterium.rule_id)
         
-        # 3. Bereken scores
+        # 3. Bereken algehele en categorie-specifieke scores
         overall_score = self._calculate_overall_score(detailed_scores, criteria)
         category_compliance = self._calculate_category_compliance(detailed_scores, categorie)
         
-        # 4. Bepaal acceptatie
+        # 4. Bepaal of definitie acceptabel is
         is_acceptable = self._determine_acceptance(overall_score, violations, category_compliance)
         
-        # 5. Genereer improvement suggestions
+        # 5. Genereer verbeteringsvoorstellen
         improvements = self._generate_improvement_suggestions(violations)
         
         return ValidationResult(
@@ -308,24 +360,31 @@ class DefinitieValidator:
         )
     
     def _load_validation_criteria(self, categorie: OntologischeCategorie) -> List[ValidationCriterion]:
-        """Laad relevante validatie criteria voor categorie."""
+        """Laad relevante validatie criteria voor categorie.
+        
+        Args:
+            categorie: Ontologische categorie
+            
+        Returns:
+            Lijst met ValidationCriterion objecten
+        """
         criteria = []
         
-        # Laad kritieke regels (altijd van toepassing)
+        # Laad kritieke regels die altijd van toepassing zijn
         kritieke_regels = self.rule_manager.get_kritieke_regels()
         
         # Laad categorie-specifieke regels
         categorie_regels = self.rule_manager.get_regels_voor_categorie(categorie.value)
         
-        # Combineer en deduplicate
+        # Combineer en deduplicate regel sets
         alle_regels = {regel['id']: regel for regel in kritieke_regels + categorie_regels}
         
-        # Converteer naar criteria
+        # Converteer toetsregels naar validatie criteria
         for regel_data in alle_regels.values():
             criterium = self.interpreter.for_validation(regel_data)
             criteria.append(criterium)
         
-        logger.debug(f"Loaded {len(criteria)} validatie criteria voor {categorie.value}")
+        logger.debug(f"Geladen {len(criteria)} validatie criteria voor {categorie.value}")
         return criteria
     
     def _validate_against_criterion(
@@ -593,7 +652,7 @@ class DefinitieValidator:
             elif v_type == ViolationType.STRUCTURE_ISSUE:
                 suggestions.append("Verbeter de structuur: gebruik één duidelijke zin die start met een zelfstandig naamwoord")
         
-        # Add specific suggestions from violations
+        # Voeg specifieke suggesties toe uit violations
         for violation in violations:
             if violation.suggestion and violation.suggestion not in suggestions:
                 suggestions.append(violation.suggestion)

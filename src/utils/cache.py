@@ -1,48 +1,51 @@
 """
-Caching utilities for DefinitieAgent.
-Provides intelligent caching for expensive GPT API calls.
+Caching utilities voor DefinitieAgent.
+
+Biedt intelligente caching voor dure GPT API calls
+en andere kostbare operaties om prestaties te verbeteren.
 """
 
-import hashlib
-import json
-import os
-import pickle
-from datetime import datetime, timedelta
-from pathlib import Path
-from typing import Any, Dict, Optional, Callable
-from functools import wraps
-import logging
+import hashlib  # Hash functionaliteit voor cache keys
+import json  # JSON verwerking voor metadata opslag
+import os  # Operating system interface voor bestandsoperaties
+import pickle  # Python object serialisatie voor cache data
+from datetime import datetime, timedelta  # Datum en tijd voor TTL management
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import Any, Dict, Optional, Callable  # Type hints voor betere code documentatie
+from functools import wraps  # Decorator utilities voor cache functionaliteit
+import logging  # Logging faciliteiten voor debug en monitoring
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor cache module
 
 
 class CacheConfig:
-    """Configuration for cache system."""
+    """Configuratie voor cache systeem met aanpasbare instellingen."""
     
     def __init__(
         self,
-        cache_dir: str = "cache",
-        default_ttl: int = 3600,  # 1 hour
-        max_cache_size: int = 1000,
-        enable_cache: bool = True
+        cache_dir: str = "cache",        # Directory voor cache bestanden
+        default_ttl: int = 3600,         # Standaard TTL in seconden (1 uur)
+        max_cache_size: int = 1000,      # Maximum aantal cache entries
+        enable_cache: bool = True        # Cache aan/uit schakelaar
     ):
-        self.cache_dir = Path(cache_dir)
-        self.default_ttl = default_ttl
-        self.max_cache_size = max_cache_size
-        self.enable_cache = enable_cache
+        self.cache_dir = Path(cache_dir)      # Converteer naar Path object
+        self.default_ttl = default_ttl        # Sla TTL instelling op
+        self.max_cache_size = max_cache_size  # Sla size limiet op
+        self.enable_cache = enable_cache      # Sla cache toggle op
         
-        # Create cache directory if it doesn't exist
-        self.cache_dir.mkdir(exist_ok=True)
+        # Maak cache directory aan als deze nog niet bestaat
+        self.cache_dir.mkdir(exist_ok=True)   # Maak directory met exist_ok=True
 
 
 class FileCache:
-    """File-based cache for GPT responses."""
+    """Bestand-gebaseerde cache voor GPT responses en andere data."""
     
     def __init__(self, config: CacheConfig):
-        self.config = config
-        self.cache_dir = config.cache_dir
-        self.metadata_file = self.cache_dir / "metadata.json"
-        self._load_metadata()
+        """Initialiseer file cache met gegeven configuratie."""
+        self.config = config                                    # Sla cache configuratie op
+        self.cache_dir = config.cache_dir                      # Cache directory referentie
+        self.metadata_file = self.cache_dir / "metadata.json"  # Metadata bestand locatie
+        self._load_metadata()                                   # Laad bestaande metadata
     
     def _load_metadata(self):
         """Load cache metadata."""

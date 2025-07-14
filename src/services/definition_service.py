@@ -24,11 +24,20 @@ from voorbeelden.cached_voorbeelden import (
     genereer_antoniemen,
     genereer_toelichting
 )
-from logs.application.log_definitie import log_definitie
+import sys
+import os
+# Voeg root directory toe aan Python path voor logs module toegang
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+
+from logs.application.log_definitie import log_definitie  # Logging functie uit root logs directory
 
 
 class DefinitionService:
-    """Service class for definition processing operations."""
+    """Service klasse voor definitie verwerkingsoperaties.
+    
+    Deze service laag beheert de complete workflow voor definitie generatie,
+    validatie en aanvullende content generatie.
+    """
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
@@ -36,17 +45,17 @@ class DefinitionService:
     @handle_api_error
     def generate_definition(self, begrip: str, context_dict: Dict[str, List[str]]) -> Tuple[str, str, str]:
         """
-        Generate definition using AI.
+        Genereer definitie met behulp van AI.
         
         Args:
-            begrip: Term to define
-            context_dict: Context information
+            begrip: Te definiëren begrip
+            context_dict: Context informatie voor generatie
             
         Returns:
-            Tuple of (original_definition, cleaned_definition, marker)
+            Tuple van (originele_definitie, opgeschoonde_definitie, marker)
             
         Raises:
-            APIError: If AI generation fails
+            APIError: Als AI generatie mislukt
         """
         if not begrip.strip():
             raise ValidationError("Begrip mag niet leeg zijn")
@@ -60,10 +69,13 @@ class DefinitionService:
             regels = raw_response.splitlines()
             tekstregels = []
             
+            # Loop door alle regels en extraheer metadata
             for regel in regels:
                 if regel.lower().startswith("ontologische categorie:"):
+                    # Extraheer ontologische categorie marker
                     marker = regel.split(":", 1)[1].strip()
                 else:
+                    # Voeg gewone tekst regels toe aan definitie
                     tekstregels.append(regel)
             
             definitie_origineel = "\n".join(tekstregels).strip()
@@ -80,17 +92,17 @@ class DefinitionService:
     @handle_api_error
     def generate_sources(self, begrip: str, context_dict: Dict[str, List[str]]) -> str:
         """
-        Generate sources information using AI.
+        Genereer broninformatie met behulp van AI.
         
         Args:
-            begrip: Term
-            context_dict: Context information
+            begrip: Begrip waarvoor bronnen gezocht worden
+            context_dict: Context informatie voor bronnen
             
         Returns:
-            Sources text
+            Bronnen tekst met relevante wetgeving en richtlijnen
             
         Raises:
-            APIError: If sources generation fails
+            APIError: Als bronnen generatie mislukt
         """
         try:
             prompt_bronnen = (
@@ -126,23 +138,23 @@ class DefinitionService:
         gebruik_logging: bool = False
     ) -> List[str]:
         """
-        Validate definition using quality rules.
+        Valideer definitie tegen kwaliteitsregels.
         
         Args:
-            definitie: Definition text to validate
-            toetsregels: Quality rules
-            begrip: Original term
-            marker: Ontological marker
-            voorkeursterm: Preferred term
-            bronnen_gebruikt: Sources used
-            contexten: Context information
-            gebruik_logging: Whether to use detailed logging
+            definitie: Te valideren definitie tekst
+            toetsregels: Kwaliteitsregels voor validatie
+            begrip: Oorspronkelijk begrip
+            marker: Ontologische categorie marker
+            voorkeursterm: Voorkeursterm voor het begrip
+            bronnen_gebruikt: Gebruikte bronnen
+            contexten: Context informatie
+            gebruik_logging: Of gedetailleerde logging gebruikt wordt
             
         Returns:
-            List of validation results
+            Lijst met validatie resultaten en feedback
             
         Raises:
-            ValidationError: If validation fails
+            ValidationError: Als validatie mislukt
         """
         try:
             return toets_definitie(
@@ -157,97 +169,97 @@ class DefinitionService:
             )
             
         except Exception as e:
-            self.logger.error(f"Definition validation failed: {str(e)}")
+            self.logger.error(f"Definitie validatie mislukt: {str(e)}")
             raise ValidationError(f"Definitie validatie mislukt: {str(e)}")
     
     @handle_api_error
     def generate_examples(self, begrip: str, definitie: str, context_dict: Dict[str, List[str]]) -> Dict[str, List[str]]:
         """
-        Generate example sentences and cases.
+        Genereer voorbeeldzinnen en praktijkcases.
         
         Args:
-            begrip: Term
-            definitie: Definition
-            context_dict: Context information
+            begrip: Begrip waarvoor voorbeelden gegenereerd worden
+            definitie: Definitie tekst als basis
+            context_dict: Context informatie voor voorbeelden
             
         Returns:
-            Dictionary with different types of examples
+            Dictionary met verschillende soorten voorbeelden
             
         Raises:
-            APIError: If example generation fails
+            APIError: Als voorbeelden generatie mislukt
         """
         try:
             return {
                 "voorbeeld_zinnen": safe_execute(
                     lambda: genereer_voorbeeld_zinnen(begrip, definitie, context_dict),
                     default_value=[],
-                    error_message="Example sentences generation failed"
+                    error_message="Voorbeeld zinnen generatie mislukt"
                 ),
                 "praktijkvoorbeelden": safe_execute(
                     lambda: genereer_praktijkvoorbeelden(begrip, definitie, context_dict),
                     default_value=[],
-                    error_message="Practice examples generation failed"
+                    error_message="Praktijkvoorbeelden generatie mislukt"
                 ),
                 "tegenvoorbeelden": safe_execute(
                     lambda: genereer_tegenvoorbeelden(begrip, definitie, context_dict),
                     default_value=[],
-                    error_message="Counter examples generation failed"
+                    error_message="Tegenvoorbeelden generatie mislukt"
                 )
             }
             
         except Exception as e:
-            self.logger.error(f"Examples generation failed: {str(e)}")
+            self.logger.error(f"Voorbeelden generatie mislukt: {str(e)}")
             raise APIError(f"Voorbeelden generatie mislukt: {str(e)}")
     
     @handle_api_error
     def generate_additional_content(self, begrip: str, context_dict: Dict[str, List[str]]) -> Dict[str, str]:
         """
-        Generate additional content like explanations and synonyms.
+        Genereer aanvullende content zoals toelichting en synoniemen.
         
         Args:
-            begrip: Term
-            context_dict: Context information
+            begrip: Begrip waarvoor aanvullende content gegenereerd wordt
+            context_dict: Context informatie voor content generatie
             
         Returns:
-            Dictionary with additional content
+            Dictionary met aanvullende content (toelichting, synoniemen, antoniemen)
             
         Raises:
-            APIError: If content generation fails
+            APIError: Als content generatie mislukt
         """
         try:
             return {
                 "toelichting": safe_execute(
                     lambda: genereer_toelichting(begrip, context_dict),
                     default_value="",
-                    error_message="Explanation generation failed"
+                    error_message="Toelichting generatie mislukt"
                 ),
                 "synoniemen": safe_execute(
                     lambda: genereer_synoniemen(begrip, context_dict),
                     default_value="",
-                    error_message="Synonyms generation failed"
+                    error_message="Synoniemen generatie mislukt"
                 ),
                 "antoniemen": safe_execute(
                     lambda: genereer_antoniemen(begrip, context_dict),
                     default_value="",
-                    error_message="Antonyms generation failed"
+                    error_message="Antoniemen generatie mislukt"
                 )
             }
             
         except Exception as e:
-            self.logger.error(f"Additional content generation failed: {str(e)}")
+            self.logger.error(f"Aanvullende content generatie mislukt: {str(e)}")
             raise APIError(f"Aanvullende content generatie mislukt: {str(e)}")
     
     
     def build_prompt(self, begrip: str, context_dict: Dict[str, List[str]]) -> str:
         """
-        Build GPT prompt for definition generation.
+        Bouw GPT prompt voor definitie generatie.
         
         Args:
-            begrip: Term to define
-            context_dict: Context information
+            begrip: Te definiëren begrip
+            context_dict: Context informatie voor prompt opbouw
             
         Returns:
-            Generated prompt text
+            Gegenereerde prompt tekst voor AI model
         """
         try:
             prompt_config = PromptConfiguratie(
@@ -258,7 +270,7 @@ class DefinitionService:
             return pb.bouw_prompt()
             
         except Exception as e:
-            self.logger.error(f"Prompt building failed: {str(e)}")
+            self.logger.error(f"Prompt opbouw mislukt: {str(e)}")
             return ""
     
     def process_complete_definition(
@@ -267,14 +279,17 @@ class DefinitionService:
         toetsregels: Dict[str, Any]
     ) -> bool:
         """
-        Process complete definition generation workflow.
+        Verwerk complete definitie generatie workflow.
+        
+        Deze methode coördineert alle stappen: prompt building, definitie generatie,
+        validatie, voorbeelden generatie en logging.
         
         Args:
-            form_data: Form data from UI
-            toetsregels: Quality rules
+            form_data: Formuliergegevens uit UI
+            toetsregels: Kwaliteitsregels voor validatie
             
         Returns:
-            True if successful, False otherwise
+            True als succesvol, False bij fouten
         """
         try:
             begrip = form_data["begrip"]
@@ -283,24 +298,24 @@ class DefinitionService:
             if not begrip.strip():
                 return False
             
-            # Build prompt
+            # Bouw de prompt voor AI generatie
             prompt_text = self.build_prompt(begrip, context_dict)
             SessionStateManager.set_value("prompt_text", prompt_text)
             
-            # Generate definition
+            # Genereer definitie met AI
             definitie_origineel, definitie_gecorrigeerd, marker = self.generate_definition(begrip, context_dict)
             
-            # Update session state with results
+            # Update sessie status met definitie resultaten
             SessionStateManager.update_definition_results(
                 definitie_origineel=definitie_origineel,
                 definitie_gecorrigeerd=definitie_gecorrigeerd,
                 marker=marker
             )
             
-            # Generate sources
+            # Genereer bronnenlijst voor traceerbaarheid
             bronnen_tekst = self.generate_sources(begrip, context_dict)
             
-            # Validate definition
+            # Valideer definitie tegen kwaliteitsregels
             toetsresultaten = self.validate_definition(
                 definitie_gecorrigeerd,
                 toetsregels,
@@ -312,13 +327,13 @@ class DefinitionService:
                 gebruik_logging=form_data.get("gebruik_logging", False)
             )
             
-            # Generate examples
+            # Genereer voorbeelden en use cases
             examples = self.generate_examples(begrip, definitie_origineel, context_dict)
             
-            # Generate additional content
+            # Genereer aanvullende content (synoniemen, toelichting)
             additional_content = self.generate_additional_content(begrip, context_dict)
             
-            # Update session state with all generated content
+            # Update sessie status met alle gegenereerde content
             SessionStateManager.update_ai_content(
                 voorbeeld_zinnen=examples["voorbeeld_zinnen"],
                 praktijkvoorbeelden=examples["praktijkvoorbeelden"],
@@ -331,7 +346,7 @@ class DefinitionService:
             
             SessionStateManager.set_value("beoordeling_gen", toetsresultaten)
             
-            # Log the AI version
+            # Log de AI gegenereerde versie voor audit trail
             self._log_definition_version(
                 versietype="AI",
                 form_data=form_data,
@@ -343,7 +358,7 @@ class DefinitionService:
             return True
             
         except Exception as e:
-            self.logger.error(f"Complete definition processing failed: {str(e)}")
+            self.logger.error(f"Complete definitie verwerking mislukt: {str(e)}")
             return False
     
     def process_modified_definition(

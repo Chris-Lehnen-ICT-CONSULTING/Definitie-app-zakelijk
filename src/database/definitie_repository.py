@@ -1,114 +1,160 @@
 """
 DefinitieRepository - Database laag voor definitie management systeem.
 Biedt CRUD operaties, duplicate detection, en import/export functionaliteit.
+
+Deze module bevat alle database operaties voor het beheren van definities,
+inclusief opslaan, ophalen, zoeken en duplicaat detectie.
 """
 
-import sqlite3
-import json
-import logging
-from typing import Dict, List, Optional, Tuple, Any, Union
-from dataclasses import dataclass, asdict
-from datetime import datetime
-from pathlib import Path
-import hashlib
-from enum import Enum
+import sqlite3  # SQLite database interface voor lokale database opslag
+import json  # JSON encoding en decoding voor metadata opslag
+import logging  # Logging functionaliteit voor debug en monitoring
+from typing import Dict, List, Optional, Tuple, Any, Union  # Type hints voor betere code documentatie
+from dataclasses import dataclass, asdict  # Dataclass decorators voor gestructureerde data
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+import hashlib  # Hash functionaliteit voor duplicate detection via content hashing
+from enum import Enum  # Enumeratie types voor constante waarden
 
-from generation.definitie_generator import OntologischeCategorie
+from generation.definitie_generator import OntologischeCategorie  # Import ontologische categorieën voor classificatie
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
 
 
 class DefinitieStatus(Enum):
-    """Status van een definitie in het systeem."""
-    DRAFT = "draft"
-    REVIEW = "review"  
-    ESTABLISHED = "established"
-    ARCHIVED = "archived"
+    """Status van een definitie in het systeem.
+    
+    Definieert de verschillende statusen die een definitie kan hebben
+    tijdens de levenscyclus van concept tot definitieve vaststelling.
+    """
+    DRAFT = "draft"  # Concept definitie, nog in bewerking
+    REVIEW = "review"  # Definitie is ingediend voor review door experts
+    ESTABLISHED = "established"  # Definitief vastgestelde definitie, klaar voor gebruik
+    ARCHIVED = "archived"  # Gearchiveerde definitie (niet meer actief, bewaard voor historie)
 
 
 class SourceType(Enum):
-    """Type van de bron waaruit definitie komt."""
-    GENERATED = "generated"
-    IMPORTED = "imported"
-    MANUAL = "manual"
+    """Type van de bron waaruit definitie komt.
+    
+    Houdt bij hoe een definitie is ontstaan voor traceerbaarheid.
+    """
+    GENERATED = "generated"  # AI-gegenereerde definitie
+    IMPORTED = "imported"  # Geïmporteerd uit extern systeem
+    MANUAL = "manual"  # Handmatig ingevoerde definitie
 
 
 @dataclass
 class DefinitieRecord:
-    """Representatie van een definitie record in de database."""
-    id: Optional[int] = None
-    begrip: str = ""
-    definitie: str = ""
-    categorie: str = ""
-    organisatorische_context: str = ""
-    juridische_context: Optional[str] = ""
+    """Representatie van een definitie record in de database.
     
-    # Status en versioning
-    status: str = DefinitieStatus.DRAFT.value
-    version_number: int = 1
-    previous_version_id: Optional[int] = None
+    Deze klasse definieert de structuur van een definitie record
+    met alle metadata die nodig is voor beheer en traceerbaarheid.
+    """
+    # Basis definitie informatie
+    id: Optional[int] = None  # Unieke database ID
+    begrip: str = ""  # Het begrip dat gedefinieerd wordt
+    definitie: str = ""  # De definitie tekst zelf
+    categorie: str = ""  # Ontologische categorie
+    organisatorische_context: str = ""  # Organisatie context
+    juridische_context: Optional[str] = ""  # Juridische context
     
-    # Validation
-    validation_score: Optional[float] = None
-    validation_date: Optional[datetime] = None
-    validation_issues: Optional[str] = None  # JSON string
+    # Status en versioning - Houdt bij in welke fase de definitie zich bevindt
+    status: str = DefinitieStatus.DRAFT.value  # Huidige status van de definitie
+    version_number: int = 1  # Versienummer voor versiebeheer
+    previous_version_id: Optional[int] = None  # Verwijzing naar vorige versie
     
-    # Source tracking
-    source_type: str = SourceType.GENERATED.value
-    source_reference: Optional[str] = None
-    imported_from: Optional[str] = None
+    # Validation - Kwaliteitscontrole informatie
+    validation_score: Optional[float] = None  # Kwaliteitsscore (0.0-1.0)
+    validation_date: Optional[datetime] = None  # Wanneer laatste validatie plaatsvond
+    validation_issues: Optional[str] = None  # JSON string met gevonden problemen
     
-    # Metadata
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    created_by: Optional[str] = None
-    updated_by: Optional[str] = None
+    # Source tracking - Herkomst van de definitie
+    source_type: str = SourceType.GENERATED.value  # Hoe is definitie ontstaan
+    source_reference: Optional[str] = None  # Referentie naar originele bron
+    imported_from: Optional[str] = None  # Van welk systeem geïmporteerd
     
-    # Approval
-    approved_by: Optional[str] = None
-    approved_at: Optional[datetime] = None
-    approval_notes: Optional[str] = None
+    # Metadata - Algemene record informatie
+    created_at: Optional[datetime] = None  # Wanneer record is aangemaakt
+    updated_at: Optional[datetime] = None  # Laatste wijziging
+    created_by: Optional[str] = None  # Wie heeft record aangemaakt
+    updated_by: Optional[str] = None  # Wie heeft record laatst gewijzigd
     
-    # Export
-    last_exported_at: Optional[datetime] = None
-    export_destinations: Optional[str] = None  # JSON string
+    # Approval - Goedkeuring workflow informatie
+    approved_by: Optional[str] = None  # Wie heeft definitie goedgekeurd
+    approved_at: Optional[datetime] = None  # Wanneer goedgekeurd
+    approval_notes: Optional[str] = None  # Opmerkingen bij goedkeuring
+    
+    # Export - Export tracking informatie
+    last_exported_at: Optional[datetime] = None  # Laatste export datum
+    export_destinations: Optional[str] = None  # JSON string met export bestemmingen
     
     def to_dict(self) -> Dict[str, Any]:
-        """Converteer naar dictionary voor JSON serialization."""
+        """Converteer naar dictionary voor JSON serialization.
+        
+        Returns:
+            Dictionary representatie van dit record
+        """
+        # Converteer dataclass naar dictionary
         result = asdict(self)
-        # Convert datetime objects to ISO strings
+        # Converteer datetime objecten naar ISO strings voor JSON compatibiliteit
         for key, value in result.items():
-            if isinstance(value, datetime):
-                result[key] = value.isoformat()
-        return result
+            if isinstance(value, datetime):  # Controleer of waarde een datetime is
+                result[key] = value.isoformat()  # Converteer naar ISO formaat string
+        return result  # Geef dictionary terug
     
     def get_validation_issues_list(self) -> List[Dict[str, Any]]:
-        """Haal validation issues op als list."""
+        """Haal validation issues op als list.
+        
+        Returns:
+            Lijst van validation issues als dictionaries
+        """
+        # Controleer of er validation issues zijn
         if not self.validation_issues:
-            return []
+            return []  # Geef lege lijst terug als geen issues
         try:
+            # Probeer JSON string te parsen naar lijst
             return json.loads(self.validation_issues)
         except json.JSONDecodeError:
+            # Als parsing faalt, geef lege lijst terug
             return []
     
     def set_validation_issues(self, issues: List[Dict[str, Any]]):
-        """Set validation issues als JSON string."""
+        """Set validation issues als JSON string.
+        
+        Args:
+            issues: Lijst van validation issues om op te slaan
+        """
+        # Converteer lijst naar JSON string en sla op
         self.validation_issues = json.dumps(issues, ensure_ascii=False)
     
     def get_export_destinations_list(self) -> List[str]:
-        """Haal export destinations op als list."""
+        """Haal export destinations op als list.
+        
+        Returns:
+            Lijst van export bestemmingen
+        """
+        # Controleer of er export bestemmingen zijn
         if not self.export_destinations:
-            return []
+            return []  # Geef lege lijst terug als geen bestemmingen
         try:
+            # Probeer JSON string te parsen naar lijst
             return json.loads(self.export_destinations)
         except json.JSONDecodeError:
+            # Als parsing faalt, geef lege lijst terug
             return []
     
     def add_export_destination(self, destination: str):
-        """Voeg export destination toe."""
+        """Voeg export destination toe.
+        
+        Args:
+            destination: Nieuwe export bestemming om toe te voegen
+        """
+        # Haal huidige lijst van bestemmingen op
         destinations = self.get_export_destinations_list()
+        # Voeg nieuwe bestemming toe als deze nog niet bestaat
         if destination not in destinations:
-            destinations.append(destination)
+            destinations.append(destination)  # Voeg toe aan lijst
+            # Sla bijgewerkte lijst op als JSON string
             self.export_destinations = json.dumps(destinations)
 
 
@@ -157,20 +203,32 @@ class VoorbeeldenRecord:
             return {}
     
     def set_generation_parameters(self, params: Dict[str, Any]):
-        """Set generation parameters als JSON string."""
+        """Stel generatie parameters in als JSON string.
+        
+        Args:
+            params: Dictionary met generatie parameters
+        """
         self.generation_parameters = json.dumps(params, ensure_ascii=False)
 
 
 @dataclass
 class DuplicateMatch:
-    """Representatie van een mogelijk duplicaat."""
+    """Representatie van een mogelijk duplicaat match.
+    
+    Deze klasse houdt informatie bij over een gevonden duplicaat,
+    inclusief de match score en redenen voor de match.
+    """
     definitie_record: DefinitieRecord
     match_score: float
     match_reasons: List[str]
 
 
 class DefinitieRepository:
-    """Repository voor definitie management met volledige CRUD operaties."""
+    """Repository voor definitie management met volledige CRUD operaties.
+    
+    Deze klasse biedt een database abstractie laag voor alle definitie
+    operaties, inclusief opslag, zoeken, duplicaat detectie en export.
+    """
     
     def __init__(self, db_path: str = "definities.db"):
         """
@@ -192,38 +250,75 @@ class DefinitieRepository:
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
             with sqlite3.connect(self.db_path) as conn:
+                conn.execute("PRAGMA foreign_keys = ON")
                 with open(schema_path, 'r', encoding='utf-8') as f:
                     schema_sql = f.read()
-                    # Execute schema in parts (SQLite doesn't like some multi-statement syntax)
-                    statements = self._split_sql_statements(schema_sql)
-                    for statement in statements:
-                        if statement.strip():
-                            try:
-                                conn.execute(statement)
-                            except sqlite3.Error as e:
-                                # Skip errors for existing tables/triggers
-                                if "already exists" not in str(e):
-                                    logger.warning(f"Schema execution warning: {e}")
-                conn.commit()
+                    try:
+                        # Use executescript for better multi-statement handling
+                        conn.executescript(schema_sql)
+                    except sqlite3.Error as e:
+                        logger.warning(f"Schema execution warning: {e}")
+                        # Fallback to individual statements if executescript fails
         else:
-            logger.warning(f"Schema file not found at {schema_path}")
+            # Fallback schema creation if schema.sql not found
+            logger.warning("schema.sql not found, creating basic schema")
+            with sqlite3.connect(self.db_path) as conn:
+                conn.execute("PRAGMA foreign_keys = ON")
+                conn.execute("""
+                    CREATE TABLE IF NOT EXISTS definities (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT,
+                        begrip VARCHAR(255) NOT NULL,
+                        definitie TEXT NOT NULL,
+                        categorie VARCHAR(50) NOT NULL DEFAULT 'proces',
+                        organisatorische_context VARCHAR(255) NOT NULL,
+                        juridische_context VARCHAR(255),
+                        status VARCHAR(50) NOT NULL DEFAULT 'draft',
+                        version_number INTEGER NOT NULL DEFAULT 1,
+                        validation_score DECIMAL(3,2),
+                        created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                        created_by VARCHAR(255),
+                        source_type VARCHAR(50) DEFAULT 'generated'
+                    )
+                """)
+                conn.commit()
     
     def _split_sql_statements(self, sql: str) -> List[str]:
         """Split SQL bestand in individuele statements."""
-        # Simple split on semicolon - could be improved for complex cases
         statements = []
         current_statement = ""
+        in_multiline = False
         
         for line in sql.split('\n'):
             line = line.strip()
+            
+            # Skip comments and empty lines
             if line.startswith('--') or not line:
                 continue
             
-            current_statement += line + '\n'
+            # Add line to current statement
+            if current_statement:
+                current_statement += ' ' + line
+            else:
+                current_statement = line
             
-            if line.endswith(';'):
-                statements.append(current_statement.strip())
+            # Check if statement is complete (ends with semicolon)
+            if line.endswith(';') and not in_multiline:
+                # Make sure it's a valid statement
+                stmt = current_statement.strip()
+                if stmt and not stmt.startswith('--'):
+                    statements.append(stmt)
                 current_statement = ""
+            
+            # Handle multi-line statements (basic check for CREATE, INSERT etc.)
+            if any(keyword in line.upper() for keyword in ['CREATE', 'INSERT', 'UPDATE', 'DELETE', 'ALTER']):
+                in_multiline = True
+            if line.endswith(';'):
+                in_multiline = False
+        
+        # Add any remaining statement
+        if current_statement.strip():
+            statements.append(current_statement.strip())
         
         return statements
     

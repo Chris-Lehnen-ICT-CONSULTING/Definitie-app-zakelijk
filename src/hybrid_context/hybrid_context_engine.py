@@ -3,43 +3,44 @@ Hybrid Context Engine - Hoofdcomponent voor hybride context verrijking.
 Combineert web lookup met document processing voor optimale definitie generatie.
 """
 
-import logging
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
-from datetime import datetime
+import logging  # Logging faciliteiten voor debug en monitoring
+from typing import Dict, List, Optional, Any  # Type hints voor betere code documentatie
+from dataclasses import dataclass  # Dataklassen voor gestructureerde context data
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 
-from .smart_source_selector import SmartSourceSelector
-from .context_fusion import ContextFusion
-from document_processing.document_processor import get_document_processor
-from web_lookup.lookup import zoek_definitie_combinatie
+# Importeer hybride context componenten
+from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
+from .context_fusion import ContextFusion  # Context fusie en samenvoeging
+from document_processing.document_processor import get_document_processor  # Document processor factory
+from web_lookup.lookup import zoek_definitie_combinatie  # Web lookup functionaliteit
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor hybrid context engine
 
 @dataclass
 class HybridContext:
     """Hybride context resultaat met gecombineerde web en document data."""
     
-    # Context data
-    unified_context: str
-    confidence_score: float
+    # Context data - gecombineerde en verrijkte context informatie
+    unified_context: str              # Samengevoegde context tekst
+    confidence_score: float           # Betrouwbaarheidsscore (0.0-1.0)
     
-    # Web lookup data
-    web_context: Dict[str, Any]
-    web_sources: List[str]
+    # Web lookup data - resultaten van externe bronnen
+    web_context: Dict[str, Any]       # Context data uit web bronnen
+    web_sources: List[str]            # Gebruikte web bronnen URLs
     
-    # Document data
-    document_context: Dict[str, Any]  
-    document_sources: List[Dict[str, Any]]
+    # Document data - resultaten van document analyse
+    document_context: Dict[str, Any]  # Context data uit geüploade documenten
+    document_sources: List[Dict[str, Any]]  # Gebruikte document metadata
     
-    # Fusion metadata
-    fusion_strategy: str
-    conflicts_resolved: int
-    context_quality: str
+    # Fusion metadata - informatie over samenvoeging proces
+    fusion_strategy: str              # Gebruikte fusie strategie
+    conflicts_resolved: int           # Aantal opgeloste conflicten
+    context_quality: str              # Kwaliteitsbeoordeling van context
     
-    # Attribution
-    primary_sources: List[str]
-    supporting_sources: List[str]
-    created_at: datetime
+    # Attribution - bronvermelding en traceerbaarheid
+    primary_sources: List[str]        # Primaire bronnen voor de context
+    supporting_sources: List[str]     # Ondersteunende bronnen
+    created_at: datetime              # Tijdstip van context creatie
 
 class HybridContextEngine:
     """
