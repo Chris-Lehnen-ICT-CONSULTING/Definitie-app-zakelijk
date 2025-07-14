@@ -114,12 +114,25 @@ class ModularToetser:
         # Convert to string format for backward compatibility
         string_results = [str(result) for result in results]
         
+        # Calculate statistics
+        passed = sum(1 for r in results if r.result == ValidationResult.PASS)
+        failed = sum(1 for r in results if r.result == ValidationResult.FAIL)
+        warnings = sum(1 for r in results if r.result == ValidationResult.WARNING)
+        total = len(results)
+        
         if gebruik_logging:
-            passed = sum(1 for r in results if r.result == ValidationResult.PASS)
-            failed = sum(1 for r in results if r.result == ValidationResult.FAIL)
-            warnings = sum(1 for r in results if r.result == ValidationResult.WARNING)
-            
             logger.info(f"Validation complete: {passed} passed, {failed} failed, {warnings} warnings")
+        
+        # Add summary to results (at the beginning for visibility)
+        if total > 0:
+            score_percentage = (passed / total) * 100
+            summary = f"📊 **Toetsing Samenvatting**: {passed}/{total} regels geslaagd ({score_percentage:.1f}%)"
+            if failed > 0:
+                summary += f" | ❌ {failed} gefaald"
+            if warnings > 0:
+                summary += f" | ⚠️ {warnings} waarschuwingen"
+            
+            string_results.insert(0, summary)
         
         return string_results
     
