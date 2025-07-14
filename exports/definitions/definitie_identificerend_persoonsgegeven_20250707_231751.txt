@@ -1,0 +1,121 @@
+📘 Begrip: Identificerend persoonsgegeven
+
+✏️ Definitie (gecorrigeerd): Betreft een specifiek soort gegeven dat unieke identificatie van een individu mogelijk maakt.
+
+📎 Oorspronkelijke definitie: Identificerend persoonsgegeven betreft een specifiek soort gegeven dat unieke identificatie van een individu mogelijk maakt.
+
+🧾 Metadata:
+- marker: soort
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een grote hoeveelheid data en bronnen. Voor de definitie van 'Identificerend persoonsgegeven' heb ik de volgende bronnen gebruikt:
+
+1. Algemene Verordening Gegevensbescherming (AVG): Dit is de belangrijkste wetgeving in de EU die betrekking heeft op de bescherming van persoonsgegevens. Volgens de AVG is een identificerend persoonsgegeven elke informatie die betrekking heeft op een geïdentificeerde of identificeerbare natuurlijke persoon.
+
+2. Wet bescherming persoonsgegevens (Wbp): Hoewel deze wet is vervangen door de AVG, bevatte het ook definities van persoonsgegevens en identificerende informatie.
+
+3. Richtsnoeren identificatie en verificatie van persoonsgegevens van de Autoriteit Persoonsgegevens: Deze richtlijnen geven aan welke gegevens als identificerend kunnen worden beschouwd, zoals naam, adres, geboortedatum en BSN.
+
+4. Literatuur en onderzoek op het gebied van gegevensbescherming en privacy: Er zijn talloze academische artikelen en onderzoeken die de concepten van persoonsgegevens en identificerende informatie bespreken.
+
+5. Praktijkvoorbeelden en jurisprudentie: Rechtszaken en praktijkvoorbeelden kunnen ook helpen bij het begrijpen van wat als identificerend persoonsgegeven wordt beschouwd.
+
+Let op: de definitie kan variëren afhankelijk van de specifieke context en het toepasselijke rechtsgebied. Het is altijd raadzaam om juridisch advies in te winnen bij twijfel.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ✔️ ESS-02: eenduidig als type gedefinieerd (\b(categorie|soort|klasse)\b)
+- ✔️ ESS-03: unieke identificatiecriteria herkend (unieke)
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ✔️ INT-01: geen complexe elementen herkend – mogelijk goed geformuleerd
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ✔️ INT-03: geen onduidelijke voornaamwoord-verwijzing aangetroffen
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘betrefteenspecifieksoortgegevendatuniekeidentificatievaneenindividumogelijkmaakt.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen
+- ✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Betreft een specifiek soort gegeven dat unieke identificatie van een individu mogelijk maakt.' lijkt niet in infinitief te staan
+- ✔️ ARAI01: geen werkwoorden als kern gevonden in de definitie
+- ✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ✔️ ARAI02SUB2: geen ambtelijke containerbegrippen aangetroffen
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een grote hoeveelheid data en bronnen. Voor de definitie van 'Identificerend persoonsgegeven' heb ik de volgende bronnen gebruikt:
+- 1. Algemene Verordening Gegevensbescherming (AVG): Dit is de belangrijkste wetgeving in de EU die betrekking heeft op de bescherming van persoonsgegevens. Volgens de AVG is een identificerend persoonsgegeven elke informatie die betrekking heeft op een geïdentificeerde of identificeerbare natuurlijke persoon.
+- 2. Wet bescherming persoonsgegevens (Wbp): Hoewel deze wet is vervangen door de AVG, bevatte het ook definities van persoonsgegevens en identificerende informatie.
+- 3. Richtsnoeren identificatie en verificatie van persoonsgegevens van de Autoriteit Persoonsgegevens: Deze richtlijnen geven aan welke gegevens als identificerend kunnen worden beschouwd, zoals naam, adres, geboortedatum en BSN.
+- 4. Literatuur en onderzoek op het gebied van gegevensbescherming en privacy: Er zijn talloze academische artikelen en onderzoeken die de concepten van persoonsgegevens en identificerende informatie bespreken.
+- 5. Praktijkvoorbeelden en jurisprudentie: Rechtszaken en praktijkvoorbeelden kunnen ook helpen bij het begrijpen van wat als identificerend persoonsgegeven wordt beschouwd.
+- Let op: de definitie kan variëren afhankelijk van de specifieke context en het toepasselijke rechtsgebied. Het is altijd raadzaam om juridisch advies in te winnen bij twijfel.
+
+💡 Toelichting:
+'Identificerend persoonsgegeven' verwijst naar informatie die direct of indirect een persoon kan identificeren. Het kan gaan om gegevens zoals naam, adres, telefoonnummer, e-mailadres, burgerservicenummer (BSN), IP-adres, enzovoort. In de context van de overheid en specifiek in de strafrechtketen, worden identificerende persoonsgegevens gebruikt om een persoon uniek te identificeren voor verschillende doeleinden, zoals het opsporen van misdaden, het uitvoeren van gerechtelijke procedures of het verlenen van diensten. Het is belangrijk dat deze gegevens correct en veilig worden beheerd om de privacy van individuen te beschermen en te voldoen aan de wetgeving inzake gegevensbescherming.
+
+🧢 Voorbeeldzinnen:
+- "Om de verdachte te kunnen vervolgen, hadden we een identificerend persoonsgegeven nodig, zoals zijn volledige naam of burgerservicenummer."
+- "De politie heeft het identificerend persoonsgegeven van de vermiste persoon, in dit geval zijn vingerafdruk, gebruikt om hem te lokaliseren."
+- "Het systeem vraagt om een identificerend persoonsgegeven, zoals je geboortedatum of adres, om je account te verifiëren."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1:
+In de strafrechtketen wordt een project Identiteitsbehandeling uitgevoerd. Een van de taken binnen dit project is het identificeren van verdachten. Hierbij worden identificerende persoonsgegevens gebruikt, zoals een BSN-nummer, dat unieke identificatie van een individu mogelijk maakt. Het BSN-nummer is een uniek nummer dat aan elke burger in Nederland wordt toegekend en wordt gebruikt in de communicatie tussen overheidsinstellingen. In dit geval wordt het BSN-nummer gebruikt om de identiteit van de verdachte te bevestigen en om te zorgen voor correcte registratie in de strafrechtketen.
+
+Voorbeeld 2:
+Binnen het project Identiteitsbehandeling in de strafrechtketen wordt ook gebruik gemaakt van biometrische gegevens voor unieke identificatie van een individu. Een voorbeeld hiervan is vingerafdrukken. Deze worden afgenomen bij verdachten en opgeslagen in een database. Deze vingerafdrukken zijn uniek voor elk individu en kunnen dus gebruikt worden om een persoon te identificeren. Het gebruik van biometrische gegevens zoals vingerafdrukken is gebonden aan strikte regels en procedures om de privacy van individuen te waarborgen.
+
+Voorbeeld 3:
+Een ander voorbeeld van een identificerend persoonsgegeven dat gebruikt wordt in de strafrechtketen is het paspoortnummer. Dit unieke nummer wordt uitgegeven door de overheid wanneer een paspoort wordt verstrekt en kan gebruikt worden om een individu te identificeren. In het kader van het project Identiteitsbehandeling kunnen paspoortnummers bijvoorbeeld worden gebruikt om de identiteit van een verdachte te bevestigen. Het gebruik van paspoortnummers als identificerend persoonsgegeven is ook gebonden aan strikte regels en procedures, om misbruik en schending van de privacy te voorkomen.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1: Een database met enkel de voornamen van personen. In dit geval ontbreekt de context, want een voornaam alleen is niet voldoende om een individu uniek te identificeren. Er zijn immers veel mensen die dezelfde voornaam kunnen hebben. 
+
+Voorbeeld 2: Een lijst met enkel de geboortedata van personen. Ook hier ontbreekt de context, want een geboortedatum alleen is niet voldoende om een individu uniek te identificeren. Er kunnen immers meerdere mensen zijn die op dezelfde dag geboren zijn.
+
+🔁 Synoniemen:
+- 1. Persoonsidentificatiegegeven
+- 2. Identiteitsgegeven
+- 3. Persoonlijk identificatiegegeven
+- 4. Identificatie-informatie
+- 5. Identiteitsinformatie
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Anonieme gegevens
+- 2. Niet-identificeerbare informatie
+- 3. Gecodeerde gegevens
+- 4. Niet-persoonlijke gegevens
+- 5. Algemene gegevens

@@ -1,0 +1,123 @@
+📘 Begrip: verificatie
+
+✏️ Definitie (gecorrigeerd): Betreft een activiteit waarbij de juistheid van gegevens of de naleving van een procedure wordt gecontroleerd.
+
+📎 Oorspronkelijke definitie: Verificatie betreft een activiteit waarbij de juistheid van gegevens of de naleving van een procedure wordt gecontroleerd.
+
+🧾 Metadata:
+- marker: proces
+
+🏩 Contexten:
+- Organisatorisch: Strafrechtketen, Project Identiteitsbehandeling
+- Juridisch: geen
+- Wettelijk: geen
+
+📊 Toetsresultaten:
+- ✔️ CON-01: geen expliciete contextverwijzing aangetroffen
+- ❌ CON-02: bronvermelding gevonden (Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een grote hoeveelheid gegevens en bronnen. Voor de definitie van 'verificatie' in de context van de strafrechtketen en het project Identiteitsbehandeling, zou ik me baseren op de volgende bronnen:
+
+1. Wetboek van Strafvordering: Hoewel er mogelijk geen specifieke wet is die de term 'verificatie' definieert, zou het Wetboek van Strafvordering richtlijnen kunnen bieden over de procedures die worden gevolgd bij het verifiëren van informatie in strafzaken.
+
+2. ISO-normen: De Internationale Organisatie voor Standaardisatie (ISO) heeft normen voor identiteitsbeheer en -verificatie, zoals ISO/IEC 29115, die nuttig kunnen zijn in deze context.
+
+3. Richtlijnen van de Autoriteit Persoonsgegevens: Deze kunnen richtlijnen bevatten over hoe identiteitsverificatie moet worden uitgevoerd om de privacy van individuen te beschermen.
+
+4. Literatuur over identiteitsbehandeling en -verificatie: Er zijn tal van academische artikelen en boeken die deze onderwerpen behandelen en die kunnen helpen bij het definiëren van 'verificatie' in deze context.
+
+5. Praktijkervaringen en -richtlijnen: In de praktijk ontwikkelde procedures en richtlijnen voor identiteitsverificatie in de strafrechtketen kunnen ook nuttig zijn.
+
+Het is belangrijk op te merken dat de exacte definitie van 'verificatie' kan variëren afhankelijk van de specifieke context en het gebruik. Het is altijd raadzaam om juridisch advies in te winnen bij het interpreteren van wetten en richtlijnen.), maar niet herkend als authentiek of specifiek
+- ✔️ ESS-01: geen doelgerichte formuleringen aangetroffen
+- ✔️ ESS-02: eenduidig als proces gedefinieerd (\b(is een|betreft een) (proces|activiteit|handeling|gebeurtenis)\b, \b(proces|activiteit|handeling|gebeurtenis)\b)
+- ❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar
+- ❌ ESS-04: geen toetsbare elementen gevonden; definitie bevat geen harde criteria voor objectieve toetsing
+- ❌ ESS-05: geen onderscheidende elementen gevonden; definitie maakt niet duidelijk waarin het begrip zich onderscheidt
+- ❌ INT-01: complexe elementen gevonden (waarbij, of), maar geen expliciet fout voorbeeld herkend
+- ✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen
+- ❌ INT-03: onduidelijke voornaamwoord-verwijzingen aangetroffen (waarbij); antecedent niet expliciet gemaakt
+- ✔️ INT-04: geen onduidelijke lidwoord-verwijzingen aangetroffen
+- ✔️ INT-06: geen toelichtende elementen in de definitie gevonden
+- ✔️ INT-07: geen afkortingen in de definitie
+- ✅ INT-08: definitie bevat geen negatieve formuleringen
+- ✅ INT-09: geen ongewenste opsommingswoorden gevonden
+- ✅ INT-10: geen ontoegankelijke of impliciete achtergrondverwijzingen gevonden
+- ✔️ SAM-01: geen afwijkende kwalificaties aangetroffen in de definitie
+- ✔️ SAM-02: geen overbodige herhaling van het hoofdbegrip in de definitie
+- ✔️ SAM-03: geen geneste of verweven definities aangetroffen
+- ✔️ SAM-04: genus (‘’) sluit aan op compositie (‘betrefteenactiviteitwaarbijdejuistheidvangegevensofdenalevingvaneenprocedurewordtgecontroleerd.’)
+- ✔️ SAM-05: geen cirkeldefinitie herkend
+- ❌ SAM-06: geen voorkeurs-term opgegeven
+- ✔️ SAM-07: geen uitbreidende elementen herkend
+- ✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast
+- ✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd
+- ✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd
+- ✔️ STR-03: geen synonieme formulering gevonden
+- ✔️ STR-04: geen algemene kick-off zonder toespitsing
+- ✔️ STR-05: geen constructie-elementen gevonden
+- ✔️ STR-06: geen formuleringen die informatiebehoefte suggereren
+- ✔️ STR-07: geen dubbele ontkenning aangetroffen
+- ✔️ STR-08: geen dubbelzinnige 'en'-constructies aangetroffen
+- ❌ STR-09: dubbelzinnige 'of' gevonden (gegevens of de, of), context verduidelijken
+- ✔️ VER-01: term is enkelvoudig
+- ⚠️ VER-02: fout bij uitvoeren toetsfunctie – toets_VER_02() missing 1 required positional argument: 'term'
+- ❌ VER-03: term 'Betreft een activiteit waarbij de juistheid van gegevens of de naleving van een procedure wordt gecontroleerd.' lijkt niet in infinitief te staan
+- ❌ ARAI01: werkwoord(en) als kern gevonden (wordt), geen toelichting herkend
+- ❌ ARAI02: containerbegrippen zonder specificatie gevonden (activiteit), onvoldoende concreet
+- ✔️ ARAI02SUB1: geen containerbegrippen aangetroffen
+- ❌ ARAI02SUB2: containerbegrippen gevonden (activiteit), onvoldoende specifiek
+- ✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen
+- ✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen
+- ✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie
+- ✔️ ARAI05: geen impliciete aannames aangetroffen
+- ⚠️ ARAI06: fout bij uitvoeren toetsfunctie – toets_ARAI06() got multiple values for argument 'begrip'
+
+📚 Gebruikte bronnen:
+- Als AI heb ik geen persoonlijke ervaring of kennis, maar ik baseer mijn informatie op een grote hoeveelheid gegevens en bronnen. Voor de definitie van 'verificatie' in de context van de strafrechtketen en het project Identiteitsbehandeling, zou ik me baseren op de volgende bronnen:
+- 1. Wetboek van Strafvordering: Hoewel er mogelijk geen specifieke wet is die de term 'verificatie' definieert, zou het Wetboek van Strafvordering richtlijnen kunnen bieden over de procedures die worden gevolgd bij het verifiëren van informatie in strafzaken.
+- 2. ISO-normen: De Internationale Organisatie voor Standaardisatie (ISO) heeft normen voor identiteitsbeheer en -verificatie, zoals ISO/IEC 29115, die nuttig kunnen zijn in deze context.
+- 3. Richtlijnen van de Autoriteit Persoonsgegevens: Deze kunnen richtlijnen bevatten over hoe identiteitsverificatie moet worden uitgevoerd om de privacy van individuen te beschermen.
+- 4. Literatuur over identiteitsbehandeling en -verificatie: Er zijn tal van academische artikelen en boeken die deze onderwerpen behandelen en die kunnen helpen bij het definiëren van 'verificatie' in deze context.
+- 5. Praktijkervaringen en -richtlijnen: In de praktijk ontwikkelde procedures en richtlijnen voor identiteitsverificatie in de strafrechtketen kunnen ook nuttig zijn.
+- Het is belangrijk op te merken dat de exacte definitie van 'verificatie' kan variëren afhankelijk van de specifieke context en het gebruik. Het is altijd raadzaam om juridisch advies in te winnen bij het interpreteren van wetten en richtlijnen.
+
+💡 Toelichting:
+Verificatie is het proces van het controleren of iets waar is of in overeenstemming is met een bepaalde standaard. In de context van overheidsdocumenten kan dit betekenen dat de informatie die is verstrekt, wordt gecontroleerd op juistheid en volledigheid. Dit kan bijvoorbeeld betrekking hebben op persoonlijke gegevens, documenten of bewijsmateriaal. Het doel van verificatie is om de betrouwbaarheid en geldigheid van de informatie te waarborgen. Dit is vooral belangrijk in situaties waarin beslissingen worden genomen op basis van deze informatie, zoals in de strafrechtketen of bij de behandeling van identiteitskwesties. Verificatie kan worden uitgevoerd door verschillende methoden, zoals het controleren van documenten, het uitvoeren van achtergrondcontroles of het vergelijken van informatie met andere bronnen.
+
+🧢 Voorbeeldzinnen:
+- "Voordat de banktransactie kan worden voltooid, moet er een verificatie van uw identiteit plaatsvinden."
+- "Het inlogproces op de website omvat een tweestapsverificatie voor extra beveiliging."
+- "Tijdens het sollicitatieproces vond er een grondige verificatie van mijn diploma's en werkervaring plaats."
+
+🧢 Praktijkvoorbeelden:
+- Voorbeeld 1: Verificatie van persoonsgegevens
+In de strafrechtketen is het van essentieel belang dat de identiteit van een verdachte correct is. Het project Identiteitsbehandeling heeft als doel om de juistheid van de persoonsgegevens van een verdachte te verifiëren. Dit gebeurt door het controleren van officiële documenten zoals een paspoort of rijbewijs, en het vergelijken van de gegevens op deze documenten met de gegevens die de verdachte heeft opgegeven. Hierbij wordt gelet op zaken als de spelling van de naam, de geboortedatum en het adres. De verificatie zorgt ervoor dat de juiste persoon wordt aangehouden en vervolgd, en voorkomt dat onschuldige mensen slachtoffer worden van identiteitsfraude.
+
+Voorbeeld 2: Verificatie van procedures in de strafrechtketen
+Binnen de strafrechtketen zijn er verschillende procedures die nauwgezet moeten worden gevolgd om te zorgen voor een eerlijk en rechtvaardig proces. Deze procedures kunnen variëren van de manier waarop bewijsmateriaal wordt verzameld en opgeslagen, tot de manier waarop een verdachte wordt voorgeleid aan de rechter. Het project Identiteitsbehandeling controleert of deze procedures correct worden nageleefd. Dit gebeurt door middel van audits, waarbij de processen worden doorgelicht en de naleving van de procedures wordt gecontroleerd. Als er afwijkingen worden geconstateerd, worden er maatregelen genomen om de procedures te verbeteren.
+
+Voorbeeld 3: Verificatie van de juistheid van gegevens in de strafrechtketen
+Binnen het project Identiteitsbehandeling wordt ook de juistheid van gegevens gecontroleerd. Dit kan bijvoorbeeld gaan om de gegevens die worden gebruikt voor de opsporing van verdachten, zoals camerabeelden, vingerafdrukken of DNA-materiaal. Deze gegevens worden geverifieerd door ze te vergelijken met de gegevens die in de systemen van de politie en het Openbaar Ministerie zijn opgeslagen. Als de gegevens overeenkomen, kan met zekerheid worden gezegd dat de juiste persoon is geïdentificeerd. Als de gegevens niet overeenkomen, wordt verder onderzoek gedaan om de juistheid van de gegevens te bevestigen.
+
+🚫 Tegenvoorbeelden:
+- Voorbeeld 1: 
+Een medewerker van het Project Identiteitsbehandeling accepteert een identiteitsbewijs zonder de vervaldatum te controleren. Hier wordt de procedure voor verificatie van identiteitsdocumenten niet nageleefd, omdat de geldigheid van het document een cruciale variabele is die altijd gecontroleerd moet worden.
+
+Voorbeeld 2: 
+Binnen de strafrechtketen wordt een verdachte vrijgelaten zonder dat er een grondige controle van de gegevens heeft plaatsgevonden. De variabele die hier niet wordt gevolgd, is de verificatie van de status van de verdachte in het strafproces. Zonder deze controle kan er een fout worden gemaakt in het proces, zoals het onterecht vrijlaten van een verdachte.
+
+🔁 Synoniemen:
+- 1. Controle
+- 2. Bevestiging
+- 3. Validatie
+- 4. Toetsing
+- 5. Bewijsvoering
+
+🏷️ Voorkeursterm:
+- geen
+
+🔄 Antoniemen:
+- 1. Vervalsing
+- 2. Misleiding
+- 3. Fraude
+- 4. Ontkenning
+- 5. Veronachtzaming
