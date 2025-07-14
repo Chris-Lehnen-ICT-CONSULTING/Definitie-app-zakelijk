@@ -1,50 +1,55 @@
 """
 Tabbed Interface voor DefinitieAgent - Nieuwe UI architectuur.
 Implementeert de requirements uit Project Requirements Document.
+
+Deze module bevat de hoofdcontroller voor de gebruikersinterface,
+met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
-import streamlit as st
-from typing import Dict, Any, Optional, List
-from datetime import datetime
+import streamlit as st  # Streamlit web interface framework
+from typing import Dict, Any, Optional, List  # Type hints voor betere code documentatie
+from datetime import datetime  # Datum en tijd functionaliteit
 
-from ui.components.context_selector import ContextSelector
-from ui.components.definition_generator_tab import DefinitionGeneratorTab
-from ui.components.expert_review_tab import ExpertReviewTab
-from ui.components.history_tab import HistoryTab
-from ui.components.export_tab import ExportTab
-from ui.components.quality_control_tab import QualityControlTab
-from ui.components.external_sources_tab import ExternalSourcesTab
-from ui.components.monitoring_tab import MonitoringTab
-from ui.components.web_lookup_tab import WebLookupTab
-from ui.components.orchestration_tab import OrchestrationTab
-from ui.components.management_tab import ManagementTab
-from ui.session_state import SessionStateManager
-from database.definitie_repository import get_definitie_repository
-from integration.definitie_checker import DefinitieChecker
-from generation.definitie_generator import OntologischeCategorie
-from document_processing.document_processor import get_document_processor
-from document_processing.document_extractor import supported_file_types
-# Hybrid context imports
+# Importeer alle UI tab componenten voor de verschillende functionaliteiten
+from ui.components.context_selector import ContextSelector  # Context selectie component
+from ui.components.definition_generator_tab import DefinitionGeneratorTab  # Hoofdtab voor definitie generatie
+from ui.components.expert_review_tab import ExpertReviewTab  # Expert review en validatie tab
+from ui.components.history_tab import HistoryTab  # Historie overzicht tab
+from ui.components.export_tab import ExportTab  # Export functionaliteit tab
+from ui.components.quality_control_tab import QualityControlTab  # Kwaliteitscontrole dashboard
+from ui.components.external_sources_tab import ExternalSourcesTab  # Externe bronnen beheer
+from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
+from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
+from ui.components.orchestration_tab import OrchestrationTab  # Orchestratie en automatisering
+from ui.components.management_tab import ManagementTab  # Systeem management tools
+# Importeer core services en utilities
+from ui.session_state import SessionStateManager  # Sessie state management voor UI persistentie
+from database.definitie_repository import get_definitie_repository  # Database toegang factory
+from integration.definitie_checker import DefinitieChecker  # Definitie integratie controle
+from generation.definitie_generator import OntologischeCategorie  # Ontologische categorieën
+from document_processing.document_processor import get_document_processor  # Document processor factory
+from document_processing.document_extractor import supported_file_types  # Ondersteunde bestandstypen
+# Hybrid context imports - optionele module voor hybride context verrijking
 try:
-    from hybrid_context.hybrid_context_engine import get_hybrid_context_engine
-    HYBRID_CONTEXT_AVAILABLE = True
+    from hybrid_context.hybrid_context_engine import get_hybrid_context_engine  # Hybride context engine factory
+    HYBRID_CONTEXT_AVAILABLE = True  # Hybride context succesvol geladen
 except ImportError:
-    HYBRID_CONTEXT_AVAILABLE = False
-import logging
+    HYBRID_CONTEXT_AVAILABLE = False  # Hybride context niet beschikbaar
+import logging  # Logging faciliteiten voor debug en monitoring
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
 class TabbedInterface:
     """Main tabbed interface controller voor DefinitieAgent."""
     
     def __init__(self):
-        """Initialiseer tabbed interface met services."""
-        self.repository = get_definitie_repository()
-        self.checker = DefinitieChecker(self.repository)
-        self.context_selector = ContextSelector()
+        """Initialiseer tabbed interface met alle benodigde services."""
+        self.repository = get_definitie_repository()  # Haal database repository instantie op
+        self.checker = DefinitieChecker(self.repository)  # Maak definitie checker instantie
+        self.context_selector = ContextSelector()  # Initialiseer context selector component
         
-        # Initialize tab components
+        # Initialiseer alle tab componenten met repository referentie
         self.definition_tab = DefinitionGeneratorTab(self.checker)
         self.expert_tab = ExpertReviewTab(self.repository)
         self.history_tab = HistoryTab(self.repository)

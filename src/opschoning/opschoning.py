@@ -1,43 +1,61 @@
-import re
-from config.config_loader import laad_verboden_woorden
+"""Opschoning module voor het verbeteren van AI-gegenereerde definities.
 
-# ✅ Geïsoleerde module voor opschoning van GPT-gegenereerde definities
-# ✅ Verwijdert alle verboden aanhefconstructies, dwingt hoofdletter en punt af.
+Dit module bevat functionaliteit voor het opschonen van definities
+door verboden beginconstructies te verwijderen en formatting te verbeteren.
+"""
+
+import re  # Reguliere expressies voor patroon matching
+from config.config_loader import laad_verboden_woorden  # Verboden woorden configuratie
+
+# Geïsoleerde module voor opschoning van GPT-gegenereerde definities
+# Verwijdert alle verboden aanhefconstructies, dwingt hoofdletter en punt af
 
 def opschonen(definitie: str, begrip: str) -> str:
     """
-    ✅ Verwijdert herhaaldelijk alle verboden beginconstructies:
+    Verwijdert herhaaldelijk alle verboden beginconstructies uit definitie.
+    
+    Args:
+        definitie: De te schonen definitie tekst
+        begrip: Het begrip dat gedefinieerd wordt
+        
+    Returns:
+        Opgeschoonde definitie met correcte formatting
+        
+    Verwijdert:
     - Koppelwerkwoorden (bijv. 'is', 'omvat', 'betekent')
     - Lidwoorden (bijv. 'de', 'het', 'een')
     - Cirkeldefinities (begrip + verboden woord of dubbelepunt)
-    ✅ Dwingt daarna een hoofdletter en eindpunt af.
+    
+    Dwingt daarna een hoofdletter en eindpunt af.
     """
-    # ✅ 1. Voorbewerking: strip whitespace
-    d = definitie.strip()
+    # Stap 1: Voorbewerking - verwijder leading/trailing whitespace
+    d = definitie.strip()  # Verwijder spaties aan begin en einde van definitie
 
-    # ✅ 2. Laad verboden woordenlijst (uit centrale config)
-    config = laad_verboden_woorden()
-    verboden_lijst = config.get("verboden_woorden", []) if isinstance(config, dict) else []
+    # Stap 2: Laad verboden woordenlijst uit centrale configuratie
+    config = laad_verboden_woorden()  # Laad configuratie uit JSON bestand
+    # Haal verboden woorden lijst uit config (ondersteunt zowel dict als lijst formaat)
+    verboden_lijst = config.get("verboden_woorden", []) if isinstance(config, dict) else []  # Extract lijst met veilige fallback
 
-    # ✅ 3. Genereer regex-patronen voor alle verboden beginconstructies
-    begrip_esc = re.escape(begrip.strip().lower())
-    regex_lijst = []
+    # Stap 3: Genereer regex patronen voor alle verboden beginconstructies
+    begrip_esc = re.escape(begrip.strip().lower())  # Escape speciale karakters in begrip voor veilige regex
+    regex_lijst = []  # Lijst om alle gegenereerde regex patronen in op te slaan
 
-    for woord in verboden_lijst:
-        w = woord.strip().lower()
-        if not w:
-            continue
-        w_esc = re.escape(w)
+    # Doorloop alle verboden woorden en maak specifieke regex patronen
+    for woord in verboden_lijst:  # Itereer over elke verboden woord
+        w = woord.strip().lower()  # Normaliseer woord naar lowercase en verwijder whitespace
+        if not w:  # Skip lege of whitespace-only woorden
+            continue  # Ga door naar volgende woord
+        w_esc = re.escape(w)  # Escape speciale regex karakters voor veilige pattern matching
 
-        # ✅ 3a. Exact woord aan het begin
+        # Patroon 3a: Exact woord aan het begin van definitie
         regex_lijst.append(rf"^{w_esc}\b")
 
-        # ✅ 3b. Begrip gevolgd door verboden woord
+        # Patroon 3b: Begrip gevolgd door verboden woord (circulaire definitie)
         regex_lijst.append(rf"^{begrip_esc}\s+{w_esc}\b")
 
-    # ✅ 3c. Extra patroon: begrip gevolgd door dubbelepunt of streepje
+    # Patroon 3c: Extra patroon voor begrip gevolgd door dubbelepunt of streepje
     regex_lijst.append(rf"^{begrip_esc}\s*[:\-]?\s*")
-    # 💚 Vangt constructies zoals 'Vonnis:', 'vonnis -', 'vonnis :'
+    # Vangt constructies zoals 'Vonnis:', 'vonnis -', 'vonnis :'
 
     # ✅ 4. Verwijder alle opeenvolgende verboden prefixes
     while True:

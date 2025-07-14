@@ -1,7 +1,7 @@
 from ai_toetser.core import toets_VER_03
-from config.config_loader import load_toetsregels
+from config.config_loader import laad_toetsregels
 
-toetsregels = load_toetsregels()
+toetsregels = laad_toetsregels()
 regel_VER_03 = next(r for r in toetsregels if r["id"] == "VER-03")
 
 # fout: vervoegd

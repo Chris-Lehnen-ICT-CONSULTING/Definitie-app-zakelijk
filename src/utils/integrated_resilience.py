@@ -1,53 +1,57 @@
 """
-Integrated resilience system for DefinitieAgent.
-Combines enhanced retry logic, smart rate limiting, resilience framework, and monitoring.
+Geïntegreerd resilience systeem voor DefinitieAgent.
+
+Combineert verbeterde retry logica, smart rate limiting, resilience framework, en monitoring
+voor robuuste en betrouwbare API operaties.
 """
 
-import asyncio
-import logging
-import time
-from typing import Dict, Optional, Callable, Any
-from dataclasses import dataclass
-from functools import wraps
+import asyncio  # Asynchrone programmering voor niet-blokkerende resilience
+import logging  # Logging faciliteiten voor debug en monitoring
+import time  # Tijd functies voor retry timing en rate limiting
+from typing import Dict, Optional, Callable, Any  # Type hints voor betere code documentatie
+from dataclasses import dataclass  # Dataklassen voor gestructureerde configuratie
+from functools import wraps  # Decorator utilities voor resilience wrappers
 
+# Importeer alle resilience componenten voor geïntegreerd systeem
 from utils.enhanced_retry import (
-    AdaptiveRetryManager, RetryConfig
+    AdaptiveRetryManager, RetryConfig  # Adaptieve retry management
 )
 from utils.smart_rate_limiter import (
-    SmartRateLimiter, RateLimitConfig, RequestPriority
+    SmartRateLimiter, RateLimitConfig, RequestPriority  # Intelligente rate limiting
 )
 from utils.resilience import (
-    ResilienceFramework, ResilienceConfig
+    ResilienceFramework, ResilienceConfig  # Basis resilience framework
 )
 from monitoring.api_monitor import (
-    get_metrics_collector, record_api_call
+    get_metrics_collector, record_api_call  # Monitoring en metrics collectie
 )
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor integrated resilience module
 
 
 @dataclass
 class IntegratedConfig:
-    """Configuration for integrated resilience system."""
-    # Retry configuration
+    """Configuratie voor geïntegreerd resilience systeem met alle componenten."""
+    # Retry configuratie - herhaalpogingen bij fouten
     retry_config: RetryConfig = None
     
-    # Rate limiting configuration
+    # Rate limiting configuratie - API call throttling
     rate_limit_config: RateLimitConfig = None
     
-    # Resilience configuration
+    # Resilience configuratie - circuit breakers en fallbacks
     resilience_config: ResilienceConfig = None
     
-    # Monitoring configuration
-    enable_monitoring: bool = True
-    enable_cost_tracking: bool = True
+    # Monitoring configuratie - metrics en cost tracking
+    enable_monitoring: bool = True     # Monitoring aan/uit schakelaar
+    enable_cost_tracking: bool = True  # Kosten tracking voor API calls
     
     def __post_init__(self):
-        """Initialize default configurations."""
+        """Initialiseer standaard configuraties voor alle resilience componenten."""
+        # Zet standaard retry configuratie als deze niet is opgegeven
         if self.retry_config is None:
-            self.retry_config = RetryConfig(
-                max_retries=5,
-                base_delay=1.0,
+            self.retry_config = RetryConfig(  # Maak standaard retry configuratie
+                max_retries=5,        # Maximum aantal herhaalpogingen
+                base_delay=1.0,       # Basis vertraging tussen pogingen
                 max_delay=60.0,
                 strategy="adaptive",
                 failure_threshold=3,

@@ -3,36 +3,36 @@ Bron Lookup Module - Zoekt en valideert bronnen voor definities.
 Integreert met externe bronnen en interne repositories.
 """
 
-import re
-import logging
-import asyncio
-from typing import Dict, List, Any, Optional, Tuple, Set
-from dataclasses import dataclass
-from enum import Enum
-from datetime import datetime
-import json
-import os
+import re  # Reguliere expressies voor het herkennen van bron patronen
+import logging  # Logging faciliteiten voor debug en monitoring
+import asyncio  # Asynchrone programmering voor parallelle bron lookups
+from typing import Dict, List, Any, Optional, Tuple, Set  # Type hints voor code documentatie
+from dataclasses import dataclass  # Dataklassen voor gestructureerde bron data
+from enum import Enum  # Enumeraties voor bron types en validiteit
+from datetime import datetime  # Datum en tijd functionaliteit voor tijdstempels
+import json  # JSON verwerking voor metadata opslag
+import os  # Operating system interface voor configuratie toegang
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor bron lookup module
 
 
 class BronType(Enum):
-    """Types van bronnen."""
-    WETGEVING = "wetgeving"
-    JURISPRUDENTIE = "jurisprudentie"  
-    LITERATUUR = "literatuur"
-    BELEID = "beleid"
-    INTERNE_DEFINITIE = "interne_definitie"
-    EXTERNE_BRON = "externe_bron"
-    ONBEKEND = "onbekend"
+    """Types van juridische en beleidsmatige bronnen."""
+    WETGEVING = "wetgeving"                  # Wetten en wettelijke regelingen
+    JURISPRUDENTIE = "jurisprudentie"        # Rechterlijke uitspraken
+    LITERATUUR = "literatuur"                # Juridische literatuur en publicaties
+    BELEID = "beleid"                        # Beleidsdocumenten en richtlijnen
+    INTERNE_DEFINITIE = "interne_definitie"  # Intern vastgestelde definities
+    EXTERNE_BRON = "externe_bron"            # Externe bronnen (websites, databases)
+    ONBEKEND = "onbekend"                    # Type kon niet worden bepaald
 
 
 class BronValiditeit(Enum):
-    """Validiteit van bronnen."""
-    GELDIG = "geldig"
-    VEROUDERD = "verouderd"
-    INGETROKKEN = "ingetrokken"
-    ONBEKEND = "onbekend"
+    """Validiteitsstatus van juridische bronnen."""
+    GELDIG = "geldig"              # Bron is actueel en rechtsgeldig
+    VEROUDERD = "verouderd"        # Bron is vervangen door nieuwere versie
+    INGETROKKEN = "ingetrokken"    # Bron is expliciet ingetrokken
+    ONBEKEND = "onbekend"          # Validiteit kon niet worden vastgesteld
 
 
 @dataclass
@@ -312,7 +312,7 @@ class BronZoeker:
         """
         start_tijd = datetime.now()
         
-        # Combineer verschillende zoekstrategieën
+        # Combineer verschillende zoekstrategieï¿½n
         bronnen = []
         
         # 1. Herken bronnen in query tekst zelf
@@ -476,7 +476,7 @@ class BronZoeker:
         # Toegankelijkheidsadvies
         niet_toegankelijk = [b for b in bronnen if not b.toegankelijkheid]
         if niet_toegankelijk:
-            aanbevelingen.append(f"  {len(niet_toegankelijk)} bronnen mogelijk niet direct toegankelijk")
+            aanbevelingen.append(f"ï¿½ {len(niet_toegankelijk)} bronnen mogelijk niet direct toegankelijk")
         
         return aanbevelingen
 
@@ -577,13 +577,13 @@ async def valideer_definitie_bronnen(
         elif resultaat["validatie_score"] > 0.6:
             resultaat["aanbevelingen"].append(" Goede bronverwijzingen")
         else:
-            resultaat["aanbevelingen"].append("  Bronverwijzingen kunnen verbeterd worden")
+            resultaat["aanbevelingen"].append("ï¿½ Bronverwijzingen kunnen verbeterd worden")
         
         if not resultaat["bevat_wettelijke_bronnen"]:
-            resultaat["aanbevelingen"].append("=¡ Overweeg toevoegen van wettelijke bronnen")
+            resultaat["aanbevelingen"].append("=ï¿½ Overweeg toevoegen van wettelijke bronnen")
     
     else:
-        resultaat["aanbevelingen"].append("  Geen bronverwijzingen gevonden in definitie")
+        resultaat["aanbevelingen"].append("ï¿½ Geen bronverwijzingen gevonden in definitie")
     
     return resultaat
 
@@ -593,7 +593,7 @@ if __name__ == "__main__":
     import asyncio
     
     async def test_bron_lookup():
-        print("= Testing Bron Lookup System")
+        print("ğŸ” Testing Bron Lookup System")
         print("=" * 40)
         
         # Test 1: Herken bronnen in tekst
@@ -606,7 +606,7 @@ if __name__ == "__main__":
         herkenner = BronHerkenner()
         gevonden_bronnen = herkenner.herken_bronnen_in_tekst(test_tekst)
         
-        print(f"<¯ Gevonden {len(gevonden_bronnen)} bronnen in test tekst:")
+        print(f"ğŸ” Gevonden {len(gevonden_bronnen)} bronnen in test tekst:")
         for bron in gevonden_bronnen:
             print(f"   - {bron.naam} ({bron.type.value})")
         
@@ -614,7 +614,7 @@ if __name__ == "__main__":
         zoeker = BronZoeker()
         zoek_resultaat = await zoeker.zoek_bronnen("authenticatie", max_resultaten=5)
         
-        print(f"\n= Zoekresultaat voor 'authenticatie':")
+        print(f"\nğŸ” Zoekresultaat voor 'authenticatie':")
         print(f"   Zoektijd: {zoek_resultaat.zoek_tijd:.3f}s")
         print(f"   Gevonden: {len(zoek_resultaat.gevonden_bronnen)} van {zoek_resultaat.totaal_gevonden}")
         

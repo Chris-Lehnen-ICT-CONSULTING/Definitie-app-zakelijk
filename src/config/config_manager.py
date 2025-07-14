@@ -1,7 +1,10 @@
 """
-Centralized Configuration Management System for DefinitieAgent.
-Provides unified configuration management with environment-specific settings,
-validation, and hot-reloading capabilities.
+Gecentraliseerd Configuratie Beheer Systeem voor DefinitieAgent.
+Biedt geïntegreerd configuratie beheer met omgeving-specifieke instellingen,
+validatie en hot-reloading mogelijkheden.
+
+Deze module beheert alle configuratie instellingen voor de applicatie,
+inclusief API keys, cache instellingen en omgeving-specifieke configuraties.
 """
 
 import os
@@ -122,18 +125,19 @@ class UIConfig:
         "Reclassering", "Halt", "Raad voor de Kinderbescherming"
     ])
     
-    # Abbreviations mapping
+    # Afkortingen mapping voor gebruiksvriendelijke weergave
+    # Helpt gebruikers om organisatie afkortingen te begrijpen
     afkortingen: Dict[str, str] = field(default_factory=lambda: {
-        "OM": "Openbaar Ministerie",
-        "ZM": "Zittende Magistratuur",
-        "3RO": "Samenwerkingsverband Reclasseringsorganisaties",
-        "DJI": "Dienst Justitiële Inrichtingen",
-        "NP": "Nederlands Politie",
-        "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst",
-        "Justid": "Dienst Justitiële Informatievoorziening",
-        "KMAR": "Koninklijke Marechaussee",
-        "CJIB": "Centraal Justitieel Incassobureau",
-        "AVG": "Algemene verordening gegevensbescherming"
+        "OM": "Openbaar Ministerie",  # Vervolging en opsporing
+        "ZM": "Zittende Magistratuur",  # Rechterlijke macht
+        "3RO": "Samenwerkingsverband Reclasseringsorganisaties",  # Reclassering
+        "DJI": "Dienst Justitiële Inrichtingen",  # Gevangeniswezen
+        "NP": "Nederlands Politie",  # Landelijke politie organisatie
+        "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst",  # Financieel onderzoek
+        "Justid": "Dienst Justitiële Informatievoorziening",  # IT services Justitie
+        "KMAR": "Koninklijke Marechaussee",  # Militaire politie
+        "CJIB": "Centraal Justitieel Incassobureau",  # Boetes en incasso
+        "AVG": "Algemene verordening gegevensbescherming"  # Privacy wetgeving
     })
 
 
@@ -348,8 +352,12 @@ class ConfigManager:
             logger.warning(f"Failed to load YAML configuration: {e}")
     
     def _load_from_environment(self):
-        """Load configuration from environment variables."""
-        # API configuration
+        """Laad configuratie uit omgevingsvariabelen.
+        
+        Overschrijft standaard waarden met omgevingsvariabelen
+        voor flexibele deployment configuratie.
+        """
+        # API configuratie uit omgevingsvariabelen
         if api_key := os.getenv("OPENAI_API_KEY"):
             self.api.openai_api_key = api_key
         
@@ -362,25 +370,25 @@ class ConfigManager:
         if tokens := os.getenv("OPENAI_DEFAULT_MAX_TOKENS"):
             self.api.default_max_tokens = int(tokens)
         
-        # Environment-specific settings
+        # Omgeving-specifieke instellingen
         if env := os.getenv("ENVIRONMENT"):
             try:
                 self.environment = Environment(env.lower())
             except ValueError:
-                logger.warning(f"Invalid environment: {env}")
+                logger.warning(f"Ongeldige omgeving: {env}")
         
-        # Cache configuration
+        # Cache configuratie
         if cache_dir := os.getenv("CACHE_DIR"):
             self.cache.cache_dir = cache_dir
         
         if cache_ttl := os.getenv("CACHE_DEFAULT_TTL"):
             self.cache.default_ttl = int(cache_ttl)
         
-        # Logging configuration
+        # Logging configuratie
         if log_level := os.getenv("LOG_LEVEL"):
             self.logging.level = log_level.upper()
         
-        # Rate limiting
+        # Rate limiting instellingen
         if rpm := os.getenv("RATE_LIMIT_RPM"):
             self.rate_limiting.requests_per_minute = int(rpm)
         
@@ -388,7 +396,11 @@ class ConfigManager:
             self.rate_limiting.requests_per_hour = int(rph)
     
     def _apply_config_dict(self, config_dict: Dict[str, Any]):
-        """Apply configuration dictionary to config objects."""
+        """Pas configuratie dictionary toe op config objecten.
+        
+        Args:
+            config_dict: Dictionary met configuratie instellingen
+        """
         for section_name, section_config in config_dict.items():
             if hasattr(self, section_name):
                 section_obj = getattr(self, section_name)
@@ -397,34 +409,38 @@ class ConfigManager:
                         setattr(section_obj, key, value)
     
     def _validate_configuration(self):
-        """Validate configuration settings."""
-        # Validate API configuration
+        """Valideer configuratie instellingen.
+        
+        Controleert of alle configuratie waarden geldig zijn en
+        maakt benodigde directories aan.
+        """
+        # Valideer API configuratie
         if not self.api.openai_api_key:
-            logger.warning("OpenAI API key not configured")
+            logger.warning("OpenAI API key niet geconfigureerd")
         
         if self.api.default_temperature < 0 or self.api.default_temperature > 2:
-            logger.warning(f"Invalid temperature: {self.api.default_temperature}")
+            logger.warning(f"Ongeldige temperatuur: {self.api.default_temperature}")
         
         if self.api.default_max_tokens < 1 or self.api.default_max_tokens > 4096:
-            logger.warning(f"Invalid max_tokens: {self.api.default_max_tokens}")
+            logger.warning(f"Ongeldige max_tokens: {self.api.default_max_tokens}")
         
-        # Validate paths
+        # Valideer paden en maak directories aan
         for path_attr in ['cache_dir', 'exports_dir', 'logs_dir', 'config_dir', 'reports_dir']:
             path_value = getattr(self.paths, path_attr)
             path_obj = Path(path_value)
             if not path_obj.exists():
                 try:
                     path_obj.mkdir(parents=True, exist_ok=True)
-                    logger.info(f"Created directory: {path_obj}")
+                    logger.info(f"Directory aangemaakt: {path_obj}")
                 except Exception as e:
-                    logger.error(f"Failed to create directory {path_obj}: {e}")
+                    logger.error(f"Kan directory niet aanmaken {path_obj}: {e}")
         
-        # Validate rate limiting
+        # Valideer rate limiting
         if self.rate_limiting.requests_per_minute <= 0:
-            logger.warning("Invalid requests_per_minute")
+            logger.warning("Ongeldige requests_per_minute")
         
         if self.rate_limiting.tokens_per_second <= 0:
-            logger.warning("Invalid tokens_per_second")
+            logger.warning("Ongeldige tokens_per_second")
     
     def get_config(self, section: ConfigSection) -> Any:
         """Get configuration for a specific section."""

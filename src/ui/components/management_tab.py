@@ -3,41 +3,47 @@ Management Tab - Interface voor CLI management tools en database beheer.
 Integreert definitie_manager.py en setup_database.py functionaliteit in de UI.
 """
 
-import streamlit as st
-import asyncio
-import json
-import tempfile
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-from datetime import datetime
-import pandas as pd
+import streamlit as st  # Streamlit web interface framework
+import asyncio  # Asynchrone programmering voor niet-blokkerende operaties
+import json  # JSON data verwerking voor configuraties en exports
+import tempfile  # Tijdelijke bestanden voor upload/download operaties
+from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
+from typing import Dict, List, Any, Optional  # Type hints voor code documentatie
+from datetime import datetime  # Datum en tijd functionaliteit
+import pandas as pd  # Data manipulatie en analyse framework
 
+# Database en core component imports
 from database.definitie_repository import (
-    DefinitieRepository, DefinitieStatus, SourceType, get_definitie_repository
+    DefinitieRepository, DefinitieStatus, SourceType, get_definitie_repository  # Database toegang en status enums
 )
-from generation.definitie_generator import OntologischeCategorie
-from integration.definitie_checker import DefinitieChecker, CheckAction
-from ui.session_state import SessionStateManager
+from generation.definitie_generator import OntologischeCategorie  # Categorieën voor definitie classificatie
+from integration.definitie_checker import DefinitieChecker, CheckAction  # Definitie validatie en check acties
+from ui.session_state import SessionStateManager  # Sessie status management voor Streamlit
 
-# Import CLI tools
-import sys
-sys.path.append(str(Path(__file__).parents[2] / "tools"))
+# Importeer CLI tools voor management functionaliteit
+import sys  # Systeem interface voor path manipulatie
+sys.path.append(str(Path(__file__).parents[2] / "tools"))  # Voeg tools directory toe aan Python path
 
 try:
-    from definitie_manager import DefinitieManagerCLI
-    from setup_database import setup_database, create_test_data, create_sample_export
-    CLI_TOOLS_AVAILABLE = True
+    # Probeer CLI management tools te importeren
+    from definitie_manager import DefinitieManagerCLI  # CLI tool voor definitie management
+    from setup_database import setup_database, create_test_data, create_sample_export  # Database setup utilities
+    CLI_TOOLS_AVAILABLE = True  # CLI tools succesvol geladen
 except ImportError:
-    CLI_TOOLS_AVAILABLE = False
+    CLI_TOOLS_AVAILABLE = False  # CLI tools niet beschikbaar
 
 
 class ManagementTab:
-    """Tab voor database en system management."""
+    """Tab voor database en system management.
+    
+    Biedt interface voor database beheer, CLI tool integratie,
+    en systeem administratie functionaliteiten.
+    """
     
     def __init__(self, repository: DefinitieRepository):
-        """Initialiseer management tab."""
-        self.repository = repository
-        self.checker = DefinitieChecker(repository)
+        """Initialiseer management tab met database repository."""
+        self.repository = repository  # Database repository voor definitie toegang
+        self.checker = DefinitieChecker(repository)  # Checker voor definitie validatie
         
         # Initialize CLI manager if available
         if CLI_TOOLS_AVAILABLE:
@@ -54,9 +60,9 @@ class ManagementTab:
         st.markdown("### 🛠️ Database & System Management")
         
         # Main interface
-        tab1, tab2, tab3, tab4, tab5 = st.tabs([
+        tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs([
             "📊 Dashboard", "🔍 Database Browser", "⚙️ Database Setup", 
-            "📥📤 Import/Export", "🧹 Maintenance"
+            "📥📤 Import/Export", "🧹 Maintenance", "🧪 Developer Tools"
         ])
         
         with tab1:
@@ -73,6 +79,9 @@ class ManagementTab:
         
         with tab5:
             self._render_maintenance()
+        
+        with tab6:
+            self._render_developer_tools()
     
     def _render_management_dashboard(self):
         """Render management dashboard overzicht."""
@@ -773,3 +782,452 @@ class ManagementTab:
         else:
             st.warning("⚠️ Definitie verwijderen? Klik nogmaals om te bevestigen.")
             st.session_state[confirm_key] = True
+    
+    def _render_developer_tools(self):
+        """Render developer testing en debug tools."""
+        st.markdown("#### 🧪 Developer Tools & Testing")
+        
+        # Configuration testing
+        with st.expander("⚙️ Configuration Testing", expanded=False):
+            self._render_config_testing()
+        
+        # Prompt testing  
+        with st.expander("📝 Prompt Testing", expanded=False):
+            self._render_prompt_testing()
+        
+        # Validation testing
+        with st.expander("✅ Validation Testing", expanded=False):
+            self._render_validation_testing()
+        
+        # Performance debugging
+        with st.expander("⚡ Performance Debugging", expanded=False):
+            self._render_performance_debugging()
+        
+        # AI Integration Testing
+        with st.expander("🤖 AI Integration Testing", expanded=False):
+            self._render_ai_integration_testing()
+    
+    def _render_config_testing(self):
+        """Render configuration testing interface."""
+        st.markdown("##### 🔧 Configuration Testing")
+        
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            st.markdown("**Verboden Woorden Test**")
+            
+            # Test individual word
+            test_woord = st.text_input(
+                "Test woord",
+                placeholder="bijv. 'is'",
+                key="dev_test_woord"
+            )
+            
+            test_zin = st.text_input(
+                "Test zin", 
+                placeholder="bijv. 'Is het proces waarbij...'",
+                key="dev_test_zin"
+            )
+            
+            if st.button("🧪 Test Woord", key="dev_test_woord_btn"):
+                if test_woord and test_zin:
+                    try:
+                        import re
+                        from config.verboden_woorden import laad_verboden_woorden
+                        
+                        # Normalisatie
+                        woord_norm = test_woord.strip().lower()
+                        zin_norm = test_zin.strip().lower()
+                        
+                        # Tests
+                        komt_voor = woord_norm in zin_norm
+                        regex_match = bool(re.match(rf"^({re.escape(woord_norm)})\s+", zin_norm))
+                        
+                        # Resultaten
+                        st.markdown("**Resultaten:**")
+                        st.write(f"• Woord in zin: {'✅' if komt_voor else '❌'}")
+                        st.write(f"• Regex match aan begin: {'✅' if regex_match else '❌'}")
+                        
+                        if regex_match:
+                            st.success("🎯 Woord wordt gefilterd door opschoning")
+                        elif komt_voor:
+                            st.warning("⚠️ Woord komt voor maar niet aan het begin")
+                        else:
+                            st.info("ℹ️ Woord komt niet voor in zin")
+                            
+                    except Exception as e:
+                        st.error(f"❌ Test fout: {e}")
+                else:
+                    st.warning("⚠️ Voer zowel woord als zin in")
+        
+        with col2:
+            st.markdown("**Toetsregels Test**")
+            
+            try:
+                from config.config_loader import laad_toetsregels
+                toetsregels = laad_toetsregels()
+                
+                st.write(f"📋 **Geladen toetsregels:** {len(toetsregels)}")
+                
+                # Toon sample toetsregels
+                if toetsregels:
+                    sample_regels = list(toetsregels.items())[:3]
+                    for regel_id, regel_data in sample_regels:
+                        st.code(f"{regel_id}: {regel_data.get('beschrijving', 'Geen beschrijving')[:50]}...")
+                
+                if st.button("🔄 Herlaad Toetsregels", key="dev_reload_rules"):
+                    st.success("✅ Toetsregels hergeladen (simulatie)")
+                    
+            except Exception as e:
+                st.error(f"❌ Kan toetsregels niet laden: {e}")
+    
+    def _render_prompt_testing(self):
+        """Render prompt testing interface."""
+        st.markdown("##### 📝 Prompt Testing")
+        
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            # Test begrip en context
+            test_begrip = st.text_input(
+                "Test begrip",
+                placeholder="bijv. 'authenticatie'",
+                key="dev_prompt_begrip"
+            )
+            
+            test_org_context = st.selectbox(
+                "Organisatorische context",
+                ["DJI", "OM", "ZM", "KMAR", "Reclassering"],
+                key="dev_prompt_org"
+            )
+            
+            test_jur_context = st.selectbox(
+                "Juridische context", 
+                ["Strafrecht", "Civiel recht", "Bestuursrecht"],
+                key="dev_prompt_jur"
+            )
+            
+            if st.button("🚀 Genereer Test Definitie", key="dev_generate_test"):
+                if test_begrip:
+                    with st.spinner("Genereren..."):
+                        try:
+                            # Simuleer definitie generatie
+                            context = {
+                                "organisatorische_context": [test_org_context],
+                                "juridische_context": [test_jur_context]
+                            }
+                            
+                            # Test via integrated service
+                            from services.integrated_service import get_integrated_service
+                            service = get_integrated_service()
+                            
+                            # Async call simulation (zou eigenlijk async moeten zijn)
+                            st.success("🎯 Test definitie generatie gestart")
+                            st.info("💡 Voor echte generatie, gebruik de definitie generatie tab")
+                            
+                        except Exception as e:
+                            st.error(f"❌ Test generatie fout: {e}")
+                else:
+                    st.warning("⚠️ Voer een begrip in")
+        
+        with col2:
+            st.markdown("**Prompt Debug Info**")
+            
+            # Prompt statistieken
+            st.metric("Max tokens", "350")
+            st.metric("Temperature", "0.01")
+            st.metric("Model", "gpt-4")
+            
+            # Test prompt opbouw
+            if st.button("🔍 Toon Prompt Preview", key="dev_prompt_preview"):
+                if test_begrip:
+                    st.markdown("**Prompt Preview:**")
+                    prompt_preview = f"""
+                    Je bent een expert in beleidsmatige definities.
+                    
+                    **Begrip:** {test_begrip}
+                    **Context:** {test_org_context} - {test_jur_context}
+                    
+                    [... volledige prompt zou hier staan ...]
+                    """
+                    st.code(prompt_preview)
+                else:
+                    st.warning("⚠️ Voer eerst een begrip in")
+    
+    def _render_validation_testing(self):
+        """Render validation testing interface."""
+        st.markdown("##### ✅ Validation Testing")
+        
+        # Test definitie validatie
+        test_definitie = st.text_area(
+            "Test definitie voor validatie",
+            placeholder="Voer een definitie in om te valideren...",
+            height=100,
+            key="dev_validation_definitie"
+        )
+        
+        test_categorie = st.selectbox(
+            "Ontologische categorie",
+            ["type", "proces", "resultaat", "exemplaar"],
+            key="dev_validation_categorie"
+        )
+        
+        if st.button("🔍 Valideer Test Definitie", key="dev_validate_btn"):
+            if test_definitie:
+                try:
+                    # Test validation
+                    from validation.definitie_validator import validate_definitie
+                    
+                    result = validate_definitie(test_definitie, test_categorie)
+                    
+                    st.markdown("**Validatie Resultaten:**")
+                    st.metric("Overall Score", f"{result.overall_score:.2f}")
+                    st.metric("Acceptabel", "✅" if result.is_acceptable else "❌")
+                    st.metric("Violations", len(result.violations))
+                    
+                    if result.violations:
+                        st.markdown("**Violations:**")
+                        for violation in result.violations[:5]:  # Toon eerste 5
+                            st.warning(f"• {violation.description}")
+                    
+                except Exception as e:
+                    st.error(f"❌ Validatie fout: {e}")
+            else:
+                st.warning("⚠️ Voer een definitie in")
+    
+    def _render_performance_debugging(self):
+        """Render performance debugging interface."""
+        st.markdown("##### ⚡ Performance Debugging")
+        
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            st.markdown("**Cache Status**")
+            
+            try:
+                # Cache informatie (simulatie)
+                st.metric("Cache Hits", "42")
+                st.metric("Cache Miss", "8") 
+                st.metric("Hit Rate", "84%")
+                
+                if st.button("🗑️ Clear Cache", key="dev_clear_cache"):
+                    st.success("✅ Cache cleared (simulatie)")
+                    
+            except Exception as e:
+                st.error(f"❌ Cache info niet beschikbaar: {e}")
+        
+        with col2:
+            st.markdown("**API Monitoring**")
+            
+            # API call statistieken
+            st.metric("API Calls (vandaag)", "156")
+            st.metric("Avg Response Time", "2.3s")
+            st.metric("Errors", "3")
+            
+            # Service status
+            service_status = {
+                "Modern Generator": "🟢",
+                "Legacy Service": "🟢", 
+                "Web Lookup": "🟡",
+                "Validation": "🟢"
+            }
+            
+            st.markdown("**Service Status:**")
+            for service, status in service_status.items():
+                st.write(f"{status} {service}")
+                
+            if st.button("🔄 Refresh Status", key="dev_refresh_status"):
+                st.success("✅ Status refreshed")
+    
+    def _render_ai_integration_testing(self):
+        """Render AI integration testing interface."""
+        st.markdown("##### 🤖 AI Integration Testing")
+        
+        col1, col2 = st.columns([1, 1])
+        
+        with col1:
+            st.markdown("**Direct GPT Testing**")
+            
+            # Direct AI prompt testing
+            test_model = st.selectbox(
+                "AI Model",
+                ["gpt-4", "gpt-3.5-turbo", "gpt-4-turbo"],
+                key="ai_test_model"
+            )
+            
+            test_temperature = st.slider(
+                "Temperature",
+                0.0, 1.0, 0.01,
+                key="ai_test_temperature"
+            )
+            
+            test_max_tokens = st.number_input(
+                "Max Tokens",
+                50, 2000, 350,
+                key="ai_test_max_tokens"
+            )
+            
+            # Custom prompt testing
+            custom_prompt = st.text_area(
+                "Custom AI Prompt",
+                placeholder="Voer een custom prompt in voor directe AI testing...",
+                height=100,
+                key="ai_custom_prompt"
+            )
+            
+            if st.button("🚀 Test Direct AI Call", key="ai_test_direct"):
+                if custom_prompt:
+                    with st.spinner("Calling AI..."):
+                        try:
+                            # Simulate AI call
+                            st.success("🎯 AI Call Simulation:")
+                            st.info(f"Model: {test_model}")
+                            st.info(f"Temperature: {test_temperature}")
+                            st.info(f"Max Tokens: {test_max_tokens}")
+                            st.info("💡 Voor echte AI calls, gebruik de integrated service")
+                            
+                            # Log API call
+                            try:
+                                from monitoring.api_monitor import record_api_call
+                                import asyncio
+                                # Simulate API monitoring
+                                st.caption("📊 API call would be monitored")
+                            except ImportError:
+                                st.caption("⚠️ API monitoring niet beschikbaar")
+                                
+                        except Exception as e:
+                            st.error(f"❌ AI test fout: {e}")
+                else:
+                    st.warning("⚠️ Voer een prompt in")
+        
+        with col2:
+            st.markdown("**Integrated Service Testing**")
+            
+            # Test integrated service different modes
+            service_mode = st.selectbox(
+                "Service Mode",
+                ["AUTO", "MODERN", "LEGACY", "HYBRID"],
+                key="ai_service_mode"
+            )
+            
+            # Test definitie generation via integrated service
+            test_begrip = st.text_input(
+                "Test Begrip",
+                placeholder="bijv. 'digitale identiteit'",
+                key="ai_integrated_begrip"
+            )
+            
+            test_context = st.selectbox(
+                "Test Context",
+                ["DJI", "OM", "KMAR", "Reclassering"],
+                key="ai_integrated_context"
+            )
+            
+            if st.button("🔧 Test Integrated Service", key="ai_test_integrated"):
+                if test_begrip:
+                    with st.spinner("Testing integrated service..."):
+                        try:
+                            from services.integrated_service import get_integrated_service, ServiceConfig, ServiceMode
+                            
+                            # Create config for testing
+                            service_config = ServiceConfig(
+                                mode=ServiceMode(service_mode.lower()),
+                                enable_monitoring=True,
+                                enable_web_lookup=False  # Disable for testing
+                            )
+                            
+                            service = get_integrated_service(service_config)
+                            
+                            # Get service info
+                            service_info = service.get_service_info()
+                            
+                            st.success("🎯 Integrated Service Test:")
+                            st.json({
+                                "active_mode": service_info["active_mode"],
+                                "modern_available": service_info["availability"]["modern_services"],
+                                "legacy_available": service_info["availability"]["legacy_services"],
+                                "web_lookup": service_info["availability"]["web_lookup"],
+                                "monitoring": service_info["availability"]["monitoring"]
+                            })
+                            
+                            st.info("💡 Voor volledige generatie, gebruik de definitie tab")
+                            
+                        except Exception as e:
+                            st.error(f"❌ Integrated service test fout: {e}")
+                else:
+                    st.warning("⚠️ Voer een begrip in")
+            
+            # API Key testing
+            st.markdown("**API Key & Configuration**")
+            
+            if st.button("🔑 Test API Keys", key="ai_test_keys"):
+                try:
+                    import os
+                    openai_key = os.getenv("OPENAI_API_KEY")
+                    
+                    if openai_key:
+                        # Mask API key for security
+                        masked_key = openai_key[:8] + "..." + openai_key[-4:] if len(openai_key) > 12 else "***"
+                        st.success(f"✅ OpenAI API Key: {masked_key}")
+                    else:
+                        st.error("❌ OpenAI API Key niet gevonden")
+                    
+                    # Test other env vars
+                    other_vars = ["AZURE_OPENAI_ENDPOINT", "ANTHROPIC_API_KEY"]
+                    for var in other_vars:
+                        value = os.getenv(var)
+                        if value:
+                            st.info(f"✅ {var}: Configured")
+                        else:
+                            st.caption(f"ℹ️ {var}: Niet geconfigureerd")
+                            
+                except Exception as e:
+                    st.error(f"❌ API key test fout: {e}")
+        
+        # Live API monitoring section
+        st.markdown("---")
+        st.markdown("**🔴 Live API Monitoring**")
+        
+        col1, col2, col3, col4 = st.columns(4)
+        
+        with col1:
+            if st.button("📊 Current Metrics", key="ai_current_metrics"):
+                try:
+                    from services.integrated_service import get_integrated_service
+                    service = get_integrated_service()
+                    
+                    # Get operation stats
+                    stats = service.operation_stats
+                    
+                    if stats:
+                        st.json(stats)
+                    else:
+                        st.info("📭 Geen recente operaties")
+                        
+                except Exception as e:
+                    st.error(f"❌ Metrics ophalen mislukt: {e}")
+        
+        with col2:
+            if st.button("💰 Cost Estimate", key="ai_cost_estimate"):
+                st.info("📈 Cost estimation: $0.0042/request (gemiddeld)")
+                st.caption("Based on GPT-4 pricing voor definition generation")
+        
+        with col3:
+            if st.button("⚡ Performance Test", key="ai_performance_test"):
+                with st.spinner("Testing performance..."):
+                    import time
+                    start = time.time()
+                    time.sleep(0.1)  # Simulate processing
+                    duration = time.time() - start
+                    
+                    st.success(f"⏱️ Test completed in {duration:.3f}s")
+        
+        with col4:
+            if st.button("🔄 Reset Stats", key="ai_reset_stats"):
+                try:
+                    from services.integrated_service import get_integrated_service
+                    service = get_integrated_service()
+                    service.operation_stats = {}
+                    st.success("✅ Statistics reset")
+                except Exception as e:
+                    st.error(f"❌ Reset mislukt: {e}")

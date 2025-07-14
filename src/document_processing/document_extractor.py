@@ -2,31 +2,31 @@
 Document Text Extraction - Haal tekst uit verschillende bestandsformaten.
 """
 
-import os
-import logging
-import tempfile
-from typing import Optional, Dict, List
-from pathlib import Path
-import mimetypes
+import os  # Operating system interface voor bestandsoperaties
+import logging  # Logging faciliteiten voor debug en monitoring
+import tempfile  # Tijdelijke bestanden voor veilige verwerking
+from typing import Optional, Dict, List  # Type hints voor betere code documentatie
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+import mimetypes  # MIME type detectie voor bestandsformaten
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor document extractor module
 
-# Ondersteunde bestandstypen
+# Ondersteunde bestandstypen voor tekstextractie
 SUPPORTED_TYPES = {
-    'text/plain': 'Tekst bestanden (.txt)',
-    'application/pdf': 'PDF documenten (.pdf)',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word documenten (.docx)',
-    'application/msword': 'Word documenten (.doc)',
-    'text/markdown': 'Markdown bestanden (.md)',
-    'text/csv': 'CSV bestanden (.csv)',
-    'application/json': 'JSON bestanden (.json)',
-    'text/html': 'HTML bestanden (.html)',
-    'application/rtf': 'RTF bestanden (.rtf)'
+    'text/plain': 'Tekst bestanden (.txt)',  # Platte tekst bestanden
+    'application/pdf': 'PDF documenten (.pdf)',  # Adobe PDF documenten
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': 'Word documenten (.docx)',  # Microsoft Word DOCX
+    'application/msword': 'Word documenten (.doc)',  # Legacy Microsoft Word DOC
+    'text/markdown': 'Markdown bestanden (.md)',  # Markdown geformatteerde tekst
+    'text/csv': 'CSV bestanden (.csv)',  # Comma-separated values
+    'application/json': 'JSON bestanden (.json)',  # JavaScript Object Notation
+    'text/html': 'HTML bestanden (.html)',  # HyperText Markup Language
+    'application/rtf': 'RTF bestanden (.rtf)'  # Rich Text Format
 }
 
 def supported_file_types() -> Dict[str, str]:
-    """Return ondersteunde bestandstypen."""
-    return SUPPORTED_TYPES.copy()
+    """Retourneer dictionary met alle ondersteunde bestandstypen."""
+    return SUPPORTED_TYPES.copy()  # Retourneer kopie om origineel te beschermen
 
 def extract_text_from_file(file_content: bytes, filename: str, mime_type: Optional[str] = None) -> Optional[str]:
     """
@@ -41,13 +41,14 @@ def extract_text_from_file(file_content: bytes, filename: str, mime_type: Option
         Geëxtraheerde tekst of None bij fout
     """
     try:
-        # Bepaal MIME type als niet gegeven
-        if not mime_type:
-            mime_type, _ = mimetypes.guess_type(filename)
+        # Bepaal MIME type als niet expliciet gegeven
+        if not mime_type:  # Als geen MIME type is meegegeven
+            mime_type, _ = mimetypes.guess_type(filename)  # Probeer af te leiden uit bestandsnaam
         
-        if not mime_type or mime_type not in SUPPORTED_TYPES:
-            logger.warning(f"Niet ondersteund bestandstype: {mime_type} voor {filename}")
-            return None
+        # Controleer of bestandstype wordt ondersteund
+        if not mime_type or mime_type not in SUPPORTED_TYPES:  # Als type onbekend of niet ondersteund
+            logger.warning(f"Niet ondersteund bestandstype: {mime_type} voor {filename}")  # Log waarschuwing
+            return None  # Retourneer None bij niet-ondersteund type
         
         # Tekst extractie op basis van type
         if mime_type == 'text/plain':

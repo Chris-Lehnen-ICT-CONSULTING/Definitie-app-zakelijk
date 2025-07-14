@@ -3,27 +3,29 @@
 Database Setup Script - Initialiseer definitie database met schema en test data.
 """
 
-import sys
-import json
-from pathlib import Path
-import logging
+import sys  # Systeem interface voor path manipulatie
+import json  # JSON verwerking voor data serialisatie
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+import logging  # Logging faciliteiten voor setup proces
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Voeg src directory toe aan Python path voor module imports
+sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
 
+# Importeer database componenten voor setup en initialisatie
 from database.definitie_repository import (
-    get_definitie_repository, DefinitieRepository, DefinitieRecord, 
-    DefinitieStatus, SourceType
+    get_definitie_repository, DefinitieRepository, DefinitieRecord,  # Repository en data modellen
+    DefinitieStatus, SourceType  # Status en bron type enumeraties
 )
-from generation.definitie_generator import OntologischeCategorie
+from generation.definitie_generator import OntologischeCategorie  # Ontologische categorieën
 
-# Setup logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Setup logging configuratie voor database setup script
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')  # Configureer logging format
+logger = logging.getLogger(__name__)  # Logger instantie voor setup script
 
 
 def create_test_data() -> list[DefinitieRecord]:
-    """Maak test data voor de database."""
+    """Maak test data voor de database met voorbeelden van verschillende definities."""
+    # Maak lijst met test definities voor verschillende scenario's
     test_data = [
         DefinitieRecord(
             begrip="verificatie",

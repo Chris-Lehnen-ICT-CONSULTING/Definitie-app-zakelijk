@@ -21,7 +21,12 @@ from dotenv import load_dotenv
 st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
 # ✅ Configuratie en logging
-from logs.application.log_definitie import get_logger, log_definitie
+import sys
+import os
+# Voeg root directory toe aan Python path voor logs module toegang
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+
+from logs.application.log_definitie import get_logger, log_definitie  # Logging uit root logs directory
 from config.config_loader import laad_toetsregels, laad_verboden_woorden
 from config.verboden_woorden import sla_verboden_woorden_op, log_test_verboden_woord
 
@@ -768,21 +773,29 @@ with tab_expert:
     with st.expander("⚙️ Verboden startwoorden beheren", expanded=False):
 
         # 💚 Laadt de permanente lijst vanuit verboden_woorden.json
+        # Deze lijst bevat woorden die niet aan het begin van een definitie mogen staan
+        # volgens de schrijfrichtlijnen voor overheidsdefinities.
         huidige_lijst = laad_verboden_woorden()
 
         # 💚 UI-veld voor bewerken van de permanente woordenlijst
+        # Gebruikers kunnen hier de lijst van verboden startwoorden aanpassen.
+        # Wijzigingen worden pas actief na het klikken op de opslaan knop.
         woorden_input = st.text_area(
             "✏️ Permanente lijst van verboden startwoorden (gescheiden door komma’s):",
             value=", ".join(huidige_lijst)
         )
 
         # 💚 Sla de gewijzigde lijst op in het JSON-bestand
+        # Wijzigingen worden permanent opgeslagen en zijn direct actief
+        # voor alle toekomstige definitie-generaties.
         if st.button("💾 Sla permanente lijst op"):
             lijst = [w.strip() for w in woorden_input.split(",") if w.strip()]
             sla_verboden_woorden_op(lijst)
             st.success(f"✅ Permanente lijst opgeslagen ({len(lijst)} woorden).")
 
         # 💚 Scheiding tussen permanente en tijdelijke invoer
+        # Dit maakt het mogelijk om tijdelijk te experimenteren met andere verboden woorden
+        # zonder de permanente configuratie aan te passen.
         # 💚 Tijdelijke override (alleen voor deze sessie)
         st.markdown("🧪 <u>Tijdelijke override (alleen voor deze sessie)</u>", unsafe_allow_html=True)
 
@@ -801,21 +814,29 @@ with tab_expert:
             )
 
             # 💚 Verwerk invoer met strikte filtering (geen lege woorden of alleen leestekens)
+            # Strip whitespace van elk woord en filter lege entries uit.
+            # Controleer dat elk woord minstens één alfanumeriek karakter bevat.
             tijdelijke_lijst_raw = [w.strip() for w in tijdelijke_input.split(",") if w.strip()]
             tijdelijke_lijst = [w for w in tijdelijke_lijst_raw if re.search(r"\w", w)]
 
             if tijdelijke_lijst:
                 # 💚 Alleen bij geldige lijst activeren we de override
+                # De override wordt opgeslagen in session state en blijft actief
+                # totdat de gebruiker de checkbox uitschakelt of de sessie eindigt.
                 st.session_state.override_actief = True
                 st.session_state.override_verboden_woorden = tijdelijke_lijst
                 st.success(f"✅ Override geactiveerd met {len(tijdelijke_lijst)} geldige woorden.")
             else:
                 # 💚 Invalide inhoud → override NIET activeren
+                # Als er geen geldige woorden zijn ingevoerd, wordt de override
+                # niet geactiveerd om fouten te voorkomen.
                 st.session_state.override_actief = False
                 st.session_state.override_verboden_woorden = []
                 st.warning("⚠️ Geen geldige woorden gedetecteerd. Override wordt niet toegepast.")
         else:
             # 💚 Reset override als checkbox uit staat
+            # Wanneer de gebruiker de override uitschakelt, wordt de standaardlijst
+            # weer actief voor alle volgende validaties.
             st.session_state.override_actief = False
             st.session_state.override_verboden_woorden = []
             st.info("ℹ️ Geen override actief. De standaardlijst wordt gebruikt.")
@@ -860,48 +881,67 @@ with tab_expert:
     # ================================
 
     # 💚 Visuele kop boven test
+    # Deze sectie biedt een interface om individuele woorden te testen
+    # tegen de verboden woorden detectielogica.
     st.markdown("### ➕ Test dit woord (individueel)")
 
     # 💚 Twee kolommen naast elkaar voor woord en zin
+    # De twee-kolom layout maakt het invoeren van testdata overzichtelijker
+    # en voorkomt dat de interface te lang wordt.
     col1, col2 = st.columns(2)
 
     with col1:
         # 💚 Deze invoer laat gebruiker een woord kiezen om te testen
         # 💚 De key is uniek: voorkomt conflict met andere invoervelden (zoals in Tab 2)
+        # Unieke keys zijn essentieel in Streamlit om widget states gescheiden te houden.
         test_woord = st.text_input("👁️ Te testen woord", key="test_woord_input_enkel")
 
     with col2:
         # 💚 Hier voert gebruiker de zin in waarin gezocht moet worden naar het woord
         # 💚 Ook hier is de key uniek gemaakt (specifiek voor deze test)
+        # De testzin wordt gebruikt om te controleren of het woord aan het begin staat.
         test_zin = st.text_input("✏️ Testzin (waar dit woord mogelijk in voorkomt)", key="test_zin_input_enkel")
 
     # 💚 Zodra gebruiker op de testknop klikt, wordt de test uitgevoerd
     # 💚 Unieke key toegevoegd om Streamlit-conflict te vermijden
+    # De test controleert zowel aanwezigheid als positie van het woord.
     if st.button("🧪 Voer test uit voor dit woord", key="button_test_voorstel3"):
         if not test_woord or not test_zin:
             # 💚 Feedback bij ontbrekende invoer
             st.warning("⚠️ Vul zowel het te testen woord als een zin in.")
         else:
             # 💚 Normaliseer beide inputs naar lowercase voor consistente analyse
+            # Dit zorgt voor case-insensitive matching, wat belangrijk is omdat
+            # definities zowel met hoofdletters als kleine letters kunnen beginnen.
             woord_norm = test_woord.strip().lower()
             zin_norm = test_zin.strip().lower()
 
             # 💚 Controle 1: komt het woord ergens voor in de zin?
+            # Deze simpele check bepaalt of het woord überhaupt aanwezig is,
+            # ongeacht de positie in de zin.
             komt_voor = woord_norm in zin_norm
 
             # 💚 Controle 2: matcht het woord aan het begin van de zin (regex)?
+            # De regex controleert specifiek of het woord aan het begin staat,
+            # gevolgd door whitespace. re.escape() voorkomt regex injection.
             regex_match = bool(re.match(rf"^({re.escape(woord_norm)})\s+", zin_norm))
 
             # 💚 Opbouw van resultaattekst
+            # Creëer een leesbare samenvatting van beide testresultaten
+            # voor directe feedback aan de gebruiker.
             resultaat = f"🔹 `{test_woord}` in testzin → "
             resultaat += "✔️ In zin" if komt_voor else "❌ Niet in zin"
             resultaat += " | "
             resultaat += "✔️ Regex-match aan begin" if regex_match else "❌ Geen beginmatch"
 
             # 💚 Logging voor analyse/doelmatigheid via Voorstel 4
+            # Sla testresultaten op voor latere analyse van de effectiviteit
+            # van de verboden woorden lijst en detectiepatronen.
             log_test_verboden_woord(test_woord, test_zin, komt_voor, regex_match)
 
             # 💚 Visuele terugkoppeling afhankelijk van resultaat
+            # Gebruik kleurcodering om snel duidelijk te maken of het woord
+            # een probleem vormt (groen=ok, geel=waarschuwing, rood=fout).
             if regex_match:
                 st.success(resultaat)
             elif komt_voor:
@@ -913,17 +953,21 @@ with tab_expert:
     # ================================
 
     # 💚 UI-opbouw in kolommen
+    # Duplicaat van vorige test sectie - deze kan mogelijk verwijderd worden
+    # om code duplicatie te voorkomen.
     col1, col2 = st.columns(2)
 
     with col1:
         test_woord = st.text_input("👁️ Verboden woord om te testen", key="test_woord_input_voorkom_dubbel_2")
         # 💚 Tweede tekstveld krijgt ook een unieke key om conflictsituatie te voorkomen
+        # Keys moeten uniek zijn binnen de gehele Streamlit applicatie.
 
     with col2:
         test_zin = st.text_input("✏️ Testzin (waar dit woord mogelijk in voorkomt)", key="test_zin_input")
 
     # 💚 Actieve testknop (pas uitvoeren als gebruiker op knop klikt)
     # 💚 Unieke key toegevoegd voor voorstel 4b (voorkomt ID-conflict)
+    # Deze tweede test sectie lijkt een duplicaat - overweeg om te consolideren.
     if st.button("🧪 Voer test uit voor dit woord", key="button_test_voorstel4b"):
         if not test_woord or not test_zin:
             st.warning("⚠️ Vul zowel het te testen woord als een zin in.")
@@ -938,16 +982,21 @@ with tab_expert:
 
             # ✅ Logging van het testresultaat (Voorstel 4b)
             # 🧠 Dit maakt analyse en debugging mogelijk in JSONL-log
+            # De import wordt hier herhaald voor het geval de module nog niet geladen is.
             from config.verboden_woorden import log_test_verboden_woord  # ✅ Als nog niet geïmporteerd
             log_test_verboden_woord(test_woord, test_zin, komt_voor, regex_match)
 
             # 💚 Bouw visuele feedback op
+            # Formatteer de testresultaten in een gebruiksvriendelijk formaat
+            # met duidelijke indicatoren voor succes of falen.
             resultaat = f"🔹 `{test_woord}` in testzin → "
             resultaat += "✔️ In zin" if komt_voor else "❌ Niet in zin"
             resultaat += " | "
             resultaat += "✔️ Regex-match aan begin" if regex_match else "❌ Geen beginmatch"
 
             # 💚 Toon resultaat met passende kleur
+            # Kleurcodering helpt gebruikers snel de ernst van het resultaat
+            # te interpreteren zonder de details te hoeven lezen.
             if regex_match:
                 st.success(resultaat)
             elif komt_voor:
@@ -961,9 +1010,13 @@ with tab_expert:
     # ================================
     # ✅ Laat toe om resultaten uit voorstel 4b direct te bekijken en downloaden
     # 💚 Controleert of veld 'expert_review' correct wordt opgeslagen in zowel JSON als CSV logs
+    # Deze viewer toont alle uitgevoerde tests van verboden woorden,
+    # inclusief testresultaten en detectiepatronen.
     with st.expander("📖 Bekijk log van individuele woordtests", expanded=False):
         try:
             # 💚 Lees het JSONL-logbestand in
+            # JSONL formaat wordt gebruikt omdat elke regel een apart JSON object is,
+            # wat efficiënt is voor append-only logging.
             logpad = "log/verboden_woord_tests.jsonl"
             with open(logpad, encoding="utf-8") as f:
                 regels = [json.loads(lijn.strip()) for lijn in f if lijn.strip()]

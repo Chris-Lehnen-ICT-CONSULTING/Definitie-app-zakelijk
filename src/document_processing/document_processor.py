@@ -2,18 +2,18 @@
 Document Processor - Verwerk geüploade documenten voor context enrichment.
 """
 
-import logging
-import hashlib
-import json
-import os
-from datetime import datetime
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass, asdict
-from pathlib import Path
+import logging  # Logging faciliteiten voor debug en monitoring
+import hashlib  # Hash functionaliteit voor unieke document identifiers
+import json  # JSON verwerking voor metadata opslag
+import os  # Operating system interface voor bestandsoperaties
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from typing import Dict, List, Optional, Any  # Type hints voor betere code documentatie
+from dataclasses import dataclass, asdict  # Dataklassen voor gestructureerde document data
+from pathlib import Path  # Object-georiënteerde pad manipulatie
 
-from .document_extractor import extract_text_from_file, get_file_info
+from .document_extractor import extract_text_from_file, get_file_info  # Importeer tekst extractie functionaliteit
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor document processing module
 
 @dataclass
 class ProcessedDocument:
@@ -33,21 +33,21 @@ class ProcessedDocument:
     error_message: Optional[str] = None  # Error bericht indien van toepassing
     
     def to_dict(self) -> Dict[str, Any]:
-        """Converteer naar dictionary voor opslag."""
-        data = asdict(self)
-        data['uploaded_at'] = self.uploaded_at.isoformat()
-        return data
+        """Converteer ProcessedDocument naar dictionary voor JSON opslag."""
+        data = asdict(self)  # Converteer dataclass naar dictionary
+        data['uploaded_at'] = self.uploaded_at.isoformat()  # Converteer datetime naar ISO string
+        return data  # Retourneer serialiseerbare dictionary
     
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ProcessedDocument':
-        """Maak ProcessedDocument van dictionary."""
-        data['uploaded_at'] = datetime.fromisoformat(data['uploaded_at'])
-        return cls(**data)
+        """Maak ProcessedDocument instantie van dictionary data."""
+        data['uploaded_at'] = datetime.fromisoformat(data['uploaded_at'])  # Converteer ISO string terug naar datetime
+        return cls(**data)  # Retourneer nieuwe ProcessedDocument instantie
 
 class DocumentProcessor:
-    """Processor voor geüploade documenten."""
+    """Processor voor geüploade documenten met tekstextractie en analyse."""
     
-    def __init__(self, storage_dir: str = "data/uploaded_documents"):
+    def __init__(self, storage_dir: str = "data/uploaded_documents"):  # Standaard opslag directory
         """
         Initialiseer document processor.
         

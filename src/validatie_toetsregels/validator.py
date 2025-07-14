@@ -1,31 +1,35 @@
-# 🔧 Bestand: validatie_toetsregels.py
+# 🔧 Bestand: validatie_toetsregels.py voor toetsregel validatie
 # 📍 Locatie: vervang bestaande functie lade_json_ids
-import os
-import re
-from typing import Dict, Any
-from config.config_loader import load_toetsregels  # ✅ Centrale JSON‐loader
+import os  # Operating system interface voor bestandsoperaties
+import re  # Reguliere expressies voor functie detectie in Python code
+from typing import Dict, Any  # Type hints voor betere code documentatie
+from config.config_loader import load_toetsregels  # ✅ Centrale JSON loader voor toetsregels
 
 def laad_json_ids(path: str = None) -> Dict[str, Dict[str, Any]]:
     """
     💚 Laadt de volledige toetsregels via de centrale loader.
-    💚 Retourneert het sub‐dict 'regels' uit het JSON‐object.
+    💚 Retourneert het sub-dict 'regels' uit het JSON-object.
     """
-    # ✅ Als er een specifiek pad is opgegeven, gebruik dat; anders de default.
-    data = load_toetsregels(path) if path else load_toetsregels()
-    # ✅ Haal de regels‐sectie eruit
-    return data.get("regels", {})
+    # ✅ Als er een specifiek pad is opgegeven, gebruik dat; anders de default
+    data = load_toetsregels(path) if path else load_toetsregels()  # Laad toetsregels uit configuratie
+    # ✅ Haal de regels-sectie eruit en retourneer als dictionary
+    return data.get("regels", {})  # Retourneer regels sectie met veilige fallback
 
 # ✅ Detecteert toetsfuncties zoals toets_CON_01 en zet om naar ID-vorm zoals CON-01
 def detecteer_functies_in_toetser(python_pad: str) -> set:
-    with open(python_pad, "r", encoding="utf-8") as f:
-        inhoud = f.read()
-    matches = re.findall(r"def\s+toets_([A-Z0-9_]+)\s*\(", inhoud)
-    return {match.replace("_", "-") for match in matches}
+    """Detecteert alle toets functies in Python bestand en converteert naar regel IDs."""
+    with open(python_pad, "r", encoding="utf-8") as f:  # Open Python bestand met UTF-8 encoding
+        inhoud = f.read()  # Lees volledige bestandsinhoud
+    # Zoek naar alle functie definities die beginnen met 'toets_'
+    matches = re.findall(r"def\s+toets_([A-Z0-9_]+)\s*\(", inhoud)  # Regex voor toets functie patronen
+    # Converteer underscore naar dash voor consistente ID formatting
+    return {match.replace("_", "-") for match in matches}  # Retourneer set van geconverteerde regel IDs
 
 # ✅ Voert validatie uit en toont overzichtelijk rapport
 def valideer_toetsregels(json_pad: str, python_pad: str) -> None:
-    json_regels = laad_json_ids(json_pad)
-    code_ids = detecteer_functies_in_toetser(python_pad)
+    """Valideert consistentie tussen JSON toetsregels en Python implementaties."""
+    json_regels = laad_json_ids(json_pad)  # Laad alle regels uit JSON configuratie
+    code_ids = detecteer_functies_in_toetser(python_pad)  # Detecteer geïmplementeerde functies
 
     print("\n📊 VALIDATIERAPPORT TOETSREGELS\n")
 

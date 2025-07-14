@@ -1,6 +1,12 @@
-import json
-import os
-from typing import Dict
+"""Configuratie loader voor toetsregels en verboden woorden.
+
+Dit module biedt legacy functionaliteit voor het laden van
+configuratiebestanden zoals toetsregels en verboden woorden.
+"""
+
+import json  # JSON bestand verwerking
+import os  # Besturingssysteem interface voor paden
+from typing import Dict  # Type hints
 
 # ✅ Bepaal basis-dir, zodat we altijd vanaf de module-locatie werken
 def _get_base_dir() -> str:
@@ -17,9 +23,9 @@ def laad_toetsregels(path: str = _TOETSREGELS_PATH) -> dict[str, dict]:
     Laadt toetsregels uit JSON en verrijkt elke regel met z’n eigen ID.
     Werkt met UTF-8 en gooit FileNotFoundError / JSONDecodeError bij fouten.
     """
-   # 1) laad hele JSON
-    with open(path, 'r', encoding='utf-8') as f:
-        raw = json.load(f)
+    # 1) Laad hele JSON bestand in het geheugen
+    with open(path, 'r', encoding='utf-8') as f:  # Open bestand met UTF-8 encoding voor speciale karakters
+        raw = json.load(f)  # Parse JSON naar Python dictionary
 
     # 2) pak het sub-dict onder "regels" (fallback op root voor backward compat)
     regels_dict = raw.get("regels", raw)

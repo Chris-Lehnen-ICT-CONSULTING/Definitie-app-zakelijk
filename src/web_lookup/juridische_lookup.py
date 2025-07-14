@@ -1,29 +1,36 @@
-import re
+"""Juridische verwijzingen herkenning en verwerking.
 
-# ✅ Herken meerdere juridische verwijzingsvormen met aparte regexpatronen
+Dit module bevat functionaliteit voor het herkennen en verwerken
+van juridische verwijzingen in teksten zoals artikelen en wetten.
+"""
+
+import re  # Reguliere expressies voor patroon matching
+
+# Herken meerdere juridische verwijzingsvormen met aparte regex patronen
+# Ondersteunt verschillende formaten van juridische verwijzingen
 _REGEX_PATRONEN = [
-    {
+    {  # Klassiek format: "Wetboek van Strafrecht, artikel 123"
         "id": "klassiek_format",
         "pattern": re.compile(
             r'(?P<wet>Wetboek van [A-Z][a-z]+)(?:,\s*boek\s*(?P<boek>[0-9]+))?,?\s*artikel\s*(?P<artikel>[0-9a-zA-Z]+)(?:\s*lid\s*(?P<lid>[0-9]+))?',
             re.IGNORECASE
         )
     },
-    {
+    {  # Verkort format: "art. 123:45 BW"
         "id": "verkort_format_bw_sv",
         "pattern": re.compile(
             r'art\.?\s*(?P<artikel>[0-9]+:[0-9a-zA-Z]+)\s+(?P<wet>BW|Sv|Sr|Rv|RvS)',
             re.IGNORECASE
         )
     },
-    {
+    {  # Normaal format: "artikel 123 van de Wet op ..."
         "id": "normale_artikel_wet",
         "pattern": re.compile(
             r'artikel\s+(?P<artikel>[0-9]+[a-zA-Z]?)\s+van\s+de\s+(?P<wet>[A-Z][a-zA-Z\s]+)',
             re.IGNORECASE
         )
     },
-    {
+    {  # Uitgebreid format: "artikel 123 lid 4 onder a van de Wet ..."
         "id": "artikel_lid_onder_wet",
         "pattern": re.compile(
             r'artikel\s+(?P<artikel>[0-9]+[a-zA-Z]?)\s+lid\s+(?P<lid>[0-9]+)\s+(onder\s+(?P<sub>[a-z]))?\s+van\s+de\s+(?P<wet>[A-Z][a-zA-Z\s]+)',
@@ -33,11 +40,10 @@ _REGEX_PATRONEN = [
 ]
 
 
-# ==========================
 # Logging van juridische verwijzingen (optioneel)
-# ==========================
-import os
-import json
+# Voor het bijhouden van gevonden verwijzingen voor analyse
+import os  # Besturingssysteem interface
+import json  # JSON verwerking voor logging
 from datetime import datetime
 
 def zoek_wetsartikelstructuur(

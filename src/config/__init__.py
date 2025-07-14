@@ -1,34 +1,36 @@
 """
-Configuration package for DefinitieAgent.
-Provides centralized configuration management with environment-specific settings.
+Configuration package voor DefinitieAgent.
+
+Biedt gecentraliseerd configuratie management met omgeving-specifieke instellingen.
+Beheert alle configuratie voor API's, caching, rate limiting, en applicatie instellingen.
 """
 
-# Legacy imports for backward compatibility
+# Legacy imports voor achterwaartse compatibiliteit met oude code
 from .config_loader import (
-    laad_toetsregels,
-    laad_verboden_woorden,
-    _TOETSREGELS_PATH,
-    _VERBODEN_WOORDEN_PATH,
+    laad_toetsregels,         # Laadt toetsregels uit configuratie bestand
+    laad_verboden_woorden,    # Laadt verboden woorden lijst
+    _TOETSREGELS_PATH,        # Pad naar toetsregels configuratie
+    _VERBODEN_WOORDEN_PATH,   # Pad naar verboden woorden bestand
 )
 from .verboden_woorden import (
-    sla_verboden_woorden_op,
-    log_test_verboden_woord,
-    genereer_verboden_startregex,
+    sla_verboden_woorden_op,    # Slaat verboden woorden op naar bestand
+    log_test_verboden_woord,    # Logt test van verboden woord
+    genereer_verboden_startregex, # Genereert regex voor verboden woord start
 )
 
-# Core configuration system
+# Kern configuratie systeem voor gecentraliseerd settings management
 from .config_manager import (
-    ConfigManager,
-    Environment,
-    ConfigSection,
-    get_config_manager,
-    get_config,
-    set_config,
-    reload_config,
-    save_config,
-    is_development,
-    is_production,
-    is_testing
+    ConfigManager,        # Hoofdklasse voor configuratie management
+    Environment,          # Omgeving enumeratie (dev, test, prod)
+    ConfigSection,        # Configuratie sectie container
+    get_config_manager,   # Factory functie voor config manager
+    get_config,           # Haalt configuratie waarde op
+    set_config,           # Zet configuratie waarde
+    reload_config,        # Herlaadt configuratie uit bestanden
+    save_config,          # Slaat configuratie op naar bestanden
+    is_development,       # Check of development omgeving actief is
+    is_production,        # Check of production omgeving actief is
+    is_testing           # Check of testing omgeving actief is
 )
 
 # Configuration adapters

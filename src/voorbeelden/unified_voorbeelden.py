@@ -1,41 +1,43 @@
 """
-Unified Examples Generation System for DefinitieAgent.
-Consolidates synchronous, asynchronous, and cached example generation.
+Geünificeerd Voorbeeld Generatie Systeem voor DefinitieAgent.
+
+Consolideert synchrone, asynchrone, en gecachte voorbeeld generatie
+in één uniform interface voor alle typen voorbeelden.
 """
 
-import asyncio
-import logging
-from typing import List, Optional, Dict, Any
-from dataclasses import dataclass
-from enum import Enum
-import re
-from datetime import datetime
+import asyncio  # Asynchrone programmering voor parallelle voorbeeld generatie
+import logging  # Logging faciliteiten voor debug en monitoring
+from typing import List, Optional, Dict, Any  # Type hints voor betere code documentatie
+from dataclasses import dataclass  # Dataklassen voor gestructureerde request/response data
+from enum import Enum  # Enumeraties voor voorbeeld types en modi
+import re  # Reguliere expressies voor tekst processing
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 
-# Import resilience and caching systems
-from utils.integrated_resilience import with_full_resilience
-from utils.smart_rate_limiter import RequestPriority
-from utils.cache import cached
-from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+# Importeer resilience en caching systemen voor robuuste voorbeeld generatie
+from utils.integrated_resilience import with_full_resilience  # Volledig resilience systeem
+from utils.smart_rate_limiter import RequestPriority  # Smart rate limiting voor API calls
+from utils.cache import cached  # Caching decorator voor performance optimalisatie
+from prompt_builder.prompt_builder import stuur_prompt_naar_gpt  # GPT prompt interface
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
 
 
 class ExampleType(Enum):
-    """Types of examples that can be generated."""
-    SENTENCE = "sentence"
-    PRACTICAL = "practical"
-    COUNTER = "counter"
-    SYNONYMS = "synonyms"
-    ANTONYMS = "antonyms"
-    EXPLANATION = "explanation"
+    """Types van voorbeelden die gegenereerd kunnen worden."""
+    SENTENCE = "sentence"        # Voorbeeldzinnen met het begrip
+    PRACTICAL = "practical"      # Praktische gebruiksvoorbeelden
+    COUNTER = "counter"          # Tegenvoorbeelden ter verduidelijking
+    SYNONYMS = "synonyms"        # Synoniemen van het begrip
+    ANTONYMS = "antonyms"        # Antoniemen van het begrip
+    EXPLANATION = "explanation"  # Uitgebreide toelichting
 
 
 class GenerationMode(Enum):
-    """Generation modes for different performance/reliability needs."""
-    SYNC = "sync"            # Synchronous generation
-    ASYNC = "async"          # Asynchronous generation
-    CACHED = "cached"        # Cached generation
-    RESILIENT = "resilient"  # With full resilience
+    """Generatie modi voor verschillende prestatie en betrouwbaarheid behoeften."""
+    SYNC = "sync"            # Synchrone generatie (blokkerende operatie)
+    ASYNC = "async"          # Asynchrone generatie (niet-blokkerend)
+    CACHED = "cached"        # Gecachte generatie (hergebruik resultaten)
+    RESILIENT = "resilient"  # Met volledige resilience (retry, fallback, etc.)
 
 
 @dataclass

@@ -1,23 +1,27 @@
 """
 DefinitieChecker - Integreert duplicate detection met DefinitieAgent.
 Voorkomt dubbele generatie door bestaande definities te checken.
+
+Deze module controleert of een definitie al bestaat voordat een nieuwe
+wordt gegenereerd, om duplicaten te voorkomen.
 """
 
-import logging
-from typing import Optional, List, Dict, Any, Tuple
-from dataclasses import dataclass
-from enum import Enum
+import logging  # Logging faciliteiten voor debug en monitoring
+from typing import Optional, List, Dict, Any, Tuple  # Type hints voor betere code documentatie
+from dataclasses import dataclass  # Dataklassen voor gestructureerde data
+from enum import Enum  # Enumeraties voor actie types
 
+# Database en core component imports
 from database.definitie_repository import (
-    DefinitieRepository, get_definitie_repository, 
-    DefinitieRecord, DefinitieStatus, DuplicateMatch, SourceType
+    DefinitieRepository, get_definitie_repository,  # Repository toegang en factory
+    DefinitieRecord, DefinitieStatus, DuplicateMatch, SourceType  # Data modellen en enums
 )
-from generation.definitie_generator import GenerationContext, OntologischeCategorie
-from validation.definitie_validator import ValidationResult
-from orchestration.definitie_agent import DefinitieAgent, AgentResult
-# Integrated service imports moved to function level to avoid circular import
+from generation.definitie_generator import GenerationContext, OntologischeCategorie  # Generatie componenten
+from validation.definitie_validator import ValidationResult  # Validatie resultaat type
+from orchestration.definitie_agent import DefinitieAgent, AgentResult  # Orchestratie componenten
+# Integrated service imports verplaatst naar functie niveau om circulaire imports te voorkomen
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor integratie module
 
 
 class CheckAction(Enum):
@@ -37,9 +41,9 @@ class DefinitieCheckResult:
     message: str = ""
     confidence: float = 0.0
     
-    def __post_init__(self):
-        if self.duplicates is None:
-            self.duplicates = []
+    def __post_init__(self):  # Post-initialisatie voor default lijst
+        if self.duplicates is None:  # Controleer of duplicates lijst bestaat
+            self.duplicates = []  # Initialiseer lege lijst als deze niet bestaat
 
 
 class DefinitieChecker:
@@ -58,15 +62,27 @@ class DefinitieChecker:
         self.repository = repository or get_definitie_repository()
         self.agent = DefinitieAgent()
         
-        # Initialize integrated service with local imports
-        from services.integrated_service import get_integrated_service, ServiceConfig, ServiceMode
-        service_config = ServiceConfig(
-            mode=ServiceMode.AUTO,
-            enable_web_lookup=True,
-            enable_monitoring=True,
-            enable_validation=True
-        )
-        self.integrated_service = get_integrated_service(service_config)
+        # Lazy load integrated service to avoid circular import
+        self.integrated_service = None
+        self._service_config = {
+            'mode': 'AUTO',
+            'enable_web_lookup': True,
+            'enable_monitoring': True,
+            'enable_validation': True
+        }
+    
+    def _get_integrated_service(self):
+        """Lazy load integrated service to avoid circular imports."""
+        if self.integrated_service is None:
+            from services.integrated_service import get_integrated_service, ServiceConfig, ServiceMode
+            service_config = ServiceConfig(
+                mode=ServiceMode(self._service_config['mode'].lower()),
+                enable_web_lookup=self._service_config['enable_web_lookup'],
+                enable_monitoring=self._service_config['enable_monitoring'],
+                enable_validation=self._service_config['enable_validation']
+            )
+            self.integrated_service = get_integrated_service(service_config)
+        return self.integrated_service
     
     def check_before_generation(
         self, 
@@ -535,7 +551,7 @@ def generate_or_retrieve_definition(
         
         # Step 3: Generate using integrated service
         try:
-            integrated_result = await self.integrated_service.generate_definition(
+            integrated_result = await self._get_integrated_service().generate_definition(
                 begrip, context
             )
             
@@ -591,7 +607,7 @@ def generate_or_retrieve_definition(
                 success=False,
                 operation="generate_definition",
                 processing_time=0.0,
-                service_mode=self.integrated_service.active_mode,
+                service_mode=self._get_integrated_service().active_mode,
                 error_message=str(e)
             )
             return check_result, error_result, None
@@ -615,14 +631,14 @@ def generate_or_retrieve_definition(
         """
         from services.integrated_service import IntegratedResult
         try:
-            return await self.integrated_service.validate_definition(definitie, categorie, context)
+            return await self._get_integrated_service().validate_definition(definitie, categorie, context)
         except Exception as e:
             logger.error(f"Integrated validation error: {str(e)}")
             return IntegratedResult(
                 success=False,
                 operation="validate_definition",
                 processing_time=0.0,
-                service_mode=self.integrated_service.active_mode,
+                service_mode=self._get_integrated_service().active_mode,
                 error_message=str(e)
             )
     
@@ -645,17 +661,17 @@ def generate_or_retrieve_definition(
         """
         from services.integrated_service import IntegratedResult
         try:
-            return await self.integrated_service.check_duplicates(begrip, definitie, threshold)
+            return await self._get_integrated_service().check_duplicates(begrip, definitie, threshold)
         except Exception as e:
             logger.error(f"Integrated duplicate check error: {str(e)}")
             return IntegratedResult(
                 success=False,
                 operation="check_duplicates",
                 processing_time=0.0,
-                service_mode=self.integrated_service.active_mode,
+                service_mode=self._get_integrated_service().active_mode,
                 error_message=str(e)
             )
     
     def get_service_info(self) -> Dict[str, Any]:
         """Get information about available services."""
-        return self.integrated_service.get_service_info()
+        return self._get_integrated_service().get_service_info()
