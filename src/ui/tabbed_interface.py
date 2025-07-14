@@ -417,7 +417,7 @@ class TabbedInterface:
                 
                 # Check of hybrid context gebruikt moet worden
                 use_hybrid = (HYBRID_CONTEXT_AVAILABLE and 
-                             (len(selected_doc_ids) > 0 or document_context.get('document_count', 0) > 0))
+                             (len(selected_doc_ids) > 0 or (document_context and document_context.get('document_count', 0) > 0)))
                 
                 if use_hybrid:
                     st.info("🔄 Hybrid context activief - combineer document en web context...")
