@@ -10,7 +10,7 @@ from typing import Any, Dict
 from dataclasses import dataclass
 
 from services.async_definition_service import (
-    get_async_definition_service, 
+    get_async_service, 
     AsyncProcessingResult
 )
 
@@ -118,7 +118,7 @@ class AsyncDefinitionUI:
     """UI wrapper for async definition processing."""
     
     def __init__(self):
-        self.service = get_async_definition_service()
+        self.service = get_async_service()
         self.progress_tracker = AsyncProgressTracker()
     
     def render_async_processing_button(
