@@ -1,0 +1,13 @@
+📝 Backlogitem
+
+🆔 ID: BLG-INT-07-001
+📅 Datum: 2025-05-01
+🎯 Doel: Implementeer toetsregel INT-07
+🔍 Probleem: Regel nog niet geïmplementeerd
+📈 Impact: Onvolledige toetsing bij definities
+✅ Acceptatiecriteria: Regel correct geïmplementeerd in JSON en ai_toetser.py
+📦 Bestand: ai_toetser.py, toetsregels.json
+👥 Betrokkenen: Ontwikkelaar
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 1
+Status: done
