@@ -475,6 +475,19 @@ class TabbedInterface:
                     enable_hybrid=use_hybrid
                 )
                 
+                # Capture voorbeelden prompts voor debug
+                voorbeelden_prompts = None
+                if agent_result and agent_result.final_definitie:
+                    try:
+                        from ui.components.prompt_debug_section import capture_voorbeelden_prompts
+                        voorbeelden_prompts = capture_voorbeelden_prompts(
+                            begrip=begrip,
+                            definitie=agent_result.final_definitie,
+                            context_dict=context_dict
+                        )
+                    except Exception as e:
+                        logger.warning(f"Could not capture example prompts: {e}")
+                
                 # Store results voor display in tabs
                 SessionStateManager.set_value("last_generation_result", {
                     "check_result": check_result,
@@ -482,6 +495,7 @@ class TabbedInterface:
                     "saved_record": saved_record,
                     "determined_category": auto_categorie.value,
                     "document_context": document_context,
+                    "voorbeelden_prompts": voorbeelden_prompts,
                     "timestamp": datetime.now()
                 })
                 
