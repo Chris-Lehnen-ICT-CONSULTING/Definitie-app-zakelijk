@@ -1,0 +1,30 @@
+Titel,Status,Beschrijving / Doel,Acceptatiecriteria
+Verbetering regex-herkenning in corrigeer_definitie_op_patronen(),In Progress,Zorg dat verboden beginconstructies altijd correct worden opgeschoond,Regex matcht op verboden patronen; Correctie toegepast in UI/backend; Synchronisatie ARAI06/SAM05
+Toevoeging van gestructureerde toetsregels in toetsregels.json en integratie in ai_toetser.py,Done,36 toetsregels correct geïmplementeerd in systeem,
+Visuele viewer + exportknop voor verboden_woord_tests.jsonl in Tab 3,Done,Gebruiker kan individuele tests bekijken en downloaden als JSONL,
+Vakantievoorwaarden gedefinieerd voor gezinsplan,Done,Randvoorwaarden voor projectpauze zijn gedefinieerd,
+Validatietool voor toetsregels,To Do,Detecteer dode en onvolledige regels tussen JSON en ai_toetser,Detectie dode regels; Validatie uitlegregels en patronen
+Logging uitbreiden ARAI06/SAM05,To Do,Voeg specifieke fout- en matchvelden toe aan log,Fouten gelogd; Pattern-matches zichtbaar; Goed/fout-voorbeelden opgenomen
+Regex verbeteren ARAI06,To Do,Voorkom dubbele begrippen en valse matches,Geen dubbele argumenten; Correcte startdetectie
+Loggingvalidatie via log_validatie.py,To Do,Controleer verplichte velden in JSON en CSV,Alle verplichte velden aanwezig; Geen fouten in validatie
+Prompt verbeteren met verboden patronen,To Do,Voeg waarschuwingen toe in promptstructuur,"Blok 'Veelgemaakte fouten'; Waarschuwing voor 'is', 'de', begrip zelf"
+Tegenvoorbeelden genereren,To Do,Laat AI foute voorbeelden genereren bij toetsregels,Tegenvoorbeelden gelogd; Koppeling aan ARAI06
+Zelflerende promptversterking,To Do,Versterk prompt o.b.v. faaldata,Feedback beïnvloedt prompttekst
+Expert-reviewknop + logging,To Do,Leg expert-goedkeuring vast,Knop zichtbaar; Logging actief
+Voorbeelden aanpasbaar + akkoord,To Do,Gebruiker kan voorbeelden bewerken en accorderen,Editable + akkoord-knop per veld
+Definitieve definities exporteren,To Do,Exporteer goedgekeurde definities in eigen bestand,Exportknop beschikbaar; Metadata opgenomen
+Downloadknop woordtestlog,To Do,Download .jsonl logbestand uit UI,Knop zichtbaar bij bestaand bestand
+Export PDF/CSV structureren,To Do,Combineer exportopties logisch in UI,Knoppen logisch gegroepeerd
+Refactor app structuur (app.py/core/io),To Do,Scheid UI en logica correct,UI = app.py; core en io mappen aanwezig
+"CI-configuratie (pytest, lint, GitHub Actions)",To Do,Automatiseer validatie van code,Linting en tests draaien automatisch
+Unieke widgetkeys genereren,To Do,Voorkom duplicate keys met helperfunctie,widget_key() werkt; Geen fouten
+Multiselect: organisatorische context,To Do,Selecteer ketens zoals strafrecht/migratie,Multiselect-veld zichtbaar; Lijst gevuld
+Multiselect: juridische context & basis,To Do,Selecteer meerdere wetten/jurisdicties,Veld zichtbaar; Keuzelijst geladen
+Vrij tekstveld bij metadata,To Do,Laat gebruiker vrije toelichting geven,Text_area aanwezig en opslaand
+Herkenning deverbatieve termen,To Do,"Detecteer woorden zoals 'verhuizing', 'aanklacht'",Patternmatch of regex toegepast
+Splitsing termtype (proces/resultaat),To Do,Bepaal of definitie naar proces of resultaat verwijst,Termtype detectie + toepassing prompt
+Vergelijkingstool tussen definities,To Do,Toon verschil tussen 2 definities,UI-component met highlight verschil
+Bulkimport bestaande definities,To Do,Lees CSV/JSON-bestanden in,Parser werkt met voorbeeldbestand
+Beheer toetsregels in losse JSON-bestanden,To Do,Werk met toetsregels per bestand,Directory ingelezen; JSON-format correct
+Script: combineer_toetsregels.py,To Do,Combineer losse JSON's tot één bestand,Output is geldig JSON bestand
+Script: splits_toetsregels.py,To Do,Splits toetsregels.json naar per-regel-bestanden,Output = juiste aantal JSON-bestanden

@@ -1,0 +1,44 @@
+📌 BACKLOGITEM — VERBETERING SNELHEID DEFINITIEGENERATIE
+
+🆔 ID: BLG-DEF-OPT-001  
+📅 Datum: 2025-06-05  
+🎯 Doel: Verkorten van de totale doorlooptijd voor het genereren en toetsen van een definitie in de definitie-applicatie.
+
+🔍 Probleem:  
+Het genereren van een definitie, inclusief AI-aanroepen en toetsing, duurt momenteel gemiddeld 45-60 seconden. Dit leidt tot een vertraagde gebruikerservaring en mogelijke frustratie bij herhaald gebruik.
+
+📈 Impact:
+- Verlaagt gebruiksgemak van de app.
+- Beperkt iteratieve verbeteringen aan definities.
+- Verhoogt de kosten bij gebruik van GPT-4 API.
+
+🧩 Analyse van oorzaken:
+1. Gebruik van GPT-4 als model (langzame responsie).
+2. Meerdere AI-aanroepen voor aparte onderdelen (definitie, toelichting, voorbeelden, synoniemen, antoniemen).
+3. Geen parallelle uitvoering van AI-aanroepen.
+4. Extra tijd voor lokale toetsing op 40+ regels.
+5. Mogelijke vertraging door web scraping (Wikipedia/Overheid.nl).
+6. Herhaaldelijk laden/parsen van toetsregels.json.
+
+✅ Oplossingsvoorstellen:
+1. Implementeer een tijdsmeting per AI-call en fase (definitie, toelichting, toetsing).
+2. Voeg toggle-optie toe in de UI:
+   - "⚙️ Alleen definitie genereren"
+   - "⚙️ Definitie + AI-toelichting + voorbeelden"
+3. Vervang `GPT-4` door `gpt-4o` of `gpt-3.5-turbo` waar mogelijk.
+4. Voer AI-calls parallel uit met `asyncio.gather()` of `ThreadPoolExecutor`.
+5. Cache `toetsregels.json` bij eerste laadactie.
+6. Voeg in Streamlit feedback toe zoals: "⏳ Definitie wordt opgesteld...".
+
+📦 Deliverables:
+- Code-aanpassing in definitie_agent_webinterface_logging.py
+- Logging met responstijden van elk AI-onderdeel
+- Geoptimaliseerde promptfunctie voor multi-call gebruik
+- Documentatie en changelog bij oplevering
+
+👥 Betrokkenen:
+- Programmeur: [jijzelf]
+- Review: [optioneel]
+
+⏱️ Prioriteit: Hoog  
+🗓️ Sprintdoel: Binnen huidige sprint implementeren
