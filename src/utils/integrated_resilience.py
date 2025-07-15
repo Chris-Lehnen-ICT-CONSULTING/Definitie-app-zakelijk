@@ -85,7 +85,8 @@ class IntegratedResilienceSystem:
         
         # Initialize components
         self.retry_manager = AdaptiveRetryManager(self.config.retry_config)
-        self.rate_limiter = SmartRateLimiter(self.config.rate_limit_config)
+        # Rate limiters worden nu per endpoint aangemaakt in execute_with_full_resilience
+        self.rate_limiters: Dict[str, SmartRateLimiter] = {}  # Endpoint-specifieke rate limiters
         self.resilience_framework = ResilienceFramework(self.config.resilience_config)
         self.metrics_collector = get_metrics_collector() if self.config.enable_monitoring else None
         
@@ -98,7 +99,7 @@ class IntegratedResilienceSystem:
         if self._started:
             return
         
-        await self.rate_limiter.start()
+        # Rate limiters worden nu dynamisch gestart per endpoint
         await self.resilience_framework.start()
         
         self._started = True
@@ -111,7 +112,11 @@ class IntegratedResilienceSystem:
         
         self._shutdown = True
         
-        await self.rate_limiter.stop()
+        # Stop alle endpoint-specifieke rate limiters
+        for endpoint_name, rate_limiter in self.rate_limiters.items():
+            await rate_limiter.stop()
+            logger.debug(f"Stopped rate limiter for endpoint: {endpoint_name}")
+        
         await self.resilience_framework.stop()
         
         # Save retry manager history
@@ -155,8 +160,27 @@ class IntegratedResilienceSystem:
         request_id = f"{endpoint_name}_{int(time.time() * 1000)}"
         
         try:
-            # Step 1: Check rate limiting
-            if not await self.rate_limiter.acquire(priority, timeout, request_id):
+            # Step 1: Get endpoint-specific rate limiter
+            if endpoint_name not in self.rate_limiters:
+                # Probeer endpoint-specifieke configuratie te laden
+                try:
+                    from config.rate_limit_config import get_rate_limit_config
+                    endpoint_config = get_rate_limit_config(endpoint_name)
+                    logger.info(f"Using specific config for endpoint: {endpoint_name}")
+                except ImportError:
+                    # Gebruik default configuratie
+                    endpoint_config = self.config.rate_limit_config
+                    logger.debug(f"Using default config for endpoint: {endpoint_name}")
+                
+                # Maak nieuwe rate limiter voor deze endpoint
+                self.rate_limiters[endpoint_name] = SmartRateLimiter(endpoint_config)
+                await self.rate_limiters[endpoint_name].start()
+                logger.info(f"Created rate limiter for endpoint: {endpoint_name}")
+            
+            rate_limiter = self.rate_limiters[endpoint_name]
+            
+            # Step 2: Check rate limiting
+            if not await rate_limiter.acquire(priority, timeout, request_id):
                 raise asyncio.TimeoutError(f"Rate limit timeout for {endpoint_name}")
             
             # Step 2: Execute with retry logic and resilience
@@ -170,7 +194,7 @@ class IntegratedResilienceSystem:
             
             # Step 3: Record successful execution
             duration = time.time() - start_time
-            await self.rate_limiter.record_response(duration, True, priority)
+            await rate_limiter.record_response(duration, True, priority)
             
             if self.metrics_collector:
                 await record_api_call(
@@ -189,7 +213,9 @@ class IntegratedResilienceSystem:
         except Exception as e:
             # Record failure
             duration = time.time() - start_time
-            await self.rate_limiter.record_response(duration, False, priority)
+            # Get rate limiter als deze bestaat
+            if endpoint_name in self.rate_limiters:
+                await self.rate_limiters[endpoint_name].record_response(duration, False, priority)
             
             if self.metrics_collector:
                 await record_api_call(
@@ -256,10 +282,15 @@ class IntegratedResilienceSystem:
     
     def get_system_status(self) -> Dict[str, Any]:
         """Get comprehensive system status."""
+        # Verzamel status van alle endpoint-specifieke rate limiters
+        rate_limiter_status = {}
+        for endpoint_name, limiter in self.rate_limiters.items():
+            rate_limiter_status[endpoint_name] = limiter.get_queue_status()
+        
         status = {
             'system_started': self._started,
             'retry_manager': self.retry_manager.get_health_metrics(),
-            'rate_limiter': self.rate_limiter.get_queue_status(),
+            'rate_limiters': rate_limiter_status,  # Nu per endpoint
             'resilience_framework': self.resilience_framework.get_system_health(),
         }
         
