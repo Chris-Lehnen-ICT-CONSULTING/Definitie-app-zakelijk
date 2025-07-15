@@ -48,7 +48,7 @@ class ExampleRequest:
     context_dict: Dict[str, List[str]]
     example_type: ExampleType
     generation_mode: GenerationMode = GenerationMode.RESILIENT
-    max_examples: int = 3
+    max_examples: int = 5  # Default naar 5 voor synoniemen/antoniemen
     temperature: float = 0.5
     model: str = "gpt-4"
 
@@ -229,7 +229,22 @@ class UnifiedExamplesGenerator:
     )
     async def _generate_resilient_explanation(self, request: ExampleRequest) -> List[str]:
         """Resilient explanation generation."""
-        return await self._generate_resilient_common(request)
+        prompt = self._build_prompt(request)
+        
+        try:
+            response = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: stuur_prompt_naar_gpt(
+                    prompt=prompt,
+                    model=request.model,
+                    temperatuur=request.temperature,
+                    max_tokens=300
+                )
+            )
+            # Voor explanation, return de hele response als één item
+            return [response.strip()] if response.strip() else []
+        except Exception as e:
+            raise RuntimeError(f"Resilient generation failed: {e}")
     
     async def _generate_resilient_common(self, request: ExampleRequest) -> List[str]:
         """Common resilient generation logic."""
@@ -340,6 +355,8 @@ Context:
 
 Leg uit wat dit begrip betekent in de praktijk van deze organisatie/domein en waarom 
 het daar belangrijk is. Maak de uitleg relevant voor de opgegeven context.
+
+GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAGRAFEN.
 """
         
         else:
@@ -411,7 +428,8 @@ def genereer_voorbeeld_zinnen(
         definitie=definitie,
         context_dict=context_dict,
         example_type=ExampleType.SENTENCE,
-        generation_mode=mode
+        generation_mode=mode,
+        max_examples=3  # Expliciet 3 voorbeeldzinnen
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -430,7 +448,8 @@ def genereer_praktijkvoorbeelden(
         definitie=definitie,
         context_dict=context_dict,
         example_type=ExampleType.PRACTICAL,
-        generation_mode=mode
+        generation_mode=mode,
+        max_examples=3  # Expliciet 3 praktijkvoorbeelden
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -449,7 +468,8 @@ def genereer_tegenvoorbeelden(
         definitie=definitie,
         context_dict=context_dict,
         example_type=ExampleType.COUNTER,
-        generation_mode=mode
+        generation_mode=mode,
+        max_examples=3  # Expliciet 3 tegenvoorbeelden
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -468,7 +488,8 @@ def genereer_synoniemen(
         definitie=definitie,
         context_dict=context_dict,
         example_type=ExampleType.SYNONYMS,
-        generation_mode=mode
+        generation_mode=mode,
+        max_examples=5  # Expliciet 5 synoniemen
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -487,7 +508,8 @@ def genereer_antoniemen(
         definitie=definitie,
         context_dict=context_dict,
         example_type=ExampleType.ANTONYMS,
-        generation_mode=mode
+        generation_mode=mode,
+        max_examples=5  # Expliciet 5 antoniemen
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -525,6 +547,16 @@ def genereer_alle_voorbeelden(
     
     results = {}
     
+    # Define max_examples per type
+    max_examples_per_type = {
+        ExampleType.SENTENCE: 3,
+        ExampleType.PRACTICAL: 3,
+        ExampleType.COUNTER: 3,
+        ExampleType.SYNONYMS: 5,
+        ExampleType.ANTONYMS: 5,
+        ExampleType.EXPLANATION: 1
+    }
+    
     # Generate all example types
     for example_type in ExampleType:
         request = ExampleRequest(
@@ -532,7 +564,8 @@ def genereer_alle_voorbeelden(
             definitie=definitie,
             context_dict=context_dict,
             example_type=example_type,
-            generation_mode=mode
+            generation_mode=mode,
+            max_examples=max_examples_per_type.get(example_type, 3)  # Gebruik type-specifieke waarde
         )
         
         response = generator.generate_examples(request)

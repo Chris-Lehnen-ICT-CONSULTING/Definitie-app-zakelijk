@@ -185,9 +185,9 @@ class DefinitionGeneratorTab:
                 
                 # Render prompt debug section
                 from ui.components.prompt_debug_section import PromptDebugSection
-                generation_result = agent_result.best_iteration.generation_result if agent_result.best_iteration else None
-                voorbeelden_prompts = last_result.get("voorbeelden_prompts") if last_result else None
-                PromptDebugSection.render(generation_result, voorbeelden_prompts)
+                iteration_result = agent_result.best_iteration.generation_result if agent_result.best_iteration else None
+                voorbeelden_prompts = generation_result.get("voorbeelden_prompts") if generation_result else None
+                PromptDebugSection.render(iteration_result, voorbeelden_prompts)
         
         # Saved record info
         if saved_record:
@@ -311,15 +311,34 @@ class DefinitionGeneratorTab:
                 for i, voorbeeld in enumerate(voorbeelden['counter'], 1):
                     st.warning(voorbeeld)
         
-        # Synoniemen
+        # Synoniemen met voorkeursterm selectie
         if voorbeelden.get('synonyms'):
             with st.expander("🔄 Synoniemen", expanded=False):
-                st.write(", ".join(voorbeelden['synonyms']))
+                synoniemen_lijst = voorbeelden['synonyms']
+                
+                # Toon synoniemen verticaal
+                for syn in synoniemen_lijst:
+                    st.write(f"• {syn}")
+                
+                # Voorkeursterm selectie
+                if len(synoniemen_lijst) > 0:
+                    st.markdown("---")
+                    voorkeursterm = st.selectbox(
+                        "Selecteer voorkeursterm:",
+                        options=["(geen voorkeursterm)"] + synoniemen_lijst,
+                        key="voorkeursterm_selectie"
+                    )
+                    
+                    if voorkeursterm != "(geen voorkeursterm)":
+                        SessionStateManager.set_value("voorkeursterm", voorkeursterm)
+                        st.info(f"✅ Voorkeursterm: **{voorkeursterm}**")
         
         # Antoniemen
         if voorbeelden.get('antonyms'):
             with st.expander("↔️ Antoniemen", expanded=False):
-                st.write(", ".join(voorbeelden['antonyms']))
+                # Toon antoniemen verticaal
+                for ant in voorbeelden['antonyms']:
+                    st.write(f"• {ant}")
         
         # Toelichting
         if voorbeelden.get('explanation'):
