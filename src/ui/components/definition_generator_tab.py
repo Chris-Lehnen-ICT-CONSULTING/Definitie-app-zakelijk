@@ -182,6 +182,12 @@ class DefinitionGeneratorTab:
                     SessionStateManager.set_value("synoniemen", "\n".join(voorbeelden.get('synonyms', [])))
                     SessionStateManager.set_value("antoniemen", "\n".join(voorbeelden.get('antonyms', [])))
                     SessionStateManager.set_value("toelichting", voorbeelden.get('explanation', [""])[0] if voorbeelden.get('explanation') else "")
+                
+                # Render prompt debug section
+                from ui.components.prompt_debug_section import PromptDebugSection
+                generation_result = agent_result.best_iteration.generation_result if agent_result.best_iteration else None
+                voorbeelden_prompts = last_result.get("voorbeelden_prompts") if last_result else None
+                PromptDebugSection.render(generation_result, voorbeelden_prompts)
         
         # Saved record info
         if saved_record:

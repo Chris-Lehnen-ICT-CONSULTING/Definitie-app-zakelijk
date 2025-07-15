@@ -388,7 +388,7 @@ class DefinitieGenerator:
                         definitie=result.definitie,
                         context_dict=context_dict,
                         example_type=example_type,
-                        generation_mode=GenerationMode.RESILIENT,
+                        generation_mode=GenerationMode.SYNC,  # Tijdelijk SYNC voor rate limiter issue
                         max_examples=3
                     )
                     
@@ -461,7 +461,7 @@ class DefinitieGenerator:
                     definitie=definitie,
                     context_dict=context_dict,
                     example_type=example_type,
-                    generation_mode=GenerationMode.RESILIENT,
+                    generation_mode=GenerationMode.SYNC,  # Tijdelijk SYNC voor rate limiter issue
                     max_examples=3
                 )
                 
@@ -560,7 +560,7 @@ class DefinitieGenerator:
             max_tokens=max_tokens
         )
         
-        logger.info(f"Calling GPT with model {gpt_params['model']}, temp {gpt_params['temperature']}")
+        logger.info(f"Calling GPT with model {gpt_params['model']}, temp {gpt_params['temperature']} (override was {temperature})")
         
         # Import OpenAI client
         import os

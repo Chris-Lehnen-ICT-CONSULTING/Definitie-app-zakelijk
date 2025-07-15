@@ -147,15 +147,92 @@ class UnifiedExamplesGenerator:
         self.cache_hits += 1
         return self._generate_sync(request)
     
+    async def _generate_resilient(self, request: ExampleRequest) -> List[str]:
+        """Resilient example generation with retry logic and rate limiting."""
+        # Route to specific resilient method based on example type
+        if request.example_type == ExampleType.SENTENCE:
+            return await self._generate_resilient_sentence(request)
+        elif request.example_type == ExampleType.PRACTICAL:
+            return await self._generate_resilient_practical(request)
+        elif request.example_type == ExampleType.COUNTER:
+            return await self._generate_resilient_counter(request)
+        elif request.example_type == ExampleType.SYNONYMS:
+            return await self._generate_resilient_synonyms(request)
+        elif request.example_type == ExampleType.ANTONYMS:
+            return await self._generate_resilient_antonyms(request)
+        elif request.example_type == ExampleType.EXPLANATION:
+            return await self._generate_resilient_explanation(request)
+        else:
+            raise ValueError(f"Unknown example type: {request.example_type}")
+    
     @with_full_resilience(
-        endpoint_name="examples_generation",
+        endpoint_name="examples_generation_sentence",
         priority=RequestPriority.NORMAL,
-        timeout=30.0,
+        timeout=10.0,
         model="gpt-4",
         expected_tokens=200
     )
-    async def _generate_resilient(self, request: ExampleRequest) -> List[str]:
-        """Resilient example generation with retry logic and rate limiting."""
+    async def _generate_resilient_sentence(self, request: ExampleRequest) -> List[str]:
+        """Resilient sentence example generation."""
+        return await self._generate_resilient_common(request)
+    
+    @with_full_resilience(
+        endpoint_name="examples_generation_practical",
+        priority=RequestPriority.NORMAL,
+        timeout=10.0,
+        model="gpt-4",
+        expected_tokens=200
+    )
+    async def _generate_resilient_practical(self, request: ExampleRequest) -> List[str]:
+        """Resilient practical example generation."""
+        return await self._generate_resilient_common(request)
+    
+    @with_full_resilience(
+        endpoint_name="examples_generation_counter",
+        priority=RequestPriority.NORMAL,
+        timeout=10.0,
+        model="gpt-4",
+        expected_tokens=200
+    )
+    async def _generate_resilient_counter(self, request: ExampleRequest) -> List[str]:
+        """Resilient counter example generation."""
+        return await self._generate_resilient_common(request)
+    
+    @with_full_resilience(
+        endpoint_name="examples_generation_synonyms",
+        priority=RequestPriority.NORMAL,
+        timeout=10.0,
+        model="gpt-4",
+        expected_tokens=200
+    )
+    async def _generate_resilient_synonyms(self, request: ExampleRequest) -> List[str]:
+        """Resilient synonyms generation."""
+        return await self._generate_resilient_common(request)
+    
+    @with_full_resilience(
+        endpoint_name="examples_generation_antonyms",
+        priority=RequestPriority.NORMAL,
+        timeout=10.0,
+        model="gpt-4",
+        expected_tokens=200
+    )
+    async def _generate_resilient_antonyms(self, request: ExampleRequest) -> List[str]:
+        """Resilient antonyms generation."""
+        return await self._generate_resilient_common(request)
+    
+    @with_full_resilience(
+        endpoint_name="examples_generation_explanation",
+        priority=RequestPriority.NORMAL,
+        timeout=10.0,
+        model="gpt-4",
+        expected_tokens=200
+    )
+    async def _generate_resilient_explanation(self, request: ExampleRequest) -> List[str]:
+        """Resilient explanation generation."""
+        return await self._generate_resilient_common(request)
+    
+    async def _generate_resilient_common(self, request: ExampleRequest) -> List[str]:
+        """Common resilient generation logic."""
         prompt = self._build_prompt(request)
         
         try:
@@ -185,75 +262,84 @@ class UnifiedExamplesGenerator:
         if request.example_type == ExampleType.SENTENCE:
             return f"""
 Geef {request.max_examples} korte voorbeeldzinnen waarin het begrip '{begrip}' 
-op een duidelijke manier wordt gebruikt.
+op een duidelijke manier wordt gebruikt. De zinnen moeten passen binnen de gegeven context.
 
 Definitie: {definitie}
 
-Context (gebruik alleen als achtergrond, noem niet letterlijk):
+Context:
 {context_text}
 
-Geef alleen de voorbeeldzinnen, elk op een nieuwe regel.
+Integreer de context natuurlijk in de voorbeeldzinnen. Als er een organisatie of domein 
+is opgegeven, gebruik deze in de zinnen. Geef alleen de voorbeeldzinnen, elk op een nieuwe regel.
 """
         
         elif request.example_type == ExampleType.PRACTICAL:
             return f"""
 Geef {request.max_examples} praktische voorbeelden waarbij het begrip '{begrip}' 
-van toepassing is in de praktijk.
+van toepassing is in de praktijk binnen de gegeven context.
 
 Definitie: {definitie}
 
 Context:
 {context_text}
 
-Geef concrete, herkenbare situaties waarin dit begrip gebruikt wordt.
+Geef concrete, herkenbare situaties uit de opgegeven organisatie/domein waarin dit begrip 
+gebruikt wordt. Maak de voorbeelden specifiek voor de context.
 """
         
         elif request.example_type == ExampleType.COUNTER:
             return f"""
-Geef {request.max_examples} tegenvoorbeelden die NIET onder het begrip '{begrip}' vallen.
+Geef {request.max_examples} tegenvoorbeelden die NIET onder het begrip '{begrip}' vallen,
+maar wel relevant zijn voor de gegeven context.
 
 Definitie: {definitie}
 
 Context:
 {context_text}
 
-Leg kort uit waarom deze voorbeelden niet onder de definitie vallen.
+Geef voorbeelden uit dezelfde organisatie/domein die lijken op '{begrip}' maar er niet 
+onder vallen. Leg kort uit waarom deze voorbeelden niet onder de definitie vallen.
 """
         
         elif request.example_type == ExampleType.SYNONYMS:
             return f"""
-Geef {request.max_examples} synoniemen of verwante termen voor '{begrip}'.
+Geef {request.max_examples} synoniemen of verwante termen voor '{begrip}' die gebruikt 
+worden binnen de gegeven context.
 
 Definitie: {definitie}
 
 Context:
 {context_text}
 
+Geef synoniemen die specifiek in deze organisatie/domein gebruikt worden. 
 Geef alleen de synoniemen, elk op een nieuwe regel.
 """
         
         elif request.example_type == ExampleType.ANTONYMS:
             return f"""
-Geef {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}'.
+Geef {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}' 
+die relevant zijn binnen de gegeven context.
 
 Definitie: {definitie}
 
 Context:
 {context_text}
 
+Geef antoniemen die in deze organisatie/domein gebruikt worden. 
 Geef alleen de antoniemen, elk op een nieuwe regel.
 """
         
         elif request.example_type == ExampleType.EXPLANATION:
             return f"""
-Geef een korte, heldere toelichting bij het begrip '{begrip}'.
+Geef een korte, heldere toelichting bij het begrip '{begrip}' specifiek voor de gegeven context.
 
 Definitie: {definitie}
 
 Context:
 {context_text}
 
-Leg uit wat dit begrip betekent in de praktijk en waarom het belangrijk is.
+Leg uit wat dit begrip betekent in de praktijk van deze organisatie/domein en waarom 
+het daar belangrijk is. Maak de uitleg relevant voor de opgegeven context.
 """
         
         else:
