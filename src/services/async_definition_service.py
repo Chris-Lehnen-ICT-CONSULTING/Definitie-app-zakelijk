@@ -1,6 +1,7 @@
 """
 Async definition processing service for DefinitieAgent.
-Provides concurrent processing for improved performance and user experience.
+DEPRECATED: This is now a thin wrapper around UnifiedDefinitionService for backward compatibility.
+New code should use UnifiedDefinitionService directly.
 """
 
 import asyncio
@@ -12,13 +13,11 @@ from dataclasses import dataclass
 from utils.exceptions import (
     APIError, ValidationError
 )
-from utils.async_api import async_gpt_call
 from ui.session_state import SessionStateManager
-from voorbeelden.async_voorbeelden import async_generate_all_examples, ExampleGenerationResult
-from definitie_generator.generator import genereer_definitie
-from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
-from ai_toetser import toets_definitie
-from opschoning.opschoning import opschonen
+
+# Import the new unified service
+from services.unified_definition_service import UnifiedDefinitionService, UnifiedServiceConfig, ProcessingMode, ArchitectureMode
+
 import sys
 import os
 # Voeg root directory toe aan Python path voor logs module toegang
@@ -37,7 +36,7 @@ class AsyncProcessingResult:
     marker: str = ""
     bronnen_tekst: str = ""
     toetsresultaten: List[str] = None
-    examples: Optional[ExampleGenerationResult] = None
+    examples: Optional[Any] = None
     additional_content: Optional[Dict[str, str]] = None
     error_message: str = ""
     cache_hits: int = 0
@@ -45,10 +44,74 @@ class AsyncProcessingResult:
 
 
 class AsyncDefinitionService:
-    """Async service class for definition processing operations."""
+    """
+    DEPRECATED: Legacy wrapper around UnifiedDefinitionService.
+    
+    This class provides backward compatibility for existing code.
+    New code should use UnifiedDefinitionService directly.
+    
+    Async service class for definition processing operations.
+    """
     
     def __init__(self):
         self.logger = logging.getLogger(__name__)
+        
+        # Create unified service instance configured for legacy async mode
+        self._unified_service = UnifiedDefinitionService()
+        self._unified_service.configure(UnifiedServiceConfig(
+            processing_mode=ProcessingMode.ASYNC,
+            architecture_mode=ArchitectureMode.LEGACY
+        ))
+    
+    async def process_definition(
+        self,
+        begrip: str,
+        context_dict: Dict[str, List[str]],
+        progress_callback: Optional[Callable[[str, float], None]] = None
+    ) -> AsyncProcessingResult:
+        """
+        Process definition with async operations and progress tracking.
+        
+        Args:
+            begrip: Term to define
+            context_dict: Context information
+            progress_callback: Optional callback for progress updates
+            
+        Returns:
+            AsyncProcessingResult with all generated content
+        """
+        if not begrip.strip():
+            raise ValidationError("Begrip mag niet leeg zijn")
+        
+        try:
+            # Update service config with callback
+            self._unified_service.config.progress_callback = progress_callback
+            
+            # Delegate to unified service
+            result = await self._unified_service.agenerate_definition(begrip, context_dict)
+            
+            # Convert to legacy AsyncProcessingResult
+            return AsyncProcessingResult(
+                success=result.success,
+                processing_time=result.processing_time,
+                definitie_origineel=result.definitie_origineel,
+                definitie_gecorrigeerd=result.definitie_gecorrigeerd,
+                marker=result.marker,
+                bronnen_tekst=result.bronnen_tekst,
+                toetsresultaten=result.toetsresultaten,
+                examples=result.voorbeelden,
+                error_message=result.error_message,
+                cache_hits=result.cache_hits,
+                total_requests=result.total_requests
+            )
+            
+        except Exception as e:
+            self.logger.error(f"Async definition processing failed: {str(e)}")
+            return AsyncProcessingResult(
+                success=False,
+                processing_time=0.0,
+                error_message=str(e)
+            )
     
     async def async_generate_definition(
         self, 
@@ -72,26 +135,13 @@ class AsyncDefinitionService:
             raise ValidationError("Begrip mag niet leeg zijn")
         
         try:
-            # Use existing sync function for now, TODO: make fully async
-            raw_response = genereer_definitie(begrip, context_dict)
+            # Delegate to unified service
+            result = await self._unified_service.agenerate_definition(begrip, context_dict)
             
-            # Parse metadata marker and pure definition text
-            marker = None
-            regels = raw_response.splitlines()
-            tekstregels = []
+            if not result.success:
+                raise APIError(f"Definitie generatie mislukt: {result.error_message}")
             
-            for regel in regels:
-                if regel.lower().startswith("ontologische categorie:"):
-                    marker = regel.split(":", 1)[1].strip()
-                else:
-                    tekstregels.append(regel)
-            
-            definitie_origineel = "\n".join(tekstregels).strip()
-            
-            # Clean the definition
-            definitie_gecorrigeerd = opschonen(definitie_origineel, begrip)
-            
-            return definitie_origineel, definitie_gecorrigeerd, marker or ""
+            return result.definitie_origineel, result.definitie_gecorrigeerd, result.marker
             
         except Exception as e:
             self.logger.error(f"Async definition generation failed: {str(e)}")
@@ -116,49 +166,27 @@ class AsyncDefinitionService:
             APIError: If sources generation fails
         """
         try:
-            prompt_bronnen = (
-                f"Geef een overzicht van de bronnen of kennis waarop je de volgende definitie hebt gebaseerd. "
-                f"Noem expliciet wetten, richtlijnen of veelgebruikte definities indien van toepassing. "
-                f"Begrip: '{begrip}'\n"
-                f"Organisatorische context: '{', '.join(context_dict.get('organisatorisch', []))}'\n"
-                f"Juridische context: '{', '.join(context_dict.get('juridisch', []))}'\n"
-                f"Wettelijke basis: '{', '.join(context_dict.get('wettelijk', []))}'"
-            )
-            
-            return await async_gpt_call(
-                prompt=prompt_bronnen,
-                model="gpt-4",
-                max_tokens=1000,
-                temperature=0.2,
-            )
+            # Delegate to unified service
+            bronnen_data = await self._unified_service._lookup_sources_async(begrip, context_dict)
+            return bronnen_data.get('bronnen_tekst', '')
             
         except Exception as e:
             self.logger.error(f"Async sources generation failed: {str(e)}")
             raise APIError(f"Bronnen generatie mislukt: {str(e)}")
     
-    def async_validate_definition(
+    async def async_validate_definition(
         self,
         definitie: str,
-        toetsregels: Dict[str, Any],
         begrip: str,
-        marker: str = "",
-        voorkeursterm: str = "",
-        bronnen_gebruikt: Optional[str] = None,
-        contexten: Optional[Dict[str, List[str]]] = None,
-        gebruik_logging: bool = False
+        context_dict: Dict[str, List[str]]
     ) -> List[str]:
         """
-        Validate definition using quality rules (sync for now).
+        Validate definition using async operations.
         
         Args:
             definitie: Definition text to validate
-            toetsregels: Quality rules
             begrip: Original term
-            marker: Ontological marker
-            voorkeursterm: Preferred term
-            bronnen_gebruikt: Sources used
-            contexten: Context information
-            gebruik_logging: Whether to use detailed logging
+            context_dict: Context information
             
         Returns:
             List of validation results
@@ -167,401 +195,71 @@ class AsyncDefinitionService:
             ValidationError: If validation fails
         """
         try:
-            return toets_definitie(
-                definitie,
-                toetsregels,
-                begrip=begrip,
-                marker=marker,
-                voorkeursterm=voorkeursterm,
-                bronnen_gebruikt=bronnen_gebruikt,
-                contexten=contexten or {},
-                gebruik_logging=gebruik_logging
+            # Delegate to unified service
+            toetsresultaten, _ = await self._unified_service._validate_definition_async(
+                definitie, begrip, context_dict
             )
+            return toetsresultaten
             
         except Exception as e:
             self.logger.error(f"Async definition validation failed: {str(e)}")
             raise ValidationError(f"Definitie validatie mislukt: {str(e)}")
     
-    async def async_generate_additional_content(
-        self, 
-        begrip: str, 
+    async def async_generate_examples(
+        self,
+        begrip: str,
+        definitie: str,
         context_dict: Dict[str, List[str]]
-    ) -> Dict[str, str]:
+    ) -> Dict[str, List[str]]:
         """
-        Generate additional content concurrently.
+        Generate examples using async operations.
         
         Args:
             begrip: Term
+            definitie: Definition text
             context_dict: Context information
             
         Returns:
-            Dictionary with additional content
+            Dictionary with different types of examples
             
         Raises:
-            APIError: If content generation fails
+            APIError: If examples generation fails
         """
         try:
-            # Create concurrent tasks for additional content
-            tasks = {
-                'toelichting': self._async_generate_explanation(begrip, context_dict),
-                'synoniemen': self._async_generate_synonyms(begrip, context_dict),
-                'antoniemen': self._async_generate_antonyms(begrip, context_dict)
+            # Delegate to unified service - import unified examples
+            from voorbeelden.unified_voorbeelden import genereer_alle_voorbeelden_async
+            
+            voorbeelden = await genereer_alle_voorbeelden_async(
+                begrip,
+                definitie,
+                context_dict
+            )
+            
+            # Convert to legacy format
+            return {
+                "voorbeeld_zinnen": voorbeelden.get('sentence', []),
+                "praktijkvoorbeelden": voorbeelden.get('practical', []),
+                "tegenvoorbeelden": voorbeelden.get('counter', []),
+                "synoniemen": voorbeelden.get('synonyms', []),
+                "antoniemen": voorbeelden.get('antonyms', []),
+                "toelichting": voorbeelden.get('explanation', [])
             }
             
-            # Execute concurrently
-            results = {}
-            for name, coro in tasks.items():
-                try:
-                    results[name] = await coro
-                except Exception as e:
-                    self.logger.error(f"Error generating {name}: {str(e)}")
-                    results[name] = f"❌ Error: {str(e)}"
-            
-            return results
-            
         except Exception as e:
-            self.logger.error(f"Async additional content generation failed: {str(e)}")
-            raise APIError(f"Aanvullende content generatie mislukt: {str(e)}")
-    
-    async def _async_generate_explanation(
-        self, 
-        begrip: str, 
-        context_dict: Dict[str, List[str]]
-    ) -> str:
-        """Generate explanation asynchronously."""
-        prompt = (
-            f"Geef een korte toelichting op de betekenis en toepassing van het begrip '{begrip}', "
-            f"zoals het zou kunnen voorkomen in overheidsdocumenten.\n"
-            f"Gebruik de contexten hieronder alleen als achtergrond en noem ze niet letterlijk:\n\n"
-            f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-            f"Juridische context: {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-            f"Wettelijke basis: {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
-        )
-        return await async_gpt_call(prompt, temperature=0.3)
-    
-    async def _async_generate_synonyms(
-        self, 
-        begrip: str, 
-        context_dict: Dict[str, List[str]]
-    ) -> str:
-        """Generate synonyms asynchronously."""
-        prompt = (
-            f"Geef maximaal 5 synoniemen voor het begrip '{begrip}', "
-            f"relevant binnen de context van overheidsgebruik.\n"
-            f"Gebruik onderstaande contexten als achtergrond. Geef de synoniemen als een lijst, zonder toelichting:\n\n"
-            f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-            f"Juridische context: {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-            f"Wettelijke basis: {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
-        )
-        return await async_gpt_call(prompt, temperature=0.2, max_tokens=150)
-    
-    async def _async_generate_antonyms(
-        self, 
-        begrip: str, 
-        context_dict: Dict[str, List[str]]
-    ) -> str:
-        """Generate antonyms asynchronously."""
-        prompt = (
-            f"Geef maximaal 5 antoniemen voor het begrip '{begrip}', "
-            f"binnen de context van overheidsgebruik.\n"
-            f"Gebruik onderstaande contexten alleen als achtergrond. Geef de antoniemen als een lijst, zonder toelichting:\n\n"
-            f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
-            f"Juridische context: {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
-            f"Wettelijke basis: {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
-        )
-        return await async_gpt_call(prompt, temperature=0.2, max_tokens=150)
-    
-    def build_prompt(self, begrip: str, context_dict: Dict[str, List[str]]) -> str:
-        """
-        Build GPT prompt for definition generation.
-        
-        Args:
-            begrip: Term to define
-            context_dict: Context information
-            
-        Returns:
-            Generated prompt text
-        """
-        try:
-            prompt_config = PromptConfiguratie(
-                begrip=begrip,
-                context_dict=context_dict
-            )
-            pb = PromptBouwer(prompt_config)
-            return pb.bouw_prompt()
-            
-        except Exception as e:
-            self.logger.error(f"Prompt building failed: {str(e)}")
-            return ""
-    
-    async def async_process_complete_definition(
-        self,
-        form_data: Dict[str, Any],
-        toetsregels: Dict[str, Any],
-        progress_callback: Optional[Callable[[str, int, int], None]] = None
-    ) -> AsyncProcessingResult:
-        """
-        Process complete definition generation workflow asynchronously.
-        
-        Args:
-            form_data: Form data from UI
-            toetsregels: Quality rules
-            progress_callback: Optional progress callback
-            
-        Returns:
-            AsyncProcessingResult with all results and timing
-        """
-        start_time = time.time()
-        
-        try:
-            begrip = form_data["begrip"]
-            context_dict = form_data["context_dict"]
-            
-            if not begrip.strip():
-                return AsyncProcessingResult(
-                    success=False,
-                    processing_time=0,
-                    error_message="Begrip mag niet leeg zijn"
-                )
-            
-            total_steps = 6
-            current_step = 0
-            
-            # Step 1: Build prompt
-            if progress_callback:
-                progress_callback("Building prompt...", current_step, total_steps)
-            
-            prompt_text = self.build_prompt(begrip, context_dict)
-            SessionStateManager.set_value("prompt_text", prompt_text)
-            current_step += 1
-            
-            # Step 2: Generate definition
-            if progress_callback:
-                progress_callback("Generating definition...", current_step, total_steps)
-            
-            definitie_origineel, definitie_gecorrigeerd, marker = await self.async_generate_definition(
-                begrip, context_dict
-            )
-            
-            SessionStateManager.update_definition_results(
-                definitie_origineel=definitie_origineel,
-                definitie_gecorrigeerd=definitie_gecorrigeerd,
-                marker=marker
-            )
-            current_step += 1
-            
-            # Step 3: Generate sources concurrently with examples
-            if progress_callback:
-                progress_callback("Generating sources and examples...", current_step, total_steps)
-            
-            # Start concurrent tasks
-            sources_task = self.async_generate_sources(begrip, context_dict)
-            examples_task = async_generate_all_examples(
-                begrip=begrip,
-                definitie=definitie_origineel,
-                context_dict=context_dict,
-                progress_callback=lambda msg, completed, total: progress_callback(
-                    f"Examples: {msg}", current_step, total_steps
-                ) if progress_callback else None
-            )
-            additional_task = self.async_generate_additional_content(begrip, context_dict)
-            
-            # Wait for all concurrent tasks
-            bronnen_tekst, examples, additional_content = await asyncio.gather(
-                sources_task, examples_task, additional_task
-            )
-            current_step += 1
-            
-            # Step 4: Validate definition
-            if progress_callback:
-                progress_callback("Validating definition...", current_step, total_steps)
-            
-            toetsresultaten = self.async_validate_definition(
-                definitie_gecorrigeerd,
-                toetsregels,
-                begrip=begrip,
-                marker=marker,
-                voorkeursterm=SessionStateManager.get_value("voorkeursterm"),
-                bronnen_gebruikt=bronnen_tekst,
-                contexten=context_dict,
-                gebruik_logging=form_data.get("gebruik_logging", False)
-            )
-            current_step += 1
-            
-            # Step 5: Update session state
-            if progress_callback:
-                progress_callback("Updating session state...", current_step, total_steps)
-            
-            SessionStateManager.update_ai_content(
-                voorbeeld_zinnen=examples.voorbeeld_zinnen,
-                praktijkvoorbeelden=examples.praktijkvoorbeelden,
-                tegenvoorbeelden=examples.tegenvoorbeelden,
-                toelichting=examples.toelichting,
-                synoniemen=examples.synoniemen,
-                antoniemen=examples.antoniemen,
-                bronnen_gebruikt=bronnen_tekst
-            )
-            
-            SessionStateManager.set_value("beoordeling_gen", toetsresultaten)
-            current_step += 1
-            
-            # Step 6: Log the results
-            if progress_callback:
-                progress_callback("Logging results...", current_step, total_steps)
-            
-            self._log_definition_version(
-                versietype="AI",
-                form_data=form_data,
-                definitie_origineel=definitie_origineel,
-                definitie_gecorrigeerd=definitie_gecorrigeerd,
-                toetsresultaten=toetsresultaten
-            )
-            current_step += 1
-            
-            processing_time = time.time() - start_time
-            
-            if progress_callback:
-                progress_callback("Complete!", current_step, total_steps)
-            
-            self.logger.info(f"Async definition processing completed in {processing_time:.2f}s")
-            
-            return AsyncProcessingResult(
-                success=True,
-                processing_time=processing_time,
-                definitie_origineel=definitie_origineel,
-                definitie_gecorrigeerd=definitie_gecorrigeerd,
-                marker=marker,
-                bronnen_tekst=bronnen_tekst,
-                toetsresultaten=toetsresultaten,
-                examples=examples,
-                additional_content=additional_content,
-                total_requests=examples.total_requests + 3  # +3 for definition, sources, validation
-            )
-            
-        except Exception as e:
-            processing_time = time.time() - start_time
-            error_message = f"Async definition processing failed: {str(e)}"
-            self.logger.error(error_message)
-            
-            return AsyncProcessingResult(
-                success=False,
-                processing_time=processing_time,
-                error_message=error_message
-            )
-    
-    async def async_process_modified_definition(
-        self,
-        form_data: Dict[str, Any],
-        toetsregels: Dict[str, Any]
-    ) -> AsyncProcessingResult:
-        """
-        Process modified definition validation asynchronously.
-        
-        Args:
-            form_data: Form data from UI
-            toetsregels: Quality rules
-            
-        Returns:
-            AsyncProcessingResult with validation results
-        """
-        start_time = time.time()
-        
-        try:
-            aangepaste_definitie = SessionStateManager.get_value("aangepaste_definitie")
-            
-            if not aangepaste_definitie.strip():
-                return AsyncProcessingResult(
-                    success=False,
-                    processing_time=0,
-                    error_message="Aangepaste definitie mag niet leeg zijn"
-                )
-            
-            # Validate modified definition
-            toetsresultaten = self.async_validate_definition(
-                aangepaste_definitie,
-                toetsregels,
-                begrip=form_data["begrip"],
-                voorkeursterm=SessionStateManager.get_value("voorkeursterm"),
-                bronnen_gebruikt=SessionStateManager.get_value("bronnen_gebruikt"),
-                contexten=form_data["context_dict"],
-                gebruik_logging=form_data.get("gebruik_logging", False)
-            )
-            
-            SessionStateManager.set_value("beoordeling", toetsresultaten)
-            
-            # Log the modified version
-            self._log_definition_version(
-                versietype="Aangepast",
-                form_data=form_data,
-                definitie_origineel=SessionStateManager.get_value("definitie_origineel"),
-                definitie_gecorrigeerd=SessionStateManager.get_value("definitie_gecorrigeerd"),
-                toetsresultaten=toetsresultaten
-            )
-            
-            processing_time = time.time() - start_time
-            
-            return AsyncProcessingResult(
-                success=True,
-                processing_time=processing_time,
-                toetsresultaten=toetsresultaten,
-                total_requests=1  # Only validation
-            )
-            
-        except Exception as e:
-            processing_time = time.time() - start_time
-            error_message = f"Async modified definition processing failed: {str(e)}"
-            self.logger.error(error_message)
-            
-            return AsyncProcessingResult(
-                success=False,
-                processing_time=processing_time,
-                error_message=error_message
-            )
-    
-    def _log_definition_version(
-        self,
-        versietype: str,
-        form_data: Dict[str, Any],
-        definitie_origineel: str,
-        definitie_gecorrigeerd: str,
-        toetsresultaten: List[str]
-    ):
-        """Log definition version to files."""
-        try:
-            log_definitie(
-                versietype=versietype,
-                begrip=form_data["begrip"],
-                context=form_data["context"],
-                juridische_context=form_data["juridische_context"],
-                wet_basis=form_data["wet_basis"],
-                definitie_origineel=definitie_origineel,
-                definitie_gecorrigeerd=definitie_gecorrigeerd,
-                definitie_aangepast=SessionStateManager.get_value("aangepaste_definitie"),
-                toetsing=toetsresultaten,
-                voorbeeld_zinnen=SessionStateManager.get_value("voorbeeld_zinnen"),
-                praktijkvoorbeelden=SessionStateManager.get_value("praktijkvoorbeelden"),
-                toelichting=SessionStateManager.get_value("toelichting"),
-                synoniemen=SessionStateManager.get_value("synoniemen"),
-                antoniemen=SessionStateManager.get_value("antoniemen"),
-                vrije_input=SessionStateManager.get_value("vrije_input"),
-                prompt_text=SessionStateManager.get_value("prompt_text"),
-                datum=form_data["datum"],
-                voorsteller=form_data["voorsteller"],
-                ketenpartners=form_data["ketenpartners"],
-                expert_review=SessionStateManager.get_value("expert_review")
-            )
-            
-        except Exception as e:
-            self.logger.error(f"Definition logging failed: {str(e)}")
+            self.logger.error(f"Async examples generation failed: {str(e)}")
+            raise APIError(f"Voorbeelden generatie mislukt: {str(e)}")
 
 
-# Global async definition service
-_async_service: Optional[AsyncDefinitionService] = None
+# Global instance voor gemakkelijke toegang
+_async_service_instance = None
+
+def get_async_service() -> AsyncDefinitionService:
+    """Get or create global async service instance."""
+    global _async_service_instance
+    if _async_service_instance is None:
+        _async_service_instance = AsyncDefinitionService()
+    return _async_service_instance
 
 
-def get_async_definition_service() -> AsyncDefinitionService:
-    """Get or create global async definition service."""
-    global _async_service
-    if _async_service is None:
-        _async_service = AsyncDefinitionService()
-    return _async_service
+# Voor backward compatibility - exporteer ook de key functions
+__all__ = ['AsyncDefinitionService', 'AsyncProcessingResult', 'get_async_service']
