@@ -1,0 +1,35 @@
+TO DO: Controle toetsregels, verbetering bronnen, en uitbreidingsopties
+
+1. Toetsregels controleren op juiste gebruik
+- [ ] Controleer voor alle toetsregels (behalve CON-01 en CON-02):
+  - [ ] Of ze correct worden gebruikt in de promptopbouw (met juiste uitleg, prioriteit en aanbeveling).
+  - [ ] Of ze volledig zijn geïmplementeerd in ai_toetser.py:
+    • juiste uitleg, toetsvraag, patronen en voorbeelden
+    • correcte toepassing van invoer (bijv. begrip, bronnen, context)
+  - [ ] Of ze daadwerkelijk worden toegepast bij toetsing (geen dode regels of vergeten voorwaarden).
+  - [ ] Of er dubbele of inconsistente regels zijn (bijv. ARAI-varianten die overlappen met officiële regels).
+
+2. Verbeteren van bronvermelding bij gegenereerde definities
+- [ ] Zorg dat de gegenereerde broninformatie:
+  - [ ] concreet is (bijv. “Artikel 5, lid 1 sub b van de AVG” i.p.v. “de AVG”).
+  - [ ] controleerbaar is voor de gebruiker (volledige bronvermelding of verwijzing).
+  - [ ] nauwkeurig is afgestemd op de gebruikte context (bijv. alleen strafrechtelijke bronnen als context = “Strafrecht”).
+
+3. Uitbreiding van geraadpleegde bronnen in web_lookup.py
+- [ ] Voeg nieuwe, betrouwbare bronnen toe zoals:
+  - [ ] wetten.nl – inclusief artikelstructuur en opsplitsing naar leden.
+  - [ ] EUR-Lex.europa.eu – voor EU-verordeningen, richtlijnen, met artikelniveau.
+  - [ ] Beleidsdocumenten op Rijksoverheid.nl – met filtering op relevant domein.
+  - [ ] Juridische databanken (indien mogelijk) – via scrapes of SRU-API.
+  - [ ] Open data van ketenpartners – bijv. OM, DJI, Justid als bruikbare bronnen bestaan.
+
+Laat me weten of ik direct één van de volgende onderdelen moet uitvoeren:
+- [ ] Een checkscript bouwen om automatisch te detecteren:
+      • welke toetsregels niet worden toegepast in ai_toetser.py
+      • welke regels niet zijn opgenomen in de promptopbouw
+- [ ] De web_lookup.py module uitbreiden met scraping/parsing van:
+      • wetten.nl
+      • EUR-Lex (EU-wetgeving)
+- [ ] Een voorbeeld prompt en bronvermelding maken met:
+      • correcte vermelding op artikelniveau
+      • zoals: “Artikel 4, lid 2 van de AVG definieert verwerking als...”
