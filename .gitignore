@@ -25,6 +25,11 @@ data/database/*.db-journal
 data/uploads/
 *.db-journal
 
+# 💚 Cache directories
+cache/
+src/cache/
+*.pkl
+
 # 💚 Logs - NEW STRUCTURE
 logs/
 *.log
@@ -61,3 +66,9 @@ htmlcov/
 *.tmp
 *.temp
 build/temp/
+
+# 💚 Test files 
+test_*.py
+
+# 💚 Legacy code
+oude legacy broncode om te controleren/

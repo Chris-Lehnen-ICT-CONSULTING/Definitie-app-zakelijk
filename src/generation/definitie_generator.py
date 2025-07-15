@@ -352,6 +352,10 @@ class DefinitieGenerator:
         """
         logger.info(f"Generating definitie met voorbeelden voor '{context.begrip}'")
         
+        # Performance monitoring
+        from utils.performance_monitor import start_timing, stop_timing
+        start_timing("total_generation")
+        
         # 1. Genereer basis definitie
         result = self.generate(context, model, temperature, max_tokens)
         
@@ -376,30 +380,27 @@ class DefinitieGenerator:
                     'wettelijk': []  # Kan later uitgebreid worden
                 }
                 
-                # Genereer alle gevraagde voorbeelden
-                voorbeelden_result = {}
-                examples_generator = get_examples_generator()
+                # Genereer alle gevraagde voorbeelden - gebruik bulk generatie voor performance
+                logger.debug("Using bulk generation for all example types")
                 
-                for example_type in example_types:
-                    logger.debug(f"Generating {example_type.value} examples")
-                    
-                    request = ExampleRequest(
-                        begrip=context.begrip,
-                        definitie=result.definitie,
-                        context_dict=context_dict,
-                        example_type=example_type,
-                        generation_mode=GenerationMode.SYNC,  # Tijdelijk SYNC voor rate limiter issue
-                        max_examples=3
-                    )
-                    
-                    response = examples_generator.generate_examples(request)
-                    
-                    if response.success:
-                        voorbeelden_result[example_type.value] = response.examples
-                        logger.debug(f"Generated {len(response.examples)} {example_type.value} examples")
+                start_timing("voorbeelden_generation")
+                
+                # Gebruik de optimale bulk functie
+                voorbeelden_result = genereer_alle_voorbeelden(
+                    begrip=context.begrip,
+                    definitie=result.definitie,
+                    context=context_dict,
+                    mode=GenerationMode.FAST  # FAST mode voor snelste generatie
+                )
+                
+                stop_timing("voorbeelden_generation")
+                
+                # Log resultaten
+                for example_type, examples in voorbeelden_result.items():
+                    if examples:
+                        logger.debug(f"Generated {len(examples)} {example_type} examples")
                     else:
-                        logger.warning(f"Failed to generate {example_type.value}: {response.error_message}")
-                        voorbeelden_result[example_type.value] = []
+                        logger.warning(f"No examples generated for {example_type}")
                 
                 # Update result met voorbeelden
                 result.voorbeelden = voorbeelden_result
@@ -411,6 +412,10 @@ class DefinitieGenerator:
                 logger.error(f"Voorbeelden generatie gefaald: {e}")
                 result.voorbeelden_error = str(e)
                 result.voorbeelden_gegenereerd = False
+        
+        # Stop total timing
+        total_time = stop_timing("total_generation")
+        logger.info(f"⏱️ Total generation completed in {total_time:.2f}s")
         
         return result
     
