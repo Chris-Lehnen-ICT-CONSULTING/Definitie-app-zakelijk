@@ -139,6 +139,9 @@ class SmartRateLimiter:
         self.last_adjustment = time.time()
         self.current_rate = config.tokens_per_second
         
+        # Log de configuratie voor debugging
+        logger.debug(f"Initialized SmartRateLimiter with rate: {config.tokens_per_second} req/s, capacity: {config.bucket_capacity}")
+        
         # Statistics
         self.stats = {
             'total_requests': 0,
@@ -422,20 +425,45 @@ class SmartRateLimiter:
         return estimated_wait
 
 
-# Global smart rate limiter instance
-_smart_limiter: Optional[SmartRateLimiter] = None
+# Endpoint-specifieke smart rate limiters
+_smart_limiters: Dict[str, SmartRateLimiter] = {}
 
 
-async def get_smart_limiter(config: Optional[RateLimitConfig] = None) -> SmartRateLimiter:
-    """Get or create global smart rate limiter."""
-    global _smart_limiter
-    if _smart_limiter is None:
-        _smart_limiter = SmartRateLimiter(config or RateLimitConfig())
-        await _smart_limiter.start()
-    return _smart_limiter
+async def get_smart_limiter(endpoint_name: str = "default", config: Optional[RateLimitConfig] = None) -> SmartRateLimiter:
+    """Get or create endpoint-specific smart rate limiter.
+    
+    Args:
+        endpoint_name: Naam van de endpoint voor endpoint-specifieke rate limiting
+        config: Optionele configuratie voor de rate limiter
+        
+    Returns:
+        SmartRateLimiter instance voor de specifieke endpoint
+    """
+    global _smart_limiters
+    
+    # Gebruik endpoint naam als key voor specifieke rate limiter
+    if endpoint_name not in _smart_limiters:
+        # Probeer endpoint-specifieke configuratie te laden
+        if config is None:
+            try:
+                from config.rate_limit_config import get_rate_limit_config
+                config = get_rate_limit_config(endpoint_name)
+                logger.info(f"Loaded specific config for endpoint: {endpoint_name}")
+            except ImportError:
+                # Gebruik default configuratie als config module niet bestaat
+                config = RateLimitConfig()
+                logger.debug(f"Using default config for endpoint: {endpoint_name}")
+        
+        # Maak nieuwe rate limiter voor deze endpoint
+        _smart_limiters[endpoint_name] = SmartRateLimiter(config)
+        await _smart_limiters[endpoint_name].start()
+        logger.info(f"Created new rate limiter for endpoint: {endpoint_name}")
+    
+    return _smart_limiters[endpoint_name]
 
 
 def with_smart_rate_limit(
+    endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
     timeout: Optional[float] = None
 ):
@@ -443,18 +471,21 @@ def with_smart_rate_limit(
     Decorator for smart rate limiting with priority queuing.
     
     Args:
+        endpoint_name: Endpoint naam voor specifieke rate limiting
         priority: Request priority level
         timeout: Maximum time to wait for rate limit permission
         
     Example:
-        @with_smart_rate_limit(priority=RequestPriority.HIGH, timeout=10.0)
+        @with_smart_rate_limit(endpoint_name="gpt_api", priority=RequestPriority.HIGH, timeout=10.0)
         async def important_api_call():
             return await some_api_call()
     """
     def decorator(func: Callable):
         async def wrapper(*args, **kwargs):
-            limiter = await get_smart_limiter()
-            request_id = f"{func.__name__}_{int(time.time() * 1000)}"
+            # Gebruik endpoint naam of functie naam voor endpoint-specifieke limiter
+            actual_endpoint = endpoint_name or func.__name__
+            limiter = await get_smart_limiter(actual_endpoint)
+            request_id = f"{actual_endpoint}_{int(time.time() * 1000)}"
             
             # Wait for rate limit permission
             start_time = time.time()
@@ -533,6 +564,15 @@ async def test_smart_rate_limiter():
         
     finally:
         await limiter.stop()
+
+
+async def cleanup_smart_limiters():
+    """Clean up all endpoint-specific rate limiters."""
+    global _smart_limiters
+    for endpoint_name, limiter in _smart_limiters.items():
+        await limiter.stop()
+        logger.info(f"Stopped rate limiter for endpoint: {endpoint_name}")
+    _smart_limiters.clear()
 
 
 if __name__ == "__main__":
