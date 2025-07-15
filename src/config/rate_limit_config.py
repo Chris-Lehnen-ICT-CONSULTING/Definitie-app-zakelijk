@@ -46,18 +46,18 @@ ENDPOINT_CONFIGS: Dict[str, EndpointConfig] = {
         timeout=15.0
     ),
     "examples_generation_synonyms": EndpointConfig(
-        tokens_per_second=2.0,
-        bucket_capacity=10,
-        burst_capacity=5,
-        target_response_time=1.5,
-        timeout=10.0
+        tokens_per_second=3.0,
+        bucket_capacity=15,
+        burst_capacity=10,
+        target_response_time=2.0,
+        timeout=20.0  # Verhoogde timeout voor 5 items
     ),
     "examples_generation_antonyms": EndpointConfig(
-        tokens_per_second=2.0,
-        bucket_capacity=10,
-        burst_capacity=5,
-        target_response_time=1.5,
-        timeout=10.0
+        tokens_per_second=3.0,
+        bucket_capacity=15,
+        burst_capacity=10,
+        target_response_time=2.0,
+        timeout=20.0  # Verhoogde timeout voor 5 items
     ),
     "examples_generation_explanation": EndpointConfig(
         tokens_per_second=1.5,
