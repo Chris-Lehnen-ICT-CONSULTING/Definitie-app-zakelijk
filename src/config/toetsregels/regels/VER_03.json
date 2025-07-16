@@ -1,0 +1,32 @@
+{
+  "id": "VER_03",
+  "naam": "Werkwoord-term in infinitief",
+  "uitleg": "Een werkwoord als term moet in de onbepaalde wijs (infinitief) staan.",
+  "toelichting": "Alleen de infinitief wordt als term opgenomen; vervoegde vormen zijn niet gewenst.",
+  "toetsvraag": "Staat de term in de infinitief en niet als vervoegd werkwoord?",
+  "herkenbaar_patronen": [
+    ".+t\\b",
+    ".+d\\b"
+  ],
+  "goede_voorbeelden": [
+    "beoordelen",
+    "toezicht houden"
+  ],
+  "foute_voorbeelden": [
+    "beoordeelt",
+    "houdt toezicht"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "aanbevolen",
+  "geldigheid": "term",
+  "status": "definitief",
+  "type": "samenhang tussen termen",
+  "thema": "verschijningsvorm van de term",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Werkwoord-term in infinitief",
+      "fullurl": "https://www.astraonline.nl/index.php/Werkwoord-term_in_infinitief"
+    }
+  ]
+}
