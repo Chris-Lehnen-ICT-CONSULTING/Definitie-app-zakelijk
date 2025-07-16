@@ -1,0 +1,40 @@
+📝 Backlogitem: Voeg flexibele bronvermelding toe (meerdere bronnen per begrip)
+
+🎯 Doel:
+Laat gebruikers meerdere bronnen opgeven per begrip (bijv. Wikipedia, DJI-handboek, jurisprudentie).
+
+📌 Aanleiding:
+Definities komen vaak uit samengestelde bronnen, maar er is nu slechts één veld beschikbaar.
+
+🔍 Probleem:
+- Gebrek aan brondiversiteit.
+- Onjuiste weergave of onderspecificatie.
+
+📈 Impact:
+- Juridische validatie moeilijk.
+- Gebruikers vertrouwen de herkomst minder.
+
+🛠️ Taken:
+- Maak multi-select veld in UI.
+- Sta vrije tekstinvoer + suggesties toe.
+- Toon alle bronnen in export.
+
+🧪 Tests:
+- Meerdere bronnen worden opgeslagen.
+- Logging + export tonen volledige lijst.
+
+✅ Acceptatiecriteria:
+- Gebruiker kan meerdere bronnen toevoegen per begrip.
+- Bronnen zijn zichtbaar bij export en in logging.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar, jurist
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-BRON-BEHEER-UI
+📅 Datum: 2025-06-23
+📌 Status: to do

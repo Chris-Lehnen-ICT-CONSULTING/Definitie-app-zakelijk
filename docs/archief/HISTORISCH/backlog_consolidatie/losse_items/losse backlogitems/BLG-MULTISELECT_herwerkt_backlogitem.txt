@@ -1,0 +1,43 @@
+📝 Backlogitem: Dynamisch beheer van contexten, ketens en bronnen via UI
+
+🎯 Doel:
+Maak het mogelijk om waarden zoals ketenpartners, contexten en herkomstbronnen te beheren via een dynamische UI (toevoegen, verwijderen, selecteren).
+
+📌 Aanleiding:
+Context- en ketenvelden zijn nu hardcoded in dropdowns, wat beheer bemoeilijkt en niet schaalbaar is bij groeiende behoefte.
+
+🔍 Probleem:
+- Gebruiker kan geen nieuwe waarden toevoegen zonder codeaanpassing.
+- Keuzelijsten zijn statisch en verouderd.
+
+📈 Impact:
+- Frustratie bij domeinspecialisten.
+- Onvolledige of foutieve metadatering.
+
+🛠️ Taken:
+- Bouw dynamische lijstbeheer-component (multiselect + toevoegen/wegklikken).
+- Sla waarden op in JSON-config of dynamische opslag.
+- Voeg UI-sectie toe in tab 1: "Beheer waarden".
+
+🧪 Tests:
+- Toegevoegde waarden verschijnen direct in dropdown.
+- Verwijderde waarden worden niet meer getoond.
+- Sessie-overdracht tussen tabs werkt zonder foutmelding.
+
+✅ Acceptatiecriteria:
+- Gebruiker kan eigen waarden toevoegen aan context-, bron- en ketenvelden.
+- Alle waarden zijn persistent en dynamisch.
+- UI-fouttolerantie is gegarandeerd.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+- ui_helpers.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 4
+🆔 ID: BLG-MULTISELECT
+📅 Datum: 2025-06-12
+📌 Status: to do

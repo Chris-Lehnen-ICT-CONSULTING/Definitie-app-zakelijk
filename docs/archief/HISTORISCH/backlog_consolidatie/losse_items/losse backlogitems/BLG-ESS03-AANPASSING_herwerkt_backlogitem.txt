@@ -1,0 +1,41 @@
+📝 Backlogitem: Pas toetsregel ESS-03 aan voor modernere formuleringen
+
+🎯 Doel:
+Werk toetsregel ESS-03 bij met bredere patronen en voorbeelden, waaronder eigentijdse taal en AI-gegenereerde varianten.
+
+📌 Aanleiding:
+ESS-03 herkent nu te weinig ‘negatief afgebakende definities’ zoals “is niet ...”, of “zonder ...”.
+
+🔍 Probleem:
+- Te strakke regex of beperkte voorbeelden.
+- Veel moderne formuleringen worden gemist.
+
+📈 Impact:
+- Foutpositieven of foutnegatieven in toetsing.
+- Gebrekkige betrouwbaarheid van feedback.
+
+🛠️ Taken:
+- Voeg patronen toe: “bevat geen”, “zonder”, “geen sprake van”.
+- Herstructureer voorbeeldblok.
+- Pas JSON en toetslogica aan.
+
+🧪 Tests:
+- Definitie “is zonder X” wordt correct herkend.
+- Geen regressie bij bestaande gevallen.
+
+✅ Acceptatiecriteria:
+- Regel is breder maar veilig.
+- Output bevat heldere foutmelding.
+
+📦 Bestand(en):
+- toetsregels.json
+- ai_toetser.py
+
+👥 Betrokkenen:
+- Ontwikkelaar, taalkundige
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-ESS03-AANPASSING
+📅 Datum: 2025-06-23
+📌 Status: to do

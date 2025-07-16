@@ -1,0 +1,155 @@
+╭─────────────────────────────────────────────────────────────────────────────╮
+     │ Implementatiestrategie: Modulaire Toetsregels Refactoring                   │
+     │                                                                             │
+     │ Fase 1: Analyse en Voorbereiding                                            │
+     │                                                                             │
+     │ Stap 1: Huidige structuur analyseren                                        │
+     │ - Alle regels uit het grote JSON bestand extraheren                         │
+     │ - Identificeren van regel-ID's, categorieën en afhankelijkheden             │
+     │ - Bepalen welke code momenteel het JSON bestand gebruikt                    │
+     │ - Performance baseline meten van huidige systeem                            │
+     │                                                                             │
+     │ Stap 2: Nieuwe bestandsstructuur ontwerpen                                  │
+     │ config/toetsregels/                                                         │
+     │ ├── regels/                    # Individuele regelbestanden                 │
+     │ │   ├── CON-01.json           # Context zonder benoeming                    │
+     │ │   ├── CON-02.json           # Authentieke bron                            │
+     │ │   ├── ESS-01.json           # Essentie niet doel                          │
+     │ │   ├── ESS-02.json           # Ontologische categorie                      │
+     │ │   └── ... (34+ bestanden)                                                 │
+     │ ├── sets/                      # Voorgedefinieerde regelsets                │
+     │ │   ├── verplicht-hoog.json   # Alle verplichte hoge prioriteit             │
+     │ │   ├── per-categorie/                                                      │
+     │ │   │   ├── type-regels.json                                                │
+     │ │   │   ├── proces-regels.json                                              │
+     │ │   │   ├── resultaat-regels.json                                           │
+     │ │   │   └── exemplaar-regels.json                                           │
+     │ │   └── per-context/                                                        │
+     │ │       ├── juridisch.json                                                  │
+     │ │       ├── operationeel.json                                               │
+     │ │       └── technisch.json                                                  │
+     │ └── toetsregels-manager.json   # Centrale configuratie                      │
+     │                                                                             │
+     │ Fase 2: Data Migratie                                                       │
+     │                                                                             │
+     │ Stap 3: Individuele regelbestanden aanmaken                                 │
+     │ - Script schrijven om grote JSON te splitsen                                │
+     │ - Elke regel als apart JSON bestand opslaan                                 │
+     │ - Validatie dat alle data correct is overgezet                              │
+     │ - Schema validatie voor individuele regelbestanden                          │
+     │                                                                             │
+     │ Stap 4: Regelsets configureren                                              │
+     │ - Verplichte regels identificeren (prioriteit=hoog + aanbeveling=verplicht) │
+     │ - Per ontologische categorie regelsets maken                                │
+     │ - Context-specifieke regelsets definiëren                                   │
+     │ - Manager configuratie met laadstrategieën                                  │
+     │                                                                             │
+     │ Fase 3: Code Implementatie                                                  │
+     │                                                                             │
+     │ Stap 5: ToetsregelManager klasse bouwen                                     │
+     │ class ToetsregelManager:                                                    │
+     │     def __init__(self, config_dir: str = "config/toetsregels"):             │
+     │         self.config_dir = Path(config_dir)                                  │
+     │         self.regels_cache = {}                                              │
+     │         self.regelsets_cache = {}                                           │
+     │         self.load_configuration()                                           │
+     │                                                                             │
+     │     def load_regel(self, regel_id: str) -> Dict                             │
+     │     def load_regelset(self, set_naam: str) -> List[Dict]                    │
+     │     def get_verplichte_regels() -> List[Dict]                               │
+     │     def get_regels_voor_categorie(categorie: str) -> List[Dict]             │
+     │     def get_regels_voor_context(context: str) -> List[Dict]                 │
+     │                                                                             │
+     │ Stap 6: Caching en performance optimalisatie                                │
+     │ - LRU cache voor frequent gebruikte regels                                  │
+     │ - Lazy loading van regelbestanden                                           │
+     │ - Regelset pre-compilation voor snelheid                                    │
+     │ - Memory management voor grote aantallen regels                             │
+     │                                                                             │
+     │ Stap 7: Backward compatibility layer                                        │
+     │ - Adapter klasse die oude interface simuleert                               │
+     │ - Alle bestaande code blijft werken                                         │
+     │ - Geleidelijke migratie naar nieuwe interface mogelijk                      │
+     │                                                                             │
+     │ Fase 4: Integratie                                                          │
+     │                                                                             │
+     │ Stap 8: Configuration management integratie                                 │
+     │ - ToetsregelManager integreren in ConfigManager                             │
+     │ - Hot-reloading van gewijzigde regelbestanden                               │
+     │ - Validatie van regelset consistentie                                       │
+     │ - Error handling bij ontbrekende bestanden                                  │
+     │                                                                             │
+     │ Stap 9: Bestaande modules updaten                                           │
+     │ - validation/toetser.py aanpassen voor nieuwe interface                     │
+     │ - Prompt building systeem updaten                                           │
+     │ - UI componenten aanpassen voor regelset selectie                           │
+     │ - Testing infrastructure uitbreiden                                         │
+     │                                                                             │
+     │ Fase 5: Validatie en Testing                                                │
+     │                                                                             │
+     │ Stap 10: Comprehensive testing                                              │
+     │ - Unit tests voor ToetsregelManager                                         │
+     │ - Integration tests met bestaande systemen                                  │
+     │ - Performance benchmarks vs. oude systeem                                   │
+     │ - Regel completeness validatie                                              │
+     │                                                                             │
+     │ Stap 11: Data integriteit checks                                            │
+     │ - Alle regels correct geïmporteerd                                          │
+     │ - Geen missing dependencies                                                 │
+     │ - Regelset logic werkt correct                                              │
+     │ - Cache invalidation functioneert                                           │
+     │                                                                             │
+     │ Fase 6: Deployment en Optimalisatie                                         │
+     │                                                                             │
+     │ Stap 12: Geleidelijke rollout                                               │
+     │ - Feature flag voor nieuwe/oude systeem                                     │
+     │ - A/B testing van performance                                               │
+     │ - Monitoring van error rates                                                │
+     │ - Rollback procedure gereed                                                 │
+     │                                                                             │
+     │ Stap 13: Cleanup en documentatie                                            │
+     │ - Oude grote JSON archiveren                                                │
+     │ - Documentatie nieuwe bestandsstructuur                                     │
+     │ - Code cleanup van oude interfaces                                          │
+     │ - Team training op nieuwe workflow                                          │
+     │                                                                             │
+     │ Verwachte Voordelen:                                                        │
+     │                                                                             │
+     │ Onderhoud:                                                                  │
+     │ - 80% sneller aanpassen van individuele regels                              │
+     │ - Geen merge conflicts meer bij team development                            │
+     │ - Duidelijke change history per regel                                       │
+     │                                                                             │
+     │ Performance:                                                                │
+     │ - Selectief laden: alleen benodigde regels                                  │
+     │ - Memory footprint reductie tot 60%                                         │
+     │ - Snellere regel updates zonder volledige herlaad                           │
+     │                                                                             │
+     │ Flexibiliteit:                                                              │
+     │ - Context-specifieke regelsets                                              │
+     │ - A/B testing van verschillende regelcombinaties                            │
+     │ - Experimenteren met nieuwe regels zonder impact                            │
+     │                                                                             │
+     │ Beheer:                                                                     │
+     │ - Automated regel validatie                                                 │
+     │ - Eenvoudige regel activatie/deactivatie                                    │
+     │ - Betere traceability van regelwijzigingen                                  │
+     │                                                                             │
+     │ Risico's en Mitigatie:                                                      │
+     │                                                                             │
+     │ Risico 1: Performance degradatie door veel bestanden                        │
+     │ Mitigatie: Caching en regelset pre-compilation                              │
+     │                                                                             │
+     │ Risico 2: Complexiteit van regelset management                              │
+     │ Mitigatie: Eenvoudige default configuraties en goede documentatie           │
+     │                                                                             │
+     │ Risico 3: Breaking changes in bestaande code                                │
+     │ Mitigatie: Backward compatibility layer behouden                            │
+     │                                                                             │
+     │ Tijdsinschatting:                                                           │
+     │                                                                             │
+     │ - Fase 1-2: 1-2 dagen (analyse en migratie)                                 │
+     │ - Fase 3-4: 2-3 dagen (implementatie)                                       │
+     │ - Fase 5-6: 1-2 dagen (testing en deployment)                               │
+     │                                                                             │
+     │ Totaal: 4-7 dagen voor volledige implementatie  

@@ -1,0 +1,46 @@
+📝 Backlogitem: Feedbackknoppen integreren en koppelen aan AI-verbetering
+
+🎯 Doel:
+Implementeer een feedbackmechanisme waarmee gebruikers een definitie kunnen beoordelen (👍/👎), en gebruik deze input om AI-prompts te versterken.
+
+📌 Aanleiding:
+De app genereert veel definities, maar gebruikt geen feedback om ze te verbeteren of bij te sturen.
+
+🔍 Probleem:
+- Feedback wordt nergens geregistreerd.
+- AI-prompts blijven statisch en niet lerend.
+- Gebruikerservaring is niet interactief.
+
+📈 Impact:
+- Gebrek aan adaptief systeem.
+- Geen inzicht in gebruikersvoorkeuren.
+- Gemiste kans op automatische kwaliteitsverbetering.
+
+🛠️ Taken:
+- Voeg 👍👎-knoppen toe onder elke definitie.
+- Log feedback in JSONL-bestand met begrip-ID, score en timestamp.
+- Voeg functie toe in prompt_leraar.py om scores te verwerken.
+
+🧪 Tests:
+- Feedback wordt correct gelogd.
+- Score heeft impact op herformulering bij volgende generatie.
+- Logbestand blijft leesbaar en consistent.
+
+✅ Acceptatiecriteria:
+- Gebruikers kunnen feedback geven op elke definitie.
+- Feedback wordt automatisch opgeslagen.
+- Promptaanpassing gebeurt via lerend subsysteem.
+
+📦 Bestand(en):
+- feedback_lus.py
+- prompt_leraar.py
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 5
+🆔 ID: BLG-FB-LOOP
+📅 Datum: 2025-06-15
+📌 Status: to do
