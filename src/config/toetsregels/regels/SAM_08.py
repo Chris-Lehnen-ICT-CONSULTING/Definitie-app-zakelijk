@@ -42,31 +42,34 @@ class SAM08Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    verwijzingen = set()
-    for patroon in patronen:
-        verwijzingen.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            verwijzingen = set()
+            for patroon in patronen:
+                verwijzingen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+            goede_voorbeelden = regel.get("goede_voorbeelden", [])
+            foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
-    goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+            goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
+            fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
 
-    if not verwijzingen:
-        if fout:
-            return "❌ SAM-08: geen verwijzing gevonden maar formulering lijkt op fout voorbeeld"
-        return "✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast"
-
-    if goed:
-        return f"✔️ SAM-08: synoniemverwijzing(en) herkend ({', '.join(verwijzingen)}), correct toegepast"
-    if fout:
-        return f"❌ SAM-08: synoniemverwijzing(en) herkend ({', '.join(verwijzingen)}), maar formulering lijkt op fout voorbeeld"
-
-    return f"❌ SAM-08: synoniemverwijzing(en) herkend ({', '.join(verwijzingen)}), maar zonder bevestiging via goed voorbeeld"
+            if not verwijzingen:
+                if fout:
+                    result = "❌ SAM-08: geen verwijzing gevonden maar formulering lijkt op fout voorbeeld"
+                else:
+                    result = "✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast"
+            else:
+                if goed:
+                    result = f"✔️ SAM-08: synoniemverwijzing(en) herkend ({', '.join(verwijzingen)}), correct toegepast"
+                elif fout:
+                    result = f"❌ SAM-08: synoniemverwijzing(en) herkend ({', '.join(verwijzingen)}), maar formulering lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ SAM-08: synoniemverwijzing(en) herkend ({', '.join(verwijzingen)}), maar zonder bevestiging via goed voorbeeld"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

@@ -42,26 +42,30 @@ class STR01Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    beginwoorden = regel.get("herkenbaar_patronen", [])
-    fout_begin = [w for w in beginwoorden if re.match(w, definitie)]
+            beginwoorden = regel.get("herkenbaar_patronen", [])
+            fout_begin = [w for w in beginwoorden if re.match(w, definitie)]
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+            goede_voorbeelden = regel.get("goede_voorbeelden", [])
+            foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
-    goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+            goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
+            fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
 
-    if fout_begin:
-        if fout:
-            return f"❌ STR-01: definitie begint met werkwoord ({', '.join(fout_begin)}), en lijkt op fout voorbeeld"
-        return f"❌ STR-01: definitie begint met werkwoord ({', '.join(fout_begin)})"
-
-    if goed:
-        return "✔️ STR-01: definitie start correct met zelfstandig naamwoord en komt overeen met goed voorbeeld"
-    return "✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd"
+            if fout_begin:
+                if fout:
+                    result = f"❌ STR-01: definitie begint met werkwoord ({', '.join(fout_begin)}), en lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ STR-01: definitie begint met werkwoord ({', '.join(fout_begin)})"
+            else:
+                if goed:
+                    result = "✔️ STR-01: definitie start correct met zelfstandig naamwoord en komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

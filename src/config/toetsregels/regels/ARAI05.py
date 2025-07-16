@@ -42,27 +42,31 @@ class ARAI05Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    aannames = set()
-    for patroon in patroon_lijst:
-        aannames.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patroon_lijst = regel.get("herkenbaar_patronen", [])
+            aannames = set()
+            for patroon in patroon_lijst:
+                aannames.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede = regel.get("goede_voorbeelden", [])
-    foute = regel.get("foute_voorbeelden", [])
-    goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
-    fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
+            goede = regel.get("goede_voorbeelden", [])
+            foute = regel.get("foute_voorbeelden", [])
+            goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
+            fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
 
-    if not aannames:
-        if goed_aanwezig:
-            return "✔️ ARAI05: geen impliciete aannames gevonden, komt overeen met goed voorbeeld"
-        return "✔️ ARAI05: geen impliciete aannames aangetroffen"
-
-    if fout_aanwezig:
-        return f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), lijkt op fout voorbeeld"
-    return f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), onvoldoende duidelijk"
+            if not aannames:
+                if goed_aanwezig:
+                    result = "✔️ ARAI05: geen impliciete aannames gevonden, komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ ARAI05: geen impliciete aannames aangetroffen"
+            else:
+                if fout_aanwezig:
+                    result = f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), onvoldoende duidelijk"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
