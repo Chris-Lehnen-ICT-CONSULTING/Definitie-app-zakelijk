@@ -53,6 +53,9 @@ project/
 │   └── config/toetsregels/regels/  # Modulaire validators
 ├── tests/                # Test files
 ├── docs/                 # Alle documentatie
+├── tools/                # Development en maintenance tools
+│   ├── maintenance/     # Onderhoudsscripts
+│   └── run_maintenance.py  # Centrale tool runner
 ├── data/definities.db   # SQLite database
 └── archive/             # Gearchiveerde legacy code
 ```
@@ -102,6 +105,36 @@ Types: feat, fix, refactor, perf, test, docs, style, chore
 - Coverage minimaal 80% met branch coverage
 - Ruff config: line-length 88, Python 3.11 target
 - ADRs voor architectuur beslissingen
+
+## 🔧 Maintenance Scripts
+Bij het maken van fix/maintenance scripts:
+
+### Locatie & Structuur
+- Plaats in `tools/maintenance/` directory
+- Gebruik beschrijvende namen: `fix_*.py`, `check_*.py`, `migrate_*.py`
+- Voeg altijd docstring toe met doel en gebruik
+
+### Implementatie Eisen
+```python
+# Verplicht: dry-run als default
+# Verplicht: backup voor destructieve operaties  
+# Verplicht: argparse voor CLI interface
+# Verplicht: uitgebreide logging van acties
+```
+
+### Documentatie
+Update `tools/maintenance/README.md` met:
+- Wanneer script is gebruikt
+- Waarom het nodig was
+- Wat het exact doet
+- Hoe het te gebruiken
+
+### Voorbeeld
+```bash
+python tools/run_maintenance.py  # List alle tools
+python tools/maintenance/fix_naming_consistency.py --help
+python tools/maintenance/fix_naming_consistency.py --execute
+```
 
 ---
 
