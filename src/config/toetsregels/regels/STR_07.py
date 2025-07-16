@@ -42,22 +42,26 @@ class STR07Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    dubbele_ontkenning = set()
-    for patroon in patronen:
-        dubbele_ontkenning.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            dubbele_ontkenning = set()
+            for patroon in patronen:
+                dubbele_ontkenning.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    foute = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+            foute = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
 
-    if not dubbele_ontkenning:
-        return "✔️ STR-07: geen dubbele ontkenning aangetroffen"
+            if not dubbele_ontkenning:
+                result = "✔️ STR-07: geen dubbele ontkenning aangetroffen"
 
-    if foute:
-        return f"❌ STR-07: dubbele ontkenning herkend ({', '.join(dubbele_ontkenning)}), overeenkomend met fout voorbeeld"
-    return f"❌ STR-07: dubbele ontkenning herkend ({', '.join(dubbele_ontkenning)}), controle nodig"
+            else:
+                if foute:
+                    result = f"❌ STR-07: dubbele ontkenning herkend ({', '.join(dubbele_ontkenning)}), overeenkomend met fout voorbeeld"
+                else:
+                    result = f"❌ STR-07: dubbele ontkenning herkend ({', '.join(dubbele_ontkenning)}), controle nodig"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

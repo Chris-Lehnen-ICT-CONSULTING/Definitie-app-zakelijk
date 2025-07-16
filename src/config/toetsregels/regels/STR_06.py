@@ -42,25 +42,30 @@ class STR06Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    info_termen = set()
-    for patroon in patronen:
-        info_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            info_termen = set()
+            for patroon in patronen:
+                info_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+            goede = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
+            fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
 
-    if not info_termen:
-        if goede:
-            return "✔️ STR-06: geen informatiebehoefte, formulering volgt goed voorbeeld"
-        return "✔️ STR-06: geen formuleringen die informatiebehoefte suggereren"
+            if not info_termen:
+                if goede:
+                    result = "✔️ STR-06: geen informatiebehoefte, formulering volgt goed voorbeeld"
+                else:
+                    result = "✔️ STR-06: geen formuleringen die informatiebehoefte suggereren"
 
-    if fout:
-        return f"❌ STR-06: formuleringen suggereren informatiebehoefte ({', '.join(info_termen)}), lijkt op fout voorbeeld"
-    return f"❌ STR-06: formuleringen suggereren informatiebehoefte ({', '.join(info_termen)}), zonder goede toelichting"
+            else:
+                if fout:
+                    result = f"❌ STR-06: formuleringen suggereren informatiebehoefte ({', '.join(info_termen)}), lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ STR-06: formuleringen suggereren informatiebehoefte ({', '.join(info_termen)}), zonder goede toelichting"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

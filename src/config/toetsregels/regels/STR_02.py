@@ -42,28 +42,33 @@ class STR02Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    herhalingen = set()
-    for patroon in patronen:
-        herhalingen.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            herhalingen = set()
+            for patroon in patronen:
+                herhalingen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+            goede_voorbeelden = regel.get("goede_voorbeelden", [])
+            foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
-    goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+            goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
+            fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
 
-    if herhalingen:
-        if fout:
-            return f"❌ STR-02: kick-off term is herhaling van begrip ({', '.join(herhalingen)}), en lijkt op fout voorbeeld"
-        return f"❌ STR-02: kick-off term is herhaling van begrip ({', '.join(herhalingen)})"
+            if herhalingen:
+                if fout:
+                    result = f"❌ STR-02: kick-off term is herhaling van begrip ({', '.join(herhalingen)}), en lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ STR-02: kick-off term is herhaling van begrip ({', '.join(herhalingen)})"
 
-    if goed:
-        return "✔️ STR-02: definitie start met breder begrip en komt overeen met goed voorbeeld"
-    return "✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd"
+            else:
+                if goed:
+                    result = "✔️ STR-02: definitie start met breder begrip en komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

@@ -42,46 +42,49 @@ class STR09Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    # ── 1) Combineer JSON-patronen met strikte regex voor "A, B of C" en "X of Y"
-    patronen = list(regel.get("herkenbaar_patronen", [])) + [
-        r"\b\w+,\s*\w+\s+of\s+\w+\b",   # bv. “A, B of C”
-        r"\b\w+\s+of\s+\w+\b",          # bv. “X of Y”
-    ]
+            # ── 1) Combineer JSON-patronen met strikte regex voor "A, B of C" en "X of Y"
+            patronen = list(regel.get("herkenbaar_patronen", [])) + [
+            r"\b\w+,\s*\w+\s+of\s+\w+\b",   # bv. “A, B of C”
+            r"\b\w+\s+of\s+\w+\b",          # bv. “X of Y”
+            ]
 
-    # ── 2) Verzamel alle gevonden ‘of’-constructies
-    of_vormen = set()
-    for pat in patronen:
-        of_vormen.update(re.findall(pat, definitie, re.IGNORECASE))
+            # ── 2) Verzamel alle gevonden ‘of’-constructies
+            of_vormen = set()
+            for pat in patronen:
+                of_vormen.update(re.findall(pat, definitie, re.IGNORECASE))
 
-    # ── 3) Whitelist uitzonderingen (optioneel)
-    whitelist = {
-        "en/of",
-        "met of zonder",
-        "al dan niet",   # voeg hier meer vaste combinaties toe
-    }
-    ambigue = {ov for ov in of_vormen if ov.lower() not in whitelist}
+            # ── 3) Whitelist uitzonderingen (optioneel)
+            whitelist = {
+            "en/of",
+            "met of zonder",
+            "al dan niet",   # voeg hier meer vaste combinaties toe
+            }
+            ambigue = {ov for ov in of_vormen if ov.lower() not in whitelist}
 
-    # ── 4) Controle op goede/foute voorbeelden uit je JSON
-    goed = any(
-        vb.lower() in definitie.lower()
-        for vb in regel.get("goede_voorbeelden", [])
-    )
-    fout = any(
-        vb.lower() in definitie.lower()
-        for vb in regel.get("foute_voorbeelden", [])
-    )
+            # ── 4) Controle op goede/foute voorbeelden uit je JSON
+            goed = any(
+            vb.lower() in definitie.lower()
+            for vb in regel.get("goede_voorbeelden", [])
+            )
+            fout = any(
+            vb.lower() in definitie.lower()
+            for vb in regel.get("foute_voorbeelden", [])
+            )
 
-    # ── 5) Beslis en retourneer resultaat
-    if not ambigue:
-        return "✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen"
-    if ambigue and goed:
-        return "✔️ STR-09: 'of'-constructie komt overeen met goed voorbeeld"
-    if fout:
-        return f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}) en lijkt op fout voorbeeld"
-    return f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}), context verduidelijken"
+            # ── 5) Beslis en retourneer resultaat
+            if not ambigue:
+                result = "✔️ STR-09: geen dubbelzinnige 'of'-constructies aangetroffen"
+            elif ambigue and goed:
+                result = "✔️ STR-09: 'of'-constructie komt overeen met goed voorbeeld"
+            elif fout:
+                result = f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}) en lijkt op fout voorbeeld"
+            else:
+                result = f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}), context verduidelijken"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

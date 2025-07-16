@@ -42,28 +42,33 @@ class STR03Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    synoniemen_gevonden = set()
-    for patroon in patronen:
-        synoniemen_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            synoniemen_gevonden = set()
+            for patroon in patronen:
+                synoniemen_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+            goede_voorbeelden = regel.get("goede_voorbeelden", [])
+            foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
-    uitleg_aanwezig = any(g.lower() in definitie.lower() for g in goede_voorbeelden)
-    foute_aanwezig = any(f.lower() in definitie.lower() for f in foute_voorbeelden)
+            uitleg_aanwezig = any(g.lower() in definitie.lower() for g in goede_voorbeelden)
+            foute_aanwezig = any(f.lower() in definitie.lower() for f in foute_voorbeelden)
 
-    if not synoniemen_gevonden:
-        if uitleg_aanwezig:
-            return "✔️ STR-03: geen synonieme formulering, komt overeen met goed voorbeeld"
-        return "✔️ STR-03: geen synonieme formulering gevonden"
+            if not synoniemen_gevonden:
+                if uitleg_aanwezig:
+                    result = "✔️ STR-03: geen synonieme formulering, komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ STR-03: geen synonieme formulering gevonden"
 
-    if foute_aanwezig:
-        return f"❌ STR-03: formulering lijkt synoniem ({', '.join(synoniemen_gevonden)}), komt overeen met fout voorbeeld"
-    return f"❌ STR-03: formulering lijkt synoniem ({', '.join(synoniemen_gevonden)}), zonder verdere uitleg"
+            else:
+                if foute_aanwezig:
+                    result = f"❌ STR-03: formulering lijkt synoniem ({', '.join(synoniemen_gevonden)}), komt overeen met fout voorbeeld"
+                else:
+                    result = f"❌ STR-03: formulering lijkt synoniem ({', '.join(synoniemen_gevonden)}), zonder verdere uitleg"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
