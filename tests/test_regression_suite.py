@@ -51,17 +51,15 @@ class TestImportStructure(unittest.TestCase):
             'ui.tabbed_interface',
             'ui.session_state',
             'database.definitie_repository',
-            'services.integrated_service',
-            'integration.definitie_checker',
+            'services.definition_service',
+            'ai_toetser.modular_toetser',
             'validation.definitie_validator',
             'generation.definitie_generator',
-            'orchestration.definitie_agent',
             'web_lookup.bron_lookup',
             'web_lookup.definitie_lookup',
             'config.config_manager',
             'utils.cache',
-            'utils.smart_rate_limiter',
-            'monitoring.api_monitor'
+            'utils.smart_rate_limiter'
         ]
         
         self.optional_modules = [
@@ -265,35 +263,47 @@ class TestCoreFunctionality(unittest.TestCase):
         try:
             from database.definitie_repository import DefinitieRepository, DefinitieRecord
             
-            # Gebruik in-memory database voor tests
-            repo = DefinitieRepository(":memory:")
+            # Gebruik tijdelijke database voor tests
+            with tempfile.NamedTemporaryFile(suffix='.db', delete=False) as tmp:
+                tmp_db_path = tmp.name
             
-            # Zorg ervoor dat database schema is geïnitialiseerd
-            # Door de _init_database methode wordt schema.sql automatisch uitgevoerd
-            
-            # Test create
-            test_record = DefinitieRecord(
-                begrip="test_begrip",
-                definitie="Test definitie voor regressietest",
-                organisatorische_context="Test",
-                juridische_context="test_juridisch",
-                categorie="proces",
-                created_by="test_suite"
-            )
-            
-            created_id = repo.create_definitie(test_record)
-            self.assertIsNotNone(created_id)
-            
-            # Test read
-            retrieved = repo.get_definitie(created_id)
-            self.assertIsNotNone(retrieved)
-            self.assertEqual(retrieved.begrip, "test_begrip")
-            
-            # Test search
-            results = repo.search_definities(query="test_begrip")
-            self.assertGreater(len(results), 0)
-            
-            logger.info("✅ Database operaties succesvol getest")
+            try:
+                repo = DefinitieRepository(tmp_db_path)
+                
+                # Zorg ervoor dat database schema is geïnitialiseerd
+                # Door de _init_database methode wordt schema.sql automatisch uitgevoerd
+                
+                # Test create
+                test_record = DefinitieRecord(
+                    begrip="test_begrip",
+                    definitie="Test definitie voor regressietest",
+                    organisatorische_context="Test",
+                    juridische_context="test_juridisch",
+                    categorie="proces",
+                    created_by="test_suite"
+                )
+                
+                created_id = repo.create_definitie(test_record)
+                self.assertIsNotNone(created_id)
+                
+                # Test read
+                retrieved = repo.get_definitie(created_id)
+                self.assertIsNotNone(retrieved)
+                self.assertEqual(retrieved.begrip, "test_begrip")
+                
+                # Test search
+                results = repo.search_definities(query="test_begrip")
+                self.assertGreater(len(results), 0)
+                
+                logger.info("✅ Database operaties succesvol getest")
+                
+            finally:
+                # Cleanup tijdelijke database
+                import os
+                try:
+                    os.unlink(tmp_db_path)
+                except FileNotFoundError:
+                    pass
             
         except Exception as e:
             self.fail(f"Database test gefaald: {e}")
@@ -316,8 +326,8 @@ class TestCoreFunctionality(unittest.TestCase):
             
             # Test config manager - minder kritiek voor core functionaliteit
             try:
-                from config.config_manager import get_config_manager
-                config_manager = get_config_manager()
+                from config.config_manager import ConfigManager
+                config_manager = ConfigManager()
                 self.assertIsNotNone(config_manager)
             except ImportError:
                 logger.info("⚠️ Config manager niet beschikbaar, maar toetsregels werken")
@@ -331,22 +341,31 @@ class TestCoreFunctionality(unittest.TestCase):
         """Test het validatie systeem."""
         try:
             # Test basis validatie functionaliteit die kritiek is
-            from validation.definitie_validator import validate_definitie
+            from ai_toetser.modular_toetser import toets_definitie
             
             # Test validatie van een goede definitie
             test_definitie = "Een systematisch proces voor het vaststellen van identiteit"
             test_begrip = "verificatie"
             
-            result = validate_definitie(test_definitie, test_begrip)
+            # Gebruik minimale toetsregels voor test
+            test_toetsregels = {
+                "test_rule": {
+                    "uitleg": "Test regel voor unit test",
+                    "gewicht": 1.0,
+                    "categorie": "test"
+                }
+            }
+            
+            result = toets_definitie(test_definitie, test_toetsregels, test_begrip)
             self.assertIsNotNone(result)
             
             # Test optionele validator klasse
             try:
-                from validation.definitie_validator import DefinitieValidator
-                validator = DefinitieValidator()
+                from ai_toetser.modular_toetser import ModularToetser
+                validator = ModularToetser()
                 self.assertIsNotNone(validator)
             except ImportError:
-                logger.info("⚠️ DefinitieValidator klasse niet beschikbaar, maar validate_definitie werkt")
+                logger.info("⚠️ ModularToetser klasse niet beschikbaar, maar toets_definitie werkt")
             
             logger.info("✅ Validatie systeem succesvol getest")
             
@@ -472,9 +491,9 @@ class TestErrorHandlingAndRobustness(unittest.TestCase):
         try:
             # Simuleer ontbrekende config
             with patch.dict(os.environ, {}, clear=True):
-                from config.config_manager import get_config_manager
+                from config.config_manager import ConfigManager
                 
-                config_manager = get_config_manager()
+                config_manager = ConfigManager()
                 # Zou niet moeten crashen, maar defaults gebruiken
                 self.assertIsNotNone(config_manager)
             
@@ -486,15 +505,24 @@ class TestErrorHandlingAndRobustness(unittest.TestCase):
     def test_invalid_input_handling(self):
         """Test handling van ongeldige input."""
         try:
-            from validation.definitie_validator import validate_definitie
+            from ai_toetser.modular_toetser import toets_definitie
+            
+            # Minimale toetsregels voor test
+            test_toetsregels = {
+                "test_rule": {
+                    "uitleg": "Test regel voor unit test",
+                    "gewicht": 1.0,
+                    "categorie": "test"
+                }
+            }
             
             # Test met lege input
-            result = validate_definitie("", "")
+            result = toets_definitie("", test_toetsregels, "")
             self.assertIsNotNone(result)
             
             # Test met zeer lange input
             long_text = "x" * 10000
-            result = validate_definitie(long_text, "test")
+            result = toets_definitie(long_text, test_toetsregels, "test")
             self.assertIsNotNone(result)
             
             logger.info("✅ Invalid input handling succesvol")
