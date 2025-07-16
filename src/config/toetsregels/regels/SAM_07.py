@@ -42,31 +42,37 @@ class SAM07Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    uitbreidingen = set()
-    for patroon in patronen:
-        uitbreidingen.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            uitbreidingen = set()
+            for patroon in patronen:
+                uitbreidingen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+            goede_voorbeelden = regel.get("goede_voorbeelden", [])
+            foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
-    goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+            goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
+            fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
 
-    if not uitbreidingen:
-        if fout:
-            return "❌ SAM-07: geen expliciete uitbreidingen gevonden, maar formulering lijkt op fout voorbeeld"
-        return "✔️ SAM-07: geen uitbreidende elementen herkend"
+            if not uitbreidingen:
+                if fout:
+                    result = "❌ SAM-07: geen expliciete uitbreidingen gevonden, maar formulering lijkt op fout voorbeeld"
+                else:
+                    result = "✔️ SAM-07: geen uitbreidende elementen herkend"
 
-    if goed:
-        return f"✔️ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), maar correct gebruikt zoals in goed voorbeeld"
-    if fout:
-        return f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), en lijkt op fout voorbeeld"
+            else:
+                if goed:
+                    result = f"✔️ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), maar correct gebruikt zoals in goed voorbeeld"
+                elif fout:
+                    result = f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), en lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), onvoldoende kernachtig"
 
-    return f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), zonder correcte toelichting"
+            return f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), zonder correcte toelichting"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

@@ -43,25 +43,30 @@ class ARAI04SUB1Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    modale_termen = set()
-    for patroon in patronen:
-        modale_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            modale_termen = set()
+            for patroon in patronen:
+                modale_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+            goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
+            fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
 
-    if not modale_termen:
-        if goed:
-            return "✔️ ARAI04SUB1: geen modale werkwoorden gevonden, definitie komt overeen met goed voorbeeld"
-        return "✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie"
+            if not modale_termen:
+                if goed:
+                    result = "✔️ ARAI04SUB1: geen modale werkwoorden gevonden, definitie komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ ARAI04SUB1: geen modale werkwoorden aangetroffen in de definitie"
 
-    if fout:
-        return f"❌ ARAI04SUB1: modale werkwoorden herkend ({', '.join(modale_termen)}), zoals in fout voorbeeld"
-    return f"❌ ARAI04SUB1: modale werkwoorden herkend ({', '.join(modale_termen)}), kan verwarring veroorzaken"
+            else:
+                if fout:
+                    result = f"❌ ARAI04SUB1: modale werkwoorden herkend ({', '.join(modale_termen)}), zoals in fout voorbeeld"
+                else:
+                    result = f"❌ ARAI04SUB1: modale werkwoorden herkend ({', '.join(modale_termen)}), kan verwarring veroorzaken"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
