@@ -1,0 +1,43 @@
+📝 Backlogitem: Uitbreiding van plurale tantum-lijst met meervoudsvormen
+
+🎯 Doel:
+Voeg foutgevoelige meervoudige zelfstandige naamwoorden toe aan de JSON-lijst voor plurale tantum om grammaticale fouten in AI-toetsregels te voorkomen.
+
+📌 Aanleiding:
+Bepaalde woorden zoals "gegevens" worden onterecht als enkelvoud behandeld, terwijl ze uitsluitend in meervoud bestaan.
+
+🔍 Probleem:
+- Onjuiste grammaticale feedback bij toetsing.
+- Lijst van uitzonderingen is onvolledig.
+- Matching is hoofdlettergevoelig.
+
+📈 Impact:
+- Foute AI-beoordelingen op correct geschreven definities.
+- Onterecht afkeuren van correcte input.
+
+🛠️ Taken:
+- Voeg ontbrekende woorden toe aan `nl_pluralia_tantum_100.json` onder "plurale_tantum".
+- Controleer lijst op redundantie en schrijfwijze.
+- Maak lookup-functie case-insensitive.
+
+🧪 Tests:
+- Lookup faalt niet op woorden als “Gegevens” vs “gegevens”.
+- Alle woorden in testset worden correct herkend.
+- JSON blijft geldig na uitbreiding.
+
+✅ Acceptatiecriteria:
+- JSON bevat de vereiste meervoudige uitzonderingen.
+- Controle verloopt correct bij toetsregels met grammaticale analyse.
+
+📦 Bestand(en):
+- config/taalregels/nl_pluralia_tantum_100.json
+- taalregels/validatie_pluralia.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-PLURALIA-001
+📅 Datum: 2025-06-23
+📌 Status: to do

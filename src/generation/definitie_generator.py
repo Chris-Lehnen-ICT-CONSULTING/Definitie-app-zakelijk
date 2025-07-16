@@ -32,6 +32,20 @@ except ImportError:
 
 logger = logging.getLogger(__name__)  # Logger instantie voor dit bestand
 
+# Legacy contextafkortingen voor CON-01 compliance
+CONTEXT_AFKORTINGEN = {
+    "OM": "Openbaar Ministerie",
+    "ZM": "Zittende Magistratuur", 
+    "3RO": "Samenwerkingsverband Reclasseringsorganisaties",
+    "DJI": "Dienst Justitiële Inrichtingen",
+    "NP": "Nederlands Politie",
+    "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst",
+    "Justid": "Dienst Justitiële Informatievoorziening",
+    "KMAR": "Koninklijke Marechaussee",
+    "CJIB": "Centraal Justitieel Incassobureau",
+    "AVG": "Algemene verordening gegevensbescherming"
+}
+
 
 class OntologischeCategorie(Enum):
     """Ontologische categorieën voor begrippen classificatie."""
@@ -243,6 +257,7 @@ class DefinitieGenerator:
         self.rule_manager = get_toetsregel_manager()
         self.interpreter = RegelInterpreter()
         self.api_config = get_api_config()
+        self.geziene_context_termen = set()  # Voor tracking context termen
         
         # Template structuren per ontologische categorie
         self.category_templates = {
@@ -694,6 +709,12 @@ class DefinitieGenerator:
                 if instructie.focus_areas:
                     prompt_sections.append(f"  Focus: {', '.join(instructie.focus_areas)}")
         
+        # Context verboden (CON-01 compliance)
+        context_verboden = self._genereer_context_verboden(context)
+        if context_verboden:
+            prompt_sections.append("\n")
+            prompt_sections.extend(context_verboden)
+        
         # Hybrid context (indien beschikbaar)
         if context.use_hybrid_enhancement and context.hybrid_context:
             hybrid_section = self._build_hybrid_context_section(context.hybrid_context)
@@ -736,7 +757,56 @@ class DefinitieGenerator:
             else:
                 prompt_sections.append("- Gebruik context zorgvuldig, valideer waar mogelijk")
         
+        # Herhaal context verbod aan einde (zoals legacy)
+        if context_verboden:
+            prompt_sections.append("\n⚠️ BELANGRIJKE HERINNERING:")
+            prompt_sections.append("❌ De opgegeven context termen mogen NIET letterlijk in de definitie voorkomen!")
+        
         return "\n".join(prompt_sections)
+    
+    def _genereer_context_verboden(self, context: GenerationContext) -> List[str]:
+        """Genereer expliciete context verboden zoals in legacy code."""
+        verboden = []
+        self.geziene_context_termen.clear()  # Reset voor elke generatie
+        
+        # Verwerk organisatorische context
+        if context.organisatorische_context:
+            self._voeg_contextverbod_toe(verboden, context.organisatorische_context)
+        
+        # Verwerk juridische context  
+        if context.juridische_context:
+            self._voeg_contextverbod_toe(verboden, context.juridische_context)
+            
+        # Voeg expliciete waarschuwing toe
+        if verboden:
+            verboden.insert(0, "🚫 CONTEXT VERBODEN (gebruik deze termen NIET letterlijk in de definitie):")
+            verboden.append("❌ Context en bronnen mogen NIET letterlijk of herleidbaar in de definitie voorkomen!")
+            
+        return verboden
+    
+    def _voeg_contextverbod_toe(self, verboden: List[str], term: str):
+        """Voeg context term en varianten toe aan verboden lijst."""
+        if not term:
+            return
+            
+        term_upper = term.strip().upper()
+        kandidaten = [term_upper]
+        
+        # Check voor bekende afkortingen
+        if term_upper in CONTEXT_AFKORTINGEN:
+            kandidaten.append(CONTEXT_AFKORTINGEN[term_upper])
+        
+        # Check reverse - volledige naam naar afkorting
+        for afkorting, volledige_naam in CONTEXT_AFKORTINGEN.items():
+            if term_upper == volledige_naam.upper():
+                kandidaten.append(afkorting)
+        
+        # Voeg alle kandidaten toe
+        for kandidaat in kandidaten:
+            sleutel = kandidaat.lower()
+            if kandidaat and sleutel not in self.geziene_context_termen:
+                verboden.append(f"• Gebruik de term '{kandidaat}' of varianten daarvan NIET in de definitie")
+                self.geziene_context_termen.add(sleutel)
     
     def _build_hybrid_context_section(self, hybrid_context) -> str:
         """

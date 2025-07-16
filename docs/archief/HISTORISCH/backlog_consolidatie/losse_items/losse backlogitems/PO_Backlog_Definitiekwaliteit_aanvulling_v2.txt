@@ -1,0 +1,421 @@
+📝 Backlogitem: Synchroniseer definitiecorrectie tussen UI en backend
+
+🎯 Doel:
+Zorg dat alle correcties die worden uitgevoerd in corrigeer_definitie_op_patronen() ook zichtbaar worden gemaakt in de gebruikersinterface.
+
+📌 Aanleiding:
+Hoewel de backend definities corrigeert op verboden patronen, ziet de gebruiker alleen het oorspronkelijke resultaat. Dit creëert verwarring en onduidelijkheid.
+
+🔍 Probleem:
+- Gecorrigeerde definitie is niet zichtbaar in UI.
+- Gebruiker krijgt geen feedback op wat er is aangepast.
+
+📈 Impact:
+- Gebrek aan transparantie in gegenereerde output.
+- Risico dat gebruikers de verkeerde versie beoordelen.
+
+🛠️ Taken:
+- Toon beide versies (origineel en gecorrigeerd) in UI.
+- Label duidelijk welke versie is gecorrigeerd.
+- Voeg toggle toe om verschil te tonen/verbergen.
+
+🧪 Tests:
+- Beide versies worden correct weergegeven.
+- Annotatie toont welke correctie is toegepast.
+- Geen regressie in layout of performance.
+
+✅ Acceptatiecriteria:
+- UI toont originele én opgeschoonde versie.
+- Logging bevat beide versies gescheiden.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 4
+🆔 ID: BLG-CORRIGEER-UI-SYNC
+📅 Datum: 2025-06-10
+📌 Status: to do
+
+📝 Backlogitem: Pas toetsregel ESS-03 aan voor modernere formuleringen
+
+🎯 Doel:
+Werk toetsregel ESS-03 bij met bredere patronen en voorbeelden, waaronder eigentijdse taal en AI-gegenereerde varianten.
+
+📌 Aanleiding:
+ESS-03 herkent nu te weinig ‘negatief afgebakende definities’ zoals “is niet ...”, of “zonder ...”.
+
+🔍 Probleem:
+- Te strakke regex of beperkte voorbeelden.
+- Veel moderne formuleringen worden gemist.
+
+📈 Impact:
+- Foutpositieven of foutnegatieven in toetsing.
+- Gebrekkige betrouwbaarheid van feedback.
+
+🛠️ Taken:
+- Voeg patronen toe: “bevat geen”, “zonder”, “geen sprake van”.
+- Herstructureer voorbeeldblok.
+- Pas JSON en toetslogica aan.
+
+🧪 Tests:
+- Definitie “is zonder X” wordt correct herkend.
+- Geen regressie bij bestaande gevallen.
+
+✅ Acceptatiecriteria:
+- Regel is breder maar veilig.
+- Output bevat heldere foutmelding.
+
+📦 Bestand(en):
+- toetsregels.json
+- ai_toetser.py
+
+👥 Betrokkenen:
+- Ontwikkelaar, taalkundige
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-ESS03-AANPASSING
+📅 Datum: 2025-06-23
+📌 Status: to do
+
+📝 Backlogitem: Voeg Excel-export toe per begrip en als totaalbestand
+
+🎯 Doel:
+Sta gebruikers toe om definities te exporteren naar Excel, met één tabblad per begrip of één overzichtsbestand.
+
+📌 Aanleiding:
+Voor analyse of vergelijking willen gebruikers werken in Excel. Momenteel is dit alleen mogelijk via handmatig kopiëren.
+
+🔍 Probleem:
+- Geen downloadmogelijkheid naar Excel.
+- Informatie wordt versnipperd over meerdere schermen.
+
+📈 Impact:
+- Beperkte doorzoekbaarheid en analyseerbaarheid.
+- Gebruikerservaring wordt slechter voor exportflows.
+
+🛠️ Taken:
+- Bouw functie voor `export_to_excel()` in export_definities.py.
+- Voeg toggle toe in UI: per begrip of totaalbestand.
+- Voorzie Excel van metadata, toelichting, toetsresultaten.
+
+🧪 Tests:
+- Elk tabblad bevat exact 1 begrip.
+- Exportbestand is direct openbaar in Excel zonder fouten.
+
+✅ Acceptatiecriteria:
+- Gebruiker kan Excel-bestand downloaden met alle informatie.
+- Layout is leesbaar en correct gestructureerd.
+
+📦 Bestand(en):
+- export_definities.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 4
+🆔 ID: BLG-EXPORT-EXCEL
+📅 Datum: 2025-06-06
+📌 Status: to do
+
+📝 Backlogitem: Voeg PDF-export toe per begrip
+
+🎯 Doel:
+Sta gebruikers toe om een volledige definitie (inclusief toelichting en metadata) als PDF te exporteren, per begrip.
+
+📌 Aanleiding:
+Er is vraag naar een printklare versie van een enkele definitie, vooral in contexten zoals documentatie of overleg.
+
+🔍 Probleem:
+- Exportoptie biedt nu alleen batchfunctionaliteit.
+- Geen gestructureerde layout per begrip.
+
+📈 Impact:
+- Minder bruikbaar in werkgroepcontext.
+- Geen duidelijke documentversie beschikbaar.
+
+🛠️ Taken:
+- Genereer PDF per begrip via knop in UI.
+- Gebruik html-pdf converter met stijltemplate.
+- Opslaan met bestandsnaam: begrip-titel + datum.
+
+🧪 Tests:
+- PDF toont begrip, definitie, toelichting, synoniemen.
+- Layout is consistent en afdrukbaar.
+
+✅ Acceptatiecriteria:
+- Elk begrip is met 1 klik te downloaden als PDF.
+- Layout is professioneel en foutloos.
+
+📦 Bestand(en):
+- export_definities.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 4
+🆔 ID: BLG-EXPORT-PDF
+📅 Datum: 2025-06-06
+📌 Status: to do
+
+📝 Backlogitem: Feedbackknoppen integreren en koppelen aan AI-verbetering
+
+🎯 Doel:
+Implementeer een feedbackmechanisme waarmee gebruikers een definitie kunnen beoordelen (👍/👎), en gebruik deze input om AI-prompts te versterken.
+
+📌 Aanleiding:
+De app genereert veel definities, maar gebruikt geen feedback om ze te verbeteren of bij te sturen.
+
+🔍 Probleem:
+- Feedback wordt nergens geregistreerd.
+- AI-prompts blijven statisch en niet lerend.
+- Gebruikerservaring is niet interactief.
+
+📈 Impact:
+- Gebrek aan adaptief systeem.
+- Geen inzicht in gebruikersvoorkeuren.
+- Gemiste kans op automatische kwaliteitsverbetering.
+
+🛠️ Taken:
+- Voeg 👍👎-knoppen toe onder elke definitie.
+- Log feedback in JSONL-bestand met begrip-ID, score en timestamp.
+- Voeg functie toe in prompt_leraar.py om scores te verwerken.
+
+🧪 Tests:
+- Feedback wordt correct gelogd.
+- Score heeft impact op herformulering bij volgende generatie.
+- Logbestand blijft leesbaar en consistent.
+
+✅ Acceptatiecriteria:
+- Gebruikers kunnen feedback geven op elke definitie.
+- Feedback wordt automatisch opgeslagen.
+- Promptaanpassing gebeurt via lerend subsysteem.
+
+📦 Bestand(en):
+- feedback_lus.py
+- prompt_leraar.py
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 5
+🆔 ID: BLG-FB-LOOP
+📅 Datum: 2025-06-15
+📌 Status: to do
+
+📝 Backlogitem: Voeg veldniveau-goedkeuring toe voor UI-definities
+
+🎯 Doel:
+Maak het mogelijk om elk afzonderlijk veld in een definitie (zoals toelichting, bron, context) individueel goed te keuren.
+
+📌 Aanleiding:
+Sommige velden zijn correct, andere vragen herziening. Volledige goed- of afkeuring is te grofmazig.
+
+🔍 Probleem:
+- Geen nuance mogelijk in accordering.
+- Geen zicht op goedgekeurde onderdelen.
+
+📈 Impact:
+- Overbodige revisie.
+- Verlies van werkbare tussenstappen.
+
+🛠️ Taken:
+- Voeg checkbox toe bij elk veld in tabblad 1.
+- Log accordering per veld.
+- Voeg veldspecifieke status toe aan export.
+
+🧪 Tests:
+- Elk veld kan apart gemarkeerd worden.
+- UI herkent status bij herladen.
+
+✅ Acceptatiecriteria:
+- Export toont per veld of het goedgekeurd is.
+- Logging bevat accordering per veld.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar, reviewer
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-FIELD-UI-APPROVAL
+📅 Datum: 2025-06-23
+📌 Status: to do
+
+📝 Backlogitem: Finalisatievinkje voor afgewerkte begrippen
+
+🎯 Doel:
+Markeer een begrip als definitief goedgekeurd (bijv. met ✅) zodra alle velden en toetsing zijn afgerond.
+
+📌 Aanleiding:
+Er is geen overzicht welke begrippen definitief klaar zijn. Dit leidt tot herwerk of onduidelijkheid bij export.
+
+🔍 Probleem:
+- Geen aanduiding van ‘klaar’ of ‘afgewerkt’.
+- Exports bevatten onvolledige of conceptdefinities.
+
+📈 Impact:
+- Lage betrouwbaarheid van documentatie.
+- Gebrek aan workflowbeheersing.
+
+🛠️ Taken:
+- Voeg ‘finalisatie’ checkbox toe aan UI.
+- Toon alleen afgewerkte begrippen in eindexport.
+
+🧪 Tests:
+- Alleen gemarkeerde begrippen worden geëxporteerd.
+- Checkbox behoudt status bij herladen.
+
+✅ Acceptatiecriteria:
+- Finalisatie zichtbaar per begrip.
+- Export filtert correct op afgewerkte items.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-FINALISATIE-VINK
+📅 Datum: 2025-06-13
+📌 Status: to do
+
+📝 Backlogitem: Session override automatisch herstellen
+
+🎯 Doel:
+Implementeer een functie die automatisch fouten herstelt wanneer Streamlit session state wordt overschreven door verkeerd datatype (bijv. lijst i.p.v. string).
+
+📌 Aanleiding:
+Tijdens het wisselen van scherm of testwoorden in tab 3 kan Streamlit crashen door typeconflicten in session state.
+
+🔍 Probleem:
+- String wordt soms overschreven met lijst.
+- Foutmelding is niet informatief.
+- UI kan blokkeren of onbruikbaar worden.
+
+📈 Impact:
+- App crasht of geeft onbruikbare interface.
+- Testfunctionaliteit wordt onbetrouwbaar.
+
+🛠️ Taken:
+- Implementeer functie `fix_overrides()` die datatypes controleert en converteert.
+- Roep deze functie aan vóór sessie-initialisatie.
+- Voeg logging toe bij herstelactie.
+
+🧪 Tests:
+- Lijst → string wordt correct geconverteerd.
+- App crasht niet bij typefout in sessie.
+- Logging toont herstelactie.
+
+✅ Acceptatiecriteria:
+- App blijft stabiel, ook bij foutieve overrides.
+- fix_overrides() wordt standaard toegepast in UI-tab 3.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 3
+🆔 ID: BLG-FIX-OVERRIDE
+📅 Datum: 2025-06-14
+📌 Status: to do
+
+📝 Backlogitem: Optimaliseer promptstructuur voor GPT-4-definitiegeneratie
+
+🎯 Doel:
+Verbeter de promptopbouw voor GPT-4 om consistentere, toetsbare en contextspecifieke definities te genereren.
+
+📌 Aanleiding:
+De huidige prompt mist expliciete waarschuwingen tegen verboden constructies en bevat te weinig instructie over semantische nauwkeurigheid.
+
+🔍 Probleem:
+- Output varieert sterk.
+- Foutieve formuleringen worden niet voorkomen.
+
+📈 Impact:
+- Slechte definitiekwaliteit.
+- Meer afkeuring bij toetsing.
+
+🛠️ Taken:
+- Voeg blokken toe: ‘Veelgemaakte fouten’, ‘Verboden beginconstructies’.
+- Voeg toetsregels als instructiefragmenten toe.
+- Integreer dynamische contextinvoer.
+
+🧪 Tests:
+- Definitie bevat geen 'is', 'de', of herhaling.
+- AI-output scoort >80% goed bij toetsing.
+
+✅ Acceptatiecriteria:
+- Prompt bevat duidelijke, toetsbare instructie.
+- GPT-4-output is direct toetsbaar op 40+ regels.
+
+📦 Bestand(en):
+- prompt_generator.py
+
+👥 Betrokkenen:
+- Prompt engineer
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 6
+🆔 ID: BLG-GPT4-PROMPTOPTIMALISATIE
+📅 Datum: 2025-06-23
+📌 Status: to do
+
+📝 Backlogitem: Implementeer toetsregel INT-07
+
+🎯 Doel:
+Voeg toetsregel INT-07 toe aan de AI-toetser om interne consistentie tussen begrippen in definities te controleren.
+
+📌 Aanleiding:
+Zonder deze regel worden contradicties of inconsistent gebruik van termen binnen één definitie niet automatisch gesignaleerd.
+
+🔍 Probleem:
+- Gebruiker krijgt geen waarschuwing bij interne inconsistenties.
+- AI kan onjuiste semantiek genereren zonder correctiemechanisme.
+
+📈 Impact:
+- Lagere betrouwbaarheid van gegenereerde definities.
+- Problemen bij hergebruik in juridische of formele documenten.
+
+🛠️ Taken:
+- Voeg INT-07 toe aan `toetsregels.json` met uitleg, patronen en voorbeelden.
+- Implementeer toets_INT_07() in ai_toetser.py.
+- Voeg logging en testresultaten toe aan output.
+
+🧪 Tests:
+- Foutieve interne logica wordt herkend (bijv. “persoon” ≠ “instantie”).
+- Correcte definities worden goedgekeurd.
+- Logging bevat gemarkeerde tegenstrijdigheden.
+
+✅ Acceptatiecriteria:
+- Regel is zichtbaar in UI en wordt correct toegepast.
+- Logging bevat testoutput.
+- Geen foutmeldingen bij uitvoering.
+
+📦 Bestand(en):
+- toetsregels.json
+- ai_toetser.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 1
+🆔 ID: BLG-INT-07-001
+📅 Datum: 2025-05-01
+📌 Status: done

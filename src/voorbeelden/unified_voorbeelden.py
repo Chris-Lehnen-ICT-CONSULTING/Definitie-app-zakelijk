@@ -70,6 +70,33 @@ class UnifiedExamplesGenerator:
         self.generation_count = 0
         self.error_count = 0
         self.cache_hits = 0
+    
+    def _run_async_safe(self, coro):
+        """Run async coroutine safely, detecting existing event loop."""
+        try:
+            # Check if there's already a running event loop
+            loop = asyncio.get_running_loop()
+            # If we're in an event loop, we can't use asyncio.run()
+            # Instead, we'll run in a thread pool
+            import concurrent.futures
+            import threading
+            
+            def run_in_thread():
+                # Create new event loop in thread
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                try:
+                    return loop.run_until_complete(coro)
+                finally:
+                    loop.close()
+            
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future = executor.submit(run_in_thread)
+                return future.result()
+                
+        except RuntimeError:
+            # No event loop running, safe to use asyncio.run()
+            return asyncio.run(coro)
         
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
         """Generate examples based on request configuration."""
@@ -80,11 +107,11 @@ class UnifiedExamplesGenerator:
             if request.generation_mode == GenerationMode.SYNC:
                 examples = self._generate_sync(request)
             elif request.generation_mode == GenerationMode.ASYNC:
-                examples = asyncio.run(self._generate_async(request))
+                examples = self._run_async_safe(self._generate_async(request))
             elif request.generation_mode == GenerationMode.CACHED:
                 examples = self._generate_cached(request)
             elif request.generation_mode == GenerationMode.RESILIENT:
-                examples = asyncio.run(self._generate_resilient(request))
+                examples = self._run_async_safe(self._generate_resilient(request))
             else:
                 raise ValueError(f"Unsupported generation mode: {request.generation_mode}")
             
@@ -540,10 +567,14 @@ def genereer_alle_voorbeelden(
     begrip: str,
     definitie: str,
     context_dict: Dict[str, List[str]],
-    mode: GenerationMode = GenerationMode.RESILIENT
+    mode: str = "RESILIENT"
 ) -> Dict[str, List[str]]:
     """Generate all types of examples in one call."""
     generator = get_examples_generator()
+    
+    # Convert string mode to enum
+    if isinstance(mode, str):
+        mode = GenerationMode(mode.lower())
     
     results = {}
     
@@ -658,4 +689,24 @@ async def test_unified_examples():
 
 
 if __name__ == "__main__":
-    asyncio.run(test_unified_examples())
+    # Use the same async-safe pattern for testing
+    try:
+        asyncio.get_running_loop()
+        # Already in async context, run in thread
+        import concurrent.futures
+        import threading
+        
+        def run_test():
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+            try:
+                return loop.run_until_complete(test_unified_examples())
+            finally:
+                loop.close()
+        
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            future = executor.submit(run_test)
+            future.result()
+    except RuntimeError:
+        # No event loop running, safe to use asyncio.run()
+        asyncio.run(test_unified_examples())

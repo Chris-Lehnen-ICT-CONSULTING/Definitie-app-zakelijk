@@ -1,0 +1,38 @@
+📝 Backlogitem: Implementeer toetsregel INT-07
+
+🎯 Doel:
+Implementeer toetsregel INT-07
+
+📌 Aanleiding:
+Regel nog niet geïmplementeerd
+
+🔍 Probleem:
+Regel nog niet geïmplementeerd
+
+📈 Impact:
+Onvolledige toetsing bij definities
+
+🛠️ Taken:
+- Onderzoek de oorzaak van het probleem
+- Ontwerp oplossing en implementeer aanpassingen
+- Voeg indien nodig documentatie toe
+
+🧪 Tests:
+- Unit test voor nieuwe of gewijzigde logica
+- Controle op bestaande functionaliteit (regressietest)
+- Testresultaat vastleggen in log of testverslag
+
+✅ Acceptatiecriteria:
+- Regel correct geïmplementeerd in JSON en ai_toetser.py
+
+📦 Bestand(en):
+- ai_toetser.py, toetsregels.json
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 1
+🆔 ID: BLG-INT-07-001
+📅 Datum: 2025-05-01
+📌 Status: done

@@ -1,0 +1,43 @@
+📝 Backlogitem: Implementeer toetsregel INT-07
+
+🎯 Doel:
+Voeg toetsregel INT-07 toe aan de AI-toetser om interne consistentie tussen begrippen in definities te controleren.
+
+📌 Aanleiding:
+Zonder deze regel worden contradicties of inconsistent gebruik van termen binnen één definitie niet automatisch gesignaleerd.
+
+🔍 Probleem:
+- Gebruiker krijgt geen waarschuwing bij interne inconsistenties.
+- AI kan onjuiste semantiek genereren zonder correctiemechanisme.
+
+📈 Impact:
+- Lagere betrouwbaarheid van gegenereerde definities.
+- Problemen bij hergebruik in juridische of formele documenten.
+
+🛠️ Taken:
+- Voeg INT-07 toe aan `toetsregels.json` met uitleg, patronen en voorbeelden.
+- Implementeer toets_INT_07() in ai_toetser.py.
+- Voeg logging en testresultaten toe aan output.
+
+🧪 Tests:
+- Foutieve interne logica wordt herkend (bijv. “persoon” ≠ “instantie”).
+- Correcte definities worden goedgekeurd.
+- Logging bevat gemarkeerde tegenstrijdigheden.
+
+✅ Acceptatiecriteria:
+- Regel is zichtbaar in UI en wordt correct toegepast.
+- Logging bevat testoutput.
+- Geen foutmeldingen bij uitvoering.
+
+📦 Bestand(en):
+- toetsregels.json
+- ai_toetser.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 1
+🆔 ID: BLG-INT-07-001
+📅 Datum: 2025-05-01
+📌 Status: done
