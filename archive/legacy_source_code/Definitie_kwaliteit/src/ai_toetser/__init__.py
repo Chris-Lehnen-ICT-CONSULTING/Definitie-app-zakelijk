@@ -1,2 +1,0 @@
-# ✅ maakt het pakket importeerbaar
-
