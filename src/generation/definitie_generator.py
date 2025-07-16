@@ -19,6 +19,7 @@ from voorbeelden.unified_voorbeelden import (
     get_examples_generator, ExampleRequest, ExampleType, GenerationMode,  # Voorbeeld generatie klassen
     genereer_alle_voorbeelden  # Bulk voorbeeld generatie functie
 )
+from opschoning.opschoning import opschonen  # Definitie opschoning functie
 # Hybride context imports
 try:
     from hybrid_context.hybrid_context_engine import get_hybrid_context_engine, HybridContext
@@ -317,9 +318,13 @@ class DefinitieGenerator:
         # 4. Roep GPT aan
         definitie = self._call_gpt(prompt, model, temperature, max_tokens)
         
-        # 5. Return resultaat met definitie
+        # 5. Pas opschoning toe op de gegenereerde definitie
+        opgeschoonde_definitie = opschonen(definitie, context.begrip)
+        logger.info(f"Definitie opgeschoond: {len(definitie)} -> {len(opgeschoonde_definitie)} karakters")
+        
+        # 6. Return resultaat met opgeschoonde definitie
         result = GenerationResult(
-            definitie=definitie,
+            definitie=opgeschoonde_definitie,
             gebruikte_instructies=instructies,
             prompt_template=prompt,
             context=context

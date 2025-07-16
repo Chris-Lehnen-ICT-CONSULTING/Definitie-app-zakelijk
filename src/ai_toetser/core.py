@@ -1922,8 +1922,49 @@ def toets_op_basis_van_regel(
     Routeert de definitie en metadata naar de juiste toetsfunctie op basis van het regel-ID.
     Ondersteunt extra argumenten zoals begrip (voor cirkeldefinities), bronnen (voor bronvermelding),
     en contexten (voor expliciete herhaling van organisatie of juridische termen).
+    
+    HYBRID APPROACH: Probeert eerst nieuwe modulaire validators, valt terug op legacy.
     """
-
+    
+    # 🆕 HYBRID: Probeer eerst nieuwe modulaire systeem
+    try:
+        from config.toetsregels.modular_loader import get_modular_loader
+        loader = get_modular_loader()
+        
+        # Check of regel bestaat in nieuwe systeem
+        available_rules = loader.get_available_regels()
+        if regel_id in available_rules:
+            # Gebruik nieuwe validator
+            context = {
+                'regel_data': regel,
+                'voorkeursterm': voorkeursterm,
+                'bronnen_gebruikt': bronnen_gebruikt,
+                'contexten': contexten,
+                'repository': repository,
+                'definitie_gecorrigeerd': definitie_gecorrigeerd
+            }
+            
+            succes, melding, score = loader.validate_with_regel(
+                regel_id=regel_id,
+                definitie=definitie,
+                begrip=begrip or "",
+                context=context
+            )
+            
+            # Log voor debugging
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.debug(f"Gebruikte nieuwe validator voor {regel_id}: score={score}")
+            
+            return melding
+            
+    except Exception as e:
+        # Log maar ga door naar legacy
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Nieuwe validator voor {regel_id} faalde: {e}, val terug op legacy")
+    
+    # LEGACY: Originele dispatcher logica
     functie = DISPATCHER.get(regel_id)
     if not functie:
         return f"🟡 {regel_id}: nog geen toetsfunctie geïmplementeerd"

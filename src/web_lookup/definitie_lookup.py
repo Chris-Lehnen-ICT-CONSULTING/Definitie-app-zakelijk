@@ -12,7 +12,7 @@ from enum import Enum  # Enumeraties voor status en context types
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 import json  # JSON verwerking voor data export/import
 import os  # Operating system interface voor bestandstoegang
-from pathlib import Path  # Object-georiënteerde pad manipulatie
+from pathlib import Path  # Object-georiÃ«nteerde pad manipulatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor web lookup module
 
@@ -673,13 +673,13 @@ if __name__ == "__main__":
     import asyncio
     
     async def test_definitie_lookup():
-        print("🔍 Testing Definitie Lookup System")
+        print("ð Testing Definitie Lookup System")
         print("=" * 40)
         
         # Test 1: Zoek definities
         zoek_resultaat = await zoek_definitie("authenticatie", max_resultaten=5)
         
-        print(f"🔍 Zoekresultaat voor 'authenticatie':")
+        print(f"ð Zoekresultaat voor 'authenticatie':")
         print(f"   Zoektijd: {zoek_resultaat.zoek_tijd:.3f}s")
         print(f"   Gevonden: {len(zoek_resultaat.gevonden_definities)} van {zoek_resultaat.totaal_gevonden}")
         print(f"   Exacte matches: {len(zoek_resultaat.exacte_matches)}")
@@ -693,7 +693,7 @@ if __name__ == "__main__":
         test_definitie = "Het proces van identiteitsvaststelling door verificatie van gegevens"
         duplicaat_resultaat = await detecteer_duplicaten("authenticatie", test_definitie)
         
-        print(f"\n🔍 Duplicaat analyse:")
+        print(f"\nð Duplicaat analyse:")
         print(f"   Duplicaten gevonden: {duplicaat_resultaat['duplicaat_gevonden']}")
         print(f"   Aantal mogelijke duplicaten: {len(duplicaat_resultaat['mogelijke_duplicaten'])}")
         print(f"   Aanbeveling: {duplicaat_resultaat['aanbeveling']}")
@@ -708,7 +708,7 @@ if __name__ == "__main__":
         def2 = "Procedure voor vaststelling van een persoon zijn identiteit"
         
         gelijkenis = analyzer.bereken_gelijkenis(def1, def2)
-        print(f"\n=� Gelijkenis analyse:")
+        print(f"\n=ï¿½ Gelijkenis analyse:")
         print(f"   Definitie 1: {def1}")
         print(f"   Definitie 2: {def2}")
         print(f"   Gelijkenis score: {gelijkenis:.3f}")

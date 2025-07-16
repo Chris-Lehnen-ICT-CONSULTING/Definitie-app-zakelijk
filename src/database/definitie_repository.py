@@ -256,6 +256,30 @@ class DefinitieRepository:
         self.db_path = db_path
         self._init_database()
     
+    def _get_connection(self, timeout: float = 30.0) -> sqlite3.Connection:
+        """
+        Maak database connectie met proper timeout en settings.
+        
+        Args:
+            timeout: Connection timeout in seconden
+            
+        Returns:
+            SQLite connection object
+        """
+        conn = sqlite3.connect(
+            self.db_path,
+            timeout=timeout,  # Voorkom "database is locked" errors
+            isolation_level=None,  # Autocommit mode
+            check_same_thread=False  # Multi-threading ondersteuning
+        )
+        # Zet pragmas voor betere performance en concurrency
+        conn.execute("PRAGMA journal_mode=WAL")  # Write-Ahead Logging
+        conn.execute("PRAGMA synchronous=NORMAL")  # Snellere writes
+        conn.execute("PRAGMA temp_store=MEMORY")  # Temp tables in memory
+        conn.execute("PRAGMA foreign_keys=ON")  # Foreign key constraints
+        conn.row_factory = sqlite3.Row  # Enables column access by name
+        return conn
+    
     def _init_database(self):
         """Initialiseer database met schema."""
         # Zorg dat database directory bestaat
@@ -265,8 +289,7 @@ class DefinitieRepository:
         # Laad schema
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("PRAGMA foreign_keys = ON")
+            with self._get_connection() as conn:
                 with open(schema_path, 'r', encoding='utf-8') as f:
                     schema_sql = f.read()
                     try:
@@ -278,8 +301,7 @@ class DefinitieRepository:
         else:
             # Fallback schema creation if schema.sql not found
             logger.warning("schema.sql not found, creating basic schema")
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("PRAGMA foreign_keys = ON")
+            with self._get_connection() as conn:
                 conn.execute("""
                     CREATE TABLE IF NOT EXISTS definities (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -338,11 +360,6 @@ class DefinitieRepository:
         
         return statements
     
-    def _get_connection(self) -> sqlite3.Connection:
-        """Haal database connectie op met Row factory."""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  # Enables column access by name
-        return conn
     
     def create_definitie(self, record: DefinitieRecord) -> int:
         """
