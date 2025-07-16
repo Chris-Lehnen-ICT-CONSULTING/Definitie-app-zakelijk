@@ -42,28 +42,32 @@ class STR05Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    constructie_termen = set()
-    for patroon in patronen:
-        constructie_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patronen = regel.get("herkenbaar_patronen", [])
+            constructie_termen = set()
+            for patroon in patronen:
+                constructie_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+            goede_voorbeelden = regel.get("goede_voorbeelden", [])
+            foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
-    goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+            goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
+            fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
 
-    if not constructie_termen:
-        if goed:
-            return "✔️ STR-05: geen constructieformulering en komt overeen met goed voorbeeld"
-        return "✔️ STR-05: geen constructie-elementen gevonden"
-
-    if fout:
-        return f"❌ STR-05: formulering lijkt opsomming van onderdelen ({', '.join(constructie_termen)})"
-    return f"❌ STR-05: mogelijke constructieformulering ({', '.join(constructie_termen)}), geen goede toelichting gevonden"
+            if not constructie_termen:
+                if goed:
+                    result = "✔️ STR-05: geen constructieformulering en komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ STR-05: geen constructie-elementen gevonden"
+            else:
+                if fout:
+                    result = f"❌ STR-05: formulering lijkt opsomming van onderdelen ({', '.join(constructie_termen)})"
+                else:
+                    result = f"❌ STR-05: mogelijke constructieformulering ({', '.join(constructie_termen)}), geen goede toelichting gevonden"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

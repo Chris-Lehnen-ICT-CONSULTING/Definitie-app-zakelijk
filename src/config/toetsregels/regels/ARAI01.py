@@ -42,27 +42,31 @@ class ARAI01Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    werkwoorden_gevonden = set()
-    for patroon in patroon_lijst:
-        werkwoorden_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patroon_lijst = regel.get("herkenbaar_patronen", [])
+            werkwoorden_gevonden = set()
+            for patroon in patroon_lijst:
+                werkwoorden_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede = regel.get("goede_voorbeelden", [])
-    foute = regel.get("foute_voorbeelden", [])
-    goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
-    fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
+            goede = regel.get("goede_voorbeelden", [])
+            foute = regel.get("foute_voorbeelden", [])
+            goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
+            fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
 
-    if not werkwoorden_gevonden:
-        if goed_aanwezig:
-            return "✔️ ARAI01: geen werkwoorden als kern, en goede formulering herkend"
-        return "✔️ ARAI01: geen werkwoorden als kern gevonden in de definitie"
-
-    if fout_aanwezig:
-        return f"❌ ARAI01: werkwoord(en) als kern gevonden ({', '.join(werkwoorden_gevonden)}), lijkt op fout voorbeeld"
-    return f"❌ ARAI01: werkwoord(en) als kern gevonden ({', '.join(werkwoorden_gevonden)}), geen toelichting herkend"
+            if not werkwoorden_gevonden:
+                if goed_aanwezig:
+                    result = "✔️ ARAI01: geen werkwoorden als kern, en goede formulering herkend"
+                else:
+                    result = "✔️ ARAI01: geen werkwoorden als kern gevonden in de definitie"
+            else:
+                if fout_aanwezig:
+                    result = f"❌ ARAI01: werkwoord(en) als kern gevonden ({', '.join(werkwoorden_gevonden)}), lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ ARAI01: werkwoord(en) als kern gevonden ({', '.join(werkwoorden_gevonden)}), geen toelichting herkend"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
