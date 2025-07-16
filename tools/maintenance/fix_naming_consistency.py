@@ -91,14 +91,37 @@ def fix_naming_consistency(regels_dir: Path, dry_run: bool = True):
 
 if __name__ == "__main__":
     import sys
+    import argparse
     
-    regels_dir = Path(__file__).parents[1] / "src" / "config" / "toetsregels" / "regels"
-    dry_run = "--execute" not in sys.argv
+    parser = argparse.ArgumentParser(
+        description="Fix naming consistency between JSON and Python toetsregel files",
+        epilog="Example: python fix_naming_consistency.py --execute"
+    )
+    parser.add_argument(
+        "--execute", 
+        action="store_true",
+        help="Actually rename files (default is dry-run)"
+    )
+    parser.add_argument(
+        "--dir",
+        type=Path,
+        help="Custom directory to process (default: auto-detect)"
+    )
+    
+    args = parser.parse_args()
+    
+    # Bepaal directory
+    if args.dir:
+        regels_dir = args.dir
+    else:
+        # Zoek vanaf script locatie (nu 2 levels omhoog vanuit tools/maintenance)
+        regels_dir = Path(__file__).parents[2] / "src" / "config" / "toetsregels" / "regels"
     
     print("🔧 Fix Naming Consistency Script")
     print("=" * 40)
     print(f"📍 Directory: {regels_dir}")
-    print(f"🔍 Mode: {'DRY RUN' if dry_run else 'EXECUTE'}")
+    print(f"🔍 Mode: {'EXECUTE' if args.execute else 'DRY RUN'}")
+    print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print()
     
-    fix_naming_consistency(regels_dir, dry_run)
+    fix_naming_consistency(regels_dir, dry_run=not args.execute)
