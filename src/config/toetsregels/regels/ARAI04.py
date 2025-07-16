@@ -43,27 +43,31 @@ class ARAI04Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    modalen = set()
-    for patroon in patroon_lijst:
-        modalen.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patroon_lijst = regel.get("herkenbaar_patronen", [])
+            modalen = set()
+            for patroon in patroon_lijst:
+                modalen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede = regel.get("goede_voorbeelden", [])
-    foute = regel.get("foute_voorbeelden", [])
-    goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
-    fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
+            goede = regel.get("goede_voorbeelden", [])
+            foute = regel.get("foute_voorbeelden", [])
+            goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
+            fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
 
-    if not modalen:
-        if goed_aanwezig:
-            return "✔️ ARAI04: geen modale hulpwerkwoorden, komt overeen met goed voorbeeld"
-        return "✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen"
-
-    if fout_aanwezig:
-        return f"❌ ARAI04: modale hulpwerkwoorden gevonden ({', '.join(modalen)}), lijkt op fout voorbeeld"
-    return f"❌ ARAI04: modale hulpwerkwoorden gevonden ({', '.join(modalen)}), niet geschikt voor heldere definitie"
+            if not modalen:
+                if goed_aanwezig:
+                    result = "✔️ ARAI04: geen modale hulpwerkwoorden, komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen"
+            else:
+                if fout_aanwezig:
+                    result = f"❌ ARAI04: modale hulpwerkwoorden gevonden ({', '.join(modalen)}), lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ ARAI04: modale hulpwerkwoorden gevonden ({', '.join(modalen)}), niet geschikt voor heldere definitie"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

@@ -42,25 +42,30 @@ class STR04Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patronen = regel.get("herkenbaar_patronen", [])
-    match = any(re.search(patroon, definitie, re.IGNORECASE) for patroon in patronen)
+            patronen = regel.get("herkenbaar_patronen", [])
+            match = any(re.search(patroon, definitie, re.IGNORECASE) for patroon in patronen)
 
-    goede_voorbeelden = regel.get("goede_voorbeelden", [])
-    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+            goede_voorbeelden = regel.get("goede_voorbeelden", [])
+            foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
-    goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
-    fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+            goed = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
+            fout = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
 
-    if match:
-        if goed:
-            return "✔️ STR-04: kick-off gevolgd door correcte toespitsing"
-        if fout:
-            return "❌ STR-04: kick-off zonder toespitsing, komt overeen met fout voorbeeld"
-        return "❌ STR-04: kick-off herkend, maar geen toespitsing aangetroffen"
-    return "✔️ STR-04: geen algemene kick-off zonder toespitsing"
+            if match:
+                if goed:
+                    result = "✔️ STR-04: kick-off gevolgd door correcte toespitsing"
+                elif fout:
+                    result = "❌ STR-04: kick-off zonder toespitsing, komt overeen met fout voorbeeld"
+                else:
+                    result = "❌ STR-04: kick-off herkend, maar geen toespitsing aangetroffen"
+            else:
+                result = "✔️ STR-04: geen algemene kick-off zonder toespitsing"
+                
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
