@@ -481,14 +481,25 @@ class DefinitieAgent:
         self.current_status = AgentStatus.GENERATING
         logger.debug(f"Generating definition with {len(generation_context.feedback_history)} feedback items")
         
-        # Genereer definitie met voorbeelden
+        # Genereer definitie met voorbeelden (alleen in eerste iteratie voor performance)
         try:
             generation_result = self.generator.generate_with_examples(
                 generation_context,
-                generate_examples=True,
+                generate_examples=(iteration_number == 1),  # Alleen voorbeelden in eerste iteratie
                 example_types=None  # Gebruik standaard: sentence, practical, counter
             )
             definitie = generation_result.definitie
+            
+            # Als dit niet de eerste iteratie is, kopieer voorbeelden van eerste iteratie
+            if iteration_number > 1 and hasattr(self, '_first_iteration_voorbeelden'):
+                generation_result.voorbeelden = self._first_iteration_voorbeelden
+                generation_result.voorbeelden_gegenereerd = True
+                logger.debug(f"Copied examples from first iteration to iteration {iteration_number}")
+            elif iteration_number == 1 and generation_result.voorbeelden:
+                # Bewaar voorbeelden van eerste iteratie
+                self._first_iteration_voorbeelden = generation_result.voorbeelden
+                logger.debug(f"Stored examples from first iteration: {list(generation_result.voorbeelden.keys())}")
+                
         except Exception as e:
             logger.error(f"Error in generate_with_examples: {e}")
             logger.error(f"Generation context: {generation_context}")

@@ -30,6 +30,29 @@
   "type": "herkomst en bronvermelding",
   "thema": "context en legitimiteit",
   "brondocument": "ASTRA",
+  "bronpatronen_specifiek": [
+    "\\bart\\.?\\s*\\d+",
+    "\\blid\\s*\\d+",
+    "\\bparagraaf\\s*\\d+",
+    "\\bhoofdstuk\\s*\\d+",
+    "\\btitel\\s*\\d+",
+    "\\bafdeling\\s*\\d+",
+    "\\b§\\s*\\d+",
+    "\\bartikel\\s*\\d+\\w*\\s+(van|uit)\\s+\\w+"
+  ],
+  "bronpatronen_algemeen": [
+    "\\bwet\\b",
+    "\\bbesluit\\b",
+    "\\bregeling\\b",
+    "\\brichtlijn\\b",
+    "\\bverordening\\b",
+    "\\bAVG\\b",
+    "\\bAwb\\b",
+    "\\bWvSr\\b",
+    "\\bWvSv\\b",
+    "\\bbeleidsregel\\b",
+    "\\bstandaard\\b"
+  ],
   "relatie": [
     {
       "fulltext": "Baseren op authentieke bron",
