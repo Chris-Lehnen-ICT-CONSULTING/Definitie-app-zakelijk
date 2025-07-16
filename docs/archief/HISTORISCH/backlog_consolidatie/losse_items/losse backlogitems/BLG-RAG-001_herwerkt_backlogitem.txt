@@ -1,0 +1,42 @@
+📝 Backlogitem: Implementeer RAG-opzet voor definitiegeneratie
+
+🎯 Doel:
+Gebruik een Retrieval-Augmented Generation (RAG) architectuur om achtergrondinformatie te betrekken bij het genereren van definities.
+
+📌 Aanleiding:
+Definities missen soms inhoudelijke onderbouwing of formele bronverwijzingen. RAG kan hierbij ondersteunen met relevante fragmenten uit Wikipedia of Overheid.nl.
+
+🔍 Probleem:
+- AI werkt zonder directe toegang tot betrouwbare externe bronnen.
+- Generaties zijn niet altijd feitelijk of relevant.
+
+📈 Impact:
+- Lagere kwaliteit van definitievoorstellen.
+- Gebruiker moet zelf handmatig bijsturen.
+
+🛠️ Taken:
+- Bouw module `web_lookup.py` die info ophaalt uit Wikipedia / overheid.nl.
+- Integreer lookup in promptopbouw (webinformatie als input).
+- Voeg caching en foutafhandeling toe.
+
+🧪 Tests:
+- Prompt bevat verwerkte tekstfragmenten.
+- Lookup faalt niet bij ontbrekende zoekterm.
+- Resultaten verhogen informatiedichtheid van definitie.
+
+✅ Acceptatiecriteria:
+- AI-output is verrijkt met feitelijke achtergrondinformatie.
+- Prompt toont duidelijk de gebruikte externe input.
+
+📦 Bestand(en):
+- web_lookup.py
+- prompt_generator.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-RAG-001
+📅 Datum: 2025-06-03
+📌 Status: to do

@@ -1,0 +1,33 @@
+📝 Backlogitem: Controleer of gebruikte termen in een definitie zelf ook gedefinieerd zijn
+
+🎯 Doel:
+Voorkom dat definities verwijzen naar andere begrippen die zelf nog géén goedgekeurde definitie hebben. Dit verhoogt de consistentie, begrijpelijkheid en herbruikbaarheid van definities in ketenverband.
+
+📌 Aanleiding:
+In meerdere gegenereerde definities worden termen gebruikt die zelf geen formele of goedgekeurde definitie hebben in de centrale repository. Dit leidt tot afhankelijkheden en interpretatieproblemen.
+
+🛠️ Taken:
+1. Bouw een functie `controleer_afhankelijke_termen(definitie: str, repository: dict)` die:
+   - Alle zelfstandige naamwoorden of termen uit een definitie detecteert.
+   - Deze termen vergelijkt met de bestaande `repository` van goedgekeurde definities.
+   - Een lijst van ontbrekende definities retourneert (termen die nog gedefinieerd moeten worden).
+2. Voeg deze controle toe als onderdeel van de definitietoetsing.
+3. Geef in de UI een waarschuwing als er termen worden gebruikt die nog geen definitie hebben.
+4. Voorzie mogelijkheid om direct een nieuwe definitie op te stellen voor ontbrekende termen.
+
+✅ Acceptatiecriteria:
+- De controle detecteert gebruikte termen die niet aanwezig zijn in de centrale definitieset.
+- Termen worden automatisch gesignaleerd en getoond met suggestie “Nog definiëren?”.
+- De promptopbouw en UI worden voorbereid op deze afhankelijkheidscheck.
+- Logging bevat info over welke termen nog ontbreken.
+
+📦 Bestand(en): 
+- definities_repository.py
+- definitie_agent_webinterface_logging.py
+- ai_toetser.py
+
+👥 Betrokkenen: Ontwikkelaar, PO
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+Status: to do

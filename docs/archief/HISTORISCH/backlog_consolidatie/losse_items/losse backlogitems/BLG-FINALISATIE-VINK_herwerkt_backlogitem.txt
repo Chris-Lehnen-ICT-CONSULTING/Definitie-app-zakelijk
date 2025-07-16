@@ -1,0 +1,39 @@
+📝 Backlogitem: Finalisatievinkje voor afgewerkte begrippen
+
+🎯 Doel:
+Markeer een begrip als definitief goedgekeurd (bijv. met ✅) zodra alle velden en toetsing zijn afgerond.
+
+📌 Aanleiding:
+Er is geen overzicht welke begrippen definitief klaar zijn. Dit leidt tot herwerk of onduidelijkheid bij export.
+
+🔍 Probleem:
+- Geen aanduiding van ‘klaar’ of ‘afgewerkt’.
+- Exports bevatten onvolledige of conceptdefinities.
+
+📈 Impact:
+- Lage betrouwbaarheid van documentatie.
+- Gebrek aan workflowbeheersing.
+
+🛠️ Taken:
+- Voeg ‘finalisatie’ checkbox toe aan UI.
+- Toon alleen afgewerkte begrippen in eindexport.
+
+🧪 Tests:
+- Alleen gemarkeerde begrippen worden geëxporteerd.
+- Checkbox behoudt status bij herladen.
+
+✅ Acceptatiecriteria:
+- Finalisatie zichtbaar per begrip.
+- Export filtert correct op afgewerkte items.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-FINALISATIE-VINK
+📅 Datum: 2025-06-13
+📌 Status: to do

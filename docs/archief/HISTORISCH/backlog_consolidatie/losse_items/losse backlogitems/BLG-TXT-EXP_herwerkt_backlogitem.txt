@@ -1,0 +1,42 @@
+📝 Backlogitem: Exporteer definities als losse .txt-bestanden
+
+🎯 Doel:
+Voorzie elk begrip in de app van een aparte exportknop waarmee het als los .txt-bestand kan worden opgeslagen.
+
+📌 Aanleiding:
+Gebruikers willen definities extern kunnen hergebruiken zonder afhankelijk te zijn van Excel of PDF-export.
+
+🔍 Probleem:
+- Geen mogelijkheid tot snelle, lichte export per begrip.
+- Alleen verzamelexports zijn nu beschikbaar.
+
+📈 Impact:
+- Verminderde flexibiliteit in verwerking of archivering.
+- Gebruikers moeten handmatig kopiëren.
+
+🛠️ Taken:
+- Voeg exportknop toe onder elk begrip.
+- Genereer naamvolgend `.txt`-bestand per begrip.
+- Bied download direct aan in Streamlit-interface.
+
+🧪 Tests:
+- Bestand bevat de juiste inhoud per begrip.
+- Bestandsnaam bevat begrip-ID of slug.
+- Download werkt zonder foutmelding in verschillende browsers.
+
+✅ Acceptatiecriteria:
+- Elke definitie is met één klik te exporteren naar .txt.
+- Bestandsinhoud is correct en bevat definitie + metadata.
+
+📦 Bestand(en):
+- export_definities.py
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Laag
+🗓️ Sprint: 3
+🆔 ID: BLG-TXT-EXP
+📅 Datum: 2025-06-01
+📌 Status: to do

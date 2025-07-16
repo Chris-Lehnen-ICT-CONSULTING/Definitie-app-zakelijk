@@ -1,0 +1,41 @@
+📝 Backlogitem: Voeg downloadmogelijkheid toe voor testlog als JSONL
+
+🎯 Doel:
+Sta gebruikers toe het logbestand met resultaten van verboden-woordtests als `.jsonl` te downloaden voor externe analyse.
+
+📌 Aanleiding:
+Het logbestand wordt wel aangemaakt, maar is niet beschikbaar buiten de app.
+
+🔍 Probleem:
+- Geen toegang tot testdata buiten Streamlit.
+- Analyse, archivering en debugging zijn niet mogelijk.
+
+📈 Impact:
+- Gebrek aan inzicht in detectiekwaliteit.
+- Niet compatibel met externe tooling.
+
+🛠️ Taken:
+- Voeg downloadknop toe aan tabblad 3.
+- Zet juiste headers en mime type.
+- Beperk bestand tot 1MB of voeg waarschuwing toe.
+
+🧪 Tests:
+- Downloadbare `.jsonl` is correct opgebouwd.
+- Bestand opent in JSON-viewer of teksteditor.
+
+✅ Acceptatiecriteria:
+- Gebruiker kan testlog downloaden zonder fout.
+- Bestandsformaat is standaard `.jsonl`.
+
+📦 Bestand(en):
+- ui_helpers.py
+- verboden_woord_tests.jsonl
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Laag
+🗓️ Sprint: 6
+🆔 ID: BLG-JSONL-DOWNLOAD-002
+📅 Datum: 2025-06-23
+📌 Status: to do

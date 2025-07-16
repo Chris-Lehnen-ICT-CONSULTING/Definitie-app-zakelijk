@@ -1,0 +1,41 @@
+📝 Backlogitem: Voeg paginering toe aan lange resultaatschermen
+
+🎯 Doel:
+Maak het mogelijk om UI-secties met veel regels of begrippen te verdelen over meerdere pagina’s, voor leesbaarheid en performance.
+
+📌 Aanleiding:
+Bij uitgebreide invoer (zoals >30 toetsregels) wordt het tweede tabblad onoverzichtelijk en traag.
+
+🔍 Probleem:
+- Slechte performance bij grote aantallen resultaten.
+- Scrollen en zoeken is onhandig voor gebruiker.
+
+📈 Impact:
+- Gebruikers raken de context kwijt.
+- Applicatie reageert trager dan gewenst.
+
+🛠️ Taken:
+- Implementeer paginering (bijv. 10 regels per pagina).
+- Voeg navigatieknoppen toe (volgende, vorige).
+- Houd context/tabs gesynchroniseerd.
+
+🧪 Tests:
+- Weergave blijft snel bij grote datasets.
+- Navigatie werkt intuïtief.
+
+✅ Acceptatiecriteria:
+- UI laadt snel, zelfs met >40 toetsregels.
+- Navigatie is logisch en stabiel.
+
+📦 Bestand(en):
+- ui_helpers.py
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-UI-PAGINATION
+📅 Datum: 2025-06-13
+📌 Status: to do

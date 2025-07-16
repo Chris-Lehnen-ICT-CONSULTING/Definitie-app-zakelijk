@@ -1,0 +1,40 @@
+📝 Backlogitem: Maak voorbeeldzinnen bewerkbaar in UI
+
+🎯 Doel:
+Sta gebruikers toe om AI-gegenereerde voorbeeldzinnen handmatig te bewerken vóór export of log.
+
+📌 Aanleiding:
+Voorbeelden zijn niet altijd representatief of moeten afgestemd worden op het werkveld.
+
+🔍 Probleem:
+- Geen editmogelijkheid in tabblad 1.
+- Onjuiste voorbeelden komen in export terecht.
+
+📈 Impact:
+- Slechtere documentkwaliteit.
+- Verminderde bruikbaarheid in communicatie.
+
+🛠️ Taken:
+- Voeg editable textareas toe voor voorbeelden.
+- Synchroniseer met logging en export.
+- Voeg optioneel ‘Reset naar AI-versie’-knop toe.
+
+🧪 Tests:
+- Gebruiker kan elk voorbeeld aanpassen.
+- Export toont bewerkte versie.
+
+✅ Acceptatiecriteria:
+- Voorbeelden zijn bewerkbaar en persistent.
+- Logging bevat originele én aangepaste variant.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-VOORBEELDZINNEN-BEWERK
+📅 Datum: 2025-06-23
+📌 Status: to do

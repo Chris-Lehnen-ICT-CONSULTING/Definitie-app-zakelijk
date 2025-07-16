@@ -1,0 +1,40 @@
+📝 Backlogitem: Automatische toevoeging van begrip aan toetsregel SAM-05
+
+🎯 Doel:
+Zorg dat de centrale dispatcherfunctie in ai_toetser.py automatisch het begrip toevoegt aan toetsregel SAM-05, als dat nog niet is opgenomen.
+
+📌 Aanleiding:
+Toetsregel SAM-05 vereist het begrip als apart argument. Zonder dit faalt de detectie van cirkeldefinities.
+
+🔍 Probleem:
+- Functie faalt zonder het begrip.
+- Moeilijk te debuggen bij vergeten parameter.
+
+📈 Impact:
+- Foutmeldingen zonder duidelijke oorzaak.
+- Verminderde betrouwbaarheid bij regressietests.
+
+🛠️ Taken:
+- Voeg controle toe of regel_id == “SAM-05”.
+- Injecteer begrip in toetsingsdict als het ontbreekt.
+- Log expliciete melding bij vervanging.
+
+🧪 Tests:
+- SAM-05 werkt automatisch met alleen definitie + begrip.
+- Andere regels blijven onaangetast.
+
+✅ Acceptatiecriteria:
+- Geen fouten bij SAM-05 zonder handmatige parameter.
+- Logging toont toegevoegde waarde.
+
+📦 Bestand(en):
+- ai_toetser.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-SAM-05-AUTO-BEGRIP
+📅 Datum: 2025-06-20
+📌 Status: to do

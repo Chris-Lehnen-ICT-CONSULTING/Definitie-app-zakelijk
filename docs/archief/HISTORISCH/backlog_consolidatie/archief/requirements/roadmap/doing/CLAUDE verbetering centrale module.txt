@@ -1,0 +1,665 @@
+# ================================
+# 🏗️ REFACTORED DEFINITION QUALITY SYSTEM
+# ================================
+
+# ================================
+# 📁 FILE STRUCTURE (Proposed)
+# ================================
+"""
+src/
+├── main.py                    # Streamlit entry point
+├── config/
+│   ├── __init__.py
+│   ├── settings.py           # Application settings
+│   └── dependencies.py       # Dependency injection
+├── core/
+│   ├── __init__.py
+│   ├── models.py             # Data models
+│   ├── services.py           # Business logic services
+│   └── exceptions.py         # Custom exceptions
+├── ui/
+│   ├── __init__.py
+│   ├── components.py         # Reusable UI components
+│   ├── tabs.py              # Tab implementations
+│   └── state.py             # State management
+├── utils/
+│   ├── __init__.py
+│   ├── validation.py        # Input validation
+│   └── formatting.py       # Text formatting utilities
+└── tests/
+    ├── __init__.py
+    ├── test_services.py
+    └── test_models.py
+"""
+
+# ================================
+# 📋 CORE MODELS (core/models.py)
+# ================================
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional, Any
+from datetime import datetime
+from enum import Enum
+
+class Priority(Enum):
+    LOW = "laag"
+    MEDIUM = "midden"
+    HIGH = "hoog"
+
+class TestResult(Enum):
+    PASS = "✔️"
+    FAIL = "❌"
+    INFO = "ℹ️"
+
+@dataclass
+class Context:
+    """Context information for definition generation"""
+    organizational: List[str] = field(default_factory=list)
+    legal: List[str] = field(default_factory=list)
+    statutory: List[str] = field(default_factory=list)
+    
+    def to_dict(self) -> Dict[str, List[str]]:
+        return {
+            "organisatorisch": self.organizational,
+            "juridisch": self.legal,
+            "wettelijk": self.statutory
+        }
+
+@dataclass
+class TestRule:
+    """Test rule for definition validation"""
+    id: str
+    explanation: str
+    priority: Priority
+    required: bool = True
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'TestRule':
+        return cls(
+            id=data["id"],
+            explanation=data["uitleg"],
+            priority=Priority(data.get("prioriteit", "midden")),
+            required=data.get("aanbeveling") == "verplicht"
+        )
+
+@dataclass
+class TestRuleResult:
+    """Result of applying a test rule"""
+    rule_id: str
+    result: TestResult
+    message: str
+    details: Optional[str] = None
+
+@dataclass
+class Definition:
+    """Definition with metadata"""
+    text: str
+    concept: str
+    context: Context
+    original_text: Optional[str] = None
+    cleaned_text: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    
+    def get_display_text(self) -> str:
+        """Get the best version of the definition for display"""
+        return self.cleaned_text or self.text
+
+@dataclass
+class DefinitionResult:
+    """Complete result of definition generation and testing"""
+    definition: Definition
+    test_results: List[TestRuleResult] = field(default_factory=list)
+    examples: List[str] = field(default_factory=list)
+    practical_examples: List[str] = field(default_factory=list)
+    counter_examples: List[str] = field(default_factory=list)
+    explanation: str = ""
+    synonyms: List[str] = field(default_factory=list)
+    antonyms: List[str] = field(default_factory=list)
+    sources: List[str] = field(default_factory=list)
+    created_at: datetime = field(default_factory=datetime.now)
+    
+    def get_pass_rate(self) -> float:
+        """Calculate percentage of passed tests"""
+        if not self.test_results:
+            return 0.0
+        passed = sum(1 for r in self.test_results if r.result == TestResult.PASS)
+        return (passed / len(self.test_results)) * 100
+
+# ================================
+# 🔧 CORE SERVICES (core/services.py)
+# ================================
+from abc import ABC, abstractmethod
+from typing import Protocol
+
+class AIService(Protocol):
+    """Protocol for AI services"""
+    def generate_definition(self, concept: str, context: Context) -> Definition:
+        ...
+    
+    def generate_examples(self, definition: Definition) -> List[str]:
+        ...
+    
+    def generate_explanation(self, definition: Definition) -> str:
+        ...
+
+class ValidationService(Protocol):
+    """Protocol for validation services"""
+    def validate_definition(self, definition: Definition, rules: List[TestRule]) -> List[TestRuleResult]:
+        ...
+
+class ExportService(Protocol):
+    """Protocol for export services"""
+    def export_to_txt(self, result: DefinitionResult) -> str:
+        ...
+    
+    def export_to_csv(self, results: List[DefinitionResult]) -> str:
+        ...
+
+class DefinitionService:
+    """Main service for definition operations"""
+    
+    def __init__(
+        self,
+        ai_service: AIService,
+        validation_service: ValidationService,
+        export_service: ExportService
+    ):
+        self.ai_service = ai_service
+        self.validation_service = validation_service
+        self.export_service = export_service
+    
+    def create_definition(
+        self,
+        concept: str,
+        context: Context,
+        test_rules: List[TestRule]
+    ) -> DefinitionResult:
+        """Create a complete definition with validation and examples"""
+        try:
+            # Generate definition
+            definition = self.ai_service.generate_definition(concept, context)
+            
+            # Clean and validate
+            definition.cleaned_text = self._clean_definition(definition.text, concept)
+            test_results = self.validation_service.validate_definition(definition, test_rules)
+            
+            # Generate additional content
+            examples = self.ai_service.generate_examples(definition)
+            explanation = self.ai_service.generate_explanation(definition)
+            
+            return DefinitionResult(
+                definition=definition,
+                test_results=test_results,
+                examples=examples,
+                explanation=explanation
+            )
+            
+        except Exception as e:
+            # Log error and return minimal result
+            return DefinitionResult(
+                definition=Definition(
+                    text=f"Error generating definition: {str(e)}",
+                    concept=concept,
+                    context=context
+                )
+            )
+    
+    def _clean_definition(self, text: str, concept: str) -> str:
+        """Clean definition text of common issues"""
+        # Import cleaning logic from existing opschoning module
+        from opschoning.opschoning import opschonen
+        return opschonen(text, concept)
+
+# ================================
+# 🎛️ CONFIGURATION (config/settings.py)
+# ================================
+from pathlib import Path
+from typing import Dict, List
+import json
+
+class Settings:
+    """Application settings"""
+    
+    def __init__(self):
+        self.base_dir = Path(__file__).parent.parent
+        self.log_dir = self.base_dir / "log"
+        self.config_dir = self.base_dir / "config"
+        self.test_rules_file = self.config_dir / "toetsregels.json"
+        self.forbidden_words_file = self.config_dir / "verboden_woorden.json"
+        
+        # AI settings
+        self.ai_model = "gpt-4"
+        self.ai_temperature = 0.3
+        self.ai_max_tokens = 1000
+        
+        # UI settings
+        self.page_title = "DefinitieAgent"
+        self.page_icon = "🧠"
+    
+    def load_test_rules(self) -> List[TestRule]:
+        """Load test rules from configuration"""
+        try:
+            with open(self.test_rules_file, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                return [TestRule.from_dict(rule) for rule in data.values()]
+        except FileNotFoundError:
+            return []
+    
+    def load_forbidden_words(self) -> List[str]:
+        """Load forbidden words from configuration"""
+        try:
+            with open(self.forbidden_words_file, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return []
+
+# ================================
+# 🎨 UI COMPONENTS (ui/components.py)
+# ================================
+import streamlit as st
+from typing import Callable, Optional
+
+class UIComponents:
+    """Reusable UI components"""
+    
+    @staticmethod
+    def context_selector(
+        label: str,
+        options: List[str],
+        key: str,
+        allow_custom: bool = True
+    ) -> List[str]:
+        """Reusable context selector with optional custom input"""
+        selected = st.multiselect(label, options + (["Anders..."] if allow_custom else []), key=key)
+        
+        if allow_custom and "Anders..." in selected:
+            custom = st.text_input(f"Aangepaste {label.lower()}", key=f"{key}_custom")
+            selected = [opt for opt in selected if opt != "Anders..."]
+            if custom.strip():
+                selected.append(custom.strip())
+        
+        return selected
+    
+    @staticmethod
+    def test_results_display(results: List[TestRuleResult], title: str = "Test Results"):
+        """Display test results with appropriate styling"""
+        st.markdown(f"### {title}")
+        
+        for result in results:
+            message = f"{result.result.value} {result.rule_id}: {result.message}"
+            
+            if result.result == TestResult.PASS:
+                st.success(message)
+            elif result.result == TestResult.FAIL:
+                st.error(message)
+            else:
+                st.info(message)
+    
+    @staticmethod
+    def definition_display(definition: Definition, show_metadata: bool = True):
+        """Display definition with optional metadata"""
+        st.markdown("### Definitie")
+        st.markdown(definition.get_display_text())
+        
+        if show_metadata and definition.metadata:
+            with st.expander("Metadata", expanded=False):
+                for key, value in definition.metadata.items():
+                    st.write(f"**{key}:** {value}")
+    
+    @staticmethod
+    def export_section(result: DefinitionResult, export_service: ExportService):
+        """Export functionality"""
+        col1, col2 = st.columns(2)
+        
+        with col1:
+            if st.button("📤 Export naar TXT"):
+                path = export_service.export_to_txt(result)
+                st.success(f"✅ Geëxporteerd naar: {path}")
+        
+        with col2:
+            if st.button("📊 Export naar CSV"):
+                path = export_service.export_to_csv([result])
+                st.success(f"✅ Geëxporteerd naar: {path}")
+
+# ================================
+# 📱 STATE MANAGEMENT (ui/state.py)
+# ================================
+from typing import TypeVar, Generic, Optional, Dict, Any
+
+T = TypeVar('T')
+
+class SessionState:
+    """Centralized session state management"""
+    
+    def __init__(self):
+        self._state = st.session_state
+    
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get value from session state"""
+        return self._state.get(key, default)
+    
+    def set(self, key: str, value: Any) -> None:
+        """Set value in session state"""
+        self._state[key] = value
+    
+    def clear(self, key: str) -> None:
+        """Clear specific key from session state"""
+        if key in self._state:
+            del self._state[key]
+    
+    def reset(self) -> None:
+        """Reset all session state"""
+        self._state.clear()
+    
+    # Specific state properties
+    @property
+    def current_result(self) -> Optional[DefinitionResult]:
+        return self.get("current_result")
+    
+    @current_result.setter
+    def current_result(self, value: DefinitionResult) -> None:
+        self.set("current_result", value)
+    
+    @property
+    def show_ai_testing(self) -> bool:
+        return self.get("show_ai_testing", False)
+    
+    @show_ai_testing.setter
+    def show_ai_testing(self, value: bool) -> None:
+        self.set("show_ai_testing", value)
+
+# ================================
+# 🖥️ MAIN APPLICATION (main.py)
+# ================================
+import streamlit as st
+from datetime import datetime
+from config.settings import Settings
+from config.dependencies import get_definition_service
+from ui.components import UIComponents
+from ui.state import SessionState
+from core.models import Context
+
+def main():
+    """Main application entry point"""
+    # Initialize
+    settings = Settings()
+    st.set_page_config(page_title=settings.page_title, page_icon=settings.page_icon)
+    
+    # Services
+    definition_service = get_definition_service()
+    test_rules = settings.load_test_rules()
+    
+    # State
+    state = SessionState()
+    ui = UIComponents()
+    
+    # UI Header
+    st.title("🧾 Definitie Kwaliteit")
+    
+    # Input form
+    with st.form("definition_form"):
+        concept = st.text_input("Voer een term in waarvoor een definitie moet worden gegenereerd")
+        
+        # Context selectors
+        organizational = ui.context_selector(
+            "Organisatorische context",
+            ["OM", "ZM", "Reclassering", "DJI", "NP", "Justid", "KMAR", "FIOD", "CJIB"],
+            "org_context"
+        )
+        
+        legal = ui.context_selector(
+            "Juridische context",
+            ["Strafrecht", "Civiel recht", "Bestuursrecht", "Internationaal recht"],
+            "legal_context"
+        )
+        
+        statutory = ui.context_selector(
+            "Wettelijke basis",
+            ["Wetboek van Strafvordering", "Wet op de Identificatieplicht", "Wetboek van Strafrecht"],
+            "statutory_context"
+        )
+        
+        date = st.date_input("Datum voorstel", value=datetime.today())
+        proposer = st.text_input("Voorgesteld door")
+        
+        submitted = st.form_submit_button("Genereer definitie")
+    
+    # Process form submission
+    if submitted and concept:
+        context = Context(
+            organizational=organizational,
+            legal=legal,
+            statutory=statutory
+        )
+        
+        with st.spinner("Genereren van definitie..."):
+            result = definition_service.create_definition(concept, context, test_rules)
+            state.current_result = result
+    
+    # Display results
+    if state.current_result:
+        display_results(state.current_result, ui, definition_service)
+
+def display_results(result: DefinitionResult, ui: UIComponents, definition_service):
+    """Display definition results in tabs"""
+    tab1, tab2, tab3 = st.tabs([
+        "🤖 AI-gegenereerde definitie",
+        "✍️ Aangepaste definitie", 
+        "📋 Expert-review"
+    ])
+    
+    with tab1:
+        ui.definition_display(result.definition)
+        
+        if result.examples:
+            st.markdown("### 🔍 Voorbeelden")
+            for example in result.examples:
+                st.markdown(f"- {example}")
+        
+        if result.explanation:
+            st.markdown("### ℹ️ Toelichting")
+            st.info(result.explanation)
+        
+        # Toggle for test results
+        if st.button("📊 Toon/verberg AI-toetsing"):
+            state = SessionState()
+            state.show_ai_testing = not state.show_ai_testing
+        
+        if SessionState().show_ai_testing:
+            ui.test_results_display(result.test_results, "AI-toetsing resultaten")
+        
+        ui.export_section(result, definition_service.export_service)
+    
+    with tab2:
+        st.markdown("### ✍️ Aangepaste definitie")
+        # Implementation for custom definition tab
+        pass
+    
+    with tab3:
+        st.markdown("### 📋 Expert-review")
+        # Implementation for expert review tab
+        pass
+
+if __name__ == "__main__":
+    main()
+
+# ================================
+# 🔌 DEPENDENCY INJECTION (config/dependencies.py)
+# ================================
+from core.services import DefinitionService
+from implementations.ai_service import GPTAIService
+from implementations.validation_service import RuleValidationService
+from implementations.export_service import FileExportService
+
+def get_definition_service() -> DefinitionService:
+    """Factory function for definition service with all dependencies"""
+    ai_service = GPTAIService()
+    validation_service = RuleValidationService()
+    export_service = FileExportService()
+    
+    return DefinitionService(
+        ai_service=ai_service,
+        validation_service=validation_service,
+        export_service=export_service
+    )
+
+# ================================
+# 🧪 EXAMPLE IMPLEMENTATION (implementations/ai_service.py)
+# ================================
+from core.models import Definition, Context
+from core.services import AIService
+from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+
+class GPTAIService(AIService):
+    """GPT-based AI service implementation"""
+    
+    def generate_definition(self, concept: str, context: Context) -> Definition:
+        """Generate definition using GPT"""
+        prompt = self._build_prompt(concept, context)
+        
+        response = stuur_prompt_naar_gpt(
+            prompt,
+            model="gpt-4",
+            temperatuur=0.3,
+            max_tokens=1000
+        )
+        
+        return Definition(
+            text=response,
+            concept=concept,
+            context=context
+        )
+    
+    def generate_examples(self, definition: Definition) -> List[str]:
+        """Generate examples for definition"""
+        prompt = f"Genereer 3 korte voorbeelden voor: {definition.text}"
+        response = stuur_prompt_naar_gpt(prompt, temperatuur=0.4, max_tokens=300)
+        return [ex.strip() for ex in response.split('\n') if ex.strip()]
+    
+    def generate_explanation(self, definition: Definition) -> str:
+        """Generate explanation for definition"""
+        prompt = f"Geef een korte toelichting op: {definition.text}"
+        return stuur_prompt_naar_gpt(prompt, temperatuur=0.3, max_tokens=200)
+    
+    def _build_prompt(self, concept: str, context: Context) -> str:
+        """Build prompt for definition generation"""
+        # Use existing prompt builder logic
+        from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
+        
+        config = PromptConfiguratie(
+            begrip=concept,
+            context_dict=context.to_dict()
+        )
+        
+        builder = PromptBouwer(config)
+        return builder.bouw_prompt()
+
+# ================================
+# 📊 TESTING EXAMPLE (tests/test_services.py)
+# ================================
+import unittest
+from unittest.mock import Mock, patch
+from core.models import Definition, Context, TestRule, Priority
+from core.services import DefinitionService
+
+class TestDefinitionService(unittest.TestCase):
+    """Test cases for DefinitionService"""
+    
+    def setUp(self):
+        self.ai_service = Mock()
+        self.validation_service = Mock()
+        self.export_service = Mock()
+        
+        self.service = DefinitionService(
+            self.ai_service,
+            self.validation_service,
+            self.export_service
+        )
+    
+    def test_create_definition_success(self):
+        """Test successful definition creation"""
+        # Arrange
+        concept = "Test begrip"
+        context = Context(organizational=["OM"])
+        test_rules = [TestRule("R1", "Test rule", Priority.HIGH)]
+        
+        definition = Definition(text="Test definitie", concept=concept, context=context)
+        self.ai_service.generate_definition.return_value = definition
+        self.ai_service.generate_examples.return_value = ["Example 1"]
+        self.ai_service.generate_explanation.return_value = "Test explanation"
+        self.validation_service.validate_definition.return_value = []
+        
+        # Act
+        result = self.service.create_definition(concept, context, test_rules)
+        
+        # Assert
+        self.assertEqual(result.definition.concept, concept)
+        self.assertEqual(len(result.examples), 1)
+        self.assertEqual(result.explanation, "Test explanation")
+    
+    def test_create_definition_with_error(self):
+        """Test definition creation with AI service error"""
+        # Arrange
+        concept = "Test begrip"
+        context = Context()
+        test_rules = []
+        
+        self.ai_service.generate_definition.side_effect = Exception("AI Error")
+        
+        # Act
+        result = self.service.create_definition(concept, context, test_rules)
+        
+        # Assert
+        self.assertIn("Error generating definition", result.definition.text)
+
+if __name__ == '__main__':
+    unittest.main()
+
+# ================================
+# 🎯 SUMMARY OF IMPROVEMENTS
+# ================================
+"""
+KEY IMPROVEMENTS:
+
+1. **Separation of Concerns**
+   - UI logic separated from business logic
+   - Clear service boundaries
+   - Reusable components
+
+2. **Type Safety**
+   - Strong typing with dataclasses
+   - Protocols for service interfaces
+   - Better error handling
+
+3. **Testability**
+   - Dependency injection
+   - Mock-friendly interfaces
+   - Unit test examples
+
+4. **Maintainability**
+   - Modular file structure
+   - Clear naming conventions
+   - Centralized configuration
+
+5. **Extensibility**
+   - Plugin-style architecture
+   - Easy to add new services
+   - Configurable components
+
+6. **Performance**
+   - Lazy loading
+   - Efficient state management
+   - Reduced coupling
+
+7. **Error Handling**
+   - Consistent error patterns
+   - Graceful degradation
+   - User-friendly messages
+
+MIGRATION STRATEGY:
+1. Create new file structure
+2. Move existing functions to appropriate services
+3. Update imports gradually
+4. Add tests for critical paths
+5. Refactor UI components
+6. Update configuration management
+"""

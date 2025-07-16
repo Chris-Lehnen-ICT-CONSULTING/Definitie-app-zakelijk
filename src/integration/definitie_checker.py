@@ -178,6 +178,10 @@ class DefinitieChecker:
         else:
             logger.info(f"Generating new definition for '{begrip}' (standard context)")
         
+        # Convert categorie string to enum if needed
+        if isinstance(categorie, str):
+            categorie = OntologischeCategorie(categorie.lower())
+        
         agent_result = self.agent.generate_definition(
             begrip=begrip,
             organisatorische_context=organisatorische_context,

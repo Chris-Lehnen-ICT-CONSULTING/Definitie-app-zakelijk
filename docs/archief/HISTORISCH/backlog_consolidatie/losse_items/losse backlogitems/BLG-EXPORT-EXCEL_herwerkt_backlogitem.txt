@@ -1,0 +1,40 @@
+📝 Backlogitem: Voeg Excel-export toe per begrip en als totaalbestand
+
+🎯 Doel:
+Sta gebruikers toe om definities te exporteren naar Excel, met één tabblad per begrip of één overzichtsbestand.
+
+📌 Aanleiding:
+Voor analyse of vergelijking willen gebruikers werken in Excel. Momenteel is dit alleen mogelijk via handmatig kopiëren.
+
+🔍 Probleem:
+- Geen downloadmogelijkheid naar Excel.
+- Informatie wordt versnipperd over meerdere schermen.
+
+📈 Impact:
+- Beperkte doorzoekbaarheid en analyseerbaarheid.
+- Gebruikerservaring wordt slechter voor exportflows.
+
+🛠️ Taken:
+- Bouw functie voor `export_to_excel()` in export_definities.py.
+- Voeg toggle toe in UI: per begrip of totaalbestand.
+- Voorzie Excel van metadata, toelichting, toetsresultaten.
+
+🧪 Tests:
+- Elk tabblad bevat exact 1 begrip.
+- Exportbestand is direct openbaar in Excel zonder fouten.
+
+✅ Acceptatiecriteria:
+- Gebruiker kan Excel-bestand downloaden met alle informatie.
+- Layout is leesbaar en correct gestructureerd.
+
+📦 Bestand(en):
+- export_definities.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 4
+🆔 ID: BLG-EXPORT-EXCEL
+📅 Datum: 2025-06-06
+📌 Status: to do
