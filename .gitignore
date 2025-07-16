@@ -72,3 +72,52 @@ test_*.py
 
 # 💚 Legacy code
 oude legacy broncode om te controleren/
+
+# 💚 Root level analysis files (should be in docs/)
+/*_ANALYSIS.md
+/CODEBASE_*.md
+/COMPLETE_*.md
+/DOCUMENTATION_*.md
+/*_MODULE_ANALYSIS.md
+
+# 💚 Word en Office bestanden
+*.docx
+*.doc
+*.xlsx
+*.xls
+~$*
+*.fld/
+
+# 💚 HTML exports
+Browser Test Checklist.html
+*Test*.html
+
+# 💚 Backup directories
+backups/
+backup/
+*_backup_*/
+docs/archief_backup_*/
+
+# 💚 Upload folders
+data/uploaded_documents/
+uploads/
+
+# 💚 Database duplicates
+/definities.db
+/test.db
+*.db-shm
+*.db-wal
+
+# 💚 Test en debug bestanden
+*_test_summary.md
+STREAMLIT_APP_TEST_SUMMARY.md
+
+# 💚 Tijdelijke Python debug bestanden
+*_backup.py
+*_broken.py
+*_issue.py
+*_encoding_issue.py
+
+# 💚 Log directories
+log/
+logs/
