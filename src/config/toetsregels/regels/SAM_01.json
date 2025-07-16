@@ -1,0 +1,34 @@
+{
+  "id": "SAM_01",
+  "naam": "Kwalificatie leidt niet tot afwijking",
+  "uitleg": "Een definitie mag niet zodanig zijn geformuleerd dat deze afwijkt van de betekenis die de term in andere contexten heeft.",
+  "toelichting": "Soms wordt geprobeerd een term met een bekende betekenis een andere lading te geven door een kwalificatie toe te voegen, zoals 'technisch proces' of 'juridische maatregel'. Dat mag, zolang de definitie niet in strijd is met de gebruikelijke betekenis van de term. Een definitie moet dus geen semantisch misleidende kwalificaties bevatten.",
+  "toetsvraag": "Leidt de gebruikte kwalificatie in de definitie tot een betekenis die wezenlijk afwijkt van het algemeen aanvaarde begrip?",
+  "herkenbaar_patronen": [
+    "\\btechnisch\\b",
+    "\\bjuridisch\\b",
+    "\\boperationeel\\b",
+    "\\bintern\\b",
+    "\\bexterne\\b"
+  ],
+  "goede_voorbeelden": [
+    "proces: reeks activiteiten met een gemeenschappelijk doel",
+    "juridisch proces: proces binnen de context van rechtspleging"
+  ],
+  "foute_voorbeelden": [
+    "proces: technische afhandeling van informatie tussen systemen (terwijl 'proces' elders breder wordt gebruikt)"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "verplicht",
+  "geldigheid": "gehele definitie",
+  "status": "definitief",
+  "type": "semantische zuiverheid",
+  "thema": "betekenisconsistentie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Kwalificatie leidt niet tot afwijking",
+      "fullurl": "https://www.astraonline.nl/index.php/Kwalificatie_leidt_niet_tot_afwijking"
+    }
+  ]
+}
