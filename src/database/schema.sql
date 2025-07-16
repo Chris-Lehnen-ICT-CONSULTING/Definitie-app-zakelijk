@@ -50,6 +50,10 @@ CREATE TABLE definities (
     last_exported_at TIMESTAMP,
     export_destinations TEXT, -- JSON array van export locaties
     
+    -- Legacy metadata fields
+    datum_voorstel DATE,
+    ketenpartners TEXT, -- JSON array van ketenpartner namen
+    
     -- Unique constraint voor begrip + context combinatie (per versie)
     UNIQUE(begrip, organisatorische_context, juridische_context, status)
 );
@@ -60,6 +64,7 @@ CREATE INDEX idx_definities_context ON definities(organisatorische_context, juri
 CREATE INDEX idx_definities_status ON definities(status);
 CREATE INDEX idx_definities_categorie ON definities(categorie);
 CREATE INDEX idx_definities_created_at ON definities(created_at);
+CREATE INDEX idx_definities_datum_voorstel ON definities(datum_voorstel);
 
 -- ========================================
 -- SUPPORTING TABLES
