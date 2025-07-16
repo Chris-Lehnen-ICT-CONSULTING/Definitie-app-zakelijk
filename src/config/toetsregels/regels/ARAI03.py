@@ -42,27 +42,32 @@ class ARAI03Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    bijvoeglijk = set()
-    for patroon in patroon_lijst:
-        bijvoeglijk.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patroon_lijst = regel.get("herkenbaar_patronen", [])
+            bijvoeglijk = set()
+            for patroon in patroon_lijst:
+                bijvoeglijk.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede = regel.get("goede_voorbeelden", [])
-    foute = regel.get("foute_voorbeelden", [])
-    goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
-    fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
+            goede = regel.get("goede_voorbeelden", [])
+            foute = regel.get("foute_voorbeelden", [])
+            goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
+            fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
 
-    if not bijvoeglijk:
-        if goed_aanwezig:
-            return "✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden, komt overeen met goed voorbeeld"
-        return "✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen"
+            if not bijvoeglijk:
+                if goed_aanwezig:
+                    result = "✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden, komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ ARAI03: geen subjectieve bijvoeglijke naamwoorden aangetroffen"
 
-    if fout_aanwezig:
-        return f"❌ ARAI03: subjectieve bijvoeglijke naamwoorden gevonden ({', '.join(bijvoeglijk)}), lijkt op fout voorbeeld"
-    return f"❌ ARAI03: subjectieve bijvoeglijke naamwoorden gevonden ({', '.join(bijvoeglijk)}), onvoldoende objectief"
+            else:
+                if fout_aanwezig:
+                    result = f"❌ ARAI03: subjectieve bijvoeglijke naamwoorden gevonden ({', '.join(bijvoeglijk)}), lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ ARAI03: subjectieve bijvoeglijke naamwoorden gevonden ({', '.join(bijvoeglijk)}), onvoldoende objectief"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

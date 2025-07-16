@@ -42,27 +42,32 @@ class ARAI02Validator:
         
         # Extract context parameters indien nodig
         if context:
+            # Context processing kan hier toegevoegd worden indien nodig
+            pass
 
         # Legacy implementatie
         try:
-    patroon_lijst = regel.get("herkenbaar_patronen", [])
-    containers = set()
-    for patroon in patroon_lijst:
-        containers.update(re.findall(patroon, definitie, re.IGNORECASE))
+            patroon_lijst = regel.get("herkenbaar_patronen", [])
+            containers = set()
+            for patroon in patroon_lijst:
+                containers.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede = regel.get("goede_voorbeelden", [])
-    foute = regel.get("foute_voorbeelden", [])
-    goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
-    fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
+            goede = regel.get("goede_voorbeelden", [])
+            foute = regel.get("foute_voorbeelden", [])
+            goed_aanwezig = any(g.lower() in definitie.lower() for g in goede)
+            fout_aanwezig = any(f.lower() in definitie.lower() for f in foute)
 
-    if not containers:
-        if goed_aanwezig:
-            return "✔️ ARAI02: geen containerbegrippen zonder specificatie, komt overeen met goed voorbeeld"
-        return "✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen"
+            if not containers:
+                if goed_aanwezig:
+                    result = "✔️ ARAI02: geen containerbegrippen zonder specificatie, komt overeen met goed voorbeeld"
+                else:
+                    result = "✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen"
 
-    if fout_aanwezig:
-        return f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), lijkt op fout voorbeeld"
-    return f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), onvoldoende concreet"
+            else:
+                if fout_aanwezig:
+                    result = f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), lijkt op fout voorbeeld"
+                else:
+                    result = f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), onvoldoende concreet"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
