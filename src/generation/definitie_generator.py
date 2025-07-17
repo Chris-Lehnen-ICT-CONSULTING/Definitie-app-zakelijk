@@ -12,13 +12,9 @@ from dataclasses import dataclass  # Dataklassen voor gestructureerde generatie 
 from enum import Enum  # Enumeraties voor categorieën
 import json  # JSON verwerking voor API communicatie
 
-# Importeer configuratie en voorbeeld generatie componenten
+# Importeer configuratie componenten
 from toetsregels.manager import get_toetsregel_manager, ToetsregelManager  # Toetsregel beheer
 from config.config_adapters import get_api_config  # API configuratie toegang
-from voorbeelden.unified_voorbeelden import (
-    get_examples_generator, ExampleRequest, ExampleType, GenerationMode,  # Voorbeeld generatie klassen
-    genereer_alle_voorbeelden  # Bulk voorbeeld generatie functie
-)
 # Hybride context imports
 try:
     from hybrid_context.hybrid_context_engine import get_hybrid_context_engine, HybridContext
@@ -327,226 +323,45 @@ class DefinitieGenerator:
         
         return result
     
-    def generate_with_examples(
-        self,
-        context: GenerationContext,
-        model: str = None,
-        temperature: float = None,
-        max_tokens: int = None,
-        generate_examples: bool = True,
-        example_types: List[ExampleType] = None
-    ) -> GenerationResult:
-        """
-        Genereer definitie met voorbeelden.
-        
-        Args:
-            context: GenerationContext met begrip en context info
-            model: GPT model override
-            temperature: Temperature override  
-            max_tokens: Max tokens override
-            generate_examples: Of voorbeelden gegenereerd moeten worden
-            example_types: Specifieke types voorbeelden (standaard: sentence, practical, counter)
-            
-        Returns:
-            GenerationResult met definitie en voorbeelden
-        """
-        logger.info(f"Generating definitie met voorbeelden voor '{context.begrip}'")
-        
-        # Performance monitoring
-        from utils.performance_monitor import start_timing, stop_timing
-        start_timing("total_generation")
-        
-        # 1. Genereer basis definitie
-        result = self.generate(context, model, temperature, max_tokens)
-        
-        # 2. Genereer voorbeelden indien gewenst
-        if generate_examples and result.definitie:
-            try:
-                # Standaard example types - inclusief synoniemen, antoniemen en toelichting
-                if example_types is None:
-                    example_types = [
-                        ExampleType.SENTENCE, 
-                        ExampleType.PRACTICAL, 
-                        ExampleType.COUNTER,
-                        ExampleType.SYNONYMS,
-                        ExampleType.ANTONYMS,
-                        ExampleType.EXPLANATION
-                    ]
-                
-                # Context dictionary voorbereiden
-                context_dict = {
-                    'organisatorisch': [context.organisatorische_context] if context.organisatorische_context else [],
-                    'juridisch': [context.juridische_context] if context.juridische_context else [],
-                    'wettelijk': []  # Kan later uitgebreid worden
-                }
-                
-                # Genereer alle gevraagde voorbeelden - gebruik bulk generatie voor performance
-                logger.debug("Using bulk generation for all example types")
-                
-                start_timing("voorbeelden_generation")
-                
-                # Gebruik de optimale bulk functie
-                voorbeelden_result = genereer_alle_voorbeelden(
-                    begrip=context.begrip,
-                    definitie=result.definitie,
-                    context=context_dict,
-                    mode=GenerationMode.FAST  # FAST mode voor snelste generatie
-                )
-                
-                stop_timing("voorbeelden_generation")
-                
-                # Log resultaten
-                for example_type, examples in voorbeelden_result.items():
-                    if examples:
-                        logger.debug(f"Generated {len(examples)} {example_type} examples")
-                    else:
-                        logger.warning(f"No examples generated for {example_type}")
-                
-                # Update result met voorbeelden
-                result.voorbeelden = voorbeelden_result
-                result.voorbeelden_gegenereerd = True
-                
-                logger.info(f"Successfully generated examples for {len(voorbeelden_result)} types")
-                
-            except Exception as e:
-                logger.error(f"Voorbeelden generatie gefaald: {e}")
-                result.voorbeelden_error = str(e)
-                result.voorbeelden_gegenereerd = False
-        
-        # Stop total timing
-        total_time = stop_timing("total_generation")
-        logger.info(f"⏱️ Total generation completed in {total_time:.2f}s")
-        
-        return result
-    
-    def generate_examples_only(
-        self,
-        begrip: str,
-        definitie: str,
-        organisatorische_context: str = "",
-        juridische_context: str = "",
-        example_types: List[ExampleType] = None
-    ) -> Dict[str, List[str]]:
-        """
-        Genereer alleen voorbeelden voor een bestaande definitie.
-        
-        Args:
-            begrip: Het begrip waarvoor voorbeelden gegenereerd worden
-            definitie: De bestaande definitie
-            organisatorische_context: Organisatorische context
-            juridische_context: Juridische context
-            example_types: Types voorbeelden (standaard: sentence, practical, counter)
-            
-        Returns:
-            Dictionary met voorbeelden per type
-        """
-        logger.info(f"Generating examples only voor '{begrip}'")
-        
-        # Standaard example types
-        if example_types is None:
-            example_types = [ExampleType.SENTENCE, ExampleType.PRACTICAL, ExampleType.COUNTER]
-        
-        # Context dictionary voorbereiden
-        context_dict = {
-            'organisatorisch': [organisatorische_context] if organisatorische_context else [],
-            'juridisch': [juridische_context] if juridische_context else [],
-            'wettelijk': []
-        }
-        
-        # Genereer voorbeelden
-        voorbeelden_result = {}
-        examples_generator = get_examples_generator()
-        
-        for example_type in example_types:
-            try:
-                logger.debug(f"Generating {example_type.value} examples")
-                
-                request = ExampleRequest(
-                    begrip=begrip,
-                    definitie=definitie,
-                    context_dict=context_dict,
-                    example_type=example_type,
-                    generation_mode=GenerationMode.SYNC,  # Tijdelijk SYNC voor rate limiter issue
-                    max_examples=3
-                )
-                
-                response = examples_generator.generate_examples(request)
-                
-                if response.success:
-                    voorbeelden_result[example_type.value] = response.examples
-                    logger.debug(f"Generated {len(response.examples)} {example_type.value} examples")
-                else:
-                    logger.warning(f"Failed to generate {example_type.value}: {response.error_message}")
-                    voorbeelden_result[example_type.value] = []
-                    
-            except Exception as e:
-                logger.error(f"Failed to generate {example_type.value} examples: {e}")
-                voorbeelden_result[example_type.value] = []
-        
-        logger.info(f"Generated examples for {len([k for k, v in voorbeelden_result.items() if v])} types")
-        return voorbeelden_result
-    
     def _load_generation_instructions(self, context: GenerationContext) -> List[GenerationInstruction]:
-        """Laad relevante toetsregels als generatie instructies."""
+        """
+        Laad en converteer relevante toetsregels naar generatie instructies.
+        """
         instructies = []
         
         try:
-            # Laad kritieke regels (verplicht + hoog prioriteit)
-            kritieke_regels = self.rule_manager.get_kritieke_regels()
+            # Haal alle relevante regels op voor deze categorie
+            relevante_regels = self.rule_manager.get_regels_voor_categorie(context.categorie.value)
             
-            # Laad categorie-specifieke regels
-            categorie_regels = self.rule_manager.get_regels_voor_categorie(context.categorie.value)
-            
-            # Combineer en deduplicate
-            alle_regels = {regel['id']: regel for regel in kritieke_regels + categorie_regels}
-            
-            # Converteer naar instructies
-            for regel_data in alle_regels.values():
-                if regel_data:  # Check if regel_data is not None
-                    instructie = self.interpreter.for_generation(regel_data)
+            # Interpreteer elke regel als generatie instructie
+            for regel in relevante_regels:
+                if regel.get('gebruik_voor_generatie', True):  # Default: gebruik regel
+                    instructie = self.interpreter.for_generation(regel)
                     instructies.append(instructie)
-            
-            # Sorteer op prioriteit
-            prioriteit_order = {"hoog": 3, "midden": 2, "laag": 1}
-            instructies.sort(key=lambda x: prioriteit_order.get(x.priority, 1), reverse=True)
-            
+                    
+            # Voeg feedback-gebaseerde instructies toe indien aanwezig
+            if context.feedback_history:
+                for feedback in context.feedback_history:
+                    if feedback.instructie:
+                        instructies.append(GenerationInstruction(
+                            rule_id=f"FEEDBACK_{feedback.bron}",
+                            guidance=feedback.instructie,
+                            priority="hoog"
+                        ))
+                        
         except Exception as e:
             logger.error(f"Error loading generation instructions: {e}")
-            # Fallback: laad basis instructies uit legacy bestand
-            try:
-                import json
-                import os
-                base_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-                legacy_path = os.path.join(base_path, "config", "toetsregels.json")
-                
-                if os.path.exists(legacy_path):
-                    with open(legacy_path, 'r', encoding='utf-8') as f:
-                        legacy_data = json.load(f)
-                    
-                    # Gebruik alleen essentiële regels voor fallback
-                    essential_rules = ["ESS-01", "ESS-02", "STR-01", "INT-01", "CON-01"]
-                    for regel_id in essential_rules:
-                        if regel_id in legacy_data.get("regels", {}):
-                            regel_data = legacy_data["regels"][regel_id]
-                            instructie = self.interpreter.for_generation(regel_data)
-                            instructies.append(instructie)
-                    
-                    logger.info(f"Loaded {len(instructies)} instructions from legacy fallback")
-            except Exception as fallback_error:
-                logger.error(f"Fallback also failed: {fallback_error}")
-                # Minimale default instructies
-                instructies = [
-                    GenerationInstruction(
-                        rule_id="DEFAULT",
-                        guidance="Formuleer een heldere definitie in één zin",
-                        priority="hoog"
-                    )
-                ]
+            # Fallback naar basis instructies
+            instructies = [
+                GenerationInstruction(
+                    rule_id="DEFAULT",
+                    guidance="Formuleer een heldere definitie in één zin",
+                    priority="hoog"
+                )
+            ]
         
         logger.debug(f"Loaded {len(instructies)} generatie instructies")
         return instructies
-    
-    # Oude _build_generation_prompt methode vervangen door hybrid versie hierboven
     
     def _call_gpt(
         self, 
