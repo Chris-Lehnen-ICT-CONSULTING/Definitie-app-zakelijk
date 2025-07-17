@@ -357,17 +357,26 @@ class OntologischeAnalyzer:
         """Test of begrip een type is - abstracte klasse/categorie."""
         score = 0.0
         
-        # Lexicale indicatoren
-        type_woorden = ['type', 'soort', 'klasse', 'categorie', 'vorm', 'systeem']
-        if any(woord in begrip.lower() for woord in type_woorden):
-            score += 0.4
+        # Lexicale indicatoren - uitgebreid
+        type_woorden = ['type', 'soort', 'klasse', 'categorie', 'vorm', 'systeem', 'methode', 'instrument', 'tool', 'middel']
+        for woord in type_woorden:
+            if woord in begrip.lower():
+                score += 0.3
+        
+        # Speciale woorden die sterk type-indicatief zijn
+        sterke_type_woorden = ['toets', 'test', 'document', 'formulier', 'certificaat']
+        for woord in sterke_type_woorden:
+            if woord in begrip.lower():
+                score += 0.5
         
         # Semantische kenmerken
         kenmerken = profiel.get('semantische_kenmerken', {})
         if kenmerken.get('is_abstract', False):
-            score += 0.3
+            score += 0.2
+        if kenmerken.get('is_concreet', False):
+            score += 0.3  # Concrete objecten zijn vaak types
         if kenmerken.get('is_classificeerbaar', False):
-            score += 0.3
+            score += 0.4
         
         return min(score, 1.0)
     
@@ -375,14 +384,18 @@ class OntologischeAnalyzer:
         """Test of begrip een proces is - heeft begin en eind."""
         score = 0.0
         
-        # Lexicale indicatoren
+        # Lexicale indicatoren - proces eindingen
         proces_eindingen = ['atie', 'tie', 'ing', 'eren', 'ering']
-        if any(begrip.lower().endswith(eind) for eind in proces_eindingen):
-            score += 0.4
+        for eind in proces_eindingen:
+            if begrip.lower().endswith(eind):
+                score += 0.4
+                break  # Alleen één keer tellen
         
-        proces_woorden = ['proces', 'handeling', 'actie', 'operatie', 'procedure']
-        if any(woord in begrip.lower() for woord in proces_woorden):
-            score += 0.3
+        # Proces woorden
+        proces_woorden = ['proces', 'handeling', 'actie', 'operatie', 'procedure', 'behandeling', 'verwerking']
+        for woord in proces_woorden:
+            if woord in begrip.lower():
+                score += 0.3
         
         # Semantische kenmerken
         kenmerken = profiel.get('semantische_kenmerken', {})
@@ -447,38 +460,53 @@ class OntologischeAnalyzer:
         
         begrip_lower = begrip.lower()
         
-        # Abstractie-indicatoren
-        if any(woord in begrip_lower for woord in ['type', 'soort', 'klasse', 'categorie']):
+        # Verbeterde abstractie-indicatoren
+        abstractie_woorden = ['type', 'soort', 'klasse', 'categorie', 'vorm', 'systeem', 'methode', 'instrument']
+        if any(woord in begrip_lower for woord in abstractie_woorden):
             kenmerken['is_abstract'] = True
-        else:
+        
+        # Concreetheid voor fysieke objecten
+        concreet_woorden = ['toets', 'test', 'document', 'object', 'tool', 'apparaat', 'middel']
+        if any(woord in begrip_lower for woord in concreet_woorden):
             kenmerken['is_concreet'] = True
         
-        # Classificatie-indicatoren
-        if any(woord in begrip_lower for woord in ['classificatie', 'indeling', 'typologie']):
+        # Standaard naar concreet als geen abstractie gevonden
+        if not kenmerken['is_abstract']:
+            kenmerken['is_concreet'] = True
+        
+        # Verbeterde classificatie-indicatoren
+        classificatie_woorden = ['classificatie', 'indeling', 'typologie', 'test', 'toets', 'evaluatie']
+        if any(woord in begrip_lower for woord in classificatie_woorden):
             kenmerken['is_classificeerbaar'] = True
         
-        # Tijd-indicatoren
-        if any(woord in begrip_lower for woord in ['proces', 'handeling', 'actie', 'operatie']):
+        # Verbeterde tijd-indicatoren
+        tijd_woorden = ['proces', 'handeling', 'actie', 'operatie', 'atie', 'ing', 'eren']
+        if any(woord in begrip_lower for woord in tijd_woorden):
             kenmerken['gebeurt_in_tijd'] = True
         
-        # Actor-indicatoren
-        if any(woord in begrip_lower for woord in ['door', 'tussen', 'namens', 'uitgevoerd']):
+        # Verbeterde actor-indicatoren
+        actor_woorden = ['door', 'tussen', 'namens', 'uitgevoerd', 'door persoon', 'door systeem']
+        if any(woord in begrip_lower for woord in actor_woorden):
             kenmerken['heeft_actoren'] = True
         
-        # Uitkomst-indicatoren
-        if any(woord in begrip_lower for woord in ['resultaat', 'uitkomst', 'gevolg']):
+        # Verbeterde uitkomst-indicatoren
+        uitkomst_woorden = ['resultaat', 'uitkomst', 'gevolg', 'besluit', 'conclusie', 'bevinding']
+        if any(woord in begrip_lower for woord in uitkomst_woorden):
             kenmerken['is_uitkomst'] = True
         
-        # Oorzaak-indicatoren
-        if any(woord in begrip_lower for woord in ['vanwege', 'door', 'als gevolg']):
+        # Verbeterde oorzaak-indicatoren
+        oorzaak_woorden = ['vanwege', 'door', 'als gevolg', 'veroorzaakt door']
+        if any(woord in begrip_lower for woord in oorzaak_woorden):
             kenmerken['heeft_oorzaak'] = True
         
-        # Specificiteit-indicatoren
-        if any(woord in begrip_lower for woord in ['specifiek', 'bepaald', 'concreet']):
+        # Verbeterde specificiteit-indicatoren
+        specificiteit_woorden = ['specifiek', 'bepaald', 'concreet', 'individueel', 'uniek']
+        if any(woord in begrip_lower for woord in specificiteit_woorden):
             kenmerken['is_specifiek'] = True
         
-        # Instantie-indicatoren
-        if any(woord in begrip_lower for woord in ['individueel', 'exemplaar', 'geval']):
+        # Verbeterde instantie-indicatoren
+        instantie_woorden = ['individueel', 'exemplaar', 'geval', 'instantie', 'specifiek']
+        if any(woord in begrip_lower for woord in instantie_woorden):
             kenmerken['is_instantie'] = True
         
         return kenmerken

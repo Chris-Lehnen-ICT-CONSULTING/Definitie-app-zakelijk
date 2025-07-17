@@ -144,11 +144,12 @@ class TabbedInterface:
                     begrip, org_context, jur_context
                 )
                 
-                # Haal de redenering uit het analyse resultaat
+                # Haal de redenering en scores uit het analyse resultaat
                 reasoning = analyse_resultaat.get('reasoning', 'Ontologische analyse voltooid')
+                test_scores = analyse_resultaat.get('categorie_resultaat', {}).get('test_scores', {})
                 
                 logger.info(f"6-stappen ontologische analyse voor '{begrip}': {categorie.value}")
-                return categorie, reasoning
+                return categorie, reasoning, test_scores
                 
             except Exception as e:
                 logger.warning(f"6-stappen analyse mislukt voor '{begrip}': {e}")
@@ -158,14 +159,18 @@ class TabbedInterface:
                 categorie, reasoning = quick_analyzer.quick_categoriseer(begrip)
                 
                 logger.info(f"Quick ontologische analyse voor '{begrip}': {categorie.value}")
-                return categorie, f"Quick analyse - {reasoning}"
+                # Genereer dummy scores voor quick analyzer
+                quick_scores = {cat: 0.5 if cat == categorie.value else 0.0 for cat in ['type', 'proces', 'resultaat', 'exemplaar']}
+                return categorie, f"Quick analyse - {reasoning}", quick_scores
                 
         except Exception as e:
             logger.error(f"Ontologische analyse volledig mislukt voor '{begrip}': {e}")
             
             # Ultieme fallback naar oude pattern matching
             reasoning = self._legacy_pattern_matching(begrip)
-            return OntologischeCategorie.PROCES, f"Legacy fallback - {reasoning}"
+            # Genereer dummy scores voor legacy fallback
+            legacy_scores = {'type': 0, 'proces': 1, 'resultaat': 0, 'exemplaar': 0}
+            return OntologischeCategorie.PROCES, f"Legacy fallback - {reasoning}", legacy_scores
     
     def _legacy_pattern_matching(self, begrip: str) -> str:
         """Legacy pattern matching voor fallback situaties."""
@@ -491,7 +496,7 @@ class TabbedInterface:
                 # Bepaal automatisch de ontologische categorie
                 primary_org = org_context[0] if org_context else ""
                 primary_jur = jur_context[0] if jur_context else ""
-                auto_categorie, category_reasoning = asyncio.run(
+                auto_categorie, category_reasoning, category_scores = asyncio.run(
                     self._determine_ontological_category(begrip, primary_org, primary_jur)
                 )
                 
@@ -539,7 +544,7 @@ class TabbedInterface:
                     "saved_record": saved_record,
                     "determined_category": auto_categorie.value,
                     "category_reasoning": category_reasoning,
-                    "category_scores": self._get_category_scores(begrip),
+                    "category_scores": category_scores,
                     "document_context": document_context,
                     "voorbeelden_prompts": voorbeelden_prompts,
                     "timestamp": datetime.now()
