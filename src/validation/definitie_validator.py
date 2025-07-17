@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 import json
 
-from config.toetsregel_manager import get_toetsregel_manager, ToetsregelManager
+from toetsregels.manager import get_toetsregel_manager, ToetsregelManager
 from generation.definitie_generator import OntologischeCategorie
 
 logger = logging.getLogger(__name__)

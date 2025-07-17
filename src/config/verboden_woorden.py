@@ -9,17 +9,16 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
 
 from logs.application.log_definitie import get_logger  # Logging uit root logs directory
 logger = get_logger(__name__)
-from config.config_loader import laad_verboden_woorden as _config_loader_verboden
 # ✅ Laadt de lijst met verboden woorden, met override-optie vanuit Streamlit UI
 def laad_verboden_woorden() -> list[str]:
     """
     Laadt de lijst met verboden woorden volgens deze volgorde:
     1. UI-override vanuit Streamlit sessiestate
-    2. Anders: via de centrale loader uit config_loader.py
+    2. Anders: via het verboden_woorden.json bestand
     3. Bij fouten → lege lijst
     """
     try:
-    # 1) UI-override: alleen als override_actief én lijst niet leeg
+        # 1) UI-override: alleen als override_actief én lijst niet leeg
         raw = st.session_state.get("override_verboden_woorden")
         if st.session_state.get("override_actief") and raw:
             # raw bestaat en bevat ten minste één element
@@ -32,24 +31,30 @@ def laad_verboden_woorden() -> list[str]:
             logger.debug("Verboden woorden geladen uit UI-override.")
             return woorden
 
-        # 2) Centrale loader
-        data = _config_loader_verboden()
-        woorden = data.get("verboden_woorden", [])
-        if not isinstance(woorden, list):
-            raise ValueError("Ongeldige structuur: 'verboden_woorden' is geen lijst")
-        logger.debug(f"Verboden woorden geladen via config_loader ({len(woorden)} woorden).")
-        return woorden
+        # 2) Direct laden uit JSON bestand
+        verboden_woorden_path = os.path.join(os.path.dirname(__file__), 'verboden_woorden.json')
+        if os.path.exists(verboden_woorden_path):
+            with open(verboden_woorden_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                woorden = data.get("verboden_woorden", [])
+                if not isinstance(woorden, list):
+                    raise ValueError("Ongeldige structuur: 'verboden_woorden' is geen lijst")
+                logger.debug(f"Verboden woorden geladen uit JSON ({len(woorden)} woorden).")
+                return woorden
+
+        # 3) Fallback: lege lijst
+        logger.warning("Geen verboden woorden bestand gevonden, gebruik lege lijst")
+        return []
 
     except Exception as e:
         logger.error(f"Kan verboden woorden niet laden: {e}")
         return []
 
 # ✅ Functie: sla aangepaste woordenlijst op
-from config.config_loader import _VERBODEN_WOORDEN_PATH
-
 def sla_verboden_woorden_op(woordenlijst: list[str]):
     try:
-        with open(_VERBODEN_WOORDEN_PATH, "w", encoding="utf-8") as f:
+        verboden_woorden_path = os.path.join(os.path.dirname(__file__), 'verboden_woorden.json')
+        with open(verboden_woorden_path, "w", encoding="utf-8") as f:
             json.dump({"verboden_woorden": woordenlijst}, f, ensure_ascii=False, indent=2)
         logger.debug(f"Verboden woordenlijst succesvol opgeslagen ({len(woordenlijst)} woorden)")
     except Exception as e:

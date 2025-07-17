@@ -13,7 +13,7 @@ from enum import Enum  # Enumeraties voor categorieën
 import json  # JSON verwerking voor API communicatie
 
 # Importeer configuratie en voorbeeld generatie componenten
-from config.toetsregel_manager import get_toetsregel_manager, ToetsregelManager  # Toetsregel beheer
+from toetsregels.manager import get_toetsregel_manager, ToetsregelManager  # Toetsregel beheer
 from config.config_adapters import get_api_config  # API configuratie toegang
 from voorbeelden.unified_voorbeelden import (
     get_examples_generator, ExampleRequest, ExampleType, GenerationMode,  # Voorbeeld generatie klassen

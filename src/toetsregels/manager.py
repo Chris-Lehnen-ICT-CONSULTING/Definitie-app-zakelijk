@@ -81,17 +81,20 @@ class RegelSet:
 class ToetsregelManager:
     """Manager voor modulaire toetsregels systeem."""
     
-    def __init__(self, base_dir: str = "config/toetsregels"):
+    def __init__(self, base_dir: str = None):
         """
         Initialiseer ToetsregelManager.
         
         Args:
             base_dir: Base directory voor toetsregels
         """
-        # Maak pad absoluut relatief aan src directory
-        if not os.path.isabs(base_dir):
-            src_dir = Path(__file__).parent.parent
-            self.base_dir = src_dir / base_dir
+        # Maak pad absoluut relatief aan toetsregels directory
+        if base_dir is None:
+            # We zitten nu in src/toetsregels/manager.py
+            self.base_dir = Path(__file__).parent
+        elif not os.path.isabs(base_dir):
+            # We zitten nu in src/toetsregels/manager.py
+            self.base_dir = Path(__file__).parent
         else:
             self.base_dir = Path(base_dir)
         self.regels_dir = self.base_dir / "regels"

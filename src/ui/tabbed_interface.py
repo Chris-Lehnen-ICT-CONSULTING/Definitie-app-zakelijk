@@ -198,13 +198,85 @@ class TabbedInterface:
             if scores[best_category] == 0:
                 best_category = 'proces'
             
+            # Genereer uitleg voor de keuze
+            reasoning = self._generate_category_reasoning(begrip, best_category, scores)
+            
             logger.info(f"Auto-determined category voor '{begrip}': {best_category} (scores: {scores})")
-            return OntologischeCategorie(best_category)
+            
+            # Return tuple met categorie en redenering
+            return OntologischeCategorie(best_category), reasoning
             
         except Exception as e:
             logger.warning(f"Failed to auto-determine category: {e}")
             # Default naar proces
-            return OntologischeCategorie.PROCES
+            return OntologischeCategorie.PROCES, "Standaard categorie (geen duidelijke patronen gedetecteerd)"
+    
+    def _generate_category_reasoning(self, begrip: str, category: str, scores: Dict[str, int]) -> str:
+        """Genereer uitleg waarom deze categorie gekozen is."""
+        begrip_lower = begrip.lower()
+        
+        # Patronen per categorie
+        patterns = {
+            'proces': ['atie', 'eren', 'ing', 'verificatie', 'authenticatie', 'validatie', 'controle', 'check', 'beoordeling', 'analyse', 'behandeling', 'vaststelling', 'bepaling', 'registratie', 'identificatie'],
+            'type': ['bewijs', 'document', 'middel', 'systeem', 'methode', 'tool', 'instrument', 'gegeven', 'kenmerk', 'eigenschap'],
+            'resultaat': ['besluit', 'uitslag', 'rapport', 'conclusie', 'bevinding', 'resultaat', 'uitkomst', 'advies', 'oordeel'],
+            'exemplaar': ['specifiek', 'individueel', 'uniek', 'persoon', 'zaak', 'instantie', 'geval', 'situatie']
+        }
+        
+        # Zoek gedetecteerde patronen
+        detected_patterns = []
+        for pattern in patterns.get(category, []):
+            if pattern in begrip_lower:
+                detected_patterns.append(pattern)
+        
+        if detected_patterns:
+            pattern_text = ", ".join(f"'{p}'" for p in detected_patterns)
+            return f"Gedetecteerde patronen: {pattern_text} (score: {scores[category]})"
+        elif category == 'proces' and scores[category] == 0:
+            return "Standaard categorie (geen specifieke patronen gedetecteerd)"
+        else:
+            return f"Hoogste score voor {category} categorie (score: {scores[category]})"
+    
+    def _get_category_scores(self, begrip: str) -> Dict[str, int]:
+        """Herbereken de categorie scores voor display."""
+        try:
+            begrip_lower = begrip.lower()
+            
+            # Dezelfde patronen als in _determine_ontological_category
+            proces_indicators = [
+                'atie', 'eren', 'ing', 'verificatie', 'authenticatie', 'validatie',
+                'controle', 'check', 'beoordeling', 'analyse', 'behandeling',
+                'vaststelling', 'bepaling', 'registratie', 'identificatie'
+            ]
+            
+            type_indicators = [
+                'bewijs', 'document', 'middel', 'systeem', 'methode', 'tool',
+                'instrument', 'gegeven', 'kenmerk', 'eigenschap'
+            ]
+            
+            resultaat_indicators = [
+                'besluit', 'uitslag', 'rapport', 'conclusie', 'bevinding',
+                'resultaat', 'uitkomst', 'advies', 'oordeel'
+            ]
+            
+            exemplaar_indicators = [
+                'specifiek', 'individueel', 'uniek', 'persoon', 'zaak',
+                'instantie', 'geval', 'situatie'
+            ]
+            
+            # Score per categorie
+            scores = {
+                'proces': sum(1 for indicator in proces_indicators if indicator in begrip_lower),
+                'type': sum(1 for indicator in type_indicators if indicator in begrip_lower),
+                'resultaat': sum(1 for indicator in resultaat_indicators if indicator in begrip_lower),
+                'exemplaar': sum(1 for indicator in exemplaar_indicators if indicator in begrip_lower)
+            }
+            
+            return scores
+            
+        except Exception as e:
+            logger.warning(f"Failed to calculate category scores: {e}")
+            return {'proces': 0, 'type': 0, 'resultaat': 0, 'exemplaar': 0}
     
     
     def _render_header(self):
@@ -449,7 +521,7 @@ class TabbedInterface:
                 # Bepaal automatisch de ontologische categorie
                 primary_org = org_context[0] if org_context else ""
                 primary_jur = jur_context[0] if jur_context else ""
-                auto_categorie = self._determine_ontological_category(begrip, primary_org, primary_jur)
+                auto_categorie, category_reasoning = self._determine_ontological_category(begrip, primary_org, primary_jur)
                 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
@@ -494,6 +566,8 @@ class TabbedInterface:
                     "agent_result": agent_result,
                     "saved_record": saved_record,
                     "determined_category": auto_categorie.value,
+                    "category_reasoning": category_reasoning,
+                    "category_scores": self._get_category_scores(begrip),
                     "document_context": document_context,
                     "voorbeelden_prompts": voorbeelden_prompts,
                     "timestamp": datetime.now()
