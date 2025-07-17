@@ -1,0 +1,40 @@
+{
+  "id": "INT-09",
+  "naam": "Opsomming in extensionele definitie is limitatief",
+  "uitleg": "Een extensionele definitie definieert een begrip door opsomming van alle bedoelde elementen; deze opsomming moet uitsluitend limitatief zijn.",
+  "toelichting": "Een extensionele definitie is een definitie door opsomming van alle bedoelde elementen. Bijvoorbeeld VOERTUIG = AUTO of BOOT of VLIEGTUIG. Wanneer een opsomming in een definitie voorkomt, moet expliciet blijken dat de genoemde elementen de enige mogelijke zijn. Vermijd termen als \"zoals\", \"bijvoorbeeld\", \"onder andere\", \"enz.\" of \"waaronder begrepen\".",
+  "toetsvraag": "Is een opsomming in de definitie uitsluitend limitatief (zonder suggestie van andere mogelijke elementen)?",
+  "herkenbaar_patronen": [
+    "zoals",
+    "bijvoorbeeld",
+    "onder andere",
+    "etc\\.",
+    "enz\\.",
+    "en andere",
+    "\\bo\\.a\\.\\b",
+    "\\binclusief\\b",
+    "waaronder begrepen",
+    "al dan niet"
+  ],
+  "goede_voorbeelden": [
+    "niet-natuurlijk persoon: rechtspersoon of samenwerkingsverband",
+    "voertuig: gemotoriseerd vervoermiddel, zoals auto, motorfiets of brommer (uitsluitend deze types)"
+  ],
+  "foute_voorbeelden": [
+    "voertuig: zoals auto, motorfiets of brommer",
+    "maatregel: bijvoorbeeld een waarschuwing, boete of sanctie"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "verplicht",
+  "geldigheid": "termen die door extensionele definities worden gedefinieerd",
+  "status": "definitief",
+  "type": "gehele definitie",
+  "thema": "interne kwaliteit van de definitie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Opsomming in extensionele definitie is limitatief",
+      "fullurl": "https://www.astraonline.nl/index.php/Opsomming_in_extensionele_definitie_is_limitatief"
+    }
+  ]
+}

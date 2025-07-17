@@ -1,0 +1,34 @@
+{
+  "id": "STR-05",
+  "naam": "Definitie ≠ constructie",
+  "uitleg": "Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.",
+  "toelichting": "Een definitie beschrijft de aard of functie van het begrip. Het is niet voldoende om alleen de samenstellende onderdelen of kenmerken op te sommen. Dat leidt tot verwarring over wat het begrip daadwerkelijk is.",
+  "toetsvraag": "Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?",
+  "herkenbaar_patronen": [
+    "\\bbestaat uit\\b",
+    "\\bsamengesteld uit\\b",
+    "\\bomvat\\b",
+    "\\bonderdelen zijn\\b",
+    "\\bcomponenten zijn\\b",
+    "\\bvormt een geheel van\\b"
+  ],
+  "goede_voorbeelden": [
+    "motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto’s, vrachtwagens en bussen"
+  ],
+  "foute_voorbeelden": [
+    "motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "gehele definitie",
+  "thema": "structuur van de definitie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Definitie ≠ constructie",
+      "fullurl": "https://www.astraonline.nl/index.php/Definitie_≠_constructie"
+    }
+  ]
+}

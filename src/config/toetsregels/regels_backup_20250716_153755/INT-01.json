@@ -1,0 +1,39 @@
+{
+  "id": "INT-01",
+  "naam": "Compacte en begrijpelijke zin",
+  "uitleg": "Een definitie is compact en in één enkele zin geformuleerd.",
+  "toelichting": "Een definitie moet in één zin worden gegeven. Deze zin moet helder, kernachtig en goed leesbaar zijn. Opsommingen, bijzinnen of overmatige complexiteit maken de definitie minder toegankelijk.",
+  "toetsvraag": "Is de definitie geformuleerd als één enkele, begrijpelijke zin?",
+  "herkenbaar_patronen": [
+    ",",
+    ";",
+    "\\ben\\b",
+    "\\bmaar\\b",
+    "\\bof\\b",
+    "\\bmet betrekking tot\\b",
+    "\\bwaarbij\\b",
+    "\\bdie\\b",
+    "\\bwelke\\b",
+    "\\balsmede\\b",
+    "\\bindien\\b"
+  ],
+  "goede_voorbeelden": [
+    "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken."
+  ],
+  "foute_voorbeelden": [
+    "transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente."
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "aanbevolen",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "interne structuur",
+  "thema": "interne kwaliteit van de definitie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Compacte en begrijpelijke zin",
+      "fullurl": "https://www.astraonline.nl/index.php/Compacte_en_begrijpelijke_zin"
+    }
+  ]
+}

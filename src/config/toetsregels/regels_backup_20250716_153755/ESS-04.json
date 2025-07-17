@@ -1,0 +1,47 @@
+{
+  "id": "ESS-04",
+  "naam": "Toetsbaarheid",
+  "uitleg": "Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).",
+  "toelichting": "Zonder toetsbare criteria kan een lezer niet objectief vaststellen of iets onder de definitie valt. Voorbeelden van *niet*-toetsbaar: ‘zo snel mogelijk’, ‘zo veel mogelijk’. Wél-toetsbaar: ‘binnen 3 dagen’, ‘tenminste 80%’, ‘uiterlijk na 1 week’.",
+  "toetsvraag": "Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?",
+  "herkenbaar_patronen": [
+    "\\bbinnen\\s+\\d+\\s+dagen?\\b",
+    "\\buiterlijk\\s+na\\s+\\d+\\s+(dagen?|weken?)\\b",
+    "\\btenminste\\s+\\d+%\\b",
+    "\\bminimaal\\s+\\d+%\\b",
+    "\\bmaximaal\\s+\\d+%\\b",
+    "\\b\\d+\\s+%\\b",
+    "\\baan de hand van\\b",
+    "\\bobjectieve criteria\\b",
+    "\\bbevat\\b",
+    "\\bomvat\\b",
+    "\\bheeft als eigenschap\\b",
+    "\\bwordt gekenmerkt door\\b",
+    "\\bcontrole op\\b",
+    "\\bwaarneembare\\b",
+    "\\btoetsbaar\\b"
+  ],
+  "goede_voorbeelden": [
+    "…binnen 3 dagen nadat het verzoek is ingediend…",
+    "…tenminste 80% van de steekproef voldoet…",
+    "…uiterlijk na 1 week na ontvangst…"
+  ],
+  "foute_voorbeelden": [
+    "…zo snel mogelijk na ontvangst…",
+    "…zo veel mogelijk resultaten…",
+    "…moet zo mogelijk conform…"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "element in de definitie",
+  "thema": "toepasbaarheid",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Toetsbaarheid",
+      "fullurl": "https://www.astraonline.nl/index.php/Toetsbaarheid"
+    }
+  ]
+}

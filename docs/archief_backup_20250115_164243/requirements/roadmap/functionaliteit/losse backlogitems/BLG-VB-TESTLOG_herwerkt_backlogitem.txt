@@ -1,0 +1,41 @@
+📝 Backlogitem: Log individuele woordtests van verboden woorden
+
+🎯 Doel:
+Sla resultaten van UI-testacties op (zoals 'Test dit woord') om inzicht te krijgen in patroonherkenning en detectiekwaliteit.
+
+📌 Aanleiding:
+De UI biedt een testknop om woorden te controleren op verboden constructies, maar deze resultaten worden niet opgeslagen.
+
+🔍 Probleem:
+- Geen terugblik mogelijk op eerdere testen.
+- Geen feedback over patroonkwaliteit of fouten.
+
+📈 Impact:
+- Analyse van detectiefouten wordt onmogelijk.
+- Zelflerend systeem mist data.
+
+🛠️ Taken:
+- Maak JSONL-logbestand met testdata per klik.
+- Log word, timestamp, patroonhits en gebruiker (optioneel).
+- Voeg viewer toe in UI (tabblad 3).
+
+🧪 Tests:
+- Elke testactie voegt 1 regel toe aan logbestand.
+- Viewer toont geschiedenis correct.
+
+✅ Acceptatiecriteria:
+- UI-tests worden automatisch gelogd.
+- Log kan geëxporteerd of ingezien worden.
+
+📦 Bestand(en):
+- verboden_woorden.py
+- verboden_woord_tests.jsonl
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-VB-TESTLOG
+📅 Datum: 2025-06-12
+📌 Status: to do
