@@ -481,20 +481,44 @@ class DefinitieAgent:
         self.current_status = AgentStatus.GENERATING
         logger.debug(f"Generating definition with {len(generation_context.feedback_history)} feedback items")
         
-        # Genereer definitie met voorbeelden
+        # Genereer alleen de definitie (zonder voorbeelden)
         try:
-            generation_result = self.generator.generate_with_examples(
-                generation_context,
-                generate_examples=True,
-                example_types=None  # Gebruik standaard: sentence, practical, counter
+            generation_result = self.generator.generate(
+                generation_context
             )
             definitie = generation_result.definitie
         except Exception as e:
-            logger.error(f"Error in generate_with_examples: {e}")
+            logger.error(f"Error in generate: {e}")
             logger.error(f"Generation context: {generation_context}")
             raise
         
-        # 2. Validate definitie
+        # 2. Generate voorbeelden (apart van definitie)
+        try:
+            from voorbeelden import genereer_alle_voorbeelden
+            
+            # Converteer context naar dictionary voor voorbeelden module
+            context_dict = {
+                'organisatorische_context': [generation_context.organisatorische_context] if generation_context.organisatorische_context else [],
+                'juridische_context': [generation_context.juridische_context] if generation_context.juridische_context else []
+            }
+            
+            voorbeelden = genereer_alle_voorbeelden(
+                begrip=generation_context.begrip,
+                definitie=definitie,
+                context_dict=context_dict
+            )
+            
+            # Voeg voorbeelden toe aan generation_result
+            generation_result.voorbeelden = voorbeelden
+            generation_result.voorbeelden_gegenereerd = True
+            logger.info(f"Generated examples for {len(voorbeelden)} types")
+            
+        except Exception as e:
+            logger.error(f"Error generating voorbeelden: {e}")
+            generation_result.voorbeelden_error = str(e)
+            generation_result.voorbeelden_gegenereerd = False
+        
+        # 3. Validate definitie
         self.current_status = AgentStatus.VALIDATING
         logger.debug(f"Validating generated definition: '{definitie[:50]}...'")
         
