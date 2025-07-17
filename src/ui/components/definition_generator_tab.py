@@ -147,7 +147,8 @@ class DefinitionGeneratorTab:
                 col1, col2, col3 = st.columns(3)
                 
                 with col1:
-                    st.metric("Iteraties", agent_result.iteration_count)
+                    if agent_result.iteration_count > 1:
+                        st.metric("Iteraties", agent_result.iteration_count)
                     st.metric("Finale Score", f"{agent_result.final_score:.2f}")
                 
                 with col2:
