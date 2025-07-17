@@ -1,0 +1,41 @@
+📝 Backlogitem: Voeg visuele viewer toe voor testlog verboden woorden
+
+🎯 Doel:
+Bied gebruikers de mogelijkheid om testresultaten van individuele woorden te bekijken via een overzichtelijke tabelweergave in de UI.
+
+📌 Aanleiding:
+Tests met verboden woorden (zoals “gegevens” of “is”) worden momenteel gelogd naar JSONL, maar zijn niet zichtbaar voor de gebruiker.
+
+🔍 Probleem:
+- Testresultaten zijn alleen terug te vinden in backend-bestanden.
+- Gebruikers kunnen eerdere resultaten niet herzien of vergelijken.
+
+📈 Impact:
+- Analyse en debugging zijn lastig.
+- Ontwikkelaars missen transparantie bij detectie.
+
+🛠️ Taken:
+- Voeg tabblad 3 toe in Streamlit-app met logviewer.
+- Gebruik Pandas DataFrame + Streamlit-table.
+- Voeg downloadknop toe voor `verboden_woord_tests.jsonl`.
+
+🧪 Tests:
+- Bestand wordt correct geladen en weergegeven.
+- Filtering en export werken zonder foutmeldingen.
+
+✅ Acceptatiecriteria:
+- Logbestand is zichtbaar en doorzoekbaar.
+- Gebruiker kan log downloaden met 1 klik.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+- verboden_woord_tests.jsonl
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-LOG-VIEWER-001
+📅 Datum: 2025-06-23
+📌 Status: to do

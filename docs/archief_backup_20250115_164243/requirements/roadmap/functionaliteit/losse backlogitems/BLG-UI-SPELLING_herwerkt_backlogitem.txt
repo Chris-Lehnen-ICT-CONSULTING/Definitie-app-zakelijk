@@ -1,0 +1,41 @@
+📝 Backlogitem: Voeg AI-spellingcontrole toe voor handmatige invoer
+
+🎯 Doel:
+Laat de applicatie automatisch spellingfouten opsporen en voorstellen doen bij handmatige invoer van definities.
+
+📌 Aanleiding:
+Zelf ingevoerde definities bevatten regelmatig typfouten die niet worden herkend of gemeld.
+
+🔍 Probleem:
+- Geen spellingscontrole op handmatige invoer.
+- Foutieve tekst komt direct in log of export.
+
+📈 Impact:
+- Slechte kwaliteit van definities.
+- Slechte eerste indruk bij gebruikers of lezers.
+
+🛠️ Taken:
+- Voeg spellingcheck toe via OpenAI of externe API.
+- Highlight foute woorden of stel vervanging voor.
+- Voeg optie “corrigeer automatisch” toe.
+
+🧪 Tests:
+- Typfouten worden gesignaleerd in testcase.
+- Correcte tekst wordt gesuggereerd.
+
+✅ Acceptatiecriteria:
+- Spellingcontrole werkt op handmatige invoer.
+- Gebruiker krijgt directe feedback of suggestie.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+- spellingcheck.py
+
+👥 Betrokkenen:
+- Ontwikkelaar, eindgebruiker
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-UI-SPELLING
+📅 Datum: 2025-06-23
+📌 Status: to do

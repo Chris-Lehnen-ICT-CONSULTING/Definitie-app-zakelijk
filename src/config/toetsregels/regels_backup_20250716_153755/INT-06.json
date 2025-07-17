@@ -1,0 +1,33 @@
+{
+  "id": "INT-06",
+  "naam": "Definitie bevat geen toelichting",
+  "uitleg": "Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.",
+  "toelichting": "Definities moeten kort en krachtig zijn. Een toelichting (bijvoorbeeld een uitwerking of extra context) hoort thuis in een notitie of toelichtende tekst, niet in de definitiezin zelf.",
+  "toetsvraag": "Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?",
+  "herkenbaar_patronen": [
+    "\\bbijvoorbeeld\\b",
+    "\\bzoals\\b",
+    "\\bdit houdt in\\b",
+    "\\bdat wil zeggen\\b",
+    "\\bnamelijk\\b"
+  ],
+  "goede_voorbeelden": [
+    "model: vereenvoudigde weergave van de werkelijkheid"
+  ],
+  "foute_voorbeelden": [
+    "model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven"
+  ],
+  "prioriteit": "hoog",
+  "aanbeveling": "verplicht",
+  "geldigheid": "gehele definitie",
+  "status": "definitief",
+  "type": "inhoud",
+  "thema": "interne kwaliteit van de definitie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Definitie bevat geen toelichting",
+      "fullurl": "https://www.astraonline.nl/index.php/Definitie_bevat_geen_toelichting"
+    }
+  ]
+}

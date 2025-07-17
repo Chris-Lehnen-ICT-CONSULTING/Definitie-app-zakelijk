@@ -1,0 +1,40 @@
+📝 Backlogitem: Voeg veldniveau-goedkeuring toe voor UI-definities
+
+🎯 Doel:
+Maak het mogelijk om elk afzonderlijk veld in een definitie (zoals toelichting, bron, context) individueel goed te keuren.
+
+📌 Aanleiding:
+Sommige velden zijn correct, andere vragen herziening. Volledige goed- of afkeuring is te grofmazig.
+
+🔍 Probleem:
+- Geen nuance mogelijk in accordering.
+- Geen zicht op goedgekeurde onderdelen.
+
+📈 Impact:
+- Overbodige revisie.
+- Verlies van werkbare tussenstappen.
+
+🛠️ Taken:
+- Voeg checkbox toe bij elk veld in tabblad 1.
+- Log accordering per veld.
+- Voeg veldspecifieke status toe aan export.
+
+🧪 Tests:
+- Elk veld kan apart gemarkeerd worden.
+- UI herkent status bij herladen.
+
+✅ Acceptatiecriteria:
+- Export toont per veld of het goedgekeurd is.
+- Logging bevat accordering per veld.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar, reviewer
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 6
+🆔 ID: BLG-FIELD-UI-APPROVAL
+📅 Datum: 2025-06-23
+📌 Status: to do
