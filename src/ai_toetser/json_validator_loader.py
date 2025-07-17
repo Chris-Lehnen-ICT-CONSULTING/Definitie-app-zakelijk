@@ -34,7 +34,7 @@ class JSONValidatorLoader:
         if regels_dir is None:
             # Default naar de standaard locatie
             src_dir = Path(__file__).parent.parent
-            self.regels_dir = src_dir / "config" / "toetsregels" / "regels"
+            self.regels_dir = src_dir / "toetsregels" / "regels"
         else:
             self.regels_dir = Path(regels_dir)
             
@@ -65,7 +65,9 @@ class JSONValidatorLoader:
         
         # Bepaal Python bestandsnaam (CON-01 -> CON_01.py)
         py_filename = regel_id.replace("-", "_") + ".py"
-        py_path = self.regels_dir / py_filename
+        # Python files zijn nu in validators directory
+        validators_dir = self.regels_dir.parent / "validators"
+        py_path = validators_dir / py_filename
         
         if not py_path.exists():
             logger.warning(f"Geen Python implementatie gevonden: {py_path}")
