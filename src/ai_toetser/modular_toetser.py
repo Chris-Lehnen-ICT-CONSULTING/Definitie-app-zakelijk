@@ -1,71 +1,31 @@
 """
-Modular AI Toetser - new orchestrator for validation rules.
-This replaces the monolithic core.py with a clean, modular architecture.
+Modular Toetser met JSON/Python validator support.
+
+Deze versie van de modular toetser gebruikt individuele JSON/Python
+validator paren in plaats van de BaseValidator architectuur.
 """
 
 import logging
 from typing import Dict, List, Any, Optional
 
-from .validators import (
-    ValidationContext,
-    ValidationOutput,
-    ValidationResult,
-    validation_registry
-)
+from .json_validator_loader import json_validator_loader
 
-# Import all validator modules to register them
-from .validators.content_rules import CON01Validator, CON02Validator
-from .validators.essential_rules import (
-    ESS01Validator, ESS02Validator, ESS03Validator, 
-    ESS04Validator, ESS05Validator
-)
-from .validators.structure_rules import (
-    STR01Validator, STR02Validator, STR03Validator, STR04Validator,
-    STR05Validator, STR06Validator, STR07Validator, STR08Validator,
-    STR09Validator
-)
-
-# Initialize logger
 logger = logging.getLogger(__name__)
 
 
 class ModularToetser:
     """
-    Modular definition validator that orchestrates all validation rules.
+    Modulaire toetser die werkt met individuele JSON/Python validators.
     
-    This class replaces the monolithic approach with a clean, extensible
-    architecture where each rule is a separate, testable class.
+    Deze implementatie biedt volledige flexibiliteit voor het toevoegen
+    en aanpassen van individuele toetsregels.
     """
     
     def __init__(self):
-        self._initialize_validators()
-    
-    def _initialize_validators(self):
-        """Register all validators in the global registry."""
-        # Content rules
-        validation_registry.register(CON01Validator())
-        validation_registry.register(CON02Validator())
+        """Initialiseer de JSON-based modular toetser."""
+        self.loader = json_validator_loader
+        self._available_rules = None
         
-        # Essential rules
-        validation_registry.register(ESS01Validator())
-        validation_registry.register(ESS02Validator())
-        validation_registry.register(ESS03Validator())
-        validation_registry.register(ESS04Validator())
-        validation_registry.register(ESS05Validator())
-        
-        # Structure rules
-        validation_registry.register(STR01Validator())
-        validation_registry.register(STR02Validator())
-        validation_registry.register(STR03Validator())
-        validation_registry.register(STR04Validator())
-        validation_registry.register(STR05Validator())
-        validation_registry.register(STR06Validator())
-        validation_registry.register(STR07Validator())
-        validation_registry.register(STR08Validator())
-        validation_registry.register(STR09Validator())
-        
-        logger.info(f"Initialized {len(validation_registry.get_all_validators())} validators")
-    
     def validate_definition(
         self,
         definitie: str,
@@ -78,11 +38,11 @@ class ModularToetser:
         gebruik_logging: bool = False
     ) -> List[str]:
         """
-        Validate definition using all applicable rules.
+        Valideer definitie met JSON/Python validators.
         
         Args:
-            definitie: Definition text to validate
-            toetsregels: Rule configurations from JSON
+            definitie: Definitie tekst om te valideren
+            toetsregels: Regel configuraties (gebruikt voor regel selectie)
             begrip: Original term being defined
             marker: Ontological category marker
             voorkeursterm: Preferred term
@@ -91,54 +51,45 @@ class ModularToetser:
             gebruik_logging: Whether to use detailed logging
             
         Returns:
-            List of validation result strings (for backward compatibility)
+            List of validation result strings
         """
         if gebruik_logging:
-            logger.info(f"Starting validation for term: {begrip}")
+            logger.info(f"Starting JSON validation voor term: {begrip}")
         
-        # Create validation context
-        context = ValidationContext(
+        # Bepaal welke regels te gebruiken
+        if toetsregels:
+            regel_ids = list(toetsregels.keys())
+        else:
+            regel_ids = self.get_available_rules()
+        
+        # Bouw context dictionary
+        context = {
+            'marker': marker,
+            'voorkeursterm': voorkeursterm,
+            'bronnen_gebruikt': bronnen_gebruikt,
+            'contexten': contexten or {},
+            'gebruik_logging': gebruik_logging
+        }
+        
+        # Voer validatie uit
+        results = self.loader.validate_definitie(
             definitie=definitie,
             begrip=begrip,
-            regel=None,  # Will be set per rule
-            contexten=contexten or {},
-            bronnen_gebruikt=bronnen_gebruikt,
-            voorkeursterm=voorkeursterm,
-            marker=marker,
-            gebruik_logging=gebruik_logging
+            regel_ids=regel_ids,
+            context=context
         )
         
-        # Run all validations
-        results = validation_registry.validate_all(context, toetsregels)
-        
-        # Convert to string format for backward compatibility
-        string_results = [str(result) for result in results]
-        
-        # Calculate statistics
-        passed = sum(1 for r in results if r.result == ValidationResult.PASS)
-        failed = sum(1 for r in results if r.result == ValidationResult.FAIL)
-        warnings = sum(1 for r in results if r.result == ValidationResult.WARNING)
-        total = len(results)
-        
         if gebruik_logging:
-            logger.info(f"Validation complete: {passed} passed, {failed} failed, {warnings} warnings")
+            logger.info(f"Validation complete: {len(results)} results")
         
-        # Add summary to results (at the beginning for visibility)
-        if total > 0:
-            score_percentage = (passed / total) * 100
-            summary = f"📊 **Toetsing Samenvatting**: {passed}/{total} regels geslaagd ({score_percentage:.1f}%)"
-            if failed > 0:
-                summary += f" | ❌ {failed} gefaald"
-            if warnings > 0:
-                summary += f" | ⚠️ {warnings} waarschuwingen"
-            
-            string_results.insert(0, summary)
-        
-        return string_results
+        return results
     
     def get_available_rules(self) -> List[str]:
-        """Get list of available validation rules."""
-        return list(validation_registry.get_all_validators().keys())
+        """Haal lijst op van beschikbare validatie regels."""
+        if self._available_rules is None:
+            self._available_rules = self.loader.get_all_regel_ids()
+            logger.info(f"Geladen {len(self._available_rules)} validatie regels")
+        return self._available_rules
     
     def validate_single_rule(
         self,
@@ -146,34 +97,43 @@ class ModularToetser:
         definitie: str,
         regel_config: Dict[str, Any],
         **kwargs
-    ) -> Optional[ValidationOutput]:
+    ) -> Optional[str]:
         """
-        Validate using a single rule.
+        Valideer met een enkele regel.
         
         Args:
-            rule_id: ID of the rule to use
-            definitie: Definition text
-            regel_config: Rule configuration
-            **kwargs: Additional context parameters
+            rule_id: ID van de regel
+            definitie: Definitie tekst
+            regel_config: Regel configuratie (niet gebruikt, voor compatibility)
+            **kwargs: Extra context parameters
             
         Returns:
-            ValidationOutput or None if rule not found
+            Validatie resultaat string of None
         """
-        validator = validation_registry.get_validator(rule_id)
-        if not validator:
-            logger.warning(f"Validator {rule_id} not found")
-            return None
+        # Bouw context
+        context = {
+            'marker': kwargs.get('marker'),
+            'voorkeursterm': kwargs.get('voorkeursterm'),
+            'bronnen_gebruikt': kwargs.get('bronnen_gebruikt'),
+            'contexten': kwargs.get('contexten', {}),
+            'gebruik_logging': kwargs.get('gebruik_logging', False)
+        }
         
-        context = ValidationContext(
+        # Valideer met enkele regel
+        results = self.loader.validate_definitie(
             definitie=definitie,
-            regel=regel_config,
-            **kwargs
+            begrip=kwargs.get('begrip', ''),
+            regel_ids=[rule_id],
+            context=context
         )
         
-        return validator.validate(context)
+        # Return eerste resultaat (skip summary)
+        if len(results) > 1:
+            return results[1]
+        return None
 
 
-# Global instance for backward compatibility
+# Globale instantie voor backward compatibility
 modular_toetser = ModularToetser()
 
 
@@ -188,23 +148,9 @@ def toets_definitie(
     gebruik_logging: bool = False
 ) -> List[str]:
     """
-    Main entry point for definition validation.
+    Hoofdfunctie voor definitie validatie met JSON validators.
     
-    This function maintains backward compatibility with the existing API
-    while using the new modular architecture under the hood.
-    
-    Args:
-        definitie: Definition text to validate
-        toetsregels: Rule configurations from JSON
-        begrip: Original term being defined
-        marker: Ontological category marker
-        voorkeursterm: Preferred term
-        bronnen_gebruikt: Sources used
-        contexten: Context information
-        gebruik_logging: Whether to use detailed logging
-        
-    Returns:
-        List of validation result strings
+    Deze functie behoudt backward compatibility met de bestaande API.
     """
     return modular_toetser.validate_definition(
         definitie=definitie,
