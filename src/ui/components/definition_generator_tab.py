@@ -258,7 +258,8 @@ class DefinitionGeneratorTab:
             # Toon alle scores in kleinere text
             if "category_scores" in generation_result:
                 scores = generation_result["category_scores"]
-                score_text = " | ".join([f"{cat}: {score}" for cat, score in scores.items()])
+                # Format scores als float met 2 decimalen
+                score_text = " | ".join([f"{cat}: {score:.2f}" for cat, score in scores.items()])
                 st.markdown(f"<small>Alle scores: {score_text}</small>", unsafe_allow_html=True)
         
         with col2:
