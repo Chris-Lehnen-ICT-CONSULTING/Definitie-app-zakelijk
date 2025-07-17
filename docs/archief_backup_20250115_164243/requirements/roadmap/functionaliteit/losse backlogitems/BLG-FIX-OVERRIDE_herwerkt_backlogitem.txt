@@ -1,0 +1,42 @@
+📝 Backlogitem: Session override automatisch herstellen
+
+🎯 Doel:
+Implementeer een functie die automatisch fouten herstelt wanneer Streamlit session state wordt overschreven door verkeerd datatype (bijv. lijst i.p.v. string).
+
+📌 Aanleiding:
+Tijdens het wisselen van scherm of testwoorden in tab 3 kan Streamlit crashen door typeconflicten in session state.
+
+🔍 Probleem:
+- String wordt soms overschreven met lijst.
+- Foutmelding is niet informatief.
+- UI kan blokkeren of onbruikbaar worden.
+
+📈 Impact:
+- App crasht of geeft onbruikbare interface.
+- Testfunctionaliteit wordt onbetrouwbaar.
+
+🛠️ Taken:
+- Implementeer functie `fix_overrides()` die datatypes controleert en converteert.
+- Roep deze functie aan vóór sessie-initialisatie.
+- Voeg logging toe bij herstelactie.
+
+🧪 Tests:
+- Lijst → string wordt correct geconverteerd.
+- App crasht niet bij typefout in sessie.
+- Logging toont herstelactie.
+
+✅ Acceptatiecriteria:
+- App blijft stabiel, ook bij foutieve overrides.
+- fix_overrides() wordt standaard toegepast in UI-tab 3.
+
+📦 Bestand(en):
+- definitie_agent_webinterface_logging.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 3
+🆔 ID: BLG-FIX-OVERRIDE
+📅 Datum: 2025-06-14
+📌 Status: to do

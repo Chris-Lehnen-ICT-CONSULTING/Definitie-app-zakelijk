@@ -1,0 +1,184 @@
+De bestaande code in core.py:  # ✅ Toetsing voor regel ESS-03 (Instanties uniek onderscheidbaar)
+def toets_ESS_03(definitie, regel):
+    patroon_lijst = regel.get("herkenbaar_patronen", [])
+    kenmerken_gevonden = set()
+    for patroon in patroon_lijst:
+        kenmerken_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
+
+    goede_voorbeelden = regel.get("goede_voorbeelden", [])
+    foute_voorbeelden = regel.get("foute_voorbeelden", [])
+
+    goede_aanwezig = any(vb.lower() in definitie.lower() for vb in goede_voorbeelden)
+    foute_aanwezig = any(vb.lower() in definitie.lower() for vb in foute_voorbeelden)
+
+    if not kenmerken_gevonden:
+        if foute_aanwezig:
+            return "❌ ESS-03: geen unieke kenmerken gevonden, en lijkt op fout voorbeeld"
+        return "❌ ESS-03: geen unieke of onderscheidende formuleringen gevonden"
+
+    if goede_aanwezig:
+        return f"✔️ ESS-03: unieke kenmerken gevonden ({', '.join(kenmerken_gevonden)}) en correct toegelicht"
+
+    if foute_aanwezig:
+        return f"❌ ESS-03: kenmerken gevonden ({', '.join(kenmerken_gevonden)}), maar lijkt op fout voorbeeld"
+
+    return f"❌ ESS-03: kenmerken gevonden ({', '.join(kenmerken_gevonden)}), zonder duidelijke toelichting"
+
+
+  bestaande JSON:     "ESS-03": {
+      "id": "ESS-03",
+      "naam": "Instanties uniek onderscheidbaar",
+      "uitleg": "Een definitie maakt duidelijk waarin een instantie verschilt van andere instanties.",
+      "toelichting": "Bij instanties (zoals organisaties, functies, systemen) moet de definitie aangeven welke specifieke eigenschappen deze instantie onderscheiden van andere. Dit voorkomt verwarring en overlapping tussen begrippen.",
+      "toetsvraag": "Geeft de definitie aan waardoor de instantie uniek is ten opzichte van andere, vergelijkbare instanties?",
+      "herkenbaar_patronen": [
+         "verantwoordelijk.*voor",
+         "gespecialiseerd.*in",
+         "specifiek.*gericht op",
+         "met.*taak.*voor",
+         "instantie.*die.*(coördineert|ondersteunt|uitvoert|verzorgt)",
+         "organisatie.*die.*(exclusief|voornamelijk|specifiek)",
+         "binnen.*(het ministerie|de keten|de sector)"
+       ],
+      "goede_voorbeelden": [
+        "JustID: instantie binnen JenV die verantwoordelijk is voor digitale informatievoorziening in de strafrechtketen."
+      ],
+      "foute_voorbeelden": [
+        "JustID: dienst binnen JenV."
+      ],
+      "prioriteit": "hoog",
+      "aanbeveling": "verplicht",
+      "geldigheid": "alle",
+      "status": "definitief",
+      "type": "essentie",
+      "thema": "onderscheidbaarheid",
+      "brondocument": "ASTRA",
+      "relatie": [
+        {
+          "fulltext": "Instanties uniek onderscheidbaar",
+          "fullurl": "https://www.astraonline.nl/index.php/Instanties_uniek_onderscheidbaar"
+        }
+      ]
+    },
+
+   de bron: 
+Id	ESS-03
+Regel - kort	instanties uniek onderscheidbaar
+Regel	Een definitie maakt het mogelijk om instanties van het gedefinieerde begrip uniek te identificeren en van elkaar te onderscheiden.
+Toelichting	Een goede definitie moet duidelijk maken of er in een gegeven situatie sprake is van één instantie van het gedefinieerde begrip of van meerdere instanties van het gedefinieerde begrip. De definitie ‘moet eenduidig tellen mogelijk maken’ door verschillende onafhankelijke materiedeskundigen.
+Terzijde:
+	•	als verschillende materiedeskundigen tot verschillende uitkomsten komen, dan kan aanscherping van de definitie nodig zijn, of er is sprake van een homoniem (gelijke term, maar verschillende betekenis, pad als smalle weg of pad als reptiel) of polyseem (term heeft meer betekenissen, maar die betekenissen zijn verwant, hark als werktuig of hark als persoon)
+	•	de eis van telbaarheid geldt voor begrippen die telbaar zouden moeten zijn, want er zijn begrippen die gaan over dingen die niet telbaar zijn (omdat ze niet uniek identificeerbaar zijn of omdat ze geen duidelijke begrenzing hebben); denk aan alles wat substantie is (zoals "cocaïne", "zand"), verschijnselen (zoals "recidive", "onweer", "regen")
+Voorbeelden	brug
+Is de van Brienenoord-brug 1, 3, 4 of 17 bruggen? Definities van resp. de leek, Scheepvaartverkeersmanagement, Wegverkeersmanagement en Asset Management blijken hierop de verschillende antwoorden te geven. Mogelijk een geval voor Eigen definitie voor elke context.
+Verwijzing	MAS
+Prioriteit	hoog
+Aanbeveling	verplicht
+Geldig voor	telbare zelfstandige naamwoorden
+Status	definitief
+Relatie met andere regel	Eigen definitie voor elke context
+Type	term
+Thema	essentie van het begrip
+Verbijzondering van	
+Redactieopmerking	
+
+Relatie met andere regel	Eigen definitie voor elke context
+ 
+Id	CON-01
+Regel - kort	eigen definitie voor elke context
+Regel	Een term die in meerdere contexten gebruikt wordt en waarvan de verschillende betekenissen niet te harmoniseren zijn, krijgt voor elke context een eigen definitie onder vermelding van de context.
+Toelichting	Best practice is om als context van de definitie de organisatie aan te duiden die als eigenaar optreedt. Soms komt dezelfde term binnen één organisatie in meer dan één context voor, dus dan zal de term specifieker moeten worden gemaakt per context.
+Voorbeelden	De betekenis van de term vluchtgevaarlijk verschilt tussen de contexten van OM, Politie en DJI, het zijn dus verschillende begrippen. We onderscheiden daarom
+	•	vluchtgevaarlijk[DJI]
+	•	vluchtgevaarlijk[Politie]
+	•	vluchtgevaarlijk[OM]
+en geven die elk een eigen definitie.
+Als dezelfde term – zoals spoor – binnen één organisatie in meer dan één context wordt gebruikt, dan wordt aan die term een specifiekere context toegevoegd om de begrippen te onderscheiden – bijvoorbeeld Spoor (forensische opsporing) versus Spoor (locatie). Dat kan dan worden gebruikt in de zin: "De Forensische Dienst trof een spoor (forensische opsporing) aan bij het Spoor (locatie)."
+Verwijzing	DBT, 6.1
+Prioriteit	hoog
+Aanbeveling	verplicht
+Geldig voor	alle
+Status	definitief
+Relatie met andere regel	
+Type	samenhang tussen termen/definities
+Thema	context
+Verbijzondering van	
+Redactieopmerking	
+ 
+ Analyseer de huidige code en het voorstel en JSON toetsregel en controleer of deze voldoen aan de eisen van de bron (astra-online): maak de beste code voor core.py en de toetsregel voor het JSON bestand.  neem in de analyse ook het volgende mee (met prioriteit): Hieronder vind je een analyse van toetsregel ESS-03 (“instanties uniek onderscheidbaar”), gevolgd door een aantal goede en foute voorbeelden van definities om deze regel te toetsen.
+
+⸻
+
+Kort samengevat: de toetsregel ESS-03
+
+Een definitie moet zó zijn geformuleerd dat je voor een gegeven situatie eenduidig kunt vaststellen:
+	1.	WÁT er precies onder het begrip valt.
+	2.	HOEVEEL afzonderlijke instanties zich in die situatie bevinden.
+
+Lukt dat niet, dan is de definitie onvoldoende scherp: verschillende deskundigen kunnen dan tot uiteenlopende tellingen komen.
+
+⸻
+
+Goede voorbeelden
+
+In elk voorbeeld is de kern: de definitie bevat voldoende criteria om onderscheid tussen afzonderlijke exemplaren (instanties) te maken.
+	1.	Auto
+“Een auto is een vierwielig motorvoertuig, bestemd voor het vervoer van personen over de openbare weg, uitgerust met een uniek chassisnummer (VIN) en een kenteken.”
+
+	•	Waarom goed? Het VIN en kenteken maken elke auto direct identificeerbaar. Verschillende deskundigen komen niet tot verschillende tellingen.
+	2.	Boekexemplaar
+“Een boekexemplaar is een fysiek, gebonden exemplaar van een titel, met eigen ISBN-sticker en uniek inventarisnummer in de catalogus.”
+
+	•	Waarom goed? ISBN plus inventarisnummer garandeert dat elk exemplaar apart telt.
+	3.	Laptop
+“Een laptop is een draagbare computer met eigen serienummer, waarvan het serienummer moet overeenkomen met het type en de fabrikant zoals geregistreerd in de productiedatabase.”
+
+	•	Waarom goed? Het serienummer als unieke sleutel zorgt voor eenduidige telling.
+	4.	Officiële Brug
+“Onder een officiële brug verstaan we een door de rijksoverheid erkende, naamgerechtigde constructie over een watergang, opgenomen in het nationale bruggenregister onder een uniek objectnummer.”
+
+	•	Waarom goed? Elk object staat met eigen nummer in het register, dus je weet precies hoeveel bruggen het zijn.
+	5.	Document
+“Een document is een elektronisch bestand in PDF-formaat, voorzien van een unieke document-ID en metadata (titel, auteur, datum), opgeslagen in de centrale archiefapplicatie.”
+
+	•	Waarom goed? De combinatie van document-ID en metadata maakt unieke identificatie mogelijk.
+
+⸻
+
+Foute voorbeelden
+
+Hieronder definities die niet toereikend zijn om afzonderlijke instanties te tellen.
+	1.	Auto
+“Een auto is een vervoermiddel op vier wielen met een motor.”
+
+	•	Probleem: Ontbreken van een uniek kenmerk (VIN of kenteken). Hoe herken je twee verschillende auto’s als er meerdere in de straat staan?
+	2.	Boek
+“Een boek is een verzameling pagina’s met tekst, gebonden in een omslag.”
+
+	•	Probleem: Maakt geen onderscheid tussen één enkel exemplaar van “De ontdekking van de hemel” en honderd exemplaren in een bibliotheek.
+	3.	Brug
+“Een brug is een constructie over water waarmee verkeer kan passeren.”
+
+	•	Probleem: Is bijvoorbeeld de Van Brienenoordbrug één brug of drie (tweede overspanning plus aansluiting)? De definitie zegt niets over naamgeving of registratiesysteem.
+	4.	Laptop
+“Een laptop is een draagbare computer.”
+
+	•	Probleem: Alle draagbare computers vallen erin, maar hoe weet je of twee apparaten identiek of verschillend zijn? Geen serienummer of ander criterium.
+	5.	Document
+“Een document is elk bestand met informatie.”
+
+	•	Probleem: Een map met drie versies van hetzelfde bestand telt dan als één of drie? Er is geen onderscheidingscriterium.
+
+⸻
+
+Reflectie op semantische valkuilen
+	•	Homoniem-valkuil: als twee deskundigen hetzelfde woord anders interpreteren (bijvoorbeeld “bank” als zitmeubel versus financiële instelling), leidt dat onherroepelijk tot verschillende tellingen.
+	•	Polyseem-valkuil: termen met verwante betekenissen (zoals “pad” als wandelpad en “pad” als dier, de paddenstoel) kunnen pas eenduidig geteld worden nadat de definitie aangevuld is met context- of kadercriteria.
+	•	Niet-telbare begrippen: begrippen als “zand”, “cocaïne” of “regen” horen niet onder deze toetsregel; ze zijn van nature onbegrensd of substantie-achtig en dus niet ‘instanties’ in de zin van aparte eenheden.
+
+⸻
+
+Conclusie:
+Een goede definitie voor een telbaar begrip bevat altijd één of meer unieke identificatie-criteria (zoals nummers, registraties, metadata), zodat verschillende deskundigen in elke situatie tot exact dezelfde telling komen. Zonder die criteria is de definitie ontoereikend en schiet ESS-03 tekort.
+
+Denk goed na en neem je tijd en lever de complete code voor core.py en JSON aan

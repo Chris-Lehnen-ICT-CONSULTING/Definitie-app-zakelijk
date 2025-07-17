@@ -1,0 +1,37 @@
+{
+  "id": "ARAI04SUB1",
+  "naam": "Beperk gebruik van modale werkwoorden",
+  "uitleg": "Definities vermijden modale werkwoorden zoals ‘kan’, ‘mag’, ‘moet’, omdat deze onduidelijkheid scheppen over de essentie van het begrip.",
+  "toelichting": "Modale werkwoorden drukken mogelijkheid, toestemming of verplichting uit. In een definitie hoort objectieve beschrijving centraal te staan, niet potentie of wenselijkheid. Modale hulpwerkwoorden kunnen leiden tot interpretatieverschillen over of iets een kenmerk of een randvoorwaarde is.",
+  "toetsvraag": "Bevat de definitie modale werkwoorden die verwarring kunnen veroorzaken over wat het begrip is?",
+  "herkenbaar_patronen": [
+    "\\bkan\\b",
+    "\\bkunnen\\b",
+    "\\bmag\\b",
+    "\\bmogen\\b",
+    "\\bmoet\\b",
+    "\\bmoeten\\b"
+  ],
+  "goede_voorbeelden": [
+    "proces dat persoonsgegevens verwerkt",
+    "maatregel die tot gedragsverandering leidt"
+  ],
+  "foute_voorbeelden": [
+    "proces dat gegevens *kan* verwerken",
+    "maatregel die *moet* worden genomen bij overtreding"
+  ],
+  "prioriteit": "midden",
+  "aanbeveling": "optioneel",
+  "geldigheid": "gehele definitie",
+  "status": "conceptueel",
+  "type": "formulering",
+  "thema": "interne kwaliteit van de definitie",
+  "subsidieregel_van": "ARAI04",
+  "brondocument": "Afgeleide AI-regel op basis van ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Geen beslisregel",
+      "fullurl": "https://www.astraonline.nl/index.php/Geen_beslisregel"
+    }
+  ]
+}

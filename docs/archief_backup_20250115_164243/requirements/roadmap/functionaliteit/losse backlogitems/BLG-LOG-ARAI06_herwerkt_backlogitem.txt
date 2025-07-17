@@ -1,0 +1,41 @@
+📝 Backlogitem: Logging uitbreiden voor toetsregel ARAI06
+
+🎯 Doel:
+Voeg gedetailleerde logging toe aan toetsregel ARAI06, zodat zichtbaar is welke verboden patronen zijn gedetecteerd en waarom de definitie werd afgekeurd.
+
+📌 Aanleiding:
+Bij afkeuring op basis van ARAI06 ontbreekt informatie over de precieze reden. Dit maakt evaluatie en verbetering lastig voor gebruikers en ontwikkelaars.
+
+🔍 Probleem:
+- Gebruiker krijgt alleen een generieke foutmelding.
+- Geen inzicht in welke constructie (bijv. 'is', 'de', begrip) het probleem veroorzaakte.
+
+📈 Impact:
+- Onbegrip of frustratie bij gebruiker.
+- Lastiger te debuggen voor ontwikkelaar.
+
+🛠️ Taken:
+- Voeg logstructuur toe per patroon (matchtype, locatie).
+- Voeg voorbeeldmatch toe aan logresultaat.
+- Implementeer bijbehorende testcaselog.
+
+🧪 Tests:
+- Logging toont “match: 'is' op positie 0”.
+- Geen logging bij correcte definities.
+
+✅ Acceptatiecriteria:
+- Logging verklaart afkeuring volledig.
+- Loggingstructuur is machineleesbaar.
+
+📦 Bestand(en):
+- ai_toetser.py
+- toetsresultaten_logger.py
+
+👥 Betrokkenen:
+- Ontwikkelaar
+
+⏱️ Prioriteit: Midden
+🗓️ Sprint: 5
+🆔 ID: BLG-LOG-ARAI06
+📅 Datum: 2025-06-11
+📌 Status: to do

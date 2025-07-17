@@ -1,0 +1,63 @@
+Backlogitem – Temperatuurparameter ChatGPT verlagen
+
+🆔 ID: GPT-Temperature
+📅 Datum: 2025-07-04
+🎯 Doel: Verlagen van de temperatuurparameter in de call naar ChatGPT voor voorspelbaardere, consistentere output
+🔍 Probleem: De gegenereerde teksten van ChatGPT zijn soms te divers of creatief, wat ten koste kan gaan van betrouwbaarheid en reproduceerbaarheid van definities
+📈 Impact: Meer consistente en herhaalbare resultaten bij het ophalen van definities; stabielere werking voor eindgebruikers
+✅ Acceptatiecriteria:
+* Temperatuurparameter (`temperature`) in de ChatGPT-API-call is standaard ingesteld op maximaal 0.3
+* Instelling is vastgelegd in configuratie of code en eenvoudig aanpasbaar
+* Output is aantoonbaar consistenter (gevalideerd d.m.v. 5 herhaalde prompts met vrijwel identieke uitkomst)
+* Documentatie en release notes geven wijziging duidelijk weer
+
+📦 Bestand: (API-aangeroepen bestand, bijv. `openai_client.py` of `gpt_connector.py`)
+👥 Betrokkenen: Ontwikkelaar
+⏱️ Prioriteit: Hoog
+🗓️ Sprint: 1
+Status: To do
+
+---
+
+1️⃣ Analyse bestaande situatie
+
+* De huidige API-call naar ChatGPT gebruikt een standaard temperatuurinstelling van 0.7 of hoger (of geen expliciete instelling, waardoor de default waarde geldt).
+* Dit leidt tot meer variatie, wat in deze use case niet gewenst is; voor definities is betrouwbaarheid belangrijker dan creativiteit.
+
+---
+
+2️⃣ Wat moet worden aangepast en waarom
+
+* Temperatuurparameter (`temperature`) structureel verlagen naar maximaal 0.3 in alle calls naar ChatGPT.
+* Dit zorgt voor minder variatie en meer voorspelbaarheid in de gegenereerde definities.
+* Instelling moet centraal, transparant en eenvoudig beheerbaar zijn (bij voorkeur als variabele in configuratie of .env).
+
+---
+
+3️⃣ Oplossingsrichting
+
+* Pas de API-aanroep aan, bijvoorbeeld:
+  response = openai.ChatCompletion.create(
+      model="gpt-4",
+      messages=messages,
+      temperature=0.3,  # 💚 Temperatuur verlaagd voor consistente output
+      ...
+  )
+* Voeg eventueel een configuratieoptie toe (`TEMPERATURE = 0.3`) in een settings- of configbestand.
+
+---
+
+4️⃣ Validatie / zelfcontrole
+
+* Herhaal 5x dezelfde prompt en vergelijk output: verschillen zijn minimaal.
+* Code is getest; temperatuur staat standaard op 0.3 in alle relevante aanroepen.
+* Wijziging is zichtbaar in codeversie en release notes.
+
+---
+
+🔁 Kwaliteitsopmerkingen conform werkafspraak
+
+* Instelling is centraal en traceerbaar doorgevoerd.
+* Wijziging is volledig getest, rollback is eenvoudig mogelijk.
+* Duidelijke motivatie en acceptatiecriteria aanwezig.
+* Werkafspraak toegepast: structuur, validatie en herbruikbaarheid gegarandeerd.
