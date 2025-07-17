@@ -467,9 +467,19 @@ class DefinitionGeneratorTab:
                 # Voorkeursterm selectie
                 if len(synoniemen_lijst) > 0:
                     st.markdown("---")
+                    
+                    # Haal het oorspronkelijke begrip op uit de session state
+                    oorspronkelijk_begrip = SessionStateManager.get_value("begrip", "")
+                    
+                    # Maak opties lijst met oorspronkelijke begrip als eerste optie
+                    voorkeursterm_opties = ["(geen voorkeursterm)"]
+                    if oorspronkelijk_begrip and oorspronkelijk_begrip not in synoniemen_lijst:
+                        voorkeursterm_opties.append(oorspronkelijk_begrip)
+                    voorkeursterm_opties.extend(synoniemen_lijst)
+                    
                     voorkeursterm = st.selectbox(
                         "Selecteer voorkeursterm:",
-                        options=["(geen voorkeursterm)"] + synoniemen_lijst,
+                        options=voorkeursterm_opties,
                         key="voorkeursterm_selectie"
                     )
                     
