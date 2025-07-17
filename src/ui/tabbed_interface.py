@@ -9,6 +9,7 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 import streamlit as st  # Streamlit web interface framework
 from typing import Dict, Any, Optional, List  # Type hints voor betere code documentatie
 from datetime import datetime  # Datum en tijd functionaliteit
+import asyncio  # Asynchrone programmering voor ontologische analyse
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.context_selector import ContextSelector  # Context selectie component
@@ -130,86 +131,55 @@ class TabbedInterface:
         self._render_footer()
     
     
-    def _determine_ontological_category(self, begrip, org_context, jur_context):
-        """Bepaal automatisch de ontologische categorie via AI analyse."""
+    async def _determine_ontological_category(self, begrip, org_context, jur_context):
+        """Bepaal automatisch de ontologische categorie via 6-stappen protocol."""
         try:
-            # Eenvoudige heuristic gebaseerd op woord patronen
-            # Later kan dit vervangen worden door GPT call
+            # Importeer de nieuwe ontologische analyzer
+            from ontologie.ontological_analyzer import OntologischeAnalyzer, QuickOntologischeAnalyzer
             
-            begrip_lower = begrip.lower()
-            
-            # Proces patronen
-            proces_indicators = [
-                'atie', 'eren', 'ing', 'verificatie', 'authenticatie', 'validatie',
-                'controle', 'check', 'beoordeling', 'analyse', 'behandeling',
-                'vaststelling', 'bepaling', 'registratie', 'identificatie'
-            ]
-            
-            # Type patronen  
-            type_indicators = [
-                'bewijs', 'document', 'middel', 'systeem', 'methode', 'tool',
-                'instrument', 'gegeven', 'kenmerk', 'eigenschap'
-            ]
-            
-            # Resultaat patronen
-            resultaat_indicators = [
-                'besluit', 'uitslag', 'rapport', 'conclusie', 'bevinding',
-                'resultaat', 'uitkomst', 'advies', 'oordeel'
-            ]
-            
-            # Exemplaar patronen
-            exemplaar_indicators = [
-                'specifiek', 'individueel', 'uniek', 'persoon', 'zaak',
-                'instantie', 'geval', 'situatie'
-            ]
-            
-            # Score per categorie
-            scores = {
-                'proces': 0,
-                'type': 0, 
-                'resultaat': 0,
-                'exemplaar': 0
-            }
-            
-            # Check proces indicators
-            for indicator in proces_indicators:
-                if indicator in begrip_lower:
-                    scores['proces'] += 1
-            
-            # Check type indicators  
-            for indicator in type_indicators:
-                if indicator in begrip_lower:
-                    scores['type'] += 1
-                    
-            # Check resultaat indicators
-            for indicator in resultaat_indicators:
-                if indicator in begrip_lower:
-                    scores['resultaat'] += 1
-                    
-            # Check exemplaar indicators
-            for indicator in exemplaar_indicators:
-                if indicator in begrip_lower:
-                    scores['exemplaar'] += 1
-            
-            # Bepaal hoogste score
-            best_category = max(scores, key=scores.get)
-            
-            # Default naar proces als geen duidelijke match
-            if scores[best_category] == 0:
-                best_category = 'proces'
-            
-            # Genereer uitleg voor de keuze
-            reasoning = self._generate_category_reasoning(begrip, best_category, scores)
-            
-            logger.info(f"Auto-determined category voor '{begrip}': {best_category} (scores: {scores})")
-            
-            # Return tuple met categorie en redenering
-            return OntologischeCategorie(best_category), reasoning
-            
+            # Probeer eerst de volledige 6-stappen analyse
+            try:
+                analyzer = OntologischeAnalyzer()
+                categorie, analyse_resultaat = await analyzer.bepaal_ontologische_categorie(
+                    begrip, org_context, jur_context
+                )
+                
+                # Haal de redenering uit het analyse resultaat
+                reasoning = analyse_resultaat.get('reasoning', 'Ontologische analyse voltooid')
+                
+                logger.info(f"6-stappen ontologische analyse voor '{begrip}': {categorie.value}")
+                return categorie, reasoning
+                
+            except Exception as e:
+                logger.warning(f"6-stappen analyse mislukt voor '{begrip}': {e}")
+                
+                # Fallback naar quick analyzer
+                quick_analyzer = QuickOntologischeAnalyzer()
+                categorie, reasoning = quick_analyzer.quick_categoriseer(begrip)
+                
+                logger.info(f"Quick ontologische analyse voor '{begrip}': {categorie.value}")
+                return categorie, f"Quick analyse - {reasoning}"
+                
         except Exception as e:
-            logger.warning(f"Failed to auto-determine category: {e}")
-            # Default naar proces
-            return OntologischeCategorie.PROCES, "Standaard categorie (geen duidelijke patronen gedetecteerd)"
+            logger.error(f"Ontologische analyse volledig mislukt voor '{begrip}': {e}")
+            
+            # Ultieme fallback naar oude pattern matching
+            reasoning = self._legacy_pattern_matching(begrip)
+            return OntologischeCategorie.PROCES, f"Legacy fallback - {reasoning}"
+    
+    def _legacy_pattern_matching(self, begrip: str) -> str:
+        """Legacy pattern matching voor fallback situaties."""
+        begrip_lower = begrip.lower()
+        
+        # Eenvoudige patronen
+        if any(begrip_lower.endswith(p) for p in ['atie', 'ing', 'eren']):
+            return "Proces patroon gedetecteerd"
+        elif any(w in begrip_lower for w in ['document', 'bewijs', 'systeem']):
+            return "Type patroon gedetecteerd"
+        elif any(w in begrip_lower for w in ['resultaat', 'uitkomst', 'besluit']):
+            return "Resultaat patroon gedetecteerd"
+        else:
+            return "Geen duidelijke patronen gedetecteerd"
     
     def _generate_category_reasoning(self, begrip: str, category: str, scores: Dict[str, int]) -> str:
         """Genereer uitleg waarom deze categorie gekozen is."""
@@ -521,7 +491,9 @@ class TabbedInterface:
                 # Bepaal automatisch de ontologische categorie
                 primary_org = org_context[0] if org_context else ""
                 primary_jur = jur_context[0] if jur_context else ""
-                auto_categorie, category_reasoning = self._determine_ontological_category(begrip, primary_org, primary_jur)
+                auto_categorie, category_reasoning = asyncio.run(
+                    self._determine_ontological_category(begrip, primary_org, primary_jur)
+                )
                 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
