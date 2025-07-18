@@ -1,5 +1,35 @@
 # CHANGELOG
 
+## [2.3.0] - 2025-07-17
+
+### Added
+- 📚 Complete documentatie reorganisatie en cleanup
+- 📋 Geconsolideerde 6-weken Features First roadmap
+- 🗂️ Gestructureerde backlog met 77+ items en quick wins
+- 📝 SETUP.md quick start guide voor nieuwe developers
+- 🤝 CONTRIBUTING.md met development guidelines
+- 🔧 .env.example environment template
+- 📁 Nieuwe documentatie structuur in docs/
+
+### Changed
+- 🏗️ Services consolidatie voltooid (3→1 UnifiedDefinitionService)
+- 📊 23 roadmap documenten → 1 coherente ROADMAP.md
+- 🗃️ 50+ losse backlog items → gestructureerde BACKLOG.md
+- 🧹 Root directory cleanup - alleen essentiële files
+- 📂 Test files georganiseerd in proper subfolders
+- 🗑️ 3 archive folders verwijderd voor overzicht
+
+### Fixed
+- ✅ Import path chaos gestandaardiseerd
+- ✅ Documentatie duplicatie opgelost
+- ✅ .gitignore updated voor SQLite temp files
+
+### Removed
+- 🗑️ Verouderde roadmap versies (gearchiveerd)
+- 🗑️ Duplicate archive folders
+- 🗑️ Browser Test Checklist files
+- 🗑️ .DS_Store files throughout project
+
 ## [2.2.0] - 2025-07-16
 
 ### Added
