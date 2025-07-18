@@ -1,88 +1,53 @@
 # Architecture Documentation
 
-**Last Consolidation:** 2025-07-14  
-**Version:** 2.0  
-**Status:** Active Development
+Deze folder bevat alle architectuur-gerelateerde documentatie voor het DefinitieAgent project.
 
-## Active Documents
+## 📁 Structuur
 
-### 1. **[GECONSOLIDEERDE_ROADMAP_BACKLOG.md](./GECONSOLIDEERDE_ROADMAP_BACKLOG.md)** 
-**Master Project Planning Document**
-- Consolidates all project analyses and plans
-- 16-week implementation roadmap
-- €110,600 budget breakdown
-- All open tasks and improvements
-- **This is the primary reference document**
+- **[decisions/](decisions/)** - Architecture Decision Records (ADRs)
+- **[../architecture.md](../architecture.md)** - Hoofddocument met systeem architectuur
+- **[../architecture-interactive.html](../architecture-interactive.html)** - Interactief architectuur document met diagrammen
 
-### 2. **[ARCHITECTUUR_ROADMAP.md](./ARCHITECTUUR_ROADMAP.md)**
-**Target State Architecture**
-- Domain-driven design approach
-- 4-layer architecture structure
-- Service contracts and interfaces
-- Migration strategy with feature flags
-- Architecture Decision Records (ADRs)
+## 🏗️ Architectuur Overzicht
 
-### 3. **[ARCHITECTURE_DIAGRAMS.md](./ARCHITECTURE_DIAGRAMS.md)**
-**System Diagrams v2.2**
-- 12 comprehensive Mermaid diagrams
-- Component overview and data flows
-- UI flow diagrams (showing current issues)
-- Error handling architecture
-- Document upload and hybrid context flows
+DefinitieAgent volgt een **Modular Monolith** architectuur met:
 
-### 4. **[BUG_PRIORITY_LIJST.md](./BUG_PRIORITY_LIJST.md)**
-**Active Bug Tracking**
-- 11 bugs categorized by priority (P0-P3)
-- Critical blockers for production deployment
-- UI regression issues documented
-- Estimated fix times and test procedures
+- **Presentation Layer**: Streamlit UI (10 tabs)
+- **Service Layer**: UnifiedDefinitionService (Singleton)
+- **Domain Services**: AI, Validation, Document Processing
+- **Data Layer**: SQLAlchemy + SQLite/PostgreSQL
 
-### 5. **[PROMPT_OPTIMIZATION_PLAN.md](./PROMPT_OPTIMIZATION_PLAN.md)**
-**AI Prompt Improvements**
-- Analysis of current 35,000+ character prompt
-- 70% reduction recommendations
-- Hierarchical structure proposal
-- Template-based generation strategy
+## 🔑 Key Decisions
 
-## Archive
+1. **Monolithische Structuur** - Simpliciteit voor klein team
+2. **Features First** - Gebruikerswaarde boven technische perfectie
+3. **Legacy als Spec** - Bestaande functionaliteit behouden
+4. **Incrementele Migratie** - Strangler Fig pattern
 
-Historical documentation is maintained in the `archive/` directory:
+## 📊 Architectuur Principes
 
-### `/archive/implementation_reports/`
-- Completed phase reports
-- Feature implementation summaries
-- Performance improvement documentation
+- **Clean Architecture**: Dependencies wijzen naar binnen
+- **Domain-Driven Design**: Business logic centraal
+- **SOLID Principles**: Modulaire, testbare code
+- **Feature Folders**: Organisatie per functionaliteit
 
-### `/archive/analyses/`
-- Initial architecture analyses
-- UI/UX evaluations
-- Configuration documentation
+## 🚀 Migration Strategy
 
-### `/archive/`
-- Other historical documents
-- Visual dashboards and demos
+Actieve migratie van legacy naar modern:
 
-## Quick Start
+```
+Legacy System → Facade Layer → Modern Services → Clean Architecture
+```
 
-1. **New to the project?** Start with [GECONSOLIDEERDE_ROADMAP_BACKLOG.md](./GECONSOLIDEERDE_ROADMAP_BACKLOG.md)
-2. **Looking for bugs?** Check [BUG_PRIORITY_LIJST.md](./BUG_PRIORITY_LIJST.md)
-3. **Architecture questions?** See [ARCHITECTUUR_ROADMAP.md](./ARCHITECTUUR_ROADMAP.md)
-4. **Visual overview?** Browse [ARCHITECTURE_DIAGRAMS.md](./ARCHITECTURE_DIAGRAMS.md)
+## 📚 Gerelateerde Documenten
 
-## Document Status
+- [Technical Docs](../technical/) - API, Database, Validation
+- [Setup Guide](../setup/) - Development environment
+- [Roadmap](../roadmap.md) - 6-week implementation plan
 
-| Document | Purpose | Update Frequency | Owner |
-|----------|---------|------------------|-------|
-| GECONSOLIDEERDE_ROADMAP_BACKLOG | Master planning | Weekly | Dev Team |
-| BUG_PRIORITY_LIJST | Bug tracking | Daily | Dev Team |
-| ARCHITECTUUR_ROADMAP | Target architecture | Monthly | Architect |
-| ARCHITECTURE_DIAGRAMS | Visual documentation | As needed | Architect |
-| PROMPT_OPTIMIZATION_PLAN | AI improvements | As needed | AI Team |
+## 🔗 Quick Links
 
-## Contributing
-
-When updating architecture documentation:
-1. Always update the master planning document if adding new tasks
-2. Keep bug list current with latest findings
-3. Update diagram version when adding new diagrams
-4. Archive outdated documents rather than deleting them
+- [Huidige Architectuur](../architecture.md#system-architecture)
+- [Gewenste Architectuur](../architecture-interactive.html)
+- [ADR Index](decisions/README.md)
+- [Migration Plan](decisions/ADR-004-incrementele-migratie-strategie.md)
