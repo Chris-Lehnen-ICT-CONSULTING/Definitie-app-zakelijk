@@ -8,12 +8,10 @@ import time
 from unittest.mock import patch
 
 # Import available modules
-from config import (
-    get_config_manager, get_config, ConfigSection,
-    get_api_config, get_cache_config, get_paths_config,
-    get_default_model, get_default_temperature,
-    laad_toetsregels
+from config.config_manager import (
+    get_config_manager, get_config, ConfigSection
 )
+from config.config_loader import laad_toetsregels
 from utils.cache import cached, clear_cache, get_cache_stats
 from ai_toetser.modular_toetser import ModularToetser
 

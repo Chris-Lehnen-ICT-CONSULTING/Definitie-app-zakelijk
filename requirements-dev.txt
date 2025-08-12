@@ -1,0 +1,29 @@
+# Development dependencies
+pytest>=8.0.0
+pytest-cov>=4.1.0
+pytest-asyncio>=0.23.0
+pytest-mock>=3.12.0
+coverage[toml]>=7.0
+ruff>=0.3.0
+mypy>=1.8.0
+black>=24.0.0
+isort>=5.13.0
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.5.0
+
+# Code quality
+pre-commit>=3.6.0
+pylint>=3.0.0
+
+# Testing utilities
+faker>=22.0.0
+factory-boy>=3.3.0
+responses>=0.24.0
+freezegun>=1.4.0
+
+# Performance testing
+pytest-benchmark>=4.0.0
+locust>=2.20.0
+memory-profiler>=0.61.0

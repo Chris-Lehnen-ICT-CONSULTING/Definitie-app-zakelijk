@@ -16,7 +16,7 @@ from typing import Dict, List, Any, Optional
 # Import all major components for integration testing
 from ai_toetser.modular_toetser import ModularToetser
 from config.config_loader import laad_toetsregels
-from config import get_config_manager, get_api_config
+from config.config_manager import get_config_manager, ConfigSection
 from utils.cache import cached, clear_cache, get_cache_stats
 from validation.sanitizer import get_sanitizer, sanitize_user_input
 from document_processing.document_extractor import extract_text_from_file
