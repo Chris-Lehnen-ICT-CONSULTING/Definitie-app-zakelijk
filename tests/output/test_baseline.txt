@@ -1,0 +1,148 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.3, pytest-8.4.1, pluggy-1.6.0
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/tests
+configfile: pytest.ini
+plugins: anyio-4.9.0, cov-6.2.1, asyncio-1.0.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 383 items / 13 errors
+
+==================================== ERRORS ====================================
+__________ ERROR collecting functionality/test_deep_functionality.py ___________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/functionality/test_deep_functionality.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/functionality/test_deep_functionality.py:32: in <module>
+    from prompt_builder.prompt_logger import setup_logging as setup_prompt_logging, get_last_prompts
+E   ModuleNotFoundError: No module named 'prompt_builder.prompt_logger'
+__________ ERROR collecting integration/test_comprehensive_system.py ___________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/integration/test_comprehensive_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_comprehensive_system.py:14: in <module>
+    from config import (
+E   ImportError: cannot import name 'get_config_manager' from 'config' (/Users/chrislehnen/Projecten/Definitie-app/src/config/__init__.py). Did you mean: 'config_manager'?
+________ ERROR collecting integration/test_integration_comprehensive.py ________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/integration/test_integration_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_integration_comprehensive.py:19: in <module>
+    from config import get_config_manager, get_api_config
+E   ImportError: cannot import name 'get_config_manager' from 'config' (/Users/chrislehnen/Projecten/Definitie-app/src/config/__init__.py). Did you mean: 'config_manager'?
+_________ ERROR collecting integration/test_performance_comparison.py __________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/integration/test_performance_comparison.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/integration/test_performance_comparison.py:14: in <module>
+    import memory_profiler
+E   ModuleNotFoundError: No module named 'memory_profiler'
+_______________ ERROR collecting performance/test_performance.py _______________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/performance/test_performance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/performance/test_performance.py:13: in <module>
+    from utils.async_api import AsyncAPIManager
+E   ImportError: cannot import name 'AsyncAPIManager' from 'utils.async_api' (/Users/chrislehnen/Projecten/Definitie-app/src/utils/async_api.py)
+________ ERROR collecting performance/test_performance_comprehensive.py ________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/performance/test_performance_comprehensive.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/performance/test_performance_comprehensive.py:20: in <module>
+    from config import get_config_manager, get_api_config
+E   ImportError: cannot import name 'get_config_manager' from 'config' (/Users/chrislehnen/Projecten/Definitie-app/src/config/__init__.py). Did you mean: 'config_manager'?
+_____________ ERROR collecting rate_limiting/test_rate_limiter.py ______________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/rate_limiting/test_rate_limiter.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/rate_limiting/test_rate_limiter.py:8: in <module>
+    from utils.integrated_resilience import get_resilience_system
+E   ImportError: cannot import name 'get_resilience_system' from 'utils.integrated_resilience' (/Users/chrislehnen/Projecten/Definitie-app/src/utils/integrated_resilience.py)
+____________ ERROR collecting rate_limiting/test_ui_rate_limiter.py ____________
+tests/rate_limiting/test_ui_rate_limiter.py:11: in <module>
+    st.set_page_config(
+    ^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'MockStreamlit' object has no attribute 'set_page_config'
+__________________ ERROR collecting test_enhanced_toetser.py ___________________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/test_enhanced_toetser.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_enhanced_toetser.py:10: in <module>
+    from ai_toetser import validate_definitie_rich, ToetsregelValidationResult
+E   ImportError: cannot import name 'validate_definitie_rich' from 'ai_toetser' (/Users/chrislehnen/Projecten/Definitie-app/src/ai_toetser/__init__.py)
+__________________ ERROR collecting unit/test_cache_system.py __________________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/unit/test_cache_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_cache_system.py:13: in <module>
+    from utils.cache import cached, clear_cache, get_cache_stats, CacheManager
+E   ImportError: cannot import name 'CacheManager' from 'utils.cache' (/Users/chrislehnen/Projecten/Definitie-app/src/utils/cache.py)
+_________________ ERROR collecting unit/test_config_system.py __________________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/unit/test_config_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_config_system.py:11: in <module>
+    from config import (
+E   ImportError: cannot import name 'ConfigManager' from 'config' (/Users/chrislehnen/Projecten/Definitie-app/src/config/__init__.py). Did you mean: 'config_manager'?
+__________________ ERROR collecting unit/test_toets_ver_03.py __________________
+tests/unit/test_toets_ver_03.py:5: in <module>
+    regel_VER_03 = next(r for r in toetsregels if r["id"] == "VER-03")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_toets_ver_03.py:5: in <genexpr>
+    regel_VER_03 = next(r for r in toetsregels if r["id"] == "VER-03")
+                                                  ^^^^^^^
+E   TypeError: string indices must be integers, not 'str'
+_________________ ERROR collecting unit/test_working_system.py _________________
+ImportError while importing test module '/Users/chrislehnen/Projecten/Definitie-app/tests/unit/test_working_system.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.13/3.13.3/Frameworks/Python.framework/Versions/3.13/lib/python3.13/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/unit/test_working_system.py:11: in <module>
+    from config import (
+E   ImportError: cannot import name 'get_config_manager' from 'config' (/Users/chrislehnen/Projecten/Definitie-app/src/config/__init__.py). Did you mean: 'config_manager'?
+=========================== short test summary info ============================
+ERROR tests/functionality/test_deep_functionality.py
+ERROR tests/integration/test_comprehensive_system.py
+ERROR tests/integration/test_integration_comprehensive.py
+ERROR tests/integration/test_performance_comparison.py
+ERROR tests/performance/test_performance.py
+ERROR tests/performance/test_performance_comprehensive.py
+ERROR tests/rate_limiting/test_rate_limiter.py
+ERROR tests/rate_limiting/test_ui_rate_limiter.py - AttributeError: 'MockStre...
+ERROR tests/test_enhanced_toetser.py
+ERROR tests/unit/test_cache_system.py
+ERROR tests/unit/test_config_system.py
+ERROR tests/unit/test_toets_ver_03.py - TypeError: string indices must be int...
+ERROR tests/unit/test_working_system.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 13 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 13 errors in 1.88s ==============================
