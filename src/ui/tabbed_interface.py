@@ -30,6 +30,8 @@ from integration.definitie_checker import DefinitieChecker  # Definitie integrat
 from generation.definitie_generator import OntologischeCategorie  # Ontologische categorieën
 from document_processing.document_processor import get_document_processor  # Document processor factory
 from document_processing.document_extractor import supported_file_types  # Ondersteunde bestandstypen
+# Nieuwe services imports
+from services import get_definition_service, render_feature_flag_toggle
 # Hybrid context imports - optionele module voor hybride context verrijking
 try:
     from hybrid_context.hybrid_context_engine import get_hybrid_context_engine  # Hybride context engine factory
@@ -47,7 +49,17 @@ class TabbedInterface:
     def __init__(self):
         """Initialiseer tabbed interface met alle benodigde services."""
         self.repository = get_definitie_repository()  # Haal database repository instantie op
-        self.checker = DefinitieChecker(self.repository)  # Maak definitie checker instantie
+        
+        # Gebruik nieuwe service factory voor definitie service
+        self.definition_service = get_definition_service()
+        
+        # Maak DefinitieChecker met de service
+        self.checker = DefinitieChecker(self.repository)
+        # Update checker om nieuwe service te gebruiken indien beschikbaar
+        if hasattr(self.definition_service, 'get_service_info'):
+            # V2 service heeft get_service_info methode
+            self.checker._definition_service = self.definition_service
+        
         self.context_selector = ContextSelector()  # Initialiseer context selector component
         
         # Initialiseer alle tab componenten met repository referentie
@@ -256,6 +268,20 @@ class TabbedInterface:
     
     def _render_header(self):
         """Render applicatie header."""
+        
+        # Sidebar voor settings
+        with st.sidebar:
+            st.markdown("### ⚙️ Instellingen")
+            
+            # Feature flag toggle voor nieuwe services
+            render_feature_flag_toggle()
+            
+            st.markdown("---")
+            
+            # Service info
+            if hasattr(self.definition_service, 'get_service_info'):
+                info = self.definition_service.get_service_info()
+                st.info(f"**Service Mode:** {info['service_mode']}\n**Architecture:** {info['architecture']}")
         
         # Header met logo en titel
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -511,18 +537,37 @@ class TabbedInterface:
                 if use_hybrid:
                     st.info("🔄 Hybrid context activief - combineer document en web context...")
                 
-                # Voer complete workflow uit met mogelijke hybrid enhancement
-                check_result, agent_result, saved_record = self.checker.generate_with_check(
-                    begrip=begrip,
-                    organisatorische_context=primary_org,
-                    juridische_context=primary_jur,
-                    categorie=auto_categorie,
-                    force_generate=False,
-                    created_by="global_user",
-                    # Hybride context parameters
-                    selected_document_ids=selected_doc_ids if use_hybrid else None,
-                    enable_hybrid=use_hybrid
-                )
+                # Gebruik de nieuwe service factory indien beschikbaar
+                if hasattr(self, 'definition_service') and hasattr(self.definition_service, 'get_service_info'):
+                    # Gebruik de V2 service voor generatie
+                    service_result = self.definition_service.generate_definition(
+                        begrip=begrip,
+                        context_dict={
+                            'organisatorisch': org_context,
+                            'juridisch': jur_context,
+                            'wettelijk': context_data.get('wettelijke_basis', [])
+                        },
+                        organisatie=primary_org,
+                        categorie=auto_categorie
+                    )
+                    
+                    # Converteer naar checker formaat voor UI compatibility
+                    check_result = None
+                    agent_result = service_result
+                    saved_record = None
+                else:
+                    # Legacy path
+                    check_result, agent_result, saved_record = self.checker.generate_with_check(
+                        begrip=begrip,
+                        organisatorische_context=primary_org,
+                        juridische_context=primary_jur,
+                        categorie=auto_categorie,
+                        force_generate=False,
+                        created_by="global_user",
+                        # Hybride context parameters
+                        selected_document_ids=selected_doc_ids if use_hybrid else None,
+                        enable_hybrid=use_hybrid
+                    )
                 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None

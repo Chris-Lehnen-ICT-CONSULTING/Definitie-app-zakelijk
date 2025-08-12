@@ -15,7 +15,7 @@ from openai import OpenAI  # OpenAI API client voor AI communicatie
 # --- ⚙️ Config-loaders en verboden-woordenbeheer ---
 # ✅ Centrale JSON-loaders voor configuratie management
 from config.config_loader import laad_toetsregels  # Laadt toetsregels uit JSON configuratie
-from config.config_loader import load_repository  # Repository loader functie
+# from config.config_loader import load_repository  # Repository loader functie - REMOVED: not used
 # ✅ Opschoning van GPT-definitie (externe module)
 from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_startregex  # Verboden woorden management
 
@@ -1962,7 +1962,7 @@ def toets_op_basis_van_regel(
 # ✅ Voorbeeldgebruik
 if __name__ == "__main__":
     # 1️⃣ Laad alle officiële definities uit je JSON
-    repository = load_repository("src/config/definities.json ")
+    repository = {}  # REMOVED: load_repository not available
 
     # 2️⃣ Laad je toetsregels zoals voorheen
     regels = laad_toetsregels()

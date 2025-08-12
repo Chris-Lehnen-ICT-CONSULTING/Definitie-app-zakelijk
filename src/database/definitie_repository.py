@@ -294,7 +294,9 @@ class DefinitieRepository:
                         created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                         created_by VARCHAR(255),
-                        source_type VARCHAR(50) DEFAULT 'generated'
+                        source_type VARCHAR(50) DEFAULT 'generated',
+                        datum_voorstel TIMESTAMP,
+                        ketenpartners TEXT
                     )
                 """)
                 conn.commit()

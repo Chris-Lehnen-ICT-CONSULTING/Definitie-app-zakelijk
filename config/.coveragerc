@@ -1,0 +1,55 @@
+[run]
+source = src
+branch = True
+omit = 
+    */tests/*
+    */test_*
+    */__init__.py
+    */migrations/*
+    */config.py
+    */setup.py
+    # UI files kunnen optioneel uitgesloten worden
+    # */ui/*
+    # Legacy/backup files
+    */unified_definition_service.py
+    */unified_definition_service_v2.py
+    */*.backup
+
+[report]
+# Regels die niet meegeteld hoeven te worden voor coverage
+exclude_lines =
+    # Standard pragma
+    pragma: no cover
+    
+    # Debug-only code
+    def __repr__
+    def __str__
+    
+    # Defensive programming
+    raise AssertionError
+    raise NotImplementedError
+    
+    # Non-runnable code
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstract
+    @abstractmethod
+    
+    # Optional dependencies
+    except ImportError:
+    MONITORING_AVAILABLE = False
+    
+    # Logging
+    logger.debug
+    logger.info
+    logger.warning
+    logger.error
+    
+# Minimum coverage percentage
+fail_under = 80
+
+[html]
+directory = htmlcov
+
+[xml]
+output = coverage.xml
