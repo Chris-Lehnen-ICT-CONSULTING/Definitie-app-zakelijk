@@ -8,11 +8,9 @@ import tempfile
 import yaml
 from unittest.mock import patch, MagicMock
 
-from config import (
+from config.config_manager import (
     ConfigManager, Environment, ConfigSection,
-    get_config_manager, get_config, set_config, reload_config,
-    get_api_config, get_cache_config, get_paths_config,
-    get_openai_api_key, get_default_model, get_default_temperature
+    get_config_manager, get_config, set_config, reload_config
 )
 
 
