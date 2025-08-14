@@ -24,6 +24,7 @@ Na een uitgebreide analyse van 28+ modules in de DefinitieApp codebase is de dia
 - **2 export modules**: export/, exports/
 - **2 logging modules**: log/, logs/
 - **2 definitie generators**: definitie_generator/, generation/
+- **~~5 web lookup implementaties~~**: ✅ OPGELOST - Geconsolideerd naar WebLookupService (2025-01-14)
 
 **Impact**: Inconsistente functionaliteit, onderhoudsnachtmerrie, verwarring voor ontwikkelaars.
 
