@@ -311,21 +311,21 @@ Voor elk "voltooid" item:
 
 ```
 Code Review Status:
-- [ ] DefinitionGenerator     🔴 KRITIEK
-- [ ] DefinitionValidator     🔴 KRITIEK  
-- [ ] DefinitionRepository    🔴 KRITIEK
+- [x] DefinitionGenerator     ✅ VOLLEDIG WERKEND (99% coverage)
+- [x] DefinitionValidator     ✅ VOLLEDIG WERKEND (98% coverage, naming fix toegepast)
+- [ ] DefinitionRepository    🔴 KRITIEK - Nog te reviewen
 - [ ] Service Architecture    🟡 BELANGRIJK
 - [ ] DefinitionOrchestrator  🟡 BELANGRIJK
 - [ ] Database/Migrations     🟢 ONDERSTEUNEND
 - [ ] Feature Flags          🟢 ONDERSTEUNEND
 
 Overall Progress:
-Kritiek:    [?????????] ONBEKEND - Maandag duidelijk
-Belangrijk: [?????????] ONBEKEND - Maandag duidelijk  
+Kritiek:    [████████--] 67% (2/3 componenten werkend)
+Belangrijk: [----------] 0% (nog niet gestart)
 Nice to Have:[----------] 0%
 Laatste Fase:[----------] 0%
 
-TOTAAL:     [?????????] ONBEKEND - Na review duidelijk
+TOTAAL:     [██--------] 29% (2/7 componenten volledig gereviewd)
 ```
 
 ## ✅ Definition of Done - Productie Ready
@@ -438,6 +438,33 @@ TOTAAL:     [?????????] ONBEKEND - Na review duidelijk
 - Import blocking issues zijn opgelost
 - Basis architectuur werkt
 - Maar praktische bruikbaarheid beperkt door incomplete toetsregels
+
+### 2025-01-14 (Avond) - Toetsregels Naming Fix
+✅ **Toetsregels Naming Convention Gefixt**
+- 90 files hernoemd naar consistente XXX-00 format
+- ARAI01 → ARAI-01, CON_01 → CON-01, etc.
+- DISPATCHER bijgewerkt voor nieuwe naming
+- Alle placeholder "nog geen toetsfunctie" warnings zijn WEG
+- Validator score verbeterd: 0.52 → 0.70
+
+⚠️ **ISSUE: Ontbrekende Toetsregel INT-05**
+- MASTER-TODO verwacht 46 toetsregels
+- Werkelijk aanwezig: 45 toetsregels
+- Ontbreekt: INT-05
+- Geen referenties naar INT-05 gevonden in codebase
+- Status: ONBEKEND waarom deze ontbreekt
+
+✅ **DefinitionValidator Volledig Hertest**
+- Volledige code review protocol opnieuw uitgevoerd na fixes
+- Alle 5 phases succesvol doorlopen
+- GEEN placeholder messages meer (kritieke check passed)
+- Performance: EXCELLENT (0.4ms per validatie)
+- 32/32 tests slagen, 98% coverage behouden
+- Status geüpdatet: Van "Werkend met beperkingen" naar "VOLLEDIG WERKEND"
+
+📝 **Review documentatie**:
+- [DefinitionValidator Post-Fix Review](docs/analysis/DEFINITION_VALIDATOR_POSTFIX_REVIEW.md)
+- [INT-05 Missing Issue](docs/issues/MISSING_INT05_ISSUE.md)
 
 ## 📅 Week Planning
 

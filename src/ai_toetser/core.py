@@ -1876,15 +1876,15 @@ DISPATCHER = {
     "VER-01": toets_VER_01,
     "VER-02": toets_VER_02,
     "VER-03": toets_VER_03,
-    "ARAI01": toets_ARAI01,
-    "ARAI02": toets_ARAI02,
-    "ARAI02SUB1": toets_ARAI02SUB1,
-    "ARAI02SUB2": toets_ARAI02SUB2,
-    "ARAI03": toets_ARAI03,
-    "ARAI04": toets_ARAI04,
-    "ARAI04SUB1": toets_ARAI04SUB1,
-    "ARAI05": toets_ARAI05,
-    "ARAI06": toets_ARAI06,
+    "ARAI-01": toets_ARAI01,
+    "ARAI-02": toets_ARAI02,
+    "ARAI-02SUB1": toets_ARAI02SUB1,
+    "ARAI-02SUB2": toets_ARAI02SUB2,
+    "ARAI-03": toets_ARAI03,
+    "ARAI-04": toets_ARAI04,
+    "ARAI-04SUB1": toets_ARAI04SUB1,
+    "ARAI-05": toets_ARAI05,
+    "ARAI-06": toets_ARAI06,
 }
 
 # ✅ Centrale dispatcher per regel met dynamische toewijzing
@@ -1928,7 +1928,7 @@ def toets_op_basis_van_regel(
     if not functie:
         return f"🟡 {regel_id}: nog geen toetsfunctie geïmplementeerd"
 
-    regels_met_begrip = {"SAM-05", "ARAI06"}
+    regels_met_begrip = {"SAM-05", "ARAI-06"}
     regels_met_bronnen = {"CON-02"}
     regels_met_context = {"CON-01"}
 
