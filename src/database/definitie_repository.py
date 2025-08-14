@@ -256,6 +256,40 @@ class DefinitieRepository:
         self.db_path = db_path
         self._init_database()
     
+    def _get_connection(self, timeout: float = 30.0) -> sqlite3.Connection:
+        """
+        Maak database connectie met proper timeout en settings.
+        
+        Args:
+            timeout: Connection timeout in seconden
+            
+        Returns:
+            SQLite connection object
+        """
+        conn = sqlite3.connect(
+            self.db_path,
+            timeout=timeout,  # Voorkom "database is locked" errors
+            isolation_level=None,  # Autocommit mode
+            check_same_thread=False  # Multi-threading ondersteuning
+        )
+        # Zet pragmas voor betere performance en concurrency
+        conn.execute("PRAGMA journal_mode=WAL")  # Write-Ahead Logging
+        conn.execute("PRAGMA synchronous=NORMAL")  # Snellere writes
+        conn.execute("PRAGMA temp_store=MEMORY")  # Temp tables in memory
+        conn.execute("PRAGMA foreign_keys=ON")  # Foreign key constraints
+        conn.row_factory = sqlite3.Row  # Enables column access by name
+        return conn
+    
+    def _has_legacy_columns(self) -> bool:
+        """Check if database has legacy columns (datum_voorstel, ketenpartners)."""
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.execute("PRAGMA table_info(definities)")
+                columns = {row[1] for row in cursor.fetchall()}
+                return 'datum_voorstel' in columns and 'ketenpartners' in columns
+        except Exception:
+            return False
+    
     def _init_database(self):
         """Initialiseer database met schema."""
         # Zorg dat database directory bestaat
@@ -265,8 +299,7 @@ class DefinitieRepository:
         # Laad schema
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("PRAGMA foreign_keys = ON")
+            with self._get_connection() as conn:
                 with open(schema_path, 'r', encoding='utf-8') as f:
                     schema_sql = f.read()
                     try:
@@ -278,8 +311,7 @@ class DefinitieRepository:
         else:
             # Fallback schema creation if schema.sql not found
             logger.warning("schema.sql not found, creating basic schema")
-            with sqlite3.connect(self.db_path) as conn:
-                conn.execute("PRAGMA foreign_keys = ON")
+            with self._get_connection() as conn:
                 conn.execute("""
                     CREATE TABLE IF NOT EXISTS definities (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -340,11 +372,6 @@ class DefinitieRepository:
         
         return statements
     
-    def _get_connection(self) -> sqlite3.Connection:
-        """Haal database connectie op met Row factory."""
-        conn = sqlite3.connect(self.db_path)
-        conn.row_factory = sqlite3.Row  # Enables column access by name
-        return conn
     
     def create_definitie(self, record: DefinitieRecord) -> int:
         """
@@ -372,29 +399,52 @@ class DefinitieRepository:
             record.created_at = now
             record.updated_at = now
             
-            # Insert record
-            cursor = conn.execute("""
-                INSERT INTO definities (
-                    begrip, definitie, categorie, organisatorische_context, juridische_context,
-                    status, version_number, previous_version_id,
-                    validation_score, validation_date, validation_issues,
-                    source_type, source_reference, imported_from,
-                    created_at, updated_at, created_by, updated_by,
-                    approved_by, approved_at, approval_notes,
-                    last_exported_at, export_destinations,
-                    datum_voorstel, ketenpartners
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """, (
-                record.begrip, record.definitie, record.categorie,
-                record.organisatorische_context, record.juridische_context,
-                record.status, record.version_number, record.previous_version_id,
-                record.validation_score, record.validation_date, record.validation_issues,
-                record.source_type, record.source_reference, record.imported_from,
-                record.created_at, record.updated_at, record.created_by, record.updated_by,
-                record.approved_by, record.approved_at, record.approval_notes,
-                record.last_exported_at, record.export_destinations,
-                record.datum_voorstel, record.ketenpartners
-            ))
+            # Insert record - check which columns exist
+            if self._has_legacy_columns():
+                cursor = conn.execute("""
+                    INSERT INTO definities (
+                        begrip, definitie, categorie, organisatorische_context, juridische_context,
+                        status, version_number, previous_version_id,
+                        validation_score, validation_date, validation_issues,
+                        source_type, source_reference, imported_from,
+                        created_at, updated_at, created_by, updated_by,
+                        approved_by, approved_at, approval_notes,
+                        last_exported_at, export_destinations,
+                        datum_voorstel, ketenpartners
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    record.begrip, record.definitie, record.categorie,
+                    record.organisatorische_context, record.juridische_context,
+                    record.status, record.version_number, record.previous_version_id,
+                    record.validation_score, record.validation_date, record.validation_issues,
+                    record.source_type, record.source_reference, record.imported_from,
+                    record.created_at, record.updated_at, record.created_by, record.updated_by,
+                    record.approved_by, record.approved_at, record.approval_notes,
+                    record.last_exported_at, record.export_destinations,
+                    record.datum_voorstel, record.ketenpartners
+                ))
+            else:
+                # Fallback voor databases zonder legacy kolommen
+                cursor = conn.execute("""
+                    INSERT INTO definities (
+                        begrip, definitie, categorie, organisatorische_context, juridische_context,
+                        status, version_number, previous_version_id,
+                        validation_score, validation_date, validation_issues,
+                        source_type, source_reference, imported_from,
+                        created_at, updated_at, created_by, updated_by,
+                        approved_by, approved_at, approval_notes,
+                        last_exported_at, export_destinations
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """, (
+                    record.begrip, record.definitie, record.categorie,
+                    record.organisatorische_context, record.juridische_context,
+                    record.status, record.version_number, record.previous_version_id,
+                    record.validation_score, record.validation_date, record.validation_issues,
+                    record.source_type, record.source_reference, record.imported_from,
+                    record.created_at, record.updated_at, record.created_by, record.updated_by,
+                    record.approved_by, record.approved_at, record.approval_notes,
+                    record.last_exported_at, record.export_destinations
+                ))
             
             record_id = cursor.lastrowid
             
@@ -825,11 +875,17 @@ class DefinitieRepository:
                          gewijzigd_door: str = None, reden: str = None):
         """Log wijziging in geschiedenis tabel."""
         with self._get_connection() as conn:
+            # Haal begrip op voor de geschiedenis log
+            begrip_result = conn.execute(
+                "SELECT begrip FROM definities WHERE id = ?", (definitie_id,)
+            ).fetchone()
+            begrip = begrip_result['begrip'] if begrip_result else 'unknown'
+            
             conn.execute("""
                 INSERT INTO definitie_geschiedenis 
-                (definitie_id, wijziging_type, wijziging_reden, gewijzigd_door)
-                VALUES (?, ?, ?, ?)
-            """, (definitie_id, wijziging_type, reden, gewijzigd_door))
+                (definitie_id, begrip, wijziging_type, wijziging_reden, gewijzigd_door)
+                VALUES (?, ?, ?, ?, ?)
+            """, (definitie_id, begrip, wijziging_type, reden, gewijzigd_door))
     
     def _log_import_export(self, operatie_type: str, bestand_pad: str, 
                           verwerkt: int, succesvol: int, gefaald: int):

@@ -1,0 +1,33 @@
+{
+  "id": "SAM_08",
+  "naam": "Synoniemen hebben één definitie",
+  "uitleg": "Voor synoniemen wordt één en dezelfde definitie gehanteerd.",
+  "toelichting": "Als meerdere termen als synoniem worden beschouwd, moet exact dezelfde definitie worden gebruikt. Dit voorkomt inconsistentie en verwarring over betekenisverschillen tussen termen die eigenlijk gelijk zijn.",
+  "toetsvraag": "Wordt voor synoniemen exact dezelfde definitie gebruikt?",
+  "herkenbaar_patronen": [
+    "\\bzie\\s+term\\s+[A-Z]",
+    "\\bsynoniem\\s+van\\b",
+    "\\book wel\\b"
+  ],
+  "goede_voorbeelden": [
+    "term A: proces waarbij gegevens worden verzameld",
+    "term B: zie term A"
+  ],
+  "foute_voorbeelden": [
+    "term A: proces waarbij gegevens worden verzameld",
+    "term B: methode om gegevens op te slaan"
+  ],
+  "prioriteit": "hoog",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "samenhang van termen",
+  "thema": "begripsconsistentie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Synoniemen hebben één definitie",
+      "fullurl": "https://www.astraonline.nl/index.php/Synoniemen_hebben_%C3%A9%C3%A9n_definitie"
+    }
+  ]
+}

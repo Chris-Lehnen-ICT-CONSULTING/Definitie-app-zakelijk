@@ -75,9 +75,16 @@ class APIConfigAdapter(ConfigAdapter):
             'max_tokens': config['max_tokens']
         }
         
+<<<<<<< HEAD
         # Apply overrides, maar filter None waarden om defaults te behouden
         valid_overrides = {k: v for k, v in overrides.items() if v is not None}
         params.update(valid_overrides)
+=======
+        # Apply overrides, but only if they are not None
+        for key, value in overrides.items():
+            if value is not None:
+                params[key] = value
+>>>>>>> origin/main
         
         return params
     

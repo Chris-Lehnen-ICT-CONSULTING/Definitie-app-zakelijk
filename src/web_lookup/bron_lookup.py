@@ -606,7 +606,7 @@ if __name__ == "__main__":
         herkenner = BronHerkenner()
         gevonden_bronnen = herkenner.herken_bronnen_in_tekst(test_tekst)
         
-        print(f"🔍 Gevonden {len(gevonden_bronnen)} bronnen in test tekst:")
+        print(f"📚 Gevonden {len(gevonden_bronnen)} bronnen in test tekst:")
         for bron in gevonden_bronnen:
             print(f"   - {bron.naam} ({bron.type.value})")
         
@@ -614,7 +614,7 @@ if __name__ == "__main__":
         zoeker = BronZoeker()
         zoek_resultaat = await zoeker.zoek_bronnen("authenticatie", max_resultaten=5)
         
-        print(f"\n🔍 Zoekresultaat voor 'authenticatie':")
+        print(f"\n🔎 Zoekresultaat voor 'authenticatie':")
         print(f"   Zoektijd: {zoek_resultaat.zoek_tijd:.3f}s")
         print(f"   Gevonden: {len(zoek_resultaat.gevonden_bronnen)} van {zoek_resultaat.totaal_gevonden}")
         
