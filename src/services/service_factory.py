@@ -86,6 +86,7 @@ class ServiceAdapter:
         """
         self.container = container
         self.orchestrator = container.orchestrator()
+        self.web_lookup = container.web_lookup()
     
     async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
         """
@@ -134,6 +135,62 @@ class ServiceAdapter:
             'orchestrator': self.orchestrator.get_stats()
         }
         return stats
+    
+    async def search_web_sources(self, term: str, sources: list = None) -> dict:
+        """
+        Legacy compatible web lookup.
+        
+        Args:
+            term: Zoekterm
+            sources: Lijst van bronnen om te doorzoeken
+            
+        Returns:
+            Legacy format resultaat dict
+        """
+        from services.interfaces import LookupRequest
+        
+        request = LookupRequest(
+            term=term,
+            sources=sources,
+            max_results=5
+        )
+        
+        results = await self.web_lookup.lookup(request)
+        
+        # Converteer naar legacy format
+        legacy_results = {}
+        for result in results:
+            legacy_results[result.source.name] = {
+                'definitie': result.definition,
+                'context': result.context,
+                'voorbeelden': result.examples,
+                'verwijzingen': result.references,
+                'betrouwbaarheid': result.source.confidence
+            }
+        
+        return legacy_results
+    
+    def validate_source(self, text: str) -> dict:
+        """Legacy compatible bron validatie."""
+        source = self.web_lookup.validate_source(text)
+        return {
+            'bron': source.name,
+            'betrouwbaarheid': source.confidence,
+            'is_juridisch': source.is_juridical
+        }
+    
+    def find_juridische_verwijzingen(self, text: str) -> list:
+        """Legacy compatible juridische verwijzingen."""
+        refs = self.web_lookup.find_juridical_references(text)
+        return [
+            {
+                'type': ref.type,
+                'verwijzing': ref.reference,
+                'context': ref.context,
+                'betrouwbaarheid': ref.confidence
+            }
+            for ref in refs
+        ]
     
     # Voeg meer legacy compatible methods toe indien nodig...
 

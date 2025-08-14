@@ -12,7 +12,7 @@ from enum import Enum  # Enumeraties voor status en context types
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 import json  # JSON verwerking voor data export/import
 import os  # Operating system interface voor bestandstoegang
-from pathlib import Path  # Object-georiÃ«nteerde pad manipulatie
+from pathlib import Path  # Object-georiënteerde pad manipulatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor web lookup module
 
@@ -708,7 +708,7 @@ if __name__ == "__main__":
         def2 = "Procedure voor vaststelling van een persoon zijn identiteit"
         
         gelijkenis = analyzer.bereken_gelijkenis(def1, def2)
-        print(f"\n=ï¿½ Gelijkenis analyse:")
+        print(f"\n📊 Gelijkenis analyse:")
         print(f"   Definitie 1: {def1}")
         print(f"   Definitie 2: {def2}")
         print(f"   Gelijkenis score: {gelijkenis:.3f}")

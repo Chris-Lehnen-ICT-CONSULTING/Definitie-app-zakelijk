@@ -13,11 +13,13 @@ from services.definition_generator import DefinitionGenerator, GeneratorConfig
 from services.definition_validator import DefinitionValidator, ValidatorConfig
 from services.definition_repository import DefinitionRepository
 from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
+from services.web_lookup_service import WebLookupService
 from services.interfaces import (
     DefinitionGeneratorInterface,
     DefinitionValidatorInterface,
     DefinitionRepositoryInterface,
-    DefinitionOrchestratorInterface
+    DefinitionOrchestratorInterface,
+    WebLookupServiceInterface
 )
 
 logger = logging.getLogger(__name__)
@@ -128,6 +130,20 @@ class ServiceContainer:
             logger.info("DefinitionOrchestrator instance aangemaakt")
         return self._instances['orchestrator']
     
+    def web_lookup(self) -> WebLookupServiceInterface:
+        """
+        Get of create WebLookupService instance.
+        
+        Returns:
+            Singleton instance van WebLookupService
+        """
+        if 'web_lookup' not in self._instances:
+            from config import Config
+            config = Config()
+            self._instances['web_lookup'] = WebLookupService(config)
+            logger.info("WebLookupService instance aangemaakt")
+        return self._instances['web_lookup']
+    
     # Utility methods
     
     def reset(self):
@@ -140,7 +156,7 @@ class ServiceContainer:
         Get een service op naam.
         
         Args:
-            name: Naam van de service (generator, validator, repository, orchestrator)
+            name: Naam van de service (generator, validator, repository, orchestrator, web_lookup)
             
         Returns:
             Service instance of None
@@ -149,7 +165,8 @@ class ServiceContainer:
             'generator': self.generator,
             'validator': self.validator,
             'repository': self.repository,
-            'orchestrator': self.orchestrator
+            'orchestrator': self.orchestrator,
+            'web_lookup': self.web_lookup
         }
         
         if name in service_map:
