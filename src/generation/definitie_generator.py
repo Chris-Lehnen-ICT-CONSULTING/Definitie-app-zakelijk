@@ -15,14 +15,11 @@ import json  # JSON verwerking voor API communicatie
 # Importeer configuratie componenten
 from toetsregels.manager import get_toetsregel_manager, ToetsregelManager  # Toetsregel beheer
 from config.config_adapters import get_api_config  # API configuratie toegang
-<<<<<<< HEAD
-=======
 from voorbeelden.unified_voorbeelden import (
     get_examples_generator, ExampleRequest, ExampleType, GenerationMode,  # Voorbeeld generatie klassen
     genereer_alle_voorbeelden  # Bulk voorbeeld generatie functie
 )
 from opschoning.opschoning import opschonen  # Definitie opschoning functie
->>>>>>> origin/main
 # Hybride context imports
 try:
     from hybrid_context.hybrid_context_engine import get_hybrid_context_engine, HybridContext
