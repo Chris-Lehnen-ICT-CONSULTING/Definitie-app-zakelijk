@@ -191,6 +191,12 @@ class DefinitionGeneratorTab:
                     SessionStateManager.set_value("synoniemen", "\n".join(voorbeelden.get('synonyms', [])))
                     SessionStateManager.set_value("antoniemen", "\n".join(voorbeelden.get('antonyms', [])))
                     SessionStateManager.set_value("toelichting", voorbeelden.get('explanation', [""])[0] if voorbeelden.get('explanation') else "")
+                else:
+                    # Debug: toon waarom voorbeelden niet worden gerenderd
+                    if not hasattr(agent_result.best_iteration.generation_result, 'voorbeelden'):
+                        st.warning("⚠️ Geen 'voorbeelden' attribuut gevonden in generation_result")
+                    elif not agent_result.best_iteration.generation_result.voorbeelden:
+                        st.warning("⚠️ Voorbeelden dictionary is leeg")
                 
                 # Render prompt debug section
                 from ui.components.prompt_debug_section import PromptDebugSection
@@ -429,9 +435,71 @@ class DefinitionGeneratorTab:
             st.error(f"❌ Fout: {str(e)}")
     
     def _export_definition(self, definitie: DefinitieRecord):
-        """Exporteer definitie."""
-        # TODO: Implement export functionality
-        st.info("📤 Export functionality coming soon...")
+        """Exporteer definitie naar TXT bestand."""
+        try:
+            from export.export_txt import exporteer_naar_txt
+            import os
+            
+            # Bereid gegevens voor voor export
+            export_data = {
+                "begrip": definitie.begrip,
+                "definitie_gecorrigeerd": definitie.definitie,
+                "definitie_origineel": definitie.definitie,  # TODO: originele bewaren
+                "metadata": {
+                    "organisatorische_context": definitie.organisatorische_context,
+                    "juridische_context": definitie.juridische_context,
+                    "categorie": definitie.categorie,
+                    "datum_voorstel": definitie.created_at,
+                    "voorgesteld_door": definitie.created_by or "",
+                    "ketenpartners": SessionStateManager.get_value("ketenpartners", [])
+                },
+                "context_dict": {
+                    "organisatorisch": [definitie.organisatorische_context] if definitie.organisatorische_context else [],
+                    "juridisch": [definitie.juridische_context] if definitie.juridische_context else [],
+                    "wettelijk": SessionStateManager.get_value("wet_basis", [])
+                },
+                "toetsresultaten": {
+                    "score": definitie.validation_score or 0.0,
+                    "resultaten": SessionStateManager.get_value("beoordeling_gen", [])
+                },
+                "bronnen": SessionStateManager.get_value("bronnen", []),
+                # Voorbeelden uit session state
+                "voorbeeld_zinnen": SessionStateManager.get_value("voorbeeld_zinnen", []),
+                "praktijkvoorbeelden": SessionStateManager.get_value("praktijkvoorbeelden", []),
+                "tegenvoorbeelden": SessionStateManager.get_value("tegenvoorbeelden", []),
+                "toelichting": SessionStateManager.get_value("toelichting", ""),
+                "synoniemen": SessionStateManager.get_value("synoniemen", ""),
+                "voorkeursterm": SessionStateManager.get_value("voorkeursterm", ""),
+                "antoniemen": SessionStateManager.get_value("antoniemen", "")
+            }
+            
+            # Zorg dat export directory bestaat
+            export_dir = "exports"
+            if not os.path.exists(export_dir):
+                os.makedirs(export_dir)
+            
+            # Exporteer naar TXT
+            bestandspad = exporteer_naar_txt(export_data)
+            
+            # Lees bestand voor download
+            with open(bestandspad, 'r', encoding='utf-8') as f:
+                txt_content = f.read()
+            
+            # Bied download aan
+            bestandsnaam = os.path.basename(bestandspad)
+            st.download_button(
+                label="📥 Download TXT Export",
+                data=txt_content,
+                file_name=bestandsnaam,
+                mime="text/plain"
+            )
+            
+            st.success(f"✅ Export succesvol: {bestandsnaam}")
+            
+        except Exception as e:
+            st.error(f"❌ Export mislukt: {str(e)}")
+            import traceback
+            st.code(traceback.format_exc())
     
     def _render_voorbeelden_section(self, voorbeelden: Dict[str, List[str]]):
         """Render sectie met gegenereerde voorbeelden."""
