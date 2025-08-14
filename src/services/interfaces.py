@@ -350,6 +350,133 @@ class DefinitionOrchestratorInterface(ABC):
         return False  # Default implementatie
 
 
+# Web Lookup Data Transfer Objects
+@dataclass
+class WebSource:
+    """Een web bron voor lookup."""
+    name: str
+    url: str
+    confidence: float = 0.0
+    is_juridical: bool = False
+    api_type: Optional[str] = None  # "mediawiki", "sru", "scraping"
+
+
+@dataclass
+class LookupResult:
+    """Resultaat van een web lookup operatie."""
+    term: str
+    source: WebSource
+    definition: Optional[str] = None
+    context: Optional[str] = None
+    examples: List[str] = field(default_factory=list)
+    references: List[str] = field(default_factory=list)
+    success: bool = True
+    error_message: Optional[str] = None
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+@dataclass
+class LookupRequest:
+    """Request voor web lookup operaties."""
+    term: str
+    sources: Optional[List[str]] = None  # None = alle bronnen
+    context: Optional[str] = None
+    max_results: int = 5
+    include_examples: bool = True
+    timeout: int = 30
+
+
+@dataclass
+class JuridicalReference:
+    """Een juridische verwijzing."""
+    type: str  # "artikel", "wet", "uitspraak", etc.
+    reference: str
+    context: str
+    confidence: float = 0.0
+
+
+# Web Lookup Service Interface
+class WebLookupServiceInterface(ABC):
+    """Interface voor web lookup services."""
+    
+    @abstractmethod
+    async def lookup(self, request: LookupRequest) -> List[LookupResult]:
+        """
+        Zoek een term op in web bronnen.
+        
+        Args:
+            request: LookupRequest met zoekterm en opties
+            
+        Returns:
+            Lijst van LookupResult objecten
+        """
+        pass
+    
+    @abstractmethod
+    async def lookup_single_source(self, term: str, source: str) -> Optional[LookupResult]:
+        """
+        Zoek een term op in een specifieke bron.
+        
+        Args:
+            term: Zoekterm
+            source: Naam van de bron
+            
+        Returns:
+            LookupResult indien gevonden, anders None
+        """
+        pass
+    
+    @abstractmethod
+    def get_available_sources(self) -> List[WebSource]:
+        """
+        Geef lijst van beschikbare web bronnen.
+        
+        Returns:
+            Lijst van WebSource objecten
+        """
+        pass
+    
+    @abstractmethod
+    def validate_source(self, text: str) -> WebSource:
+        """
+        Valideer en identificeer de bron van een tekst.
+        
+        Args:
+            text: Te valideren tekst
+            
+        Returns:
+            WebSource met betrouwbaarheidsscore
+        """
+        pass
+    
+    @abstractmethod
+    def find_juridical_references(self, text: str) -> List[JuridicalReference]:
+        """
+        Vind juridische verwijzingen in tekst.
+        
+        Args:
+            text: Te analyseren tekst
+            
+        Returns:
+            Lijst van gevonden juridische verwijzingen
+        """
+        pass
+    
+    @abstractmethod
+    def detect_duplicates(self, term: str, definitions: List[str]) -> List[Dict[str, Any]]:
+        """
+        Detecteer duplicate definities.
+        
+        Args:
+            term: Zoekterm
+            definitions: Lijst van definities om te vergelijken
+            
+        Returns:
+            Lijst van duplicaat analyses
+        """
+        pass
+
+
 # Optional: Event interfaces voor loose coupling
 class DefinitionEventHandler(ABC):
     """Interface voor event handling in het definitie proces."""
