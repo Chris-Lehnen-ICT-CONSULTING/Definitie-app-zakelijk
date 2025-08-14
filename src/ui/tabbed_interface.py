@@ -9,6 +9,7 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 import streamlit as st  # Streamlit web interface framework
 from typing import Dict, Any, Optional, List  # Type hints voor betere code documentatie
 from datetime import datetime  # Datum en tijd functionaliteit
+import asyncio  # Asynchrone programmering voor ontologische analyse
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.context_selector import ContextSelector  # Context selectie component
@@ -29,6 +30,8 @@ from integration.definitie_checker import DefinitieChecker  # Definitie integrat
 from generation.definitie_generator import OntologischeCategorie  # Ontologische categorieën
 from document_processing.document_processor import get_document_processor  # Document processor factory
 from document_processing.document_extractor import supported_file_types  # Ondersteunde bestandstypen
+# Nieuwe services imports
+from services import get_definition_service, render_feature_flag_toggle
 # Hybrid context imports - optionele module voor hybride context verrijking
 try:
     from hybrid_context.hybrid_context_engine import get_hybrid_context_engine  # Hybride context engine factory
@@ -46,7 +49,17 @@ class TabbedInterface:
     def __init__(self):
         """Initialiseer tabbed interface met alle benodigde services."""
         self.repository = get_definitie_repository()  # Haal database repository instantie op
-        self.checker = DefinitieChecker(self.repository)  # Maak definitie checker instantie
+        
+        # Gebruik nieuwe service factory voor definitie service
+        self.definition_service = get_definition_service()
+        
+        # Maak DefinitieChecker met de service
+        self.checker = DefinitieChecker(self.repository)
+        # Update checker om nieuwe service te gebruiken indien beschikbaar
+        if hasattr(self.definition_service, 'get_service_info'):
+            # V2 service heeft get_service_info methode
+            self.checker._definition_service = self.definition_service
+        
         self.context_selector = ContextSelector()  # Initialiseer context selector component
         
         # Initialiseer alle tab componenten met repository referentie
@@ -130,34 +143,109 @@ class TabbedInterface:
         self._render_footer()
     
     
-    def _determine_ontological_category(self, begrip, org_context, jur_context):
-        """Bepaal automatisch de ontologische categorie via AI analyse."""
+    async def _determine_ontological_category(self, begrip, org_context, jur_context):
+        """Bepaal automatisch de ontologische categorie via 6-stappen protocol."""
         try:
-            # Eenvoudige heuristic gebaseerd op woord patronen
-            # Later kan dit vervangen worden door GPT call
+            # Importeer de nieuwe ontologische analyzer
+            from ontologie.ontological_analyzer import OntologischeAnalyzer, QuickOntologischeAnalyzer
             
+            # Probeer eerst de volledige 6-stappen analyse
+            try:
+                analyzer = OntologischeAnalyzer()
+                categorie, analyse_resultaat = await analyzer.bepaal_ontologische_categorie(
+                    begrip, org_context, jur_context
+                )
+                
+                # Haal de redenering en scores uit het analyse resultaat
+                reasoning = analyse_resultaat.get('reasoning', 'Ontologische analyse voltooid')
+                test_scores = analyse_resultaat.get('categorie_resultaat', {}).get('test_scores', {})
+                
+                logger.info(f"6-stappen ontologische analyse voor '{begrip}': {categorie.value}")
+                return categorie, reasoning, test_scores
+                
+            except Exception as e:
+                logger.warning(f"6-stappen analyse mislukt voor '{begrip}': {e}")
+                
+                # Fallback naar quick analyzer
+                quick_analyzer = QuickOntologischeAnalyzer()
+                categorie, reasoning = quick_analyzer.quick_categoriseer(begrip)
+                
+                logger.info(f"Quick ontologische analyse voor '{begrip}': {categorie.value}")
+                # Genereer dummy scores voor quick analyzer
+                quick_scores = {cat: 0.5 if cat == categorie.value else 0.0 for cat in ['type', 'proces', 'resultaat', 'exemplaar']}
+                return categorie, f"Quick analyse - {reasoning}", quick_scores
+                
+        except Exception as e:
+            logger.error(f"Ontologische analyse volledig mislukt voor '{begrip}': {e}")
+            
+            # Ultieme fallback naar oude pattern matching
+            reasoning = self._legacy_pattern_matching(begrip)
+            # Genereer dummy scores voor legacy fallback
+            legacy_scores = {'type': 0, 'proces': 1, 'resultaat': 0, 'exemplaar': 0}
+            return OntologischeCategorie.PROCES, f"Legacy fallback - {reasoning}", legacy_scores
+    
+    def _legacy_pattern_matching(self, begrip: str) -> str:
+        """Legacy pattern matching voor fallback situaties."""
+        begrip_lower = begrip.lower()
+        
+        # Eenvoudige patronen
+        if any(begrip_lower.endswith(p) for p in ['atie', 'ing', 'eren']):
+            return "Proces patroon gedetecteerd"
+        elif any(w in begrip_lower for w in ['document', 'bewijs', 'systeem']):
+            return "Type patroon gedetecteerd"
+        elif any(w in begrip_lower for w in ['resultaat', 'uitkomst', 'besluit']):
+            return "Resultaat patroon gedetecteerd"
+        else:
+            return "Geen duidelijke patronen gedetecteerd"
+    
+    def _generate_category_reasoning(self, begrip: str, category: str, scores: Dict[str, int]) -> str:
+        """Genereer uitleg waarom deze categorie gekozen is."""
+        begrip_lower = begrip.lower()
+        
+        # Patronen per categorie
+        patterns = {
+            'proces': ['atie', 'eren', 'ing', 'verificatie', 'authenticatie', 'validatie', 'controle', 'check', 'beoordeling', 'analyse', 'behandeling', 'vaststelling', 'bepaling', 'registratie', 'identificatie'],
+            'type': ['bewijs', 'document', 'middel', 'systeem', 'methode', 'tool', 'instrument', 'gegeven', 'kenmerk', 'eigenschap'],
+            'resultaat': ['besluit', 'uitslag', 'rapport', 'conclusie', 'bevinding', 'resultaat', 'uitkomst', 'advies', 'oordeel'],
+            'exemplaar': ['specifiek', 'individueel', 'uniek', 'persoon', 'zaak', 'instantie', 'geval', 'situatie']
+        }
+        
+        # Zoek gedetecteerde patronen
+        detected_patterns = []
+        for pattern in patterns.get(category, []):
+            if pattern in begrip_lower:
+                detected_patterns.append(pattern)
+        
+        if detected_patterns:
+            pattern_text = ", ".join(f"'{p}'" for p in detected_patterns)
+            return f"Gedetecteerde patronen: {pattern_text} (score: {scores[category]})"
+        elif category == 'proces' and scores[category] == 0:
+            return "Standaard categorie (geen specifieke patronen gedetecteerd)"
+        else:
+            return f"Hoogste score voor {category} categorie (score: {scores[category]})"
+    
+    def _get_category_scores(self, begrip: str) -> Dict[str, int]:
+        """Herbereken de categorie scores voor display."""
+        try:
             begrip_lower = begrip.lower()
             
-            # Proces patronen
+            # Dezelfde patronen als in _determine_ontological_category
             proces_indicators = [
                 'atie', 'eren', 'ing', 'verificatie', 'authenticatie', 'validatie',
                 'controle', 'check', 'beoordeling', 'analyse', 'behandeling',
                 'vaststelling', 'bepaling', 'registratie', 'identificatie'
             ]
             
-            # Type patronen  
             type_indicators = [
                 'bewijs', 'document', 'middel', 'systeem', 'methode', 'tool',
                 'instrument', 'gegeven', 'kenmerk', 'eigenschap'
             ]
             
-            # Resultaat patronen
             resultaat_indicators = [
                 'besluit', 'uitslag', 'rapport', 'conclusie', 'bevinding',
                 'resultaat', 'uitkomst', 'advies', 'oordeel'
             ]
             
-            # Exemplaar patronen
             exemplaar_indicators = [
                 'specifiek', 'individueel', 'uniek', 'persoon', 'zaak',
                 'instantie', 'geval', 'situatie'
@@ -165,50 +253,35 @@ class TabbedInterface:
             
             # Score per categorie
             scores = {
-                'proces': 0,
-                'type': 0, 
-                'resultaat': 0,
-                'exemplaar': 0
+                'proces': sum(1 for indicator in proces_indicators if indicator in begrip_lower),
+                'type': sum(1 for indicator in type_indicators if indicator in begrip_lower),
+                'resultaat': sum(1 for indicator in resultaat_indicators if indicator in begrip_lower),
+                'exemplaar': sum(1 for indicator in exemplaar_indicators if indicator in begrip_lower)
             }
             
-            # Check proces indicators
-            for indicator in proces_indicators:
-                if indicator in begrip_lower:
-                    scores['proces'] += 1
-            
-            # Check type indicators  
-            for indicator in type_indicators:
-                if indicator in begrip_lower:
-                    scores['type'] += 1
-                    
-            # Check resultaat indicators
-            for indicator in resultaat_indicators:
-                if indicator in begrip_lower:
-                    scores['resultaat'] += 1
-                    
-            # Check exemplaar indicators
-            for indicator in exemplaar_indicators:
-                if indicator in begrip_lower:
-                    scores['exemplaar'] += 1
-            
-            # Bepaal hoogste score
-            best_category = max(scores, key=scores.get)
-            
-            # Default naar proces als geen duidelijke match
-            if scores[best_category] == 0:
-                best_category = 'proces'
-            
-            logger.info(f"Auto-determined category voor '{begrip}': {best_category} (scores: {scores})")
-            return OntologischeCategorie(best_category)
+            return scores
             
         except Exception as e:
-            logger.warning(f"Failed to auto-determine category: {e}")
-            # Default naar proces
-            return OntologischeCategorie.PROCES
+            logger.warning(f"Failed to calculate category scores: {e}")
+            return {'proces': 0, 'type': 0, 'resultaat': 0, 'exemplaar': 0}
     
     
     def _render_header(self):
         """Render applicatie header."""
+        
+        # Sidebar voor settings
+        with st.sidebar:
+            st.markdown("### ⚙️ Instellingen")
+            
+            # Feature flag toggle voor nieuwe services
+            render_feature_flag_toggle()
+            
+            st.markdown("---")
+            
+            # Service info
+            if hasattr(self.definition_service, 'get_service_info'):
+                info = self.definition_service.get_service_info()
+                st.info(f"**Service Mode:** {info['service_mode']}\n**Architecture:** {info['architecture']}")
         
         # Header met logo en titel
         col1, col2, col3 = st.columns([1, 2, 1])
@@ -449,7 +522,9 @@ class TabbedInterface:
                 # Bepaal automatisch de ontologische categorie
                 primary_org = org_context[0] if org_context else ""
                 primary_jur = jur_context[0] if jur_context else ""
-                auto_categorie = self._determine_ontological_category(begrip, primary_org, primary_jur)
+                auto_categorie, category_reasoning, category_scores = asyncio.run(
+                    self._determine_ontological_category(begrip, primary_org, primary_jur)
+                )
                 
                 # Krijg document context en selected document IDs
                 document_context = self._get_document_context()
@@ -462,18 +537,37 @@ class TabbedInterface:
                 if use_hybrid:
                     st.info("🔄 Hybrid context activief - combineer document en web context...")
                 
-                # Voer complete workflow uit met mogelijke hybrid enhancement
-                check_result, agent_result, saved_record = self.checker.generate_with_check(
-                    begrip=begrip,
-                    organisatorische_context=primary_org,
-                    juridische_context=primary_jur,
-                    categorie=auto_categorie,
-                    force_generate=False,
-                    created_by="global_user",
-                    # Hybride context parameters
-                    selected_document_ids=selected_doc_ids if use_hybrid else None,
-                    enable_hybrid=use_hybrid
-                )
+                # Gebruik de nieuwe service factory indien beschikbaar
+                if hasattr(self, 'definition_service') and hasattr(self.definition_service, 'get_service_info'):
+                    # Gebruik de V2 service voor generatie
+                    service_result = self.definition_service.generate_definition(
+                        begrip=begrip,
+                        context_dict={
+                            'organisatorisch': org_context,
+                            'juridisch': jur_context,
+                            'wettelijk': context_data.get('wettelijke_basis', [])
+                        },
+                        organisatie=primary_org,
+                        categorie=auto_categorie
+                    )
+                    
+                    # Converteer naar checker formaat voor UI compatibility
+                    check_result = None
+                    agent_result = service_result
+                    saved_record = None
+                else:
+                    # Legacy path
+                    check_result, agent_result, saved_record = self.checker.generate_with_check(
+                        begrip=begrip,
+                        organisatorische_context=primary_org,
+                        juridische_context=primary_jur,
+                        categorie=auto_categorie,
+                        force_generate=False,
+                        created_by="global_user",
+                        # Hybride context parameters
+                        selected_document_ids=selected_doc_ids if use_hybrid else None,
+                        enable_hybrid=use_hybrid
+                    )
                 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
@@ -494,6 +588,8 @@ class TabbedInterface:
                     "agent_result": agent_result,
                     "saved_record": saved_record,
                     "determined_category": auto_categorie.value,
+                    "category_reasoning": category_reasoning,
+                    "category_scores": category_scores,
                     "document_context": document_context,
                     "voorbeelden_prompts": voorbeelden_prompts,
                     "timestamp": datetime.now()

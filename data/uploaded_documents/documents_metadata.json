@@ -1,0 +1,32 @@
+{
+  "documents": [
+    {
+      "id": "dd036cf9507c2f30",
+      "filename": "~$finities Identiteitsbehandeling.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 162,
+      "uploaded_at": "2025-07-17T13:30:06.875823",
+      "extracted_text": "⚠️ Word extractie vereist python-docx library (pip install python-docx)",
+      "text_length": 71,
+      "keywords": [
+        "pythondocx",
+        "word",
+        "extractie",
+        "vereist",
+        "library",
+        "install"
+      ],
+      "key_concepts": [
+        "Word"
+      ],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context",
+        "Bevat 1 geïdentificeerde concepten"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    }
+  ],
+  "last_updated": "2025-07-17T13:30:06.875895"
+}

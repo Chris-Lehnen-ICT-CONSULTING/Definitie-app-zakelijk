@@ -24,6 +24,12 @@ data/cache/
 data/database/*.db-journal
 data/uploads/
 *.db-journal
+*.db-shm
+*.db-wal
+definities.db-shm
+definities.db-wal
+test.db-shm
+test.db-wal
 
 # 💚 Cache directories
 cache/

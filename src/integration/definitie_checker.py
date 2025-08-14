@@ -61,7 +61,7 @@ class DefinitieChecker:
             repository: DefinitieRepository instance, gebruikt default als None
         """
         self.repository = repository or get_definitie_repository()
-        self.agent = DefinitieAgent()
+        self.agent = DefinitieAgent(max_iterations=1)  # Geen iteraties, direct resultaat
         
         # Lazy load integrated service to avoid circular import
         self.integrated_service = None

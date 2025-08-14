@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DefinitieAgent - Architectuur Document</title>
+    <script src="https://unpkg.com/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --secondary-color: #7c3aed;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --dark-bg: #1f2937;
+            --light-bg: #f3f4f6;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-color: #e5e7eb;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background-color: var(--light-bg);
+        }
+
+        .container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Navigation */
+        .sidebar {
+            width: 280px;
+            background-color: var(--dark-bg);
+            color: white;
+            padding: 2rem 0;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar h2 {
+            padding: 0 1.5rem;
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 1rem;
+        }
+
+        .nav-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .nav-section-title {
+            padding: 0.5rem 1.5rem;
+            font-weight: 600;
+            color: #9ca3af;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-section-title:hover {
+            color: white;
+        }
+
+        .nav-section-title::after {
+            content: '▼';
+            font-size: 0.75rem;
+            transition: transform 0.3s;
+        }
+
+        .nav-section.collapsed .nav-section-title::after {
+            transform: rotate(-90deg);
+        }
+
+        .nav-links {
+            max-height: 500px;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .nav-section.collapsed .nav-links {
+            max-height: 0;
+        }
+
+        .nav-link {
+            display: block;
+            padding: 0.75rem 1.5rem 0.75rem 2.5rem;
+            color: #d1d5db;
+            text-decoration: none;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .nav-link:hover {
+            background-color: rgba(59, 130, 246, 0.1);
+            color: white;
+            padding-left: 3rem;
+        }
+
+        .nav-link.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .nav-link.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background-color: white;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 280px;
+            padding: 2rem;
+            max-width: 1200px;
+            margin-right: auto;
+        }
+
+        .content-section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1, h2, h3, h4 {
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 3px solid var(--primary-color);
+            padding-bottom: 1rem;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-top: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            margin-top: 1.5rem;
+            color: var(--secondary-color);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            line-height: 1.8;
+            color: var(--text-secondary);
+        }
+
+        /* Status Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin: 0.25rem;
+        }
+
+        .badge-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .badge-warning {
+            background-color: var(--warning-color);
+            color: white;
+        }
+
+        .badge-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .badge-info {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        th {
+            background-color: var(--light-bg);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        tr:hover {
+            background-color: rgba(59, 130, 246, 0.05);
+        }
+
+        /* Code Blocks */
+        pre {
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        code {
+            font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+            font-size: 0.875rem;
+        }
+
+        /* Progress Bars */
+        .progress-container {
+            background-color: var(--light-bg);
+            border-radius: 9999px;
+            overflow: hidden;
+            margin: 1rem 0;
+            height: 24px;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            transition: box-shadow 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-primary);
+        }
+
+        /* Lists */
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+            color: var(--text-secondary);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab {
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .tab:hover {
+            color: var(--primary-color);
+        }
+
+        .tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 3rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background-color: var(--border-color);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2.5rem;
+            top: 0.5rem;
+            width: 1rem;
+            height: 1rem;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            border: 3px solid white;
+            box-shadow: 0 0 0 2px var(--primary-color);
+        }
+
+        .timeline-item.completed::before {
+            background-color: var(--success-color);
+            box-shadow: 0 0 0 2px var(--success-color);
+        }
+
+        /* Mobile Menu */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            h2 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Mermaid Diagrams */
+        .mermaid {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        /* Interactive Elements */
+        .interactive-button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin: 0.5rem;
+        }
+
+        .interactive-button:hover {
+            background-color: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .alert {
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-info {
+            background-color: #dbeafe;
+            border: 1px solid #3b82f6;
+            color: #1e40af;
+        }
+
+        .alert-warning {
+            background-color: #fef3c7;
+            border: 1px solid #f59e0b;
+            color: #92400e;
+        }
+
+        .alert-success {
+            background-color: #d1fae5;
+            border: 1px solid #10b981;
+            color: #065f46;
+        }
+    </style>
+</head>
+<body>
+    <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
+    
+    <div class="container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar" id="sidebar">
+            <h2>🏗️ DefinitieAgent Architectuur</h2>
+            
+            <div class="nav-section">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    Overzicht
+                </div>
+                <div class="nav-links">
+                    <a href="#overview" class="nav-link active" onclick="showSection('overview')">Project Overzicht</a>
+                    <a href="#status" class="nav-link" onclick="showSection('status')">Huidige Status</a>
+                    <a href="#goals" class="nav-link" onclick="showSection('goals')">Doelstellingen</a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    Huidige Architectuur
+                </div>
+                <div class="nav-links">
+                    <a href="#current-analysis" class="nav-link" onclick="showSection('current-analysis')">Analyse</a>
+                    <a href="#current-tech" class="nav-link" onclick="showSection('current-tech')">Tech Stack</a>
+                    <a href="#current-issues" class="nav-link" onclick="showSection('current-issues')">Problemen</a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    Gewenste Architectuur
+                </div>
+                <div class="nav-links">
+                    <a href="#target-design" class="nav-link" onclick="showSection('target-design')">Ontwerp</a>
+                    <a href="#target-components" class="nav-link" onclick="showSection('target-components')">Componenten</a>
+                    <a href="#target-patterns" class="nav-link" onclick="showSection('target-patterns')">Patterns</a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    ADRs
+                </div>
+                <div class="nav-links">
+                    <a href="#adr-001" class="nav-link" onclick="showSection('adr-001')">ADR-001: Monoliet</a>
+                    <a href="#adr-002" class="nav-link" onclick="showSection('adr-002')">ADR-002: Features First</a>
+                    <a href="#adr-003" class="nav-link" onclick="showSection('adr-003')">ADR-003: Legacy Spec</a>
+                    <a href="#adr-004" class="nav-link" onclick="showSection('adr-004')">ADR-004: Incrementeel</a>
+                </div>
+            </div>
+
+            <div class="nav-section">
+                <div class="nav-section-title" onclick="toggleSection(this)">
+                    Migratie
+                </div>
+                <div class="nav-links">
+                    <a href="#migration-strategy" class="nav-link" onclick="showSection('migration-strategy')">Strategie</a>
+                    <a href="#migration-phases" class="nav-link" onclick="showSection('migration-phases')">Fases</a>
+                    <a href="#migration-risks" class="nav-link" onclick="showSection('migration-risks')">Risico's</a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <h1>DefinitieAgent - Project Overzicht</h1>
+                
+                <div class="alert alert-info">
+                    <strong>Status:</strong> In transitie van legacy naar moderne architectuur met Features First aanpak
+                </div>
+
+                <p>DefinitieAgent is een AI-powered Nederlandse definitie generator specifiek ontwikkeld voor juridische en overheidscontexten. Het systeem gebruikt GPT-4 met 46 kwaliteitsregels om consistente, accurate definities te genereren die voldoen aan de strengste overheidsstandaarden.</p>
+
+                <div class="card">
+                    <div class="card-header">🎯 Kernfunctionaliteiten</div>
+                    <ul>
+                        <li>AI-gestuurde definitie generatie met context-awareness</li>
+                        <li>46 gespecialiseerde validatieregels (toetsregels)</li>
+                        <li>Ontologie-gebaseerde kwaliteitscontrole (6-stappen protocol)</li>
+                        <li>Document analyse en begrippen extractie</li>
+                        <li>Web lookup voor context verrijking</li>
+                    </ul>
+                </div>
+
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('tech-stack')">Tech Stack</div>
+                    <div class="tab" onclick="showTab('progress')">Voortgang</div>
+                    <div class="tab" onclick="showTab('metrics')">Metrics</div>
+                </div>
+
+                <div id="tech-stack" class="tab-content active">
+                    <table>
+                        <tr>
+                            <th>Component</th>
+                            <th>Technologie</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr>
+                            <td>Frontend</td>
+                            <td>Streamlit 1.29.0</td>
+                            <td><span class="badge badge-warning">30% Functioneel</span></td>
+                        </tr>
+                        <tr>
+                            <td>Backend</td>
+                            <td>Python 3.8+</td>
+                            <td><span class="badge badge-success">Stabiel</span></td>
+                        </tr>
+                        <tr>
+                            <td>AI Engine</td>
+                            <td>OpenAI GPT-4</td>
+                            <td><span class="badge badge-success">Operationeel</span></td>
+                        </tr>
+                        <tr>
+                            <td>Database</td>
+                            <td>SQLite + SQLAlchemy 2.0</td>
+                            <td><span class="badge badge-success">Werkend</span></td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="progress" class="tab-content">
+                    <h3>Service Consolidatie</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar badge-success" style="width: 100%;">3→1 Services Voltooid</div>
+                    </div>
+                    
+                    <h3>UI Implementatie</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar badge-warning" style="width: 30%;">3/10 Tabs Functioneel</div>
+                    </div>
+                    
+                    <h3>Test Coverage</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar badge-danger" style="width: 13%;">13% (87% Tests Gebroken)</div>
+                    </div>
+                </div>
+
+                <div id="metrics" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">Performance Metrics</div>
+                        <ul>
+                            <li>Response tijd: 8-12 seconden</li>
+                            <li>Prompt grootte: ~35k karakters</li>
+                            <li>Validatie regels: 46 actief</li>
+                            <li>Database records: 1000+</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Status Section -->
+            <section id="status" class="content-section">
+                <h1>Huidige Project Status</h1>
+                
+                <div class="timeline">
+                    <div class="timeline-item completed">
+                        <h3>Services Consolidatie ✅</h3>
+                        <p>3 services succesvol samengevoegd tot UnifiedDefinitionService</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h3>UI Restauratie 🚧</h3>
+                        <p>3 van 10 tabs functioneel, rest in ontwikkeling</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h3>Test Suite Reparatie ⏳</h3>
+                        <p>87% tests moeten gerepareerd worden</p>
+                    </div>
+                    
+                    <div class="timeline-item">
+                        <h3>Content Enrichment ❌</h3>
+                        <p>Synoniemen, antoniemen functionaliteit ontbreekt</p>
+                    </div>
+                </div>
+
+                <h2>Kritieke Issues</h2>
+                <div class="alert alert-warning">
+                    <ul>
+                        <li>Import path chaos - 3 verschillende stijlen</li>
+                        <li>Config fragmentatie - 4 aparte systemen</li>
+                        <li>Geen CI/CD pipeline</li>
+                        <li>Geen monitoring of observability</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Goals Section -->
+            <section id="goals" class="content-section">
+                <h1>Project Doelstellingen</h1>
+                
+                <div class="card">
+                    <div class="card-header">🎯 Korte Termijn (6 weken)</div>
+                    <ul>
+                        <li>Alle 10 UI tabs functioneel maken</li>
+                        <li>Test coverage naar minimaal 60%</li>
+                        <li>Import paths standaardiseren</li>
+                        <li>Config systeem unificeren</li>
+                        <li>Basis monitoring implementeren</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">🚀 Lange Termijn</div>
+                    <ul>
+                        <li>Cloud-ready architectuur</li>
+                        <li>Microservices overwegen voor schaalbaarheid</li>
+                        <li>API-first design voor integraties</li>
+                        <li>Enterprise features (auth, multi-tenant)</li>
+                        <li>Performance <5 seconden response tijd</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Current Analysis -->
+            <section id="current-analysis" class="content-section">
+                <h1>Huidige Architectuur Analyse</h1>
+                
+                <div class="mermaid">
+                    graph TB
+                        subgraph "Frontend Layer"
+                            UI[Streamlit UI<br/>10 tabs - 30% functioneel]
+                        end
+                        
+                        subgraph "Service Layer"
+                            UDS[UnifiedDefinitionService<br/>Singleton Pattern]
+                        end
+                        
+                        subgraph "Business Logic"
+                            AI[AI Generation<br/>GPT-4]
+                            VAL[Validation<br/>46 Rules]
+                            ONT[Ontologie<br/>6-stappen]
+                        end
+                        
+                        subgraph "Data Layer"
+                            DB[(SQLite DB)]
+                            REPO[Repository<br/>Pattern]
+                        end
+                        
+                        UI --> UDS
+                        UDS --> AI
+                        UDS --> VAL
+                        UDS --> ONT
+                        UDS --> REPO
+                        REPO --> DB
+                        
+                        style UI fill:#f9c74f
+                        style UDS fill:#90be6d
+                        style DB fill:#577590
+                </div>
+
+                <h2>Architectuur Kenmerken</h2>
+                <table>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Implementatie</th>
+                        <th>Evaluatie</th>
+                    </tr>
+                    <tr>
+                        <td>Structuur</td>
+                        <td>Monolithisch met modulaire services</td>
+                        <td><span class="badge badge-info">Adequaat</span></td>
+                    </tr>
+                    <tr>
+                        <td>Schaalbaarheid</td>
+                        <td>Verticaal (single instance)</td>
+                        <td><span class="badge badge-warning">Beperkt</span></td>
+                    </tr>
+                    <tr>
+                        <td>Maintainability</td>
+                        <td>Features First approach</td>
+                        <td><span class="badge badge-success">Goed</span></td>
+                    </tr>
+                    <tr>
+                        <td>Testbaarheid</td>
+                        <td>13% coverage</td>
+                        <td><span class="badge badge-danger">Kritiek</span></td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Current Tech -->
+            <section id="current-tech" class="content-section">
+                <h1>Huidige Technology Stack</h1>
+                
+                <div class="card">
+                    <div class="card-header">Frontend</div>
+                    <pre><code>streamlit==1.29.0      # UI Framework
+pandas==2.1.4         # Data manipulation
+plotly==5.18.0        # Visualisaties</code></pre>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Backend</div>
+                    <pre><code>python==3.8+          # Runtime
+openai==1.12.0        # AI Integration
+sqlalchemy==2.0.25    # ORM
+pydantic==2.5.3       # Validation
+httpx==0.26.0         # HTTP Client</code></pre>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Development</div>
+                    <pre><code>pytest==7.4.4         # Testing (87% broken)
+black==23.12.1        # Code formatting
+python-dotenv==1.0.0  # Environment config</code></pre>
+                </div>
+            </section>
+
+            <!-- Current Issues -->
+            <section id="current-issues" class="content-section">
+                <h1>Geïdentificeerde Problemen</h1>
+                
+                <div class="alert alert-warning">
+                    <strong>⚠️ Technische Schuld</strong>
+                </div>
+
+                <h2>1. Import Path Chaos</h2>
+                <pre><code># 3 verschillende stijlen door de codebase:
+from services.unified_definition_service import ...
+from src.services.unified_definition_service import ...
+from definitie_app.services.unified_definition_service import ...</code></pre>
+
+                <h2>2. Config Fragmentatie</h2>
+                <div class="card">
+                    <ul>
+                        <li><code>config.py</code> - Algemene settings</li>
+                        <li><code>ai_config.py</code> - AI specifiek</li>
+                        <li><code>toetsing_config.py</code> - Validatie regels</li>
+                        <li><code>.env</code> - Environment variabelen</li>
+                    </ul>
+                </div>
+
+                <h2>3. Performance Bottlenecks</h2>
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Issue</th>
+                        <th>Impact</th>
+                    </tr>
+                    <tr>
+                        <td>Prompt Builder</td>
+                        <td>35k karakters per request</td>
+                        <td>Hoge kosten, trage response</td>
+                    </tr>
+                    <tr>
+                        <td>Database</td>
+                        <td>SQLite concurrency limits</td>
+                        <td>Max 1-2 concurrent users</td>
+                    </tr>
+                    <tr>
+                        <td>Caching</td>
+                        <td>Geen implementatie</td>
+                        <td>Onnodige API calls</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Target Design -->
+            <section id="target-design" class="content-section">
+                <h1>Gewenste Architectuur Ontwerp</h1>
+                
+                <div class="mermaid">
+                    graph TB
+                        subgraph "Presentation Layer"
+                            WEB[Web UI<br/>Streamlit]
+                            API[REST API<br/>FastAPI]
+                        end
+                        
+                        subgraph "Application Layer"
+                            ORCH[Orchestrator<br/>Service]
+                            AUTH[Auth<br/>Service]
+                            CACHE[Cache<br/>Manager]
+                        end
+                        
+                        subgraph "Domain Services"
+                            DEF[Definition<br/>Service]
+                            VAL[Validation<br/>Service]
+                            ENR[Enrichment<br/>Service]
+                            DOC[Document<br/>Service]
+                        end
+                        
+                        subgraph "Infrastructure"
+                            QUEUE[Task Queue<br/>Celery]
+                            DB[(PostgreSQL)]
+                            REDIS[(Redis)]
+                            S3[Object Storage]
+                        end
+                        
+                        WEB --> ORCH
+                        API --> AUTH
+                        AUTH --> ORCH
+                        ORCH --> DEF
+                        ORCH --> VAL
+                        ORCH --> ENR
+                        ORCH --> DOC
+                        ORCH --> CACHE
+                        
+                        DEF --> QUEUE
+                        CACHE --> REDIS
+                        DOC --> S3
+                        DEF --> DB
+                        
+                        style WEB fill:#4ecdc4
+                        style API fill:#4ecdc4
+                        style DB fill:#ff6b6b
+                        style REDIS fill:#ff6b6b
+                </div>
+
+                <h2>Architectuur Principes</h2>
+                <div class="card">
+                    <ul>
+                        <li><strong>Domain-Driven Design:</strong> Business logic georganiseerd rond domein concepten</li>
+                        <li><strong>Clean Architecture:</strong> Afhankelijkheden wijzen naar binnen</li>
+                        <li><strong>SOLID Principles:</strong> Modulaire, testbare componenten</li>
+                        <li><strong>Event-Driven:</strong> Loose coupling tussen services</li>
+                        <li><strong>API-First:</strong> Alle functionaliteit via APIs beschikbaar</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Target Components -->
+            <section id="target-components" class="content-section">
+                <h1>Component Specificaties</h1>
+                
+                <h2>🎯 Core Services</h2>
+                
+                <div class="card">
+                    <div class="card-header">Definition Service</div>
+                    <pre><code>class DefinitionService:
+    """Verantwoordelijk voor AI-gestuurde definitie generatie"""
+    
+    async def generate_definition(
+        self,
+        term: str,
+        context: Optional[str],
+        style: DefinitionStyle = DefinitionStyle.FORMAL
+    ) -> Definition:
+        # Async processing met streaming support
+        # Intelligent prompt optimization
+        # Response caching</code></pre>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Validation Service</div>
+                    <pre><code>class ValidationService:
+    """46 toetsregels met plugin architectuur"""
+    
+    def validate(
+        self,
+        definition: Definition,
+        rules: Optional[List[Rule]] = None
+    ) -> ValidationReport:
+        # Parallel rule execution
+        # Configurable rule sets
+        # Detailed reporting</code></pre>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Enrichment Service</div>
+                    <pre><code>class EnrichmentService:
+    """Content verrijking met externe bronnen"""
+    
+    async def enrich(
+        self,
+        definition: Definition
+    ) -> EnrichedDefinition:
+        # Synoniemen/antoniemen lookup
+        # Contextual examples
+        # Related terms discovery</code></pre>
+                </div>
+
+                <h2>🔧 Infrastructure Components</h2>
+                
+                <table>
+                    <tr>
+                        <th>Component</th>
+                        <th>Technologie</th>
+                        <th>Doel</th>
+                    </tr>
+                    <tr>
+                        <td>API Gateway</td>
+                        <td>FastAPI + Pydantic</td>
+                        <td>REST endpoints, validation, docs</td>
+                    </tr>
+                    <tr>
+                        <td>Task Queue</td>
+                        <td>Celery + Redis</td>
+                        <td>Async processing, scheduling</td>
+                    </tr>
+                    <tr>
+                        <td>Cache Layer</td>
+                        <td>Redis</td>
+                        <td>Response caching, sessions</td>
+                    </tr>
+                    <tr>
+                        <td>Database</td>
+                        <td>PostgreSQL</td>
+                        <td>Transactional data, full-text search</td>
+                    </tr>
+                    <tr>
+                        <td>Object Storage</td>
+                        <td>MinIO/S3</td>
+                        <td>Document storage, exports</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Target Patterns -->
+            <section id="target-patterns" class="content-section">
+                <h1>Design Patterns & Best Practices</h1>
+                
+                <h2>🏗️ Architectural Patterns</h2>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('patterns-structural')">Structural</div>
+                    <div class="tab" onclick="showTab('patterns-behavioral')">Behavioral</div>
+                    <div class="tab" onclick="showTab('patterns-creational')">Creational</div>
+                </div>
+
+                <div id="patterns-structural" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">Repository Pattern</div>
+                        <pre><code>class DefinitionRepository:
+    def __init__(self, session: Session):
+        self.session = session
+    
+    async def find_by_term(self, term: str) -> Optional[Definition]:
+        # Abstractie over data access
+        
+    async def save(self, definition: Definition) -> Definition:
+        # Transactional boundaries</code></pre>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Service Layer Pattern</div>
+                        <pre><code>class DefinitionApplicationService:
+    def __init__(
+        self,
+        repo: DefinitionRepository,
+        ai_service: AIService,
+        validator: ValidationService
+    ):
+        # Orchestratie van business logic
+        # Transaction management
+        # Cross-cutting concerns</code></pre>
+                    </div>
+                </div>
+
+                <div id="patterns-behavioral" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">Strategy Pattern</div>
+                        <pre><code>class GenerationStrategy(ABC):
+    @abstractmethod
+    async def generate(self, prompt: str) -> str:
+        pass
+
+class GPT4Strategy(GenerationStrategy):
+    async def generate(self, prompt: str) -> str:
+        # GPT-4 specific implementation
+        
+class LocalLLMStrategy(GenerationStrategy):
+    async def generate(self, prompt: str) -> str:
+        # Local model implementation</code></pre>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Observer Pattern</div>
+                        <pre><code>class EventBus:
+    def publish(self, event: DomainEvent):
+        # Publish domain events
+        
+    def subscribe(self, event_type: Type, handler: Callable):
+        # Subscribe to events
+        
+# Usage
+bus.publish(DefinitionCreatedEvent(definition))</code></pre>
+                    </div>
+                </div>
+
+                <div id="patterns-creational" class="tab-content">
+                    <div class="card">
+                        <div class="card-header">Factory Pattern</div>
+                        <pre><code>class ValidatorFactory:
+    @staticmethod
+    def create_validator(rule_type: RuleType) -> Validator:
+        validators = {
+            RuleType.SYNTAX: SyntaxValidator(),
+            RuleType.SEMANTIC: SemanticValidator(),
+            RuleType.ONTOLOGY: OntologyValidator()
+        }
+        return validators.get(rule_type)</code></pre>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">Builder Pattern</div>
+                        <pre><code>class PromptBuilder:
+    def __init__(self):
+        self.reset()
+    
+    def with_term(self, term: str):
+        self.term = term
+        return self
+    
+    def with_context(self, context: str):
+        self.context = context
+        return self
+    
+    def build(self) -> Prompt:
+        # Construct optimized prompt</code></pre>
+                    </div>
+                </div>
+
+                <h2>🛡️ Security Patterns</h2>
+                
+                <div class="card">
+                    <ul>
+                        <li><strong>Input Validation:</strong> Pydantic models op alle boundaries</li>
+                        <li><strong>Output Encoding:</strong> Automatic escaping in templates</li>
+                        <li><strong>Authentication:</strong> JWT tokens met refresh mechanism</li>
+                        <li><strong>Authorization:</strong> Role-based access control (RBAC)</li>
+                        <li><strong>Rate Limiting:</strong> Token bucket algorithm per user/IP</li>
+                        <li><strong>Audit Trail:</strong> Alle acties gelogd met context</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ADR-001 -->
+            <section id="adr-001" class="content-section">
+                <h1>ADR-001: Behoud Monolithische Structuur</h1>
+                
+                <div class="alert alert-info">
+                    <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
+                </div>
+
+                <h2>Context</h2>
+                <p>Het team staat voor de keuze tussen het behouden van de huidige monolithische structuur of het migreren naar een microservices architectuur. De applicatie heeft ~10k LOC en 1-2 developers.</p>
+
+                <h2>Beslissing</h2>
+                <p>We behouden de monolithische structuur maar met duidelijke modulaire boundaries binnen de monoliet.</p>
+
+                <h2>Rationale</h2>
+                <ul>
+                    <li>Team grootte (1-2 devs) past beter bij monoliet</li>
+                    <li>Complexiteit van microservices niet gerechtvaardigd</li>
+                    <li>Deployment simpliciteit belangrijk voor kleine team</li>
+                    <li>Performance overhead van service calls vermeden</li>
+                </ul>
+
+                <h2>Gevolgen</h2>
+                <div class="card">
+                    <div class="card-header">✅ Positief</div>
+                    <ul>
+                        <li>Eenvoudige deployment en operations</li>
+                        <li>Geen network latency tussen componenten</li>
+                        <li>Makkelijker debuggen en traceren</li>
+                        <li>Lagere infrastructuur kosten</li>
+                    </ul>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">❌ Negatief</div>
+                    <ul>
+                        <li>Horizontale scaling beperkt</li>
+                        <li>Technology lock-in voor hele applicatie</li>
+                        <li>Mogelijk memory/CPU bottlenecks</li>
+                    </ul>
+                </div>
+
+                <h2>Alternatieven</h2>
+                <table>
+                    <tr>
+                        <th>Optie</th>
+                        <th>Overwegingen</th>
+                    </tr>
+                    <tr>
+                        <td>Microservices</td>
+                        <td>Te complex voor team grootte, overhead niet gerechtvaardigd</td>
+                    </tr>
+                    <tr>
+                        <td>Serverless</td>
+                        <td>Cold starts problematisch voor user experience</td>
+                    </tr>
+                    <tr>
+                        <td>Modular Monolith</td>
+                        <td>✓ Gekozen - beste balans complexiteit vs flexibiliteit</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- ADR-002 -->
+            <section id="adr-002" class="content-section">
+                <h1>ADR-002: Features First Development</h1>
+                
+                <div class="alert alert-info">
+                    <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
+                </div>
+
+                <h2>Context</h2>
+                <p>Na de service consolidatie moet bepaald worden of we eerst de technische schuld aanpakken of de gebruikersfunctionaliteit herstellen.</p>
+
+                <h2>Beslissing</h2>
+                <p>We kiezen voor "Features First" - eerst alle 10 UI tabs functioneel maken voordat we grote refactorings doen.</p>
+
+                <h2>Rationale</h2>
+                <ul>
+                    <li>Gebruikerswaarde staat voorop</li>
+                    <li>Werkende features geven beter inzicht in requirements</li>
+                    <li>Stakeholder vertrouwen behouden</li>
+                    <li>Refactoring met werkende features is veiliger</li>
+                </ul>
+
+                <h2>Implementatie Strategie</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <h3>Week 1-2: Core Features</h3>
+                        <p>Basis definitie generatie, validatie, geschiedenis</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>Week 3-4: Advanced Features</h3>
+                        <p>Bulk verwerking, document analyse, export</p>
+                    </div>
+                    <div class="timeline-item">
+                        <h3>Week 5-6: Polish & Refactor</h3>
+                        <p>UI verbeteren, eerste refactoring ronde</p>
+                    </div>
+                </div>
+
+                <h2>Success Criteria</h2>
+                <div class="card">
+                    <ul>
+                        <li>✓ Alle 10 tabs functioneel</li>
+                        <li>✓ Legacy features werkend</li>
+                        <li>✓ Gebruikers kunnen alle taken uitvoeren</li>
+                        <li>✓ Basis test coverage (>60%)</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ADR-003 -->
+            <section id="adr-003" class="content-section">
+                <h1>ADR-003: Legacy Code als Specificatie</h1>
+                
+                <div class="alert alert-info">
+                    <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
+                </div>
+
+                <h2>Context</h2>
+                <p>De legacy code bevat impliciete business rules die nergens gedocumenteerd zijn. We moeten beslissen hoe we hiermee omgaan tijdens de migratie.</p>
+
+                <h2>Beslissing</h2>
+                <p>We behandelen de legacy code als de officiële specificatie en behouden alle bestaande functionaliteit exact zoals geïmplementeerd.</p>
+
+                <h2>Rationale</h2>
+                <ul>
+                    <li>Legacy code is "battle-tested" in productie context</li>
+                    <li>Bevat jaren van impliciete kennis</li>
+                    <li>Voorkomt regressies in business logic</li>
+                    <li>Maakt A/B testing mogelijk</li>
+                </ul>
+
+                <h2>Implementatie Aanpak</h2>
+                <pre><code># Legacy wrapper pattern
+class ModernDefinitionService:
+    def __init__(self):
+        self.legacy_service = LegacyDefinitionGenerator()
+    
+    def generate(self, term: str, use_legacy: bool = False):
+        if use_legacy or self._should_fallback():
+            return self._wrap_legacy_response(
+                self.legacy_service.genereer_definitie(term)
+            )
+        return self._modern_implementation(term)</code></pre>
+
+                <h2>Documentatie Strategie</h2>
+                <div class="card">
+                    <ul>
+                        <li>Extract business rules uit legacy code</li>
+                        <li>Documenteer in decision tables</li>
+                        <li>Schrijf karakterisatie tests</li>
+                        <li>Gradual formalisatie van regels</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- ADR-004 -->
+            <section id="adr-004" class="content-section">
+                <h1>ADR-004: Incrementele Migratie Strategie</h1>
+                
+                <div class="alert alert-info">
+                    <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
+                </div>
+
+                <h2>Context</h2>
+                <p>We moeten een strategie kiezen voor het migreren van legacy naar moderne architectuur zonder business continuity te verstoren.</p>
+
+                <h2>Beslissing</h2>
+                <p>We adopteren een incrementele "Strangler Fig" pattern waarbij we geleidelijk legacy componenten vervangen.</p>
+
+                <h2>Migratie Fases</h2>
+                <div class="mermaid">
+                    graph LR
+                        A[Legacy System] -->|Fase 1| B[Facade Layer]
+                        B -->|Fase 2| C[New Services]
+                        C -->|Fase 3| D[Legacy Removal]
+                        D -->|Fase 4| E[Optimization]
+                        
+                        style A fill:#ff6b6b
+                        style E fill:#51cf66
+                </div>
+
+                <h2>Implementatie Pattern</h2>
+                <pre><code>class MigrationFacade:
+    """Transparante migratie van legacy naar modern"""
+    
+    def __init__(self):
+        self.legacy = LegacySystem()
+        self.modern = ModernSystem()
+        self.feature_flags = FeatureFlags()
+    
+    def process(self, request):
+        if self.feature_flags.is_enabled("use_modern", request.user):
+            try:
+                return self.modern.process(request)
+            except Exception as e:
+                # Automatic fallback
+                logger.warning(f"Modern failed, falling back: {e}")
+                return self.legacy.process(request)
+        return self.legacy.process(request)</code></pre>
+
+                <h2>Risk Mitigation</h2>
+                <table>
+                    <tr>
+                        <th>Risico</th>
+                        <th>Mitigatie</th>
+                    </tr>
+                    <tr>
+                        <td>Data inconsistentie</td>
+                        <td>Dual-write met reconciliation</td>
+                    </tr>
+                    <tr>
+                        <td>Feature parity</td>
+                        <td>A/B testing met metrics</td>
+                    </tr>
+                    <tr>
+                        <td>Performance degradatie</td>
+                        <td>Canary deployments</td>
+                    </tr>
+                    <tr>
+                        <td>Rollback complexity</td>
+                        <td>Feature flags per component</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Migration Strategy -->
+            <section id="migration-strategy" class="content-section">
+                <h1>Migratie Strategie</h1>
+                
+                <h2>🎯 Strategische Aanpak</h2>
+                <p>De migratie volgt een "Strangler Fig" pattern waarbij we incrementeel legacy componenten vervangen zonder de gebruikerservaring te verstoren.</p>
+
+                <div class="card">
+                    <div class="card-header">Core Principes</div>
+                    <ul>
+                        <li><strong>Zero Downtime:</strong> Geen onderbreking voor gebruikers</li>
+                        <li><strong>Incremental Value:</strong> Elke stap levert waarde</li>
+                        <li><strong>Reversibility:</strong> Altijd kunnen terugdraaien</li>
+                        <li><strong>Measurable Progress:</strong> Data-driven beslissingen</li>
+                    </ul>
+                </div>
+
+                <h2>🔄 Migratie Componenten</h2>
+                <div class="mermaid">
+                    graph TD
+                        subgraph "Current State"
+                            L1[Legacy UI]
+                            L2[Mixed Services]
+                            L3[SQLite DB]
+                        end
+                        
+                        subgraph "Transition"
+                            T1[Facade Pattern]
+                            T2[Feature Flags]
+                            T3[Dual Write]
+                        end
+                        
+                        subgraph "Target State"
+                            N1[Modern UI]
+                            N2[Clean Services]
+                            N3[PostgreSQL]
+                        end
+                        
+                        L1 -->|Gradual| T1
+                        L2 -->|Incremental| T2
+                        L3 -->|Migration| T3
+                        
+                        T1 --> N1
+                        T2 --> N2
+                        T3 --> N3
+                        
+                        style L1 fill:#ff6b6b
+                        style L2 fill:#ff6b6b
+                        style L3 fill:#ff6b6b
+                        style N1 fill:#51cf66
+                        style N2 fill:#51cf66
+                        style N3 fill:#51cf66
+                </div>
+
+                <h2>📊 Success Metrics</h2>
+                <table>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Current</th>
+                        <th>Target</th>
+                        <th>Measure</th>
+                    </tr>
+                    <tr>
+                        <td>Response Time</td>
+                        <td>8-12s</td>
+                        <td><5s</td>
+                        <td>P95 latency</td>
+                    </tr>
+                    <tr>
+                        <td>Error Rate</td>
+                        <td>Unknown</td>
+                        <td><1%</td>
+                        <td>5xx responses</td>
+                    </tr>
+                    <tr>
+                        <td>Test Coverage</td>
+                        <td>13%</td>
+                        <td>>80%</td>
+                        <td>Line coverage</td>
+                    </tr>
+                    <tr>
+                        <td>Tech Debt</td>
+                        <td>High</td>
+                        <td>Low</td>
+                        <td>SonarQube score</td>
+                    </tr>
+                </table>
+            </section>
+
+            <!-- Migration Phases -->
+            <section id="migration-phases" class="content-section">
+                <h1>Migratie Fases</h1>
+                
+                <div class="timeline">
+                    <div class="timeline-item completed">
+                        <h3>Fase 0: Consolidatie ✅</h3>
+                        <p><strong>Status:</strong> Voltooid</p>
+                        <ul>
+                            <li>3 services → UnifiedDefinitionService</li>
+                            <li>Singleton pattern geïmplementeerd</li>
+                            <li>Legacy compatibility behouden</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h3>Fase 1: Stabilisatie (Week 1-2)</h3>
+                        <p><strong>Focus:</strong> Werkende baseline</p>
+                        <ul>
+                            <li>Fix alle imports naar standaard pattern</li>
+                            <li>Unificeer configuratie systeem</li>
+                            <li>Repareer kritieke tests (30% coverage)</li>
+                            <li>Implementeer basis monitoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h3>Fase 2: Feature Restauratie (Week 3-4)</h3>
+                        <p><strong>Focus:</strong> Gebruikersfunctionaliteit</p>
+                        <ul>
+                            <li>Alle 10 UI tabs functioneel</li>
+                            <li>Content enrichment service</li>
+                            <li>Export functionaliteit</li>
+                            <li>Gebruikersacceptatie tests</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h3>Fase 3: Modernisatie (Week 5-6)</h3>
+                        <p><strong>Focus:</strong> Architectuur verbetering</p>
+                        <ul>
+                            <li>API layer toevoegen (FastAPI)</li>
+                            <li>Async processing implementeren</li>
+                            <li>Caching strategy uitrollen</li>
+                            <li>Database migratie voorbereiden</li>
+                        </ul>
+                    </div>
+
+                    <div class="timeline-item">
+                        <h3>Fase 4: Optimalisatie (Week 7-8)</h3>
+                        <p><strong>Focus:</strong> Performance & schaal</p>
+                        <ul>
+                            <li>PostgreSQL migratie</li>
+                            <li>Redis cache layer</li>
+                            <li>Horizontale scaling testen</li>
+                            <li>CI/CD pipeline compleet</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h2>📋 Fase Details</h2>
+                
+                <div class="tabs">
+                    <div class="tab active" onclick="showTab('phase-checklist')">Checklists</div>
+                    <div class="tab" onclick="showTab('phase-deliverables')">Deliverables</div>
+                    <div class="tab" onclick="showTab('phase-dependencies')">Dependencies</div>
+                </div>
+
+                <div id="phase-checklist" class="tab-content active">
+                    <div class="card">
+                        <div class="card-header">Fase 1 Checklist</div>
+                        <ul>
+                            <li>□ Alle imports gestandaardiseerd</li>
+                            <li>□ Single config.py file</li>
+                            <li>□ Environment variables gedocumenteerd</li>
+                            <li>□ 30% tests werkend</li>
+                            <li>□ Logging framework actief</li>
+                            <li>□ Basic health checks</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div id="phase-deliverables" class="tab-content">
+                    <table>
+                        <tr>
+                            <th>Fase</th>
+                            <th>Key Deliverables</th>
+                        </tr>
+                        <tr>
+                            <td>Stabilisatie</td>
+                            <td>Werkende test suite, unified config, monitoring dashboard</td>
+                        </tr>
+                        <tr>
+                            <td>Feature Restauratie</td>
+                            <td>10 functionele tabs, user manual, acceptance test rapport</td>
+                        </tr>
+                        <tr>
+                            <td>Modernisatie</td>
+                            <td>API documentatie, async workers, cache strategie doc</td>
+                        </tr>
+                        <tr>
+                            <td>Optimalisatie</td>
+                            <td>Performance rapport, scaling guide, production checklist</td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div id="phase-dependencies" class="tab-content">
+                    <div class="mermaid">
+                        graph TD
+                            A[Import Fix] --> B[Config Unification]
+                            B --> C[Test Repair]
+                            C --> D[Feature Implementation]
+                            D --> E[API Layer]
+                            E --> F[Database Migration]
+                            F --> G[Scaling Tests]
+                            
+                            style A fill:#51cf66
+                            style B fill:#feca57
+                            style C fill:#feca57
+                            style D fill:#ff6b6b
+                    </div>
+                </div>
+            </section>
+
+            <!-- Migration Risks -->
+            <section id="migration-risks" class="content-section">
+                <h1>Risico Management</h1>
+                
+                <h2>🚨 Geïdentificeerde Risico's</h2>
+                
+                <div class="card">
+                    <div class="card-header">🔴 Hoog Risico</div>
+                    <table>
+                        <tr>
+                            <th>Risico</th>
+                            <th>Impact</th>
+                            <th>Mitigatie</th>
+                        </tr>
+                        <tr>
+                            <td>Data Loss tijdens DB migratie</td>
+                            <td>Kritiek</td>
+                            <td>
+                                <ul>
+                                    <li>Automated backups</li>
+                                    <li>Dual-write period</li>
+                                    <li>Rollback procedures</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Breaking changes in API</td>
+                            <td>Hoog</td>
+                            <td>
+                                <ul>
+                                    <li>Versioned endpoints</li>
+                                    <li>Deprecation warnings</li>
+                                    <li>Migration guides</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">🟡 Medium Risico</div>
+                    <table>
+                        <tr>
+                            <th>Risico</th>
+                            <th>Impact</th>
+                            <th>Mitigatie</th>
+                        </tr>
+                        <tr>
+                            <td>Performance degradatie</td>
+                            <td>Medium</td>
+                            <td>
+                                <ul>
+                                    <li>Load testing</li>
+                                    <li>Canary releases</li>
+                                    <li>Rollback triggers</li>
+                                </ul>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>Team burnout</td>
+                            <td>Medium</td>
+                            <td>
+                                <ul>
+                                    <li>Realistic timelines</li>
+                                    <li>Regular breaks</li>
+                                    <li>Scope management</li>
+                                </ul>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+
+                <h2>📊 Risk Matrix</h2>
+                <div class="mermaid">
+                    graph TD
+                        subgraph "Impact/Probability Matrix"
+                            A[Data Loss<br/>High/Low]
+                            B[API Break<br/>High/Medium]
+                            C[Performance<br/>Medium/Medium]
+                            D[Burnout<br/>Medium/High]
+                            E[Scope Creep<br/>Low/High]
+                        end
+                        
+                        style A fill:#ff6b6b
+                        style B fill:#ff6b6b
+                        style C fill:#feca57
+                        style D fill:#feca57
+                        style E fill:#51cf66
+                </div>
+
+                <h2>🛡️ Contingency Plans</h2>
+                
+                <div class="card">
+                    <div class="card-header">Rollback Procedures</div>
+                    <pre><code># Database Rollback
+./scripts/db_rollback.sh --to-version=previous
+
+# Service Rollback
+kubectl rollout undo deployment/definitie-agent
+
+# Feature Flag Override
+curl -X POST /api/admin/features \
+  -d '{"feature": "new_architecture", "enabled": false}'</code></pre>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">Emergency Contacts</div>
+                    <ul>
+                        <li>DevOps On-Call: +31 6 XXXX XXXX</li>
+                        <li>Database Admin: db-admin@example.com</li>
+                        <li>Cloud Provider Support: Case #12345</li>
+                    </ul>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({ 
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#2563eb',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#1e40af',
+                lineColor: '#6b7280',
+                secondaryColor: '#7c3aed',
+                tertiaryColor: '#f3f4f6'
+            }
+        });
+
+        // Navigation Functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked nav link
+            document.querySelector(`[onclick="showSection('${sectionId}')"]`).classList.add('active');
+            
+            // Close mobile menu if open
+            document.getElementById('sidebar').classList.remove('open');
+            
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Tab Functions
+        function showTab(tabId) {
+            // Get parent element of tabs
+            const tabParent = event.target.closest('.content-section');
+            
+            // Hide all tab contents in this section
+            tabParent.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs in this section
+            tabParent.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            tabParent.querySelector(`#${tabId}`).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+        }
+
+        // Sidebar Toggle for Mobile
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        // Section Collapse Toggle
+        function toggleSection(element) {
+            element.parentElement.classList.toggle('collapsed');
+        }
+
+        // Progress Animation
+        window.addEventListener('load', () => {
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -100px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.width = entry.target.getAttribute('data-width') || entry.target.style.width;
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.progress-bar').forEach(bar => {
+                observer.observe(bar);
+            });
+        });
+
+        // Interactive Button Demo
+        function showAlert(message) {
+            alert(message);
+        }
+
+        // Print Functionality
+        function printDocument() {
+            window.print();
+        }
+
+        // Search Functionality (placeholder)
+        function searchDocument(query) {
+            console.log('Searching for:', query);
+            // Implement search functionality
+        }
+
+        // Initialize tooltips or other interactive elements
+        document.addEventListener('DOMContentLoaded', () => {
+            // Add any initialization code here
+            console.log('DefinitieAgent Architecture Document Loaded');
+        });
+    </script>
+</body>
+</html>

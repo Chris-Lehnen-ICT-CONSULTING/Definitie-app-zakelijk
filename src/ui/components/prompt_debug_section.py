@@ -47,14 +47,14 @@ class PromptDebugSection:
                 
                 # Toon metadata
                 if hasattr(generation_result, 'context') and generation_result.context:
-                    with st.expander("📊 Context Metadata", expanded=False):
-                        context_dict = {
-                            "begrip": generation_result.context.begrip,
-                            "organisatorische_context": generation_result.context.organisatorische_context,
-                            "juridische_context": generation_result.context.juridische_context,
-                            "categorie": generation_result.context.categorie.value if generation_result.context.categorie else None,
-                        }
-                        st.json(context_dict)
+                    st.markdown("##### 📊 Context Metadata")
+                    context_dict = {
+                        "begrip": generation_result.context.begrip,
+                        "organisatorische_context": generation_result.context.organisatorische_context,
+                        "juridische_context": generation_result.context.juridische_context,
+                        "categorie": generation_result.context.categorie.value if generation_result.context.categorie else None,
+                    }
+                    st.json(context_dict)
             
             # Voorbeelden prompts
             if voorbeelden_prompts:
