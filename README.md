@@ -1,208 +1,155 @@
-# DefinitieAgent 2.1 🚀
+# DefinitieAgent 2.3 🚀
 
-**Nederlandse AI-powered Definitie Generator met Hybrid Context Enhancement**
+**Nederlandse AI-powered Definitie Generator voor Juridische en Overheidscontexten**
 
-[![Test Coverage](https://img.shields.io/badge/coverage-14%25-yellow.svg)](./build/coverage/)
-[![Tests](https://img.shields.io/badge/tests-37%2B%20passing-brightgreen.svg)](./tests/)
+[![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](./CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://python.org)
+[![Tests](https://img.shields.io/badge/tests-87%25%20broken-red.svg)](./tests/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
 ## 🎯 Overzicht
 
-DefinitieAgent is een geavanceerde AI-applicatie voor het genereren van hoogwaardige Nederlandse definities met hybrid context verrijking door document upload en web lookup integratie.
+DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 46 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
 
-### ✨ Hoofdfuncties v2.1
-- 🤖 **AI-Powered Definitie Generatie** (GPT-4/3.5 Turbo)
-- 📄 **Document Upload & Processing** (PDF, DOCX, TXT)
-- 🔄 **Hybrid Context Enhancement** (Document + Web sources)
-- ⚡ **Performance Optimized** (Caching, Rate limiting)
-- 🔐 **Security Hardened** (Input validation, Threat detection)
-- 🧪 **Comprehensive Testing** (37+ tests, 14% coverage)
+### ✨ Kernfuncties
+
+- 🤖 **AI Definitie Generatie** met GPT-4 en 6-stappen ontologisch protocol
+- 📋 **46 Kwaliteitsregels** voor validatie en toetsing
+- 🏗️ **Modulaire Architectuur** met UnifiedDefinitionService
+- 🌐 **Web Lookup** voor context verrijking
+- 📄 **Document Upload** voor kennisbasis uitbreiding
+- ⚡ **Smart Caching** en performance optimalisatie
+- 🖥️ **10 Streamlit UI Tabs** (30% functioneel)
+
+## 🚀 Quick Start
+
+Zie [Quick Start Guide](docs/setup/quick-start.md) voor gedetailleerde installatie instructies.
+
+```bash
+# Clone repository
+git clone <repository-url>
+cd Definitie-app
+
+# Setup environment
+cp .env.example .env
+# Edit .env met je OpenAI API key
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Start applicatie
+streamlit run src/app.py
+```
 
 ## 📁 Project Structuur
 
 ```
 definitie-app/
-├── 📁 docs/                     # Documentatie
-│   ├── architecture/            # Architectuur docs
-│   ├── requirements/            # Requirements & roadmap
-│   ├── testing/                 # Test documentatie
-│   ├── configuration/           # Config docs
-│   ├── domain/                  # Domein kennis
-│   └── samples/                 # Voorbeeld documenten
+├── 📄 README.md              # Dit bestand
+├── 📄 SETUP.md               # Quick start guide
+├── 📄 CONTRIBUTING.md        # Development guidelines
+├── 📄 CHANGELOG.md           # Version history
+├── 📄 CLAUDE.md              # AI coding standards
+├── 🔧 .env.example           # Environment template
 │
-├── 📁 src/                      # Source code
-│   ├── ai_toetser/             # AI validatie engine
-│   ├── document_processing/     # Document processing
-│   ├── hybrid_context/         # Context verrijking
-│   ├── security/               # Security middleware
-│   ├── ui/                     # Streamlit interface
-│   └── main.py                 # Hoofdapplicatie
+├── 📁 src/                   # Source code
+│   ├── services/             # UnifiedDefinitionService
+│   ├── ai_toetsing/          # 46 validators
+│   ├── tabs/                 # 10 UI tabs
+│   └── app.py                # Main entry
 │
-├── 📁 tests/                    # Test suites
-│   ├── unit/                   # Unit tests
-│   ├── integration/            # Integration tests
-│   ├── performance/            # Performance tests
-│   └── security/               # Security tests
+├── 📁 docs/                  # Documentatie
+│   ├── README.md             # Docs index
+│   ├── brownfield-architecture.md
+│   ├── requirements/         # Roadmap & backlog
+│   └── analysis/             # Technische analyses
 │
-├── 📁 data/                     # Data storage
-│   ├── database/               # SQLite database
-│   ├── uploads/                # Uploaded documents
-│   └── cache/                  # Performance cache
-│
-├── 📁 config/                   # Configuration
-├── 📁 exports/                  # Generated exports
-├── 📁 logs/                     # Application logs
-├── 📁 build/                    # Build artifacts
-└── 📁 tools/                    # Development tools
+├── 📁 tests/                 # Test suites (87% broken)
+└── 📁 data/                  # Database & uploads
 ```
 
-## 🚀 Quick Start
+## 📊 Project Status
 
-### Prerequisites
-- Python 3.8+
-- OpenAI API key
-- SQLite 3
+### ✅ Werkend (v2.3)
+- Services consolidatie voltooid (3→1)
+- Basis definitie generatie
+- AI toetsing met JSON validators
+- Database persistence
+- 3 van 10 UI tabs functioneel
 
-### Installation
-```bash
-# Clone repository
-git clone <repository-url>
-cd definitie-app
+### 🚧 In Progress
+- UI tabs completeness (70% ontbreekt)
+- Content enrichment (synoniemen, antoniemen)
+- Test suite reparatie (87% broken)
+- Performance monitoring
 
-# Install dependencies
-pip install -r requirements.txt
+### 📈 6-Weken Roadmap
 
-# Setup database
-python src/tools/setup_database.py
+Week 1-2: **Quick Wins**
+- Database concurrent access fix
+- Web lookup UTF-8 encoding
+- UI quick fixes
 
-# Configure API keys
-cp config/config_default.yaml config/config_development.yaml
-# Edit config_development.yaml with your API keys
-```
+Week 3-4: **Feature Completeness**
+- AI content generatie
+- Prompt optimalisatie (35k → 10k)
 
-### Run Application
-```bash
-# Start Streamlit interface
-streamlit run src/main.py
+Week 5-6: **Testing & Stabilisatie**
+- Manual test protocol
+- Documentatie updates
 
-# Or use the convenience script
-./tools/start_definitie_webinterface.command
-```
+Zie [docs/requirements/ROADMAP.md](docs/requirements/ROADMAP.md) voor details.
 
 ## 🧪 Testing
 
-### Run All Tests
+**⚠️ Let op: Test suite is grotendeels broken (87% failing)**
+
 ```bash
-# All test suites
-pytest tests/
+# Werkende tests only
+pytest tests/test_rate_limiter.py
+pytest tests/ai_toetsing/test_toetsing_flow.py -k "validation"
 
-# Specific test types
-pytest tests/unit/          # Unit tests
-pytest tests/integration/   # Integration tests  
-pytest tests/performance/   # Performance tests
-pytest tests/security/      # Security tests
-```
-
-### Test Coverage
-```bash
-# Generate coverage report
-pytest --cov=src tests/
-pytest --cov=src --cov-report=html tests/
-
-# View coverage
-open build/coverage/index.html
+# Manual testing wordt aanbevolen
+# Zie docs/testing/ voor test scenarios
 ```
 
 ## 📖 Documentatie
 
-- **🏗️ [Architectuur](docs/architecture/ARCHITECTURE.md)** - Complete systeem architectuur
-- **📋 [Requirements](docs/requirements/)** - Project requirements en roadmap
-- **🧪 [Testing](docs/testing/)** - Test strategie en resultaten
-- **⚙️ [Configuratie](docs/configuration/)** - Setup en configuratie
-- **📚 [Domein](docs/domain/)** - Begrippenkader en voorbeelden
-
-## 🔧 Development
-
-### Development Environment
-```bash
-# Development configuratie
-export ENVIRONMENT=development
-
-# Run tests tijdens development
-pytest tests/unit/ --watch
-
-# Debug modus
-streamlit run src/main.py --debug
-```
-
-### Code Quality
-```bash
-# Linting (indien geconfigureerd)
-flake8 src/
-black src/
-
-# Type checking (indien geconfigureerd)  
-mypy src/
-```
-
-## 📊 Features & Status
-
-### ✅ Geïmplementeerd
-- [x] AI Definitie Generatie (GPT-4/3.5)
-- [x] Document Upload (PDF, DOCX, TXT)
-- [x] Hybrid Context Enhancement
-- [x] Performance Optimization
-- [x] Security Middleware
-- [x] Comprehensive Testing
-- [x] Streamlit UI Interface
-
-### 🚧 In Development
-- [ ] Advanced AI Testing (25% coverage target)
-- [ ] CI/CD Pipeline
-- [ ] Production Monitoring
-- [ ] API Documentation
-
-### 📈 Roadmap
-- [ ] Multi-language Support
-- [ ] Advanced Document Types
-- [ ] Real-time Collaboration
-- [ ] Cloud Deployment
-
-## 🔐 Security
-
-- **Input Validation**: XSS, SQL injection prevention
-- **Rate Limiting**: API abuse protection  
-- **Threat Detection**: Malicious content detection
-- **Audit Logging**: Security event tracking
-
-## 📈 Performance
-
-- **Caching**: Multi-level caching strategy
-- **Async Processing**: Non-blocking operations
-- **Rate Limiting**: Smart request throttling
-- **Monitoring**: Performance metrics tracking
+- [Brownfield Architecture](docs/brownfield-architecture.md) - Actuele systeem architectuur
+- [Roadmap](docs/requirements/ROADMAP.md) - 6-weken development plan
+- [Backlog](docs/BACKLOG.md) - 77+ items met quick wins
+- [Analyses](docs/analysis/) - Technische documentatie
 
 ## 🤝 Contributing
 
-1. Fork the repository
-2. Create feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open Pull Request
+Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 
-### Development Guidelines
-- Follow existing code style
-- Add tests for new features
-- Update documentation
-- Ensure security compliance
+**Quick Wins voor nieuwe contributors:**
+- GPT temperatuur naar config file (2 uur)
+- Streamlit widget key generator (2 uur)
+- Plain text export (4 uur)
+- Help tooltips (3 uur)
+
+## 🔧 Development
+
+### Features First Aanpak
+- Legacy code = specificatie
+- Werkende features > perfecte code
+- Manual testing acceptabel
+- Pragmatische oplossingen
+
+### Coding Standards
+- Nederlandse comments voor business logica
+- Type hints waar mogelijk
+- UnifiedDefinitionService pattern volgen
+- Zie [CLAUDE.md](CLAUDE.md) voor AI guidelines
 
 ## 📞 Support
 
-Voor vragen of problemen:
-- Check [documentatie](docs/)
-- Review [test resultaten](docs/testing/)
-- Bekijk [architectuur](docs/architecture/)
+- Check [Setup Guide](SETUP.md) voor installatie
+- Zie [Roadmap](docs/requirements/ROADMAP.md) voor planning
+- Browse [Architecture](docs/brownfield-architecture.md) voor technische details
+- Review [Backlog](docs/BACKLOG.md) voor open taken
 
 ## 📜 License
 
@@ -210,5 +157,5 @@ Private project. All rights reserved.
 
 ---
 
-**DefinitieAgent v2.1** - Geavanceerde Nederlandse AI Definitie Generator  
-Gebouwd met ❤️ voor hoogwaardige definitie kwaliteit
+**DefinitieAgent v2.3** - Features First Development  
+*"Legacy code is de specificatie"* 🚀
