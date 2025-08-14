@@ -1,0 +1,29 @@
+{
+  "id": "STR_02",
+  "naam": "Kick-off ≠ de term",
+  "uitleg": "De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.",
+  "toelichting": "De definitie moet beginnen met een term ('kick-off term') die een breder begrip aanduidt, en moet vervolgens aangeven hoe het te definiëren begrip verschilt van het bredere begrip, of, anders gezegd, een speciaal geval is van het bredere begrip.",
+  "toetsvraag": "Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?",
+  "herkenbaar_patronen": [
+    "^\\s*\\b(\\w+)\\b\\s*:\\s*\\1\\b"
+  ],
+  "goede_voorbeelden": [
+    "analist: professional verantwoordelijk voor …"
+  ],
+  "foute_voorbeelden": [
+    "analist: analist die verantwoordelijk is voor …"
+  ],
+  "prioriteit": "hoog",
+  "aanbeveling": "verplicht",
+  "geldigheid": "alle",
+  "status": "definitief",
+  "type": "element in de definitie",
+  "thema": "structuur van de definitie",
+  "brondocument": "ASTRA",
+  "relatie": [
+    {
+      "fulltext": "Kick-off vervolgen met toespitsing",
+      "fullurl": "https://www.astraonline.nl/index.php/Kick-off_vervolgen_met_toespitsing"
+    }
+  ]
+}

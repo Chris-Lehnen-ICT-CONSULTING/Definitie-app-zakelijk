@@ -598,10 +598,18 @@ class TabbedInterface:
                 # Store detailed validation results for display
                 if agent_result and agent_result.best_iteration:
                     from ai_toetser.modular_toetser import toets_definitie
-                    from config.config_loader import laad_toetsregels
+                    from config.toetsregels.modular_loader import load_all_toetsregels
                     
-                    # Get detailed validation results with proper context
-                    toetsregels = laad_toetsregels()
+                    # Get detailed validation results with proper context using modular loader
+                    # Dit laadt zowel JSON configs als Python validators
+                    alle_regel_data = load_all_toetsregels()
+                    
+                    # Converteer naar formaat dat toets_definitie verwacht
+                    toetsregels = {}
+                    for regel_id, regel_data in alle_regel_data.items():
+                        toetsregels[regel_id] = regel_data['config']
+                    
+                    logger.info(f"Loaded {len(toetsregels)} toetsregels via modular loader (JSON + Python modules)")
                     
                     # Create contexten dictionary for validation
                     contexten = {
@@ -887,27 +895,41 @@ class TabbedInterface:
             </div>
         """, unsafe_allow_html=True)
         
-        # Tab-specific content
-        if tab_key == "generator":
-            self.definition_tab.render()
-        elif tab_key == "expert":
-            self.expert_tab.render()
-        elif tab_key == "history":
-            self.history_tab.render()
-        elif tab_key == "export":
-            self.export_tab.render()
-        elif tab_key == "quality":
-            self.quality_tab.render()
-        elif tab_key == "external":
-            self.external_tab.render()
-        elif tab_key == "monitoring":
-            self.monitoring_tab.render()
-        elif tab_key == "web_lookup":
-            self.web_lookup_tab.render()
-        elif tab_key == "orchestration":
-            self.orchestration_tab.render()
-        elif tab_key == "management":
-            self.management_tab.render()
+        # Tab-specific content met error handling
+        try:
+            if tab_key == "generator":
+                self.definition_tab.render()
+            elif tab_key == "expert":
+                self.expert_tab.render()
+            elif tab_key == "history":
+                self.history_tab.render()
+            elif tab_key == "export":
+                self.export_tab.render()
+            elif tab_key == "quality":
+                self.quality_tab.render()
+            elif tab_key == "external":
+                self.external_tab.render()
+            elif tab_key == "monitoring":
+                self.monitoring_tab.render()
+            elif tab_key == "web_lookup":
+                self.web_lookup_tab.render()
+            elif tab_key == "orchestration":
+                self.orchestration_tab.render()
+            elif tab_key == "management":
+                self.management_tab.render()
+        except Exception as e:
+            # Log de echte error voor debugging
+            logger.error(f"Error in tab {tab_key}: {str(e)}", exc_info=True)
+            # Toon gebruikersvriendelijke foutmelding met details
+            st.error(f"❌ Er is een fout opgetreden in tab '{config['title']}'")
+            
+            # In debug mode, toon technische details
+            if st.checkbox(f"🔍 Toon technische details voor {tab_key}", key=f"debug_{tab_key}"):
+                st.code(f"Error type: {type(e).__name__}\nError message: {str(e)}")
+                
+                # Extra debug info voor missing methods
+                if "has no attribute" in str(e):
+                    st.warning("💡 Dit lijkt op een ontbrekende method. Controleer of alle tab methods geïmplementeerd zijn.")
     
     def _render_footer(self):
         """Render applicatie footer."""

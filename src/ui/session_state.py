@@ -86,6 +86,18 @@ class SessionStateManager:
         st.session_state[key] = value
     
     @staticmethod
+    def clear_value(key: str):
+        """
+        Verwijder een specifieke waarde uit sessie status.
+        
+        Args:
+            key: Sessie status sleutel om te verwijderen
+        """
+        # Verwijder sleutel uit sessie status als deze bestaat
+        if key in st.session_state:
+            del st.session_state[key]
+    
+    @staticmethod
     def update_definition_results(
         definitie_origineel: str,
         definitie_gecorrigeerd: str,
