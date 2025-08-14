@@ -14,29 +14,30 @@ import re
 from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
 
-from ..services.interfaces import (
+from services.interfaces import (
     WebLookupServiceInterface, 
     LookupRequest, 
     LookupResult, 
     WebSource,
     JuridicalReference
 )
-from ..utils.cache import cache_async_result
-from ..config import Config
+from utils.cache import cache_async_result
+from config.config_manager import get_config_manager
 
 # Import legacy modules voor hergebruik
-from ..web_lookup.lookup import (
-    zoek_wikipedia,
-    zoek_wiktionary,
-    zoek_overheid,
-    zoek_wetten,
-    zoek_ensie,
-    zoek_strafrechtketen,
-    zoek_kamerstukken
+from web_lookup.lookup import (
+    zoek_definitie_op_wikipedia,
+    zoek_definitie_op_wiktionary,
+    zoek_definitie_op_overheidnl,
+    zoek_definitie_op_wettennl,
+    zoek_definitie_op_ensie,
+    zoek_definitie_op_strafrechtketen,
+    zoek_definitie_op_kamerstukken
 )
-from ..web_lookup.bron_lookup import valideer_bron_betrouwbaarheid
-from ..web_lookup.juridische_lookup import extract_juridische_verwijzingen
-from ..web_lookup.definitie_lookup import GelijkenisAnalyzer
+# TEMP DISABLED - Missing functions during fix
+# from web_lookup.bron_lookup import valideer_bron_betrouwbaarheid
+# from web_lookup.juridische_lookup import extract_juridische_verwijzingen  
+# from web_lookup.definitie_lookup import GelijkenisAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -48,17 +49,20 @@ class WebLookupService(WebLookupServiceInterface):
     Consolideerd alle web lookup functionaliteit in één service.
     """
     
-    def __init__(self, config: Optional[Config] = None):
+    def __init__(self, config: Optional[Any] = None):
         """
         Initialiseer de web lookup service.
         
         Args:
             config: Optionele configuratie
         """
-        self.config = config or Config()
+        # TEMP FIX: Use config manager instead of Config class
+        self.config = config or get_config_manager()
         self._rate_limits = {}  # Track rate limits per source
         self._sources = self._initialize_sources()
-        self._gelijkenis_analyzer = GelijkenisAnalyzer()
+        # TEMP DISABLED - Missing class during fix
+        # self._gelijkenis_analyzer = GelijkenisAnalyzer()
+        self._gelijkenis_analyzer = None
         
     def _initialize_sources(self) -> List[WebSource]:
         """Initialiseer beschikbare web bronnen."""
@@ -408,7 +412,7 @@ class WebLookupService(WebLookupServiceInterface):
 
 
 # Factory functie voor dependency injection
-def create_web_lookup_service(config: Optional[Config] = None) -> WebLookupService:
+def create_web_lookup_service(config: Optional[Any] = None) -> WebLookupService:
     """
     Factory functie voor het creëren van een WebLookupService.
     
