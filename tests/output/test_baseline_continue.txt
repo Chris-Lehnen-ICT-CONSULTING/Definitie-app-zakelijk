@@ -1,0 +1,12 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.13.3, pytest-8.4.1, pluggy-1.6.0
+rootdir: /Users/chrislehnen/Projecten/Definitie-app/tests
+configfile: pytest.ini
+plugins: anyio-4.9.0, cov-6.2.1, asyncio-1.0.0
+asyncio: mode=Mode.AUTO, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 383 items / 13 errors
+
+tests/functionality/test_bulk_with_delay.py .                            [  0%]
+tests/functionality/test_final_functionality.py ..F                      [  1%]
+tests/functionality/test_metadata_fields.py .                            [  1%]
+tests/functionality/test_simple_functionality.py 

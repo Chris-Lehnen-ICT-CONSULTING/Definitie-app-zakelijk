@@ -11,6 +11,9 @@ from ui.session_state import SessionStateManager
 from integration.definitie_checker import DefinitieChecker, CheckAction
 from generation.definitie_generator import OntologischeCategorie
 from database.definitie_repository import DefinitieRecord, DefinitieStatus
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class DefinitionGeneratorTab:
@@ -130,6 +133,7 @@ class DefinitionGeneratorTab:
         agent_result = generation_result.get("agent_result")
         saved_record = generation_result.get("saved_record")
         timestamp = generation_result.get("timestamp")
+        determined_category = generation_result.get("determined_category")
         
         if agent_result:
             # Success indicator
@@ -137,6 +141,10 @@ class DefinitionGeneratorTab:
                 st.success(f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})")
             else:
                 st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
+            
+            # Ontologische categorie sectie - prominent weergeven
+            if determined_category:
+                self._render_ontological_category_section(determined_category, generation_result)
             
             # Generated definition
             st.markdown("#### 📝 Gegenereerde Definitie")
@@ -147,7 +155,8 @@ class DefinitionGeneratorTab:
                 col1, col2, col3 = st.columns(3)
                 
                 with col1:
-                    st.metric("Iteraties", agent_result.iteration_count)
+                    if agent_result.iteration_count > 1:
+                        st.metric("Iteraties", agent_result.iteration_count)
                     st.metric("Finale Score", f"{agent_result.final_score:.2f}")
                 
                 with col2:
@@ -202,6 +211,141 @@ class DefinitionGeneratorTab:
             
             # Action buttons
             col1, col2, col3 = st.columns(3)
+    
+    def _render_ontological_category_section(self, determined_category: str, generation_result: Dict[str, Any]):
+        """Render ontologische categorie sectie met uitleg en aanpassingsmogelijkheid."""
+        st.markdown("#### 🎯 Ontologische Categorie")
+        
+        # Definieer categorie informatie
+        category_info = {
+            "type": {
+                "label": "Type/Klasse",
+                "icon": "🏷️",
+                "description": "Begrip dat een categorie of klasse van objecten/concepten beschrijft",
+                "examples": ["document", "systeem", "middel", "bewijs"]
+            },
+            "proces": {
+                "label": "Proces/Activiteit", 
+                "icon": "⚙️",
+                "description": "Begrip dat een activiteit, handeling of proces beschrijft",
+                "examples": ["verificatie", "vaststelling", "controle", "behandeling"]
+            },
+            "resultaat": {
+                "label": "Resultaat/Uitkomst",
+                "icon": "📊", 
+                "description": "Begrip dat een uitkomst, resultaat of conclusie beschrijft",
+                "examples": ["besluit", "rapport", "uitslag", "oordeel"]
+            },
+            "exemplaar": {
+                "label": "Exemplaar/Instantie",
+                "icon": "🔍",
+                "description": "Begrip dat een specifiek exemplaar of instantie beschrijft", 
+                "examples": ["persoon", "zaak", "geval", "situatie"]
+            }
+        }
+        
+        current_info = category_info.get(determined_category, category_info["proces"])
+        
+        # Toon huidige categorie prominent
+        col1, col2 = st.columns([3, 1])
+        
+        with col1:
+            st.markdown(f"**{current_info['icon']} {current_info['label']}**")
+            st.markdown(f"*{current_info['description']}*")
+            
+            # Toon waarom deze categorie gekozen is
+            if "category_reasoning" in generation_result:
+                st.markdown(f"**Reden:** {generation_result['category_reasoning']}")
+            else:
+                # Genereer uitleg op basis van standaard patronen
+                reasoning = self._generate_category_reasoning(determined_category)
+                st.markdown(f"**Reden:** {reasoning}")
+            
+            # Toon alle scores in kleinere text
+            if "category_scores" in generation_result:
+                scores = generation_result["category_scores"]
+                # Format scores als float met 2 decimalen
+                score_text = " | ".join([f"{cat}: {score:.2f}" for cat, score in scores.items()])
+                st.markdown(f"<small>Alle scores: {score_text}</small>", unsafe_allow_html=True)
+        
+        with col2:
+            # Knop voor handmatige aanpassing
+            if st.button("🔄 Wijzig Categorie", key="change_category"):
+                SessionStateManager.set_value("show_category_selector", True)
+                st.rerun()
+        
+        # Toon categorie selector als gevraagd
+        if SessionStateManager.get_value("show_category_selector", False):
+            self._render_category_selector(determined_category, generation_result)
+    
+    def _generate_category_reasoning(self, category: str) -> str:
+        """Genereer uitleg waarom deze categorie gekozen is."""
+        reasonings = {
+            "type": "Begrip bevat woorden die wijzen op een categorie of klasse van objecten",
+            "proces": "Begrip bevat woorden die wijzen op een activiteit of proces",
+            "resultaat": "Begrip bevat woorden die wijzen op een uitkomst of resultaat",
+            "exemplaar": "Begrip bevat woorden die wijzen op een specifiek exemplaar of instantie"
+        }
+        return reasonings.get(category, "Automatisch bepaald op basis van woordpatronen")
+    
+    def _render_category_selector(self, current_category: str, generation_result: Dict[str, Any]):
+        """Render categorie selector voor handmatige aanpassing."""
+        st.markdown("##### 🎯 Kies Ontologische Categorie")
+        
+        # Categorie opties
+        options = [
+            ("type", "🏷️ Type/Klasse"),
+            ("proces", "⚙️ Proces/Activiteit"),
+            ("resultaat", "📊 Resultaat/Uitkomst"),
+            ("exemplaar", "🔍 Exemplaar/Instantie")
+        ]
+        
+        # Zoek huidige index
+        current_index = next((i for i, (val, _) in enumerate(options) if val == current_category), 1)
+        
+        # Selectie
+        col1, col2, col3 = st.columns([2, 1, 1])
+        
+        with col1:
+            selected_option = st.selectbox(
+                "Selecteer categorie:",
+                options,
+                index=current_index,
+                format_func=lambda x: x[1],
+                key="category_selector"
+            )
+        
+        with col2:
+            if st.button("✅ Toepassen", key="apply_category"):
+                new_category = selected_option[0]
+                self._update_category(new_category, generation_result)
+                st.success(f"Categorie gewijzigd naar: {selected_option[1]}")
+                SessionStateManager.set_value("show_category_selector", False)
+                st.rerun()
+        
+        with col3:
+            if st.button("❌ Annuleren", key="cancel_category"):
+                SessionStateManager.set_value("show_category_selector", False)
+                st.rerun()
+    
+    def _update_category(self, new_category: str, generation_result: Dict[str, Any]):
+        """Update de ontologische categorie in de sessie en database."""
+        # Update generation result
+        generation_result["determined_category"] = new_category
+        SessionStateManager.set_value("last_generation_result", generation_result)
+        
+        # Update database record als deze bestaat
+        saved_record = generation_result.get("saved_record")
+        if saved_record:
+            try:
+                # Update record in database
+                saved_record.categorie = new_category
+                from database.definitie_repository import get_definitie_repository
+                repo = get_definitie_repository()
+                repo.update_definitie(saved_record)
+                st.success("Categorie bijgewerkt in database")
+            except Exception as e:
+                st.error(f"Fout bij bijwerken database: {e}")
             
             with col1:
                 if st.button("📝 Bewerk Definitie"):
@@ -391,9 +535,19 @@ class DefinitionGeneratorTab:
                 # Voorkeursterm selectie
                 if len(synoniemen_lijst) > 0:
                     st.markdown("---")
+                    
+                    # Haal het oorspronkelijke begrip op uit de session state
+                    oorspronkelijk_begrip = SessionStateManager.get_value("begrip", "")
+                    
+                    # Maak opties lijst met oorspronkelijke begrip als eerste optie
+                    voorkeursterm_opties = ["(geen voorkeursterm)"]
+                    if oorspronkelijk_begrip and oorspronkelijk_begrip not in synoniemen_lijst:
+                        voorkeursterm_opties.append(oorspronkelijk_begrip)
+                    voorkeursterm_opties.extend(synoniemen_lijst)
+                    
                     voorkeursterm = st.selectbox(
                         "Selecteer voorkeursterm:",
-                        options=["(geen voorkeursterm)"] + synoniemen_lijst,
+                        options=voorkeursterm_opties,
                         key="voorkeursterm_selectie"
                     )
                     

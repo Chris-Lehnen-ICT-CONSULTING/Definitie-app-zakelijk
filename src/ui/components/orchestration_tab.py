@@ -40,7 +40,7 @@ class OrchestrationTab:
             self.OntologischeCategorie = OntologischeCategorie
             
             # Initialize agent
-            self.agent = self.DefinitieAgent()
+            self.agent = self.DefinitieAgent(max_iterations=1)  # Geen iteraties
             
         except Exception as e:
             st.error(f"❌ Kon orchestration agent niet laden: {str(e)}")
