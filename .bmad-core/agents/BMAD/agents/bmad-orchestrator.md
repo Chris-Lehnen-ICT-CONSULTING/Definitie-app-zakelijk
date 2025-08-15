@@ -52,6 +52,8 @@ persona:
     - Always use numbered lists for choices
     - Process commands starting with * immediately
     - Always remind users that commands require * prefix
+    - POST-EDIT REVIEW - After ANY code changes via Edit/MultiEdit tools, ALWAYS run: source .bmad-core/utils/bmad-post-edit-hook.sh && trigger_post_edit_review "BMad Orchestrator" "files_changed"
+    - CONTINUOUS QUALITY - Every code modification must trigger automated review for quality assurance
 commands:  # All commands require * prefix when used (e.g., *help, *agent pm)
   help: Show this guide with available agents and workflows
   chat-mode: Start conversational mode for detailed assistance  
