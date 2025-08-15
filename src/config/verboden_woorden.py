@@ -4,11 +4,15 @@ import re
 import streamlit as st
 from datetime import datetime
 import sys
+
 # Voeg root directory toe aan Python path voor logs module toegang
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '../..'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 
 from logs.application.log_definitie import get_logger  # Logging uit root logs directory
+
 logger = get_logger(__name__)
+
+
 # ✅ Laadt de lijst met verboden woorden, met override-optie vanuit Streamlit UI
 def laad_verboden_woorden() -> list[str]:
     """
@@ -32,14 +36,20 @@ def laad_verboden_woorden() -> list[str]:
             return woorden
 
         # 2) Direct laden uit JSON bestand
-        verboden_woorden_path = os.path.join(os.path.dirname(__file__), 'verboden_woorden.json')
+        verboden_woorden_path = os.path.join(
+            os.path.dirname(__file__), "verboden_woorden.json"
+        )
         if os.path.exists(verboden_woorden_path):
-            with open(verboden_woorden_path, 'r', encoding='utf-8') as f:
+            with open(verboden_woorden_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
                 woorden = data.get("verboden_woorden", [])
                 if not isinstance(woorden, list):
-                    raise ValueError("Ongeldige structuur: 'verboden_woorden' is geen lijst")
-                logger.debug(f"Verboden woorden geladen uit JSON ({len(woorden)} woorden).")
+                    raise ValueError(
+                        "Ongeldige structuur: 'verboden_woorden' is geen lijst"
+                    )
+                logger.debug(
+                    f"Verboden woorden geladen uit JSON ({len(woorden)} woorden)."
+                )
                 return woorden
 
         # 3) Fallback: lege lijst
@@ -50,13 +60,20 @@ def laad_verboden_woorden() -> list[str]:
         logger.error(f"Kan verboden woorden niet laden: {e}")
         return []
 
+
 # ✅ Functie: sla aangepaste woordenlijst op
 def sla_verboden_woorden_op(woordenlijst: list[str]):
     try:
-        verboden_woorden_path = os.path.join(os.path.dirname(__file__), 'verboden_woorden.json')
+        verboden_woorden_path = os.path.join(
+            os.path.dirname(__file__), "verboden_woorden.json"
+        )
         with open(verboden_woorden_path, "w", encoding="utf-8") as f:
-            json.dump({"verboden_woorden": woordenlijst}, f, ensure_ascii=False, indent=2)
-        logger.debug(f"Verboden woordenlijst succesvol opgeslagen ({len(woordenlijst)} woorden)")
+            json.dump(
+                {"verboden_woorden": woordenlijst}, f, ensure_ascii=False, indent=2
+            )
+        logger.debug(
+            f"Verboden woordenlijst succesvol opgeslagen ({len(woordenlijst)} woorden)"
+        )
     except Exception as e:
         logger.error(f"Kan verboden woorden niet opslaan: {e}")
 
@@ -66,7 +83,6 @@ def sla_verboden_woorden_op(woordenlijst: list[str]):
 #    • Óf op combinatie: 'begrip verwijst naar', 'begrip betekent', etc.
 #    • Alle patronen starten met ^ (begin van de string)
 #    • Case-insensitief (moet toegepast worden bij re.match via flags)
-
 
 
 def genereer_verboden_startregex(begrip: str, verboden_lijst: list[str]) -> list[str]:
@@ -100,13 +116,15 @@ def genereer_verboden_startregex(begrip: str, verboden_lijst: list[str]) -> list
     return patterns
 
 
-
 # ================================
 # 🧪 VOORSTEL 4: Logging individuele woordtests naar JSONL
 # ================================
 
 # ✅ Pad naar het logbestand waarin testresultaten worden opgeslagen
-PAD_LOG = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "log", "verboden_woord_tests.jsonl"))
+PAD_LOG = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "..", "log", "verboden_woord_tests.jsonl")
+)
+
 
 # ✅ Functie: logt individueel testresultaat naar JSONL-logbestand
 def log_test_verboden_woord(woord: str, zin: str, komt_voor: bool, regex_match: bool):
@@ -122,7 +140,7 @@ def log_test_verboden_woord(woord: str, zin: str, komt_voor: bool, regex_match: 
             "woord": woord,
             "zin": zin,
             "komt_voor": komt_voor,
-            "regex_match": regex_match
+            "regex_match": regex_match,
         }
 
         with open(PAD_LOG, "a", encoding="utf-8") as f:

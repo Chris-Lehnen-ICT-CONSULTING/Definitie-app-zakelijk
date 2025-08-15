@@ -12,30 +12,30 @@ _REGEX_PATRONEN = [
     {  # Klassiek format: "Wetboek van Strafrecht, artikel 123"
         "id": "klassiek_format",
         "pattern": re.compile(
-            r'(?P<wet>Wetboek van [A-Z][a-z]+)(?:,\s*boek\s*(?P<boek>[0-9]+))?,?\s*artikel\s*(?P<artikel>[0-9a-zA-Z]+)(?:\s*lid\s*(?P<lid>[0-9]+))?',
-            re.IGNORECASE
-        )
+            r"(?P<wet>Wetboek van [A-Z][a-z]+)(?:,\s*boek\s*(?P<boek>[0-9]+))?,?\s*artikel\s*(?P<artikel>[0-9a-zA-Z]+)(?:\s*lid\s*(?P<lid>[0-9]+))?",
+            re.IGNORECASE,
+        ),
     },
     {  # Verkort format: "art. 123:45 BW"
         "id": "verkort_format_bw_sv",
         "pattern": re.compile(
-            r'art\.?\s*(?P<artikel>[0-9]+:[0-9a-zA-Z]+)\s+(?P<wet>BW|Sv|Sr|Rv|RvS)',
-            re.IGNORECASE
-        )
+            r"art\.?\s*(?P<artikel>[0-9]+:[0-9a-zA-Z]+)\s+(?P<wet>BW|Sv|Sr|Rv|RvS)",
+            re.IGNORECASE,
+        ),
     },
     {  # Normaal format: "artikel 123 van de Wet op ..."
         "id": "normale_artikel_wet",
         "pattern": re.compile(
-            r'artikel\s+(?P<artikel>[0-9]+[a-zA-Z]?)\s+van\s+de\s+(?P<wet>[A-Z][a-zA-Z\s]+)',
-            re.IGNORECASE
-        )
+            r"artikel\s+(?P<artikel>[0-9]+[a-zA-Z]?)\s+van\s+de\s+(?P<wet>[A-Z][a-zA-Z\s]+)",
+            re.IGNORECASE,
+        ),
     },
     {  # Uitgebreid format: "artikel 123 lid 4 onder a van de Wet ..."
         "id": "artikel_lid_onder_wet",
         "pattern": re.compile(
-            r'artikel\s+(?P<artikel>[0-9]+[a-zA-Z]?)\s+lid\s+(?P<lid>[0-9]+)\s+(onder\s+(?P<sub>[a-z]))?\s+van\s+de\s+(?P<wet>[A-Z][a-zA-Z\s]+)',
-            re.IGNORECASE
-        )
+            r"artikel\s+(?P<artikel>[0-9]+[a-zA-Z]?)\s+lid\s+(?P<lid>[0-9]+)\s+(onder\s+(?P<sub>[a-z]))?\s+van\s+de\s+(?P<wet>[A-Z][a-zA-Z\s]+)",
+            re.IGNORECASE,
+        ),
     },
 ]
 
@@ -46,11 +46,9 @@ import os  # Besturingssysteem interface
 import json  # JSON verwerking voor logging
 from datetime import datetime
 
+
 def zoek_wetsartikelstructuur(
-    tekst: str,
-    log_jsonl: bool = False,
-    bron: str = "",
-    begrip: str = ""
+    tekst: str, log_jsonl: bool = False, bron: str = "", begrip: str = ""
 ) -> list[dict]:
     """
     ✅ Detecteert juridische verwijzingen naar wetsartikelen in diverse vormen.
@@ -73,7 +71,7 @@ def zoek_wetsartikelstructuur(
             resultaten.append(resultaat_clean)
 
             if log_jsonl:
-                contextregels = tekst[max(0, match.start()-60):match.end()+60]
+                contextregels = tekst[max(0, match.start() - 60) : match.end() + 60]
                 log_entry = {
                     "timestamp": datetime.now().isoformat(),
                     "bron": bron,
@@ -81,7 +79,7 @@ def zoek_wetsartikelstructuur(
                     "herkend_via": blok["id"],
                     "match": resultaat_clean,
                     "tekstfragment": match.group(0),
-                    "contextregels": contextregels.strip()
+                    "contextregels": contextregels.strip(),
                 }
                 os.makedirs("log", exist_ok=True)
                 with open("log/wetsverwijzingen_log.jsonl", "a", encoding="utf-8") as f:

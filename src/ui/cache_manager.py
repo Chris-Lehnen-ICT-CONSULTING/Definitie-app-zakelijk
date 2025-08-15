@@ -9,102 +9,101 @@ from utils.cache import get_cache_stats, clear_cache, configure_cache
 
 class CacheManager:
     """Cache management interface for Streamlit."""
-    
+
     @staticmethod
     def display_cache_stats():
         """Display cache statistics in Streamlit."""
         stats = get_cache_stats()
-        
+
         st.subheader("📊 Cache Statistics")
-        
+
         col1, col2, col3 = st.columns(3)
-        
+
         with col1:
-            st.metric("Cache Entries", stats['entries'])
-        
+            st.metric("Cache Entries", stats["entries"])
+
         with col2:
             st.metric("Cache Size", f"{stats['total_size_mb']:.1f} MB")
-        
+
         with col3:
-            if stats['entries'] > 0:
+            if stats["entries"] > 0:
                 st.metric("Cache Efficiency", "Active")
             else:
                 st.metric("Cache Efficiency", "Empty")
-        
-        if stats['entries'] > 0:
+
+        if stats["entries"] > 0:
             st.write(f"**Oldest Entry:** {stats['oldest_entry']}")
             st.write(f"**Newest Entry:** {stats['newest_entry']}")
-    
+
     @staticmethod
     def display_cache_controls():
         """Display cache control buttons."""
         st.subheader("🛠️ Cache Management")
-        
+
         col1, col2 = st.columns(2)
-        
+
         with col1:
             if st.button("🗑️ Clear Cache", help="Remove all cached entries"):
                 clear_cache()
                 st.success("Cache cleared successfully!")
                 st.rerun()
-        
+
         with col2:
             if st.button("📊 Refresh Stats", help="Update cache statistics"):
                 st.rerun()
-    
+
     @staticmethod
     def display_cache_settings():
         """Display cache configuration settings."""
         st.subheader("⚙️ Cache Settings")
-        
+
         with st.expander("Advanced Cache Configuration"):
             col1, col2 = st.columns(2)
-            
+
             with col1:
                 default_ttl = st.number_input(
                     "Default TTL (seconds)",
                     min_value=60,
                     max_value=86400,  # 24 hours
                     value=3600,  # 1 hour
-                    help="Default time-to-live for cache entries"
+                    help="Default time-to-live for cache entries",
                 )
-                
+
                 max_entries = st.number_input(
                     "Max Cache Entries",
                     min_value=100,
                     max_value=10000,
                     value=1000,
-                    help="Maximum number of cache entries"
+                    help="Maximum number of cache entries",
                 )
-            
+
             with col2:
                 enable_cache = st.checkbox(
                     "Enable Caching",
                     value=True,
-                    help="Enable/disable the caching system"
+                    help="Enable/disable the caching system",
                 )
-                
+
                 cache_dir = st.text_input(
-                    "Cache Directory",
-                    value="cache",
-                    help="Directory for cache files"
+                    "Cache Directory", value="cache", help="Directory for cache files"
                 )
-            
+
             if st.button("Apply Settings"):
                 configure_cache(
                     cache_dir=cache_dir,
                     default_ttl=default_ttl,
                     max_cache_size=max_entries,
-                    enable_cache=enable_cache
+                    enable_cache=enable_cache,
                 )
                 st.success("Cache settings applied!")
-    
+
     @staticmethod
     def display_cache_info():
         """Display information about caching benefits."""
         st.subheader("ℹ️ Cache Information")
-        
-        st.info("""
+
+        st.info(
+            """
         **Caching Benefits:**
         - ⚡ Faster response times for repeated requests
         - 💰 Reduced API costs by avoiding duplicate calls
@@ -116,28 +115,29 @@ class CacheManager:
         - Example generation (30 minutes TTL)
         - Synonym/antonym generation (2 hours TTL)
         - GPT prompt responses (1 hour TTL)
-        """)
-    
+        """
+        )
+
     @staticmethod
     def render_cache_dashboard():
         """Render complete cache management dashboard."""
         st.title("🗄️ Cache Management Dashboard")
-        
+
         # Display cache statistics
         CacheManager.display_cache_stats()
-        
+
         st.divider()
-        
+
         # Display cache controls
         CacheManager.display_cache_controls()
-        
+
         st.divider()
-        
+
         # Display cache settings
         CacheManager.display_cache_settings()
-        
+
         st.divider()
-        
+
         # Display cache information
         CacheManager.display_cache_info()
 
@@ -149,7 +149,7 @@ def render_cache_sidebar():
             stats = get_cache_stats()
             st.write(f"**Entries:** {stats['entries']}")
             st.write(f"**Size:** {stats['total_size_mb']:.1f} MB")
-            
+
             if st.button("Clear Cache", key="sidebar_clear_cache"):
                 clear_cache()
                 st.success("Cache cleared!")
