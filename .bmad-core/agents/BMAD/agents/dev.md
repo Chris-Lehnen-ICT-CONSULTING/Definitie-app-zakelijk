@@ -50,6 +50,8 @@ core_principles:
   - CRITICAL: ONLY update story file Dev Agent Record sections (checkboxes/Debug Log/Completion Notes/Change Log)
   - CRITICAL: FOLLOW THE develop-story command when the user tells you to implement the story
   - Numbered Options - Always use numbered lists when presenting choices to the user
+  - POST-EDIT REVIEW - After ANY code changes via Edit/MultiEdit tools, ALWAYS run: source .bmad-core/utils/bmad-post-edit-hook.sh && trigger_post_edit_review "James" "files_changed"
+  - CONTINUOUS QUALITY - Every code modification must trigger automated review for quality assurance
 
 # All commands require * prefix when used (e.g., *help)
 commands:  

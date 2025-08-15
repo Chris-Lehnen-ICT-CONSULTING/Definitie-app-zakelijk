@@ -1,0 +1,628 @@
+#!/usr/bin/env python3
+"""
+AI Code Review Automation met Auto-Fix Loop
+Integreert met bestaande tools en BMAD workflow
+"""
+
+import subprocess
+import json
+import sys
+import os
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional
+from datetime import datetime
+import logging
+from dataclasses import dataclass, asdict
+import asyncio
+import re
+
+# Setup logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class ReviewIssue:
+    """Representeert een code review issue."""
+    check: str
+    severity: str  # BLOCKING, IMPORTANT, SUGGESTION
+    message: str
+    file_path: Optional[str] = None
+    line_number: Optional[int] = None
+    fixable: bool = False
+    auto_fixed: bool = False
+
+
+@dataclass
+class ReviewResult:
+    """Resultaat van een complete review cycle."""
+    passed: bool
+    iterations: int
+    issues: List[ReviewIssue]
+    auto_fixes_applied: int
+    timestamp: datetime
+    duration_seconds: float
+
+
+class AICodeReviewer:
+    """Automated code review voor AI-gegenereerde code met auto-fix capabilities."""
+    
+    def __init__(self, max_iterations: int = 5, project_root: str = "."):
+        self.max_iterations = max_iterations
+        self.project_root = Path(project_root).resolve()
+        self.current_iteration = 0
+        self.issues_found: List[ReviewIssue] = []
+        self.auto_fixes_applied = 0
+        self.start_time = datetime.now()
+        
+    def run_quality_checks(self) -> Tuple[bool, List[ReviewIssue]]:
+        """Voer alle quality checks uit en verzamel issues."""
+        logger.info("🔍 Starting quality checks...")
+        issues = []
+        all_passed = True
+        
+        # Ruff linting
+        ruff_issues = self._run_ruff_check()
+        if ruff_issues:
+            all_passed = False
+            issues.extend(ruff_issues)
+            
+        # Black formatting
+        black_issues = self._run_black_check()
+        if black_issues:
+            all_passed = False
+            issues.extend(black_issues)
+            
+        # MyPy type checking
+        mypy_issues = self._run_mypy_check()
+        if mypy_issues:
+            all_passed = False
+            issues.extend(mypy_issues)
+            
+        # Bandit security
+        bandit_issues = self._run_bandit_check()
+        if bandit_issues:
+            all_passed = False
+            issues.extend(bandit_issues)
+            
+        # Custom DefinitieApp checks
+        custom_issues = self._run_custom_checks()
+        if custom_issues:
+            all_passed = False
+            issues.extend(custom_issues)
+            
+        return all_passed, issues
+    
+    def _run_ruff_check(self) -> List[ReviewIssue]:
+        """Run Ruff linter en parse output."""
+        issues = []
+        try:
+            # Check of ruff geïnstalleerd is
+            result = subprocess.run(
+                ["ruff", "--version"],
+                capture_output=True,
+                text=True
+            )
+            if result.returncode != 0:
+                logger.warning("Ruff niet geïnstalleerd, skip linting check")
+                return issues
+                
+            # Run ruff check
+            result = subprocess.run(
+                ["ruff", "check", "src/", "--output-format=json"],
+                capture_output=True,
+                text=True,
+                cwd=self.project_root
+            )
+            
+            if result.returncode != 0 and result.stdout:
+                try:
+                    ruff_output = json.loads(result.stdout)
+                    for violation in ruff_output:
+                        issues.append(ReviewIssue(
+                            check="ruff",
+                            severity="IMPORTANT",
+                            message=f"{violation['code']}: {violation['message']}",
+                            file_path=violation['filename'],
+                            line_number=violation['location']['row'],
+                            fixable=violation.get('fix') is not None
+                        ))
+                except json.JSONDecodeError:
+                    # Fallback voor non-JSON output
+                    if result.stdout:
+                        issues.append(ReviewIssue(
+                            check="ruff",
+                            severity="IMPORTANT",
+                            message="Linting issues found (run 'ruff check src/' for details)",
+                            fixable=True
+                        ))
+                        
+        except FileNotFoundError:
+            logger.warning("Ruff niet gevonden in PATH")
+        except Exception as e:
+            logger.error(f"Ruff check failed: {e}")
+            
+        return issues
+    
+    def _run_black_check(self) -> List[ReviewIssue]:
+        """Check code formatting met Black."""
+        issues = []
+        try:
+            result = subprocess.run(
+                ["black", "--check", "src/"],
+                capture_output=True,
+                text=True,
+                cwd=self.project_root
+            )
+            
+            if result.returncode != 0:
+                # Black geeft files die reformatting nodig hebben
+                unformatted_files = []
+                for line in result.stderr.split('\n'):
+                    if line.startswith('would reformat'):
+                        file_path = line.replace('would reformat ', '').strip()
+                        unformatted_files.append(file_path)
+                        
+                if unformatted_files:
+                    issues.append(ReviewIssue(
+                        check="black",
+                        severity="SUGGESTION",
+                        message=f"Code formatting needed for {len(unformatted_files)} files",
+                        fixable=True
+                    ))
+                    
+        except FileNotFoundError:
+            logger.warning("Black niet gevonden in PATH")
+        except Exception as e:
+            logger.error(f"Black check failed: {e}")
+            
+        return issues
+    
+    def _run_mypy_check(self) -> List[ReviewIssue]:
+        """Run MyPy type checker."""
+        issues = []
+        try:
+            result = subprocess.run(
+                ["mypy", "src/", "--ignore-missing-imports", "--no-error-summary"],
+                capture_output=True,
+                text=True,
+                cwd=self.project_root
+            )
+            
+            if result.returncode != 0 and result.stdout:
+                # Parse mypy output
+                for line in result.stdout.split('\n'):
+                    if line and ':' in line and 'error:' in line:
+                        parts = line.split(':', 3)
+                        if len(parts) >= 4:
+                            file_path = parts[0]
+                            line_no = parts[1]
+                            message = parts[3].strip()
+                            
+                            issues.append(ReviewIssue(
+                                check="mypy",
+                                severity="IMPORTANT",
+                                message=f"Type error: {message}",
+                                file_path=file_path,
+                                line_number=int(line_no) if line_no.isdigit() else None,
+                                fixable=False
+                            ))
+                            
+        except FileNotFoundError:
+            logger.warning("MyPy niet gevonden in PATH")
+        except Exception as e:
+            logger.error(f"MyPy check failed: {e}")
+            
+        return issues
+    
+    def _run_bandit_check(self) -> List[ReviewIssue]:
+        """Run Bandit security scanner."""
+        issues = []
+        try:
+            result = subprocess.run(
+                ["bandit", "-r", "src/", "-f", "json", "-ll"],
+                capture_output=True,
+                text=True,
+                cwd=self.project_root
+            )
+            
+            if result.stdout:
+                try:
+                    bandit_output = json.loads(result.stdout)
+                    for issue in bandit_output.get('results', []):
+                        severity = "BLOCKING" if issue['issue_severity'] == "HIGH" else "IMPORTANT"
+                        
+                        issues.append(ReviewIssue(
+                            check="bandit",
+                            severity=severity,
+                            message=f"Security: {issue['issue_text']}",
+                            file_path=issue['filename'],
+                            line_number=issue['line_number'],
+                            fixable=False
+                        ))
+                except json.JSONDecodeError:
+                    pass
+                    
+        except FileNotFoundError:
+            logger.warning("Bandit niet gevonden in PATH")
+        except Exception as e:
+            logger.error(f"Bandit check failed: {e}")
+            
+        return issues
+    
+    def _run_custom_checks(self) -> List[ReviewIssue]:
+        """DefinitieApp specifieke checks."""
+        issues = []
+        
+        # Check voor Nederlandse docstrings
+        issues.extend(self._check_dutch_docstrings())
+        
+        # Check voor SQL injection preventie
+        issues.extend(self._check_sql_safety())
+        
+        # Check voor proper session state usage in Streamlit
+        issues.extend(self._check_streamlit_patterns())
+        
+        return issues
+    
+    def _check_dutch_docstrings(self) -> List[ReviewIssue]:
+        """Controleer of docstrings in het Nederlands zijn."""
+        issues = []
+        src_path = self.project_root / "src"
+        
+        if not src_path.exists():
+            return issues
+            
+        for py_file in src_path.rglob("*.py"):
+            try:
+                content = py_file.read_text(encoding='utf-8')
+                # Simpele check voor Engels in docstrings
+                english_patterns = [
+                    r'""".*\b(Returns?|Parameters?|Args?|Raises?|Examples?)\b.*"""',
+                    r"'''.*\b(Returns?|Parameters?|Args?|Raises?|Examples?)\b.*'''"
+                ]
+                
+                for pattern in english_patterns:
+                    if re.search(pattern, content, re.DOTALL | re.IGNORECASE):
+                        issues.append(ReviewIssue(
+                            check="custom",
+                            severity="SUGGESTION",
+                            message="Docstring lijkt Engels te bevatten, gebruik Nederlands",
+                            file_path=str(py_file.relative_to(self.project_root)),
+                            fixable=False
+                        ))
+                        break
+                        
+            except Exception as e:
+                logger.error(f"Error checking {py_file}: {e}")
+                
+        return issues
+    
+    def _check_sql_safety(self) -> List[ReviewIssue]:
+        """Check voor SQL injection kwetsbaarheden."""
+        issues = []
+        src_path = self.project_root / "src"
+        
+        if not src_path.exists():
+            return issues
+            
+        # Verbeterde SQL injection patterns - specifiekere detectie
+        unsafe_patterns = [
+            # F-strings met SQL keywords aan begin of na whitespace/quotes
+            (r'f["\'].*\b(SELECT|INSERT|UPDATE|DELETE)\s+.*{.*}.*["\']', "F-string in SQL query"),
+            # String formatting met SQL patterns
+            (r'["\'].*\b(SELECT|INSERT|UPDATE|DELETE)\s+.*%.*["\'].*%', "String formatting in SQL query"),
+            # .format() met SQL
+            (r'["\'].*\b(SELECT|INSERT|UPDATE|DELETE)\s+.*{\w+}.*["\']\.format\(', "Format method in SQL query"),
+            # conn.execute met f-string
+            (r'\.execute\s*\(\s*f["\'].*{.*}.*["\']', "Database execute with f-string"),
+        ]
+        
+        for py_file in src_path.rglob("*.py"):
+            try:
+                content = py_file.read_text(encoding='utf-8')
+                for pattern, message in unsafe_patterns:
+                    matches = list(re.finditer(pattern, content, re.IGNORECASE))
+                    for match in matches:
+                        matched_text = match.group(0)
+                        
+                        # Filter false positives - skip logging/UI strings
+                        false_positive_indicators = [
+                            'logger.', 'log.', 'print(', 'st.success', 'st.error', 'st.info',
+                            'st.write', 'st.markdown', 'f".*selected.*documents"',
+                            'hybrid context', 'details van', 'geselecteerd', 'definitie',
+                            'errors.append', 'message=f"', 'logger.error', 'logger.warning',
+                            'logger.debug', 'logger.info', 'raise', 'context.errors'
+                        ]
+                        
+                        # Check context around match voor false positives
+                        context_start = max(0, match.start() - 50)
+                        context_end = min(len(content), match.end() + 50)
+                        context = content[context_start:context_end].lower()
+                        
+                        is_false_positive = any(
+                            indicator in context for indicator in false_positive_indicators
+                        )
+                        
+                        if not is_false_positive:
+                            issues.append(ReviewIssue(
+                                check="security",
+                                severity="BLOCKING",
+                                message=f"Potential SQL injection: {message}",
+                                file_path=str(py_file.relative_to(self.project_root)),
+                                fixable=False
+                            ))
+                        
+            except Exception as e:
+                logger.error(f"Error checking {py_file}: {e}")
+                
+        return issues
+    
+    def _check_streamlit_patterns(self) -> List[ReviewIssue]:
+        """Check voor correcte Streamlit patterns."""
+        issues = []
+        src_path = self.project_root / "src"
+        
+        if not src_path.exists():
+            return issues
+            
+        # Patterns die problemen kunnen geven
+        problematic_patterns = [
+            (r'st\.session_state\[.*\]\s*=.*st\.', "Session state assignment in widget call"),
+            (r'if.*not.*in.*st\.session_state:.*\n.*st\..*input', "Missing session state initialization"),
+        ]
+        
+        for py_file in src_path.rglob("*.py"):
+            try:
+                content = py_file.read_text(encoding='utf-8')
+                if 'streamlit' in content or 'st.' in content:
+                    for pattern, message in problematic_patterns:
+                        if re.search(pattern, content):
+                            issues.append(ReviewIssue(
+                                check="streamlit",
+                                severity="IMPORTANT",
+                                message=f"Streamlit pattern issue: {message}",
+                                file_path=str(py_file.relative_to(self.project_root)),
+                                fixable=False
+                            ))
+                            
+            except Exception as e:
+                logger.error(f"Error checking {py_file}: {e}")
+                
+        return issues
+    
+    def apply_auto_fixes(self, issues: List[ReviewIssue]) -> int:
+        """Pas automatische fixes toe waar mogelijk."""
+        fixes_applied = 0
+        
+        # Groepeer fixable issues per tool
+        ruff_fixable = any(i.check == "ruff" and i.fixable for i in issues)
+        black_fixable = any(i.check == "black" and i.fixable for i in issues)
+        
+        if ruff_fixable:
+            logger.info("🔧 Applying Ruff auto-fixes...")
+            try:
+                result = subprocess.run(
+                    ["ruff", "check", "src/", "--fix"],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.project_root
+                )
+                if result.returncode == 0:
+                    fixes_applied += 1
+                    logger.info("✅ Ruff fixes applied")
+            except Exception as e:
+                logger.error(f"Ruff auto-fix failed: {e}")
+                
+        if black_fixable:
+            logger.info("🔧 Applying Black formatting...")
+            try:
+                result = subprocess.run(
+                    ["black", "src/"],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.project_root
+                )
+                if result.returncode == 0:
+                    fixes_applied += 1
+                    logger.info("✅ Black formatting applied")
+            except Exception as e:
+                logger.error(f"Black formatting failed: {e}")
+                
+        self.auto_fixes_applied += fixes_applied
+        return fixes_applied
+    
+    def generate_ai_feedback(self, issues: List[ReviewIssue]) -> str:
+        """Genereer gestructureerde feedback voor AI agents."""
+        feedback = "# 🔍 Code Review Feedback\n\n"
+        feedback += f"**Iteration**: {self.current_iteration + 1}/{self.max_iterations}\n"
+        feedback += f"**Issues Found**: {len(issues)}\n\n"
+        
+        # Groepeer issues op severity
+        blocking = [i for i in issues if i.severity == "BLOCKING"]
+        important = [i for i in issues if i.severity == "IMPORTANT"]
+        suggestions = [i for i in issues if i.severity == "SUGGESTION"]
+        
+        if blocking:
+            feedback += "## 🔴 BLOCKING Issues (moet opgelost worden)\n\n"
+            for issue in blocking:
+                feedback += f"### {issue.check.upper()}\n"
+                if issue.file_path:
+                    feedback += f"**File**: `{issue.file_path}`"
+                    if issue.line_number:
+                        feedback += f" (line {issue.line_number})"
+                    feedback += "\n"
+                feedback += f"**Issue**: {issue.message}\n\n"
+                
+                # Voeg specifieke fix suggesties toe
+                if "SQL injection" in issue.message:
+                    feedback += "**Fix**: Gebruik parameterized queries:\n"
+                    feedback += "```python\n"
+                    feedback += "# Fout: query = f'SELECT * FROM table WHERE id = {user_id}'\n"
+                    feedback += "# Goed: cursor.execute('SELECT * FROM table WHERE id = ?', (user_id,))\n"
+                    feedback += "```\n\n"
+                    
+        if important:
+            feedback += "## 🟡 IMPORTANT Issues (sterk aanbevolen)\n\n"
+            for issue in important[:5]:  # Limit to top 5
+                feedback += f"- **{issue.check}**: {issue.message}"
+                if issue.file_path:
+                    feedback += f" (`{issue.file_path}`)"
+                feedback += "\n"
+                
+        if suggestions:
+            feedback += "\n## 🟢 SUGGESTIONS (nice to have)\n\n"
+            for issue in suggestions[:3]:  # Limit to top 3
+                feedback += f"- {issue.message}\n"
+                
+        # Algemene tips
+        feedback += "\n## 💡 Algemene Tips\n\n"
+        feedback += "1. Voeg type hints toe aan alle functies\n"
+        feedback += "2. Schrijf docstrings in het Nederlands\n"
+        feedback += "3. Gebruik parameterized queries voor database operaties\n"
+        feedback += "4. Test nieuwe functionaliteit met unit tests\n"
+        
+        return feedback
+    
+    def create_review_report(self, result: ReviewResult) -> str:
+        """Maak een volledig review rapport."""
+        report = "# 🤖 AI Code Review Report\n\n"
+        report += f"**Date**: {result.timestamp.strftime('%Y-%m-%d %H:%M:%S')}\n"
+        report += f"**Duration**: {result.duration_seconds:.1f} seconds\n"
+        report += f"**Status**: {'✅ PASSED' if result.passed else '❌ FAILED'}\n"
+        report += f"**Iterations**: {result.iterations}\n"
+        report += f"**Auto-fixes Applied**: {result.auto_fixes_applied}\n\n"
+        
+        if not result.passed and result.issues:
+            report += "## Remaining Issues\n\n"
+            
+            # Groepeer op severity
+            for severity in ["BLOCKING", "IMPORTANT", "SUGGESTION"]:
+                severity_issues = [i for i in result.issues if i.severity == severity]
+                if severity_issues:
+                    emoji = {"BLOCKING": "🔴", "IMPORTANT": "🟡", "SUGGESTION": "🟢"}[severity]
+                    report += f"### {emoji} {severity} ({len(severity_issues)})\n\n"
+                    
+                    for issue in severity_issues:
+                        report += f"- **{issue.check}**: {issue.message}"
+                        if issue.file_path:
+                            report += f" (`{issue.file_path}`"
+                            if issue.line_number:
+                                report += f":{issue.line_number}"
+                            report += ")"
+                        report += "\n"
+                    report += "\n"
+        else:
+            report += "## ✅ All Checks Passed!\n\n"
+            report += "De code voldoet aan alle quality standards.\n"
+            
+        # Metrics summary
+        report += "## 📊 Metrics\n\n"
+        report += f"- Total issues found: {len(self.issues_found)}\n"
+        report += f"- Issues auto-fixed: {self.auto_fixes_applied}\n"
+        report += f"- Review efficiency: {(self.auto_fixes_applied / len(self.issues_found) * 100) if self.issues_found else 100:.1f}%\n"
+        
+        return report
+    
+    async def run_review_cycle(self) -> ReviewResult:
+        """Voer de complete review cycle uit met auto-fix loop."""
+        logger.info("🚀 Starting AI Code Review Cycle")
+        all_issues = []
+        
+        for iteration in range(self.max_iterations):
+            self.current_iteration = iteration
+            logger.info(f"\n📍 Iteration {iteration + 1}/{self.max_iterations}")
+            
+            # Run quality checks
+            passed, issues = self.run_quality_checks()
+            
+            if passed:
+                logger.info("✅ All checks passed!")
+                break
+                
+            # Store all issues for reporting
+            all_issues.extend(issues)
+            
+            # Try auto-fixes first
+            fixable_issues = [i for i in issues if i.fixable]
+            if fixable_issues:
+                fixes_applied = self.apply_auto_fixes(issues)
+                if fixes_applied > 0:
+                    logger.info(f"🔧 Applied {fixes_applied} auto-fixes")
+                    continue
+                    
+            # If we can't auto-fix, generate AI feedback
+            unfixable_issues = [i for i in issues if not i.fixable]
+            if unfixable_issues:
+                feedback = self.generate_ai_feedback(unfixable_issues)
+                logger.info("📝 Generated AI feedback")
+                
+                # In een echte implementatie zou je hier de AI API aanroepen
+                # Voor nu printen we de feedback
+                print("\n" + "="*60)
+                print(feedback)
+                print("="*60 + "\n")
+                
+                # Voor demo: stop na eerste iteratie met unfixable issues
+                if any(i.severity == "BLOCKING" for i in unfixable_issues):
+                    logger.warning("🛑 Blocking issues require manual intervention")
+                    break
+                    
+        # Calculate final metrics
+        duration = (datetime.now() - self.start_time).total_seconds()
+        
+        # Get final state
+        final_passed, final_issues = self.run_quality_checks()
+        
+        result = ReviewResult(
+            passed=final_passed,
+            iterations=self.current_iteration + 1,
+            issues=final_issues,
+            auto_fixes_applied=self.auto_fixes_applied,
+            timestamp=self.start_time,
+            duration_seconds=duration
+        )
+        
+        # Generate and save report
+        report = self.create_review_report(result)
+        report_path = self.project_root / "review_report.md"
+        report_path.write_text(report, encoding='utf-8')
+        logger.info(f"📄 Review report saved to {report_path}")
+        
+        return result
+
+
+def main():
+    """CLI interface voor de AI Code Reviewer."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='AI Code Review Automation')
+    parser.add_argument('--max-iterations', type=int, default=5,
+                       help='Maximum number of review iterations')
+    parser.add_argument('--project-root', type=str, default='.',
+                       help='Project root directory')
+    parser.add_argument('--ai-agent', type=str, default='manual',
+                       help='AI agent to use (manual, claude, copilot)')
+    
+    args = parser.parse_args()
+    
+    # Set environment variable for tracking
+    os.environ['AI_AGENT_NAME'] = args.ai_agent
+    
+    reviewer = AICodeReviewer(
+        max_iterations=args.max_iterations,
+        project_root=args.project_root
+    )
+    
+    # Run the review cycle
+    result = asyncio.run(reviewer.run_review_cycle())
+    
+    # Exit with appropriate code
+    sys.exit(0 if result.passed else 1)
+
+
+if __name__ == "__main__":
+    main()

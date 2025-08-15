@@ -1,0 +1,93 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ai-code-reviewer"
+dynamic = ["version"]
+description = "Automated code review system with AI integration, BMAD Method support and universal post-edit hooks (v2.0.0)"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [
+    {name = "Chris Lehnen", email = "chris@example.com"},
+]
+maintainers = [
+    {name = "Chris Lehnen", email = "chris@example.com"},
+]
+keywords = ["code-review", "ai", "automation", "quality", "bmad", "linting", "post-edit-hooks", "security", "sql-injection"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Software Development :: Quality Assurance",
+    "Topic :: Software Development :: Testing",
+]
+
+dependencies = [
+    "ruff>=0.1.5",
+    "black>=23.1.0",
+    "mypy>=1.0.0",
+    "bandit[toml]>=1.7.5",
+    "pytest>=7.4.0",
+    "pre-commit>=3.5.0",
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+    "click>=8.0.0",
+]
+
+[project.optional-dependencies]
+streamlit = ["streamlit>=1.28.0", "pandas>=2.0.0"]
+dev = ["pytest>=7.4.0", "pytest-cov>=4.0.0", "flake8>=6.0.0"]
+all = ["ai-code-reviewer[streamlit,dev]"]
+
+[project.urls]
+Homepage = "https://github.com/ChrisLehnen/ai-code-reviewer"
+Documentation = "https://ai-code-reviewer.readthedocs.io"
+Repository = "https://github.com/ChrisLehnen/ai-code-reviewer.git"
+"Bug Tracker" = "https://github.com/ChrisLehnen/ai-code-reviewer/issues"
+
+[project.scripts]
+ai-code-review = "ai_code_reviewer.cli:main"
+ai-review = "ai_code_reviewer.cli:main"
+setup-ai-review = "ai_code_reviewer.setup:setup_project"
+
+[tool.setuptools.dynamic]
+version = {attr = "ai_code_reviewer.__version__"}
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["ai_code_reviewer*"]
+
+[tool.setuptools.package-data]
+ai_code_reviewer = [
+    "templates/*.yaml",
+    "templates/*.md", 
+    "templates/.*",
+    "bmad_integration/*",
+    "configs/*.yaml",
+]
+
+# Tool configurations voor dit package zelf
+[tool.ruff]
+line-length = 88
+target-version = "py38"
+
+[tool.black]
+line-length = 88
+target-version = ["py38", "py39", "py310", "py311"]
+
+[tool.mypy]
+python_version = "3.8"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+
+[tool.bandit]
+exclude_dirs = ["tests"]
