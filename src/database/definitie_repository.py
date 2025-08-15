@@ -6,27 +6,27 @@ Deze module bevat alle database operaties voor het beheren van definities,
 inclusief opslaan, ophalen, zoeken en duplicaat detectie.
 """
 
-import sqlite3  # SQLite database interface voor lokale database opslag
 import json  # JSON encoding en decoding voor metadata opslag
 import logging  # Logging functionaliteit voor debug en monitoring
-from typing import (
+import sqlite3  # SQLite database interface voor lokale database opslag
+from dataclasses import (  # Dataclass decorators voor gestructureerde data
+    asdict,
+    dataclass,
+)
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeratie types voor constante waarden
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import (  # Type hints voor betere code documentatie
+    Any,
     Dict,
     List,
     Optional,
     Tuple,
-    Any,
-)  # Type hints voor betere code documentatie
-from dataclasses import (
-    dataclass,
-    asdict,
-)  # Dataclass decorators voor gestructureerde data
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
-from pathlib import Path  # Object-georiënteerde pad manipulatie
-from enum import Enum  # Enumeratie types voor constante waarden
+)
 
-from generation.definitie_generator import (
+from generation.definitie_generator import (  # Import ontologische categorieën voor classificatie
     OntologischeCategorie,
-)  # Import ontologische categorieën voor classificatie
+)
 
 logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
 

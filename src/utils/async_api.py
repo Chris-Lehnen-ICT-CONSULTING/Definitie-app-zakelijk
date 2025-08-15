@@ -6,14 +6,13 @@ Provides asynchronous OpenAI API calls with rate limiting and error handling.
 import asyncio
 import logging
 import os
-from typing import List, Dict, Any, Optional, Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import wraps
+from typing import Any, Callable, Dict, List, Optional
 
-from openai import AsyncOpenAI
-from openai import OpenAIError
 from dotenv import load_dotenv
+from openai import AsyncOpenAI, OpenAIError
 
 from utils.cache import cache_gpt_call
 

@@ -5,8 +5,9 @@ Deze module beheert alle sessie variabelen die gebruikt worden
 door de Streamlit interface om data tussen pagina refreshes te bewaren.
 """
 
+from typing import Any, Dict, List  # Type hints voor betere code documentatie
+
 import streamlit as st  # Streamlit framework voor web interface
-from typing import Dict, Any, List  # Type hints voor betere code documentatie
 
 
 class SessionStateManager:

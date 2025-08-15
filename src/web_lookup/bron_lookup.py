@@ -3,13 +3,13 @@ Bron Lookup Module - Zoekt en valideert bronnen voor definities.
 Integreert met externe bronnen en interne repositories.
 """
 
-import re  # Reguliere expressies voor het herkennen van bron patronen
-import logging  # Logging faciliteiten voor debug en monitoring
 import asyncio  # Asynchrone programmering voor parallelle bron lookups
-from typing import Dict, List, Any, Optional, Set  # Type hints voor code documentatie
+import logging  # Logging faciliteiten voor debug en monitoring
+import re  # Reguliere expressies voor het herkennen van bron patronen
 from dataclasses import dataclass  # Dataklassen voor gestructureerde bron data
-from enum import Enum  # Enumeraties voor bron types en validiteit
 from datetime import datetime  # Datum en tijd functionaliteit voor tijdstempels
+from enum import Enum  # Enumeraties voor bron types en validiteit
+from typing import Any, Dict, List, Optional, Set  # Type hints voor code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor bron lookup module
 
@@ -177,7 +177,7 @@ class BronValidator:
                     return BronValiditeit.VEROUDERD
                 else:
                     return BronValiditeit.GELDIG
-            except:
+            except (ValueError, AttributeError):
                 pass
 
         return BronValiditeit.ONBEKEND

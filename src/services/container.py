@@ -5,22 +5,22 @@ Deze container beheert de instanties van alle services en hun dependencies.
 Dit maakt het makkelijk om services te configureren, testen en swappen.
 """
 
-import os
-from typing import Optional, Dict, Any
 import logging
+import os
+from typing import Any, Dict, Optional
 
 from services.definition_generator import DefinitionGenerator, GeneratorConfig
-from services.definition_validator import DefinitionValidator, ValidatorConfig
-from services.definition_repository import DefinitionRepository
 from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
-from services.web_lookup_service import WebLookupService
+from services.definition_repository import DefinitionRepository
+from services.definition_validator import DefinitionValidator, ValidatorConfig
 from services.interfaces import (
     DefinitionGeneratorInterface,
-    DefinitionValidatorInterface,
-    DefinitionRepositoryInterface,
     DefinitionOrchestratorInterface,
+    DefinitionRepositoryInterface,
+    DefinitionValidatorInterface,
     WebLookupServiceInterface,
 )
+from services.web_lookup_service import WebLookupService
 
 logger = logging.getLogger(__name__)
 
@@ -142,9 +142,9 @@ class ServiceContainer:
             Singleton instance van WebLookupService
         """
         if "web_lookup" not in self._instances:
-            from config import Config
+            from config.config_manager import ConfigManager
 
-            config = Config()
+            config = ConfigManager()
             self._instances["web_lookup"] = WebLookupService(config)
             logger.info("WebLookupService instance aangemaakt")
         return self._instances["web_lookup"]

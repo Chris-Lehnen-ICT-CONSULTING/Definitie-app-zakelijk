@@ -5,6 +5,7 @@ door verboden beginconstructies te verwijderen en formatting te verbeteren.
 """
 
 import re  # Reguliere expressies voor patroon matching
+
 from config.config_loader import laad_verboden_woorden  # Verboden woorden configuratie
 
 # Geïsoleerde module voor opschoning van GPT-gegenereerde definities

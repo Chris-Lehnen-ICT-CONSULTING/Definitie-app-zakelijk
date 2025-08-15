@@ -9,8 +9,8 @@ Dit pakket bevat:
 - adapter.py   : Adapter voor legacy systemen
 """
 
+from .loader import get_toetsregels, load_toetsregels
 from .manager import ToetsregelManager, get_toetsregel_manager
-from .loader import load_toetsregels, get_toetsregels
 
 __all__ = [
     "ToetsregelManager",

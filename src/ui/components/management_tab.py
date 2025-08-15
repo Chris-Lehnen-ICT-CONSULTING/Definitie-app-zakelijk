@@ -3,30 +3,32 @@ Management Tab - Interface voor CLI management tools en database beheer.
 Integreert definitie_manager.py en setup_database.py functionaliteit in de UI.
 """
 
-import streamlit as st  # Streamlit web interface framework
+# Importeer CLI tools voor management functionaliteit
+import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
+from datetime import datetime  # Datum en tijd functionaliteit
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 from typing import Dict  # Type hints voor code documentatie
-from datetime import datetime  # Datum en tijd functionaliteit
+
 import pandas as pd  # Data manipulatie en analyse framework
+import streamlit as st  # Streamlit web interface framework
 
 # Database en core component imports
 from database.definitie_repository import (
-    DefinitieRepository,
     DefinitieStatus,  # Database toegang en status enums
 )
-from generation.definitie_generator import (
+from database.definitie_repository import (
+    DefinitieRepository,
+)
+from generation.definitie_generator import (  # Categorieën voor definitie classificatie
     OntologischeCategorie,
-)  # Categorieën voor definitie classificatie
-from integration.definitie_checker import (
+)
+from integration.definitie_checker import (  # Definitie validatie en check acties
     DefinitieChecker,
-)  # Definitie validatie en check acties
-from ui.session_state import (
+)
+from ui.session_state import (  # Sessie status management voor Streamlit
     SessionStateManager,
-)  # Sessie status management voor Streamlit
-
-# Importeer CLI tools voor management functionaliteit
-import sys  # Systeem interface voor path manipulatie
+)
 
 sys.path.append(
     str(Path(__file__).parents[2] / "tools")
@@ -34,14 +36,14 @@ sys.path.append(
 
 try:
     # Probeer CLI management tools te importeren
-    from definitie_manager import (
+    from definitie_manager import (  # CLI tool voor definitie management
         DefinitieManagerCLI,
-    )  # CLI tool voor definitie management
-    from setup_database import (
-        setup_database,
-        create_test_data,
+    )
+    from setup_database import (  # Database setup utilities
         create_sample_export,
-    )  # Database setup utilities
+        create_test_data,
+        setup_database,
+    )
 
     CLI_TOOLS_AVAILABLE = True  # CLI tools succesvol geladen
 except ImportError:
@@ -272,7 +274,7 @@ class ManagementTab:
             try:
                 db_size = Path(self.repository.db_path).stat().st_size / 1024  # KB
                 st.info(f"**Database Grootte:** {db_size:.1f} KB")
-            except:
+            except (FileNotFoundError, OSError, AttributeError):
                 st.warning("Kon database grootte niet bepalen")
 
         with col2:
@@ -280,7 +282,7 @@ class ManagementTab:
             try:
                 stats = self.repository.get_statistics()
                 st.metric("📊 Totaal Records", stats.get("total_definities", 0))
-            except:
+            except Exception:
                 st.error("Kon statistieken niet ophalen")
 
         # Database operations
@@ -409,7 +411,7 @@ class ManagementTab:
                 self._scan_for_duplicates()
 
         with col2:
-            duplicate_threshold = st.slider(
+            st.slider(
                 "🎯 Gelijkenis Drempel",
                 min_value=0.5,
                 max_value=1.0,
@@ -458,7 +460,7 @@ class ManagementTab:
                 context_counts[context] = context_counts.get(context, 0) + 1
 
             return context_counts
-        except:
+        except Exception:
             return {}
 
     def _perform_database_search(
@@ -781,11 +783,11 @@ class ManagementTab:
             st.info("🏥 Performing health check...")
 
             # Database connectivity
-            stats = self.repository.get_statistics()
+            self.repository.get_statistics()
             st.success("✅ Database connectivity: OK")
 
             # Repository functionality
-            test_definitions = self.repository.search_definities(limit=1)
+            self.repository.search_definities(limit=1)
             st.success("✅ Repository queries: OK")
 
             # CLI tools availability
@@ -798,7 +800,7 @@ class ManagementTab:
             try:
                 from validation.definitie_validator import DefinitieValidator
 
-                validator = DefinitieValidator()
+                DefinitieValidator()
                 st.success("✅ Validation system: OK")
             except Exception as e:
                 st.error(f"❌ Validation system: {str(e)}")
@@ -975,17 +977,13 @@ class ManagementTab:
                     with st.spinner("Genereren..."):
                         try:
                             # Simuleer definitie generatie
-                            context = {
-                                "organisatorische_context": [test_org_context],
-                                "juridische_context": [test_jur_context],
-                            }
 
                             # Test via integrated service
                             from services.integrated_service import (
                                 get_integrated_service,
                             )
 
-                            service = get_integrated_service()
+                            get_integrated_service()
 
                             # Async call simulation (zou eigenlijk async moeten zijn)
                             st.success("🎯 Test definitie generatie gestart")
@@ -1154,8 +1152,7 @@ class ManagementTab:
 
                             # Log API call
                             try:
-                                from monitoring.api_monitor import record_api_call
-                                import asyncio
+                                pass
 
                                 # Simulate API monitoring
                                 st.caption("📊 API call would be monitored")
@@ -1184,7 +1181,7 @@ class ManagementTab:
                 key="ai_integrated_begrip",
             )
 
-            test_context = st.selectbox(
+            st.selectbox(
                 "Test Context",
                 ["DJI", "OM", "KMAR", "Reclassering"],
                 key="ai_integrated_context",
@@ -1195,9 +1192,9 @@ class ManagementTab:
                     with st.spinner("Testing integrated service..."):
                         try:
                             from services.integrated_service import (
-                                get_integrated_service,
                                 ServiceConfig,
                                 ServiceMode,
+                                get_integrated_service,
                             )
 
                             # Create config for testing

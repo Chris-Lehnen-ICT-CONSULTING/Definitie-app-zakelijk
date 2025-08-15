@@ -3,15 +3,15 @@ Data sanitization system for DefinitieAgent.
 Provides XSS prevention, HTML sanitization, and content filtering.
 """
 
-import re
 import html
-import logging
-from typing import Dict, List, Any, Optional
-from dataclasses import dataclass
-from enum import Enum
 import json
-from pathlib import Path
+import logging
+import re
+from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

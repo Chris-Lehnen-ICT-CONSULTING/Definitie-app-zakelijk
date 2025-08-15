@@ -2,11 +2,12 @@
 Web Lookup Tab - Interface voor bron en definitie lookup functionaliteit.
 """
 
-import streamlit as st
 import asyncio
 import re
 from datetime import datetime
+
 import pandas as pd
+import streamlit as st
 
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
@@ -35,8 +36,8 @@ class WebLookupTab:
             )
             from definitie_lookup import (
                 DefinitieZoeker,
-                zoek_definitie,
                 detecteer_duplicaten,
+                zoek_definitie,
             )
             from juridische_lookup import zoek_wetsartikelstructuur
 
@@ -110,15 +111,11 @@ class WebLookupTab:
             col1, col2, col3 = st.columns(3)
 
             with col1:
-                include_internal = st.checkbox(
-                    "🏠 Interne database", value=True, key="include_internal"
-                )
-                include_external = st.checkbox(
-                    "🌐 Externe bronnen", value=True, key="include_external"
-                )
+                st.checkbox("🏠 Interne database", value=True, key="include_internal")
+                st.checkbox("🌐 Externe bronnen", value=True, key="include_external")
 
             with col2:
-                min_relevantie = st.slider(
+                st.slider(
                     "Min. relevantie",
                     min_value=0.0,
                     max_value=1.0,
@@ -128,9 +125,7 @@ class WebLookupTab:
                 )
 
             with col3:
-                zoek_gerelateerde = st.checkbox(
-                    "🔗 Zoek gerelateerde", value=True, key="zoek_gerelateerde"
-                )
+                st.checkbox("🔗 Zoek gerelateerde", value=True, key="zoek_gerelateerde")
 
         # Zoek knop
         if st.button("🔍 Zoek Definities", type="primary", key="zoek_definities_btn"):
@@ -140,14 +135,6 @@ class WebLookupTab:
                         # Async call wrapper
                         loop = asyncio.new_event_loop()
                         asyncio.set_event_loop(loop)
-
-                        zoek_opties = {
-                            "max_resultaten": max_resultaten,
-                            "min_gelijkenis": min_relevantie,
-                            "include_internal": include_internal,
-                            "include_external": include_external,
-                            "zoek_gerelateerde": zoek_gerelateerde,
-                        }
 
                         resultaat = loop.run_until_complete(
                             self.zoek_definitie(

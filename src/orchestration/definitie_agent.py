@@ -7,29 +7,29 @@ combineert in een iteratief verbeteringsproces.
 """
 
 import logging  # Logging faciliteiten voor debug en monitoring
-from typing import Dict, List, Any, Optional  # Type hints voor betere code documentatie
-from dataclasses import (
+import time  # Tijd functies voor prestatie meting
+from dataclasses import (  # Dataklassen voor gestructureerde resultaat data
     dataclass,
     field,
-)  # Dataklassen voor gestructureerde resultaat data
+)
 from enum import Enum  # Enumeraties voor agent status tracking
-import time  # Tijd functies voor prestatie meting
+from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
 
 # Importeer generatie componenten voor AI definitie creatie
+from generation.definitie_generator import OntologischeCategorie  # Generatie klassen
 from generation.definitie_generator import (
     DefinitieGenerator,
     GenerationContext,
     GenerationResult,
-    OntologischeCategorie,  # Generatie klassen
 )
 
 # Importeer validatie componenten voor kwaliteitscontrole
+from validation.definitie_validator import ViolationType  # Validatie klassen
 from validation.definitie_validator import (
     DefinitieValidator,
-    ValidationResult,
     RuleViolation,
+    ValidationResult,
     ViolationSeverity,
-    ViolationType,  # Validatie klassen
 )
 
 logger = logging.getLogger(__name__)  # Logger instantie voor orchestration module
@@ -779,8 +779,8 @@ if __name__ == "__main__":
     # Mock violations voor test
     from validation.definitie_validator import (
         RuleViolation,
-        ViolationType,
         ViolationSeverity,
+        ViolationType,
     )
 
     mock_violations = [

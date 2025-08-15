@@ -5,9 +5,9 @@ Deze module bevat de specifieke validatielogica voor ESS-03.
 Controleert of een definitie criteria bevat voor unieke identificatie.
 """
 
-import re
-from typing import Dict, List, Tuple, Optional
 import logging
+import re
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 

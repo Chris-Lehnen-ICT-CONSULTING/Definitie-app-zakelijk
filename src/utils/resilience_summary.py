@@ -6,15 +6,16 @@ Shows the complete Phase 2.3 implementation with all features.
 import asyncio
 import logging
 import time
+
+from monitoring.api_monitor import get_metrics_collector
 from utils.integrated_resilience import (
-    IntegratedResilienceSystem,
     IntegratedConfig,
-    with_full_resilience,
-    with_critical_resilience,
+    IntegratedResilienceSystem,
     with_background_resilience,
+    with_critical_resilience,
+    with_full_resilience,
 )
 from utils.smart_rate_limiter import RequestPriority
-from monitoring.api_monitor import get_metrics_collector
 
 logger = logging.getLogger(__name__)
 

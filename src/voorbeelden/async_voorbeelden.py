@@ -4,10 +4,10 @@ Provides concurrent generation of all example types for improved performance.
 """
 
 import logging
-from typing import List, Dict, Optional, Callable
 from dataclasses import dataclass
+from typing import Callable, Dict, List, Optional
 
-from utils.async_api import async_gpt_call, async_cached
+from utils.async_api import async_cached, async_gpt_call
 
 logger = logging.getLogger(__name__)
 

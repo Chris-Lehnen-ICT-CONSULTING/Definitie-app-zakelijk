@@ -25,7 +25,7 @@ def list_maintenance_scripts():
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
             doc = module.__doc__ or "Geen beschrijving"
-        except:
+        except Exception:
             doc = "Kon documentatie niet laden"
         
         scripts.append({

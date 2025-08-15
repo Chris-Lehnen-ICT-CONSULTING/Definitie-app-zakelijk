@@ -5,13 +5,14 @@ Combineert web lookup en document processing voor optimale context verrijking.
 Voorziet in intelligente bron selectie en context fusie voor verbeterde definitie generatie.
 """
 
-# Importeer hybrid context componenten voor intelligente context verrijking
-from .hybrid_context_engine import (
-    HybridContextEngine,
-    HybridContext,
-)  # Hoofdengine en context container
-from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
 from .context_fusion import ContextFusion  # Context fusie en samenvoeging
+
+# Importeer hybrid context componenten voor intelligente context verrijking
+from .hybrid_context_engine import (  # Hoofdengine en context container
+    HybridContext,
+    HybridContextEngine,
+)
+from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
 
 # Exporteer publieke interface - alle hybrid context componenten
 __all__ = [

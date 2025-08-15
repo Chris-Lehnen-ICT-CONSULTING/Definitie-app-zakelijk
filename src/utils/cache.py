@@ -7,18 +7,18 @@ en andere kostbare operaties om prestaties te verbeteren.
 
 import hashlib  # Hash functionaliteit voor cache keys
 import json  # JSON verwerking voor metadata opslag
+import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor bestandsoperaties
 import pickle  # Python object serialisatie voor cache data
 from datetime import datetime, timedelta  # Datum en tijd voor TTL management
+from functools import wraps  # Decorator utilities voor cache functionaliteit
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import (
+from typing import (  # Type hints voor betere code documentatie
     Any,
+    Callable,
     Dict,
     Optional,
-    Callable,
-)  # Type hints voor betere code documentatie
-from functools import wraps  # Decorator utilities voor cache functionaliteit
-import logging  # Logging faciliteiten voor debug en monitoring
+)
 
 logger = logging.getLogger(__name__)  # Logger instantie voor cache module
 

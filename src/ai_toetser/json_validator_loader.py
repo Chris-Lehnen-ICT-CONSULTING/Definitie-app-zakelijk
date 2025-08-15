@@ -5,12 +5,12 @@ Deze module laadt validators dynamisch uit de config/toetsregels/regels director
 waar elke toetsregel bestaat uit een JSON configuratie en bijbehorende Python implementatie.
 """
 
-import sys
-import json
 import importlib.util
+import json
 import logging
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

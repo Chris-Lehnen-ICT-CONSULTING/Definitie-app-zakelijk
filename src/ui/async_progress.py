@@ -3,13 +3,14 @@ Async progress UI components for DefinitieAgent.
 Provides real-time progress tracking for async operations.
 """
 
-import streamlit as st
 import asyncio
 import time
-from typing import Any, Dict
 from dataclasses import dataclass
+from typing import Any, Dict
 
-from services.async_definition_service import get_async_service, AsyncProcessingResult
+import streamlit as st
+
+from services.async_definition_service import AsyncProcessingResult, get_async_service
 
 
 @dataclass

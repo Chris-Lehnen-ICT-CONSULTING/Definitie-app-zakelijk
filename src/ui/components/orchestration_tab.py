@@ -2,14 +2,15 @@
 Orchestration Tab - Interface voor geavanceerde definitie orchestratie en iteratieve verbetering.
 """
 
-import streamlit as st
 import asyncio
 import time
-from typing import Dict, Any, List
 from datetime import datetime
-import plotly.graph_objects as go
-import plotly.express as px
+from typing import Any, Dict, List
+
 import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
 
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
@@ -31,7 +32,8 @@ class OrchestrationTab:
 
             sys.path.append(str(Path(__file__).parents[2] / "orchestration"))
 
-            from definitie_agent import DefinitieAgent, AgentStatus, IterationResult
+            from definitie_agent import AgentStatus, DefinitieAgent, IterationResult
+
             from generation.definitie_generator import OntologischeCategorie
 
             # Store classes for use
@@ -139,7 +141,7 @@ class OrchestrationTab:
                     key="target_score",
                 )
 
-                enable_hybrid = st.checkbox(
+                st.checkbox(
                     "🔗 Hybride context",
                     value=False,
                     help="Gebruik document context indien beschikbaar",
@@ -147,7 +149,7 @@ class OrchestrationTab:
                 )
 
             with col2:
-                improvement_strategy = st.selectbox(
+                st.selectbox(
                     "Verbeter strategie",
                     ["aggressive", "conservative", "balanced"],
                     index=2,
@@ -728,21 +730,21 @@ class OrchestrationTab:
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            date_filter = st.selectbox(
+            st.selectbox(
                 "Tijdsperiode",
                 ["Alle tijd", "Laatste week", "Laatste maand"],
                 key="history_date_filter",
             )
 
         with col2:
-            success_filter = st.selectbox(
+            st.selectbox(
                 "Status filter",
                 ["Alle", "Succesvol", "Mislukt"],
                 key="history_success_filter",
             )
 
         with col3:
-            sort_by = st.selectbox(
+            st.selectbox(
                 "Sorteer op",
                 ["Datum (nieuw eerst)", "Score (hoog eerst)", "Iteraties"],
                 key="history_sort",

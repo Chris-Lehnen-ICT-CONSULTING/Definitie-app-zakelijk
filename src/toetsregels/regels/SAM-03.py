@@ -5,9 +5,9 @@ Een definitie mag geen tautologie bevatten (het begrip mag niet in eigen definit
 Gemigreerd van legacy core.py
 """
 
-import re
-from typing import Dict, List, Tuple, Optional
 import logging
+import re
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -59,7 +59,7 @@ class SAM03Validator:
         if re.search(begrip_pattern, definitie_lower):
             # Check voor samenstellingen (begrip als deel van groter woord)
             # Dit is toegestaan volgens sommige interpretaties
-            matches = list(re.finditer(begrip_pattern, definitie_lower))
+            list(re.finditer(begrip_pattern, definitie_lower))
 
             return (
                 False,

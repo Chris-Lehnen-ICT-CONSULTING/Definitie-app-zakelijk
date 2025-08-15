@@ -2,18 +2,19 @@
 
 Automated code review system with AI integration and BMAD Method support.
 
-## Features (v2.0.0)
+## Features (v2.1.0)
 
-- 🔍 **Multi-tool Integration**: Ruff, Black, MyPy, Bandit
-- 🔄 **Auto-fix Loop**: Up to 5 iterations of automatic fixes  
-- 🛡️ **Enhanced Security Scanning**: Improved SQL injection detection with context-aware false positive filtering
+- 🔍 **Enhanced Multi-tool Integration**: Ruff, Black, MyPy, Bandit, **Autoflake, isort, autopep8**
+- 🔄 **Improved Auto-fix Loop**: Meer effectieve fixes met autoflake voor unused imports, isort voor import ordering
+- 🛡️ **Enhanced Security Scanning**: Automatische bare except fixes + SQL injection detection
 - 🎯 **Framework Support**: Streamlit, Django, Flask, Generic
 - 🎭 **Complete BMAD Integration**: Post-edit hooks, agent detection, seamless workflow
 - 🔗 **Universal Post-Edit Hooks**: Automatic quality checks after any BMAD agent code changes
-- 🤖 **AI Agent Auto-Detection**: Claude Code, GitHub Copilot, BMAD agents
-- 📊 **Metrics Tracking**: Performance and quality metrics
+- 🤖 **AI Agent Auto-Detection**: Claude Code, GitHub Copilot, BMAD agents, **Quinn QA architect**
+- 📊 **Metrics Tracking**: Performance and quality metrics met verbeterde efficiency
 - ⚡ **Fast Setup**: One-command project setup
 - 🧪 **Hook Testing**: Built-in testing for BMAD post-edit functionality
+- 🚀 **Nieuwe Verbeterloop**: Van 235 → 20 issues in één run!
 
 ## Quick Start
 

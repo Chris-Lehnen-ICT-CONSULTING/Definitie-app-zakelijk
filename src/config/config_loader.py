@@ -7,6 +7,7 @@ de oude config_loader gebruikt. Gebruik voor nieuwe code:
 """
 
 import warnings
+
 from toetsregels.loader import load_toetsregels as new_load_toetsregels
 
 

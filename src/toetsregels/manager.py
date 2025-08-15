@@ -6,11 +6,11 @@ Beheert het laden en cachen van toetsregels uit de nieuwe modulaire structuur.
 import json
 import logging
 import os
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+import time
 from dataclasses import dataclass
 from enum import Enum
-import time
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

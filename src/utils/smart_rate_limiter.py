@@ -6,23 +6,23 @@ voor efficiënte API rate limiting met intelligente load balancing.
 """
 
 import asyncio  # Asynchrone programmering voor niet-blokkerende rate limiting
+import json  # JSON verwerking voor configuratie opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor token bucket timing
-from typing import (
-    Dict,
-    Optional,
-    Callable,
-    Any,
-)  # Type hints voor betere code documentatie
-from dataclasses import (
+from collections import deque  # Efficiënte queue implementatie
+from dataclasses import (  # Dataklassen voor gestructureerde configuratie
     dataclass,
     field,
-)  # Dataklassen voor gestructureerde configuratie
+)
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeraties voor prioriteit levels
-from collections import deque  # Efficiënte queue implementatie
-import json  # JSON verwerking voor configuratie opslag
 from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import (  # Type hints voor betere code documentatie
+    Any,
+    Callable,
+    Dict,
+    Optional,
+)
 
 logger = logging.getLogger(__name__)  # Logger instantie voor smart rate limiter module
 
@@ -516,7 +516,7 @@ def with_smart_rate_limit(
             request_id = f"{actual_endpoint}_{int(time.time() * 1000)}"
 
             # Wait for rate limit permission
-            start_time = time.time()
+            time.time()
             if not await limiter.acquire(priority, timeout, request_id):
                 raise asyncio.TimeoutError(f"Rate limit timeout for {func.__name__}")
 

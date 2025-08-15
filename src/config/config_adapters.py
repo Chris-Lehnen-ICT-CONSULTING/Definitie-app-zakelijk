@@ -3,15 +3,15 @@ Configuration adapters for integrating the centralized config system
 with existing modules and maintaining backward compatibility.
 """
 
-import os
 import logging
-from typing import Dict, Any, Optional
+import os
 from dataclasses import asdict
+from typing import Any, Dict, Optional
 
-from config.config_manager import get_config_manager, get_config, ConfigSection
+from config.config_manager import ConfigSection, get_config, get_config_manager
 from utils.enhanced_retry import RetryConfig
-from utils.smart_rate_limiter import RateLimitConfig
 from utils.resilience import ResilienceConfig as FrameworkResilienceConfig
+from utils.smart_rate_limiter import RateLimitConfig
 
 logger = logging.getLogger(__name__)
 

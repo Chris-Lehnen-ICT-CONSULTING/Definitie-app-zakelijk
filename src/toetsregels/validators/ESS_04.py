@@ -5,9 +5,9 @@ Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, p
 Gemigreerd van legacy core.py
 """
 
-import re
-from typing import Dict, List, Tuple, Optional
 import logging
+import re
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 

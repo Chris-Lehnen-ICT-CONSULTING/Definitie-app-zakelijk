@@ -4,19 +4,19 @@ Dit package bevat alle service componenten inclusief
 geïntegreerde services en orchestratie functionaliteiten.
 """
 
+# Import nieuwe services - lazy imports to avoid circular dependencies
+from services.container import ContainerConfigs, ServiceContainer, get_container
+
 # Import de V2 versie als default
 from services.unified_definition_service_v2 import (
+    ArchitectureMode,
+    ProcessingMode,
+    ServiceMode,
     UnifiedDefinitionService,
+    UnifiedResult,
     UnifiedServiceConfig,
     UnifiedServiceConfigV2,
-    UnifiedResult,
-    ProcessingMode,
-    ArchitectureMode,
-    ServiceMode,
 )
-
-# Import nieuwe services - lazy imports to avoid circular dependencies
-from services.container import ServiceContainer, get_container, ContainerConfigs
 
 
 # Lazy import factory functions

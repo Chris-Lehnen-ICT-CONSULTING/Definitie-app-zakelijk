@@ -3,14 +3,15 @@ Analyse script om te controleren welke toetsregels gebruikt worden
 bij generatie en validatie van definities.
 """
 
+from typing import Any, Dict, List
+
+from config.toetsregel_manager import get_toetsregel_manager
 from generation.definitie_generator import (
     DefinitieGenerator,
     GenerationContext,
     OntologischeCategorie,
 )
 from validation.definitie_validator import DefinitieValidator
-from config.toetsregel_manager import get_toetsregel_manager
-from typing import Dict, List, Any
 
 
 def analyze_rule_usage():
@@ -286,7 +287,7 @@ def analyze_critical_rules():
     )
 
     gen_result = generator.generate(context)
-    val_result = validator.validate("test definitie", OntologischeCategorie.TYPE)
+    validator.validate("test definitie", OntologischeCategorie.TYPE)
 
     gen_used = [instr.rule_id for instr in gen_result.gebruikte_instructies]
     val_criteria = validator._load_validation_criteria(OntologischeCategorie.TYPE)

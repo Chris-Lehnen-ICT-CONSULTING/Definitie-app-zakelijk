@@ -5,25 +5,23 @@ New code should use UnifiedDefinitionService directly.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple
-
-from utils.exceptions import (
-    handle_api_error,
-    handle_validation_error,
-    APIError,
-    ValidationError,
-)
+import os
+import sys
+from typing import Any, Dict, List, Optional, Tuple
 
 # Import the new unified service
 from services.unified_definition_service import (
+    ArchitectureMode,
+    ProcessingMode,
     UnifiedDefinitionService,
     UnifiedServiceConfig,
-    ProcessingMode,
-    ArchitectureMode,
 )
-
-import sys
-import os
+from utils.exceptions import (
+    APIError,
+    ValidationError,
+    handle_api_error,
+    handle_validation_error,
+)
 
 # Voeg root directory toe aan Python path voor logs module toegang
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
@@ -180,8 +178,8 @@ class DefinitionService:
         try:
             # Delegate to unified service - import unified examples
             from voorbeelden.unified_voorbeelden import (
-                genereer_alle_voorbeelden,
                 GenerationMode,
+                genereer_alle_voorbeelden,
             )
 
             voorbeelden = genereer_alle_voorbeelden(

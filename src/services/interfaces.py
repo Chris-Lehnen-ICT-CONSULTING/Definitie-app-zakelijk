@@ -6,10 +6,10 @@ in de applicatie. Ze maken dependency injection en testing mogelijk.
 """
 
 from abc import ABC, abstractmethod
-from typing import Optional, List, Dict, Any
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 
 # Enums
@@ -132,7 +132,6 @@ class DefinitionGeneratorInterface(ABC):
         Returns:
             Definition object met gegenereerde content
         """
-        pass
 
     @abstractmethod
     async def enhance(self, definition: Definition) -> Definition:
@@ -145,7 +144,6 @@ class DefinitionGeneratorInterface(ABC):
         Returns:
             Verbeterde definitie
         """
-        pass
 
 
 class DefinitionValidatorInterface(ABC):
@@ -162,7 +160,6 @@ class DefinitionValidatorInterface(ABC):
         Returns:
             ValidationResult met status en eventuele fouten/waarschuwingen
         """
-        pass
 
     @abstractmethod
     def validate_field(self, field_name: str, value: Any) -> ValidationResult:
@@ -176,7 +173,6 @@ class DefinitionValidatorInterface(ABC):
         Returns:
             ValidationResult voor het specifieke veld
         """
-        pass
 
 
 class DefinitionRepositoryInterface(ABC):
@@ -193,7 +189,6 @@ class DefinitionRepositoryInterface(ABC):
         Returns:
             ID van de opgeslagen definitie
         """
-        pass
 
     @abstractmethod
     def get(self, definition_id: int) -> Optional[Definition]:
@@ -206,7 +201,6 @@ class DefinitionRepositoryInterface(ABC):
         Returns:
             Definition indien gevonden, anders None
         """
-        pass
 
     @abstractmethod
     def search(self, query: str, limit: int = 10) -> List[Definition]:
@@ -220,7 +214,6 @@ class DefinitionRepositoryInterface(ABC):
         Returns:
             Lijst van gevonden definities
         """
-        pass
 
     @abstractmethod
     def update(self, definition_id: int, definition: Definition) -> bool:
@@ -234,7 +227,6 @@ class DefinitionRepositoryInterface(ABC):
         Returns:
             True indien succesvol, anders False
         """
-        pass
 
     @abstractmethod
     def delete(self, definition_id: int) -> bool:
@@ -247,7 +239,6 @@ class DefinitionRepositoryInterface(ABC):
         Returns:
             True indien succesvol, anders False
         """
-        pass
 
     def update_status(self, definition_id: int, status: DefinitionStatus) -> bool:
         """
@@ -303,7 +294,6 @@ class DefinitionOrchestratorInterface(ABC):
         Returns:
             DefinitionResponse met resultaat en status
         """
-        pass
 
     @abstractmethod
     async def update_definition(
@@ -319,7 +309,6 @@ class DefinitionOrchestratorInterface(ABC):
         Returns:
             DefinitionResponse met resultaat en status
         """
-        pass
 
     @abstractmethod
     async def validate_and_save(self, definition: Definition) -> DefinitionResponse:
@@ -332,7 +321,6 @@ class DefinitionOrchestratorInterface(ABC):
         Returns:
             DefinitionResponse met resultaat en status
         """
-        pass
 
     async def get_definition(self, definition_id: int) -> Optional[Definition]:
         """
@@ -426,7 +414,6 @@ class WebLookupServiceInterface(ABC):
         Returns:
             Lijst van LookupResult objecten
         """
-        pass
 
     @abstractmethod
     async def lookup_single_source(
@@ -442,7 +429,6 @@ class WebLookupServiceInterface(ABC):
         Returns:
             LookupResult indien gevonden, anders None
         """
-        pass
 
     @abstractmethod
     def get_available_sources(self) -> List[WebSource]:
@@ -452,7 +438,6 @@ class WebLookupServiceInterface(ABC):
         Returns:
             Lijst van WebSource objecten
         """
-        pass
 
     @abstractmethod
     def validate_source(self, text: str) -> WebSource:
@@ -465,7 +450,6 @@ class WebLookupServiceInterface(ABC):
         Returns:
             WebSource met betrouwbaarheidsscore
         """
-        pass
 
     @abstractmethod
     def find_juridical_references(self, text: str) -> List[JuridicalReference]:
@@ -478,7 +462,6 @@ class WebLookupServiceInterface(ABC):
         Returns:
             Lijst van gevonden juridische verwijzingen
         """
-        pass
 
     @abstractmethod
     def detect_duplicates(
@@ -494,7 +477,6 @@ class WebLookupServiceInterface(ABC):
         Returns:
             Lijst van duplicaat analyses
         """
-        pass
 
 
 # Optional: Event interfaces voor loose coupling
@@ -504,16 +486,13 @@ class DefinitionEventHandler(ABC):
     @abstractmethod
     def on_definition_created(self, definition: Definition) -> None:
         """Handler voor wanneer een definitie is aangemaakt."""
-        pass
 
     @abstractmethod
     def on_definition_validated(
         self, definition: Definition, result: ValidationResult
     ) -> None:
         """Handler voor wanneer een definitie is gevalideerd."""
-        pass
 
     @abstractmethod
     def on_definition_saved(self, definition: Definition) -> None:
         """Handler voor wanneer een definitie is opgeslagen."""
-        pass

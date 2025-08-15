@@ -6,6 +6,9 @@ This module serves as the entry point for the DefinitieAgent application,
 handling initialization, configuration, and launching the main user interface.
 """
 
+import os
+import sys
+
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand
 
@@ -20,16 +23,12 @@ st.set_page_config(
 # Laad omgevingsvariabelen - Laad configuratie uit .env bestand
 load_dotenv()  # Laadt API keys, database configuratie, etc.
 
-# Importeer applicatie modules - Importeer kern applicatie componenten
-import sys
-import os
-
 # Voeg root directory toe aan Python path voor logs module toegang
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from logs.application.log_definitie import (
+from logs.application.log_definitie import (  # Logging systeem uit root logs directory
     get_logger,
-)  # Logging systeem uit root logs directory
+)
 from ui.session_state import SessionStateManager  # Sessie status beheer
 from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
 from utils.exceptions import log_and_display_error  # Foutafhandeling utilities

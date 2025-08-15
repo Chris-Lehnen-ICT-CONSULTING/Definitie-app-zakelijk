@@ -3,12 +3,13 @@ Cached version of voorbeelden (examples) generation.
 This module provides intelligent caching for all example generation functions.
 """
 
-from typing import List, Dict
 import os
 import re
+from typing import Dict, List
+
 from dotenv import load_dotenv
-from openai import OpenAI
-from openai import OpenAIError
+from openai import OpenAI, OpenAIError
+
 from utils.cache import cache_example_generation, cache_synonym_generation
 
 # Load environment and initialize OpenAI client

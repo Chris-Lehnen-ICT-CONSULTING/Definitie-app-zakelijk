@@ -5,18 +5,16 @@ online bronnen zoals Wikipedia, overheid.nl, wetten.nl, etc.
 """
 
 # Importeer alle zoekfuncties uit lookup module
-from .lookup import (
-    zoek_definitie_op_wikipedia,  # Wikipedia zoekfunctie
-    zoek_definitie_op_overheidnl,  # Overheid.nl zoekfunctie
-    zoek_definitie_op_wettennl,  # Wetten.nl zoekfunctie
-    zoek_definitie_op_wiktionary,  # Wiktionary zoekfunctie
-    zoek_definitie_op_ensie,  # Ensie.nl zoekfunctie
-    zoek_definitie_op_strafrechtketen,  # Strafrechtketen zoekfunctie
-    zoek_definitie_op_kamerstukken,  # Kamerstukken zoekfunctie
-    zoek_definitie_op_iate,  # IATE terminologie database
-    zoek_definitie_combinatie,  # Gecombineerde zoekfunctie
-    is_plurale_tantum,  # Plurale tantum checker
-)
+from .lookup import is_plurale_tantum  # Plurale tantum checker
+from .lookup import zoek_definitie_combinatie  # Gecombineerde zoekfunctie
+from .lookup import zoek_definitie_op_ensie  # Ensie.nl zoekfunctie
+from .lookup import zoek_definitie_op_iate  # IATE terminologie database
+from .lookup import zoek_definitie_op_kamerstukken  # Kamerstukken zoekfunctie
+from .lookup import zoek_definitie_op_overheidnl  # Overheid.nl zoekfunctie
+from .lookup import zoek_definitie_op_strafrechtketen  # Strafrechtketen zoekfunctie
+from .lookup import zoek_definitie_op_wettennl  # Wetten.nl zoekfunctie
+from .lookup import zoek_definitie_op_wikipedia  # Wikipedia zoekfunctie
+from .lookup import zoek_definitie_op_wiktionary  # Wiktionary zoekfunctie
 
 # Exporteer publieke interface - alle zoekfuncties
 __all__ = [

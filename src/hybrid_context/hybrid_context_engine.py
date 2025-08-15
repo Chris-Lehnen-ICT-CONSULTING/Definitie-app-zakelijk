@@ -4,17 +4,19 @@ Combineert web lookup met document processing voor optimale definitie generatie.
 """
 
 import logging  # Logging faciliteiten voor debug en monitoring
-from typing import Dict, List, Optional, Any  # Type hints voor betere code documentatie
 from dataclasses import dataclass  # Dataklassen voor gestructureerde context data
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+
+from document_processing.document_processor import (  # Document processor factory
+    get_document_processor,
+)
+from web_lookup.lookup import zoek_definitie_combinatie  # Web lookup functionaliteit
+
+from .context_fusion import ContextFusion  # Context fusie en samenvoeging
 
 # Importeer hybride context componenten
 from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
-from .context_fusion import ContextFusion  # Context fusie en samenvoeging
-from document_processing.document_processor import (
-    get_document_processor,
-)  # Document processor factory
-from web_lookup.lookup import zoek_definitie_combinatie  # Web lookup functionaliteit
 
 logger = logging.getLogger(__name__)  # Logger instantie voor hybrid context engine
 
@@ -184,7 +186,7 @@ class HybridContextEngine:
             # Fallback naar basis web lookup
             try:
                 return zoek_definitie_combinatie(begrip) or {}
-            except:
+            except Exception:
                 return {}
 
     def _enhance_web_results(

@@ -1,40 +1,28 @@
 # 🤖 AI Code Review Report
 
-**Date**: 2025-08-15 12:34:36
-**Duration**: 8.4 seconds
+**Date**: 2025-08-15 14:24:48
+**Duration**: 3.3 seconds
 **Status**: ❌ FAILED
-**Iterations**: 3
-**Auto-fixes Applied**: 0
+**Iterations**: 1
+**Auto-fixes Applied**: 2
 
 ## Remaining Issues
 
-### 🟡 IMPORTANT (92)
+### 🟡 IMPORTANT (40)
 
-- **ruff**: F841: Local variable `val_result` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/analysis/toetsregels_usage_analysis.py`:289)
 - **ruff**: F401: `hybrid_context.hybrid_context_engine.HybridContext` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/generation/definitie_generator.py`:23)
-- **ruff**: F841: Local variable `legal_ref_count` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/hybrid_context/context_fusion.py`:197)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/hybrid_context/hybrid_context_engine.py`:187)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:24)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:29)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:33)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:34)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:38)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:39)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:40)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:43)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:360)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:24)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:25)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:30)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:44)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:47)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:28)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:31)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:32)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:33)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:34)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:35)
-- **ruff**: F841: Local variable `uitleg` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/prompt_builder/prompt_builder.py`:234)
 - **ruff**: F401: `web_lookup.definitie_lookup.zoek_definitie` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:29)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_repository.py`:352)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_repository.py`:379)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_repository.py`:414)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:44)
 - **ruff**: F401: `generation.definitie_generator.DefinitieGenerator` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:40)
 - **ruff**: F401: `generation.definitie_generator.GenerationContext` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:41)
 - **ruff**: F401: `generation.definitie_generator.OntologischeCategorie` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:42)
@@ -49,57 +37,17 @@
 - **ruff**: F401: `web_lookup.definitie_lookup.zoek_definitie` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:70)
 - **ruff**: F401: `web_lookup.definitie_lookup.detecteer_duplicaten` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:70)
 - **ruff**: F401: `monitoring.api_monitor.record_api_call` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:78)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service_v2.py`:113)
-- **ruff**: F841: Local variable `matches` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/regels/SAM-03.py`:62)
-- **ruff**: F841: Local variable `matches` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/validators/SAM_03.py`:62)
-- **ruff**: F841: Local variable `timestamp` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:142)
 - **ruff**: F401: `config.verboden_woorden.sla_verboden_woorden_op` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py`:490)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/history_tab.py`:87)
 - **ruff**: F401: `setup_database.create_sample_export` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:43)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:275)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:283)
-- **ruff**: F841: Local variable `duplicate_threshold` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:412)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:461)
-- **ruff**: F841: Local variable `stats` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:784)
-- **ruff**: F841: Local variable `test_definitions` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:788)
-- **ruff**: F841: Local variable `validator` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:801)
-- **ruff**: F841: Local variable `context` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:978)
-- **ruff**: F841: Local variable `service` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:988)
-- **ruff**: F401: `monitoring.api_monitor.record_api_call` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:1157)
-- **ruff**: F401: `asyncio` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:1158)
-- **ruff**: F841: Local variable `test_context` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:1187)
-- **ruff**: F841: Local variable `color` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/monitoring_tab.py`:139)
-- **ruff**: F841: Local variable `start_time` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/monitoring_tab.py`:268)
-- **ruff**: F841: Local variable `end_time` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/monitoring_tab.py`:276)
-- **ruff**: F841: Local variable `new_threshold` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/monitoring_tab.py`:610)
-- **ruff**: F841: Local variable `new_comparison` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/monitoring_tab.py`:615)
-- **ruff**: F841: Local variable `new_severity` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/monitoring_tab.py`:618)
-- **ruff**: F841: Local variable `new_window` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/monitoring_tab.py`:623)
-- **ruff**: F841: Local variable `enable_hybrid` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:142)
-- **ruff**: F841: Local variable `improvement_strategy` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:150)
-- **ruff**: F841: Local variable `date_filter` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:731)
-- **ruff**: F841: Local variable `success_filter` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:738)
-- **ruff**: F841: Local variable `sort_by` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:745)
-- **ruff**: F841: Local variable `test_model` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/prompt_debug_section.py`:124)
-- **ruff**: F841: Local variable `test_temp` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/prompt_debug_section.py`:129)
-- **ruff**: F841: Local variable `zoek_opties` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/web_lookup_tab.py`:144)
+- **ruff**: F401: `monitoring.api_monitor.record_api_call` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:1153)
+- **ruff**: F401: `asyncio` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:1154)
 - **ruff**: F401: `hybrid_context.hybrid_context_engine.get_hybrid_context_engine` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:63)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:1214)
-- **ruff**: F841: Local variable `request_id` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/utils/optimized_resilience.py`:198)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/utils/performance_monitor.py`:137)
-- **ruff**: F841: Local variable `func_name` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/utils/resilience.py`:557)
-- **ruff**: F841: Local variable `start_time` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/utils/smart_rate_limiter.py`:519)
 - **ruff**: F401: `.voorbeelden.genereer_voorbeeld_zinnen` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:34)
 - **ruff**: F401: `.voorbeelden.genereer_praktijkvoorbeelden` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:35)
 - **ruff**: F401: `.voorbeelden.genereer_tegenvoorbeelden` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:36)
 - **ruff**: F401: `.voorbeelden.genereer_synoniemen` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:37)
 - **ruff**: F401: `.voorbeelden.genereer_antoniemen` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:38)
 - **ruff**: F401: `.voorbeelden.genereer_toelichting` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:39)
-- **ruff**: F841: Local variable `loop` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/unified_voorbeelden.py`:88)
-- **ruff**: E722: Do not use bare `except` (`/Users/chrislehnen/Projecten/Definitie-app/src/web_lookup/bron_lookup.py`:180)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/web_lookup/juridische_lookup.py`:45)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/web_lookup/juridische_lookup.py`:46)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/web_lookup/juridische_lookup.py`:47)
 - **ruff**: F811: Redefinition of unused `zoek_definitie_combinatie` from line 318 (`/Users/chrislehnen/Projecten/Definitie-app/src/web_lookup/lookup.py`:454)
 - **streamlit**: Streamlit pattern issue: Session state assignment in widget call (`src/legacy/centrale_module_definitie_kwaliteit_legacy.py`)
 
@@ -284,5 +232,12 @@
 ## 📊 Metrics
 
 - Total issues found: 0
-- Issues auto-fixed: 0
+- Issues auto-fixed: 2
+- Manual fixes required: 215
 - Review efficiency: 100.0%
+
+### Issues by Tool
+
+- **custom**: 175 issues
+- **ruff**: 39 issues
+- **streamlit**: 1 issues

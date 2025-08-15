@@ -6,16 +6,17 @@ Consolidates resilience.py, integrated_resilience.py, and resilience_summary.py.
 import asyncio
 import logging
 import time
-from typing import Dict, List, Optional, Callable, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from functools import wraps
 from enum import Enum
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional
+
+from monitoring.api_monitor import get_metrics_collector, record_api_call
 
 # Import existing components
 from utils.enhanced_retry import AdaptiveRetryManager, RetryConfig
-from utils.smart_rate_limiter import SmartRateLimiter, RateLimitConfig, RequestPriority
-from monitoring.api_monitor import get_metrics_collector, record_api_call
+from utils.smart_rate_limiter import RateLimitConfig, RequestPriority, SmartRateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -195,7 +196,7 @@ class OptimizedResilienceSystem:
             endpoint_name = func.__name__
 
         start_time = time.time()
-        request_id = f"{endpoint_name}_{int(time.time() * 1000)}"
+        f"{endpoint_name}_{int(time.time() * 1000)}"
 
         try:
             # Execute based on resilience mode

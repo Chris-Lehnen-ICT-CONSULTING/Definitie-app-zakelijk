@@ -14,13 +14,13 @@ De stappen zijn:
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple, Any
 import re
+from typing import Any, Dict, List, Optional, Tuple
 
+from generation.definitie_generator import OntologischeCategorie
+from web_lookup.bron_lookup import herken_bronnen_in_definitie
 from web_lookup.definitie_lookup import DefinitieZoeker
 from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
-from web_lookup.bron_lookup import herken_bronnen_in_definitie
-from generation.definitie_generator import OntologischeCategorie
 
 logger = logging.getLogger(__name__)
 
