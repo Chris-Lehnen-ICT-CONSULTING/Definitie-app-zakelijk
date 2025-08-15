@@ -944,64 +944,87 @@ class DefinitieRepository:
         """
         logger.info(f"Saving voorbeelden voor definitie {definitie_id}")
         
-        try:
-            cursor = self.conn.cursor()
-            saved_ids = []
-            
-            # Verwijder bestaande voorbeelden voor deze definitie (indien gewenst)
-            cursor.execute("""
-                UPDATE definitie_voorbeelden 
-                SET actief = FALSE 
-                WHERE definitie_id = ? AND actief = TRUE
-            """, (definitie_id,))
-            
-            # Voeg nieuwe voorbeelden toe
-            for voorbeeld_type, examples in voorbeelden_dict.items():
-                if not examples:  # Skip lege lists
-                    continue
-                    
-                for idx, voorbeeld_tekst in enumerate(examples, 1):
-                    if not voorbeeld_tekst.strip():  # Skip lege voorbeelden
+        with self._get_connection() as conn:
+            try:
+                cursor = conn.cursor()
+                saved_ids = []
+                
+                # Verwijder bestaande voorbeelden voor deze definitie (indien gewenst)
+                cursor.execute("""
+                    UPDATE definitie_voorbeelden 
+                    SET actief = FALSE, bijgewerkt_op = CURRENT_TIMESTAMP
+                    WHERE definitie_id = ? AND actief = TRUE
+                """, (definitie_id,))
+                
+                # Voeg nieuwe voorbeelden toe
+                for voorbeeld_type, examples in voorbeelden_dict.items():
+                    if not examples:  # Skip lege lists
                         continue
                         
-                    # Maak VoorbeeldenRecord
-                    record = VoorbeeldenRecord(
-                        definitie_id=definitie_id,
-                        voorbeeld_type=voorbeeld_type,
-                        voorbeeld_tekst=voorbeeld_tekst.strip(),
-                        voorbeeld_volgorde=idx,
-                        gegenereerd_door=gegenereerd_door,
-                        generation_model=generation_model,
-                        actief=True
-                    )
-                    
-                    if generation_params:
-                        record.set_generation_parameters(generation_params)
-                    
-                    # Insert in database
-                    cursor.execute("""
-                        INSERT INTO definitie_voorbeelden (
-                            definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                            gegenereerd_door, generation_model, generation_parameters, actief
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                    """, (
-                        record.definitie_id, record.voorbeeld_type, record.voorbeeld_tekst,
-                        record.voorbeeld_volgorde, record.gegenereerd_door, 
-                        record.generation_model, record.generation_parameters, record.actief
-                    ))
-                    
-                    saved_ids.append(cursor.lastrowid)
-                    
-                    logger.debug(f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}...")
-            
-            self.conn.commit()
-            logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
-            return saved_ids
-            
-        except Exception as e:
-            self.conn.rollback()
-            logger.error(f"Failed to save voorbeelden: {e}")
-            raise
+                    for idx, voorbeeld_tekst in enumerate(examples, 1):
+                        if not voorbeeld_tekst.strip():  # Skip lege voorbeelden
+                            continue
+                            
+                        # Maak VoorbeeldenRecord
+                        record = VoorbeeldenRecord(
+                            definitie_id=definitie_id,
+                            voorbeeld_type=voorbeeld_type,
+                            voorbeeld_tekst=voorbeeld_tekst.strip(),
+                            voorbeeld_volgorde=idx,
+                            gegenereerd_door=gegenereerd_door,
+                            generation_model=generation_model,
+                            actief=True
+                        )
+                        
+                        if generation_params:
+                            record.set_generation_parameters(generation_params)
+                        
+                        # Check of deze combinatie al bestaat
+                        cursor.execute("""
+                            SELECT id FROM definitie_voorbeelden 
+                            WHERE definitie_id = ? AND voorbeeld_type = ? AND voorbeeld_volgorde = ?
+                        """, (record.definitie_id, record.voorbeeld_type, record.voorbeeld_volgorde))
+                        
+                        existing = cursor.fetchone()
+                        if existing:
+                            # Update existing record
+                            cursor.execute("""
+                                UPDATE definitie_voorbeelden 
+                                SET voorbeeld_tekst = ?, actief = TRUE, 
+                                    gegenereerd_door = ?, generation_model = ?, 
+                                    generation_parameters = ?, bijgewerkt_op = CURRENT_TIMESTAMP
+                                WHERE id = ?
+                            """, (
+                                record.voorbeeld_tekst, record.gegenereerd_door,
+                                record.generation_model, record.generation_parameters,
+                                existing[0]
+                            ))
+                            saved_ids.append(existing[0])
+                        else:
+                            # Insert new record
+                            cursor.execute("""
+                                INSERT INTO definitie_voorbeelden (
+                                    definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
+                                    gegenereerd_door, generation_model, generation_parameters, actief,
+                                    aangemaakt_op, bijgewerkt_op
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                            """, (
+                                record.definitie_id, record.voorbeeld_type, record.voorbeeld_tekst,
+                                record.voorbeeld_volgorde, record.gegenereerd_door, 
+                                record.generation_model, record.generation_parameters, record.actief
+                            ))
+                            saved_ids.append(cursor.lastrowid)
+                        
+                        logger.debug(f"Saved {voorbeeld_type} voorbeeld {idx}: {voorbeeld_tekst[:50]}...")
+                
+                conn.commit()
+                logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
+                return saved_ids
+                
+            except Exception as e:
+                conn.rollback()
+                logger.error(f"Failed to save voorbeelden: {e}")
+                raise
     
     def get_voorbeelden(
         self,
@@ -1020,53 +1043,54 @@ class DefinitieRepository:
         Returns:
             List van VoorbeeldenRecord objecten
         """
-        cursor = self.conn.cursor()
-        
-        query = """
-            SELECT id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                   gegenereerd_door, generation_model, generation_parameters, actief,
-                   beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door,
-                   beoordeeld_op, aangemaakt_op, bijgewerkt_op
-            FROM definitie_voorbeelden
-            WHERE definitie_id = ?
-        """
-        params = [definitie_id]
-        
-        if voorbeeld_type:
-            query += " AND voorbeeld_type = ?"
-            params.append(voorbeeld_type)
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
             
-        if actief_only:
-            query += " AND actief = TRUE"
+            query = """
+                SELECT id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
+                       gegenereerd_door, generation_model, generation_parameters, actief,
+                       beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door,
+                       beoordeeld_op, aangemaakt_op, bijgewerkt_op
+                FROM definitie_voorbeelden
+                WHERE definitie_id = ?
+            """
+            params = [definitie_id]
             
-        query += " ORDER BY voorbeeld_type, voorbeeld_volgorde"
-        
-        cursor.execute(query, params)
-        rows = cursor.fetchall()
-        
-        voorbeelden = []
-        for row in rows:
-            record = VoorbeeldenRecord(
-                id=row['id'],
-                definitie_id=row['definitie_id'],
-                voorbeeld_type=row['voorbeeld_type'],
-                voorbeeld_tekst=row['voorbeeld_tekst'],
-                voorbeeld_volgorde=row['voorbeeld_volgorde'],
-                gegenereerd_door=row['gegenereerd_door'],
-                generation_model=row['generation_model'],
-                generation_parameters=row['generation_parameters'],
-                actief=bool(row['actief']),
-                beoordeeld=bool(row['beoordeeld']),
-                beoordeeling=row['beoordeeling'],
-                beoordeeling_notities=row['beoordeeling_notities'],
-                beoordeeld_door=row['beoordeeld_door'],
-                beoordeeld_op=datetime.fromisoformat(row['beoordeeld_op']) if row['beoordeeld_op'] else None,
-                aangemaakt_op=datetime.fromisoformat(row['aangemaakt_op']) if row['aangemaakt_op'] else None,
-                bijgewerkt_op=datetime.fromisoformat(row['bijgewerkt_op']) if row['bijgewerkt_op'] else None
-            )
-            voorbeelden.append(record)
-        
-        return voorbeelden
+            if voorbeeld_type:
+                query += " AND voorbeeld_type = ?"
+                params.append(voorbeeld_type)
+                
+            if actief_only:
+                query += " AND actief = TRUE"
+                
+            query += " ORDER BY voorbeeld_type, voorbeeld_volgorde"
+            
+            cursor.execute(query, params)
+            rows = cursor.fetchall()
+            
+            voorbeelden = []
+            for row in rows:
+                record = VoorbeeldenRecord(
+                    id=row['id'],
+                    definitie_id=row['definitie_id'],
+                    voorbeeld_type=row['voorbeeld_type'],
+                    voorbeeld_tekst=row['voorbeeld_tekst'],
+                    voorbeeld_volgorde=row['voorbeeld_volgorde'],
+                    gegenereerd_door=row['gegenereerd_door'],
+                    generation_model=row['generation_model'],
+                    generation_parameters=row['generation_parameters'],
+                    actief=bool(row['actief']),
+                    beoordeeld=bool(row['beoordeeld']),
+                    beoordeeling=row['beoordeeling'],
+                    beoordeeling_notities=row['beoordeeling_notities'],
+                    beoordeeld_door=row['beoordeeld_door'],
+                    beoordeeld_op=datetime.fromisoformat(row['beoordeeld_op']) if row['beoordeeld_op'] else None,
+                    aangemaakt_op=datetime.fromisoformat(row['aangemaakt_op']) if row['aangemaakt_op'] else None,
+                    bijgewerkt_op=datetime.fromisoformat(row['bijgewerkt_op']) if row['bijgewerkt_op'] else None
+                )
+                voorbeelden.append(record)
+            
+            return voorbeelden
     
     def get_voorbeelden_by_type(self, definitie_id: int) -> Dict[str, List[str]]:
         """
@@ -1110,28 +1134,29 @@ class DefinitieRepository:
         if beoordeeling not in ['goed', 'matig', 'slecht']:
             raise ValueError("Beoordeeling moet 'goed', 'matig' of 'slecht' zijn")
         
-        try:
-            cursor = self.conn.cursor()
-            cursor.execute("""
-                UPDATE definitie_voorbeelden
-                SET beoordeeld = TRUE, beoordeeling = ?, beoordeeling_notities = ?, 
-                    beoordeeld_door = ?, beoordeeld_op = CURRENT_TIMESTAMP
-                WHERE id = ?
-            """, (beoordeeling, beoordeeling_notities, beoordeeld_door, voorbeeld_id))
-            
-            self.conn.commit()
-            
-            if cursor.rowcount > 0:
-                logger.info(f"Voorbeeld {voorbeeld_id} beoordeeld als '{beoordeeling}'")
-                return True
-            else:
-                logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
-                return False
+        with self._get_connection() as conn:
+            try:
+                cursor = conn.cursor()
+                cursor.execute("""
+                    UPDATE definitie_voorbeelden
+                    SET beoordeeld = TRUE, beoordeeling = ?, beoordeeling_notities = ?, 
+                        beoordeeld_door = ?, beoordeeld_op = CURRENT_TIMESTAMP
+                    WHERE id = ?
+                """, (beoordeeling, beoordeeling_notities, beoordeeld_door, voorbeeld_id))
                 
-        except Exception as e:
-            self.conn.rollback()
-            logger.error(f"Failed to beoordeel voorbeeld {voorbeeld_id}: {e}")
-            raise
+                conn.commit()
+                
+                if cursor.rowcount > 0:
+                    logger.info(f"Voorbeeld {voorbeeld_id} beoordeeld als '{beoordeeling}'")
+                    return True
+                else:
+                    logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
+                    return False
+                    
+            except Exception as e:
+                conn.rollback()
+                logger.error(f"Failed to beoordeel voorbeeld {voorbeeld_id}: {e}")
+                raise
     
     def delete_voorbeelden(self, definitie_id: int, voorbeeld_type: str = None) -> int:
         """
@@ -1144,24 +1169,25 @@ class DefinitieRepository:
         Returns:
             Aantal verwijderde voorbeelden
         """
-        cursor = self.conn.cursor()
-        
-        if voorbeeld_type:
-            cursor.execute("""
-                DELETE FROM definitie_voorbeelden 
-                WHERE definitie_id = ? AND voorbeeld_type = ?
-            """, (definitie_id, voorbeeld_type))
-        else:
-            cursor.execute("""
-                DELETE FROM definitie_voorbeelden 
-                WHERE definitie_id = ?
-            """, (definitie_id,))
-        
-        deleted_count = cursor.rowcount
-        self.conn.commit()
-        
-        logger.info(f"Deleted {deleted_count} voorbeelden voor definitie {definitie_id}")
-        return deleted_count
+        with self._get_connection() as conn:
+            cursor = conn.cursor()
+            
+            if voorbeeld_type:
+                cursor.execute("""
+                    DELETE FROM definitie_voorbeelden 
+                    WHERE definitie_id = ? AND voorbeeld_type = ?
+                """, (definitie_id, voorbeeld_type))
+            else:
+                cursor.execute("""
+                    DELETE FROM definitie_voorbeelden 
+                    WHERE definitie_id = ?
+                """, (definitie_id,))
+            
+            deleted_count = cursor.rowcount
+            conn.commit()
+            
+            logger.info(f"Deleted {deleted_count} voorbeelden voor definitie {definitie_id}")
+            return deleted_count
 
 
 # Convenience functions

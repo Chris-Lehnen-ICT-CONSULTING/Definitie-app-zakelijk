@@ -28,9 +28,30 @@ DefinitieAgent is een geavanceerde Streamlit-applicatie voor het genereren van h
 ### 🔴 Kritieke Issues
 - **Monolithische core**: `ai_toetser/core.py` (1984 lijnen)
 - **Duplicate modules**: export/exports, log/logs, definitie_generator
+- **~~Web lookup duplicates~~**: ✅ OPGELOST - 5 implementaties geconsolideerd naar WebLookupService
 - **Onvolledige migratie**: Legacy vs moderne architectuur
 - **Memory leaks**: Unbounded cache growth
 - **Security risico's**: API keys in logs, geen input validation
+
+### 🟢 Service Architecture Progress (87% compleet)
+
+De nieuwe clean architecture met dependency injection is grotendeels geïmplementeerd:
+
+#### ✅ Voltooide Services:
+- **DefinitionGenerator** - AI-powered definitie generatie
+- **DefinitionValidator** - Validatie met 46 toetsregels
+- **DefinitionRepository** - Database operaties
+- **DefinitionOrchestrator** - Workflow coördinatie
+- **WebLookupService** - Geconsolideerde web lookup (7 bronnen)
+
+#### 🚧 In Development:
+- **ExamplesService** - Voorbeelden generatie
+- **ExportService** - Multi-format export
+- **DocumentService** - Document processing
+- **MonitoringService** - Performance monitoring
+- **CacheService** - Cross-cutting caching
+
+Gebruik: `export USE_NEW_SERVICES=true` of UI toggle in sidebar
 
 ### 🟡 Architectuur Problemen
 - **Test coverage**: 11% (target: 85%)
@@ -132,8 +153,8 @@ pytest --cov=src tests/
 
 ### 🏗️ **Module Analyses**
 - **[🤖 AI Toetser](src/ai_toetser/AI_TOETSER_MODULE_ANALYSIS.md)** - Monolithische validator
-- **[⚙️ Services](src/services/SERVICES_MODULE_ANALYSIS.md)** - Geconsolideerde services
-- **[🔍 Web Lookup](src/web_lookup/WEB_LOOKUP_MODULE_ANALYSIS.md)** - Nederlandse bronnen
+- **[⚙️ Services](src/services/SERVICES_MODULE_ANALYSIS.md)** - Geconsolideerde services (87% compleet)
+- **[🔍 Web Lookup](WEB_LOOKUP_CONSOLIDATION_ANALYSIS.md)** - ✅ VOLTOOID - Geconsolideerd naar WebLookupService
 - **[🖥️ UI](src/ui/UI_MODULE_ANALYSIS.md)** - Gebruikersinterface
 - **[📊 Database](src/database/DATABASE_MODULE_ANALYSIS.md)** - Repository pattern
 - **[🔧 Utils](src/utils/UTILS_MODULE_ANALYSIS.md)** - Utility functies

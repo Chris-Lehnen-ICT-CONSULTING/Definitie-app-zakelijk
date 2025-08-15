@@ -10,8 +10,8 @@ from unittest.mock import patch, MagicMock
 import psutil
 import os
 
-from utils.async_api import AsyncAPIManager
-from utils.cache import cached, CacheManager
+from utils.async_api import AsyncGPTClient
+from utils.cache import cached
 from utils.resilience import ResilienceFramework
 from utils.smart_rate_limiter import SmartRateLimiter
 from config import get_config_manager
@@ -57,7 +57,7 @@ class TestPerformanceBenchmarks:
                 choices=[MagicMock(message=MagicMock(content="Test response"))]
             )
             
-            async_manager = AsyncAPIManager()
+            async_manager = AsyncGPTClient()
             
             # Test sequential vs parallel performance
             requests = [
@@ -242,7 +242,7 @@ class TestLoadTesting:
                 choices=[MagicMock(message=MagicMock(content="Test response"))]
             )
             
-            async_manager = AsyncAPIManager()
+            async_manager = AsyncGPTClient()
             results = []
             errors = []
             
