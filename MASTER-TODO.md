@@ -3,10 +3,10 @@
 **Dit is HET ENIGE document voor wat er moet gebeuren**  
 *Alle andere planning documenten zijn DEPRECATED*
 
-**Laatste Update**: 2025-08-15 (v4.0 - Quinn Complete Architecture & Quality Review)  
-**Deadline**: Flexibel - focus op WERKELIJK werkende kernfuncties  
-**Status**: 45% VOLLEDIG (na grondige senior QA architect review)  
-**Filosofie**: Foundation stabiliteit voor echte productie readiness
+**Laatste Update**: 2025-08-15 (v6.0 - Pragmatische Solo Developer Focus)  
+**Deadline**: 9 weken voor werkende v1.0  
+**Status**: 45% VOLLEDIG (focus verschoven naar werkende applicatie)  
+**Filosofie**: Eerst werkend, dan perfect - pragmatische aanpak voor solo developer
 
 > **UPDATE v3**: Items met 🆕 zijn toegevoegd uit gap analyse ONTBREKENDE-FUNCTIONALITEITEN.md
 > **UPDATE v3.1**: Web Lookup Module volledig gerefactored, Service Architecture 85%→87%
@@ -19,12 +19,23 @@
 >   - **Performance Analysis**: Database N+1 queries en memory leaks geïdentificeerd
 >   - **Test Assessment**: 26% test-to-code ratio, 87% tests falen door import issues
 >   - **Honest Reality Check**: Werkelijke status 45% vs gedocumenteerde claims
+> **UPDATE v5.0**: 🏗️ Winston (System Architect) complete refactor analyse uitgevoerd
+>   - **Target Architecture**: Microservices pattern met API Gateway, Service Mesh, Event Bus
+>   - **Security Critical**: EXPOSED API KEY IN .ENV - ONMIDDELLIJK ACTIE VEREIST
+>   - **12-Week Refactor Plan**: Van monoliet naar schaalbare enterprise architectuur
+>   - **Frontend Modernization**: Streamlit → React/Vue.js voor betere UX
+>   - **Infrastructure**: Docker, Kubernetes, CI/CD, Monitoring stack
+> **UPDATE v6.0**: 🎯 Pragmatische Solo Developer Prioritering
+>   - **Security Deprioritized**: Als solo developer is werkende app belangrijker dan enterprise security
+>   - **Focus op Core**: WebLookupService fix, DefinitionGenerator, Frontend stabilisatie
+>   - **Simplificatie**: Blijf bij SQLite, Streamlit, in-memory caching voorlopig
+>   - **9 Weken Plan**: Werkende v1.0 ipv half-afgebouwde enterprise architectuur
 
-## 🧪 QUINN SENIOR QA ARCHITECT REVIEW (2025-08-15)
+## 🎯 PRAGMATISCHE AANPAK SUMMARY
 
-**Volledige architectuur en kwaliteit analyse uitgevoerd**
-**Status**: Production readiness gaps significant groter dan verwacht
-**Aanbeveling**: Legacy refactoring wordt PRIORITEIT 1 (blokkeert alle andere verbeteringen)
+**Focus**: Werkende applicatie binnen 9 weken voor solo developer
+**Strategie**: Core functionaliteit eerst, enterprise features later
+**Week 1 Focus**: WebLookupService fix (hoogste prioriteit - nu kapot)
 
 ### 🚨 KRITIEKE BEVINDINGEN (IMMEDIATE ACTION REQUIRED)
 
@@ -58,30 +69,90 @@
 - **522 tests** aanwezig maar veel import failures na refactoring
 - **6 disabled test files** (10% van test suite)
 
-### 🎯 HERZIENE PRIORITEITEN (Reality-Based)
+### 🎯 PRAGMATISCHE SOLO DEVELOPER PRIORITEITEN (9 Weken Plan)
 
-**WEEK 1-2: FOUNDATION STABILITEIT (Legacy Refactoring)**
-**Waarom eerste prioriteit**: Legacy architectuur blokkeert alle andere verbeteringen
-1. **UnifiedDefinitionService split** - Écht opsplitsen in 4-5 services (nu consolidatie)
-2. **Import architecture fix** - E402 errors in main.py en legacy modules  
-3. **Eliminate bare except clauses** - 8 gevaarlijke error masking instances
-4. **WebLookupService rebuild** - Volledig herbuilden (3-4 weken werk)
+**FASE 1: CORE FUNCTIONALITEIT WERKEND KRIJGEN (WEEK 1-3) 🔧**
+**Doel**: Basis applicatie die definities kan genereren, valideren en opslaan
+1. **Fix WebLookupService** - Complete rewrite van kapotte service
+   - Basis web scraping functionaliteit
+   - Integratie met DefinitionOrchestrator
+   - Error handling voor failed lookups
+   
+2. **DefinitionGenerator verificatie** - Test of GPT integratie werkt
+   - Prompt templates debuggen
+   - Response parsing robuust maken
+   - Fallback voor API failures
 
-**WEEK 3-4: SECURITY & TESTING**
-5. **Implement authentication** - Critical security gap voor productie
-6. **Fix test infrastructure** - 87% tests failing door import issues
-7. **Database encryption** - Sensitive definition data protection
-8. **Performance optimization** - N+1 queries en memory leaks
+3. **Streamlit Frontend stabilisatie** - Werkende UI flow
+   - Fix create → validate → save flow
+   - Progress indicators tijdens processing
+   - Basis error messages voor gebruiker
 
-## 🚨 LEGACY REFACTORING NU PRIORITEIT 1
+**FASE 2: DATABASE & PERFORMANCE (WEEK 4-5) 💾**
+**Doel**: App stabiel maken voor single user, data persistent
+4. **SQLite optimalisaties** - Blijf bij SQLite, maak het werkend
+   - Enable WAL mode voor betere concurrency
+   - Add proper indexes op zoek velden
+   - Fix N+1 queries in voorbeelden systeem
 
-**Cascade Effect Reasoning**: Legacy refactoring ontblokkeert alle andere verbeteringen:
-- **Performance**: Database queries inefficiënt door god object complexity
-- **Testing**: Tests falen door tight coupling aan legacy
-- **Security**: Moeilijk om proper validation/auth toe te voegen aan chaotische code  
-- **Maintenance**: Elke bug fix raakt meerdere concerns door mixed responsibilities
+5. **In-memory caching** - Simple caching zonder Redis
+   - Cache generated definitions (TTL 1 uur)
+   - Cache web lookup results (TTL 24 uur)
+   - LRU cache voor frequent gebruikte data
 
-**Technical Debt Interest**: Elke dag legacy behouden = exponentieel duurder nieuwe features
+**FASE 3: SERVICE CLEANUP (WEEK 6-7) 🧹**
+**Doel**: Code maintainable maken, tests werkend
+6. **Refactor UnifiedDefinitionService** - Split god object
+   - Extract business logic naar focused services
+   - Fix circular imports
+   - Clean dependency injection
+
+7. **Test suite repareren** - Basis tests werkend
+   - Fix import errors (87% faalt nu!)
+   - Focus op happy path integration tests
+   - UI smoke tests met Streamlit testing
+
+**FASE 4: GEBRUIKERSERVARING (WEEK 8-9) ✨**  
+**Doel**: App gebruiksvriendelijk en demonstreerbaar
+8. **UI/UX verbeteringen** - Betere user experience
+   - Loading states en progress bars
+   - Export naar Word/PDF functionaliteit
+   - Undo/redo voor definities
+
+9. **Documentatie & voorbeelden** - Help gebruikers
+   - In-app help sectie
+   - 10 goede voorbeelden voorladen
+   - Video tutorial opnemen
+
+**UITGESTELD TOT NA v1.0 (Later):**
+- ⏸️ Security (JWT, OAuth, encryption) - .env file is genoeg nu
+- ⏸️ PostgreSQL migratie - SQLite werkt prima voor single user
+- ⏸️ Microservices architectuur - Monoliet is OK voor v1.0
+- ⏸️ Docker/Kubernetes - Lokaal draaien is genoeg
+- ⏸️ React frontend - Streamlit is functioneel genoeg
+
+
+## 📋 CONCRETE ACTIEPUNTEN WEEK 1
+
+**Maandag - WebLookupService Assessment**
+- [ ] Start WebLookupService en test functionaliteit
+- [ ] Documenteer exact wat kapot is
+- [ ] Maak minimal working version plan
+
+**Dinsdag-Woensdag - WebLookupService Rewrite**
+- [ ] Nieuwe implementatie met basis web scraping
+- [ ] Test integratie met DefinitionOrchestrator
+- [ ] Add retry logic en error handling
+
+**Donderdag - DefinitionGenerator**  
+- [ ] Test GPT API connectie
+- [ ] Debug prompt templates
+- [ ] Verify output parsing
+
+**Vrijdag - Frontend Flow**
+- [ ] Fix Streamlit create → validate → save
+- [ ] Add progress indicators
+- [ ] Test complete user journey
 
 ## 🚨 OUDE PRIORITEIT: Code Review Alle "Voltooide" Items (AFGEROND)
 

@@ -55,13 +55,13 @@ class Definition:
     bron: Optional[str] = None
     context: Optional[str] = None
     domein: Optional[str] = None
-    synoniemen: List[str] = None
-    gerelateerde_begrippen: List[str] = None
-    voorbeelden: List[str] = None
+    synoniemen: Optional[List[str]] = None
+    gerelateerde_begrippen: Optional[List[str]] = None
+    voorbeelden: Optional[List[str]] = None
     categorie: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
-    metadata: Dict[str, Any] = None
+    metadata: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         if self.synoniemen is None:
@@ -89,11 +89,11 @@ class ValidationResult:
     """Resultaat van definitie validatie."""
 
     is_valid: bool
-    errors: List[str] = None
-    warnings: List[str] = None
-    suggestions: List[str] = None
+    errors: Optional[List[str]] = None
+    warnings: Optional[List[str]] = None
+    suggestions: Optional[List[str]] = None
     score: Optional[float] = None
-    violations: List[ValidationViolation] = None
+    violations: Optional[List[ValidationViolation]] = None
 
     def __post_init__(self):
         if self.errors is None:

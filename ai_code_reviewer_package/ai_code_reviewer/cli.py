@@ -96,7 +96,7 @@ def create_project_config(project_root: str) -> None:
 
 
 def cmd_review(args):
-    """Hoofdcommando: run code review (v2.0.0 met BMAD integratie)."""
+    """Hoofdcommando: run code review (v2.1.0 met BMAD integratie)."""
     config = load_config(args.config)
     
     # Override config with command line args

@@ -1,57 +1,31 @@
 # 🤖 AI Code Review Report
 
-**Date**: 2025-08-15 14:24:48
-**Duration**: 3.3 seconds
+**Date**: 2025-08-15 17:03:03
+**Duration**: 15.9 seconds
 **Status**: ❌ FAILED
-**Iterations**: 1
-**Auto-fixes Applied**: 2
+**Iterations**: 5
+**Auto-fixes Applied**: 1
 
 ## Remaining Issues
 
-### 🟡 IMPORTANT (40)
+### 🟡 IMPORTANT (14)
 
-- **ruff**: F401: `hybrid_context.hybrid_context_engine.HybridContext` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/generation/definitie_generator.py`:23)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:29)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:33)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:30)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:31)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:34)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:38)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:35)
 - **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:39)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:44)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:47)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:28)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:31)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:32)
-- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/main.py`:33)
-- **ruff**: F401: `web_lookup.definitie_lookup.zoek_definitie` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:29)
-- **ruff**: F401: `generation.definitie_generator.DefinitieGenerator` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:40)
-- **ruff**: F401: `generation.definitie_generator.GenerationContext` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:41)
-- **ruff**: F401: `generation.definitie_generator.OntologischeCategorie` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:42)
-- **ruff**: F401: `validation.definitie_validator.DefinitieValidator` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:45)
-- **ruff**: F401: `validation.definitie_validator.validate_definitie` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:46)
-- **ruff**: F401: `validation.definitie_validator.ValidationResult` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:47)
-- **ruff**: F401: `database.definitie_repository.DefinitieRepository` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:50)
-- **ruff**: F401: `database.definitie_repository.DefinitieRecord` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:51)
-- **ruff**: F401: `database.definitie_repository.DefinitieStatus` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:52)
-- **ruff**: F401: `integration.definitie_checker.DefinitieChecker` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:54)
-- **ruff**: F401: `web_lookup.bron_lookup.valideer_definitie_bronnen` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:68)
-- **ruff**: F401: `web_lookup.definitie_lookup.zoek_definitie` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:70)
-- **ruff**: F401: `web_lookup.definitie_lookup.detecteer_duplicaten` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:70)
-- **ruff**: F401: `monitoring.api_monitor.record_api_call` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_service.py`:78)
-- **ruff**: F401: `config.verboden_woorden.sla_verboden_woorden_op` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py`:490)
-- **ruff**: F401: `setup_database.create_sample_export` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:43)
-- **ruff**: F401: `monitoring.api_monitor.record_api_call` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:1153)
-- **ruff**: F401: `asyncio` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py`:1154)
-- **ruff**: F401: `hybrid_context.hybrid_context_engine.get_hybrid_context_engine` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:63)
-- **ruff**: F401: `.voorbeelden.genereer_voorbeeld_zinnen` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:34)
-- **ruff**: F401: `.voorbeelden.genereer_praktijkvoorbeelden` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:35)
-- **ruff**: F401: `.voorbeelden.genereer_tegenvoorbeelden` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:36)
-- **ruff**: F401: `.voorbeelden.genereer_synoniemen` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:37)
-- **ruff**: F401: `.voorbeelden.genereer_antoniemen` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:38)
-- **ruff**: F401: `.voorbeelden.genereer_toelichting` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:39)
-- **ruff**: F811: Redefinition of unused `zoek_definitie_combinatie` from line 318 (`/Users/chrislehnen/Projecten/Definitie-app/src/web_lookup/lookup.py`:454)
+- **ruff**: E402: Module level import not at top of file (`/Users/chrislehnen/Projecten/Definitie-app/src/legacy/centrale_module_definitie_kwaliteit_legacy.py`:46)
+- **ruff**: F821: Undefined name `logger` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/modern_web_lookup_service.py`:27)
+- **ruff**: F841: Local variable `source_config` is assigned to but never used (`/Users/chrislehnen/Projecten/Definitie-app/src/services/modern_web_lookup_service.py`:260)
+- **ruff**: F821: Undefined name `PromptConfiguratie` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_generator.py`:394)
+- **ruff**: F821: Undefined name `PromptBouwer` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/unified_definition_generator.py`:400)
+- **ruff**: F401: `hybrid_context.hybrid_context_engine` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:64)
+- **ruff**: F401: `voorbeelden.voorbeelden` imported but unused; consider using `importlib.util.find_spec` to test for availability (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/__init__.py`:51)
 - **streamlit**: Streamlit pattern issue: Session state assignment in widget call (`src/legacy/centrale_module_definitie_kwaliteit_legacy.py`)
 
-### 🟢 SUGGESTION (175)
+### 🟢 SUGGESTION (181)
 
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/main.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ontologie/ontological_analyzer.py`)
@@ -107,18 +81,19 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/manager.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/modular_loader.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/interfaces.py`)
-- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/unified_definition_service.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/web_lookup_service.py`)
-- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/unified_definition_service_v2.py`)
-- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_service.py`)
-- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/async_definition_service.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/modern_web_lookup_service.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_orchestrator.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_repository.py`)
-- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/integrated_service.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_context.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/unified_definition_generator.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/container.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_prompts.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_cache.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/service_factory.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_validator.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_config.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/validation/sanitizer.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/validation/dutch_text_validator.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/validation/definitie_validator.py`)
@@ -127,6 +102,7 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/web_lookup/bron_lookup.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/web_lookup/definitie_lookup.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/web_lookup/lookup.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/web_lookup/wikipedia_service.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/regels/INT-03.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/regels/SAM-03.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/regels/INT-07.py`)
@@ -217,6 +193,10 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/validators/STR_03.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/validators/ESS_05.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/validators/VER_03.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/domain/juridisch/patronen.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/domain/context/organisatie_wetten.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/domain/linguistisch/pluralia_tantum.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/domain/autoriteit/betrouwbaarheid.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/orchestration_tab.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/context_selector.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/prompt_debug_section.py`)
@@ -229,15 +209,3 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/external_sources_tab.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/monitoring_tab.py`)
 
-## 📊 Metrics
-
-- Total issues found: 0
-- Issues auto-fixed: 2
-- Manual fixes required: 215
-- Review efficiency: 100.0%
-
-### Issues by Tool
-
-- **custom**: 175 issues
-- **ruff**: 39 issues
-- **streamlit**: 1 issues

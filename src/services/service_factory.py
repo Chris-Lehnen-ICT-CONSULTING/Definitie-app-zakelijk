@@ -13,19 +13,19 @@ import streamlit as st
 from services.container import ContainerConfigs, ServiceContainer, get_container
 
 if TYPE_CHECKING:
-    from services.unified_definition_service_v2 import UnifiedDefinitionService
+    from services.unified_definition_generator import UnifiedDefinitionGenerator
 
 logger = logging.getLogger(__name__)
 
 
 def get_definition_service(
     use_container_config: Optional[dict] = None,
-) -> Union["UnifiedDefinitionService", "ServiceAdapter"]:
+) -> Union["UnifiedDefinitionGenerator", "ServiceAdapter"]:
     """
     Get de juiste service op basis van feature flag.
 
     Deze functie bepaalt of we de nieuwe clean architecture gebruiken
-    of terugvallen op de legacy UnifiedDefinitionService.
+    of terugvallen op de legacy UnifiedDefinitionGenerator.
 
     Args:
         use_container_config: Optionele container configuratie
@@ -53,11 +53,11 @@ def get_definition_service(
         container = get_container(config)
         return ServiceAdapter(container)
     else:
-        logger.info("Using legacy UnifiedDefinitionService")
+        logger.info("Using legacy UnifiedDefinitionGenerator")
         # Gebruik legacy service - lazy import
-        from services.unified_definition_service_v2 import UnifiedDefinitionService
+        from services.unified_definition_generator import UnifiedDefinitionGenerator
 
-        return UnifiedDefinitionService.get_instance()
+        return UnifiedDefinitionGenerator.get_instance()
 
 
 def _get_environment_config() -> dict:
@@ -77,7 +77,7 @@ def _get_environment_config() -> dict:
 class ServiceAdapter:
     """
     Adapter die de nieuwe service architecture wrapped voor compatibility
-    met de legacy UnifiedDefinitionService interface.
+    met de legacy UnifiedDefinitionGenerator interface.
 
     Dit maakt het mogelijk om de nieuwe services te gebruiken zonder
     alle UI code meteen aan te passen.
