@@ -4,7 +4,7 @@ voor definitiegeneratie.
 
 Exporteert alle publieke functies voor korte imports, bijvoorbeeld:
     from prompt_builder import PromptBouwer
-    
+
 Dit module biedt legacy functionaliteit voor het bouwen van AI prompts.
 """
 
@@ -12,9 +12,9 @@ Dit module biedt legacy functionaliteit voor het bouwen van AI prompts.
 # ✅ Centrale export van classgebaseerde promptopbouw
 
 from .prompt_builder import (
-    PromptBouwer,             # ✅ Nieuwe naam voor PromptBuilder
-    PromptConfiguratie,       # ✅ Nieuwe naam voor PromptConfig
-    stuur_prompt_naar_gpt,    # ✅ GPT-aanroepfunctie
+    PromptBouwer,  # ✅ Nieuwe naam voor PromptBuilder
+    PromptConfiguratie,  # ✅ Nieuwe naam voor PromptConfig
+    stuur_prompt_naar_gpt,  # ✅ GPT-aanroepfunctie
 )
 
 __all__ = [

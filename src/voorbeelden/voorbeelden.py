@@ -4,6 +4,7 @@ import re
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai import OpenAIError
+
 # 💚 Laad .env zodat OPENAI_API_KEY beschikbaar wordt
 load_dotenv()
 # ✅ Initialiseer de OpenAI-client met de api_key uit de omgeving
@@ -11,9 +12,7 @@ _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def genereer_voorbeeld_zinnen(
-    begrip: str,
-    definitie: str,
-    context_dict: Dict[str, List[str]]
+    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
 ) -> List[str]:
     prompt = (
         f"Geef 2 tot 3 korte voorbeeldzinnen waarin het begrip '{begrip}' "
@@ -38,7 +37,7 @@ def genereer_voorbeeld_zinnen(
     zinnen: List[str] = []
     for line in blob.splitlines():
         # als AI “1. …” of “- …” gebruikt, strip dat eraf
-        zin = re.sub(r'^\s*(?:\d+\.|-)\s*', '', line).strip()
+        zin = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
         if zin:
             zinnen.append(zin)
     # fallback: retourneer de hele blob als er geen losse regels gevonden zijn
@@ -46,10 +45,7 @@ def genereer_voorbeeld_zinnen(
 
 
 def genereer_praktijkvoorbeelden(
-    begrip: str,
-    definitie: str,
-    context_dict: Dict[str, List[str]],
-    aantal: int = 3
+    begrip: str, definitie: str, context_dict: Dict[str, List[str]], aantal: int = 3
 ) -> List[str]:
     """
     Genereert `aantal` praktijkvoorbeelden (verification by instantiation).
@@ -58,7 +54,7 @@ def genereer_praktijkvoorbeelden(
     """
     prompt = (
         f"Genereer {aantal} uitgewerkte praktijkvoorbeelden voor het begrip '{begrip}'\n"
-        f"met definitie: \"{definitie.strip()}\".\n"
+        f'met definitie: "{definitie.strip()}".\n'
         "Zorg dat elk voorbeeld:\n"
         "  • Alle onderdelen uit de definitie concreet invult (dus alle variabelen).\n"
         "  • De organisatie-, juridische- en wettelijke context duidelijk bevat.\n\n"
@@ -94,11 +90,9 @@ def genereer_praktijkvoorbeelden(
 
     return voorbeelden
 
+
 def genereer_tegenvoorbeelden(
-    begrip: str,
-    definitie: str,
-    context_dict: Dict[str, List[str]],
-    aantal: int = 2
+    begrip: str, definitie: str, context_dict: Dict[str, List[str]], aantal: int = 2
 ) -> List[str]:
     """
     Genereert ‘aantal’ tegenvoorbeelden waarin:
@@ -108,7 +102,7 @@ def genereer_tegenvoorbeelden(
     """
     prompt = (
         f"Geef {aantal} korte tegenvoorbeelden voor het begrip '{begrip}' met definitie:\n"
-        f"  \"{definitie.strip()}\"\n"
+        f'  "{definitie.strip()}"\n'
         "Elk voorbeeld moet kort aangeven **welke** variabelen of contextregels **niet** worden gevolgd.\n\n"
         f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
         f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
@@ -141,7 +135,6 @@ def genereer_tegenvoorbeelden(
         voorbeelden.append("\n".join(current).strip())
 
     return voorbeelden
-
 
     # ───────────────────────────────────────────────────
     #  Parsen per genummerde casus: "1.", "2.", …

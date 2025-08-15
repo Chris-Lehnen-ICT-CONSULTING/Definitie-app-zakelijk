@@ -2,9 +2,10 @@ import os  # Operating system interface voor environment variabelen
 import re  # Reguliere expressies voor patroon matching en validatie
 from typing import Dict, Any, List, Optional  # Type hints voor betere code documentatie
 from web_lookup import is_plurale_tantum  # Importeer plurale tantum detectie functie
+
 # --- 🔪 Externe bibliotheken (via pip) ---
 # 📌 Streamlit pagina-configuratie
-#st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
+# st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
 from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
 
@@ -14,17 +15,24 @@ from openai import OpenAI  # OpenAI API client voor AI communicatie
 
 # --- ⚙️ Config-loaders en verboden-woordenbeheer ---
 # ✅ Centrale JSON-loaders voor configuratie management
-from config.config_loader import laad_toetsregels  # Laadt toetsregels uit JSON configuratie
+from config.config_loader import (
+    laad_toetsregels,
+)  # Laadt toetsregels uit JSON configuratie
 from config.config_loader import load_repository  # Repository loader functie
+
 # ✅ Opschoning van GPT-definitie (externe module)
-from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_startregex  # Verboden woorden management
+from config.verboden_woorden import (
+    laad_verboden_woorden,
+    genereer_verboden_startregex,
+)  # Verboden woorden management
 
 
 # 🌱 Initialiseer OpenAI-client configuratie
 load_dotenv()  # Laad environment variabelen uit .env bestand
 
-# 💚 --------------- VERPLAATSTE OPENAI-CLIENT ---------------  
-def _get_openai_client() -> OpenAI:          # ✅ Privé helper functie voor lazy loading
+
+# 💚 --------------- VERPLAATSTE OPENAI-CLIENT ---------------
+def _get_openai_client() -> OpenAI:  # ✅ Privé helper functie voor lazy loading
     """
     Maakt OpenAI-client alléén aan wanneer hij voor het eerst nodig is.
     Zo kan het pakket zonder OPENAI_API_KEY geïmporteerd worden.
@@ -35,6 +43,8 @@ def _get_openai_client() -> OpenAI:          # ✅ Privé helper functie voor la
             "OPENAI_API_KEY ontbreekt. Zet deze variabele in .env of in je CI-secrets."
         )
     return OpenAI(api_key=api_key)  # Retourneer nieuwe OpenAI client instantie
+
+
 # 💚 ----------------------------------------------------------
 
 
@@ -48,6 +58,7 @@ def _get_openai_client() -> OpenAI:          # ✅ Privé helper functie voor la
 # ➤ Directe herhaling van opgegeven contextwaarden (of herkenbare afleidingen) is *niet toegestaan*.
 # ➤ Dit voorkomt dat de definitie dubbelop of contextbevestigend wordt geformuleerd.
 # ➤ Goede voorbeelden zijn impliciet afgestemd op context zonder deze te benoemen.
+
 
 def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
     """
@@ -68,12 +79,7 @@ def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
             continue
         for w in waardelijst:
             w = w.lower().strip()
-            varianten = {
-                w,
-                w + "e",
-                w + "en",
-                w.rstrip("e")
-            }
+            varianten = {w, w + "e", w + "en", w.rstrip("e")}
             for var in varianten:
                 if var and var in definitie_lc:
                     expliciete_hits.append(var)
@@ -107,6 +113,7 @@ def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
     # ✅ 5️⃣ Fallback – niets herkend
     return "✔️ CON-01: geen expliciete contextverwijzing aangetroffen"
 
+
 # ✅ CON-02: Deze regel controleert of er een expliciete bronvermelding aanwezig is via het veld 'bronnen_gebruikt'.
 # ➤ Een goede definitie is gebaseerd op een gezaghebbende bron (zoals wetgeving, een beleidsregel of standaard),
 #     en noemt deze bron expliciet, bijvoorbeeld: “artikel 1, lid 2 van het Wetboek van Strafvordering”.
@@ -115,10 +122,10 @@ def toets_CON_01(definitie: str, regel: dict, contexten: dict = None) -> str:
 # ➤ Als er wel een bron wordt genoemd, maar deze te algemeen is (zoals alleen “de AVG” of “wetgeving”),
 #     volgt een neutrale waarschuwing dat verdere specificatie nodig is.
 # ➤ Alleen concrete verwijzingen zoals “art. 3.2 Besluit justitiële gegevens” of “Titel 1.4 Awb” leiden tot een positief oordeel.
-#💚 Groene uitlegregels in de code:
-#	•	We laden éénmalig de JSON (regel) vanuit laad_toetsregels().
-#	•	bronpatronen_specifiek en bronpatronen_algemeen worden in de JSON beheerd, niet meer in de code.
-#	•	Zo kun je in één plek (de JSON) de lijst uitbreiden of aanpassen.
+# 💚 Groene uitlegregels in de code:
+# 	•	We laden éénmalig de JSON (regel) vanuit laad_toetsregels().
+# 	•	bronpatronen_specifiek en bronpatronen_algemeen worden in de JSON beheerd, niet meer in de code.
+# 	•	Zo kun je in één plek (de JSON) de lijst uitbreiden of aanpassen.
 def toets_CON_02(definitie: str, regel: dict, bronnen_gebruikt: str = None) -> str:
     """
     CON-02: baseren op authentieke bron.
@@ -143,7 +150,9 @@ def toets_CON_02(definitie: str, regel: dict, bronnen_gebruikt: str = None) -> s
     # 3️⃣ 🟡 check algemene patronen uit JSON
     for pat in regel.get("bronpatronen_algemeen", []):
         if re.search(pat, lc):
-            return f"🟡 CON-02: bronvermelding aanwezig ({bg}), maar mogelijk te algemeen"
+            return (
+                f"🟡 CON-02: bronvermelding aanwezig ({bg}), maar mogelijk te algemeen"
+            )
 
     # 4️⃣ ❌ fallback
     return f"❌ CON-02: bronvermelding gevonden ({bg}), maar niet herkend als authentiek of specifiek"
@@ -169,14 +178,13 @@ def toets_ESS_01(definitie: str, regel: dict) -> str:
     return "✔️ ESS-01: geen doelgerichte formuleringen aangetroffen"
 
 
-
-def toets_ESS_02(definitie: str,
-                regel: Dict[str, Any],
-                marker: Optional[str] = None) -> str:
+def toets_ESS_02(
+    definitie: str, regel: Dict[str, Any], marker: Optional[str] = None
+) -> str:
     """
     ESS-02: Ontologische categorie expliciteren (type / particulier / proces / resultaat)
     -----------------------------------------------------------------------------------
-    Indien een begrip meerdere ontologische categorieën kan aanduiden, 
+    Indien een begrip meerdere ontologische categorieën kan aanduiden,
     moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt:
       • type (soort)
       • particulier (exemplaar)
@@ -215,8 +223,10 @@ def toets_ESS_02(definitie: str,
     for cat, key in categories:
         for voorbeeld in regel.get(key, []):
             if voorbeeld.lower() in d:
-                return (f"❌ ESS-02: expliciet fout voorbeeld voor {cat} gevonden "
-                        f"– vermijd deze formulering")
+                return (
+                    f"❌ ESS-02: expliciet fout voorbeeld voor {cat} gevonden "
+                    f"– vermijd deze formulering"
+                )
 
     # 2️⃣ Detectie via patronen per categorie
     hits: Dict[str, List[str]] = {}
@@ -240,8 +250,10 @@ def toets_ESS_02(definitie: str,
     # 4️⃣ Meerdere categorieën → ❌ ambiguïteit
     if len(hits) > 1:
         found = ", ".join(sorted(hits.keys()))
-        return (f"❌ ESS-02: ambiguïteit – meerdere categories herkend ({found}); "
-                "kies één betekenislaag")
+        return (
+            f"❌ ESS-02: ambiguïteit – meerdere categories herkend ({found}); "
+            "kies één betekenislaag"
+        )
 
     # 5️⃣ Geen hits → goede voorbeelden per categorie
     good_keys = {
@@ -256,8 +268,12 @@ def toets_ESS_02(definitie: str,
                 return f"✔️ ESS-02: eenduidig als {cat} gedefinieerd (voorbeeld match)"
 
     # 6️⃣ Fallback → geen marker
-    return ("❌ ESS-02: geen duidelijke ontologische marker "
-            "(type, particulier, proces of resultaat) gevonden")
+    return (
+        "❌ ESS-02: geen duidelijke ontologische marker "
+        "(type, particulier, proces of resultaat) gevonden"
+    )
+
+
 def toets_ESS_03(definitie: str, regel: dict) -> str:
     """
     ESS-03: Instanties uniek onderscheidbaar (telbaarheid).
@@ -290,7 +306,7 @@ def toets_ESS_03(definitie: str, regel: dict) -> str:
 
     # 4️⃣ Fallback: geen criteria gevonden
     return "❌ ESS-03: geen unieke identificatiecriteria gevonden; definitie is niet telbaar onderscheidbaar"
-    
+
 
 def toets_ESS_04(definitie: str, regel: dict) -> str:
     """
@@ -355,6 +371,7 @@ def toets_ESS_04(definitie: str, regel: dict) -> str:
         "definitie bevat geen harde criteria voor objectieve toetsing"
     )
 
+
 # ✅ Toetsing voor regel ESS-05 (Voldoende onderscheidend)
 def toets_ESS_05(definitie: str, regel: dict) -> str:
     """
@@ -402,15 +419,14 @@ def toets_ESS_05(definitie: str, regel: dict) -> str:
 
     if gevonden:
         labels = ", ".join(sorted(set(gevonden)))
-        return (
-            f"✔️ ESS-05: onderscheidende patroon(en) herkend ({labels})"
-        )
+        return f"✔️ ESS-05: onderscheidende patroon(en) herkend ({labels})"
 
     # ℹ️ 4️⃣ Fallback: niets gevonden → definitie is onvoldoende onderscheidend
     return (
         "❌ ESS-05: geen onderscheidende elementen gevonden; "
         "definitie maakt niet duidelijk waarin het begrip zich onderscheidt"
     )
+
 
 # ✅ Toetsing voor regel INT-01 (Compacte en begrijpelijke zin)
 def toets_INT_01(definitie, regel):
@@ -423,19 +439,19 @@ def toets_INT_01(definitie, regel):
     foute_voorbeelden = regel.get("foute_voorbeelden", [])
 
     goede_aanwezig = any(
-        voorbeeld.lower() in definitie.lower()
-        for voorbeeld in goede_voorbeelden
+        voorbeeld.lower() in definitie.lower() for voorbeeld in goede_voorbeelden
     )
     foute_aanwezig = any(
-        voorbeeld.lower() in definitie.lower()
-        for voorbeeld in foute_voorbeelden
+        voorbeeld.lower() in definitie.lower() for voorbeeld in foute_voorbeelden
     )
 
     if not complexiteit_gevonden:
         if goede_aanwezig:
             return "✔️ INT-01: definitie is compact en komt overeen met goed voorbeeld"
         else:
-            return "✔️ INT-01: geen complexe elementen herkend – mogelijk goed geformuleerd"
+            return (
+                "✔️ INT-01: geen complexe elementen herkend – mogelijk goed geformuleerd"
+            )
 
     if foute_aanwezig:
         return (
@@ -448,14 +464,15 @@ def toets_INT_01(definitie, regel):
             f"maar geen expliciet fout voorbeeld herkend"
         )
 
+
 def toets_INT_02(definitie: str, regel: dict) -> str:
     """
     INT-02: Geen beslisregel of voorwaardelijke formuleringen.
 
-    1️⃣ Expliciete foute voorbeelden uit JSON → direct ❌  
-    2️⃣ Expliciete goede voorbeelden uit JSON → direct ✔️  
-    3️⃣ Detectie via patronen (zoals 'indien', 'mits', etc.) → ❌  
-    4️⃣ Fallback: geen beslisregels aangetroffen → ✔️  
+    1️⃣ Expliciete foute voorbeelden uit JSON → direct ❌
+    2️⃣ Expliciete goede voorbeelden uit JSON → direct ✔️
+    3️⃣ Detectie via patronen (zoals 'indien', 'mits', etc.) → ❌
+    4️⃣ Fallback: geen beslisregels aangetroffen → ✔️
 
     Uitleg:
     - Een definitie mag niet als beslisregel geformuleerd worden;
@@ -488,11 +505,12 @@ def toets_INT_02(definitie: str, regel: dict) -> str:
     # 4️⃣ Fallback: geen beslisregel of voorwaardelijke formulering
     return "✔️ INT-02: geen beslisregels of voorwaardelijke formuleringen aangetroffen"
 
+
 def toets_INT_03(definitie: str, regel: dict) -> str:
     """
     INT-03: Voornaamwoord-verwijzing duidelijk
     --------------------------------------------------
-    Een definitie mag geen onduidelijke verwijzingen naar 
+    Een definitie mag geen onduidelijke verwijzingen naar
     “iets” bevatten via voornaamwoorden als 'deze', 'dit', 'die', enz.
     Elk voornaamwoord moet in de zin zelf direct naar zijn antecedent
     verwijzen, zodat de definitie zelfstandig leesbaar is.
@@ -501,12 +519,12 @@ def toets_INT_03(definitie: str, regel: dict) -> str:
       1️⃣ Zoek alle voornaamwoorden via de regex-patronen uit JSON.
       2️⃣ Als er géén voornaamwoorden zijn: ✔️ geen probleem.
       3️⃣ Als er voornaamwoorden zijn:
-         a. Controleer of een expliciet goed voorbeeld uit JSON 
+         a. Controleer of een expliciet goed voorbeeld uit JSON
             in de tekst voorkomt → ✔️
          b. Anders: ❌ onduidelijke verwijzing
 
     Uitlegregels:
-      - “deze”, “dit”, etc. zijn pas acceptabel als je in hetzelfde 
+      - “deze”, “dit”, etc. zijn pas acceptabel als je in hetzelfde
         zinsdeel direct zegt waar “deze” naar verwijst.
       - Een definitie moet in éé́n keer lezen, zonder dat de lezer
         achteraf moet gissen welk zelfstandig naamwoord bedoeld is.
@@ -592,13 +610,14 @@ def toets_INT_04(definitie: str, regel: dict) -> str:
         f"specificeer expliciet of gebruik onbepaald lidwoord"
     )
 
+
 def toets_INT_06(definitie: str, regel: dict) -> str:
     """
     INT-06: Definitie bevat geen toelichting.
-    
+
     Een definitie moet zelfstandig afbakenen wat een begrip is, zonder
     nadere uitleg of voorbeelden in dezelfde zin.
-    
+
     Toetsstappen:
       1️⃣ Expliciete foute voorbeelden uit JSON → ❌
       2️⃣ Detectie toelichtende signalen via regex-patronen → ❌
@@ -626,13 +645,11 @@ def toets_INT_06(definitie: str, regel: dict) -> str:
 
     if gevonden:
         samples = ", ".join(f"“{pat}”" for pat in gevonden)
-        return (
-            "❌ INT-06: toelichtende signalen herkend via patronen "
-            f"{samples}."
-        )
+        return "❌ INT-06: toelichtende signalen herkend via patronen " f"{samples}."
 
     # 3️⃣ Fallback: geen toelichting
     return "✔️ INT-06: geen toelichtende elementen in de definitie gevonden"
+
 
 # ✅ Toetsing voor regel INT-07 (afkortingen)
 def toets_INT_07(definitie: str, regel: dict) -> str:
@@ -674,7 +691,7 @@ def toets_INT_07(definitie: str, regel: dict) -> str:
         # check op "(…​)" direct na de afkorting
         has_parenth = bool(re.search(rf"{esc}\s*\([^)]*?\)", tekst))
         # check op Markdown link [AB](…)
-        has_mdlink  = bool(re.search(rf"\[{esc}\]\(.*?\)", tekst))
+        has_mdlink = bool(re.search(rf"\[{esc}\]\(.*?\)", tekst))
         # check op Wiki-link [[…]]
         has_wikilink = bool(re.search(r"\[\[.*?\]\]", tekst))
 
@@ -686,6 +703,8 @@ def toets_INT_07(definitie: str, regel: dict) -> str:
         labels = ", ".join(zonder_toelichting)
         return f"❌ INT-07: geen toelichting voor afkorting(en): {labels}"
     return "✔️ INT-07: alle afkortingen voorzien van directe toelichting of link"
+
+
 # ✅ Toetsing voor regel INT-08 (Positieve formulering)
 def toets_INT_08(definitie: str, regel: Dict) -> str:
     """
@@ -714,7 +733,7 @@ def toets_INT_08(definitie: str, regel: Dict) -> str:
     # 3️⃣ 💚 Detecteer allowed negaties in specificerende context (relatieve bijzin)
     allowed = set()
     for neg in list(negatieve_vormen):
-        patroon_context = rf'\bdie\b.*\b{re.escape(neg)}\b'
+        patroon_context = rf"\bdie\b.*\b{re.escape(neg)}\b"
         if re.search(patroon_context, definitie, flags=re.IGNORECASE):
             allowed.add(neg)
 
@@ -790,9 +809,9 @@ def toets_INT_09(definitie: str, regel: Dict) -> str:
     # 3️⃣ & 4️⃣ 💚 Voorbeelden-check
     tekst_lc = definitie.lower()
     goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
-    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
     uitleg_aanwezig = any(vb in tekst_lc for vb in goede)
-    fout_aanwezig  = any(vb in tekst_lc for vb in fout)
+    fout_aanwezig = any(vb in tekst_lc for vb in fout)
 
     # 5️⃣ 💚 Geen ongewenste termen gevonden
     if not ongewenste_termen:
@@ -811,6 +830,7 @@ def toets_INT_09(definitie: str, regel: Dict) -> str:
         return f"❌ INT-09: opsommingswoorden ({termen_str}) lijken op fout voorbeeld"
     return f"❌ INT-09: opsommingswoorden ({termen_str}) zonder duidelijke limitatieve aanduiding"
 
+
 # ✅ Toetsing voor regel INT-10 (Geen ontoegankelijke achtergrondkennis nodig)
 def toets_INT_10(definitie: str, regel: Dict) -> str:
     """
@@ -818,7 +838,7 @@ def toets_INT_10(definitie: str, regel: Dict) -> str:
     ---------------------------------------------------
     Een definitie mag niet verwijzen naar impliciete of niet-openbare kennis.
     Uitzondering: zeer specifieke verwijzing naar openbare bron (bv. wet met artikel).
-    
+
     Stappen:
       1️⃣ Haal alle herkenbare achtergrondverwijzings­patronen op uit JSON.
       2️⃣ Verzamel alle treffers (lowercase, uniek).
@@ -845,7 +865,7 @@ def toets_INT_10(definitie: str, regel: Dict) -> str:
     # 3️⃣ & 4️⃣ ✅ Voorbeelden-check
     tekst_lc = definitie.lower()
     goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
-    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
     goed_aanwezig = any(v in tekst_lc for v in goede)
     fout_aanwezig = any(v in tekst_lc for v in fout)
 
@@ -858,10 +878,13 @@ def toets_INT_10(definitie: str, regel: Dict) -> str:
     # 6️⃣ ✅/❌ Ongewenste verwijzingen wél gevonden
     items = ", ".join(sorted(vondsten))
     if goed_aanwezig:
-        return f"✅ INT-10: verwijzingen ({items}) zijn toegestaan volgens goed voorbeeld"
+        return (
+            f"✅ INT-10: verwijzingen ({items}) zijn toegestaan volgens goed voorbeeld"
+        )
     if fout_aanwezig:
         return f"❌ INT-10: verwijzingen ({items}) gevonden, formulering lijkt op fout voorbeeld"
     return f"❌ INT-10: verwijzingen ({items}) gevonden, zonder uitleg of toelichting"
+
 
 def toets_SAM_01(definitie: str, regel: Dict[str, Any]) -> str:
     """
@@ -899,7 +922,7 @@ def toets_SAM_01(definitie: str, regel: Dict[str, Any]) -> str:
     # 4️⃣ & 5️⃣ 💚 Check voorbeelden
     tekst_lc = definitie.lower()
     goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
-    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
     goed_aanwezig = any(v in tekst_lc for v in goede)
     fout_aanwezig = any(v in tekst_lc for v in fout)
 
@@ -911,7 +934,8 @@ def toets_SAM_01(definitie: str, regel: Dict[str, Any]) -> str:
         return f"❌ SAM-01: kwalificaties ({items}) wijken af volgens fout voorbeeld"
     return f"❌ SAM-01: kwalificaties ({items}) kunnen afwijken van algemeen aanvaarde betekenis"
 
-#✅ Toetsing voor regel SAM-02 (Kwalificatie omvat geen herhaling)
+
+# ✅ Toetsing voor regel SAM-02 (Kwalificatie omvat geen herhaling)
 def fetch_base_definition(term: str) -> Optional[str]:
     """
     Placeholder: haal officiële definitie van 'term' op uit een externe repository.
@@ -919,6 +943,7 @@ def fetch_base_definition(term: str) -> Optional[str]:
     """
     # TODO: vervang deze stub door een echte API- of JSON-lookup.
     return None
+
 
 def toets_SAM_02(definitie: str, regel: Dict[str, Any]) -> str:
     """
@@ -938,7 +963,7 @@ def toets_SAM_02(definitie: str, regel: Dict[str, Any]) -> str:
          • ≤1 → ✔️, >1 → ❌ (met voorbeelden-check).
     """
     # 1️⃣ 💚 Splits kop en body
-    kop, _, body = definitie.partition(':')
+    kop, _, body = definitie.partition(":")
     basisterm = kop.strip().lower()
     body_lc = body.lower()
 
@@ -946,18 +971,20 @@ def toets_SAM_02(definitie: str, regel: Dict[str, Any]) -> str:
     base_def = fetch_base_definition(basisterm)
     if base_def is not None:
         # 2a️⃣ 💚 Parse genus + differentia (eenvoudig via split)
-        _, _, base_diff = base_def.partition(':')
+        _, _, base_diff = base_def.partition(":")
         # Check: genus (basisterm) moet in gekwalificeerde definitie
         if basisterm not in definitie.lower():
             return f"❌ SAM-02: genus (‘{basisterm}’) ontbreekt in gekwalificeerde definitie"
         # Check: geen letterlijke herhaling van basisterm in differentia meer dan eens
-        count = len(re.findall(rf'\b{re.escape(basisterm)}\b', body_lc))
+        count = len(re.findall(rf"\b{re.escape(basisterm)}\b", body_lc))
         if count > 1:
             return f"❌ SAM-02: overbodige herhaling van '{basisterm}' in differentia"
-        return "✔️ SAM-02: gekwalificeerde definitie sluit aan op genus+differentia-patroon"
+        return (
+            "✔️ SAM-02: gekwalificeerde definitie sluit aan op genus+differentia-patroon"
+        )
 
     # 3️⃣ 💚 Fallback: regex-based herhalingscheck
-    count_fallback = len(re.findall(rf'\b{re.escape(basisterm)}\b', body_lc))
+    count_fallback = len(re.findall(rf"\b{re.escape(basisterm)}\b", body_lc))
 
     # <=1 vermelding = geen overbodige herhaling
     if count_fallback <= 1:
@@ -966,23 +993,26 @@ def toets_SAM_02(definitie: str, regel: Dict[str, Any]) -> str:
     # >1 vermelding = check voorbeelden
     tekst_lc = definitie.lower()
     goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
-    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
     goed_aanwezig = any(g in tekst_lc for g in goede)
     fout_aanwezig = any(f in tekst_lc for f in fout)
     if goed_aanwezig:
         return f"✔️ SAM-02: meerdere vermeldingen van '{basisterm}' maar betekenisvol volgens goed voorbeeld"
     if fout_aanwezig:
         return f"❌ SAM-02: herhaling van '{basisterm}' lijkt op fout voorbeeld"
-    return f"❌ SAM-02: overbodige herhalingen van '{basisterm}' gevonden in de definitie"
+    return (
+        f"❌ SAM-02: overbodige herhalingen van '{basisterm}' gevonden in de definitie"
+    )
 
-#✅ Toetsing voor regel SAM-03 (Definitieteksten niet nesten)
+
+# ✅ Toetsing voor regel SAM-03 (Definitieteksten niet nesten)
 def toets_SAM_03(definitie: str, regel: Dict[str, Any]) -> str:
     """
     SAM-03: Definitieteksten niet nesten
     ------------------------------------
     Een definitie van een begrip, of een belangrijk deel daarvan, mag niet
     letterlijk worden herhaald in de definitie van een ander begrip.
-    
+
     Stappen:
       1️⃣ Haal herkenbare patronen op uit de JSON-regel.
       2️⃣ Vind alle matches (lowercase, uniek).
@@ -993,7 +1023,7 @@ def toets_SAM_03(definitie: str, regel: Dict[str, Any]) -> str:
     """
     # 1️⃣ 💚 Haal patronen op
     patronen = regel.get("herkenbaar_patronen", [])
-    
+
     # 2️⃣ 💚 Verzamel alle genestelde trefwoorden
     nesten = {
         m.group(0).lower()
@@ -1008,7 +1038,7 @@ def toets_SAM_03(definitie: str, regel: Dict[str, Any]) -> str:
     # 4️⃣ & 5️⃣ 💚 Voorbeelden-check
     tekst_lc = definitie.lower()
     goede = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
-    fout  = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
+    fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
     goed_aanwezig = any(g in tekst_lc for g in goede)
     fout_aanwezig = any(f in tekst_lc for f in fout)
 
@@ -1019,6 +1049,8 @@ def toets_SAM_03(definitie: str, regel: Dict[str, Any]) -> str:
     if fout_aanwezig:
         return f"❌ SAM-03: definities bevatten ({items}), lijkt op fout voorbeeld"
     return f"❌ SAM-03: definitie bevat geneste verwijzingen ({items}), definities liever afzonderlijk"
+
+
 def toets_SAM_04(definitie: str, regel: Dict[str, Any]) -> str:
     """
     SAM-04: Begrip-samenstelling strijdt niet met samenstellende begrippen
@@ -1037,12 +1069,12 @@ def toets_SAM_04(definitie: str, regel: Dict[str, Any]) -> str:
          • ❌ als fout voorbeeld aanwezig
     """
     # 1️⃣ 💚 Splits kop en body
-    kop, _, body = definitie.partition(':')
+    kop, _, body = definitie.partition(":")
     composite = kop.strip().replace(" ", "").lower()
     body_lc = body.strip().lower()
 
     # 2️⃣ 💚 Isolatie vóór de eerste 'van', 'die' of 'dat'
-    intro = re.split(r'\bvan\b|\bdie\b|\bdat\b', body_lc, maxsplit=1)[0]
+    intro = re.split(r"\bvan\b|\bdie\b|\bdat\b", body_lc, maxsplit=1)[0]
 
     # 3️⃣ 💚 Pak laatste token als genus_word
     tokens = intro.strip().split()
@@ -1056,20 +1088,28 @@ def toets_SAM_04(definitie: str, regel: Dict[str, Any]) -> str:
     goed = [vb.lower() for vb in regel.get("goede_voorbeelden", [])]
     fout = [vb.lower() for vb in regel.get("foute_voorbeelden", [])]
     if any(g in tekst_lc for g in goed):
-        return "✔️ SAM-04: consistent met samenstellende begrippen (volgens goed voorbeeld)"
+        return (
+            "✔️ SAM-04: consistent met samenstellende begrippen (volgens goed voorbeeld)"
+        )
     if any(f in tekst_lc for f in fout):
-        return "❌ SAM-04: strijdig met samenstellende begrippen (volgens fout voorbeeld)"
+        return (
+            "❌ SAM-04: strijdig met samenstellende begrippen (volgens fout voorbeeld)"
+        )
 
     # Return op basis van genus-check
     if not conflict:
-        return f"✔️ SAM-04: genus (‘{genus_word}’) sluit aan op compositie (‘{composite}’)"
+        return (
+            f"✔️ SAM-04: genus (‘{genus_word}’) sluit aan op compositie (‘{composite}’)"
+        )
     return f"❌ SAM-04: genus (‘{genus_word}’) komt niet overeen met compositie (‘{composite}’)"
+
 
 def fetch_definition(term: str, repository: Dict[str, str]) -> Optional[str]:
     """
     Haal de definitie van 'term' op uit de repository.
     """
     return repository.get(term.lower())
+
 
 def detecteer_cirkels(repository: Dict[str, str]) -> List[List[str]]:
     """
@@ -1083,7 +1123,7 @@ def detecteer_cirkels(repository: Dict[str, str]) -> List[List[str]]:
         text = defini.lower()
         for other in repository:
             other_lc = other.lower()
-            if other_lc != term_lc and re.search(rf'\b{re.escape(other_lc)}\b', text):
+            if other_lc != term_lc and re.search(rf"\b{re.escape(other_lc)}\b", text):
                 graph[term_lc].add(other_lc)
 
     # 2) Vind cycli via DFS
@@ -1107,11 +1147,12 @@ def detecteer_cirkels(repository: Dict[str, str]) -> List[List[str]]:
             dfs([n])
     return cycli
 
+
 def toets_SAM_05(
     definitie: str,
     regel: Dict[str, Any],
     begrip: str,
-    repository: Optional[Dict[str, str]] = None
+    repository: Optional[Dict[str, str]] = None,
 ) -> str:
     """
     SAM-05: Geen cirkeldefinities
@@ -1130,7 +1171,7 @@ def toets_SAM_05(
     text = definitie.strip().lower()
 
     # 1️⃣ Zelf-referentie
-    if re.search(rf'\b{re.escape(term)}\b', text):
+    if re.search(rf"\b{re.escape(term)}\b", text):
         return f"❌ SAM-05: definitie bevat eigen begrip '{term}', mogelijke cirkeldefinitie"
 
     # 2️⃣ Cycle-detectie als repository beschikbaar
@@ -1146,8 +1187,11 @@ def toets_SAM_05(
     # 3️⃣ Geen cirkel herkend
     return "✔️ SAM-05: geen cirkeldefinitie herkend"
 
+
 # ✅ Toetsing voor regel SAM-06 (Één synoniem krijgt voorkeur)
-def toets_SAM_06(definitie: str, regel: Dict[str, Any], voorkeursterm: Optional[str] = None) -> str:
+def toets_SAM_06(
+    definitie: str, regel: Dict[str, Any], voorkeursterm: Optional[str] = None
+) -> str:
     """
     SAM-06: Één synoniem krijgt (expliciet) voorkeur.
     ➤ Enkel toetsen of de gebruiker een voorkeurs-term heeft opgegeven.
@@ -1252,6 +1296,7 @@ def toets_STR_02(definitie, regel):
         return "✔️ STR-02: definitie start met breder begrip en komt overeen met goed voorbeeld"
     return "✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd"
 
+
 ### ✅ Toetsing voor regel STR-03 (Definitie ≠ synoniem)
 def toets_STR_03(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
@@ -1267,12 +1312,15 @@ def toets_STR_03(definitie, regel):
 
     if not synoniemen_gevonden:
         if uitleg_aanwezig:
-            return "✔️ STR-03: geen synonieme formulering, komt overeen met goed voorbeeld"
+            return (
+                "✔️ STR-03: geen synonieme formulering, komt overeen met goed voorbeeld"
+            )
         return "✔️ STR-03: geen synonieme formulering gevonden"
 
     if foute_aanwezig:
         return f"❌ STR-03: formulering lijkt synoniem ({', '.join(synoniemen_gevonden)}), komt overeen met fout voorbeeld"
     return f"❌ STR-03: formulering lijkt synoniem ({', '.join(synoniemen_gevonden)}), zonder verdere uitleg"
+
 
 ### ✅ Toetsing voor regel STR-04 (Kick-off vervolgen met toespitsing)
 def toets_STR_04(definitie, regel):
@@ -1292,6 +1340,7 @@ def toets_STR_04(definitie, regel):
             return "❌ STR-04: kick-off zonder toespitsing, komt overeen met fout voorbeeld"
         return "❌ STR-04: kick-off herkend, maar geen toespitsing aangetroffen"
     return "✔️ STR-04: geen algemene kick-off zonder toespitsing"
+
 
 ### ✅ Toetsing voor regel STR-05 (Definitie ≠ constructie)
 def toets_STR_05(definitie, regel):
@@ -1315,6 +1364,7 @@ def toets_STR_05(definitie, regel):
         return f"❌ STR-05: formulering lijkt opsomming van onderdelen ({', '.join(constructie_termen)})"
     return f"❌ STR-05: mogelijke constructieformulering ({', '.join(constructie_termen)}), geen goede toelichting gevonden"
 
+
 ### ✅ Toetsing voor regel STR-06 (Essentie ≠ informatiebehoefte)
 def toets_STR_06(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
@@ -1322,8 +1372,12 @@ def toets_STR_06(definitie, regel):
     for patroon in patronen:
         info_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goede = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    goede = any(
+        g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", [])
+    )
+    fout = any(
+        f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", [])
+    )
 
     if not info_termen:
         if goede:
@@ -1334,6 +1388,7 @@ def toets_STR_06(definitie, regel):
         return f"❌ STR-06: formuleringen suggereren informatiebehoefte ({', '.join(info_termen)}), lijkt op fout voorbeeld"
     return f"❌ STR-06: formuleringen suggereren informatiebehoefte ({', '.join(info_termen)}), zonder goede toelichting"
 
+
 ### ✅ Toetsing voor regel STR-07 (Geen dubbele ontkenning)
 def toets_STR_07(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
@@ -1341,7 +1396,9 @@ def toets_STR_07(definitie, regel):
     for patroon in patronen:
         dubbele_ontkenning.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    foute = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    foute = any(
+        f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", [])
+    )
 
     if not dubbele_ontkenning:
         return "✔️ STR-07: geen dubbele ontkenning aangetroffen"
@@ -1350,13 +1407,14 @@ def toets_STR_07(definitie, regel):
         return f"❌ STR-07: dubbele ontkenning herkend ({', '.join(dubbele_ontkenning)}), overeenkomend met fout voorbeeld"
     return f"❌ STR-07: dubbele ontkenning herkend ({', '.join(dubbele_ontkenning)}), controle nodig"
 
+
 ### ✅ Toetsing voor regel STR-08 (Dubbelzinnige 'en' is verboden)
 def toets_STR_08(definitie, regel):
-  
+
     # ── 1) Start met je JSON-patronen en breid uit met strikte regex voor "A, B en C" en "X en Y"
     patronen = list(regel.get("herkenbaar_patronen", [])) + [
-        r"\b\w+,\s*\w+\s+en\s+\w+\b",   # bv. “A, B en C”
-        r"\b\w+\s+en\s+\w+\b",          # bv. “X en Y”
+        r"\b\w+,\s*\w+\s+en\s+\w+\b",  # bv. “A, B en C”
+        r"\b\w+\s+en\s+\w+\b",  # bv. “X en Y”
     ]
 
     # ── 2) Match alle gevonden ‘en’-constructies
@@ -1375,12 +1433,10 @@ def toets_STR_08(definitie, regel):
 
     # ── 4) Controle op goede/foute voorbeelden uit je JSON
     goed = any(
-        vb.lower() in definitie.lower()
-        for vb in regel.get("goede_voorbeelden", [])
+        vb.lower() in definitie.lower() for vb in regel.get("goede_voorbeelden", [])
     )
     fout = any(
-        vb.lower() in definitie.lower()
-        for vb in regel.get("foute_voorbeelden", [])
+        vb.lower() in definitie.lower() for vb in regel.get("foute_voorbeelden", [])
     )
 
     # ── 5) Beslis en retourneer resultaat
@@ -1392,13 +1448,14 @@ def toets_STR_08(definitie, regel):
         return f"❌ STR-08: dubbelzinnige 'en' gevonden ({', '.join(en_vormen)}) en lijkt op fout voorbeeld"
     return f"❌ STR-08: dubbelzinnige 'en' gevonden ({', '.join(en_vormen)}), context verduidelijken"
 
+
 ### ✅ Toetsing voor regel STR-09 (Dubbelzinnige 'of' is verboden)
 def toets_STR_09(definitie, regel):
 
     # ── 1) Combineer JSON-patronen met strikte regex voor "A, B of C" en "X of Y"
     patronen = list(regel.get("herkenbaar_patronen", [])) + [
-        r"\b\w+,\s*\w+\s+of\s+\w+\b",   # bv. “A, B of C”
-        r"\b\w+\s+of\s+\w+\b",          # bv. “X of Y”
+        r"\b\w+,\s*\w+\s+of\s+\w+\b",  # bv. “A, B of C”
+        r"\b\w+\s+of\s+\w+\b",  # bv. “X of Y”
     ]
 
     # ── 2) Verzamel alle gevonden ‘of’-constructies
@@ -1410,18 +1467,16 @@ def toets_STR_09(definitie, regel):
     whitelist = {
         "en/of",
         "met of zonder",
-        "al dan niet",   # voeg hier meer vaste combinaties toe
+        "al dan niet",  # voeg hier meer vaste combinaties toe
     }
     ambigue = {ov for ov in of_vormen if ov.lower() not in whitelist}
 
     # ── 4) Controle op goede/foute voorbeelden uit je JSON
     goed = any(
-        vb.lower() in definitie.lower()
-        for vb in regel.get("goede_voorbeelden", [])
+        vb.lower() in definitie.lower() for vb in regel.get("goede_voorbeelden", [])
     )
     fout = any(
-        vb.lower() in definitie.lower()
-        for vb in regel.get("foute_voorbeelden", [])
+        vb.lower() in definitie.lower() for vb in regel.get("foute_voorbeelden", [])
     )
 
     # ── 5) Beslis en retourneer resultaat
@@ -1433,7 +1488,9 @@ def toets_STR_09(definitie, regel):
         return f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}) en lijkt op fout voorbeeld"
     return f"❌ STR-09: dubbelzinnige 'of' gevonden ({', '.join(ambigue)}), context verduidelijken"
 
+
 ### ✅ Toetsing voor regel VER-01 (Term in enkelvoud)
+
 
 def toets_VER_01(term: str, regel: dict) -> str:
     """
@@ -1446,32 +1503,33 @@ def toets_VER_01(term: str, regel: dict) -> str:
       5. Fallback enkelvoud
     """
 
-    # 1️⃣ Uitzondering: plurale tantum  
-    # ✅ Plurale tantum worden opgehaald via lookup.py  
-    #    Hiermee vangen we woorden zoals “kosten” of “hersenen” op  
+    # 1️⃣ Uitzondering: plurale tantum
+    # ✅ Plurale tantum worden opgehaald via lookup.py
+    #    Hiermee vangen we woorden zoals “kosten” of “hersenen” op
     if is_plurale_tantum(term):
         return "✔️ VER-01: term is plurale tantum (uitzondering)"
 
-    # 2️⃣ Expliciete foute voorbeelden  
-    # ✅ Deze lijst uit toetsregels.json krijgt prioriteit vóór de algemene meervoudscheck  
+    # 2️⃣ Expliciete foute voorbeelden
+    # ✅ Deze lijst uit toetsregels.json krijgt prioriteit vóór de algemene meervoudscheck
     for foute in regel.get("foute_voorbeelden", []):
         if term.lower() == foute.lower():
             return f"❌ VER-01: term '{term}' staat in lijst met foute voorbeelden"
 
-    # 3️⃣ Algemene meervoudscheck  
-    # ✅ Eenvoudige suffix-check (endswith 'en') is performant en voldoende voor de meeste zelfstandige naamwoorden  
+    # 3️⃣ Algemene meervoudscheck
+    # ✅ Eenvoudige suffix-check (endswith 'en') is performant en voldoende voor de meeste zelfstandige naamwoorden
     if term.lower().endswith("en"):
         return f"❌ VER-01: term in meervoud herkend ('{term}')"
 
-    # 4️⃣ Expliciete goede voorbeelden  
-    # ✅ Voor onregelmatige woorden die wel op “en” eindigen maar toch enkelvoudig bedoeld zijn  
+    # 4️⃣ Expliciete goede voorbeelden
+    # ✅ Voor onregelmatige woorden die wel op “en” eindigen maar toch enkelvoudig bedoeld zijn
     for goed in regel.get("goede_voorbeelden", []):
         if term.lower() == goed.lower():
             return "✔️ VER-01: term staat in lijst met goede voorbeelden"
 
-    # 5️⃣ Fallback: enkelvoud  
-    # ✅ Als geen van bovenstaande checks triggeren, is de term correct enkelvoudig  
+    # 5️⃣ Fallback: enkelvoud
+    # ✅ Als geen van bovenstaande checks triggeren, is de term correct enkelvoudig
     return "✔️ VER-01: term is enkelvoudig"
+
 
 ### ✅ Toetsing voor regel VER-02 (Definitie in enkelvoud)
 ### ✅ Toetsing voor regel VER-02 (Definitie in enkelvoud)
@@ -1484,6 +1542,7 @@ def toets_VER_02(definitie: str, regel: dict, term: str) -> str:
       4️⃣ Patronen voor meervoudsconstructies
       5️⃣ Fallback enkelvoud
     """
+
     # 🔧 Helper: normaliseer tekst (lowercase, verwijder alle niet-alfanumerieke karakters)
     def _normalize(text: str) -> str:
         txt = text.lower().strip()
@@ -1514,6 +1573,7 @@ def toets_VER_02(definitie: str, regel: dict, term: str) -> str:
 
     # ✅ 5️⃣ Fallback: definitie is enkelvoudig
     return "✔️ VER-02: definitie is in enkelvoud geformuleerd"
+
 
 ### ✅ Toetsing voor regel VER-03 (Werkwoord-term in infinitief)
 def toets_VER_03(term: str, regel: dict) -> str:
@@ -1575,15 +1635,20 @@ def toets_ARAI01(definitie, regel):
         return f"❌ ARAI01: werkwoord(en) als kern gevonden ({', '.join(werkwoorden_gevonden)}), lijkt op fout voorbeeld"
     return f"❌ ARAI01: werkwoord(en) als kern gevonden ({', '.join(werkwoorden_gevonden)}), geen toelichting herkend"
 
-#✅ toets_ARAI02SUB1 – Lexicale containerbegrippen vermijden
+
+# ✅ toets_ARAI02SUB1 – Lexicale containerbegrippen vermijden
 def toets_ARAI02SUB1(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
     container_termen = set()
     for patroon in patronen:
         container_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    goed = any(
+        g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", [])
+    )
+    fout = any(
+        f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", [])
+    )
 
     if not container_termen:
         if goed:
@@ -1594,15 +1659,20 @@ def toets_ARAI02SUB1(definitie, regel):
         return f"❌ ARAI02SUB1: containerbegrippen gevonden ({', '.join(container_termen)}), zoals in fout voorbeeld"
     return f"❌ ARAI02SUB1: containerbegrippen gevonden ({', '.join(container_termen)}), onvoldoende concreet"
 
-#✅ toets_ARAI02SUB2 – Ambtelijke containerbegrippen vermijden
+
+# ✅ toets_ARAI02SUB2 – Ambtelijke containerbegrippen vermijden
 def toets_ARAI02SUB2(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
     container_termen = set()
     for patroon in patronen:
         container_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    goed = any(
+        g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", [])
+    )
+    fout = any(
+        f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", [])
+    )
 
     if not container_termen:
         if goed:
@@ -1612,6 +1682,8 @@ def toets_ARAI02SUB2(definitie, regel):
     if fout:
         return f"❌ ARAI02SUB2: ambtelijke containerbegrippen gevonden ({', '.join(container_termen)}), zoals in fout voorbeeld"
     return f"❌ ARAI02SUB2: containerbegrippen gevonden ({', '.join(container_termen)}), onvoldoende specifiek"
+
+
 # ✅ Toetsing voor regel ARAI02 (Vermijd vage containerbegrippen)
 # Deze regel controleert of er vage containerbegrippen in de definitie staan zonder nadere specificatie.
 # ➤ Containerwoorden als ‘proces’, ‘systeem’ of ‘aspect’ moeten gevolgd worden door concrete toelichting.
@@ -1635,6 +1707,7 @@ def toets_ARAI02(definitie, regel):
     if fout_aanwezig:
         return f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), lijkt op fout voorbeeld"
     return f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), onvoldoende concreet"
+
 
 # ✅ Toetsing voor regel ARAI03 (Beperk subjectieve bijvoeglijke naamwoorden)
 # Deze regel spoort subjectieve of contextgevoelige bijvoeglijke naamwoorden op die de objectiviteit verminderen.
@@ -1660,6 +1733,7 @@ def toets_ARAI03(definitie, regel):
         return f"❌ ARAI03: subjectieve bijvoeglijke naamwoorden gevonden ({', '.join(bijvoeglijk)}), lijkt op fout voorbeeld"
     return f"❌ ARAI03: subjectieve bijvoeglijke naamwoorden gevonden ({', '.join(bijvoeglijk)}), onvoldoende objectief"
 
+
 # ✅ Toetsing voor regel ARAI04 (Vermijd modale hulpwerkwoorden)
 # Deze regel controleert of modale werkwoorden worden gebruikt zoals 'kan', 'moet', 'zou'.
 # ➤ Modale hulpwerkwoorden maken de definitie vaag en afhankelijk van context of intentie.
@@ -1677,22 +1751,29 @@ def toets_ARAI04(definitie, regel):
 
     if not modalen:
         if goed_aanwezig:
-            return "✔️ ARAI04: geen modale hulpwerkwoorden, komt overeen met goed voorbeeld"
+            return (
+                "✔️ ARAI04: geen modale hulpwerkwoorden, komt overeen met goed voorbeeld"
+            )
         return "✔️ ARAI04: geen modale hulpwerkwoorden aangetroffen"
 
     if fout_aanwezig:
         return f"❌ ARAI04: modale hulpwerkwoorden gevonden ({', '.join(modalen)}), lijkt op fout voorbeeld"
     return f"❌ ARAI04: modale hulpwerkwoorden gevonden ({', '.join(modalen)}), niet geschikt voor heldere definitie"
 
-#✅ toets_ARAI04SUB1 – Beperk gebruik van modale werkwoorden
+
+# ✅ toets_ARAI04SUB1 – Beperk gebruik van modale werkwoorden
 def toets_ARAI04SUB1(definitie, regel):
     patronen = regel.get("herkenbaar_patronen", [])
     modale_termen = set()
     for patroon in patronen:
         modale_termen.update(re.findall(patroon, definitie, re.IGNORECASE))
 
-    goed = any(g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", []))
-    fout = any(f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", []))
+    goed = any(
+        g.lower() in definitie.lower() for g in regel.get("goede_voorbeelden", [])
+    )
+    fout = any(
+        f.lower() in definitie.lower() for f in regel.get("foute_voorbeelden", [])
+    )
 
     if not modale_termen:
         if goed:
@@ -1737,7 +1818,6 @@ def toets_ARAI05(definitie, regel):
 # ➤ Dit voorkomt cirkeldefinities, formele slordigheid en contextloze fragmenten.
 
 
-
 def toets_ARAI06(definitie: str, begrip: str) -> dict[str, str]:
     """
     Toets of de definitie NIET begint met verboden constructies:
@@ -1766,32 +1846,29 @@ def toets_ARAI06(definitie: str, begrip: str) -> dict[str, str]:
         if re.match(patroon, definitie_lower, flags=re.IGNORECASE):
             return {
                 "resultaat": False,
-                "reden": f"Begint met verboden constructie: {patroon}"
+                "reden": f"Begint met verboden constructie: {patroon}",
             }
 
     # 6) Geen match → OK
-    return {
-        "resultaat": True,
-        "reden": "✅ Geen opbouwfouten."
-    }
+    return {"resultaat": True, "reden": "✅ Geen opbouwfouten."}
+
 
 # ✅ Hoofdfunctie: toetsing op alle regels met optionele extra context
 # Deze functie doorloopt alle toetsregels en roept voor elke regel de centrale dispatcher aan.
 # ➤ Nieuw: met logging wrapper (optioneel aan/uit te zetten via gebruik_logging=True)
 
-def toets_definitie(
-        definitie, 
-        regels, 
-        marker: Optional[str] = None,      # ← nieuw
-        begrip=None, 
-        voorkeursterm: Optional[str] = None,      # ← nieuw
-        bronnen_gebruikt=None, 
-        contexten=None, 
-        gebruik_logging=False, 
-                repository: Optional[Dict[str, str]] = None,
-) -> List[str]:
-    
 
+def toets_definitie(
+    definitie,
+    regels,
+    marker: Optional[str] = None,  # ← nieuw
+    begrip=None,
+    voorkeursterm: Optional[str] = None,  # ← nieuw
+    bronnen_gebruikt=None,
+    contexten=None,
+    gebruik_logging=False,
+    repository: Optional[Dict[str, str]] = None,
+) -> List[str]:
     """
     Voert alle toetsregels uit op de opgegeven definitie.
 
@@ -1810,14 +1887,14 @@ def toets_definitie(
     resultaten = []
     for regel_id, regel_data in regels.items():
         resultaat = toets_op_basis_van_regel(
-            definitie        = definitie,
-            regel_id         = regel_id,
-            regel            = regel_data,
-            begrip           = begrip,
-            voorkeursterm    = voorkeursterm,   # ← nieuw
-            bronnen_gebruikt = bronnen_gebruikt,
-            contexten        = contexten,
-            repository       = repository    # ← propageren
+            definitie=definitie,
+            regel_id=regel_id,
+            regel=regel_data,
+            begrip=begrip,
+            voorkeursterm=voorkeursterm,  # ← nieuw
+            bronnen_gebruikt=bronnen_gebruikt,
+            contexten=contexten,
+            repository=repository,  # ← propageren
         )
         resultaten.append(resultaat)
 
@@ -1830,13 +1907,16 @@ def toets_definitie(
                 for patroon in patronen:
                     gevonden.update(re.findall(patroon, definitie, flags=re.IGNORECASE))
                 if gevonden:
-                    print(f"[LOG] → Triggerende patronen: {', '.join(sorted(gevonden))}")
+                    print(
+                        f"[LOG] → Triggerende patronen: {', '.join(sorted(gevonden))}"
+                    )
                 else:
                     print("[LOG] → Geen patronen getriggerd.")
             else:
                 print("[LOG] → Geen herkenbare patronen gedefinieerd.")
 
     return resultaten
+
 
 # ✅ Dispatcher: koppelt regel-ID's aan bijbehorende toetsfuncties
 DISPATCHER = {
@@ -1904,20 +1984,21 @@ DISPATCHER = {
 # ➤ Alle fouten worden afgevangen zodat de app niet crasht bij ontbrekende of foutieve aanroepen.
 # ➤ Als er geen toetsfunctie bekend is voor een regel-ID, wordt een waarschuwingsbericht getoond.
 
+
 def toets_op_basis_van_regel(
-        definitie, 
-        regel_id, 
-        regel, 
-        begrip=None, 
-        voorkeursterm: Optional[str] = None, 
-        bronnen_gebruikt=None, 
-        contexten=None,
-        repository: Optional[Dict[str, str]] = None,  # ← nieuw
-        definitie_gecorrigeerd: Optional[str] = None  # 💚 Nieuwe inputparameter
-    )    -> str: 
+    definitie,
+    regel_id,
+    regel,
+    begrip=None,
+    voorkeursterm: Optional[str] = None,
+    bronnen_gebruikt=None,
+    contexten=None,
+    repository: Optional[Dict[str, str]] = None,  # ← nieuw
+    definitie_gecorrigeerd: Optional[str] = None,  # 💚 Nieuwe inputparameter
+) -> str:
 
     # ✅ Overschrijf centraal de ruwe definitie met opgeschoonde versie indien beschikbaar
-    definitie = definitie_gecorrigeerd if definitie_gecorrigeerd else definitie   
+    definitie = definitie_gecorrigeerd if definitie_gecorrigeerd else definitie
     """
     Routeert de definitie en metadata naar de juiste toetsfunctie op basis van het regel-ID.
     Ondersteunt extra argumenten zoals begrip (voor cirkeldefinities), bronnen (voor bronvermelding),
@@ -1925,45 +2006,50 @@ def toets_op_basis_van_regel(
     
     HYBRID APPROACH: Probeert eerst nieuwe modulaire validators, valt terug op legacy.
     """
-    
+
     # 🆕 HYBRID: Probeer eerst nieuwe modulaire systeem
     try:
         from config.toetsregels.modular_loader import get_modular_loader
+
         loader = get_modular_loader()
-        
+
         # Check of regel bestaat in nieuwe systeem
         available_rules = loader.get_available_regels()
         if regel_id in available_rules:
             # Gebruik nieuwe validator
             context = {
-                'regel_data': regel,
-                'voorkeursterm': voorkeursterm,
-                'bronnen_gebruikt': bronnen_gebruikt,
-                'contexten': contexten,
-                'repository': repository,
-                'definitie_gecorrigeerd': definitie_gecorrigeerd
+                "regel_data": regel,
+                "voorkeursterm": voorkeursterm,
+                "bronnen_gebruikt": bronnen_gebruikt,
+                "contexten": contexten,
+                "repository": repository,
+                "definitie_gecorrigeerd": definitie_gecorrigeerd,
             }
-            
+
             succes, melding, score = loader.validate_with_regel(
                 regel_id=regel_id,
                 definitie=definitie,
                 begrip=begrip or "",
-                context=context
+                context=context,
             )
-            
+
             # Log voor debugging
             import logging
+
             logger = logging.getLogger(__name__)
             logger.debug(f"Gebruikte nieuwe validator voor {regel_id}: score={score}")
-            
+
             return melding
-            
+
     except Exception as e:
         # Log maar ga door naar legacy
         import logging
+
         logger = logging.getLogger(__name__)
-        logger.warning(f"Nieuwe validator voor {regel_id} faalde: {e}, val terug op legacy")
-    
+        logger.warning(
+            f"Nieuwe validator voor {regel_id} faalde: {e}, val terug op legacy"
+        )
+
     # LEGACY: Originele dispatcher logica
     functie = DISPATCHER.get(regel_id)
     if not functie:
@@ -1974,20 +2060,15 @@ def toets_op_basis_van_regel(
     regels_met_context = {"CON-01"}
 
     try:
-         # ➊ voor SAM-05 geven we repository expliciet door
+        # ➊ voor SAM-05 geven we repository expliciet door
         if regel_id == "SAM-05":
             return functie(
-                definitie = definitie,
-                regel      = regel,
-                begrip     = begrip,
-                repository = repository
+                definitie=definitie, regel=regel, begrip=begrip, repository=repository
             )
         # ➋ overige regels die enkel een begrip nodig hebben
         elif regel_id == "SAM-06":
             return functie(
-                definitie      = definitie,
-                regel           = regel,
-                voorkeursterm = voorkeursterm 
+                definitie=definitie, regel=regel, voorkeursterm=voorkeursterm
             )
         elif regel_id in regels_met_begrip:
             return functie(definitie, regel, begrip=begrip)
@@ -1999,7 +2080,8 @@ def toets_op_basis_van_regel(
             return functie(definitie, regel)
     except Exception as e:
         return f"⚠️ {regel_id}: fout bij uitvoeren toetsfunctie – {e}"
-        
+
+
 # ✅ Voorbeeldgebruik
 if __name__ == "__main__":
     # 1️⃣ Laad alle officiële definities uit je JSON
@@ -2009,18 +2091,18 @@ if __name__ == "__main__":
     regels = laad_toetsregels()
 
     # 3️⃣ Test via de centrale toets_definitie (incl. repo voor SAM-05)
-    test_begrip    = "Object"
+    test_begrip = "Object"
     test_definitie = repository[test_begrip.lower()]
 
     uitslagen = toets_definitie(
-        definitie       = test_definitie,
-        regels          = regels,
-        begrip          = test_begrip,
-        voorkeursterm   = test_begrip,      # ← nu meegegeven
-        bronnen_gebruikt= None,
-        contexten       = None,
-        gebruik_logging = False,
-        repository      = repository     # ← nieuw argument
+        definitie=test_definitie,
+        regels=regels,
+        begrip=test_begrip,
+        voorkeursterm=test_begrip,  # ← nu meegegeven
+        bronnen_gebruikt=None,
+        contexten=None,
+        gebruik_logging=False,
+        repository=repository,  # ← nieuw argument
     )
     for regel_uitkomst in uitslagen:
         print(regel_uitkomst)
