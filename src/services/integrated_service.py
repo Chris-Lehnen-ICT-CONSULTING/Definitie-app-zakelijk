@@ -10,17 +10,17 @@ Biedt centrale toegang tot alle definitie generatie en validatie functionaliteit
 """
 
 import logging  # Logging faciliteiten voor debug en monitoring
-from typing import Dict, List, Any, Optional  # Type hints voor betere code documentatie
 from dataclasses import dataclass, field  # Dataklassen voor gestructureerde data
 from enum import Enum  # Enumeraties voor constante waarden
+from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
 
 # Import the new unified service
 from services.unified_definition_service import (
-    UnifiedDefinitionService,
-    UnifiedServiceConfig,
-    ProcessingMode,
     ArchitectureMode,
+    ProcessingMode,
+    UnifiedDefinitionService,
     UnifiedResult,
+    UnifiedServiceConfig,
 )
 
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module

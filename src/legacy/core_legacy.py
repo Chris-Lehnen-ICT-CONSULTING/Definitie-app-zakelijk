@@ -1,30 +1,30 @@
 import os  # Operating system interface voor environment variabelen
 import re  # Reguliere expressies voor patroon matching en validatie
-from typing import Dict, Any, List, Optional  # Type hints voor betere code documentatie
+from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+
+from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
+from openai import OpenAI  # OpenAI API client voor AI communicatie
+
+# --- ⚙️ Config-loaders en verboden-woordenbeheer ---
+# ✅ Centrale JSON-loaders voor configuratie management
+from config.config_loader import load_repository  # Repository loader functie
+from config.config_loader import (  # Laadt toetsregels uit JSON configuratie
+    laad_toetsregels,
+)
+
+# ✅ Opschoning van GPT-definitie (externe module)
+from config.verboden_woorden import (  # Verboden woorden management
+    genereer_verboden_startregex,
+    laad_verboden_woorden,
+)
 from web_lookup import is_plurale_tantum  # Importeer plurale tantum detectie functie
 
 # --- 🔪 Externe bibliotheken (via pip) ---
 # 📌 Streamlit pagina-configuratie
 # st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
-from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
-
-from openai import OpenAI  # OpenAI API client voor AI communicatie
 
 # --- 🔄 Eigen modules (projectspecifiek) ---
-
-# --- ⚙️ Config-loaders en verboden-woordenbeheer ---
-# ✅ Centrale JSON-loaders voor configuratie management
-from config.config_loader import (
-    laad_toetsregels,
-)  # Laadt toetsregels uit JSON configuratie
-from config.config_loader import load_repository  # Repository loader functie
-
-# ✅ Opschoning van GPT-definitie (externe module)
-from config.verboden_woorden import (
-    laad_verboden_woorden,
-    genereer_verboden_startregex,
-)  # Verboden woorden management
 
 
 # 🌱 Initialiseer OpenAI-client configuratie

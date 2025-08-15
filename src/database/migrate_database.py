@@ -5,8 +5,8 @@ Dit script voegt de ontbrekende legacy velden toe aan de database
 voor backward compatibility met de UI.
 """
 
-import sqlite3
 import logging
+import sqlite3
 from pathlib import Path
 from typing import List, Tuple
 

@@ -6,38 +6,28 @@ voor elegante foutafhandeling in de hele applicatie.
 """
 
 import logging
-from typing import Any
 from functools import wraps
+from typing import Any
 
 
 class DefinitieAgentError(Exception):
     """Base exception for DefinitieAgent application."""
 
-    pass
-
 
 class APIError(DefinitieAgentError):
     """Exception for API-related errors (OpenAI, web lookups)."""
-
-    pass
 
 
 class ValidationError(DefinitieAgentError):
     """Exception for validation and quality testing errors."""
 
-    pass
-
 
 class ConfigurationError(DefinitieAgentError):
     """Exception for configuration loading errors."""
 
-    pass
-
 
 class ExportError(DefinitieAgentError):
     """Exception for export functionality errors."""
-
-    pass
 
 
 def handle_api_error(func):

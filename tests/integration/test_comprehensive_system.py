@@ -17,6 +17,10 @@ from config.config_manager import (
 from utils.cache import cached, clear_cache, get_cache_stats
 from ai_toetser.modular_toetser import ModularToetser
 from config.config_loader import laad_toetsregels
+from config.config_adapters import (
+    get_api_config, get_cache_config, get_paths_config,
+    get_default_model, get_default_temperature
+)
 
 
 class TestConfigurationSystem:
@@ -319,7 +323,7 @@ class TestSystemIntegration:
         try:
             result = toetser.validate_definition(None, toetsregels)
             assert result is not None  # Should handle gracefully
-        except:
+        except Exception:
             pass  # Expected to fail gracefully
         
         # Test empty input

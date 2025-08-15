@@ -2,17 +2,19 @@
 
 import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor environment variabelen
-from dataclasses import (
+from dataclasses import (  # Dataklassen voor gestructureerde prompt configuratie
     dataclass,
     field,
-)  # Dataklassen voor gestructureerde prompt configuratie
-from typing import Optional, List, Dict, Set  # Type hints voor betere code documentatie
+)
+from typing import Dict, List, Optional, Set  # Type hints voor betere code documentatie
+
 from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
 from openai import OpenAI, OpenAIError  # OpenAI API client en foutafhandeling
-from config.verboden_woorden import (
-    laad_verboden_woorden,
-)  # Verboden woorden configuratie
+
 from config import laad_toetsregels  # Toetsregels configuratie loader
+from config.verboden_woorden import (  # Verboden woorden configuratie
+    laad_verboden_woorden,
+)
 
 # ✅ Initialiseer OpenAI-client slechts één keer voor hergebruik
 load_dotenv()  # Laad environment variabelen uit .env bestand
@@ -225,13 +227,13 @@ Gebruik formuleringen zoals:
 
         # ✅ Verwerk web_uitleg als lijst van dicts of fallback naar string
         if isinstance(self.configuratie.web_uitleg, list):
-            uitleg = "\n\n".join(
+            "\n\n".join(
                 f"[{blok['bron']}] {blok['definitie']}"
                 for blok in self.configuratie.web_uitleg
                 if isinstance(blok, dict) and blok.get("status") == "ok"
             ).strip()
         else:
-            uitleg = str(self.configuratie.web_uitleg).strip()
+            str(self.configuratie.web_uitleg).strip()
 
         # ✅ Veelgemaakte fouten
         fouten = [
@@ -311,7 +313,7 @@ def stuur_prompt_naar_gpt(
     ✅ Deze aanpassing zorgt ervoor dat de GPT-output bij gelijke input zo identiek mogelijk blijft.
     ✅ Now includes intelligent caching to avoid redundant API calls.
     """
-    from utils.cache import cached, cache_gpt_call
+    from utils.cache import cache_gpt_call, cached
 
     # Generate cache key for this specific call
     cache_key = cache_gpt_call(

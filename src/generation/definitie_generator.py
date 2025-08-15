@@ -7,20 +7,20 @@ inclusief context verwerking en hybride bron integratie.
 """
 
 import logging  # Logging faciliteiten voor debug en monitoring
-from typing import Dict, List, Any, Optional  # Type hints voor betere code documentatie
 from dataclasses import dataclass  # Dataklassen voor gestructureerde generatie data
 from enum import Enum  # Enumeraties voor categorieën
+from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+
+from config.config_adapters import get_api_config  # API configuratie toegang
+from opschoning.opschoning import opschonen  # Definitie opschoning functie
 
 # Importeer configuratie componenten
 from toetsregels.manager import get_toetsregel_manager  # Toetsregel beheer
-from config.config_adapters import get_api_config  # API configuratie toegang
-from opschoning.opschoning import opschonen  # Definitie opschoning functie
 
 # Hybride context imports
 try:
     from hybrid_context.hybrid_context_engine import (
         get_hybrid_context_engine,
-        HybridContext,
     )
 
     HYBRID_CONTEXT_AVAILABLE = True
@@ -430,6 +430,7 @@ class DefinitieGenerator:
 
         # Import OpenAI client
         import os
+
         from openai import OpenAI, OpenAIError
 
         try:

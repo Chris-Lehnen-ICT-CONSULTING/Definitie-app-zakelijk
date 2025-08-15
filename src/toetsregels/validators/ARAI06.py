@@ -5,12 +5,12 @@ Deze regel controleert dat de definitie correct start zonder verboden constructi
 Gemigreerd van legacy core.py
 """
 
-import re
-from typing import Dict, List, Tuple, Optional
 import logging
+import re
+from typing import Dict, List, Optional, Tuple
 
 # Import van verboden woorden functionaliteit
-from config.verboden_woorden import laad_verboden_woorden, genereer_verboden_startregex
+from config.verboden_woorden import genereer_verboden_startregex, laad_verboden_woorden
 
 logger = logging.getLogger(__name__)
 

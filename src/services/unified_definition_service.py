@@ -8,24 +8,25 @@ interface, met ondersteuning voor zowel legacy als moderne architectuur componen
 import asyncio
 import logging
 import time
-from typing import Dict, List, Any, Optional, Tuple, Union, Callable
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
-# Utils en error handling imports
-from utils.exceptions import handle_api_error
+from ai_toetser import toets_definitie
+from opschoning.opschoning import opschonen
+
+# Core functionaliteit imports
+from prompt_builder.prompt_builder import (
+    PromptBouwer,
+    PromptConfiguratie,
+    stuur_prompt_naar_gpt,
+)
 
 # UI Session State Management
 from ui.session_state import SessionStateManager
 
-# Core functionaliteit imports
-from prompt_builder.prompt_builder import (
-    stuur_prompt_naar_gpt,
-    PromptBouwer,
-    PromptConfiguratie,
-)
-from ai_toetser import toets_definitie
-from opschoning.opschoning import opschonen
+# Utils en error handling imports
+from utils.exceptions import handle_api_error
 
 # Unified voorbeelden module - recent geconsolideerd
 from voorbeelden.unified_voorbeelden import (
@@ -36,22 +37,7 @@ from voorbeelden.unified_voorbeelden import (
 
 # Moderne architectuur imports (optioneel)
 try:
-    from generation.definitie_generator import (
-        DefinitieGenerator,
-        GenerationContext,
-        OntologischeCategorie,
-    )
-    from validation.definitie_validator import (
-        DefinitieValidator,
-        validate_definitie,
-        ValidationResult,
-    )
-    from database.definitie_repository import (
-        DefinitieRepository,
-        DefinitieRecord,
-        DefinitieStatus,
-    )
-    from integration.definitie_checker import DefinitieChecker
+    pass
 
     MODERN_ARCHITECTURE_AVAILABLE = True
 except ImportError:
@@ -65,9 +51,7 @@ except ImportError:
 try:
     from web_lookup.bron_lookup import (
         zoek_bronnen_voor_begrip,
-        valideer_definitie_bronnen,
     )
-    from web_lookup.definitie_lookup import zoek_definitie, detecteer_duplicaten
 
     WEB_LOOKUP_AVAILABLE = True
 except (ImportError, UnicodeDecodeError):
@@ -75,15 +59,16 @@ except (ImportError, UnicodeDecodeError):
 
 # Monitoring imports (optioneel)
 try:
-    from monitoring.api_monitor import record_api_call
+    pass
 
     MONITORING_AVAILABLE = True
 except ImportError:
     MONITORING_AVAILABLE = False
 
+import os
+
 # Logging setup
 import sys
-import os
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
 from logs.application.log_definitie import log_definitie

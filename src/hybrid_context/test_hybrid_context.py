@@ -3,16 +3,16 @@ Test script voor hybrid context functionaliteit.
 """
 
 import logging
-import sys
 import os
+import sys
 
 # Add src to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
+from document_processing.document_processor import get_document_processor
+from hybrid_context.context_fusion import ContextFusion
 from hybrid_context.hybrid_context_engine import get_hybrid_context_engine
 from hybrid_context.smart_source_selector import SmartSourceSelector
-from hybrid_context.context_fusion import ContextFusion
-from document_processing.document_processor import get_document_processor
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

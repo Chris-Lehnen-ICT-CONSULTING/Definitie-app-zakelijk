@@ -3,16 +3,16 @@ Definitie Lookup Module - Zoekt bestaande definities in verschillende bronnen.
 Ondersteunt zoeken in interne database, externe bronnen en web repositories.
 """
 
-import re  # Reguliere expressies voor patroon matching
-import logging  # Logging faciliteiten voor debug en monitoring
 import asyncio  # Asynchrone programmering voor parallelle web lookups
-from typing import Dict, List, Any, Optional, Set  # Type hints voor code documentatie
-from dataclasses import (
+import logging  # Logging faciliteiten voor debug en monitoring
+import re  # Reguliere expressies voor patroon matching
+from dataclasses import (  # Dataklassen voor gestructureerde definitie data
     dataclass,
     field,
-)  # Dataklassen voor gestructureerde definitie data
-from enum import Enum  # Enumeraties voor status en context types
+)
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeraties voor status en context types
+from typing import Any, Dict, List, Optional, Set  # Type hints voor code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor web lookup module
 

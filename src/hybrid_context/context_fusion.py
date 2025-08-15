@@ -4,9 +4,9 @@ Resolveert conflicten en creëert coherente context voor definitie generatie.
 """
 
 import logging
-from typing import Dict, List, Optional, Any
-from dataclasses import dataclass
 import re
+from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -194,7 +194,7 @@ class ContextFusion:
         total_length = document_context.get("total_text_length", 0)
         keyword_count = len(document_context.get("aggregated_keywords", []))
         concept_count = len(document_context.get("aggregated_concepts", []))
-        legal_ref_count = len(document_context.get("aggregated_legal_refs", []))
+        len(document_context.get("aggregated_legal_refs", []))
 
         if (
             doc_count >= 2

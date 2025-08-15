@@ -5,11 +5,12 @@ Dit module biedt de integratie tussen de nieuwe services en de legacy code,
 met feature flags voor geleidelijke migratie.
 """
 
-import streamlit as st
-from typing import Union, Optional, TYPE_CHECKING
 import logging
+from typing import TYPE_CHECKING, Optional, Union
 
-from services.container import ServiceContainer, get_container, ContainerConfigs
+import streamlit as st
+
+from services.container import ContainerConfigs, ServiceContainer, get_container
 
 if TYPE_CHECKING:
     from services.unified_definition_service_v2 import UnifiedDefinitionService
@@ -41,7 +42,7 @@ def get_definition_service(
     if not use_new_services and not os.getenv("USE_NEW_SERVICES"):
         try:
             use_new_services = st.session_state.get("use_new_services", True)
-        except:
+        except (ImportError, AttributeError):
             # Buiten Streamlit context, gebruik default
             use_new_services = True
 

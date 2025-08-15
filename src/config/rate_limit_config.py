@@ -7,6 +7,7 @@ en het voorkomen van API rate limit errors.
 
 from dataclasses import dataclass
 from typing import Dict, Optional
+
 from utils.smart_rate_limiter import RateLimitConfig, RequestPriority
 
 

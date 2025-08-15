@@ -16,16 +16,19 @@
 # ─────────────────────────────────────────────────────────────────────────────
 # web_lookup.py
 
+import json
+
 # ────────────────────────────────────────────────────────────────────────
 # Bibliotheken voor HTTP-verzoeken, HTML-parsing en XML-verwerking
 # ────────────────────────────────────────────────────────────────────────
 import os
-import json
-import requests
-from typing import Optional
-from bs4 import BeautifulSoup
-from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
 import xml.etree.ElementTree as ET
+from typing import Optional
+
+import requests
+from bs4 import BeautifulSoup
+
+from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
 
 
 # ────────────────────────────────────────────────────────────────────────

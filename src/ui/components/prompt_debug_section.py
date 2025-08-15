@@ -5,9 +5,10 @@ Dit component toont de exacte prompts die naar GPT zijn gestuurd
 voor analyse en debugging doeleinden.
 """
 
-import streamlit as st
-from typing import Dict, Any, Optional, List
 import logging
+from typing import Any, Dict, List, Optional
+
+import streamlit as st
 
 logger = logging.getLogger(__name__)
 
@@ -121,12 +122,10 @@ class PromptDebugSection:
 
             col1, col2 = st.columns(2)
             with col1:
-                test_model = st.selectbox(
-                    "Model", ["gpt-4", "gpt-3.5-turbo"], key="test_model"
-                )
+                st.selectbox("Model", ["gpt-4", "gpt-3.5-turbo"], key="test_model")
 
             with col2:
-                test_temp = st.slider(
+                st.slider(
                     "Temperature",
                     min_value=0.0,
                     max_value=2.0,
@@ -157,9 +156,9 @@ def capture_voorbeelden_prompts(
         Dictionary met prompts per voorbeeld type
     """
     from voorbeelden.unified_voorbeelden import (
-        UnifiedExamplesGenerator,
         ExampleRequest,
         ExampleType,
+        UnifiedExamplesGenerator,
     )
 
     generator = UnifiedExamplesGenerator()

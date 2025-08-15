@@ -2,12 +2,13 @@
 Monitoring Tab - Interface voor API monitoring en performance tracking.
 """
 
-import streamlit as st
 import asyncio
-import pandas as pd
 from datetime import datetime, timedelta
-import plotly.graph_objects as go
+
+import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
+import streamlit as st
 
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
@@ -30,12 +31,12 @@ class MonitoringTab:
             sys.path.append(str(Path(__file__).parents[2] / "monitoring"))
 
             from api_monitor import (
+                AlertSeverity,
+                CostCalculator,
+                MetricsCollector,
+                MetricType,
                 get_metrics_collector,
                 record_api_call,
-                MetricsCollector,
-                CostCalculator,
-                AlertSeverity,
-                MetricType,
             )
 
             # Store classes for use
@@ -119,7 +120,6 @@ class MonitoringTab:
 
             with col2:
                 success_rate = metrics["success_rate"] * 100
-                color = "normal" if success_rate > 95 else "inverse"
                 st.metric(
                     "✅ Success Rate",
                     f"{success_rate:.1f}%",
@@ -136,7 +136,6 @@ class MonitoringTab:
 
             with col4:
                 avg_time = metrics["avg_response_time"]
-                color = "normal" if avg_time < 5 else "inverse"
                 st.metric(
                     "⏱️ Avg Response Time",
                     f"{avg_time:.2f}s",
@@ -265,7 +264,7 @@ class MonitoringTab:
 
         with col2:
             if time_range == "Aangepast":
-                start_time = st.datetime_input(
+                st.datetime_input(
                     "Start tijd",
                     value=datetime.now() - timedelta(hours=1),
                     key="metrics_start_time",
@@ -273,7 +272,7 @@ class MonitoringTab:
 
         with col3:
             if time_range == "Aangepast":
-                end_time = st.datetime_input(
+                st.datetime_input(
                     "End tijd", value=datetime.now(), key="metrics_end_time"
                 )
 
@@ -607,20 +606,16 @@ class MonitoringTab:
                     [m.value for m in self.MetricType],
                     key="new_metric_type",
                 )
-                new_threshold = st.number_input(
-                    "Threshold Value", value=1.0, key="new_threshold"
-                )
+                st.number_input("Threshold Value", value=1.0, key="new_threshold")
 
             with col2:
-                new_comparison = st.selectbox(
-                    "Comparison", ["gt", "lt", "eq"], key="new_comparison"
-                )
-                new_severity = st.selectbox(
+                st.selectbox("Comparison", ["gt", "lt", "eq"], key="new_comparison")
+                st.selectbox(
                     "Severity",
                     [s.value for s in self.AlertSeverity],
                     key="new_severity",
                 )
-                new_window = st.number_input(
+                st.number_input(
                     "Window (minutes)",
                     min_value=1,
                     max_value=120,

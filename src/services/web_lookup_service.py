@@ -11,18 +11,18 @@ Deze service consolideerd alle web lookup functionaliteit met:
 
 import asyncio
 import logging
-from typing import List, Dict, Any, Optional
 from datetime import datetime, timedelta
+from typing import Any, Dict, List, Optional
 
+from config.config_manager import get_config_manager
 from services.interfaces import (
-    WebLookupServiceInterface,
+    JuridicalReference,
     LookupRequest,
     LookupResult,
+    WebLookupServiceInterface,
     WebSource,
-    JuridicalReference,
 )
 from utils.cache import cache_async_result
-from config.config_manager import get_config_manager
 
 # Import legacy modules voor hergebruik - met error handling
 try:

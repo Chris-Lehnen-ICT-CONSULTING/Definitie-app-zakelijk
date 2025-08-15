@@ -4,18 +4,18 @@ Provides circuit breaker patterns, adaptive retry strategies, and intelligent er
 """
 
 import asyncio
+import json
 import logging
 import random
 import time
-from typing import Dict, List, Optional, Callable, Any
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
-import json
 from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional
 
-from openai import RateLimitError, APIError, APIConnectionError
+from openai import APIConnectionError, APIError, RateLimitError
 
 logger = logging.getLogger(__name__)
 

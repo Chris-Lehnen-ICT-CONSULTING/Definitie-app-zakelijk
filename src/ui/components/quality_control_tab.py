@@ -2,15 +2,16 @@
 Quality Control Tab - Interface voor kwaliteitscontrole en toetsregels analyse.
 """
 
-import streamlit as st  # Streamlit web interface framework
 from datetime import datetime  # Datum en tijd functionaliteit
 
-from database.definitie_repository import (
+import streamlit as st  # Streamlit web interface framework
+
+from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
-)  # Database toegang voor definities
-from ui.session_state import (
+)
+from ui.session_state import (  # Sessie status management voor Streamlit
     SessionStateManager,
-)  # Sessie status management voor Streamlit
+)
 
 
 class QualityControlTab:
@@ -58,15 +59,15 @@ class QualityControlTab:
                     sys.path.append(str(Path(__file__).parents[2] / "analysis"))
 
                     from toetsregels_usage_analysis import (
-                        analyze_rule_usage,
                         analyze_critical_rules,
+                        analyze_rule_usage,
                     )
 
                     # Store results in session
                     with st.expander("📋 Analyse Resultaten", expanded=True):
                         # Create text capture for analysis output
-                        import io
                         import contextlib
+                        import io
 
                         # Capture print output
                         captured_output = io.StringIO()
@@ -172,8 +173,8 @@ class QualityControlTab:
                         core_path = Path(__file__).parents[2] / "ai_toetser" / "core.py"
 
                         # Capture validation output
-                        import io
                         import contextlib
+                        import io
 
                         captured_output = io.StringIO()
                         with contextlib.redirect_stdout(captured_output):
@@ -205,10 +206,10 @@ class QualityControlTab:
 
                         sys.path.append(str(Path(__file__).parents[2] / "analysis"))
 
-                        from toetsregels_usage_analysis import analyze_critical_rules
-
-                        import io
                         import contextlib
+                        import io
+
+                        from toetsregels_usage_analysis import analyze_critical_rules
 
                         captured_output = io.StringIO()
                         with contextlib.redirect_stdout(captured_output):
@@ -231,10 +232,10 @@ class QualityControlTab:
 
                         sys.path.append(str(Path(__file__).parents[2] / "analysis"))
 
-                        from toetsregels_usage_analysis import detailed_rule_analysis
-
-                        import io
                         import contextlib
+                        import io
+
+                        from toetsregels_usage_analysis import detailed_rule_analysis
 
                         captured_output = io.StringIO()
                         with contextlib.redirect_stdout(captured_output):

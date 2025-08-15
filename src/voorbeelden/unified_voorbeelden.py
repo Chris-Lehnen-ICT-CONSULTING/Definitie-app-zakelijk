@@ -7,23 +7,24 @@ in één uniform interface voor alle typen voorbeelden.
 
 import asyncio  # Asynchrone programmering voor parallelle voorbeeld generatie
 import logging  # Logging faciliteiten voor debug en monitoring
-from typing import List, Optional, Dict, Any  # Type hints voor betere code documentatie
-from dataclasses import (
-    dataclass,
-)  # Dataklassen voor gestructureerde request/response data
-from enum import Enum  # Enumeraties voor voorbeeld types en modi
 import re  # Reguliere expressies voor tekst processing
+from dataclasses import (  # Dataklassen voor gestructureerde request/response data
+    dataclass,
+)
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeraties voor voorbeeld types en modi
+from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+
+from prompt_builder.prompt_builder import stuur_prompt_naar_gpt  # GPT prompt interface
+from utils.cache import cached  # Caching decorator voor performance optimalisatie
 
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
-from utils.integrated_resilience import (
+from utils.integrated_resilience import (  # Volledig resilience systeem
     with_full_resilience,
-)  # Volledig resilience systeem
-from utils.smart_rate_limiter import (
+)
+from utils.smart_rate_limiter import (  # Smart rate limiting voor API calls
     RequestPriority,
-)  # Smart rate limiting voor API calls
-from utils.cache import cached  # Caching decorator voor performance optimalisatie
-from prompt_builder.prompt_builder import stuur_prompt_naar_gpt  # GPT prompt interface
+)
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
 
@@ -85,7 +86,7 @@ class UnifiedExamplesGenerator:
         """Run async coroutine safely, detecting existing event loop."""
         try:
             # Check if there's already a running event loop
-            loop = asyncio.get_running_loop()
+            asyncio.get_running_loop()
             # If we're in an event loop, we can't use asyncio.run()
             # Instead, we'll run in a thread pool
             import concurrent.futures

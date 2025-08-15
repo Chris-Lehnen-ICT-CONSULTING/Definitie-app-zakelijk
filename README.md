@@ -4,8 +4,12 @@
 
 [![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](./CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-87%25%20broken-red.svg)](./tests/)
+[![Tests](https://img.shields.io/badge/tests-45%25%20stable-yellow.svg)](./tests/)
+[![Code Quality](https://img.shields.io/badge/ruff-235%20issues-orange.svg)](./review_report.md)
+[![Security](https://img.shields.io/badge/security-gaps%20identified-red.svg)](./docs/analysis/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
+
+> **🧪 Quinn QA Status**: Architecture review voltooid - 45% production ready, legacy refactoring PRIORITEIT 1
 
 ## 🎯 Overzicht
 
@@ -13,13 +17,15 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 
 ### ✨ Kernfuncties
 
-- 🤖 **AI Definitie Generatie** met GPT-4 en 6-stappen ontologisch protocol
-- 📋 **46 Kwaliteitsregels** voor validatie en toetsing
-- 🏗️ **Modulaire Architectuur** met UnifiedDefinitionService
-- 🌐 **Web Lookup** voor context verrijking
-- 📄 **Document Upload** voor kennisbasis uitbreiding
-- ⚡ **Smart Caching** en performance optimalisatie
-- 🖥️ **10 Streamlit UI Tabs** (30% functioneel)
+- 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
+- 📋 **45/46 Kwaliteitsregels** voor validatie (INT-05 ontbreekt)
+- 🏗️ **Hybride Architectuur** UnifiedDefinitionService + moderne services
+- 🌐 **Web Lookup** ❌ KAPOT - rebuild nodig (3-4 weken)
+- 📄 **Document Upload** voor kennisbasis uitbreiding  
+- ⚡ **Smart Caching** ⚠️ memory leaks geïdentificeerd
+- 🖥️ **10 Streamlit UI Tabs** (alle importeren succesvol)
+- 🔒 **Security** ❌ Geen authentication/encryption (productie blocker)
+- 🧪 **AI Code Review** ✅ Geautomatiseerd met 235 issues geïdentificeerd
 
 ## 🚀 Quick Start
 
@@ -68,50 +74,89 @@ definitie-app/
 └── 📁 data/                  # Database & uploads
 ```
 
-## 📊 Project Status
+## 📊 Project Status (Quinn QA Review 2025-08-15)
 
-### ✅ Werkend (v2.3)
-- Services consolidatie voltooid (3→1)
-- Basis definitie generatie
-- AI toetsing met JSON validators
-- Database persistence
-- 3 van 10 UI tabs functioneel
+### ✅ Werkend & Geverifieerd (45% production ready)
+- **Core Services**: DefinitionGenerator (99%), Validator (98%), Repository (100%)
+- **Database**: Schema, migrations, UTF-8 encoding ✅
+- **Toetsregels**: 45/46 modulaire regels werkend
+- **Architecture**: Basis service layer geïmplementeerd
+- **Codebase**: 59.783 regels productie code, 15.526 regels tests
 
-### 🚧 In Progress
-- UI tabs completeness (70% ontbreekt)
-- Content enrichment (synoniemen, antoniemen)
-- Test suite reparatie (87% broken)
-- Performance monitoring
+### ❌ KRITIEKE BLOCKERS - Productie
+- **Authentication/Authorization**: Geen security layer (OWASP A07:2021)
+- **Data Encryption**: SQLite databases unencrypted (OWASP A02:2021)
+- **WebLookupService**: Volledig kapot - import errors, async/sync mismatch
+- **Legacy Refactoring**: UnifiedDefinitionService (698 regels) nog niet opgesplitst
+- **Import Architecture**: E402 errors in main.py en legacy modules
+- **Error Handling**: 8 bare except clauses maskeren critical errors
 
-### 📈 6-Weken Roadmap
+### 🚧 Performance & Quality Issues
+- **Database**: N+1 queries in voorbeelden system
+- **Memory**: Cache system unlimited growth (memory leaks)
+- **Test Infrastructure**: 26% test-to-code ratio, import failures
+- **Code Quality**: 92 important issues, 175 suggestions (AI review)
 
-Week 1-2: **Quick Wins**
-- Database concurrent access fix
-- Web lookup UTF-8 encoding
-- UI quick fixes
+### 📈 HERZIENE Roadmap (Post-Quinn Review)
 
-Week 3-4: **Feature Completeness**
-- AI content generatie
-- Prompt optimalisatie (35k → 10k)
+Week 1-2: **🚨 FOUNDATION STABILITEIT (PRIO 1)**
+- Legacy refactoring: UnifiedDefinitionService échte split
+- Import architecture fix: E402 errors main.py/legacy
+- Eliminate 8 bare except clauses (security risk)
+- Feature flags implementatie (nu gedocumenteerd maar bestaat niet)
 
-Week 5-6: **Testing & Stabilisatie**
-- Manual test protocol
-- Documentatie updates
+Week 3-4: **🔒 SECURITY & TESTING**
+- Authentication/authorization systeem implementeren
+- Database encryption voor sensitive data
+- Test infrastructure fix (import issues)
+- WebLookupService complete rebuild starten
+
+Week 5-8: **⚡ PERFORMANCE & QUALITY**
+- Database N+1 queries optimalisatie
+- Memory leak fixes in cache system
+- Code quality: 92 important issues → <10
+- Performance monitoring implementatie
+
+Week 9-12: **🎯 PRODUCTION READINESS**
+- Security hardening (OWASP compliance)
+- Advanced monitoring & alerting
+- Complete legacy elimination
+- Enterprise features planning
 
 Zie [docs/requirements/ROADMAP.md](docs/requirements/ROADMAP.md) voor details.
 
-## 🧪 Testing
+## 🧪 Testing (Quinn Assessment)
 
-**⚠️ Let op: Test suite is grotendeels broken (87% failing)**
+**Status**: 522 tests in 62 bestanden, 26% test-to-code ratio
 
+### ✅ Werkende Test Modules
 ```bash
-# Werkende tests only
-pytest tests/test_rate_limiter.py
-pytest tests/ai_toetsing/test_toetsing_flow.py -k "validation"
+# Core services (hoge coverage)
+pytest tests/services/test_definition_generator.py    # 99% coverage
+pytest tests/services/test_definition_validator.py    # 98% coverage  
+pytest tests/services/test_definition_repository.py   # 100% coverage
 
-# Manual testing wordt aanbevolen
-# Zie docs/testing/ voor test scenarios
+# Integration tests
+pytest tests/integration/test_comprehensive_system.py
 ```
+
+### ❌ Problematische Tests
+```bash
+# AI Toetser (5% coverage - 983 statements, 929 missed)
+pytest tests/unit/test_ai_toetser.py                  # Import failures
+
+# Config system (multiple failures)
+pytest tests/unit/test_config_system.py               # NameError issues
+
+# 6 disabled test files
+# test_performance.py.disabled, test_cache_system.py.disabled, etc.
+```
+
+### 🎯 Test Strategy
+- **Target Coverage**: 75% voor kritieke modules (nu: AI Toetser 5%)
+- **Priority 1**: Fix import issues in test infrastructure
+- **Priority 2**: Re-enable 6 disabled test bestanden
+- **Continuous**: AI Code Review integration voor quality gates
 
 ## 📖 Documentatie
 
@@ -120,29 +165,62 @@ pytest tests/ai_toetsing/test_toetsing_flow.py -k "validation"
 - [Backlog](docs/BACKLOG.md) - 77+ items met quick wins
 - [Analyses](docs/analysis/) - Technische documentatie
 
-## 🤝 Contributing
+## 🤝 Contributing (Quinn Reviewed)
 
 Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 
-**Quick Wins voor nieuwe contributors:**
-- GPT temperatuur naar config file (2 uur)
-- Streamlit widget key generator (2 uur)
-- Plain text export (4 uur)
-- Help tooltips (3 uur)
+### 🚨 **CRITICAL FIXES - Immediate Impact**
+- **Bare except clauses** elimineren (security) - 2 uur
+- **E402 import errors** fixen main.py - 1 uur  
+- **Feature flags implementatie** - 4 uur
+- **Test import issues** repareren - 3 uur
 
-## 🔧 Development
+### ⚡ **HIGH PRIORITY - This Week**
+- **Authentication basic setup** - 8 uur
+- **WebLookupService debug** - 16 uur
+- **Memory leak fixes** cache system - 4 uur
+- **Database N+1 queries** optimalisatie - 6 uur
 
-### Features First Aanpak
-- Legacy code = specificatie
-- Werkende features > perfecte code
-- Manual testing acceptabel
-- Pragmatische oplossingen
+### 🎯 **MEDIUM PRIORITY - Next Weeks**
+- GPT temperatuur configureerbaar maken - 2 uur
+- Streamlit widget key generator - 2 uur
+- Plain text export verbetering - 4 uur
+- Help tooltips UI enhancement - 3 uur
 
-### Coding Standards
-- Nederlandse comments voor business logica
-- Type hints waar mogelijk
-- UnifiedDefinitionService pattern volgen
-- Zie [CLAUDE.md](CLAUDE.md) voor AI guidelines
+### 📖 **Voor Nieuwe Contributors**
+1. **Lees eerst**: Quinn QA review in [MASTER-TODO.md](MASTER-TODO.md)
+2. **Start met**: Critical fixes (immediate impact)
+3. **Test je werk**: `python scripts/ai_code_reviewer.py`
+4. **Ask questions**: Check [docs/development/](docs/development/) guides
+
+## 🔧 Development (Updated by Quinn QA)
+
+### 🧪 Quality-First Aanpak (POST-QUINN REVIEW)
+- **Legacy refactoring = PRIORITEIT 1** (blokkeert alle verbeteringen)
+- **Security & Performance** voor production readiness
+- **Test-driven development** voor stability confidence
+- **Code quality gates** via AI review automation
+
+### 🎯 Development Priorities
+1. **Foundation Stabiliteit**: Import fixes, bare except elimination
+2. **Security Implementation**: Authentication, encryption, input validation
+3. **Performance Optimization**: N+1 queries, memory leaks, caching
+4. **Test Infrastructure**: Import issues, coverage improvement
+
+### 📋 Coding Standards (Enhanced)
+- **Nederlandse comments** voor business logica, **Engels** voor technical
+- **Type hints VERPLICHT** voor alle nieuwe code
+- **No bare except clauses** (security risk)
+- **Import order**: Module-level imports bovenaan (E402 compliance)
+- **Error handling**: Specific exceptions, proper logging
+- **Test coverage**: Minimaal 60% voor nieuwe modules
+- Zie [docs/development/code-review-workflow.md](docs/development/code-review-workflow.md)
+
+### 🤖 AI Code Review Integration
+- **Automated quality checks** via `scripts/ai_code_reviewer.py`
+- **BMAD framework** voor development workflow
+- **Quinn QA agent** voor architecture reviews
+- **Pre-commit hooks** voor immediate feedback
 
 ## 📞 Support
 

@@ -6,15 +6,15 @@ Deze module bevat de kwaliteitscontrole logica voor gegenereerde definities,
 inclusief regel-gebaseerde validatie en score berekening.
 """
 
-import re
+import json
 import logging
-from typing import Dict, List, Any, Optional, Tuple
+import re
 from dataclasses import dataclass
 from enum import Enum
-import json
+from typing import Any, Dict, List, Optional, Tuple
 
-from toetsregels.manager import get_toetsregel_manager
 from generation.definitie_generator import OntologischeCategorie
+from toetsregels.manager import get_toetsregel_manager
 
 logger = logging.getLogger(__name__)
 

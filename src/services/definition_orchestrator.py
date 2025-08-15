@@ -7,26 +7,25 @@ validatie en opslag door de verschillende services te coördineren.
 
 import asyncio
 import logging
-from typing import Dict, Any, Optional, List
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from services.interfaces import (
-    DefinitionOrchestratorInterface,
-    DefinitionGeneratorInterface,
-    DefinitionValidatorInterface,
-    DefinitionRepositoryInterface,
-    GenerationRequest,
     Definition,
+    DefinitionGeneratorInterface,
+    DefinitionOrchestratorInterface,
+    DefinitionRepositoryInterface,
     DefinitionResponse,
+    DefinitionValidatorInterface,
+    GenerationRequest,
     ValidationResult,
 )
 
 # Optionele imports voor extra functionaliteit
 try:
     from web_lookup.bron_lookup import zoek_bronnen_voor_begrip
-    from web_lookup.definitie_lookup import zoek_definitie
 
     WEB_LOOKUP_AVAILABLE = True
 except ImportError:

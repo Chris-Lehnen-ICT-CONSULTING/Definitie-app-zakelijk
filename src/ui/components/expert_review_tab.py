@@ -2,13 +2,14 @@
 Expert Review Tab - Interface voor expert review en approval workflow.
 """
 
-import streamlit as st
-from typing import List
 from datetime import datetime
+from typing import List
+
+import streamlit as st
 
 from database.definitie_repository import (
-    DefinitieRepository,
     DefinitieRecord,
+    DefinitieRepository,
     DefinitieStatus,
 )
 from ui.session_state import SessionStateManager
@@ -487,7 +488,6 @@ class ExpertReviewTab:
                 try:
                     from config.verboden_woorden import (
                         laad_verboden_woorden,
-                        sla_verboden_woorden_op,
                     )
 
                     # Huidige verboden woorden laden

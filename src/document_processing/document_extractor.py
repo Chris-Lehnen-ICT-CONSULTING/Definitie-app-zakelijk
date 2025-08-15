@@ -3,9 +3,9 @@ Document Text Extraction - Haal tekst uit verschillende bestandsformaten.
 """
 
 import logging  # Logging faciliteiten voor debug en monitoring
-from typing import Optional, Dict  # Type hints voor betere code documentatie
-from pathlib import Path  # Object-georiënteerde pad manipulatie
 import mimetypes  # MIME type detectie voor bestandsformaten
+from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import Dict, Optional  # Type hints voor betere code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor document extractor module
 
@@ -109,8 +109,9 @@ def _extract_pdf(content: bytes) -> Optional[str]:
     try:
         # Probeer PyPDF2 te gebruiken als beschikbaar
         try:
-            import PyPDF2
             import io
+
+            import PyPDF2
 
             pdf_reader = PyPDF2.PdfReader(io.BytesIO(content))
             text_parts = []
@@ -138,8 +139,9 @@ def _extract_word(content: bytes, mime_type: str) -> Optional[str]:
             == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
         ):
             try:
-                import docx
                 import io
+
+                import docx
 
                 doc = docx.Document(io.BytesIO(content))
                 text_parts = []

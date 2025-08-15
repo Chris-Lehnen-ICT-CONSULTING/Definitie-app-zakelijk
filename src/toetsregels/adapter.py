@@ -4,7 +4,7 @@ Zorgt ervoor dat bestaande code die het oude JSON formaat gebruikt blijft werken
 """
 
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from config.toetsregel_manager import get_toetsregel_manager
 

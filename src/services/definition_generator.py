@@ -7,22 +7,22 @@ met behulp van AI (OpenAI GPT-4).
 
 import asyncio
 import logging
-from typing import Dict, List, Optional, Tuple
 from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple
 
-from services.interfaces import (
-    DefinitionGeneratorInterface,
-    GenerationRequest,
-    Definition,
-)
+from opschoning.opschoning import opschonen
 
 # Legacy imports voor backward compatibility
 from prompt_builder.prompt_builder import (
-    stuur_prompt_naar_gpt,
     PromptBouwer,
     PromptConfiguratie,
+    stuur_prompt_naar_gpt,
 )
-from opschoning.opschoning import opschonen
+from services.interfaces import (
+    Definition,
+    DefinitionGeneratorInterface,
+    GenerationRequest,
+)
 from utils.exceptions import handle_api_error
 
 # Monitoring (optioneel)

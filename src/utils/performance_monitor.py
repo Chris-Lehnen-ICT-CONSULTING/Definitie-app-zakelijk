@@ -5,10 +5,11 @@ Dit module biedt tools voor het monitoren en loggen van performance metrics
 om trage operaties te identificeren en optimaliseren.
 """
 
-import time
+import asyncio
 import logging
+import time
 from functools import wraps
-from typing import Callable, Any, Dict
+from typing import Any, Callable, Dict
 
 logger = logging.getLogger(__name__)
 
@@ -132,9 +133,6 @@ def measure_performance(operation_name: str = None):
             return sync_wrapper
 
     return decorator
-
-
-import asyncio  # Import hier voor circular import te vermijden
 
 
 # Utility functies voor manual timing

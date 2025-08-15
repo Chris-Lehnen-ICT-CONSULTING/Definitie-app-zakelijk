@@ -6,62 +6,64 @@ Deze module bevat de hoofdcontroller voor de gebruikersinterface,
 met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
-import streamlit as st  # Streamlit web interface framework
-from typing import Dict, Any, Optional  # Type hints voor betere code documentatie
-from datetime import datetime  # Datum en tijd functionaliteit
 import asyncio  # Asynchrone programmering voor ontologische analyse
+from datetime import datetime  # Datum en tijd functionaliteit
+from typing import Any, Dict, Optional  # Type hints voor betere code documentatie
 
-# Importeer alle UI tab componenten voor de verschillende functionaliteiten
-from ui.components.context_selector import ContextSelector  # Context selectie component
-from ui.components.definition_generator_tab import (
-    DefinitionGeneratorTab,
-)  # Hoofdtab voor definitie generatie
-from ui.components.expert_review_tab import (
-    ExpertReviewTab,
-)  # Expert review en validatie tab
-from ui.components.history_tab import HistoryTab  # Historie overzicht tab
-from ui.components.export_tab import ExportTab  # Export functionaliteit tab
-from ui.components.quality_control_tab import (
-    QualityControlTab,
-)  # Kwaliteitscontrole dashboard
-from ui.components.external_sources_tab import (
-    ExternalSourcesTab,
-)  # Externe bronnen beheer
-from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
-from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
-from ui.components.orchestration_tab import (
-    OrchestrationTab,
-)  # Orchestratie en automatisering
-from ui.components.management_tab import ManagementTab  # Systeem management tools
+import streamlit as st  # Streamlit web interface framework
 
-# Importeer core services en utilities
-from ui.session_state import (
-    SessionStateManager,
-)  # Sessie state management voor UI persistentie
-from database.definitie_repository import (
+from database.definitie_repository import (  # Database toegang factory
     get_definitie_repository,
-)  # Database toegang factory
-from integration.definitie_checker import (
-    DefinitieChecker,
-)  # Definitie integratie controle
-from generation.definitie_generator import (
-    OntologischeCategorie,
-)  # Ontologische categorieën
-from document_processing.document_processor import (
-    get_document_processor,
-)  # Document processor factory
-from document_processing.document_extractor import (
+)
+from document_processing.document_extractor import (  # Ondersteunde bestandstypen
     supported_file_types,
-)  # Ondersteunde bestandstypen
+)
+from document_processing.document_processor import (  # Document processor factory
+    get_document_processor,
+)
+from generation.definitie_generator import (  # Ontologische categorieën
+    OntologischeCategorie,
+)
+from integration.definitie_checker import (  # Definitie integratie controle
+    DefinitieChecker,
+)
 
 # Nieuwe services imports
 from services import get_definition_service, render_feature_flag_toggle
 
+# Importeer alle UI tab componenten voor de verschillende functionaliteiten
+from ui.components.context_selector import ContextSelector  # Context selectie component
+from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie generatie
+    DefinitionGeneratorTab,
+)
+from ui.components.expert_review_tab import (  # Expert review en validatie tab
+    ExpertReviewTab,
+)
+from ui.components.export_tab import ExportTab  # Export functionaliteit tab
+from ui.components.external_sources_tab import (  # Externe bronnen beheer
+    ExternalSourcesTab,
+)
+from ui.components.history_tab import HistoryTab  # Historie overzicht tab
+from ui.components.management_tab import ManagementTab  # Systeem management tools
+from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
+from ui.components.orchestration_tab import (  # Orchestratie en automatisering
+    OrchestrationTab,
+)
+from ui.components.quality_control_tab import (  # Kwaliteitscontrole dashboard
+    QualityControlTab,
+)
+from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
+
+# Importeer core services en utilities
+from ui.session_state import (  # Sessie state management voor UI persistentie
+    SessionStateManager,
+)
+
 # Hybrid context imports - optionele module voor hybride context verrijking
 try:
-    from hybrid_context.hybrid_context_engine import (
+    from hybrid_context.hybrid_context_engine import (  # Hybride context engine factory
         get_hybrid_context_engine,
-    )  # Hybride context engine factory
+    )
 
     HYBRID_CONTEXT_AVAILABLE = True  # Hybride context succesvol geladen
 except ImportError:
@@ -1211,7 +1213,7 @@ class TabbedInterface:
             try:
                 stats = self.repository.get_statistics()
                 st.metric("📊 Definities", stats.get("total_definities", 0))
-            except:
+            except Exception:
                 pass
 
 

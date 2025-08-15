@@ -6,7 +6,7 @@ validator paren in plaats van de BaseValidator architectuur.
 """
 
 import logging
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
 from .json_validator_loader import json_validator_loader
 

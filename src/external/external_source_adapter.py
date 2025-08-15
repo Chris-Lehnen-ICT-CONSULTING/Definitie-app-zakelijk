@@ -5,9 +5,9 @@ Biedt adapter pattern voor toekomstige integratie met externe systemen.
 
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Dict, Any, Optional
 from dataclasses import dataclass
 from enum import Enum
+from typing import Any, Dict, List, Optional
 
 from database.definitie_repository import DefinitieRecord, DefinitieStatus, SourceType
 
@@ -120,12 +120,10 @@ class ExternalSourceAdapter(ABC):
         Returns:
             True als verbinding succesvol
         """
-        pass
 
     @abstractmethod
     def disconnect(self):
         """Sluit verbinding met externe bron."""
-        pass
 
     @abstractmethod
     def test_connection(self) -> bool:
@@ -135,7 +133,6 @@ class ExternalSourceAdapter(ABC):
         Returns:
             True als verbinding werkt
         """
-        pass
 
     @abstractmethod
     def search_definitions(
@@ -157,7 +154,6 @@ class ExternalSourceAdapter(ABC):
         Returns:
             List van ExternalDefinition objecten
         """
-        pass
 
     @abstractmethod
     def get_definition(self, external_id: str) -> Optional[ExternalDefinition]:
@@ -170,7 +166,6 @@ class ExternalSourceAdapter(ABC):
         Returns:
             ExternalDefinition of None
         """
-        pass
 
     @abstractmethod
     def create_definition(self, definition: ExternalDefinition) -> bool:
@@ -183,7 +178,6 @@ class ExternalSourceAdapter(ABC):
         Returns:
             True als succesvol aangemaakt
         """
-        pass
 
     @abstractmethod
     def update_definition(
@@ -199,7 +193,6 @@ class ExternalSourceAdapter(ABC):
         Returns:
             True als succesvol geüpdatet
         """
-        pass
 
     @abstractmethod
     def delete_definition(self, external_id: str) -> bool:
@@ -212,7 +205,6 @@ class ExternalSourceAdapter(ABC):
         Returns:
             True als succesvol verwijderd
         """
-        pass
 
     def get_source_info(self) -> Dict[str, Any]:
         """Haal informatie over externe bron op."""

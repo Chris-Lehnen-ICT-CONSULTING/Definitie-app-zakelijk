@@ -7,36 +7,64 @@ Genereert praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen en toeli
 
 # Importeer van geünificeerd voorbeelden systeem
 from .unified_voorbeelden import (
-    # Hoofdklassen voor voorbeeld generatie
-    UnifiedExamplesGenerator,  # Geünificeerde generator voor alle voorbeelden
     ExampleRequest,  # Request container voor voorbeeld generatie
+)
+from .unified_voorbeelden import (
     ExampleResponse,  # Response container met gegenereerde voorbeelden
+)
+from .unified_voorbeelden import (
     ExampleType,  # Type van voorbeeld (praktijk, tegen, synoniem, etc.)
+)
+from .unified_voorbeelden import (
     GenerationMode,  # Generatie modus (sync, async, cached, resilient)
-    # Convenience functies voor directe voorbeeld generatie
-    genereer_voorbeeld_zinnen,  # Genereert voorbeeld zinnen met de term
-    genereer_praktijkvoorbeelden,  # Genereert praktische gebruiksvoorbeelden
-    genereer_tegenvoorbeelden,  # Genereert tegenvoorbeelden ter verduidelijking
-    genereer_synoniemen,  # Genereert synoniemen van de term
-    genereer_antoniemen,  # Genereert antoniemen van de term
-    genereer_toelichting,  # Genereert uitgebreide toelichting
-    # Batch functies voor efficiënte bulk generatie
+)
+from .unified_voorbeelden import (
+    UnifiedExamplesGenerator,  # Geünificeerde generator voor alle voorbeelden
+)
+from .unified_voorbeelden import (
     genereer_alle_voorbeelden,  # Synchrone batch generatie van alle voorbeelden
+)
+from .unified_voorbeelden import (
     genereer_alle_voorbeelden_async,  # Asynchrone batch generatie voor performance
-    # Utility functies voor generator management
-    get_examples_generator,  # Factory functie voor generator instanties
+)
+from .unified_voorbeelden import genereer_antoniemen  # Genereert antoniemen van de term
+from .unified_voorbeelden import (
+    genereer_praktijkvoorbeelden,  # Genereert praktische gebruiksvoorbeelden
+)
+from .unified_voorbeelden import genereer_synoniemen  # Genereert synoniemen van de term
+from .unified_voorbeelden import (
+    genereer_tegenvoorbeelden,  # Genereert tegenvoorbeelden ter verduidelijking
+)
+from .unified_voorbeelden import (
+    genereer_toelichting,  # Genereert uitgebreide toelichting
+)
+from .unified_voorbeelden import (
+    genereer_voorbeeld_zinnen,  # Genereert voorbeeld zinnen met de term
+)
+from .unified_voorbeelden import (
+    get_examples_generator,  # Hoofdklassen voor voorbeeld generatie; Convenience functies voor directe voorbeeld generatie; Batch functies voor efficiënte bulk generatie; Utility functies voor generator management; Factory functie voor generator instanties
 )
 
 # Achterwaartse compatibiliteit - importeer van legacy bestanden indien nodig
 # Zorgt voor soepele migratie van oude code naar nieuwe geünificeerde systeem
 try:
     from .voorbeelden import (
-        genereer_voorbeeld_zinnen as legacy_genereer_voorbeeld_zinnen,  # Legacy voorbeeld zinnen functie
-        genereer_praktijkvoorbeelden as legacy_genereer_praktijkvoorbeelden,  # Legacy praktijkvoorbeelden functie
-        genereer_tegenvoorbeelden as legacy_genereer_tegenvoorbeelden,  # Legacy tegenvoorbeelden functie
-        genereer_synoniemen as legacy_genereer_synoniemen,  # Legacy synoniemen functie
         genereer_antoniemen as legacy_genereer_antoniemen,  # Legacy antoniemen functie
+    )
+    from .voorbeelden import (
+        genereer_praktijkvoorbeelden as legacy_genereer_praktijkvoorbeelden,  # Legacy praktijkvoorbeelden functie
+    )
+    from .voorbeelden import (
+        genereer_synoniemen as legacy_genereer_synoniemen,  # Legacy synoniemen functie
+    )
+    from .voorbeelden import (
+        genereer_tegenvoorbeelden as legacy_genereer_tegenvoorbeelden,  # Legacy tegenvoorbeelden functie
+    )
+    from .voorbeelden import (
         genereer_toelichting as legacy_genereer_toelichting,  # Legacy toelichting functie
+    )
+    from .voorbeelden import (
+        genereer_voorbeeld_zinnen as legacy_genereer_voorbeeld_zinnen,  # Legacy voorbeeld zinnen functie
     )
 except ImportError:
     # Legacy bestanden niet beschikbaar - continue met nieuwe implementatie

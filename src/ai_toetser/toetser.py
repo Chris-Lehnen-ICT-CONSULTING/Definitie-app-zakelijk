@@ -5,8 +5,8 @@ Deze module biedt een eenvoudige wrapper klasse voor het controleren
 van verboden woorden in definities voor backwards compatibility.
 """
 
-from pathlib import Path  # Pad manipulatie voor bestand toegang
 import json  # JSON bestand verwerking
+from pathlib import Path  # Pad manipulatie voor bestand toegang
 from typing import Set  # Type hints voor sets
 
 # Standaardpad naar verboden_woorden.json - relatief ten opzichte van dit bestand

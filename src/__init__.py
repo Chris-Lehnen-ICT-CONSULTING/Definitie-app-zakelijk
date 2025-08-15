@@ -5,8 +5,8 @@ Main source package voor alle DefinitieAgent modules.
 Configureert Python path voor correcte import resolutie.
 """
 
-import sys
 import os
+import sys
 
 # Voeg root directory toe aan Python path voor toegang tot logs module
 # Dit zorgt ervoor dat imports van logs.application.log_definitie werken
