@@ -38,7 +38,7 @@ logger = logging.getLogger(__name__)
 class GeneratorConfig:
     """Configuratie voor de DefinitionGenerator."""
     model: str = "gpt-4"
-    temperature: float = 0.4
+    temperature: float = 0.0  # Changed from 0.4 to 0.0 for consistency (MASTER-TODO requirement)
     max_tokens: int = 500
     enable_monitoring: bool = True
     enable_cleaning: bool = True

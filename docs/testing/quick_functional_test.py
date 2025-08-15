@@ -3,7 +3,9 @@
 
 import sys
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+# Add the project root to the path (2 levels up from docs/testing/)
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / 'src'))
 
 print("🔍 Quick Functional Test\n")
 
@@ -17,10 +19,16 @@ except Exception as e:
 
 # Test 2: AI Toetser
 try:
-    from ai_toetser.core import AIToetser
-    toetser = AIToetser()
-    result = toetser.toets_definitie("Een proces.", "test")
-    print(f"✅ AI Toetser: {'Voldoet' if result['voldoet'] else 'Voldoet niet'}")
+    from ai_toetser import toets_definitie
+    from config.config_loader import load_toetsregels
+    
+    toetsregels = load_toetsregels()
+    results = toets_definitie(
+        definitie="Een proces.",
+        toetsregels=toetsregels,
+        begrip="proces"
+    )
+    print(f"✅ AI Toetser: {len(results)} resultaten ontvangen")
 except Exception as e:
     print(f"❌ AI Toetser: {e}")
 

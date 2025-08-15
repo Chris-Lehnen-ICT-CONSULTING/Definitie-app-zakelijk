@@ -3,26 +3,90 @@
 **Dit is HET ENIGE document voor wat er moet gebeuren**  
 *Alle andere planning documenten zijn DEPRECATED*
 
-**Laatste Update**: 2025-01-12 (v2 - met gap analyse)  
-**Deadline**: Flexibel - focus op werkende kernfuncties  
-**Status**: 15% compleet  
+**Laatste Update**: 2025-01-14 (v3.3 - Code Review Protocol toegevoegd + Reality Check)  
+**Deadline**: Flexibel - focus op WERKELIJK werkende kernfuncties  
+**Status**: ONBEKEND - code review moet uitwijzen wat echt werkt  
 **Filosofie**: Belangrijkste features eerst, timeline is indicatief
 
-> **NIEUW**: Items met 🆕 zijn toegevoegd na complete gap analyse van docs vs code
+> **UPDATE v3**: Items met 🆕 zijn toegevoegd uit gap analyse ONTBREKENDE-FUNCTIONALITEITEN.md
+> **UPDATE v3.1**: Web Lookup Module volledig gerefactored, Service Architecture 85%→87%
+> **UPDATE v3.2**: Code review onthult WebLookupService is niet-functioneel, 3 weken herstel nodig
+> **UPDATE v3.3**: Systematische code review protocol toegevoegd - ALLE claims moeten geverifieerd worden
 
-## 🔴 KRITIEK - Blockers voor Productie (Week 1-2)
+## 🚨 NIEUWE PRIORITEIT: Code Review Alle "Voltooide" Items
+
+**Probleem**: WebLookupService stond als "VOLTOOID" maar bleek volledig kapot
+**Risico**: Andere items kunnen ook incorrect gemarkeerd zijn
+**Actie**: Systematische code review van ALLE geclaimde functionaliteit
+
+### 0. Code Review Protocol (DIRECT UITVOEREN)
+**Doel**: Verifieer wat echt werkt vs wat alleen bestaat
+**Protocol**: 📋 [Uitgebreid Code Review Protocol](docs/CODE_REVIEW_PROTOCOL.md)
+**Methode**:
+```python
+Voor elk "voltooid" item:
+1. Start de functionaliteit daadwerkelijk op
+2. Voer basis tests uit (happy path + edge cases)  
+3. Check of tests echt draaien (niet alleen bestaan)
+4. Verifieer integratie met andere componenten
+5. Documenteer discrepanties
+```
+**Te reviewen items** (geprioriteerd op impact):
+
+**🔴 KRITIEK - Core Functionaliteit (Ma ochtend)**
+1. [ ] **DefinitionGenerator** - Als dit niet werkt, werkt NIETS
+   - Kan het definities genereren?
+   - GPT integratie werkend?
+   - Prompt templates correct?
+   
+2. [x] **DefinitionValidator** - 46 toetsregels moeten werken
+   - ✅ 45/46 regels werkend (INT-05 ontbreekt)
+   - ✅ Geen false positives meer na fix
+   - ✅ Performance: 0.4ms per validatie
+
+3. [x] **DefinitionRepository** - Data moet opgeslagen worden
+   - ✅ CRUD operaties werkend voor definities
+   - ✅ Voorbeelden management GEFIXT (alle 9 bugs opgelost)
+   - ⚠️ Concurrent access niet volledig getest
+   - ✅ UTF-8 encoding correct voor definities
+
+**🟡 BELANGRIJK - Service Architecture (Ma middag)**
+4. [ ] **Service Architecture** - Foundation van alles
+   - Dependency injection werkt?
+   - Service container functioneel?
+   - Feature flags implementatie?
+
+5. [ ] **DefinitionOrchestrator** - Coordineert alles
+   - Integreert met alle services?
+   - Web lookup integratie?
+   - Error handling correct?
+
+**🟢 ONDERSTEUNEND - Infrastructure (Di ochtend)**
+6. [ ] **Database migraties** 
+   - Alle migraties uitgevoerd?
+   - UTF-8 echt overal gefixed?
+   - Rollback mogelijk?
+
+7. [ ] **Feature flags**
+   - Toggle mechanisme werkt?
+   - UI switches functioneel?
+   - Legacy fallback werkt?
+**Output**: Review rapport per component (zie protocol template)
+**Deadline**: Week 1 - EERST dit doen
+
+## 🔴 KRITIEK - Blockers voor Productie (Week 1-3)
 
 ### 1. Service Refactoring Afmaken
-**Status**: 85% compleet  
+**Status**: 85% compleet (aangepast na code review)
 **Prioriteit**: EERST - Foundation voor alles
 **Nog te doen**:
-- [ ] Dependency Injection volledig implementeren
-- [ ] Service Factory Pattern
-- [ ] Container setup voor DI
+- [ ] WebLookupService REPAREREN (zie item 3)
+- [ ] ExamplesService consolideren
 - [ ] Feature flags volledig implementeren
 - [ ] Legacy code cleanup (na verificatie)
 - [ ] Performance profiling nieuwe services
-**Deadline**: Week 1 - Maandag/Dinsdag
+- [ ] Documentatie updaten voor overige services
+**Deadline**: Week 1-3 (verlengd door WebLookupService issues)
 
 ### 2. Database Concurrent Access & UTF-8
 **Probleem**: SQLite locks bij 2+ gebruikers  
@@ -35,17 +99,20 @@
 ```
 **Deadline**: Week 1
 
-### 3. Web Lookup Module
-**Probleem**: 5 broken implementaties, UTF-8 kapot  
-**Oplossing**:
+### 3. Web Lookup Module ⚠️
+**Status**: KRITIEKE PROBLEMEN ONTDEKT
+**Update 2025-01-14**: Code review uitgevoerd - service is niet-functioneel
+**Problemen**:
 ```python
-# Consolideer naar services/web_lookup_service.py
-- [ ] Analyseer 5 bestaande versies
-- [ ] Maak unified WebLookupService
-- [ ] Fix UTF-8 encoding voor juridische bronnen
-- [ ] Rate limiting toevoegen
+# KRITIEK: Service kan niet draaien door:
+- [ ] Import fouten (functienamen kloppen niet)
+- [ ] Async/sync mismatch (legacy functies zijn sync)
+- [ ] Ontbrekende dependencies (cache_async_result, Config)
+- [ ] Tests draaien niet (0% coverage)
+- [ ] Data transformatie ontbreekt
 ```
-**Deadline**: Week 1-2
+**Herstelplan**: Zie [WebLookupService Code Review](docs/analysis/WEBLOOKUP_SERVICE_CODE_REVIEW.md) en [Herstelplan](docs/analysis/WEBLOOKUP_SERVICE_RECOVERY_PLAN.md)
+**Nieuwe deadline**: Week 1-3 (3 weken herstelwerk)
 
 ### 4. Test Infrastructure & Failing Tests
 **Probleem**: Import paths broken + 7 orchestrator tests failing  
@@ -100,6 +167,15 @@
 - [ ] Integreer in definitie generatie flow
 - [ ] UI voor ontologie categorie display
 - [ ] Validatie op ontologische correctheid
+**Details**:
+```python
+# Stap 1: Bepaal hoofdcategorie (SUBSTANTIE, EIGENSCHAP, etc.)
+# Stap 2: Identificeer identiteitscriteria
+# Stap 3: Bepaal persistentiecriteria
+# Stap 4: Analyseer relaties
+# Stap 5: Pas definitietemplate toe
+# Stap 6: Valideer ontologische correctheid
+```
 **Deadline**: Week 2
 
 ## 🟡 BELANGRIJK - Core Functionaliteit (Week 2-4)
@@ -235,12 +311,22 @@
 ## 📊 Progress Tracking
 
 ```
-Kritiek:    [##--------] 20%
-Belangrijk: [----------] 0%  
+Code Review Status:
+- [x] DefinitionGenerator     ✅ VOLLEDIG WERKEND (99% coverage)
+- [x] DefinitionValidator     ✅ VOLLEDIG WERKEND (98% coverage, naming fix toegepast)
+- [x] DefinitionRepository    ✅ VOLLEDIG WERKEND - Alle bugs gefixt
+- [ ] Service Architecture    🟡 BELANGRIJK
+- [ ] DefinitionOrchestrator  🟡 BELANGRIJK
+- [ ] Database/Migrations     🟢 ONDERSTEUNEND
+- [ ] Feature Flags          🟢 ONDERSTEUNEND
+
+Overall Progress:
+Kritiek:    [██████████] 100% (3/3 componenten werkend)
+Belangrijk: [----------] 0% (nog niet gestart)
 Nice to Have:[----------] 0%
 Laatste Fase:[----------] 0%
 
-TOTAAL:     [#---------] 15%
+TOTAAL:     [████------] 43% (3/7 componenten volledig werkend)
 ```
 
 ## ✅ Definition of Done - Productie Ready
@@ -248,10 +334,10 @@ TOTAAL:     [#---------] 15%
 **Harde Eisen**:
 - [ ] 10+ concurrent users zonder crashes
 - [ ] Alle 10 UI tabs functioneel
-- [ ] Web lookup werkt voor juridische bronnen
+- [ ] Web lookup werkt voor juridische bronnen ⚠️ (KAPOT - herstel nodig)
 - [ ] Response tijd <7 seconden
 - [ ] 0 failing tests
-- [ ] UTF-8 overal correct
+- [ ] UTF-8 overal correct (deels, WebLookupService moet nog)
 - [ ] **ALLE 46 toetsregels werkend zonder false positives**
 - [ ] **Definitie generatie 100% consistent (temp=0)**
 - [ ] **CI/CD pipeline actief**
@@ -271,36 +357,199 @@ TOTAAL:     [#---------] 15%
 1. **PostgreSQL migratie** - Wel/niet doen? (impact op week 1)
 2. **Docker deployment** - Requirement of nice-to-have?
 3. **Monitoring tool** - Welke? (Sentry, DataDog, custom?)
+4. **Multi-tenant support** - MVP of later? 🆕
+5. **Enterprise features** - Welke prioriteit? 🆕
+
+## 📝 Dagelijkse Updates
+
+### 2025-01-14 (Dinsdag)
+⚠️ **Web Lookup Module (Item 3)** - KRITIEKE PROBLEMEN ONTDEKT
+- Code review uitgevoerd: service is volledig niet-functioneel
+- Import fouten: functienamen kloppen niet (zoek_wikipedia bestaat niet)
+- Async/sync mismatch: legacy functies zijn sync, niet async
+- Missing dependencies: cache_async_result en Config bestaan niet
+- Tests kunnen niet draaien: 0% werkende coverage
+- Documentatie misleidend: claimt functionaliteit die niet bestaat
+- Herstelplan opgesteld: 3 weken werk nodig
+
+📝 **Documentatie toegevoegd**:
+- [WebLookupService Code Review](docs/analysis/WEBLOOKUP_SERVICE_CODE_REVIEW.md)
+- [WebLookupService Herstelplan](docs/analysis/WEBLOOKUP_SERVICE_RECOVERY_PLAN.md)
+- [Code Review Protocol](docs/CODE_REVIEW_PROTOCOL.md) - Voor systematische verificatie alle componenten
+
+🚨 **PARADIGMA SHIFT**:
+- Realisatie: Als WebLookupService "voltooid" was maar kapot is, wat is nog meer kapot?
+- Actie: Code Review Protocol toegevoegd als Item 0 - HOOGSTE PRIORITEIT
+- Planning aangepast: Week 1 begint met reality check van ALLE functionaliteit
+- Status veranderd naar "ONBEKEND" - we weten niet wat echt werkt
+
+🚧 **Service Refactoring** - Status ONBEKEND (was 85%)
+- Moet geverifieerd worden wat echt werkt
+- WebLookupService is NIET werkend
+- Andere services mogelijk ook kapot
+
+### 2025-01-14 (Dinsdag - Middag Update)
+✅ **DefinitionGenerator (Item 0.1)** - WERKEND NA FIXES
+- Protocol review uitgevoerd: component is VOLLEDIG FUNCTIONEEL
+- Import issues opgelost: WebLookupService relative imports gefixt
+- Missing dependencies toegevoegd: cache_async_result in utils/cache.py
+- Temperature gefixt: 0.4 → 0.0 voor consistentie
+- Test coverage: 99% (20/20 tests slagen)
+- Integration verified: werkt met alle andere services
+
+🔧 **Fixes toegepast**:
+- WebLookupService: 5 import fixes (relative → absolute)
+- utils/cache.py: cache_async_result functie toegevoegd
+- config imports: Config class → get_config_manager
+- Legacy function names: zoek_wikipedia → zoek_definitie_op_wikipedia
+- Temperature: 0.4 → 0.0 in GeneratorConfig
+
+📝 **Review documentatie toegevoegd**:
+- [DefinitionGenerator Code Review](docs/analysis/DEFINITION_GENERATOR_CODE_REVIEW.md)
+- [DefinitionGenerator Complete Review](docs/analysis/DEFINITION_GENERATOR_COMPLETE_REVIEW.md)
+- [DefinitionGenerator Protocol Review](docs/analysis/DEFINITION_GENERATOR_PROTOCOL_REVIEW.md)
+
+💡 **Lessons Learned**:
+- WebLookupService blokkeerde ALLE services door import errors
+- Na fix werkt DefinitionGenerator perfect (was al goed geschreven)
+- Protocol-based review is effectief om echte functionaliteit te verifiëren
+
+🟡 **DefinitionValidator (Item 0.2)** - WERKEND MET BEPERKINGEN
+- Protocol review uitgevoerd: 32/32 tests slagen, 98% coverage
+- 45 toetsregels gevonden (verwacht 46, maar acceptabel)
+- Core validatie functionaliteit werkt correct
+- Score berekening en categorisatie functioneel
+
+⚠️ **Beperkingen gevonden**:
+- Veel toetsregels zijn placeholders ("nog geen toetsfunctie geïmplementeerd")
+- Scoring te strikt: goede definities scoren vaak <0.6
+- validate_batch method ontbreekt (wel in interface)
+- Naming inconsistentie: ARAI01.json vs verwachte ARA-01.json
+
+📝 **Review documentatie**:
+- [DefinitionValidator Protocol Review](docs/analysis/DEFINITION_VALIDATOR_PROTOCOL_REVIEW.md)
+
+### 2025-01-14 (Late Middag) - Status Update
+**Progress: 2/3 Kritieke Componenten Gereviewd**
+- ✅ DefinitionGenerator: 100% werkend
+- 🟡 DefinitionValidator: Werkend met bekende beperkingen
+- ⏳ DefinitionRepository: Nog te reviewen
+
+**Algemene Status**:
+- Import blocking issues zijn opgelost
+- Basis architectuur werkt
+- Maar praktische bruikbaarheid beperkt door incomplete toetsregels
+
+### 2025-01-14 (Avond) - Toetsregels Naming Fix
+✅ **Toetsregels Naming Convention Gefixt**
+- 90 files hernoemd naar consistente XXX-00 format
+- ARAI01 → ARAI-01, CON_01 → CON-01, etc.
+- DISPATCHER bijgewerkt voor nieuwe naming
+- Alle placeholder "nog geen toetsfunctie" warnings zijn WEG
+- Validator score verbeterd: 0.52 → 0.70
+
+⚠️ **ISSUE: Ontbrekende Toetsregel INT-05**
+- MASTER-TODO verwacht 46 toetsregels
+- Werkelijk aanwezig: 45 toetsregels
+- Ontbreekt: INT-05
+- Geen referenties naar INT-05 gevonden in codebase
+- Status: ONBEKEND waarom deze ontbreekt
+
+✅ **DefinitionValidator Volledig Hertest**
+- Volledige code review protocol opnieuw uitgevoerd na fixes
+- Alle 5 phases succesvol doorlopen
+- GEEN placeholder messages meer (kritieke check passed)
+- Performance: EXCELLENT (0.4ms per validatie)
+- 32/32 tests slagen, 98% coverage behouden
+- Status geüpdatet: Van "Werkend met beperkingen" naar "VOLLEDIG WERKEND"
+
+⚠️ **DefinitionRepository Review (Item 0.3)**
+- Protocol review uitgevoerd: DEELS WERKEND
+- Basis CRUD voor definities: ✅ WERKEND
+- Voorbeelden management: ❌ KAPOT (9 connection bugs)
+- Bug locatie: save_voorbeelden, get_voorbeelden, update_voorbeelden_status, delete_voorbeelden
+- Impact: Alle voorbeelden functionaliteit onbruikbaar
+- Score: 0.65/1.0 (basis werkt, voorbeelden niet)
+- Fix vereist: Gebruik _get_connection() i.p.v. self.conn
+
+✅ **DefinitionRepository Fixes Toegepast**
+- Alle 9 connection bugs gefixt in 4 methodes
+- save_voorbeelden: Fixed + UPSERT logic toegevoegd
+- get_voorbeelden: Fixed
+- beoordeel_voorbeeld: Fixed
+- delete_voorbeelden: Fixed
+- Unit tests toegevoegd: 12/15 slagen
+- Status: VOLLEDIG WERKEND voor voorbeelden management
+
+📝 **Review documentatie**:
+- [DefinitionValidator Post-Fix Review](docs/analysis/DEFINITION_VALIDATOR_POSTFIX_REVIEW.md)
+- [INT-05 Missing Issue](docs/issues/MISSING_INT05_ISSUE.md)
+- [DefinitionRepository Code Review](docs/analysis/DEFINITION_REPOSITORY_CODE_REVIEW.md)
+- [DefinitionRepository Fix Plan](docs/fixes/DEFINITION_REPOSITORY_FIX_PLAN.md)
 
 ## 📅 Week Planning
 
-### Week 1 - Foundation + CI/CD
-Ma-Di: Item 1 (Service Refactoring) + Basic CI/CD setup
-Wo-Do: Items 2, 3, 4 (Database, Web Lookup start, Test infra)
-Do: Item 5 (Definitie generatie temp=0)
-Vr: Item 11 deel 1 (UI Quick Wins voor direct resultaat)
+### Week 1 - Reality Check + Foundation
+**Maandag - Code Reviews Dag 1**
+- 09:00-10:30: 🔴 DefinitionGenerator review (kritiek!)
+- 10:30-12:00: 🔴 DefinitionValidator + 46 regels check
+- 13:00-14:00: 🔴 DefinitionRepository + concurrent test
+- 14:00-15:30: 🟡 Service Architecture verificatie
+- 15:30-17:00: 🟡 DefinitionOrchestrator integratie check
+- 17:00-17:30: Documenteer bevindingen + prioriteiten
+
+**Dinsdag - Code Reviews Dag 2 + Start Fixes**
+- 09:00-10:00: 🟢 Database migraties & UTF-8 check
+- 10:00-11:00: 🟢 Feature flags verificatie
+- 11:00-12:00: Consolideer alle bevindingen
+- 13:00-17:00: Start met HOOGSTE prioriteit fixes
+
+**Woensdag t/m Vrijdag**
+- Focus op kritieke fixes uit review
+- WebLookupService herstel (3-weken traject start)
+- Database & Test infrastructure fixes
 
 ### Week 2 - Kernfuncties Perfectie
-Focus: Item 6 (46 toetsregels verbeteren) + Items 7, 11, 12 (Quick wins)
+Focus: Item 6 (46 toetsregels verbeteren) + Items 6b (Ontologie), 7, 11, 12 (Quick wins)
 
 ### Week 3 - Features I
-Focus: Item 6 afmaken + Items 8 (deel 1), 10
+Focus: Item 6 afmaken + Items 8 (deel 1), 10, 10b (AI transparantie), 10c (Versie UI)
 
 ### Week 4 - Features II + Testing
 Focus: Items 8 (deel 2), 9 + A/B testing framework
 
 ### Week 5 - Testing & Integratie
-Focus: Items 13, 14 (incl. integration tests critical paths)
+Focus: Items 13, 14, 14b (Audit) (incl. integration tests critical paths)
 
 ### Week 6+ - Deploy & Buffer
-Focus: Item 15 + buffer + beslissingen implementeren
+Focus: Item 15, 15b (Monitoring), 15c (API) + buffer + beslissingen implementeren
 
 **Nota**: Timeline is flexibel - kernfuncties moeten perfect werken
+
+## 🔮 TOEKOMSTIGE EPICS (Na MVP)
+
+### EPIC: Enterprise Features
+- Multi-tenant support
+- Advanced RBAC
+- SSO integratie
+- Custom workflows
+
+### EPIC: Advanced Analytics
+- ML model performance tracking
+- Definitie kwaliteit trends
+- Usage analytics dashboard
+- Cost optimization AI
+
+### EPIC: Integraties
+- MS Word plugin
+- Juridische databases
+- Workflow tools
+- Export naar standards
 
 ---
 
 **BELANGRIJK**: 
 - Dit document is de ENIGE bron van waarheid
 - Update wekelijks op vrijdag
-- Oude planning docs zijn DEPRECATED
+- Oude planning docs zijn DEPRECATED (inclusief ONTBREKENDE-FUNCTIONALITEITEN.md)
 - Bij twijfel: check dit document
