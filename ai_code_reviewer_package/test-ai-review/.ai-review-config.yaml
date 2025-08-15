@@ -1,0 +1,16 @@
+custom_check_types:
+- sql_safety
+- framework_patterns
+custom_checks: true
+docstring_language: english
+false_positive_filters:
+- logger.
+- log.
+- print(
+- errors.append
+- message=f"
+- raise
+framework: generic
+max_iterations: 5
+source_dirs:
+- .

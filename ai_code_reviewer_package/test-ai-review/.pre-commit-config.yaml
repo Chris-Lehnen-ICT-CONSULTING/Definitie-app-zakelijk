@@ -1,0 +1,51 @@
+# Pre-commit hooks configuration voor AI Code Review
+# Automatisch uitgevoerd bij elke commit
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-json
+      - id: check-toml
+
+  - repo: https://github.com/psf/black
+    rev: 23.9.1
+    hooks:
+      - id: black
+        language_version: python3
+        args: [--line-length=88]
+
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.1.5
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+
+  - repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.6.1
+    hooks:
+      - id: mypy
+        additional_dependencies: [types-requests, types-PyYAML]
+        args: [--ignore-missing-imports]
+
+  - repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+      - id: bandit
+        args: [-r, -ll]
+        exclude: tests/
+
+  # AI Code Review hook - runs comprehensive review
+  - repo: local
+    hooks:
+      - id: ai-code-review
+        name: AI Code Review
+        entry: ai-code-review
+        language: system
+        args: [--ai-agent, "pre-commit"]
+        pass_filenames: false
+        always_run: true
