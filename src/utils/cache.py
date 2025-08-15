@@ -351,3 +351,43 @@ def cache_synonym_generation(ttl: int = 7200):  # 2 hours
         )
     
     return cached(ttl=ttl, cache_key_func=cache_key_func)
+
+
+# Async cache support functions
+import asyncio
+
+def cache_async_result(ttl: Optional[int] = None):
+    """
+    Async version of the cached decorator.
+    
+    Args:
+        ttl: Time to live in seconds (default: 1 hour)
+        
+    Example:
+        @cache_async_result(ttl=3600)
+        async def expensive_async_function(param1, param2):
+            return await some_expensive_async_computation(param1, param2)
+    """
+    def decorator(func):
+        @wraps(func)
+        async def wrapper(*args, **kwargs):
+            # Generate cache key
+            cache_key = _cache._generate_cache_key(func.__name__, *args, **kwargs)
+            
+            # Try to get from cache
+            cached_result = _cache.get(cache_key)
+            if cached_result is not None:
+                logger.debug(f"Cache hit for {func.__name__}")
+                return cached_result
+            
+            # Cache miss - execute async function
+            logger.debug(f"Cache miss for {func.__name__}")
+            result = await func(*args, **kwargs)
+            
+            # Store in cache
+            _cache.set(cache_key, result, ttl)
+            
+            return result
+        
+        return wrapper
+    return decorator

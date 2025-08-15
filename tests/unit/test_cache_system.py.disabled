@@ -10,8 +10,7 @@ import shutil
 from unittest.mock import patch, MagicMock, call
 from datetime import datetime, timedelta
 
-from utils.cache import cached, clear_cache, get_cache_stats, CacheManager
-from utils.enhanced_cache import EnhancedCache
+from utils.cache import cached, clear_cache, get_cache_stats
 
 
 class TestCacheDecorator:
