@@ -2,19 +2,20 @@
 External Sources Tab - Interface voor externe definitie bronnen.
 """
 
-import streamlit as st  # Streamlit web interface framework
 import json  # JSON data verwerking voor configuraties
-from typing import Dict, List  # Type hints voor code documentatie
 from datetime import datetime  # Datum en tijd functionaliteit
 from pathlib import Path  # Bestandspad manipulatie
+from typing import Dict, List  # Type hints voor code documentatie
 
-from database.definitie_repository import (
+import streamlit as st  # Streamlit web interface framework
+
+from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
     DefinitieStatus,
-)  # Database toegang voor definities
-from ui.session_state import (
+)
+from ui.session_state import (  # Sessie status management voor Streamlit
     SessionStateManager,
-)  # Sessie status management voor Streamlit
+)
 
 
 class ExternalSourcesTab:
@@ -41,13 +42,25 @@ class ExternalSourcesTab:
 
             # Importeer externe bron adapter componenten
             from external_source_adapter import (
-                ExternalSourceManager,  # Manager voor externe bronnen
-                create_mock_source,  # Factory voor mock bronnen (testing)
-                create_file_source,  # Factory voor bestandssysteem bronnen
                 ExternalSourceConfig,  # Configuratie container voor bronnen
+            )
+            from external_source_adapter import (
+                ExternalSourceManager,  # Manager voor externe bronnen
+            )
+            from external_source_adapter import (
                 ExternalSourceType,  # Enumeratie van bron types
-                MockExternalAdapter,  # Mock adapter voor development
+            )
+            from external_source_adapter import (
                 FileSystemAdapter,  # Bestandssysteem adapter
+            )
+            from external_source_adapter import (
+                MockExternalAdapter,  # Mock adapter voor development
+            )
+            from external_source_adapter import (
+                create_file_source,  # Factory voor bestandssysteem bronnen
+            )
+            from external_source_adapter import (
+                create_mock_source,  # Factory voor mock bronnen (testing)
             )
 
             # Sla klassen op voor gebruik in de tab

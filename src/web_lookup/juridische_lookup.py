@@ -4,7 +4,10 @@ Dit module bevat functionaliteit voor het herkennen en verwerken
 van juridische verwijzingen in teksten zoals artikelen en wetten.
 """
 
+import json  # JSON verwerking voor logging
+import os  # Besturingssysteem interface
 import re  # Reguliere expressies voor patroon matching
+from datetime import datetime
 
 # Herken meerdere juridische verwijzingsvormen met aparte regex patronen
 # Ondersteunt verschillende formaten van juridische verwijzingen
@@ -42,9 +45,6 @@ _REGEX_PATRONEN = [
 
 # Logging van juridische verwijzingen (optioneel)
 # Voor het bijhouden van gevonden verwijzingen voor analyse
-import os  # Besturingssysteem interface
-import json  # JSON verwerking voor logging
-from datetime import datetime
 
 
 def zoek_wetsartikelstructuur(

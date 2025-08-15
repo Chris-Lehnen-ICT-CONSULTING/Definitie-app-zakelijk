@@ -8,32 +8,33 @@ voor robuuste en betrouwbare API operaties.
 import asyncio  # Asynchrone programmering voor niet-blokkerende resilience
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor retry timing en rate limiting
-from typing import (
-    Dict,
-    Optional,
-    Callable,
-    Any,
-)  # Type hints voor betere code documentatie
 from dataclasses import dataclass  # Dataklassen voor gestructureerde configuratie
 from functools import wraps  # Decorator utilities voor resilience wrappers
+from typing import (  # Type hints voor betere code documentatie
+    Any,
+    Callable,
+    Dict,
+    Optional,
+)
 
-# Importeer alle resilience componenten voor geïntegreerd systeem
-from utils.enhanced_retry import (
-    AdaptiveRetryManager,
-    RetryConfig,  # Adaptieve retry management
-)
-from utils.smart_rate_limiter import (
-    SmartRateLimiter,
-    RateLimitConfig,
-    RequestPriority,  # Intelligente rate limiting
-)
-from utils.resilience import (
-    ResilienceFramework,
-    ResilienceConfig,  # Basis resilience framework
-)
+from monitoring.api_monitor import record_api_call  # Monitoring en metrics collectie
 from monitoring.api_monitor import (
     get_metrics_collector,
-    record_api_call,  # Monitoring en metrics collectie
+)
+
+# Importeer alle resilience componenten voor geïntegreerd systeem
+from utils.enhanced_retry import RetryConfig  # Adaptieve retry management
+from utils.enhanced_retry import (
+    AdaptiveRetryManager,
+)
+from utils.resilience import ResilienceConfig  # Basis resilience framework
+from utils.resilience import (
+    ResilienceFramework,
+)
+from utils.smart_rate_limiter import RequestPriority  # Intelligente rate limiting
+from utils.smart_rate_limiter import (
+    RateLimitConfig,
+    SmartRateLimiter,
 )
 
 logger = logging.getLogger(

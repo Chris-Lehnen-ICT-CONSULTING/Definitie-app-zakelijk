@@ -5,21 +5,19 @@ New code should use UnifiedDefinitionService directly.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Tuple, Callable
+import os
+import sys
 from dataclasses import dataclass
-
-from utils.exceptions import APIError, ValidationError
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 # Import the new unified service
 from services.unified_definition_service import (
+    ArchitectureMode,
+    ProcessingMode,
     UnifiedDefinitionService,
     UnifiedServiceConfig,
-    ProcessingMode,
-    ArchitectureMode,
 )
-
-import sys
-import os
+from utils.exceptions import APIError, ValidationError
 
 # Voeg root directory toe aan Python path voor logs module toegang
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))

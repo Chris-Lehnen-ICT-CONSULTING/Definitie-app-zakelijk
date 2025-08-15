@@ -5,9 +5,9 @@ Een definitie moet tijdloos zijn en geen verwijzingen bevatten naar 'nu', 'momen
 Gemigreerd van legacy core.py
 """
 
-import re
-from typing import Dict, List, Tuple, Optional
 import logging
+import re
+from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 

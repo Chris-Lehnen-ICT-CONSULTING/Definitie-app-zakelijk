@@ -2,21 +2,21 @@
 Document Processor - Verwerk geüploade documenten voor context enrichment.
 """
 
-import logging  # Logging faciliteiten voor debug en monitoring
 import hashlib  # Hash functionaliteit voor unieke document identifiers
 import json  # JSON verwerking voor metadata opslag
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
-from typing import Dict, List, Optional, Any  # Type hints voor betere code documentatie
-from dataclasses import (
-    dataclass,
+import logging  # Logging faciliteiten voor debug en monitoring
+from dataclasses import (  # Dataklassen voor gestructureerde document data
     asdict,
-)  # Dataklassen voor gestructureerde document data
+    dataclass,
+)
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 from pathlib import Path  # Object-georiënteerde pad manipulatie
+from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
 
-from .document_extractor import (
+from .document_extractor import (  # Importeer tekst extractie functionaliteit
     extract_text_from_file,
     get_file_info,
-)  # Importeer tekst extractie functionaliteit
+)
 
 logger = logging.getLogger(__name__)  # Logger instantie voor document processing module
 

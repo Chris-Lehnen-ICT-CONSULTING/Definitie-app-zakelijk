@@ -5,11 +5,11 @@ Laadt toetsregels uit zowel JSON configuratie als Python validatie modules.
 Elke toetsregel kan zijn eigen Python module hebben voor complexe validatie logica.
 """
 
-import json
 import importlib.util
+import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, Callable, Tuple, List
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 

@@ -2,14 +2,15 @@
 History Tab - Interface voor definitie geschiedenis en audit trail.
 """
 
-import streamlit as st
-import pandas as pd
-from typing import Dict, Any, List
 from datetime import datetime, timedelta
+from typing import Any, Dict, List
+
+import pandas as pd
+import streamlit as st
 
 from database.definitie_repository import (
-    DefinitieRepository,
     DefinitieRecord,
+    DefinitieRepository,
     DefinitieStatus,
 )
 from ui.session_state import SessionStateManager
@@ -84,7 +85,7 @@ class HistoryTab:
                     ["Alle"] + sorted(list(all_contexts)),
                     key="history_context_filter",
                 )
-            except:
+            except Exception:
                 context_filter = "Alle"
 
         with col4:

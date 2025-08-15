@@ -3,8 +3,8 @@ Smart Source Selector - Intelligente selectie van web bronnen op basis van docum
 """
 
 import logging
-from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 

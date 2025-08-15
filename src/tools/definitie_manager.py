@@ -5,25 +5,29 @@ Biedt functionaliteit voor CRUD operaties, import/export, en duplicate checking.
 """
 
 import argparse  # Command line argument parsing voor CLI interface
+import logging  # Logging faciliteiten voor debug en monitoring
 import sys  # Systeem interface voor path manipulatie
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-import logging  # Logging faciliteiten voor debug en monitoring
 
 # Voeg src directory toe aan Python path voor module imports
 sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
 
 # Importeer database en core componenten voor definitie management
 from database.definitie_repository import (
-    get_definitie_repository,
     DefinitieStatus,  # Status en bron type enumeraties
+)
+from database.definitie_repository import (
+    get_definitie_repository,
+)
+from generation.definitie_generator import (  # Ontologische categorieën
+    OntologischeCategorie,
+)
+from integration.definitie_checker import (
+    generate_or_retrieve_definition,  # Integratie en duplicaat checking
 )
 from integration.definitie_checker import (
     DefinitieChecker,
-    generate_or_retrieve_definition,  # Integratie en duplicaat checking
 )
-from generation.definitie_generator import (
-    OntologischeCategorie,
-)  # Ontologische categorieën
 
 # Setup logging configuratie voor CLI tool
 logging.basicConfig(

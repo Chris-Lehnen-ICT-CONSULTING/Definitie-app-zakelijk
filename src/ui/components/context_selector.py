@@ -2,9 +2,10 @@
 Context Selector Component - Enhanced multi-select context management.
 """
 
-import streamlit as st
-from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
+from typing import Any, Dict, List, Optional
+
+import streamlit as st
 
 from ui.session_state import SessionStateManager
 

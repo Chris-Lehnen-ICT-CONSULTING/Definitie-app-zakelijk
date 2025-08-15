@@ -120,7 +120,7 @@ class AICodeReviewer:
             # Check voor GitHub Copilot
             if 'copilot' in os.getenv('PATH', ''):
                 return "copilot"
-        except:
+        except Exception:
             pass
             
         return self.ai_agent or "manual"

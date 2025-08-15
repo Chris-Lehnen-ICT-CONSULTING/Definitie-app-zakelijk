@@ -6,13 +6,13 @@ from typing import Dict, List
 
 from openai import OpenAI, OpenAIError
 
-from web_lookup import zoek_definitie_combinatie  # ✅ extern web‐lookup
 from config.config_loader import laad_toetsregels  # ✅ laad toetsregels
 from prompt_builder import (
     PromptBouwer,
     PromptConfiguratie,
     stuur_prompt_naar_gpt,
 )
+from web_lookup import zoek_definitie_combinatie  # ✅ extern web‐lookup
 
 # ✅ Init OpenAI-client (één keer)
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))

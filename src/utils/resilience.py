@@ -4,18 +4,18 @@ Provides health monitoring, failover strategies, and request queue persistence.
 """
 
 import asyncio
-import logging
 import json
+import logging
+import pickle
 import time
-from typing import Dict, List, Optional, Callable, Any, Tuple
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-import pickle
+from typing import Any, Callable, Dict, List, Optional, Tuple
 
 from utils.enhanced_retry import AdaptiveRetryManager
-from utils.smart_rate_limiter import SmartRateLimiter, RequestPriority
+from utils.smart_rate_limiter import RequestPriority, SmartRateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -554,7 +554,6 @@ class ResilienceFramework:
                 for request in retryable_requests:
                     try:
                         # Attempt to retry the request
-                        func_name = request.function_name
                         # Note: In a real implementation, you would need a registry
                         # of functions to call by name
                         logger.info(

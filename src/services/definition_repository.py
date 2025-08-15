@@ -5,22 +5,23 @@ Deze service is verantwoordelijk voor het opslaan en ophalen van definities
 uit de database met een clean interface.
 """
 
-import sqlite3
 import json
 import logging
-from typing import List, Optional, Dict, Any
-from datetime import datetime
+import sqlite3
 from contextlib import contextmanager
-
-from services.interfaces import DefinitionRepositoryInterface, Definition
+from datetime import datetime
+from typing import Any, Dict, List, Optional
 
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
-    DefinitieRepository as LegacyRepository,
     DefinitieRecord,
+)
+from database.definitie_repository import DefinitieRepository as LegacyRepository
+from database.definitie_repository import (
     DefinitieStatus,
     SourceType,
 )
+from services.interfaces import Definition, DefinitionRepositoryInterface
 
 logger = logging.getLogger(__name__)
 
@@ -349,7 +350,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 definition.metadata["validation_issues"] = json.loads(
                     record.validation_issues
                 )
-            except:
+            except (json.JSONDecodeError, ValueError):
                 pass
 
         return definition
@@ -376,7 +377,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             if col_name.endswith("_at") and value:
                 try:
                     value = datetime.fromisoformat(value)
-                except:
+                except (ValueError, TypeError):
                     pass
 
             record_data[col_name] = value
@@ -411,7 +412,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 )
                 stats["by_status"] = dict(cursor.fetchall())
 
-        except:
+        except (sqlite3.Error, Exception):
             pass
 
         return stats

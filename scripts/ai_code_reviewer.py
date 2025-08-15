@@ -112,7 +112,7 @@ class AICodeReviewer:
                 
             # Run ruff check
             result = subprocess.run(
-                ["ruff", "check", "src/", "--output-format=json"],
+                ["ruff", "check", "--output-format=json", "src/"],
                 capture_output=True,
                 text=True,
                 cwd=self.project_root
@@ -122,13 +122,45 @@ class AICodeReviewer:
                 try:
                     ruff_output = json.loads(result.stdout)
                     for violation in ruff_output:
+                        # Bepaal of deze violation fixable is
+                        # Ruff kan veel fixes toepassen, ook al is 'fix' None in de output
+                        fixable_codes = {
+                            'F401',  # unused import
+                            'F841',  # unused variable
+                            'F811',  # redefinition of unused
+                            'I001',  # unsorted imports
+                            'UP',    # pyupgrade rules
+                            'D',     # pydocstyle rules
+                            'ANN',   # flake8-annotations
+                            'B',     # flake8-bugbear (sommige)
+                            'C4',    # flake8-comprehensions
+                            'EM',    # flake8-errmsg
+                            'ICN',   # flake8-import-conventions
+                            'PGH',   # pygrep-hooks
+                            'PIE',   # flake8-pie
+                            'PT',    # flake8-pytest-style
+                            'RET',   # flake8-return
+                            'SIM',   # flake8-simplify
+                            'TCH',   # flake8-type-checking
+                            'TID',   # flake8-tidy-imports
+                            'UP',    # pyupgrade
+                        }
+                        
+                        code = violation['code']
+                        # Check of de code of het prefix fixable is
+                        is_fixable = (
+                            code in fixable_codes or 
+                            any(code.startswith(prefix) for prefix in fixable_codes) or
+                            violation.get('fix') is not None
+                        )
+                        
                         issues.append(ReviewIssue(
                             check="ruff",
                             severity="IMPORTANT",
                             message=f"{violation['code']}: {violation['message']}",
                             file_path=violation['filename'],
                             line_number=violation['location']['row'],
-                            fixable=violation.get('fix') is not None
+                            fixable=is_fixable
                         ))
                 except json.JSONDecodeError:
                     # Fallback voor non-JSON output
@@ -398,37 +430,120 @@ class AICodeReviewer:
         """Pas automatische fixes toe waar mogelijk."""
         fixes_applied = 0
         
-        # Groepeer fixable issues per tool
-        ruff_fixable = any(i.check == "ruff" and i.fixable for i in issues)
-        black_fixable = any(i.check == "black" and i.fixable for i in issues)
+        # Track aantal issues voor en na fixes
+        initial_ruff_issues = sum(1 for i in issues if i.check == "ruff")
+        initial_black_issues = sum(1 for i in issues if i.check == "black")
         
-        if ruff_fixable:
-            logger.info("🔧 Applying Ruff auto-fixes...")
+        # Identificeer werkelijk fixable ruff issues
+        fixable_ruff_codes = {'F401', 'F841', 'F811', 'I001', 'UP', 'D', 'C4', 'EM', 'ICN', 
+                              'PGH', 'PIE', 'PT', 'RET', 'SIM', 'TCH', 'TID'}
+        
+        actually_fixable_ruff = sum(
+            1 for i in issues 
+            if i.check == "ruff" and 
+            any(i.message.startswith(code + ":") for code in fixable_ruff_codes)
+        )
+        
+        # Apply Ruff fixes
+        if actually_fixable_ruff > 0:
+            logger.info(f"🔧 Applying Ruff auto-fixes ({actually_fixable_ruff} fixable out of {initial_ruff_issues} total)...")
             try:
-                result = subprocess.run(
-                    ["ruff", "check", "src/", "--fix"],
+                # Get initial issue count
+                before_fix = subprocess.run(
+                    ["ruff", "check", "--statistics", "src/"],
                     capture_output=True,
                     text=True,
                     cwd=self.project_root
                 )
-                if result.returncode == 0:
-                    fixes_applied += 1
-                    logger.info("✅ Ruff fixes applied")
+                
+                # Apply fixes
+                fix_result = subprocess.run(
+                    ["ruff", "check", "--fix", "--unsafe-fixes", "src/"],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,  # Combine stderr with stdout
+                    text=True,
+                    cwd=self.project_root
+                )
+                
+                # Get count after fix
+                after_fix = subprocess.run(
+                    ["ruff", "check", "--statistics", "src/"],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.project_root
+                )
+                
+                # Parse statistics to see what was fixed
+                def parse_ruff_stats(output):
+                    if not output:
+                        return 0
+                    lines = output.strip().split('\n')
+                    total = 0
+                    for line in lines:
+                        if line.strip() and not line.startswith('Found'):
+                            try:
+                                count = int(line.split()[0])
+                                total += count
+                            except (ValueError, IndexError):
+                                pass
+                    return total
+                
+                before_count = parse_ruff_stats(before_fix.stdout)
+                after_count = parse_ruff_stats(after_fix.stdout)
+                
+                # First check the fix result output for "X fixed" pattern
+                fixed_count = 0
+                if fix_result.stdout:
+                    # Parse "Found X error (Y fixed, Z remaining)" from output
+                    import re
+                    match = re.search(r'\((\d+) fixed', fix_result.stdout)
+                    if match:
+                        fixed_count = int(match.group(1))
+                
+                # If no fixes found in output, try statistics comparison
+                if fixed_count == 0:
+                    fixed_count = before_count - after_count
+                
+                if fixed_count > 0:
+                    fixes_applied += fixed_count
+                    logger.info(f"✅ Ruff fixed {fixed_count} issues")
+                else:
+                    logger.info("⚠️ Ruff could not auto-fix any issues (manual intervention required)")
+                    
             except Exception as e:
                 logger.error(f"Ruff auto-fix failed: {e}")
                 
-        if black_fixable:
+        # Apply Black formatting
+        if initial_black_issues > 0:
             logger.info("🔧 Applying Black formatting...")
             try:
-                result = subprocess.run(
+                # Get list of files that need formatting
+                check_result = subprocess.run(
+                    ["black", "--check", "--diff", "src/"],
+                    capture_output=True,
+                    text=True,
+                    cwd=self.project_root
+                )
+                
+                files_to_format = []
+                if check_result.returncode != 0 and check_result.stderr:
+                    for line in check_result.stderr.split('\n'):
+                        if 'would reformat' in line:
+                            files_to_format.append(line)
+                
+                # Apply formatting
+                format_result = subprocess.run(
                     ["black", "src/"],
                     capture_output=True,
                     text=True,
                     cwd=self.project_root
                 )
-                if result.returncode == 0:
-                    fixes_applied += 1
-                    logger.info("✅ Black formatting applied")
+                
+                # Check if formatting was applied
+                if format_result.returncode == 0 and len(files_to_format) > 0:
+                    fixes_applied += len(files_to_format)
+                    logger.info(f"✅ Black formatted {len(files_to_format)} files")
+                    
             except Exception as e:
                 logger.error(f"Black formatting failed: {e}")
                 
@@ -523,7 +638,17 @@ class AICodeReviewer:
         report += "## 📊 Metrics\n\n"
         report += f"- Total issues found: {len(self.issues_found)}\n"
         report += f"- Issues auto-fixed: {self.auto_fixes_applied}\n"
+        report += f"- Manual fixes required: {len(result.issues)}\n"
         report += f"- Review efficiency: {(self.auto_fixes_applied / len(self.issues_found) * 100) if self.issues_found else 100:.1f}%\n"
+        
+        # Add breakdown by tool
+        report += "\n### Issues by Tool\n\n"
+        tool_counts = {}
+        for issue in result.issues:
+            tool_counts[issue.check] = tool_counts.get(issue.check, 0) + 1
+        
+        for tool, count in sorted(tool_counts.items()):
+            report += f"- **{tool}**: {count} issues\n"
         
         return report
     
@@ -549,16 +674,25 @@ class AICodeReviewer:
             # Try auto-fixes first
             fixable_issues = [i for i in issues if i.fixable]
             if fixable_issues:
+                logger.info(f"🔍 Found {len(fixable_issues)} fixable issues")
                 fixes_applied = self.apply_auto_fixes(issues)
                 if fixes_applied > 0:
                     logger.info(f"🔧 Applied {fixes_applied} auto-fixes")
                     continue
+                else:
+                    logger.warning("⚠️ No auto-fixes could be applied")
                     
-            # If we can't auto-fix, generate AI feedback
-            unfixable_issues = [i for i in issues if not i.fixable]
-            if unfixable_issues:
-                feedback = self.generate_ai_feedback(unfixable_issues)
-                logger.info("📝 Generated AI feedback")
+            # Generate AI feedback for all remaining issues
+            if issues:
+                # Separate fixable but unfixed issues from truly unfixable ones
+                fixable_but_unfixed = [i for i in issues if i.fixable]
+                unfixable_issues = [i for i in issues if not i.fixable]
+                
+                if fixable_but_unfixed:
+                    logger.info(f"⚠️ {len(fixable_but_unfixed)} issues marked as fixable but couldn't be auto-fixed")
+                
+                feedback = self.generate_ai_feedback(issues)
+                logger.info("📝 Generated AI feedback for remaining issues")
                 
                 # In een echte implementatie zou je hier de AI API aanroepen
                 # Voor nu printen we de feedback
@@ -566,8 +700,8 @@ class AICodeReviewer:
                 print(feedback)
                 print("="*60 + "\n")
                 
-                # Voor demo: stop na eerste iteratie met unfixable issues
-                if any(i.severity == "BLOCKING" for i in unfixable_issues):
+                # Voor demo: stop na eerste iteratie met blocking issues
+                if any(i.severity == "BLOCKING" for i in issues):
                     logger.warning("🛑 Blocking issues require manual intervention")
                     break
                     

@@ -5,15 +5,16 @@ Upload en verwerk documenten voor context verrijking en hybride definitie genera
 Ondersteunt PDF, DOCX, TXT en andere documentformaten voor tekstextractie.
 """
 
-# Importeer document processing componenten voor bestandsverwerking
-from .document_processor import (
-    DocumentProcessor,
-    ProcessedDocument,
-)  # Document processor en resultaat klassen
-from .document_extractor import (
+from .document_extractor import (  # Tekst extractie functionaliteit
     extract_text_from_file,
     supported_file_types,
-)  # Tekst extractie functionaliteit
+)
+
+# Importeer document processing componenten voor bestandsverwerking
+from .document_processor import (  # Document processor en resultaat klassen
+    DocumentProcessor,
+    ProcessedDocument,
+)
 
 # Exporteer publieke interface - alle document processing componenten
 __all__ = [

@@ -15,6 +15,7 @@ import streamlit as st
 from dataclasses import dataclass, asdict
 import sqlite3
 import logging
+import sys
 
 logger = logging.getLogger(__name__)
 
@@ -373,6 +374,6 @@ if __name__ == "__main__":
     try:
         import streamlit as st
         create_streamlit_dashboard()
-    except:
+    except ImportError:
         # Not in Streamlit, run CLI
         main()

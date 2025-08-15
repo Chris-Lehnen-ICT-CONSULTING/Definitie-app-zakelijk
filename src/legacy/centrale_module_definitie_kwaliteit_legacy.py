@@ -7,43 +7,46 @@
 # ✅ load_dotenv() en logger-init onderaan voor juiste volgorde
 
 # ✅ Standaardbibliotheek
-import os
 import json
+import os
 import re
+import sys
 from datetime import datetime
 
 # ✅ Externe modules
-import streamlit as st
 import pandas as pd
+import streamlit as st
 from dotenv import load_dotenv
 
 # ✅ Streamlit pagina-configuratie
 st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
 # ✅ Configuratie en logging
-import sys
 
 # Voeg root directory toe aan Python path voor logs module toegang
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from logs.application.log_definitie import (
-    get_logger,
-    log_definitie,
-)  # Logging uit root logs directory
+from ai_toetser import toets_definitie
 from config.config_loader import laad_toetsregels, laad_verboden_woorden
-from config.verboden_woorden import sla_verboden_woorden_op, log_test_verboden_woord
-
+from config.verboden_woorden import log_test_verboden_woord, sla_verboden_woorden_op
 
 # ✅ AI & promptfunctionaliteit
 from definitie_generator.generator import genereer_definitie
-from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
-from ai_toetser import toets_definitie
+from logs.application.log_definitie import (  # Logging uit root logs directory
+    get_logger,
+    log_definitie,
+)
+from prompt_builder.prompt_builder import (
+    PromptBouwer,
+    PromptConfiguratie,
+    stuur_prompt_naar_gpt,
+)
 
 # ✅ Voorbeeldgeneratie - Unified module
 from voorbeelden.unified_voorbeelden import (
-    genereer_voorbeeld_zinnen,
     genereer_praktijkvoorbeelden,
     genereer_tegenvoorbeelden,
+    genereer_voorbeeld_zinnen,
 )
 
 # ✅ Initialisatie
@@ -357,8 +360,6 @@ gebruik_logging = st.checkbox(
 # st.markdown("### 📏 Toetsregels meegenomen in de definitie-opbouw")
 # st.markdown(selecteer_richtlijnen(toetsregels))  # geeft meteen de string die nodig is
 
-from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
-
 # ✅ Prompt pas bouwen na actie én ingevuld begrip
 actie = st.button("Genereer definitie")
 
@@ -647,9 +648,9 @@ if (
     and len(st.session_state["definitie_gecorrigeerd"].strip()) > 3
 ):
     if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
-        from export import (
+        from export import (  # ✅ Correcte module-import volgens projectstructuur
             exporteer_naar_txt,
-        )  # ✅ Correcte module-import volgens projectstructuur
+        )
 
         # ✅ Zorg dat alle benodigde gegevens in de sessiestatus staan
         st.session_state["begrip"] = begrip
@@ -1039,9 +1040,9 @@ with tab_expert:
             # ✅ Logging van het testresultaat (Voorstel 4b)
             # 🧠 Dit maakt analyse en debugging mogelijk in JSONL-log
             # De import wordt hier herhaald voor het geval de module nog niet geladen is.
-            from config.verboden_woorden import (
+            from config.verboden_woorden import (  # ✅ Als nog niet geïmporteerd
                 log_test_verboden_woord,
-            )  # ✅ Als nog niet geïmporteerd
+            )
 
             log_test_verboden_woord(test_woord, test_zin, komt_voor, regex_match)
 

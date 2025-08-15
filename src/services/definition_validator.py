@@ -6,18 +6,17 @@ volgens de Nederlandse overheid kwaliteitscriteria.
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Set
 from dataclasses import dataclass, field
-
-from services.interfaces import (
-    DefinitionValidatorInterface,
-    Definition,
-    ValidationResult,
-)
+from typing import Any, Dict, List, Optional, Set
 
 # Legacy imports voor backward compatibility
 from ai_toetser.core import toets_definitie
 from config.config_loader import laad_toetsregels
+from services.interfaces import (
+    Definition,
+    DefinitionValidatorInterface,
+    ValidationResult,
+)
 
 logger = logging.getLogger(__name__)
 

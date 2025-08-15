@@ -1,9 +1,9 @@
-from typing import List, Dict
 import os
 import re
+from typing import Dict, List
+
 from dotenv import load_dotenv
-from openai import OpenAI
-from openai import OpenAIError
+from openai import OpenAI, OpenAIError
 
 # 💚 Laad .env zodat OPENAI_API_KEY beschikbaar wordt
 load_dotenv()

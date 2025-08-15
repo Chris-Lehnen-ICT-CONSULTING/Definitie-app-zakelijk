@@ -6,34 +6,36 @@ Deze module controleert of een definitie al bestaat voordat een nieuwe
 wordt gegenereerd, om duplicaten te voorkomen.
 """
 
-import logging  # Logging faciliteiten voor debug en monitoring
 import json  # JSON verwerking voor metadata
-from typing import (
-    Optional,
-    List,
-    Dict,
-    Any,
-    Tuple,
-)  # Type hints voor betere code documentatie
+import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import dataclass  # Dataklassen voor gestructureerde data
 from enum import Enum  # Enumeraties voor actie types
+from typing import (  # Type hints voor betere code documentatie
+    Any,
+    Dict,
+    List,
+    Optional,
+    Tuple,
+)
 
 # Database en core component imports
+from database.definitie_repository import SourceType  # Data modellen en enums
 from database.definitie_repository import (
-    DefinitieRepository,
     get_definitie_repository,  # Repository toegang en factory
+)
+from database.definitie_repository import (
     DefinitieRecord,
+    DefinitieRepository,
     DefinitieStatus,
     DuplicateMatch,
-    SourceType,  # Data modellen en enums
 )
-from generation.definitie_generator import (
+from generation.definitie_generator import (  # Generatie componenten
     OntologischeCategorie,
-)  # Generatie componenten
-from orchestration.definitie_agent import (
-    DefinitieAgent,
+)
+from orchestration.definitie_agent import (  # Orchestratie componenten
     AgentResult,
-)  # Orchestratie componenten
+    DefinitieAgent,
+)
 
 # Integrated service imports verplaatst naar functie niveau om circulaire imports te voorkomen
 
@@ -95,9 +97,9 @@ class DefinitieChecker:
         """Lazy load integrated service to avoid circular imports."""
         if self.integrated_service is None:
             from services.integrated_service import (
-                get_integrated_service,
                 ServiceConfig,
                 ServiceMode,
+                get_integrated_service,
             )
 
             service_config = ServiceConfig(

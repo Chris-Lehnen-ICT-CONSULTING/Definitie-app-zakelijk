@@ -8,23 +8,27 @@ als de nieuwe clean services gebruiken op basis van configuratie.
 import asyncio
 import logging
 import time
-from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass
 from enum import Enum
-
-# Importeer de originele UnifiedDefinitionService
-from services.unified_definition_service import (
-    UnifiedDefinitionService as LegacyService,
-    UnifiedServiceConfig,
-    UnifiedResult,
-    ProcessingMode,
-    ArchitectureMode,
-)
+from typing import Any, Dict, List, Optional, Union
 
 # Importeer nieuwe services
 from services.container import ServiceContainer, get_container
 from services.interfaces import GenerationRequest
 from services.service_factory import ServiceAdapter
+
+# Importeer de originele UnifiedDefinitionService
+from services.unified_definition_service import (
+    ArchitectureMode,
+    ProcessingMode,
+)
+from services.unified_definition_service import (
+    UnifiedDefinitionService as LegacyService,
+)
+from services.unified_definition_service import (
+    UnifiedResult,
+    UnifiedServiceConfig,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -110,7 +114,7 @@ class UnifiedDefinitionService(LegacyService):
 
                 # Streamlit session state heeft voorrang
                 use_new = st.session_state.get("use_new_services", use_new)
-            except:
+            except (ImportError, AttributeError):
                 pass
 
             self._service_mode_cache = (

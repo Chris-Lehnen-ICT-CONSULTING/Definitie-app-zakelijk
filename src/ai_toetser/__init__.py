@@ -10,14 +10,14 @@ Het package gebruikt een volledig modulaire architectuur met JSON configuratie
 en Python validators voor maximale flexibiliteit en onderhoudbaarheid.
 """
 
+# Importeer van nieuwe modulaire architectuur
+from .modular_toetser import (  # Modulaire toetser implementatie
+    ModularToetser,
+    toets_definitie,
+)
+
 # Importeer hoofdklasse voor AI toetsing functionaliteit
 from .toetser import Toetser  # OO-wrapper klasse voor verboden woorden toetsing
-
-# Importeer van nieuwe modulaire architectuur
-from .modular_toetser import (
-    toets_definitie,
-    ModularToetser,
-)  # Modulaire toetser implementatie
 
 # Exporteer publieke interface - alle toetsing componenten
 __all__ = [

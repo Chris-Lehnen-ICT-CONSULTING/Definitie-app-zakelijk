@@ -2,13 +2,14 @@
 Definition Generator Tab - Main AI definition generation interface.
 """
 
-import streamlit as st
-from typing import Dict, Any, List
-
-from ui.session_state import SessionStateManager
-from integration.definitie_checker import DefinitieChecker, CheckAction
-from database.definitie_repository import DefinitieRecord, DefinitieStatus
 import logging
+from typing import Any, Dict, List
+
+import streamlit as st
+
+from database.definitie_repository import DefinitieRecord, DefinitieStatus
+from integration.definitie_checker import CheckAction, DefinitieChecker
+from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
@@ -139,7 +140,7 @@ class DefinitionGeneratorTab:
 
         agent_result = generation_result.get("agent_result")
         saved_record = generation_result.get("saved_record")
-        timestamp = generation_result.get("timestamp")
+        generation_result.get("timestamp")
         determined_category = generation_result.get("determined_category")
 
         if agent_result:
@@ -528,8 +529,9 @@ class DefinitionGeneratorTab:
     def _export_definition(self, definitie: DefinitieRecord):
         """Exporteer definitie naar TXT bestand."""
         try:
-            from export.export_txt import exporteer_naar_txt
             import os
+
+            from export.export_txt import exporteer_naar_txt
 
             # Bereid gegevens voor voor export
             export_data = {

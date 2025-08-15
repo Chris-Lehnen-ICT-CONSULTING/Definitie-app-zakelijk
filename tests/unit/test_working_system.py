@@ -14,6 +14,10 @@ from config.config_manager import (
 from config.config_loader import laad_toetsregels
 from utils.cache import cached, clear_cache, get_cache_stats
 from ai_toetser.modular_toetser import ModularToetser
+from config.config_adapters import (
+    get_api_config, get_cache_config, get_paths_config,
+    get_default_model, get_default_temperature
+)
 
 
 class TestConfigurationSystem:
@@ -162,7 +166,7 @@ class TestModularToetser:
         # Load real toetsregels
         try:
             self.toetsregels = laad_toetsregels()
-        except:
+        except Exception:
             # Fallback minimal toetsregels for testing
             self.toetsregels = {
                 "CON-01": {
@@ -251,7 +255,7 @@ class TestSystemIntegration:
                     definitie=definition,
                     toetsregels=toetsregels
                 )
-            except:
+            except Exception:
                 return ["validation_error"]
         
         # First call
