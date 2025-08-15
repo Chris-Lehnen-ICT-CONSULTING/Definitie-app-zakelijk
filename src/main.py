@@ -12,6 +12,16 @@ import sys
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand
 
+# Voeg root directory toe aan Python path voor logs module toegang
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from logs.application.log_definitie import (  # Logging systeem uit root logs directory
+    get_logger,
+)
+from ui.session_state import SessionStateManager  # Sessie status beheer
+from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
+from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
+
 # Configureer Streamlit pagina - Stel basis pagina instellingen in
 st.set_page_config(
     page_title="DefinitieAgent",  # Browser tab titel
@@ -22,16 +32,6 @@ st.set_page_config(
 
 # Laad omgevingsvariabelen - Laad configuratie uit .env bestand
 load_dotenv()  # Laadt API keys, database configuratie, etc.
-
-# Voeg root directory toe aan Python path voor logs module toegang
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
-
-from logs.application.log_definitie import (  # Logging systeem uit root logs directory
-    get_logger,
-)
-from ui.session_state import SessionStateManager  # Sessie status beheer
-from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
-from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
 
 # Initialiseer logger - Stel logging in voor deze module
 logger = get_logger(__name__)  # Verkrijg logger instantie voor dit bestand

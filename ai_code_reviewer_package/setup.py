@@ -28,7 +28,7 @@ setup(
     version=read_version(),
     author="Chris Lehnen",
     author_email="chris@example.com",
-    description="Automated code review system with AI integration, BMAD Method support and universal post-edit hooks (v2.0.0)",
+    description="Automated code review system with AI integration, BMAD Method support and universal post-edit hooks (v2.1.0)",
     long_description=read_readme(),
     long_description_content_type="text/markdown",
     url="https://github.com/ChrisLehnen/ai-code-reviewer",
@@ -57,6 +57,9 @@ setup(
         "pyyaml>=6.0",
         "requests>=2.28.0",
         "click>=8.0.0",
+        "autoflake>=2.0.0",
+        "isort>=5.12.0",
+        "autopep8>=2.0.0",
     ],
     extras_require={
         "streamlit": ["streamlit>=1.28.0", "pandas>=2.0.0"],

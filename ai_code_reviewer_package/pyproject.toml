@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ai-code-reviewer"
 dynamic = ["version"]
-description = "Automated code review system with AI integration, BMAD Method support and universal post-edit hooks (v2.0.0)"
+description = "Automated code review system with AI integration, BMAD Method support and universal post-edit hooks (v2.1.0)"
 readme = "README.md"
 requires-python = ">=3.8"
 license = {text = "MIT"}

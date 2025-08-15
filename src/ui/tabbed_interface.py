@@ -21,7 +21,7 @@ from document_processing.document_extractor import (  # Ondersteunde bestandstyp
 from document_processing.document_processor import (  # Document processor factory
     get_document_processor,
 )
-from generation.definitie_generator import (  # Ontologische categorieën
+from services.unified_definition_generator import (  # Ontologische categorieën
     OntologischeCategorie,
 )
 from integration.definitie_checker import (  # Definitie integratie controle
@@ -61,9 +61,7 @@ from ui.session_state import (  # Sessie state management voor UI persistentie
 
 # Hybrid context imports - optionele module voor hybride context verrijking
 try:
-    from hybrid_context.hybrid_context_engine import (  # Hybride context engine factory
-        get_hybrid_context_engine,
-    )
+    import hybrid_context.hybrid_context_engine  # Hybride context engine module check
 
     HYBRID_CONTEXT_AVAILABLE = True  # Hybride context succesvol geladen
 except ImportError:

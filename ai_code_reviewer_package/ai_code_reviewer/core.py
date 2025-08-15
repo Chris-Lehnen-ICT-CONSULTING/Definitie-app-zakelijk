@@ -72,7 +72,7 @@ class AICodeReviewer:
         # Configureerbare patterns
         self.custom_checks_enabled = self.config.get('custom_checks', True)
         
-        # Verbeterde false positive filters (v2.0.0)
+        # Verbeterde false positive filters (v2.1.0)
         self.false_positive_filters = self.config.get('false_positive_filters', [
             'logger.', 'log.', 'print(', 'st.success', 'st.error', 'st.info',
             'st.write', 'st.markdown', 'f".*selected.*documents"',
@@ -346,7 +346,7 @@ class AICodeReviewer:
         return issues
     
     def _check_sql_safety(self) -> List[ReviewIssue]:
-        """Check voor SQL injection kwetsbaarheden met verbeterde false positive filtering (v2.0.0)."""
+        """Check voor SQL injection kwetsbaarheden met verbeterde false positive filtering (v2.1.0)."""
         issues = []
         src_dirs = self.config.get('source_dirs', ['src/'])
         
@@ -377,7 +377,7 @@ class AICodeReviewer:
                     for pattern, message in unsafe_patterns:
                         matches = list(re.finditer(pattern, content, re.IGNORECASE))
                         for match in matches:
-                            # Verbeterde context-based false positive filtering (v2.0.0)
+                            # Verbeterde context-based false positive filtering (v2.1.0)
                             context_start = max(0, match.start() - 100)
                             context_end = min(len(content), match.end() + 100)
                             context = content[context_start:context_end].lower()

@@ -1,0 +1,438 @@
+"""
+Moderne, unified web lookup service implementatie volgens Strangler Fig pattern.
+
+Deze service implementeert een schone architectuur voor web lookup operaties
+terwijl geleidelijk de legacy implementaties vervangt.
+"""
+
+import asyncio
+import logging
+from typing import List, Optional, Dict, Any
+from dataclasses import dataclass
+
+from .interfaces import (
+    WebLookupServiceInterface,
+    LookupRequest,
+    LookupResult,
+    WebSource,
+    JuridicalReference,
+)
+
+# Domein imports met error handling voor development
+try:
+    from domain.autoriteit.betrouwbaarheid import BetrouwbaarheidsCalculator, BronType
+
+    DOMAIN_AVAILABLE = True
+except ImportError:
+    logger.warning("Domein modules niet beschikbaar - fallback modus")
+    DOMAIN_AVAILABLE = False
+
+    class BronType:
+        WETGEVING = "wetgeving"
+        JURISPRUDENTIE = "jurisprudentie"
+        BELEID = "beleid"
+        LITERATUUR = "literatuur"
+
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class SourceConfig:
+    """Configuratie voor een specifieke lookup bron."""
+
+    name: str
+    base_url: str
+    api_type: str  # "mediawiki", "sru", "scraping"
+    timeout: int = 30
+    max_retries: int = 3
+    is_juridical: bool = False
+    confidence_weight: float = 1.0
+    enabled: bool = True
+
+
+class ModernWebLookupService(WebLookupServiceInterface):
+    """
+    Moderne implementatie van web lookup service.
+
+    Gebruikt Strangler Fig pattern om legacy code geleidelijk te vervangen
+    met moderne, testbare en onderhoudbare implementaties.
+    """
+
+    def __init__(self):
+        self.sources: Dict[str, SourceConfig] = {}
+
+        # Initialize domein components als beschikbaar
+        if DOMAIN_AVAILABLE:
+            self.betrouwbaarheids_calculator = BetrouwbaarheidsCalculator()
+        else:
+            self.betrouwbaarheids_calculator = None
+
+        self._legacy_fallback_enabled = True
+        self._setup_sources()
+
+    def _setup_sources(self) -> None:
+        """Configureer alle beschikbare lookup bronnen."""
+        self.sources = {
+            "wikipedia": SourceConfig(
+                name="Wikipedia",
+                base_url="https://nl.wikipedia.org/api/rest_v1",
+                api_type="mediawiki",
+                confidence_weight=0.8,
+                is_juridical=False,
+            ),
+            "wiktionary": SourceConfig(
+                name="Wiktionary",
+                base_url="https://nl.wiktionary.org/w/api.php",
+                api_type="mediawiki",
+                confidence_weight=0.9,
+                is_juridical=False,
+            ),
+            "overheid": SourceConfig(
+                name="Overheid.nl",
+                base_url="https://repository.overheid.nl",
+                api_type="sru",
+                confidence_weight=1.0,
+                is_juridical=True,
+            ),
+            "rechtspraak": SourceConfig(
+                name="Rechtspraak.nl",
+                base_url="https://www.rechtspraak.nl",
+                api_type="sru",
+                confidence_weight=0.95,
+                is_juridical=True,
+            ),
+        }
+
+    async def lookup(self, request: LookupRequest) -> List[LookupResult]:
+        """
+        Zoek een term op in web bronnen.
+
+        Implementeert moderne async approach met concurrent lookups
+        en intelligent fallback naar legacy implementaties.
+        """
+        logger.info(f"Starting lookup for term: {request.term}")
+
+        # Bepaal welke bronnen te gebruiken
+        sources_to_search = self._determine_sources(request)
+
+        # Concurrent lookups uitvoeren
+        tasks = [
+            self._lookup_source(request.term, source_name, request)
+            for source_name in sources_to_search
+            if self.sources[source_name].enabled
+        ]
+
+        # Wacht op alle resultaten
+        results = await asyncio.gather(*tasks, return_exceptions=True)
+
+        # Filter succesvolle resultaten
+        valid_results = []
+        for result in results:
+            if isinstance(result, Exception):
+                logger.warning(f"Source lookup failed: {result}")
+                continue
+            if result is not None:
+                valid_results.append(result)
+
+        # Sorteer op confidence score
+        valid_results.sort(key=lambda r: r.source.confidence, reverse=True)
+
+        # Limiteer aantal resultaten
+        return valid_results[: request.max_results]
+
+    def _determine_sources(self, request: LookupRequest) -> List[str]:
+        """Bepaal welke bronnen te gebruiken op basis van request."""
+        if request.sources:
+            return [s for s in request.sources if s in self.sources]
+
+        # Intelligente bron selectie op basis van term
+        term_lower = request.term.lower()
+
+        # Voor juridische termen, prioriteer juridische bronnen
+        if any(word in term_lower for word in ["wet", "artikel", "recht", "wet"]):
+            return ["overheid", "rechtspraak", "wikipedia", "wiktionary"]
+
+        # Voor algemene termen, start met encyclopedische bronnen
+        return ["wikipedia", "wiktionary", "overheid", "rechtspraak"]
+
+    async def _lookup_source(
+        self, term: str, source_name: str, request: LookupRequest
+    ) -> Optional[LookupResult]:
+        """Lookup in een specifieke bron."""
+        source_config = self.sources[source_name]
+
+        try:
+            if source_config.api_type == "mediawiki":
+                return await self._lookup_mediawiki(term, source_config, request)
+            elif source_config.api_type == "sru":
+                return await self._lookup_sru(term, source_config, request)
+            elif source_config.api_type == "scraping":
+                return await self._lookup_scraping(term, source_config, request)
+            else:
+                logger.warning(f"Unknown API type: {source_config.api_type}")
+                return None
+
+        except Exception as e:
+            logger.error(f"Error in {source_name} lookup: {e}")
+
+            # Fallback naar legacy implementatie indien beschikbaar
+            if self._legacy_fallback_enabled:
+                return await self._legacy_fallback(term, source_name, request)
+
+            return None
+
+    async def _lookup_mediawiki(
+        self, term: str, source: SourceConfig, request: LookupRequest
+    ) -> Optional[LookupResult]:
+        """Lookup in MediaWiki API (Wikipedia, Wiktionary)."""
+        logger.info(f"MediaWiki lookup for {term} in {source.name}")
+
+        try:
+            if source.name == "Wikipedia":
+                # Gebruik moderne Wikipedia service
+                from .web_lookup.wikipedia_service import wikipedia_lookup
+
+                result = await wikipedia_lookup(term)
+
+                if result and result.success:
+                    # Update source confidence met configured weight
+                    result.source.confidence *= source.confidence_weight
+                    return result
+
+            elif source.name == "Wiktionary":
+                # TODO: Implementeer Wiktionary service (vergelijkbaar met Wikipedia)
+                logger.info(f"Wiktionary lookup voor {term} - nog niet geïmplementeerd")
+                return None
+
+        except ImportError as e:
+            logger.warning(f"Modern MediaWiki service niet beschikbaar: {e}")
+        except Exception as e:
+            logger.error(f"MediaWiki lookup error: {e}")
+
+        return None
+
+    async def _lookup_sru(
+        self, term: str, source: SourceConfig, request: LookupRequest
+    ) -> Optional[LookupResult]:
+        """Lookup in SRU API (overheid.nl, rechtspraak.nl)."""
+        logger.info(f"SRU lookup for {term} in {source.name}")
+
+        try:
+            # Import SRU service
+            from .web_lookup.sru_service import SRUService
+            
+            # Map source names to SRU endpoints
+            endpoint_map = {
+                "Overheid.nl": "overheid",
+                "Rechtspraak.nl": "rechtspraak"
+            }
+            
+            endpoint = endpoint_map.get(source.name)
+            if not endpoint:
+                logger.warning(f"No SRU endpoint mapping for source: {source.name}")
+                return None
+            
+            # Perform SRU search
+            async with SRUService() as sru_service:
+                results = await sru_service.search(
+                    term=term,
+                    endpoint=endpoint,
+                    max_records=1  # Single result for single source lookup
+                )
+                
+                if results:
+                    result = results[0]  # Take best result
+                    # Apply source confidence weight
+                    result.source.confidence *= source.confidence_weight
+                    return result
+                
+                return None
+                
+        except ImportError as e:
+            logger.warning(f"SRU service niet beschikbaar: {e}")
+        except Exception as e:
+            logger.error(f"SRU lookup error: {e}")
+        
+        return None
+
+    async def _lookup_scraping(
+        self, term: str, source: SourceConfig, request: LookupRequest
+    ) -> Optional[LookupResult]:
+        """Lookup via web scraping."""
+        logger.info(f"Scraping lookup for {term} in {source.name}")
+
+        # TODO: Implementeer veilige scraping
+        return None
+
+    async def _legacy_fallback(
+        self, term: str, source_name: str, request: LookupRequest
+    ) -> Optional[LookupResult]:
+        """Fallback naar legacy implementatie."""
+        logger.info(f"Using legacy fallback for {term} in {source_name}")
+
+        try:
+            # Import legacy module dynamically om circular imports te voorkomen
+            from ..web_lookup.lookup import zoek_in_bron
+
+            # Converteer naar legacy format en terug
+            legacy_result = zoek_in_bron(term, source_name)
+
+            if legacy_result:
+                return self._convert_legacy_result(legacy_result, source_name)
+
+        except ImportError as e:
+            logger.warning(f"Legacy fallback not available: {e}")
+        except Exception as e:
+            logger.error(f"Legacy fallback failed: {e}")
+
+        return None
+
+    def _convert_legacy_result(
+        self, legacy_result: Any, source_name: str
+    ) -> LookupResult:
+        """Converteer legacy result naar moderne LookupResult."""
+        source_config = self.sources.get(source_name)
+
+        return LookupResult(
+            term=getattr(legacy_result, "term", ""),
+            source=WebSource(
+                name=source_name,
+                url=getattr(legacy_result, "url", ""),
+                confidence=getattr(legacy_result, "confidence", 0.5),
+                api_type="legacy",
+            ),
+            definition=getattr(legacy_result, "definitie", ""),
+            success=True,
+            metadata={"source_type": "legacy_fallback"},
+        )
+
+    async def lookup_single_source(
+        self, term: str, source: str
+    ) -> Optional[LookupResult]:
+        """Zoek een term op in een specifieke bron."""
+        request = LookupRequest(term=term, sources=[source], max_results=1)
+        results = await self.lookup(request)
+        return results[0] if results else None
+
+    def get_available_sources(self) -> List[WebSource]:
+        """Geef lijst van beschikbare web bronnen."""
+        return [
+            WebSource(
+                name=config.name,
+                url=config.base_url,
+                confidence=config.confidence_weight,
+                is_juridical=config.is_juridical,
+                api_type=config.api_type,
+            )
+            for config in self.sources.values()
+            if config.enabled
+        ]
+
+    def validate_source(self, text: str) -> WebSource:
+        """Valideer en identificeer de bron van een tekst."""
+        if self.betrouwbaarheids_calculator:
+            # Bepaal bron type voor de calculator
+            bron_type = self._determine_source_type(text)
+            autoriteits_score = self.betrouwbaarheids_calculator.bereken_betrouwbaarheid(
+                bron_type, text
+            )
+            confidence = autoriteits_score.score
+        else:
+            confidence = 0.5  # Default confidence
+
+        # Bepaal bron type op basis van content analyse
+        bron_type = self._determine_source_type(text)
+
+        return WebSource(
+            name="Analyzed Source",
+            url="",
+            confidence=confidence,
+            is_juridical=(
+                bron_type == BronType.WETGEVING or bron_type == BronType.JURISPRUDENTIE
+            ),
+        )
+
+    def _determine_source_type(self, text: str) -> BronType:
+        """Bepaal het type bron op basis van tekst analyse."""
+        text_lower = text.lower()
+
+        if any(word in text_lower for word in ["artikel", "wet", "wetboek"]):
+            return BronType.WETGEVING
+        elif any(word in text_lower for word in ["uitspraak", "rechtbank", "hof"]):
+            return BronType.JURISPRUDENTIE
+        elif any(word in text_lower for word in ["beleid", "regeling", "circulaire"]):
+            return BronType.BELEID
+        else:
+            return BronType.LITERATUUR
+
+    def find_juridical_references(self, text: str) -> List[JuridicalReference]:
+        """Vind juridische verwijzingen in tekst."""
+        # Simpele implementatie voor nu - kan uitgebreid worden met domein modules
+        references = []
+
+        # Basis patroon matching voor juridische verwijzingen
+        text_lower = text.lower()
+        if "artikel" in text_lower and any(w in text_lower for w in ["wet", "wetboek"]):
+            references.append(
+                JuridicalReference(
+                    type="artikel",
+                    reference="Gevonden juridische verwijzing",
+                    context=text[:200],
+                    confidence=0.7,
+                )
+            )
+
+        return references
+
+    def detect_duplicates(
+        self, term: str, definitions: List[str]
+    ) -> List[Dict[str, Any]]:
+        """Detecteer duplicate definities."""
+        duplicates = []
+
+        # Simpele implementatie - kan later uitgebreid worden
+        for i, def1 in enumerate(definitions):
+            for j, def2 in enumerate(definitions[i + 1 :], i + 1):
+                similarity = self._calculate_similarity(def1, def2)
+                if similarity > 0.8:  # 80% gelijkenis threshold
+                    duplicates.append(
+                        {
+                            "indices": [i, j],
+                            "similarity": similarity,
+                            "definitions": [def1, def2],
+                        }
+                    )
+
+        return duplicates
+
+    def _calculate_similarity(self, text1: str, text2: str) -> float:
+        """Bereken gelijkenis tussen twee teksten."""
+        # Simpele Jaccard similarity voor nu
+        words1 = set(text1.lower().split())
+        words2 = set(text2.lower().split())
+
+        if not words1 and not words2:
+            return 1.0
+
+        intersection = len(words1.intersection(words2))
+        union = len(words1.union(words2))
+
+        return intersection / union if union > 0 else 0.0
+
+    def enable_legacy_fallback(self, enabled: bool = True) -> None:
+        """Schakel legacy fallback in/uit."""
+        self._legacy_fallback_enabled = enabled
+        logger.info(f"Legacy fallback {'enabled' if enabled else 'disabled'}")
+
+    def get_source_status(self) -> Dict[str, Dict[str, Any]]:
+        """Krijg status van alle bronnen voor monitoring."""
+        return {
+            name: {
+                "enabled": config.enabled,
+                "api_type": config.api_type,
+                "confidence_weight": config.confidence_weight,
+                "is_juridical": config.is_juridical,
+            }
+            for name, config in self.sources.items()
+        }

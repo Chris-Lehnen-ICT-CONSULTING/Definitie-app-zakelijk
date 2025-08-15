@@ -9,9 +9,9 @@ import logging
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Set
 
-# Legacy imports voor backward compatibility
-from ai_toetser.core import toets_definitie
-from config.config_loader import laad_toetsregels
+# Modern imports voor toetsregels systeem
+from toetsregels.manager import get_toetsregel_manager
+from validation.definitie_validator import DefinitieValidator
 from services.interfaces import (
     Definition,
     DefinitionValidatorInterface,
@@ -75,22 +75,20 @@ class DefinitionValidator(DefinitionValidatorInterface):
 
         self._stats["total_validations"] += 1
 
-        # Bereid context voor legacy toetser
+        # Bereid context voor modern validator
         contexten = self._build_context_dict(definition)
 
-        # Voer toetsing uit via legacy module
-        toets_resultaten = toets_definitie(
+        # Voer toetsing uit via modern validator
+        toets_resultaten = self.modern_validator.valideer_definitie(
             definitie=definition.definitie,
-            regels=self.rules,
             begrip=definition.begrip,
-            contexten=contexten,
-            bronnen_gebruikt=definition.bron,
+            context=contexten,
+            bronnen=definition.bron if definition.bron else "AI-gegenereerd",
             voorkeursterm=(
                 definition.metadata.get("voorkeursterm")
                 if definition.metadata
                 else None
-            ),
-            gebruik_logging=False,
+            )
         )
 
         # Analyseer resultaten
@@ -219,16 +217,19 @@ class DefinitionValidator(DefinitionValidatorInterface):
     # Private helper methods
 
     def _load_rules(self):
-        """Laad toetsregels uit configuratie."""
-        if self.config.custom_rules_path:
-            self.rules = laad_toetsregels(self.config.custom_rules_path)
+        """Laad toetsregels uit modern toetsregels systeem."""
+        self.toetsregel_manager = get_toetsregel_manager()
+        self.modern_validator = DefinitieValidator()
+        
+        # Get rules from modern system
+        all_rules = self.toetsregel_manager.get_all_regels()
+        
+        if self.config.enable_all_rules:
+            self.rules = all_rules
         else:
-            self.rules = laad_toetsregels()
-
-        # Filter regels op basis van configuratie
-        if not self.config.enable_all_rules:
+            # Filter regels op basis van configuratie
             filtered_rules = {}
-            for regel_id, regel_data in self.rules.items():
+            for regel_id, regel_data in all_rules.items():
                 category = regel_id.split("-")[0]
                 if category in self.config.enabled_rule_categories:
                     filtered_rules[regel_id] = regel_data
