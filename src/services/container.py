@@ -9,7 +9,8 @@ import logging
 import os
 from typing import Any, Dict, Optional
 
-from services.definition_generator import DefinitionGenerator, GeneratorConfig
+from services.unified_definition_generator import UnifiedDefinitionGenerator
+from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
 from services.definition_repository import DefinitionRepository
 from services.definition_validator import DefinitionValidator, ValidatorConfig
@@ -55,13 +56,29 @@ class ServiceContainer:
             "openai_api_key", os.getenv("OPENAI_API_KEY")
         )
 
-        # Service specifieke configuratie
-        self.generator_config = GeneratorConfig(
+        # Service specifieke configuratie - Use default and override via sub-configs
+        from services.definition_generator_config import (
+            GPTConfig,
+            QualityConfig,
+            MonitoringConfig,
+        )
+
+        gpt_config = GPTConfig(
             model=self.config.get("generator_model", "gpt-4"),
             temperature=self.config.get("generator_temperature", 0.4),
-            enable_monitoring=self.config.get("enable_monitoring", False),
+        )
+
+        quality_config = QualityConfig(
             enable_cleaning=self.config.get("enable_cleaning", True),
             enable_ontology=self.config.get("enable_ontology", True),
+        )
+
+        monitoring_config = MonitoringConfig(
+            enable_monitoring=self.config.get("enable_monitoring", False)
+        )
+
+        self.generator_config = UnifiedGeneratorConfig(
+            gpt=gpt_config, quality=quality_config, monitoring=monitoring_config
         )
 
         self.validator_config = ValidatorConfig(
@@ -87,8 +104,10 @@ class ServiceContainer:
             Singleton instance van DefinitionGenerator
         """
         if "generator" not in self._instances:
-            self._instances["generator"] = DefinitionGenerator(self.generator_config)
-            logger.info("DefinitionGenerator instance aangemaakt")
+            self._instances["generator"] = UnifiedDefinitionGenerator(
+                self.generator_config
+            )
+            logger.info("UnifiedDefinitionGenerator instance aangemaakt")
         return self._instances["generator"]
 
     def validator(self) -> DefinitionValidatorInterface:

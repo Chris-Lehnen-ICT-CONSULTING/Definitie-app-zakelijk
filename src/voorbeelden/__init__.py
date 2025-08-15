@@ -45,27 +45,10 @@ from .unified_voorbeelden import (
     get_examples_generator,  # Hoofdklassen voor voorbeeld generatie; Convenience functies voor directe voorbeeld generatie; Batch functies voor efficiënte bulk generatie; Utility functies voor generator management; Factory functie voor generator instanties
 )
 
-# Achterwaartse compatibiliteit - importeer van legacy bestanden indien nodig
+# Achterwaartse compatibiliteit - check voor legacy bestanden indien nodig
 # Zorgt voor soepele migratie van oude code naar nieuwe geünificeerde systeem
 try:
-    from .voorbeelden import (
-        genereer_antoniemen as legacy_genereer_antoniemen,  # Legacy antoniemen functie
-    )
-    from .voorbeelden import (
-        genereer_praktijkvoorbeelden as legacy_genereer_praktijkvoorbeelden,  # Legacy praktijkvoorbeelden functie
-    )
-    from .voorbeelden import (
-        genereer_synoniemen as legacy_genereer_synoniemen,  # Legacy synoniemen functie
-    )
-    from .voorbeelden import (
-        genereer_tegenvoorbeelden as legacy_genereer_tegenvoorbeelden,  # Legacy tegenvoorbeelden functie
-    )
-    from .voorbeelden import (
-        genereer_toelichting as legacy_genereer_toelichting,  # Legacy toelichting functie
-    )
-    from .voorbeelden import (
-        genereer_voorbeeld_zinnen as legacy_genereer_voorbeeld_zinnen,  # Legacy voorbeeld zinnen functie
-    )
+    import voorbeelden.voorbeelden  # Check legacy module availability
 except ImportError:
     # Legacy bestanden niet beschikbaar - continue met nieuwe implementatie
     pass

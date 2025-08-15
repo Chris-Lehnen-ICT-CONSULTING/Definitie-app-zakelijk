@@ -454,7 +454,7 @@ def _maak_resultaat(bron: str, output) -> dict:
 
 
 # ✅ Gestandaardiseerde combinatiefunctie met bruikbare datastructuur
-def zoek_definitie_combinatie(begrip: str) -> list[dict]:
+def zoek_definitie_combinatie_structured(begrip: str) -> list[dict]:
     bronnen = {
         "wikipedia": zoek_definitie_op_wikipedia,
         "overheidnl": zoek_definitie_op_overheidnl,

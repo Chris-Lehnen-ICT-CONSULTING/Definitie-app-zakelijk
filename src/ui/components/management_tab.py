@@ -20,7 +20,7 @@ from database.definitie_repository import (
 from database.definitie_repository import (
     DefinitieRepository,
 )
-from generation.definitie_generator import (  # Categorieën voor definitie classificatie
+from services.unified_definition_generator import (  # Categorieën voor definitie classificatie
     OntologischeCategorie,
 )
 from integration.definitie_checker import (  # Definitie validatie en check acties
@@ -40,7 +40,6 @@ try:
         DefinitieManagerCLI,
     )
     from setup_database import (  # Database setup utilities
-        create_sample_export,
         create_test_data,
         setup_database,
     )

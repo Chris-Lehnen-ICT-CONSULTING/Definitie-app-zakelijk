@@ -24,7 +24,7 @@ from typing import (  # Type hints voor betere code documentatie
     Tuple,
 )
 
-from generation.definitie_generator import (  # Import ontologische categorieën voor classificatie
+from services.unified_definition_generator import (  # Import ontologische categorieën voor classificatie
     OntologischeCategorie,
 )
 
@@ -717,8 +717,10 @@ class DefinitieRepository:
 
             params.append(definitie_id)
 
-            # Execute update
-            query = f"UPDATE definities SET {', '.join(set_clauses)} WHERE id = ?"
+            # Execute update - Build query safely from whitelisted fields
+            if not set_clauses:
+                return False
+            query = "UPDATE definities SET " + ", ".join(set_clauses) + " WHERE id = ?"
             conn.execute(query, params)
 
             # Log update

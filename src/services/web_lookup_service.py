@@ -41,13 +41,17 @@ except ImportError:
         return []
 
 
+# Import gelijkenis analyzer met fallback
+GelijkenisAnalyzer = None
 try:
     from web_lookup.definitie_lookup import GelijkenisAnalyzer
 except ImportError:
     # Stub implementatie
-    class GelijkenisAnalyzer:
+    class _StubGelijkenisAnalyzer:
         def analyze(self, text: str) -> Dict[str, Any]:
             return {"gelijkenis": 0.0}
+
+    GelijkenisAnalyzer = _StubGelijkenisAnalyzer
 
 
 # Stub implementaties voor web lookup functies
@@ -112,7 +116,7 @@ class WebLookupService(WebLookupServiceInterface):
         """
         # TEMP FIX: Use config manager instead of Config class
         self.config = config or get_config_manager()
-        self._rate_limits = {}  # Track rate limits per source
+        self._rate_limits: Dict[str, float] = {}  # Track rate limits per source
         self._sources = self._initialize_sources()
         # TEMP DISABLED - Missing class during fix
         # self._gelijkenis_analyzer = GelijkenisAnalyzer()

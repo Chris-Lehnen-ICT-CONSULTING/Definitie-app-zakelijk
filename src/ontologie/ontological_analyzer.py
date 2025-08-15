@@ -17,7 +17,7 @@ import logging
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from generation.definitie_generator import OntologischeCategorie
+from services.unified_definition_generator import OntologischeCategorie
 from web_lookup.bron_lookup import herken_bronnen_in_definitie
 from web_lookup.definitie_lookup import DefinitieZoeker
 from web_lookup.juridische_lookup import zoek_wetsartikelstructuur

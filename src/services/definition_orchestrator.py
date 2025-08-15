@@ -184,6 +184,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             return DefinitionResponse(
                 definition=context.definition,
                 validation=context.validation_result,
+                definition_id=context.definition.id,
                 success=True,
                 message="Definitie succesvol aangemaakt",
             )
