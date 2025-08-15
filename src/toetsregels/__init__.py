@@ -13,8 +13,8 @@ from .manager import ToetsregelManager, get_toetsregel_manager
 from .loader import load_toetsregels, get_toetsregels
 
 __all__ = [
-    'ToetsregelManager',
-    'get_toetsregel_manager',
-    'load_toetsregels',
-    'get_toetsregels'
+    "ToetsregelManager",
+    "get_toetsregel_manager",
+    "load_toetsregels",
+    "get_toetsregels",
 ]

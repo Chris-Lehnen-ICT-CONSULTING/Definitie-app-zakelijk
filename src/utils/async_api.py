@@ -24,6 +24,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class RateLimitConfig:
     """Configuration for API rate limiting."""
+
     requests_per_minute: int = 60
     requests_per_hour: int = 3000
     max_concurrent: int = 10
@@ -33,47 +34,47 @@ class RateLimitConfig:
 
 class AsyncRateLimiter:
     """Rate limiter for async API calls."""
-    
+
     def __init__(self, config: RateLimitConfig):
         self.config = config
         self.requests_this_minute = []
         self.requests_this_hour = []
         self.semaphore = asyncio.Semaphore(config.max_concurrent)
         self._lock = asyncio.Lock()
-    
+
     async def acquire(self):
         """Acquire permission to make an API call."""
         async with self._lock:
             now = datetime.now()
-            
+
             # Clean old requests
             minute_ago = now - timedelta(minutes=1)
             hour_ago = now - timedelta(hours=1)
-            
+
             self.requests_this_minute = [
                 req for req in self.requests_this_minute if req > minute_ago
             ]
             self.requests_this_hour = [
                 req for req in self.requests_this_hour if req > hour_ago
             ]
-            
+
             # Check rate limits
             if len(self.requests_this_minute) >= self.config.requests_per_minute:
                 wait_time = 60 - (now - min(self.requests_this_minute)).total_seconds()
                 logger.info(f"Rate limit reached, waiting {wait_time:.1f}s")
                 await asyncio.sleep(wait_time)
-            
+
             if len(self.requests_this_hour) >= self.config.requests_per_hour:
                 wait_time = 3600 - (now - min(self.requests_this_hour)).total_seconds()
                 logger.warning(f"Hourly rate limit reached, waiting {wait_time:.1f}s")
                 await asyncio.sleep(wait_time)
-            
+
             # Record this request
             self.requests_this_minute.append(now)
             self.requests_this_hour.append(now)
-        
+
         await self.semaphore.acquire()
-    
+
     def release(self):
         """Release semaphore after API call."""
         self.semaphore.release()
@@ -81,22 +82,22 @@ class AsyncRateLimiter:
 
 class AsyncGPTClient:
     """Async wrapper for OpenAI GPT API calls."""
-    
+
     def __init__(self, rate_limit_config: Optional[RateLimitConfig] = None):
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment")
-        
+
         self.client = AsyncOpenAI(api_key=self.api_key)
         self.rate_limiter = AsyncRateLimiter(rate_limit_config or RateLimitConfig())
         self.session_stats = {
-            'total_requests': 0,
-            'successful_requests': 0,
-            'failed_requests': 0,
-            'cache_hits': 0,
-            'total_tokens': 0
+            "total_requests": 0,
+            "successful_requests": 0,
+            "failed_requests": 0,
+            "cache_hits": 0,
+            "total_tokens": 0,
         }
-    
+
     async def chat_completion(
         self,
         prompt: str,
@@ -104,11 +105,11 @@ class AsyncGPTClient:
         temperature: float = 0.01,
         max_tokens: int = 300,
         use_cache: bool = True,
-        **kwargs
+        **kwargs,
     ) -> str:
         """
         Make async chat completion request with caching and rate limiting.
-        
+
         Args:
             prompt: The prompt text
             model: GPT model to use
@@ -116,10 +117,10 @@ class AsyncGPTClient:
             max_tokens: Maximum response tokens
             use_cache: Whether to use caching
             **kwargs: Additional OpenAI parameters
-            
+
         Returns:
             Generated text response
-            
+
         Raises:
             OpenAIError: If API call fails after retries
         """
@@ -130,57 +131,54 @@ class AsyncGPTClient:
                 model=model,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                **kwargs
+                **kwargs,
             )
-            
+
             # Try to get from cache using sync cache for now
             # TODO: Implement async cache
             from utils.cache import _cache
+
             cached_result = _cache.get(cache_key)
             if cached_result is not None:
-                self.session_stats['cache_hits'] += 1
+                self.session_stats["cache_hits"] += 1
                 logger.debug(f"Cache hit for prompt: {prompt[:50]}...")
                 return cached_result
-        
+
         # Make API call with rate limiting and retries
         await self.rate_limiter.acquire()
-        
+
         try:
             result = await self._make_request_with_retries(
                 prompt=prompt,
                 model=model,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                **kwargs
+                **kwargs,
             )
-            
+
             # Cache the result
             if use_cache:
                 from utils.cache import _cache
+
                 _cache.set(cache_key, result, ttl=3600)
-            
-            self.session_stats['successful_requests'] += 1
+
+            self.session_stats["successful_requests"] += 1
             return result
-            
+
         except Exception as e:
-            self.session_stats['failed_requests'] += 1
+            self.session_stats["failed_requests"] += 1
             logger.error(f"API call failed: {str(e)}")
             raise
         finally:
             self.rate_limiter.release()
-            self.session_stats['total_requests'] += 1
-    
+            self.session_stats["total_requests"] += 1
+
     async def _make_request_with_retries(
-        self,
-        prompt: str,
-        model: str,
-        temperature: float,
-        max_tokens: int,
-        **kwargs
+        self, prompt: str, model: str, temperature: float, max_tokens: int, **kwargs
     ) -> str:
         """Make API request with exponential backoff retries."""
         last_error = None
-        
+
         for attempt in range(self.rate_limiter.config.max_retries):
             try:
                 response = await self.client.chat.completions.create(
@@ -188,28 +186,32 @@ class AsyncGPTClient:
                     messages=[{"role": "user", "content": prompt}],
                     temperature=temperature,
                     max_tokens=max_tokens,
-                    **kwargs
+                    **kwargs,
                 )
-                
+
                 result = response.choices[0].message.content.strip()
-                
+
                 # Track token usage
-                if hasattr(response, 'usage') and response.usage:
-                    self.session_stats['total_tokens'] += response.usage.total_tokens
-                
+                if hasattr(response, "usage") and response.usage:
+                    self.session_stats["total_tokens"] += response.usage.total_tokens
+
                 return result
-                
+
             except OpenAIError as e:
                 last_error = e
                 if attempt < self.rate_limiter.config.max_retries - 1:
-                    wait_time = (self.rate_limiter.config.backoff_factor ** attempt)
-                    logger.warning(f"API call failed (attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}")
+                    wait_time = self.rate_limiter.config.backoff_factor**attempt
+                    logger.warning(
+                        f"API call failed (attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}"
+                    )
                     await asyncio.sleep(wait_time)
                 else:
-                    logger.error(f"API call failed after {self.rate_limiter.config.max_retries} attempts")
-        
+                    logger.error(
+                        f"API call failed after {self.rate_limiter.config.max_retries} attempts"
+                    )
+
         raise last_error or OpenAIError("Unknown error after retries")
-    
+
     async def batch_completion(
         self,
         prompts: List[str],
@@ -217,11 +219,11 @@ class AsyncGPTClient:
         temperature: float = 0.01,
         max_tokens: int = 300,
         progress_callback: Optional[Callable[[int, int], None]] = None,
-        **kwargs
+        **kwargs,
     ) -> List[str]:
         """
         Process multiple prompts concurrently.
-        
+
         Args:
             prompts: List of prompt strings
             model: GPT model to use
@@ -229,15 +231,15 @@ class AsyncGPTClient:
             max_tokens: Maximum response tokens
             progress_callback: Optional callback for progress updates
             **kwargs: Additional OpenAI parameters
-            
+
         Returns:
             List of generated responses in same order as prompts
         """
         if not prompts:
             return []
-        
+
         logger.info(f"Starting batch processing of {len(prompts)} prompts")
-        
+
         # Create tasks for all prompts
         tasks = []
         for i, prompt in enumerate(prompts):
@@ -246,40 +248,40 @@ class AsyncGPTClient:
                 model=model,
                 temperature=temperature,
                 max_tokens=max_tokens,
-                **kwargs
+                **kwargs,
             )
             tasks.append(task)
-        
+
         # Process with progress tracking
         results = []
         completed = 0
-        
+
         for coro in asyncio.as_completed(tasks):
             try:
                 result = await coro
                 results.append(result)
                 completed += 1
-                
+
                 if progress_callback:
                     progress_callback(completed, len(prompts))
-                
+
                 logger.debug(f"Completed {completed}/{len(prompts)} requests")
-                
+
             except Exception as e:
                 logger.error(f"Batch request failed: {str(e)}")
                 results.append(f"❌ Error: {str(e)}")
                 completed += 1
-                
+
                 if progress_callback:
                     progress_callback(completed, len(prompts))
-        
+
         logger.info(f"Batch processing completed: {len(results)} results")
         return results
-    
+
     def get_stats(self) -> Dict[str, Any]:
         """Get session statistics."""
         return self.session_stats.copy()
-    
+
     async def close(self):
         """Close the async client."""
         await self.client.close()
@@ -302,18 +304,18 @@ async def async_gpt_call(
     model: str = "gpt-4",
     temperature: float = 0.01,
     max_tokens: int = 300,
-    **kwargs
+    **kwargs,
 ) -> str:
     """
     Convenience function for async GPT calls.
-    
+
     Args:
         prompt: The prompt text
         model: GPT model to use
         temperature: Response randomness
         max_tokens: Maximum response tokens
         **kwargs: Additional parameters
-        
+
     Returns:
         Generated text response
     """
@@ -323,7 +325,7 @@ async def async_gpt_call(
         model=model,
         temperature=temperature,
         max_tokens=max_tokens,
-        **kwargs
+        **kwargs,
     )
 
 
@@ -333,11 +335,11 @@ async def async_batch_gpt_calls(
     temperature: float = 0.01,
     max_tokens: int = 300,
     progress_callback: Optional[Callable[[int, int], None]] = None,
-    **kwargs
+    **kwargs,
 ) -> List[str]:
     """
     Convenience function for batch async GPT calls.
-    
+
     Args:
         prompts: List of prompt strings
         model: GPT model to use
@@ -345,7 +347,7 @@ async def async_batch_gpt_calls(
         max_tokens: Maximum response tokens
         progress_callback: Optional progress callback
         **kwargs: Additional parameters
-        
+
     Returns:
         List of generated responses
     """
@@ -356,42 +358,45 @@ async def async_batch_gpt_calls(
         temperature=temperature,
         max_tokens=max_tokens,
         progress_callback=progress_callback,
-        **kwargs
+        **kwargs,
     )
 
 
 def async_cached(ttl: int = 3600):
     """
     Decorator for async functions with caching.
-    
+
     Args:
         ttl: Time to live in seconds
-        
+
     Returns:
         Decorated async function
     """
+
     def decorator(func):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             # Generate cache key
             from utils.cache import _cache
+
             cache_key = _cache._generate_cache_key(func.__name__, *args, **kwargs)
-            
+
             # Try cache first
             cached_result = _cache.get(cache_key)
             if cached_result is not None:
                 logger.debug(f"Async cache hit for {func.__name__}")
                 return cached_result
-            
+
             # Execute async function
             result = await func(*args, **kwargs)
-            
+
             # Store in cache
             _cache.set(cache_key, result, ttl)
-            
+
             return result
-        
+
         return wrapper
+
     return decorator
 
 

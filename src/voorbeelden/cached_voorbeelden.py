@@ -18,9 +18,7 @@ _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @cache_example_generation(ttl=1800)  # Cache for 30 minutes
 def genereer_voorbeeld_zinnen(
-    begrip: str,
-    definitie: str,
-    context_dict: Dict[str, List[str]]
+    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
 ) -> List[str]:
     """Generate example sentences with caching."""
     prompt = (
@@ -46,7 +44,7 @@ def genereer_voorbeeld_zinnen(
     zinnen: List[str] = []
     for line in blob.splitlines():
         # If AI uses "1. …" or "- …", strip it off
-        zin = re.sub(r'^\s*(?:\d+\.|-)\s*', '', line).strip()
+        zin = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
         if zin:
             zinnen.append(zin)
     # Fallback: return entire blob if no separate lines found
@@ -55,9 +53,7 @@ def genereer_voorbeeld_zinnen(
 
 @cache_example_generation(ttl=1800)  # Cache for 30 minutes
 def genereer_praktijkvoorbeelden(
-    begrip: str,
-    definitie: str,
-    context_dict: Dict[str, List[str]]
+    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
 ) -> List[str]:
     """Generate practice examples with caching."""
     prompt = (
@@ -84,18 +80,16 @@ def genereer_praktijkvoorbeelden(
     voorbeelden: List[str] = []
     for line in blob.splitlines():
         # Remove numbering and clean up
-        voorbeeld = re.sub(r'^\s*(?:\d+\.|-)\s*', '', line).strip()
+        voorbeeld = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
         if voorbeeld and len(voorbeeld) > 10:  # Filter out very short lines
             voorbeelden.append(voorbeeld)
-    
+
     return voorbeelden or [blob]
 
 
 @cache_example_generation(ttl=1800)  # Cache for 30 minutes
 def genereer_tegenvoorbeelden(
-    begrip: str,
-    definitie: str,
-    context_dict: Dict[str, List[str]]
+    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
 ) -> List[str]:
     """Generate counter-examples with caching."""
     prompt = (
@@ -120,18 +114,15 @@ def genereer_tegenvoorbeelden(
     tegenvoorbeelden: List[str] = []
     for line in blob.splitlines():
         # Remove numbering and clean up
-        voorbeeld = re.sub(r'^\s*(?:\d+\.|-)\s*', '', line).strip()
+        voorbeeld = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
         if voorbeeld and len(voorbeeld) > 10:  # Filter out very short lines
             tegenvoorbeelden.append(voorbeeld)
-    
+
     return tegenvoorbeelden or [blob]
 
 
 @cache_synonym_generation(ttl=7200)  # Cache for 2 hours
-def genereer_synoniemen(
-    begrip: str,
-    context_dict: Dict[str, List[str]]
-) -> str:
+def genereer_synoniemen(begrip: str, context_dict: Dict[str, List[str]]) -> str:
     """Generate synonyms with caching."""
     prompt = (
         f"Geef maximaal 5 synoniemen voor het begrip '{begrip}', "
@@ -154,10 +145,7 @@ def genereer_synoniemen(
 
 
 @cache_synonym_generation(ttl=7200)  # Cache for 2 hours
-def genereer_antoniemen(
-    begrip: str,
-    context_dict: Dict[str, List[str]]
-) -> str:
+def genereer_antoniemen(begrip: str, context_dict: Dict[str, List[str]]) -> str:
     """Generate antonyms with caching."""
     prompt = (
         f"Geef maximaal 5 antoniemen voor het begrip '{begrip}', "
@@ -180,10 +168,7 @@ def genereer_antoniemen(
 
 
 @cache_synonym_generation(ttl=3600)  # Cache for 1 hour
-def genereer_toelichting(
-    begrip: str,
-    context_dict: Dict[str, List[str]]
-) -> str:
+def genereer_toelichting(begrip: str, context_dict: Dict[str, List[str]]) -> str:
     """Generate explanation with caching."""
     prompt = (
         f"Geef een korte toelichting op de betekenis en toepassing van het begrip '{begrip}', "

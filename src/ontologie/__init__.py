@@ -7,4 +7,4 @@ begripsclassificatie, met integratie van weblookup functionaliteit.
 
 from .ontological_analyzer import OntologischeAnalyzer, QuickOntologischeAnalyzer
 
-__all__ = ['OntologischeAnalyzer', 'QuickOntologischeAnalyzer']
+__all__ = ["OntologischeAnalyzer", "QuickOntologischeAnalyzer"]

@@ -8,122 +8,139 @@ voor robuuste en betrouwbare API operaties.
 import asyncio  # Asynchrone programmering voor niet-blokkerende resilience
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor retry timing en rate limiting
-from typing import Dict, Optional, Callable, Any  # Type hints voor betere code documentatie
+from typing import (
+    Dict,
+    Optional,
+    Callable,
+    Any,
+)  # Type hints voor betere code documentatie
 from dataclasses import dataclass  # Dataklassen voor gestructureerde configuratie
 from functools import wraps  # Decorator utilities voor resilience wrappers
 
 # Importeer alle resilience componenten voor geïntegreerd systeem
 from utils.enhanced_retry import (
-    AdaptiveRetryManager, RetryConfig  # Adaptieve retry management
+    AdaptiveRetryManager,
+    RetryConfig,  # Adaptieve retry management
 )
 from utils.smart_rate_limiter import (
-    SmartRateLimiter, RateLimitConfig, RequestPriority  # Intelligente rate limiting
+    SmartRateLimiter,
+    RateLimitConfig,
+    RequestPriority,  # Intelligente rate limiting
 )
 from utils.resilience import (
-    ResilienceFramework, ResilienceConfig  # Basis resilience framework
+    ResilienceFramework,
+    ResilienceConfig,  # Basis resilience framework
 )
 from monitoring.api_monitor import (
-    get_metrics_collector, record_api_call  # Monitoring en metrics collectie
+    get_metrics_collector,
+    record_api_call,  # Monitoring en metrics collectie
 )
 
-logger = logging.getLogger(__name__)  # Logger instantie voor integrated resilience module
+logger = logging.getLogger(
+    __name__
+)  # Logger instantie voor integrated resilience module
 
 
 @dataclass
 class IntegratedConfig:
     """Configuratie voor geïntegreerd resilience systeem met alle componenten."""
+
     # Retry configuratie - herhaalpogingen bij fouten
     retry_config: RetryConfig = None
-    
+
     # Rate limiting configuratie - API call throttling
     rate_limit_config: RateLimitConfig = None
-    
+
     # Resilience configuratie - circuit breakers en fallbacks
     resilience_config: ResilienceConfig = None
-    
+
     # Monitoring configuratie - metrics en cost tracking
-    enable_monitoring: bool = True     # Monitoring aan/uit schakelaar
+    enable_monitoring: bool = True  # Monitoring aan/uit schakelaar
     enable_cost_tracking: bool = True  # Kosten tracking voor API calls
-    
+
     def __post_init__(self):
         """Initialiseer standaard configuraties voor alle resilience componenten."""
         # Zet standaard retry configuratie als deze niet is opgegeven
         if self.retry_config is None:
             self.retry_config = RetryConfig(  # Maak standaard retry configuratie
-                max_retries=5,        # Maximum aantal herhaalpogingen
-                base_delay=1.0,       # Basis vertraging tussen pogingen
+                max_retries=5,  # Maximum aantal herhaalpogingen
+                base_delay=1.0,  # Basis vertraging tussen pogingen
                 max_delay=60.0,
                 strategy="adaptive",
                 failure_threshold=3,
-                recovery_timeout=30.0
+                recovery_timeout=30.0,
             )
-        
+
         if self.rate_limit_config is None:
             self.rate_limit_config = RateLimitConfig(
                 tokens_per_second=2.0,
                 bucket_capacity=10,
                 burst_capacity=5,
                 target_response_time=2.0,
-                adjustment_factor=0.1
+                adjustment_factor=0.1,
             )
-        
+
         if self.resilience_config is None:
             self.resilience_config = ResilienceConfig(
                 health_check_interval=30.0,
                 degraded_threshold=0.8,
                 unhealthy_threshold=0.5,
                 enable_graceful_degradation=True,
-                persist_failed_requests=True
+                persist_failed_requests=True,
             )
 
 
 class IntegratedResilienceSystem:
     """Integrated system combining all resilience components."""
-    
+
     def __init__(self, config: Optional[IntegratedConfig] = None):
         self.config = config or IntegratedConfig()
-        
+
         # Initialize components
         self.retry_manager = AdaptiveRetryManager(self.config.retry_config)
         # Rate limiters worden nu per endpoint aangemaakt in execute_with_full_resilience
-        self.rate_limiters: Dict[str, SmartRateLimiter] = {}  # Endpoint-specifieke rate limiters
+        self.rate_limiters: Dict[str, SmartRateLimiter] = (
+            {}
+        )  # Endpoint-specifieke rate limiters
         self.resilience_framework = ResilienceFramework(self.config.resilience_config)
-        self.metrics_collector = get_metrics_collector() if self.config.enable_monitoring else None
-        
+        self.metrics_collector = (
+            get_metrics_collector() if self.config.enable_monitoring else None
+        )
+
         # System state
         self._started = False
         self._shutdown = False
-    
+
     async def start(self):
         """Start all resilience components."""
         if self._started:
             return
-        
+
         # Rate limiters worden nu dynamisch gestart per endpoint
         await self.resilience_framework.start()
-        
+
         self._started = True
         logger.info("🚀 Integrated resilience system started")
-    
+
     async def stop(self):
         """Stop all resilience components."""
         if not self._started:
             return
-        
+
         self._shutdown = True
-        
+
         # Stop alle endpoint-specifieke rate limiters
         for endpoint_name, rate_limiter in self.rate_limiters.items():
             await rate_limiter.stop()
             logger.debug(f"Stopped rate limiter for endpoint: {endpoint_name}")
-        
+
         await self.resilience_framework.stop()
-        
+
         # Save retry manager history
         self.retry_manager._save_historical_data()
-        
+
         logger.info("⏹️ Integrated resilience system stopped")
-    
+
     async def execute_with_full_resilience(
         self,
         func: Callable,
@@ -134,11 +151,11 @@ class IntegratedResilienceSystem:
         enable_fallback: bool = True,
         model: str = "gpt-4",
         expected_tokens: int = 0,
-        **kwargs
+        **kwargs,
     ) -> Any:
         """
         Execute function with full resilience support.
-        
+
         Args:
             func: Function to execute
             *args: Function arguments
@@ -149,53 +166,55 @@ class IntegratedResilienceSystem:
             model: AI model being used (for cost calculation)
             expected_tokens: Expected token usage
             **kwargs: Function keyword arguments
-            
+
         Returns:
             Function result
         """
         if not endpoint_name:
             endpoint_name = func.__name__
-        
+
         start_time = time.time()
         request_id = f"{endpoint_name}_{int(time.time() * 1000)}"
-        
+
         try:
             # Step 1: Get endpoint-specific rate limiter
             if endpoint_name not in self.rate_limiters:
                 # Probeer endpoint-specifieke configuratie te laden
                 try:
                     from config.rate_limit_config import get_rate_limit_config
+
                     endpoint_config = get_rate_limit_config(endpoint_name)
                     logger.info(f"Using specific config for endpoint: {endpoint_name}")
                 except ImportError:
                     # Gebruik default configuratie
                     endpoint_config = self.config.rate_limit_config
                     logger.debug(f"Using default config for endpoint: {endpoint_name}")
-                
+
                 # Maak nieuwe rate limiter voor deze endpoint
                 self.rate_limiters[endpoint_name] = SmartRateLimiter(endpoint_config)
                 await self.rate_limiters[endpoint_name].start()
                 logger.info(f"Created rate limiter for endpoint: {endpoint_name}")
-            
+
             rate_limiter = self.rate_limiters[endpoint_name]
-            
+
             # Step 2: Check rate limiting
             if not await rate_limiter.acquire(priority, timeout, request_id):
                 raise asyncio.TimeoutError(f"Rate limit timeout for {endpoint_name}")
-            
+
             # Step 2: Execute with retry logic and resilience
             result = await self._execute_with_retry_and_resilience(
-                func, *args,
+                func,
+                *args,
                 endpoint_name=endpoint_name,
                 priority=priority,
                 enable_fallback=enable_fallback,
-                **kwargs
+                **kwargs,
             )
-            
+
             # Step 3: Record successful execution
             duration = time.time() - start_time
             await rate_limiter.record_response(duration, True, priority)
-            
+
             if self.metrics_collector:
                 await record_api_call(
                     endpoint=endpoint_name,
@@ -205,18 +224,20 @@ class IntegratedResilienceSystem:
                     tokens_used=expected_tokens,
                     model=model,
                     cache_hit=False,  # Would need to check cache
-                    priority=priority.name.lower()
+                    priority=priority.name.lower(),
                 )
-            
+
             return result
-            
+
         except Exception as e:
             # Record failure
             duration = time.time() - start_time
             # Get rate limiter als deze bestaat
             if endpoint_name in self.rate_limiters:
-                await self.rate_limiters[endpoint_name].record_response(duration, False, priority)
-            
+                await self.rate_limiters[endpoint_name].record_response(
+                    duration, False, priority
+                )
+
             if self.metrics_collector:
                 await record_api_call(
                     endpoint=endpoint_name,
@@ -226,11 +247,11 @@ class IntegratedResilienceSystem:
                     error_type=type(e).__name__,
                     tokens_used=0,
                     model=model,
-                    priority=priority.name.lower()
+                    priority=priority.name.lower(),
                 )
-            
+
             raise
-    
+
     async def _execute_with_retry_and_resilience(
         self,
         func: Callable,
@@ -238,11 +259,11 @@ class IntegratedResilienceSystem:
         endpoint_name: str,
         priority: RequestPriority,
         enable_fallback: bool,
-        **kwargs
+        **kwargs,
     ) -> Any:
         """Execute function with retry logic and resilience framework."""
         last_error = None
-        
+
         for attempt in range(self.config.retry_config.max_retries + 1):
             try:
                 # Check if we should retry
@@ -250,54 +271,63 @@ class IntegratedResilienceSystem:
                     if not await self.retry_manager.should_retry(last_error, attempt):
                         logger.error(f"Max retries exceeded for {endpoint_name}")
                         raise last_error
-                    
+
                     # Wait before retry
-                    delay = await self.retry_manager.get_retry_delay(last_error, attempt)
-                    logger.info(f"Retrying {endpoint_name} in {delay:.2f}s (attempt {attempt + 1})")
+                    delay = await self.retry_manager.get_retry_delay(
+                        last_error, attempt
+                    )
+                    logger.info(
+                        f"Retrying {endpoint_name} in {delay:.2f}s (attempt {attempt + 1})"
+                    )
                     await asyncio.sleep(delay)
-                
+
                 # Execute with resilience framework
                 result = await self.resilience_framework.execute_with_resilience(
-                    func, *args,
+                    func,
+                    *args,
                     endpoint_name=endpoint_name,
                     priority=priority,
                     enable_fallback=enable_fallback,
-                    **kwargs
+                    **kwargs,
                 )
-                
+
                 # Record success
                 duration = time.time() - time.time()  # This would be tracked properly
                 await self.retry_manager.record_success(duration, endpoint_name)
-                
+
                 return result
-                
+
             except Exception as e:
                 last_error = e
-                logger.warning(f"Attempt {attempt + 1} failed for {endpoint_name}: {str(e)}")
-                
+                logger.warning(
+                    f"Attempt {attempt + 1} failed for {endpoint_name}: {str(e)}"
+                )
+
                 if attempt == self.config.retry_config.max_retries:
                     raise e
-        
+
         raise last_error
-    
+
     def get_system_status(self) -> Dict[str, Any]:
         """Get comprehensive system status."""
         # Verzamel status van alle endpoint-specifieke rate limiters
         rate_limiter_status = {}
         for endpoint_name, limiter in self.rate_limiters.items():
             rate_limiter_status[endpoint_name] = limiter.get_queue_status()
-        
+
         status = {
-            'system_started': self._started,
-            'retry_manager': self.retry_manager.get_health_metrics(),
-            'rate_limiters': rate_limiter_status,  # Nu per endpoint
-            'resilience_framework': self.resilience_framework.get_system_health(),
+            "system_started": self._started,
+            "retry_manager": self.retry_manager.get_health_metrics(),
+            "rate_limiters": rate_limiter_status,  # Nu per endpoint
+            "resilience_framework": self.resilience_framework.get_system_health(),
         }
-        
+
         if self.metrics_collector:
-            status['metrics'] = self.metrics_collector.get_realtime_metrics()
-            status['cost_optimization'] = self.metrics_collector.generate_cost_optimization_report()
-        
+            status["metrics"] = self.metrics_collector.get_realtime_metrics()
+            status["cost_optimization"] = (
+                self.metrics_collector.generate_cost_optimization_report()
+            )
+
         return status
 
 
@@ -305,7 +335,9 @@ class IntegratedResilienceSystem:
 _integrated_system: Optional[IntegratedResilienceSystem] = None
 
 
-async def get_integrated_system(config: Optional[IntegratedConfig] = None) -> IntegratedResilienceSystem:
+async def get_integrated_system(
+    config: Optional[IntegratedConfig] = None,
+) -> IntegratedResilienceSystem:
     """Get or create global integrated resilience system."""
     global _integrated_system
     if _integrated_system is None:
@@ -320,11 +352,11 @@ def with_full_resilience(
     timeout: Optional[float] = None,
     enable_fallback: bool = True,
     model: str = "gpt-4",
-    expected_tokens: int = 0
+    expected_tokens: int = 0,
 ):
     """
     Decorator providing full resilience support.
-    
+
     Args:
         endpoint_name: Name of the endpoint for monitoring
         priority: Request priority
@@ -332,7 +364,7 @@ def with_full_resilience(
         enable_fallback: Whether to enable fallback responses
         model: AI model being used
         expected_tokens: Expected token usage
-        
+
     Example:
         @with_full_resilience(
             endpoint_name="gpt_definition",
@@ -344,21 +376,25 @@ def with_full_resilience(
         async def generate_definition(term: str, context: dict):
             return await call_gpt_api(term, context)
     """
+
     def decorator(func: Callable):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             system = await get_integrated_system()
             return await system.execute_with_full_resilience(
-                func, *args,
+                func,
+                *args,
                 endpoint_name=endpoint_name or func.__name__,
                 priority=priority,
                 timeout=timeout,
                 enable_fallback=enable_fallback,
                 model=model,
                 expected_tokens=expected_tokens,
-                **kwargs
+                **kwargs,
             )
+
         return wrapper
+
     return decorator
 
 
@@ -369,7 +405,7 @@ def with_critical_resilience(endpoint_name: str = "", timeout: float = 10.0):
         endpoint_name=endpoint_name,
         priority=RequestPriority.CRITICAL,
         timeout=timeout,
-        enable_fallback=True
+        enable_fallback=True,
     )
 
 
@@ -379,17 +415,19 @@ def with_background_resilience(endpoint_name: str = "", timeout: float = 60.0):
         endpoint_name=endpoint_name,
         priority=RequestPriority.BACKGROUND,
         timeout=timeout,
-        enable_fallback=False
+        enable_fallback=False,
     )
 
 
-def with_cost_optimized_resilience(endpoint_name: str = "", model: str = "gpt-3.5-turbo"):
+def with_cost_optimized_resilience(
+    endpoint_name: str = "", model: str = "gpt-3.5-turbo"
+):
     """Decorator for cost-optimized operations."""
     return with_full_resilience(
         endpoint_name=endpoint_name,
         priority=RequestPriority.LOW,
         model=model,
-        enable_fallback=True
+        enable_fallback=True,
     )
 
 
@@ -397,74 +435,76 @@ async def test_integrated_system():
     """Test the integrated resilience system."""
     print("🧪 Testing Integrated Resilience System")
     print("=" * 45)
-    
+
     # Test different scenarios
     call_count = 0
-    
+
     @with_full_resilience(
         endpoint_name="test_api",
         priority=RequestPriority.HIGH,
         timeout=30.0,
         model="gpt-4",
-        expected_tokens=200
+        expected_tokens=200,
     )
     async def test_function(should_fail: bool = False, delay: float = 0.5):
         nonlocal call_count
         call_count += 1
-        
+
         await asyncio.sleep(delay)
-        
+
         if should_fail and call_count <= 2:
             raise Exception(f"Simulated failure #{call_count}")
-        
+
         return f"Success on attempt #{call_count}"
-    
+
     try:
         # Test successful execution
         result = await test_function(should_fail=False, delay=0.2)
         print(f"✅ Success: {result}")
-        
+
         # Test with failures (should retry and succeed)
         call_count = 0
         result = await test_function(should_fail=True, delay=0.1)
         print(f"✅ Retry success: {result}")
-        
+
         # Test critical operation
         @with_critical_resilience(endpoint_name="critical_test")
         async def critical_function():
             return "Critical operation completed"
-        
+
         result = await critical_function()
         print(f"✅ Critical: {result}")
-        
+
         # Test background operation
         @with_background_resilience(endpoint_name="background_test")
         async def background_function():
             await asyncio.sleep(0.1)
             return "Background operation completed"
-        
+
         result = await background_function()
         print(f"✅ Background: {result}")
-        
+
         # Get system status
         system = await get_integrated_system()
         status = system.get_system_status()
-        
+
         print("\n📊 System Status:")
         print(f"  Started: {status['system_started']}")
         print(f"  Retry Manager State: {status['retry_manager']['circuit_state']}")
-        print(f"  Rate Limiter Rate: {status['rate_limiter']['current_rate']:.2f} req/sec")
+        print(
+            f"  Rate Limiter Rate: {status['rate_limiter']['current_rate']:.2f} req/sec"
+        )
         print(f"  Total Requests: {status['retry_manager']['total_requests']}")
-        
-        if 'metrics' in status:
-            metrics = status['metrics']
+
+        if "metrics" in status:
+            metrics = status["metrics"]
             print(f"  Success Rate: {metrics['success_rate']:.1%}")
             print(f"  Avg Response Time: {metrics['avg_response_time']:.2f}s")
             print(f"  Total Cost: ${metrics['total_cost']:.4f}")
-        
+
     except Exception as e:
         print(f"❌ Test failed: {e}")
-    
+
     finally:
         # Clean up
         if _integrated_system:

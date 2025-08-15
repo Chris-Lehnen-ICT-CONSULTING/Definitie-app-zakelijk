@@ -27,6 +27,7 @@ from bs4 import BeautifulSoup
 from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
 import xml.etree.ElementTree as ET
 
+
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Wikipedia (eerste paragraaf)
 # ────────────────────────────────────────────────────────────────────────
@@ -45,16 +46,14 @@ def zoek_definitie_op_wikipedia(begrip: str) -> tuple[str, list[dict]]:
             if eerste_paragraaf and eerste_paragraaf.text.strip():
                 tekst = eerste_paragraaf.text.strip()
                 verwijzingen = zoek_wetsartikelstructuur(
-                    tekst,
-                    log_jsonl=True,
-                    bron="wikipedia",
-                    begrip=begrip
+                    tekst, log_jsonl=True, bron="wikipedia", begrip=begrip
                 )
                 return tekst, verwijzingen
             return "⚠️ Geen duidelijke definitie gevonden op Wikipedia.", []
         return f"⚠️ Wikipedia gaf statuscode {r.status_code}", []
     except Exception as e:
         return f"❌ Fout bij ophalen van Wikipedia: {e}", []
+
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Wiktionary (MediaWiki API)
@@ -92,6 +91,7 @@ def zoek_definitie_op_wiktionary(begrip: str) -> str:
     except Exception as e:
         return f"❌ Fout bij ophalen van Wiktionary: {e}"
 
+
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Ensie.nl (eenvoudige HTML)
 # ────────────────────────────────────────────────────────────────────────
@@ -118,6 +118,7 @@ def zoek_definitie_op_ensie(begrip: str) -> str:
         return f"⚠️ Ensie.nl gaf statuscode {r.status_code}"
     except Exception as e:
         return f"❌ Fout bij ophalen van Ensie.nl: {e}"
+
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen via Overheid.nl SRU-zoekservice
@@ -154,7 +155,9 @@ def zoek_definitie_op_overheidnl(begrip: str) -> tuple[str, list[dict]]:
                 content = detail_soup.select_one("main")
                 if content:
                     paragrafen = content.find_all("p")
-                    eerste_alinea = paragrafen[0].get_text(strip=True) if paragrafen else ""
+                    eerste_alinea = (
+                        paragrafen[0].get_text(strip=True) if paragrafen else ""
+                    )
                     # Beperk tot 400 tekens
                     detail_tekst = eerste_alinea[:400]
             except Exception:
@@ -166,14 +169,12 @@ def zoek_definitie_op_overheidnl(begrip: str) -> tuple[str, list[dict]]:
             f"(bron: Overheid.nl)"
         )
         matches = zoek_wetsartikelstructuur(
-            detail_tekst,
-            log_jsonl=True,
-            bron="overheidnl",
-            begrip=begrip
+            detail_tekst, log_jsonl=True, bron="overheidnl", begrip=begrip
         )
         return tekst, matches
     except Exception as e:
         return f"❌ Fout bij ophalen van Overheid.nl: {e}", []
+
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van wetten.nl (scrape + juridische verwijzingen)
@@ -205,15 +206,13 @@ def zoek_definitie_op_wettennl(begrip: str) -> tuple[str, list[dict]]:
         if artikeltekst:
             tekst = artikeltekst.get_text(separator=" ", strip=True)
             matches = zoek_wetsartikelstructuur(
-                tekst,
-                log_jsonl=True,
-                bron="wettennl",
-                begrip=begrip
+                tekst, log_jsonl=True, bron="wettennl", begrip=begrip
             )
             return f"{resultaat.text.strip()}:\n{tekst[:400]}...", matches
         return "⚠️ Geen artikeltekst gevonden op detailpagina.", []
     except Exception as e:
         return f"❌ Fout bij ophalen van wetten.nl: {e}", []
+
 
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Strafrechtketen.nl (eenvoudige structuur)
@@ -240,6 +239,7 @@ def zoek_definitie_op_strafrechtketen(begrip: str) -> tuple[str, list[dict]]:
     except Exception as e:
         return f"❌ Fout bij ophalen van Strafrechtketen.nl: {e}", []
 
+
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van Kamerstukken.nl (semi-gestructureerde HTML)
 # ────────────────────────────────────────────────────────────────────────
@@ -265,6 +265,7 @@ def zoek_definitie_op_kamerstukken(begrip: str) -> tuple[str, list[dict]]:
     except Exception as e:
         return f"❌ Fout bij ophalen van Kamerstukken.nl: {e}", []
 
+
 # ────────────────────────────────────────────────────────────────────────
 # Functie: definities ophalen van IATE (downloadbare dataset)
 # ────────────────────────────────────────────────────────────────────────
@@ -274,6 +275,7 @@ def zoek_definitie_op_iate(begrip: str) -> str:
     hier een placeholder die aangeeft dat deze bron nog niet geïmplementeerd is.
     """
     return "(ℹ️ IATE-lookup nog niet geïmplementeerd; dataset vereist aparte verwerking)"
+
 
 # ────────────────────────────────────────────────────────────────────────
 # Centrale routeringsfunctie: lookup_definitie
@@ -307,6 +309,7 @@ def lookup_definitie(begrip: str, bron: Optional[str] = None):
     else:
         return f"⚠️ Onbekende bron '{bron}'. Beschikbare bronnen: wikipedia, wiktionary, ensie, overheidnl, strafrechtketen, kamerstukken, wettennl, iate, combinatie."
 
+
 # ────────────────────────────────────────────────────────────────────────
 # Functie: combinatieresultaat Wikipedia + Overheid.nl + wetten.nl + overige bronnen
 # ────────────────────────────────────────────────────────────────────────
@@ -336,9 +339,10 @@ def zoek_definitie_combinatie(begrip: str) -> str:
         f"🌐 IATE:\n{iate}"
     )
 
+
 # ✅ Biedt dispatch op basis van bronnaam voor eenvoudige extensie
-#from typing import Optional
-#def zoek_definitie_op_basis_van_bron(begrip: str, bron: str) -> Optional[str]:
+# from typing import Optional
+# def zoek_definitie_op_basis_van_bron(begrip: str, bron: str) -> Optional[str]:
 #    if bron == "wikipedia":
 #        return zoek_definitie_op_wikipedia(begrip)
 #    elif bron == "wiktionary":
@@ -361,7 +365,7 @@ def zoek_definitie_combinatie(begrip: str) -> str:
 # ✅ Deze functie bestond in de vorige versie en wordt elders nog geïmporteerd.
 # ✅ Zorgt voor backward compatibility met bestaande modules zoals ai_toetser.core
 # ✅ Verwijst door naar lookup_definitie (de centrale router)
-#def zoek_definitie_via_websearch(begrip: str, context: Optional[str] = None) -> Optional[str]:
+# def zoek_definitie_via_websearch(begrip: str, context: Optional[str] = None) -> Optional[str]:
 #    """
 #    ✅ Legacy-ondersteuning voor oudere modules
 #    ✅ Verwijst intern door naar de nieuwe lookup_definitie(...) router
@@ -373,15 +377,16 @@ def zoek_definitie_combinatie(begrip: str) -> str:
 # ─────────────────────────────────────────────────────────────────────────────
 _PLURALE_TANTUM_SET = None  # ✅ Module-variabele voor caching: laden we één keer
 
+
 def _load_plurale_tantum() -> set:
     """
     Laadt de lijst van plurale-tantum woorden uit de JSON en retouneert een set.
-    
+
     # ✅ Caching in module-variabele voor performance:
     #   Bij de eerste aanroep leest deze functie het JSON-bestand in en zet alle
     #   termen om naar lowercase in een Python-set. Volgende aanroepen hergebruiken
     #   deze set, zodat we niet telkens de schijf op hoeven.
-    
+
     Stappen:
     1. Bepaal pad op basis van de bestandslocatie van deze module.
     2. Open en parse het JSON-bestand `nl_pluralia_tantum_100.json`.
@@ -392,30 +397,31 @@ def _load_plurale_tantum() -> set:
     if _PLURALE_TANTUM_SET is None:
         # 🔧 Bepaal het pad naar de JSON in de submap "data"
         pad = os.path.join(
-            os.path.dirname(__file__),
-            "data",
-            "nl_pluralia_tantum_100.json"
+            os.path.dirname(__file__), "data", "nl_pluralia_tantum_100.json"
         )
         # 🔧 Open het bestand en laad de JSON
         with open(pad, encoding="utf-8") as f:
             data = json.load(f)
         # ✅ Zet alle termen naar lowercase voor betrouwbare, case-insensitive lookup
         raw_list = data.get("plurale_tantum", [])
-        _PLURALE_TANTUM_SET = {w.strip().lower() for w in raw_list if isinstance(w, str)}
+        _PLURALE_TANTUM_SET = {
+            w.strip().lower() for w in raw_list if isinstance(w, str)
+        }
     return _PLURALE_TANTUM_SET
+
 
 def is_plurale_tantum(term: str) -> bool:
     """
     Controleert of `term` een plurale-tantum is, d.w.z. een woord dat alleen in
     meervoud bestaat (zoals 'kosten' of 'hersenen').
-    
+
     Werkwijze:
     1. Normaliseer de invoer:
        • Verwijder omliggende whitespace (strip).
        • Zet om naar lowercase voor case-insensitive vergelijking.
     2. Kijk of de genormaliseerde term in de gecachte set zit.
     3. Return True als het woord in de lijst staat, anders False.
-    
+
     # ✅ Deze check geeft een stevige exception-vrijstelling voor woorden die
     #   alleen in meervoud voorkomen, zodat ze niet onterecht als fout
     #   gemarkeerd worden in VER-01.
@@ -424,6 +430,7 @@ def is_plurale_tantum(term: str) -> bool:
     term_norm = term.strip().lower()
     # 🔍 Membership-test in de gecachte plurale-tantum set
     return term_norm in _load_plurale_tantum()
+
 
 # ✅ Gestandaardiseerde wrapper per bron
 def _maak_resultaat(bron: str, output) -> dict:
@@ -435,8 +442,13 @@ def _maak_resultaat(bron: str, output) -> dict:
         "bron": bron,
         "definitie": tekst,
         "verwijzingen": verwijzingen,
-        "status": "ok" if not tekst.startswith("⚠️") and not tekst.startswith("❌") else "error"
+        "status": (
+            "ok"
+            if not tekst.startswith("⚠️") and not tekst.startswith("❌")
+            else "error"
+        ),
     }
+
 
 # ✅ Gestandaardiseerde combinatiefunctie met bruikbare datastructuur
 def zoek_definitie_combinatie(begrip: str) -> list[dict]:
@@ -456,21 +468,24 @@ def zoek_definitie_combinatie(begrip: str) -> list[dict]:
             res = functie(begrip)
             resultaten.append(_maak_resultaat(bron, res))
         except Exception as e:
-            resultaten.append({
-                "bron": bron,
-                "definitie": f"❌ Fout bij ophalen van {bron}: {e}",
-                "verwijzingen": [],
-                "status": "error"
-            })
+            resultaten.append(
+                {
+                    "bron": bron,
+                    "definitie": f"❌ Fout bij ophalen van {bron}: {e}",
+                    "verwijzingen": [],
+                    "status": "error",
+                }
+            )
     return resultaten
+
 
 # ✅ Context-mapping laden vanuit JSON-config
 def laad_context_wet_mapping() -> dict:
     pad = os.path.join(
-        os.path.dirname(__file__),
-        "..", "config", "context_wet_mapping.json"
+        os.path.dirname(__file__), "..", "config", "context_wet_mapping.json"
     )
     with open(pad, encoding="utf-8") as f:
         return json.load(f)
+
 
 CONTEXT_WET_MAPPING = laad_context_wet_mapping()

@@ -10,22 +10,23 @@ from config.config_loader import laad_verboden_woorden  # Verboden woorden confi
 # Geïsoleerde module voor opschoning van GPT-gegenereerde definities
 # Verwijdert alle verboden aanhefconstructies, dwingt hoofdletter en punt af
 
+
 def opschonen(definitie: str, begrip: str) -> str:
     """
     Verwijdert herhaaldelijk alle verboden beginconstructies uit definitie.
-    
+
     Args:
         definitie: De te schonen definitie tekst
         begrip: Het begrip dat gedefinieerd wordt
-        
+
     Returns:
         Opgeschoonde definitie met correcte formatting
-        
+
     Verwijdert:
     - Koppelwerkwoorden (bijv. 'is', 'omvat', 'betekent')
     - Lidwoorden (bijv. 'de', 'het', 'een')
     - Cirkeldefinities (begrip + verboden woord of dubbelepunt)
-    
+
     Dwingt daarna een hoofdletter en eindpunt af.
     """
     # Stap 1: Voorbewerking - verwijder leading/trailing whitespace
@@ -34,18 +35,26 @@ def opschonen(definitie: str, begrip: str) -> str:
     # Stap 2: Laad verboden woordenlijst uit centrale configuratie
     config = laad_verboden_woorden()  # Laad configuratie uit JSON bestand
     # Haal verboden woorden lijst uit config (ondersteunt zowel dict als lijst formaat)
-    verboden_lijst = config.get("verboden_woorden", []) if isinstance(config, dict) else []  # Extract lijst met veilige fallback
+    verboden_lijst = (
+        config.get("verboden_woorden", []) if isinstance(config, dict) else []
+    )  # Extract lijst met veilige fallback
 
     # Stap 3: Genereer regex patronen voor alle verboden beginconstructies
-    begrip_esc = re.escape(begrip.strip().lower())  # Escape speciale karakters in begrip voor veilige regex
+    begrip_esc = re.escape(
+        begrip.strip().lower()
+    )  # Escape speciale karakters in begrip voor veilige regex
     regex_lijst = []  # Lijst om alle gegenereerde regex patronen in op te slaan
 
     # Doorloop alle verboden woorden en maak specifieke regex patronen
     for woord in verboden_lijst:  # Itereer over elke verboden woord
-        w = woord.strip().lower()  # Normaliseer woord naar lowercase en verwijder whitespace
+        w = (
+            woord.strip().lower()
+        )  # Normaliseer woord naar lowercase en verwijder whitespace
         if not w:  # Skip lege of whitespace-only woorden
             continue  # Ga door naar volgende woord
-        w_esc = re.escape(w)  # Escape speciale regex karakters voor veilige pattern matching
+        w_esc = re.escape(
+            w
+        )  # Escape speciale regex karakters voor veilige pattern matching
 
         # Patroon 3a: Exact woord aan het begin van definitie
         regex_lijst.append(rf"^{w_esc}\b")

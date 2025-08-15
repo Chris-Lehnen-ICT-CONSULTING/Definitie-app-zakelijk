@@ -22,11 +22,14 @@ st.set_page_config(page_title="DefinitieAgent", page_icon="🧠")
 
 # ✅ Configuratie en logging
 import sys
-import os
-# Voeg root directory toe aan Python path voor logs module toegang
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from logs.application.log_definitie import get_logger, log_definitie  # Logging uit root logs directory
+# Voeg root directory toe aan Python path voor logs module toegang
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+
+from logs.application.log_definitie import (
+    get_logger,
+    log_definitie,
+)  # Logging uit root logs directory
 from config.config_loader import laad_toetsregels, laad_verboden_woorden
 from config.verboden_woorden import sla_verboden_woorden_op, log_test_verboden_woord
 
@@ -40,13 +43,12 @@ from ai_toetser import toets_definitie
 from voorbeelden.unified_voorbeelden import (
     genereer_voorbeeld_zinnen,
     genereer_praktijkvoorbeelden,
-    genereer_tegenvoorbeelden
+    genereer_tegenvoorbeelden,
 )
 
 # ✅ Initialisatie
 load_dotenv()
 logger = get_logger(__name__)
-
 
 
 # ================================
@@ -77,7 +79,7 @@ logger = get_logger(__name__)
 #
 # Deze matrix wordt automatisch bijgewerkt zodra de prompt wordt aangepast — wijzigingen moeten ook hierin zichtbaar blijven.
 #
-#def bouw_prompt_met_gesplitste_richtlijnen(
+# def bouw_prompt_met_gesplitste_richtlijnen(
 #    begrip: str,
 #    context: str,
 #    juridische_context: str,
@@ -85,7 +87,7 @@ logger = get_logger(__name__)
 #    web_uitleg: str,
 #    regels_essentieel: list,
 #    regels_aanvullend: list
-#) -> str:
+# ) -> str:
 #    """
 #    Genereert een GPT-prompt met gescheiden instructieblokken:
 #    - Essentiële toetsregels (prioriteit: hoog, verplicht)
@@ -93,13 +95,13 @@ logger = get_logger(__name__)
 #    - Verboden patronen (taalkundig en inhoudelijk)
 #    """
 
-    # 🧠 Introductie en rolopdracht
+# 🧠 Introductie en rolopdracht
 #    prompt = (
 #        "Je bent een expert in het opstellen van beleidsmatige definities voor overheidsgebruik.\n"
 #        "Je taak is om een duidelijke, zakelijke definitie te formuleren voor het opgegeven begrip.\n"
 #    )
 
-    # 📌 Contextuele kaders opnemen
+# 📌 Contextuele kaders opnemen
 #    beleid_context = []
 #    if context:
 #        beleid_context.append(f"binnen {context}")
@@ -110,19 +112,19 @@ logger = get_logger(__name__)
 #    if beleid_context:
 #        prompt += f"\n📌 De definitie wordt opgesteld {' en '.join(beleid_context)}.\n"#
 
-    # ✅ Verplichte kwaliteitscriteria
+# ✅ Verplichte kwaliteitscriteria
 #    if regels_essentieel:
 #        prompt += "\n✅ De definitie moet voldoen aan deze verplichte kwaliteitseisen:\n"
 #        for regel in regels_essentieel:
 #            prompt += f"- {regel['id']}: {regel['uitleg']}\n"#
 
-    # 💡 Aanvullende richtlijnen
+# 💡 Aanvullende richtlijnen
 #    if regels_aanvullend:
 #        prompt += "\n💡 Aanvullende richtlijnen om rekening mee te houden:\n"
 #        for regel in regels_aanvullend:
 #            prompt += f"- {regel['id']}: {regel['uitleg']}\n"
 
-    # 📎 Achtergrondinformatie (alleen als referentie)
+# 📎 Achtergrondinformatie (alleen als referentie)
 #    prompt += (
 #        "\n📎 Gebruik onderstaande achtergrondinformatie slechts als referentie. Neem niets letterlijk over:\n"
 #        f"{web_uitleg}\n"
@@ -157,7 +159,9 @@ logger = get_logger(__name__)
 # 🧩 TOELICHTING GENEREREN
 # ================================
 # Genereert een toelichtende tekst over de betekenis en toepassing van het begrip.
-def genereer_toelichting(begrip, context=None, juridische_context=None, wettelijke_basis=None):
+def genereer_toelichting(
+    begrip, context=None, juridische_context=None, wettelijke_basis=None
+):
     prompt = (
         f"Geef een korte toelichting op de betekenis en toepassing van het begrip '{begrip}', zoals het zou kunnen voorkomen in overheidsdocumenten.\n"
         f"Gebruik de contexten hieronder alleen als achtergrond en noem ze niet letterlijk:\n\n"
@@ -172,7 +176,9 @@ def genereer_toelichting(begrip, context=None, juridische_context=None, wettelij
 # 🔁 SYNONIEMEN GENEREREN
 # ================================
 # Genereert een lijst van max. 5 synoniemen binnen beleidsmatige context.
-def genereer_synoniemen(begrip, context=None, juridische_context=None, wettelijke_basis=None):
+def genereer_synoniemen(
+    begrip, context=None, juridische_context=None, wettelijke_basis=None
+):
     prompt = (
         f"Geef maximaal 5 synoniemen voor het begrip '{begrip}', relevant binnen de context van overheidsgebruik.\n"
         f"Gebruik onderstaande contexten als achtergrond. Geef de synoniemen als een lijst, zonder toelichting:\n\n"
@@ -183,12 +189,13 @@ def genereer_synoniemen(begrip, context=None, juridische_context=None, wettelijk
     return stuur_prompt_naar_gpt(prompt, temperatuur=0.2, max_tokens=150)
 
 
-
 # ================================
 # 🔁 ANTONIEMEN GENEREREN
 # ================================
 # Genereert een lijst van max. 5 antoniemen binnen beleidsmatige context.
-def genereer_antoniemen(begrip, context=None, juridische_context=None, wettelijke_basis=None):
+def genereer_antoniemen(
+    begrip, context=None, juridische_context=None, wettelijke_basis=None
+):
     prompt = (
         f"Geef maximaal 5 antoniemen voor het begrip '{begrip}', binnen de context van overheidsgebruik.\n"
         f"Gebruik onderstaande contexten alleen als achtergrond. Geef de antoniemen als een lijst, zonder toelichting:\n\n"
@@ -204,14 +211,14 @@ def genereer_antoniemen(begrip, context=None, juridische_context=None, wettelijk
 # ================================
 # Zet een lijst van toetsresultaten om naar een dict met sleutel "Regel X".
 # Wordt bijvoorbeeld gebruikt voor visuele weergave in tabellen.
-#def parse_toetsing_regels(toetsing_lijst):
+# def parse_toetsing_regels(toetsing_lijst):
 #    regels_dict = {}
 #    for i, regel in enumerate(toetsing_lijst, 1):
 #        kolomnaam = f"Regel {i}"
 #        regels_dict[kolomnaam] = regel
 #    return regels_dict
-    
-    
+
+
 # ================================
 # 📥 TOETSREGELS LADEN EN TONEN
 # ================================
@@ -220,25 +227,27 @@ def genereer_antoniemen(begrip, context=None, juridische_context=None, wettelijk
 # automatisch gebruikt in de promptopbouw en AI-toetsing van definities.
 # Dit blok moet vóór de Streamlit-interface staan zodat 'toetsregels' beschikbaar is.
 
-#def selecteer_richtlijnen(toetsregels):
+# def selecteer_richtlijnen(toetsregels):
 #    return "\n".join([
 #        f"- {r['id']}: {r['uitleg']}"
 #        for r in toetsregels.values()
 #        if r.get("prioriteit") == "hoog" and r.get("aanbeveling") == "verplicht"
 #    ])
 
-#st.write("✅ main() gestart")
+# st.write("✅ main() gestart")
 toetsregels = laad_toetsregels()
-#st.write("📥 Toetsregels geladen")
+# st.write("📥 Toetsregels geladen")
 
-#with st.expander("📏 Toetsregels meegenomen in de definitie-opbouw", expanded=False, key="expander_toetsregels_prompt"):
+# with st.expander("📏 Toetsregels meegenomen in de definitie-opbouw", expanded=False, key="expander_toetsregels_prompt"):
 #    st.markdown(selecteer_richtlijnen(toetsregels))
 
 # ================================
 # 🖥️ STREAMLIT INTERFACE
 # ================================
 st.write("🧾 Definitie Kwaliteit")
-begrip = st.text_input("Voer een term in waarvoor een definitie moet worden gegenereerd")
+begrip = st.text_input(
+    "Voer een term in waarvoor een definitie moet worden gegenereerd"
+)
 
 
 # ✅ Organisatorische context
@@ -257,37 +266,41 @@ contextopties = st.multiselect(
         "Strafrechtketen",
         "Migratieketen",
         "Justitie en Veiligheid",
-        "Anders..."
+        "Anders...",
     ],
-    default=[]
+    default=[],
 )
 
 custom_context = ""
 if "Anders..." in contextopties:
-    custom_context = st.text_input("Voer aanvullende organisatorische context in", key="custom_context")
+    custom_context = st.text_input(
+        "Voer aanvullende organisatorische context in", key="custom_context"
+    )
 
 contexten_compleet = [opt for opt in contextopties if opt != "Anders..."]
 if custom_context.strip():
     contexten_compleet.append(custom_context.strip())
 
 context = contexten_compleet
-    
+
 # ✅ Juridische context
 juridische_opties = st.multiselect(
     "Juridische context (meerdere mogelijk)",
-    [ 
+    [
         "Strafrecht",
         "Civiel recht",
         "Bestuursrecht",
         "Internationaal recht",
-        "Anders..."
+        "Anders...",
     ],
-    default=[]
+    default=[],
 )
 
 custom_juridisch = ""
 if "Anders..." in juridische_opties:
-    custom_juridisch = st.text_input("Voer aanvullende juridische context in", key="custom_juridische_context")
+    custom_juridisch = st.text_input(
+        "Voer aanvullende juridische context in", key="custom_juridische_context"
+    )
 
 juridische_contexten = [opt for opt in juridische_opties if opt != "Anders..."]
 if custom_juridisch.strip():
@@ -305,13 +318,15 @@ wetopties = st.multiselect(
         "Wet op de politiegegevens",
         "Wetboek van Strafrecht",
         "Algemene verordening gegevensbescherming",
-        "Anders..."
+        "Anders...",
     ],
-    default=[]
+    default=[],
 )
 custom_wet = ""
 if "Anders..." in wetopties:
-    custom_wet = st.text_input("Voer aanvullende wettelijke basis in", key="custom_wettelijke_basis")
+    custom_wet = st.text_input(
+        "Voer aanvullende wettelijke basis in", key="custom_wettelijke_basis"
+    )
 
 wet_basis = [opt for opt in wetopties if opt != "Anders..."]
 if custom_wet.strip():
@@ -320,7 +335,7 @@ if custom_wet.strip():
 context_dict = {
     "organisatorisch": context,
     "juridisch": juridische_context,
-    "wettelijk": wet_basis
+    "wettelijk": wet_basis,
 }
 
 wet_basis = wet_basis  # ✅ gebruik als lijst in context_dict
@@ -329,16 +344,18 @@ datum = st.date_input("Datum voorstel", value=datetime.today())
 
 voorsteller = st.text_input("Voorgesteld door")
 ketenpartners = st.multiselect(
-    "Ketenpartners die akkoord zijn",
-    options=["ZM", "DJI", "KMAR", "CJIB", "JUSTID"])
+    "Ketenpartners die akkoord zijn", options=["ZM", "DJI", "KMAR", "CJIB", "JUSTID"]
+)
 
 
 # ✅ Toggle: logging aan/uit via checkbox
-gebruik_logging = st.checkbox("🛠️ Log detailinformatie per toetsregel (alleen voor ontwikkelaars)", value=False)
+gebruik_logging = st.checkbox(
+    "🛠️ Log detailinformatie per toetsregel (alleen voor ontwikkelaars)", value=False
+)
 
 # ✅ Toon belangrijkste toetsregels (hoog/midden) boven de knop “Genereer definitie” zodat de gebruiker ziet welke eisen worden meegenomen
-#st.markdown("### 📏 Toetsregels meegenomen in de definitie-opbouw")
-#st.markdown(selecteer_richtlijnen(toetsregels))  # geeft meteen de string die nodig is
+# st.markdown("### 📏 Toetsregels meegenomen in de definitie-opbouw")
+# st.markdown(selecteer_richtlijnen(toetsregels))  # geeft meteen de string die nodig is
 
 from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 
@@ -346,10 +363,7 @@ from prompt_builder.prompt_builder import PromptBouwer, PromptConfiguratie
 actie = st.button("Genereer definitie")
 
 if actie and begrip.strip():
-    prompt_config = PromptConfiguratie(
-        begrip=begrip,
-        context_dict=context_dict
-    )
+    prompt_config = PromptConfiguratie(begrip=begrip, context_dict=context_dict)
     pb = PromptBouwer(prompt_config)
     st.session_state["prompt_text"] = pb.bouw_prompt()
 
@@ -376,7 +390,6 @@ if "antoniemen" not in st.session_state:
     st.session_state.antoniemen = ""
 
 
-
 # ✅ Actie: genereer en toets definitie (verwerkt beide versies correct)
 if actie and begrip:
 
@@ -389,20 +402,23 @@ if actie and begrip:
     tekstregels = []
     for regel in regels:
         if regel.lower().startswith("ontologische categorie:"):
-            marker = regel.split(":",1)[1].strip()
+            marker = regel.split(":", 1)[1].strip()
         else:
             tekstregels.append(regel)
     definitie_origineel = "\n".join(tekstregels).strip()
 
     # 3️⃣ Opschonen
     from opschoning.opschoning import opschonen
+
     definitie_gecorrigeerd = opschonen(definitie_origineel, begrip)
-    
+
     # 💚 Sla beide versies apart op in de sessiestatus (voor UI + logging + toetsing)
     st.session_state["definitie_origineel"] = definitie_origineel
     st.session_state["marker"] = marker or ""
-    st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd         
-    st.session_state["gegenereerd"] = definitie_origineel  # deze blijft zichtbaar in Tab 1
+    st.session_state["definitie_gecorrigeerd"] = definitie_gecorrigeerd
+    st.session_state["gegenereerd"] = (
+        definitie_origineel  # deze blijft zichtbaar in Tab 1
+    )
 
     # 📚 AI-bronnen opvragen
     prompt_bronnen = (
@@ -437,42 +453,38 @@ if actie and begrip:
         #
         # ➤ Hiermee wordt het mogelijk om toetsregels te laten werken met *meerdere bronnen van input* (zoals aparte contextvelden of AI-bijlagen),
         #    zonder dat dit ten koste gaat van eenvoud of flexibiliteit in de app.
-        
+
     st.session_state.beoordeling_gen = toets_definitie(
         definitie_gecorrigeerd,
         toetsregels,
         begrip=begrip,
-        marker=marker,                               # ← nieuw
+        marker=marker,  # ← nieuw
         voorkeursterm=st.session_state["voorkeursterm"],
         bronnen_gebruikt=st.session_state.get("bronnen_gebruikt", None),
         contexten={
             "organisatorisch": context,
             "juridisch": juridische_context,
-            "wettelijk": wet_basis
+            "wettelijk": wet_basis,
         },
-        gebruik_logging=gebruik_logging  # ✅ logging nu dynamisch
+        gebruik_logging=gebruik_logging,  # ✅ logging nu dynamisch
     )
 
     # 🧩 Extra AI-inhoud genereren
     st.session_state.voorbeeld_zinnen = genereer_voorbeeld_zinnen(
-        begrip,
-        definitie_origineel,
-        context_dict
+        begrip, definitie_origineel, context_dict
     )
     st.session_state.praktijkvoorbeelden = genereer_praktijkvoorbeelden(
-        begrip,
-        definitie_origineel,
-        context_dict
+        begrip, definitie_origineel, context_dict
     )
     st.session_state.tegenvoorbeelden = genereer_tegenvoorbeelden(
-        begrip,
-        definitie_origineel,
-        context_dict
+        begrip, definitie_origineel, context_dict
     )
-    
+
     st.session_state.toelichting = genereer_toelichting(begrip, context_dict)
     st.session_state.synoniemen = genereer_synoniemen(begrip, context, context_dict)
-    st.session_state.antoniemen = genereer_antoniemen(begrip, context, juridische_context, wet_basis)
+    st.session_state.antoniemen = genereer_antoniemen(
+        begrip, context, juridische_context, wet_basis
+    )
 
     # ✅ Centrale logging voor AI-versie
     log_definitie(
@@ -485,8 +497,8 @@ if actie and begrip:
         definitie_gecorrigeerd=definitie_gecorrigeerd,
         definitie_aangepast="",
         toetsing=st.session_state.beoordeling_gen,
-        voorbeeld_zinnen =st.session_state.voorbeeld_zinnen,
-        praktijkvoorbeelden =st.session_state.praktijkvoorbeelden,
+        voorbeeld_zinnen=st.session_state.voorbeeld_zinnen,
+        praktijkvoorbeelden=st.session_state.praktijkvoorbeelden,
         toelichting=st.session_state.toelichting,
         synoniemen=st.session_state.synoniemen,
         antoniemen=st.session_state.antoniemen,
@@ -495,8 +507,8 @@ if actie and begrip:
         datum=datum,
         voorsteller=voorsteller,
         ketenpartners=ketenpartners,
-        expert_review=st.session_state.get("expert_review", "")
-)
+        expert_review=st.session_state.get("expert_review", ""),
+    )
 
     # 📊 Toggle AI-toetsing zichtbaar maken
     beoordeling = st.session_state.get("beoordeling_gen", [])
@@ -520,17 +532,16 @@ if actie and begrip:
         st.warning("⚠️ Geen toetsresultaten beschikbaar.")
 
 
-
-
-                    
 # ================================
 # 🧾 UI: gescheiden tabbladen voor AI-, aangepaste- en expertweergave
 # ================================
-tab_ai, tab_aangepast, tab_expert = st.tabs([
-    "🤖 AI-gegenereerde definitie",
-    "✍️ Aangepaste definitie",
-    "📋 Expert-review & toelichting"
-])
+tab_ai, tab_aangepast, tab_expert = st.tabs(
+    [
+        "🤖 AI-gegenereerde definitie",
+        "✍️ Aangepaste definitie",
+        "📋 Expert-review & toelichting",
+    ]
+)
 
 # ================================
 # 📘 Tab 1: AI-gegenereerde definitie en toetsing
@@ -539,22 +550,25 @@ with tab_ai:
     st.markdown("### 📘 AI-gegenereerde definitie")
     st.markdown(st.session_state.gegenereerd)
     if st.session_state.get("marker"):
-         st.markdown(f"**Ontologische categorie (metadata):** {st.session_state['marker'].capitalize()}")
-         
-    st.markdown("### ✨ Opgeschoonde definitie (gecorrigeerde versie)")
-    st.markdown(st.session_state.get("definitie_gecorrigeerd", ""))  # 💚 Verwijdert verboden constructies
+        st.markdown(
+            f"**Ontologische categorie (metadata):** {st.session_state['marker'].capitalize()}"
+        )
 
+    st.markdown("### ✨ Opgeschoonde definitie (gecorrigeerde versie)")
+    st.markdown(
+        st.session_state.get("definitie_gecorrigeerd", "")
+    )  # 💚 Verwijdert verboden constructies
 
     if st.session_state.get("voorbeeld_zinnen"):
         st.markdown("### 🔍 korte voorbeeldzinnen")
         for casus in st.session_state.voorbeeld_zinnen:
             st.markdown(casus)
-    
+
     if st.session_state.get("praktijkvoorbeelden"):
         st.markdown("### 🔍 Theoretische voorbeelden (Verification by instantiation)")
         for casus in st.session_state.praktijkvoorbeelden:
             st.markdown(casus)
-            
+
     if st.session_state.get("tegenvoorbeelden"):
         st.markdown("### 🚫 Tegenvoorbeelden")
         for casus in st.session_state.tegenvoorbeelden:
@@ -569,9 +583,7 @@ with tab_ai:
 
         # 1️⃣ Parse de rauwe tekst (per regel één synoniem) naar een lijst
         synoniemen_lijst = [
-            s.strip()
-            for s in st.session_state.synoniemen.split("\n")
-            if s.strip()
+            s.strip() for s in st.session_state.synoniemen.split("\n") if s.strip()
         ]
 
         # 2️⃣ Toon ze netjes in één regel
@@ -584,13 +596,15 @@ with tab_ai:
             opties,
             index=0,
             format_func=lambda x: x if x else "— kies hier je voorkeurs-term —",
-            help="Laat leeg als je nog geen voorkeurs-term wilt vastleggen"
+            help="Laat leeg als je nog geen voorkeurs-term wilt vastleggen",
         )
         st.session_state["voorkeursterm"] = keuze
     else:
         st.markdown("### 🔁 Synoniemen")
-        st.warning("Geen synoniemen beschikbaar — je kunt nu nog géén voorkeurs-term selecteren.")
-         # geen default naar begrip, hou het leeg
+        st.warning(
+            "Geen synoniemen beschikbaar — je kunt nu nog géén voorkeurs-term selecteren."
+        )
+        # geen default naar begrip, hou het leeg
         st.session_state["voorkeursterm"] = ""
 
     if st.session_state.antoniemen:
@@ -603,7 +617,7 @@ with tab_ai:
             "Bronnen gebruikt door AI",
             value=st.session_state.bronnen_gebruikt,
             height=100,
-            disabled=True
+            disabled=True,
         )
 
     beoordeling = st.session_state.get("beoordeling_gen", [])
@@ -626,23 +640,34 @@ with tab_ai:
     else:
         st.warning("⚠️ Geen toetsresultaten beschikbaar voor de AI-versie.")
 
- # ✅ Toon exportknop alleen als er een niet-lege, gegenereerde definitie beschikbaar is
+# ✅ Toon exportknop alleen als er een niet-lege, gegenereerde definitie beschikbaar is
 if (
-    'definitie_gecorrigeerd' in st.session_state 
-    and isinstance(st.session_state['definitie_gecorrigeerd'], str)
-    and len(st.session_state['definitie_gecorrigeerd'].strip()) > 3
+    "definitie_gecorrigeerd" in st.session_state
+    and isinstance(st.session_state["definitie_gecorrigeerd"], str)
+    and len(st.session_state["definitie_gecorrigeerd"].strip()) > 3
 ):
     if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
-        from export import exporteer_naar_txt  # ✅ Correcte module-import volgens projectstructuur
+        from export import (
+            exporteer_naar_txt,
+        )  # ✅ Correcte module-import volgens projectstructuur
+
         # ✅ Zorg dat alle benodigde gegevens in de sessiestatus staan
         st.session_state["begrip"] = begrip
         st.session_state["context"] = context_dict
         st.session_state["metadata"] = {"marker": st.session_state.get("marker", "")}
-        st.session_state["toetsresultaten"] = st.session_state.get("beoordeling_gen", [])
+        st.session_state["toetsresultaten"] = st.session_state.get(
+            "beoordeling_gen", []
+        )
 
-        st.session_state["voorbeeld_zinnen"] = st.session_state.get("voorbeeld_zinnen", [])
-        st.session_state["praktijkvoorbeelden"] = st.session_state.get("praktijkvoorbeelden", [])
-        st.session_state["tegenvoorbeelden"] = st.session_state.get("tegenvoorbeelden", [])
+        st.session_state["voorbeeld_zinnen"] = st.session_state.get(
+            "voorbeeld_zinnen", []
+        )
+        st.session_state["praktijkvoorbeelden"] = st.session_state.get(
+            "praktijkvoorbeelden", []
+        )
+        st.session_state["tegenvoorbeelden"] = st.session_state.get(
+            "tegenvoorbeelden", []
+        )
         st.session_state["toelichting"] = st.session_state.get("toelichting", "")
         st.session_state["synoniemen"] = st.session_state.get("synoniemen", "")
         st.session_state["antoniemen"] = st.session_state.get("antoniemen", "")
@@ -650,7 +675,9 @@ if (
         # ✅ Bundel alle relevante gegevens in één dict zoals vereist door de functie
         gegevens = {
             "begrip": st.session_state.get("begrip", ""),
-            "definitie_gecorrigeerd": st.session_state.get("definitie_gecorrigeerd", ""),
+            "definitie_gecorrigeerd": st.session_state.get(
+                "definitie_gecorrigeerd", ""
+            ),
             "definitie_origineel": st.session_state.get("definitie_origineel", ""),
             "metadata": st.session_state.get("metadata", {}),
             "context_dict": st.session_state.get("context", {}),
@@ -662,7 +689,7 @@ if (
             "toelichting": st.session_state.get("toelichting", ""),
             "synoniemen": st.session_state.get("synoniemen", ""),
             "antoniemen": st.session_state.get("antoniemen", ""),
-            "voorkeursterm": st.session_state.get("voorkeursterm", "")
+            "voorkeursterm": st.session_state.get("voorkeursterm", ""),
         }
 
         pad = exporteer_naar_txt(gegevens)  # ✅ Correcte aanroep met één dict
@@ -674,7 +701,7 @@ if (
                 "Prompttekst verstuurd naar GPT",
                 value=st.session_state["prompt_text"],
                 height=500,
-                disabled=True
+                disabled=True,
             )
 
 # ================================
@@ -686,7 +713,7 @@ with tab_aangepast:
     st.session_state.aangepaste_definitie = st.text_area(
         "Pas de definitie aan (optioneel):",
         value=st.session_state.gegenereerd,
-        height=100
+        height=100,
     )
 
     if st.button("🔁 Hercontroleer aangepaste definitie"):
@@ -700,9 +727,9 @@ with tab_aangepast:
                 contexten={
                     "organisatorisch": context,
                     "juridisch": juridische_context,
-                    "wettelijk": wet_basis
+                    "wettelijk": wet_basis,
                 },
-                gebruik_logging=gebruik_logging  # ✅ logging nu ook hier instelbaar
+                gebruik_logging=gebruik_logging,  # ✅ logging nu ook hier instelbaar
             )
         else:
             st.warning("Voer eerst een aangepaste definitie in.")
@@ -712,7 +739,9 @@ with tab_aangepast:
             st.session_state.toon_toetsing_hercontrole = True
 
         if st.button("📋 Toon/verberg toetsing van aangepaste versie"):
-            st.session_state.toon_toetsing_hercontrole = not st.session_state.toon_toetsing_hercontrole
+            st.session_state.toon_toetsing_hercontrole = (
+                not st.session_state.toon_toetsing_hercontrole
+            )
 
         if st.session_state.toon_toetsing_hercontrole:
             st.markdown("### ✔️ Toetsing aangepaste versie")
@@ -725,7 +754,6 @@ with tab_aangepast:
                     st.info(regel)
 
 
-
 # ================================
 # 📋 Tab 3: Expert-review & toelichting
 # ================================
@@ -736,10 +764,12 @@ with tab_expert:
         "Ruimte voor toelichting of beoordeling door een expert (bijv. juridisch adviseur)",
         placeholder="Voer hier aanvullende opmerkingen, risico’s of goedkeuring in...",
         value=st.session_state.get("expert_review", ""),
-        height=150
+        height=150,
     )
-    st.success("✅ Deze toelichting wordt automatisch opgeslagen in de log (JSON en CSV).")
-    
+    st.success(
+        "✅ Deze toelichting wordt automatisch opgeslagen in de log (JSON en CSV)."
+    )
+
     # ✅ Centrale logging voor aangepaste versie
     log_definitie(
         versietype="Aangepast",
@@ -761,10 +791,10 @@ with tab_expert:
         datum=datum,
         voorsteller=voorsteller,
         ketenpartners=ketenpartners,
-        expert_review=st.session_state.get("expert_review", "")
+        expert_review=st.session_state.get("expert_review", ""),
     )
     st.success("✅ Aangepaste definitie en toetsing opgeslagen.")
-    
+
     # ================================
     # ⚙️ UI: beheer van verboden startwoorden (Expert-tabblad)
     # ================================
@@ -782,7 +812,7 @@ with tab_expert:
         # Wijzigingen worden pas actief na het klikken op de opslaan knop.
         woorden_input = st.text_area(
             "✏️ Permanente lijst van verboden startwoorden (gescheiden door komma’s):",
-            value=", ".join(huidige_lijst)
+            value=", ".join(huidige_lijst),
         )
 
         # 💚 Sla de gewijzigde lijst op in het JSON-bestand
@@ -797,7 +827,10 @@ with tab_expert:
         # Dit maakt het mogelijk om tijdelijk te experimenteren met andere verboden woorden
         # zonder de permanente configuratie aan te passen.
         # 💚 Tijdelijke override (alleen voor deze sessie)
-        st.markdown("🧪 <u>Tijdelijke override (alleen voor deze sessie)</u>", unsafe_allow_html=True)
+        st.markdown(
+            "🧪 <u>Tijdelijke override (alleen voor deze sessie)</u>",
+            unsafe_allow_html=True,
+        )
 
         # ================================
         # 🔁 UI: Tijdelijke override van verboden woorden (alleen indien aangevinkt)
@@ -805,18 +838,22 @@ with tab_expert:
         st.markdown("### 🔁 Tijdelijke override van verboden woorden (optioneel)")
 
         # ✅ Checkbox: bepaalt of override actief is
-        gebruik_override = st.checkbox("✅ Gebruik tijdelijke override", key="activeer_override")
+        gebruik_override = st.checkbox(
+            "✅ Gebruik tijdelijke override", key="activeer_override"
+        )
 
         if gebruik_override:
             tijdelijke_input = st.text_area(
                 "✏️ Voer de tijdelijke override-woorden in (gescheiden door komma’s)",
-                key="override_input_tekst"
+                key="override_input_tekst",
             )
 
             # 💚 Verwerk invoer met strikte filtering (geen lege woorden of alleen leestekens)
             # Strip whitespace van elk woord en filter lege entries uit.
             # Controleer dat elk woord minstens één alfanumeriek karakter bevat.
-            tijdelijke_lijst_raw = [w.strip() for w in tijdelijke_input.split(",") if w.strip()]
+            tijdelijke_lijst_raw = [
+                w.strip() for w in tijdelijke_input.split(",") if w.strip()
+            ]
             tijdelijke_lijst = [w for w in tijdelijke_lijst_raw if re.search(r"\w", w)]
 
             if tijdelijke_lijst:
@@ -825,14 +862,18 @@ with tab_expert:
                 # totdat de gebruiker de checkbox uitschakelt of de sessie eindigt.
                 st.session_state.override_actief = True
                 st.session_state.override_verboden_woorden = tijdelijke_lijst
-                st.success(f"✅ Override geactiveerd met {len(tijdelijke_lijst)} geldige woorden.")
+                st.success(
+                    f"✅ Override geactiveerd met {len(tijdelijke_lijst)} geldige woorden."
+                )
             else:
                 # 💚 Invalide inhoud → override NIET activeren
                 # Als er geen geldige woorden zijn ingevoerd, wordt de override
                 # niet geactiveerd om fouten te voorkomen.
                 st.session_state.override_actief = False
                 st.session_state.override_verboden_woorden = []
-                st.warning("⚠️ Geen geldige woorden gedetecteerd. Override wordt niet toegepast.")
+                st.warning(
+                    "⚠️ Geen geldige woorden gedetecteerd. Override wordt niet toegepast."
+                )
         else:
             # 💚 Reset override als checkbox uit staat
             # Wanneer de gebruiker de override uitschakelt, wordt de standaardlijst
@@ -843,14 +884,18 @@ with tab_expert:
 
         # ✅ Toon actieve status o.b.v. sessiestate
         if st.session_state.get("override_actief"):
-            st.info(f"⚠️ Tijdelijke override actief met {len(st.session_state.override_verboden_woorden)} woorden.")
+            st.info(
+                f"⚠️ Tijdelijke override actief met {len(st.session_state.override_verboden_woorden)} woorden."
+            )
         else:
             st.info("ℹ️ Geen tijdelijke override actief. Standaardlijst wordt gebruikt.")
-            
+
     # ✅ Test alle woorden uit verboden_woorden.json tegen een testzin
     st.markdown("### 🧪 Test alle verboden woorden op een testzin")
 
-    testzin = st.text_input("Voer een testzin in om alle woorden te controleren", key="testzin_regexcheck")
+    testzin = st.text_input(
+        "Voer een testzin in om alle woorden te controleren", key="testzin_regexcheck"
+    )
 
     if testzin:
         woordenlijst = laad_verboden_woorden()
@@ -867,7 +912,9 @@ with tab_expert:
             resultaat = f"🔹 `{woord}` → "
             resultaat += "✔️ In zin" if komt_voor else "❌ Niet in zin"
             resultaat += " | "
-            resultaat += "✔️ Regex-match" if regex_match else "❌ Geen regex-match aan begin"
+            resultaat += (
+                "✔️ Regex-match" if regex_match else "❌ Geen regex-match aan begin"
+            )
 
             if regex_match:
                 st.success(resultaat)
@@ -875,7 +922,7 @@ with tab_expert:
                 st.warning(resultaat)
             else:
                 st.info(resultaat)
-                
+
     # ================================
     # ✅ VOORSTEL 3 (herwerkt): Test één individueel woord op regex
     # ================================
@@ -900,7 +947,10 @@ with tab_expert:
         # 💚 Hier voert gebruiker de zin in waarin gezocht moet worden naar het woord
         # 💚 Ook hier is de key uniek gemaakt (specifiek voor deze test)
         # De testzin wordt gebruikt om te controleren of het woord aan het begin staat.
-        test_zin = st.text_input("✏️ Testzin (waar dit woord mogelijk in voorkomt)", key="test_zin_input_enkel")
+        test_zin = st.text_input(
+            "✏️ Testzin (waar dit woord mogelijk in voorkomt)",
+            key="test_zin_input_enkel",
+        )
 
     # 💚 Zodra gebruiker op de testknop klikt, wordt de test uitgevoerd
     # 💚 Unieke key toegevoegd om Streamlit-conflict te vermijden
@@ -932,7 +982,9 @@ with tab_expert:
             resultaat = f"🔹 `{test_woord}` in testzin → "
             resultaat += "✔️ In zin" if komt_voor else "❌ Niet in zin"
             resultaat += " | "
-            resultaat += "✔️ Regex-match aan begin" if regex_match else "❌ Geen beginmatch"
+            resultaat += (
+                "✔️ Regex-match aan begin" if regex_match else "❌ Geen beginmatch"
+            )
 
             # 💚 Logging voor analyse/doelmatigheid via Voorstel 4
             # Sla testresultaten op voor latere analyse van de effectiviteit
@@ -958,12 +1010,16 @@ with tab_expert:
     col1, col2 = st.columns(2)
 
     with col1:
-        test_woord = st.text_input("👁️ Verboden woord om te testen", key="test_woord_input_voorkom_dubbel_2")
+        test_woord = st.text_input(
+            "👁️ Verboden woord om te testen", key="test_woord_input_voorkom_dubbel_2"
+        )
         # 💚 Tweede tekstveld krijgt ook een unieke key om conflictsituatie te voorkomen
         # Keys moeten uniek zijn binnen de gehele Streamlit applicatie.
 
     with col2:
-        test_zin = st.text_input("✏️ Testzin (waar dit woord mogelijk in voorkomt)", key="test_zin_input")
+        test_zin = st.text_input(
+            "✏️ Testzin (waar dit woord mogelijk in voorkomt)", key="test_zin_input"
+        )
 
     # 💚 Actieve testknop (pas uitvoeren als gebruiker op knop klikt)
     # 💚 Unieke key toegevoegd voor voorstel 4b (voorkomt ID-conflict)
@@ -983,7 +1039,10 @@ with tab_expert:
             # ✅ Logging van het testresultaat (Voorstel 4b)
             # 🧠 Dit maakt analyse en debugging mogelijk in JSONL-log
             # De import wordt hier herhaald voor het geval de module nog niet geladen is.
-            from config.verboden_woorden import log_test_verboden_woord  # ✅ Als nog niet geïmporteerd
+            from config.verboden_woorden import (
+                log_test_verboden_woord,
+            )  # ✅ Als nog niet geïmporteerd
+
             log_test_verboden_woord(test_woord, test_zin, komt_voor, regex_match)
 
             # 💚 Bouw visuele feedback op
@@ -992,7 +1051,9 @@ with tab_expert:
             resultaat = f"🔹 `{test_woord}` in testzin → "
             resultaat += "✔️ In zin" if komt_voor else "❌ Niet in zin"
             resultaat += " | "
-            resultaat += "✔️ Regex-match aan begin" if regex_match else "❌ Geen beginmatch"
+            resultaat += (
+                "✔️ Regex-match aan begin" if regex_match else "❌ Geen beginmatch"
+            )
 
             # 💚 Toon resultaat met passende kleur
             # Kleurcodering helpt gebruikers snel de ernst van het resultaat
@@ -1003,8 +1064,7 @@ with tab_expert:
                 st.warning(resultaat)
             else:
                 st.info(resultaat)
-                
-                
+
     # ================================
     # 📖 VOORSTEL 5: Logviewer + downloadknop voor woordtest-logging
     # ================================
@@ -1038,19 +1098,18 @@ with tab_expert:
                     label="📥 Download logbestand (.jsonl)",
                     data=f,
                     file_name="verboden_woord_tests.jsonl",
-                    mime="application/json"
+                    mime="application/json",
                 )
-            
+
     # 🟩 Downloadknop voor het .csv-logbestand
     with open("log/definities_log.csv", "rb") as f:
         st.download_button(
             label="📥 Download CSV-logbestand",
             data=f,
             file_name="definities_log.csv",
-            mime="text/csv"
+            mime="text/csv",
         )
-    
-    
+
     # ================================
     # 🧪 VALIDATIE: Logging bevat expert-review?
     # ================================
@@ -1067,7 +1126,9 @@ with tab_expert:
             with open("log/definities_log.json", "r", encoding="utf-8") as f:
                 regels = [json.loads(lijn) for lijn in f.readlines() if lijn.strip()]
                 if not all("expert_review" in regel for regel in regels):
-                    fouten.append("❌ JSON-log mist veld 'expert_review' in één of meer regels.")
+                    fouten.append(
+                        "❌ JSON-log mist veld 'expert_review' in één of meer regels."
+                    )
         except Exception as e:
             fouten.append(f"❌ Kon JSON-log niet lezen: {e}")
 
@@ -1084,5 +1145,6 @@ with tab_expert:
             for fout in fouten:
                 st.error(fout)
         else:
-            st.success("✅ Loggingstructuur is compleet. 'expert_review' is aanwezig in zowel JSON als CSV.")
-
+            st.success(
+                "✅ Loggingstructuur is compleet. 'expert_review' is aanwezig in zowel JSON als CSV."
+            )

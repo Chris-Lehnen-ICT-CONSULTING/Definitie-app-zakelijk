@@ -7,26 +7,26 @@ Zorgt voor veilige verwerking van alle requests en bescherming tegen beveiliging
 
 # Importeer beveiligings middleware componenten voor request bescherming
 from .security_middleware import (
-    SecurityMiddleware,           # Hoofdklasse voor beveiligings middleware
-    SecurityEvent,               # Container voor beveiligings gebeurtenissen
-    SecurityLevel,               # Beveiligings niveau (low, medium, high, critical)
-    ThreatType,                  # Type van gedetecteerde bedreiging
-    ValidationRequest,           # Request container voor validatie
-    ValidationResponse,          # Response container na validatie
-    get_security_middleware,     # Factory voor middleware instanties
-    security_middleware_decorator # Decorator voor automatische beveiliging
+    SecurityMiddleware,  # Hoofdklasse voor beveiligings middleware
+    SecurityEvent,  # Container voor beveiligings gebeurtenissen
+    SecurityLevel,  # Beveiligings niveau (low, medium, high, critical)
+    ThreatType,  # Type van gedetecteerde bedreiging
+    ValidationRequest,  # Request container voor validatie
+    ValidationResponse,  # Response container na validatie
+    get_security_middleware,  # Factory voor middleware instanties
+    security_middleware_decorator,  # Decorator voor automatische beveiliging
 )
 
 # Exporteer publieke interface - alle beveiligings componenten
 __all__ = [
-    "SecurityMiddleware",           # Hoofdklasse beveiligings middleware
-    "SecurityEvent",               # Beveiligings gebeurtenis container
-    "SecurityLevel",               # Beveiligings niveau enumeratie
-    "ThreatType",                  # Bedreiging type classificatie
-    "ValidationRequest",           # Request validatie container
-    "ValidationResponse",          # Response validatie container
-    "get_security_middleware",     # Factory voor middleware instanties
-    "security_middleware_decorator" # Decorator voor auto beveiliging
+    "SecurityMiddleware",  # Hoofdklasse beveiligings middleware
+    "SecurityEvent",  # Beveiligings gebeurtenis container
+    "SecurityLevel",  # Beveiligings niveau enumeratie
+    "ThreatType",  # Bedreiging type classificatie
+    "ValidationRequest",  # Request validatie container
+    "ValidationResponse",  # Response validatie container
+    "get_security_middleware",  # Factory voor middleware instanties
+    "security_middleware_decorator",  # Decorator voor auto beveiliging
 ]
 
 # Versie informatie en package metadata

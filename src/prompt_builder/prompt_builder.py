@@ -2,24 +2,35 @@
 
 import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor environment variabelen
-from dataclasses import dataclass, field  # Dataklassen voor gestructureerde prompt configuratie
+from dataclasses import (
+    dataclass,
+    field,
+)  # Dataklassen voor gestructureerde prompt configuratie
 from typing import Optional, List, Dict, Set  # Type hints voor betere code documentatie
 from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
 from openai import OpenAI, OpenAIError  # OpenAI API client en foutafhandeling
-from config.verboden_woorden import laad_verboden_woorden  # Verboden woorden configuratie
+from config.verboden_woorden import (
+    laad_verboden_woorden,
+)  # Verboden woorden configuratie
 from config import laad_toetsregels  # Toetsregels configuratie loader
 
 # ✅ Initialiseer OpenAI-client slechts één keer voor hergebruik
 load_dotenv()  # Laad environment variabelen uit .env bestand
-_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))  # Maak globale OpenAI client instantie
+_client = OpenAI(
+    api_key=os.getenv("OPENAI_API_KEY")
+)  # Maak globale OpenAI client instantie
+
 
 # ✅ Alternatieve clientfunctie als _client niet bruikbaar is
 def verkrijg_openai_client() -> OpenAI:
     """Verkrijgt OpenAI client met error handling voor ontbrekende API key."""
     sleutel = os.getenv("OPENAI_API_KEY")  # Haal API key op uit environment
     if not sleutel:  # Controleer of key bestaat
-        raise RuntimeError("OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets.")  # Gooi fout bij ontbrekende key
+        raise RuntimeError(
+            "OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets."
+        )  # Gooi fout bij ontbrekende key
     return OpenAI(api_key=sleutel)  # Retourneer nieuwe client instantie
+
 
 # ✅ Bekende contextafkortingen voor CON-01-blokkade
 AFKORTINGEN = {
@@ -27,31 +38,64 @@ AFKORTINGEN = {
     "ZM": "Zittende Magistratuur",
     "3RO": "Samenwerkingsverband Reclasseringsorganisaties",
     "DJI": "Dienst Justitiële Inrichtingen",
-    "NP" : "Nederlands Politie",
+    "NP": "Nederlands Politie",
     "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst",
     "Justid": "Dienst Justitiële Informatievoorziening",
     "KMAR": "Koninklijke Marechaussee",
     "CJIB": "Centraal Justitieel Incassobureau",
-    "AVG": "Algemene verordening gegevensbescherming"
+    "AVG": "Algemene verordening gegevensbescherming",
 }
 
 # ✅ Toegestane regels voor promptopbouw
 TOEGESTANE_TOETSREGELS = {
-    "CON-01", "CON-02",
-    "ESS-01", "ESS-02", "ESS-04", "ESS-05",
-    "INT-01", "INT-02", "INT-03", "INT-04", "INT-06", "INT-07", "INT-08",
-    "SAM-01", "SAM-05", "SAM-07",
-    "STR-01", "STR-02", "STR-03", "STR-04", "STR-05", "STR-06", "STR-07", "STR-08", "STR-09",
-    "ARAI01", "ARAI02", "ARAI02SUB1", "ARAI02SUB2", "ARAI03", "ARAI04", "ARAI04SUB1", "ARAI05", "ARAI06"
+    "CON-01",
+    "CON-02",
+    "ESS-01",
+    "ESS-02",
+    "ESS-04",
+    "ESS-05",
+    "INT-01",
+    "INT-02",
+    "INT-03",
+    "INT-04",
+    "INT-06",
+    "INT-07",
+    "INT-08",
+    "SAM-01",
+    "SAM-05",
+    "SAM-07",
+    "STR-01",
+    "STR-02",
+    "STR-03",
+    "STR-04",
+    "STR-05",
+    "STR-06",
+    "STR-07",
+    "STR-08",
+    "STR-09",
+    "ARAI01",
+    "ARAI02",
+    "ARAI02SUB1",
+    "ARAI02SUB2",
+    "ARAI03",
+    "ARAI04",
+    "ARAI04SUB1",
+    "ARAI05",
+    "ARAI06",
 }
+
 
 ## ✅ Nieuwe versie van PromptConfiguratie: gebruikt context_dict in plaats van losse velden
 @dataclass
 class PromptConfiguratie:
     begrip: str
-    context_dict: Dict[str, List[str]]  # verwacht sleutels: 'organisatorisch', 'juridisch', 'wettelijk'
+    context_dict: Dict[
+        str, List[str]
+    ]  # verwacht sleutels: 'organisatorisch', 'juridisch', 'wettelijk'
     web_uitleg: str = ""
     toetsregels: Dict[str, Dict] = field(default_factory=laad_toetsregels)
+
+
 # ✅ PromptBouwer – genereert de volledige instructietekst
 class PromptBouwer:
     def __init__(self, configuratie: PromptConfiguratie):
@@ -65,7 +109,11 @@ class PromptBouwer:
     def bepaal_woordsoort(self) -> str:
         # 💚 Detecteert automatisch of begrip een werkwoord, deverbaal of naamwoord is
         woord = self.configuratie.begrip.strip().lower()
-        if len(woord) > 4 and woord.endswith("en") and not woord.endswith(("ing", "atie", "isatie")):
+        if (
+            len(woord) > 4
+            and woord.endswith("en")
+            and not woord.endswith(("ing", "atie", "isatie"))
+        ):
             return "werkwoord"
         if woord.endswith(("ing", "atie", "isatie")):
             return "deverbaal"
@@ -73,7 +121,11 @@ class PromptBouwer:
 
     def filter_regels(self) -> Dict[str, Dict]:
         # 💚 Filtert alleen de toetsregels die geschikt zijn voor promptopbouw
-        return {k: v for k, v in self.configuratie.toetsregels.items() if k in TOEGESTANE_TOETSREGELS}
+        return {
+            k: v
+            for k, v in self.configuratie.toetsregels.items()
+            if k in TOEGESTANE_TOETSREGELS
+        }
 
     def voeg_contextverbod_toe(self, regels: List[str], term: Optional[str]):
         # 💚 Vermijdt herhaalde of herleidbare contextvermeldingen
@@ -84,7 +136,9 @@ class PromptBouwer:
         for kandidaat in kandidaten:
             sleutel = kandidaat.lower()
             if kandidaat and sleutel not in self.geziene_termen:
-                regels.append(f"- Gebruik de term '{kandidaat}' of een variant daarvan niet letterlijk in de definitie.")
+                regels.append(
+                    f"- Gebruik de term '{kandidaat}' of een variant daarvan niet letterlijk in de definitie."
+                )
                 self.geziene_termen.add(sleutel)
 
     def bouw_prompt(self) -> str:
@@ -97,16 +151,24 @@ class PromptBouwer:
         geselecteerde_regels = self.filter_regels()
 
         # ✅ Inleiding
-        regels.append("Je bent een expert in beleidsmatige definities voor overheidsgebruik.")
+        regels.append(
+            "Je bent een expert in beleidsmatige definities voor overheidsgebruik."
+        )
         regels.append("Formuleer een definitie in één enkele zin, zonder toelichting.")
 
         # ✅ Schrijfadvies op basis van woordsoort
         if woordsoort == "werkwoord":
-            regels.append("Als het begrip een handeling beschrijft, definieer het dan als proces of activiteit.")
+            regels.append(
+                "Als het begrip een handeling beschrijft, definieer het dan als proces of activiteit."
+            )
         elif woordsoort == "deverbaal":
-            regels.append("Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces.")
+            regels.append(
+                "Als het begrip een resultaat is, beschrijf het dan als uitkomst van een proces."
+            )
         else:
-            regels.append("Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip.")
+            regels.append(
+                "Gebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."
+            )
 
         # ✅ Contextkaders (meervoudcorrectie)
         context_dict = self.configuratie.context_dict
@@ -127,13 +189,16 @@ class PromptBouwer:
                     contextregels.append(f"- {labelmapping.get(v, v)}")
             elif isinstance(waarde, list):
                 if waarde:  # alleen toevoegen als lijst niet leeg is
-                    contextregels.append(f"- {labelmapping.get(v, v)}: {', '.join(waarde)}")
+                    contextregels.append(
+                        f"- {labelmapping.get(v, v)}: {', '.join(waarde)}"
+                    )
         if contextregels:
             regels.append("\n📌 Context:")
             regels.extend(contextregels)
 
         # ✅ Essentiële instructie voor ESS-02
-        regels.append("""
+        regels.append(
+            """
 ### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):
 Je **moet** één van de vier categorieën expliciet maken:
 • type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
@@ -143,7 +208,8 @@ Gebruik formuleringen zoals:
 - 'betreft een specifieke soort...'
 - 'is een exemplaar van...'
 ⚠️ Ondubbelzinnigheid is vereist.
-""")
+"""
+        )
 
         # ✅ Toetsregels (Richtlijnen)
         regels.append("\n### ✅ Richtlijnen voor de definitie:")
@@ -175,10 +241,12 @@ Gebruik formuleringen zoals:
             "- ❌ Gebruik geen synoniem als definitie",
             "- ❌ Vermijd containerbegrippen (‘proces’, ‘activiteit’)",
             "- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'",
-            "- ❌ Gebruik enkelvoud; infinitief bij werkwoorden"
+            "- ❌ Gebruik enkelvoud; infinitief bij werkwoorden",
         ]
         regels.append("\n### ⚠️ Veelgemaakte fouten (vermijden!):")
-        regels.extend(fouten + [f"- ❌ Start niet met '{w}'" for w in self.verboden_startwoorden])
+        regels.extend(
+            fouten + [f"- ❌ Start niet met '{w}'" for w in self.verboden_startwoorden]
+        )
 
         # ✅ Dynamisch contextverbod (CON-01)
         for v in context_dict:
@@ -190,7 +258,8 @@ Gebruik formuleringen zoals:
                 if context_dict.get(v):
                     self.voeg_contextverbod_toe(regels, v)
         # ✅ Validatiematrix
-        regels.append("""
+        regels.append(
+            """
 | Probleem                             | Afgedekt? | Toelichting                                |
 |--------------------------------------|-----------|---------------------------------------------|
 | Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
@@ -201,13 +270,20 @@ Gebruik formuleringen zoals:
 | Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
 | Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
 | Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |
-""")
+"""
+        )
 
         # ✅ Definitie-opdracht
-        regels.append("🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen.")
+        regels.append(
+            "🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen."
+        )
         regels.append("\n📋 **Ontologische marker (lever als eerste regel):**")
-        regels.append("- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]")
-        regels.append(f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting.")
+        regels.append(
+            "- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]"
+        )
+        regels.append(
+            f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting."
+        )
 
         # ✅ Metadata
         regels.append("\n🆔 Promptmetadata:")
@@ -219,32 +295,34 @@ Gebruik formuleringen zoals:
                 regels.append(f"– {labelmapping.get(v, v)}: {', '.join(waarden)}")
             elif isinstance(waarden, bool) and waarden:
                 regels.append(f"– {labelmapping.get(v, v)}")
-# ✅ Voorkomt TypeError door alleen lists te joinen
-# ✅ Booleans (zoals True bij "Organisatorisch") geven correcte promptregel
-# ✅ False en lege lijsten worden genegeerd
- 
+        # ✅ Voorkomt TypeError door alleen lists te joinen
+        # ✅ Booleans (zoals True bij "Organisatorisch") geven correcte promptregel
+        # ✅ False en lege lijsten worden genegeerd
+
         return "\n".join(regels)
 
+
 # ✅ Functie om prompt aan GPT te sturen (with caching)
-def stuur_prompt_naar_gpt(prompt: str, model: str = "gpt-4", temperatuur: float = 0.01, max_tokens: int = 300) -> str:
+def stuur_prompt_naar_gpt(
+    prompt: str, model: str = "gpt-4", temperatuur: float = 0.01, max_tokens: int = 300
+) -> str:
     """
     ✅ Standaardtemperatuur verlaagd naar 0.01 voor maximale voorspelbaarheid en herhaalbaarheid.
     ✅ Deze aanpassing zorgt ervoor dat de GPT-output bij gelijke input zo identiek mogelijk blijft.
     ✅ Now includes intelligent caching to avoid redundant API calls.
     """
     from utils.cache import cached, cache_gpt_call
-    
+
     # Generate cache key for this specific call
     cache_key = cache_gpt_call(
-        prompt=prompt,
-        model=model,
-        temperature=temperatuur,
-        max_tokens=max_tokens
+        prompt=prompt, model=model, temperature=temperatuur, max_tokens=max_tokens
     )
-    
+
     # Use cached decorator for the actual GPT call
     @cached(ttl=3600)  # Cache for 1 hour
-    def _make_gpt_call(cache_key: str, prompt: str, model: str, temperatuur: float, max_tokens: int) -> str:
+    def _make_gpt_call(
+        cache_key: str, prompt: str, model: str, temperatuur: float, max_tokens: int
+    ) -> str:
         try:
             antwoord = _client.chat.completions.create(
                 model=model,
@@ -255,6 +333,8 @@ def stuur_prompt_naar_gpt(prompt: str, model: str = "gpt-4", temperatuur: float 
             return antwoord.choices[0].message.content.strip()
         except OpenAIError as fout:
             raise RuntimeError(f"GPT-aanroep mislukt: {fout}") from fout
-    
+
     return _make_gpt_call(cache_key, prompt, model, temperatuur, max_tokens)
+
+
 # ✅ Temperatuur nu standaard 0.01. Dit is zeer voorspelbaar, dus zeer geschikt voor strikte validatie- en logtoepassingen.

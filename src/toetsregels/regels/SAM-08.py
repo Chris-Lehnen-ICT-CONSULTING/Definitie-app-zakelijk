@@ -9,37 +9,40 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class SAM08Validator:
     """Validator voor SAM-08."""
-    
+
     def __init__(self, config: Dict):
         """
         Initialiseer validator met configuratie uit JSON.
-        
+
         Args:
             config: Dictionary met configuratie uit SAM-08.json
         """
         self.config = config
-        self.id = config.get('id', 'SAM-08')
-        self.naam = config.get('naam', '')
-        self.uitleg = config.get('uitleg', '')
-        self.prioriteit = config.get('prioriteit', 'midden')
-    
-    def validate(self, definitie: str, begrip: str, context: Optional[Dict] = None) -> Tuple[bool, str, float]:
+        self.id = config.get("id", "SAM-08")
+        self.naam = config.get("naam", "")
+        self.uitleg = config.get("uitleg", "")
+        self.prioriteit = config.get("prioriteit", "midden")
+
+    def validate(
+        self, definitie: str, begrip: str, context: Optional[Dict] = None
+    ) -> Tuple[bool, str, float]:
         """
         Valideer definitie volgens SAM-08 regel.
-        
+
         Args:
             definitie: De te valideren definitie
-            begrip: Het begrip dat gedefinieerd wordt  
+            begrip: Het begrip dat gedefinieerd wordt
             context: Optionele context informatie
-            
+
         Returns:
             Tuple van (succes, melding, score)
         """
         # Haal regel config op
         regel = self.config
-        
+
         # Extract context parameters indien nodig
         if context:
             # Context processing kan hier toegevoegd worden indien nodig
@@ -73,7 +76,7 @@ class SAM08Validator:
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
-        
+
         # Convert legacy return naar nieuwe format
         if isinstance(result, str):
             # Bepaal succes op basis van emoji
@@ -82,46 +85,47 @@ class SAM08Validator:
             if "🟡" in result:
                 score = 0.5
             return succes, result, score
-        
+
         # Fallback
         return False, f"⚠️ {self.id}: geen resultaat", 0.0
-    
+
     def get_generation_hints(self) -> List[str]:
         """
         Geef hints voor definitie generatie.
-        
+
         Returns:
             Lijst met instructies voor de AI generator
         """
         hints = []
-        
+
         if self.uitleg:
             hints.append(self.uitleg)
-            
-        goede_voorbeelden = self.config.get('goede_voorbeelden', [])
+
+        goede_voorbeelden = self.config.get("goede_voorbeelden", [])
         if goede_voorbeelden:
             hints.append(f"Volg dit voorbeeld: {goede_voorbeelden[0]}")
-        
+
         return hints
+
 
 def create_validator(config_path: str = None) -> SAM08Validator:
     """
     Factory functie om validator te maken.
-    
+
     Args:
         config_path: Optioneel pad naar configuratie bestand
-        
+
     Returns:
         SAM08Validator instantie
     """
     import json
     import os
-    
+
     if not config_path:
         current_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(current_dir, 'SAM-08.json')
-    
-    with open(config_path, 'r', encoding='utf-8') as f:
+        config_path = os.path.join(current_dir, "SAM-08.json")
+
+    with open(config_path, "r", encoding="utf-8") as f:
         config = json.load(f)
-    
+
     return SAM08Validator(config)
