@@ -39,6 +39,9 @@ from prompt_builder.prompt_builder import (
 logger = logging.getLogger(__name__)
 
 
+from domain.ontological_categories import OntologischeCategorie
+
+
 class GenerationMode(Enum):
     """Generatie modus die bepaalt welke features actief zijn."""
 
@@ -50,15 +53,6 @@ class GenerationMode(Enum):
 
 
 # UnifiedGeneratorConfig is imported from definition_generator_config.py
-
-
-class OntologischeCategorie(Enum):
-    """Ontologische categorieën (van generation implementatie)."""
-
-    TYPE = "type"
-    PROCES = "proces"
-    RESULTAAT = "resultaat"
-    EXEMPLAAR = "exemplaar"
 
 
 @dataclass
@@ -133,9 +127,27 @@ class UnifiedDefinitionGenerator(DefinitionGeneratorInterface):
         # Web lookup component (van definitie_generator)
         if getattr(self.config.context, "enable_web_lookup", True):
             try:
-                from web_lookup import zoek_definitie_combinatie
+                # Legacy import replaced with modern service
+                # from web_lookup import zoek_definitie_combinatie  # DEPRECATED
+                from services.modern_web_lookup_service import ModernWebLookupService
+                
+                # Create compatibility wrapper for legacy interface
+                async def web_lookup_wrapper(term: str) -> str:
+                    """Wrapper to maintain legacy interface"""
+                    from services.interfaces import LookupRequest
+                    service = ModernWebLookupService()
+                    request = LookupRequest(term=term, max_results=5)
+                    results = await service.lookup(request)
+                    
+                    # Format results as string for legacy compatibility
+                    if results:
+                        return f"Web informatie voor {term}: " + "; ".join(
+                            [f"{r.title} ({r.source.name})" for r in results[:3]]
+                        )
+                    return ""
 
-                self._web_lookup = zoek_definitie_combinatie
+                self._web_lookup = web_lookup_wrapper
+                logger.info("Web lookup component geïnitialiseerd met modern service")
             except ImportError:
                 logger.warning("Web lookup niet beschikbaar")
                 self._web_lookup = None
