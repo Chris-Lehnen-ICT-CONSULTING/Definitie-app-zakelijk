@@ -55,8 +55,8 @@ class TestImportStructure(unittest.TestCase):
             'ai_toetser.modular_toetser',
             'validation.definitie_validator',
             'generation.definitie_generator',
-            'web_lookup.bron_lookup',
-            'web_lookup.definitie_lookup',
+            'services.modern_web_lookup_service',
+            'services.unified_definition_generator',
             'config.config_manager',
             'utils.cache',
             'utils.smart_rate_limiter'
@@ -396,25 +396,26 @@ class TestCoreFunctionality(unittest.TestCase):
             self.fail(f"AI integratie test gefaald: {e}")
 
 
-class TestWebLookupIntegration(unittest.TestCase):
-    """Test web lookup functionaliteit en externe integraties."""
+class TestModernWebLookupIntegration(unittest.TestCase):
+    """Test moderne web lookup service functionaliteit."""
     
-    def test_web_lookup_syntax(self):
-        """Test dat web lookup modules syntactisch correct zijn."""
+    def test_modern_web_lookup_service(self):
+        """Test dat moderne web lookup service correct werkt."""
         try:
-            import web_lookup.bron_lookup
-            import web_lookup.definitie_lookup
+            from services.modern_web_lookup_service import ModernWebLookupService
+            from services.interfaces import LookupRequest
             
-            # Test basis functionaliteit exists
-            self.assertTrue(hasattr(web_lookup.bron_lookup, 'BronHerkenner'))
-            self.assertTrue(hasattr(web_lookup.definitie_lookup, 'zoek_definitie'))
+            # Test basis functionaliteit
+            service = ModernWebLookupService()
+            self.assertTrue(hasattr(service, 'lookup'))
+            self.assertTrue(hasattr(service, 'validate_source'))
             
-            logger.info("✅ Web lookup syntax check succesvol")
+            logger.info("✅ Modern web lookup service check succesvol")
             
-        except SyntaxError as e:
-            self.fail(f"Web lookup syntax error: {e}")
+        except ImportError as e:
+            self.fail(f"Modern web lookup import error: {e}")
         except Exception as e:
-            logger.warning(f"Web lookup import warning: {e}")
+            logger.warning(f"Modern web lookup test warning: {e}")
     
     @patch('requests.get')
     def test_external_api_error_handling(self, mock_get):
@@ -424,9 +425,9 @@ class TestWebLookupIntegration(unittest.TestCase):
             mock_get.side_effect = Exception("Network error")
             
             # Test dat error handling werkt
-            from web_lookup.bron_lookup import BronZoeker
+            from services.modern_web_lookup_service import ModernWebLookupService
             
-            zoeker = BronZoeker()
+            service = ModernWebLookupService()
             # Dit zou graceful moeten falen zonder de hele applicatie te crashen
             
             logger.info("✅ Error handling test succesvol")
@@ -557,19 +558,19 @@ class TestRegressionSpecific(unittest.TestCase):
         except Exception as e:
             self.fail(f"Logs import regressie gefaald: {e}")
     
-    def test_web_lookup_encoding_fix(self):
-        """Test dat web lookup encoding problemen opgelost zijn."""
+    def test_modern_service_encoding_fix(self):
+        """Test dat moderne service encoding correct is."""
         try:
             # Test dat de bestanden syntactisch correct zijn
             import ast
             
             src_path = Path(__file__).parent.parent / 'src'
-            web_lookup_files = [
-                src_path / 'web_lookup' / 'bron_lookup.py',
-                src_path / 'web_lookup' / 'definitie_lookup.py'
+            service_files = [
+                src_path / 'services' / 'modern_web_lookup_service.py',
+                src_path / 'services' / 'unified_definition_generator.py'
             ]
             
-            for file_path in web_lookup_files:
+            for file_path in service_files:
                 if file_path.exists():
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
@@ -582,7 +583,7 @@ class TestRegressionSpecific(unittest.TestCase):
                         self.fail(f"Syntax error in {file_path.name}: {e}")
             
         except Exception as e:
-            self.fail(f"Web lookup encoding test gefaald: {e}")
+            self.fail(f"Modern service encoding test gefaald: {e}")
     
     def test_init_files_presence(self):
         """Test dat alle benodigde __init__.py bestanden aanwezig zijn."""
@@ -620,7 +621,7 @@ def run_regression_suite():
         TestImportStructure,
         TestNederlandseCommentaren,
         TestCoreFunctionality,
-        TestWebLookupIntegration,
+        TestModernWebLookupIntegration,
         TestPerformanceAndMemory,
         TestErrorHandlingAndRobustness,
         TestRegressionSpecific
