@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Set  # Type hints voor betere code docu
 from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
 from openai import OpenAI, OpenAIError  # OpenAI API client en foutafhandeling
 
-from config import laad_toetsregels  # Toetsregels configuratie loader
+from config.config_loader import laad_toetsregels  # Toetsregels configuratie loader
 from config.verboden_woorden import (  # Verboden woorden configuratie
     laad_verboden_woorden,
 )

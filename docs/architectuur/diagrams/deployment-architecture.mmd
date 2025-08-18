@@ -1,0 +1,63 @@
+graph TB
+    subgraph "Production Environment"
+        subgraph "DMZ"
+            LB[Load Balancer<br/>AWS ALB]
+            WAF[Web Application<br/>Firewall]
+        end
+        
+        subgraph "Application Tier"
+            subgraph "Kubernetes Cluster"
+                subgraph "Node Pool 1"
+                    GW1[API Gateway Pod]
+                    ORCH1[Orchestrator Pod]
+                    GEN1[Generator Pod]
+                end
+                subgraph "Node Pool 2"
+                    GW2[API Gateway Pod]
+                    ORCH2[Orchestrator Pod]
+                    VAL1[Validator Pod]
+                end
+                subgraph "Node Pool 3"
+                    REPO1[Repository Pod]
+                    WEB1[Web Lookup Pod]
+                    MON1[Monitoring Pod]
+                end
+            end
+        end
+        
+        subgraph "Data Tier"
+            subgraph "Primary Region"
+                PG_PRIMARY[(PostgreSQL<br/>Primary)]
+                REDIS_PRIMARY[(Redis<br/>Cluster)]
+            end
+            subgraph "Backup Region"
+                PG_STANDBY[(PostgreSQL<br/>Standby)]
+                S3[(S3 Backups)]
+            end
+        end
+    end
+    
+    subgraph "External Services"
+        OPENAI[OpenAI API]
+        SMTP[Email Service]
+        MONITORING[DataDog/NewRelic]
+    end
+    
+    LB --> WAF
+    WAF --> GW1
+    WAF --> GW2
+    GW1 --> ORCH1
+    GW2 --> ORCH2
+    ORCH1 --> GEN1
+    ORCH2 --> VAL1
+    ORCH1 --> REPO1
+    REPO1 --> PG_PRIMARY
+    GEN1 --> REDIS_PRIMARY
+    WEB1 --> OPENAI
+    PG_PRIMARY -.-> PG_STANDBY
+    PG_PRIMARY --> S3
+    MON1 --> MONITORING
+    
+    style LB fill:#f9f,stroke:#333,stroke-width:2px
+    style PG_PRIMARY fill:#9ff,stroke:#333,stroke-width:2px
+    style OPENAI fill:#ff9,stroke:#333,stroke-width:2px
