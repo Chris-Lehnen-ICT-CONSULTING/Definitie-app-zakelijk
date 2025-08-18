@@ -34,7 +34,7 @@ class OrchestrationTab:
 
             from definitie_agent import AgentStatus, DefinitieAgent, IterationResult
 
-            from services.unified_definition_generator import OntologischeCategorie
+            from domain.ontological_categories import OntologischeCategorie
 
             # Store classes for use
             self.DefinitieAgent = DefinitieAgent
