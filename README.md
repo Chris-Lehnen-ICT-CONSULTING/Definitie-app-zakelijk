@@ -20,7 +20,7 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 - 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
 - 📋 **45/46 Kwaliteitsregels** voor validatie (INT-05 ontbreekt)
 - 🏗️ **Hybride Architectuur** UnifiedDefinitionService + moderne services
-- 🌐 **Web Lookup** ✅ MODERN - Strangler Fig patroon geïmplementeerd (47 tests passing)
+- 🌐 **Web Lookup** ⚠️ DEELS WERKEND - Backend werkt (28 tests), UI tab niet geïntegreerd
 - 📄 **Document Upload** voor kennisbasis uitbreiding  
 - ⚡ **Smart Caching** ⚠️ memory leaks geïdentificeerd
 - 🖥️ **10 Streamlit UI Tabs** (alle importeren succesvol)
@@ -86,7 +86,7 @@ definitie-app/
 ### ❌ KRITIEKE BLOCKERS - Productie
 - **Authentication/Authorization**: Geen security layer (OWASP A07:2021)
 - **Data Encryption**: SQLite databases unencrypted (OWASP A02:2021)
-- **WebLookupService**: Volledig kapot - import errors, async/sync mismatch
+- **Web Lookup UI**: Tab toont geen resultaten - integratie ontbreekt
 - **Legacy Refactoring**: UnifiedDefinitionService (698 regels) nog niet opgesplitst
 - **Import Architecture**: E402 errors in main.py en legacy modules
 - **Error Handling**: 8 bare except clauses maskeren critical errors

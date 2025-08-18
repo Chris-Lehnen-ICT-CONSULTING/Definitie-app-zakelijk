@@ -57,7 +57,7 @@ def get_missing_columns(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
     return missing
 
 
-def migrate_database(db_path: str = "definities.db"):
+def migrate_database(db_path: str = "data/definities.db"):
     """
     Voer database migratie uit.
 
@@ -138,7 +138,7 @@ def migrate_database(db_path: str = "definities.db"):
         return False
 
 
-def verify_migration(db_path: str = "definities.db"):
+def verify_migration(db_path: str = "data/definities.db"):
     """
     Verifieer dat de migratie succesvol was.
 
@@ -191,7 +191,7 @@ if __name__ == "__main__":
     if len(sys.argv) > 1:
         db_path = sys.argv[1]
     else:
-        db_path = "definities.db"
+        db_path = "data/definities.db"
 
     # Voer migratie uit
     success = migrate_database(db_path)
