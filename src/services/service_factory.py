@@ -126,6 +126,10 @@ class ServiceAdapter:
                 "toetsresultaten": (
                     response.validation.errors if response.validation else []
                 ),
+                # Add detailed validation results for UI
+                "validation_details": (
+                    response.validation if response.validation else None
+                ),
                 "validation_score": (
                     response.validation.score if response.validation else 0.0
                 ),
