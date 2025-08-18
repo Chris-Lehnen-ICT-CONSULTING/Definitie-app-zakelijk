@@ -18,49 +18,42 @@ from typing import Any, Dict, List, Optional  # Type hints voor betere code docu
 # Importeer generatie componenten voor AI definitie creatie
 from domain.ontological_categories import OntologischeCategorie
 
-# Legacy imports replaced - functionality now in services
-# from generation.definitie_generator import (
-#     DefinitieGenerator,
-#     GenerationContext,
-#     GenerationResult,
-# )
-
-# Import modern service interfaces
-from services.interfaces import GenerationRequest, Definition
-from services.unified_definition_generator import UnifiedDefinitionGenerator
-
-# Mock legacy classes for compatibility
-class GenerationContext:
-    """Legacy compatibility wrapper"""
-    def __init__(self, begrip, context=None, domein=None):
-        self.begrip = begrip
-        self.context = context or {}
-        self.domein = domein or []
-
-class GenerationResult:
-    """Legacy compatibility wrapper"""
-    def __init__(self, definitie, metadata=None):
-        self.definitie = definitie
-        self.metadata = metadata or {}
-
-class DefinitieGenerator:
-    """Legacy compatibility wrapper"""
-    def __init__(self):
-        self._service = UnifiedDefinitionGenerator()
+# Import legacy classes from deprecated location for compatibility
+try:
+    from deprecated.generation.definitie_generator import (
+        DefinitieGenerator,
+        GenerationContext,
+        GenerationResult,
+    )
+except ImportError:
+    # Fallback imports if deprecated module is not available
+    logger.warning("Could not import from deprecated.generation.definitie_generator")
     
-    def genereer_definitie(self, context: GenerationContext) -> GenerationResult:
-        """Legacy compatibility method"""
-        import asyncio
-        request = GenerationRequest(
-            begrip=context.begrip,
-            context=str(context.context) if context.context else "",
-            domein=", ".join(context.domein) if context.domein else ""
-        )
-        definition = asyncio.run(self._service.generate(request))
-        return GenerationResult(
-            definitie=definition.definitie,
-            metadata=definition.metadata
-        )
+    # Import modern service interfaces as fallback
+    from services.interfaces import GenerationRequest, Definition
+    from services.unified_definition_generator import UnifiedDefinitionGenerator
+    
+    # Define minimal compatibility classes
+    class GenerationContext:
+        """Minimal compatibility wrapper"""
+        def __init__(self, begrip, organisatorische_context=None, juridische_context=None, 
+                     categorie=None, **kwargs):
+            self.begrip = begrip
+            self.organisatorische_context = organisatorische_context or ""
+            self.juridische_context = juridische_context or ""
+            self.categorie = categorie
+    
+    class GenerationResult:
+        """Minimal compatibility wrapper"""
+        def __init__(self, definitie, metadata=None):
+            self.definitie = definitie
+            self.metadata = metadata or {}
+    
+    class DefinitieGenerator:
+        """Minimal compatibility wrapper"""
+        def __init__(self):
+            logger.warning("Using minimal DefinitieGenerator wrapper")
+            pass
 
 # Importeer validatie componenten voor kwaliteitscontrole
 from validation.definitie_validator import ViolationType  # Validatie klassen
