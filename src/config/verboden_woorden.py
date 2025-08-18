@@ -6,12 +6,10 @@ from datetime import datetime
 
 import streamlit as st
 
-# Voeg root directory toe aan Python path voor logs module toegang
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "../.."))
+import logging
 
-from logs.application.log_definitie import get_logger  # Logging uit root logs directory
-
-logger = get_logger(__name__)
+# Gebruik standaard logging
+logger = logging.getLogger(__name__)
 
 
 # ✅ Laadt de lijst met verboden woorden, met override-optie vanuit Streamlit UI
