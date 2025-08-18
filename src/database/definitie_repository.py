@@ -263,7 +263,7 @@ class DefinitieRepository:
     operaties, inclusief opslag, zoeken, duplicaat detectie en export.
     """
 
-    def __init__(self, db_path: str = "definities.db"):
+    def __init__(self, db_path: str = "data/definities.db"):
         """
         Initialiseer repository met database connectie.
 
