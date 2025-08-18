@@ -22,6 +22,8 @@ from services.interfaces import (
     WebLookupServiceInterface,
 )
 from services.modern_web_lookup_service import ModernWebLookupService
+from services.duplicate_detection_service import DuplicateDetectionService
+from services.workflow_service import WorkflowService
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +136,13 @@ class ServiceContainer:
             use_database = self.config.get("use_database", True)
             
             if use_database:
-                self._instances["repository"] = DefinitionRepository(self.db_path)
+                repository = DefinitionRepository(self.db_path)
+                
+                # Inject duplicate service if enabled
+                if self.config.get("use_new_duplicate_detection", True):
+                    repository.set_duplicate_service(self.duplicate_detector())
+                    
+                self._instances["repository"] = repository
                 logger.info(
                     f"DefinitionRepository instance aangemaakt met db: {self.db_path}"
                 )
@@ -174,6 +182,33 @@ class ServiceContainer:
             logger.info("ModernWebLookupService instance aangemaakt")
         return self._instances["web_lookup"]
 
+    def duplicate_detector(self) -> DuplicateDetectionService:
+        """
+        Get of create DuplicateDetectionService instance.
+
+        Returns:
+            Singleton instance van DuplicateDetectionService
+        """
+        if "duplicate_detector" not in self._instances:
+            similarity_threshold = self.config.get("duplicate_similarity_threshold", 0.7)
+            self._instances["duplicate_detector"] = DuplicateDetectionService(
+                similarity_threshold=similarity_threshold
+            )
+            logger.info(f"DuplicateDetectionService instance aangemaakt met threshold {similarity_threshold}")
+        return self._instances["duplicate_detector"]
+
+    def workflow(self) -> WorkflowService:
+        """
+        Get of create WorkflowService instance.
+
+        Returns:
+            Singleton instance van WorkflowService
+        """
+        if "workflow" not in self._instances:
+            self._instances["workflow"] = WorkflowService()
+            logger.info("WorkflowService instance aangemaakt")
+        return self._instances["workflow"]
+
     # Utility methods
 
     def reset(self):
@@ -197,6 +232,8 @@ class ServiceContainer:
             "repository": self.repository,
             "orchestrator": self.orchestrator,
             "web_lookup": self.web_lookup,
+            "duplicate_detector": self.duplicate_detector,
+            "workflow": self.workflow,
         }
 
         if name in service_map:

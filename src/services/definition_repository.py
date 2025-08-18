@@ -49,6 +49,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             "total_updates": 0,
             "total_deletes": 0,
         }
+        
+        # Inject business services indien beschikbaar
+        self._duplicate_service = None
+        
         logger.info(f"DefinitionRepository geïnitialiseerd met database: {db_path}")
 
     def save(self, definition: Definition) -> int:
@@ -229,17 +233,26 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             Lijst van mogelijke duplicaten
         """
         try:
-            # Gebruik legacy duplicate detection
-            record = self._definition_to_record(definition)
-            matches = self.legacy_repo.find_duplicates(record)
+            # Check if we have the new duplicate detection service
+            if self._duplicate_service is not None:
+                # Use new business logic service
+                all_definitions = self._get_all_definitions()
+                matches = self._duplicate_service.find_duplicates(definition, all_definitions)
+                
+                # Return just the definitions
+                return [match.definition for match in matches]
+            else:
+                # Fallback to legacy duplicate detection
+                record = self._definition_to_record(definition)
+                matches = self.legacy_repo.find_duplicates(record)
 
-            duplicates = []
-            for match in matches:
-                dup_def = self._record_to_definition(match.definitie_record)
-                if dup_def:
-                    duplicates.append(dup_def)
+                duplicates = []
+                for match in matches:
+                    dup_def = self._record_to_definition(match.definitie_record)
+                    if dup_def:
+                        duplicates.append(dup_def)
 
-            return duplicates
+                return duplicates
 
         except Exception as e:
             logger.error(f"Fout bij duplicaat detectie: {e}")
@@ -269,6 +282,46 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
         except Exception as e:
             logger.error(f"Fout bij ophalen status '{status}': {e}")
+            return []
+    
+    def set_duplicate_service(self, duplicate_service):
+        """
+        Inject the duplicate detection service.
+        
+        Args:
+            duplicate_service: Instance of DuplicateDetectionService
+        """
+        self._duplicate_service = duplicate_service
+        logger.info("DuplicateDetectionService injected into repository")
+    
+    def _get_all_definitions(self) -> List[Definition]:
+        """
+        Helper method to get all definitions for duplicate checking.
+        
+        Returns:
+            List of all non-archived definitions
+        """
+        try:
+            # Get all definitions except archived ones
+            all_records = self.legacy_repo.search_definities(
+                status=None,  # All statuses
+                limit=1000    # Reasonable limit
+            )
+            
+            definitions = []
+            for record in all_records:
+                # Skip archived definitions
+                if record.status != DefinitieStatus.ARCHIVED.value:
+                    definition = self._record_to_definition(record)
+                    if definition:
+                        # Add status to definition object for duplicate service
+                        definition.status = record.status
+                        definitions.append(definition)
+            
+            return definitions
+        
+        except Exception as e:
+            logger.error(f"Error fetching all definitions: {e}")
             return []
 
     # Private helper methods
