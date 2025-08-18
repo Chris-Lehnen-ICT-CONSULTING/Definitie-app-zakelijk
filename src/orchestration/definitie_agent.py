@@ -55,6 +55,9 @@ except ImportError:
         def __init__(self, definitie, metadata=None):
             self.definitie = definitie
             self.metadata = metadata or {}
+            self.voorbeelden = {}  # Add voorbeelden attribute
+            self.voorbeelden_gegenereerd = False
+            self.voorbeelden_error = None
     
     class DefinitieGenerator:
         """Minimal compatibility wrapper"""
@@ -77,21 +80,41 @@ except ImportError:
                 )
             
             try:
-                generator = self.service_container.get_generator()
+                generator = self.service_container.generator()
+                
+                # Import GenerationRequest from interfaces
+                from services.interfaces import GenerationRequest
+                
                 request = GenerationRequest(
                     begrip=generation_context.begrip,
-                    organisatorische_context=generation_context.organisatorische_context,
-                    juridische_context=generation_context.juridische_context,
-                    categorie=generation_context.categorie,
+                    context=generation_context.organisatorische_context,
+                    domein=generation_context.juridische_context,
+                    # categorie is not part of GenerationRequest
                 )
                 
-                result = generator.generate_definition(request)
+                # Run async method in sync context
+                import asyncio
+                loop = asyncio.new_event_loop()
+                asyncio.set_event_loop(loop)
+                
+                try:
+                    result = loop.run_until_complete(generator.generate(request))
+                finally:
+                    loop.close()
                 
                 # Convert to GenerationResult
-                return GenerationResult(
+                generation_result = GenerationResult(
                     definitie=result.definitie if hasattr(result, 'definitie') else str(result),
                     metadata=result.metadata if hasattr(result, 'metadata') else {}
                 )
+                
+                # Add voorbeelden if available
+                if hasattr(result, 'voorbeelden') and result.voorbeelden:
+                    generation_result.voorbeelden = result.voorbeelden
+                    generation_result.voorbeelden_gegenereerd = True
+                
+                return generation_result
+                
             except Exception as e:
                 logger.error(f"Generation failed: {e}")
                 return GenerationResult(
