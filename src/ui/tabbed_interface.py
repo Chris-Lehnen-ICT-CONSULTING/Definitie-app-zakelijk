@@ -811,7 +811,8 @@ class TabbedInterface:
                 )
 
                 # Store detailed validation results for display
-                if agent_result and agent_result.best_iteration:
+                # Check for both legacy (best_iteration) and new service (dict) formats
+                if agent_result and (hasattr(agent_result, 'best_iteration') or isinstance(agent_result, dict)):
                     from ai_toetser.modular_toetser import toets_definitie
                     from config.toetsregels.modular_loader import load_all_toetsregels
 
@@ -835,8 +836,16 @@ class TabbedInterface:
                         "wettelijk": context_data.get("wettelijke_basis", []),
                     }
 
+                    # Get definition from either legacy or new service format
+                    if isinstance(agent_result, dict):
+                        # New service format
+                        definitie_text = agent_result.get('definitie_gecorrigeerd', '')
+                    else:
+                        # Legacy format with best_iteration
+                        definitie_text = agent_result.final_definitie if hasattr(agent_result, 'final_definitie') else ''
+                    
                     detailed_results = toets_definitie(
-                        definitie=agent_result.final_definitie,
+                        definitie=definitie_text,
                         toetsregels=toetsregels,
                         begrip=begrip,
                         marker=auto_categorie.value,
