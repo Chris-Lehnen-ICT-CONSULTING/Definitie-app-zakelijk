@@ -27,7 +27,10 @@ from domain.ontological_categories import OntologischeCategorie
 # Temporary mock implementations
 class DefinitieZoeker:
     """Temporary mock - replace with ModernWebLookupService"""
-    pass
+    def zoek_definities(self, begrip: str, max_results: int = 5) -> List[Dict[str, Any]]:
+        """Mock implementation of zoek_definities"""
+        logger.warning(f"Using mock DefinitieZoeker for begrip: {begrip}")
+        return []
 
 def herken_bronnen_in_definitie(*args, **kwargs):
     """Temporary mock - replace with ModernWebLookupService"""
