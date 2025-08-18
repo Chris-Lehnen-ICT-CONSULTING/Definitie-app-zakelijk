@@ -30,7 +30,7 @@ class DefinitieZoekerAdapter:
     def __init__(self, web_lookup_service):
         self.web_lookup = web_lookup_service
     
-    async def zoek_definities(self, begrip: str, context: Dict[str, Any] = None, max_results: int = 5) -> LookupResult:
+    async def zoek_definities(self, begrip: str, context: Dict[str, Any] = None, max_results: int = 5) -> Dict[str, Any]:
         """Zoek definities via ModernWebLookupService."""
         # Map oude context naar nieuwe LookupRequest
         sources = ["Wikipedia", "Wiktionary"]
@@ -43,7 +43,17 @@ class DefinitieZoekerAdapter:
             max_results=max_results
         )
         
-        return await self.web_lookup.lookup(request)
+        # Service retourneert een lijst van LookupResult objecten
+        results = await self.web_lookup.lookup(request)
+        
+        # Converteer naar oude format dat de analyzer verwacht
+        return {
+            "results": results,
+            "metadata": {
+                "total_score": len(results),  # Simpele score
+                "sources_searched": sources
+            }
+        }
 
 
 class OntologischeAnalyzer:
@@ -159,12 +169,13 @@ class OntologischeAnalyzer:
 
             # Converteer results naar oude format voor compatibility
             definities = []
-            for result in zoek_resultaten.results:
-                definities.append({
-                    "definitie": result.text,
-                    "bron": result.source,
-                    "url": result.url
-                })
+            if isinstance(zoek_resultaten, dict) and "results" in zoek_resultaten:
+                for result in zoek_resultaten["results"]:
+                    definities.append({
+                        "definitie": result.text,
+                        "bron": result.source,
+                        "url": result.url
+                    })
 
             # Analyseer semantische kenmerken
             kenmerken = self._analyseer_semantische_kenmerken(
@@ -181,7 +192,7 @@ class OntologischeAnalyzer:
                 "sleutelwoorden": self._extracteer_sleutelwoorden(
                     definities
                 ),
-                "bron_kwaliteit": zoek_resultaten.metadata.get("total_score", 0.0) if zoek_resultaten.metadata else 0.0,
+                "bron_kwaliteit": zoek_resultaten.get("metadata", {}).get("total_score", 0.0) if isinstance(zoek_resultaten, dict) else 0.0,
             }
 
         except Exception as e:
@@ -217,14 +228,15 @@ class OntologischeAnalyzer:
             
             # Extract juridische verwijzingen uit resultaten
             juridische_verwijzingen = []
-            for result in juridische_resultaten.results:
-                if result.metadata and "article" in result.metadata:
+            for result in juridische_resultaten:
+                if hasattr(result, 'metadata') and result.metadata and "article" in result.metadata:
                     juridische_verwijzingen.append(result.metadata["article"])
 
             # Bron analyse voor context - gebruik metadata van resultaten
             gedetecteerde_bronnen = [
                 {"bron": r.source, "url": r.url} 
-                for r in juridische_resultaten.results
+                for r in juridische_resultaten
+                if hasattr(r, 'source') and hasattr(r, 'url')
             ]
 
             # Bepaal domein en procesrollen
