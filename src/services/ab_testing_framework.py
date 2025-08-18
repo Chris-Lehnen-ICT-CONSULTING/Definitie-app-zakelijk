@@ -189,7 +189,7 @@ class ABTestingFramework:
                 loop_start = time.time()
                 results = await asyncio.wait_for(
                     self.modern_service.lookup(request),
-                    timeout=self.config.timeout_seconds
+                    timeout=request.timeout
                 )
                 loop_time = time.time() - loop_start
                 response_times.append(loop_time)
@@ -199,7 +199,7 @@ class ABTestingFramework:
                     
             except asyncio.TimeoutError:
                 timeouts += 1
-                response_times.append(self.config.timeout_seconds)
+                response_times.append(request.timeout)
             except Exception as e:
                 errors += 1
                 logger.warning(f"Modern service error: {e}")
@@ -356,7 +356,7 @@ class ABTestingFramework:
             if comparison.modern_performance.response_time < comparison.legacy_performance.response_time:
                 scores["modern"] += 2.0
                 notes.append("Modern is faster")
-            else:
+            elif comparison.legacy_performance.response_time < comparison.modern_performance.response_time:
                 scores["legacy"] += 1.0
                 notes.append("Legacy is faster")
         
