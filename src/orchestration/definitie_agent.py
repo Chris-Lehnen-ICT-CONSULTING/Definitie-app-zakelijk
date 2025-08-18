@@ -40,11 +40,15 @@ except ImportError:
     class GenerationContext:
         """Minimal compatibility wrapper"""
         def __init__(self, begrip, organisatorische_context=None, juridische_context=None, 
-                     categorie=None, **kwargs):
+                     categorie=None, feedback_history=None, **kwargs):
             self.begrip = begrip
             self.organisatorische_context = organisatorische_context or ""
             self.juridische_context = juridische_context or ""
             self.categorie = categorie
+            self.feedback_history = feedback_history or []
+            # Handle additional attributes from kwargs
+            for key, value in kwargs.items():
+                setattr(self, key, value)
     
     class GenerationResult:
         """Minimal compatibility wrapper"""
@@ -56,18 +60,53 @@ except ImportError:
         """Minimal compatibility wrapper"""
         def __init__(self):
             logger.warning("Using minimal DefinitieGenerator wrapper")
-            pass
+            self.service_container = None
+            try:
+                from services.container import ServiceContainer
+                self.service_container = ServiceContainer()
+            except Exception as e:
+                logger.error(f"Could not initialize ServiceContainer: {e}")
+        
+        def generate_with_examples(self, generation_context, generate_examples=True, example_types=None):
+            """Generate definition with examples using UnifiedDefinitionGenerator"""
+            if not self.service_container:
+                # Return a minimal result
+                return GenerationResult(
+                    definitie="[Error: Service container not available]",
+                    metadata={"error": "Service initialization failed"}
+                )
+            
+            try:
+                generator = self.service_container.get_generator()
+                request = GenerationRequest(
+                    begrip=generation_context.begrip,
+                    organisatorische_context=generation_context.organisatorische_context,
+                    juridische_context=generation_context.juridische_context,
+                    categorie=generation_context.categorie,
+                )
+                
+                result = generator.generate_definition(request)
+                
+                # Convert to GenerationResult
+                return GenerationResult(
+                    definitie=result.definitie if hasattr(result, 'definitie') else str(result),
+                    metadata=result.metadata if hasattr(result, 'metadata') else {}
+                )
+            except Exception as e:
+                logger.error(f"Generation failed: {e}")
+                return GenerationResult(
+                    definitie=f"[Error during generation: {str(e)}]",
+                    metadata={"error": str(e)}
+                )
 
 # Importeer validatie componenten voor kwaliteitscontrole
-from validation.definitie_validator import ViolationType  # Validatie klassen
 from validation.definitie_validator import (
     DefinitieValidator,
     RuleViolation,
     ValidationResult,
     ViolationSeverity,
+    ViolationType,
 )
-
-logger = logging.getLogger(__name__)  # Logger instantie voor orchestration module
 
 
 class AgentStatus(Enum):

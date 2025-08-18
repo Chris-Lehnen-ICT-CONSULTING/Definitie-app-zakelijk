@@ -34,7 +34,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     maakt het herbruikbaar als een focused service met de nieuwe interface.
     """
 
-    def __init__(self, db_path: str = "definities.db"):
+    def __init__(self, db_path: str = "data/definities.db"):
         """
         Initialiseer de DefinitionRepository.
 

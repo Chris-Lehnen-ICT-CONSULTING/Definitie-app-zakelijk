@@ -1,40 +1,84 @@
-# 📚 DefinitieAgent Documentatie
+# Definitie-app Documentatie
 
-> **Let op**: MASTER-TODO.md (in project root) is de single source of truth voor alle taken!
+Welkom bij de centrale documentatie hub voor het Definitie-app project.
 
-## 📁 Documentatie Structuur
+## 🗂️ Documentatie Structuur
 
-### 🟢 `/active/` - Actuele Werkdocumenten
-- **architecture/** - ADRs, diagrammen, technische beslissingen
-- **implementation/** - API docs, database schema, service specs  
-- **testing/** - Test strategie, coverage doelen
+### [architectuur/](./architectuur/)
+Architecture Decision Records (ADRs) en systeem architectuur documentatie
+- Architectuur beslissingen
+- Systeem diagrammen
+- Design patterns
 
-### 📘 `/reference/` - Permanente Referentie
-- **validation-rules/** - Alle 46 toetsregels (KRITIEK!)
-- **ontology/** - 6-stappen protocol voor definities
-- **setup/** - Development & deployment guides
+### [technische-referentie/](./technische-referentie/)
+Gedetailleerde technische documentatie
+- Module analyses (18 modules)
+- API specificaties
+- Integratie documentatie
+- Configuratie guides
 
-### 📊 `/project/` - Project Tracking
-- **tracking/** - WEEK-TRACKER.md voor solo development
+### [code-analyse/](./code-analyse/)
+Code quality en review documentatie
+- Complete code reviews
+- Performance analyses
+- Security assessments
+- Protocol reviews
 
-### 📦 `/archive/` - Historische Documenten
-- Oude planning documenten
-- Vervangen architectuur docs
-- Legacy structuur
+### [handleidingen/](./handleidingen/)
+Praktische guides voor alle gebruikers
+- Developer guides
+- User manuals
+- Deployment instructions
+- Installation guides
 
-## 🎯 Quick Links
+### [archief/](./archief/)
+Historische documentatie en referentie materiaal
+- Oude versies
+- Legacy documentatie
+- ADR historie
+
+### [active/](./active/) ⚠️ WORDT UITGEFASEERD
+Legacy structuur - gebruik nieuwe locaties hierboven
+
+## 📍 Quick Navigation
+
+**Voor Developers:**
+- [Module Overview](./technische-referentie/modules/)
+- [Latest ADRs](./architectuur/beslissingen/)
+- [Development Guides](./handleidingen/ontwikkelaars/)
+
+**Voor Architecten:**
+- [Architecture Decisions](./architectuur/beslissingen/)
+- [System Diagrams](./architectuur/diagrammen/)
+- [Code Reviews](./code-analyse/reviews/)
+
+**Voor Operations:**
+- [Deployment Guides](./handleidingen/deployment/)
+- [Configuration Docs](./technische-referentie/configuratie/)
+
+## 🎯 Belangrijke Documenten
 
 - [MASTER-TODO.md](../MASTER-TODO.md) - Alle taken en planning
-- [Validation Rules](reference/validation-rules/validation-rules.md) - 46 toetsregels
-- [6-Stappen Protocol](reference/ontology/ontologie-6-stappen.md) - Definitie methodologie
-- [ADRs](active/architecture/decisions/) - Architectuur beslissingen
-- [Test Strategy](active/testing/test-strategy.md) - Test aanpak
+- [Validation Rules](./reference/validation-rules/validation-rules.md) - 46 toetsregels
+- [6-Stappen Protocol](./reference/ontology/ontologie-6-stappen.md) - Definitie methodologie
 
-## 🚀 Voor Developers
+## 🚧 Reorganisatie Status
 
-1. **Start hier**: [Development Setup](reference/setup/development-setup.md)
-2. **Architectuur**: [ADR-005](active/architecture/decisions/ADR-005-service-refactoring.md)
-3. **Testing**: [Test Guide](active/testing/quick-start-testing-guide.md)
+We zijn bezig met een documentatie reorganisatie (60% compleet).
+- Zie [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md) voor officiële locaties
+- Check [DEDUPLICATION_REPORT.md](./DEDUPLICATION_REPORT.md) voor cleanup status
+- Raadpleeg [../TEAM_DOC_GUIDE.md](../TEAM_DOC_GUIDE.md) voor team instructies
 
----
-*Laatste reorganisatie: 2025-01-12*
+## 🔍 Zoeken
+
+Gebruik `grep -r "search term" .` om door alle documentatie te zoeken.
+
+## 📝 Bijdragen
+
+1. Volg de canonieke locaties in CANONICAL_LOCATIONS.md
+2. Vermijd het creëren van duplicaten
+3. Update deze README bij structuur wijzigingen
+
+## 📅 Laatste Update
+
+18 Augustus 2025 - Documentatie reorganisatie in progress
