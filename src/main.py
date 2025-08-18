@@ -12,11 +12,12 @@ import sys
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand
 
-# Voeg root directory toe aan Python path voor logs module toegang
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
+import logging
 
-from logs.application.log_definitie import (  # Logging systeem uit root logs directory
-    get_logger,
+# Configureer basis logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 from ui.session_state import SessionStateManager  # Sessie status beheer
 from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
@@ -34,7 +35,7 @@ st.set_page_config(
 load_dotenv()  # Laadt API keys, database configuratie, etc.
 
 # Initialiseer logger - Stel logging in voor deze module
-logger = get_logger(__name__)  # Verkrijg logger instantie voor dit bestand
+logger = logging.getLogger(__name__)  # Verkrijg logger instantie voor dit bestand
 
 
 def main():
