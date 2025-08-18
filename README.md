@@ -4,9 +4,10 @@
 
 [![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](./CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://python.org)
-[![Tests](https://img.shields.io/badge/tests-45%25%20stable-yellow.svg)](./tests/)
-[![Code Quality](https://img.shields.io/badge/ruff-235%20issues-orange.svg)](./review_report.md)
-[![Security](https://img.shields.io/badge/security-gaps%20identified-red.svg)](./docs/analysis/)
+[![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?style=flat-square)](https://pre-commit.com/)
+[![Tests](https://github.com/ChrisLehnen/Definitie-app/actions/workflows/python-ci.yml/badge.svg)](https://github.com/ChrisLehnen/Definitie-app/actions)
+[![Code Quality](https://img.shields.io/badge/ruff-235%20issues-orange.svg)](./docs/architectuur/COMPREHENSIVE_CODE_REVIEW_FINAL.md)
+[![Security](https://img.shields.io/badge/security-gaps%20identified-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
 > **🧪 Quinn QA Status**: Architecture review voltooid - 45% production ready, legacy refactoring PRIORITEIT 1
