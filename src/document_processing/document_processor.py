@@ -372,7 +372,22 @@ class DocumentProcessor:
 
         # Gebruik bestaande juridische lookup als beschikbaar
         try:
-            from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
+            # Legacy import replaced with modern service
+            # from web_lookup.juridische_lookup import zoek_wetsartikelstructuur  # DEPRECATED
+            from services.modern_web_lookup_service import ModernWebLookupService
+            
+            # Use modern service for juridical lookups
+            async def zoek_wetsartikelstructuur(artikel_ref):
+                """Modern replacement for juridical lookup"""
+                service = ModernWebLookupService()
+                from services.interfaces import LookupRequest
+                request = LookupRequest(term=artikel_ref, max_results=1)
+                results = await service.lookup(request)
+                # Return first juridical result if found
+                for result in results:
+                    if result.source.is_juridical:
+                        return result
+                return None
 
             verwijzingen = zoek_wetsartikelstructuur(text, log_jsonl=False)
             return [ref.get("match", "") for ref in verwijzingen if ref.get("match")]
