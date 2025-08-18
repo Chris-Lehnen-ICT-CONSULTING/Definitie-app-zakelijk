@@ -68,6 +68,7 @@ class ServiceContainer:
         gpt_config = GPTConfig(
             model=self.config.get("generator_model", "gpt-4"),
             temperature=self.config.get("generator_temperature", 0.4),
+            api_key=self.openai_api_key,  # Pass the API key
         )
 
         quality_config = QualityConfig(
