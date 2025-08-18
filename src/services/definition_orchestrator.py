@@ -25,7 +25,28 @@ from services.interfaces import (
 
 # Optionele imports voor extra functionaliteit
 try:
-    from web_lookup.bron_lookup import zoek_bronnen_voor_begrip
+    # Legacy import replaced with modern service
+    # from web_lookup.bron_lookup import zoek_bronnen_voor_begrip  # DEPRECATED
+    
+    # Modern replacement using ModernWebLookupService
+    async def zoek_bronnen_voor_begrip(term: str):
+        """Modern replacement for source lookup"""
+        from services.modern_web_lookup_service import ModernWebLookupService
+        from services.interfaces import LookupRequest
+        
+        service = ModernWebLookupService()
+        request = LookupRequest(term=term, max_results=5)
+        results = await service.lookup(request)
+        
+        # Extract sources from results
+        sources = []
+        for result in results:
+            sources.append({
+                'name': result.source.name,
+                'url': result.source.url,
+                'confidence': result.source.confidence
+            })
+        return sources
 
     WEB_LOOKUP_AVAILABLE = True
 except ImportError:
