@@ -386,6 +386,31 @@ class ToetsregelManager:
 
         return sorted(regels)
 
+    def get_all_regels(self) -> Dict[str, Dict[str, Any]]:
+        """
+        Haal alle beschikbare regels op als dictionary.
+        
+        Returns:
+            Dict[str, Dict[str, Any]]: Dictionary met regel_id als key en regel data als value
+        """
+        all_rules = {}
+        
+        # Haal alle beschikbare regel IDs op
+        available_regels = self.get_available_regels()
+        
+        # Laad elke regel
+        for regel_id in available_regels:
+            try:
+                regel = self.load_regel(regel_id)
+                if regel:
+                    all_rules[regel_id] = regel
+            except Exception as e:
+                logger.warning(f"Kon regel {regel_id} niet laden: {e}")
+                continue
+        
+        logger.info(f"Totaal {len(all_rules)} regels geladen")
+        return all_rules
+
     def clear_cache(self):
         """Leeg alle caches."""
         self._regels_cache.clear()
@@ -431,6 +456,11 @@ def get_verplichte_regels() -> List[Dict[str, Any]]:
 def get_kritieke_regels() -> List[Dict[str, Any]]:
     """Haal kritieke regels op (backward compatibility)."""
     return get_toetsregel_manager().get_kritieke_regels()
+
+
+def get_all_regels() -> Dict[str, Dict[str, Any]]:
+    """Haal alle regels op (backward compatibility)."""
+    return get_toetsregel_manager().get_all_regels()
 
 
 def load_regel(regel_id: str) -> Optional[Dict[str, Any]]:
