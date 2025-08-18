@@ -17,10 +17,25 @@ import logging
 import re
 from typing import Any, Dict, List, Optional, Tuple
 
-from services.unified_definition_generator import OntologischeCategorie
-from web_lookup.bron_lookup import herken_bronnen_in_definitie
-from web_lookup.definitie_lookup import DefinitieZoeker
-from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
+from domain.ontological_categories import OntologischeCategorie
+# Legacy web_lookup imports temporarily disabled - migration to modern services in progress
+# TODO: Replace with ModernWebLookupService calls
+# from web_lookup.bron_lookup import herken_bronnen_in_definitie
+# from web_lookup.definitie_lookup import DefinitieZoeker
+# from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
+
+# Temporary mock implementations
+class DefinitieZoeker:
+    """Temporary mock - replace with ModernWebLookupService"""
+    pass
+
+def herken_bronnen_in_definitie(*args, **kwargs):
+    """Temporary mock - replace with ModernWebLookupService"""
+    return []
+
+def zoek_wetsartikelstructuur(*args, **kwargs):
+    """Temporary mock - replace with ModernWebLookupService"""
+    return None
 
 logger = logging.getLogger(__name__)
 

@@ -11,7 +11,20 @@ from typing import Any, Dict, List, Optional  # Type hints voor betere code docu
 from document_processing.document_processor import (  # Document processor factory
     get_document_processor,
 )
-from web_lookup.lookup import zoek_definitie_combinatie  # Web lookup functionaliteit
+# Legacy web_lookup import replaced with modern service
+# from web_lookup.lookup import zoek_definitie_combinatie  # DEPRECATED
+from services.modern_web_lookup_service import ModernWebLookupService
+
+# Create modern service instance
+_web_lookup_service = ModernWebLookupService()
+
+# Compatibility wrapper
+async def zoek_definitie_combinatie(term: str, *args, **kwargs):
+    """Compatibility wrapper for legacy web lookup"""
+    from services.interfaces import LookupRequest
+    request = LookupRequest(term=term, max_results=5)
+    results = await _web_lookup_service.lookup(request)
+    return results
 
 from .context_fusion import ContextFusion  # Context fusie en samenvoeging
 

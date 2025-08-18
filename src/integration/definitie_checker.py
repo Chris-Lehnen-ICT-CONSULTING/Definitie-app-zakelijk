@@ -29,9 +29,7 @@ from database.definitie_repository import (
     DefinitieStatus,
     DuplicateMatch,
 )
-from generation.definitie_generator import (  # Generatie componenten
-    OntologischeCategorie,
-)
+from domain.ontological_categories import OntologischeCategorie  # Generatie componenten
 from orchestration.definitie_agent import (  # Orchestratie componenten
     AgentResult,
     DefinitieAgent,
