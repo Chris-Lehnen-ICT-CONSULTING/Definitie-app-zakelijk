@@ -18,26 +18,42 @@ import re
 from typing import Any, Dict, List, Optional, Tuple
 
 from domain.ontological_categories import OntologischeCategorie
-# Legacy web_lookup imports temporarily disabled - migration to modern services in progress
-# TODO: Replace with ModernWebLookupService calls
-# from web_lookup.bron_lookup import herken_bronnen_in_definitie
-# from web_lookup.definitie_lookup import DefinitieZoeker
-# from web_lookup.juridische_lookup import zoek_wetsartikelstructuur
-
-# Temporary mock implementations
-class DefinitieZoeker:
-    """Temporary mock - replace with ModernWebLookupService"""
-    pass
-
-def herken_bronnen_in_definitie(*args, **kwargs):
-    """Temporary mock - replace with ModernWebLookupService"""
-    return []
-
-def zoek_wetsartikelstructuur(*args, **kwargs):
-    """Temporary mock - replace with ModernWebLookupService"""
-    return None
+from services.container import get_container
+from services.interfaces import LookupRequest, LookupResult
 
 logger = logging.getLogger(__name__)
+
+# Helper adapter class voor backwards compatibility
+class DefinitieZoekerAdapter:
+    """Adapter om ModernWebLookupService te gebruiken met oude interface."""
+    
+    def __init__(self, web_lookup_service):
+        self.web_lookup = web_lookup_service
+    
+    async def zoek_definities(self, begrip: str, context: Dict[str, Any] = None, max_results: int = 5) -> Dict[str, Any]:
+        """Zoek definities via ModernWebLookupService."""
+        # Map oude context naar nieuwe LookupRequest
+        sources = ["Wikipedia", "Wiktionary"]
+        if context and context.get("rechtsgebied"):
+            sources.extend(["Wetten.nl", "Rechtspraak.nl"])
+        
+        request = LookupRequest(
+            term=begrip,
+            sources=sources,
+            max_results=max_results
+        )
+        
+        # Service retourneert een lijst van LookupResult objecten
+        results = await self.web_lookup.lookup(request)
+        
+        # Converteer naar oude format dat de analyzer verwacht
+        return {
+            "results": results,
+            "metadata": {
+                "total_score": len(results),  # Simpele score
+                "sources_searched": sources
+            }
+        }
 
 
 class OntologischeAnalyzer:
@@ -49,10 +65,13 @@ class OntologischeAnalyzer:
     """
 
     def __init__(self):
-        """Initialiseer de analyzer met weblookup integratie."""
-        self.definitie_zoeker = DefinitieZoeker()
+        """Initialiseer de analyzer met ModernWebLookupService integratie."""
+        # Gebruik ServiceContainer voor dependency injection
+        container = get_container()
+        self.web_lookup_service = container.web_lookup()
+        self.definitie_zoeker = DefinitieZoekerAdapter(self.web_lookup_service)
         self.category_templates = self._load_category_templates()
-        logger.info("OntologischeAnalyzer geïnitialiseerd met weblookup integratie")
+        logger.info("OntologischeAnalyzer geïnitialiseerd met ModernWebLookupService")
 
     def _load_category_templates(self) -> Dict[str, str]:
         """Laad de definitie templates per ontologische categorie."""
@@ -148,22 +167,32 @@ class OntologischeAnalyzer:
                 begrip, context={"rechtsgebied": "algemeen"}
             )
 
+            # Converteer results naar oude format voor compatibility
+            definities = []
+            if isinstance(zoek_resultaten, dict) and "results" in zoek_resultaten:
+                for result in zoek_resultaten["results"]:
+                    definities.append({
+                        "definitie": result.text,
+                        "bron": result.source,
+                        "url": result.url
+                    })
+
             # Analyseer semantische kenmerken
             kenmerken = self._analyseer_semantische_kenmerken(
-                begrip, zoek_resultaten.definities
+                begrip, definities
             )
 
             # Identificeer synoniemen en gerelateerde begrippen
-            synoniemen = self._extracteer_synoniemen(zoek_resultaten.definities)
+            synoniemen = self._extracteer_synoniemen(definities)
 
             return {
-                "definities": zoek_resultaten.definities,
+                "definities": definities,
                 "semantische_kenmerken": kenmerken,
                 "synoniemen": synoniemen,
                 "sleutelwoorden": self._extracteer_sleutelwoorden(
-                    zoek_resultaten.definities
+                    definities
                 ),
-                "bron_kwaliteit": zoek_resultaten.metadata.get("gemiddelde_score", 0.0),
+                "bron_kwaliteit": zoek_resultaten.get("metadata", {}).get("total_score", 0.0) if isinstance(zoek_resultaten, dict) else 0.0,
             }
 
         except Exception as e:
@@ -189,14 +218,26 @@ class OntologischeAnalyzer:
         logger.info(f"Stap 2: Context-analyse voor '{begrip}'")
 
         try:
-            # Juridische context analyse
-            juridische_verwijzingen = zoek_wetsartikelstructuur(
-                f"{begrip} {jur_context}"
+            # Juridische context analyse via WebLookupService
+            juridische_request = LookupRequest(
+                term=f"{begrip} {jur_context}",
+                sources=["Wetten.nl", "Rechtspraak.nl"],
+                max_results=5
             )
+            juridische_resultaten = await self.web_lookup_service.lookup(juridische_request)
+            
+            # Extract juridische verwijzingen uit resultaten
+            juridische_verwijzingen = []
+            for result in juridische_resultaten:
+                if hasattr(result, 'metadata') and result.metadata and "article" in result.metadata:
+                    juridische_verwijzingen.append(result.metadata["article"])
 
-            # Bron analyse voor context
-            context_tekst = f"{begrip} {org_context} {jur_context}"
-            gedetecteerde_bronnen = herken_bronnen_in_definitie(context_tekst)
+            # Bron analyse voor context - gebruik metadata van resultaten
+            gedetecteerde_bronnen = [
+                {"bron": r.source, "url": r.url} 
+                for r in juridische_resultaten
+                if hasattr(r, 'source') and hasattr(r, 'url')
+            ]
 
             # Bepaal domein en procesrollen
             domein_analyse = self._analyseer_domein_context(
@@ -618,7 +659,9 @@ class OntologischeAnalyzer:
         synoniemen = []
 
         for definitie in definities:
-            if hasattr(definitie, "definitie"):
+            if isinstance(definitie, dict) and "definitie" in definitie:
+                tekst = definitie["definitie"].lower()
+            elif hasattr(definitie, "definitie"):
                 tekst = definitie.definitie.lower()
             else:
                 tekst = str(definitie).lower()
@@ -642,7 +685,9 @@ class OntologischeAnalyzer:
         sleutelwoorden = []
 
         for definitie in definities:
-            if hasattr(definitie, "definitie"):
+            if isinstance(definitie, dict) and "definitie" in definitie:
+                tekst = definitie["definitie"]
+            elif hasattr(definitie, "definitie"):
                 tekst = definitie.definitie
             else:
                 tekst = str(definitie)
