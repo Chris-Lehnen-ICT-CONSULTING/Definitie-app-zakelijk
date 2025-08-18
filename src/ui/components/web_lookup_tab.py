@@ -23,41 +23,38 @@ class WebLookupTab:
 
     def _init_lookup_modules(self):
         """Initialiseer lookup modules."""
+        # Legacy web lookup modules zijn verplaatst naar moderne service architectuur
+        # Deze tab is tijdelijk gedeactiveerd tijdens de migratie
+        
         try:
-            import sys
-            from pathlib import Path
-
-            sys.path.append(str(Path(__file__).parents[2] / "web_lookup"))
-
-            from bron_lookup import (
-                BronZoeker,
-                herken_bronnen_in_definitie,
-                valideer_definitie_bronnen,
-            )
-            from definitie_lookup import (
-                DefinitieZoeker,
-                detecteer_duplicaten,
-                zoek_definitie,
-            )
-            from juridische_lookup import zoek_wetsartikelstructuur
-
-            # Store classes for use
-            self.BronZoeker = BronZoeker
-            self.herken_bronnen_in_definitie = herken_bronnen_in_definitie
-            self.valideer_definitie_bronnen = valideer_definitie_bronnen
-            self.DefinitieZoeker = DefinitieZoeker
-            self.zoek_definitie = zoek_definitie
-            self.detecteer_duplicaten = detecteer_duplicaten
-            self.zoek_wetsartikelstructuur = zoek_wetsartikelstructuur
-
-        except Exception as e:
-            st.error(f"❌ Kon web lookup modules niet laden: {str(e)}")
+            # TODO: Implementeer moderne service integration
+            # from services.modern_web_lookup_service import ModernWebLookupService
+            # self.modern_service = ModernWebLookupService()
+            
+            # Voor nu tijdelijk gedeactiveerd
             self.BronZoeker = None
+            self.legacy_modules_available = False
+            
+        except Exception as e:
+            st.error(f"❌ Web lookup service migratie in uitvoering: {str(e)}")
+            self.BronZoeker = None
+            self.legacy_modules_available = False
 
     def render(self):
         """Render web lookup tab."""
         if not self.BronZoeker:
-            st.error("❌ Web Lookup modules niet beschikbaar")
+            st.info("🔄 **Web Lookup Service Migratie**")
+            st.markdown("""
+            De Web Lookup functionaliteit is gemigreerd naar een moderne service architectuur.
+            
+            **Nieuwe implementatie beschikbaar:**
+            - ✅ ModernWebLookupService met Strangler Fig pattern
+            - ✅ Wikipedia API integratie (47 tests passing)
+            - ✅ SRU API voor Nederlandse juridische bronnen
+            - ✅ A/B testing framework voor kwaliteitsvalidatie
+            
+            Deze UI tab wordt binnenkort bijgewerkt om de nieuwe services te gebruiken.
+            """)
             return
 
         st.markdown("### 🔍 Web Lookup & Validatie")

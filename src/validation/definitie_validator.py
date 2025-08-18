@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple
 
-from services.unified_definition_generator import OntologischeCategorie
+from domain.ontological_categories import OntologischeCategorie
 from toetsregels.manager import get_toetsregel_manager
 
 logger = logging.getLogger(__name__)

@@ -21,7 +21,7 @@ from services.interfaces import (
     DefinitionValidatorInterface,
     WebLookupServiceInterface,
 )
-from services.web_lookup_service import WebLookupService
+from services.modern_web_lookup_service import ModernWebLookupService
 
 logger = logging.getLogger(__name__)
 
@@ -155,17 +155,14 @@ class ServiceContainer:
 
     def web_lookup(self) -> WebLookupServiceInterface:
         """
-        Get of create WebLookupService instance.
+        Get of create ModernWebLookupService instance.
 
         Returns:
-            Singleton instance van WebLookupService
+            Singleton instance van ModernWebLookupService
         """
         if "web_lookup" not in self._instances:
-            from config.config_manager import ConfigManager
-
-            config = ConfigManager()
-            self._instances["web_lookup"] = WebLookupService(config)
-            logger.info("WebLookupService instance aangemaakt")
+            self._instances["web_lookup"] = ModernWebLookupService()
+            logger.info("ModernWebLookupService instance aangemaakt")
         return self._instances["web_lookup"]
 
     # Utility methods
