@@ -120,9 +120,26 @@ class HybridContextManager:
         """Initialiseer web lookup component."""
         if self.config.enable_web_lookup:
             try:
-                from web_lookup import zoek_definitie_combinatie
+                # Legacy import replaced with modern service
+                # from web_lookup import zoek_definitie_combinatie  # DEPRECATED
+                from services.modern_web_lookup_service import ModernWebLookupService
+                
+                # Create compatibility wrapper for legacy interface
+                async def web_lookup_wrapper(term: str) -> str:
+                    """Wrapper to maintain legacy interface"""
+                    from services.interfaces import LookupRequest
+                    service = ModernWebLookupService()
+                    request = LookupRequest(term=term, max_results=5)
+                    results = await service.lookup(request)
+                    
+                    # Format results as string for legacy compatibility
+                    if results:
+                        return f"Web informatie voor {term}: " + "; ".join(
+                            [f"{r.title} ({r.source.name})" for r in results[:3]]
+                        )
+                    return ""
 
-                self._web_lookup = zoek_definitie_combinatie
+                self._web_lookup = web_lookup_wrapper
                 logger.info("Web lookup component geïnitialiseerd")
             except ImportError:
                 logger.warning("Web lookup niet beschikbaar")
@@ -296,14 +313,15 @@ class HybridContextManager:
     async def _get_web_context(self, begrip: str) -> Optional[ContextSource]:
         """Verkrijg web context via web lookup."""
         try:
-            web_info = self._web_lookup(begrip)
-            if web_info and len(web_info.strip()) > 10:  # Minimale content check
-                return ContextSource(
-                    source_type="web_lookup",
-                    confidence=0.8,
-                    content=web_info[:500],  # Limit content length
-                    metadata={"lookup_time": "current", "source": "web_scraping"},
-                )
+            if self._web_lookup:
+                web_info = await self._web_lookup(begrip)
+                if web_info and len(web_info.strip()) > 10:  # Minimale content check
+                    return ContextSource(
+                        source_type="web_lookup",
+                        confidence=0.8,
+                        content=web_info[:500],  # Limit content length
+                        metadata={"lookup_time": "current", "source": "web_scraping"},
+                    )
         except Exception as e:
             logger.warning(f"Web lookup mislukt voor '{begrip}': {e}")
 

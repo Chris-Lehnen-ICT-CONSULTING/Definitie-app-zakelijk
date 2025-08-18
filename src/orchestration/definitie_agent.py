@@ -16,12 +16,51 @@ from enum import Enum  # Enumeraties voor agent status tracking
 from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
 
 # Importeer generatie componenten voor AI definitie creatie
-from generation.definitie_generator import OntologischeCategorie  # Generatie klassen
-from generation.definitie_generator import (
-    DefinitieGenerator,
-    GenerationContext,
-    GenerationResult,
-)
+from domain.ontological_categories import OntologischeCategorie
+
+# Legacy imports replaced - functionality now in services
+# from generation.definitie_generator import (
+#     DefinitieGenerator,
+#     GenerationContext,
+#     GenerationResult,
+# )
+
+# Import modern service interfaces
+from services.interfaces import GenerationRequest, Definition
+from services.unified_definition_generator import UnifiedDefinitionGenerator
+
+# Mock legacy classes for compatibility
+class GenerationContext:
+    """Legacy compatibility wrapper"""
+    def __init__(self, begrip, context=None, domein=None):
+        self.begrip = begrip
+        self.context = context or {}
+        self.domein = domein or []
+
+class GenerationResult:
+    """Legacy compatibility wrapper"""
+    def __init__(self, definitie, metadata=None):
+        self.definitie = definitie
+        self.metadata = metadata or {}
+
+class DefinitieGenerator:
+    """Legacy compatibility wrapper"""
+    def __init__(self):
+        self._service = UnifiedDefinitionGenerator()
+    
+    def genereer_definitie(self, context: GenerationContext) -> GenerationResult:
+        """Legacy compatibility method"""
+        import asyncio
+        request = GenerationRequest(
+            begrip=context.begrip,
+            context=str(context.context) if context.context else "",
+            domein=", ".join(context.domein) if context.domein else ""
+        )
+        definition = asyncio.run(self._service.generate(request))
+        return GenerationResult(
+            definitie=definition.definitie,
+            metadata=definition.metadata
+        )
 
 # Importeer validatie componenten voor kwaliteitscontrole
 from validation.definitie_validator import ViolationType  # Validatie klassen

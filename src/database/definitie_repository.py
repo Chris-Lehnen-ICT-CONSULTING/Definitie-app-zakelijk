@@ -24,9 +24,7 @@ from typing import (  # Type hints voor betere code documentatie
     Tuple,
 )
 
-from services.unified_definition_generator import (  # Import ontologische categorieën voor classificatie
-    OntologischeCategorie,
-)
+from domain.ontological_categories import OntologischeCategorie  # Import ontologische categorieën voor classificatie
 
 logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
 
