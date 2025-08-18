@@ -20,7 +20,7 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 - 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
 - 📋 **45/46 Kwaliteitsregels** voor validatie (INT-05 ontbreekt)
 - 🏗️ **Hybride Architectuur** UnifiedDefinitionService + moderne services
-- 🌐 **Web Lookup** ❌ KAPOT - rebuild nodig (3-4 weken)
+- 🌐 **Web Lookup** ✅ MODERN - Strangler Fig patroon geïmplementeerd (47 tests passing)
 - 📄 **Document Upload** voor kennisbasis uitbreiding  
 - ⚡ **Smart Caching** ⚠️ memory leaks geïdentificeerd
 - 🖥️ **10 Streamlit UI Tabs** (alle importeren succesvol)
