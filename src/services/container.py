@@ -51,7 +51,7 @@ class ServiceContainer:
     def _load_configuration(self):
         """Laad configuratie uit environment en config dict."""
         # Basis configuratie
-        self.db_path = self.config.get("db_path", "definities.db")
+        self.db_path = self.config.get("db_path", "data/definities.db")
         self.openai_api_key = self.config.get(
             "openai_api_key", os.getenv("OPENAI_API_KEY")
         )
@@ -130,10 +130,19 @@ class ServiceContainer:
             Singleton instance van DefinitionRepository
         """
         if "repository" not in self._instances:
-            self._instances["repository"] = DefinitionRepository(self.db_path)
-            logger.info(
-                f"DefinitionRepository instance aangemaakt met db: {self.db_path}"
-            )
+            # Check if database should be used
+            use_database = self.config.get("use_database", True)
+            
+            if use_database:
+                self._instances["repository"] = DefinitionRepository(self.db_path)
+                logger.info(
+                    f"DefinitionRepository instance aangemaakt met db: {self.db_path}"
+                )
+            else:
+                from services.null_repository import NullDefinitionRepository
+                self._instances["repository"] = NullDefinitionRepository()
+                logger.info("NullDefinitionRepository instance aangemaakt (no database)")
+                
         return self._instances["repository"]
 
     def orchestrator(self) -> DefinitionOrchestratorInterface:
@@ -245,7 +254,7 @@ class ContainerConfigs:
     def development() -> Dict[str, Any]:
         """Development configuratie."""
         return {
-            "db_path": "dev_definities.db",
+            "db_path": "data/dev_definities.db",
             "generator_model": "gpt-3.5-turbo",  # Goedkoper voor dev
             "generator_temperature": 0.5,
             "enable_monitoring": True,
@@ -271,7 +280,7 @@ class ContainerConfigs:
     def production() -> Dict[str, Any]:
         """Production configuratie."""
         return {
-            "db_path": "production_definities.db",
+            "db_path": "data/production_definities.db",
             "generator_model": "gpt-4",
             "generator_temperature": 0.4,
             "enable_monitoring": True,
