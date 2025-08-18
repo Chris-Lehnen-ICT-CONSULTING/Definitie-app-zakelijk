@@ -15,6 +15,9 @@ from dataclasses import (  # Dataklassen voor gestructureerde resultaat data
 from enum import Enum  # Enumeraties voor agent status tracking
 from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
 
+# Initialiseer logger
+logger = logging.getLogger(__name__)
+
 # Importeer generatie componenten voor AI definitie creatie
 from domain.ontological_categories import OntologischeCategorie
 
