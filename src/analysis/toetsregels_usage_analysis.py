@@ -6,7 +6,8 @@ bij generatie en validatie van definities.
 from typing import Any, Dict, List
 
 from config.toetsregel_manager import get_toetsregel_manager
-from generation.definitie_generator import (
+# Import from deprecated location - this analysis script needs the real implementation
+from deprecated.generation.definitie_generator import (
     DefinitieGenerator,
     GenerationContext,
     OntologischeCategorie,
