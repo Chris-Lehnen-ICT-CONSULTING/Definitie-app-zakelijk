@@ -46,9 +46,10 @@ from ui.components.external_sources_tab import (  # Externe bronnen beheer
 from ui.components.history_tab import HistoryTab  # Historie overzicht tab
 from ui.components.management_tab import ManagementTab  # Systeem management tools
 from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
-from ui.components.orchestration_tab import (  # Orchestratie en automatisering
-    OrchestrationTab,
-)
+# TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
+# from ui.components.orchestration_tab import (  # Orchestratie en automatisering
+#     OrchestrationTab,
+# )
 from ui.components.quality_control_tab import (  # Kwaliteitscontrole dashboard
     QualityControlTab,
 )
@@ -103,7 +104,8 @@ class TabbedInterface:
         self.external_tab = ExternalSourcesTab(self.repository)
         self.monitoring_tab = MonitoringTab(self.repository)
         self.web_lookup_tab = WebLookupTab(self.repository)
-        self.orchestration_tab = OrchestrationTab(self.repository)
+        # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
+        # self.orchestration_tab = OrchestrationTab(self.repository)
         self.management_tab = ManagementTab(self.repository)
 
         # Tab configuration
@@ -148,11 +150,12 @@ class TabbedInterface:
                 "icon": "🔍",
                 "description": "Zoek definities en bronnen, valideer duplicaten",
             },
-            "orchestration": {
-                "title": "🤖 Orchestratie",
-                "icon": "🤖",
-                "description": "Intelligente definitie orchestratie en iteratieve verbetering",
-            },
+            # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
+            # "orchestration": {
+            #     "title": "🤖 Orchestratie",
+            #     "icon": "🤖",
+            #     "description": "Intelligente definitie orchestratie en iteratieve verbetering",
+            # },
             "management": {
                 "title": "🛠️ Management",
                 "icon": "🛠️",
@@ -1162,8 +1165,9 @@ class TabbedInterface:
                 self.monitoring_tab.render()
             elif tab_key == "web_lookup":
                 self.web_lookup_tab.render()
-            elif tab_key == "orchestration":
-                self.orchestration_tab.render()
+            # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
+            # elif tab_key == "orchestration":
+            #     self.orchestration_tab.render()
             elif tab_key == "management":
                 self.management_tab.render()
         except Exception as e:
