@@ -15,11 +15,17 @@ from dataclasses import (  # Dataklassen voor gestructureerde resultaat data
 from enum import Enum  # Enumeraties voor agent status tracking
 from typing import Any  # Type hints voor betere code documentatie
 
+from domain.ontological_categories import OntologischeCategorie
+from validation.definitie_validator import (
+    DefinitieValidator,
+    RuleViolation,
+    ValidationResult,
+    ViolationSeverity,
+    ViolationType,
+)
+
 # Initialiseer logger
 logger = logging.getLogger(__name__)
-
-# Importeer generatie componenten voor AI definitie creatie
-from domain.ontological_categories import OntologischeCategorie
 
 # Import legacy classes from deprecated location for compatibility
 try:
@@ -139,14 +145,7 @@ except ImportError:
                 )
 
 
-# Importeer validatie componenten voor kwaliteitscontrole
-from validation.definitie_validator import (
-    DefinitieValidator,
-    RuleViolation,
-    ValidationResult,
-    ViolationSeverity,
-    ViolationType,
-)
+# Validatie imports zijn al bovenaan toegevoegd
 
 
 class AgentStatus(Enum):
