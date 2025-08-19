@@ -8,7 +8,7 @@ import logging
 import sqlite3
 import sys
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -135,7 +135,7 @@ class AIMetricsTracker:
                             SET occurrences = ?, last_seen = ?
                             WHERE id = ?
                         """,
-                            (result[1] + 1, datetime.now(), result[0]),
+                            (result[1] + 1, datetime.now(timezone.utc), result[0]),
                         )
                     else:
                         # Insert new pattern
@@ -149,7 +149,7 @@ class AIMetricsTracker:
                                 metric.agent_name,
                                 issue.get("check", "unknown"),
                                 issue.get("severity", "unknown"),
-                                datetime.now(),
+                                datetime.now(timezone.utc),
                             ),
                         )
 
@@ -157,7 +157,7 @@ class AIMetricsTracker:
 
     def get_agent_stats(self, agent_name: str, days: int = 30) -> dict:
         """Haal statistieken op voor een specifieke agent."""
-        cutoff_date = datetime.now() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         with sqlite3.connect(self.db_path) as conn:
             # Overall stats
@@ -209,7 +209,7 @@ class AIMetricsTracker:
 
     def get_trend_data(self, days: int = 30) -> pd.DataFrame:
         """Haal trend data op voor visualisatie."""
-        cutoff_date = datetime.now() - timedelta(days=days)
+        cutoff_date = datetime.now(timezone.utc) - timedelta(days=days)
 
         with sqlite3.connect(self.db_path) as conn:
             return pd.read_sql_query(
@@ -233,7 +233,7 @@ class AIMetricsTracker:
     def generate_report(self, output_path: str = "ai_metrics_report.md"):
         """Genereer een markdown rapport van alle metrics."""
         report = "# 🤖 AI Code Review Metrics Report\n\n"
-        report += f"**Generated**: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n\n"
+        report += f"**Generated**: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}\n\n"
 
         # Get all agents
         with sqlite3.connect(self.db_path) as conn:
@@ -348,7 +348,7 @@ def create_streamlit_dashboard():
         st.download_button(
             "Download Report",
             report,
-            file_name=f"ai_metrics_report_{datetime.now().strftime('%Y%m%d')}.md",
+            file_name=f"ai_metrics_report_{datetime.now(timezone.utc).strftime('%Y%m%d')}.md",
             mime="text/markdown",
         )
 
@@ -378,7 +378,7 @@ def main():
         # Record a new metric
         metric = ReviewMetric(
             agent_name=args.agent or "manual",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
             passed=args.passed,
             iterations=args.iterations or 1,
             total_issues=args.issues or 0,

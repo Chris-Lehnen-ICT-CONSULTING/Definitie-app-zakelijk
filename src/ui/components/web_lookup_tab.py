@@ -4,7 +4,7 @@ Web Lookup Tab - Interface voor bron en definitie lookup functionaliteit.
 
 import asyncio
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 import pandas as pd
 import streamlit as st
@@ -145,7 +145,7 @@ class WebLookupTab:
                             "definitie_zoek_resultaat",
                             {
                                 "resultaat": resultaat,
-                                "timestamp": datetime.now().isoformat(),
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
                             },
                         )
 
@@ -295,7 +295,7 @@ class WebLookupTab:
                                 "bron_zoek_resultaat",
                                 {
                                     "resultaat": resultaat,
-                                    "timestamp": datetime.now().isoformat(),
+                                    "timestamp": datetime.now(timezone.utc).isoformat(),
                                 },
                             )
 
@@ -339,7 +339,7 @@ class WebLookupTab:
                                 {
                                     "bronnen": gevonden_bronnen,
                                     "validatie": validatie_resultaat,
-                                    "timestamp": datetime.now().isoformat(),
+                                    "timestamp": datetime.now(timezone.utc).isoformat(),
                                 },
                             )
 
@@ -512,7 +512,7 @@ class WebLookupTab:
                             {
                                 "resultaten": resultaten,
                                 "tekst": tekst_input,
-                                "timestamp": datetime.now().isoformat(),
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
                             },
                         )
 

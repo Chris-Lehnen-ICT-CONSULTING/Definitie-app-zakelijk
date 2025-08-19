@@ -4,7 +4,7 @@ Orchestration Tab - Interface voor geavanceerde definitie orchestratie en iterat
 
 import asyncio
 import time
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Any
 
 import pandas as pd
@@ -254,7 +254,7 @@ class OrchestrationTab:
                     {
                         "agent_result": agent_result,
                         "begrip": begrip,
-                        "timestamp": datetime.now().isoformat(),
+                        "timestamp": datetime.now(timezone.utc).isoformat(),
                         "processing_time": time.time() - start_time,
                     },
                 )

@@ -51,7 +51,7 @@ class DefinitionGeneratorTab:
         elif check_result.action == CheckAction.USE_EXISTING:
             st.warning(f"⚠️ {check_result.message}")
         else:
-            st.info(f"ℹ️ {check_result.message}")
+            st.info(f"i️ {check_result.message}")
 
         # Show confidence
         confidence_color = (
@@ -491,7 +491,7 @@ class DefinitionGeneratorTab:
                     "critical": "🚨",
                     "high": "⚠️",
                     "medium": "🔶",
-                    "low": "ℹ️",
+                    "low": "i️",
                 }
                 emoji = severity_emoji.get(violation.severity.value, "📋")
                 st.write(f"{emoji} {violation.rule_id}: {violation.description}")

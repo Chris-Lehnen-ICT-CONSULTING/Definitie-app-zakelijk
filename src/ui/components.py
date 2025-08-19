@@ -208,7 +208,7 @@ class UIComponents:
         """Render AI-generated content like explanations and synonyms."""
         toelichting = SessionStateManager.get_value("toelichting")
         if toelichting:
-            st.markdown("### ℹ️ Toelichting op definitie")
+            st.markdown("### i️ Toelichting op definitie")
             st.info(toelichting)
 
         synoniemen = SessionStateManager.get_value("synoniemen")
@@ -224,14 +224,14 @@ class UIComponents:
                 "Selecteer de voorkeurs-term (lemma)",
                 opties,
                 index=0,
-                format_func=lambda x: x if x else "— kies hier je voorkeurs-term —",
+                format_func=lambda x: x if x else "-- kies hier je voorkeurs-term --",
                 help="Laat leeg als je nog geen voorkeurs-term wilt vastleggen",
             )
             SessionStateManager.set_value("voorkeursterm", keuze)
         else:
             st.markdown("### 🔁 Synoniemen")
             st.warning(
-                "Geen synoniemen beschikbaar — je kunt nu nog géén voorkeurs-term selecteren."
+                "Geen synoniemen beschikbaar -- je kunt nu nog géén voorkeurs-term selecteren."
             )
             SessionStateManager.set_value("voorkeursterm", "")
 

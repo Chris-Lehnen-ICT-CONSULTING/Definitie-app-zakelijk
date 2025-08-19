@@ -8,7 +8,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -165,7 +165,7 @@ class SecurityMiddleware:
             # Step 1: Check if IP is blocked
             if self._is_ip_blocked(request.source_ip):
                 event = SecurityEvent(
-                    timestamp=datetime.now(),
+                    timestamp=datetime.now(timezone.utc),
                     event_type=ThreatType.UNAUTHORIZED_ACCESS,
                     severity=SecurityLevel.HIGH,
                     source_ip=request.source_ip,
@@ -191,7 +191,7 @@ class SecurityMiddleware:
             # Step 2: Rate limiting check
             if not self._check_rate_limit(request):
                 event = SecurityEvent(
-                    timestamp=datetime.now(),
+                    timestamp=datetime.now(timezone.utc),
                     event_type=ThreatType.RATE_LIMIT_EXCEEDED,
                     severity=SecurityLevel.MEDIUM,
                     source_ip=request.source_ip,
@@ -220,7 +220,7 @@ class SecurityMiddleware:
                 threats_detected.append(threat["type"])
 
                 event = SecurityEvent(
-                    timestamp=datetime.now(),
+                    timestamp=datetime.now(timezone.utc),
                     event_type=threat["type"],
                     severity=threat["severity"],
                     source_ip=request.source_ip,
@@ -266,7 +266,7 @@ class SecurityMiddleware:
                 # If validation errors are critical, block request
                 if validation_errors and len(validation_errors) > 5:
                     event = SecurityEvent(
-                        timestamp=datetime.now(),
+                        timestamp=datetime.now(timezone.utc),
                         event_type=ThreatType.SUSPICIOUS_PATTERN,
                         severity=SecurityLevel.MEDIUM,
                         source_ip=request.source_ip,
@@ -327,7 +327,7 @@ class SecurityMiddleware:
 
             # Log security validation failure
             event = SecurityEvent(
-                timestamp=datetime.now(),
+                timestamp=datetime.now(timezone.utc),
                 event_type=ThreatType.SUSPICIOUS_PATTERN,
                 severity=SecurityLevel.CRITICAL,
                 source_ip=request.source_ip,
@@ -353,7 +353,9 @@ class SecurityMiddleware:
         """Check if IP address is blocked."""
         if ip in self.blocked_ips:
             block_time = self.blocked_ips[ip]
-            if datetime.now() - block_time < timedelta(hours=1):  # 1 hour block
+            if datetime.now(timezone.utc) - block_time < timedelta(
+                hours=1
+            ):  # 1 hour block
                 return True
             # Remove expired block
             del self.blocked_ips[ip]
@@ -361,13 +363,13 @@ class SecurityMiddleware:
 
     def _block_ip_temporarily(self, ip: str):
         """Block IP address temporarily."""
-        self.blocked_ips[ip] = datetime.now()
+        self.blocked_ips[ip] = datetime.now(timezone.utc)
         logger.warning(f"IP {ip} temporarily blocked due to security threat")
 
     def _check_rate_limit(self, request: ValidationRequest) -> bool:
         """Check if request is within rate limits."""
         ip = request.source_ip
-        current_time = datetime.now()
+        current_time = datetime.now(timezone.utc)
 
         # Get rate limit config for endpoint
         endpoint_config = self.rate_limits.get(
@@ -416,7 +418,7 @@ class SecurityMiddleware:
         """Record a successful request."""
         if ip not in self.request_tracking:
             self.request_tracking[ip] = []
-        self.request_tracking[ip].append(datetime.now())
+        self.request_tracking[ip].append(datetime.now(timezone.utc))
 
     def _detect_threats(self, request: ValidationRequest) -> list[dict[str, Any]]:
         """Detect security threats in request."""
@@ -487,7 +489,7 @@ class SecurityMiddleware:
             return False
 
         # Check for rapid successive requests
-        current_time = datetime.now()
+        current_time = datetime.now(timezone.utc)
         recent_requests = [
             req_time
             for req_time in self.request_tracking[ip]
@@ -508,7 +510,7 @@ class SecurityMiddleware:
 
     def get_security_report(self) -> dict[str, Any]:
         """Generate comprehensive security report."""
-        current_time = datetime.now()
+        current_time = datetime.now(timezone.utc)
 
         # Filter recent events (last 24 hours)
         recent_events = [
@@ -554,7 +556,7 @@ class SecurityMiddleware:
     def export_security_log(self, filename: str | None = None) -> str:
         """Export security log to file."""
         if filename is None:
-            filename = f"security_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            filename = f"security_log_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
 
         filepath = Path("logs") / filename
         filepath.parent.mkdir(exist_ok=True)
@@ -577,7 +579,7 @@ class SecurityMiddleware:
             )
 
         log_data = {
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "total_events": len(events_data),
             "report": self.get_security_report(),
             "events": events_data,
@@ -619,7 +621,7 @@ def security_middleware_decorator(endpoint_name: str = ""):
                 headers={"User-Agent": "DefinitieAgent"},
                 source_ip="127.0.0.1",  # Would be extracted from actual request
                 user_agent="DefinitieAgent",
-                timestamp=datetime.now(),
+                timestamp=datetime.now(timezone.utc),
             )
 
             # Validate request
@@ -663,7 +665,7 @@ async def test_security_middleware():
         headers={"User-Agent": "Mozilla/5.0"},
         source_ip="192.168.1.1",
         user_agent="Mozilla/5.0",
-        timestamp=datetime.now(),
+        timestamp=datetime.now(timezone.utc),
     )
 
     response = await middleware.validate_request(normal_request)
@@ -684,7 +686,7 @@ async def test_security_middleware():
         headers={"User-Agent": "Mozilla/5.0"},
         source_ip="192.168.1.2",
         user_agent="Mozilla/5.0",
-        timestamp=datetime.now(),
+        timestamp=datetime.now(timezone.utc),
     )
 
     response = await middleware.validate_request(malicious_request)
@@ -702,7 +704,7 @@ async def test_security_middleware():
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip="192.168.1.3",
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         response = await middleware.validate_request(test_request)

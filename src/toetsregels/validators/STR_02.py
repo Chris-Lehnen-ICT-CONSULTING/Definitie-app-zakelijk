@@ -69,7 +69,7 @@ class STR02Validator:
             elif goed:
                 result = "✔️ STR-02: definitie start met breder begrip en komt overeen met goed voorbeeld"
             else:
-                result = "✔️ STR-02: geen herhaling van term herkend – mogelijk correct geformuleerd"
+                result = "✔️ STR-02: geen herhaling van term herkend - mogelijk correct geformuleerd"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

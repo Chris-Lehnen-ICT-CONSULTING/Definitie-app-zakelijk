@@ -100,7 +100,7 @@ class CacheManager:
     @staticmethod
     def display_cache_info():
         """Display information about caching benefits."""
-        st.subheader("ℹ️ Cache Information")
+        st.subheader("i️ Cache Information")
 
         st.info(
             """

@@ -213,7 +213,7 @@ class ResilienceSystemDemo:
                     print(f"  • {rec['description']}")
                     print(f"    Potential savings: {rec['potential_savings']}")
         else:
-            print("ℹ️ Insufficient data for cost optimization report")
+            print("i️ Insufficient data for cost optimization report")
 
     async def show_system_status(self):
         """Show comprehensive system status."""

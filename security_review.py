@@ -44,7 +44,7 @@ def security_scan(filepath: str):
     if "request" in content.lower() and not re.search(
         r"validat|sanitiz", content, re.IGNORECASE
     ):
-        issues.append("ℹ️  Consider adding input validation for request data")
+        issues.append("i️  Consider adding input validation for request data")
 
     # Check logging for sensitive data
     if re.search(r"logger\.(debug|info).*password|token|key", content, re.IGNORECASE):

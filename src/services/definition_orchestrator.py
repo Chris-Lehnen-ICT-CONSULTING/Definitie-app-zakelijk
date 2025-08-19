@@ -8,7 +8,7 @@ validatie en opslag door de verschillende services te coördineren.
 import asyncio
 import logging
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -201,7 +201,9 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             self._stats["successful_creations"] += 1
 
             # Update processing time statistieken
-            processing_time = (datetime.now() - context.start_time).total_seconds()
+            processing_time = (
+                datetime.now(timezone.utc) - context.start_time
+            ).total_seconds()
             self._update_average_processing_time(processing_time)
 
             # Creëer succesvolle response
@@ -248,7 +250,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
                     setattr(existing, field, value)
 
             # Update timestamp
-            existing.updated_at = datetime.now()
+            existing.updated_at = datetime.now(timezone.utc)
 
             # Valideer geüpdatete definitie
             validation_result = None
@@ -324,7 +326,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
                 definition.metadata = {}
 
             definition.metadata["validation_score"] = validation_result.score
-            definition.metadata["validated_at"] = datetime.now().isoformat()
+            definition.metadata["validated_at"] = datetime.now(timezone.utc).isoformat()
 
             # Bepaal status op basis van score
             if validation_result.score >= 0.8:
@@ -492,7 +494,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
         try:
             # Voeg finale metadata toe
             context.definition.metadata["processing_time"] = (
-                datetime.now() - context.start_time
+                datetime.now(timezone.utc) - context.start_time
             ).total_seconds()
 
             if context.validation_result:

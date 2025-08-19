@@ -9,7 +9,7 @@ import logging
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from functools import wraps
 from typing import Any
@@ -417,7 +417,7 @@ class OptimizedResilienceSystem:
                 avg_response_time=duration,
                 total_requests=1,
                 failed_requests=0,
-                last_success=datetime.now(),
+                last_success=datetime.now(timezone.utc),
                 consecutive_failures=0,
             )
         else:
@@ -427,7 +427,7 @@ class OptimizedResilienceSystem:
                 metrics.total_requests - metrics.failed_requests
             ) / metrics.total_requests
             metrics.avg_response_time = (metrics.avg_response_time + duration) / 2
-            metrics.last_success = datetime.now()
+            metrics.last_success = datetime.now(timezone.utc)
             metrics.consecutive_failures = 0
 
             # Update health status
@@ -445,7 +445,7 @@ class OptimizedResilienceSystem:
                 avg_response_time=duration,
                 total_requests=1,
                 failed_requests=1,
-                last_failure=datetime.now(),
+                last_failure=datetime.now(timezone.utc),
                 consecutive_failures=1,
             )
         else:
@@ -455,7 +455,7 @@ class OptimizedResilienceSystem:
             metrics.success_rate = (
                 metrics.total_requests - metrics.failed_requests
             ) / metrics.total_requests
-            metrics.last_failure = datetime.now()
+            metrics.last_failure = datetime.now(timezone.utc)
             metrics.consecutive_failures += 1
 
             # Update health status
@@ -465,7 +465,7 @@ class OptimizedResilienceSystem:
         if self.config.persist_failed_requests:
             self.failed_requests.append(
                 {
-                    "timestamp": datetime.now().isoformat(),
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
                     "endpoint": endpoint_name,
                     "error": str(error),
                     "error_type": type(error).__name__,
@@ -501,7 +501,7 @@ class OptimizedResilienceSystem:
         # Check if we have a cached response
         if cache_key in self.fallback_cache:
             cached_entry = self.fallback_cache[cache_key]
-            if datetime.now() - cached_entry["timestamp"] < timedelta(
+            if datetime.now(timezone.utc) - cached_entry["timestamp"] < timedelta(
                 seconds=self.config.fallback_cache_duration
             ):
                 logger.info(f"Using fallback response for {endpoint_name}")
@@ -586,7 +586,7 @@ class OptimizedResilienceSystem:
             "recent_failures": (
                 self.failed_requests[-10:] if self.failed_requests else []
             ),
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
         }
 
 

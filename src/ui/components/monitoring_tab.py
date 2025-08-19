@@ -3,7 +3,7 @@ Monitoring Tab - Interface voor API monitoring en performance tracking.
 """
 
 import asyncio
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import plotly.express as px
@@ -265,21 +265,21 @@ class MonitoringTab:
             if time_range == "Aangepast":
                 st.datetime_input(
                     "Start tijd",
-                    value=datetime.now() - timedelta(hours=1),
+                    value=datetime.now(timezone.utc) - timedelta(hours=1),
                     key="metrics_start_time",
                 )
 
         with col3:
             if time_range == "Aangepast":
                 st.datetime_input(
-                    "End tijd", value=datetime.now(), key="metrics_end_time"
+                    "End tijd", value=datetime.now(timezone.utc), key="metrics_end_time"
                 )
 
         # Generate sample metrics data for visualization
         # In production, this would come from the metrics collector
         try:
             # Create sample time series data
-            now = datetime.now()
+            now = datetime.now(timezone.utc)
             if time_range == "Laatste uur":
                 time_points = [now - timedelta(minutes=5 * i) for i in range(12, 0, -1)]
             elif time_range == "Laatste 6 uur":
@@ -411,7 +411,10 @@ class MonitoringTab:
                         # Store report
                         SessionStateManager.set_value(
                             "cost_report",
-                            {"data": report, "timestamp": datetime.now().isoformat()},
+                            {
+                                "data": report,
+                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                            },
                         )
 
             # Display cost report
@@ -641,21 +644,21 @@ class MonitoringTab:
             # Create sample alert history
             sample_alerts = [
                 {
-                    "timestamp": datetime.now() - timedelta(minutes=30),
+                    "timestamp": datetime.now(timezone.utc) - timedelta(minutes=30),
                     "alert": "High Error Rate",
                     "severity": "error",
                     "value": "15.2%",
                     "threshold": "10%",
                 },
                 {
-                    "timestamp": datetime.now() - timedelta(hours=2),
+                    "timestamp": datetime.now(timezone.utc) - timedelta(hours=2),
                     "alert": "Slow Response Time",
                     "severity": "warning",
                     "value": "12.5s",
                     "threshold": "10.0s",
                 },
                 {
-                    "timestamp": datetime.now() - timedelta(hours=4),
+                    "timestamp": datetime.now(timezone.utc) - timedelta(hours=4),
                     "alert": "Low Cache Hit Rate",
                     "severity": "info",
                     "value": "25%",

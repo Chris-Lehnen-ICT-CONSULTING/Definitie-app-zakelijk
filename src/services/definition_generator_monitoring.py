@@ -12,7 +12,7 @@ import logging
 import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from typing import Any
 
@@ -76,7 +76,7 @@ class GenerationMetrics:
 
     def finish(self, success: bool = True, error: str | None = None):
         """Mark deze generatie als voltooid."""
-        self.end_time = datetime.now()
+        self.end_time = datetime.now(timezone.utc)
         self.duration = (self.end_time - self.start_time).total_seconds()
         self.success = success
         self.error = error
@@ -122,7 +122,9 @@ class GenerationMonitor:
 
         generation_id = f"{begrip}_{int(time.time() * 1000)}"
 
-        metrics = GenerationMetrics(begrip=begrip, start_time=datetime.now())
+        metrics = GenerationMetrics(
+            begrip=begrip, start_time=datetime.now(timezone.utc)
+        )
 
         if metadata:
             for key, value in metadata.items():
@@ -269,14 +271,18 @@ class GenerationMonitor:
     ):
         """Record een metric entry."""
         entry = MetricEntry(
-            timestamp=datetime.now(), value=value, metadata=metadata or {}
+            timestamp=datetime.now(timezone.utc), value=value, metadata=metadata or {}
         )
 
         self.metrics[metric_type].append(entry)
 
     def _record_error(self, begrip: str, error: str):
         """Record een error voor tracking."""
-        error_entry = {"timestamp": datetime.now(), "begrip": begrip, "error": error}
+        error_entry = {
+            "timestamp": datetime.now(timezone.utc),
+            "begrip": begrip,
+            "error": error,
+        }
 
         self.recent_errors.append(error_entry)
 
@@ -289,7 +295,7 @@ class GenerationMonitor:
             return
 
         # Calculate error rate in last 5 minutes
-        cutoff_time = datetime.now() - self._performance_window
+        cutoff_time = datetime.now(timezone.utc) - self._performance_window
         recent_errors = [e for e in self.recent_errors if e["timestamp"] > cutoff_time]
 
         # Get total generations in same period
@@ -330,7 +336,7 @@ class GenerationMonitor:
         Returns:
             Dictionary met metric samenvattingen
         """
-        cutoff_time = datetime.now() - timedelta(minutes=window_minutes)
+        cutoff_time = datetime.now(timezone.utc) - timedelta(minutes=window_minutes)
         summary = {}
 
         for metric_type, entries in self.metrics.items():

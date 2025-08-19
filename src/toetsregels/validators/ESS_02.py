@@ -126,7 +126,7 @@ class ESS02Validator:
                         False,
                         (
                             f"❌ {self.id}: expliciet fout voorbeeld voor {cat} gevonden "
-                            f"– vermijd deze formulering"
+                            f"- vermijd deze formulering"
                         ),
                         0.0,
                     )
@@ -154,7 +154,7 @@ class ESS02Validator:
             return (
                 False,
                 (
-                    f"❌ {self.id}: ambiguïteit – meerdere categories herkend ({found}); "
+                    f"❌ {self.id}: ambiguïteit - meerdere categories herkend ({found}); "
                     "kies één betekenislaag"
                 ),
                 0.0,

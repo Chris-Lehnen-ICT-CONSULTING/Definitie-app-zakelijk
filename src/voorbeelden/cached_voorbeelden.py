@@ -42,7 +42,7 @@ def genereer_voorbeeld_zinnen(
     # Split on lines and remove numbering
     zinnen: list[str] = []
     for line in blob.splitlines():
-        # If AI uses "1. …" or "- …", strip it off
+        # If AI uses "1. ..." or "- ...", strip it off
         zin = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
         if zin:
             zinnen.append(zin)

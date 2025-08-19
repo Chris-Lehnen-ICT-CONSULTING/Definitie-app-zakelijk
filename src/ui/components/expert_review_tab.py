@@ -552,7 +552,7 @@ class ExpertReviewTab:
                                         "✅ Opschoning heeft wijzigingen aangebracht"
                                     )
                                 else:
-                                    st.warning("ℹ️ Geen wijzigingen nodig")
+                                    st.warning("i️ Geen wijzigingen nodig")
 
                             except ImportError:
                                 st.error("❌ Opschoning module niet beschikbaar")
@@ -599,7 +599,7 @@ class ExpertReviewTab:
                 if SessionStateManager.get_value("override_actief", False):
                     st.success("✅ Runtime override actief")
                 else:
-                    st.info("ℹ️ Standaard configuratie")
+                    st.info("i️ Standaard configuratie")
 
                 # Quick actions
                 if st.button("🔄 Reset naar standaard"):
