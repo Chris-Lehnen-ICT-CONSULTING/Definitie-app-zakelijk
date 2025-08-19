@@ -2,7 +2,7 @@ import json
 import logging
 import os
 import re
-from datetime import datetime
+from datetime import datetime, timezone
 
 import streamlit as st
 
@@ -132,7 +132,7 @@ def log_test_verboden_woord(woord: str, zin: str, komt_voor: bool, regex_match: 
         os.makedirs(os.path.dirname(PAD_LOG), exist_ok=True)
 
         logregel = {
-            "tijd": datetime.now().isoformat(),
+            "tijd": datetime.now(timezone.utc).isoformat(),
             "woord": woord,
             "zin": zin,
             "komt_voor": komt_voor,

@@ -1,5 +1,5 @@
 import os  # Operating system interface voor bestandsoperaties
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from datetime import datetime, timezone  # Datum en tijd functionaliteit voor timestamps
 
 
 def exporteer_naar_txt(gegevens: dict) -> str:
@@ -35,7 +35,9 @@ def exporteer_naar_txt(gegevens: dict) -> str:
     antoniemen = gegevens.get("antoniemen") or ""  # Antoniemen van het begrip
 
     # Genereer unieke bestandsnaam met timestamp
-    tijdstempel = datetime.now().strftime("%Y%m%d_%H%M%S")  # Format: YYYYMMDD_HHMMSS
+    tijdstempel = datetime.now(timezone.utc).strftime(
+        "%Y%m%d_%H%M%S"
+    )  # Format: YYYYMMDD_HHMMSS
     bestandsnaam = f"definitie_{begrip.replace(' ', '_').lower()}_{tijdstempel}.txt"  # Normaliseer begrip voor bestandsnaam
     pad = os.path.join("exports", bestandsnaam)  # Volledig pad naar export bestand
 

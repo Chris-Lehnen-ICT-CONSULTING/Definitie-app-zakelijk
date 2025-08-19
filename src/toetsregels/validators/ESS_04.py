@@ -64,7 +64,7 @@ class ESS04Validator:
                     False,
                     (
                         f"❌ {self.id}: bevat vage bewoording "
-                        "(bijv. 'zo snel mogelijk') – definitie is niet toetsbaar"
+                        "(bijv. 'zo snel mogelijk') - definitie is niet toetsbaar"
                     ),
                     0.0,
                 )

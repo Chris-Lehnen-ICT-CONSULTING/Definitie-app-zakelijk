@@ -5,7 +5,7 @@ Tests security middleware, input validation, and threat detection.
 
 import asyncio
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -64,7 +64,7 @@ class TestSecurityMiddleware:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip="192.168.1.100",
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         response = await self.middleware.validate_request(request)
@@ -90,7 +90,7 @@ class TestSecurityMiddleware:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip="192.168.1.101",
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         response = await self.middleware.validate_request(malicious_request)
@@ -117,7 +117,7 @@ class TestSecurityMiddleware:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip="192.168.1.102",
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         response = await self.middleware.validate_request(sql_injection_request)
@@ -137,7 +137,7 @@ class TestSecurityMiddleware:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip="192.168.1.103",
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         # First few requests should pass
@@ -166,7 +166,7 @@ class TestSecurityMiddleware:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip=malicious_ip,
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         response = await self.middleware.validate_request(malicious_request)
@@ -180,7 +180,7 @@ class TestSecurityMiddleware:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip=malicious_ip,
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         response = await self.middleware.validate_request(normal_request)
@@ -441,7 +441,7 @@ class TestSecurityIntegration:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip="192.168.1.200",
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         middleware = SecurityMiddleware()
@@ -519,7 +519,7 @@ class TestSecurityPerformance:
             headers={"User-Agent": "Mozilla/5.0"},
             source_ip="192.168.1.250",
             user_agent="Mozilla/5.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
         # Test validation performance

@@ -8,7 +8,7 @@ import json
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from unittest.mock import AsyncMock, MagicMock, patch
 
 import aiohttp
@@ -81,7 +81,7 @@ class AsyncSecurityTestHarness:
             headers={"User-Agent": "TestAgent/1.0"},
             source_ip=source_ip,
             user_agent="TestAgent/1.0",
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
         )
 
     async def measure_async_performance(self, operation, *args, **kwargs):
@@ -90,7 +90,11 @@ class AsyncSecurityTestHarness:
         result = await operation(*args, **kwargs)
         duration = time.time() - start_time
 
-        return {"result": result, "duration": duration, "timestamp": datetime.now()}
+        return {
+            "result": result,
+            "duration": duration,
+            "timestamp": datetime.now(timezone.utc),
+        }
 
 
 class TestAsyncSecurityMiddleware:

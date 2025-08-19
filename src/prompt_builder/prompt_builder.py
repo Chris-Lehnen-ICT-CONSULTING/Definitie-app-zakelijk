@@ -1,4 +1,4 @@
-# ✅ PromptBouwer – genereert Nederlandstalige GPT-instructie op basis van begripsdata en toetsregels
+# ✅ PromptBouwer - genereert Nederlandstalige GPT-instructie op basis van begripsdata en toetsregels
 
 import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor environment variabelen
@@ -96,7 +96,7 @@ class PromptConfiguratie:
     toetsregels: dict[str, dict] = field(default_factory=laad_toetsregels)
 
 
-# ✅ PromptBouwer – genereert de volledige instructietekst
+# ✅ PromptBouwer - genereert de volledige instructietekst
 class PromptBouwer:
     def __init__(self, configuratie: PromptConfiguratie):
         # 💚 Slaat de configuratie op en initialiseert helperdata
@@ -200,7 +200,7 @@ class PromptBouwer:
         # ✅ Essentiële instructie voor ESS-02
         regels.append(
             """
-### 📐 Let op betekenislaag (ESS-02 – Ontologische categorie):
+### 📐 Let op betekenislaag (ESS-02 - Ontologische categorie):
 Je **moet** één van de vier categorieën expliciet maken:
 • type (soort), • exemplaar (specifiek geval), • proces (activiteit), • resultaat (uitkomst)
 Gebruik formuleringen zoals:
@@ -215,10 +215,10 @@ Gebruik formuleringen zoals:
         # ✅ Toetsregels (Richtlijnen)
         regels.append("\n### ✅ Richtlijnen voor de definitie:")
         for sleutel, inhoud in geselecteerde_regels.items():
-            regels.append(f"🔹 **{sleutel} – {inhoud.get('naam')}**")
-            regels.append(f"– {inhoud.get('uitleg')}")
+            regels.append(f"🔹 **{sleutel} - {inhoud.get('naam')}**")
+            regels.append(f"- {inhoud.get('uitleg')}")
             if "toetsvraag" in inhoud:
-                regels.append(f"– Toetsvraag: {inhoud['toetsvraag']}")
+                regels.append(f"- Toetsvraag: {inhoud['toetsvraag']}")
             for goed in inhoud.get("goede_voorbeelden", []):
                 regels.append(f"  ✅ {goed}")
             for fout in inhoud.get("foute_voorbeelden", []):
@@ -288,14 +288,14 @@ Gebruik formuleringen zoals:
 
         # ✅ Metadata
         regels.append("\n🆔 Promptmetadata:")
-        regels.append(f"– Begrip: {begrip}")
-        regels.append(f"– Termtype: {woordsoort}")
+        regels.append(f"- Begrip: {begrip}")
+        regels.append(f"- Termtype: {woordsoort}")
         for v in context_dict:
             waarden = context_dict[v]
             if isinstance(waarden, list) and waarden:
-                regels.append(f"– {labelmapping.get(v, v)}: {', '.join(waarden)}")
+                regels.append(f"- {labelmapping.get(v, v)}: {', '.join(waarden)}")
             elif isinstance(waarden, bool) and waarden:
-                regels.append(f"– {labelmapping.get(v, v)}")
+                regels.append(f"- {labelmapping.get(v, v)}")
         # ✅ Voorkomt TypeError door alleen lists te joinen
         # ✅ Booleans (zoals True bij "Organisatorisch") geven correcte promptregel
         # ✅ False en lege lijsten worden genegeerd

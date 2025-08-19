@@ -12,7 +12,7 @@ import re
 import subprocess
 import sys
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 # Setup logging
@@ -56,7 +56,7 @@ class AICodeReviewer:
         self.current_iteration = 0
         self.issues_found: list[ReviewIssue] = []
         self.auto_fixes_applied = 0
-        self.start_time = datetime.now()
+        self.start_time = datetime.now(timezone.utc)
 
     def run_quality_checks(self) -> tuple[bool, list[ReviewIssue]]:
         """Voer alle quality checks uit en verzamel issues."""
@@ -799,7 +799,7 @@ class AICodeReviewer:
                     break
 
         # Calculate final metrics
-        duration = (datetime.now() - self.start_time).total_seconds()
+        duration = (datetime.now(timezone.utc) - self.start_time).total_seconds()
 
         # Get final state
         final_passed, final_issues = self.run_quality_checks()

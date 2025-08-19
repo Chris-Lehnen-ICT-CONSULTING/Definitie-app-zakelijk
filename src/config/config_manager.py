@@ -10,7 +10,7 @@ inclusief API keys, cache instellingen en omgeving-specifieke configuraties.
 import logging
 import os
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -622,7 +622,7 @@ class ConfigManager:
                 Path(getattr(self.paths, attr)).exists()
                 for attr in ["cache_dir", "exports_dir", "logs_dir", "reports_dir"]
             ),
-            "loaded_at": datetime.now().isoformat(),
+            "loaded_at": datetime.now(timezone.utc).isoformat(),
         }
 
     def validate_api_key(self) -> bool:

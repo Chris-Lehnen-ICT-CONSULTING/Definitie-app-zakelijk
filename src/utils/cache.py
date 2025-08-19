@@ -11,7 +11,7 @@ import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor bestandsoperaties
 import pickle  # Python object serialisatie voor cache data
 from collections.abc import Callable
-from datetime import datetime, timedelta  # Datum en tijd voor TTL management
+from datetime import datetime, timedelta  # Datum en tijd voor TTL management, timezone
 from functools import wraps  # Decorator utilities voor cache functionaliteit
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import (  # Type hints voor betere code documentatie
@@ -91,7 +91,7 @@ class FileCache:
         stored_time = datetime.fromisoformat(self.metadata[cache_key]["timestamp"])
         ttl = self.metadata[cache_key]["ttl"]
 
-        return datetime.now() > stored_time + timedelta(seconds=ttl)
+        return datetime.now(timezone.utc) > stored_time + timedelta(seconds=ttl)
 
     def get(self, cache_key: str) -> Any | None:
         """Get value from cache."""
@@ -131,7 +131,7 @@ class FileCache:
 
             # Update metadata
             self.metadata[cache_key] = {
-                "timestamp": datetime.now().isoformat(),
+                "timestamp": datetime.now(timezone.utc).isoformat(),
                 "ttl": ttl,
                 "size": os.path.getsize(cache_file),
             }

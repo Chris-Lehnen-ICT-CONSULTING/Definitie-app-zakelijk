@@ -7,7 +7,7 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
-from datetime import datetime  # Datum en tijd functionaliteit
+from datetime import datetime  # Datum en tijd functionaliteit, timezone
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -801,7 +801,7 @@ class TabbedInterface:
                         "category_scores": category_scores,
                         "document_context": document_context,
                         "voorbeelden_prompts": voorbeelden_prompts,
-                        "timestamp": datetime.now(),
+                        "timestamp": datetime.now(timezone.utc),
                     },
                 )
 
@@ -983,7 +983,7 @@ class TabbedInterface:
             )
 
             # Toon ondersteunde bestandstypen in sidebar of als tekst
-            if st.checkbox("ℹ️ Toon ondersteunde bestandstypen", value=False):
+            if st.checkbox("i️ Toon ondersteunde bestandstypen", value=False):
                 supported_types = supported_file_types()
                 st.markdown("**Ondersteunde bestandstypen:**")
                 for _mime_type, description in supported_types.items():
@@ -1226,7 +1226,7 @@ class TabbedInterface:
                 """
                 <div style="text-align: center; color: #666; font-size: 12px;">
                     DefinitieAgent 2.0 | Laatste update: """
-                + datetime.now().strftime("%Y-%m-%d %H:%M")
+                + datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
                 + """
                 </div>
             """,

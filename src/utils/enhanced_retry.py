@@ -10,7 +10,7 @@ import random
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from enum import Enum
 from functools import wraps
 from pathlib import Path
@@ -121,7 +121,7 @@ class AdaptiveRetryManager:
             data = {
                 "error_patterns": self.error_patterns,
                 "adaptive_delays": self.adaptive_delays,
-                "last_updated": datetime.now().isoformat(),
+                "last_updated": datetime.now(timezone.utc).isoformat(),
             }
 
             with open(history_file, "w") as f:
@@ -134,10 +134,10 @@ class AdaptiveRetryManager:
         async with self._lock:
             if self.circuit_state.state == CircuitState.OPEN:
                 # Check if we should try to recover
-                if (
-                    self.circuit_state.last_failure_time
-                    and datetime.now() - self.circuit_state.last_failure_time
-                    > timedelta(seconds=self.config.recovery_timeout)
+                if self.circuit_state.last_failure_time and datetime.now(
+                    timezone.utc
+                ) - self.circuit_state.last_failure_time > timedelta(
+                    seconds=self.config.recovery_timeout
                 ):
                     self.circuit_state.state = CircuitState.HALF_OPEN
                     self.circuit_state.success_count = 0
@@ -217,7 +217,7 @@ class AdaptiveRetryManager:
     async def record_success(self, duration: float, endpoint: str = ""):
         """Record successful request for adaptive learning."""
         async with self._lock:
-            now = datetime.now()
+            now = datetime.now(timezone.utc)
 
             # Update circuit breaker state
             if self.circuit_state.state == CircuitState.HALF_OPEN:
@@ -248,7 +248,7 @@ class AdaptiveRetryManager:
 
     async def _record_failure(self, error: Exception):
         """Record request failure for circuit breaker logic."""
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         error_type = type(error).__name__
 
         # Update circuit breaker state
@@ -294,7 +294,7 @@ class AdaptiveRetryManager:
             success_rate = (total_requests - total_failures) / total_requests
 
         # Calculate recent performance
-        recent_cutoff = datetime.now() - timedelta(minutes=10)
+        recent_cutoff = datetime.now(timezone.utc) - timedelta(minutes=10)
         recent_requests = [
             m for m in self.request_history if m.timestamp > recent_cutoff
         ]

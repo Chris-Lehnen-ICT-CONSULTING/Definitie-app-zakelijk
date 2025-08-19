@@ -6,7 +6,7 @@ Dit lost de inconsistentie op tussen JSON en Python bestandsnamen.
 
 import json
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -26,7 +26,7 @@ def fix_naming_consistency(regels_dir: Path, dry_run: bool = True):
     if not dry_run:
         backup_dir = (
             regels_dir.parent
-            / f"regels_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            / f"regels_backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}"
         )
         print(f"📁 Maak backup in: {backup_dir}")
         shutil.copytree(regels_dir, backup_dir)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     print("=" * 40)
     print(f"📍 Directory: {regels_dir}")
     print(f"🔍 Mode: {'EXECUTE' if args.execute else 'DRY RUN'}")
-    print(f"📅 Date: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    print(f"📅 Date: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}")
     print()
 
     fix_naming_consistency(regels_dir, dry_run=not args.execute)

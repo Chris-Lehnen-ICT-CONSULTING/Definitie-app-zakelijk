@@ -7,7 +7,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -361,7 +361,7 @@ class DutchTextValidator:
 
         # Record validation attempt
         validation_record = {
-            "timestamp": datetime.now().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "text_type": text_type.value,
             "text_length": len(text),
             "issues_found": 0,
@@ -615,13 +615,13 @@ class DutchTextValidator:
     def export_validation_report(self, filename: str | None = None) -> str:
         """Export validation report to file."""
         if filename is None:
-            filename = f"dutch_validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+            filename = f"dutch_validation_report_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
 
         filepath = Path("reports") / filename
         filepath.parent.mkdir(exist_ok=True)
 
         report = {
-            "generated_at": datetime.now().isoformat(),
+            "generated_at": datetime.now(timezone.utc).isoformat(),
             "statistics": self.get_validation_statistics(),
             "validation_rules": {
                 text_type.value: len(rules)
