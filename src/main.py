@@ -8,20 +8,23 @@ handling initialization, configuration, and launching the main user interface.
 
 import os
 import sys
+import logging
 
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand
 
-import logging
+from ui.session_state import SessionStateManager  # Sessie status beheer
+from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
+from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
 
 # Configureer basis logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-from ui.session_state import SessionStateManager  # Sessie status beheer
-from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
-from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
+
+# Initialiseer logger - Stel logging in voor deze module
+logger = logging.getLogger(__name__)  # Verkrijg logger instantie voor dit bestand
 
 # Configureer Streamlit pagina - Stel basis pagina instellingen in
 st.set_page_config(
@@ -33,9 +36,6 @@ st.set_page_config(
 
 # Laad omgevingsvariabelen - Laad configuratie uit .env bestand
 load_dotenv()  # Laadt API keys, database configuratie, etc.
-
-# Initialiseer logger - Stel logging in voor deze module
-logger = logging.getLogger(__name__)  # Verkrijg logger instantie voor dit bestand
 
 
 def main():
