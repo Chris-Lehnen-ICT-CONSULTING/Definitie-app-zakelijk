@@ -79,7 +79,8 @@ class WikipediaService:
             )
 
         if not self.session:
-            raise RuntimeError("Service moet gebruikt worden als async context manager")
+            msg = "Service moet gebruikt worden als async context manager"
+            raise RuntimeError(msg)
 
         logger.info(f"Wikipedia lookup voor term: {term}")
 

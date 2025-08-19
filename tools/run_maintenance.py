@@ -72,7 +72,7 @@ def main():
             print(f"\n▶️  Running {script_name}...")
             print("-" * 50)
             subprocess.run(
-                [sys.executable, str(script_path)] + script_args, check=False
+                [sys.executable, str(script_path), *script_args], check=False
             )
         else:
             print(f"\n❌ Script '{script_name}' niet gevonden")

@@ -111,7 +111,7 @@ class INT02Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> INT02Validator:
+def create_validator(config_path: str | None = None) -> INT02Validator:
     """
     Factory functie om validator te maken.
 

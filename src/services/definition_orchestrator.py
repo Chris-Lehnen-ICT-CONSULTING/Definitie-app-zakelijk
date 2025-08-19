@@ -169,7 +169,8 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             context.definition = await self._generate_definition(context)
 
             if not context.definition:
-                raise ValueError("Generatie mislukt: geen definitie ontvangen")
+                msg = "Generatie mislukt: geen definitie ontvangen"
+                raise ValueError(msg)
 
             # Stap 2: Valideer definitie (optioneel)
             if self.config.enable_validation:

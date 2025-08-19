@@ -301,7 +301,7 @@ class HybridContextManager:
         # Gebruik configuratie afkortingen
         abbreviations = {**CONTEXT_AFKORTINGEN, **self.config.context_abbreviations}
 
-        for context_type, items in base_context.items():
+        for _context_type, items in base_context.items():
             for item in items:
                 words = item.split()
                 for word in words:
@@ -403,19 +403,16 @@ class HybridContextManager:
             creative_hints.append("Focus op stappen en flow in de definitie")
 
         # Domeint hints
-        if request.domein:
-            if "juridisch" in request.domein.lower():
-                creative_hints.append(
-                    "Gebruik juridische terminologie en refereer naar wettelijke kaders"
-                )
+        if request.domein and "juridisch" in request.domein.lower():
+            creative_hints.append(
+                "Gebruik juridische terminologie en refereer naar wettelijke kaders"
+            )
 
         # Context hints
-        if request.context:
-            if (
-                "openbaar ministerie" in request.context.lower()
-                or "OM" in request.context
-            ):
-                creative_hints.append("Relateer aan strafrecht en vervolging context")
+        if request.context and (
+            "openbaar ministerie" in request.context.lower() or "OM" in request.context
+        ):
+            creative_hints.append("Relateer aan strafrecht en vervolging context")
 
         return (
             "; ".join(creative_hints)

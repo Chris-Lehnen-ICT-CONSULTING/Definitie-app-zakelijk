@@ -67,7 +67,7 @@ class CodeReviewer:
                 if ast.get_docstring(node):
                     self.stats["docstrings"] += 1
 
-            elif isinstance(node, (ast.Import, ast.ImportFrom)):
+            elif isinstance(node, ast.Import | ast.ImportFrom):
                 self.stats["imports"] += 1
 
     def _check_patterns(self, content: str, lines: list[str]):

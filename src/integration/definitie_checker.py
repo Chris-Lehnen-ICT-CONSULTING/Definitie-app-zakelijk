@@ -160,7 +160,7 @@ class DefinitieChecker:
         juridische_context: str = "",
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
         force_generate: bool = False,
-        created_by: str = None,
+        created_by: str | None = None,
         # Hybrid context parameters
         selected_document_ids: list[str] | None = None,
         enable_hybrid: bool = False,
@@ -227,7 +227,7 @@ class DefinitieChecker:
         return check_result, agent_result, None
 
     def update_existing_definition(
-        self, definitie_id: int, updated_by: str = None, regenerate: bool = False
+        self, definitie_id: int, updated_by: str | None = None, regenerate: bool = False
     ) -> tuple[bool, AgentResult | None]:
         """
         Update bestaande definitie, optioneel met regeneratie.
@@ -278,7 +278,7 @@ class DefinitieChecker:
         return False, agent_result
 
     def approve_definition(
-        self, definitie_id: int, approved_by: str, notes: str = None
+        self, definitie_id: int, approved_by: str, notes: str | None = None
     ) -> bool:
         """
         Keur definitie goed (zet status op ESTABLISHED).
@@ -300,7 +300,7 @@ class DefinitieChecker:
         return self.repository.search_definities(status=DefinitieStatus.REVIEW)
 
     def get_established_definitions(
-        self, organisatorische_context: str = None
+        self, organisatorische_context: str | None = None
     ) -> list[DefinitieRecord]:
         """Haal vastgestelde definities op."""
         return self.repository.search_definities(
@@ -309,7 +309,7 @@ class DefinitieChecker:
         )
 
     def export_established_definitions(
-        self, file_path: str, organisatorische_context: str = None
+        self, file_path: str, organisatorische_context: str | None = None
     ) -> int:
         """
         Exporteer vastgestelde definities naar bestand.
@@ -328,7 +328,7 @@ class DefinitieChecker:
         return self.repository.export_to_json(file_path, filters)
 
     def import_external_definitions(
-        self, file_path: str, import_by: str = None
+        self, file_path: str, import_by: str | None = None
     ) -> tuple[int, int, list[str]]:
         """
         Importeer definities uit extern bestand.
@@ -397,7 +397,7 @@ class DefinitieChecker:
         self,
         agent_result: AgentResult,
         categorie: OntologischeCategorie,
-        created_by: str = None,
+        created_by: str | None = None,
     ) -> DefinitieRecord:
         """Sla gegenereerde definitie op in database."""
         # Extract context from first iteration
@@ -452,7 +452,8 @@ class DefinitieChecker:
             )
             return record
 
-        raise ValueError("No iterations found in agent result")
+        msg = "No iterations found in agent result"
+        raise ValueError(msg)
 
 
 # Convenience functions
@@ -488,7 +489,7 @@ def generate_or_retrieve_definition(
     juridische_context: str = "",
     categorie: str = "type",
     force_new: bool = False,
-    created_by: str = None,
+    created_by: str | None = None,
 ) -> tuple[str, dict[str, Any]]:
     """
     Convenience functie voor complete workflow: check + genereer + opslag.
@@ -545,7 +546,7 @@ def generate_or_retrieve_definition(
         juridische_context: str = "",
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
         force_generate: bool = False,
-        created_by: str = None,
+        created_by: str | None = None,
     ) -> tuple[DefinitieCheckResult, Any | None, DefinitieRecord | None]:
         """
         Generate definition using integrated service layer.
@@ -724,3 +725,5 @@ def generate_or_retrieve_definition(
     def get_service_info(self) -> dict[str, Any]:
         """Get information about available services."""
         return self._get_integrated_service().get_service_info()
+
+    return None

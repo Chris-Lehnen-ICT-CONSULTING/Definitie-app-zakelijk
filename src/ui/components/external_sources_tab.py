@@ -164,26 +164,25 @@ class ExternalSourcesTab:
                 help="Upload JSON of CSV bestand met definities",
             )
 
-            if uploaded_file:
-                if st.button("📥 Bestand Bron Toevoegen"):
-                    # Save uploaded file temporarily
-                    temp_path = Path("cache") / f"uploaded_{uploaded_file.name}"
-                    temp_path.parent.mkdir(exist_ok=True)
+            if uploaded_file and st.button("📥 Bestand Bron Toevoegen"):
+                # Save uploaded file temporarily
+                temp_path = Path("cache") / f"uploaded_{uploaded_file.name}"
+                temp_path.parent.mkdir(exist_ok=True)
 
-                    with open(temp_path, "wb") as f:
-                        f.write(uploaded_file.getbuffer())
+                with open(temp_path, "wb") as f:
+                    f.write(uploaded_file.getbuffer())
 
-                    # Create file source
-                    file_adapter = self.create_file_source(
-                        str(temp_path), f"Upload: {uploaded_file.name}"
-                    )
+                # Create file source
+                file_adapter = self.create_file_source(
+                    str(temp_path), f"Upload: {uploaded_file.name}"
+                )
 
-                    if file_adapter.connect():
-                        manager.register_source(file_adapter)
-                        st.success(f"✅ Bestand bron toegevoegd: {uploaded_file.name}")
-                        st.rerun()
-                    else:
-                        st.error("❌ Kon bestand bron niet verbinden")
+                if file_adapter.connect():
+                    manager.register_source(file_adapter)
+                    st.success(f"✅ Bestand bron toegevoegd: {uploaded_file.name}")
+                    st.rerun()
+                else:
+                    st.error("❌ Kon bestand bron niet verbinden")
 
     def _render_source_search(self):
         """Render search interface for external sources."""

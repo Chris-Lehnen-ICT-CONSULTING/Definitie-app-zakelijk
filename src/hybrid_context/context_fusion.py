@@ -247,7 +247,7 @@ class ContextFusion:
         web_focus = self._determine_context_focus(web_terms)
         doc_focus = self._determine_document_focus(document_context)
 
-        if web_focus != doc_focus and web_focus != "general" and doc_focus != "general":
+        if web_focus not in (doc_focus, "general") and doc_focus != "general":
             conflicts.append(
                 {
                     "type": "focus_divergence",
@@ -264,7 +264,7 @@ class ContextFusion:
         """Extraheer key terms uit web context."""
         terms = []
 
-        for source_name, source_data in web_context.items():
+        for _source_name, source_data in web_context.items():
             if isinstance(source_data, dict) and "tekst" in source_data:
                 text = source_data["tekst"].lower()
 
@@ -420,8 +420,10 @@ class ContextFusion:
             conflicts_resolved=0,
             quality_assessment="good",
             web_sources=web_sources,
-            primary_sources=web_sources[:2]
-            + [f"documents({document_context.get('document_count', 0)})"],
+            primary_sources=[
+                *web_sources[:2],
+                f"documents({document_context.get('document_count', 0)})",
+            ],
             supporting_sources=web_sources[2:],
             fusion_metadata={"sections_created": len(sections)},
         )

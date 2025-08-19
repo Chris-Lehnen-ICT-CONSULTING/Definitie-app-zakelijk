@@ -39,7 +39,8 @@ def handle_api_error(func):
             return func(*args, **kwargs)
         except Exception as e:
             logging.error(f"API error in {func.__name__}: {e!s}")
-            raise APIError(f"API call failed: {e!s}") from e
+            msg = f"API call failed: {e!s}"
+            raise APIError(msg) from e
 
     return wrapper
 
@@ -53,7 +54,8 @@ def handle_validation_error(func):
             return func(*args, **kwargs)
         except Exception as e:
             logging.error(f"Validation error in {func.__name__}: {e!s}")
-            raise ValidationError(f"Validation failed: {e!s}") from e
+            msg = f"Validation failed: {e!s}"
+            raise ValidationError(msg) from e
 
     return wrapper
 

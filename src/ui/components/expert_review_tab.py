@@ -70,8 +70,10 @@ class ExpertReviewTab:
             with col3:
                 context_filter = st.selectbox(
                     "Filter context",
-                    ["Alle"]
-                    + list(set(d.organisatorische_context for d in pending_reviews)),
+                    [
+                        "Alle",
+                        *list({d.organisatorische_context for d in pending_reviews}),
+                    ],
                     key="review_context_filter",
                 )
 

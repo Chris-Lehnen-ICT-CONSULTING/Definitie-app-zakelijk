@@ -100,12 +100,7 @@ class ESS03Validator:
             return False
 
         # Check niet-telbare patronen
-        for indicator in niet_telbaar:
-            if indicator in begrip_lower:
-                return False
-
-        # Default: beschouw als telbaar
-        return True
+        return all(indicator not in begrip_lower for indicator in niet_telbaar)
 
     def _heeft_impliciete_identificatie(self, definitie: str) -> bool:
         """
@@ -137,7 +132,7 @@ class ESS03Validator:
         ]
 
 
-def create_validator(config_path: str = None) -> ESS03Validator:
+def create_validator(config_path: str | None = None) -> ESS03Validator:
     """
     Factory functie om validator te maken.
 

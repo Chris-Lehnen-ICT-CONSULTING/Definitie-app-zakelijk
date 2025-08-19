@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 class ModularToetsregelLoader:
     """Loader voor modulaire toetsregels met JSON + Python combinatie."""
 
-    def __init__(self, regels_dir: str = None):
+    def __init__(self, regels_dir: str | None = None):
         """
         Initialiseer de modulaire loader.
 

@@ -84,7 +84,7 @@ class RegelSet:
 class ToetsregelManager:
     """Manager voor modulaire toetsregels systeem."""
 
-    def __init__(self, base_dir: str = None):
+    def __init__(self, base_dir: str | None = None):
         """
         Initialiseer ToetsregelManager.
 

@@ -114,7 +114,7 @@ class INT06Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> INT06Validator:
+def create_validator(config_path: str | None = None) -> INT06Validator:
     """
     Factory functie om validator te maken.
 

@@ -42,7 +42,8 @@ class Toetser:
 
         # Controleer of bestand bestaat
         if not path.exists():
-            raise FileNotFoundError(f"Verboden-woordenlijst niet gevonden: {json_path}")
+            msg = f"Verboden-woordenlijst niet gevonden: {json_path}"
+            raise FileNotFoundError(msg)
 
         # Laad JSON data uit bestand met UTF-8 encoding
         with path.open(encoding="utf-8") as fh:

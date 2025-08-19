@@ -120,7 +120,7 @@ class INT04Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> INT04Validator:
+def create_validator(config_path: str | None = None) -> INT04Validator:
     """
     Factory functie om validator te maken.
 

@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)  # Logger instantie voor setup script
 def create_test_data() -> list[DefinitieRecord]:
     """Maak test data voor de database met voorbeelden van verschillende definities."""
     # Maak lijst met test definities voor verschillende scenario's
-    test_data = [
+    return [
         DefinitieRecord(
             begrip="verificatie",
             definitie="Proces waarbij identiteitsgegevens systematisch worden gecontroleerd tegen authentieke bronregistraties om de juistheid en volledigheid te waarborgen",
@@ -127,10 +127,8 @@ def create_test_data() -> list[DefinitieRecord]:
         ),
     ]
 
-    return test_data
 
-
-def setup_database(db_path: str = None, include_test_data: bool = True):
+def setup_database(db_path: str | None = None, include_test_data: bool = True):
     """
     Setup complete database met schema en optioneel test data.
 

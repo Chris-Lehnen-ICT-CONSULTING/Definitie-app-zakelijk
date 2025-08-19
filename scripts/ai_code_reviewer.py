@@ -387,7 +387,7 @@ class AICodeReviewer:
                 for pattern, message in unsafe_patterns:
                     matches = list(re.finditer(pattern, content, re.IGNORECASE))
                     for match in matches:
-                        matched_text = match.group(0)
+                        match.group(0)
 
                         # Filter false positives - skip logging/UI strings
                         false_positive_indicators = [
@@ -777,7 +777,7 @@ class AICodeReviewer:
             if issues:
                 # Separate fixable but unfixed issues from truly unfixable ones
                 fixable_but_unfixed = [i for i in issues if i.fixable]
-                unfixable_issues = [i for i in issues if not i.fixable]
+                [i for i in issues if not i.fixable]
 
                 if fixable_but_unfixed:
                     logger.info(

@@ -176,7 +176,8 @@ class UnifiedDefinitionGenerator(DefinitionGeneratorInterface):
         5. Cache & monitor (definitie_generator + services patterns)
         """
         if not request.begrip:
-            raise ValueError("Begrip is verplicht voor definitie generatie")
+            msg = "Begrip is verplicht voor definitie generatie"
+            raise ValueError(msg)
 
         self._stats.total_generations += 1
 

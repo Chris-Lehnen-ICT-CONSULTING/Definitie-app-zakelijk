@@ -89,7 +89,7 @@ def get_performance_monitor() -> PerformanceMonitor:
     return _performance_monitor
 
 
-def measure_performance(operation_name: str = None):
+def measure_performance(operation_name: str | None = None):
     """
     Decorator voor het meten van functie performance.
 
@@ -110,8 +110,7 @@ def measure_performance(operation_name: str = None):
 
             monitor.start_timer(name)
             try:
-                result = await func(*args, **kwargs)
-                return result
+                return await func(*args, **kwargs)
             finally:
                 monitor.stop_timer(name)
 
@@ -122,8 +121,7 @@ def measure_performance(operation_name: str = None):
 
             monitor.start_timer(name)
             try:
-                result = func(*args, **kwargs)
-                return result
+                return func(*args, **kwargs)
             finally:
                 monitor.stop_timer(name)
 

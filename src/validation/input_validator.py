@@ -132,8 +132,8 @@ class ValidationSchema:
     def length(
         self,
         field_name: str,
-        min_length: int = None,
-        max_length: int = None,
+        min_length: int | None = None,
+        max_length: int | None = None,
         message: str = "",
     ):
         """Add length validation."""
@@ -165,8 +165,8 @@ class ValidationSchema:
     def range_check(
         self,
         field_name: str,
-        min_value: int | float = None,
-        max_value: int | float = None,
+        min_value: int | float | None = None,
+        max_value: int | float | None = None,
         message: str = "",
     ):
         """Add range validation."""
@@ -401,7 +401,8 @@ class InputValidator:
     ) -> list[ValidationResult]:
         """Validate data against a schema."""
         if schema_name not in self.schemas:
-            raise ValueError(f"Schema '{schema_name}' not found")
+            msg = f"Schema '{schema_name}' not found"
+            raise ValueError(msg)
 
         schema = self.schemas[schema_name]
         results = []
@@ -464,7 +465,7 @@ class InputValidator:
         """Validate a single rule."""
         try:
             if rule.validation_type == ValidationType.REQUIRED:
-                passed = value is not None and value != "" and value != []
+                passed = value is not None and value not in ("", [])
 
             elif rule.validation_type == ValidationType.TYPE:
                 passed = value is None or isinstance(value, rule.expected_type)
@@ -501,16 +502,10 @@ class InputValidator:
                 passed = value is None or value in rule.allowed_values
 
             elif rule.validation_type == ValidationType.CUSTOM:
-                if rule.custom_validator:
-                    passed = rule.custom_validator(value)
-                else:
-                    passed = True
+                passed = rule.custom_validator(value) if rule.custom_validator else True
 
             elif rule.validation_type == ValidationType.BUSINESS_RULE:
-                if rule.business_rule:
-                    passed = rule.business_rule(full_data)
-                else:
-                    passed = True
+                passed = rule.business_rule(full_data) if rule.business_rule else True
             else:
                 passed = True
 
@@ -689,9 +684,8 @@ def validate_input_decorator(schema_name: str):
                 error_messages = [
                     f"{error.field_name}: {error.message}" for error in errors
                 ]
-                raise ValueError(
-                    f"Input validation failed: {'; '.join(error_messages)}"
-                )
+                msg = f"Input validation failed: {'; '.join(error_messages)}"
+                raise ValueError(msg)
 
             return func(*args, **kwargs)
 

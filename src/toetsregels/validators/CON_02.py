@@ -128,7 +128,7 @@ class CON02Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> CON02Validator:
+def create_validator(config_path: str | None = None) -> CON02Validator:
     """
     Factory functie om validator te maken.
 

@@ -105,16 +105,15 @@ class WorkflowService:
                 return False
 
         if (
-            current_status == DefinitionStatus.ARCHIVED.value
-            and new_status == DefinitionStatus.DRAFT.value
+            (
+                current_status == DefinitionStatus.ARCHIVED.value
+                and new_status == DefinitionStatus.DRAFT.value
+            )
+            and user_role
+            and user_role not in self.ROLE_PERMISSIONS.get("restore_from_archive", [])
         ):
-            if user_role and user_role not in self.ROLE_PERMISSIONS.get(
-                "restore_from_archive", []
-            ):
-                logger.warning(
-                    f"User with role '{user_role}' cannot restore from archive"
-                )
-                return False
+            logger.warning(f"User with role '{user_role}' cannot restore from archive")
+            return False
 
         return True
 
@@ -145,10 +144,11 @@ class WorkflowService:
             ValueError: Als de transitie niet toegestaan is
         """
         if not self.can_change_status(current_status, new_status, user_role):
-            raise ValueError(
+            msg = (
                 f"Invalid transition: {current_status} → {new_status} "
                 f"for user with role '{user_role}'"
             )
+            raise ValueError(msg)
 
         # Basis wijzigingen
         changes = {
@@ -331,9 +331,7 @@ class WorkflowService:
         # Basic rule: only DRAFT can be edited
         if status != DefinitionStatus.DRAFT.value:
             # Admins might have override permissions
-            if user_role == "admin":
-                return True
-            return False
+            return user_role == "admin"
 
         return True
 

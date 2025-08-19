@@ -410,10 +410,7 @@ class SecurityMiddleware:
                 if req_time > burst_cutoff
             ]
         )
-        if burst_requests >= endpoint_config["burst_limit"]:
-            return False
-
-        return True
+        return not burst_requests >= endpoint_config["burst_limit"]
 
     def _record_request(self, ip: str):
         """Record a successful request."""
@@ -629,9 +626,8 @@ def security_middleware_decorator(endpoint_name: str = ""):
             response = await middleware.validate_request(validation_request)
 
             if not response.allowed:
-                raise ValueError(
-                    f"Security validation failed: {'; '.join(response.validation_errors)}"
-                )
+                msg = f"Security validation failed: {'; '.join(response.validation_errors)}"
+                raise ValueError(msg)
 
             # Use sanitized data
             sanitized_args = list(args)

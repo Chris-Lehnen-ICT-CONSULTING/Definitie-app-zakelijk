@@ -101,7 +101,7 @@ class SAM05Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> SAM05Validator:
+def create_validator(config_path: str | None = None) -> SAM05Validator:
     """
     Factory functie om validator te maken.
 

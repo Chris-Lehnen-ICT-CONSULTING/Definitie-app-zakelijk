@@ -187,7 +187,7 @@ class ABTestingFramework:
         response_times = []
 
         # Repeat test voor consistency
-        for i in range(self.config.repeat_count):
+        for _i in range(self.config.repeat_count):
             try:
                 loop_start = time.time()
                 results = await asyncio.wait_for(
@@ -207,7 +207,7 @@ class ABTestingFramework:
                 logger.warning(f"Modern service error: {e}")
                 response_times.append(0.0)
 
-        total_time = time.time() - start_time
+        time.time() - start_time
 
         # Calculate performance metrics
         performance = PerformanceMetrics(
@@ -323,7 +323,7 @@ class ABTestingFramework:
             completeness_scores.append(min(score, 1.0))
 
         # Source diversity
-        unique_sources = len(set(r.source.name for r in results))
+        unique_sources = len({r.source.name for r in results})
 
         # Juridical accuracy voor legal terms
         juridical_accuracy = 0.0

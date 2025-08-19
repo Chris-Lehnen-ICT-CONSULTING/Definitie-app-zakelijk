@@ -198,7 +198,8 @@ class IntegratedResilienceSystem:
 
             # Step 2: Check rate limiting
             if not await rate_limiter.acquire(priority, timeout, request_id):
-                raise asyncio.TimeoutError(f"Rate limit timeout for {endpoint_name}")
+                msg = f"Rate limit timeout for {endpoint_name}"
+                raise asyncio.TimeoutError(msg)
 
             # Step 2: Execute with retry logic and resilience
             result = await self._execute_with_retry_and_resilience(
@@ -452,7 +453,8 @@ async def test_integrated_system():
         await asyncio.sleep(delay)
 
         if should_fail and call_count <= 2:
-            raise Exception(f"Simulated failure #{call_count}")
+            msg = f"Simulated failure #{call_count}"
+            raise Exception(msg)
 
         return f"Success on attempt #{call_count}"
 

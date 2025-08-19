@@ -152,10 +152,9 @@ class AdaptiveRetryManager:
                 return False
 
             # Allow retry for specific error types
-            if isinstance(error, (RateLimitError, APIConnectionError, APIError)):
-                return True
-
-            return False
+            return bool(
+                isinstance(error, RateLimitError | APIConnectionError | APIError)
+            )
 
     async def get_retry_delay(self, error: Exception, attempt: int) -> float:
         """Calculate adaptive retry delay based on error type and history."""
@@ -213,8 +212,7 @@ class AdaptiveRetryManager:
                 base_delay = (base_delay + median_delay) / 2
 
         # Apply exponential backoff on top of adaptive base
-        adaptive_delay = base_delay * (1.5**attempt)
-        return adaptive_delay
+        return base_delay * (1.5**attempt)
 
     async def record_success(self, duration: float, endpoint: str = ""):
         """Record successful request for adaptive learning."""
@@ -426,7 +424,8 @@ async def test_retry_system():
             failing_function.call_count = 1
 
         if failing_function.call_count <= fail_count:
-            raise RateLimitError("Simulated rate limit error", response=None, body=None)
+            msg = "Simulated rate limit error"
+            raise RateLimitError(msg, response=None, body=None)
 
         return f"Success after {failing_function.call_count} attempts"
 
@@ -436,7 +435,7 @@ async def test_retry_system():
         print(f"✅ {result}")
 
         # Test circuit breaker
-        for i in range(6):  # Trigger circuit breaker
+        for _i in range(6):  # Trigger circuit breaker
             try:
                 failing_function.call_count = 0  # Reset counter
                 await failing_function(10)  # Will always fail

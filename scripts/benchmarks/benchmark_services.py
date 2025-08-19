@@ -27,7 +27,7 @@ def benchmark_function(func, iterations=10):
     """Benchmark een functie over meerdere iteraties."""
     times = []
 
-    for i in range(iterations):
+    for _i in range(iterations):
         start = time.perf_counter()
         func()
         end = time.perf_counter()
@@ -47,7 +47,7 @@ def benchmark_async_function(func, iterations=10):
     times = []
 
     async def run_benchmark():
-        for i in range(iterations):
+        for _i in range(iterations):
             start = time.perf_counter()
             await func()
             end = time.perf_counter()
@@ -74,8 +74,7 @@ def test_legacy_instantiation():
     os.environ["USE_NEW_SERVICES"] = "false"
     from services import UnifiedDefinitionService
 
-    service = UnifiedDefinitionService()
-    return service
+    return UnifiedDefinitionService()
 
 
 def test_new_instantiation():
@@ -84,11 +83,10 @@ def test_new_instantiation():
     from services import ServiceContainer
 
     container = ServiceContainer()
-    generator = container.generator()
-    validator = container.validator()
-    repository = container.repository()
-    orchestrator = container.orchestrator()
-    return orchestrator
+    container.generator()
+    container.validator()
+    container.repository()
+    return container.orchestrator()
 
 
 # Benchmark instantiation
@@ -119,10 +117,9 @@ def test_legacy_processing(mock_api):
     from services import UnifiedDefinitionService
 
     service = UnifiedDefinitionService()
-    result = service.generate_definition(
+    return service.generate_definition(
         begrip="test", context_dict={"organisatorisch": ["benchmark"]}, force_sync=True
     )
-    return result
 
 
 @patch("prompt_builder.prompt_builder.stuur_prompt_naar_gpt")
@@ -144,8 +141,7 @@ async def test_new_processing(mock_api):
         return_value=MagicMock(begrip="test", definitie=mock_response, metadata={})
     )
 
-    response = await orchestrator.create_definition(request)
-    return response
+    return await orchestrator.create_definition(request)
 
 
 # Benchmark processing
@@ -172,7 +168,7 @@ def measure_memory_usage(setup_func):
     baseline = process.memory_info().rss / 1024 / 1024  # MB
 
     # Run setup
-    result = setup_func()
+    setup_func()
 
     # Measure after
     after = process.memory_info().rss / 1024 / 1024  # MB

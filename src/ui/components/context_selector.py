@@ -98,9 +98,9 @@ class ContextSelector:
 
     def _render_manual_selector(
         self,
-        default_org: list[str] = None,
-        default_jur: list[str] = None,
-        default_wet: list[str] = None,
+        default_org: list[str] | None = None,
+        default_jur: list[str] | None = None,
+        default_wet: list[str] | None = None,
     ) -> dict[str, Any]:
         """Render handmatige context selectie."""
         st.markdown("#### 🛠️ Handmatige Selectie")

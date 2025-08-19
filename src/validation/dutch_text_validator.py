@@ -483,21 +483,19 @@ class DutchTextValidator:
                             }
                         )
 
-                elif text_type == DutchTextType.LEGAL:
-                    if (
-                        word not in self.dutch_dictionary
-                        and word not in self.legal_terms
-                    ):
-                        issues.append(
-                            {
-                                "rule_name": "unknown_legal_term",
-                                "description": f"Unknown legal term: {word}",
-                                "severity": "info",
-                                "position": (0, 0),
-                                "matched_text": word,
-                                "suggestion": "Verify legal terminology usage",
-                            }
-                        )
+                elif text_type == DutchTextType.LEGAL and (
+                    word not in self.dutch_dictionary and word not in self.legal_terms
+                ):
+                    issues.append(
+                        {
+                            "rule_name": "unknown_legal_term",
+                            "description": f"Unknown legal term: {word}",
+                            "severity": "info",
+                            "position": (0, 0),
+                            "matched_text": word,
+                            "suggestion": "Verify legal terminology usage",
+                        }
+                    )
 
         return issues
 
@@ -506,7 +504,7 @@ class DutchTextValidator:
         sentences = re.split(r"[.!?]+", text)
         words = re.findall(r"\b\w+\b", text)
 
-        statistics = {
+        return {
             "character_count": len(text),
             "word_count": len(words),
             "sentence_count": len([s for s in sentences if s.strip()]),
@@ -516,8 +514,6 @@ class DutchTextValidator:
             "avg_sentence_length": len(words) / len(sentences) if sentences else 0,
             "readability_score": self._calculate_readability(text),
         }
-
-        return statistics
 
     def _calculate_readability(self, text: str) -> float:
         """Calculate readability score (simplified Dutch readability index)."""
@@ -678,7 +674,7 @@ def dutch_text_decorator(text_type: DutchTextType = DutchTextType.GENERAL):
     def decorator(func):
         def wrapper(*args, **kwargs):
             # Validate text arguments
-            for i, arg in enumerate(args):
+            for _i, arg in enumerate(args):
                 if (
                     isinstance(arg, str) and len(arg) > 10
                 ):  # Only validate substantial text
@@ -690,9 +686,8 @@ def dutch_text_decorator(text_type: DutchTextType = DutchTextType.GENERAL):
                             if issue["severity"] in ["error", "critical"]
                         ]
                         if error_messages:
-                            raise ValueError(
-                                f"Dutch text validation failed: {'; '.join(error_messages)}"
-                            )
+                            msg = f"Dutch text validation failed: {'; '.join(error_messages)}"
+                            raise ValueError(msg)
 
             return func(*args, **kwargs)
 

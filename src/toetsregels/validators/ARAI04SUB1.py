@@ -108,7 +108,7 @@ class ARAI04SUB1Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> ARAI04SUB1Validator:
+def create_validator(config_path: str | None = None) -> ARAI04SUB1Validator:
     """
     Factory functie om validator te maken.
 

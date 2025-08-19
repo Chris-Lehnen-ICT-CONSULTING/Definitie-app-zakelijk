@@ -86,7 +86,7 @@ class AIMetricsTracker:
 
             conn.commit()
 
-    def record_review(self, metric: ReviewMetric, issues: list[dict] = None):
+    def record_review(self, metric: ReviewMetric, issues: list[dict] | None = None):
         """Sla review metrics op in database."""
         with sqlite3.connect(self.db_path) as conn:
             # Insert main metrics
@@ -212,7 +212,7 @@ class AIMetricsTracker:
         cutoff_date = datetime.now() - timedelta(days=days)
 
         with sqlite3.connect(self.db_path) as conn:
-            df = pd.read_sql_query(
+            return pd.read_sql_query(
                 """
                 SELECT
                     DATE(timestamp) as date,
@@ -229,8 +229,6 @@ class AIMetricsTracker:
                 conn,
                 params=(cutoff_date,),
             )
-
-        return df
 
     def generate_report(self, output_path: str = "ai_metrics_report.md"):
         """Genereer een markdown rapport van alle metrics."""

@@ -28,7 +28,8 @@ def check_column_exists(conn: sqlite3.Connection, table: str, column: str) -> bo
     # Whitelist table names for security
     allowed_tables = {"definities", "geschiedenis", "metadata"}
     if table not in allowed_tables:
-        raise ValueError(f"Tabel '{table}' niet toegestaan")
+        msg = f"Tabel '{table}' niet toegestaan"
+        raise ValueError(msg)
 
     cursor = conn.cursor()
     cursor.execute("PRAGMA table_info(definities)")  # Fixed table name for security
@@ -187,10 +188,7 @@ if __name__ == "__main__":
     import sys
 
     # Bepaal database pad
-    if len(sys.argv) > 1:
-        db_path = sys.argv[1]
-    else:
-        db_path = "data/definities.db"
+    db_path = sys.argv[1] if len(sys.argv) > 1 else "data/definities.db"
 
     # Voer migratie uit
     success = migrate_database(db_path)

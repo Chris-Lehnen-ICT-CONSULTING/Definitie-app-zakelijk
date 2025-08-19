@@ -92,7 +92,7 @@ class VER03Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> VER03Validator:
+def create_validator(config_path: str | None = None) -> VER03Validator:
     """
     Factory functie om validator te maken.
 
