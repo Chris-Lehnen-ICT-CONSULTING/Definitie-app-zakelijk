@@ -5,7 +5,7 @@ Deze module beheert alle sessie variabelen die gebruikt worden
 door de Streamlit interface om data tussen pagina refreshes te bewaren.
 """
 
-from typing import Any  # Type hints voor betere code documentatie
+from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
 
@@ -18,7 +18,7 @@ class SessionStateManager:
     """
 
     # Standaardwaarden voor sessie status sleutels - Deze waarden worden gebruikt bij initialisatie
-    DEFAULT_VALUES = {
+    DEFAULT_VALUES: ClassVar[dict[str, Any]] = {
         "gegenereerd": "",
         "beoordeling_gen": [],
         "aangepaste_definitie": "",
@@ -45,6 +45,8 @@ class SessionStateManager:
         "datum_voorstel": None,
         "voorgesteld_door": "",
         "ketenpartners": [],
+        # External sources manager
+        "external_source_manager": None,
     }
 
     @staticmethod

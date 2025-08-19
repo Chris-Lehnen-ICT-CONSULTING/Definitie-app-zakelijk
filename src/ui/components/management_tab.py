@@ -6,7 +6,7 @@ Integreert definitie_manager.py en setup_database.py functionaliteit in de UI.
 # Importeer CLI tools voor management functionaliteit
 import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
-from datetime import datetime  # Datum en tijd functionaliteit, timezone
+from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 
 import pandas as pd  # Data manipulatie en analyse framework
@@ -17,11 +17,11 @@ from database.definitie_repository import (
     DefinitieRepository,
     DefinitieStatus,  # Database toegang en status enums
 )
+from domain.ontological_categories import (  # Categorieën voor definitie classificatie
+    OntologischeCategorie,
+)
 from integration.definitie_checker import (  # Definitie validatie en check acties
     DefinitieChecker,
-)
-from services.unified_definition_generator import (  # Categorieën voor definitie classificatie
-    OntologischeCategorie,
 )
 from ui.session_state import (  # Sessie status management voor Streamlit
     SessionStateManager,

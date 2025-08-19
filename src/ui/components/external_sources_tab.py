@@ -3,7 +3,7 @@ External Sources Tab - Interface voor externe definitie bronnen.
 """
 
 import json  # JSON data verwerking voor configuraties
-from datetime import datetime  # Datum en tijd functionaliteit, timezone
+from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Bestandspad manipulatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -105,7 +105,10 @@ class ExternalSourcesTab:
         """Render source management interface."""
         st.markdown("#### 📋 Geregistreerde Bronnen")
 
-        manager = st.session_state.external_source_manager
+        manager = st.session_state.get("external_source_manager")
+        if not manager:
+            st.error("❌ External Source Manager niet geïnitialiseerd")
+            return
 
         # Show registered sources
         source_info = manager.get_source_info()
@@ -188,7 +191,10 @@ class ExternalSourcesTab:
         """Render search interface for external sources."""
         st.markdown("#### 🔍 Zoeken in Externe Bronnen")
 
-        manager = st.session_state.external_source_manager
+        manager = st.session_state.get("external_source_manager")
+        if not manager:
+            st.error("❌ External Source Manager niet geïnitialiseerd")
+            return
 
         # Search controls
         col1, col2, col3 = st.columns(3)
@@ -314,7 +320,10 @@ class ExternalSourcesTab:
                 options=[""]
                 + [
                     info["source_id"]
-                    for info in st.session_state.external_source_manager.get_source_info()
+                    for info in (
+                        st.session_state.get("external_source_manager")
+                        or self.ExternalSourceManager()
+                    ).get_source_info()
                 ],
                 key="bulk_import_source",
             )
@@ -361,7 +370,7 @@ class ExternalSourcesTab:
         if import_history:
             for i, entry in enumerate(import_history[-5:]):  # Show last 5
                 with st.expander(
-                    f"📥 Import {i+1}: {entry.get('timestamp', 'Onbekend')}",
+                    f"📥 Import {i + 1}: {entry.get('timestamp', 'Onbekend')}",
                     expanded=False,
                 ):
                     st.write(f"**Bron:** {entry.get('source_id', 'Onbekend')}")
@@ -445,7 +454,10 @@ class ExternalSourcesTab:
             options = SessionStateManager.get_value("import_options", {})
 
             # Get source config
-            manager = st.session_state.external_source_manager
+            manager = st.session_state.get("external_source_manager")
+            if not manager:
+                st.error("❌ External Source Manager niet geïnitialiseerd")
+                return
             adapter = manager.get_adapter(source_id)
 
             if not adapter:
@@ -519,7 +531,10 @@ class ExternalSourcesTab:
         """Perform bulk import from source."""
         with st.spinner(f"Importeer tot {limit} definities van {source_id}..."):
             try:
-                manager = st.session_state.external_source_manager
+                manager = st.session_state.get("external_source_manager")
+                if not manager:
+                    st.error("❌ External Source Manager niet geïnitialiseerd")
+                    return
                 adapter = manager.get_adapter(source_id)
 
                 if not adapter:
@@ -625,7 +640,10 @@ class ExternalSourcesTab:
             # Test connection
             if adapter.connect():
                 # Register source
-                manager = st.session_state.external_source_manager
+                manager = st.session_state.get("external_source_manager")
+                if not manager:
+                    st.error("❌ External Source Manager niet geïnitialiseerd")
+                    return
                 manager.register_source(adapter)
 
                 st.success(f"✅ Bron '{source_name}' succesvol geconfigureerd")
@@ -639,7 +657,10 @@ class ExternalSourcesTab:
     def _export_source_configuration(self):
         """Export source configuration to JSON."""
         try:
-            manager = st.session_state.external_source_manager
+            manager = st.session_state.get("external_source_manager")
+            if not manager:
+                st.error("❌ External Source Manager niet geïnitialiseerd")
+                return
             source_info = manager.get_source_info()
 
             config_data = {
