@@ -621,7 +621,8 @@
             border-radius: 12px;
             padding: 60px;
             margin: 20px 0;
-            min-height: 500px;
+            height: 600px;
+            overflow: hidden;
         }
 
         .mesh-service {
@@ -1762,136 +1763,261 @@
             </div>
 
             <div class="architecture-section">
-                <h2>10. Component Relationship Diagram</h2>
+                <h2>10. Detailed Relationship Diagrams</h2>
 
                 <div class="diagram-container">
-                    <h3>TO-BE Microservices Dependencies & Communication</h3>
-                    <div class="relationship-diagram" style="min-height: 700px;">
-                        <!-- API Gateway -->
-                        <div class="rel-component external" style="left: 350px; top: 20px;">
+                    <h3>Microservices Communication Pattern</h3>
+                    <div class="microservices-mesh">
+                        <!-- Connection lines -->
+                        <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#667eea" />
+                                </marker>
+                            </defs>
+                            <!-- Lines will be drawn by JavaScript -->
+                        </svg>
+
+                        <!-- API Gateway in center -->
+                        <div class="mesh-service gateway" style="left: 50%; top: 50%; transform: translate(-50%, -50%);">
                             <strong>API Gateway</strong>
-                            <br><small>Entry Point</small>
+                            <br><small>Kong/Nginx</small>
                         </div>
 
-                        <!-- Authentication -->
-                        <div class="rel-component service" style="left: 50px; top: 120px;">
+                        <!-- Core Services in ring around gateway -->
+                        <div class="mesh-service core" style="left: 50%; top: 20%; transform: translateX(-50%);">
                             <strong>Auth Service</strong>
-                            <br><small>OAuth 2.0</small>
+                            <br><small>OAuth 2.0/JWT</small>
                         </div>
-
-                        <!-- Core Services -->
-                        <div class="rel-component service" style="left: 250px; top: 200px;">
+                        <div class="mesh-service core" style="left: 75%; top: 35%; transform: translate(-50%, -50%);">
                             <strong>Definition Service</strong>
                             <br><small>Core Logic</small>
                         </div>
-                        <div class="rel-component service" style="left: 450px; top: 200px;">
+                        <div class="mesh-service core" style="left: 75%; top: 65%; transform: translate(-50%, -50%);">
                             <strong>Validation Service</strong>
                             <br><small>Quality Control</small>
                         </div>
-                        <div class="rel-component service" style="left: 650px; top: 200px;">
+                        <div class="mesh-service core" style="left: 50%; top: 80%; transform: translateX(-50%);">
                             <strong>Enrichment Service</strong>
                             <br><small>Content Enhancement</small>
                         </div>
-
-                        <!-- Support Services -->
-                        <div class="rel-component service" style="left: 150px; top: 350px;">
+                        <div class="mesh-service core" style="left: 25%; top: 65%; transform: translate(-50%, -50%);">
                             <strong>Export Service</strong>
                             <br><small>Multi-format</small>
                         </div>
-                        <div class="rel-component service" style="left: 350px; top: 350px;">
+                        <div class="mesh-service core" style="left: 25%; top: 35%; transform: translate(-50%, -50%);">
                             <strong>Notification Service</strong>
                             <br><small>Events & Alerts</small>
                         </div>
-                        <div class="rel-component service" style="left: 550px; top: 350px;">
-                            <strong>Monitoring Service</strong>
-                            <br><small>Metrics & Logs</small>
+
+                        <!-- Support Services outer ring -->
+                        <div class="mesh-service support" style="left: 85%; top: 50%; transform: translateY(-50%);">
+                            <strong>Monitoring</strong>
+                            <br><small>Prometheus</small>
+                        </div>
+                        <div class="mesh-service support" style="left: 15%; top: 50%; transform: translateY(-50%);">
+                            <strong>Logging</strong>
+                            <br><small>ELK Stack</small>
                         </div>
 
-                        <!-- Message Queue -->
-                        <div class="rel-component data" style="left: 350px; top: 450px;">
-                            <strong>Message Queue</strong>
-                            <br><small>RabbitMQ/Kafka</small>
-                        </div>
-
-                        <!-- Data Stores -->
-                        <div class="rel-component data" style="left: 100px; top: 550px;">
+                        <!-- Data stores at bottom -->
+                        <div class="mesh-service data" style="left: 20%; top: 90%; transform: translate(-50%, -50%);">
                             <strong>PostgreSQL</strong>
                             <br><small>Primary DB</small>
                         </div>
-                        <div class="rel-component data" style="left: 300px; top: 550px;">
+                        <div class="mesh-service data" style="left: 40%; top: 90%; transform: translate(-50%, -50%);">
                             <strong>Redis</strong>
-                            <br><small>Cache Layer</small>
+                            <br><small>Cache</small>
                         </div>
-                        <div class="rel-component data" style="left: 500px; top: 550px;">
-                            <strong>S3/Blob Storage</strong>
+                        <div class="mesh-service data" style="left: 60%; top: 90%; transform: translate(-50%, -50%);">
+                            <strong>RabbitMQ</strong>
+                            <br><small>Message Queue</small>
+                        </div>
+                        <div class="mesh-service data" style="left: 80%; top: 90%; transform: translate(-50%, -50%);">
+                            <strong>S3/Blob</strong>
                             <br><small>Documents</small>
                         </div>
+                    </div>
+                </div>
 
-                        <!-- External Services -->
-                        <div class="rel-component external" style="left: 700px; top: 350px;">
-                            <strong>OpenAI API</strong>
-                            <br><small>AI Provider</small>
-                        </div>
-                        <div class="rel-component external" style="left: 700px; top: 450px;">
-                            <strong>External Sources</strong>
-                            <br><small>Web APIs</small>
+                <div class="diagram-container">
+                    <h3>Event-Driven Architecture Flow</h3>
+                    <div class="event-flow-diagram">
+                        <div class="event-timeline">
+                            <div class="event-connection"></div>
+                            <div class="event-node trigger">
+                                <small>User<br>Action</small>
+                                <div class="event-label">1. Create Definition</div>
+                            </div>
+                            <div class="event-node">
+                                <small>API<br>Gateway</small>
+                                <div class="event-label">2. Route & Auth</div>
+                            </div>
+                            <div class="event-node">
+                                <small>Definition<br>Service</small>
+                                <div class="event-label">3. Process Request</div>
+                            </div>
+                            <div class="event-node trigger">
+                                <small>Event<br>Published</small>
+                                <div class="event-label">4. "DefinitionCreated"</div>
+                            </div>
+                            <div class="event-node">
+                                <small>Validation<br>Service</small>
+                                <div class="event-label">5. React to Event</div>
+                            </div>
+                            <div class="event-node">
+                                <small>Enrichment<br>Service</small>
+                                <div class="event-label">6. React to Event</div>
+                            </div>
+                            <div class="event-node">
+                                <small>Notification<br>Service</small>
+                                <div class="event-label">7. Send Updates</div>
+                            </div>
+                            <div class="event-node trigger">
+                                <small>Complete</small>
+                                <div class="event-label">8. All Done</div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="diagram-container">
-                    <h3>Event-Driven Communication Pattern</h3>
-                    <div class="network-diagram">
-                        <div class="network-node">
-                            <strong>User Request</strong>
-                            <br>HTTP/REST
+                    <h3>Service Mesh Architecture (Istio)</h3>
+                    <div class="istio-mesh-diagram">
+                        <div class="istio-control-plane">
+                            <h4>Istio Control Plane</h4>
+                            <small>Pilot • Citadel • Galley • Mixer</small>
                         </div>
-                        <div class="network-node">
-                            <strong>API Gateway</strong>
-                            <br>Route & Auth
+
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 40px;">
+                            <div class="istio-pod">
+                                <h5>Definition Service Pod</h5>
+                                <div class="istio-container">
+                                    <div class="istio-app">
+                                        <strong>App</strong>
+                                        <br><small>FastAPI</small>
+                                    </div>
+                                    <div class="istio-proxy">
+                                        <strong>Envoy</strong>
+                                        <br><small>Sidecar</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="istio-pod">
+                                <h5>Validation Service Pod</h5>
+                                <div class="istio-container">
+                                    <div class="istio-app">
+                                        <strong>App</strong>
+                                        <br><small>FastAPI</small>
+                                    </div>
+                                    <div class="istio-proxy">
+                                        <strong>Envoy</strong>
+                                        <br><small>Sidecar</small>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="istio-pod">
+                                <h5>Enrichment Service Pod</h5>
+                                <div class="istio-container">
+                                    <div class="istio-app">
+                                        <strong>App</strong>
+                                        <br><small>FastAPI</small>
+                                    </div>
+                                    <div class="istio-proxy">
+                                        <strong>Envoy</strong>
+                                        <br><small>Sidecar</small>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="network-node">
-                            <strong>Service</strong>
-                            <br>Process
-                        </div>
-                        <div class="network-node">
-                            <strong>Event Bus</strong>
-                            <br>Publish
-                        </div>
-                        <div class="network-node">
-                            <strong>Queue</strong>
-                            <br>Async Process
-                        </div>
-                        <div class="network-node">
-                            <strong>Workers</strong>
-                            <br>Background Jobs
-                        </div>
-                        <div class="network-node">
-                            <strong>Storage</strong>
-                            <br>Persist
-                        </div>
-                        <div class="network-node">
-                            <strong>Response</strong>
-                            <br>WebSocket/SSE
+
+                        <div style="text-align: center; margin-top: 30px; color: #666;">
+                            <small>• Traffic Management • Security • Observability • Policy Enforcement •</small>
                         </div>
                     </div>
                 </div>
 
                 <div class="diagram-container">
-                    <h3>Domain-Driven Design - Aggregate Boundaries</h3>
-                    <div class="context-map" style="min-height: 500px;">
-                        <div class="context-boundary" style="border-color: #2196f3;">
-                            <h4 style="color: #2196f3;">Definition Aggregate</h4>
-                            <div class="context-core" style="background: #2196f3;">Definition<br>Root</div>
-                            <div class="context-satellite" style="top: -50px; left: 180px;">Metadata</div>
-                            <div class="context-satellite" style="top: 100px; right: -50px;">Validation Rules</div>
-                            <div class="context-satellite" style="bottom: -50px; left: 150px;">Examples</div>
-                        </div>
-                        <div class="context-boundary" style="border-color: #4caf50; position: absolute; right: 50px; top: 50px;">
-                            <h4 style="color: #4caf50;">User Aggregate</h4>
-                            <div class="context-core" style="background: #4caf50;">User<br>Root</div>
-                            <div class="context-satellite" style="top: -40px; right: -40px;">Permissions</div>
-                            <div class="context-satellite" style="bottom: -40px; left: -40px;">Preferences</div>
+                    <h3>Domain-Driven Design - Bounded Contexts</h3>
+                    <div class="domain-context-diagram">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 40px;">
+                            <div class="bounded-context definition">
+                                <h4 style="color: #2196f3;">Definition Context</h4>
+                                <div class="context-aggregate" style="border-color: #2196f3;">
+                                    <strong>Definition Aggregate</strong>
+                                    <br><small>Root Entity</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #2196f3;">
+                                    <strong>Term</strong>
+                                    <br><small>Value Object</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #2196f3;">
+                                    <strong>Metadata</strong>
+                                    <br><small>Value Object</small>
+                                </div>
+                                <div class="context-relationship" style="top: 20px; right: -80px;">
+                                    Upstream ➜
+                                </div>
+                            </div>
+
+                            <div class="bounded-context validation">
+                                <h4 style="color: #4caf50;">Validation Context</h4>
+                                <div class="context-aggregate" style="border-color: #4caf50;">
+                                    <strong>Validation Rules</strong>
+                                    <br><small>Entity</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #4caf50;">
+                                    <strong>Quality Metrics</strong>
+                                    <br><small>Value Object</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #4caf50;">
+                                    <strong>Validation Result</strong>
+                                    <br><small>Entity</small>
+                                </div>
+                                <div class="context-relationship" style="bottom: 20px; left: -80px;">
+                                    ⬅ Downstream
+                                </div>
+                            </div>
+
+                            <div class="bounded-context enrichment">
+                                <h4 style="color: #9c27b0;">Enrichment Context</h4>
+                                <div class="context-aggregate" style="border-color: #9c27b0;">
+                                    <strong>Synonyms</strong>
+                                    <br><small>Entity</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #9c27b0;">
+                                    <strong>Context Info</strong>
+                                    <br><small>Value Object</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #9c27b0;">
+                                    <strong>External Sources</strong>
+                                    <br><small>Service</small>
+                                </div>
+                                <div class="context-relationship" style="top: -40px; left: 50%;">
+                                    Partnership ↔
+                                </div>
+                            </div>
+
+                            <div class="bounded-context export">
+                                <h4 style="color: #ff9800;">Export Context</h4>
+                                <div class="context-aggregate" style="border-color: #ff9800;">
+                                    <strong>Export Format</strong>
+                                    <br><small>Entity</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #ff9800;">
+                                    <strong>Template Engine</strong>
+                                    <br><small>Service</small>
+                                </div>
+                                <div class="context-aggregate" style="border-color: #ff9800;">
+                                    <strong>Delivery Method</strong>
+                                    <br><small>Value Object</small>
+                                </div>
+                                <div class="context-relationship" style="bottom: -40px; right: 50%;">
+                                    Consumer ⬅
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1922,15 +2048,87 @@
     </script>
 
     <script>
-        // Draw relationship lines for AS-IS diagram
-        function drawRelationships() {
-            // This would be implemented to draw SVG lines between components
-            // For now, it's a placeholder for the actual implementation
-            console.log('Relationship lines would be drawn here');
+        // Draw relationship lines for diagrams
+        function drawMicroservicesConnections() {
+            const container = document.querySelector('.microservices-mesh');
+            if (!container) return;
+
+            const svg = container.querySelector('svg');
+            if (!svg) return;
+
+            // Clear existing lines but keep defs
+            const defs = svg.querySelector('defs');
+            svg.innerHTML = '';
+            if (defs) svg.appendChild(defs);
+
+            // Get service positions
+            const gateway = container.querySelector('.mesh-service.gateway');
+            const services = container.querySelectorAll('.mesh-service.core');
+            const dataServices = container.querySelectorAll('.mesh-service.data');
+
+            if (gateway) {
+                const gatewayRect = gateway.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                const gatewayCenterX = gatewayRect.left + gatewayRect.width / 2 - containerRect.left;
+                const gatewayCenterY = gatewayRect.top + gatewayRect.height / 2 - containerRect.top;
+
+                // Draw lines from gateway to all core services
+                services.forEach(service => {
+                    const serviceRect = service.getBoundingClientRect();
+                    const serviceCenterX = serviceRect.left + serviceRect.width / 2 - containerRect.left;
+                    const serviceCenterY = serviceRect.top + serviceRect.height / 2 - containerRect.top;
+
+                    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                    line.setAttribute('x1', gatewayCenterX);
+                    line.setAttribute('y1', gatewayCenterY);
+                    line.setAttribute('x2', serviceCenterX);
+                    line.setAttribute('y2', serviceCenterY);
+                    line.setAttribute('stroke', '#667eea');
+                    line.setAttribute('stroke-width', '2');
+                    line.setAttribute('opacity', '0.3');
+                    svg.appendChild(line);
+                });
+
+                // Draw lines from services to data stores
+                dataServices.forEach((dataService, index) => {
+                    if (index < services.length) {
+                        const service = services[index];
+                        const serviceRect = service.getBoundingClientRect();
+                        const dataRect = dataService.getBoundingClientRect();
+
+                        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                        line.setAttribute('x1', serviceRect.left + serviceRect.width / 2 - containerRect.left);
+                        line.setAttribute('y1', serviceRect.top + serviceRect.height / 2 - containerRect.top);
+                        line.setAttribute('x2', dataRect.left + dataRect.width / 2 - containerRect.left);
+                        line.setAttribute('y2', dataRect.top + dataRect.height / 2 - containerRect.top);
+                        line.setAttribute('stroke', '#999');
+                        line.setAttribute('stroke-width', '1');
+                        line.setAttribute('stroke-dasharray', '5,5');
+                        line.setAttribute('opacity', '0.5');
+                        svg.appendChild(line);
+                    }
+                });
+            }
         }
 
-        // Initialize on load
-        window.addEventListener('load', drawRelationships);
+        // Initialize on load and tab switch
+        window.addEventListener('load', () => {
+            setTimeout(drawMicroservicesConnections, 100);
+
+            // Redraw when tab is switched
+            document.querySelectorAll('.tab-button').forEach(button => {
+                button.addEventListener('click', () => {
+                    setTimeout(drawMicroservicesConnections, 200);
+                });
+            });
+        });
+
+        // Redraw on window resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(drawMicroservicesConnections, 250);
+        });
     </script>
 </body>
 </html>
