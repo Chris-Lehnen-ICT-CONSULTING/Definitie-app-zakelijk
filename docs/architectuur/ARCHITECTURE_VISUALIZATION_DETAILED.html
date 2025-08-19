@@ -396,6 +396,396 @@
             border-radius: 8px;
             padding: 20px;
         }
+
+        /* Enhanced diagram styles for detailed visualizations */
+        .detailed-flow-diagram {
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .flow-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .flow-group.vertical {
+            flex-direction: column;
+        }
+
+        .flow-node {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            padding: 15px 25px;
+            margin: 10px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            position: relative;
+            min-width: 150px;
+        }
+
+        .flow-node:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .flow-node.primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .flow-node.secondary {
+            background: #f3e5f5;
+            border-color: #9c27b0;
+        }
+
+        .flow-node.service {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+
+        .flow-node.data {
+            background: #e8f5e9;
+            border-color: #4caf50;
+        }
+
+        .flow-node.external {
+            background: #fff3e0;
+            border-color: #ff9800;
+        }
+
+        .flow-connector {
+            display: flex;
+            align-items: center;
+            margin: 0 -10px;
+        }
+
+        .flow-line {
+            flex: 1;
+            height: 2px;
+            background: #667eea;
+            position: relative;
+        }
+
+        .flow-line::after {
+            content: '▶';
+            position: absolute;
+            right: -10px;
+            top: -10px;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .flow-line.vertical {
+            width: 2px;
+            height: 40px;
+            margin: -10px auto;
+        }
+
+        .flow-line.vertical::after {
+            content: '▼';
+            top: auto;
+            bottom: -15px;
+            right: -7px;
+        }
+
+        .flow-label {
+            background: white;
+            padding: 4px 12px;
+            font-size: 12px;
+            color: #666;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            white-space: nowrap;
+        }
+
+        /* Service communication pattern styles */
+        .service-pattern-diagram {
+            display: grid;
+            grid-template-columns: 1fr 2px 1fr 2px 1fr;
+            gap: 30px;
+            align-items: stretch;
+            padding: 40px;
+            background: linear-gradient(to right, #e3f2fd, #f3e5f5, #e8f5e9);
+            border-radius: 12px;
+            margin: 20px 0;
+        }
+
+        .pattern-layer {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .pattern-layer h4 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .pattern-component {
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 10px;
+            margin: 8px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .pattern-divider {
+            background: linear-gradient(to bottom, transparent, #667eea, transparent);
+            position: relative;
+        }
+
+        /* Event flow diagram */
+        .event-flow-diagram {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 40px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-timeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            padding: 40px 0;
+        }
+
+        .event-node {
+            background: white;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 12px;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .event-node.trigger {
+            background: #667eea;
+            color: white;
+        }
+
+        .event-connection {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(to right, #667eea, #764ba2, #667eea);
+            z-index: 1;
+        }
+
+        .event-label {
+            position: absolute;
+            top: 100px;
+            width: 120px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        /* Microservices mesh diagram */
+        .microservices-mesh {
+            position: relative;
+            background: radial-gradient(circle at center, #f8f9fa 0%, white 100%);
+            border-radius: 12px;
+            padding: 60px;
+            margin: 20px 0;
+            min-height: 500px;
+        }
+
+        .mesh-service {
+            position: absolute;
+            background: white;
+            border: 3px solid;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            min-width: 140px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+
+        .mesh-service:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+
+        .mesh-service.gateway {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .mesh-service.core {
+            border-color: #2196f3;
+            background: #e3f2fd;
+        }
+
+        .mesh-service.support {
+            border-color: #9c27b0;
+            background: #f3e5f5;
+        }
+
+        .mesh-service.data {
+            border-color: #ff9800;
+            background: #fff3e0;
+        }
+
+        .mesh-line {
+            position: absolute;
+            background: #ddd;
+            height: 2px;
+            transform-origin: left center;
+            z-index: 0;
+        }
+
+        .mesh-line.active {
+            background: #667eea;
+            height: 3px;
+        }
+
+        /* Domain context diagram */
+        .domain-context-diagram {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 40px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .bounded-context {
+            border: 3px dashed;
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px;
+            position: relative;
+            background: rgba(255,255,255,0.8);
+        }
+
+        .bounded-context.definition {
+            border-color: #2196f3;
+            background: rgba(227, 242, 253, 0.3);
+        }
+
+        .bounded-context.validation {
+            border-color: #4caf50;
+            background: rgba(232, 245, 233, 0.3);
+        }
+
+        .bounded-context.enrichment {
+            border-color: #9c27b0;
+            background: rgba(243, 229, 245, 0.3);
+        }
+
+        .bounded-context.export {
+            border-color: #ff9800;
+            background: rgba(255, 243, 224, 0.3);
+        }
+
+        .context-aggregate {
+            background: white;
+            border: 2px solid;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .context-relationship {
+            position: absolute;
+            font-size: 12px;
+            background: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+
+        /* Service mesh with Istio visualization */
+        .istio-mesh-diagram {
+            background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+            border-radius: 12px;
+            padding: 40px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .istio-pod {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px;
+            position: relative;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .istio-container {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .istio-app {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            flex: 1;
+        }
+
+        .istio-proxy {
+            background: #f3e5f5;
+            border: 2px solid #9c27b0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            min-width: 100px;
+        }
+
+        .istio-control-plane {
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            margin: 20px auto;
+            max-width: 600px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
         .rel-component {
             position: absolute;
             background: white;
@@ -915,85 +1305,132 @@
             </div>
 
             <div class="architecture-section">
-                <h2>9. Component Relationship Diagram</h2>
+                <h2>9. Detailed Relationship Diagrams</h2>
 
                 <div class="diagram-container">
-                    <h3>AS-IS Component Dependencies & Data Flow</h3>
-                    <div class="relationship-diagram">
-                        <!-- UI Layer Components -->
-                        <div class="rel-component ui" style="left: 50px; top: 50px;">
-                            <strong>main.py</strong>
-                            <br><small>Entry Point</small>
+                    <h3>Component Dependencies Flow</h3>
+                    <div class="detailed-flow-diagram">
+                        <div class="flow-group vertical">
+                            <div class="flow-node primary">
+                                <strong>main.py</strong>
+                                <br><small>Entry Point</small>
+                            </div>
+                            <div class="flow-line vertical"></div>
+                            <div class="flow-node service">
+                                <strong>tabbed_interface.py</strong>
+                                <br><small>UI Controller</small>
+                            </div>
+                            <div class="flow-line vertical"></div>
+                            <div class="flow-group">
+                                <div class="flow-node secondary">
+                                    <strong>definition_generator_tab</strong>
+                                    <br><small>Active Tab</small>
+                                </div>
+                                <div class="flow-node secondary">
+                                    <strong>expert_review_tab</strong>
+                                    <br><small>Partial Tab</small>
+                                </div>
+                                <div class="flow-node secondary">
+                                    <strong>web_lookup_tab</strong>
+                                    <br><small>Inactive Tab</small>
+                                </div>
+                                <div class="flow-node secondary">
+                                    <strong>other_tabs (4)</strong>
+                                    <br><small>Not Implemented</small>
+                                </div>
+                            </div>
+                            <div class="flow-line vertical"></div>
+                            <div class="flow-group">
+                                <div class="flow-node service">
+                                    <strong>UnifiedDefinitionGenerator</strong>
+                                    <br><small>Core Service</small>
+                                </div>
+                                <div class="flow-node service">
+                                    <strong>DefinitionValidator</strong>
+                                    <br><small>Validation Service</small>
+                                </div>
+                                <div class="flow-node service">
+                                    <strong>DefinitionOrchestrator</strong>
+                                    <br><small>Workflow Service</small>
+                                </div>
+                            </div>
+                            <div class="flow-line vertical"></div>
+                            <div class="flow-node data">
+                                <strong>DefinitieRepository</strong>
+                                <br><small>Data Access Layer</small>
+                            </div>
+                            <div class="flow-line vertical"></div>
+                            <div class="flow-node data">
+                                <strong>SQLite Database</strong>
+                                <br><small>Storage</small>
+                            </div>
                         </div>
-                        <div class="rel-component ui" style="left: 250px; top: 50px;">
-                            <strong>tabbed_interface.py</strong>
-                            <br><small>UI Controller</small>
-                        </div>
-                        <div class="rel-component ui" style="left: 450px; top: 50px;">
-                            <strong>session_state.py</strong>
-                            <br><small>State Management</small>
-                        </div>
-
-                        <!-- UI Tab Components -->
-                        <div class="rel-component ui" style="left: 50px; top: 150px;">
-                            <strong>definition_generator_tab</strong>
-                            <br><small>Active Tab</small>
-                        </div>
-                        <div class="rel-component ui" style="left: 250px; top: 150px;">
-                            <strong>expert_review_tab</strong>
-                            <br><small>Partial Tab</small>
-                        </div>
-                        <div class="rel-component ui" style="left: 450px; top: 150px;">
-                            <strong>web_lookup_tab</strong>
-                            <br><small>Inactive Tab</small>
-                        </div>
-
-                        <!-- Service Layer -->
-                        <div class="rel-component service" style="left: 50px; top: 300px;">
-                            <strong>UnifiedDefinitionGenerator</strong>
-                            <br><small>Core Service</small>
-                        </div>
-                        <div class="rel-component service" style="left: 300px; top: 300px;">
-                            <strong>DefinitionValidator</strong>
-                            <br><small>Validation Service</small>
-                        </div>
-                        <div class="rel-component service" style="left: 550px; top: 300px;">
-                            <strong>DefinitionOrchestrator</strong>
-                            <br><small>Workflow Service</small>
-                        </div>
-
-                        <!-- Data Layer -->
-                        <div class="rel-component data" style="left: 200px; top: 450px;">
-                            <strong>DefinitieRepository</strong>
-                            <br><small>Data Access</small>
-                        </div>
-                        <div class="rel-component data" style="left: 450px; top: 450px;">
-                            <strong>SQLite Database</strong>
-                            <br><small>Storage</small>
-                        </div>
-
-                        <!-- External Services -->
-                        <div class="rel-component external" style="left: 650px; top: 200px;">
-                            <strong>OpenAI API</strong>
-                            <br><small>AI Provider</small>
-                        </div>
-
-                        <!-- Relationship lines will be drawn with JavaScript -->
                     </div>
                 </div>
 
                 <div class="diagram-container">
-                    <h3>Sequence Diagram - Definition Generation Flow</h3>
-                    <div class="sequence-diagram" style="min-height: 500px; position: relative;">
-                        <div style="display: flex; justify-content: space-around;">
-                            <div class="seq-actor">User<div class="seq-lifeline"></div></div>
-                            <div class="seq-actor">UI<div class="seq-lifeline"></div></div>
-                            <div class="seq-actor">Service<div class="seq-lifeline"></div></div>
-                            <div class="seq-actor">Validator<div class="seq-lifeline"></div></div>
-                            <div class="seq-actor">Repository<div class="seq-lifeline"></div></div>
-                            <div class="seq-actor">OpenAI<div class="seq-lifeline"></div></div>
+                    <h3>Service Layer Communication Pattern</h3>
+                    <div class="service-pattern-diagram">
+                        <div class="pattern-layer">
+                            <h4>UI Layer</h4>
+                            <div class="pattern-component">Streamlit UI</div>
+                            <div class="pattern-component">Session State</div>
+                            <div class="pattern-component">Tab Controllers</div>
+                            <div class="pattern-component">Event Handlers</div>
                         </div>
-                        <!-- Messages would be positioned absolutely -->
+                        <div class="pattern-divider"></div>
+                        <div class="pattern-layer">
+                            <h4>Service Layer</h4>
+                            <div class="pattern-component">Definition Generator</div>
+                            <div class="pattern-component">Validator Service</div>
+                            <div class="pattern-component">Orchestrator</div>
+                            <div class="pattern-component">AI Toetser</div>
+                        </div>
+                        <div class="pattern-divider"></div>
+                        <div class="pattern-layer">
+                            <h4>Infrastructure</h4>
+                            <div class="pattern-component">Repository Pattern</div>
+                            <div class="pattern-component">SQLite DB</div>
+                            <div class="pattern-component">OpenAI API</div>
+                            <div class="pattern-component">File System</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="diagram-container">
+                    <h3>Data Flow Sequence</h3>
+                    <div class="event-flow-diagram">
+                        <div class="event-timeline">
+                            <div class="event-connection"></div>
+                            <div class="event-node trigger">
+                                <small>User<br>Input</small>
+                                <div class="event-label">1. Enter term</div>
+                            </div>
+                            <div class="event-node">
+                                <small>UI<br>Handler</small>
+                                <div class="event-label">2. Validate input</div>
+                            </div>
+                            <div class="event-node">
+                                <small>Service<br>Call</small>
+                                <div class="event-label">3. Generate definition</div>
+                            </div>
+                            <div class="event-node">
+                                <small>OpenAI<br>API</small>
+                                <div class="event-label">4. AI processing</div>
+                            </div>
+                            <div class="event-node">
+                                <small>Validator</small>
+                                <div class="event-label">5. Quality check</div>
+                            </div>
+                            <div class="event-node">
+                                <small>Database</small>
+                                <div class="event-label">6. Save result</div>
+                            </div>
+                            <div class="event-node trigger">
+                                <small>Display<br>Result</small>
+                                <div class="event-label">7. Show to user</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 

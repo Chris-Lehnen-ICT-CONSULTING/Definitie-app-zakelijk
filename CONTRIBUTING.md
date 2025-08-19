@@ -33,14 +33,26 @@ git push origin feature/jouw-feature-naam
 # 8. Open een Pull Request
 ```
 
+## 📊 Code Quality Status (2025-08-19)
+
+- **Ruff errors**: 799 (vooral code style)
+- **Kritieke errors**: 0 (F821 undefined names opgelost ✅)
+- **Import hygiene**: Automatisch gesorteerd ✅
+- **Pre-commit hooks**: Actief en werkend ✅
+
+Focus op het toevoegen van nieuwe features, niet op het fixen van alle style issues.
+
 ## 🎯 Code Guidelines
 
 ### Python Style
 
 - Gebruik Black formatter: `black src/`
-- Type hints waar mogelijk
+- Gebruik Ruff voor linting: `ruff check . --fix`
+- Pre-commit hooks zijn actief (automatische formatting)
+- Type hints VERPLICHT voor nieuwe code
 - Nederlandse comments voor business logica
 - Engelse variabele/functie namen
+- Python 3.11+ vereist
 
 ```python
 def generate_definition(term: str, context: Optional[str] = None) -> Definition:
