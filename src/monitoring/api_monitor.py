@@ -18,6 +18,7 @@ from dataclasses import (  # Dataklassen voor gestructureerde monitoring data
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
     datetime,
     timedelta,
+    timezone,
 )
 from enum import Enum  # Enumeraties voor monitoring types en severity levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie

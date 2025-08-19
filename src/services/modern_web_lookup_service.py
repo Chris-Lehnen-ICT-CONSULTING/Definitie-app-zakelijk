@@ -18,6 +18,8 @@ from .interfaces import (
     WebSource,
 )
 
+logger = logging.getLogger(__name__)
+
 # Domein imports met error handling voor development
 try:
     from domain.autoriteit.betrouwbaarheid import BetrouwbaarheidsCalculator, BronType

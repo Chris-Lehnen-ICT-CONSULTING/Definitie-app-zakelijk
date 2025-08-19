@@ -11,7 +11,10 @@ import re  # Reguliere expressies voor tekst processing
 from dataclasses import (  # Dataklassen voor gestructureerde request/response data
     dataclass,
 )
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps, timezone
+from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
+    datetime,
+    timezone,
+)
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
