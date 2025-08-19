@@ -13,7 +13,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import yaml
 from dotenv import load_dotenv
@@ -58,7 +58,7 @@ class APIConfig:
     retry_backoff_factor: float = 1.5
 
     # Model-specific settings
-    model_settings: Dict[str, Dict[str, Any]] = field(
+    model_settings: dict[str, dict[str, Any]] = field(
         default_factory=lambda: {
             "gpt-4": {
                 "max_tokens": 300,
@@ -118,7 +118,7 @@ class UIConfig:
     sidebar_width: int = 300
 
     # Context options
-    organizational_contexts: List[str] = field(
+    organizational_contexts: list[str] = field(
         default_factory=lambda: [
             "OM",
             "ZM",
@@ -136,7 +136,7 @@ class UIConfig:
         ]
     )
 
-    legal_contexts: List[str] = field(
+    legal_contexts: list[str] = field(
         default_factory=lambda: [
             "Strafrecht",
             "Civiel recht",
@@ -146,7 +146,7 @@ class UIConfig:
         ]
     )
 
-    ketenpartners: List[str] = field(
+    ketenpartners: list[str] = field(
         default_factory=lambda: [
             "ZM",
             "DJI",
@@ -163,7 +163,7 @@ class UIConfig:
 
     # Afkortingen mapping voor gebruiksvriendelijke weergave
     # Helpt gebruikers om organisatie afkortingen te begrijpen
-    afkortingen: Dict[str, str] = field(
+    afkortingen: dict[str, str] = field(
         default_factory=lambda: {
             "OM": "Openbaar Ministerie",  # Vervolging en opsporing
             "ZM": "Zittende Magistratuur",  # Rechterlijke macht
@@ -187,7 +187,7 @@ class ValidationConfig:
     strict_mode: bool = False
 
     # Toegestane toetsregels
-    allowed_toetsregels: List[str] = field(
+    allowed_toetsregels: list[str] = field(
         default_factory=lambda: [
             "CON-01",
             "CON-02",
@@ -253,7 +253,7 @@ class MonitoringConfig:
     cost_calculation_interval: int = 300
 
     # OpenAI pricing (per 1K tokens)
-    openai_pricing: Dict[str, float] = field(
+    openai_pricing: dict[str, float] = field(
         default_factory=lambda: {"gpt-4": 0.03, "gpt-3.5-turbo": 0.0015}
     )
 
@@ -274,7 +274,7 @@ class LoggingConfig:
     backup_count: int = 5
 
     # Module-specific log levels
-    module_levels: Dict[str, str] = field(
+    module_levels: dict[str, str] = field(
         default_factory=lambda: {
             "openai": "WARNING",
             "urllib3": "WARNING",
@@ -303,7 +303,7 @@ class RateLimitingConfig:
     max_rate: float = 10.0
 
     # Priority settings
-    priority_weights: Dict[str, float] = field(
+    priority_weights: dict[str, float] = field(
         default_factory=lambda: {
             "critical": 1.0,
             "high": 0.8,
@@ -395,7 +395,7 @@ class ConfigManager:
         self._load_configuration()
 
         # Configuration change callbacks
-        self._change_callbacks: Dict[str, List[callable]] = {}
+        self._change_callbacks: dict[str, list[callable]] = {}
 
         logger.info(f"Configuration loaded for environment: {environment.value}")
 
@@ -418,13 +418,13 @@ class ConfigManager:
         try:
             # Load default configuration
             if self.default_config_file.exists():
-                with open(self.default_config_file, "r") as f:
+                with open(self.default_config_file) as f:
                     default_config = yaml.safe_load(f)
                     self._apply_config_dict(default_config)
 
             # Load environment-specific configuration
             if self.config_file.exists():
-                with open(self.config_file, "r") as f:
+                with open(self.config_file) as f:
                     env_config = yaml.safe_load(f)
                     self._apply_config_dict(env_config)
 
@@ -475,7 +475,7 @@ class ConfigManager:
         if rph := os.getenv("RATE_LIMIT_RPH"):
             self.rate_limiting.requests_per_hour = int(rph)
 
-    def _apply_config_dict(self, config_dict: Dict[str, Any]):
+    def _apply_config_dict(self, config_dict: dict[str, Any]):
         """Pas configuratie dictionary toe op config objecten.
 
         Args:
@@ -586,13 +586,11 @@ class ConfigManager:
         except Exception as e:
             logger.error(f"Failed to save configuration: {e}")
 
-    def _dataclass_to_dict(self, obj) -> Dict[str, Any]:
+    def _dataclass_to_dict(self, obj) -> dict[str, Any]:
         """Convert dataclass to dictionary."""
         result = {}
         for field_name, field_value in obj.__dict__.items():
-            if isinstance(field_value, dict):
-                result[field_name] = field_value
-            elif isinstance(field_value, list):
+            if isinstance(field_value, dict | list):
                 result[field_name] = field_value
             else:
                 result[field_name] = field_value
@@ -612,7 +610,7 @@ class ConfigManager:
                     except Exception as e:
                         logger.error(f"Reload callback error: {e}")
 
-    def get_environment_info(self) -> Dict[str, Any]:
+    def get_environment_info(self) -> dict[str, Any]:
         """Get current environment information."""
         return {
             "environment": self.environment.value,
@@ -643,10 +641,10 @@ class ConfigManager:
 
 
 # Global configuration manager instance
-_config_manager: Optional[ConfigManager] = None
+_config_manager: ConfigManager | None = None
 
 
-def get_config_manager(environment: Optional[Environment] = None) -> ConfigManager:
+def get_config_manager(environment: Environment | None = None) -> ConfigManager:
     """Get or create global configuration manager."""
     global _config_manager
 

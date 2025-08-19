@@ -8,8 +8,9 @@ Elke toetsregel kan zijn eigen Python module hebben voor complexe validatie logi
 import importlib.util
 import json
 import logging
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ class ModularToetsregelLoader:
         self.loaded_modules = {}
         self.loaded_configs = {}
 
-    def load_regel(self, regel_id: str) -> Dict[str, Any]:
+    def load_regel(self, regel_id: str) -> dict[str, Any]:
         """
         Laad een toetsregel met zowel JSON config als Python module.
 
@@ -55,7 +56,7 @@ class ModularToetsregelLoader:
             )
             return None
 
-        with open(json_path, "r", encoding="utf-8") as f:
+        with open(json_path, encoding="utf-8") as f:
             config = json.load(f)
 
         # Basis regel data
@@ -112,7 +113,7 @@ class ModularToetsregelLoader:
 
         return regel_data
 
-    def _create_fallback_validator(self, config: Dict[str, Any]) -> Callable:
+    def _create_fallback_validator(self, config: dict[str, Any]) -> Callable:
         """
         Maak een basis validator functie voor regels zonder Python module.
 
@@ -125,8 +126,8 @@ class ModularToetsregelLoader:
         import re
 
         def fallback_validate(
-            definitie: str, begrip: str, context: Optional[Dict] = None
-        ) -> Tuple[bool, str, float]:
+            definitie: str, begrip: str, context: dict | None = None
+        ) -> tuple[bool, str, float]:
             """Basis pattern matching validator."""
             regel_id = config.get("id", "UNKNOWN")
             patterns = config.get("herkenbaar_patronen", [])
@@ -143,13 +144,12 @@ class ModularToetsregelLoader:
 
             if gevonden:
                 return True, f"✔️ {regel_id}: Patroon gevonden", 1.0
-            else:
-                uitleg = config.get("uitleg", "Regel niet voldaan")
-                return False, f"❌ {regel_id}: {uitleg}", 0.0
+            uitleg = config.get("uitleg", "Regel niet voldaan")
+            return False, f"❌ {regel_id}: {uitleg}", 0.0
 
         return fallback_validate
 
-    def get_available_regels(self) -> List[str]:
+    def get_available_regels(self) -> list[str]:
         """
         Haal lijst van beschikbare regel IDs op.
 
@@ -168,7 +168,7 @@ class ModularToetsregelLoader:
 
         return sorted(available)
 
-    def load_all_regels(self) -> Dict[str, Dict[str, Any]]:
+    def load_all_regels(self) -> dict[str, dict[str, Any]]:
         """
         Laad alle beschikbare toetsregels.
 
@@ -193,8 +193,8 @@ class ModularToetsregelLoader:
         return alle_regels
 
     def validate_with_regel(
-        self, regel_id: str, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, regel_id: str, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer een definitie met een specifieke regel.
 
@@ -219,10 +219,9 @@ class ModularToetsregelLoader:
         validate_func = regel_data.get("validate_func")
         if validate_func:
             return validate_func(definitie, begrip, context)
-        else:
-            return False, f"❌ Geen validator voor {regel_id}", 0.0
+        return False, f"❌ Geen validator voor {regel_id}", 0.0
 
-    def get_generation_hints(self, regel_id: str) -> List[str]:
+    def get_generation_hints(self, regel_id: str) -> list[str]:
         """
         Haal generatie hints op voor een regel.
 
@@ -263,14 +262,14 @@ def get_modular_loader() -> ModularToetsregelLoader:
 
 
 # Convenience functies
-def load_all_toetsregels() -> Dict[str, Dict[str, Any]]:
+def load_all_toetsregels() -> dict[str, dict[str, Any]]:
     """Laad alle toetsregels met hun validators."""
     return get_modular_loader().load_all_regels()
 
 
 def validate_met_regel(
-    regel_id: str, definitie: str, begrip: str, context: Optional[Dict] = None
-) -> Tuple[bool, str, float]:
+    regel_id: str, definitie: str, begrip: str, context: dict | None = None
+) -> tuple[bool, str, float]:
     """Valideer met een specifieke regel."""
     return get_modular_loader().validate_with_regel(
         regel_id, definitie, begrip, context

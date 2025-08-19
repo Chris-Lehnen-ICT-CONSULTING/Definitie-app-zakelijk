@@ -1,13 +1,13 @@
 # 🚨 IMMEDIATE ACTION PLAN - DefinitieAgent
 
-**Datum**: 2025-01-18  
-**Prioriteit**: KRITIEK  
+**Datum**: 2025-01-18
+**Prioriteit**: KRITIEK
 **Doel**: Beslissingen nemen en eerste blokkerende issues oplossen
 
 ## 🎯 Beslissingen Die NU Genomen Moeten Worden
 
 ### 1. Service Architectuur Beslissing (BLOKKEREND)
-**Probleem**: UnifiedDefinitionService is een God Object (1000+ regels)  
+**Probleem**: UnifiedDefinitionService is een God Object (1000+ regels)
 **Opties**:
 - A) **Doorgaan met UnifiedDefinitionService** (snel, technische schuld)
 - B) **Direct refactoren naar clean services** (meer tijd, beter lange termijn)
@@ -21,31 +21,31 @@
 - Feature flags voor safe rollout
 - ADR-005 strategie volgen
 
-**Waar gedocumenteerd**: 
+**Waar gedocumenteerd**:
 - `/docs/architecture/decisions/ADR-005-service-consolidatie-heroverweging.md`
 - `/docs/ARCHITECTURE_ANALYSIS.md`
 
 ---
 
 ### 2. Web Lookup Module Beslissing (KRITIEK)
-**Probleem**: 5 versies waarvan 3 broken, encoding issues  
+**Probleem**: 5 versies waarvan 3 broken, encoding issues
 **Acties**:
 1. **NU**: Bepaal welke versie de beste basis is
 2. **NU**: Besluit over consolidatie strategie
 3. **DEZE WEEK**: Implementeer fix
 
-**📍 Beslissing nodig**: 
+**📍 Beslissing nodig**:
 - Welke functionaliteit MOET behouden blijven?
 - Accepteren we tijdelijk verminderde functionaliteit?
 
-**Waar gedocumenteerd**: 
+**Waar gedocumenteerd**:
 - `/docs/stories/EPIC-002-web-lookup-module.md`
 - `/docs/stories/archive/STORY-001-database-encoding-fixes.md`
 
 ---
 
 ### 3. Sprint Capacity & Team Beslissing
-**Vraag**: Hoeveel developers? Welke velocity?  
+**Vraag**: Hoeveel developers? Welke velocity?
 **Huidige aanname**: 2 developers, 14-16 points/sprint
 
 **📍 Beslissing nodig**:

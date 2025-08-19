@@ -6,14 +6,13 @@ in plaats van het monolithische toetsregels.json.
 """
 
 import logging
-from typing import Dict
 
 from .manager import get_toetsregel_manager
 
 logger = logging.getLogger(__name__)
 
 
-def load_toetsregels() -> Dict[str, Dict]:
+def load_toetsregels() -> dict[str, dict]:
     """
     Laadt alle toetsregels uit individuele JSON bestanden.
 
@@ -42,7 +41,7 @@ def load_toetsregels() -> Dict[str, Dict]:
     return {"regels": toetsregels}  # Wrap in "regels" voor compatibility
 
 
-def get_toetsregels() -> Dict[str, Dict]:
+def get_toetsregels() -> dict[str, dict]:
     """
     Alias voor load_toetsregels voor backward compatibility.
 

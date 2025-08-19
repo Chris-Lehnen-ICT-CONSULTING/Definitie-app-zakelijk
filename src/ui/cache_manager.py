@@ -4,7 +4,6 @@ Provides interface for monitoring and managing the caching system.
 """
 
 import streamlit as st
-
 from utils.cache import clear_cache, configure_cache, get_cache_stats
 
 
@@ -110,7 +109,7 @@ class CacheManager:
         - 💰 Reduced API costs by avoiding duplicate calls
         - 🔄 Better reliability during high usage
         - 📊 Consistent results for identical inputs
-        
+
         **Cached Operations:**
         - Definition generation (1 hour TTL)
         - Example generation (30 minutes TTL)

@@ -51,7 +51,7 @@ pytest-cov==6.0.0
 [run]
 source = src
 branch = True
-omit = 
+omit =
     */tests/*
     */__init__.py
     */migrations/*

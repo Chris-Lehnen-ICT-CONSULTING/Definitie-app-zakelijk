@@ -5,8 +5,8 @@ Deze directory bevat onderhoudsscripts voor het DefinitieAgent project.
 ## Scripts
 
 ### fix_naming_consistency.py
-**Doel:** Harmoniseer bestandsnamen tussen JSON en Python files  
-**Wanneer gebruikt:** 2025-01-16 - Om inconsistentie tussen dash (-) en underscore (_) op te lossen  
+**Doel:** Harmoniseer bestandsnamen tussen JSON en Python files
+**Wanneer gebruikt:** 2025-01-16 - Om inconsistentie tussen dash (-) en underscore (_) op te lossen
 **Status:** ✅ Voltooid - Kan hergebruikt worden indien nodig
 
 #### Gebruik:
@@ -35,6 +35,6 @@ python tools/maintenance/fix_naming_consistency.py --execute
 ## Script categorieën
 
 - `fix_*.py` - Eenmalige fixes voor specifieke problemen
-- `check_*.py` - Validatie en controle scripts  
+- `check_*.py` - Validatie en controle scripts
 - `migrate_*.py` - Migratie scripts voor structurele wijzigingen
 - `clean_*.py` - Opruim scripts voor maintenance

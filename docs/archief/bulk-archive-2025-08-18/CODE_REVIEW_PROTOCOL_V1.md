@@ -3,7 +3,7 @@
 
 ⚠️ **DEPRECATED**: Dit is V1 van het protocol. Gebruik CODE_REVIEW_PROTOCOL.md (V2) voor alle reviews.
 
-**Doel**: Verifiëren wat werkelijk functioneert vs wat alleen bestaat/geclaimd wordt  
+**Doel**: Verifiëren wat werkelijk functioneert vs wat alleen bestaat/geclaimd wordt
 **Gebruik**: Dit protocol voor ELKE component/feature uitvoeren
 
 ---
@@ -68,7 +68,7 @@ except ImportError as e:
     print(f"❌ Import failed: {e}")
     # STOP - service bestaat niet/kan niet laden
 
-## Stap 2: Instantiation Test  
+## Stap 2: Instantiation Test
 try:
     service = {ServiceClass}()
     print("✅ Instantiatie succesvol")
@@ -107,7 +107,7 @@ for method, args, expected in methods_to_test:
 ## Stap 2: CRUD Operations
 □ Create - nieuw record
 □ Read - ophalen data
-□ Update - wijzigen record  
+□ Update - wijzigen record
 □ Delete - verwijderen record
 
 ## Stap 3: Concurrent Access
@@ -180,7 +180,7 @@ Voor elk gereviewd item, documenteer:
 ### ✅ Wat Werkt
 - [Lijst van werkende functionaliteit]
 
-### ❌ Wat Niet Werkt  
+### ❌ Wat Niet Werkt
 - [Lijst van kapotte functionaliteit]
 - [Root cause per probleem]
 
@@ -204,7 +204,7 @@ Voor elk gereviewd item, documenteer:
 
 ## Geschatte Reparatietijd
 - **Quick fixes** (< 1 dag): [lijst]
-- **Medium fixes** (1-3 dagen): [lijst]  
+- **Medium fixes** (1-3 dagen): [lijst]
 - **Major fixes** (> 3 dagen): [lijst]
 
 ## Prioriteit
@@ -223,7 +223,7 @@ Voor elk gereviewd item, documenteer:
 ```bash
 Maandag Ochtend:
 09:00-10:00: Service Architecture overview
-10:00-11:00: DefinitionGenerator deep dive  
+10:00-11:00: DefinitionGenerator deep dive
 11:00-12:00: DefinitionValidator + regels
 13:00-14:00: DefinitionRepository + DB
 14:00-15:00: DefinitionOrchestrator
@@ -246,7 +246,7 @@ Dinsdag:
 Broken  | FIX NOW | Schedule
         |   🔴    |    🟡
         ---------|----------
-Works   | Verify  | Document  
+Works   | Verify  | Document
         |   🟡    |    🟢
 ```
 
@@ -321,7 +321,7 @@ Houd een log bij tijdens review:
 ```
 [09:15] Starting review of DefinitionGenerator
 [09:16] ✅ Import successful
-[09:18] ❌ Missing dependency: OpenAI client not configured  
+[09:18] ❌ Missing dependency: OpenAI client not configured
 [09:20] ❌ Method generate_definition fails with: "api_key required"
 [09:25] ⚠️ Tests exist but skip due to missing API key
 [09:30] Priority: 🔴 KRITIEK - core functionaliteit

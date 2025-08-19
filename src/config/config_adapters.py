@@ -6,12 +6,13 @@ with existing modules and maintaining backward compatibility.
 import logging
 import os
 from dataclasses import asdict
-from typing import Any, Dict, Optional
+from typing import Any
 
-from config.config_manager import ConfigSection, get_config, get_config_manager
 from utils.enhanced_retry import RetryConfig
 from utils.resilience import ResilienceConfig as FrameworkResilienceConfig
 from utils.smart_rate_limiter import RateLimitConfig
+
+from config.config_manager import ConfigSection, get_config, get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -32,7 +33,7 @@ class ConfigAdapter:
         """Set configuration value."""
         self.config_manager.set_config(self.config_section, key, value)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert configuration to dictionary."""
         return asdict(self.config)
 
@@ -43,7 +44,7 @@ class APIConfigAdapter(ConfigAdapter):
     def __init__(self):
         super().__init__(ConfigSection.API)
 
-    def get_openai_client_config(self) -> Dict[str, Any]:
+    def get_openai_client_config(self) -> dict[str, Any]:
         """Get OpenAI client configuration."""
         return {
             "api_key": self.config.openai_api_key,
@@ -51,7 +52,7 @@ class APIConfigAdapter(ConfigAdapter):
             "max_retries": self.config.max_retries,
         }
 
-    def get_model_config(self, model: Optional[str] = None) -> Dict[str, Any]:
+    def get_model_config(self, model: str | None = None) -> dict[str, Any]:
         """Get model-specific configuration."""
         model = model or self.config.default_model
         model_settings = self.config.model_settings.get(model, {})
@@ -68,8 +69,8 @@ class APIConfigAdapter(ConfigAdapter):
         }
 
     def get_gpt_call_params(
-        self, model: Optional[str] = None, **overrides
-    ) -> Dict[str, Any]:
+        self, model: str | None = None, **overrides
+    ) -> dict[str, Any]:
         """Get parameters for GPT API calls."""
         config = self.get_model_config(model)
 
@@ -107,7 +108,7 @@ class CacheConfigAdapter(ConfigAdapter):
     def __init__(self):
         super().__init__(ConfigSection.CACHE)
 
-    def get_cache_config(self) -> Dict[str, Any]:
+    def get_cache_config(self) -> dict[str, Any]:
         """Get cache configuration for cache utilities."""
         return {
             "enabled": self.config.enabled,
@@ -149,7 +150,7 @@ class RateLimitingConfigAdapter(ConfigAdapter):
             max_rate=self.config.max_rate,
         )
 
-    def get_async_api_limits(self) -> Dict[str, int]:
+    def get_async_api_limits(self) -> dict[str, int]:
         """Get rate limits for async API calls."""
         return {
             "requests_per_minute": self.config.requests_per_minute,
@@ -190,7 +191,7 @@ class ResilienceConfigAdapter(ConfigAdapter):
             fallback_cache_duration=self.config.fallback_cache_duration,
         )
 
-    def get_circuit_breaker_config(self) -> Dict[str, Any]:
+    def get_circuit_breaker_config(self) -> dict[str, Any]:
         """Get circuit breaker configuration."""
         return {
             "failure_threshold": self.config.failure_threshold,
@@ -240,7 +241,7 @@ class UIConfigAdapter(ConfigAdapter):
     def __init__(self):
         super().__init__(ConfigSection.UI)
 
-    def get_streamlit_config(self) -> Dict[str, Any]:
+    def get_streamlit_config(self) -> dict[str, Any]:
         """Get Streamlit page configuration."""
         return {
             "page_title": self.config.page_title,
@@ -249,7 +250,7 @@ class UIConfigAdapter(ConfigAdapter):
             "initial_sidebar_state": "expanded",
         }
 
-    def get_context_options(self) -> Dict[str, list]:
+    def get_context_options(self) -> dict[str, list]:
         """Get context options for UI dropdowns."""
         return {
             "organizational": self.config.organizational_contexts,
@@ -261,7 +262,7 @@ class UIConfigAdapter(ConfigAdapter):
         """Get full name for abbreviation."""
         return self.config.afkortingen.get(abbr, abbr)
 
-    def get_all_abbreviations(self) -> Dict[str, str]:
+    def get_all_abbreviations(self) -> dict[str, str]:
         """Get all abbreviations mapping."""
         return self.config.afkortingen.copy()
 
@@ -276,7 +277,7 @@ class ValidationConfigAdapter(ConfigAdapter):
         """Get allowed toetsregels as set."""
         return set(self.config.allowed_toetsregels)
 
-    def get_validation_limits(self) -> Dict[str, int]:
+    def get_validation_limits(self) -> dict[str, int]:
         """Get validation limits."""
         return {
             "max_text_length": self.config.max_text_length,
@@ -296,7 +297,7 @@ class MonitoringConfigAdapter(ConfigAdapter):
     def __init__(self):
         super().__init__(ConfigSection.MONITORING)
 
-    def get_alert_thresholds(self) -> Dict[str, float]:
+    def get_alert_thresholds(self) -> dict[str, float]:
         """Get alert thresholds."""
         return {
             "error_rate": self.config.error_rate_threshold,
@@ -305,7 +306,7 @@ class MonitoringConfigAdapter(ConfigAdapter):
             "cost_monthly": self.config.cost_threshold_monthly,
         }
 
-    def get_monitoring_intervals(self) -> Dict[str, int]:
+    def get_monitoring_intervals(self) -> dict[str, int]:
         """Get monitoring intervals."""
         return {
             "metrics": self.config.metrics_interval,
@@ -313,7 +314,7 @@ class MonitoringConfigAdapter(ConfigAdapter):
             "cost_calculation": self.config.cost_calculation_interval,
         }
 
-    def get_openai_pricing(self) -> Dict[str, float]:
+    def get_openai_pricing(self) -> dict[str, float]:
         """Get OpenAI pricing information."""
         return self.config.openai_pricing.copy()
 
@@ -328,7 +329,7 @@ class LoggingConfigAdapter(ConfigAdapter):
     def __init__(self):
         super().__init__(ConfigSection.LOGGING)
 
-    def get_logging_config(self) -> Dict[str, Any]:
+    def get_logging_config(self) -> dict[str, Any]:
         """Get logging configuration for Python logging."""
         return {
             "level": self.config.level,
@@ -453,7 +454,7 @@ def get_allowed_toetsregels() -> set:
     return get_validation_config().get_allowed_toetsregels()
 
 
-def get_afkortingen() -> Dict[str, str]:
+def get_afkortingen() -> dict[str, str]:
     """Get abbreviations mapping (backward compatibility)."""
     return get_ui_config().get_all_abbreviations()
 

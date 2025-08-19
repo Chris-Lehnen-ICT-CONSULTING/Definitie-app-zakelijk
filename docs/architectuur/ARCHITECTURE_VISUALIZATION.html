@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Architectuur Visualisatie - Definitie App</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1, h2, h3 {
+            color: #2c3e50;
+            margin-top: 30px;
+        }
+        h1 {
+            border-bottom: 3px solid #3498db;
+            padding-bottom: 10px;
+        }
+        h2 {
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .mermaid {
+            text-align: center;
+            margin: 20px 0;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 14px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #3498db;
+            color: white;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        .status-complete { color: #27ae60; font-weight: bold; }
+        .status-partial { color: #f39c12; font-weight: bold; }
+        .status-legacy { color: #e74c3c; font-weight: bold; }
+        .status-notimpl { color: #95a5a6; font-weight: bold; }
+        .status-enhanced { color: #3498db; font-weight: bold; }
+        .tab-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            color: #7f8c8d;
+            transition: all 0.3s;
+        }
+        .tab-button.active {
+            color: #3498db;
+            border-bottom: 3px solid #3498db;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background: #ecf0f1;
+            border-radius: 5px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+        }
+        .file-tree {
+            font-family: 'Courier New', monospace;
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ Architectuur Visualisatie - Definitie App</h1>
+        <p>Dit document biedt een interactieve visuele weergave van zowel de huidige (AS-IS) als gewenste (TO-BE) architectuur van de Definitie App.</p>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box" style="background: #90EE90;"></div>
+                <span>✅ Compleet/Production Ready</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #FFE4B5;"></div>
+                <span>⚠️ Gedeeltelijk/In Progress</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #FFB6C1;"></div>
+                <span>❌ Legacy/Technical Debt</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box" style="background: #D3D3D3;"></div>
+                <span>⬜ Niet Geïmplementeerd</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-nav">
+        <button class="tab-button active" onclick="showTab('current')">Huidige Architectuur (AS-IS)</button>
+        <button class="tab-button" onclick="showTab('target')">Gewenste Architectuur (TO-BE)</button>
+        <button class="tab-button" onclick="showTab('comparison')">Vergelijking</button>
+    </div>
+
+    <!-- Huidige Architectuur Tab -->
+    <div id="current" class="tab-content active">
+        <div class="container">
+            <h2>1. Huidige Architectuur (AS-IS)</h2>
+
+            <h3>1.1 Component Overzicht</h3>
+            <div class="mermaid">
+graph TB
+    subgraph "UI Layer"
+        MAIN[main.py<br/>Entry Point]
+        UI_COMP[UI Components<br/>src/ui/]
+        TAB1[definition_generator_tab.py<br/>✅ Functional]
+        TAB2[management_tab.py<br/>✅ Functional]
+        TAB3[web_lookup_tab.py<br/>✅ Functional]
+        TAB4[history_tab.py<br/>❌ Not Implemented]
+        TAB5[quality_tab.py<br/>❌ Not Implemented]
+        TAB6[expert_tab.py<br/>❌ Not Implemented]
+        TAB7[export_tab.py<br/>❌ Not Implemented]
+        TAB8[sources_tab.py<br/>❌ Not Implemented]
+        TAB9[monitoring_tab.py<br/>❌ Not Implemented]
+        TAB10[orchestration_tab.py<br/>❌ Not Implemented]
+    end
+
+    subgraph "Service Layer (Mixed State)"
+        SC[container.py<br/>ServiceContainer<br/>✅ DI Pattern]
+        ORCH[definition_orchestrator.py<br/>Workflow Coordination<br/>✅ Production Ready]
+        GEN[unified_definition_generator.py<br/>AI Integration<br/>⚠️ 80% Complete]
+        VAL[definition_validator.py<br/>Rule Engine<br/>✅ 95% Complete]
+        REPO[definition_repository.py<br/>Data Access<br/>✅ 90% Complete]
+        WEB[modern_web_lookup_service.py<br/>External Data<br/>⚠️ 60% Complete]
+    end
+
+    subgraph "Legacy Layer"
+        AGENT[definitie_agent.py<br/>876 LOC<br/>High Complexity]
+        UDS[unified_definition_service.py<br/>1043 LOC<br/>God Object]
+        OLD_VAL[old_validator.py<br/>Legacy Rules]
+    end
+
+    subgraph "Data Layer"
+        DB[(SQLite<br/>definities.db<br/>❌ No Migrations)]
+        CONFIG[JSON Files<br/>Toetsregels<br/>Templates]
+    end
+
+    MAIN --> UI_COMP
+    UI_COMP --> TAB1
+    UI_COMP --> TAB2
+    UI_COMP --> TAB3
+
+    TAB1 --> SC
+    TAB2 --> SC
+    TAB3 --> SC
+
+    SC --> ORCH
+    ORCH --> GEN
+    ORCH --> VAL
+    ORCH --> REPO
+    GEN --> WEB
+
+    GEN -.-> UDS
+    VAL -.-> OLD_VAL
+    AGENT -.-> GEN
+
+    REPO --> DB
+    VAL --> CONFIG
+
+    classDef complete fill:#90EE90,stroke:#228B22,stroke-width:2px
+    classDef partial fill:#FFE4B5,stroke:#FF8C00,stroke-width:2px
+    classDef legacy fill:#FFB6C1,stroke:#DC143C,stroke-width:2px
+    classDef notimpl fill:#D3D3D3,stroke:#696969,stroke-width:2px
+
+    class SC,ORCH,VAL,REPO,TAB1,TAB2,TAB3 complete
+    class GEN,WEB partial
+    class AGENT,UDS,OLD_VAL,DB legacy
+    class TAB4,TAB5,TAB6,TAB7,TAB8,TAB9,TAB10 notimpl
+            </div>
+
+            <h3>1.2 Python Bestanden en Hun Functies</h3>
+
+            <h4>UI Components (src/ui/)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bestand</th>
+                        <th>Status</th>
+                        <th>Primaire Functie</th>
+                        <th>Dependencies</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>main.py</code></td>
+                        <td class="status-complete">✅ Active</td>
+                        <td>Streamlit app entry point, session management</td>
+                        <td>All UI components</td>
+                    </tr>
+                    <tr>
+                        <td><code>tabbed_interface.py</code></td>
+                        <td class="status-complete">✅ Active</td>
+                        <td>Tab navigation controller</td>
+                        <td>Individual tab modules</td>
+                    </tr>
+                    <tr>
+                        <td><code>definition_generator_tab.py</code></td>
+                        <td class="status-complete">✅ Working</td>
+                        <td>Create new definitions UI</td>
+                        <td>ServiceContainer</td>
+                    </tr>
+                    <tr>
+                        <td><code>management_tab.py</code></td>
+                        <td class="status-complete">✅ Working</td>
+                        <td>Manage existing definitions</td>
+                        <td>ServiceContainer</td>
+                    </tr>
+                    <tr>
+                        <td><code>web_lookup_tab.py</code></td>
+                        <td class="status-complete">✅ Working</td>
+                        <td>External source lookup</td>
+                        <td>ServiceContainer</td>
+                    </tr>
+                    <tr>
+                        <td><code>history_tab.py</code></td>
+                        <td class="status-notimpl">❌ Stub</td>
+                        <td>Definition history view</td>
+                        <td>Not implemented</td>
+                    </tr>
+                    <tr>
+                        <td><code>quality_tab.py</code></td>
+                        <td class="status-notimpl">❌ Stub</td>
+                        <td>Quality control dashboard</td>
+                        <td>Not implemented</td>
+                    </tr>
+                    <tr>
+                        <td><code>expert_tab.py</code></td>
+                        <td class="status-notimpl">❌ Stub</td>
+                        <td>Expert review interface</td>
+                        <td>Not implemented</td>
+                    </tr>
+                    <tr>
+                        <td><code>export_tab.py</code></td>
+                        <td class="status-notimpl">❌ Stub</td>
+                        <td>Export functionality</td>
+                        <td>Not implemented</td>
+                    </tr>
+                    <tr>
+                        <td><code>sources_tab.py</code></td>
+                        <td class="status-notimpl">❌ Stub</td>
+                        <td>External sources config</td>
+                        <td>Not implemented</td>
+                    </tr>
+                    <tr>
+                        <td><code>monitoring_tab.py</code></td>
+                        <td class="status-notimpl">❌ Stub</td>
+                        <td>System monitoring</td>
+                        <td>Not implemented</td>
+                    </tr>
+                    <tr>
+                        <td><code>orchestration_tab.py</code></td>
+                        <td class="status-notimpl">❌ Stub</td>
+                        <td>Workflow orchestration</td>
+                        <td>Not implemented</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Service Layer (src/services/)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bestand</th>
+                        <th>Status</th>
+                        <th>Primaire Functie</th>
+                        <th>Key Methods</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>container.py</code></td>
+                        <td class="status-complete">✅ Production</td>
+                        <td>Dependency injection container</td>
+                        <td><code>get_orchestrator()</code>, <code>get_repository()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>definition_orchestrator.py</code></td>
+                        <td class="status-complete">✅ Production</td>
+                        <td>Workflow coordination</td>
+                        <td><code>generate_definition()</code>, <code>validate_definition()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>unified_definition_generator.py</code></td>
+                        <td class="status-partial">⚠️ Partial</td>
+                        <td>AI-powered generation</td>
+                        <td><code>generate()</code>, <code>_enhance_with_context()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>definition_validator.py</code></td>
+                        <td class="status-complete">✅ Production</td>
+                        <td>Rule-based validation</td>
+                        <td><code>validate()</code>, <code>_check_rules()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>definition_repository.py</code></td>
+                        <td class="status-complete">✅ Production</td>
+                        <td>Data persistence</td>
+                        <td><code>save()</code>, <code>get()</code>, <code>update()</code>, <code>delete()</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>modern_web_lookup_service.py</code></td>
+                        <td class="status-partial">⚠️ Partial</td>
+                        <td>External data fetching</td>
+                        <td><code>lookup()</code>, <code>_fetch_from_source()</code></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>1.3 Data Flow - Huidige Situatie</h3>
+            <div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant UI as Streamlit UI
+    participant SC as ServiceContainer
+    participant O as Orchestrator
+    participant G as Generator
+    participant V as Validator
+    participant R as Repository
+    participant L as Legacy Code
+
+    U->>UI: Create Definition
+    UI->>SC: Get Orchestrator
+    SC->>O: generate_definition(begrip, category)
+    O->>G: generate(request)
+    G->>L: Fallback to legacy generator
+    L-->>G: Generated text
+    G-->>O: Definition draft
+    O->>V: validate(definition)
+    V-->>O: Validation result
+    O->>R: save(definition)
+    R-->>O: Saved definition
+    O-->>UI: Complete definition
+    UI-->>U: Display result
+
+    Note over G,L: 80% new code, 20% legacy fallback
+    Note over UI: Only 3/10 tabs functional
+            </div>
+        </div>
+    </div>
+
+    <!-- Gewenste Architectuur Tab -->
+    <div id="target" class="tab-content">
+        <div class="container">
+            <h2>2. Gewenste Architectuur (TO-BE)</h2>
+
+            <h3>2.1 Component Overzicht</h3>
+            <div class="mermaid">
+graph TB
+    subgraph "UI Layer"
+        MAIN[main.py<br/>✨ Enhanced Entry Point]
+        UI_COMP[UI Components<br/>src/ui/]
+        TAB1[definition_generator_tab.py<br/>✨ Enhanced - Streaming]
+        TAB2[management_tab.py<br/>✨ Enhanced - Bulk Ops]
+        TAB3[web_lookup_tab.py<br/>✨ Enhanced - Multi-source]
+        TAB4[history_tab.py<br/>✅ Implemented]
+        TAB5[quality_tab.py<br/>✅ Implemented]
+        TAB6[expert_tab.py<br/>✅ Implemented]
+        TAB7[export_tab.py<br/>✅ Implemented]
+        TAB8[sources_tab.py<br/>✅ Implemented]
+        TAB9[monitoring_tab.py<br/>✅ Implemented]
+        TAB10[admin_tab.py<br/>✅ New]
+    end
+
+    subgraph "API Gateway Layer"
+        GW[gateway.py<br/>FastAPI Gateway<br/>✅ New]
+        AUTH_MW[auth_middleware.py<br/>JWT Validation<br/>✅ New]
+        RATE[rate_limiter.py<br/>Token Bucket<br/>✅ New]
+    end
+
+    subgraph "Service Layer (Production Ready)"
+        SC[container.py<br/>ServiceContainer<br/>✨ Enhanced DI]
+        ORCH[definition_orchestrator.py<br/>Saga Pattern<br/>✨ Enhanced]
+        GEN[generator_service.py<br/>Multi-AI Models<br/>✨ Enhanced]
+        VAL[validator_service.py<br/>ML Validation<br/>✨ Enhanced]
+        REPO[repository_service.py<br/>CQRS Pattern<br/>✨ Enhanced]
+        WEB[web_lookup_service.py<br/>Smart Cache<br/>✨ Enhanced]
+    end
+
+    subgraph "New Services"
+        AUTH_SVC[auth_service.py<br/>OAuth2/RBAC<br/>✅ New]
+        CACHE[cache_service.py<br/>Redis Integration<br/>✅ New]
+        EVENT[event_service.py<br/>Kafka Bus<br/>✅ New]
+        MON[monitoring_service.py<br/>Metrics/Alerts<br/>✅ New]
+    end
+
+    subgraph "Data Layer"
+        PG[(PostgreSQL<br/>Primary DB<br/>✅ Upgraded)]
+        REDIS[(Redis<br/>Cache Layer<br/>✅ New)]
+        KAFKA[(Kafka<br/>Event Bus<br/>✅ New)]
+    end
+
+    MAIN --> UI_COMP
+    UI_COMP --> TAB1
+    UI_COMP --> TAB2
+    UI_COMP --> TAB3
+    UI_COMP --> TAB4
+    UI_COMP --> TAB5
+    UI_COMP --> TAB6
+    UI_COMP --> TAB7
+    UI_COMP --> TAB8
+    UI_COMP --> TAB9
+    UI_COMP --> TAB10
+
+    TAB1 --> GW
+    TAB2 --> GW
+    TAB3 --> GW
+
+    GW --> AUTH_MW
+    AUTH_MW --> RATE
+    RATE --> SC
+
+    SC --> ORCH
+    ORCH --> GEN
+    ORCH --> VAL
+    ORCH --> REPO
+    GEN --> WEB
+
+    ORCH --> EVENT
+    WEB --> CACHE
+    CACHE --> REDIS
+    EVENT --> KAFKA
+    REPO --> PG
+
+    GW --> AUTH_SVC
+    ORCH --> MON
+
+    classDef enhanced fill:#87CEEB,stroke:#4682B4,stroke-width:2px
+    classDef new fill:#90EE90,stroke:#228B22,stroke-width:2px
+    classDef upgraded fill:#FFE4B5,stroke:#FF8C00,stroke-width:2px
+
+    class MAIN,SC,ORCH,GEN,VAL,REPO,WEB,TAB1,TAB2,TAB3 enhanced
+    class GW,AUTH_MW,RATE,AUTH_SVC,CACHE,EVENT,MON,TAB4,TAB5,TAB6,TAB7,TAB8,TAB9,TAB10,REDIS,KAFKA new
+    class PG upgraded
+            </div>
+
+            <h3>2.2 Python Bestanden en Hun Functies - Target State</h3>
+
+            <h4>UI Components (src/ui/)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bestand</th>
+                        <th>Status</th>
+                        <th>Primaire Functie</th>
+                        <th>Enhancements</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>main.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Streamlit app entry point</td>
+                        <td>API integration, auth support</td>
+                    </tr>
+                    <tr>
+                        <td><code>tabbed_interface.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Tab navigation controller</td>
+                        <td>Dynamic loading, permissions</td>
+                    </tr>
+                    <tr>
+                        <td><code>definition_generator_tab.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Create new definitions UI</td>
+                        <td>Real-time streaming, model selection</td>
+                    </tr>
+                    <tr>
+                        <td><code>management_tab.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Manage existing definitions</td>
+                        <td>Bulk operations, advanced filters</td>
+                    </tr>
+                    <tr>
+                        <td><code>web_lookup_tab.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>External source lookup</td>
+                        <td>Multi-source aggregation</td>
+                    </tr>
+                    <tr>
+                        <td><code>history_tab.py</code></td>
+                        <td class="status-complete">✅ Implemented</td>
+                        <td>Version history view</td>
+                        <td>Full audit trail</td>
+                    </tr>
+                    <tr>
+                        <td><code>quality_tab.py</code></td>
+                        <td class="status-complete">✅ Implemented</td>
+                        <td>Quality control dashboard</td>
+                        <td>ML-powered insights</td>
+                    </tr>
+                    <tr>
+                        <td><code>expert_tab.py</code></td>
+                        <td class="status-complete">✅ Implemented</td>
+                        <td>Expert review interface</td>
+                        <td>Workflow automation</td>
+                    </tr>
+                    <tr>
+                        <td><code>export_tab.py</code></td>
+                        <td class="status-complete">✅ Implemented</td>
+                        <td>Export functionality</td>
+                        <td>Multiple formats</td>
+                    </tr>
+                    <tr>
+                        <td><code>sources_tab.py</code></td>
+                        <td class="status-complete">✅ Implemented</td>
+                        <td>External sources config</td>
+                        <td>API management</td>
+                    </tr>
+                    <tr>
+                        <td><code>monitoring_tab.py</code></td>
+                        <td class="status-complete">✅ Implemented</td>
+                        <td>System monitoring</td>
+                        <td>Real-time metrics</td>
+                    </tr>
+                    <tr>
+                        <td><code>admin_tab.py</code></td>
+                        <td class="status-complete">✅ New</td>
+                        <td>Administration panel</td>
+                        <td>User & system management</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Service Layer (src/services/)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bestand</th>
+                        <th>Status</th>
+                        <th>Primaire Functie</th>
+                        <th>Key Improvements</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>container.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Dependency injection container</td>
+                        <td>Async support, lifecycle management</td>
+                    </tr>
+                    <tr>
+                        <td><code>definition_orchestrator.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Workflow coordination</td>
+                        <td>Saga pattern, event publishing</td>
+                    </tr>
+                    <tr>
+                        <td><code>generator_service.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>AI-powered generation</td>
+                        <td>Multi-model, streaming, caching</td>
+                    </tr>
+                    <tr>
+                        <td><code>validator_service.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Rule-based validation</td>
+                        <td>ML scoring, hot reload, custom rules</td>
+                    </tr>
+                    <tr>
+                        <td><code>repository_service.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>Data persistence</td>
+                        <td>CQRS, event sourcing, PostgreSQL</td>
+                    </tr>
+                    <tr>
+                        <td><code>web_lookup_service.py</code></td>
+                        <td class="status-enhanced">✨ Enhanced</td>
+                        <td>External data fetching</td>
+                        <td>Smart caching, rate limiting</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>New Components (src/)</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bestand</th>
+                        <th>Status</th>
+                        <th>Primaire Functie</th>
+                        <th>Key Features</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>api/gateway.py</code></td>
+                        <td class="status-complete">✅ New</td>
+                        <td>REST API Gateway</td>
+                        <td>FastAPI, OpenAPI docs</td>
+                    </tr>
+                    <tr>
+                        <td><code>api/middleware/auth.py</code></td>
+                        <td class="status-complete">✅ New</td>
+                        <td>Authentication middleware</td>
+                        <td>JWT validation, RBAC</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/auth_service.py</code></td>
+                        <td class="status-complete">✅ New</td>
+                        <td>Authentication service</td>
+                        <td>OAuth2, API keys</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/cache_service.py</code></td>
+                        <td class="status-complete">✅ New</td>
+                        <td>Caching layer</td>
+                        <td>Redis integration</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/event_service.py</code></td>
+                        <td class="status-complete">✅ New</td>
+                        <td>Event bus</td>
+                        <td>Kafka integration</td>
+                    </tr>
+                    <tr>
+                        <td><code>services/monitoring_service.py</code></td>
+                        <td class="status-complete">✅ New</td>
+                        <td>System monitoring</td>
+                        <td>Prometheus metrics</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h4>Legacy Components - Removed</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Bestand</th>
+                        <th>Status</th>
+                        <th>Replacement</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>definitie_agent.py</code></td>
+                        <td class="status-legacy">❌ Removed</td>
+                        <td>Replaced by enhanced orchestrator</td>
+                    </tr>
+                    <tr>
+                        <td><code>unified_definition_service.py</code></td>
+                        <td class="status-legacy">❌ Removed</td>
+                        <td>Split into specialized services</td>
+                    </tr>
+                    <tr>
+                        <td><code>old_validator.py</code></td>
+                        <td class="status-legacy">❌ Removed</td>
+                        <td>Replaced by ML validator</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>2.3 Data Flow - Gewenste Situatie</h3>
+            <div class="mermaid">
+sequenceDiagram
+    participant U as User
+    participant UI as Enhanced UI
+    participant GW as API Gateway
+    participant AUTH as Auth Service
+    participant O as Orchestrator
+    participant G as Generator
+    participant V as Validator
+    participant R as Repository
+    participant C as Cache
+    participant E as Event Bus
+    participant M as Monitoring
+
+    U->>UI: Create Definition
+    UI->>GW: POST /api/v1/definitions
+    GW->>AUTH: Validate JWT
+    AUTH-->>GW: User context
+    GW->>O: Create definition saga
+
+    O->>E: PublishEvent(DefinitionRequested)
+    O->>G: Generate with context
+    G->>C: Check cache
+    C-->>G: Cache miss
+    G->>G: Select optimal AI model
+    G-->>O: Stream response
+
+    O->>V: Validate with ML
+    V->>V: Apply rules + ML scoring
+    V-->>O: ValidationResult(score: 92%)
+
+    O->>R: Save (CQRS command)
+    R->>E: PublishEvent(DefinitionCreated)
+    R-->>O: Definition ID
+
+    O->>C: Cache result
+    O-->>GW: Complete definition
+    GW-->>UI: 201 Created + Definition
+    UI-->>U: Display result
+
+    E->>M: Track metrics
+    M->>M: Update dashboards
+
+    Note over UI,GW: < 2s total response time
+    Note over G: Multi-model support
+    Note over E,M: Real-time observability
+            </div>
+
+            <h3>2.4 Key Architectural Changes</h3>
+
+            <h4>Major Improvements</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Area</th>
+                        <th>Current State</th>
+                        <th>Target State</th>
+                        <th>Benefits</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>API Layer</strong></td>
+                        <td>Direct function calls</td>
+                        <td>REST API Gateway</td>
+                        <td>Decoupling, scalability, security</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Authentication</strong></td>
+                        <td>None</td>
+                        <td>JWT + OAuth2</td>
+                        <td>Security, multi-tenant support</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database</strong></td>
+                        <td>SQLite, no migrations</td>
+                        <td>PostgreSQL with Alembic</td>
+                        <td>Scalability, data integrity</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Caching</strong></td>
+                        <td>None</td>
+                        <td>Redis multi-layer</td>
+                        <td>Performance, cost reduction</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Events</strong></td>
+                        <td>None</td>
+                        <td>Kafka event bus</td>
+                        <td>Loose coupling, audit trail</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monitoring</strong></td>
+                        <td>Basic logging</td>
+                        <td>Prometheus + Grafana</td>
+                        <td>Observability, alerting</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>2.5 Migration Priorities</h3>
+            <div class="mermaid">
+graph LR
+    subgraph "Phase 1: Foundation"
+        A1[Complete UI Tabs]
+        A2[Add API Gateway]
+        A3[Basic Auth]
+    end
+
+    subgraph "Phase 2: Data"
+        B1[PostgreSQL Migration]
+        B2[Add Caching]
+        B3[Event Bus]
+    end
+
+    subgraph "Phase 3: Scale"
+        C1[Performance Opt]
+        C2[Full Monitoring]
+        C3[Container Deploy]
+    end
+
+    A1 --> A2 --> A3
+    A3 --> B1 --> B2 --> B3
+    B3 --> C1 --> C2 --> C3
+            </div>
+        </div>
+    </div>
+
+    <!-- Vergelijking Tab -->
+    <div id="comparison" class="tab-content">
+        <div class="container">
+            <h2>3. Vergelijking AS-IS vs TO-BE</h2>
+
+            <h3>3.1 Architecture Evolution</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Aspect</th>
+                        <th>Current (AS-IS)</th>
+                        <th>Target (TO-BE)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Pattern</strong></td>
+                        <td class="status-legacy">Hybrid monolith/services</td>
+                        <td class="status-complete">True microservices</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Database</strong></td>
+                        <td class="status-legacy">SQLite, no migrations</td>
+                        <td class="status-complete">PostgreSQL with migrations</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Caching</strong></td>
+                        <td class="status-legacy">None</td>
+                        <td class="status-complete">Redis multi-layer</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Auth</strong></td>
+                        <td class="status-legacy">None</td>
+                        <td class="status-complete">JWT/OAuth2 + RBAC</td>
+                    </tr>
+                    <tr>
+                        <td><strong>API</strong></td>
+                        <td class="status-legacy">Direct function calls</td>
+                        <td class="status-complete">REST API Gateway</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Events</strong></td>
+                        <td class="status-legacy">None</td>
+                        <td class="status-complete">Kafka event bus</td>
+                    </tr>
+                    <tr>
+                        <td><strong>UI</strong></td>
+                        <td class="status-partial">30% functional</td>
+                        <td class="status-complete">100% + CLI + Mobile</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Monitoring</strong></td>
+                        <td class="status-legacy">Basic logging</td>
+                        <td class="status-complete">Full observability</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Deployment</strong></td>
+                        <td class="status-legacy">Manual</td>
+                        <td class="status-complete">Kubernetes + CI/CD</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance</strong></td>
+                        <td class="status-legacy">8-12s response</td>
+                        <td class="status-complete">&lt;2s response</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>3.2 Service Comparison</h3>
+            <div class="mermaid">
+graph TB
+    subgraph "Current Services"
+        CUR_ORCH[Orchestrator<br/>Basic coordination]
+        CUR_GEN[Generator<br/>Single AI model<br/>No caching]
+        CUR_VAL[Validator<br/>Static rules]
+        CUR_REPO[Repository<br/>Simple CRUD]
+        CUR_WEB[Web Lookup<br/>Basic fetch]
+    end
+
+    subgraph "Target Services"
+        NEW_ORCH[Orchestrator<br/>Saga pattern<br/>Transactions]
+        NEW_GEN[Generator<br/>Multi-model<br/>Smart caching]
+        NEW_VAL[Validator<br/>ML scoring<br/>Dynamic rules]
+        NEW_REPO[Repository<br/>CQRS + Events]
+        NEW_WEB[Web Lookup<br/>Multi-source<br/>Rate limited]
+        NEW_AUTH[Auth Service<br/>New]
+        NEW_MON[Monitoring<br/>New]
+        NEW_NOTIF[Notifications<br/>New]
+    end
+
+    CUR_ORCH -.->|Enhance| NEW_ORCH
+    CUR_GEN -.->|Upgrade| NEW_GEN
+    CUR_VAL -.->|Extend| NEW_VAL
+    CUR_REPO -.->|Refactor| NEW_REPO
+    CUR_WEB -.->|Complete| NEW_WEB
+            </div>
+
+            <h3>3.3 Key Metrics</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin: 20px 0;">
+                <div style="background: #ecf0f1; padding: 20px; border-radius: 8px;">
+                    <h4 style="margin-top: 0;">Current State Issues</h4>
+                    <ul>
+                        <li>70% UI non-functional</li>
+                        <li>No authentication/security</li>
+                        <li>Performance 4-6x slower than target</li>
+                        <li>23% code duplication</li>
+                        <li>No proper testing (11% coverage)</li>
+                    </ul>
+                </div>
+                <div style="background: #ecf0f1; padding: 20px; border-radius: 8px;">
+                    <h4 style="margin-top: 0;">Target State Benefits</h4>
+                    <ul>
+                        <li>Full functionality across all interfaces</li>
+                        <li>&lt;2s response times</li>
+                        <li>Secure multi-tenant architecture</li>
+                        <li>80%+ test coverage</li>
+                        <li>Automated deployment & monitoring</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#3498db',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#2980b9',
+                lineColor: '#5D6D7E',
+                secondaryColor: '#ecf0f1',
+                tertiaryColor: '#e8f8f5'
+            }
+        });
+
+        // Tab functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Mark button as active
+            event.target.classList.add('active');
+
+            // Re-render Mermaid diagrams in the active tab
+            mermaid.init();
+        }
+    </script>
+</body>
+</html>

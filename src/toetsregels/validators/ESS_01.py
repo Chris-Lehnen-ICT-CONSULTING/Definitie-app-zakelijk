@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ESS01Validator:
     """Validator voor ESS-01: Essentie, niet doel."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -38,8 +37,8 @@ class ESS01Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens ESS-01 regel.
 
@@ -70,7 +69,7 @@ class ESS01Validator:
         # Geen enkel doel-patroon gevonden → OK
         return True, f"✔️ {self.id}: geen doelgerichte formuleringen aangetroffen", 1.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -112,7 +111,7 @@ def create_validator(config_path: str = None) -> ESS01Validator:
         config_path = os.path.join(current_dir, "ESS-01.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return ESS01Validator(config)

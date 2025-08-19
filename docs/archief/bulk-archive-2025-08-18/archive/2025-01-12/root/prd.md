@@ -31,13 +31,13 @@ Het DefinitieAgent project is een AI-powered Nederlandse definitie generator voo
 Document-project analysis available - using existing technical documentation
 
 Key documents available:
-- ✓ Tech Stack Documentation 
-- ✓ Source Tree/Architecture 
+- ✓ Tech Stack Documentation
+- ✓ Source Tree/Architecture
 - ✓ Coding Standards (partial - CLAUDE.md)
-- ✓ API Documentation 
-- ✓ External API Documentation 
-- ✓ UX/UI Guidelines 
-- ✓ Technical Debt Documentation 
+- ✓ API Documentation
+- ✓ External API Documentation
+- ✓ UX/UI Guidelines
+- ✓ Technical Debt Documentation
 - ✓ Migration roadmap, quick wins lijst
 
 ### Enhancement Scope Definition
@@ -294,46 +294,46 @@ All 10 Tabs Functional:
 
 ### Integration Approach
 
-**Database Integration Strategy**: 
+**Database Integration Strategy**:
 - Behoud huidige SQLAlchemy models
 - Voeg indexes toe voor performance
 - Implementeer connection pooling voor concurrent access
 
-**API Integration Strategy**: 
+**API Integration Strategy**:
 - OpenAI calls via centralized AI service
 - Rate limiting via smart_rate_limiter
 - Retry logic met exponential backoff
 
-**Frontend Integration Strategy**: 
+**Frontend Integration Strategy**:
 - Nieuwe UI componenten als separate Python modules
 - Integratie via tab registry in main app
 - Session state management voor cross-tab data
 
-**Testing Integration Strategy**: 
+**Testing Integration Strategy**:
 - Fix import paths eerst
 - Voeg pytest fixtures voor common test data
 - Mock OpenAI calls in tests
 
 ### Code Organization and Standards
 
-**File Structure Approach**: 
+**File Structure Approach**:
 - Nieuwe features in dedicated submodules
 - Components folder voor herbruikbare UI delen
 - Utils uitbreiden voor shared functionality
 
-**Naming Conventions**: 
+**Naming Conventions**:
 - snake_case voor files en functies
 - PascalCase voor classes
 - UPPER_CASE voor constants
 - Nederlandse functienamen voor business logic
 
-**Coding Standards**: 
+**Coding Standards**:
 - Type hints verplicht voor public functions
 - Docstrings in Nederlands voor business logic
 - Black formatter voor consistentie
 - Import sorting met isort
 
-**Documentation Standards**: 
+**Documentation Standards**:
 - README per nieuwe module
 - Inline comments voor complexe logica
 - API documentatie voor nieuwe endpoints
@@ -341,44 +341,44 @@ All 10 Tabs Functional:
 
 ### Deployment and Operations
 
-**Build Process Integration**: 
+**Build Process Integration**:
 - Geen build process (Python interpreted)
 - Requirements.txt voor dependencies
 - Virtual environment aanbevolen
 
-**Deployment Strategy**: 
+**Deployment Strategy**:
 - Manual deployment via streamlit run
 - Geen CI/CD pipeline aanwezig
 - Database migraties handmatig
 
-**Monitoring and Logging**: 
+**Monitoring and Logging**:
 - Structured logging naar logs/ folder
 - Performance metrics in cache/
 - Error tracking via try/except blocks
 
-**Configuration Management**: 
+**Configuration Management**:
 - Consolideer naar single config system
 - Environment variables voor secrets
 - Config files voor applicatie settings
 
 ### Risk Assessment and Mitigation
 
-**Technical Risks**: 
+**Technical Risks**:
 - Import path chaos kan builds breken
 - Legacy code dependencies fragiel
 - Test suite repair kan regressies introduceren
 
-**Integration Risks**: 
+**Integration Risks**:
 - Services consolidatie kan edge cases missen
 - UI state management tussen tabs complex
 - Database locks bij concurrent access
 
-**Deployment Risks**: 
+**Deployment Risks**:
 - Geen rollback mechanisme
 - Manual deployment error-prone
 - Database corruptie mogelijk
 
-**Mitigation Strategies**: 
+**Mitigation Strategies**:
 - Stapsgewijze implementatie met manual testing
 - Database backups voor elke major change
 - Feature flags voor nieuwe functionaliteit
@@ -412,8 +412,8 @@ All 10 Tabs Functional:
 **Sprint**: 1 (7 story points totaal)
 
 ### Story 1.1: Enable SQLite WAL Mode (3 pts)
-**Als een** developer  
-**wil ik** WAL mode activeren voor de SQLite database  
+**Als een** developer
+**wil ik** WAL mode activeren voor de SQLite database
 **zodat** meerdere gebruikers tegelijk kunnen lezen zonder locks.
 
 **Acceptance Criteria:**
@@ -423,8 +423,8 @@ All 10 Tabs Functional:
 - [ ] Rollback plan gedocumenteerd
 
 ### Story 1.2: Fix Connection Pooling (2 pts)
-**Als een** developer  
-**wil ik** proper connection pooling configureren  
+**Als een** developer
+**wil ik** proper connection pooling configureren
 **zodat** database resources efficiënt gebruikt worden.
 
 **Acceptance Criteria:**
@@ -434,8 +434,8 @@ All 10 Tabs Functional:
 - [ ] Monitoring voor pool usage
 
 ### Story 1.3: Database UTF-8 Encoding (2 pts)
-**Als een** developer  
-**wil ik** UTF-8 encoding forceren voor alle database operaties  
+**Als een** developer
+**wil ik** UTF-8 encoding forceren voor alle database operaties
 **zodat** Nederlandse tekst correct opgeslagen wordt.
 
 **Acceptance Criteria:**
@@ -453,8 +453,8 @@ All 10 Tabs Functional:
 **Sprint**: 1-2 (10 story points totaal)
 
 ### Story 2.1: Analyse & Cleanup Broken Files (2 pts)
-**Als een** developer  
-**wil ik** alle web lookup files analyseren  
+**Als een** developer
+**wil ik** alle web lookup files analyseren
 **zodat** ik weet wat te behouden en wat te verwijderen.
 
 **Acceptance Criteria:**
@@ -464,8 +464,8 @@ All 10 Tabs Functional:
 - [ ] Documentatie van encoding issues
 
 ### Story 2.2: Implementeer Nieuwe Web Lookup Service (5 pts)
-**Als een** developer  
-**wil ik** één consolidated web lookup service  
+**Als een** developer
+**wil ik** één consolidated web lookup service
 **zodat** encoding correct werkt voor alle bronnen.
 
 **Acceptance Criteria:**
@@ -475,8 +475,8 @@ All 10 Tabs Functional:
 - [ ] Support voor wetten.nl, officielebekendmakingen.nl, rechtspraak.nl
 
 ### Story 2.3: Integreer met UI & Test (3 pts)
-**Als een** gebruiker  
-**wil ik** web lookup resultaten zien in de UI  
+**Als een** gebruiker
+**wil ik** web lookup resultaten zien in de UI
 **zodat** ik juridische bronnen kan raadplegen.
 
 **Acceptance Criteria:**
@@ -494,8 +494,8 @@ All 10 Tabs Functional:
 **Sprint**: 2 (8 story points totaal)
 
 ### Story 3.1: Fix Widget Key Generator (2 pts)
-**Als een** developer  
-**wil ik** unieke widget keys genereren  
+**Als een** developer
+**wil ik** unieke widget keys genereren
 **zodat** Streamlit geen duplicate key errors geeft.
 
 **Acceptance Criteria:**
@@ -505,8 +505,8 @@ All 10 Tabs Functional:
 - [ ] Unit test voor key generator
 
 ### Story 3.2: Activeer Term Input Field (1 pt)
-**Als een** gebruiker  
-**wil ik** direct een term invoeren op de homepage  
+**Als een** gebruiker
+**wil ik** direct een term invoeren op de homepage
 **zodat** ik snel kan beginnen.
 
 **Acceptance Criteria:**
@@ -516,8 +516,8 @@ All 10 Tabs Functional:
 - [ ] Focus op page load
 
 ### Story 3.3: Fix Session State Persistence (3 pts)
-**Als een** gebruiker  
-**wil ik** dat mijn data bewaard blijft  
+**Als een** gebruiker
+**wil ik** dat mijn data bewaard blijft
 **zodat** ik niet opnieuw moet invoeren na reload.
 
 **Acceptance Criteria:**
@@ -527,8 +527,8 @@ All 10 Tabs Functional:
 - [ ] Clear session optie toegevoegd
 
 ### Story 3.4: Toon Metadata Velden (2 pts)
-**Als een** gebruiker  
-**wil ik** metadata van definities zien  
+**Als een** gebruiker
+**wil ik** metadata van definities zien
 **zodat** ik context heb over de gegenereerde content.
 
 **Acceptance Criteria:**
@@ -546,8 +546,8 @@ All 10 Tabs Functional:
 **Sprint**: 2-3 (11 story points totaal)
 
 ### Story 4.1: Implementeer Synonym Service (3 pts)
-**Als een** gebruiker  
-**wil ik** synoniemen zien bij definities  
+**Als een** gebruiker
+**wil ik** synoniemen zien bij definities
 **zodat** ik alternatieven ken.
 
 **Acceptance Criteria:**
@@ -557,8 +557,8 @@ All 10 Tabs Functional:
 - [ ] Fallback bij geen synoniemen
 
 ### Story 4.2: Implementeer Antonym Service (3 pts)
-**Als een** gebruiker  
-**wil ik** antoniemen zien waar relevant  
+**Als een** gebruiker
+**wil ik** antoniemen zien waar relevant
 **zodat** ik tegenstellingen begrijp.
 
 **Acceptance Criteria:**
@@ -568,8 +568,8 @@ All 10 Tabs Functional:
 - [ ] Quality check op relevantie
 
 ### Story 4.3: Genereer Voorbeeldzinnen (3 pts)
-**Als een** gebruiker  
-**wil ik** voorbeeldzinnen zien  
+**Als een** gebruiker
+**wil ik** voorbeeldzinnen zien
 **zodat** ik het gebruik begrijp.
 
 **Acceptance Criteria:**
@@ -579,8 +579,8 @@ All 10 Tabs Functional:
 - [ ] Relevantie voor doelgroep
 
 ### Story 4.4: UI Integratie Enrichments (2 pts)
-**Als een** gebruiker  
-**wil ik** enrichments overzichtelijk zien  
+**Als een** gebruiker
+**wil ik** enrichments overzichtelijk zien
 **zodat** de interface niet cluttered wordt.
 
 **Acceptance Criteria:**
@@ -598,8 +598,8 @@ All 10 Tabs Functional:
 **Sprint**: 3-4 (21 story points totaal)
 
 ### Story 5.1: Activeer Management Tab (3 pts)
-**Als een** admin  
-**wil ik** systeem settings beheren  
+**Als een** admin
+**wil ik** systeem settings beheren
 **zodat** ik de applicatie kan configureren.
 
 **Acceptance Criteria:**
@@ -609,8 +609,8 @@ All 10 Tabs Functional:
 - [ ] Settings persistent
 
 ### Story 5.2: Activeer Orchestration Tab (5 pts)
-**Als een** power user  
-**wil ik** multi-agent workflows bouwen  
+**Als een** power user
+**wil ik** multi-agent workflows bouwen
 **zodat** ik complexe taken kan automatiseren.
 
 **Acceptance Criteria:**
@@ -620,8 +620,8 @@ All 10 Tabs Functional:
 - [ ] Results aggregatie
 
 ### Story 5.3: Activeer Monitoring Tab (3 pts)
-**Als een** developer  
-**wil ik** systeem metrics zien  
+**Als een** developer
+**wil ik** systeem metrics zien
 **zodat** ik performance kan monitoren.
 
 **Acceptance Criteria:**
@@ -631,8 +631,8 @@ All 10 Tabs Functional:
 - [ ] Cost calculator
 
 ### Story 5.4: Activeer External Sources Tab (3 pts)
-**Als een** gebruiker  
-**wil ik** documenten uploaden  
+**Als een** gebruiker
+**wil ik** documenten uploaden
 **zodat** ik eigen bronnen kan gebruiken.
 
 **Acceptance Criteria:**
@@ -642,8 +642,8 @@ All 10 Tabs Functional:
 - [ ] Document management
 
 ### Story 5.5: Activeer Web Lookup Tab (2 pts)
-**Als een** gebruiker  
-**wil ik** online bronnen doorzoeken  
+**Als een** gebruiker
+**wil ik** online bronnen doorzoeken
 **zodat** ik actuele informatie heb.
 
 **Acceptance Criteria:**
@@ -653,8 +653,8 @@ All 10 Tabs Functional:
 - [ ] Bron attributie
 
 ### Story 5.6: Activeer Prompt Viewer Tab (2 pts)
-**Als een** developer  
-**wil ik** gebruikte prompts zien  
+**Als een** developer
+**wil ik** gebruikte prompts zien
 **zodat** ik kan debuggen en leren.
 
 **Acceptance Criteria:**
@@ -664,8 +664,8 @@ All 10 Tabs Functional:
 - [ ] Prompt templates zichtbaar
 
 ### Story 5.7: Activeer Custom Definition Tab (3 pts)
-**Als een** gebruiker  
-**wil ik** definities kunnen aanpassen  
+**Als een** gebruiker
+**wil ik** definities kunnen aanpassen
 **zodat** ik maatwerk kan leveren.
 
 **Acceptance Criteria:**
@@ -683,8 +683,8 @@ All 10 Tabs Functional:
 **Sprint**: 4 (10 story points totaal)
 
 ### Story 6.1: Analyseer Huidige Prompts (2 pts)
-**Als een** developer  
-**wil ik** prompt usage analyseren  
+**Als een** developer
+**wil ik** prompt usage analyseren
 **zodat** ik optimization opportunities zie.
 
 **Acceptance Criteria:**
@@ -694,8 +694,8 @@ All 10 Tabs Functional:
 - [ ] Optimization targets identified
 
 ### Story 6.2: Implementeer Dynamic Prompts (5 pts)
-**Als een** developer  
-**wil ik** context-aware prompt building  
+**Als een** developer
+**wil ik** context-aware prompt building
 **zodat** alleen relevante info gestuurd wordt.
 
 **Acceptance Criteria:**
@@ -705,8 +705,8 @@ All 10 Tabs Functional:
 - [ ] Prompt size <10k chars
 
 ### Story 6.3: A/B Test Nieuwe Prompts (3 pts)
-**Als een** product owner  
-**wil ik** quality metrics vergelijken  
+**Als een** product owner
+**wil ik** quality metrics vergelijken
 **zodat** kwaliteit behouden blijft.
 
 **Acceptance Criteria:**
@@ -724,8 +724,8 @@ All 10 Tabs Functional:
 **Sprint**: 5-6 (18 story points totaal)
 
 ### Story 7.1: Fix Import Paths (2 pts)
-**Als een** developer  
-**wil ik** consistente imports  
+**Als een** developer
+**wil ik** consistente imports
 **zodat** tests kunnen draaien.
 
 **Acceptance Criteria:**
@@ -735,8 +735,8 @@ All 10 Tabs Functional:
 - [ ] Auto-fix script
 
 ### Story 7.2: Create Test Fixtures (3 pts)
-**Als een** developer  
-**wil ik** herbruikbare test data  
+**Als een** developer
+**wil ik** herbruikbare test data
 **zodat** tests consistent zijn.
 
 **Acceptance Criteria:**
@@ -746,8 +746,8 @@ All 10 Tabs Functional:
 - [ ] Mock API responses
 
 ### Story 7.3: Fix Unit Tests Core (5 pts)
-**Als een** developer  
-**wil ik** werkende unit tests  
+**Als een** developer
+**wil ik** werkende unit tests
 **zodat** business logic gedekt is.
 
 **Acceptance Criteria:**
@@ -757,8 +757,8 @@ All 10 Tabs Functional:
 - [ ] Fast execution (<30s)
 
 ### Story 7.4: Add Integration Tests (5 pts)
-**Als een** developer  
-**wil ik** end-to-end tests  
+**Als een** developer
+**wil ik** end-to-end tests
 **zodat** user flows getest zijn.
 
 **Acceptance Criteria:**
@@ -768,8 +768,8 @@ All 10 Tabs Functional:
 - [ ] API integration tests
 
 ### Story 7.5: Setup CI Pipeline (3 pts)
-**Als een** team  
-**willen wij** automated testing  
+**Als een** team
+**willen wij** automated testing
 **zodat** bugs vroeg gevangen worden.
 
 **Acceptance Criteria:**

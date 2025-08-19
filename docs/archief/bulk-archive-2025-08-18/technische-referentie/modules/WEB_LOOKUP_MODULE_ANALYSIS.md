@@ -128,7 +128,7 @@ class DefinitieResponse:
 **Key Function**:
 ```python
 def zoek_wetsartikelstructuur(
-    tekst: str, 
+    tekst: str,
     log_jsonl: bool = False,
     bron: str = "onbekend",
     begrip: str = ""

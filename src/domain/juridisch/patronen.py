@@ -7,21 +7,21 @@ te bewaren in een herbruikbare vorm.
 
 import re
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Pattern
+from re import Pattern
 
 
 @dataclass
 class JuridischeVerwijzing:
     """Representeert een juridische verwijzing met alle componenten."""
 
-    wet: Optional[str] = None
-    boek: Optional[str] = None
-    artikel: Optional[str] = None
-    lid: Optional[str] = None
-    sub: Optional[str] = None
-    herkend_via: Optional[str] = None
+    wet: str | None = None
+    boek: str | None = None
+    artikel: str | None = None
+    lid: str | None = None
+    sub: str | None = None
+    herkend_via: str | None = None
 
-    def to_dict(self) -> Dict[str, str]:
+    def to_dict(self) -> dict[str, str]:
         """Converteer naar dict, filter None waardes."""
         return {k: v for k, v in self.__dict__.items() if v is not None}
 
@@ -34,7 +34,7 @@ class JuridischPatroon:
     beschrijving: str
     pattern: Pattern[str]
 
-    def match_in_text(self, tekst: str) -> List[JuridischeVerwijzing]:
+    def match_in_text(self, tekst: str) -> list[JuridischeVerwijzing]:
         """Vind alle matches van dit patroon in de gegeven tekst."""
         resultaten = []
 
@@ -65,7 +65,7 @@ class JuridischePatronen:
     }
 
     @classmethod
-    def get_patronen(cls) -> List[JuridischPatroon]:
+    def get_patronen(cls) -> list[JuridischPatroon]:
         """
         Retourneert alle juridische herkenningspatronen.
 
@@ -108,7 +108,7 @@ class JuridischePatronen:
         ]
 
     @classmethod
-    def zoek_alle_verwijzingen(cls, tekst: str) -> List[JuridischeVerwijzing]:
+    def zoek_alle_verwijzingen(cls, tekst: str) -> list[JuridischeVerwijzing]:
         """
         Zoek alle juridische verwijzingen in de gegeven tekst.
 
@@ -124,6 +124,6 @@ class JuridischePatronen:
         return alle_verwijzingen
 
     @classmethod
-    def expandeer_afkorting(cls, afkorting: str) -> Optional[str]:
+    def expandeer_afkorting(cls, afkorting: str) -> str | None:
         """Expandeer wetboek afkorting naar volledige naam."""
         return cls.WETBOEK_AFKORTINGEN.get(afkorting.upper())

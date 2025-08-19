@@ -7,15 +7,15 @@ terwijl geleidelijk de legacy implementaties vervangt.
 
 import asyncio
 import logging
-from typing import List, Optional, Dict, Any
 from dataclasses import dataclass
+from typing import Any
 
 from .interfaces import (
-    WebLookupServiceInterface,
+    JuridicalReference,
     LookupRequest,
     LookupResult,
+    WebLookupServiceInterface,
     WebSource,
-    JuridicalReference,
 )
 
 # Domein imports met error handling voor development
@@ -60,7 +60,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
     """
 
     def __init__(self):
-        self.sources: Dict[str, SourceConfig] = {}
+        self.sources: dict[str, SourceConfig] = {}
 
         # Initialize domein components als beschikbaar
         if DOMAIN_AVAILABLE:
@@ -104,7 +104,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
             ),
         }
 
-    async def lookup(self, request: LookupRequest) -> List[LookupResult]:
+    async def lookup(self, request: LookupRequest) -> list[LookupResult]:
         """
         Zoek een term op in web bronnen.
 
@@ -141,7 +141,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         # Limiteer aantal resultaten
         return valid_results[: request.max_results]
 
-    def _determine_sources(self, request: LookupRequest) -> List[str]:
+    def _determine_sources(self, request: LookupRequest) -> list[str]:
         """Bepaal welke bronnen te gebruiken op basis van request."""
         if request.sources:
             return [s for s in request.sources if s in self.sources]
@@ -158,20 +158,19 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
     async def _lookup_source(
         self, term: str, source_name: str, request: LookupRequest
-    ) -> Optional[LookupResult]:
+    ) -> LookupResult | None:
         """Lookup in een specifieke bron."""
         source_config = self.sources[source_name]
 
         try:
             if source_config.api_type == "mediawiki":
                 return await self._lookup_mediawiki(term, source_config, request)
-            elif source_config.api_type == "sru":
+            if source_config.api_type == "sru":
                 return await self._lookup_sru(term, source_config, request)
-            elif source_config.api_type == "scraping":
+            if source_config.api_type == "scraping":
                 return await self._lookup_scraping(term, source_config, request)
-            else:
-                logger.warning(f"Unknown API type: {source_config.api_type}")
-                return None
+            logger.warning(f"Unknown API type: {source_config.api_type}")
+            return None
 
         except Exception as e:
             logger.error(f"Error in {source_name} lookup: {e}")
@@ -184,7 +183,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
     async def _lookup_mediawiki(
         self, term: str, source: SourceConfig, request: LookupRequest
-    ) -> Optional[LookupResult]:
+    ) -> LookupResult | None:
         """Lookup in MediaWiki API (Wikipedia, Wiktionary)."""
         logger.info(f"MediaWiki lookup for {term} in {source.name}")
 
@@ -214,51 +213,48 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
     async def _lookup_sru(
         self, term: str, source: SourceConfig, request: LookupRequest
-    ) -> Optional[LookupResult]:
+    ) -> LookupResult | None:
         """Lookup in SRU API (overheid.nl, rechtspraak.nl)."""
         logger.info(f"SRU lookup for {term} in {source.name}")
 
         try:
             # Import SRU service
             from .web_lookup.sru_service import SRUService
-            
+
             # Map source names to SRU endpoints
-            endpoint_map = {
-                "Overheid.nl": "overheid",
-                "Rechtspraak.nl": "rechtspraak"
-            }
-            
+            endpoint_map = {"Overheid.nl": "overheid", "Rechtspraak.nl": "rechtspraak"}
+
             endpoint = endpoint_map.get(source.name)
             if not endpoint:
                 logger.warning(f"No SRU endpoint mapping for source: {source.name}")
                 return None
-            
+
             # Perform SRU search
             async with SRUService() as sru_service:
                 results = await sru_service.search(
                     term=term,
                     endpoint=endpoint,
-                    max_records=1  # Single result for single source lookup
+                    max_records=1,  # Single result for single source lookup
                 )
-                
+
                 if results:
                     result = results[0]  # Take best result
                     # Apply source confidence weight
                     result.source.confidence *= source.confidence_weight
                     return result
-                
+
                 return None
-                
+
         except ImportError as e:
             logger.warning(f"SRU service niet beschikbaar: {e}")
         except Exception as e:
             logger.error(f"SRU lookup error: {e}")
-        
+
         return None
 
     async def _lookup_scraping(
         self, term: str, source: SourceConfig, request: LookupRequest
-    ) -> Optional[LookupResult]:
+    ) -> LookupResult | None:
         """Lookup via web scraping."""
         logger.info(f"Scraping lookup for {term} in {source.name}")
 
@@ -267,7 +263,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
     async def _legacy_fallback(
         self, term: str, source_name: str, request: LookupRequest
-    ) -> Optional[LookupResult]:
+    ) -> LookupResult | None:
         """Fallback naar legacy implementatie."""
         logger.info(f"Using legacy fallback for {term} in {source_name}")
 
@@ -307,15 +303,13 @@ class ModernWebLookupService(WebLookupServiceInterface):
             metadata={"source_type": "legacy_fallback"},
         )
 
-    async def lookup_single_source(
-        self, term: str, source: str
-    ) -> Optional[LookupResult]:
+    async def lookup_single_source(self, term: str, source: str) -> LookupResult | None:
         """Zoek een term op in een specifieke bron."""
         request = LookupRequest(term=term, sources=[source], max_results=1)
         results = await self.lookup(request)
         return results[0] if results else None
 
-    def get_available_sources(self) -> List[WebSource]:
+    def get_available_sources(self) -> list[WebSource]:
         """Geef lijst van beschikbare web bronnen."""
         return [
             WebSource(
@@ -334,8 +328,10 @@ class ModernWebLookupService(WebLookupServiceInterface):
         if self.betrouwbaarheids_calculator:
             # Bepaal bron type voor de calculator
             bron_type = self._determine_source_type(text)
-            autoriteits_score = self.betrouwbaarheids_calculator.bereken_betrouwbaarheid(
-                bron_type, text
+            autoriteits_score = (
+                self.betrouwbaarheids_calculator.bereken_betrouwbaarheid(
+                    bron_type, text
+                )
             )
             confidence = autoriteits_score.score
         else:
@@ -359,14 +355,13 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
         if any(word in text_lower for word in ["artikel", "wet", "wetboek"]):
             return BronType.WETGEVING
-        elif any(word in text_lower for word in ["uitspraak", "rechtbank", "hof"]):
+        if any(word in text_lower for word in ["uitspraak", "rechtbank", "hof"]):
             return BronType.JURISPRUDENTIE
-        elif any(word in text_lower for word in ["beleid", "regeling", "circulaire"]):
+        if any(word in text_lower for word in ["beleid", "regeling", "circulaire"]):
             return BronType.BELEID
-        else:
-            return BronType.LITERATUUR
+        return BronType.LITERATUUR
 
-    def find_juridical_references(self, text: str) -> List[JuridicalReference]:
+    def find_juridical_references(self, text: str) -> list[JuridicalReference]:
         """Vind juridische verwijzingen in tekst."""
         # Simpele implementatie voor nu - kan uitgebreid worden met domein modules
         references = []
@@ -386,8 +381,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
         return references
 
     def detect_duplicates(
-        self, term: str, definitions: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, term: str, definitions: list[str]
+    ) -> list[dict[str, Any]]:
         """Detecteer duplicate definities."""
         duplicates = []
 
@@ -425,7 +420,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         self._legacy_fallback_enabled = enabled
         logger.info(f"Legacy fallback {'enabled' if enabled else 'disabled'}")
 
-    def get_source_status(self) -> Dict[str, Dict[str, Any]]:
+    def get_source_status(self) -> dict[str, dict[str, Any]]:
         """Krijg status van alle bronnen voor monitoring."""
         return {
             name: {

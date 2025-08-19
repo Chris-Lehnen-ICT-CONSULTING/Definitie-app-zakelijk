@@ -69,12 +69,12 @@ export GIT_COMMITTER_EMAIL="${AI_AGENT_NAME}@bmad.ai"
 # Functie voor AI-aware commits
 ai_commit() {
     local message="$1"
-    
+
     # Prefix message met AI indicator als die er nog niet is
     if [[ ! "$message" =~ ^AI: ]]; then
         message="AI: $message"
     fi
-    
+
     # Zet environment en commit
     AI_AGENT_COMMIT=1 git commit -m "$message"
 }

@@ -9,7 +9,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 
 # Enums
@@ -38,30 +38,30 @@ class GenerationRequest:
     """Request voor het genereren van een definitie."""
 
     begrip: str
-    context: Optional[str] = None
-    domein: Optional[str] = None
-    organisatie: Optional[str] = None
-    extra_instructies: Optional[str] = None
+    context: str | None = None
+    domein: str | None = None
+    organisatie: str | None = None
+    extra_instructies: str | None = None
 
 
 @dataclass
 class Definition:
     """Definitie data object."""
 
-    id: Optional[int] = None
+    id: int | None = None
     begrip: str = ""
     definitie: str = ""
-    toelichting: Optional[str] = None
-    bron: Optional[str] = None
-    context: Optional[str] = None
-    domein: Optional[str] = None
-    synoniemen: Optional[List[str]] = None
-    gerelateerde_begrippen: Optional[List[str]] = None
-    voorbeelden: Optional[List[str]] = None
-    categorie: Optional[str] = None
-    created_at: Optional[datetime] = None
-    updated_at: Optional[datetime] = None
-    metadata: Optional[Dict[str, Any]] = None
+    toelichting: str | None = None
+    bron: str | None = None
+    context: str | None = None
+    domein: str | None = None
+    synoniemen: list[str] | None = None
+    gerelateerde_begrippen: list[str] | None = None
+    voorbeelden: list[str] | None = None
+    categorie: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    metadata: dict[str, Any] | None = None
 
     def __post_init__(self):
         if self.synoniemen is None:
@@ -81,7 +81,7 @@ class ValidationViolation:
     rule_id: str
     severity: ValidationSeverity
     description: str
-    suggestion: Optional[str] = None
+    suggestion: str | None = None
 
 
 @dataclass
@@ -89,11 +89,11 @@ class ValidationResult:
     """Resultaat van definitie validatie."""
 
     is_valid: bool
-    errors: Optional[List[str]] = None
-    warnings: Optional[List[str]] = None
-    suggestions: Optional[List[str]] = None
-    score: Optional[float] = None
-    violations: Optional[List[ValidationViolation]] = None
+    errors: list[str] | None = None
+    warnings: list[str] | None = None
+    suggestions: list[str] | None = None
+    score: float | None = None
+    violations: list[ValidationViolation] | None = None
 
     def __post_init__(self):
         if self.errors is None:
@@ -111,10 +111,10 @@ class DefinitionResponse:
     """Response object voor definitie operaties."""
 
     success: bool = True
-    definition: Optional[Definition] = None
-    validation: Optional[ValidationResult] = None
-    definition_id: Optional[int] = None
-    message: Optional[str] = None
+    definition: Definition | None = None
+    validation: ValidationResult | None = None
+    definition_id: int | None = None
+    message: str | None = None
 
 
 # Service Interfaces
@@ -191,7 +191,7 @@ class DefinitionRepositoryInterface(ABC):
         """
 
     @abstractmethod
-    def get(self, definition_id: int) -> Optional[Definition]:
+    def get(self, definition_id: int) -> Definition | None:
         """
         Haal een definitie op basis van ID.
 
@@ -203,7 +203,7 @@ class DefinitionRepositoryInterface(ABC):
         """
 
     @abstractmethod
-    def search(self, query: str, limit: int = 10) -> List[Definition]:
+    def search(self, query: str, limit: int = 10) -> list[Definition]:
         """
         Zoek definities op basis van een query.
 
@@ -253,7 +253,7 @@ class DefinitionRepositoryInterface(ABC):
         """
         return False  # Default implementatie
 
-    def find_by_term(self, term: str) -> List[Definition]:
+    def find_by_term(self, term: str) -> list[Definition]:
         """
         Zoek definities op term.
 
@@ -265,7 +265,7 @@ class DefinitionRepositoryInterface(ABC):
         """
         return self.search(term)  # Gebruik search als fallback
 
-    def find_by_status(self, status: DefinitionStatus) -> List[Definition]:
+    def find_by_status(self, status: DefinitionStatus) -> list[Definition]:
         """
         Zoek definities op status.
 
@@ -297,7 +297,7 @@ class DefinitionOrchestratorInterface(ABC):
 
     @abstractmethod
     async def update_definition(
-        self, definition_id: int, updates: Dict[str, Any]
+        self, definition_id: int, updates: dict[str, Any]
     ) -> DefinitionResponse:
         """
         Orkestreer het update proces van een bestaande definitie.
@@ -322,7 +322,7 @@ class DefinitionOrchestratorInterface(ABC):
             DefinitionResponse met resultaat en status
         """
 
-    async def get_definition(self, definition_id: int) -> Optional[Definition]:
+    async def get_definition(self, definition_id: int) -> Definition | None:
         """
         Haal een definitie op via de orchestrator.
 
@@ -359,7 +359,7 @@ class WebSource:
     url: str
     confidence: float = 0.0
     is_juridical: bool = False
-    api_type: Optional[str] = None  # "mediawiki", "sru", "scraping"
+    api_type: str | None = None  # "mediawiki", "sru", "scraping"
 
 
 @dataclass
@@ -368,13 +368,13 @@ class LookupResult:
 
     term: str
     source: WebSource
-    definition: Optional[str] = None
-    context: Optional[str] = None
-    examples: List[str] = field(default_factory=list)
-    references: List[str] = field(default_factory=list)
+    definition: str | None = None
+    context: str | None = None
+    examples: list[str] = field(default_factory=list)
+    references: list[str] = field(default_factory=list)
     success: bool = True
-    error_message: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    error_message: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
 
 @dataclass
@@ -382,8 +382,8 @@ class LookupRequest:
     """Request voor web lookup operaties."""
 
     term: str
-    sources: Optional[List[str]] = None  # None = alle bronnen
-    context: Optional[str] = None
+    sources: list[str] | None = None  # None = alle bronnen
+    context: str | None = None
     max_results: int = 5
     include_examples: bool = True
     timeout: int = 30
@@ -404,7 +404,7 @@ class WebLookupServiceInterface(ABC):
     """Interface voor web lookup services."""
 
     @abstractmethod
-    async def lookup(self, request: LookupRequest) -> List[LookupResult]:
+    async def lookup(self, request: LookupRequest) -> list[LookupResult]:
         """
         Zoek een term op in web bronnen.
 
@@ -416,9 +416,7 @@ class WebLookupServiceInterface(ABC):
         """
 
     @abstractmethod
-    async def lookup_single_source(
-        self, term: str, source: str
-    ) -> Optional[LookupResult]:
+    async def lookup_single_source(self, term: str, source: str) -> LookupResult | None:
         """
         Zoek een term op in een specifieke bron.
 
@@ -431,7 +429,7 @@ class WebLookupServiceInterface(ABC):
         """
 
     @abstractmethod
-    def get_available_sources(self) -> List[WebSource]:
+    def get_available_sources(self) -> list[WebSource]:
         """
         Geef lijst van beschikbare web bronnen.
 
@@ -452,7 +450,7 @@ class WebLookupServiceInterface(ABC):
         """
 
     @abstractmethod
-    def find_juridical_references(self, text: str) -> List[JuridicalReference]:
+    def find_juridical_references(self, text: str) -> list[JuridicalReference]:
         """
         Vind juridische verwijzingen in tekst.
 
@@ -465,8 +463,8 @@ class WebLookupServiceInterface(ABC):
 
     @abstractmethod
     def detect_duplicates(
-        self, term: str, definitions: List[str]
-    ) -> List[Dict[str, Any]]:
+        self, term: str, definitions: list[str]
+    ) -> list[dict[str, Any]]:
         """
         Detecteer duplicate definities.
 

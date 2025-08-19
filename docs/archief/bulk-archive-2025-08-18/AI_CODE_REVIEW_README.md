@@ -95,17 +95,17 @@ De `AICodeReviewer` voert deze stappen uit:
 # Pseudo-code van de review loop
 for iteration in range(max_iterations):
     passed, issues = run_quality_checks()
-    
+
     if passed:
         break
-        
+
     # Try auto-fixes
     if apply_auto_fixes(issues) > 0:
         continue
-        
+
     # Generate AI feedback
     feedback = generate_ai_feedback(issues)
-    
+
     # In real implementation: call AI API
     # Voor demo: print feedback
 ```
@@ -114,7 +114,7 @@ for iteration in range(max_iterations):
 
 Elke review wordt opgeslagen met:
 - Agent naam
-- Success/failure status  
+- Success/failure status
 - Aantal iteraties
 - Gevonden issues (type, severity)
 - Auto-fixes toegepast
@@ -174,7 +174,7 @@ checks:
   - black
   - mypy
   - bandit
-  
+
 thresholds:
   coverage_min: 80
   complexity_max: 10

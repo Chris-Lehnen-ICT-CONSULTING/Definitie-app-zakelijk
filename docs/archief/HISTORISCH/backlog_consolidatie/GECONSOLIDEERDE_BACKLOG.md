@@ -1,7 +1,7 @@
 # 📋 Geconsolideerde Backlog Items
 
-**Datum**: 2025-01-15  
-**Geconsolideerd uit**: 60+ losse backlog items  
+**Datum**: 2025-01-15
+**Geconsolideerd uit**: 60+ losse backlog items
 **Bron**: requirements/roadmap/functionaliteit/losse backlogitems/
 
 ## 🎯 Overzicht

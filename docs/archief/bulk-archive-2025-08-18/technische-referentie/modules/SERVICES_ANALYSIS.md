@@ -8,7 +8,7 @@ The services module has undergone a major consolidation effort, reducing from **
 
 ### Original Structure (3 Services)
 1. **`definition_service.py`** (447 lines) - Synchronous service implementation
-2. **`async_definition_service.py`** (567 lines) - Asynchronous service implementation  
+2. **`async_definition_service.py`** (567 lines) - Asynchronous service implementation
 3. **`integrated_service.py`** (745 lines) - Attempted integration of both
 
 ### New Structure (1 Unified Service)
@@ -72,21 +72,21 @@ class UnifiedResult:
     processing_time: float
     processing_mode: ProcessingMode
     architecture_mode: ArchitectureMode
-    
+
     # Core definition data
     definitie_origineel: str
     definitie_gecorrigeerd: str
     marker: str
-    
+
     # Validation results
     toetsresultaten: List[str]
     validation_score: float
-    
+
     # Extended content
     voorbeelden: Dict[str, List[str]]
     bronnen_tekst: str
     web_lookup_results: Dict[str, Any]
-    
+
     # Metrics and metadata
     metadata: Dict[str, Any]
     cache_hits: int
@@ -98,7 +98,7 @@ class UnifiedResult:
 
 ### 1. Synchronous Flow
 ```
-Request → Build Prompt → Generate Definition → Clean/Validate → 
+Request → Build Prompt → Generate Definition → Clean/Validate →
 Generate Examples → Update Session → Return Result
 ```
 
@@ -136,7 +136,7 @@ Request → Start Parallel Tasks:
    ```python
    class DefinitionService(UnifiedDefinitionService):
        """Backward compatibility wrapper for legacy DefinitionService."""
-       
+
        def __init__(self):
            super().__init__()
            self.configure(UnifiedServiceConfig(
@@ -149,7 +149,7 @@ Request → Start Parallel Tasks:
    ```python
    class AsyncDefinitionService(UnifiedDefinitionService):
        """Backward compatibility wrapper for legacy AsyncDefinitionService."""
-       
+
        def __init__(self):
            super().__init__()
            self.configure(UnifiedServiceConfig(

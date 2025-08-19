@@ -1,8 +1,8 @@
 # STORY-003: Content Enrichment Service Implementation
 
 ## User Story
-Als een **content specialist**  
-wil ik automatisch synoniemen, antoniemen en voorbeelden krijgen bij elke definitie  
+Als een **content specialist**
+wil ik automatisch synoniemen, antoniemen en voorbeelden krijgen bij elke definitie
 zodat ik rijkere en completere definities kan leveren aan gebruikers.
 
 ## Acceptance Criteria
@@ -19,7 +19,7 @@ zodat ik rijkere en completere definities kan leveren aan gebruikers.
 ```python
 class ContentEnrichmentService:
     """Service voor content verrijking"""
-    
+
     async def enrich_definition(
         self,
         term: str,
@@ -34,7 +34,7 @@ class ContentEnrichmentService:
             self._generate_explanation(definition),
             self._find_related_terms(term, context)
         ]
-        
+
         results = await asyncio.gather(*tasks)
         return self._combine_results(results)
 ```
@@ -48,13 +48,13 @@ class ContentEnrichmentService:
 2. **Prompt Templates**
    ```python
    SYNONYM_PROMPT = """
-   Geef 3-5 synoniemen voor het begrip '{term}' 
+   Geef 3-5 synoniemen voor het begrip '{term}'
    in de context van {context}.
    Formaat: komma-gescheiden lijst
    """
-   
+
    EXAMPLE_PROMPT = """
-   Genereer 3-5 voorbeeldzinnen waarin '{term}' 
+   Genereer 3-5 voorbeeldzinnen waarin '{term}'
    correct gebruikt wordt volgens deze definitie:
    {definition}
    """

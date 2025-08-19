@@ -5,10 +5,8 @@ External Sources Tab - Interface voor externe definitie bronnen.
 import json  # JSON data verwerking voor configuraties
 from datetime import datetime  # Datum en tijd functionaliteit
 from pathlib import Path  # Bestandspad manipulatie
-from typing import Dict, List  # Type hints voor code documentatie
 
 import streamlit as st  # Streamlit web interface framework
-
 from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
     DefinitieStatus,
@@ -43,23 +41,11 @@ class ExternalSourcesTab:
             # Importeer externe bron adapter componenten
             from external_source_adapter import (
                 ExternalSourceConfig,  # Configuratie container voor bronnen
-            )
-            from external_source_adapter import (
                 ExternalSourceManager,  # Manager voor externe bronnen
-            )
-            from external_source_adapter import (
                 ExternalSourceType,  # Enumeratie van bron types
-            )
-            from external_source_adapter import (
                 FileSystemAdapter,  # Bestandssysteem adapter
-            )
-            from external_source_adapter import (
                 MockExternalAdapter,  # Mock adapter voor development
-            )
-            from external_source_adapter import (
                 create_file_source,  # Factory voor bestandssysteem bronnen
-            )
-            from external_source_adapter import (
                 create_mock_source,  # Factory voor mock bronnen (testing)
             )
 
@@ -86,7 +72,7 @@ class ExternalSourcesTab:
 
         except Exception as e:
             st.error(
-                f"❌ Kon external source adapter niet laden: {str(e)}"
+                f"❌ Kon external source adapter niet laden: {e!s}"
             )  # Toon foutmelding aan gebruiker
             self.ExternalSourceManager = None  # Zet manager op None bij falen
 
@@ -261,7 +247,7 @@ class ExternalSourcesTab:
                     self._display_search_results(results)
 
                 except Exception as e:
-                    st.error(f"❌ Zoekfout: {str(e)}")
+                    st.error(f"❌ Zoekfout: {e!s}")
 
         # Show previous results
         previous_results = SessionStateManager.get_value("external_search_results")
@@ -269,7 +255,7 @@ class ExternalSourcesTab:
             st.markdown("#### 📋 Laatste Zoekresultaten")
             self._display_search_results(previous_results["results"])
 
-    def _display_search_results(self, results: Dict[str, List]):
+    def _display_search_results(self, results: dict[str, list]):
         """Display search results from external sources."""
         total_results = sum(len(source_results) for source_results in results.values())
 
@@ -528,7 +514,7 @@ class ExternalSourcesTab:
                     st.error(f"❌ Kon definitie '{ext_def.begrip}' niet importeren")
 
         except Exception as e:
-            st.error(f"❌ Import fout: {str(e)}")
+            st.error(f"❌ Import fout: {e!s}")
 
     def _perform_bulk_import(self, source_id: str, limit: int):
         """Perform bulk import from source."""
@@ -575,7 +561,7 @@ class ExternalSourcesTab:
                             errors.append(f"Kon '{ext_def.begrip}' niet opslaan")
 
                     except Exception as e:
-                        errors.append(f"Fout bij '{ext_def.begrip}': {str(e)}")
+                        errors.append(f"Fout bij '{ext_def.begrip}': {e!s}")
 
                 # Clear progress
                 progress_bar.empty()
@@ -608,7 +594,7 @@ class ExternalSourcesTab:
                 SessionStateManager.set_value("import_history", import_history)
 
             except Exception as e:
-                st.error(f"❌ Bulk import fout: {str(e)}")
+                st.error(f"❌ Bulk import fout: {e!s}")
 
     def _create_manual_source(
         self,
@@ -649,7 +635,7 @@ class ExternalSourcesTab:
                 st.error("❌ Kon geen verbinding maken met de bron")
 
         except Exception as e:
-            st.error(f"❌ Configuratiefout: {str(e)}")
+            st.error(f"❌ Configuratiefout: {e!s}")
 
     def _export_source_configuration(self):
         """Export source configuration to JSON."""
@@ -677,7 +663,7 @@ class ExternalSourcesTab:
             st.success(f"✅ Configuratie geëxporteerd naar: {filepath}")
 
             # Offer download
-            with open(filepath, "r") as f:
+            with open(filepath) as f:
                 st.download_button(
                     label="📁 Download Configuratie",
                     data=f.read(),
@@ -686,7 +672,7 @@ class ExternalSourcesTab:
                 )
 
         except Exception as e:
-            st.error(f"❌ Export fout: {str(e)}")
+            st.error(f"❌ Export fout: {e!s}")
 
     def _import_source_configuration(self, config_file):
         """Import source configuration from JSON."""
@@ -709,7 +695,7 @@ class ExternalSourcesTab:
 
                 except Exception as e:
                     errors.append(
-                        f"Fout bij {source_info.get('source_name', 'onbekend')}: {str(e)}"
+                        f"Fout bij {source_info.get('source_name', 'onbekend')}: {e!s}"
                     )
 
             if imported_count > 0:
@@ -721,4 +707,4 @@ class ExternalSourcesTab:
                     st.write(f"- {error}")
 
         except Exception as e:
-            st.error(f"❌ Import configuratie fout: {str(e)}")
+            st.error(f"❌ Import configuratie fout: {e!s}")

@@ -10,7 +10,7 @@ All code changes made by BMAD agents automatically go through our code review an
 2. **Post-code-change hook triggers** (`.bmad/hooks/post-code-change.sh`)
 3. **Automatic review runs**:
    - Ruff linting
-   - Black formatting  
+   - Black formatting
    - MyPy type checking
    - Bandit security scan
    - Pytest execution

@@ -21,7 +21,7 @@ monitoring:
   enabled: false  # Disable monitoring in tests
   collect_metrics: false
   export_metrics: false
-  
+
   # Relaxed thresholds for testing
   error_rate_threshold: 0.5
   response_time_threshold: 30.0
@@ -33,7 +33,7 @@ logging:
   level: "ERROR"  # Minimal logging in tests
   console_enabled: false  # No console output in tests
   file_enabled: false  # No file logging in tests
-  
+
   # Suppress all module logging
   module_levels:
     openai: "CRITICAL"
@@ -44,7 +44,7 @@ logging:
 # Rate Limiting Configuration - Testing settings
 rate_limiting:
   enabled: false  # Disable rate limiting in tests
-  
+
   # High limits for testing
   requests_per_minute: 1000
   requests_per_hour: 10000
@@ -53,16 +53,16 @@ rate_limiting:
 # Resilience Configuration - Testing settings
 resilience:
   enabled: false  # Disable resilience in tests
-  
+
   # Minimal retry for testing
   max_retries: 1
   base_delay: 0.1
   max_delay: 1.0
-  
+
   # Disabled circuit breaker
   failure_threshold: 100
   recovery_timeout: 1.0
-  
+
   # Disabled health monitoring
   health_check_interval: 3600.0
   enable_fallback: false
@@ -71,18 +71,18 @@ resilience:
 # Security Configuration - Testing settings
 security:
   enabled: false  # Disable security in tests
-  
+
   # Relaxed validation for testing
   validate_inputs: false
   sanitize_inputs: false
   max_input_length: 50000
-  
+
   # Disabled security features
   require_api_key: false
   api_key_validation: false
   security_rate_limit: 10000
   block_duration: 1
-  
+
   # Disabled threat detection
   detect_xss: false
   detect_sql_injection: false
@@ -92,7 +92,7 @@ security:
 validation:
   enabled: true  # Keep validation enabled for testing
   strict_mode: false  # Relaxed validation
-  
+
   # Higher limits for testing
   max_text_length: 50000
   min_definition_length: 1

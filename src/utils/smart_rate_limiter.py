@@ -10,6 +10,7 @@ import json  # JSON verwerking voor configuratie opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor token bucket timing
 from collections import deque  # Efficiënte queue implementatie
+from collections.abc import Callable
 from dataclasses import (  # Dataklassen voor gestructureerde configuratie
     dataclass,
     field,
@@ -19,9 +20,6 @@ from enum import Enum  # Enumeraties voor prioriteit levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import (  # Type hints voor betere code documentatie
     Any,
-    Callable,
-    Dict,
-    Optional,
 )
 
 logger = logging.getLogger(__name__)  # Logger instantie voor smart rate limiter module
@@ -53,7 +51,7 @@ class RateLimitConfig:
     max_rate: float = 10.0  # Maximum requests per second
 
     # Priority queue settings
-    priority_weights: Dict[RequestPriority, float] = field(
+    priority_weights: dict[RequestPriority, float] = field(
         default_factory=lambda: {
             RequestPriority.CRITICAL: 1.0,
             RequestPriority.HIGH: 0.8,
@@ -76,7 +74,7 @@ class QueuedRequest:
     timestamp: datetime
     request_id: str
     future: asyncio.Future
-    timeout: Optional[float] = None
+    timeout: float | None = None
 
 
 @dataclass
@@ -144,7 +142,7 @@ class SmartRateLimiter:
         )
 
         # Priority queues for different request types
-        self.priority_queues: Dict[RequestPriority, deque] = {
+        self.priority_queues: dict[RequestPriority, deque] = {
             priority: deque() for priority in RequestPriority
         }
 
@@ -182,7 +180,7 @@ class SmartRateLimiter:
         try:
             history_file = Path("cache/rate_limit_history.json")
             if history_file.exists():
-                with open(history_file, "r") as f:
+                with open(history_file) as f:
                     data = json.load(f)
                     self.current_rate = data.get(
                         "optimal_rate", self.config.tokens_per_second
@@ -231,8 +229,8 @@ class SmartRateLimiter:
     async def acquire(
         self,
         priority: RequestPriority = RequestPriority.NORMAL,
-        timeout: Optional[float] = None,
-        request_id: Optional[str] = None,
+        timeout: float | None = None,
+        request_id: str | None = None,
     ) -> bool:
         """
         Acquire rate limit permission for a request.
@@ -412,7 +410,7 @@ class SmartRateLimiter:
 
         self.last_adjustment = now
 
-    def get_queue_status(self) -> Dict[str, Any]:
+    def get_queue_status(self) -> dict[str, Any]:
         """Get current queue status and statistics."""
         queue_lengths = {
             priority.name: len(queue)
@@ -450,11 +448,11 @@ class SmartRateLimiter:
 
 
 # Endpoint-specifieke smart rate limiters
-_smart_limiters: Dict[str, SmartRateLimiter] = {}
+_smart_limiters: dict[str, SmartRateLimiter] = {}
 
 
 async def get_smart_limiter(
-    endpoint_name: str = "default", config: Optional[RateLimitConfig] = None
+    endpoint_name: str = "default", config: RateLimitConfig | None = None
 ) -> SmartRateLimiter:
     """Get or create endpoint-specific smart rate limiter.
 
@@ -492,7 +490,7 @@ async def get_smart_limiter(
 def with_smart_rate_limit(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
-    timeout: Optional[float] = None,
+    timeout: float | None = None,
 ):
     """
     Decorator for smart rate limiting with priority queuing.

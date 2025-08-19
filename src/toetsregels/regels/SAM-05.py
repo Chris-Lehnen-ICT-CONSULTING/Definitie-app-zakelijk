@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class SAM05Validator:
     """Validator voor SAM-05: Repository termen gebruiken."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -29,8 +28,8 @@ class SAM05Validator:
         self.prioriteit = config.get("prioriteit", "midden")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens SAM-05 regel.
 
@@ -79,14 +78,13 @@ class SAM05Validator:
                 ),
                 score,
             )
-        else:
-            return (
-                False,
-                f"🟡 {self.id}: geen repository termen gebruikt in definitie",
-                0.3,
-            )
+        return (
+            False,
+            f"🟡 {self.id}: geen repository termen gebruikt in definitie",
+            0.3,
+        )
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -122,7 +120,7 @@ def create_validator(config_path: str = None) -> SAM05Validator:
         config_path = os.path.join(current_dir, "SAM-05.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return SAM05Validator(config)

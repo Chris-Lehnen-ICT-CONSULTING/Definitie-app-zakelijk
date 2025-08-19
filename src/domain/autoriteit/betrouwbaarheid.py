@@ -5,8 +5,8 @@ Geëxtraheerd uit legacy bron_lookup.py om domeinkennis
 over Nederlandse juridische hiërarchie te bewaren.
 """
 
-from enum import Enum
 from dataclasses import dataclass
+from enum import Enum
 
 
 class BronType(Enum):

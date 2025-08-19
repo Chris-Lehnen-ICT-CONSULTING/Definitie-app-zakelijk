@@ -21,7 +21,7 @@ from .toetser import Toetser  # OO-wrapper klasse voor verboden woorden toetsing
 
 # Exporteer publieke interface - alle toetsing componenten
 __all__ = [
+    "ModularToetser",
     "Toetser",
     "toets_definitie",
-    "ModularToetser",
 ]  # Beschikbare klassen en functies

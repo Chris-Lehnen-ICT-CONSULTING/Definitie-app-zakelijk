@@ -17,19 +17,19 @@ gantt
     Fix Critical Bugs             :active, 2024-01-19, 2024-02-01
     Setup CI/CD Pipeline          :2024-02-01, 2024-02-15
     Add Basic Monitoring          :2024-02-15, 2024-03-01
-    
+
     section API Layer
     Design API Contracts          :2024-03-01, 2024-03-15
     Implement API Gateway         :2024-03-15, 2024-04-01
     Add Authentication           :2024-04-01, 2024-04-15
     API Documentation            :2024-04-15, 2024-05-01
-    
+
     section Core Migration
     PostgreSQL Migration         :2024-05-01, 2024-06-01
     Container Deployment         :2024-06-01, 2024-07-01
     Complete UI Tabs             :2024-05-01, 2024-07-01
     Performance Optimization     :2024-07-01, 2024-08-01
-    
+
     section Advanced Features
     Event Bus Implementation     :2024-08-01, 2024-09-01
     Advanced Monitoring          :2024-09-01, 2024-10-01
@@ -444,10 +444,10 @@ def calculate_progress():
         "phase_3": {"total": 30, "completed": 0},
         "phase_4": {"total": 15, "completed": 0}
     }
-    
+
     total_tasks = sum(p["total"] for p in tasks.values())
     completed_tasks = sum(p["completed"] for p in tasks.values())
-    
+
     return {
         "overall_progress": f"{completed_tasks}/{total_tasks} ({completed_tasks/total_tasks*100:.1f}%)",
         "current_phase": "Phase 0: Foundation",

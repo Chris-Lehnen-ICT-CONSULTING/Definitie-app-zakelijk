@@ -25,8 +25,8 @@ Dit moet geconsolideerd worden naar één werkende service.
 
 **Story Points**: 2
 
-**Als een** developer  
-**wil ik** alle web lookup files analyseren  
+**Als een** developer
+**wil ik** alle web lookup files analyseren
 **zodat** ik weet wat te behouden en wat te verwijderen.
 
 #### Acceptance Criteria
@@ -58,8 +58,8 @@ grep -n "encoding" *.py
 
 **Story Points**: 5
 
-**Als een** developer  
-**wil ik** één consolidated web lookup service  
+**Als een** developer
+**wil ik** één consolidated web lookup service
 **zodat** encoding correct werkt voor alle bronnen.
 
 #### Acceptance Criteria
@@ -76,7 +76,7 @@ import logging
 
 class WebLookupService:
     """Consolidated web lookup service met proper encoding."""
-    
+
     SOURCES = {
         "wetten.nl": {
             "base_url": "https://wetten.overheid.nl",
@@ -91,7 +91,7 @@ class WebLookupService:
             "api_endpoint": "/api/search"
         }
     }
-    
+
     async def search(self, term: str, source: str) -> List[Dict]:
         """Search with proper UTF-8 handling."""
         async with httpx.AsyncClient() as client:
@@ -117,8 +117,8 @@ class WebLookupService:
 
 **Story Points**: 3
 
-**Als een** gebruiker  
-**wil ik** web lookup resultaten zien in de UI  
+**Als een** gebruiker
+**wil ik** web lookup resultaten zien in de UI
 **zodat** ik juridische bronnen kan raadplegen.
 
 #### Acceptance Criteria
@@ -189,5 +189,5 @@ async def perform_search():
 - [ ] Update documentation
 
 ---
-*Epic owner: Backend Team*  
+*Epic owner: Backend Team*
 *Last updated: 2025-01-18*

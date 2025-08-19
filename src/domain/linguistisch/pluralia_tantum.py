@@ -5,8 +5,6 @@ Geëxtraheerd uit legacy lookup.py om Nederlandse taalkundige
 kennis te bewaren voor correcte grammatica validatie.
 """
 
-from typing import Set
-
 
 class PluraliatantumChecker:
     """
@@ -144,7 +142,7 @@ class PluraliatantumChecker:
         return woord.lower() in cls.PLURALIA_TANTUM_WOORDEN
 
     @classmethod
-    def get_alle_woorden(cls) -> Set[str]:
+    def get_alle_woorden(cls) -> set[str]:
         """
         Krijg alle pluralia tantum woorden.
 
@@ -164,7 +162,7 @@ class PluraliatantumChecker:
         return len(cls.PLURALIA_TANTUM_WOORDEN)
 
     @classmethod
-    def zoek_woorden_met_prefix(cls, prefix: str) -> Set[str]:
+    def zoek_woorden_met_prefix(cls, prefix: str) -> set[str]:
         """
         Zoek alle pluralia tantum woorden met een bepaalde prefix.
 

@@ -1,7 +1,7 @@
 # 📚 Volledige Archief Analyse - DEFINITIEF
 
-**Datum Analyse**: 2025-01-15  
-**Analist**: Claude (Senior Python Developer)  
+**Datum Analyse**: 2025-01-15
+**Analist**: Claude (Senior Python Developer)
 **Totaal Geanalyseerd**: 100+ documenten in docs/archief
 
 ## 🚨 KRITIEKE BEVINDINGEN - NIET VERWIJDEREN
@@ -24,7 +24,7 @@
 #### Temperature Settings (LEGACY_VOORBEELDEN_ANALYSIS.md)
 **KRITIEK**: Exacte GPT temperature waardes:
 - Synoniemen: 0.3 (NIET 0.2)
-- Antoniemen: 0.3 (NIET 0.2)  
+- Antoniemen: 0.3 (NIET 0.2)
 - Toelichting: 0.4 (NIET 0.3)
 - Praktijkvoorbeelden: 0.2
 - Tegenvoorbeelden: 0.2
@@ -119,7 +119,7 @@
 ### Fase 2: Reorganisatie
 ```
 docs/archief/
-├── ACTIEF/                          
+├── ACTIEF/
 │   ├── planning/
 │   │   ├── GECONSOLIDEERDE_ROADMAP_BACKLOG.md
 │   │   ├── MASTER_ISSUE.md
@@ -130,7 +130,7 @@ docs/archief/
 │   │   └── MERGE_SUMMARY.md
 │   └── SPECIFICATIONS.md           # Nieuwe file met kritieke specs
 │
-├── REFERENTIE/                      
+├── REFERENTIE/
 │   ├── architectuur/
 │   │   └── [alle ARCHITECTURE*.md files]
 │   ├── implementatie/
@@ -142,7 +142,7 @@ docs/archief/
 │   └── testing/
 │       └── [alle TEST_*.md files]
 │
-├── HISTORISCH/                      
+├── HISTORISCH/
 │   ├── analyses/
 │   │   ├── COMPLETE_CODEBASE_ANALYSIS.md
 │   │   ├── UI_ANALYSE.md

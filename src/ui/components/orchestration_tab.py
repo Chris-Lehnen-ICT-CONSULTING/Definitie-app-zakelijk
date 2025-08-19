@@ -5,13 +5,12 @@ Orchestration Tab - Interface voor geavanceerde definitie orchestratie en iterat
 import asyncio
 import time
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 
@@ -33,7 +32,6 @@ class OrchestrationTab:
             sys.path.append(str(Path(__file__).parents[2] / "orchestration"))
 
             from definitie_agent import AgentStatus, DefinitieAgent, IterationResult
-
             from domain.ontological_categories import OntologischeCategorie
 
             # Store classes for use
@@ -46,7 +44,7 @@ class OrchestrationTab:
             self.agent = self.DefinitieAgent(max_iterations=1)  # Geen iteraties
 
         except Exception as e:
-            st.error(f"❌ Kon orchestration agent niet laden: {str(e)}")
+            st.error(f"❌ Kon orchestration agent niet laden: {e!s}")
             self.DefinitieAgent = None
 
     def render(self):
@@ -185,7 +183,7 @@ class OrchestrationTab:
                     )
                     loop.close()
                 except Exception as e:
-                    st.error(f"❌ Fout tijdens orchestratie: {str(e)}")
+                    st.error(f"❌ Fout tijdens orchestratie: {e!s}")
             else:
                 st.warning("⚠️ Voer een begrip in")
 
@@ -269,7 +267,7 @@ class OrchestrationTab:
                 self._display_agent_result(agent_result)
 
         except Exception as e:
-            st.error(f"❌ Orchestratie fout: {str(e)}")
+            st.error(f"❌ Orchestratie fout: {e!s}")
 
     def _simulate_agent_run(
         self,
@@ -761,7 +759,6 @@ class OrchestrationTab:
                     f"({result.get('iteration_count', 0)} iteraties)",
                     expanded=False,
                 ):
-
                     col1, col2, col3 = st.columns(3)
 
                     with col1:
@@ -841,7 +838,7 @@ class OrchestrationTab:
                     )
                     st.rerun()
 
-    def _get_historical_results(self) -> List[Dict[str, Any]]:
+    def _get_historical_results(self) -> list[dict[str, Any]]:
         """Get historical orchestration results (mock for now)."""
         # In a real implementation, this would load from database
         return [
@@ -867,7 +864,7 @@ class OrchestrationTab:
             },
         ]
 
-    def _render_performance_trends(self, results: List[Dict[str, Any]]):
+    def _render_performance_trends(self, results: list[dict[str, Any]]):
         """Render performance trends charts."""
         st.markdown("##### 📈 Performance Trends")
 
@@ -915,7 +912,7 @@ class OrchestrationTab:
             fig_time.update_layout(height=250)
             st.plotly_chart(fig_time, use_container_width=True)
 
-    def _render_success_analysis(self, results: List[Dict[str, Any]]):
+    def _render_success_analysis(self, results: list[dict[str, Any]]):
         """Render success analysis charts."""
         st.markdown("##### 🎯 Success Analyse")
 

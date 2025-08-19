@@ -11,7 +11,7 @@ import logging
 import re
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from domain.ontological_categories import OntologischeCategorie
 from toetsregels.manager import get_toetsregel_manager
@@ -44,9 +44,9 @@ class ValidationCriterion:
 
     rule_id: str
     description: str
-    patterns_to_avoid: List[str] = None  # Regex patronen om te vermijden
-    required_elements: List[str] = None  # Vereiste elementen
-    structure_checks: List[str] = None  # Structurele controles
+    patterns_to_avoid: list[str] = None  # Regex patronen om te vermijden
+    required_elements: list[str] = None  # Vereiste elementen
+    structure_checks: list[str] = None  # Structurele controles
     scoring_weight: float = 1.0  # Gewicht in totaalscore
     severity: ViolationSeverity = (
         ViolationSeverity.MEDIUM
@@ -70,9 +70,9 @@ class RuleViolation:
     violation_type: ViolationType
     severity: ViolationSeverity
     description: str
-    detected_pattern: Optional[str] = None
-    suggestion: Optional[str] = None
-    position: Optional[int] = None  # Positie in tekst waar violation gevonden
+    detected_pattern: str | None = None
+    suggestion: str | None = None
+    position: int | None = None  # Positie in tekst waar violation gevonden
 
 
 @dataclass
@@ -81,24 +81,24 @@ class ValidationResult:
 
     definitie: str
     overall_score: float  # 0.0 - 1.0
-    violations: List[RuleViolation]
-    passed_rules: List[str]
+    violations: list[RuleViolation]
+    passed_rules: list[str]
     categorie_compliance: float  # Compliance voor specifieke categorie
     is_acceptable: bool  # Of definitie geaccepteerd wordt
-    improvement_suggestions: List[str]
-    detailed_scores: Dict[str, float] = None  # Score per regel
+    improvement_suggestions: list[str]
+    detailed_scores: dict[str, float] = None  # Score per regel
 
     def __post_init__(self):
         if self.detailed_scores is None:
             self.detailed_scores = {}
 
-    def get_critical_violations(self) -> List[RuleViolation]:
+    def get_critical_violations(self) -> list[RuleViolation]:
         """Haal kritieke violations op."""
         return [v for v in self.violations if v.severity == ViolationSeverity.CRITICAL]
 
-    def get_violation_count_by_severity(self) -> Dict[ViolationSeverity, int]:
+    def get_violation_count_by_severity(self) -> dict[ViolationSeverity, int]:
         """Tel violations per severity."""
-        counts = {severity: 0 for severity in ViolationSeverity}
+        counts = dict.fromkeys(ViolationSeverity, 0)
         for violation in self.violations:
             counts[violation.severity] += 1
         return counts
@@ -114,7 +114,7 @@ class ValidationRegelInterpreter:
     def __init__(self):
         self.rule_manager = get_toetsregel_manager()
 
-    def for_validation(self, regel_data: Dict[str, Any]) -> ValidationCriterion:
+    def for_validation(self, regel_data: dict[str, Any]) -> ValidationCriterion:
         """
         Converteer toetsregel naar validatie criterium.
 
@@ -155,7 +155,7 @@ class ValidationRegelInterpreter:
             severity=severity,
         )
 
-    def _extract_forbidden_patterns(self, regel_data: Dict[str, Any]) -> List[str]:
+    def _extract_forbidden_patterns(self, regel_data: dict[str, Any]) -> list[str]:
         """Extraheer verboden patronen uit regel.
 
         Args:
@@ -198,7 +198,7 @@ class ValidationRegelInterpreter:
         all_patterns = base_patterns + additional_patterns.get(regel_id, [])
         return [pattern for pattern in all_patterns if pattern]  # Filter lege patronen
 
-    def _extract_required_elements(self, regel_data: Dict[str, Any]) -> List[str]:
+    def _extract_required_elements(self, regel_data: dict[str, Any]) -> list[str]:
         """Extraheer vereiste elementen uit regel.
 
         Args:
@@ -221,7 +221,7 @@ class ValidationRegelInterpreter:
 
         return requirements.get(regel_id, [])
 
-    def _extract_structure_checks(self, regel_data: Dict[str, Any]) -> List[str]:
+    def _extract_structure_checks(self, regel_data: dict[str, Any]) -> list[str]:
         """Extraheer structurele controles uit regel.
 
         Args:
@@ -243,7 +243,7 @@ class ValidationRegelInterpreter:
 
         return structure_checks.get(regel_id, [])
 
-    def _determine_severity(self, regel_data: Dict[str, Any]) -> ViolationSeverity:
+    def _determine_severity(self, regel_data: dict[str, Any]) -> ViolationSeverity:
         """Bepaal severity op basis van prioriteit en aanbeveling.
 
         Args:
@@ -257,14 +257,13 @@ class ValidationRegelInterpreter:
 
         if aanbeveling == "verplicht" and prioriteit == "hoog":
             return ViolationSeverity.CRITICAL
-        elif aanbeveling == "verplicht":
+        if aanbeveling == "verplicht":
             return ViolationSeverity.HIGH
-        elif prioriteit == "hoog":
+        if prioriteit == "hoog":
             return ViolationSeverity.MEDIUM
-        else:
-            return ViolationSeverity.LOW
+        return ViolationSeverity.LOW
 
-    def _calculate_weight(self, regel_data: Dict[str, Any]) -> float:
+    def _calculate_weight(self, regel_data: dict[str, Any]) -> float:
         """Bereken scoring weight voor regel.
 
         Args:
@@ -313,7 +312,7 @@ class DefinitieValidator:
         self,
         definitie: str,
         categorie: OntologischeCategorie,
-        context: Optional[Dict[str, Any]] = None,
+        context: dict[str, Any] | None = None,
     ) -> ValidationResult:
         """
         Valideer definitie tegen toetsregels.
@@ -380,7 +379,7 @@ class DefinitieValidator:
 
     def _load_validation_criteria(
         self, categorie: OntologischeCategorie
-    ) -> List[ValidationCriterion]:
+    ) -> list[ValidationCriterion]:
         """Laad relevante validatie criteria voor categorie.
 
         Args:
@@ -414,7 +413,7 @@ class DefinitieValidator:
 
     def _validate_against_criterion(
         self, definitie: str, criterium: ValidationCriterion
-    ) -> Tuple[List[RuleViolation], float]:
+    ) -> tuple[list[RuleViolation], float]:
         """Valideer definitie tegen specifiek criterium."""
         violations = []
         rule_score = 1.0  # Start met perfecte score
@@ -634,7 +633,7 @@ class DefinitieValidator:
         )
 
     def _calculate_overall_score(
-        self, detailed_scores: Dict[str, float], criteria: List[ValidationCriterion]
+        self, detailed_scores: dict[str, float], criteria: list[ValidationCriterion]
     ) -> float:
         """Bereken overall compliance score."""
         if not detailed_scores:
@@ -654,7 +653,7 @@ class DefinitieValidator:
         return total_weighted_score / total_weight if total_weight > 0 else 0.0
 
     def _calculate_category_compliance(
-        self, detailed_scores: Dict[str, float], categorie: OntologischeCategorie
+        self, detailed_scores: dict[str, float], categorie: OntologischeCategorie
     ) -> float:
         """Bereken category-specifieke compliance."""
         # Voor nu simple average van alle scores
@@ -667,7 +666,7 @@ class DefinitieValidator:
     def _determine_acceptance(
         self,
         overall_score: float,
-        violations: List[RuleViolation],
+        violations: list[RuleViolation],
         category_compliance: float,
     ) -> bool:
         """Bepaal of definitie geaccepteerd wordt."""
@@ -689,8 +688,8 @@ class DefinitieValidator:
         return True
 
     def _generate_improvement_suggestions(
-        self, violations: List[RuleViolation]
-    ) -> List[str]:
+        self, violations: list[RuleViolation]
+    ) -> list[str]:
         """Genereer improvement suggestions op basis van violations."""
         suggestions = []
 
@@ -731,7 +730,7 @@ class DefinitieValidator:
 
 # Convenience functions
 def validate_definitie(
-    definitie: str, categorie: str = "type", context: Optional[Dict[str, Any]] = None
+    definitie: str, categorie: str = "type", context: dict[str, Any] | None = None
 ) -> ValidationResult:
     """
     Convenience functie voor snelle definitie validatie.
@@ -761,8 +760,8 @@ def validate_definitie(
 
 # Modular validator consistency checker
 def valideer_modulaire_toetsregels_consistentie(
-    regels_dir: Optional[str] = None,
-) -> Dict[str, Any]:
+    regels_dir: str | None = None,
+) -> dict[str, Any]:
     """
     Valideer consistentie tussen JSON configs en Python validators in modulaire architectuur.
 
@@ -839,7 +838,7 @@ def valideer_modulaire_toetsregels_consistentie(
     # Valideer Python module structuur
     for python_id, python_file in python_files.items():
         try:
-            with open(python_file, "r", encoding="utf-8") as f:
+            with open(python_file, encoding="utf-8") as f:
                 content = f.read()
 
             # Check voor validator class
@@ -864,13 +863,13 @@ def valideer_modulaire_toetsregels_consistentie(
                 )
         except Exception as e:
             results["invalid_validators"].append(
-                {"file": python_id, "issue": f"Kon bestand niet lezen: {str(e)}"}
+                {"file": python_id, "issue": f"Kon bestand niet lezen: {e!s}"}
             )
 
     # Check JSON volledigheid
     for json_id, json_file in json_files.items():
         try:
-            with open(json_file, "r", encoding="utf-8") as f:
+            with open(json_file, encoding="utf-8") as f:
                 data = json.load(f)
 
             issues = []
@@ -896,7 +895,7 @@ def valideer_modulaire_toetsregels_consistentie(
 
         except Exception as e:
             results["incomplete_rules"].append(
-                {"rule_id": json_id, "issues": [f"JSON parse error: {str(e)}"]}
+                {"rule_id": json_id, "issues": [f"JSON parse error: {e!s}"]}
             )
 
     # Bereken consistentie percentage
@@ -909,7 +908,7 @@ def valideer_modulaire_toetsregels_consistentie(
     return results
 
 
-def format_modulaire_consistency_report(results: Dict[str, Any]) -> str:
+def format_modulaire_consistency_report(results: dict[str, Any]) -> str:
     """
     Format modulaire consistency validation results as a readable report.
 

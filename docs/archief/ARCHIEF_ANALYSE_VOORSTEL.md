@@ -1,7 +1,7 @@
 # 📋 Analyse Docs/Archief - Voorstel tot Reorganisatie
 
-**Datum**: 2025-01-15  
-**Analist**: Claude (Senior Python Developer)  
+**Datum**: 2025-01-15
+**Analist**: Claude (Senior Python Developer)
 **Doel**: Overzicht creëren en reorganisatieplan voorstellen
 
 ## 🔍 Huidige Situatie

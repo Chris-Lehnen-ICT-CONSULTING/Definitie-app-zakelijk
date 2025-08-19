@@ -1,9 +1,10 @@
 """
 Simpele performance vergelijking tussen legacy en nieuwe services.
 """
-import time
+
 import os
 import sys
+import time
 from pathlib import Path
 
 # Voeg src toe aan path
@@ -18,17 +19,19 @@ print("-" * 30)
 
 # Legacy
 start = time.perf_counter()
-os.environ['USE_NEW_SERVICES'] = 'false'
+os.environ["USE_NEW_SERVICES"] = "false"
 from services import UnifiedDefinitionService
+
 legacy_service = UnifiedDefinitionService()
 legacy_time = (time.perf_counter() - start) * 1000
 
 print(f"Legacy startup: {legacy_time:.2f}ms")
 
-# New 
+# New
 start = time.perf_counter()
-os.environ['USE_NEW_SERVICES'] = 'true'
+os.environ["USE_NEW_SERVICES"] = "true"
 from services import get_container
+
 container = get_container()
 orchestrator = container.orchestrator()
 new_time = (time.perf_counter() - start) * 1000
@@ -41,14 +44,16 @@ print("\n📊 Object Creation Comparison")
 print("-" * 30)
 
 # Count services in new architecture
-services_count = len([
-    container.generator(),
-    container.validator(), 
-    container.repository(),
-    container.orchestrator()
-])
+services_count = len(
+    [
+        container.generator(),
+        container.validator(),
+        container.repository(),
+        container.orchestrator(),
+    ]
+)
 
-print(f"Legacy:  1 unified service")
+print("Legacy:  1 unified service")
 print(f"New:     {services_count} specialized services")
 
 # Test 3: Configuration flexibility

@@ -7,13 +7,13 @@ Dit maakt het makkelijk om services te configureren, testen en swappen.
 
 import logging
 import os
-from typing import Any, Dict, Optional
+from typing import Any
 
-from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
 from services.definition_repository import DefinitionRepository
 from services.definition_validator import DefinitionValidator, ValidatorConfig
+from services.duplicate_detection_service import DuplicateDetectionService
 from services.interfaces import (
     DefinitionGeneratorInterface,
     DefinitionOrchestratorInterface,
@@ -22,7 +22,7 @@ from services.interfaces import (
     WebLookupServiceInterface,
 )
 from services.modern_web_lookup_service import ModernWebLookupService
-from services.duplicate_detection_service import DuplicateDetectionService
+from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.workflow_service import WorkflowService
 
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ class ServiceContainer:
     - Biedt een centrale plek voor service configuratie
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: dict[str, Any] | None = None):
         """
         Initialiseer de container met optionele configuratie.
 
@@ -61,8 +61,8 @@ class ServiceContainer:
         # Service specifieke configuratie - Use default and override via sub-configs
         from services.definition_generator_config import (
             GPTConfig,
-            QualityConfig,
             MonitoringConfig,
+            QualityConfig,
         )
 
         gpt_config = GPTConfig(
@@ -135,23 +135,26 @@ class ServiceContainer:
         if "repository" not in self._instances:
             # Check if database should be used
             use_database = self.config.get("use_database", True)
-            
+
             if use_database:
                 repository = DefinitionRepository(self.db_path)
-                
+
                 # Inject duplicate service if enabled
                 if self.config.get("use_new_duplicate_detection", True):
                     repository.set_duplicate_service(self.duplicate_detector())
-                    
+
                 self._instances["repository"] = repository
                 logger.info(
                     f"DefinitionRepository instance aangemaakt met db: {self.db_path}"
                 )
             else:
                 from services.null_repository import NullDefinitionRepository
+
                 self._instances["repository"] = NullDefinitionRepository()
-                logger.info("NullDefinitionRepository instance aangemaakt (no database)")
-                
+                logger.info(
+                    "NullDefinitionRepository instance aangemaakt (no database)"
+                )
+
         return self._instances["repository"]
 
     def orchestrator(self) -> DefinitionOrchestratorInterface:
@@ -191,11 +194,15 @@ class ServiceContainer:
             Singleton instance van DuplicateDetectionService
         """
         if "duplicate_detector" not in self._instances:
-            similarity_threshold = self.config.get("duplicate_similarity_threshold", 0.7)
+            similarity_threshold = self.config.get(
+                "duplicate_similarity_threshold", 0.7
+            )
             self._instances["duplicate_detector"] = DuplicateDetectionService(
                 similarity_threshold=similarity_threshold
             )
-            logger.info(f"DuplicateDetectionService instance aangemaakt met threshold {similarity_threshold}")
+            logger.info(
+                f"DuplicateDetectionService instance aangemaakt met threshold {similarity_threshold}"
+            )
         return self._instances["duplicate_detector"]
 
     def workflow(self) -> WorkflowService:
@@ -241,7 +248,7 @@ class ServiceContainer:
             return service_map[name]()
         return None
 
-    def update_config(self, config: Dict[str, Any]):
+    def update_config(self, config: dict[str, Any]):
         """
         Update configuratie en reset services.
 
@@ -255,10 +262,10 @@ class ServiceContainer:
 
 
 # Globale container instance (optioneel)
-_default_container: Optional[ServiceContainer] = None
+_default_container: ServiceContainer | None = None
 
 
-def get_container(config: Optional[Dict[str, Any]] = None) -> ServiceContainer:
+def get_container(config: dict[str, Any] | None = None) -> ServiceContainer:
     """
     Get de default container instance.
 
@@ -289,7 +296,7 @@ class ContainerConfigs:
     """Voorgedefinieerde configuraties voor verschillende environments."""
 
     @staticmethod
-    def development() -> Dict[str, Any]:
+    def development() -> dict[str, Any]:
         """Development configuratie."""
         return {
             "db_path": "data/dev_definities.db",
@@ -302,7 +309,7 @@ class ContainerConfigs:
         }
 
     @staticmethod
-    def testing() -> Dict[str, Any]:
+    def testing() -> dict[str, Any]:
         """Test configuratie."""
         return {
             "db_path": ":memory:",  # In-memory database
@@ -315,7 +322,7 @@ class ContainerConfigs:
         }
 
     @staticmethod
-    def production() -> Dict[str, Any]:
+    def production() -> dict[str, Any]:
         """Production configuratie."""
         return {
             "db_path": "data/production_definities.db",

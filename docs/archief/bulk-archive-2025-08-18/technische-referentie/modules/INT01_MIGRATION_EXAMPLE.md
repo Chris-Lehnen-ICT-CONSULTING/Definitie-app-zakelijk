@@ -11,7 +11,7 @@ def toets_INT_01(definitie, regel):
     complexiteit_gevonden = set()
     for patroon in patroon_lijst:
         complexiteit_gevonden.update(re.findall(patroon, definitie, re.IGNORECASE))
-    
+
     # ... rest van de logica
 ```
 
@@ -32,8 +32,8 @@ class INT01Validator:
         """Initialiseer met JSON config."""
         self.config = config
         self.compile_patterns()  # Pre-compile regex voor performance
-    
-    def validate(self, definitie: str, begrip: str, 
+
+    def validate(self, definitie: str, begrip: str,
                 context: Optional[Dict] = None) -> Tuple[bool, str, float]:
         """Valideer volgens INT-01 regel."""
         # Migreer legacy logica hier

@@ -15,7 +15,7 @@ This document consolidates the key findings from multiple code reviews conducted
 
 #### 1. Definition Generator
 - **Purpose**: Generates BRMO+ definition objects from various sources
-- **Key Classes**: 
+- **Key Classes**:
   - `DefinitionGeneratorService`: Main service orchestrator
   - `DefinitionGeneratorProtocol`: Interface definition
 - **Issues Identified**:

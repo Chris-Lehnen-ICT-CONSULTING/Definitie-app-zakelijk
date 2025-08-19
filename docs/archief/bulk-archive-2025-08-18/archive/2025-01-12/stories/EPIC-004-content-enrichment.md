@@ -18,8 +18,8 @@ Gebruikers willen meer dan alleen een definitie. Ze willen context, voorbeelden 
 
 **Story Points**: 3
 
-**Als een** gebruiker  
-**wil ik** synoniemen zien bij definities  
+**Als een** gebruiker
+**wil ik** synoniemen zien bij definities
 **zodat** ik alternatieven ken.
 
 #### Acceptance Criteria
@@ -32,30 +32,30 @@ Gebruikers willen meer dan alleen een definitie. Ze willen context, voorbeelden 
 ```python
 class SynonymService:
     """Generate context-aware synonyms for terms."""
-    
+
     async def generate_synonyms(
-        self, 
-        term: str, 
+        self,
+        term: str,
         context: str,
         definition: str
     ) -> List[str]:
         prompt = f"""
         Geef 3-5 synoniemen voor '{term}' in {context} context.
-        
+
         Definitie: {definition}
-        
+
         Regels:
         - Alleen Nederlandse woorden
         - Context-appropriate
         - Verschillende nuances
         - Geen herhaling van het woord zelf
-        
+
         Format: komma-gescheiden lijst
         """
-        
+
         response = await self.ai_client.complete(prompt)
         return self._parse_synonyms(response)
-    
+
     def _parse_synonyms(self, response: str) -> List[str]:
         # Clean and validate synonyms
         synonyms = [s.strip() for s in response.split(',')]
@@ -73,8 +73,8 @@ class SynonymService:
 
 **Story Points**: 3
 
-**Als een** gebruiker  
-**wil ik** antoniemen zien waar relevant  
+**Als een** gebruiker
+**wil ik** antoniemen zien waar relevant
 **zodat** ik tegenstellingen begrijp.
 
 #### Acceptance Criteria
@@ -87,32 +87,32 @@ class SynonymService:
 ```python
 class AntonymService:
     """Generate antonyms where meaningful."""
-    
+
     # Terms that typically have antonyms
     ANTONYM_CATEGORIES = {
         'binary': ['schuldig', 'onschuldig', 'geldig', 'ongeldig'],
         'gradual': ['zwaar', 'licht', 'streng', 'mild'],
         'directional': ['koper', 'verkoper', 'eiser', 'verweerder']
     }
-    
+
     async def generate_antonyms(
-        self, 
+        self,
         term: str,
         definition: str
     ) -> Optional[List[str]]:
         # First check if antonyms make sense
         if not self._has_meaningful_opposite(term, definition):
             return None
-            
+
         prompt = f"""
         Geef antoniemen voor '{term}' als die bestaan.
-        
+
         Definitie: {definition}
-        
+
         Return NULL als geen zinvolle tegenstelling bestaat.
         Anders: komma-gescheiden lijst (max 3)
         """
-        
+
         response = await self.ai_client.complete(prompt)
         return self._parse_antonyms(response)
 ```
@@ -128,8 +128,8 @@ class AntonymService:
 
 **Story Points**: 3
 
-**Als een** gebruiker  
-**wil ik** voorbeeldzinnen zien  
+**Als een** gebruiker
+**wil ik** voorbeeldzinnen zien
 **zodat** ik het gebruik begrijp.
 
 #### Acceptance Criteria
@@ -142,7 +142,7 @@ class AntonymService:
 ```python
 class ExampleService:
     """Generate contextual example sentences."""
-    
+
     async def generate_examples(
         self,
         term: str,
@@ -150,25 +150,25 @@ class ExampleService:
         context: str
     ) -> List[str]:
         contexts = self._get_contexts(context)
-        
+
         prompt = f"""
         Genereer 5 voorbeeldzinnen voor '{term}'.
-        
+
         Definitie: {definition}
-        
+
         Contexten te gebruiken:
         {json.dumps(contexts, ensure_ascii=False)}
-        
+
         Regels:
         - Realistische scenarios
         - Verschillende gebruikssituaties
         - Helder en begrijpelijk
         - 15-25 woorden per zin
         """
-        
+
         response = await self.ai_client.complete(prompt)
         return self._parse_examples(response)
-    
+
     def _get_contexts(self, base_context: str) -> List[str]:
         """Get varied contexts for examples."""
         context_map = {
@@ -191,8 +191,8 @@ class ExampleService:
 
 **Story Points**: 2
 
-**Als een** gebruiker  
-**wil ik** enrichments overzichtelijk zien  
+**Als een** gebruiker
+**wil ik** enrichments overzichtelijk zien
 **zodat** de interface niet cluttered wordt.
 
 #### Acceptance Criteria
@@ -205,22 +205,22 @@ class ExampleService:
 ```python
 def render_enriched_definition(definition: EnrichedDefinition):
     """Display definition with all enrichments."""
-    
+
     # Main definition always visible
     st.markdown(f"### {definition.term}")
     st.write(definition.definition)
-    
+
     # Enrichments in tabs
     tab1, tab2, tab3, tab4 = st.tabs([
-        "📝 Basis", 
+        "📝 Basis",
         "🔄 Synoniemen",
         "↔️ Antoniemen",
         "💡 Voorbeelden"
     ])
-    
+
     with tab1:
         display_metadata(definition)
-    
+
     with tab2:
         if definition.synonyms:
             st.write("**Synoniemen:**")
@@ -228,7 +228,7 @@ def render_enriched_definition(definition: EnrichedDefinition):
                 st.write(f"• {syn}")
         else:
             st.info("Geen synoniemen beschikbaar")
-    
+
     with tab3:
         if definition.antonyms:
             st.write("**Antoniemen:**")
@@ -236,7 +236,7 @@ def render_enriched_definition(definition: EnrichedDefinition):
                 st.write(f"• {ant}")
         else:
             st.info("Geen antoniemen van toepassing")
-    
+
     with tab4:
         if definition.examples:
             st.write("**Voorbeeldzinnen:**")
@@ -296,5 +296,5 @@ DefinitionService
 - Export usage +50%
 
 ---
-*Epic owner: AI Team*  
+*Epic owner: AI Team*
 *Last updated: 2025-01-18*

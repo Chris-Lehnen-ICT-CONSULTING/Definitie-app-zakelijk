@@ -8,10 +8,9 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
 from datetime import datetime  # Datum en tijd functionaliteit
-from typing import Any, Dict, Optional  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
-
 from database.definitie_repository import (  # Database toegang factory
     get_definitie_repository,
 )
@@ -21,15 +20,15 @@ from document_processing.document_extractor import (  # Ondersteunde bestandstyp
 from document_processing.document_processor import (  # Document processor factory
     get_document_processor,
 )
-from services.unified_definition_generator import (  # Ontologische categorieën
-    OntologischeCategorie,
-)
 from integration.definitie_checker import (  # Definitie integratie controle
     DefinitieChecker,
 )
 
 # Nieuwe services imports
 from services import get_definition_service, render_feature_flag_toggle
+from services.unified_definition_generator import (  # Ontologische categorieën
+    OntologischeCategorie,
+)
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.context_selector import ContextSelector  # Context selectie component
@@ -46,6 +45,7 @@ from ui.components.external_sources_tab import (  # Externe bronnen beheer
 from ui.components.history_tab import HistoryTab  # Historie overzicht tab
 from ui.components.management_tab import ManagementTab  # Systeem management tools
 from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
+
 # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
 # from ui.components.orchestration_tab import (  # Orchestratie en automatisering
 #     OrchestrationTab,
@@ -189,10 +189,11 @@ class TabbedInterface:
             # Probeer eerst de volledige 6-stappen analyse
             try:
                 analyzer = OntologischeAnalyzer()
-                categorie, analyse_resultaat = (
-                    await analyzer.bepaal_ontologische_categorie(
-                        begrip, org_context, jur_context
-                    )
+                (
+                    categorie,
+                    analyse_resultaat,
+                ) = await analyzer.bepaal_ontologische_categorie(
+                    begrip, org_context, jur_context
                 )
 
                 # Haal de redenering en scores uit het analyse resultaat
@@ -245,15 +246,14 @@ class TabbedInterface:
         # Eenvoudige patronen
         if any(begrip_lower.endswith(p) for p in ["atie", "ing", "eren"]):
             return "Proces patroon gedetecteerd"
-        elif any(w in begrip_lower for w in ["document", "bewijs", "systeem"]):
+        if any(w in begrip_lower for w in ["document", "bewijs", "systeem"]):
             return "Type patroon gedetecteerd"
-        elif any(w in begrip_lower for w in ["resultaat", "uitkomst", "besluit"]):
+        if any(w in begrip_lower for w in ["resultaat", "uitkomst", "besluit"]):
             return "Resultaat patroon gedetecteerd"
-        else:
-            return "Geen duidelijke patronen gedetecteerd"
+        return "Geen duidelijke patronen gedetecteerd"
 
     def _generate_category_reasoning(
-        self, begrip: str, category: str, scores: Dict[str, int]
+        self, begrip: str, category: str, scores: dict[str, int]
     ) -> str:
         """Genereer uitleg waarom deze categorie gekozen is."""
         begrip_lower = begrip.lower()
@@ -321,14 +321,11 @@ class TabbedInterface:
         if detected_patterns:
             pattern_text = ", ".join(f"'{p}'" for p in detected_patterns)
             return f"Gedetecteerde patronen: {pattern_text} (score: {scores[category]})"
-        elif category == "proces" and scores[category] == 0:
+        if category == "proces" and scores[category] == 0:
             return "Standaard categorie (geen specifieke patronen gedetecteerd)"
-        else:
-            return (
-                f"Hoogste score voor {category} categorie (score: {scores[category]})"
-            )
+        return f"Hoogste score voor {category} categorie (score: {scores[category]})"
 
-    def _get_category_scores(self, begrip: str) -> Dict[str, int]:
+    def _get_category_scores(self, begrip: str) -> dict[str, int]:
         """Herbereken de categorie scores voor display."""
         try:
             begrip_lower = begrip.lower()
@@ -497,7 +494,7 @@ class TabbedInterface:
         st.markdown("---")
         self._render_quick_generate_button(begrip, context_data)
 
-    def _render_simplified_context_selector(self) -> Dict[str, Any]:
+    def _render_simplified_context_selector(self) -> dict[str, Any]:
         """Render vereenvoudigde context selector zonder presets."""
         col1, col2, col3 = st.columns(3)
 
@@ -663,7 +660,7 @@ class TabbedInterface:
             )
             SessionStateManager.set_value("ketenpartners", ketenpartners)
 
-    def _render_quick_generate_button(self, begrip: str, context_data: Dict[str, Any]):
+    def _render_quick_generate_button(self, begrip: str, context_data: dict[str, Any]):
         """Render snelle genereer definitie knop."""
         col1, col2, col3 = st.columns([2, 1, 1])
 
@@ -697,7 +694,7 @@ class TabbedInterface:
                 self._clear_all_fields()
                 st.rerun()
 
-    def _handle_definition_generation(self, begrip: str, context_data: Dict[str, Any]):
+    def _handle_definition_generation(self, begrip: str, context_data: dict[str, Any]):
         """Handle definitie generatie vanaf hoofdniveau met hybrid context ondersteuning."""
         try:
             with st.spinner("🔄 Genereren van definitie met hybride context..."):
@@ -812,8 +809,13 @@ class TabbedInterface:
 
                 # Store detailed validation results for display
                 # Check for both legacy (best_iteration) and new service (dict) formats
-                if agent_result and (hasattr(agent_result, 'best_iteration') or isinstance(agent_result, dict)):
-                    logger.info(f"Attempting to run toets_definitie. agent_result type: {type(agent_result)}")
+                if agent_result and (
+                    hasattr(agent_result, "best_iteration")
+                    or isinstance(agent_result, dict)
+                ):
+                    logger.info(
+                        f"Attempting to run toets_definitie. agent_result type: {type(agent_result)}"
+                    )
                     from ai_toetser.modular_toetser import toets_definitie
                     from toetsregels.modular_loader import load_all_toetsregels
 
@@ -840,14 +842,24 @@ class TabbedInterface:
                     # Get definition from either legacy or new service format
                     if isinstance(agent_result, dict):
                         # New service format
-                        definitie_text = agent_result.get('definitie_gecorrigeerd', '')
-                        logger.info(f"Using new service format. Keys in agent_result: {list(agent_result.keys())}")
-                        logger.info(f"definitie_text from dict: '{definitie_text[:50]}...'")
+                        definitie_text = agent_result.get("definitie_gecorrigeerd", "")
+                        logger.info(
+                            f"Using new service format. Keys in agent_result: {list(agent_result.keys())}"
+                        )
+                        logger.info(
+                            f"definitie_text from dict: '{definitie_text[:50]}...'"
+                        )
                     else:
                         # Legacy format with best_iteration
-                        definitie_text = agent_result.final_definitie if hasattr(agent_result, 'final_definitie') else ''
-                        logger.info(f"Using legacy format. definitie_text: '{definitie_text[:50]}...'")
-                    
+                        definitie_text = (
+                            agent_result.final_definitie
+                            if hasattr(agent_result, "final_definitie")
+                            else ""
+                        )
+                        logger.info(
+                            f"Using legacy format. definitie_text: '{definitie_text[:50]}...'"
+                        )
+
                     detailed_results = toets_definitie(
                         definitie=definitie_text,
                         toetsregels=toetsregels,
@@ -873,10 +885,10 @@ class TabbedInterface:
                     )
 
         except Exception as e:
-            st.error(f"❌ Fout bij generatie: {str(e)}")
+            st.error(f"❌ Fout bij generatie: {e!s}")
             logger.error(f"Global generation failed: {e}", exc_info=True)
 
-    def _get_document_context(self) -> Optional[Dict[str, Any]]:
+    def _get_document_context(self) -> dict[str, Any] | None:
         """Krijg document context voor definitie generatie."""
         try:
             selected_docs = SessionStateManager.get_value("selected_documents", [])
@@ -895,7 +907,7 @@ class TabbedInterface:
             logger.error(f"Fout bij ophalen document context: {e}")
             return None
 
-    def _handle_duplicate_check(self, begrip: str, context_data: Dict[str, Any]):
+    def _handle_duplicate_check(self, begrip: str, context_data: dict[str, Any]):
         """Handle duplicate check vanaf hoofdniveau."""
         try:
             with st.spinner("🔍 Controleren op duplicates..."):
@@ -918,7 +930,7 @@ class TabbedInterface:
                 )
 
         except Exception as e:
-            st.error(f"❌ Fout bij duplicate check: {str(e)}")
+            st.error(f"❌ Fout bij duplicate check: {e!s}")
             logger.error(f"Global duplicate check failed: {e}")
 
     def _clear_all_fields(self):
@@ -935,7 +947,7 @@ class TabbedInterface:
         for field in fields_to_clear:
             SessionStateManager.clear_value(field)
 
-    def _render_context_summary(self, context_data: Dict[str, Any]):
+    def _render_context_summary(self, context_data: dict[str, Any]):
         """Render samenvatting van geselecteerde context."""
         summary_parts = []
 
@@ -1011,7 +1023,7 @@ class TabbedInterface:
                 processed_docs.append(processed_doc)
 
             except Exception as e:
-                st.error(f"Fout bij verwerken van {uploaded_file.name}: {str(e)}")
+                st.error(f"Fout bij verwerken van {uploaded_file.name}: {e!s}")
 
         progress_bar.empty()
         status_text.empty()
@@ -1058,7 +1070,7 @@ class TabbedInterface:
                 options=doc_options,
                 format_func=lambda x: next(
                     label
-                    for doc_id, label in zip(doc_options, doc_labels)
+                    for doc_id, label in zip(doc_options, doc_labels, strict=False)
                     if doc_id == x
                 ),
                 default=SessionStateManager.get_value("selected_documents", []),
@@ -1135,7 +1147,7 @@ class TabbedInterface:
         tabs = st.tabs(tab_titles)
 
         # Render each tab
-        for i, (tab_key, tab) in enumerate(zip(tab_keys, tabs)):
+        for i, (tab_key, tab) in enumerate(zip(tab_keys, tabs, strict=False)):
             with tab:
                 self._render_tab_content(tab_key)
 
@@ -1146,8 +1158,8 @@ class TabbedInterface:
         # Tab header
         st.markdown(
             f"""
-            <div style="margin-bottom: 20px; padding: 15px; 
-                        background: linear-gradient(90deg, #f0f2f6, #ffffff); 
+            <div style="margin-bottom: 20px; padding: 15px;
+                        background: linear-gradient(90deg, #f0f2f6, #ffffff);
                         border-radius: 10px; border-left: 4px solid #ff6b6b;">
                 <h3 style="margin: 0; color: #1f1f1f;">
                     {config['icon']} {config['title']}
@@ -1185,7 +1197,7 @@ class TabbedInterface:
                 self.management_tab.render()
         except Exception as e:
             # Log de echte error voor debugging
-            logger.error(f"Error in tab {tab_key}: {str(e)}", exc_info=True)
+            logger.error(f"Error in tab {tab_key}: {e!s}", exc_info=True)
             # Toon gebruikersvriendelijke foutmelding met details
             st.error(f"❌ Er is een fout opgetreden in tab '{config['title']}'")
 
@@ -1193,7 +1205,7 @@ class TabbedInterface:
             if st.checkbox(
                 f"🔍 Toon technische details voor {tab_key}", key=f"debug_{tab_key}"
             ):
-                st.code(f"Error type: {type(e).__name__}\nError message: {str(e)}")
+                st.code(f"Error type: {type(e).__name__}\nError message: {e!s}")
 
                 # Extra debug info voor missing methods
                 if "has no attribute" in str(e):

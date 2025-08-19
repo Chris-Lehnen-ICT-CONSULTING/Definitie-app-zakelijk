@@ -1,8 +1,8 @@
 # ADR-001: Behoud Monolithische Structuur
 
-**Status:** Geaccepteerd  
-**Datum:** 2025-07-17  
-**Deciders:** Development Team  
+**Status:** Geaccepteerd
+**Datum:** 2025-07-17
+**Deciders:** Development Team
 
 ## Context
 
@@ -29,7 +29,7 @@ We behouden de monolithische structuur maar met duidelijke modulaire boundaries 
 
 ### Positief
 - ✅ Eenvoudige deployment en operations
-- ✅ Geen network latency tussen componenten  
+- ✅ Geen network latency tussen componenten
 - ✅ Makkelijker debuggen en traceren
 - ✅ Lagere infrastructuur kosten
 - ✅ Snellere development cycles
@@ -49,7 +49,7 @@ We behouden de monolithische structuur maar met duidelijke modulaire boundaries 
 
 ### 1. Microservices Architectuur
 - **Verworpen omdat**: Te complex voor team grootte, overhead niet gerechtvaardigd
-- **Voordelen**: Onafhankelijke scaling, technology flexibility  
+- **Voordelen**: Onafhankelijke scaling, technology flexibility
 - **Nadelen**: Operationele complexiteit, network latency, distributed transactions
 
 ### 2. Serverless Architectuur
@@ -75,7 +75,7 @@ Om de voordelen van een monoliet te behouden met goede modulariteit:
 ```
 src/
 ├── definitions/        # Definitie generatie module
-├── validation/         # Validatie module  
+├── validation/         # Validatie module
 ├── documents/          # Document processing module
 ├── shared/            # Gedeelde utilities
 └── api/               # API endpoints

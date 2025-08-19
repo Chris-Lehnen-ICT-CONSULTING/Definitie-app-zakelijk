@@ -94,7 +94,7 @@ docs/
 ## ⏱️ Tijdsinschatting
 
 - **STAP 1 (.bmad-core)**: 30 minuten
-- **STAP 2 (architecture)**: 45 minuten  
+- **STAP 2 (architecture)**: 45 minuten
 - **STAP 3 (stories)**: 30 minuten
 - **STAP 4 (testing)**: 30 minuten
 - **STAP 5 (root docs)**: 45 minuten

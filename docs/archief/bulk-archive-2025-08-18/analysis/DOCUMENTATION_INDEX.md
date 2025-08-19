@@ -9,7 +9,7 @@ Deze index biedt een overzicht van alle documentatie in de DefinitieApp codebase
 ## 🎯 **Kerndocumentatie (Start Hier)**
 
 ### 1. **Diagnose & Verbeterplan**
-- **[CODEBASE_DIAGNOSE_EN_VERBETERPLAN.md](CODEBASE_DIAGNOSE_EN_VERBETERPLAN.md)** 
+- **[CODEBASE_DIAGNOSE_EN_VERBETERPLAN.md](CODEBASE_DIAGNOSE_EN_VERBETERPLAN.md)**
   - Complete diagnose van technische schuld
   - 16-weken verbeterplan met prioriteiten
   - Implementatie strategie en risico's
@@ -216,6 +216,6 @@ Deze index biedt een overzicht van alle documentatie in de DefinitieApp codebase
 
 ---
 
-**Laatste update**: 2025-01-15  
-**Versie**: 1.0  
+**Laatste update**: 2025-01-15
+**Versie**: 1.0
 **Maintainer**: Development Team

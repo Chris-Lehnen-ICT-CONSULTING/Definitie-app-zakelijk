@@ -3,11 +3,10 @@ History Tab - Interface voor definitie geschiedenis en audit trail.
 """
 
 from datetime import datetime, timedelta
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 import streamlit as st
-
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
@@ -164,7 +163,7 @@ class HistoryTab:
             self._render_timeline_chart(filtered_definitions)
 
         except Exception as e:
-            st.error(f"❌ Kon geschiedenis niet laden: {str(e)}")
+            st.error(f"❌ Kon geschiedenis niet laden: {e!s}")
 
     def _render_detailed_history(self):
         """Render gedetailleerde geschiedenis lijst."""
@@ -214,7 +213,7 @@ class HistoryTab:
                 )
 
         except Exception as e:
-            st.error(f"❌ Kon geschiedenis details niet laden: {str(e)}")
+            st.error(f"❌ Kon geschiedenis details niet laden: {e!s}")
 
     def _render_history_item(self, definitie: DefinitieRecord):
         """Render één geschiedenis item."""
@@ -280,7 +279,7 @@ class HistoryTab:
 
             st.markdown("---")
 
-    def _render_timeline_chart(self, definitions: List[DefinitieRecord]):
+    def _render_timeline_chart(self, definitions: list[DefinitieRecord]):
         """Render timeline chart van definities."""
         if not definitions:
             return
@@ -319,7 +318,7 @@ class HistoryTab:
                     st.info("Geen timeline data beschikbaar")
 
         except Exception as e:
-            st.warning(f"Timeline chart kon niet geladen worden: {str(e)}")
+            st.warning(f"Timeline chart kon niet geladen worden: {e!s}")
 
     def _render_history_statistics(self):
         """Render geschiedenis statistieken."""
@@ -348,7 +347,7 @@ class HistoryTab:
                     )
 
             except Exception as e:
-                st.error(f"❌ Kon statistieken niet laden: {str(e)}")
+                st.error(f"❌ Kon statistieken niet laden: {e!s}")
 
     def _show_definition_details(self, definitie: DefinitieRecord):
         """Toon gedetailleerde definitie informatie."""
@@ -396,8 +395,8 @@ class HistoryTab:
         # TODO: Implement audit trail query from definitie_geschiedenis table
 
     def _get_filtered_definitions(
-        self, filters: Dict[str, Any]
-    ) -> List[DefinitieRecord]:
+        self, filters: dict[str, Any]
+    ) -> list[DefinitieRecord]:
         """Haal gefilterde definities op."""
         # Build search parameters
         search_params = {}

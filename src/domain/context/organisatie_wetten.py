@@ -5,9 +5,8 @@ Geëxtraheerd uit context_wet_mapping.json om domeinkennis
 over juridische toepassingsgebieden te bewaren.
 """
 
-from enum import Enum
-from typing import Dict, List
 from dataclasses import dataclass
+from enum import Enum
 
 
 class ContextType(Enum):
@@ -24,7 +23,7 @@ class OrganisatieContext:
 
     naam: str
     afkorting: str
-    wetten: List[str]
+    wetten: list[str]
     beschrijving: str = ""
 
 
@@ -160,7 +159,7 @@ class OrganisatieWettenMapper:
     }
 
     @classmethod
-    def get_wetten_voor_organisatie(cls, organisatie: str) -> List[str]:
+    def get_wetten_voor_organisatie(cls, organisatie: str) -> list[str]:
         """
         Krijg relevante wetten voor een organisatie.
 
@@ -174,7 +173,7 @@ class OrganisatieWettenMapper:
         return org_info.get("wetten", [])
 
     @classmethod
-    def get_organisatie_info(cls, organisatie: str) -> Dict[str, str]:
+    def get_organisatie_info(cls, organisatie: str) -> dict[str, str]:
         """
         Krijg volledige informatie over een organisatie.
 
@@ -187,7 +186,7 @@ class OrganisatieWettenMapper:
         return cls.ORGANISATIE_WETTEN.get(organisatie.upper(), {})
 
     @classmethod
-    def get_wetten_voor_domein(cls, domein: str) -> List[str]:
+    def get_wetten_voor_domein(cls, domein: str) -> list[str]:
         """
         Krijg wetten voor een juridisch domein.
 
@@ -200,7 +199,7 @@ class OrganisatieWettenMapper:
         return cls.JURIDISCHE_DOMEINEN.get(domein, [])
 
     @classmethod
-    def zoek_organisaties_met_wet(cls, wet: str) -> List[str]:
+    def zoek_organisaties_met_wet(cls, wet: str) -> list[str]:
         """
         Zoek organisaties die met een specifieke wet werken.
 
@@ -217,12 +216,12 @@ class OrganisatieWettenMapper:
         return resultaat
 
     @classmethod
-    def get_alle_organisaties(cls) -> List[str]:
+    def get_alle_organisaties(cls) -> list[str]:
         """Krijg lijst van alle organisatie afkortingen."""
         return list(cls.ORGANISATIE_WETTEN.keys())
 
     @classmethod
-    def get_alle_juridische_domeinen(cls) -> List[str]:
+    def get_alle_juridische_domeinen(cls) -> list[str]:
         """Krijg lijst van alle juridische domeinen."""
         return list(cls.JURIDISCHE_DOMEINEN.keys())
 

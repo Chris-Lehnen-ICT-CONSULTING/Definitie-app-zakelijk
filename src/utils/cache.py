@@ -10,14 +10,12 @@ import json  # JSON verwerking voor metadata opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor bestandsoperaties
 import pickle  # Python object serialisatie voor cache data
+from collections.abc import Callable
 from datetime import datetime, timedelta  # Datum en tijd voor TTL management
 from functools import wraps  # Decorator utilities voor cache functionaliteit
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import (  # Type hints voor betere code documentatie
     Any,
-    Callable,
-    Dict,
-    Optional,
 )
 
 logger = logging.getLogger(__name__)  # Logger instantie voor cache module
@@ -58,7 +56,7 @@ class FileCache:
         """Load cache metadata."""
         try:
             if self.metadata_file.exists():
-                with open(self.metadata_file, "r") as f:
+                with open(self.metadata_file) as f:
                     self.metadata = json.load(f)
             else:
                 self.metadata = {}
@@ -95,7 +93,7 @@ class FileCache:
 
         return datetime.now() > stored_time + timedelta(seconds=ttl)
 
-    def get(self, cache_key: str) -> Optional[Any]:
+    def get(self, cache_key: str) -> Any | None:
         """Get value from cache."""
         if not self.config.enable_cache:
             return None
@@ -116,7 +114,7 @@ class FileCache:
 
         return None
 
-    def set(self, cache_key: str, value: Any, ttl: Optional[int] = None) -> bool:
+    def set(self, cache_key: str, value: Any, ttl: int | None = None) -> bool:
         """Set value in cache."""
         if not self.config.enable_cache:
             return False
@@ -186,7 +184,7 @@ class FileCache:
         except Exception as e:
             logger.error(f"Failed to clear cache: {e}")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get cache statistics."""
         total_size = sum(entry["size"] for entry in self.metadata.values())
 
@@ -208,7 +206,7 @@ _cache_config = CacheConfig()
 _cache = FileCache(_cache_config)
 
 
-def cached(ttl: Optional[int] = None, cache_key_func: Optional[Callable] = None):
+def cached(ttl: int | None = None, cache_key_func: Callable | None = None):
     """
     Decorator to cache function results.
 
@@ -268,7 +266,7 @@ def cache_gpt_call(prompt: str, model: str = "gpt-4", **kwargs) -> str:
     return hashlib.md5(json.dumps(content, sort_keys=True).encode()).hexdigest()
 
 
-def get_cache_stats() -> Dict[str, Any]:
+def get_cache_stats() -> dict[str, Any]:
     """Get global cache statistics."""
     return _cache.get_stats()
 
@@ -315,7 +313,7 @@ def cache_definition_generation(ttl: int = 3600):
 
     def cache_key_func(
         begrip: str,
-        context_dict: Dict,
+        context_dict: dict,
         model: str = None,
         temperature: float = None,
         max_tokens: int = None,
@@ -340,7 +338,7 @@ def cache_definition_generation(ttl: int = 3600):
 def cache_example_generation(ttl: int = 1800):  # 30 minutes
     """Cache decorator specifically for example generation."""
 
-    def cache_key_func(begrip: str, definitie: str, context_dict: Dict, **kwargs):
+    def cache_key_func(begrip: str, definitie: str, context_dict: dict, **kwargs):
         return cache_gpt_call(
             prompt=f"examples_{begrip}",
             definitie=definitie,
@@ -354,7 +352,7 @@ def cache_example_generation(ttl: int = 1800):  # 30 minutes
 def cache_synonym_generation(ttl: int = 7200):  # 2 hours
     """Cache decorator specifically for synonym generation."""
 
-    def cache_key_func(begrip: str, context_dict: Dict, **kwargs):
+    def cache_key_func(begrip: str, context_dict: dict, **kwargs):
         return cache_gpt_call(
             prompt=f"synonyms_{begrip}",
             context=json.dumps(context_dict, sort_keys=True),
@@ -367,7 +365,7 @@ def cache_synonym_generation(ttl: int = 7200):  # 2 hours
 # Async cache support functions
 
 
-def cache_async_result(ttl: Optional[int] = None):
+def cache_async_result(ttl: int | None = None):
     """
     Async version of the cached decorator.
 

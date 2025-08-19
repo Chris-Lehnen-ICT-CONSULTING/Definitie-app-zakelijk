@@ -76,20 +76,20 @@ repos:
     hooks:
       - id: ruff
         args: [--fix]
-  
+
   - repo: https://github.com/psf/black
     rev: 23.1.0
     hooks:
       - id: black
         language_version: python3.11
-  
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.0.0
     hooks:
       - id: mypy
         additional_dependencies: [types-all]
         exclude: ^(tests/|docs/)
-  
+
   - repo: https://github.com/PyCQA/bandit
     rev: '1.7.5'
     hooks:
@@ -110,7 +110,7 @@ if [ -f "scripts/ai-pre-commit" ]; then
     echo "Installing AI pre-commit hook..."
     cp scripts/ai-pre-commit .git/hooks/ai-pre-commit
     chmod +x .git/hooks/ai-pre-commit
-    
+
     # Create wrapper that calls both hooks
     cat > .git/hooks/pre-commit << 'EOF'
 #!/bin/bash
@@ -227,16 +227,16 @@ checks:
   - mypy
   - bandit
   - pytest
-  
+
 thresholds:
   coverage_min: 80
   complexity_max: 10
-  
+
 custom_checks:
   dutch_docstrings: true
   sql_injection_prevention: true
   streamlit_patterns: true
-  
+
 ai_agents:
   claude:
     model: claude-3-opus-20240229
@@ -245,7 +245,7 @@ ai_agents:
     enabled: true
   manual:
     enabled: true
-    
+
 reporting:
   save_reports: true
   report_path: "review_reports/"

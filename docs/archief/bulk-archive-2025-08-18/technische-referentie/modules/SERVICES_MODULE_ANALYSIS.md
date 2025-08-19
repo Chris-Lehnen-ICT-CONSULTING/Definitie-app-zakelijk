@@ -96,7 +96,7 @@ class DefinitionService:
     """Legacy sync service wrapper for backward compatibility"""
     def __init__(self):
         self._service = get_definition_service(mode='sync')
-    
+
     def generate_definition(self, begrip, context, categorie=None):
         # Maps to unified service, returns legacy tuple format
 ```
@@ -107,7 +107,7 @@ class AsyncDefinitionService:
     """Legacy async service wrapper"""
     def __init__(self):
         self._service = get_definition_service(mode='async')
-    
+
     async def generate_definition_async(self, begrip, context, categorie=None):
         # Maps to unified service async methods
 ```

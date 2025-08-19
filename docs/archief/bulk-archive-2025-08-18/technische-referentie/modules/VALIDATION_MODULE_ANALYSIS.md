@@ -86,17 +86,17 @@ class DutchTextValidator:
         self.load_dutch_patterns()
         self.load_stop_words()
         self.load_common_errors()
-    
+
     def validate_dutch_text(self, text: str) -> ValidationResult
         # Check spelling
         # Validate grammar patterns
         # Detect common errors
-    
+
     def check_plural_forms(self, word: str) -> bool
         # Validate Dutch plural rules
         # Handle exceptions
         # Check pluralia tantum
-    
+
     def validate_compound_words(self, text: str) -> List[str]
         # Check compound word formation
         # Validate hyphens
@@ -122,12 +122,12 @@ class DefinitieValidator:
     def __init__(self):
         self.rules = self._load_validation_rules()
         self.dutch_validator = DutchTextValidator()
-    
+
     def validate(self, definitie: str, categorie: str) -> ValidationResult
         # Run all applicable rules
         # Calculate quality score
         # Generate feedback
-        
+
     def _run_rule(self, rule: ValidationRule, definitie: str) -> RuleResult
         # Execute individual rule
         # Detect violations

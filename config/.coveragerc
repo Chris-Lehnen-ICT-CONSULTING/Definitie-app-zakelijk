@@ -1,7 +1,7 @@
 [run]
 source = src
 branch = True
-omit = 
+omit =
     */tests/*
     */test_*
     */__init__.py
@@ -20,31 +20,31 @@ omit =
 exclude_lines =
     # Standard pragma
     pragma: no cover
-    
+
     # Debug-only code
     def __repr__
     def __str__
-    
+
     # Defensive programming
     raise AssertionError
     raise NotImplementedError
-    
+
     # Non-runnable code
     if __name__ == .__main__.:
     if TYPE_CHECKING:
     @abstract
     @abstractmethod
-    
+
     # Optional dependencies
     except ImportError:
     MONITORING_AVAILABLE = False
-    
+
     # Logging
     logger.debug
     logger.info
     logger.warning
     logger.error
-    
+
 # Minimum coverage percentage
 fail_under = 80
 

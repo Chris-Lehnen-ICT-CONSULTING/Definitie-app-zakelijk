@@ -60,16 +60,16 @@ Test met speciale karakters:
 ## 🐛 Noteer Problemen
 
 **UI Issues:**
-- 
+-
 
 **Functionaliteit die niet werkt:**
-- 
+-
 
 **Error messages:**
-- 
+-
 
 **Onverwacht gedrag:**
-- 
+-
 
 ## 📸 Screenshots
 

@@ -41,15 +41,15 @@ Central configuration hub implementing singleton pattern.
 ```python
 class ConfigManager:
     _instance = None
-    
+
     def __new__(cls):
         # Singleton implementation
-        
+
     def __init__(self):
         self.config_loader = ConfigLoader()
         self.config_cache = {}
         self.listeners = []
-    
+
     def get(self, key: str, default=None)
     def set(self, key: str, value: Any)
     def reload(self)
@@ -72,12 +72,12 @@ class ConfigLoader:
     def __init__(self):
         self.config_dir = self._get_config_dir()
         self.env_prefix = "DEFINITIE_"
-    
+
     def load_config(self) -> Dict[str, Any]:
         # Load from files
         # Override with environment
         # Apply defaults
-    
+
     def _load_json_files(self) -> Dict[str, Any]
     def _load_env_vars(self) -> Dict[str, Any]
     def _apply_defaults(self, config: Dict[str, Any])
@@ -97,13 +97,13 @@ Manages validation rules with caching and categorization.
 ```python
 class ToetsregelManager:
     _instance = None
-    
+
     def __init__(self):
         self._load_base_rules()
         self._load_detailed_rules()
         self._load_rule_sets()
         self._build_indexes()
-    
+
     def get_regel(self, regel_id: str) -> Dict[str, Any]
     def get_regels_by_category(self, category: str) -> List[Dict]
     def get_regels_by_priority(self, priority: str) -> List[Dict]
@@ -141,7 +141,7 @@ def get_api_config() -> Dict[str, Any]:
 
 def get_database_config() -> Dict[str, Any]:
     """Get database configuration"""
-    
+
 def get_ui_config() -> Dict[str, Any]:
     """Get UI-related configuration"""
 ```

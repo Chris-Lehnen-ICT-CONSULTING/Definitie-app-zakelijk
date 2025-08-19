@@ -150,7 +150,7 @@ class ResilienceSystemDemo:
             try:
                 await unreliable_function()
             except Exception as e:
-                print(f"❌ Attempt {i+1}: {str(e)}")
+                print(f"❌ Attempt {i+1}: {e!s}")
                 if "circuit breaker" in str(e).lower():
                     print("🔌 Circuit breaker activated!")
                     break
@@ -259,7 +259,7 @@ class ResilienceSystemDemo:
             print("✅ Comprehensive metrics collection")
 
         except Exception as e:
-            print(f"\n❌ Demo failed: {str(e)}")
+            print(f"\n❌ Demo failed: {e!s}")
 
         finally:
             if self.system:

@@ -15,7 +15,7 @@ graph TB
     subgraph "Frontend"
         UI[Streamlit UI<br/>main.py]
     end
-    
+
     subgraph "Hybrid Architecture"
         subgraph "New Services Layer"
             SC[ServiceContainer<br/>Dependency Injection]
@@ -25,19 +25,19 @@ graph TB
             REPO[DefinitionRepository]
             WEB[ModernWebLookupService]
         end
-        
+
         subgraph "Legacy Components"
             AGENT[DefinitieAgent<br/>Orchestration wrapper]
             TOETS[Toetsregels System]
             AI[AI Toetser Module]
         end
     end
-    
+
     subgraph "Data Layer"
         DB[(SQLite<br/>definities.db)]
         FILES[File System<br/>JSON configs]
     end
-    
+
     UI --> SC
     SC --> ORCH
     ORCH --> GEN
@@ -224,7 +224,7 @@ CREATE TABLE definities (
 
 Functional Tabs (3/10):
 ✅ 1. Definitie Generator
-✅ 2. Management 
+✅ 2. Management
 ✅ 3. Web Lookup
 ❌ 4. History
 ❌ 5. Quality Control

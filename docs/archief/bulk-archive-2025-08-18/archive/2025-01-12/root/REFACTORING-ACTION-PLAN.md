@@ -1,7 +1,7 @@
 # 🔨 Refactoring Action Plan - UnifiedDefinitionService
 
-**Beslissing**: Direct refactoren naar clean services (ADR-005)  
-**Start**: Week 1  
+**Beslissing**: Direct refactoren naar clean services (ADR-005)
+**Start**: Week 1
 **Doel**: God Object opsplitsen in focused services met dependency injection
 
 ## 📐 Target Architecture
@@ -45,11 +45,11 @@ class DefinitionRepositoryInterface(ABC):
 # src/services/definition_generator.py
 class DefinitionGenerator(DefinitionGeneratorInterface):
     """Focused service voor definitie generatie."""
-    
+
     def __init__(self, ai_client: OpenAIClient):
         self.ai_client = ai_client
         self.prompt_builder = PromptBuilder()
-    
+
     async def generate(self, request: GenerationRequest) -> Definition:
         # Extract logic from UnifiedDefinitionService
         prompt = self.prompt_builder.build(request)
@@ -62,10 +62,10 @@ class DefinitionGenerator(DefinitionGeneratorInterface):
 # src/services/definition_validator.py
 class DefinitionValidator(DefinitionValidatorInterface):
     """Focused service voor validatie."""
-    
+
     def __init__(self, rule_manager: RuleManager):
         self.rule_manager = rule_manager
-    
+
     def validate(self, definition: Definition) -> ValidationResult:
         # Use existing validator logic
         return self.rule_manager.validate_all(definition)
@@ -76,7 +76,7 @@ class DefinitionValidator(DefinitionValidatorInterface):
 # src/services/definition_orchestrator.py
 class DefinitionOrchestrator:
     """Orchestrates the definition creation flow."""
-    
+
     def __init__(
         self,
         generator: DefinitionGeneratorInterface,
@@ -86,16 +86,16 @@ class DefinitionOrchestrator:
         self.generator = generator
         self.validator = validator
         self.repository = repository
-    
+
     async def create_definition(self, request: DefinitionRequest) -> DefinitionResponse:
         # Orchestrate the flow
         definition = await self.generator.generate(request)
         validation = self.validator.validate(definition)
-        
+
         if validation.is_valid:
             definition_id = self.repository.save(definition)
             definition.id = definition_id
-        
+
         return DefinitionResponse(definition, validation)
 ```
 
@@ -109,29 +109,29 @@ from dependency_injector import containers, providers
 class Container(containers.DeclarativeContainer):
     # Configuration
     config = providers.Configuration()
-    
+
     # External services
     openai_client = providers.Singleton(
         OpenAIClient,
         api_key=config.openai.api_key
     )
-    
+
     # Core services
     generator = providers.Singleton(
         DefinitionGenerator,
         ai_client=openai_client
     )
-    
+
     validator = providers.Singleton(
         DefinitionValidator,
         rule_manager=providers.Singleton(RuleManager)
     )
-    
+
     repository = providers.Singleton(
         DefinitionRepository,
         session_factory=providers.Factory(Session)
     )
-    
+
     orchestrator = providers.Singleton(
         DefinitionOrchestrator,
         generator=generator,
@@ -163,7 +163,7 @@ result = await service.create_definition(request)
 ### Week 1 Deliverables
 - [ ] Service interfaces defined
 - [ ] DefinitionGenerator extracted
-- [ ] DefinitionValidator extracted  
+- [ ] DefinitionValidator extracted
 - [ ] DefinitionRepository created
 - [ ] DefinitionOrchestrator implemented
 - [ ] Basic DI container setup
@@ -238,6 +238,6 @@ class TestOrchestrator:
 - Test Strategy: Updated voor nieuwe architectuur
 
 ---
-*Start: Week 1*  
-*Completion: Week 4*  
+*Start: Week 1*
+*Completion: Week 4*
 *Owner: Backend Team*

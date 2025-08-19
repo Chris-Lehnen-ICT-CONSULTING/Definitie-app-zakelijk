@@ -29,5 +29,5 @@ De migratie is **volledig afgerond** op 16 januari 2025. Alle toetsregels zijn s
 Deze scripts worden niet meer gebruikt maar zijn bewaard voor historische referentie.
 
 ## Let op
-Deze scripts verwijzen naar `core.py` die nu in `/archive/legacy_ai_toetser/` staat. 
+Deze scripts verwijzen naar `core.py` die nu in `/archive/legacy_ai_toetser/` staat.
 Als je deze scripts om een of andere reden wilt gebruiken, moet je de paden aanpassen.

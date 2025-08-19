@@ -1,8 +1,8 @@
 # ADR-003: Legacy Code als Specificatie
 
-**Status:** Geaccepteerd  
-**Datum:** 2025-07-17  
-**Deciders:** Development Team  
+**Status:** Geaccepteerd
+**Datum:** 2025-07-17
+**Deciders:** Development Team
 
 ## Context
 
@@ -61,7 +61,7 @@ class ModernDefinitionService:
     def __init__(self):
         self.legacy_service = LegacyDefinitionGenerator()
         self.feature_flags = FeatureFlags()
-    
+
     def generate(self, term: str, context: str = None) -> Definition:
         # Check feature flag voor graduale rollout
         if self.feature_flags.is_enabled("use_modern_implementation"):
@@ -72,7 +72,7 @@ class ModernDefinitionService:
                 return self._wrap_legacy_response(
                     self.legacy_service.genereer_definitie(term, context)
                 )
-        
+
         # Default naar legacy
         return self._wrap_legacy_response(
             self.legacy_service.genereer_definitie(term, context)
@@ -88,10 +88,10 @@ def test_legacy_behavior_definitie_generatie():
     """Test die exact legacy gedrag vastlegt"""
     # Arrange
     legacy_service = LegacyDefinitionGenerator()
-    
+
     # Act - test met bekende inputs
     result = legacy_service.genereer_definitie("authenticatie", "juridisch")
-    
+
     # Assert - exact output zoals legacy
     assert "proces" in result.lower()
     assert "identiteit" in result.lower()

@@ -289,7 +289,7 @@ class DefinitionRepository(ABC):
 #### Fase 2: Implementeer Clean Services
 ```python
 class DefinitionService:
-    def __init__(self, 
+    def __init__(self,
                  generator: DefinitionGenerator,
                  validator: DefinitionValidator,
                  repository: DefinitionRepository):
@@ -312,12 +312,12 @@ class DefinitionGeneratorTab:
     def generate(self):
         # Direct API calls
         # Direct database access
-        
+
 # Naar:
 class DefinitionGeneratorTab:
     def __init__(self, definition_service: DefinitionServiceInterface):
         self.service = definition_service
-    
+
     def generate(self):
         response = self.service.generate_definition(request)
 ```
@@ -328,10 +328,10 @@ class DefinitionGeneratorTab:
 class SQLiteDefinitionRepository(DefinitionRepository):
     def __init__(self, connection_string: str):
         self.conn = connection_string
-    
+
     def save(self, definition: Definition) -> int:
         # Implementation
-        
+
 # Future: PostgreSQLRepository, MongoDBRepository, etc.
 ```
 
@@ -343,7 +343,7 @@ class ApplicationConfig:
     api: APIConfig
     database: DatabaseConfig
     ui: UIConfig
-    
+
     @classmethod
     def from_environment(cls) -> 'ApplicationConfig':
         # Load and validate
@@ -404,7 +404,7 @@ class ApplicationConfig:
 
 ## Conclusie
 
-De DefinitieAgent codebase vertoont duidelijke tekenen van organische groei met recente consolidatie pogingen. De UnifiedDefinitionService is een goedbedoelde maar problematische poging om technische schuld op te lossen. 
+De DefinitieAgent codebase vertoont duidelijke tekenen van organische groei met recente consolidatie pogingen. De UnifiedDefinitionService is een goedbedoelde maar problematische poging om technische schuld op te lossen.
 
 **Aanbeveling**: Stop met incrementele consolidatie en kies voor een clean break - implementeer nieuwe services naast oude, migreer geleidelijk, en verwijder legacy code pas na volledige migratie.
 

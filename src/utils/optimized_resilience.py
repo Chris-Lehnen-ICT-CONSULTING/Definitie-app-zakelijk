@@ -6,11 +6,12 @@ Consolidates resilience.py, integrated_resilience.py, and resilience_summary.py.
 import asyncio
 import logging
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from monitoring.api_monitor import get_metrics_collector, record_api_call
 
@@ -45,10 +46,10 @@ class ResilienceConfig:
     """Unified configuration for resilience system."""
 
     # Retry configuration
-    retry_config: Optional[RetryConfig] = None
+    retry_config: RetryConfig | None = None
 
     # Rate limiting configuration
-    rate_limit_config: Optional[RateLimitConfig] = None
+    rate_limit_config: RateLimitConfig | None = None
 
     # Health monitoring
     health_check_interval: float = 30.0
@@ -99,15 +100,15 @@ class HealthMetrics:
     avg_response_time: float
     total_requests: int
     failed_requests: int
-    last_success: Optional[datetime] = None
-    last_failure: Optional[datetime] = None
+    last_success: datetime | None = None
+    last_failure: datetime | None = None
     consecutive_failures: int = 0
 
 
 class OptimizedResilienceSystem:
     """Optimized resilience system combining all resilience features."""
 
-    def __init__(self, config: Optional[ResilienceConfig] = None):
+    def __init__(self, config: ResilienceConfig | None = None):
         self.config = config or ResilienceConfig()
 
         # Initialize components
@@ -118,14 +119,14 @@ class OptimizedResilienceSystem:
         )
 
         # Health monitoring
-        self.health_metrics: Dict[str, HealthMetrics] = {}
-        self.fallback_cache: Dict[str, Any] = {}
-        self.failed_requests: List[Dict[str, Any]] = []
+        self.health_metrics: dict[str, HealthMetrics] = {}
+        self.fallback_cache: dict[str, Any] = {}
+        self.failed_requests: list[dict[str, Any]] = []
 
         # System state
         self._started = False
         self._shutdown = False
-        self._health_check_task: Optional[asyncio.Task] = None
+        self._health_check_task: asyncio.Task | None = None
 
     async def start(self):
         """Start the resilience system."""
@@ -169,7 +170,7 @@ class OptimizedResilienceSystem:
         *args,
         endpoint_name: str = "",
         priority: RequestPriority = RequestPriority.NORMAL,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
         mode: ResilienceMode = ResilienceMode.FULL,
         model: str = "gpt-4",
         expected_tokens: int = 0,
@@ -313,7 +314,7 @@ class OptimizedResilienceSystem:
             except Exception as e:
                 last_error = e
                 logger.warning(
-                    f"Attempt {attempt + 1} failed for {endpoint_name}: {str(e)}"
+                    f"Attempt {attempt + 1} failed for {endpoint_name}: {e!s}"
                 )
 
                 if attempt == self.config.retry_config.max_retries:
@@ -327,7 +328,7 @@ class OptimizedResilienceSystem:
         *args,
         endpoint_name: str,
         priority: RequestPriority,
-        timeout: Optional[float],
+        timeout: float | None,
         **kwargs,
     ) -> Any:
         """Smart execution with rate limiting."""
@@ -358,7 +359,7 @@ class OptimizedResilienceSystem:
         *args,
         endpoint_name: str,
         priority: RequestPriority,
-        timeout: Optional[float],
+        timeout: float | None,
         **kwargs,
     ) -> Any:
         """Full execution with all resilience features."""
@@ -379,7 +380,7 @@ class OptimizedResilienceSystem:
         *args,
         endpoint_name: str,
         priority: RequestPriority,
-        timeout: Optional[float],
+        timeout: float | None,
         **kwargs,
     ) -> Any:
         """Critical execution with maximum protection."""
@@ -402,8 +403,7 @@ class OptimizedResilienceSystem:
         """Call function with proper async handling."""
         if asyncio.iscoroutinefunction(func):
             return await func(*args, **kwargs)
-        else:
-            return func(*args, **kwargs)
+        return func(*args, **kwargs)
 
     async def _record_success(self, endpoint_name: str, duration: float):
         """Record successful request."""
@@ -527,7 +527,7 @@ class OptimizedResilienceSystem:
             except Exception as e:
                 logger.error(f"Health check error: {e}")
 
-    def get_system_status(self) -> Dict[str, Any]:
+    def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive system status."""
         return {
             "system_started": self._started,
@@ -553,7 +553,7 @@ class OptimizedResilienceSystem:
             ),
         }
 
-    def get_health_report(self) -> Dict[str, Any]:
+    def get_health_report(self) -> dict[str, Any]:
         """Get detailed health report."""
         healthy_endpoints = [
             m for m in self.health_metrics.values() if m.status == HealthStatus.HEALTHY
@@ -589,11 +589,11 @@ class OptimizedResilienceSystem:
 
 
 # Global resilience system
-_global_resilience: Optional[OptimizedResilienceSystem] = None
+_global_resilience: OptimizedResilienceSystem | None = None
 
 
 async def get_resilience_system(
-    config: Optional[ResilienceConfig] = None,
+    config: ResilienceConfig | None = None,
 ) -> OptimizedResilienceSystem:
     """Get or create global resilience system."""
     global _global_resilience
@@ -647,7 +647,7 @@ def with_enhanced_resilience(endpoint_name: str = ""):
 def with_smart_resilience(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
-    timeout: Optional[float] = None,
+    timeout: float | None = None,
 ):
     """Decorator for smart resilience with rate limiting."""
 
@@ -673,7 +673,7 @@ def with_smart_resilience(
 def with_full_resilience(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
-    timeout: Optional[float] = None,
+    timeout: float | None = None,
     model: str = "gpt-4",
     expected_tokens: int = 0,
 ):
@@ -700,7 +700,7 @@ def with_full_resilience(
     return decorator
 
 
-def with_critical_resilience(endpoint_name: str = "", timeout: Optional[float] = None):
+def with_critical_resilience(endpoint_name: str = "", timeout: float | None = None):
     """Decorator for critical resilience with maximum protection."""
 
     def decorator(func: Callable):

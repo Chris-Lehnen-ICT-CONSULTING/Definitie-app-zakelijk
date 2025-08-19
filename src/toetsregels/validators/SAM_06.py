@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class SAM06Validator:
     """Validator voor SAM-06: Voorkeursterm consistent gebruiken."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -29,8 +28,8 @@ class SAM06Validator:
         self.prioriteit = config.get("prioriteit", "hoog")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens SAM-06 regel.
 
@@ -90,7 +89,7 @@ class SAM06Validator:
         # Noch begrip noch voorkeursterm gevonden
         return True, f"✔️ {self.id}: noch begrip noch voorkeursterm in definitie", 0.8
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -128,7 +127,7 @@ def create_validator(config_path: str = None) -> SAM06Validator:
         config_path = os.path.join(current_dir, "SAM-06.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return SAM06Validator(config)

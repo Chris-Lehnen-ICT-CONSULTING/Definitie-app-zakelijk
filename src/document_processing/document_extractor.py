@@ -5,7 +5,6 @@ Document Text Extraction - Haal tekst uit verschillende bestandsformaten.
 import logging  # Logging faciliteiten voor debug en monitoring
 import mimetypes  # MIME type detectie voor bestandsformaten
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Dict, Optional  # Type hints voor betere code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor document extractor module
 
@@ -23,14 +22,14 @@ SUPPORTED_TYPES = {
 }
 
 
-def supported_file_types() -> Dict[str, str]:
+def supported_file_types() -> dict[str, str]:
     """Retourneer dictionary met alle ondersteunde bestandstypen."""
     return SUPPORTED_TYPES.copy()  # Retourneer kopie om origineel te beschermen
 
 
 def extract_text_from_file(
-    file_content: bytes, filename: str, mime_type: Optional[str] = None
-) -> Optional[str]:
+    file_content: bytes, filename: str, mime_type: str | None = None
+) -> str | None:
     """
     Extraheer tekst uit uploaded bestand.
 
@@ -61,26 +60,25 @@ def extract_text_from_file(
         # Tekst extractie op basis van type
         if mime_type == "text/plain":
             return _extract_text_file(file_content)
-        elif mime_type == "application/pdf":
+        if mime_type == "application/pdf":
             return _extract_pdf(file_content)
-        elif mime_type in [
+        if mime_type in [
             "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
             "application/msword",
         ]:
             return _extract_word(file_content, mime_type)
-        elif mime_type == "text/markdown":
+        if mime_type == "text/markdown":
             return _extract_markdown(file_content)
-        elif mime_type == "text/csv":
+        if mime_type == "text/csv":
             return _extract_csv(file_content)
-        elif mime_type == "application/json":
+        if mime_type == "application/json":
             return _extract_json(file_content)
-        elif mime_type == "text/html":
+        if mime_type == "text/html":
             return _extract_html(file_content)
-        elif mime_type == "application/rtf":
+        if mime_type == "application/rtf":
             return _extract_rtf(file_content)
-        else:
-            logger.warning(f"Geen extractor geïmplementeerd voor {mime_type}")
-            return None
+        logger.warning(f"Geen extractor geïmplementeerd voor {mime_type}")
+        return None
 
     except Exception as e:
         logger.error(f"Fout bij tekst extractie uit {filename}: {e}")
@@ -104,7 +102,7 @@ def _extract_text_file(content: bytes) -> str:
         return ""
 
 
-def _extract_pdf(content: bytes) -> Optional[str]:
+def _extract_pdf(content: bytes) -> str | None:
     """Extraheer tekst uit PDF."""
     try:
         # Probeer PyPDF2 te gebruiken als beschikbaar
@@ -130,7 +128,7 @@ def _extract_pdf(content: bytes) -> Optional[str]:
         return None
 
 
-def _extract_word(content: bytes, mime_type: str) -> Optional[str]:
+def _extract_word(content: bytes, mime_type: str) -> str | None:
     """Extraheer tekst uit Word document."""
     try:
         # Probeer python-docx voor .docx bestanden
@@ -286,7 +284,7 @@ def _extract_rtf(content: bytes) -> str:
         return ""
 
 
-def get_file_info(filename: str, file_size: int) -> Dict[str, any]:
+def get_file_info(filename: str, file_size: int) -> dict[str, any]:
     """
     Krijg bestandsinformatie.
 

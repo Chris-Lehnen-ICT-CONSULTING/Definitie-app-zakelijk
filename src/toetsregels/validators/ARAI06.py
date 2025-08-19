@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 # Import van verboden woorden functionaliteit
 from config.verboden_woorden import genereer_verboden_startregex, laad_verboden_woorden
@@ -18,7 +17,7 @@ logger = logging.getLogger(__name__)
 class ARAI06Validator:
     """Validator voor ARAI06: Correcte definitiestart."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -41,8 +40,8 @@ class ARAI06Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens ARAI06 regel.
 
@@ -99,7 +98,7 @@ class ARAI06Validator:
         # 7) Geen match → OK
         return True, f"✔️ {self.id}: geen opbouwfouten", 1.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -137,7 +136,7 @@ def create_validator(config_path: str = None) -> ARAI06Validator:
         config_path = os.path.join(current_dir, "ARAI06.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return ARAI06Validator(config)
