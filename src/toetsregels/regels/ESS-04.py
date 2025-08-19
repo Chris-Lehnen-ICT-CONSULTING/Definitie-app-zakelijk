@@ -130,7 +130,7 @@ class ESS04Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> ESS04Validator:
+def create_validator(config_path: str | None = None) -> ESS04Validator:
     """
     Factory functie om validator te maken.
 

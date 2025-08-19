@@ -314,9 +314,9 @@ def cache_definition_generation(ttl: int = 3600):
     def cache_key_func(
         begrip: str,
         context_dict: dict,
-        model: str = None,
-        temperature: float = None,
-        max_tokens: int = None,
+        model: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
         **kwargs,
     ):
         # Include all parameters in cache key to ensure proper caching

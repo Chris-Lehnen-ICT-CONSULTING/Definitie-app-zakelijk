@@ -544,7 +544,8 @@ class ConfigManager:
 
             logger.info(f"Configuration updated: {section.value}.{key} = {value}")
         else:
-            raise ValueError(f"Invalid config key: {section.value}.{key}")
+            msg = f"Invalid config key: {section.value}.{key}"
+            raise ValueError(msg)
 
     def register_change_callback(self, section: str, callback: callable):
         """Register callback for configuration changes."""
@@ -634,10 +635,7 @@ class ConfigManager:
             return False
 
         # Length validation
-        if len(self.api.openai_api_key) < 20:
-            return False
-
-        return True
+        return not len(self.api.openai_api_key) < 20
 
 
 # Global configuration manager instance

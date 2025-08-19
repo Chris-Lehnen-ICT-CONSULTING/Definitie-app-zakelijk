@@ -169,7 +169,8 @@ class AsyncDefinitionUI:
 
             # Check for cancellation
             if self.progress_tracker.is_cancelled():
-                raise asyncio.CancelledError("Operation cancelled by user")
+                msg = "Operation cancelled by user"
+                raise asyncio.CancelledError(msg)
 
         try:
             self.progress_tracker.start(6, "Starting async processing...")
@@ -297,22 +298,21 @@ class AsyncDefinitionUI:
 
 def render_async_mode_toggle():
     """Render toggle for async mode."""
-    with st.sidebar:
-        with st.expander("⚡ Async Mode"):
-            async_enabled = st.checkbox(
-                "Enable Fast Mode",
-                value=True,
-                help="Use parallel processing for faster results",
-            )
+    with st.sidebar, st.expander("⚡ Async Mode"):
+        async_enabled = st.checkbox(
+            "Enable Fast Mode",
+            value=True,
+            help="Use parallel processing for faster results",
+        )
 
-            if async_enabled:
-                st.success("🚀 Fast Mode: ON")
-                st.write("Examples and content generated concurrently")
-            else:
-                st.info("🐌 Standard Mode: ON")
-                st.write("Sequential processing (slower)")
+        if async_enabled:
+            st.success("🚀 Fast Mode: ON")
+            st.write("Examples and content generated concurrently")
+        else:
+            st.info("🐌 Standard Mode: ON")
+            st.write("Sequential processing (slower)")
 
-            return async_enabled
+        return async_enabled
 
 
 def render_async_dashboard():

@@ -97,7 +97,8 @@ class APIConfigAdapter(ConfigAdapter):
                 self.set_value("openai_api_key", api_key)
 
         if not api_key:
-            raise ValueError("OpenAI API key not configured")
+            msg = "OpenAI API key not configured"
+            raise ValueError(msg)
 
         return api_key
 

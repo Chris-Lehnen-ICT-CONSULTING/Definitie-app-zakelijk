@@ -82,7 +82,8 @@ class LegacyPromptBuilder(PromptBuilder):
     ) -> str:
         """Build prompt met legacy prompt builder."""
         if not self._legacy_available:
-            raise ValueError("Legacy prompt builder niet beschikbaar")
+            msg = "Legacy prompt builder niet beschikbaar"
+            raise ValueError(msg)
 
         try:
             # Convert EnrichedContext naar legacy format

@@ -414,9 +414,8 @@ class DefinitieRepository:
                 d.definitie_record.status != DefinitieStatus.ARCHIVED.value
                 for d in duplicates
             ):
-                raise ValueError(
-                    f"Definitie voor '{record.begrip}' bestaat al in deze context"
-                )
+                msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
+                raise ValueError(msg)
 
             # Set timestamps
             now = datetime.now()
@@ -656,7 +655,7 @@ class DefinitieRepository:
         return sorted(matches, key=lambda x: x.match_score, reverse=True)
 
     def update_definitie(
-        self, definitie_id: int, updates: dict[str, Any], updated_by: str = None
+        self, definitie_id: int, updates: dict[str, Any], updated_by: str | None = None
     ) -> bool:
         """
         Update bestaande definitie.
@@ -734,8 +733,8 @@ class DefinitieRepository:
         self,
         definitie_id: int,
         new_status: DefinitieStatus,
-        changed_by: str = None,
-        notes: str = None,
+        changed_by: str | None = None,
+        notes: str | None = None,
     ) -> bool:
         """
         Wijzig status van definitie.
@@ -774,9 +773,9 @@ class DefinitieRepository:
 
     def search_definities(
         self,
-        query: str = None,
+        query: str | None = None,
         categorie: OntologischeCategorie = None,
-        organisatorische_context: str = None,
+        organisatorische_context: str | None = None,
         status: DefinitieStatus = None,
         limit: int = 100,
     ) -> list[DefinitieRecord]:
@@ -870,7 +869,9 @@ class DefinitieRepository:
 
             return stats
 
-    def export_to_json(self, file_path: str, filters: dict[str, Any] = None) -> int:
+    def export_to_json(
+        self, file_path: str, filters: dict[str, Any] | None = None
+    ) -> int:
         """
         Exporteer definities naar JSON bestand.
 
@@ -921,7 +922,7 @@ class DefinitieRepository:
         return len(records)
 
     def import_from_json(
-        self, file_path: str, import_by: str = None
+        self, file_path: str, import_by: str | None = None
     ) -> tuple[int, int, list[str]]:
         """
         Importeer definities uit JSON bestand.
@@ -1033,8 +1034,8 @@ class DefinitieRepository:
         self,
         definitie_id: int,
         wijziging_type: str,
-        gewijzigd_door: str = None,
-        reden: str = None,
+        gewijzigd_door: str | None = None,
+        reden: str | None = None,
     ):
         """Log wijziging in geschiedenis tabel."""
         with self._get_connection() as conn:
@@ -1108,7 +1109,7 @@ class DefinitieRepository:
         definitie_id: int,
         voorbeelden_dict: dict[str, list[str]],
         generation_model: str = "gpt-4",
-        generation_params: dict[str, Any] = None,
+        generation_params: dict[str, Any] | None = None,
         gegenereerd_door: str = "system",
     ) -> list[int]:
         """
@@ -1234,7 +1235,10 @@ class DefinitieRepository:
                 raise
 
     def get_voorbeelden(
-        self, definitie_id: int, voorbeeld_type: str = None, actief_only: bool = True
+        self,
+        definitie_id: int,
+        voorbeeld_type: str | None = None,
+        actief_only: bool = True,
     ) -> list[VoorbeeldenRecord]:
         """
         Haal voorbeelden op voor een definitie.
@@ -1348,7 +1352,8 @@ class DefinitieRepository:
             True als succesvol
         """
         if beoordeeling not in ["goed", "matig", "slecht"]:
-            raise ValueError("Beoordeeling moet 'goed', 'matig' of 'slecht' zijn")
+            msg = "Beoordeeling moet 'goed', 'matig' of 'slecht' zijn"
+            raise ValueError(msg)
 
         with self._get_connection() as conn:
             try:
@@ -1383,7 +1388,9 @@ class DefinitieRepository:
                 logger.error(f"Failed to beoordeel voorbeeld {voorbeeld_id}: {e}")
                 raise
 
-    def delete_voorbeelden(self, definitie_id: int, voorbeeld_type: str = None) -> int:
+    def delete_voorbeelden(
+        self, definitie_id: int, voorbeeld_type: str | None = None
+    ) -> int:
         """
         Verwijder voorbeelden voor een definitie.
 
@@ -1424,7 +1431,7 @@ class DefinitieRepository:
 
 
 # Convenience functions
-def get_definitie_repository(db_path: str = None) -> DefinitieRepository:
+def get_definitie_repository(db_path: str | None = None) -> DefinitieRepository:
     """Haal gedeelde repository instance op."""
     if not db_path:
         # Default database in project directory

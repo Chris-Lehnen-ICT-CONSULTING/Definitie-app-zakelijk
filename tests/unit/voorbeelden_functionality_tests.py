@@ -46,8 +46,7 @@ def test_definitie(repository):
         categorie="proces",
         organisatorische_context="TEST_ORG",
     )
-    def_id = repository.create_definitie(record)
-    return def_id
+    return repository.create_definitie(record)
 
 
 class TestVoorbeeldenFunctionality:
@@ -83,7 +82,7 @@ class TestVoorbeeldenFunctionality:
         voorbeelden = {"sentence": ["Generated example"]}
         gen_params = {"temperature": 0.7, "model": "gpt-4"}
 
-        saved_ids = repository.save_voorbeelden(
+        repository.save_voorbeelden(
             test_definitie,
             voorbeelden,
             generation_model="gpt-4",
@@ -273,7 +272,7 @@ class TestVoorbeeldenIntegration:
         assert len(active_examples) == 2  # Only new ones
 
         # 6. Delete specific type
-        deleted = repository.delete_voorbeelden(test_definitie, "sentence")
+        repository.delete_voorbeelden(test_definitie, "sentence")
 
         # 7. Final verification
         final = repository.get_voorbeelden(test_definitie, actief_only=False)

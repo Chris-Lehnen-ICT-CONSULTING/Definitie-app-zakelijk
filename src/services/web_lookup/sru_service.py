@@ -88,7 +88,8 @@ class SRUService:
     async def __aenter__(self):
         """Async context manager entry."""
         if not AIOHTTP_AVAILABLE:
-            raise RuntimeError("aiohttp is vereist voor SRU service")
+            msg = "aiohttp is vereist voor SRU service"
+            raise RuntimeError(msg)
 
         self.session = aiohttp.ClientSession(
             headers=self.headers, timeout=aiohttp.ClientTimeout(total=30)
@@ -124,7 +125,8 @@ class SRUService:
             return []
 
         if not self.session:
-            raise RuntimeError("Service moet gebruikt worden als async context manager")
+            msg = "Service moet gebruikt worden als async context manager"
+            raise RuntimeError(msg)
 
         if endpoint not in self.endpoints:
             logger.error(f"Onbekend SRU endpoint: {endpoint}")
@@ -384,7 +386,7 @@ class SRUService:
         """Zoek in alle beschikbare SRU bronnen."""
         all_results = []
 
-        for endpoint in self.endpoints.keys():
+        for endpoint in self.endpoints:
             try:
                 results = await self.search(term, endpoint, max_records_per_source)
                 all_results.extend(results)

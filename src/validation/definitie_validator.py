@@ -682,10 +682,9 @@ class DefinitieValidator:
             return False
 
         # Check category compliance
-        if category_compliance < self.acceptance_thresholds["category_compliance"]:
-            return False
-
-        return True
+        return (
+            not category_compliance < self.acceptance_thresholds["category_compliance"]
+        )
 
     def _generate_improvement_suggestions(
         self, violations: list[RuleViolation]

@@ -142,15 +142,14 @@ class ServiceAdapter:
 
     def get_stats(self) -> dict:
         """Get statistieken van alle services."""
-        stats = {
+        return {
             "generator": self.container.generator().get_stats(),
             "validator": self.container.validator().get_stats(),
             "repository": self.container.repository().get_stats(),
             "orchestrator": self.orchestrator.get_stats(),
         }
-        return stats
 
-    async def search_web_sources(self, term: str, sources: list = None) -> dict:
+    async def search_web_sources(self, term: str, sources: list | None = None) -> dict:
         """
         Legacy compatible web lookup.
 

@@ -103,7 +103,7 @@ class ARAI05Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> ARAI05Validator:
+def create_validator(config_path: str | None = None) -> ARAI05Validator:
     """
     Factory functie om validator te maken.
 

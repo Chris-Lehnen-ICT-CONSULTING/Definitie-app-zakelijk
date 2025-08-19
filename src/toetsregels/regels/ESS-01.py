@@ -92,7 +92,7 @@ class ESS01Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> ESS01Validator:
+def create_validator(config_path: str | None = None) -> ESS01Validator:
     """
     Factory functie om validator te maken.
 

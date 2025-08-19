@@ -4,6 +4,7 @@ Provides health monitoring, failover strategies, and request queue persistence.
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 import pickle
@@ -186,10 +187,8 @@ class HealthMonitor:
         self._shutdown = True
         if self._monitoring_task:
             self._monitoring_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._monitoring_task
-            except asyncio.CancelledError:
-                pass
         logger.info("Health monitoring stopped")
 
     async def register_endpoint(
@@ -406,10 +405,8 @@ class ResilienceFramework:
         for task in [self._queue_processor_task, self._cache_cleanup_task]:
             if task:
                 task.cancel()
-                try:
+                with contextlib.suppress(asyncio.CancelledError):
                     await task
-                except asyncio.CancelledError:
-                    pass
 
         # Save persistent state
         self._save_persistent_state()
@@ -460,9 +457,8 @@ class ResilienceFramework:
                         logger.info(f"Using fallback response for {endpoint_name}")
                         return fallback_result
 
-                raise Exception(
-                    f"Service {endpoint_name} is down and no fallback available"
-                )
+                msg = f"Service {endpoint_name} is down and no fallback available"
+                raise Exception(msg)
 
             # Execute function
             result = await func(*args, **kwargs)
@@ -695,7 +691,8 @@ async def test_resilience_framework():
             call_count += 1
 
             if should_fail and call_count <= 3:
-                raise Exception(f"Simulated failure #{call_count}")
+                msg = f"Simulated failure #{call_count}"
+                raise Exception(msg)
 
             return f"Success on call #{call_count}"
 

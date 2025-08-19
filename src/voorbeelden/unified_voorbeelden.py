@@ -123,9 +123,8 @@ class UnifiedExamplesGenerator:
             elif request.generation_mode == GenerationMode.RESILIENT:
                 examples = self._run_async_safe(self._generate_resilient(request))
             else:
-                raise ValueError(
-                    f"Unsupported generation mode: {request.generation_mode}"
-                )
+                msg = f"Unsupported generation mode: {request.generation_mode}"
+                raise ValueError(msg)
 
             self.generation_count += 1
             generation_time = (datetime.now() - start_time).total_seconds()
@@ -153,7 +152,8 @@ class UnifiedExamplesGenerator:
             )
             return self._parse_response(response)
         except Exception as e:
-            raise RuntimeError(f"Synchronous generation failed: {e}")
+            msg = f"Synchronous generation failed: {e}"
+            raise RuntimeError(msg)
 
     async def _generate_async(self, request: ExampleRequest) -> list[str]:
         """Asynchronous example generation."""
@@ -172,7 +172,8 @@ class UnifiedExamplesGenerator:
             )
             return self._parse_response(response)
         except Exception as e:
-            raise RuntimeError(f"Asynchronous generation failed: {e}")
+            msg = f"Asynchronous generation failed: {e}"
+            raise RuntimeError(msg)
 
     @cached(ttl=3600)  # Cache for 1 hour
     def _generate_cached(self, request: ExampleRequest) -> list[str]:
@@ -195,7 +196,8 @@ class UnifiedExamplesGenerator:
             return await self._generate_resilient_antonyms(request)
         if request.example_type == ExampleType.EXPLANATION:
             return await self._generate_resilient_explanation(request)
-        raise ValueError(f"Unknown example type: {request.example_type}")
+        msg = f"Unknown example type: {request.example_type}"
+        raise ValueError(msg)
 
     @with_full_resilience(
         endpoint_name="examples_generation_sentence",
@@ -278,7 +280,8 @@ class UnifiedExamplesGenerator:
             # Voor explanation, return de hele response als één item
             return [response.strip()] if response.strip() else []
         except Exception as e:
-            raise RuntimeError(f"Resilient generation failed: {e}")
+            msg = f"Resilient generation failed: {e}"
+            raise RuntimeError(msg)
 
     async def _generate_resilient_common(self, request: ExampleRequest) -> list[str]:
         """Common resilient generation logic."""
@@ -296,7 +299,8 @@ class UnifiedExamplesGenerator:
             )
             return self._parse_response(response)
         except Exception as e:
-            raise RuntimeError(f"Resilient generation failed: {e}")
+            msg = f"Resilient generation failed: {e}"
+            raise RuntimeError(msg)
 
     def _build_prompt(self, request: ExampleRequest) -> str:
         """Build appropriate prompt based on example type."""
@@ -393,7 +397,8 @@ het daar belangrijk is. Maak de uitleg relevant voor de opgegeven context.
 GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAGRAFEN.
 """
 
-        raise ValueError(f"Unsupported example type: {request.example_type}")
+        msg = f"Unsupported example type: {request.example_type}"
+        raise ValueError(msg)
 
     def _format_context(self, context_dict: dict[str, list[str]]) -> str:
         """Format context dictionary for prompts."""

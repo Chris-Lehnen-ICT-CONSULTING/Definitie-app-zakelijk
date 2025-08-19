@@ -152,15 +152,13 @@ class DefinitionValidator(DefinitionValidatorInterface):
         errors = [v for v in violations if v.startswith("❌")]
         warnings = [v for v in violations if v.startswith("🟡")]
 
-        result = ValidationResult(
+        return ValidationResult(
             is_valid=is_acceptable,
             errors=errors,
             warnings=warnings,
             suggestions=suggestions,
             score=overall_score,
         )
-
-        return result
 
     def validate_field(self, field_name: str, value: Any) -> ValidationResult:
         """

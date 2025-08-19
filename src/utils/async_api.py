@@ -85,7 +85,8 @@ class AsyncGPTClient:
     def __init__(self, rate_limit_config: RateLimitConfig | None = None):
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
-            raise ValueError("OPENAI_API_KEY not found in environment")
+            msg = "OPENAI_API_KEY not found in environment"
+            raise ValueError(msg)
 
         self.client = AsyncOpenAI(api_key=self.api_key)
         self.rate_limiter = AsyncRateLimiter(rate_limit_config or RateLimitConfig())
@@ -241,7 +242,7 @@ class AsyncGPTClient:
 
         # Create tasks for all prompts
         tasks = []
-        for i, prompt in enumerate(prompts):
+        for _i, prompt in enumerate(prompts):
             task = self.chat_completion(
                 prompt=prompt,
                 model=model,

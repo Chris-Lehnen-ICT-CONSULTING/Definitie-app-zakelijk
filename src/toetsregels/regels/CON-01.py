@@ -63,7 +63,7 @@ class CON01Validator:
 
         # 1️⃣ Dynamisch: user-gegeven contexten
         expliciete_hits = []
-        for label, waardelijst in contexten.items():
+        for _label, waardelijst in contexten.items():
             if not waardelijst:
                 continue
             for w in waardelijst:
@@ -138,7 +138,7 @@ class CON01Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> CON01Validator:
+def create_validator(config_path: str | None = None) -> CON01Validator:
     """
     Factory functie om validator te maken.
 

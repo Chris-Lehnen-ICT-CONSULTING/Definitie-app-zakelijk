@@ -29,8 +29,7 @@ async def zoek_definitie_combinatie(term: str, *args, **kwargs):
     from services.interfaces import LookupRequest
 
     request = LookupRequest(term=term, max_results=5)
-    results = await _web_lookup_service.lookup(request)
-    return results
+    return await _web_lookup_service.lookup(request)
 
 
 # Imports zijn al bovenaan toegevoegd
@@ -192,11 +191,9 @@ class HybridContextEngine:
             web_results = zoek_definitie_combinatie(begrip)
 
             # Enhance results met document keywords
-            enhanced_results = self._enhance_web_results(
+            return self._enhance_web_results(
                 web_results, document_keywords, source_strategy
             )
-
-            return enhanced_results
 
         except Exception as e:
             logger.error(f"Fout bij enhanced web lookup: {e}")

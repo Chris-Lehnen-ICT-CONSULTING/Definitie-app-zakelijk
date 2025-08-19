@@ -394,7 +394,7 @@ class OrchestrationTab:
                         y=df["Score"],
                         mode="lines+markers",
                         name="Validatie Score",
-                        line=dict(color="green"),
+                        line={"color": "green"},
                         yaxis="y",
                     )
                 )
@@ -406,7 +406,7 @@ class OrchestrationTab:
                         y=df["Violations"],
                         mode="lines+markers",
                         name="Violations",
-                        line=dict(color="red"),
+                        line={"color": "red"},
                         yaxis="y2",
                     )
                 )
@@ -414,8 +414,8 @@ class OrchestrationTab:
                 fig.update_layout(
                     title="Iteratie Voortgang",
                     xaxis_title="Iteratie",
-                    yaxis=dict(title="Validatie Score", side="left", range=[0, 1]),
-                    yaxis2=dict(title="Violations", side="right", overlaying="y"),
+                    yaxis={"title": "Validatie Score", "side": "left", "range": [0, 1]},
+                    yaxis2={"title": "Violations", "side": "right", "overlaying": "y"},
                     height=300,
                 )
 
@@ -502,8 +502,8 @@ class OrchestrationTab:
                 y=df["Validatie Score"],
                 mode="lines+markers",
                 name="Validatie Score",
-                line=dict(color="green", width=3),
-                marker=dict(size=8),
+                line={"color": "green", "width": 3},
+                marker={"size": 8},
             )
         )
 
@@ -514,8 +514,8 @@ class OrchestrationTab:
                 y=df["Violations"],
                 mode="lines+markers",
                 name="Violations",
-                line=dict(color="red", width=2),
-                marker=dict(size=6),
+                line={"color": "red", "width": 2},
+                marker={"size": 6},
                 yaxis="y2",
             )
         )
@@ -523,15 +523,18 @@ class OrchestrationTab:
         fig.update_layout(
             title="Iteratieve Verbetering Over Tijd",
             xaxis_title="Iteratie Nummer",
-            yaxis=dict(
-                title="Validatie Score", side="left", range=[0, 1], tickformat=".2f"
-            ),
-            yaxis2=dict(
-                title="Aantal Violations",
-                side="right",
-                overlaying="y",
-                range=[0, max(df["Violations"]) + 1] if len(df) > 0 else [0, 10],
-            ),
+            yaxis={
+                "title": "Validatie Score",
+                "side": "left",
+                "range": [0, 1],
+                "tickformat": ".2f",
+            },
+            yaxis2={
+                "title": "Aantal Violations",
+                "side": "right",
+                "overlaying": "y",
+                "range": [0, max(df["Violations"]) + 1] if len(df) > 0 else [0, 10],
+            },
             height=400,
             hovermode="x unified",
         )

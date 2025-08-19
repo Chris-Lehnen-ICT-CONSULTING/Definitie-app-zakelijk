@@ -8,7 +8,7 @@ uit de database met een clean interface.
 import json
 import logging
 import sqlite3
-from contextlib import contextmanager
+from contextlib import contextmanager, suppress
 from datetime import datetime
 from typing import Any
 
@@ -78,8 +78,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 self.legacy_repo.update_definitie(definition.id, record)
                 return definition.id
             # Maak nieuwe
-            new_id = self.legacy_repo.create_definitie(record)
-            return new_id
+            return self.legacy_repo.create_definitie(record)
 
         except Exception as e:
             logger.error(f"Fout bij opslaan definitie: {e}")
@@ -397,12 +396,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
         # Parse eventuele JSON velden
         if record.validation_issues:
-            try:
+            with suppress(json.JSONDecodeError, ValueError):
                 definition.metadata["validation_issues"] = json.loads(
                     record.validation_issues
                 )
-            except (json.JSONDecodeError, ValueError):
-                pass
 
         return definition
 
@@ -426,10 +423,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
             # Converteer datetime strings
             if col_name.endswith("_at") and value:
-                try:
+                with suppress(ValueError, TypeError):
                     value = datetime.fromisoformat(value)
-                except (ValueError, TypeError):
-                    pass
 
             record_data[col_name] = value
 

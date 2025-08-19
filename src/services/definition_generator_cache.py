@@ -391,7 +391,8 @@ class DefinitionGeneratorCache:
             )
             return HybridCacheBackend(memory_backend, redis_backend)
 
-        raise ValueError(f"Unknown cache strategy: {self.config.strategy}")
+        msg = f"Unknown cache strategy: {self.config.strategy}"
+        raise ValueError(msg)
 
     def _generate_cache_key(
         self, request: GenerationRequest, context: dict | None = None

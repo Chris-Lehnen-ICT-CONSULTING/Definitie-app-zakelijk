@@ -415,7 +415,7 @@ class MetricsCollector:
             recent_calls = [
                 call for call in self.api_calls if call.timestamp >= recent_cutoff
             ]
-            endpoints = list(set(call.endpoint for call in self.api_calls))
+            endpoints = list({call.endpoint for call in self.api_calls})
 
         # Overall metrics
         total_calls = len(recent_calls)
@@ -645,7 +645,7 @@ async def test_api_monitor():
     collector = get_metrics_collector()
 
     # Simulate API calls
-    for i in range(20):
+    for _i in range(20):
         await record_api_call(
             endpoint="test_api",
             function_name="test_function",

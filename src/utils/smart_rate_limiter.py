@@ -6,6 +6,7 @@ voor efficiënte API rate limiting met intelligente load balancing.
 """
 
 import asyncio  # Asynchrone programmering voor niet-blokkerende rate limiting
+import contextlib
 import json  # JSON verwerking voor configuratie opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor token bucket timing
@@ -123,8 +124,7 @@ class TokenBucket:
                 return 0.0
 
             tokens_needed = tokens - current_tokens
-            wait_time = tokens_needed / self.rate
-            return wait_time
+            return tokens_needed / self.rate
 
     def update_rate(self, new_rate: float):
         """Update the token generation rate."""
@@ -219,10 +219,8 @@ class SmartRateLimiter:
         self._shutdown = True
         if self._processing_task:
             self._processing_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._processing_task
-            except asyncio.CancelledError:
-                pass
         self._save_historical_data()
         logger.info("Smart rate limiter stopped")
 
@@ -442,9 +440,7 @@ class SmartRateLimiter:
 
         # Apply priority weighting
         weight = self.config.priority_weights[priority]
-        estimated_wait = base_wait / weight
-
-        return estimated_wait
+        return base_wait / weight
 
 
 # Endpoint-specifieke smart rate limiters
@@ -516,7 +512,8 @@ def with_smart_rate_limit(
             # Wait for rate limit permission
             time.time()
             if not await limiter.acquire(priority, timeout, request_id):
-                raise asyncio.TimeoutError(f"Rate limit timeout for {func.__name__}")
+                msg = f"Rate limit timeout for {func.__name__}"
+                raise asyncio.TimeoutError(msg)
 
             try:
                 # Execute function and record metrics

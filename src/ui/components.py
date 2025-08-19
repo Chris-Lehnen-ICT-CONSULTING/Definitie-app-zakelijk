@@ -219,7 +219,7 @@ class UIComponents:
 
             # Preferred term selection
             begrip = SessionStateManager.get_value("begrip", "")
-            opties = [""] + [begrip] + synoniemen_lijst
+            opties = ["", begrip, *synoniemen_lijst]
             keuze = st.selectbox(
                 "Selecteer de voorkeurs-term (lemma)",
                 opties,

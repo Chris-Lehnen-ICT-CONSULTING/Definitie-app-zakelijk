@@ -49,39 +49,39 @@ from .sanitizer import (
 
 # Exporteer publieke interface - alle validatie en sanering componenten
 __all__ = [
-    # Input validatie - gebruikersinvoer controle
-    "InputValidator",  # Hoofdklasse voor input validatie
-    "ValidationSchema",  # Schema voor validatie regels
-    "ValidationRule",  # Individuele validatie regel
-    "ValidationResult",  # Validatie resultaat container
-    "ValidationSeverity",  # Ernst niveau van validatie issues
-    "ValidationType",  # Type van validatie proces
-    "get_validator",  # Factory voor validator instanties
-    "validate_input",  # Directe input validatie
-    "is_valid_input",  # Boolean validatie check
-    "get_input_errors",  # Fout extractie functie
-    "validate_input_decorator",  # Decorator voor auto validatie
     # Content sanering - veilige content verwerking
     "ContentSanitizer",  # Hoofdklasse voor sanering
-    "SanitizationResult",  # Sanering resultaat container
-    "SanitizationLevel",  # Niveau van sanering proces
-    "SanitizationRule",  # Individuele sanering regel
     "ContentType",  # Content type voor context
-    "get_sanitizer",  # Factory voor sanitizer instanties
-    "sanitize_content",  # Algemene content sanering
-    "sanitize_for_definition",  # Definitie-specifieke sanering
-    "sanitize_user_input",  # Gebruikersinvoer sanering
-    "detect_threats",  # Bedreiging detectie
-    "sanitize_input_decorator",  # Decorator voor auto sanering
+    "DutchTextType",  # Type Nederlandse tekst
     # Nederlandse tekst validatie - taalkundige correctheid
     "DutchTextValidator",  # Nederlandse tekst validator
     "DutchValidationResult",  # Nederlandse validatie resultaat
-    "DutchTextType",  # Type Nederlandse tekst
     "DutchValidationSeverity",  # Ernst niveau Nederlandse validatie
-    "get_dutch_validator",  # Factory Nederlandse validator
-    "validate_dutch_text",  # Nederlandse tekst validatie
-    "suggest_dutch_improvements",  # Verbeteringsuggesties
+    # Input validatie - gebruikersinvoer controle
+    "InputValidator",  # Hoofdklasse voor input validatie
+    "SanitizationLevel",  # Niveau van sanering proces
+    "SanitizationResult",  # Sanering resultaat container
+    "SanitizationRule",  # Individuele sanering regel
+    "ValidationResult",  # Validatie resultaat container
+    "ValidationRule",  # Individuele validatie regel
+    "ValidationSchema",  # Schema voor validatie regels
+    "ValidationSeverity",  # Ernst niveau van validatie issues
+    "ValidationType",  # Type van validatie proces
+    "detect_threats",  # Bedreiging detectie
     "dutch_text_decorator",  # Decorator Nederlandse validatie
+    "get_dutch_validator",  # Factory Nederlandse validator
+    "get_input_errors",  # Fout extractie functie
+    "get_sanitizer",  # Factory voor sanitizer instanties
+    "get_validator",  # Factory voor validator instanties
+    "is_valid_input",  # Boolean validatie check
+    "sanitize_content",  # Algemene content sanering
+    "sanitize_for_definition",  # Definitie-specifieke sanering
+    "sanitize_input_decorator",  # Decorator voor auto sanering
+    "sanitize_user_input",  # Gebruikersinvoer sanering
+    "suggest_dutch_improvements",  # Verbeteringsuggesties
+    "validate_dutch_text",  # Nederlandse tekst validatie
+    "validate_input",  # Directe input validatie
+    "validate_input_decorator",  # Decorator voor auto validatie
 ]
 
 # Versie informatie en package metadata

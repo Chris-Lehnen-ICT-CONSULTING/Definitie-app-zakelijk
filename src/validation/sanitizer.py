@@ -261,7 +261,7 @@ class ContentSanitizer:
                             )
 
             # Apply general sanitization based on level
-            if level == SanitizationLevel.STRICT or level == SanitizationLevel.PARANOID:
+            if level in (SanitizationLevel.STRICT, SanitizationLevel.PARANOID):
                 # HTML entity encoding
                 if content_type not in [ContentType.HTML]:
                     old_value = sanitized_value
@@ -284,7 +284,7 @@ class ContentSanitizer:
                 warnings.append("Content was truncated")
 
             # Convert back to original type if possible
-            if isinstance(original_value, (int, float)):
+            if isinstance(original_value, int | float):
                 try:
                     if isinstance(original_value, int):
                         sanitized_value = int(sanitized_value)

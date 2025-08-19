@@ -27,9 +27,8 @@ def verkrijg_openai_client() -> OpenAI:
     """Verkrijgt OpenAI client met error handling voor ontbrekende API key."""
     sleutel = os.getenv("OPENAI_API_KEY")  # Haal API key op uit environment
     if not sleutel:  # Controleer of key bestaat
-        raise RuntimeError(
-            "OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets."
-        )  # Gooi fout bij ontbrekende key
+        msg = "OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets."
+        raise RuntimeError(msg)  # Gooi fout bij ontbrekende key
     return OpenAI(api_key=sleutel)  # Retourneer nieuwe client instantie
 
 
@@ -146,7 +145,8 @@ class PromptBouwer:
         regels: list[str] = []
         begrip = self.configuratie.begrip
         if not begrip:
-            raise ValueError("Begrip mag niet leeg zijn.")
+            msg = "Begrip mag niet leeg zijn."
+            raise ValueError(msg)
 
         woordsoort = self.bepaal_woordsoort()
         geselecteerde_regels = self.filter_regels()
@@ -333,7 +333,8 @@ def stuur_prompt_naar_gpt(
             )
             return antwoord.choices[0].message.content.strip()
         except OpenAIError as fout:
-            raise RuntimeError(f"GPT-aanroep mislukt: {fout}") from fout
+            msg = f"GPT-aanroep mislukt: {fout}"
+            raise RuntimeError(msg) from fout
 
     return _make_gpt_call(cache_key, prompt, model, temperatuur, max_tokens)
 
