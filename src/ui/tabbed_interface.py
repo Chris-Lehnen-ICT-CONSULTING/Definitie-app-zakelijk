@@ -813,8 +813,9 @@ class TabbedInterface:
                 # Store detailed validation results for display
                 # Check for both legacy (best_iteration) and new service (dict) formats
                 if agent_result and (hasattr(agent_result, 'best_iteration') or isinstance(agent_result, dict)):
+                    logger.info(f"Attempting to run toets_definitie. agent_result type: {type(agent_result)}")
                     from ai_toetser.modular_toetser import toets_definitie
-                    from config.toetsregels.modular_loader import load_all_toetsregels
+                    from toetsregels.modular_loader import load_all_toetsregels
 
                     # Get detailed validation results with proper context using modular loader
                     # Dit laadt zowel JSON configs als Python validators
@@ -840,9 +841,12 @@ class TabbedInterface:
                     if isinstance(agent_result, dict):
                         # New service format
                         definitie_text = agent_result.get('definitie_gecorrigeerd', '')
+                        logger.info(f"Using new service format. Keys in agent_result: {list(agent_result.keys())}")
+                        logger.info(f"definitie_text from dict: '{definitie_text[:50]}...'")
                     else:
                         # Legacy format with best_iteration
                         definitie_text = agent_result.final_definitie if hasattr(agent_result, 'final_definitie') else ''
+                        logger.info(f"Using legacy format. definitie_text: '{definitie_text[:50]}...'")
                     
                     detailed_results = toets_definitie(
                         definitie=definitie_text,
@@ -870,7 +874,7 @@ class TabbedInterface:
 
         except Exception as e:
             st.error(f"❌ Fout bij generatie: {str(e)}")
-            logger.error(f"Global generation failed: {e}")
+            logger.error(f"Global generation failed: {e}", exc_info=True)
 
     def _get_document_context(self) -> Optional[Dict[str, Any]]:
         """Krijg document context voor definitie generatie."""
