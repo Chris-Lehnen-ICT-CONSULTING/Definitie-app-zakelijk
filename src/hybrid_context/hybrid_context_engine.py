@@ -16,6 +16,9 @@ from document_processing.document_processor import (  # Document processor facto
 # from web_lookup.lookup import zoek_definitie_combinatie  # DEPRECATED
 from services.modern_web_lookup_service import ModernWebLookupService
 
+from .context_fusion import ContextFusion  # Context fusie en samenvoeging
+from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
+
 # Create modern service instance
 _web_lookup_service = ModernWebLookupService()
 
@@ -30,10 +33,7 @@ async def zoek_definitie_combinatie(term: str, *args, **kwargs):
     return results
 
 
-from .context_fusion import ContextFusion  # Context fusie en samenvoeging
-
-# Importeer hybride context componenten
-from .smart_source_selector import SmartSourceSelector  # Intelligente bron selectie
+# Imports zijn al bovenaan toegevoegd
 
 logger = logging.getLogger(__name__)  # Logger instantie voor hybrid context engine
 

@@ -3,11 +3,15 @@ Performance benchmark voor oude vs nieuwe service architectuur.
 """
 
 import asyncio
+import gc
 import os
 import sys
 import time
 from pathlib import Path
 from statistics import mean, stdev
+from unittest.mock import MagicMock, patch
+
+import psutil
 
 # Voeg src toe aan path
 sys.path.insert(0, str(Path(__file__).parent / "src"))
@@ -102,7 +106,6 @@ print("\n📊 Test 2: Request Processing (Mock)")
 print("-" * 40)
 
 # Mock de API calls
-from unittest.mock import MagicMock, patch
 
 mock_response = "Dit is een test definitie voor benchmarking."
 
@@ -158,10 +161,6 @@ print(
 # Test 3: Memory Usage
 print("\n📊 Test 3: Memory Footprint")
 print("-" * 40)
-
-import gc
-
-import psutil
 
 
 def measure_memory_usage(setup_func):
