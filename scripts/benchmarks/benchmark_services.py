@@ -9,7 +9,7 @@ import sys
 import time
 from pathlib import Path
 from statistics import mean, stdev
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import psutil
 

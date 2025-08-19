@@ -5,7 +5,10 @@ Combineert web lookup met document processing voor optimale definitie generatie.
 
 import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import dataclass  # Dataklassen voor gestructureerde context data
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps, timezone
+from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
+    datetime,
+    timezone,
+)
 from typing import Any  # Type hints voor betere code documentatie
 
 from document_processing.document_processor import (  # Document processor factory

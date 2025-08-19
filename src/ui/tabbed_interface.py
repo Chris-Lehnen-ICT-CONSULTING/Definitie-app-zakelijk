@@ -7,7 +7,7 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
-from datetime import datetime  # Datum en tijd functionaliteit, timezone
+from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -62,9 +62,11 @@ from ui.session_state import (  # Sessie state management voor UI persistentie
 
 # Hybrid context imports - optionele module voor hybride context verrijking
 try:
-    import hybrid_context.hybrid_context_engine  # Hybride context engine module check
+    import importlib.util  # Voor module availability check
 
-    HYBRID_CONTEXT_AVAILABLE = True  # Hybride context succesvol geladen
+    HYBRID_CONTEXT_AVAILABLE = (
+        importlib.util.find_spec("hybrid_context.hybrid_context_engine") is not None
+    )
 except ImportError:
     HYBRID_CONTEXT_AVAILABLE = False  # Hybride context niet beschikbaar
 import logging  # Logging faciliteiten voor debug en monitoring
@@ -623,7 +625,9 @@ class TabbedInterface:
             # Datum voorstel
             datum_voorstel = st.date_input(
                 "📅 Datum voorstel",
-                value=SessionStateManager.get_value("datum_voorstel", datetime.today()),
+                value=SessionStateManager.get_value(
+                    "datum_voorstel", datetime.now(timezone.utc).date()
+                ),
                 help="Datum waarop deze definitie wordt voorgesteld",
             )
             SessionStateManager.set_value("datum_voorstel", datum_voorstel)

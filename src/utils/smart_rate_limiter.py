@@ -16,7 +16,10 @@ from dataclasses import (  # Dataklassen voor gestructureerde configuratie
     dataclass,
     field,
 )
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps, timezone
+from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
+    datetime,
+    timezone,
+)
 from enum import Enum  # Enumeraties voor prioriteit levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import (  # Type hints voor betere code documentatie
