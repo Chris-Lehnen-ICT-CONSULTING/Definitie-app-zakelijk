@@ -4,7 +4,7 @@ Export Tab - Interface voor definitie export en beheer functionaliteit.
 
 import io
 import json
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 
 import pandas as pd
 import streamlit as st
@@ -436,7 +436,7 @@ class ExportTab:
             )
 
             # Create download
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
             filename = f"definities_export_{timestamp}.{format_type.lower()}"
 
             st.download_button(
@@ -486,11 +486,11 @@ class ExportTab:
         # Apply date filter
         if date_range != "Alle":
             if date_range == "Laatste week":
-                cutoff_date = datetime.now() - timedelta(days=7)
+                cutoff_date = datetime.now(timezone.utc) - timedelta(days=7)
             elif date_range == "Laatste maand":
-                cutoff_date = datetime.now() - timedelta(days=30)
+                cutoff_date = datetime.now(timezone.utc) - timedelta(days=30)
             elif date_range == "Laatste 3 maanden":
-                cutoff_date = datetime.now() - timedelta(days=90)
+                cutoff_date = datetime.now(timezone.utc) - timedelta(days=90)
             elif start_date and end_date:
                 return [
                     d

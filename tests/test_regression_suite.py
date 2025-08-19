@@ -95,7 +95,7 @@ class TestImportStructure(unittest.TestCase):
                 logger.info(f"✅ Optionele module {module_name} beschikbaar")
             except ImportError:
                 logger.info(
-                    f"ℹ️ Optionele module {module_name} niet beschikbaar (verwacht)"
+                    f"i️ Optionele module {module_name} niet beschikbaar (verwacht)"
                 )
                 # Dit is acceptabel voor optionele modules
             except Exception as e:

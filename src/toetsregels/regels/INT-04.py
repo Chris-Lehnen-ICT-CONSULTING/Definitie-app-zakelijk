@@ -59,7 +59,7 @@ class INT04Validator:
         tekst = definitie.strip()
         tekst_lc = tekst.lower()
 
-        # 1️⃣ Verzamel alle 'de …' / 'het …' matches
+        # 1️⃣ Verzamel alle 'de ...' / 'het ...' matches
         hits = []
         for pattern in self.compiled_patterns:
             for match in pattern.finditer(tekst):

@@ -7,7 +7,7 @@ zonder enige database dependencies.
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 
@@ -153,7 +153,7 @@ class WorkflowService:
         # Basis wijzigingen
         changes = {
             "status": new_status,
-            "updated_at": datetime.now(),
+            "updated_at": datetime.now(timezone.utc),
             "updated_by": user,
         }
 
@@ -162,7 +162,7 @@ class WorkflowService:
             changes.update(
                 {
                     "approved_by": user,
-                    "approved_at": datetime.now(),
+                    "approved_at": datetime.now(timezone.utc),
                     "approval_notes": notes or "Goedgekeurd",
                 }
             )
@@ -172,7 +172,7 @@ class WorkflowService:
             changes.update(
                 {
                     "archived_by": user,
-                    "archived_at": datetime.now(),
+                    "archived_at": datetime.now(timezone.utc),
                     "archive_reason": notes or "Gearchiveerd",
                 }
             )
@@ -188,7 +188,7 @@ class WorkflowService:
                     "archived_at": None,
                     "archive_reason": None,
                     "restored_by": user,
-                    "restored_at": datetime.now(),
+                    "restored_at": datetime.now(timezone.utc),
                 }
             )
 

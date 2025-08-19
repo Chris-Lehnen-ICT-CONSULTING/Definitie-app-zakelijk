@@ -95,7 +95,7 @@ class INT01Validator:
                 )
             return (
                 True,
-                f"✔️ {self.id}: geen complexe elementen herkend – mogelijk goed geformuleerd",
+                f"✔️ {self.id}: geen complexe elementen herkend - mogelijk goed geformuleerd",
                 0.9,
             )
 

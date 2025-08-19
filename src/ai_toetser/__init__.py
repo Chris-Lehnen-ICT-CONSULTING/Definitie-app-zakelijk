@@ -2,9 +2,9 @@
 ai_toetser package voor DefinitieAgent.
 
 Publieke API:
-    Toetser         – OO-wrapper met `.is_verboden()` functionaliteit
-    toets_definitie – functie basis voor definitie-toetsing tegen verboden woorden
-    ModularToetser  – Modulaire implementatie van de toetser
+    Toetser         - OO-wrapper met `.is_verboden()` functionaliteit
+    toets_definitie - functie basis voor definitie-toetsing tegen verboden woorden
+    ModularToetser  - Modulaire implementatie van de toetser
 
 Het package gebruikt een volledig modulaire architectuur met JSON configuratie
 en Python validators voor maximale flexibiliteit en onderhoudbaarheid.

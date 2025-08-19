@@ -64,7 +64,7 @@ class ESS05Validator:
                     False,
                     (
                         f"❌ {self.id}: definitie bevat niet-onderscheidende formulering "
-                        f"(fout voorbeeld: '…{fout}…')"
+                        f"(fout voorbeeld: '...{fout}...')"
                     ),
                     0.0,
                 )

@@ -10,7 +10,7 @@ import json
 import os
 import subprocess
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 
@@ -206,7 +206,7 @@ class AICodeReviewer:
         description = f"""## 🤖 AI Code Review Report
 
 **AI Agent**: {os.getenv('AI_AGENT_NAME', 'Unknown')}
-**Date**: {datetime.now().strftime('%Y-%m-%d %H:%M')}
+**Date**: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M')}
 **Review Iterations**: {self.current_iteration}
 **Final Status**: {'✅ Passed' if not self.issues_found else '⚠️ Issues Remaining'}
 

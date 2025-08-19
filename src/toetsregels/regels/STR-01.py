@@ -66,7 +66,7 @@ class STR01Validator:
             elif goed:
                 result = "✔️ STR-01: definitie start correct met zelfstandig naamwoord en komt overeen met goed voorbeeld"
             else:
-                result = "✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd"
+                result = "✔️ STR-01: geen werkwoordelijke start herkend - mogelijk goed geformuleerd"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0

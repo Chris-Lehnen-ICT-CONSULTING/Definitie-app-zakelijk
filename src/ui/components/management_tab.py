@@ -6,7 +6,7 @@ Integreert definitie_manager.py en setup_database.py functionaliteit in de UI.
 # Importeer CLI tools voor management functionaliteit
 import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
-from datetime import datetime  # Datum en tijd functionaliteit
+from datetime import datetime  # Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 
 import pandas as pd  # Data manipulatie en analyse framework
@@ -352,7 +352,7 @@ class ManagementTab:
 
                 export_filename = st.text_input(
                     "📁 Bestandsnaam",
-                    value=f"export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json",
+                    value=f"export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json",
                     key="export_filename",
                 )
 
@@ -560,7 +560,7 @@ class ManagementTab:
         if st.session_state.get("confirm_reset_db", False):
             try:
                 # Backup current data first
-                backup_path = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+                backup_path = f"backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
                 self.repository.export_to_json(backup_path, {})
 
                 # Reset database
@@ -911,7 +911,7 @@ class ManagementTab:
                         elif komt_voor:
                             st.warning("⚠️ Woord komt voor maar niet aan het begin")
                         else:
-                            st.info("ℹ️ Woord komt niet voor in zin")
+                            st.info("i️ Woord komt niet voor in zin")
 
                     except Exception as e:
                         st.error(f"❌ Test fout: {e}")
@@ -1258,7 +1258,7 @@ class ManagementTab:
                         if value:
                             st.info(f"✅ {var}: Configured")
                         else:
-                            st.caption(f"ℹ️ {var}: Niet geconfigureerd")
+                            st.caption(f"i️ {var}: Niet geconfigureerd")
 
                 except Exception as e:
                     st.error(f"❌ API key test fout: {e}")

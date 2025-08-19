@@ -64,7 +64,7 @@ class SAM08Validator:
                 if fout:
                     result = "❌ SAM-08: geen verwijzing gevonden maar formulering lijkt op fout voorbeeld"
                 else:
-                    result = "✔️ SAM-08: geen synoniemverwijzing herkend – mogelijk correct toegepast"
+                    result = "✔️ SAM-08: geen synoniemverwijzing herkend - mogelijk correct toegepast"
             elif goed:
                 result = f"✔️ SAM-08: synoniemverwijzing(en) herkend ({', '.join(verwijzingen)}), correct toegepast"
             elif fout:

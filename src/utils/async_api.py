@@ -8,7 +8,7 @@ import logging
 import os
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from functools import wraps
 from typing import Any
 
@@ -44,7 +44,7 @@ class AsyncRateLimiter:
     async def acquire(self):
         """Acquire permission to make an API call."""
         async with self._lock:
-            now = datetime.now()
+            now = datetime.now(timezone.utc)
 
             # Clean old requests
             minute_ago = now - timedelta(minutes=1)

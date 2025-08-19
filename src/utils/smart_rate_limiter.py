@@ -16,7 +16,7 @@ from dataclasses import (  # Dataklassen voor gestructureerde configuratie
     dataclass,
     field,
 )
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps, timezone
 from enum import Enum  # Enumeraties voor prioriteit levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import (  # Type hints voor betere code documentatie
@@ -199,7 +199,7 @@ class SmartRateLimiter:
             data = {
                 "optimal_rate": self.current_rate,
                 "avg_response_time": self.stats["avg_response_time"],
-                "last_updated": datetime.now().isoformat(),
+                "last_updated": datetime.now(timezone.utc).isoformat(),
                 "stats": self.stats,
             }
 
@@ -255,7 +255,7 @@ class SmartRateLimiter:
         future = asyncio.Future()
         queued_request = QueuedRequest(
             priority=priority,
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
             request_id=request_id,
             future=future,
             timeout=timeout,
@@ -294,7 +294,7 @@ class SmartRateLimiter:
                         # Check if request hasn't timed out
                         if not request.future.done():
                             queue_wait_time = (
-                                datetime.now() - request.timestamp
+                                datetime.now(timezone.utc) - request.timestamp
                             ).total_seconds()
 
                             # Apply priority weighting to queue time
@@ -344,7 +344,7 @@ class SmartRateLimiter:
     ):
         """Record response metrics for dynamic rate adjustment."""
         metric = ResponseMetrics(
-            timestamp=datetime.now(),
+            timestamp=datetime.now(timezone.utc),
             response_time=response_time,
             success=success,
             priority=priority,

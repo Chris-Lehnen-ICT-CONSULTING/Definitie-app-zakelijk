@@ -154,7 +154,7 @@ def main():
 
         # Check error handling
         error_handling = len(re.findall(r"try:", content))
-        print(f"  ℹ️  Try/except blocks: {error_handling}")
+        print(f"  i️  Try/except blocks: {error_handling}")
 
     else:
         print(f"❌ File not found: {filepath}")

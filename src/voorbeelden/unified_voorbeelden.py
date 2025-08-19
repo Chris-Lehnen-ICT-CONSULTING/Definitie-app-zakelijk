@@ -11,7 +11,7 @@ import re  # Reguliere expressies voor tekst processing
 from dataclasses import (  # Dataklassen voor gestructureerde request/response data
     dataclass,
 )
-from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
+from datetime import datetime  # Datum en tijd functionaliteit voor timestamps, timezone
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
@@ -110,7 +110,7 @@ class UnifiedExamplesGenerator:
 
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
         """Generate examples based on request configuration."""
-        start_time = datetime.now()
+        start_time = datetime.now(timezone.utc)
 
         try:
             # Route to appropriate generation method
@@ -127,7 +127,7 @@ class UnifiedExamplesGenerator:
                 raise ValueError(msg)
 
             self.generation_count += 1
-            generation_time = (datetime.now() - start_time).total_seconds()
+            generation_time = (datetime.now(timezone.utc) - start_time).total_seconds()
 
             return ExampleResponse(
                 examples=examples, success=True, generation_time=generation_time
