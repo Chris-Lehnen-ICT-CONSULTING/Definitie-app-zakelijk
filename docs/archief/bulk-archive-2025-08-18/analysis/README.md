@@ -227,7 +227,7 @@ streamlit run src/centrale_module_definitie_kwaliteit.py --server.runOnSave true
 
 ### 🚨 **Huidige Vulnerabilities**
 - **API keys** in session state en logs
-- **Geen input validation** 
+- **Geen input validation**
 - **Pickle deserialization** risico's
 - **Direct file operations** zonder sanitization
 - **No authentication** system
@@ -297,5 +297,5 @@ Private project. All rights reserved.
 
 ---
 
-**DefinitieAgent** - Functioneel maar heeft refactoring nodig  
+**DefinitieAgent** - Functioneel maar heeft refactoring nodig
 Status: **Production Ready** ⚠️ met **Technical Debt**

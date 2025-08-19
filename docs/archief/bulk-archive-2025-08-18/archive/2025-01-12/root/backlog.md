@@ -5,10 +5,10 @@
 **Totaal items**: 77+ backlog items gevonden
 **Status verdeling**:
 - ✅ Done: 3 items
-- 🔄 In Progress: 5 items  
+- 🔄 In Progress: 5 items
 - 📝 To Do: 69+ items
 
-**Laatste update**: 2025-01-18  
+**Laatste update**: 2025-01-18
 **Volgende review**: Planning sprint 5
 
 ---
@@ -40,7 +40,7 @@
 - **Prioriteit**: Hoog
 - **Sprint**: 4
 - **Probleem**: GPT-4 is traag, AI-calls worden sequentieel uitgevoerd
-- **Oplossing**: 
+- **Oplossing**:
   - Parallelle AI-calls implementeren
   - Toggle voor GPT-4 vs GPT-3.5/GPT-4o
   - Performance logging toevoegen

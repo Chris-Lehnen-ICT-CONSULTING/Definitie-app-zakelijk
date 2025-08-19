@@ -6,11 +6,12 @@ Provides schema-based validation, type checking, and business rule enforcement.
 import json
 import logging
 import re
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Union
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -47,28 +48,28 @@ class ValidationRule:
     message: str = ""
 
     # Type validation
-    expected_type: Optional[type] = None
+    expected_type: type | None = None
 
     # Length validation
-    min_length: Optional[int] = None
-    max_length: Optional[int] = None
+    min_length: int | None = None
+    max_length: int | None = None
 
     # Pattern validation
-    pattern: Optional[str] = None
+    pattern: str | None = None
     pattern_flags: int = 0
 
     # Range validation
-    min_value: Optional[Union[int, float]] = None
-    max_value: Optional[Union[int, float]] = None
+    min_value: int | float | None = None
+    max_value: int | float | None = None
 
     # Enum validation
-    allowed_values: Optional[List[Any]] = None
+    allowed_values: list[Any] | None = None
 
     # Custom validation
-    custom_validator: Optional[Callable[[Any], bool]] = None
+    custom_validator: Callable[[Any], bool] | None = None
 
     # Business rule validation
-    business_rule: Optional[Callable[[Dict[str, Any]], bool]] = None
+    business_rule: Callable[[dict[str, Any]], bool] | None = None
 
 
 @dataclass
@@ -89,9 +90,9 @@ class ValidationSchema:
 
     def __init__(self, schema_name: str):
         self.schema_name = schema_name
-        self.rules: List[ValidationRule] = []
-        self.field_rules: Dict[str, List[ValidationRule]] = {}
-        self.global_rules: List[ValidationRule] = []
+        self.rules: list[ValidationRule] = []
+        self.field_rules: dict[str, list[ValidationRule]] = {}
+        self.global_rules: list[ValidationRule] = []
 
     def add_rule(self, rule: ValidationRule):
         """Add a validation rule to the schema."""
@@ -164,8 +165,8 @@ class ValidationSchema:
     def range_check(
         self,
         field_name: str,
-        min_value: Union[int, float] = None,
-        max_value: Union[int, float] = None,
+        min_value: int | float = None,
+        max_value: int | float = None,
         message: str = "",
     ):
         """Add range validation."""
@@ -181,7 +182,7 @@ class ValidationSchema:
         self.add_rule(rule)
         return self
 
-    def enum(self, field_name: str, allowed_values: List[Any], message: str = ""):
+    def enum(self, field_name: str, allowed_values: list[Any], message: str = ""):
         """Add enum validation."""
         rule = ValidationRule(
             field_name=field_name,
@@ -210,7 +211,7 @@ class ValidationSchema:
     def business_rule(
         self,
         rule_name: str,
-        validator: Callable[[Dict[str, Any]], bool],
+        validator: Callable[[dict[str, Any]], bool],
         message: str = "",
     ):
         """Add business rule validation."""
@@ -229,8 +230,8 @@ class InputValidator:
     """Main input validation system."""
 
     def __init__(self):
-        self.schemas: Dict[str, ValidationSchema] = {}
-        self.validation_history: List[Dict[str, Any]] = []
+        self.schemas: dict[str, ValidationSchema] = {}
+        self.validation_history: list[dict[str, Any]] = []
         self.load_built_in_schemas()
 
     def load_built_in_schemas(self):
@@ -297,7 +298,7 @@ class InputValidator:
 
         self.schemas["context_validation"] = context_schema
 
-    def _validate_context_dict(self, context_dict: Dict[str, Any]) -> bool:
+    def _validate_context_dict(self, context_dict: dict[str, Any]) -> bool:
         """Validate context dictionary structure."""
         if not isinstance(context_dict, dict):
             return False
@@ -311,7 +312,7 @@ class InputValidator:
 
         return True
 
-    def _validate_ketenpartners(self, ketenpartners: List[str]) -> bool:
+    def _validate_ketenpartners(self, ketenpartners: list[str]) -> bool:
         """Validate ketenpartners list."""
         if not isinstance(ketenpartners, list):
             return False
@@ -336,7 +337,7 @@ class InputValidator:
 
         return True
 
-    def _validate_organisatorisch_context(self, context: List[str]) -> bool:
+    def _validate_organisatorisch_context(self, context: list[str]) -> bool:
         """Validate organisatorisch context."""
         if not isinstance(context, list):
             return False
@@ -358,7 +359,7 @@ class InputValidator:
 
         return True
 
-    def _validate_juridisch_context(self, context: List[str]) -> bool:
+    def _validate_juridisch_context(self, context: list[str]) -> bool:
         """Validate juridisch context."""
         if not isinstance(context, list):
             return False
@@ -380,7 +381,7 @@ class InputValidator:
 
         return True
 
-    def _validate_wettelijk_context(self, context: List[str]) -> bool:
+    def _validate_wettelijk_context(self, context: list[str]) -> bool:
         """Validate wettelijk context."""
         if not isinstance(context, list):
             return False
@@ -396,8 +397,8 @@ class InputValidator:
         return True
 
     def validate(
-        self, data: Dict[str, Any], schema_name: str
-    ) -> List[ValidationResult]:
+        self, data: dict[str, Any], schema_name: str
+    ) -> list[ValidationResult]:
         """Validate data against a schema."""
         if schema_name not in self.schemas:
             raise ValueError(f"Schema '{schema_name}' not found")
@@ -458,7 +459,7 @@ class InputValidator:
         return results
 
     def _validate_single_rule(
-        self, value: Any, rule: ValidationRule, full_data: Dict[str, Any]
+        self, value: Any, rule: ValidationRule, full_data: dict[str, Any]
     ) -> ValidationResult:
         """Validate a single rule."""
         try:
@@ -533,11 +534,11 @@ class InputValidator:
                 validation_type=rule.validation_type,
                 severity=ValidationSeverity.ERROR,
                 passed=False,
-                message=f"Validation error: {str(e)}",
+                message=f"Validation error: {e!s}",
                 actual_value=value,
             )
 
-    def is_valid(self, data: Dict[str, Any], schema_name: str) -> bool:
+    def is_valid(self, data: dict[str, Any], schema_name: str) -> bool:
         """Check if data is valid according to schema."""
         results = self.validate(data, schema_name)
         return all(
@@ -547,8 +548,8 @@ class InputValidator:
         )
 
     def get_errors(
-        self, data: Dict[str, Any], schema_name: str
-    ) -> List[ValidationResult]:
+        self, data: dict[str, Any], schema_name: str
+    ) -> list[ValidationResult]:
         """Get only validation errors."""
         results = self.validate(data, schema_name)
         return [
@@ -558,8 +559,8 @@ class InputValidator:
         ]
 
     def get_warnings(
-        self, data: Dict[str, Any], schema_name: str
-    ) -> List[ValidationResult]:
+        self, data: dict[str, Any], schema_name: str
+    ) -> list[ValidationResult]:
         """Get only validation warnings."""
         results = self.validate(data, schema_name)
         return [
@@ -572,7 +573,7 @@ class InputValidator:
         """Add a custom validation schema."""
         self.schemas[schema.schema_name] = schema
 
-    def get_validation_stats(self) -> Dict[str, Any]:
+    def get_validation_stats(self) -> dict[str, Any]:
         """Get validation statistics."""
         if not self.validation_history:
             return {"total_validations": 0}
@@ -612,7 +613,7 @@ class InputValidator:
             ),
         }
 
-    def export_validation_report(self, filename: Optional[str] = None) -> str:
+    def export_validation_report(self, filename: str | None = None) -> str:
         """Export validation report to file."""
         if filename is None:
             filename = (
@@ -642,7 +643,7 @@ class InputValidator:
 
 
 # Global validator instance
-_global_validator: Optional[InputValidator] = None
+_global_validator: InputValidator | None = None
 
 
 def get_validator() -> InputValidator:
@@ -653,19 +654,19 @@ def get_validator() -> InputValidator:
     return _global_validator
 
 
-def validate_input(data: Dict[str, Any], schema_name: str) -> List[ValidationResult]:
+def validate_input(data: dict[str, Any], schema_name: str) -> list[ValidationResult]:
     """Convenience function for input validation."""
     validator = get_validator()
     return validator.validate(data, schema_name)
 
 
-def is_valid_input(data: Dict[str, Any], schema_name: str) -> bool:
+def is_valid_input(data: dict[str, Any], schema_name: str) -> bool:
     """Convenience function to check if input is valid."""
     validator = get_validator()
     return validator.is_valid(data, schema_name)
 
 
-def get_input_errors(data: Dict[str, Any], schema_name: str) -> List[ValidationResult]:
+def get_input_errors(data: dict[str, Any], schema_name: str) -> list[ValidationResult]:
     """Convenience function to get input errors."""
     validator = get_validator()
     return validator.get_errors(data, schema_name)

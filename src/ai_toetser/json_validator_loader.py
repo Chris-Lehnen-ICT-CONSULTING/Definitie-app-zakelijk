@@ -10,7 +10,7 @@ import json
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +23,7 @@ class JSONValidatorLoader:
     toetsregel zijn eigen JSON en Python bestand heeft.
     """
 
-    def __init__(self, regels_dir: Optional[str] = None):
+    def __init__(self, regels_dir: str | None = None):
         """
         Initialiseer de validator loader.
 
@@ -44,7 +44,7 @@ class JSONValidatorLoader:
             f"JSONValidatorLoader geïnitialiseerd met directory: {self.regels_dir}"
         )
 
-    def load_validator(self, regel_id: str) -> Optional[Any]:
+    def load_validator(self, regel_id: str) -> Any | None:
         """
         Laad een specifieke validator.
 
@@ -104,7 +104,7 @@ class JSONValidatorLoader:
             logger.error(f"Fout bij laden validator {regel_id}: {e}")
             return None
 
-    def load_json_config(self, regel_id: str) -> Optional[Dict[str, Any]]:
+    def load_json_config(self, regel_id: str) -> dict[str, Any] | None:
         """
         Laad JSON configuratie voor een regel.
 
@@ -123,7 +123,7 @@ class JSONValidatorLoader:
             return None
 
         try:
-            with open(json_path, "r", encoding="utf-8") as f:
+            with open(json_path, encoding="utf-8") as f:
                 config = json.load(f)
 
             # Voeg ID toe aan config voor consistentie
@@ -138,7 +138,7 @@ class JSONValidatorLoader:
             logger.error(f"Fout bij laden JSON voor {regel_id}: {e}")
             return None
 
-    def get_all_regel_ids(self) -> List[str]:
+    def get_all_regel_ids(self) -> list[str]:
         """
         Haal alle beschikbare regel IDs op.
 
@@ -158,9 +158,9 @@ class JSONValidatorLoader:
         self,
         definitie: str,
         begrip: str,
-        regel_ids: Optional[List[str]] = None,
-        context: Optional[Dict[str, Any]] = None,
-    ) -> List[str]:
+        regel_ids: list[str] | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> list[str]:
         """
         Valideer een definitie met de opgegeven regels.
 
@@ -200,7 +200,7 @@ class JSONValidatorLoader:
                     failed += 1
 
             except Exception as e:
-                results.append(f"⚠️ {regel_id}: Fout tijdens validatie - {str(e)}")
+                results.append(f"⚠️ {regel_id}: Fout tijdens validatie - {e!s}")
                 logger.error(f"Validatie fout voor {regel_id}: {e}")
 
         # Voeg samenvatting toe aan begin

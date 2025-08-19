@@ -13,7 +13,7 @@ erDiagram
     document_uploads ||--o{ extracted_terms : contains
     users ||--o{ api_keys : owns
     users ||--o{ definitions : creates
-    
+
     definitions {
         int id PK
         string term
@@ -24,7 +24,7 @@ erDiagram
         timestamp created_at
         timestamp updated_at
     }
-    
+
     validation_results {
         int id PK
         int definition_id FK
@@ -34,7 +34,7 @@ erDiagram
         json details
         timestamp created_at
     }
-    
+
     document_uploads {
         int id PK
         string filename
@@ -232,7 +232,7 @@ Voor optimale performance:
 ## Backup Strategy
 
 1. **Development**: Dagelijkse SQLite file backup
-2. **Production**: 
+2. **Production**:
    - Continue replicatie naar standby
    - Dagelijkse snapshots
    - Weekly off-site backups
@@ -240,7 +240,7 @@ Voor optimale performance:
 ## Performance Considerations
 
 1. **Connection pooling**: Max 20 connections
-2. **Query optimization**: 
+2. **Query optimization**:
    - Gebruik prepared statements
    - Batch inserts voor bulk operations
 3. **Caching strategy**:

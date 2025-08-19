@@ -6,21 +6,17 @@ This module serves as the entry point for the DefinitieAgent application,
 handling initialization, configuration, and launching the main user interface.
 """
 
-import os
-import sys
 import logging
 
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand
-
 from ui.session_state import SessionStateManager  # Sessie status beheer
 from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
 from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
 
 # Configureer basis logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 
 # Initialiseer logger - Stel logging in voor deze module
@@ -57,7 +53,7 @@ def main():
 
     except Exception as e:
         # Log en toon startup fouten - Log en toon opstartfouten
-        logger.error(f"Applicatie fout: {str(e)}")  # Log fout voor debugging
+        logger.error(f"Applicatie fout: {e!s}")  # Log fout voor debugging
         st.error(
             log_and_display_error(e, "applicatie opstarten")
         )  # Toon gebruikersvriendelijke fout

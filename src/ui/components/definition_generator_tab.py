@@ -3,10 +3,9 @@ Definition Generator Tab - Main AI definition generation interface.
 """
 
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 import streamlit as st
-
 from database.definitie_repository import DefinitieRecord, DefinitieStatus
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from ui.session_state import SessionStateManager
@@ -144,8 +143,15 @@ class DefinitionGeneratorTab:
         determined_category = generation_result.get("determined_category")
 
         if agent_result:
+            # Check if it's a dict (new service) or object (legacy)
+            is_dict = isinstance(agent_result, dict)
+
             # Success indicator
-            if agent_result.success:
+            if (is_dict and agent_result.get("success")) or (
+                not is_dict
+                and hasattr(agent_result, "success")
+                and agent_result.success
+            ):
                 st.success(
                     f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})"
                 )
@@ -237,16 +243,15 @@ class DefinitionGeneratorTab:
                             else ""
                         ),
                     )
-                else:
-                    # Debug: toon waarom voorbeelden niet worden gerenderd
-                    if not hasattr(
-                        agent_result.best_iteration.generation_result, "voorbeelden"
-                    ):
-                        st.warning(
-                            "⚠️ Geen 'voorbeelden' attribuut gevonden in generation_result"
-                        )
-                    elif not agent_result.best_iteration.generation_result.voorbeelden:
-                        st.warning("⚠️ Voorbeelden dictionary is leeg")
+                # Debug: toon waarom voorbeelden niet worden gerenderd
+                elif not hasattr(
+                    agent_result.best_iteration.generation_result, "voorbeelden"
+                ):
+                    st.warning(
+                        "⚠️ Geen 'voorbeelden' attribuut gevonden in generation_result"
+                    )
+                elif not agent_result.best_iteration.generation_result.voorbeelden:
+                    st.warning("⚠️ Voorbeelden dictionary is leeg")
 
                 # Render prompt debug section
                 from ui.components.prompt_debug_section import PromptDebugSection
@@ -274,7 +279,7 @@ class DefinitionGeneratorTab:
             col1, col2, col3 = st.columns(3)
 
     def _render_ontological_category_section(
-        self, determined_category: str, generation_result: Dict[str, Any]
+        self, determined_category: str, generation_result: dict[str, Any]
     ):
         """Render ontologische categorie sectie met uitleg en aanpassingsmogelijkheid."""
         st.markdown("#### 🎯 Ontologische Categorie")
@@ -358,7 +363,7 @@ class DefinitionGeneratorTab:
         )
 
     def _render_category_selector(
-        self, current_category: str, generation_result: Dict[str, Any]
+        self, current_category: str, generation_result: dict[str, Any]
     ):
         """Render categorie selector voor handmatige aanpassing."""
         st.markdown("##### 🎯 Kies Ontologische Categorie")
@@ -401,7 +406,7 @@ class DefinitionGeneratorTab:
                 SessionStateManager.set_value("show_category_selector", False)
                 st.rerun()
 
-    def _update_category(self, new_category: str, generation_result: Dict[str, Any]):
+    def _update_category(self, new_category: str, generation_result: dict[str, Any]):
         """Update de ontologische categorie in de sessie en database."""
         # Update generation result
         generation_result["determined_category"] = new_category
@@ -524,7 +529,7 @@ class DefinitionGeneratorTab:
             else:
                 st.error("❌ Kon status niet wijzigen")
         except Exception as e:
-            st.error(f"❌ Fout: {str(e)}")
+            st.error(f"❌ Fout: {e!s}")
 
     def _export_definition(self, definitie: DefinitieRecord):
         """Exporteer definitie naar TXT bestand."""
@@ -589,7 +594,7 @@ class DefinitionGeneratorTab:
             bestandspad = exporteer_naar_txt(export_data)
 
             # Lees bestand voor download
-            with open(bestandspad, "r", encoding="utf-8") as f:
+            with open(bestandspad, encoding="utf-8") as f:
                 txt_content = f.read()
 
             # Bied download aan
@@ -604,12 +609,12 @@ class DefinitionGeneratorTab:
             st.success(f"✅ Export succesvol: {bestandsnaam}")
 
         except Exception as e:
-            st.error(f"❌ Export mislukt: {str(e)}")
+            st.error(f"❌ Export mislukt: {e!s}")
             import traceback
 
             st.code(traceback.format_exc())
 
-    def _render_voorbeelden_section(self, voorbeelden: Dict[str, List[str]]):
+    def _render_voorbeelden_section(self, voorbeelden: dict[str, list[str]]):
         """Render sectie met gegenereerde voorbeelden."""
         st.markdown("#### 📚 Gegenereerde Content")
 

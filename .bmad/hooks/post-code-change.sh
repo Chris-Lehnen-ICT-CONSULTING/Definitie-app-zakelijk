@@ -19,17 +19,17 @@ python scripts/ai-agent-wrapper.py
 # Check if review passed
 if [ $? -eq 0 ]; then
     echo "✅ Code review passed, creating commit..."
-    
+
     # Create commit with BMAD identifier
     git commit -m "🤖 BMAD: ${BMAD_COMMIT_MESSAGE:-Code update}"
-    
+
     echo "✅ Changes committed successfully!"
 else
     echo "❌ Code review failed. Changes not committed."
     echo "📝 Check ai_feedback.md for guidance."
-    
+
     # Unstage changes
     git reset HEAD
-    
+
     exit 1
 fi

@@ -1,7 +1,7 @@
 # 🏗️ DefinitieAgent - Huidige Architectuur Status
 
-**Versie**: 1.0 - Accurate Current State  
-**Datum**: 2025-01-15  
+**Versie**: 1.0 - Accurate Current State
+**Datum**: 2025-01-15
 **Status**: Werkelijke Implementatie Status
 
 ## 🎯 Overzicht
@@ -19,7 +19,7 @@ Dit document beschrijft de **werkelijke huidige staat** van de DefinitieAgent ar
 - **Session Management**: Streamlit session state
 
 ### Recent Toegevoegd (2025-01-15)
-- **Service Consolidatie**: `unified_definition_service.py` 
+- **Service Consolidatie**: `unified_definition_service.py`
 - **Rate Limiting**: Endpoint-specifieke configuratie
 - **Prompt Debug**: Visibility in gegenereerde prompts
 - **Performance Monitor**: Basic monitoring utilities
@@ -223,7 +223,7 @@ De codebase toont tekenen van:
 
 ## 🎯 Conclusie
 
-De DefinitieAgent is een **functioneel systeem** met **significante technische schuld**. De core features werken, maar de architectuur heeft dringend consolidatie en cleanup nodig. 
+De DefinitieAgent is een **functioneel systeem** met **significante technische schuld**. De core features werken, maar de architectuur heeft dringend consolidatie en cleanup nodig.
 
 Focus moet liggen op:
 1. **Stabilisatie** van broken components

@@ -38,8 +38,8 @@ def handle_api_error(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            logging.error(f"API error in {func.__name__}: {str(e)}")
-            raise APIError(f"API call failed: {str(e)}") from e
+            logging.error(f"API error in {func.__name__}: {e!s}")
+            raise APIError(f"API call failed: {e!s}") from e
 
     return wrapper
 
@@ -52,8 +52,8 @@ def handle_validation_error(func):
         try:
             return func(*args, **kwargs)
         except Exception as e:
-            logging.error(f"Validation error in {func.__name__}: {str(e)}")
-            raise ValidationError(f"Validation failed: {str(e)}") from e
+            logging.error(f"Validation error in {func.__name__}: {e!s}")
+            raise ValidationError(f"Validation failed: {e!s}") from e
 
     return wrapper
 
@@ -76,9 +76,9 @@ def safe_execute(func, default_value: Any = None, error_message: str = ""):
     except Exception as e:
         # Log de fout met aangepast of standaard bericht
         if error_message:
-            logging.error(f"{error_message}: {str(e)}")
+            logging.error(f"{error_message}: {e!s}")
         else:
-            logging.error(f"Fout in {func.__name__}: {str(e)}")
+            logging.error(f"Fout in {func.__name__}: {e!s}")
         # Geef standaardwaarde terug bij fout
         return default_value
 
@@ -109,15 +109,13 @@ def log_and_display_error(
     # Geef gebruikersvriendelijk bericht terug op basis van fout type
     if isinstance(error, APIError):
         return "❌ Er is een probleem met de AI-service. Probeer het later opnieuw."
-    elif isinstance(error, ValidationError):
+    if isinstance(error, ValidationError):
         return "❌ Er is een probleem met de validatie. Controleer de invoer."
-    elif isinstance(error, ConfigurationError):
+    if isinstance(error, ConfigurationError):
         return "❌ Er is een configuratieprobleem. Neem contact op met support."
-    elif isinstance(error, ExportError):
+    if isinstance(error, ExportError):
         return "❌ Er is een probleem met het exporteren. Probeer opnieuw."
-    else:
-        # Voor onbekende fouten, toon technische details indien gevraagd
-        if show_technical:
-            return f"❌ Onverwachte fout: {error_msg}"
-        else:
-            return "❌ Er is een onverwachte fout opgetreden. Probeer opnieuw."
+    # Voor onbekende fouten, toon technische details indien gevraagd
+    if show_technical:
+        return f"❌ Onverwachte fout: {error_msg}"
+    return "❌ Er is een onverwachte fout opgetreden. Probeer opnieuw."

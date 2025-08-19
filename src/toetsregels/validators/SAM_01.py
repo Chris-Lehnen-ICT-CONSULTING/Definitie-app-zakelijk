@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class SAM01Validator:
     """Validator voor SAM-01: Kwalificatie leidt niet tot afwijking."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -40,8 +39,8 @@ class SAM01Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens SAM-01 regel.
 
@@ -88,12 +87,11 @@ class SAM01Validator:
                         ),
                         1.0,
                     )
-                else:
-                    return (
-                        True,
-                        f"✔️ {self.id}: geen misleidende kwalificaties aangetroffen",
-                        1.0,
-                    )
+                return (
+                    True,
+                    f"✔️ {self.id}: geen misleidende kwalificaties aangetroffen",
+                    1.0,
+                )
 
         # Als er kwalificaties zijn zonder goede voorbeelden
         if gevonden_kwalificaties:
@@ -113,7 +111,7 @@ class SAM01Validator:
             1.0,
         )
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -155,7 +153,7 @@ def create_validator(config_path: str = None) -> SAM01Validator:
         config_path = os.path.join(current_dir, "SAM-01.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return SAM01Validator(config)

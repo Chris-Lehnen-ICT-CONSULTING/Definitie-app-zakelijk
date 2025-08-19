@@ -11,7 +11,7 @@ Hybrid context systeem dat intelligente context building biedt door:
 import logging
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from services.definition_generator_config import ContextConfig
 from services.interfaces import GenerationRequest
@@ -51,7 +51,7 @@ class ContextSource:
     source_type: str  # "web_lookup", "document", "user_input", "rule_interpretation"
     confidence: float  # 0.0 - 1.0
     content: str
-    metadata: Dict[str, Any] = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -62,11 +62,11 @@ class ContextSource:
 class EnrichedContext:
     """Verrijkte context met meerdere bronnen."""
 
-    base_context: Dict[str, List[str]]
-    sources: List[ContextSource]
-    expanded_terms: Dict[str, str]  # afkortingen -> volledige namen
-    confidence_scores: Dict[str, float]
-    metadata: Dict[str, Any]
+    base_context: dict[str, list[str]]
+    sources: list[ContextSource]
+    expanded_terms: dict[str, str]  # afkortingen -> volledige namen
+    confidence_scores: dict[str, float]
+    metadata: dict[str, Any]
 
     def get_all_context_text(self) -> str:
         """Verkrijg alle context als één tekst blok."""
@@ -123,15 +123,16 @@ class HybridContextManager:
                 # Legacy import replaced with modern service
                 # from web_lookup import zoek_definitie_combinatie  # DEPRECATED
                 from services.modern_web_lookup_service import ModernWebLookupService
-                
+
                 # Create compatibility wrapper for legacy interface
                 async def web_lookup_wrapper(term: str) -> str:
                     """Wrapper to maintain legacy interface"""
                     from services.interfaces import LookupRequest
+
                     service = ModernWebLookupService()
                     request = LookupRequest(term=term, max_results=5)
                     results = await service.lookup(request)
-                    
+
                     # Format results as string for legacy compatibility
                     if results:
                         return f"Web informatie voor {term}: " + "; ".join(
@@ -233,7 +234,7 @@ class HybridContextManager:
         )
         return enriched_context
 
-    def _build_base_context(self, request: GenerationRequest) -> Dict[str, List[str]]:
+    def _build_base_context(self, request: GenerationRequest) -> dict[str, list[str]]:
         """Bouw basis context dictionary (van services implementatie)."""
         context = {
             "organisatorisch": [],
@@ -257,7 +258,7 @@ class HybridContextManager:
         return context
 
     def _parse_context_string(
-        self, context_string: str, context_dict: Dict[str, List[str]]
+        self, context_string: str, context_dict: dict[str, list[str]]
     ):
         """Parse context string naar verschillende categorieën."""
         context_parts = context_string.split(",")
@@ -292,8 +293,8 @@ class HybridContextManager:
                 context_dict["organisatorisch"].append(part)
 
     def _expand_abbreviations(
-        self, base_context: Dict[str, List[str]]
-    ) -> Dict[str, str]:
+        self, base_context: dict[str, list[str]]
+    ) -> dict[str, str]:
         """Expandeer afkortingen naar volledige namen."""
         expanded = {}
 
@@ -310,7 +311,7 @@ class HybridContextManager:
 
         return expanded
 
-    async def _get_web_context(self, begrip: str) -> Optional[ContextSource]:
+    async def _get_web_context(self, begrip: str) -> ContextSource | None:
         """Verkrijg web context via web lookup."""
         try:
             if self._web_lookup:
@@ -329,7 +330,7 @@ class HybridContextManager:
 
     async def _get_hybrid_context(
         self, request: GenerationRequest
-    ) -> Optional[ContextSource]:
+    ) -> ContextSource | None:
         """Verkrijg context van hybrid context engine."""
         try:
             # Deze methode zou de hybrid context engine aanroepen
@@ -350,7 +351,7 @@ class HybridContextManager:
 
     async def _call_hybrid_engine(
         self, request: GenerationRequest
-    ) -> Optional[Dict[str, Any]]:
+    ) -> dict[str, Any] | None:
         """Roep hybrid context engine aan."""
         # Placeholder voor hybrid context engine call
         # In werkelijke implementatie zou dit een complexe AI context engine aanroepen
@@ -364,7 +365,7 @@ class HybridContextManager:
 
     async def _get_rule_interpretation_context(
         self, request: GenerationRequest
-    ) -> Optional[ContextSource]:
+    ) -> ContextSource | None:
         """Verkrijg context via rule interpretation."""
         try:
             # Rule interpretation logic

@@ -5,7 +5,6 @@ Automatisch gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 class ARAI02SUB1Validator:
     """Validator voor ARAI02SUB1."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -27,8 +26,8 @@ class ARAI02SUB1Validator:
         self.prioriteit = config.get("prioriteit", "midden")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens ARAI02SUB1 regel.
 
@@ -70,11 +69,10 @@ class ARAI02SUB1Validator:
                 else:
                     result = "✔️ ARAI02SUB1: geen containerbegrippen aangetroffen"
 
+            elif fout:
+                result = f"❌ ARAI02SUB1: containerbegrippen gevonden ({', '.join(container_termen)}), zoals in fout voorbeeld"
             else:
-                if fout:
-                    result = f"❌ ARAI02SUB1: containerbegrippen gevonden ({', '.join(container_termen)}), zoals in fout voorbeeld"
-                else:
-                    result = f"❌ ARAI02SUB1: containerbegrippen gevonden ({', '.join(container_termen)}), onvoldoende concreet"
+                result = f"❌ ARAI02SUB1: containerbegrippen gevonden ({', '.join(container_termen)}), onvoldoende concreet"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
@@ -91,7 +89,7 @@ class ARAI02SUB1Validator:
         # Fallback
         return False, f"⚠️ {self.id}: geen resultaat", 0.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -127,7 +125,7 @@ def create_validator(config_path: str = None) -> ARAI02SUB1Validator:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(current_dir, "ARAI02SUB1.json")
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return ARAI02SUB1Validator(config)

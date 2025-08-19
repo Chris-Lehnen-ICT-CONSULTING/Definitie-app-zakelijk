@@ -126,17 +126,17 @@ class DefinitieRecord:
     categorie: str
     organisatorische_context: str
     juridische_context: Optional[str]
-    
+
     # Status management
     status: str = DefinitieStatus.DRAFT.value
     version_number: int = 1
     previous_version_id: Optional[int]
-    
+
     # Validation tracking
     validation_score: Optional[float]
     validation_date: Optional[datetime]
     validation_issues: Optional[str]  # JSON
-    
+
     # ... 15+ more fields
 ```
 
@@ -159,11 +159,11 @@ class VoorbeeldenRecord:
     voorbeeld_type: str
     voorbeeld_tekst: str
     voorbeeld_volgorde: int
-    
+
     # Generation tracking
     gegenereerd_door: str = "system"
     generation_model: Optional[str]
-    
+
     # Review status
     actief: bool = True
     beoordeeld: bool = False

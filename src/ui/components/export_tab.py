@@ -5,11 +5,9 @@ Export Tab - Interface voor definitie export en beheer functionaliteit.
 import io
 import json
 from datetime import datetime, timedelta
-from typing import Dict, List
 
 import pandas as pd
 import streamlit as st
-
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
@@ -257,7 +255,7 @@ class ExportTab:
                         st.error(f"❌ {check}: {result['message']}")
 
             except Exception as e:
-                st.error(f"❌ Kon database status niet ophalen: {str(e)}")
+                st.error(f"❌ Kon database status niet ophalen: {e!s}")
 
         with st.expander("Database Operaties", expanded=False):
             st.warning("⚠️ Gevaarlijke operaties - gebruik met voorzichtigheid")
@@ -307,7 +305,7 @@ class ExportTab:
             self._render_recent_activity()
 
         except Exception as e:
-            st.error(f"❌ Kon statistieken niet laden: {str(e)}")
+            st.error(f"❌ Kon statistieken niet laden: {e!s}")
 
     def _render_recent_activity(self):
         """Render recente activiteit."""
@@ -344,7 +342,7 @@ class ExportTab:
                 st.info("Geen recente activiteit gevonden")
 
         except Exception as e:
-            st.error(f"❌ Kon recente activiteit niet laden: {str(e)}")
+            st.error(f"❌ Kon recente activiteit niet laden: {e!s}")
 
     def _preview_export(
         self,
@@ -401,7 +399,7 @@ class ExportTab:
                 st.info(f"Toont de eerste 5 van {len(filtered_data)} definities")
 
         except Exception as e:
-            st.error(f"❌ Kon preview niet genereren: {str(e)}")
+            st.error(f"❌ Kon preview niet genereren: {e!s}")
 
     def _execute_export(
         self,
@@ -451,7 +449,7 @@ class ExportTab:
             st.success(f"✅ Export gegenereerd: {len(filtered_data)} definities")
 
         except Exception as e:
-            st.error(f"❌ Export gefaald: {str(e)}")
+            st.error(f"❌ Export gefaald: {e!s}")
 
     def _get_filtered_export_data(
         self,
@@ -462,7 +460,7 @@ class ExportTab:
         min_score,
         start_date,
         end_date,
-    ) -> List[DefinitieRecord]:
+    ) -> list[DefinitieRecord]:
         """Haal gefilterde data op voor export."""
         search_params = {}
 
@@ -511,24 +509,23 @@ class ExportTab:
 
     def _generate_export_data(
         self,
-        definitions: List[DefinitieRecord],
+        definitions: list[DefinitieRecord],
         format_type: str,
         include_metadata: bool,
     ):
         """Genereer export data in gewenste formaat."""
         if format_type == "JSON":
             return self._generate_json_export(definitions, include_metadata)
-        elif format_type == "CSV":
+        if format_type == "CSV":
             return self._generate_csv_export(definitions, include_metadata)
-        elif format_type == "TXT":
+        if format_type == "TXT":
             return self._generate_txt_export(definitions, include_metadata)
-        elif format_type == "Excel":
+        if format_type == "Excel":
             return self._generate_excel_export(definitions, include_metadata)
-        else:
-            raise ValueError(f"Unsupported format: {format_type}")
+        raise ValueError(f"Unsupported format: {format_type}")
 
     def _generate_json_export(
-        self, definitions: List[DefinitieRecord], include_metadata: bool
+        self, definitions: list[DefinitieRecord], include_metadata: bool
     ):
         """Genereer JSON export."""
         export_data = []
@@ -562,7 +559,7 @@ class ExportTab:
         return json.dumps(export_data, indent=2, ensure_ascii=False)
 
     def _generate_csv_export(
-        self, definitions: List[DefinitieRecord], include_metadata: bool
+        self, definitions: list[DefinitieRecord], include_metadata: bool
     ):
         """Genereer CSV export."""
         data = []
@@ -597,7 +594,7 @@ class ExportTab:
         return df.to_csv(index=False)
 
     def _generate_txt_export(
-        self, definitions: List[DefinitieRecord], include_metadata: bool
+        self, definitions: list[DefinitieRecord], include_metadata: bool
     ):
         """Genereer TXT export."""
         lines = []
@@ -629,7 +626,7 @@ class ExportTab:
         return "\n".join(lines)
 
     def _generate_excel_export(
-        self, definitions: List[DefinitieRecord], include_metadata: bool
+        self, definitions: list[DefinitieRecord], include_metadata: bool
     ):
         """Genereer Excel export."""
         data = []
@@ -675,7 +672,7 @@ class ExportTab:
         }
         return mime_types.get(format_type, "application/octet-stream")
 
-    def _check_database_health(self) -> Dict[str, Dict]:
+    def _check_database_health(self) -> dict[str, dict]:
         """Check database health."""
         health_status = {}
 
@@ -710,7 +707,7 @@ class ExportTab:
         except Exception as e:
             health_status["Connection"] = {
                 "status": "error",
-                "message": f"Database fout: {str(e)}",
+                "message": f"Database fout: {e!s}",
             }
 
         return health_status
@@ -756,7 +753,7 @@ class ExportTab:
             st.session_state["bulk_update_confirmed"] = False
 
         except Exception as e:
-            st.error(f"❌ Bulk update gefaald: {str(e)}")
+            st.error(f"❌ Bulk update gefaald: {e!s}")
 
     def _execute_bulk_import(
         self, uploaded_file, import_mode: str, duplicate_handling: str

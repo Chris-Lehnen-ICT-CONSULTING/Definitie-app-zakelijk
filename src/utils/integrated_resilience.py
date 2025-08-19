@@ -8,32 +8,30 @@ voor robuuste en betrouwbare API operaties.
 import asyncio  # Asynchrone programmering voor niet-blokkerende resilience
 import logging  # Logging faciliteiten voor debug en monitoring
 import time  # Tijd functies voor retry timing en rate limiting
+from collections.abc import Callable
 from dataclasses import dataclass  # Dataklassen voor gestructureerde configuratie
 from functools import wraps  # Decorator utilities voor resilience wrappers
 from typing import (  # Type hints voor betere code documentatie
     Any,
-    Callable,
-    Dict,
-    Optional,
 )
 
-from monitoring.api_monitor import record_api_call  # Monitoring en metrics collectie
 from monitoring.api_monitor import (
     get_metrics_collector,
+    record_api_call,  # Monitoring en metrics collectie
 )
 
 # Importeer alle resilience componenten voor geïntegreerd systeem
-from utils.enhanced_retry import RetryConfig  # Adaptieve retry management
 from utils.enhanced_retry import (
     AdaptiveRetryManager,
+    RetryConfig,  # Adaptieve retry management
 )
-from utils.resilience import ResilienceConfig  # Basis resilience framework
 from utils.resilience import (
+    ResilienceConfig,  # Basis resilience framework
     ResilienceFramework,
 )
-from utils.smart_rate_limiter import RequestPriority  # Intelligente rate limiting
 from utils.smart_rate_limiter import (
     RateLimitConfig,
+    RequestPriority,  # Intelligente rate limiting
     SmartRateLimiter,
 )
 
@@ -94,13 +92,13 @@ class IntegratedConfig:
 class IntegratedResilienceSystem:
     """Integrated system combining all resilience components."""
 
-    def __init__(self, config: Optional[IntegratedConfig] = None):
+    def __init__(self, config: IntegratedConfig | None = None):
         self.config = config or IntegratedConfig()
 
         # Initialize components
         self.retry_manager = AdaptiveRetryManager(self.config.retry_config)
         # Rate limiters worden nu per endpoint aangemaakt in execute_with_full_resilience
-        self.rate_limiters: Dict[str, SmartRateLimiter] = (
+        self.rate_limiters: dict[str, SmartRateLimiter] = (
             {}
         )  # Endpoint-specifieke rate limiters
         self.resilience_framework = ResilienceFramework(self.config.resilience_config)
@@ -148,7 +146,7 @@ class IntegratedResilienceSystem:
         *args,
         endpoint_name: str = "",
         priority: RequestPriority = RequestPriority.NORMAL,
-        timeout: Optional[float] = None,
+        timeout: float | None = None,
         enable_fallback: bool = True,
         model: str = "gpt-4",
         expected_tokens: int = 0,
@@ -301,7 +299,7 @@ class IntegratedResilienceSystem:
             except Exception as e:
                 last_error = e
                 logger.warning(
-                    f"Attempt {attempt + 1} failed for {endpoint_name}: {str(e)}"
+                    f"Attempt {attempt + 1} failed for {endpoint_name}: {e!s}"
                 )
 
                 if attempt == self.config.retry_config.max_retries:
@@ -309,7 +307,7 @@ class IntegratedResilienceSystem:
 
         raise last_error
 
-    def get_system_status(self) -> Dict[str, Any]:
+    def get_system_status(self) -> dict[str, Any]:
         """Get comprehensive system status."""
         # Verzamel status van alle endpoint-specifieke rate limiters
         rate_limiter_status = {}
@@ -333,11 +331,11 @@ class IntegratedResilienceSystem:
 
 
 # Global integrated system
-_integrated_system: Optional[IntegratedResilienceSystem] = None
+_integrated_system: IntegratedResilienceSystem | None = None
 
 
 async def get_integrated_system(
-    config: Optional[IntegratedConfig] = None,
+    config: IntegratedConfig | None = None,
 ) -> IntegratedResilienceSystem:
     """Get or create global integrated resilience system."""
     global _integrated_system
@@ -350,7 +348,7 @@ async def get_integrated_system(
 def with_full_resilience(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
-    timeout: Optional[float] = None,
+    timeout: float | None = None,
     enable_fallback: bool = True,
     model: str = "gpt-4",
     expected_tokens: int = 0,

@@ -5,7 +5,7 @@
 ### → active/architecture/
 - [ ] Alle ADRs uit architecture/decisions/
 - [ ] complete-architecture-diagram.md
-- [ ] tech-stack.md  
+- [ ] tech-stack.md
 - [ ] coding-standards.md
 - [ ] source-tree.md
 

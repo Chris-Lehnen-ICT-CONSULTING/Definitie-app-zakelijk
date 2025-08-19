@@ -6,7 +6,7 @@ validator paren in plaats van de BaseValidator architectuur.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from .json_validator_loader import json_validator_loader
 
@@ -29,14 +29,14 @@ class ModularToetser:
     def validate_definition(
         self,
         definitie: str,
-        toetsregels: Dict[str, Dict[str, Any]],
+        toetsregels: dict[str, dict[str, Any]],
         begrip: str = "",
-        marker: Optional[str] = None,
-        voorkeursterm: Optional[str] = None,
-        bronnen_gebruikt: Optional[str] = None,
-        contexten: Optional[Dict[str, List[str]]] = None,
+        marker: str | None = None,
+        voorkeursterm: str | None = None,
+        bronnen_gebruikt: str | None = None,
+        contexten: dict[str, list[str]] | None = None,
         gebruik_logging: bool = False,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Valideer definitie met JSON/Python validators.
 
@@ -81,7 +81,7 @@ class ModularToetser:
 
         return results
 
-    def get_available_rules(self) -> List[str]:
+    def get_available_rules(self) -> list[str]:
         """Haal lijst op van beschikbare validatie regels."""
         if self._available_rules is None:
             self._available_rules = self.loader.get_all_regel_ids()
@@ -89,8 +89,8 @@ class ModularToetser:
         return self._available_rules
 
     def validate_single_rule(
-        self, rule_id: str, definitie: str, regel_config: Dict[str, Any], **kwargs
-    ) -> Optional[str]:
+        self, rule_id: str, definitie: str, regel_config: dict[str, Any], **kwargs
+    ) -> str | None:
         """
         Valideer met een enkele regel.
 
@@ -132,14 +132,14 @@ modular_toetser = ModularToetser()
 
 def toets_definitie(
     definitie: str,
-    toetsregels: Dict[str, Dict[str, Any]],
+    toetsregels: dict[str, dict[str, Any]],
     begrip: str = "",
-    marker: Optional[str] = None,
-    voorkeursterm: Optional[str] = None,
-    bronnen_gebruikt: Optional[str] = None,
-    contexten: Optional[Dict[str, List[str]]] = None,
+    marker: str | None = None,
+    voorkeursterm: str | None = None,
+    bronnen_gebruikt: str | None = None,
+    contexten: dict[str, list[str]] | None = None,
     gebruik_logging: bool = False,
-) -> List[str]:
+) -> list[str]:
     """
     Hoofdfunctie voor definitie validatie met JSON validators.
 

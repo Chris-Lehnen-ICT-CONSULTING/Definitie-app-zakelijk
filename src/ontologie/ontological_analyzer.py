@@ -15,44 +15,43 @@ De stappen zijn:
 
 import logging
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any
 
 from domain.ontological_categories import OntologischeCategorie
 from services.container import get_container
-from services.interfaces import LookupRequest, LookupResult
+from services.interfaces import LookupRequest
 
 logger = logging.getLogger(__name__)
+
 
 # Helper adapter class voor backwards compatibility
 class DefinitieZoekerAdapter:
     """Adapter om ModernWebLookupService te gebruiken met oude interface."""
-    
+
     def __init__(self, web_lookup_service):
         self.web_lookup = web_lookup_service
-    
-    async def zoek_definities(self, begrip: str, context: Dict[str, Any] = None, max_results: int = 5) -> Dict[str, Any]:
+
+    async def zoek_definities(
+        self, begrip: str, context: dict[str, Any] = None, max_results: int = 5
+    ) -> dict[str, Any]:
         """Zoek definities via ModernWebLookupService."""
         # Map oude context naar nieuwe LookupRequest
         sources = ["Wikipedia", "Wiktionary"]
         if context and context.get("rechtsgebied"):
             sources.extend(["Wetten.nl", "Rechtspraak.nl"])
-        
-        request = LookupRequest(
-            term=begrip,
-            sources=sources,
-            max_results=max_results
-        )
-        
+
+        request = LookupRequest(term=begrip, sources=sources, max_results=max_results)
+
         # Service retourneert een lijst van LookupResult objecten
         results = await self.web_lookup.lookup(request)
-        
+
         # Converteer naar oude format dat de analyzer verwacht
         return {
             "results": results,
             "metadata": {
                 "total_score": len(results),  # Simpele score
-                "sources_searched": sources
-            }
+                "sources_searched": sources,
+            },
         }
 
 
@@ -73,7 +72,7 @@ class OntologischeAnalyzer:
         self.category_templates = self._load_category_templates()
         logger.info("OntologischeAnalyzer geïnitialiseerd met ModernWebLookupService")
 
-    def _load_category_templates(self) -> Dict[str, str]:
+    def _load_category_templates(self) -> dict[str, str]:
         """Laad de definitie templates per ontologische categorie."""
         return {
             "type": "Een {genus} dat {kenmerken}",
@@ -84,7 +83,7 @@ class OntologischeAnalyzer:
 
     async def bepaal_ontologische_categorie(
         self, begrip: str, org_context: str = "", jur_context: str = ""
-    ) -> Tuple[OntologischeCategorie, Dict[str, Any]]:
+    ) -> tuple[OntologischeCategorie, dict[str, Any]]:
         """
         Doorloop het volledige 6-stappen protocol voor ontologische categorisering.
 
@@ -153,7 +152,7 @@ class OntologischeAnalyzer:
             # Fallback naar eenvoudige analyse
             return await self._fallback_analyse(begrip, org_context, jur_context)
 
-    async def _stap1_lexicale_verkenning(self, begrip: str) -> Dict[str, Any]:
+    async def _stap1_lexicale_verkenning(self, begrip: str) -> dict[str, Any]:
         """
         Stap 1: Lexicale en Conceptuele Verkenning via weblookup.
 
@@ -171,16 +170,16 @@ class OntologischeAnalyzer:
             definities = []
             if isinstance(zoek_resultaten, dict) and "results" in zoek_resultaten:
                 for result in zoek_resultaten["results"]:
-                    definities.append({
-                        "definitie": result.text,
-                        "bron": result.source,
-                        "url": result.url
-                    })
+                    definities.append(
+                        {
+                            "definitie": result.text,
+                            "bron": result.source,
+                            "url": result.url,
+                        }
+                    )
 
             # Analyseer semantische kenmerken
-            kenmerken = self._analyseer_semantische_kenmerken(
-                begrip, definities
-            )
+            kenmerken = self._analyseer_semantische_kenmerken(begrip, definities)
 
             # Identificeer synoniemen en gerelateerde begrippen
             synoniemen = self._extracteer_synoniemen(definities)
@@ -189,10 +188,12 @@ class OntologischeAnalyzer:
                 "definities": definities,
                 "semantische_kenmerken": kenmerken,
                 "synoniemen": synoniemen,
-                "sleutelwoorden": self._extracteer_sleutelwoorden(
-                    definities
+                "sleutelwoorden": self._extracteer_sleutelwoorden(definities),
+                "bron_kwaliteit": (
+                    zoek_resultaten.get("metadata", {}).get("total_score", 0.0)
+                    if isinstance(zoek_resultaten, dict)
+                    else 0.0
                 ),
-                "bron_kwaliteit": zoek_resultaten.get("metadata", {}).get("total_score", 0.0) if isinstance(zoek_resultaten, dict) else 0.0,
             }
 
         except Exception as e:
@@ -209,7 +210,7 @@ class OntologischeAnalyzer:
 
     async def _stap2_context_analyse(
         self, begrip: str, org_context: str, jur_context: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """
         Stap 2: Context- en Domeinanalyse via juridische weblookup.
 
@@ -222,21 +223,27 @@ class OntologischeAnalyzer:
             juridische_request = LookupRequest(
                 term=f"{begrip} {jur_context}",
                 sources=["Wetten.nl", "Rechtspraak.nl"],
-                max_results=5
+                max_results=5,
             )
-            juridische_resultaten = await self.web_lookup_service.lookup(juridische_request)
-            
+            juridische_resultaten = await self.web_lookup_service.lookup(
+                juridische_request
+            )
+
             # Extract juridische verwijzingen uit resultaten
             juridische_verwijzingen = []
             for result in juridische_resultaten:
-                if hasattr(result, 'metadata') and result.metadata and "article" in result.metadata:
+                if (
+                    hasattr(result, "metadata")
+                    and result.metadata
+                    and "article" in result.metadata
+                ):
                     juridische_verwijzingen.append(result.metadata["article"])
 
             # Bron analyse voor context - gebruik metadata van resultaten
             gedetecteerde_bronnen = [
-                {"bron": r.source, "url": r.url} 
+                {"bron": r.source, "url": r.url}
                 for r in juridische_resultaten
-                if hasattr(r, 'source') and hasattr(r, 'url')
+                if hasattr(r, "source") and hasattr(r, "url")
             ]
 
             # Bepaal domein en procesrollen
@@ -269,9 +276,9 @@ class OntologischeAnalyzer:
     async def _stap3_formele_categorietoets(
         self,
         begrip: str,
-        semantisch_profiel: Dict[str, Any],
-        context_map: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        semantisch_profiel: dict[str, Any],
+        context_map: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Stap 3: Formele Categorietoets - AI-gedreven classificatie.
 
@@ -316,8 +323,8 @@ class OntologischeAnalyzer:
         }
 
     async def _stap4_identiteit_persistentie(
-        self, begrip: str, categorie_resultaat: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, begrip: str, categorie_resultaat: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Stap 4: Identiteits- en Persistentiecriteria.
 
@@ -349,8 +356,8 @@ class OntologischeAnalyzer:
             }
 
     async def _stap5_rol_analyse(
-        self, begrip: str, categorie_resultaat: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, begrip: str, categorie_resultaat: dict[str, Any]
+    ) -> dict[str, Any]:
         """
         Stap 5: Rol versus Intrinsieke Eigenschappen.
 
@@ -374,22 +381,21 @@ class OntologischeAnalyzer:
                 "rol_indicatoren": rol_indicatoren,
                 "context_vereist": True,
             }
-        else:
-            # Intrinsieke eigenschappen
-            return {
-                "is_contextueel": False,
-                "basis_entiteit": None,
-                "rol_aspecten": [],
-                "context_vereist": False,
-            }
+        # Intrinsieke eigenschappen
+        return {
+            "is_contextueel": False,
+            "basis_entiteit": None,
+            "rol_aspecten": [],
+            "context_vereist": False,
+        }
 
     def _stap6_documentatie(
         self,
         begrip: str,
-        categorie_resultaat: Dict[str, Any],
-        identiteit_criteria: Dict[str, Any],
-        rol_analyse: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        categorie_resultaat: dict[str, Any],
+        identiteit_criteria: dict[str, Any],
+        rol_analyse: dict[str, Any],
+    ) -> dict[str, Any]:
         """
         Stap 6: Documentatie en Definitieconstructie.
 
@@ -417,7 +423,7 @@ class OntologischeAnalyzer:
 
     # === Test functies per categorie ===
 
-    async def _test_type(self, begrip: str, profiel: Dict, context: Dict) -> float:
+    async def _test_type(self, begrip: str, profiel: dict, context: dict) -> float:
         """Test of begrip een type is - abstracte klasse/categorie."""
         score = 0.0
 
@@ -455,7 +461,7 @@ class OntologischeAnalyzer:
 
         return min(score, 1.0)
 
-    async def _test_proces(self, begrip: str, profiel: Dict, context: Dict) -> float:
+    async def _test_proces(self, begrip: str, profiel: dict, context: dict) -> float:
         """Test of begrip een proces is - heeft begin en eind."""
         score = 0.0
 
@@ -489,7 +495,7 @@ class OntologischeAnalyzer:
 
         return min(score, 1.0)
 
-    async def _test_resultaat(self, begrip: str, profiel: Dict, context: Dict) -> float:
+    async def _test_resultaat(self, begrip: str, profiel: dict, context: dict) -> float:
         """Test of begrip een resultaat is - uitkomst van proces."""
         score = 0.0
 
@@ -507,7 +513,7 @@ class OntologischeAnalyzer:
 
         return min(score, 1.0)
 
-    async def _test_exemplaar(self, begrip: str, profiel: Dict, context: Dict) -> float:
+    async def _test_exemplaar(self, begrip: str, profiel: dict, context: dict) -> float:
         """Test of begrip een exemplaar is - specifieke instantie."""
         score = 0.0
 
@@ -528,8 +534,8 @@ class OntologischeAnalyzer:
     # === Helper functies ===
 
     def _analyseer_semantische_kenmerken(
-        self, begrip: str, definities: List
-    ) -> Dict[str, bool]:
+        self, begrip: str, definities: list
+    ) -> dict[str, bool]:
         """Analyseer semantische kenmerken van het begrip."""
         kenmerken = {
             "is_abstract": False,
@@ -654,7 +660,7 @@ class OntologischeAnalyzer:
 
         return kenmerken
 
-    def _extracteer_synoniemen(self, definities: List) -> List[str]:
+    def _extracteer_synoniemen(self, definities: list) -> list[str]:
         """Extracteer synoniemen uit gevonden definities."""
         synoniemen = []
 
@@ -680,7 +686,7 @@ class OntologischeAnalyzer:
 
         return list(set(synoniemen))  # Remove duplicates
 
-    def _extracteer_sleutelwoorden(self, definities: List) -> List[str]:
+    def _extracteer_sleutelwoorden(self, definities: list) -> list[str]:
         """Extracteer belangrijke sleutelwoorden uit definities."""
         sleutelwoorden = []
 
@@ -707,7 +713,7 @@ class OntologischeAnalyzer:
 
     def _analyseer_domein_context(
         self, begrip: str, org_context: str, jur_context: str
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Analyseer het domein en context van het begrip."""
         domein = {
             "rechtsgebied": "onbekend",
@@ -741,7 +747,7 @@ class OntologischeAnalyzer:
 
     def _bepaal_context_afhankelijkheden(
         self, begrip: str, org_context: str, jur_context: str
-    ) -> List[str]:
+    ) -> list[str]:
         """Bepaal context afhankelijkheden van het begrip."""
         afhankelijkheden = []
 
@@ -768,8 +774,8 @@ class OntologischeAnalyzer:
     # === Identiteit functies per categorie ===
 
     async def _identiteit_type(
-        self, begrip: str, categorie_resultaat: Dict
-    ) -> Dict[str, Any]:
+        self, begrip: str, categorie_resultaat: dict
+    ) -> dict[str, Any]:
         """Bepaal identiteit voor type categorie."""
         return {
             "identiteitscriteria": [
@@ -784,8 +790,8 @@ class OntologischeAnalyzer:
         }
 
     async def _identiteit_proces(
-        self, begrip: str, categorie_resultaat: Dict
-    ) -> Dict[str, Any]:
+        self, begrip: str, categorie_resultaat: dict
+    ) -> dict[str, Any]:
         """Bepaal identiteit voor proces categorie."""
         return {
             "identiteitscriteria": [
@@ -800,8 +806,8 @@ class OntologischeAnalyzer:
         }
 
     async def _identiteit_resultaat(
-        self, begrip: str, categorie_resultaat: Dict
-    ) -> Dict[str, Any]:
+        self, begrip: str, categorie_resultaat: dict
+    ) -> dict[str, Any]:
         """Bepaal identiteit voor resultaat categorie."""
         return {
             "identiteitscriteria": [
@@ -816,8 +822,8 @@ class OntologischeAnalyzer:
         }
 
     async def _identiteit_exemplaar(
-        self, begrip: str, categorie_resultaat: Dict
-    ) -> Dict[str, Any]:
+        self, begrip: str, categorie_resultaat: dict
+    ) -> dict[str, Any]:
         """Bepaal identiteit voor exemplaar categorie."""
         return {
             "identiteitscriteria": [
@@ -832,8 +838,8 @@ class OntologischeAnalyzer:
         }
 
     async def _identiteit_fallback(
-        self, begrip: str, categorie_resultaat: Dict
-    ) -> Dict[str, Any]:
+        self, begrip: str, categorie_resultaat: dict
+    ) -> dict[str, Any]:
         """Fallback identiteit bepaling."""
         return {
             "identiteitscriteria": ["Onbekend"],
@@ -843,7 +849,7 @@ class OntologischeAnalyzer:
             },
         }
 
-    def _detecteer_rol_indicatoren(self, begrip: str) -> List[str]:
+    def _detecteer_rol_indicatoren(self, begrip: str) -> list[str]:
         """Detecteer indicatoren voor contextuele rollen."""
         rol_indicatoren = []
         begrip_lower = begrip.lower()
@@ -862,7 +868,7 @@ class OntologischeAnalyzer:
 
         return rol_indicatoren
 
-    def _identificeer_basis_entiteit(self, begrip: str) -> Optional[str]:
+    def _identificeer_basis_entiteit(self, begrip: str) -> str | None:
         """Identificeer de basis-entiteit bij rollen."""
         begrip_lower = begrip.lower()
 
@@ -871,19 +877,17 @@ class OntologischeAnalyzer:
             woord in begrip_lower for woord in ["persoon", "natuurlijk", "individu"]
         ):
             return "Persoon"
-        elif any(
+        if any(
             woord in begrip_lower for woord in ["organisatie", "bedrijf", "instelling"]
         ):
             return "Organisatie"
-        elif any(woord in begrip_lower for woord in ["orgaan", "bestuurs", "overheid"]):
+        if any(woord in begrip_lower for woord in ["orgaan", "bestuurs", "overheid"]):
             return "Bestuursorgaan"
 
         # Specifieke rol-eindingen
         if begrip_lower.endswith("er"):
             return "Persoon"
-        elif begrip_lower.endswith("houder"):
-            return "Persoon/Organisatie"
-        elif begrip_lower.endswith("beheerder"):
+        if begrip_lower.endswith("houder") or begrip_lower.endswith("beheerder"):
             return "Persoon/Organisatie"
 
         return "Onbekend"
@@ -894,17 +898,17 @@ class OntologischeAnalyzer:
 
         if "eigenaar" in begrip_lower:
             return "Eigendomsrol"
-        elif "beheerder" in begrip_lower:
+        if "beheerder" in begrip_lower:
             return "Beheersrol"
-        elif "aanvrager" in begrip_lower:
+        if "aanvrager" in begrip_lower:
             return "Aanvraagrol"
-        elif "houder" in begrip_lower:
+        if "houder" in begrip_lower:
             return "Houderschap"
 
         return "Algemene rol"
 
     def _genereer_definitie(
-        self, begrip: str, categorie: str, template: str, rol_analyse: Dict
+        self, begrip: str, categorie: str, template: str, rol_analyse: dict
     ) -> str:
         """Genereer definitie volgens categorie template."""
         try:
@@ -932,9 +936,9 @@ class OntologischeAnalyzer:
     def _generate_comprehensive_reasoning(
         self,
         begrip: str,
-        categorie_resultaat: Dict,
-        semantisch_profiel: Dict,
-        context_map: Dict,
+        categorie_resultaat: dict,
+        semantisch_profiel: dict,
+        context_map: dict,
     ) -> str:
         """Genereer uitgebreide redenering voor de categorisering."""
         categorie = categorie_resultaat["primaire_categorie"]
@@ -973,7 +977,7 @@ class OntologischeAnalyzer:
 
     async def _fallback_analyse(
         self, begrip: str, org_context: str, jur_context: str
-    ) -> Tuple[OntologischeCategorie, Dict[str, Any]]:
+    ) -> tuple[OntologischeCategorie, dict[str, Any]]:
         """Fallback analyse bij fouten in hoofdanalyse."""
         logger.warning(f"Fallback analyse voor '{begrip}'")
 
@@ -1014,7 +1018,7 @@ class QuickOntologischeAnalyzer:
         self.resultaat_patronen = ["resultaat", "uitkomst", "gevolg", "conclusie"]
         self.exemplaar_patronen = ["specifiek", "individueel", "concreet", "bepaald"]
 
-    def quick_categoriseer(self, begrip: str) -> Tuple[OntologischeCategorie, str]:
+    def quick_categoriseer(self, begrip: str) -> tuple[OntologischeCategorie, str]:
         """
         Snelle categorisering via decision tree.
 

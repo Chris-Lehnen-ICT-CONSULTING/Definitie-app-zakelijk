@@ -5,7 +5,6 @@ Automatisch gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 class SAM07Validator:
     """Validator voor SAM-07."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -27,8 +26,8 @@ class SAM07Validator:
         self.prioriteit = config.get("prioriteit", "midden")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens SAM-07 regel.
 
@@ -67,13 +66,12 @@ class SAM07Validator:
                 else:
                     result = "✔️ SAM-07: geen uitbreidende elementen herkend"
 
+            elif goed:
+                result = f"✔️ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), maar correct gebruikt zoals in goed voorbeeld"
+            elif fout:
+                result = f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), en lijkt op fout voorbeeld"
             else:
-                if goed:
-                    result = f"✔️ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), maar correct gebruikt zoals in goed voorbeeld"
-                elif fout:
-                    result = f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), en lijkt op fout voorbeeld"
-                else:
-                    result = f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), onvoldoende kernachtig"
+                result = f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), onvoldoende kernachtig"
 
             return f"❌ SAM-07: uitbreiding(en) herkend ({', '.join(uitbreidingen)}), zonder correcte toelichting"
         except Exception as e:
@@ -92,7 +90,7 @@ class SAM07Validator:
         # Fallback
         return False, f"⚠️ {self.id}: geen resultaat", 0.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -128,7 +126,7 @@ def create_validator(config_path: str = None) -> SAM07Validator:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(current_dir, "SAM-07.json")
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return SAM07Validator(config)

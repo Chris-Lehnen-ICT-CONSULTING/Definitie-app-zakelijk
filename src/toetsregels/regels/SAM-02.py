@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class SAM02Validator:
     """Validator voor SAM-02: Geen vage kwantoren."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -40,8 +39,8 @@ class SAM02Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens SAM-02 regel.
 
@@ -86,7 +85,7 @@ class SAM02Validator:
 
         return True, f"✔️ {self.id}: geen vage kwantoren aangetroffen", 1.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -124,7 +123,7 @@ def create_validator(config_path: str = None) -> SAM02Validator:
         config_path = os.path.join(current_dir, "SAM-02.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return SAM02Validator(config)

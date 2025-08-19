@@ -10,24 +10,24 @@
 ## 👥 Team Updates
 
 ### [Developer 1]
-**Gisteren**: 
-- 
+**Gisteren**:
+-
 
 **Vandaag**:
-- 
+-
 
 **Blockers**:
-- 
+-
 
 ### [Developer 2]
 **Gisteren**:
-- 
+-
 
 **Vandaag**:
-- 
+-
 
 **Blockers**:
-- 
+-
 
 ## 📊 Sprint Burndown
 - Story points remaining: X/Y
@@ -37,19 +37,19 @@
 ## 🚧 Blockers & Decisions
 
 ### Actieve Blockers
-1. 
+1.
 
 ### Beslissingen Nodig
-1. 
+1.
 
 ## 🎯 Focus voor Vandaag
-1. 
-2. 
-3. 
+1.
+2.
+3.
 
 ## 📝 Actie Items
-- [ ] 
-- [ ] 
+- [ ]
+- [ ]
 
 ---
 *Volgende standup: [DATUM] 09:00*

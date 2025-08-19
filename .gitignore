@@ -73,7 +73,7 @@ htmlcov/
 *.temp
 build/temp/
 
-# 💚 Test files 
+# 💚 Test files
 test_*.py
 
 # 💚 Legacy code

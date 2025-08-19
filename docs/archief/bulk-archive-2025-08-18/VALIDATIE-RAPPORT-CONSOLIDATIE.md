@@ -1,7 +1,7 @@
 # Validatie Rapport Architectuur Consolidatie
 
-**Datum**: 2025-08-18  
-**Validator**: Claude Code Architect  
+**Datum**: 2025-08-18
+**Validator**: Claude Code Architect
 **Scope**: Validatie van AS-IS-ARCHITECTUUR.md en TO-BE-ARCHITECTUUR-ROADMAP.md tegen 6 originele bronnen
 
 ## Executive Summary

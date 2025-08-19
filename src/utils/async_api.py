@@ -6,14 +6,14 @@ Provides asynchronous OpenAI API calls with rate limiting and error handling.
 import asyncio
 import logging
 import os
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from functools import wraps
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from dotenv import load_dotenv
 from openai import AsyncOpenAI, OpenAIError
-
 from utils.cache import cache_gpt_call
 
 load_dotenv()
@@ -82,7 +82,7 @@ class AsyncRateLimiter:
 class AsyncGPTClient:
     """Async wrapper for OpenAI GPT API calls."""
 
-    def __init__(self, rate_limit_config: Optional[RateLimitConfig] = None):
+    def __init__(self, rate_limit_config: RateLimitConfig | None = None):
         self.api_key = os.getenv("OPENAI_API_KEY")
         if not self.api_key:
             raise ValueError("OPENAI_API_KEY not found in environment")
@@ -166,7 +166,7 @@ class AsyncGPTClient:
 
         except Exception as e:
             self.session_stats["failed_requests"] += 1
-            logger.error(f"API call failed: {str(e)}")
+            logger.error(f"API call failed: {e!s}")
             raise
         finally:
             self.rate_limiter.release()
@@ -201,7 +201,7 @@ class AsyncGPTClient:
                 if attempt < self.rate_limiter.config.max_retries - 1:
                     wait_time = self.rate_limiter.config.backoff_factor**attempt
                     logger.warning(
-                        f"API call failed (attempt {attempt + 1}), retrying in {wait_time}s: {str(e)}"
+                        f"API call failed (attempt {attempt + 1}), retrying in {wait_time}s: {e!s}"
                     )
                     await asyncio.sleep(wait_time)
                 else:
@@ -213,13 +213,13 @@ class AsyncGPTClient:
 
     async def batch_completion(
         self,
-        prompts: List[str],
+        prompts: list[str],
         model: str = "gpt-4",
         temperature: float = 0.01,
         max_tokens: int = 300,
-        progress_callback: Optional[Callable[[int, int], None]] = None,
+        progress_callback: Callable[[int, int], None] | None = None,
         **kwargs,
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Process multiple prompts concurrently.
 
@@ -267,8 +267,8 @@ class AsyncGPTClient:
                 logger.debug(f"Completed {completed}/{len(prompts)} requests")
 
             except Exception as e:
-                logger.error(f"Batch request failed: {str(e)}")
-                results.append(f"❌ Error: {str(e)}")
+                logger.error(f"Batch request failed: {e!s}")
+                results.append(f"❌ Error: {e!s}")
                 completed += 1
 
                 if progress_callback:
@@ -277,7 +277,7 @@ class AsyncGPTClient:
         logger.info(f"Batch processing completed: {len(results)} results")
         return results
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get session statistics."""
         return self.session_stats.copy()
 
@@ -287,7 +287,7 @@ class AsyncGPTClient:
 
 
 # Global async client instance
-_async_client: Optional[AsyncGPTClient] = None
+_async_client: AsyncGPTClient | None = None
 
 
 async def get_async_client() -> AsyncGPTClient:
@@ -329,13 +329,13 @@ async def async_gpt_call(
 
 
 async def async_batch_gpt_calls(
-    prompts: List[str],
+    prompts: list[str],
     model: str = "gpt-4",
     temperature: float = 0.01,
     max_tokens: int = 300,
-    progress_callback: Optional[Callable[[int, int], None]] = None,
+    progress_callback: Callable[[int, int], None] | None = None,
     **kwargs,
-) -> List[str]:
+) -> list[str]:
     """
     Convenience function for batch async GPT calls.
 

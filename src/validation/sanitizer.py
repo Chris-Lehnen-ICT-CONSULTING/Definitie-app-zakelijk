@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class SanitizationRule:
     name: str
     pattern: str
     replacement: str
-    content_types: List[ContentType]
+    content_types: list[ContentType]
     level: SanitizationLevel = SanitizationLevel.MODERATE
     description: str = ""
 
@@ -58,8 +58,8 @@ class SanitizationResult:
 
     original_value: Any
     sanitized_value: Any
-    changes_made: List[str]
-    warnings: List[str]
+    changes_made: list[str]
+    warnings: list[str]
     content_type: ContentType
     level: SanitizationLevel
 
@@ -68,8 +68,8 @@ class ContentSanitizer:
     """Main content sanitization system."""
 
     def __init__(self):
-        self.rules: Dict[ContentType, List[SanitizationRule]] = {}
-        self.sanitization_history: List[Dict[str, Any]] = []
+        self.rules: dict[ContentType, list[SanitizationRule]] = {}
+        self.sanitization_history: list[dict[str, Any]] = []
         self.load_sanitization_rules()
 
     def load_sanitization_rules(self):
@@ -325,17 +325,17 @@ class ContentSanitizer:
                 original_value=original_value,
                 sanitized_value=original_value,  # Return original on error
                 changes_made=[],
-                warnings=[f"Sanitization error: {str(e)}"],
+                warnings=[f"Sanitization error: {e!s}"],
                 content_type=content_type,
                 level=level,
             )
 
     def sanitize_dict(
         self,
-        data: Dict[str, Any],
-        content_types: Optional[Dict[str, ContentType]] = None,
+        data: dict[str, Any],
+        content_types: dict[str, ContentType] | None = None,
         level: SanitizationLevel = SanitizationLevel.MODERATE,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Sanitize all values in a dictionary."""
 
         if content_types is None:
@@ -364,7 +364,7 @@ class ContentSanitizer:
         result = self.sanitize(text, ContentType.DEFINITION, SanitizationLevel.STRICT)
         return result.sanitized_value
 
-    def sanitize_user_input(self, data: Dict[str, Any]) -> Dict[str, Any]:
+    def sanitize_user_input(self, data: dict[str, Any]) -> dict[str, Any]:
         """Sanitize user input with appropriate content types."""
         content_types = {
             "begrip": ContentType.GOVERNMENT_TERM,
@@ -382,7 +382,7 @@ class ContentSanitizer:
 
         return self.sanitize_dict(data, content_types, SanitizationLevel.MODERATE)
 
-    def detect_malicious_content(self, text: str) -> List[str]:
+    def detect_malicious_content(self, text: str) -> list[str]:
         """Detect potentially malicious content patterns."""
         malicious_patterns = [
             (r"<script[^>]*>", "JavaScript injection attempt"),
@@ -408,7 +408,7 @@ class ContentSanitizer:
 
         return detected_threats
 
-    def get_sanitization_stats(self) -> Dict[str, Any]:
+    def get_sanitization_stats(self) -> dict[str, Any]:
         """Get sanitization statistics."""
         if not self.sanitization_history:
             return {"total_sanitizations": 0}
@@ -448,7 +448,7 @@ class ContentSanitizer:
             ),
         }
 
-    def export_sanitization_log(self, filename: Optional[str] = None) -> str:
+    def export_sanitization_log(self, filename: str | None = None) -> str:
         """Export sanitization log to file."""
         if filename is None:
             filename = (
@@ -476,7 +476,7 @@ class ContentSanitizer:
 
 
 # Global sanitizer instance
-_global_sanitizer: Optional[ContentSanitizer] = None
+_global_sanitizer: ContentSanitizer | None = None
 
 
 def get_sanitizer() -> ContentSanitizer:
@@ -504,13 +504,13 @@ def sanitize_for_definition(text: str) -> str:
     return sanitizer.sanitize_for_definition(text)
 
 
-def sanitize_user_input(data: Dict[str, Any]) -> Dict[str, Any]:
+def sanitize_user_input(data: dict[str, Any]) -> dict[str, Any]:
     """Convenience function for user input sanitization."""
     sanitizer = get_sanitizer()
     return sanitizer.sanitize_user_input(data)
 
 
-def detect_threats(text: str) -> List[str]:
+def detect_threats(text: str) -> list[str]:
     """Convenience function for threat detection."""
     sanitizer = get_sanitizer()
     return sanitizer.detect_malicious_content(text)

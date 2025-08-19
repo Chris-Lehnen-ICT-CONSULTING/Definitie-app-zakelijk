@@ -42,7 +42,7 @@ def toets_INT_02(...) -> str:
 # ... tot INT_10
 ```
 
-#### 5. **Toetsregels - SAM (Samenhang)**  
+#### 5. **Toetsregels - SAM (Samenhang)**
 ```python
 def toets_SAM_01(definitie: str, regel: Dict[str, Any]) -> str:
 def toets_SAM_02(...) -> str:
@@ -64,7 +64,7 @@ def fetch_base_definition(term: str) -> Optional[str]:
 Splits op basis van Single Responsibility Principle:
 
 1. **`ai_client.py`** - OpenAI client management
-2. **`toetsregels/con_rules.py`** - CON toetsregels  
+2. **`toetsregels/con_rules.py`** - CON toetsregels
 3. **`toetsregels/ess_rules.py`** - ESS toetsregels
 4. **`toetsregels/int_rules.py`** - INT toetsregels
 5. **`toetsregels/sam_rules.py`** - SAM toetsregels
@@ -83,7 +83,7 @@ from ai_toetser.utils import fetch_base_definition
 ```
 
 #### **Stap 4: Backward Compatibility**
-```python  
+```python
 # ai_toetser/core.py (legacy compatibility wrapper)
 from ai_toetser.rules.con_rules import toets_CON_01, toets_CON_02
 from ai_toetser.rules.ess_rules import *
@@ -99,16 +99,16 @@ from ai_toetser.utils import *
 
 #### **Week 1: Analyse & Voorbereiding**
 - [ ] **Dag 1**: Dependencies mapping
-- [ ] **Dag 2**: Shared state analyse  
+- [ ] **Dag 2**: Shared state analyse
 - [ ] **Dag 3**: Module boundaries definitie
 - [ ] **Dag 4**: Test strategie ontwerp
 - [ ] **Dag 5**: Backup en safety measures
 
-#### **Week 2: Extractie Uitvoering**  
+#### **Week 2: Extractie Uitvoering**
 - [ ] **Dag 1**: Extract OpenAI client → `ai_client.py`
 - [ ] **Dag 2**: Extract CON rules → `toetsregels/con_rules.py`
 - [ ] **Dag 3**: Extract ESS rules → `toetsregels/ess_rules.py`
-- [ ] **Dag 4**: Extract INT rules → `toetsregels/int_rules.py`  
+- [ ] **Dag 4**: Extract INT rules → `toetsregels/int_rules.py`
 - [ ] **Dag 5**: Extract SAM rules → `toetsregels/sam_rules.py`
 
 #### **Week 3: Integration & Testing**
@@ -135,7 +135,7 @@ from ai_toetser.core import *
 - Integration tests voor module samenwerking
 - Regression tests voor unchanged behavior
 
-#### **3. Post-Refactoring Tests**  
+#### **3. Post-Refactoring Tests**
 - Verify all original functionality
 - Performance tests (should be same or better)
 - Memory usage tests
@@ -150,7 +150,7 @@ from ai_toetser.core import *
 
 #### **Mitigation Strategies**
 1. **Feature Flags**: Graduale rollout van nieuwe modules
-2. **A/B Testing**: Oude vs nieuwe implementatie parallel  
+2. **A/B Testing**: Oude vs nieuwe implementatie parallel
 3. **Rollback Plan**: Mogelijkheid om terug te gaan naar god object
 4. **Monitoring**: Track performance en errors tijdens overgang
 
@@ -158,7 +158,7 @@ from ai_toetser.core import *
 
 #### **Code Quality**
 - [ ] Lines of code per file < 500
-- [ ] Functies per file < 15  
+- [ ] Functies per file < 15
 - [ ] Cyclomatic complexity reduction
 - [ ] Test coverage behouden (>90%)
 
@@ -169,7 +169,7 @@ from ai_toetser.core import *
 
 #### **Performance**
 - [ ] Execution time: ±5% (geen regressie)
-- [ ] Memory usage: ±10% (geen regressie)  
+- [ ] Memory usage: ±10% (geen regressie)
 - [ ] Import time: -20% (beter door kleinere modules)
 
 ### 🎯 Long-term Vision
@@ -180,7 +180,7 @@ Na refactoring krijgen we:
 2. **Single Responsibility**: Elk bestand heeft één duidelijk doel
 3. **Testbaarheid**: Makkelijker om individuele regels te testen
 4. **Uitbreidbaarheid**: Nieuwe toetsregels toevoegen zonder god object
-5. **Maintainability**: Bug fixes zijn gelokaliseerd  
+5. **Maintainability**: Bug fixes zijn gelokaliseerd
 6. **Team Development**: Multiple developers kunnen parallel werken
 
 ### 🚀 Benefits
@@ -192,7 +192,7 @@ Na refactoring krijgen we:
 - Makkelijker debugging
 
 **Voor Maintenance:**
-- Gelokaliseerde bug fixes  
+- Gelokaliseerde bug fixes
 - Duidelijke verantwoordelijkheden
 - Betere test isolation
 - Reduced cognitive load
@@ -204,6 +204,6 @@ Na refactoring krijgen we:
 
 ---
 
-**Status**: Ready for execution 🚀  
-**Priority**: High - God objects zijn development bottlenecks  
+**Status**: Ready for execution 🚀
+**Priority**: High - God objects zijn development bottlenecks
 **Timeline**: 3 weeks for complete refactoring

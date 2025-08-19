@@ -3,10 +3,8 @@ Expert Review Tab - Interface voor expert review en approval workflow.
 """
 
 from datetime import datetime
-from typing import List
 
 import streamlit as st
-
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
@@ -89,7 +87,7 @@ class ExpertReviewTab:
                 self._render_review_queue_item(definitie)
 
         except Exception as e:
-            st.error(f"❌ Kon review queue niet laden: {str(e)}")
+            st.error(f"❌ Kon review queue niet laden: {e!s}")
 
     def _render_review_queue_item(self, definitie: DefinitieRecord):
         """Render één item in review queue."""
@@ -358,7 +356,7 @@ class ExpertReviewTab:
                     st.info("Geen recente reviews gevonden")
 
             except Exception as e:
-                st.error(f"❌ Kon review geschiedenis niet laden: {str(e)}")
+                st.error(f"❌ Kon review geschiedenis niet laden: {e!s}")
 
     def _submit_review(
         self, definitie: DefinitieRecord, decision: str, comments: str, reviewer: str
@@ -416,7 +414,7 @@ class ExpertReviewTab:
                     st.error("❌ Kon definitie niet afwijzen")
 
         except Exception as e:
-            st.error(f"❌ Fout bij review submission: {str(e)}")
+            st.error(f"❌ Fout bij review submission: {e!s}")
 
     def _save_review_draft(
         self, definitie: DefinitieRecord, decision: str, comments: str
@@ -444,8 +442,8 @@ class ExpertReviewTab:
             )
 
     def _apply_filters(
-        self, reviews: List[DefinitieRecord], search: str, context: str, sort_by: str
-    ) -> List[DefinitieRecord]:
+        self, reviews: list[DefinitieRecord], search: str, context: str, sort_by: str
+    ) -> list[DefinitieRecord]:
         """Apply filters en sorting to review list."""
         filtered = reviews
 

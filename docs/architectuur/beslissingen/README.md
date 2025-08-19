@@ -25,9 +25,9 @@ Voor nieuwe ADRs, gebruik het volgende template:
 ```markdown
 # ADR-XXX: [Titel]
 
-**Status:** [Proposed | Geaccepteerd | Afgewezen | Vervangen door ADR-YYY]  
-**Datum:** [YYYY-MM-DD]  
-**Deciders:** [Namen of rollen]  
+**Status:** [Proposed | Geaccepteerd | Afgewezen | Vervangen door ADR-YYY]
+**Datum:** [YYYY-MM-DD]
+**Deciders:** [Namen of rollen]
 
 ## Context
 [Beschrijf de situatie en achtergrond]

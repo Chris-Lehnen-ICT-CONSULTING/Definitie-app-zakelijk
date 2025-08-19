@@ -16,8 +16,8 @@ from .smart_source_selector import SmartSourceSelector  # Intelligente bron sele
 
 # Exporteer publieke interface - alle hybrid context componenten
 __all__ = [
-    "HybridContextEngine",  # Hoofdengine voor hybride context verrijking
-    "HybridContext",  # Container voor gecombineerde context data
-    "SmartSourceSelector",  # Intelligente selectie van beste bronnen
     "ContextFusion",  # Fusie van verschillende context bronnen
+    "HybridContext",  # Container voor gecombineerde context data
+    "HybridContextEngine",  # Hoofdengine voor hybride context verrijking
+    "SmartSourceSelector",  # Intelligente selectie van beste bronnen
 ]

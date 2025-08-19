@@ -10,14 +10,12 @@ import logging
 import sqlite3
 from contextlib import contextmanager
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 # Import bestaande repository voor backward compatibility
 from database.definitie_repository import (
     DefinitieRecord,
-)
-from database.definitie_repository import DefinitieRepository as LegacyRepository
-from database.definitie_repository import (
+    DefinitieRepository as LegacyRepository,
     DefinitieStatus,
     SourceType,
 )
@@ -49,10 +47,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             "total_updates": 0,
             "total_deletes": 0,
         }
-        
+
         # Inject business services indien beschikbaar
         self._duplicate_service = None
-        
+
         logger.info(f"DefinitionRepository geïnitialiseerd met database: {db_path}")
 
     def save(self, definition: Definition) -> int:
@@ -79,16 +77,15 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 # Update bestaande
                 self.legacy_repo.update_definitie(definition.id, record)
                 return definition.id
-            else:
-                # Maak nieuwe
-                new_id = self.legacy_repo.create_definitie(record)
-                return new_id
+            # Maak nieuwe
+            new_id = self.legacy_repo.create_definitie(record)
+            return new_id
 
         except Exception as e:
             logger.error(f"Fout bij opslaan definitie: {e}")
             raise
 
-    def get(self, definition_id: int) -> Optional[Definition]:
+    def get(self, definition_id: int) -> Definition | None:
         """
         Haal een definitie op basis van ID.
 
@@ -107,7 +104,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             logger.error(f"Fout bij ophalen definitie {definition_id}: {e}")
             return None
 
-    def search(self, query: str, limit: int = 10) -> List[Definition]:
+    def search(self, query: str, limit: int = 10) -> list[Definition]:
         """
         Zoek definities op basis van een query.
 
@@ -189,7 +186,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     # Additional repository methods
 
-    def find_by_begrip(self, begrip: str) -> Optional[Definition]:
+    def find_by_begrip(self, begrip: str) -> Definition | None:
         """
         Vind definitie op basis van exact begrip.
 
@@ -204,7 +201,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 cursor = conn.cursor()
                 cursor.execute(
                     """
-                    SELECT * FROM definities 
+                    SELECT * FROM definities
                     WHERE begrip = ? AND status != ?
                     ORDER BY updated_at DESC
                     LIMIT 1
@@ -222,7 +219,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             logger.error(f"Fout bij zoeken begrip '{begrip}': {e}")
             return None
 
-    def find_duplicates(self, definition: Definition) -> List[Definition]:
+    def find_duplicates(self, definition: Definition) -> list[Definition]:
         """
         Vind mogelijke duplicaten van een definitie.
 
@@ -237,28 +234,29 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             if self._duplicate_service is not None:
                 # Use new business logic service
                 all_definitions = self._get_all_definitions()
-                matches = self._duplicate_service.find_duplicates(definition, all_definitions)
-                
+                matches = self._duplicate_service.find_duplicates(
+                    definition, all_definitions
+                )
+
                 # Return just the definitions
                 return [match.definition for match in matches]
-            else:
-                # Fallback to legacy duplicate detection
-                record = self._definition_to_record(definition)
-                matches = self.legacy_repo.find_duplicates(record)
+            # Fallback to legacy duplicate detection
+            record = self._definition_to_record(definition)
+            matches = self.legacy_repo.find_duplicates(record)
 
-                duplicates = []
-                for match in matches:
-                    dup_def = self._record_to_definition(match.definitie_record)
-                    if dup_def:
-                        duplicates.append(dup_def)
+            duplicates = []
+            for match in matches:
+                dup_def = self._record_to_definition(match.definitie_record)
+                if dup_def:
+                    duplicates.append(dup_def)
 
-                return duplicates
+            return duplicates
 
         except Exception as e:
             logger.error(f"Fout bij duplicaat detectie: {e}")
             return []
 
-    def get_by_status(self, status: str, limit: int = 50) -> List[Definition]:
+    def get_by_status(self, status: str, limit: int = 50) -> list[Definition]:
         """
         Haal definities op met een specifieke status.
 
@@ -283,31 +281,31 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         except Exception as e:
             logger.error(f"Fout bij ophalen status '{status}': {e}")
             return []
-    
+
     def set_duplicate_service(self, duplicate_service):
         """
         Inject the duplicate detection service.
-        
+
         Args:
             duplicate_service: Instance of DuplicateDetectionService
         """
         self._duplicate_service = duplicate_service
         logger.info("DuplicateDetectionService injected into repository")
-    
-    def _get_all_definitions(self) -> List[Definition]:
+
+    def _get_all_definitions(self) -> list[Definition]:
         """
         Helper method to get all definitions for duplicate checking.
-        
+
         Returns:
             List of all non-archived definitions
         """
         try:
             # Get all definitions except archived ones
             all_records = self.legacy_repo.search_definities(
-                status=None,  # All statuses
-                limit=1000    # Reasonable limit
+                status=None,
+                limit=1000,  # All statuses  # Reasonable limit
             )
-            
+
             definitions = []
             for record in all_records:
                 # Skip archived definitions
@@ -317,9 +315,9 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                         # Add status to definition object for duplicate service
                         definition.status = record.status
                         definitions.append(definition)
-            
+
             return definitions
-        
+
         except Exception as e:
             logger.error(f"Error fetching all definitions: {e}")
             return []
@@ -439,7 +437,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     # Statistics methods
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Haal repository statistieken op."""
         stats = self._stats.copy()
 
@@ -458,8 +456,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 # Tel per status
                 cursor.execute(
                     """
-                    SELECT status, COUNT(*) 
-                    FROM definities 
+                    SELECT status, COUNT(*)
+                    FROM definities
                     GROUP BY status
                 """
                 )

@@ -12,22 +12,16 @@ from dataclasses import dataclass  # Dataklassen voor gestructureerde data
 from enum import Enum  # Enumeraties voor actie types
 from typing import (  # Type hints voor betere code documentatie
     Any,
-    Dict,
-    List,
-    Optional,
-    Tuple,
 )
 
 # Database en core component imports
-from database.definitie_repository import SourceType  # Data modellen en enums
-from database.definitie_repository import (
-    get_definitie_repository,  # Repository toegang en factory
-)
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
     DefinitieStatus,
     DuplicateMatch,
+    SourceType,  # Data modellen en enums
+    get_definitie_repository,  # Repository toegang en factory
 )
 from domain.ontological_categories import OntologischeCategorie  # Generatie componenten
 from orchestration.definitie_agent import (  # Orchestratie componenten
@@ -54,8 +48,8 @@ class DefinitieCheckResult:
     """Resultaat van duplicate check."""
 
     action: CheckAction
-    existing_definitie: Optional[DefinitieRecord] = None
-    duplicates: List[DuplicateMatch] = None
+    existing_definitie: DefinitieRecord | None = None
+    duplicates: list[DuplicateMatch] = None
     message: str = ""
     confidence: float = 0.0
 
@@ -168,9 +162,9 @@ class DefinitieChecker:
         force_generate: bool = False,
         created_by: str = None,
         # Hybrid context parameters
-        selected_document_ids: Optional[List[str]] = None,
+        selected_document_ids: list[str] | None = None,
         enable_hybrid: bool = False,
-    ) -> Tuple[DefinitieCheckResult, Optional[AgentResult], Optional[DefinitieRecord]]:
+    ) -> tuple[DefinitieCheckResult, AgentResult | None, DefinitieRecord | None]:
         """
         Voer complete workflow uit: check + eventuele generatie + opslag.
         Ondersteunt hybrid context enhancement met document integration.
@@ -227,15 +221,14 @@ class DefinitieChecker:
             )
 
             return check_result, agent_result, saved_record
-        else:
-            logger.warning(
-                f"Failed to generate definition for '{begrip}': {agent_result.reason}"
-            )
-            return check_result, agent_result, None
+        logger.warning(
+            f"Failed to generate definition for '{begrip}': {agent_result.reason}"
+        )
+        return check_result, agent_result, None
 
     def update_existing_definition(
         self, definitie_id: int, updated_by: str = None, regenerate: bool = False
-    ) -> Tuple[bool, Optional[AgentResult]]:
+    ) -> tuple[bool, AgentResult | None]:
         """
         Update bestaande definitie, optioneel met regeneratie.
 
@@ -302,13 +295,13 @@ class DefinitieChecker:
             definitie_id, DefinitieStatus.ESTABLISHED, approved_by, notes
         )
 
-    def get_pending_definitions(self) -> List[DefinitieRecord]:
+    def get_pending_definitions(self) -> list[DefinitieRecord]:
         """Haal definities op die wachten op goedkeuring."""
         return self.repository.search_definities(status=DefinitieStatus.REVIEW)
 
     def get_established_definitions(
         self, organisatorische_context: str = None
-    ) -> List[DefinitieRecord]:
+    ) -> list[DefinitieRecord]:
         """Haal vastgestelde definities op."""
         return self.repository.search_definities(
             status=DefinitieStatus.ESTABLISHED,
@@ -336,7 +329,7 @@ class DefinitieChecker:
 
     def import_external_definitions(
         self, file_path: str, import_by: str = None
-    ) -> Tuple[int, int, List[str]]:
+    ) -> tuple[int, int, list[str]]:
         """
         Importeer definities uit extern bestand.
 
@@ -358,23 +351,22 @@ class DefinitieChecker:
                 message=f"Vastgestelde definitie bestaat al voor '{existing.begrip}' (ID: {existing.id})",
                 confidence=1.0,
             )
-        elif existing.status == DefinitieStatus.DRAFT.value:
+        if existing.status == DefinitieStatus.DRAFT.value:
             return DefinitieCheckResult(
                 action=CheckAction.UPDATE_EXISTING,
                 existing_definitie=existing,
                 message=f"Draft definitie bestaat voor '{existing.begrip}' (ID: {existing.id}). Overweeg update.",
                 confidence=1.0,
             )
-        else:
-            return DefinitieCheckResult(
-                action=CheckAction.USER_CHOICE,
-                existing_definitie=existing,
-                message=f"Definitie in status '{existing.status}' bestaat voor '{existing.begrip}' (ID: {existing.id})",
-                confidence=0.8,
-            )
+        return DefinitieCheckResult(
+            action=CheckAction.USER_CHOICE,
+            existing_definitie=existing,
+            message=f"Definitie in status '{existing.status}' bestaat voor '{existing.begrip}' (ID: {existing.id})",
+            confidence=0.8,
+        )
 
     def _handle_duplicates(
-        self, duplicates: List[DuplicateMatch]
+        self, duplicates: list[DuplicateMatch]
     ) -> DefinitieCheckResult:
         """Behandel fuzzy duplicates scenario."""
         best_match = duplicates[0]  # Highest score first
@@ -387,20 +379,19 @@ class DefinitieChecker:
                 message=f"Zeer vergelijkbare definitie gevonden: '{best_match.definitie_record.begrip}' (score: {best_match.match_score:.2f})",
                 confidence=best_match.match_score,
             )
-        elif best_match.match_score > 0.7:
+        if best_match.match_score > 0.7:
             return DefinitieCheckResult(
                 action=CheckAction.USER_CHOICE,
                 duplicates=duplicates,
                 message=f"Mogelijke duplicaten gevonden (beste match: {best_match.match_score:.2f})",
                 confidence=best_match.match_score,
             )
-        else:
-            return DefinitieCheckResult(
-                action=CheckAction.PROCEED,
-                duplicates=duplicates,
-                message="Zwakke overeenkomsten gevonden, maar generatie kan doorgaan",
-                confidence=1.0 - best_match.match_score,
-            )
+        return DefinitieCheckResult(
+            action=CheckAction.PROCEED,
+            duplicates=duplicates,
+            message="Zwakke overeenkomsten gevonden, maar generatie kan doorgaan",
+            confidence=1.0 - best_match.match_score,
+        )
 
     def _save_generated_definition(
         self,
@@ -498,7 +489,7 @@ def generate_or_retrieve_definition(
     categorie: str = "type",
     force_new: bool = False,
     created_by: str = None,
-) -> Tuple[str, Dict[str, Any]]:
+) -> tuple[str, dict[str, Any]]:
     """
     Convenience functie voor complete workflow: check + genereer + opslag.
 
@@ -533,7 +524,7 @@ def generate_or_retrieve_definition(
             "source": "generated",
             "check_action": check_result.action.value,
         }
-    elif check_result.existing_definitie:
+    if check_result.existing_definitie:
         return check_result.existing_definitie.definitie, {
             "id": check_result.existing_definitie.id,
             "status": check_result.existing_definitie.status,
@@ -541,12 +532,11 @@ def generate_or_retrieve_definition(
             "source": "existing",
             "check_action": check_result.action.value,
         }
-    else:
-        return "Definitie kon niet worden gegenereerd", {
-            "source": "failed",
-            "check_action": check_result.action.value,
-            "error": agent_result.reason if agent_result else "Unknown error",
-        }
+    return "Definitie kon niet worden gegenereerd", {
+        "source": "failed",
+        "check_action": check_result.action.value,
+        "error": agent_result.reason if agent_result else "Unknown error",
+    }
 
     async def generate_with_integrated_service(
         self,
@@ -556,7 +546,7 @@ def generate_or_retrieve_definition(
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
         force_generate: bool = False,
         created_by: str = None,
-    ) -> Tuple[DefinitieCheckResult, Optional[Any], Optional[DefinitieRecord]]:
+    ) -> tuple[DefinitieCheckResult, Any | None, DefinitieRecord | None]:
         """
         Generate definition using integrated service layer.
         Provides modern service architecture with legacy fallback.
@@ -622,46 +612,43 @@ def generate_or_retrieve_definition(
                             f"Successfully saved definition for '{begrip}' with ID {saved_id}"
                         )
                         return check_result, integrated_result, saved_record
-                    else:
-                        logger.error(
-                            f"Failed to save definition for '{begrip}' to database"
-                        )
-                        return check_result, integrated_result, None
-                else:
-                    # Handle legacy result format
-                    if integrated_result.definitie_gecorrigeerd:
-                        # Create record from legacy format
-                        record = DefinitieRecord(
-                            begrip=begrip,
-                            definitie=integrated_result.definitie_gecorrigeerd,
-                            categorie=categorie.value,
-                            organisatorische_context=organisatorische_context,
-                            juridische_context=juridische_context,
-                            status=DefinitieStatus.REVIEW.value,
-                            validation_score=(
-                                integrated_result.validation_result.overall_score
-                                if integrated_result.validation_result
-                                else None
-                            ),
-                            source_type=SourceType.GENERATED.value,
-                            source_reference=f"IntegratedService_{integrated_result.service_mode.value}",
-                            created_by=created_by or "integrated_service",
-                        )
+                    logger.error(
+                        f"Failed to save definition for '{begrip}' to database"
+                    )
+                    return check_result, integrated_result, None
+                # Handle legacy result format
+                if integrated_result.definitie_gecorrigeerd:
+                    # Create record from legacy format
+                    record = DefinitieRecord(
+                        begrip=begrip,
+                        definitie=integrated_result.definitie_gecorrigeerd,
+                        categorie=categorie.value,
+                        organisatorische_context=organisatorische_context,
+                        juridische_context=juridische_context,
+                        status=DefinitieStatus.REVIEW.value,
+                        validation_score=(
+                            integrated_result.validation_result.overall_score
+                            if integrated_result.validation_result
+                            else None
+                        ),
+                        source_type=SourceType.GENERATED.value,
+                        source_reference=f"IntegratedService_{integrated_result.service_mode.value}",
+                        created_by=created_by or "integrated_service",
+                    )
 
-                        saved_id = self.repository.create_definitie(record)
-                        if saved_id:
-                            saved_record = self.repository.get_definitie(saved_id)
-                            return check_result, integrated_result, saved_record
+                    saved_id = self.repository.create_definitie(record)
+                    if saved_id:
+                        saved_record = self.repository.get_definitie(saved_id)
+                        return check_result, integrated_result, saved_record
 
                 return check_result, integrated_result, None
-            else:
-                logger.warning(
-                    f"Integrated service failed for '{begrip}': {integrated_result.error_message}"
-                )
-                return check_result, integrated_result, None
+            logger.warning(
+                f"Integrated service failed for '{begrip}': {integrated_result.error_message}"
+            )
+            return check_result, integrated_result, None
 
         except Exception as e:
-            logger.error(f"Integrated service error for '{begrip}': {str(e)}")
+            logger.error(f"Integrated service error for '{begrip}': {e!s}")
             # Create error result
             from services.integrated_service import IntegratedResult
 
@@ -675,7 +662,7 @@ def generate_or_retrieve_definition(
             return check_result, error_result, None
 
     async def validate_with_integrated_service(
-        self, definitie: str, categorie: str, context: Optional[Dict[str, Any]] = None
+        self, definitie: str, categorie: str, context: dict[str, Any] | None = None
     ):
         """
         Validate definition using integrated service layer.
@@ -695,7 +682,7 @@ def generate_or_retrieve_definition(
                 definitie, categorie, context
             )
         except Exception as e:
-            logger.error(f"Integrated validation error: {str(e)}")
+            logger.error(f"Integrated validation error: {e!s}")
             return IntegratedResult(
                 success=False,
                 operation="validate_definition",
@@ -725,7 +712,7 @@ def generate_or_retrieve_definition(
                 begrip, definitie, threshold
             )
         except Exception as e:
-            logger.error(f"Integrated duplicate check error: {str(e)}")
+            logger.error(f"Integrated duplicate check error: {e!s}")
             return IntegratedResult(
                 success=False,
                 operation="check_duplicates",
@@ -734,6 +721,6 @@ def generate_or_retrieve_definition(
                 error_message=str(e),
             )
 
-    def get_service_info(self) -> Dict[str, Any]:
+    def get_service_info(self) -> dict[str, Any]:
         """Get information about available services."""
         return self._get_integrated_service().get_service_info()

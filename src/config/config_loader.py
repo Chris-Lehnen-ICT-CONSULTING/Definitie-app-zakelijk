@@ -40,7 +40,7 @@ def laad_verboden_woorden(path=None):
         base_dir = os.path.dirname(__file__)
         path = os.path.join(base_dir, "verboden_woorden.json")
 
-    with open(path, "r", encoding="utf-8") as f:
+    with open(path, encoding="utf-8") as f:
         return json.load(f)
 
 

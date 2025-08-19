@@ -1,12 +1,12 @@
 # ADR-002: Features First Development
 
-**Status:** Geaccepteerd  
-**Datum:** 2025-07-17  
-**Deciders:** Development Team  
+**Status:** Geaccepteerd
+**Datum:** 2025-07-17
+**Deciders:** Development Team
 
 ## Context
 
-Na de succesvolle consolidatie van 3 services naar UnifiedDefinitionService staat het team voor een belangrijke keuze: moeten we eerst de technische schuld aanpakken of de gebruikersfunctionaliteit herstellen? 
+Na de succesvolle consolidatie van 3 services naar UnifiedDefinitionService staat het team voor een belangrijke keuze: moeten we eerst de technische schuld aanpakken of de gebruikersfunctionaliteit herstellen?
 
 Huidige situatie:
 - 30% van UI tabs functioneel
@@ -59,7 +59,7 @@ We kiezen voor "Features First" - eerst alle 10 UI tabs functioneel maken voorda
 - Tab 4-5: Validatie en geschiedenis
 - Minimale fixes voor blocking issues
 
-### Phase 2: Advanced Features (Week 3-4)  
+### Phase 2: Advanced Features (Week 3-4)
 - Tab 6-7: Bulk verwerking en document analyse
 - Tab 8-9: Export en management functies
 - Tab 10: Monitoring dashboard

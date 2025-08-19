@@ -5,7 +5,6 @@ Quality Control Tab - Interface voor kwaliteitscontrole en toetsregels analyse.
 from datetime import datetime  # Datum en tijd functionaliteit
 
 import streamlit as st  # Streamlit web interface framework
-
 from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
 )
@@ -92,7 +91,7 @@ class QualityControlTab:
                         st.success("✅ Analyse voltooid!")
 
                 except Exception as e:
-                    st.error(f"❌ Fout bij analyse: {str(e)}")
+                    st.error(f"❌ Fout bij analyse: {e!s}")
                     st.code(f"Foutdetails: {e}")
 
         # Show previous results if available
@@ -144,7 +143,7 @@ class QualityControlTab:
                     st.metric("🤖 AI Service", "❌ Fout")
 
         except Exception as e:
-            st.error(f"❌ Kon system health niet laden: {str(e)}")
+            st.error(f"❌ Kon system health niet laden: {e!s}")
 
     def _render_validation_consistency(self):
         """Render validation consistency check."""
@@ -195,7 +194,7 @@ class QualityControlTab:
                         )
 
                     except Exception as e:
-                        st.error(f"❌ Validatie fout: {str(e)}")
+                        st.error(f"❌ Validatie fout: {e!s}")
 
         with col2:
             if st.button("📊 Analyseer Kritieke Regels"):
@@ -221,7 +220,7 @@ class QualityControlTab:
                             st.text(critical_analysis)
 
                     except Exception as e:
-                        st.error(f"❌ Fout bij kritieke regels analyse: {str(e)}")
+                        st.error(f"❌ Fout bij kritieke regels analyse: {e!s}")
 
         with col3:
             if st.button("🔧 Gedetailleerde Regel Analyse"):
@@ -247,7 +246,7 @@ class QualityControlTab:
                             st.text(detailed_analysis)
 
                     except Exception as e:
-                        st.error(f"❌ Fout bij gedetailleerde analyse: {str(e)}")
+                        st.error(f"❌ Fout bij gedetailleerde analyse: {e!s}")
 
     def _render_rule_coverage_analysis(self):
         """Render rule coverage analysis."""

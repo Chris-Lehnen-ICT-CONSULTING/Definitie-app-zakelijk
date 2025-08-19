@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class INT07Validator:
     """Validator voor INT-07: Alleen toegankelijke afkortingen."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -40,8 +39,8 @@ class INT07Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens INT-07 regel.
 
@@ -107,7 +106,7 @@ class INT07Validator:
             1.0,
         )
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -143,7 +142,7 @@ def create_validator(config_path: str = None) -> INT07Validator:
         config_path = os.path.join(current_dir, "INT-07.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return INT07Validator(config)

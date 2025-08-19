@@ -5,7 +5,6 @@ Automatisch gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 class STR01Validator:
     """Validator voor STR-01."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -27,8 +26,8 @@ class STR01Validator:
         self.prioriteit = config.get("prioriteit", "midden")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens STR-01 regel.
 
@@ -64,11 +63,10 @@ class STR01Validator:
                     result = f"❌ STR-01: definitie begint met werkwoord ({', '.join(fout_begin)}), en lijkt op fout voorbeeld"
                 else:
                     result = f"❌ STR-01: definitie begint met werkwoord ({', '.join(fout_begin)})"
+            elif goed:
+                result = "✔️ STR-01: definitie start correct met zelfstandig naamwoord en komt overeen met goed voorbeeld"
             else:
-                if goed:
-                    result = "✔️ STR-01: definitie start correct met zelfstandig naamwoord en komt overeen met goed voorbeeld"
-                else:
-                    result = "✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd"
+                result = "✔️ STR-01: geen werkwoordelijke start herkend – mogelijk goed geformuleerd"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
@@ -85,7 +83,7 @@ class STR01Validator:
         # Fallback
         return False, f"⚠️ {self.id}: geen resultaat", 0.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -121,7 +119,7 @@ def create_validator(config_path: str = None) -> STR01Validator:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(current_dir, "STR-01.json")
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return STR01Validator(config)

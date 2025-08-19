@@ -260,13 +260,13 @@ services:
       - redis
       - db
       - monitoring
-  
+
   redis:
     image: redis:7-alpine
-    
+
   db:
     image: postgres:15-alpine
-    
+
   monitoring:
     image: grafana/grafana
 ```

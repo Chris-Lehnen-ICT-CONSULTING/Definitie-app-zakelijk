@@ -51,7 +51,7 @@ class TabbedInterface:
         self.session = st.session_state
         self.generator_tab = DefinitionGeneratorTab()
         # ... other tabs initialized
-    
+
     def render(self):
         # Global controls
         # Tab selection
@@ -110,7 +110,7 @@ class AsyncProgress:
         self.progress_bar = st.progress(0)
         self.status_text = st.empty()
         self.cancelled = False
-    
+
     def update(self, step, message):
         # Update progress bar and status
         # Check for cancellation

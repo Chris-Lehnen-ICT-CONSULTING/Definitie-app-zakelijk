@@ -8,8 +8,8 @@ ALTER TABLE definities ADD COLUMN datum_voorstel TIMESTAMP;
 ALTER TABLE definities ADD COLUMN ketenpartners TEXT;
 
 -- Update bestaande records met default waardes
-UPDATE definities 
-SET datum_voorstel = created_at 
+UPDATE definities
+SET datum_voorstel = created_at
 WHERE datum_voorstel IS NULL;
 
 -- Voeg index toe voor snelle queries op datum_voorstel

@@ -4,7 +4,7 @@ graph TB
             LB[Load Balancer<br/>AWS ALB]
             WAF[Web Application<br/>Firewall]
         end
-        
+
         subgraph "Application Tier"
             subgraph "Kubernetes Cluster"
                 subgraph "Node Pool 1"
@@ -24,7 +24,7 @@ graph TB
                 end
             end
         end
-        
+
         subgraph "Data Tier"
             subgraph "Primary Region"
                 PG_PRIMARY[(PostgreSQL<br/>Primary)]
@@ -36,13 +36,13 @@ graph TB
             end
         end
     end
-    
+
     subgraph "External Services"
         OPENAI[OpenAI API]
         SMTP[Email Service]
         MONITORING[DataDog/NewRelic]
     end
-    
+
     LB --> WAF
     WAF --> GW1
     WAF --> GW2
@@ -57,7 +57,7 @@ graph TB
     PG_PRIMARY -.-> PG_STANDBY
     PG_PRIMARY --> S3
     MON1 --> MONITORING
-    
+
     style LB fill:#f9f,stroke:#333,stroke-width:2px
     style PG_PRIMARY fill:#9ff,stroke:#333,stroke-width:2px
     style OPENAI fill:#ff9,stroke:#333,stroke-width:2px

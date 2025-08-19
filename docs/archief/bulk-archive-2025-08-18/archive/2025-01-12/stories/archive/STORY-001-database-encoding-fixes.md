@@ -1,8 +1,8 @@
 # STORY-001: Database Concurrent Access & Encoding Fixes
 
 ## User Story
-Als een **developer**  
-wil ik dat de database concurrent access ondersteunt zonder locks EN dat alle encoding issues opgelost zijn  
+Als een **developer**
+wil ik dat de database concurrent access ondersteunt zonder locks EN dat alle encoding issues opgelost zijn
 zodat meerdere gebruikers tegelijk de applicatie kunnen gebruiken zonder errors en alle Nederlandse tekst correct wordt weergegeven.
 
 ## Acceptance Criteria

@@ -6,7 +6,6 @@ en het voorkomen van API rate limit errors.
 """
 
 from dataclasses import dataclass
-from typing import Dict, Optional
 
 from utils.smart_rate_limiter import RateLimitConfig, RequestPriority
 
@@ -20,11 +19,11 @@ class EndpointConfig:
     burst_capacity: int
     target_response_time: float
     timeout: float
-    priority_weights: Optional[Dict[RequestPriority, float]] = None
+    priority_weights: dict[RequestPriority, float] | None = None
 
 
 # Endpoint-specifieke configuraties
-ENDPOINT_CONFIGS: Dict[str, EndpointConfig] = {
+ENDPOINT_CONFIGS: dict[str, EndpointConfig] = {
     # Voorbeelden generatie endpoints - hogere rate limits voor parallel processing
     "examples_generation_sentence": EndpointConfig(
         tokens_per_second=3.0,  # 3 requests per seconde
@@ -154,7 +153,7 @@ def get_endpoint_timeout(endpoint_name: str) -> float:
 # Utility functies voor monitoring
 def get_all_endpoints() -> list[str]:
     """Haal lijst van alle geconfigureerde endpoints op."""
-    return [name for name in ENDPOINT_CONFIGS.keys() if name != "default"]
+    return [name for name in ENDPOINT_CONFIGS if name != "default"]
 
 
 def validate_endpoint_config(endpoint_name: str) -> bool:

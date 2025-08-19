@@ -15,18 +15,14 @@ sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src d
 # Importeer database en core componenten voor definitie management
 from database.definitie_repository import (
     DefinitieStatus,  # Status en bron type enumeraties
-)
-from database.definitie_repository import (
     get_definitie_repository,
 )
 from generation.definitie_generator import (  # Ontologische categorieën
     OntologischeCategorie,
 )
 from integration.definitie_checker import (
-    generate_or_retrieve_definition,  # Integratie en duplicaat checking
-)
-from integration.definitie_checker import (
     DefinitieChecker,
+    generate_or_retrieve_definition,  # Integratie en duplicaat checking
 )
 
 # Setup logging configuratie voor CLI tool

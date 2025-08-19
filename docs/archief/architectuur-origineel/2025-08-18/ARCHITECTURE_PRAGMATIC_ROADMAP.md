@@ -1,13 +1,13 @@
 # 🛠️ Pragmatische Architectuur Roadmap - DefinitieAgent
 
-**Versie**: 1.0 - Realistic Approach  
-**Datum**: 2025-01-15  
+**Versie**: 1.0 - Realistic Approach
+**Datum**: 2025-01-15
 **Focus**: Stabilisatie → Consolidatie → Verbetering
 
 ## 🎯 Kernprincipes
 
 1. **Fix wat kapot is** voordat je nieuwe dingen bouwt
-2. **Consolideer wat dubbel is** voor betere onderhoudbaarheid  
+2. **Consolideer wat dubbel is** voor betere onderhoudbaarheid
 3. **Test wat kritiek is** voor stabiliteit
 4. **Documenteer wat werkelijk is** niet wat je hoopt
 
@@ -66,7 +66,7 @@ src/validation/
 class LegacyValidator:
     def __init__(self):
         self.engine = ValidationEngine()
-    
+
     def oude_functie_naam(self, *args):
         # Redirect naar nieuwe engine
         return self.engine.validate(*args)
@@ -86,7 +86,7 @@ class DefinitionService:
         self.generator = generator
         self.validator = validator
         self.repository = repository
-    
+
     def generate_definition(self, term, context):
         # Single, clear flow
         definition = self.generator.generate(term, context)
@@ -152,10 +152,10 @@ class DIContainer:
     def __init__(self):
         self._services: Dict[str, Any] = {}
         self._factories: Dict[str, Callable] = {}
-    
+
     def register(self, name: str, factory: Callable):
         self._factories[name] = factory
-    
+
     def get(self, name: str):
         if name not in self._services:
             self._services[name] = self._factories[name]()
@@ -166,7 +166,7 @@ container = DIContainer()
 container.register('validator', lambda: ValidationEngine())
 container.register('generator', lambda: DefinitionGenerator())
 container.register('repository', lambda: DefinitionRepository())
-container.register('service', 
+container.register('service',
     lambda: DefinitionService(
         container.get('generator'),
         container.get('validator'),
@@ -187,18 +187,18 @@ src/use_cases/
 class GenerateDefinitionUseCase:
     def __init__(self, service: DefinitionService):
         self.service = service
-    
+
     def execute(self, request: GenerateDefinitionRequest) -> DefinitionResponse:
         # Input validation
         if not request.term:
             raise ValueError("Term is required")
-        
+
         # Business logic
         result = self.service.generate_definition(
             request.term,
             request.context
         )
-        
+
         # Response mapping
         return DefinitionResponse(
             success=True,

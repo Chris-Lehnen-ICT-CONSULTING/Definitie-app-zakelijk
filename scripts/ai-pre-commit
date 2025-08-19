@@ -16,26 +16,26 @@ if [ -n "$AI_AGENT_COMMIT" ]; then
     echo -e "${YELLOW}🤖 AI Agent commit detected!${NC}"
     echo "Agent: ${AI_AGENT_NAME:-Unknown}"
     echo "Running enhanced AI code review..."
-    
+
     # Run the AI code reviewer
     python scripts/ai_code_reviewer.py \
         --max-iterations 5 \
         --ai-agent "${AI_AGENT_NAME:-manual}"
-    
+
     REVIEW_EXIT_CODE=$?
-    
+
     if [ $REVIEW_EXIT_CODE -ne 0 ]; then
         echo -e "${RED}❌ AI Code review failed!${NC}"
         echo "Please fix the issues before committing."
         echo "Review report saved to: review_report.md"
         exit 1
     fi
-    
+
     echo -e "${GREEN}✅ AI Code review passed!${NC}"
 else
     # Normal pre-commit flow voor human developers
     echo "Running standard pre-commit checks..."
-    
+
     # Check if pre-commit is installed
     if command -v pre-commit &> /dev/null; then
         pre-commit run --all-files
@@ -43,18 +43,18 @@ else
     else
         # Fallback to basic checks
         echo -e "${YELLOW}⚠️  pre-commit not installed, running basic checks${NC}"
-        
+
         # Basic Python checks
         if command -v ruff &> /dev/null; then
             echo "Running Ruff..."
             ruff check src/ || exit 1
         fi
-        
+
         if command -v black &> /dev/null; then
             echo "Running Black..."
             black --check src/ || exit 1
         fi
-        
+
         # Run tests if available
         if [ -f "pytest.ini" ] || [ -f "setup.cfg" ] || [ -f "pyproject.toml" ]; then
             echo "Running tests..."

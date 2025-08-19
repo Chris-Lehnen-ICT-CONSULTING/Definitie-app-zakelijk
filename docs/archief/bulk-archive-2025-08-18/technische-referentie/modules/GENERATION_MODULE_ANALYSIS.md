@@ -21,7 +21,7 @@ src/generation/
 class OntologischeCategorie(Enum):
     """Ontological categories for concept classification"""
     TYPE = "type"              # Types/classes
-    PROCES = "proces"          # Processes/activities  
+    PROCES = "proces"          # Processes/activities
     RESULTAAT = "resultaat"    # Results/outcomes
     EXEMPLAAR = "exemplaar"    # Specific instances
 ```
@@ -51,11 +51,11 @@ class GenerationContext:
     organisatorische_context: str    # Organizational context
     juridische_context: str          # Legal context
     categorie: OntologischeCategorie # Ontological category
-    
+
     # Feedback and instructions
     feedback_history: List[str] = None
     custom_instructions: List[str] = None
-    
+
     # Hybrid context extensions
     hybrid_context: Optional[Any] = None
     use_hybrid_enhancement: bool = False
@@ -72,11 +72,11 @@ class GenerationResult:
     definitie: str
     gebruikte_instructies: List[GenerationInstruction]
     prompt_template: str
-    
+
     # Metadata
     iteration_nummer: int = 1
     context: GenerationContext = None
-    
+
     # Examples
     voorbeelden: Dict[str, List[str]] = None
     voorbeelden_gegenereerd: bool = False
@@ -233,7 +233,7 @@ def __init__(self):
 def _setup_api_client(self):
     config = get_api_config()
     api_key = config.get("OPENAI_API_KEY")
-    
+
     # Default parameters
     self.model = "gpt-4"
     self.temperature = 0.3
@@ -296,12 +296,12 @@ class ExampleType(Enum):
 def generate_with_examples(self, context, generate_examples=True, example_types=None):
     # Generate base definition
     result = self.generate(context)
-    
+
     if generate_examples:
         # Default types if not specified
         if not example_types:
             example_types = [ExampleType.SENTENCE, ExampleType.PRACTICAL, ExampleType.COUNTER]
-        
+
         # Generate via unified voorbeelden
         try:
             voorbeelden_result = genereer_alle_voorbeelden(

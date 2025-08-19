@@ -14,8 +14,8 @@
 
 **Story Points**: 2
 
-**Als een** developer  
-**wil ik** unieke widget keys genereren  
+**Als een** developer
+**wil ik** unieke widget keys genereren
 **zodat** Streamlit geen duplicate key errors geeft.
 
 #### Acceptance Criteria
@@ -37,11 +37,11 @@ def generate_widget_key(widget_type: str, *args: Any) -> str:
     # Combine all identifying information
     key_parts = [widget_type] + [str(arg) for arg in args]
     key_string = "_".join(key_parts)
-    
+
     # Create stable hash for long keys
     if len(key_string) > 50:
         return hashlib.md5(key_string.encode()).hexdigest()[:16]
-    
+
     return key_string
 
 # Usage
@@ -60,8 +60,8 @@ key = generate_widget_key("selectbox", "term_input", tab_name, row_index)
 
 **Story Points**: 1
 
-**Als een** gebruiker  
-**wil ik** direct een term invoeren op de homepage  
+**Als een** gebruiker
+**wil ik** direct een term invoeren op de homepage
 **zodat** ik snel kan beginnen.
 
 #### Acceptance Criteria
@@ -75,7 +75,7 @@ key = generate_widget_key("selectbox", "term_input", tab_name, row_index)
 # In main app.py
 def render_homepage():
     st.title("🔍 DefinitieAgent")
-    
+
     # Auto-focus input field
     term = st.text_input(
         "Voer een term in",
@@ -83,7 +83,7 @@ def render_homepage():
         key="main_term_input",
         on_change=trigger_generation
     )
-    
+
     # Enter key handling
     if term and st.session_state.get('enter_pressed'):
         generate_definition(term)
@@ -100,8 +100,8 @@ def render_homepage():
 
 **Story Points**: 3
 
-**Als een** gebruiker  
-**wil ik** dat mijn data bewaard blijft  
+**Als een** gebruiker
+**wil ik** dat mijn data bewaard blijft
 **zodat** ik niet opnieuw moet invoeren na reload.
 
 #### Acceptance Criteria
@@ -126,7 +126,7 @@ def init_session_state():
             'context': 'juridisch'
         }
     }
-    
+
     for key, value in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = value
@@ -150,8 +150,8 @@ def save_form_data(form_key: str, data: dict):
 
 **Story Points**: 2
 
-**Als een** gebruiker  
-**wil ik** metadata van definities zien  
+**Als een** gebruiker
+**wil ik** metadata van definities zien
 **zodat** ik context heb over de gegenereerde content.
 
 #### Acceptance Criteria
@@ -166,15 +166,15 @@ def display_definition_metadata(definition: Definition):
     """Show metadata in collapsed expander."""
     with st.expander("📊 Metadata", expanded=False):
         col1, col2, col3 = st.columns(3)
-        
+
         with col1:
             st.metric("Context", definition.context_type)
             st.metric("Model", definition.model_version)
-        
+
         with col2:
             st.metric("Temperature", f"{definition.temperature:.1f}")
             st.metric("Tokens", definition.token_count)
-        
+
         with col3:
             st.metric("Score", f"{definition.validation_score}%")
             st.caption(f"Gegenereerd: {definition.created_at}")
@@ -236,5 +236,5 @@ def test_stable_keys():
 - Shadow: subtle (0 2px 4px rgba(0,0,0,0.1))
 
 ---
-*Epic owner: Frontend Team*  
+*Epic owner: Frontend Team*
 *Last updated: 2025-01-18*

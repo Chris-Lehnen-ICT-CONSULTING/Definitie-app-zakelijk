@@ -1,7 +1,7 @@
 # 🔍 Code Review Protocol V2 - Systematische Verificatie
 *Enhanced by Quinn - Senior Developer & QA Architect*
 
-**Doel**: Verifiëren wat werkelijk functioneert vs wat alleen bestaat/geclaimd wordt  
+**Doel**: Verifiëren wat werkelijk functioneert vs wat alleen bestaat/geclaimd wordt
 **Gebruik**: Dit protocol voor ELKE component/feature uitvoeren
 
 ---
@@ -101,14 +101,14 @@
 try:
     from services.{service_name} import {ServiceClass}
     from services.interfaces import {ServiceInterface}
-    
+
     # Verify implements interface
     assert issubclass({ServiceClass}, {ServiceInterface})
     print("✅ Import & interface compliance")
 except Exception as e:
     print(f"❌ Architecture violation: {e}")
 
-## Stap 2: Instantiation & Configuration Test  
+## Stap 2: Instantiation & Configuration Test
 try:
     # Test with different configs
     configs = [None, test_config, prod_config]
@@ -214,7 +214,7 @@ required_headers = [
 
 ## Risk Assessment 🆕
 - **Business Impact**: HIGH/MEDIUM/LOW
-- **Security Risk**: CRITICAL/HIGH/MEDIUM/LOW  
+- **Security Risk**: CRITICAL/HIGH/MEDIUM/LOW
 - **Technical Debt**: €[amount] (hours × rate)
 - **Performance Impact**: [latency/throughput metrics]
 
@@ -223,7 +223,7 @@ required_headers = [
 ### ✅ Wat Werkt
 - [Lijst met performance metrics waar relevant]
 
-### ❌ Wat Niet Werkt  
+### ❌ Wat Niet Werkt
 - [Lijst met root cause analysis]
 - [Security implications per issue]
 
@@ -245,7 +245,7 @@ required_headers = [
 
 ## Action Items (Prioritized by Risk)
 1. 🔴 **CRITICAL**: [Security/Data loss issues]
-2. 🟠 **HIGH**: [Business blocking issues]  
+2. 🟠 **HIGH**: [Business blocking issues]
 3. 🟡 **MEDIUM**: [Performance/UX degradation]
 4. 🟢 **LOW**: [Technical debt/refactoring]
 
@@ -295,12 +295,12 @@ repos:
     hooks:
       - id: ruff
         args: [--fix]
-  
+
   - repo: https://github.com/psf/black
     rev: 23.1.0
     hooks:
       - id: black
-  
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.0.0
     hooks:
@@ -426,8 +426,8 @@ for item in items:
 4. Incorporate feedback
 5. Update protocol version
 
-**Current Version**: 2.1 (Enhanced)  
-**Last Updated**: 2025-01-15  
+**Current Version**: 2.1 (Enhanced)
+**Last Updated**: 2025-01-15
 **Next Review**: 2025-04-15
 
 ---

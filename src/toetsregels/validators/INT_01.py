@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class INT01Validator:
     """Validator voor INT-01: Compacte en begrijpelijke zin."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -47,8 +46,8 @@ class INT01Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens INT-01 regel.
 
@@ -94,12 +93,11 @@ class INT01Validator:
                     f"✔️ {self.id}: definitie is compact en komt overeen met goed voorbeeld",
                     1.0,
                 )
-            else:
-                return (
-                    True,
-                    f"✔️ {self.id}: geen complexe elementen herkend – mogelijk goed geformuleerd",
-                    0.9,
-                )
+            return (
+                True,
+                f"✔️ {self.id}: geen complexe elementen herkend – mogelijk goed geformuleerd",
+                0.9,
+            )
 
         if foute_aanwezig:
             return (
@@ -110,19 +108,18 @@ class INT01Validator:
                 ),
                 0.0,
             )
-        else:
-            # Bereken score op basis van aantal complexiteits-indicatoren
-            score = max(0.0, 1.0 - (len(complexiteit_gevonden) * 0.2))
-            return (
-                False,
-                (
-                    f"❌ {self.id}: complexe elementen gevonden ({', '.join(sorted(complexiteit_gevonden))}), "
-                    f"maar geen expliciet fout voorbeeld herkend"
-                ),
-                score,
-            )
+        # Bereken score op basis van aantal complexiteits-indicatoren
+        score = max(0.0, 1.0 - (len(complexiteit_gevonden) * 0.2))
+        return (
+            False,
+            (
+                f"❌ {self.id}: complexe elementen gevonden ({', '.join(sorted(complexiteit_gevonden))}), "
+                f"maar geen expliciet fout voorbeeld herkend"
+            ),
+            score,
+        )
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -161,7 +158,7 @@ def create_validator(config_path: str = None) -> INT01Validator:
         config_path = os.path.join(current_dir, "INT-01.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return INT01Validator(config)

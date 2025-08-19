@@ -6,11 +6,12 @@ Combineert web lookup met document processing voor optimale definitie generatie.
 import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import dataclass  # Dataklassen voor gestructureerde context data
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
-from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 from document_processing.document_processor import (  # Document processor factory
     get_document_processor,
 )
+
 # Legacy web_lookup import replaced with modern service
 # from web_lookup.lookup import zoek_definitie_combinatie  # DEPRECATED
 from services.modern_web_lookup_service import ModernWebLookupService
@@ -18,13 +19,16 @@ from services.modern_web_lookup_service import ModernWebLookupService
 # Create modern service instance
 _web_lookup_service = ModernWebLookupService()
 
+
 # Compatibility wrapper
 async def zoek_definitie_combinatie(term: str, *args, **kwargs):
     """Compatibility wrapper for legacy web lookup"""
     from services.interfaces import LookupRequest
+
     request = LookupRequest(term=term, max_results=5)
     results = await _web_lookup_service.lookup(request)
     return results
+
 
 from .context_fusion import ContextFusion  # Context fusie en samenvoeging
 
@@ -43,12 +47,12 @@ class HybridContext:
     confidence_score: float  # Betrouwbaarheidsscore (0.0-1.0)
 
     # Web lookup data - resultaten van externe bronnen
-    web_context: Dict[str, Any]  # Context data uit web bronnen
-    web_sources: List[str]  # Gebruikte web bronnen URLs
+    web_context: dict[str, Any]  # Context data uit web bronnen
+    web_sources: list[str]  # Gebruikte web bronnen URLs
 
     # Document data - resultaten van document analyse
-    document_context: Dict[str, Any]  # Context data uit geüploade documenten
-    document_sources: List[Dict[str, Any]]  # Gebruikte document metadata
+    document_context: dict[str, Any]  # Context data uit geüploade documenten
+    document_sources: list[dict[str, Any]]  # Gebruikte document metadata
 
     # Fusion metadata - informatie over samenvoeging proces
     fusion_strategy: str  # Gebruikte fusie strategie
@@ -56,8 +60,8 @@ class HybridContext:
     context_quality: str  # Kwaliteitsbeoordeling van context
 
     # Attribution - bronvermelding en traceerbaarheid
-    primary_sources: List[str]  # Primaire bronnen voor de context
-    supporting_sources: List[str]  # Ondersteunende bronnen
+    primary_sources: list[str]  # Primaire bronnen voor de context
+    supporting_sources: list[str]  # Ondersteunende bronnen
     created_at: datetime  # Tijdstip van context creatie
 
 
@@ -81,9 +85,9 @@ class HybridContextEngine:
     def create_hybrid_context(
         self,
         begrip: str,
-        organisatorische_context: Optional[str] = None,
-        juridische_context: Optional[str] = None,
-        selected_document_ids: Optional[List[str]] = None,
+        organisatorische_context: str | None = None,
+        juridische_context: str | None = None,
+        selected_document_ids: list[str] | None = None,
     ) -> HybridContext:
         """
         Creëer hybride context door web lookup en document processing te combineren.
@@ -155,8 +159,8 @@ class HybridContextEngine:
             )
 
     def _get_document_context(
-        self, selected_document_ids: Optional[List[str]]
-    ) -> Dict[str, Any]:
+        self, selected_document_ids: list[str] | None
+    ) -> dict[str, Any]:
         """Haal document context op."""
         if not selected_document_ids:
             return {
@@ -180,8 +184,8 @@ class HybridContextEngine:
             }
 
     def _execute_enhanced_web_lookup(
-        self, begrip: str, source_strategy: Dict[str, Any], document_keywords: List[str]
-    ) -> Dict[str, Any]:
+        self, begrip: str, source_strategy: dict[str, Any], document_keywords: list[str]
+    ) -> dict[str, Any]:
         """Voer enhanced web lookup uit op basis van source strategy."""
         try:
             # Basis web lookup uitvoeren
@@ -205,9 +209,9 @@ class HybridContextEngine:
     def _enhance_web_results(
         self,
         web_results: Any,
-        document_keywords: List[str],
-        source_strategy: Dict[str, Any],
-    ) -> Dict[str, Any]:
+        document_keywords: list[str],
+        source_strategy: dict[str, Any],
+    ) -> dict[str, Any]:
         """Verbeter web lookup resultaten met document context."""
 
         if not web_results or not document_keywords:
@@ -257,7 +261,7 @@ class HybridContextEngine:
         return enhanced_results
 
     def _calculate_relevance_score(
-        self, source_text: str, document_keywords: List[str]
+        self, source_text: str, document_keywords: list[str]
     ) -> float:
         """Bereken relevantie score tussen source text en document keywords."""
         if not document_keywords or not source_text:
@@ -273,8 +277,8 @@ class HybridContextEngine:
     def _create_fallback_context(
         self,
         begrip: str,
-        organisatorische_context: Optional[str],
-        juridische_context: Optional[str],
+        organisatorische_context: str | None,
+        juridische_context: str | None,
     ) -> HybridContext:
         """Creëer fallback context als hybride proces faalt."""
         try:
@@ -313,7 +317,7 @@ class HybridContextEngine:
                 created_at=datetime.now(),
             )
 
-    def get_context_summary(self, hybrid_context: HybridContext) -> Dict[str, Any]:
+    def get_context_summary(self, hybrid_context: HybridContext) -> dict[str, Any]:
         """Genereer samenvatting van hybride context voor UI display."""
         return {
             "context_quality": hybrid_context.context_quality,
@@ -336,16 +340,14 @@ class HybridContextEngine:
         ):
             if context.confidence_score > 0.8:
                 return "excellent"
-            elif context.confidence_score > 0.6:
+            if context.confidence_score > 0.6:
                 return "good"
-            else:
-                return "moderate"
-        elif len(context.web_sources) > 0:
+            return "moderate"
+        if len(context.web_sources) > 0:
             return "web_only"
-        elif context.document_context.get("document_count", 0) > 0:
+        if context.document_context.get("document_count", 0) > 0:
             return "document_only"
-        else:
-            return "minimal"
+        return "minimal"
 
 
 # Global hybrid context engine instance

@@ -124,10 +124,10 @@ The legacy `centrale_module_definitie_kwaliteit.py` has been successfully replac
            self.preprocessors = []
            self.validators = []
            self.postprocessors = []
-       
+
        def add_validator(self, validator: BaseValidator):
            self.validators.append(validator)
-       
+
        def validate(self, definition: str) -> ValidationResult:
            # Run through pipeline stages
            pass
@@ -138,15 +138,15 @@ The legacy `centrale_module_definitie_kwaliteit.py` has been successfully replac
    class RuleBuilder:
        def __init__(self):
            self.rule = {}
-       
+
        def with_pattern(self, pattern: str):
            # Add pattern to rule
            return self
-       
+
        def with_severity(self, severity: ViolationSeverity):
            # Set severity
            return self
-       
+
        def build(self) -> Dict:
            return self.rule
    ```
@@ -158,7 +158,7 @@ The legacy `centrale_module_definitie_kwaliteit.py` has been successfully replac
            self.name = name
            self.rules = []
            self.thresholds = {}
-       
+
        def for_context(self, context: str):
            # Load context-specific rules
            pass

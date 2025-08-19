@@ -223,7 +223,7 @@ Is it a security issue?
 
 Before approving:
 - [ ] No security vulnerabilities
-- [ ] No data integrity risks  
+- [ ] No data integrity risks
 - [ ] Tests are passing
 - [ ] Performance acceptable
 - [ ] Error handling present

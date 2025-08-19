@@ -10,7 +10,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -46,7 +46,7 @@ class ToetsregelInfo:
     thema: str
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ToetsregelInfo":
+    def from_dict(cls, data: dict[str, Any]) -> "ToetsregelInfo":
         """Maak ToetsregelInfo van dictionary."""
         return cls(
             id=data.get("id", ""),
@@ -67,11 +67,11 @@ class RegelSet:
 
     naam: str
     beschrijving: str
-    regels: List[str]
-    geladen_op: Optional[float] = None
+    regels: list[str]
+    geladen_op: float | None = None
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "RegelSet":
+    def from_dict(cls, data: dict[str, Any]) -> "RegelSet":
         """Maak RegelSet van dictionary."""
         return cls(
             naam=data.get("naam", ""),
@@ -92,10 +92,7 @@ class ToetsregelManager:
             base_dir: Base directory voor toetsregels
         """
         # Maak pad absoluut relatief aan toetsregels directory
-        if base_dir is None:
-            # We zitten nu in src/toetsregels/manager.py
-            self.base_dir = Path(__file__).parent
-        elif not os.path.isabs(base_dir):
+        if base_dir is None or not os.path.isabs(base_dir):
             # We zitten nu in src/toetsregels/manager.py
             self.base_dir = Path(__file__).parent
         else:
@@ -105,9 +102,9 @@ class ToetsregelManager:
         self.config_file = self.base_dir / "toetsregels-manager.json"
 
         # Caches
-        self._regels_cache: Dict[str, Dict[str, Any]] = {}
-        self._sets_cache: Dict[str, RegelSet] = {}
-        self._config_cache: Optional[Dict[str, Any]] = None
+        self._regels_cache: dict[str, dict[str, Any]] = {}
+        self._sets_cache: dict[str, RegelSet] = {}
+        self._config_cache: dict[str, Any] | None = None
 
         # Statistieken
         self.stats = {
@@ -123,7 +120,7 @@ class ToetsregelManager:
         """Laad manager configuratie."""
         try:
             if self.config_file.exists():
-                with open(self.config_file, "r", encoding="utf-8") as f:
+                with open(self.config_file, encoding="utf-8") as f:
                     self._config_cache = json.load(f)
             else:
                 logger.warning(
@@ -135,7 +132,7 @@ class ToetsregelManager:
             logger.error(f"Fout bij laden configuratie: {e}")
             self._config_cache = self._default_config()
 
-    def _default_config(self) -> Dict[str, Any]:
+    def _default_config(self) -> dict[str, Any]:
         """Standaard configuratie."""
         return {
             "versie": "1.0.0",
@@ -143,7 +140,7 @@ class ToetsregelManager:
             "default_sets": {"basis": "sets/per-prioriteit/verplicht-hoog.json"},
         }
 
-    def load_regel(self, regel_id: str) -> Optional[Dict[str, Any]]:
+    def load_regel(self, regel_id: str) -> dict[str, Any] | None:
         """
         Laad een specifieke toetsregel.
 
@@ -163,7 +160,7 @@ class ToetsregelManager:
 
         try:
             if regel_file.exists():
-                with open(regel_file, "r", encoding="utf-8") as f:
+                with open(regel_file, encoding="utf-8") as f:
                     regel_data = json.load(f)
 
                 # Cache regel
@@ -173,15 +170,14 @@ class ToetsregelManager:
 
                 logger.debug(f"Regel {regel_id} geladen van {regel_file}")
                 return regel_data
-            else:
-                logger.warning(f"Regel bestand niet gevonden: {regel_file}")
-                return None
+            logger.warning(f"Regel bestand niet gevonden: {regel_file}")
+            return None
 
         except Exception as e:
             logger.error(f"Fout bij laden regel {regel_id}: {e}")
             return None
 
-    def load_regelset(self, set_naam: str) -> Optional[RegelSet]:
+    def load_regelset(self, set_naam: str) -> RegelSet | None:
         """
         Laad een voorgedefinieerde regelset.
 
@@ -215,7 +211,7 @@ class ToetsregelManager:
 
         try:
             if set_file and set_file.exists():
-                with open(set_file, "r", encoding="utf-8") as f:
+                with open(set_file, encoding="utf-8") as f:
                     set_data = json.load(f)
 
                 regelset = RegelSet.from_dict(set_data)
@@ -226,15 +222,14 @@ class ToetsregelManager:
 
                 logger.debug(f"Regelset {set_naam} geladen van {set_file}")
                 return regelset
-            else:
-                logger.warning(f"Regelset bestand niet gevonden: {set_naam}")
-                return None
+            logger.warning(f"Regelset bestand niet gevonden: {set_naam}")
+            return None
 
         except Exception as e:
             logger.error(f"Fout bij laden regelset {set_naam}: {e}")
             return None
 
-    def get_verplichte_regels(self) -> List[Dict[str, Any]]:
+    def get_verplichte_regels(self) -> list[dict[str, Any]]:
         """Haal alle verplichte regels op."""
         regelset = self.load_regelset("verplicht")
         if not regelset:
@@ -248,7 +243,7 @@ class ToetsregelManager:
 
         return regels
 
-    def get_kritieke_regels(self) -> List[Dict[str, Any]]:
+    def get_kritieke_regels(self) -> list[dict[str, Any]]:
         """Haal kritieke regels op (verplicht + hoge prioriteit)."""
         regelset = self.load_regelset("verplicht-hoog")
         if not regelset:
@@ -262,7 +257,7 @@ class ToetsregelManager:
 
         return regels
 
-    def get_regels_voor_categorie(self, categorie: str) -> List[Dict[str, Any]]:
+    def get_regels_voor_categorie(self, categorie: str) -> list[dict[str, Any]]:
         """
         Haal regels op voor specifieke ontologische categorie.
 
@@ -283,7 +278,7 @@ class ToetsregelManager:
 
     def get_regels_voor_prioriteit(
         self, prioriteit: RegelPrioriteit
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Haal regels op voor specifieke prioriteit."""
         regelset = self.load_regelset(prioriteit.value)
         if not regelset:
@@ -297,7 +292,7 @@ class ToetsregelManager:
 
         return regels
 
-    def get_regels_by_thema(self, thema: str) -> List[Dict[str, Any]]:
+    def get_regels_by_thema(self, thema: str) -> list[dict[str, Any]]:
         """Haal regels op per thema."""
         # Laad alle regels en filter op thema
         regels = []
@@ -313,7 +308,7 @@ class ToetsregelManager:
 
         return regels
 
-    def validate_regel(self, regel_data: Dict[str, Any]) -> List[str]:
+    def validate_regel(self, regel_data: dict[str, Any]) -> list[str]:
         """
         Valideer een regel tegen het schema.
 
@@ -349,7 +344,7 @@ class ToetsregelManager:
         return errors
 
     def create_custom_set(
-        self, naam: str, regel_ids: List[str], beschrijving: str = ""
+        self, naam: str, regel_ids: list[str], beschrijving: str = ""
     ) -> RegelSet:
         """Maak een aangepaste regelset."""
         regelset = RegelSet(
@@ -364,7 +359,7 @@ class ToetsregelManager:
 
         return regelset
 
-    def get_available_sets(self) -> List[str]:
+    def get_available_sets(self) -> list[str]:
         """Haal lijst van beschikbare regelsets op."""
         sets = []
 
@@ -376,7 +371,7 @@ class ToetsregelManager:
 
         return sorted(sets)
 
-    def get_available_regels(self) -> List[str]:
+    def get_available_regels(self) -> list[str]:
         """Haal lijst van beschikbare regels op."""
         regels = []
 
@@ -386,18 +381,18 @@ class ToetsregelManager:
 
         return sorted(regels)
 
-    def get_all_regels(self) -> Dict[str, Dict[str, Any]]:
+    def get_all_regels(self) -> dict[str, dict[str, Any]]:
         """
         Haal alle beschikbare regels op als dictionary.
-        
+
         Returns:
             Dict[str, Dict[str, Any]]: Dictionary met regel_id als key en regel data als value
         """
         all_rules = {}
-        
+
         # Haal alle beschikbare regel IDs op
         available_regels = self.get_available_regels()
-        
+
         # Laad elke regel
         for regel_id in available_regels:
             try:
@@ -407,7 +402,7 @@ class ToetsregelManager:
             except Exception as e:
                 logger.warning(f"Kon regel {regel_id} niet laden: {e}")
                 continue
-        
+
         logger.info(f"Totaal {len(all_rules)} regels geladen")
         return all_rules
 
@@ -418,7 +413,7 @@ class ToetsregelManager:
 
         logger.info("Toetsregel caches geleegd")
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Haal statistieken op."""
         return {
             **self.stats,
@@ -436,7 +431,7 @@ class ToetsregelManager:
 
 
 # Global manager instance
-_manager: Optional[ToetsregelManager] = None
+_manager: ToetsregelManager | None = None
 
 
 def get_toetsregel_manager() -> ToetsregelManager:
@@ -448,22 +443,22 @@ def get_toetsregel_manager() -> ToetsregelManager:
 
 
 # Convenience functions voor backward compatibility
-def get_verplichte_regels() -> List[Dict[str, Any]]:
+def get_verplichte_regels() -> list[dict[str, Any]]:
     """Haal verplichte regels op (backward compatibility)."""
     return get_toetsregel_manager().get_verplichte_regels()
 
 
-def get_kritieke_regels() -> List[Dict[str, Any]]:
+def get_kritieke_regels() -> list[dict[str, Any]]:
     """Haal kritieke regels op (backward compatibility)."""
     return get_toetsregel_manager().get_kritieke_regels()
 
 
-def get_all_regels() -> Dict[str, Dict[str, Any]]:
+def get_all_regels() -> dict[str, dict[str, Any]]:
     """Haal alle regels op (backward compatibility)."""
     return get_toetsregel_manager().get_all_regels()
 
 
-def load_regel(regel_id: str) -> Optional[Dict[str, Any]]:
+def load_regel(regel_id: str) -> dict[str, Any] | None:
     """Laad specifieke regel (backward compatibility)."""
     return get_toetsregel_manager().load_regel(regel_id)
 

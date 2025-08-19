@@ -6,10 +6,9 @@ met feature flags voor geleidelijke migratie.
 """
 
 import logging
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING, Union
 
 import streamlit as st
-
 from services.container import ContainerConfigs, ServiceContainer, get_container
 
 if TYPE_CHECKING:
@@ -19,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_definition_service(
-    use_container_config: Optional[dict] = None,
+    use_container_config: dict | None = None,
 ) -> Union["UnifiedDefinitionGenerator", "ServiceAdapter"]:
     """
     Get de juiste service op basis van feature flag.
@@ -52,12 +51,11 @@ def get_definition_service(
         config = use_container_config or _get_environment_config()
         container = get_container(config)
         return ServiceAdapter(container)
-    else:
-        logger.info("Using legacy UnifiedDefinitionGenerator")
-        # Gebruik legacy service - lazy import
-        from services.unified_definition_generator import UnifiedDefinitionGenerator
+    logger.info("Using legacy UnifiedDefinitionGenerator")
+    # Gebruik legacy service - lazy import
+    from services.unified_definition_generator import UnifiedDefinitionGenerator
 
-        return UnifiedDefinitionGenerator.get_instance()
+    return UnifiedDefinitionGenerator.get_instance()
 
 
 def _get_environment_config() -> dict:
@@ -68,10 +66,9 @@ def _get_environment_config() -> dict:
 
     if env == "development":
         return ContainerConfigs.development()
-    elif env == "testing":
+    if env == "testing":
         return ContainerConfigs.testing()
-    else:
-        return ContainerConfigs.production()
+    return ContainerConfigs.production()
 
 
 class ServiceAdapter:
@@ -138,11 +135,10 @@ class ServiceAdapter:
                     "processing_time", 0
                 ),
             }
-        else:
-            return {
-                "success": False,
-                "error_message": response.message or "Generatie mislukt",
-            }
+        return {
+            "success": False,
+            "error_message": response.message or "Generatie mislukt",
+        }
 
     def get_stats(self) -> dict:
         """Get statistieken van alle services."""

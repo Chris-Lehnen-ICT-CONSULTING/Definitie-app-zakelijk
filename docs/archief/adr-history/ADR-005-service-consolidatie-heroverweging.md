@@ -1,9 +1,9 @@
 # ADR-005: Service Consolidatie Heroverweging
 
-**Status:** Accepted ✅  
-**Datum:** 2025-01-18  
-**Deciders:** Development Team  
-**Decision Date:** 2025-01-18  
+**Status:** Accepted ✅
+**Datum:** 2025-01-18
+**Deciders:** Development Team
+**Decision Date:** 2025-01-18
 **Relates to:** ADR-004 (Incrementele Migratie Strategie)
 
 ## Context
@@ -62,7 +62,7 @@ class DefinitionOrchestrator:
         self.generator = generator
         self.validator = validator
         self.repository = repository
-    
+
     async def create_definition(self, request: DefinitionRequest) -> DefinitionResponse:
         # Orchestrate the flow
         definition = await self.generator.generate(request)
@@ -123,10 +123,10 @@ class DefinitionOrchestrator:
 
 1. **Doorgaan met UnifiedDefinitionService**
    - Rejected: Complexity blijft groeien
-   
+
 2. **Complete Rewrite**
    - Rejected: Te risicovol, conflicteert met ADR-004
-   
+
 3. **Microservices**
    - Rejected: Overkill voor huidige schaal
 

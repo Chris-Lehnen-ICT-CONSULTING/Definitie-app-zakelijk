@@ -39,7 +39,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 
 ### Success Criteria:
 - ✅ Alle BLOCKING issues opgelost
-- ✅ IMPORTANT issues geminimaliseerd 
+- ✅ IMPORTANT issues geminimaliseerd
 - ✅ Auto-fixes succesvol toegepast
 - ✅ Geen runtime crashes door undefined names
 - ✅ Security vulnerabilities gepatched
@@ -53,7 +53,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 ### Fout Handling:
 Als AI review loop faalt:
 1. Rapporteer specifieke blocking issues
-2. Geef handmatige fix suggesties 
+2. Geef handmatige fix suggesties
 3. Log detailed error informatie
 4. Stop commit proces tot issues resolved
 

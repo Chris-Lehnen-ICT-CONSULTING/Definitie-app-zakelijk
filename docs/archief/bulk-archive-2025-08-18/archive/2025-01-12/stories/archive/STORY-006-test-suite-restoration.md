@@ -1,8 +1,8 @@
 # STORY-006: Test Suite Restoration
 
 ## User Story
-Als een **developer**  
-wil ik een werkende test suite met minimaal 60% coverage  
+Als een **developer**
+wil ik een werkende test suite met minimaal 60% coverage
 zodat ik met vertrouwen nieuwe features kan ontwikkelen zonder regressies.
 
 ## Acceptance Criteria
@@ -29,7 +29,7 @@ Coverage: Unknown (likely <20%)
    ```python
    # BROKEN
    from services.definition_service import DefinitionService
-   
+
    # FIXED
    from src.services.unified_definition_service import UnifiedDefinitionService
    ```
@@ -45,7 +45,7 @@ Coverage: Unknown (likely <20%)
            "context": "juridisch",
            "score": 85
        }
-   
+
    @pytest.fixture
    def mock_openai_response():
        return {

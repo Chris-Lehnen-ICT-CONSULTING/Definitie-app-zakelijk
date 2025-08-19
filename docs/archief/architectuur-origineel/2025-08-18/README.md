@@ -1,6 +1,6 @@
 # Gearchiveerde Architectuur Documenten
 
-**Archief Datum**: 2025-08-18  
+**Archief Datum**: 2025-08-18
 **Reden**: Geconsolideerd naar 2 hoofddocumenten
 
 ## Originele Documenten

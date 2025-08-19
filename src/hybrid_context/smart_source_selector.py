@@ -4,7 +4,7 @@ Smart Source Selector - Intelligente selectie van web bronnen op basis van docum
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -14,9 +14,9 @@ class SourceStrategy:
     """Strategy voor web source selectie."""
 
     strategy_name: str
-    priority_sources: List[str]
-    excluded_sources: List[str]
-    boost_keywords: List[str]
+    priority_sources: list[str]
+    excluded_sources: list[str]
+    boost_keywords: list[str]
     confidence_modifier: float
     reasoning: str
 
@@ -37,9 +37,9 @@ class SmartSourceSelector:
     def select_optimal_sources(
         self,
         begrip: str,
-        organisatorische_context: Optional[str] = None,
-        juridische_context: Optional[str] = None,
-        document_context: Optional[Dict[str, Any]] = None,
+        organisatorische_context: str | None = None,
+        juridische_context: str | None = None,
+        document_context: dict[str, Any] | None = None,
     ) -> SourceStrategy:
         """
         Selecteer optimale web bronnen op basis van alle beschikbare context.
@@ -85,8 +85,8 @@ class SmartSourceSelector:
             return self._create_default_strategy(begrip)
 
     def _analyze_document_context(
-        self, document_context: Optional[Dict[str, Any]]
-    ) -> Dict[str, Any]:
+        self, document_context: dict[str, Any] | None
+    ) -> dict[str, Any]:
         """Analyseer document context voor source selection hints."""
         if not document_context or document_context.get("document_count", 0) == 0:
             return {
@@ -132,7 +132,7 @@ class SmartSourceSelector:
         }
 
     def _classify_document_type(
-        self, keywords: List[str], concepts: List[str], legal_refs: List[str]
+        self, keywords: list[str], concepts: list[str], legal_refs: list[str]
     ) -> str:
         """Classificeer type document op basis van content."""
         # Legal document indicators
@@ -190,31 +190,29 @@ class SmartSourceSelector:
 
         if legal_score > 0 or len(legal_refs) > 0:
             return "legal"
-        elif policy_score > tech_score and policy_score > def_score:
+        if policy_score > tech_score and policy_score > def_score:
             return "policy"
-        elif tech_score > def_score:
+        if tech_score > def_score:
             return "technical"
-        elif def_score > 0:
+        if def_score > 0:
             return "definitional"
-        else:
-            return "general"
+        return "general"
 
     def _assess_legal_complexity(
-        self, legal_refs: List[str], keywords: List[str]
+        self, legal_refs: list[str], keywords: list[str]
     ) -> str:
         """Beoordeel juridische complexiteit van content."""
         if len(legal_refs) >= 5:
             return "high"
-        elif len(legal_refs) >= 2:
+        if len(legal_refs) >= 2:
             return "medium"
-        elif len(legal_refs) >= 1 or any(
+        if len(legal_refs) >= 1 or any(
             "juridisch" in kw.lower() or "wet" in kw.lower() for kw in keywords
         ):
             return "low"
-        else:
-            return "none"
+        return "none"
 
-    def _identify_topic_focus(self, keywords: List[str], concepts: List[str]) -> str:
+    def _identify_topic_focus(self, keywords: list[str], concepts: list[str]) -> str:
         """Identificeer hoofdonderwerp focus."""
         # Strafrecht focus
         strafrecht_terms = [
@@ -249,14 +247,13 @@ class SmartSourceSelector:
 
         if identiteit_score > max(strafrecht_score, admin_score):
             return "identity"
-        elif strafrecht_score > admin_score:
+        if strafrecht_score > admin_score:
             return "criminal_law"
-        elif admin_score > 0:
+        if admin_score > 0:
             return "administrative"
-        else:
-            return "general"
+        return "general"
 
-    def _extract_keyword_themes(self, keywords: List[str]) -> List[str]:
+    def _extract_keyword_themes(self, keywords: list[str]) -> list[str]:
         """Extraheer thematische groepen uit keywords."""
         themes = []
 
@@ -281,8 +278,8 @@ class SmartSourceSelector:
         return themes
 
     def _recommend_sources_for_content(
-        self, doc_type: str, legal_complexity: str, topic_focus: str, themes: List[str]
-    ) -> List[str]:
+        self, doc_type: str, legal_complexity: str, topic_focus: str, themes: list[str]
+    ) -> list[str]:
         """Recommandeer bronnen op basis van content analyse."""
         recommended = []
 
@@ -309,7 +306,7 @@ class SmartSourceSelector:
 
         return list(set(recommended))  # Remove duplicates
 
-    def _analyze_term_characteristics(self, begrip: str) -> Dict[str, Any]:
+    def _analyze_term_characteristics(self, begrip: str) -> dict[str, Any]:
         """Analyseer karakteristieken van de term zelf."""
         term_lower = begrip.lower()
 
@@ -340,8 +337,8 @@ class SmartSourceSelector:
         }
 
     def _analyze_formal_context(
-        self, organisatorische_context: Optional[str], juridische_context: Optional[str]
-    ) -> Dict[str, Any]:
+        self, organisatorische_context: str | None, juridische_context: str | None
+    ) -> dict[str, Any]:
         """Analyseer formele context parameters."""
         org_analysis = {}
         if organisatorische_context:
@@ -372,9 +369,9 @@ class SmartSourceSelector:
     def _create_source_strategy(
         self,
         begrip: str,
-        doc_analysis: Dict[str, Any],
-        term_analysis: Dict[str, Any],
-        context_analysis: Dict[str, Any],
+        doc_analysis: dict[str, Any],
+        term_analysis: dict[str, Any],
+        context_analysis: dict[str, Any],
     ) -> SourceStrategy:
         """Creëer source strategy op basis van alle analyses."""
 
@@ -465,7 +462,7 @@ class SmartSourceSelector:
             reasoning=f"Fallback strategy voor '{begrip}'",
         )
 
-    def _initialize_source_profiles(self) -> Dict[str, Dict[str, Any]]:
+    def _initialize_source_profiles(self) -> dict[str, dict[str, Any]]:
         """Initialiseer profielen van beschikbare bronnen."""
         return {
             "wikipedia": {
@@ -500,7 +497,7 @@ class SmartSourceSelector:
             },
         }
 
-    def _initialize_context_patterns(self) -> Dict[str, List[str]]:
+    def _initialize_context_patterns(self) -> dict[str, list[str]]:
         """Initialiseer context patronen voor source selectie."""
         return {
             "legal_high_priority": ["wetten_nl", "overheid_nl", "strafrechtketen_nl"],

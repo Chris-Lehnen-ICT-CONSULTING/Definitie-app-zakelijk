@@ -13,25 +13,25 @@ NC='\033[0m' # No Color
 trigger_post_edit_review() {
     local agent_name="${1:-Unknown}"
     local files_changed="${2:-unknown}"
-    
+
     echo -e "${BLUE}🔄 BMAD Post-Edit Hook Triggered${NC}"
     echo "Agent: $agent_name"
     echo "Files changed: $files_changed"
-    
+
     # Set AI agent environment
     export AI_AGENT_COMMIT=1
     export AI_AGENT_NAME="$agent_name"
-    
+
     echo -e "${YELLOW}🤖 Running automated code review...${NC}"
-    
+
     # Run the AI code reviewer with reduced iterations for post-edit
     python scripts/ai_code_reviewer.py \
         --max-iterations 3 \
         --ai-agent "$agent_name" \
         --project-root .
-    
+
     REVIEW_EXIT_CODE=$?
-    
+
     if [ $REVIEW_EXIT_CODE -eq 0 ]; then
         echo -e "${GREEN}✅ Post-edit code review passed!${NC}"
         return 0

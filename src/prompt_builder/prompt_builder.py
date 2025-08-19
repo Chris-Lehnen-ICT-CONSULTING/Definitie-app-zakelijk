@@ -6,7 +6,6 @@ from dataclasses import (  # Dataklassen voor gestructureerde prompt configurati
     dataclass,
     field,
 )
-from typing import Dict, List, Optional, Set  # Type hints voor betere code documentatie
 
 from dotenv import load_dotenv  # .env bestand ondersteuning voor configuratie
 from openai import OpenAI, OpenAIError  # OpenAI API client en foutafhandeling
@@ -91,11 +90,11 @@ TOEGESTANE_TOETSREGELS = {
 @dataclass
 class PromptConfiguratie:
     begrip: str
-    context_dict: Dict[
-        str, List[str]
+    context_dict: dict[
+        str, list[str]
     ]  # verwacht sleutels: 'organisatorisch', 'juridisch', 'wettelijk'
     web_uitleg: str = ""
-    toetsregels: Dict[str, Dict] = field(default_factory=laad_toetsregels)
+    toetsregels: dict[str, dict] = field(default_factory=laad_toetsregels)
 
 
 # ✅ PromptBouwer – genereert de volledige instructietekst
@@ -103,7 +102,7 @@ class PromptBouwer:
     def __init__(self, configuratie: PromptConfiguratie):
         # 💚 Slaat de configuratie op en initialiseert helperdata
         self.configuratie = configuratie
-        self.geziene_termen: Set[str] = set()
+        self.geziene_termen: set[str] = set()
         self.verboden_startwoorden = laad_verboden_woorden()
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
@@ -121,7 +120,7 @@ class PromptBouwer:
             return "deverbaal"
         return "anders"
 
-    def filter_regels(self) -> Dict[str, Dict]:
+    def filter_regels(self) -> dict[str, dict]:
         # 💚 Filtert alleen de toetsregels die geschikt zijn voor promptopbouw
         return {
             k: v
@@ -129,7 +128,7 @@ class PromptBouwer:
             if k in TOEGESTANE_TOETSREGELS
         }
 
-    def voeg_contextverbod_toe(self, regels: List[str], term: Optional[str]):
+    def voeg_contextverbod_toe(self, regels: list[str], term: str | None):
         # 💚 Vermijdt herhaalde of herleidbare contextvermeldingen
         if not term:
             return
@@ -144,7 +143,7 @@ class PromptBouwer:
                 self.geziene_termen.add(sleutel)
 
     def bouw_prompt(self) -> str:
-        regels: List[str] = []
+        regels: list[str] = []
         begrip = self.configuratie.begrip
         if not begrip:
             raise ValueError("Begrip mag niet leeg zijn.")

@@ -23,21 +23,21 @@ Perform comprehensive code review with automatic fixing of issues where possible
 
 3. **Fix Issues Iteratively**
    For each issue in order of severity:
-   
+
    a. **SQL Injection (BLOCKING)**
       - Find all f-strings in SQL queries
       - Replace with parameterized queries
       - Use the pattern provided in fix instructions
-   
+
    b. **Type Errors (IMPORTANT)**
       - Add missing type hints
       - Fix type mismatches
       - Import missing types
-   
+
    c. **Unused Imports (IMPORTANT)**
       - Remove imports listed as F401
       - Verify no side effects
-   
+
    d. **Code Style (SUGGESTION)**
       - Apply formatting fixes
       - Update docstrings to Dutch

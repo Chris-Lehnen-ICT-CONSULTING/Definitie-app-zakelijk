@@ -8,7 +8,6 @@ from datetime import datetime
 
 import pandas as pd
 import streamlit as st
-
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 
@@ -25,18 +24,18 @@ class WebLookupTab:
         """Initialiseer lookup modules."""
         # Legacy web lookup modules zijn verplaatst naar moderne service architectuur
         # Deze tab is tijdelijk gedeactiveerd tijdens de migratie
-        
+
         try:
             # TODO: Implementeer moderne service integration
             # from services.modern_web_lookup_service import ModernWebLookupService
             # self.modern_service = ModernWebLookupService()
-            
+
             # Voor nu tijdelijk gedeactiveerd
             self.BronZoeker = None
             self.legacy_modules_available = False
-            
+
         except Exception as e:
-            st.error(f"❌ Web lookup service migratie in uitvoering: {str(e)}")
+            st.error(f"❌ Web lookup service migratie in uitvoering: {e!s}")
             self.BronZoeker = None
             self.legacy_modules_available = False
 
@@ -44,17 +43,19 @@ class WebLookupTab:
         """Render web lookup tab."""
         if not self.BronZoeker:
             st.info("🔄 **Web Lookup Service Migratie**")
-            st.markdown("""
+            st.markdown(
+                """
             De Web Lookup functionaliteit is gemigreerd naar een moderne service architectuur.
-            
+
             **Nieuwe implementatie beschikbaar:**
             - ✅ ModernWebLookupService met Strangler Fig pattern
             - ✅ Wikipedia API integratie (47 tests passing)
             - ✅ SRU API voor Nederlandse juridische bronnen
             - ✅ A/B testing framework voor kwaliteitsvalidatie
-            
+
             Deze UI tab wordt binnenkort bijgewerkt om de nieuwe services te gebruiken.
-            """)
+            """
+            )
             return
 
         st.markdown("### 🔍 Web Lookup & Validatie")
@@ -151,7 +152,7 @@ class WebLookupTab:
                         self._display_definitie_zoek_resultaten(resultaat)
 
                     except Exception as e:
-                        st.error(f"❌ Zoekfout: {str(e)}")
+                        st.error(f"❌ Zoekfout: {e!s}")
             else:
                 st.warning("⚠️ Voer een zoekterm in")
 
@@ -301,7 +302,7 @@ class WebLookupTab:
                             self._display_bron_zoek_resultaten(resultaat)
 
                         except Exception as e:
-                            st.error(f"❌ Bron zoek fout: {str(e)}")
+                            st.error(f"❌ Bron zoek fout: {e!s}")
                 else:
                     st.warning("⚠️ Voer een zoekterm in")
 
@@ -347,7 +348,7 @@ class WebLookupTab:
                             )
 
                         except Exception as e:
-                            st.error(f"❌ Bron validatie fout: {str(e)}")
+                            st.error(f"❌ Bron validatie fout: {e!s}")
                 else:
                     st.warning("⚠️ Voer tekst in om te analyseren")
 
@@ -518,7 +519,7 @@ class WebLookupTab:
                         self._display_juridische_resultaten(resultaten, tekst_input)
 
                     except Exception as e:
-                        st.error(f"❌ Juridische analyse fout: {str(e)}")
+                        st.error(f"❌ Juridische analyse fout: {e!s}")
             else:
                 st.warning("⚠️ Voer tekst in om te analyseren")
 
@@ -650,7 +651,7 @@ class WebLookupTab:
                         self._display_duplicaat_resultaten(resultaat)
 
                     except Exception as e:
-                        st.error(f"❌ Duplicaat detectie fout: {str(e)}")
+                        st.error(f"❌ Duplicaat detectie fout: {e!s}")
             else:
                 st.warning("⚠️ Voer zowel begrip als definitie in")
 
@@ -752,7 +753,7 @@ class WebLookupTab:
                         st.success("✅ Lage gelijkenis - waarschijnlijk uniek")
 
                 except Exception as e:
-                    st.error(f"❌ Vergelijking fout: {str(e)}")
+                    st.error(f"❌ Vergelijking fout: {e!s}")
             else:
                 st.warning("⚠️ Voer beide definities in")
 
@@ -867,6 +868,6 @@ class WebLookupTab:
                         st.metric("📉 Reductie", f"{reduction:.1f}%")
 
                 except Exception as e:
-                    st.error(f"❌ Opschoon fout: {str(e)}")
+                    st.error(f"❌ Opschoon fout: {e!s}")
             else:
                 st.warning("⚠️ Voer tekst in om op te schonen")

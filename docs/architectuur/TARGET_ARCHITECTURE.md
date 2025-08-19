@@ -14,30 +14,30 @@ graph TB
         UI[Streamlit UI]
         CLI[CLI Interface]
     end
-    
+
     subgraph "API Gateway"
         GW[API Gateway<br/>- Authentication<br/>- Rate Limiting<br/>- Routing]
     end
-    
+
     subgraph "Application Services"
         ORCH[Definition Orchestrator<br/>- Workflow coordination<br/>- Transaction management]
         GEN[Generator Service<br/>- AI integration<br/>- Template rendering]
         VAL[Validator Service<br/>- Rule engine<br/>- Quality scoring]
         REPO[Repository Service<br/>- Data persistence<br/>- Query optimization]
     end
-    
+
     subgraph "Supporting Services"
         WEB[Web Lookup Service<br/>- External data<br/>- Caching layer]
         AUTH[Auth Service<br/>- Authentication<br/>- Authorization]
         MON[Monitoring Service<br/>- Metrics<br/>- Alerts]
     end
-    
+
     subgraph "Data Layer"
         PG[(PostgreSQL<br/>Primary DB)]
         REDIS[(Redis<br/>Cache)]
         S3[Object Storage<br/>Documents]
     end
-    
+
     UI --> GW
     CLI --> GW
     GW --> ORCH
@@ -75,7 +75,7 @@ sequenceDiagram
     participant Validator
     participant Repository
     participant Cache
-    
+
     Client->>Gateway: Create Definition Request
     Gateway->>Orchestrator: Authenticated Request
     Orchestrator->>Generator: Generate Definition
@@ -161,7 +161,7 @@ paths:
               type: object
               required: [begrip, category]
               properties:
-                begrip: 
+                begrip:
                   type: string
                 category:
                   type: string
@@ -184,7 +184,7 @@ paths:
           in: query
           schema:
             type: string
-            
+
   /api/v1/definitions/{id}:
     get:
       summary: Get definition details
@@ -192,11 +192,11 @@ paths:
       summary: Update definition
     delete:
       summary: Delete definition
-      
+
   /api/v1/validate:
     post:
       summary: Validate definition text
-      
+
   /api/v1/health:
     get:
       summary: Health check endpoint
@@ -239,36 +239,36 @@ services:
       - "8080:8080"
     environment:
       - SERVICE_DISCOVERY_URL=http://consul:8500
-      
+
   orchestrator:
     image: definitie-app/orchestrator:latest
     deploy:
       replicas: 3
     environment:
       - DB_CONNECTION_STRING=${DB_CONNECTION}
-      
+
   generator:
     image: definitie-app/generator:latest
     deploy:
       replicas: 2
     environment:
       - AI_API_KEY=${AI_API_KEY}
-      
+
   validator:
     image: definitie-app/validator:latest
     deploy:
       replicas: 2
-      
+
   repository:
     image: definitie-app/repository:latest
     deploy:
       replicas: 2
-      
+
   postgres:
     image: postgres:15
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      
+
   redis:
     image: redis:7-alpine
     deploy:
@@ -333,21 +333,21 @@ graph TB
         WAF[Web Application Firewall]
         DDoS[DDoS Protection]
     end
-    
+
     subgraph "Application Security"
         AUTH[Authentication<br/>JWT/OAuth2]
         AUTHZ[Authorization<br/>RBAC]
         VALID[Input Validation]
         AUDIT[Audit Logging]
     end
-    
+
     subgraph "Data Security"
         ENC[Encryption at Rest]
         TLS[TLS in Transit]
         MASK[Data Masking]
         BACKUP[Encrypted Backups]
     end
-    
+
     WAF --> AUTH
     AUTH --> AUTHZ
     AUTHZ --> VALID
@@ -421,18 +421,18 @@ graph TB
     subgraph "Event Bus"
         KAFKA[Apache Kafka]
     end
-    
+
     subgraph "Producers"
         P1[Orchestrator]
         P2[Repository]
     end
-    
+
     subgraph "Consumers"
         C1[Analytics Service]
         C2[Notification Service]
         C3[Audit Service]
     end
-    
+
     P1 --> KAFKA
     P2 --> KAFKA
     KAFKA --> C1
@@ -664,7 +664,7 @@ class PromptTemplate:
     template: str
     variables: List[str]
     model_constraints: Dict[str, Any]
-    
+
     def render(self, context: Dict[str, Any]) -> str:
         # Variable substitution with validation
         pass
@@ -674,7 +674,7 @@ class PromptExperiment:
     control: PromptTemplate
     variants: List[PromptTemplate]
     metrics: List[str] = ["quality_score", "generation_time", "token_usage"]
-    
+
     def select_variant(self, user_context: Dict) -> PromptTemplate:
         # Feature flag based selection
         pass
@@ -711,17 +711,17 @@ ai_service_config:
   fallback_providers:
     - anthropic
     - cohere
-  
+
   retry_strategy:
     max_retries: 3
     backoff_multiplier: 2
     timeout_seconds: 30
-    
+
   circuit_breaker:
     failure_threshold: 5
     recovery_timeout: 60
     half_open_requests: 3
-    
+
   rate_limiting:
     requests_per_minute: 60
     tokens_per_minute: 90000
@@ -748,15 +748,15 @@ class GDPRService:
     async def export_user_data(self, user_id: str) -> Dict:
         """Right to data portability"""
         pass
-        
+
     async def delete_user_data(self, user_id: str) -> bool:
         """Right to erasure (forget)"""
         pass
-        
+
     async def restrict_processing(self, user_id: str, scope: List[str]) -> bool:
         """Right to restrict processing"""
         pass
-        
+
     async def get_consent_status(self, user_id: str) -> Dict:
         """Consent management"""
         pass
@@ -845,7 +845,7 @@ class FeatureFlags:
             "enable_date": "2024-02-01",
         }
     }
-    
+
     def is_enabled(self, flag: str, user_context: Dict) -> bool:
         # Evaluation logic with user context
         pass
@@ -887,10 +887,10 @@ class FeatureFlags:
 def select_ai_model(request: GenerationRequest) -> str:
     complexity_score = calculate_complexity(request)
     budget_remaining = get_monthly_budget_remaining()
-    
+
     if budget_remaining < 100:  # Emergency mode
         return "gpt-3.5-turbo"
-    
+
     if complexity_score < 0.3:
         return "gpt-3.5-turbo"  # $0.002/1K tokens
     elif complexity_score < 0.7:
@@ -907,11 +907,11 @@ graph TB
     B -->|< 30 days| C[Hot Storage<br/>SSD]
     B -->|30-90 days| D[Warm Storage<br/>HDD]
     B -->|> 90 days| E[Cold Storage<br/>S3 Glacier]
-    
+
     C --> F{Access Pattern}
     F -->|Frequent| C
     F -->|Rare| D
-    
+
     D --> G{Access Pattern}
     G -->|Revived| C
     G -->|Dormant| E
@@ -1028,7 +1028,7 @@ kubectl rollout status deployment/$DEPLOYMENT -n $NAMESPACE
 ## Review Checklist
 
 - [x] Component Architecture
-- [x] Data Architecture  
+- [x] Data Architecture
 - [x] API Specifications
 - [x] Security Architecture
 - [x] Deployment Strategy

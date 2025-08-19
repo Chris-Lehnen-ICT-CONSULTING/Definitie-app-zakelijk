@@ -11,7 +11,6 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Dict, List
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
@@ -36,7 +35,7 @@ class PromptTemplate:
 
     name: str
     template: str
-    variables: List[str]
+    variables: list[str]
     category: str  # "basic", "advanced", "specialized"
     confidence_threshold: float = 0.5
 
@@ -57,12 +56,10 @@ class PromptBuilder(ABC):
         self, begrip: str, context: EnrichedContext, config: UnifiedGeneratorConfig
     ) -> str:
         """Build prompt voor definitie generatie."""
-        pass
 
     @abstractmethod
     def get_strategy_name(self) -> str:
         """Verkrijg naam van deze strategy."""
-        pass
 
 
 class LegacyPromptBuilder(PromptBuilder):
@@ -117,7 +114,7 @@ class LegacyPromptBuilder(PromptBuilder):
 
     def _convert_to_legacy_context(
         self, context: EnrichedContext
-    ) -> Dict[str, List[str]]:
+    ) -> dict[str, list[str]]:
         """Converteer EnrichedContext naar legacy context formaat."""
         # Filter out non-legacy context types
         legacy_types = ["organisatorisch", "juridisch", "wettelijk", "domein"]
@@ -149,7 +146,7 @@ class BasicPromptBuilder(PromptBuilder):
     def __init__(self):
         self.templates = self._load_basic_templates()
 
-    def _load_basic_templates(self) -> Dict[str, PromptTemplate]:
+    def _load_basic_templates(self) -> dict[str, PromptTemplate]:
         """Laad basis prompt templates."""
         return {
             "default": PromptTemplate(
@@ -161,7 +158,7 @@ Genereer een Nederlandse definitie voor het begrip: {begrip}
 
 Zorg ervoor dat de definitie:
 - Helder en eenduidig is
-- Voldoet aan juridische standaarden  
+- Voldoet aan juridische standaarden
 - Passend is voor de gegeven context
 - Geen cirkelredeneringen bevat
 
@@ -251,7 +248,7 @@ Proces definitie:""",
 
     def _prepare_template_variables(
         self, begrip: str, context: EnrichedContext, template: PromptTemplate
-    ) -> Dict[str, str]:
+    ) -> dict[str, str]:
         """Bereid template variabelen voor."""
         variables = {"begrip": begrip}
 
@@ -322,10 +319,9 @@ class ContextAwarePromptBuilder(PromptBuilder):
         # Select prompt strategy based on context richness
         if context_score >= 0.8:
             return self._build_rich_context_prompt(begrip, context)
-        elif context_score >= 0.5:
+        if context_score >= 0.5:
             return self._build_moderate_context_prompt(begrip, context)
-        else:
-            return self._build_minimal_context_prompt(begrip, context)
+        return self._build_minimal_context_prompt(begrip, context)
 
     def _calculate_context_score(self, context: EnrichedContext) -> float:
         """Bereken context rijkheid score (0.0 - 1.0)."""
@@ -458,7 +454,7 @@ class UnifiedPromptBuilder:
         self.config = config
 
         # Initialize available prompt builders
-        self.builders: Dict[str, PromptBuilder] = {}
+        self.builders: dict[str, PromptBuilder] = {}
 
         self._init_builders()
 
@@ -531,7 +527,7 @@ class UnifiedPromptBuilder:
         # Default naar basic
         return "basic"
 
-    def get_available_strategies(self) -> List[str]:
+    def get_available_strategies(self) -> list[str]:
         """Verkrijg lijst van beschikbare strategies."""
         return list(self.builders.keys())
 

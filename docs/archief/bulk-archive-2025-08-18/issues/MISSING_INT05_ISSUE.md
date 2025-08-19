@@ -1,8 +1,8 @@
 # 🚨 ISSUE: Ontbrekende Toetsregel INT-05
 
-**Issue Date**: 2025-01-14  
-**Discovered By**: Code Review - DefinitionValidator  
-**Severity**: Medium  
+**Issue Date**: 2025-01-14
+**Discovered By**: Code Review - DefinitionValidator
+**Severity**: Medium
 **Status**: Open
 
 ## Probleem Beschrijving

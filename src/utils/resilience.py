@@ -8,11 +8,12 @@ import json
 import logging
 import pickle
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any
 
 from utils.enhanced_retry import AdaptiveRetryManager
 from utils.smart_rate_limiter import RequestPriority, SmartRateLimiter
@@ -65,7 +66,7 @@ class FailedRequest:
     timestamp: datetime
     retry_count: int = 0
     max_retries: int = 5
-    last_error: Optional[str] = None
+    last_error: str | None = None
 
 
 @dataclass
@@ -98,7 +99,7 @@ class DeadLetterQueue:
 
     def __init__(self, max_size: int = 1000):
         self.max_size = max_size
-        self.queue: List[FailedRequest] = []
+        self.queue: list[FailedRequest] = []
         self._lock = asyncio.Lock()
         self.stats = {
             "total_added": 0,
@@ -124,7 +125,7 @@ class DeadLetterQueue:
                 f"Added request to dead letter queue: {failed_request.request_id}"
             )
 
-    async def get_retryable_requests(self) -> List[FailedRequest]:
+    async def get_retryable_requests(self) -> list[FailedRequest]:
         """Get requests that can be retried."""
         async with self._lock:
             now = datetime.now()
@@ -155,7 +156,7 @@ class DeadLetterQueue:
                 self.stats["total_processed"] += 1
             self.stats["total_removed"] += 1
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Get queue statistics."""
         return {
             "queue_size": len(self.queue),
@@ -169,9 +170,9 @@ class HealthMonitor:
 
     def __init__(self, config: ResilienceConfig):
         self.config = config
-        self.endpoints: Dict[str, HealthMetrics] = {}
-        self.health_history: Dict[str, List[Tuple[datetime, ServiceHealth]]] = {}
-        self._monitoring_task: Optional[asyncio.Task] = None
+        self.endpoints: dict[str, HealthMetrics] = {}
+        self.health_history: dict[str, list[tuple[datetime, ServiceHealth]]] = {}
+        self._monitoring_task: asyncio.Task | None = None
         self._shutdown = False
 
     async def start_monitoring(self):
@@ -192,7 +193,7 @@ class HealthMonitor:
         logger.info("Health monitoring stopped")
 
     async def register_endpoint(
-        self, name: str, health_check_func: Optional[Callable] = None
+        self, name: str, health_check_func: Callable | None = None
     ):
         """Register an endpoint for health monitoring."""
         self.endpoints[name] = HealthMetrics(
@@ -322,7 +323,7 @@ class HealthMonitor:
                 logger.error(f"Error in health monitoring: {e}")
                 await asyncio.sleep(5.0)
 
-    def get_health_status(self, endpoint: Optional[str] = None) -> Dict[str, Any]:
+    def get_health_status(self, endpoint: str | None = None) -> dict[str, Any]:
         """Get current health status."""
         if endpoint:
             if endpoint in self.endpoints:
@@ -335,19 +336,19 @@ class HealthMonitor:
 class ResilienceFramework:
     """Main resilience framework coordinating all components."""
 
-    def __init__(self, config: Optional[ResilienceConfig] = None):
+    def __init__(self, config: ResilienceConfig | None = None):
         self.config = config or ResilienceConfig()
         self.health_monitor = HealthMonitor(self.config)
         self.dead_letter_queue = DeadLetterQueue(self.config.max_queue_size)
-        self.retry_manager: Optional[AdaptiveRetryManager] = None
-        self.rate_limiter: Optional[SmartRateLimiter] = None
+        self.retry_manager: AdaptiveRetryManager | None = None
+        self.rate_limiter: SmartRateLimiter | None = None
 
         # Cached responses for graceful degradation
-        self.fallback_cache: Dict[str, Tuple[Any, datetime]] = {}
+        self.fallback_cache: dict[str, tuple[Any, datetime]] = {}
 
         # Background tasks
-        self._queue_processor_task: Optional[asyncio.Task] = None
-        self._cache_cleanup_task: Optional[asyncio.Task] = None
+        self._queue_processor_task: asyncio.Task | None = None
+        self._cache_cleanup_task: asyncio.Task | None = None
         self._shutdown = False
 
         # Load persistent state
@@ -510,7 +511,7 @@ class ResilienceFramework:
 
     async def _get_fallback_response(
         self, func: Callable, args: tuple, kwargs: dict
-    ) -> Optional[Any]:
+    ) -> Any | None:
         """Get fallback response from cache."""
         cache_key = self._generate_cache_key(func, args, kwargs)
 
@@ -521,9 +522,8 @@ class ResilienceFramework:
             age = (datetime.now() - timestamp).total_seconds()
             if age < self.config.fallback_cache_duration:
                 return cached_result
-            else:
-                # Remove expired cache entry
-                del self.fallback_cache[cache_key]
+            # Remove expired cache entry
+            del self.fallback_cache[cache_key]
 
         return None
 
@@ -613,7 +613,7 @@ class ResilienceFramework:
                 logger.error(f"Error in fallback cache cleanup: {e}")
                 await asyncio.sleep(60.0)
 
-    def get_system_health(self) -> Dict[str, Any]:
+    def get_system_health(self) -> dict[str, Any]:
         """Get comprehensive system health information."""
         return {
             "health_monitor": self.health_monitor.get_health_status(),
@@ -627,11 +627,11 @@ class ResilienceFramework:
 
 
 # Global resilience framework instance
-_resilience_framework: Optional[ResilienceFramework] = None
+_resilience_framework: ResilienceFramework | None = None
 
 
 async def get_resilience_framework(
-    config: Optional[ResilienceConfig] = None,
+    config: ResilienceConfig | None = None,
 ) -> ResilienceFramework:
     """Get or create global resilience framework."""
     global _resilience_framework

@@ -1,7 +1,7 @@
 # AS-IS Architectuur - DefinitieAgent
 
-**Versie**: 2.0  
-**Laatste Update**: 2025-08-18  
+**Versie**: 2.0
+**Laatste Update**: 2025-08-18
 **Status**: Geconsolideerd uit 7 brondocumenten
 
 ## 📋 Executive Summary
@@ -31,7 +31,7 @@ graph TB
         T8[❌ Expert Review]
         T9[❌ Externe Bronnen]
         T10[❌ Orchestratie]
-        
+
         UI --> T1
         UI --> T2
         UI --> T3
@@ -43,10 +43,10 @@ graph TB
         UI --> T9
         UI --> T10
     end
-    
+
     subgraph "Service Layer - GOD OBJECT"
         UDS[UnifiedDefinitionService<br/>🔴 1000+ lines<br/>Singleton Pattern]
-        
+
         subgraph "Mixed Responsibilities"
             GEN[Generation Logic]
             VAL[Validation Orchestration]
@@ -56,7 +56,7 @@ graph TB
             RATE[Rate Limiting]
             ERROR[Error Handling]
         end
-        
+
         UDS --> GEN
         UDS --> VAL
         UDS --> CACHE
@@ -65,19 +65,19 @@ graph TB
         UDS --> RATE
         UDS --> ERROR
     end
-    
+
     subgraph "AI & Validation Layer"
         AI[OpenAI GPT-4<br/>8-12 sec response]
-        
+
         subgraph "Validation System"
             TOETS_ENGINE[ai_toetser<br/>Validation Engine]
             TOETS_RULES[toetsregels<br/>46 Validation Rules]
             TOETS_MGR[ToetsregelManager<br/>Rule Loading & Caching]
-            
+
             TOETS_ENGINE --> TOETS_MGR
             TOETS_MGR --> TOETS_RULES
         end
-        
+
         subgraph "Content Services ⚠️ DEELS WERKEND"
             WEB_MODERN[WebLookupService<br/>✅ Backend werkt<br/>28 tests passing]
             WEB_UI[❌ UI Tab Integration<br/>Niet geïmplementeerd]
@@ -85,18 +85,18 @@ graph TB
             ENRICH[❌ Synoniemen<br/>❌ Antoniemen<br/>❌ Voorbeelden]
         end
     end
-    
+
     subgraph "Data Layer"
         DB[(SQLite DB<br/>⚠️ Locking Issues)]
         REPO[Repository Pattern<br/>✅ Modern]
         SESSION[Session State<br/>⚠️ Inconsistent]
-        
+
         subgraph "Direct DB Access 🔴"
             UI_DB[UI → DB Direct]
             TAB_DB[Tabs → DB Direct]
         end
     end
-    
+
     subgraph "Infrastructure & Config"
         subgraph "Config Chaos 🔴"
             C1[.env Config]
@@ -104,51 +104,51 @@ graph TB
             C3[settings.json]
             C4[hardcoded values]
         end
-        
+
         subgraph "Import Chaos 🔴"
             I1[Relative imports ...]
             I2[Absolute imports]
             I3[sys.path hacks]
         end
-        
+
         TEST[Test Suite<br/>🔴 87% Broken]
     end
-    
+
     %% Connections AS-IS
     T1 --> UDS
     T2 --> UDS
     T3 --> UDS
     T4 --> UDS
-    
+
     %% Direct DB violations
     T2 -.-> DB
     T3 -.-> DB
-    
+
     UDS --> AI
     UDS --> TOETS_ENGINE
     UDS --> DB
     UDS --> REPO
     UDS --> SESSION
-    
+
     GEN --> AI
     VAL --> TOETS_ENGINE
-    
+
     %% Connections
     UDS --> WEB_MODERN
     WEB_MODERN -.-> WEB_UI
     UDS -.-> WEB_LEGACY
     UDS -.-> ENRICH
-    
+
     %% Config connections
     UDS --> C1
     UDS --> C2
     UI --> C3
-    
+
     classDef broken fill:#ff6b6b,stroke:#c92a2a,color:#fff
     classDef working fill:#51cf66,stroke:#2b8a3e,color:#fff
     classDef partial fill:#ffd43b,stroke:#fab005,color:#000
     classDef godObject fill:#ff8787,stroke:#fa5252,color:#fff,stroke-width:4px
-    
+
     class WEB_UI,WEB_LEGACY,ENRICH,T5,T6,T7,T8,T9,T10,TEST,UI_DB,TAB_DB,I1,I2,I3 broken
     class T1,T2,T3,TOETS_ENGINE,TOETS_RULES,TOETS_MGR,REPO,WEB_MODERN working
     class T4,DB,SESSION,UI partial

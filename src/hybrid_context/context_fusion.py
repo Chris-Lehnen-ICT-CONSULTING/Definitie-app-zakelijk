@@ -6,7 +6,7 @@ Resolveert conflicten en creëert coherente context voor definitie generatie.
 import logging
 import re
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -20,10 +20,10 @@ class FusionResult:
     strategy: str
     conflicts_resolved: int
     quality_assessment: str
-    web_sources: List[str]
-    primary_sources: List[str]
-    supporting_sources: List[str]
-    fusion_metadata: Dict[str, Any]
+    web_sources: list[str]
+    primary_sources: list[str]
+    supporting_sources: list[str]
+    fusion_metadata: dict[str, Any]
 
 
 class ContextFusion:
@@ -44,8 +44,8 @@ class ContextFusion:
         self.quality_metrics = self._initialize_quality_metrics()
 
     def fuse_contexts(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
-    ) -> Dict[str, Any]:
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
+    ) -> dict[str, Any]:
         """
         Fuseer web en document context tot unified context.
 
@@ -107,8 +107,8 @@ class ContextFusion:
             return self._create_fallback_fusion(web_context, document_context, begrip)
 
     def _analyze_available_context(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any]
-    ) -> Dict[str, Any]:
+        self, web_context: dict[str, Any], document_context: dict[str, Any]
+    ) -> dict[str, Any]:
         """Analyseer beschikbare context voor fusion planning."""
 
         # Web context analyse
@@ -178,14 +178,13 @@ class ContextFusion:
 
         if source_count >= 3 and total_content > 1000 and authoritative_sources > 0:
             return "high"
-        elif source_count >= 2 and total_content > 500:
+        if source_count >= 2 and total_content > 500:
             return "medium"
-        elif source_count >= 1 and total_content > 100:
+        if source_count >= 1 and total_content > 100:
             return "low"
-        else:
-            return "minimal"
+        return "minimal"
 
-    def _assess_document_context_quality(self, document_context: Dict[str, Any]) -> str:
+    def _assess_document_context_quality(self, document_context: dict[str, Any]) -> str:
         """Beoordeel kwaliteit van document context."""
         doc_count = document_context.get("document_count", 0)
         if doc_count == 0:
@@ -203,12 +202,11 @@ class ContextFusion:
             and concept_count > 5
         ):
             return "high"
-        elif doc_count >= 1 and total_length > 1000 and keyword_count > 8:
+        if doc_count >= 1 and total_length > 1000 and keyword_count > 8:
             return "medium"
-        elif doc_count >= 1 and total_length > 200:
+        if doc_count >= 1 and total_length > 200:
             return "low"
-        else:
-            return "minimal"
+        return "minimal"
 
     def _calculate_balance_ratio(self, web_quality: str, doc_quality: str) -> float:
         """Bereken balance ratio tussen web en document context."""
@@ -223,8 +221,8 @@ class ContextFusion:
         return web_score / (web_score + doc_score)
 
     def _detect_conflicts(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
-    ) -> List[Dict[str, Any]]:
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
+    ) -> list[dict[str, Any]]:
         """Detecteer potentiële conflicten tussen web en document context."""
         conflicts = []
 
@@ -262,7 +260,7 @@ class ContextFusion:
 
         return conflicts
 
-    def _extract_key_terms_from_web(self, web_context: Dict[str, Any]) -> List[str]:
+    def _extract_key_terms_from_web(self, web_context: dict[str, Any]) -> list[str]:
         """Extraheer key terms uit web context."""
         terms = []
 
@@ -277,8 +275,8 @@ class ContextFusion:
         return list(set(terms))
 
     def _find_contradictory_terms(
-        self, web_terms: List[str], doc_terms: List[str]
-    ) -> Optional[Dict[str, List[str]]]:
+        self, web_terms: list[str], doc_terms: list[str]
+    ) -> dict[str, list[str]] | None:
         """Vind contradictoire termen tussen web en document context."""
         # Eenvoudige conflict detectie - kan uitgebreid worden
         conflicting_patterns = [
@@ -303,7 +301,7 @@ class ContextFusion:
 
         return None
 
-    def _determine_context_focus(self, terms: List[str]) -> str:
+    def _determine_context_focus(self, terms: list[str]) -> str:
         """Bepaal focus van context op basis van terms."""
         focus_patterns = {
             "legal": ["wet", "artikel", "juridisch", "recht", "regelgeving"],
@@ -318,13 +316,13 @@ class ContextFusion:
 
         return max(scores, key=scores.get) if max(scores.values()) > 0 else "general"
 
-    def _determine_document_focus(self, document_context: Dict[str, Any]) -> str:
+    def _determine_document_focus(self, document_context: dict[str, Any]) -> str:
         """Bepaal focus van document context."""
         keywords = document_context.get("aggregated_keywords", [])
         return self._determine_context_focus(keywords)
 
     def _select_fusion_strategy(
-        self, context_analysis: Dict[str, Any], conflicts: List[Dict[str, Any]]
+        self, context_analysis: dict[str, Any], conflicts: list[dict[str, Any]]
     ) -> str:
         """Selecteer optimale fusion strategy."""
 
@@ -336,50 +334,46 @@ class ContextFusion:
         if has_strong_web and has_strong_docs:
             if conflict_count > 0:
                 return "balanced_with_resolution"
-            else:
-                return "balanced_merge"
-        elif has_strong_web and not has_strong_docs:
+            return "balanced_merge"
+        if has_strong_web and not has_strong_docs:
             return "web_primary_with_doc_support"
-        elif not has_strong_web and has_strong_docs:
+        if not has_strong_web and has_strong_docs:
             return "doc_primary_with_web_support"
-        elif balance_ratio > 0.7:
+        if balance_ratio > 0.7:
             return "web_focused"
-        elif balance_ratio < 0.3:
+        if balance_ratio < 0.3:
             return "document_focused"
-        else:
-            return "simple_concatenation"
+        return "simple_concatenation"
 
     def _execute_fusion(
         self,
-        web_context: Dict[str, Any],
-        document_context: Dict[str, Any],
+        web_context: dict[str, Any],
+        document_context: dict[str, Any],
         begrip: str,
         strategy: str,
-        conflicts: List[Dict[str, Any]],
+        conflicts: list[dict[str, Any]],
     ) -> FusionResult:
         """Voer de daadwerkelijke fusion uit op basis van strategy."""
 
         if strategy == "balanced_merge":
             return self._balanced_merge_fusion(web_context, document_context, begrip)
-        elif strategy == "balanced_with_resolution":
+        if strategy == "balanced_with_resolution":
             return self._balanced_with_resolution_fusion(
                 web_context, document_context, begrip, conflicts
             )
-        elif strategy == "web_primary_with_doc_support":
+        if strategy == "web_primary_with_doc_support":
             return self._web_primary_fusion(web_context, document_context, begrip)
-        elif strategy == "doc_primary_with_web_support":
+        if strategy == "doc_primary_with_web_support":
             return self._doc_primary_fusion(web_context, document_context, begrip)
-        elif strategy == "web_focused":
+        if strategy == "web_focused":
             return self._web_focused_fusion(web_context, document_context, begrip)
-        elif strategy == "document_focused":
+        if strategy == "document_focused":
             return self._document_focused_fusion(web_context, document_context, begrip)
-        else:  # simple_concatenation
-            return self._simple_concatenation_fusion(
-                web_context, document_context, begrip
-            )
+        # simple_concatenation
+        return self._simple_concatenation_fusion(web_context, document_context, begrip)
 
     def _balanced_merge_fusion(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
     ) -> FusionResult:
         """Gebalanceerde merge van web en document context."""
 
@@ -434,10 +428,10 @@ class ContextFusion:
 
     def _balanced_with_resolution_fusion(
         self,
-        web_context: Dict[str, Any],
-        document_context: Dict[str, Any],
+        web_context: dict[str, Any],
+        document_context: dict[str, Any],
         begrip: str,
-        conflicts: List[Dict[str, Any]],
+        conflicts: list[dict[str, Any]],
     ) -> FusionResult:
         """Gebalanceerde fusion met conflict resolution."""
 
@@ -466,7 +460,7 @@ class ContextFusion:
         return base_result
 
     def _web_primary_fusion(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
     ) -> FusionResult:
         """Web-primary fusion met document support."""
 
@@ -505,7 +499,7 @@ class ContextFusion:
         )
 
     def _doc_primary_fusion(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
     ) -> FusionResult:
         """Document-primary fusion met web support."""
 
@@ -552,7 +546,7 @@ class ContextFusion:
         )
 
     def _web_focused_fusion(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
     ) -> FusionResult:
         """Web-focused fusion."""
         sections = []
@@ -576,7 +570,7 @@ class ContextFusion:
         )
 
     def _document_focused_fusion(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
     ) -> FusionResult:
         """Document-focused fusion."""
         sections = ["=== DOCUMENT CONTEXT ==="]
@@ -603,7 +597,7 @@ class ContextFusion:
         )
 
     def _simple_concatenation_fusion(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
     ) -> FusionResult:
         """Eenvoudige concatenatie als fallback."""
         sections = []
@@ -634,7 +628,7 @@ class ContextFusion:
         )
 
     def _assess_fusion_quality(
-        self, fusion_result: FusionResult, context_analysis: Dict[str, Any]
+        self, fusion_result: FusionResult, context_analysis: dict[str, Any]
     ) -> str:
         """Beoordeel kwaliteit van fusion resultaat."""
 
@@ -673,18 +667,17 @@ class ContextFusion:
         # Quality mapping
         if score >= 8:
             return "excellent"
-        elif score >= 6:
+        if score >= 6:
             return "good"
-        elif score >= 4:
+        if score >= 4:
             return "moderate"
-        elif score >= 2:
+        if score >= 2:
             return "basic"
-        else:
-            return "minimal"
+        return "minimal"
 
     def _create_fallback_fusion(
-        self, web_context: Dict[str, Any], document_context: Dict[str, Any], begrip: str
-    ) -> Dict[str, Any]:
+        self, web_context: dict[str, Any], document_context: dict[str, Any], begrip: str
+    ) -> dict[str, Any]:
         """Creëer fallback fusion bij errors."""
 
         fallback_content = f"Basis context voor '{begrip}'."
@@ -707,7 +700,7 @@ class ContextFusion:
             "supporting_sources": [],
         }
 
-    def _initialize_fusion_strategies(self) -> Dict[str, Dict[str, Any]]:
+    def _initialize_fusion_strategies(self) -> dict[str, dict[str, Any]]:
         """Initialiseer fusion strategies."""
         return {
             "balanced_merge": {
@@ -732,7 +725,7 @@ class ContextFusion:
             },
         }
 
-    def _initialize_quality_metrics(self) -> Dict[str, Dict[str, Any]]:
+    def _initialize_quality_metrics(self) -> dict[str, dict[str, Any]]:
         """Initialiseer quality metrics."""
         return {
             "content_richness": {"weight": 0.3, "thresholds": [200, 500, 1000]},

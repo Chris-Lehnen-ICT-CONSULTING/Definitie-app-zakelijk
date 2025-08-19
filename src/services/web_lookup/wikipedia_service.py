@@ -6,7 +6,7 @@ Strangler Fig pattern voor web lookup modernisering.
 """
 
 import logging
-from typing import Optional, Dict, Any, List
+from typing import Any
 from urllib.parse import quote
 
 # Probeer aiohttp te importeren, fallback voor testing
@@ -19,7 +19,6 @@ except ImportError:
     print("Warning: aiohttp niet beschikbaar - Wikipedia service werkt niet volledig")
 
 from ..interfaces import LookupResult, WebSource
-
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +36,7 @@ class WikipediaService:
         self.base_url = f"https://{language}.wikipedia.org"
         self.api_url = f"{self.base_url}/w/api.php"
         self.rest_url = f"{self.base_url}/api/rest_v1"
-        self.session: Optional[aiohttp.ClientSession] = None
+        self.session: aiohttp.ClientSession | None = None
 
         # User agent voor Wikipedia API (vereist)
         self.headers = {
@@ -58,7 +57,7 @@ class WikipediaService:
 
     async def lookup(
         self, term: str, include_extract: bool = True
-    ) -> Optional[LookupResult]:
+    ) -> LookupResult | None:
         """
         Zoek een term op in Wikipedia.
 
@@ -115,7 +114,7 @@ class WikipediaService:
                 error_message=str(e),
             )
 
-    async def _search_page(self, term: str) -> Optional[Dict[str, Any]]:
+    async def _search_page(self, term: str) -> dict[str, Any] | None:
         """Zoek naar beste match pagina."""
         params = {
             "action": "query",
@@ -146,7 +145,7 @@ class WikipediaService:
             # Return eerste result als fallback
             return search_results[0]
 
-    async def _get_page_details(self, title: str) -> Optional[Dict[str, Any]]:
+    async def _get_page_details(self, title: str) -> dict[str, Any] | None:
         """Haal pagina details op via REST API."""
         encoded_title = quote(title.replace(" ", "_"), safe="")
         url = f"{self.rest_url}/page/summary/{encoded_title}"
@@ -155,21 +154,20 @@ class WikipediaService:
             async with self.session.get(url) as response:
                 if response.status == 200:
                     return await response.json()
-                elif response.status == 404:
+                if response.status == 404:
                     logger.info(f"Wikipedia pagina niet gevonden: {title}")
                     return None
-                else:
-                    logger.error(
-                        f"Wikipedia REST API error {response.status} voor: {title}"
-                    )
-                    return None
+                logger.error(
+                    f"Wikipedia REST API error {response.status} voor: {title}"
+                )
+                return None
 
         except Exception as e:
             logger.error(f"Error fetching page details voor {title}: {e}")
             return None
 
     def _build_lookup_result(
-        self, term: str, page_info: Dict[str, Any], page_details: Dict[str, Any]
+        self, term: str, page_info: dict[str, Any], page_details: dict[str, Any]
     ) -> LookupResult:
         """Bouw LookupResult van Wikipedia data."""
 
@@ -225,7 +223,7 @@ class WikipediaService:
             metadata=metadata,
         )
 
-    async def get_page_categories(self, title: str) -> List[str]:
+    async def get_page_categories(self, title: str) -> list[str]:
         """Haal categorieën van een pagina op."""
         params = {
             "action": "query",
@@ -255,7 +253,7 @@ class WikipediaService:
             logger.error(f"Error fetching categories voor {title}: {e}")
             return []
 
-    async def suggest_search_terms(self, partial_term: str) -> List[str]:
+    async def suggest_search_terms(self, partial_term: str) -> list[str]:
         """Suggesties voor zoektermen."""
         params = {
             "action": "opensearch",
@@ -279,7 +277,7 @@ class WikipediaService:
 
 
 # Standalone functies voor gebruik in bestaande code
-async def wikipedia_lookup(term: str, language: str = "nl") -> Optional[LookupResult]:
+async def wikipedia_lookup(term: str, language: str = "nl") -> LookupResult | None:
     """
     Standalone Wikipedia lookup functie.
 
@@ -294,7 +292,7 @@ async def wikipedia_lookup(term: str, language: str = "nl") -> Optional[LookupRe
         return await service.lookup(term)
 
 
-async def wikipedia_suggestions(partial_term: str, language: str = "nl") -> List[str]:
+async def wikipedia_suggestions(partial_term: str, language: str = "nl") -> list[str]:
     """
     Standalone Wikipedia suggesties functie.
 

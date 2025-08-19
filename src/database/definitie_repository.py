@@ -18,13 +18,11 @@ from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import (  # Type hints voor betere code documentatie
     Any,
-    Dict,
-    List,
-    Optional,
-    Tuple,
 )
 
-from domain.ontological_categories import OntologischeCategorie  # Import ontologische categorieën voor classificatie
+from domain.ontological_categories import (
+    OntologischeCategorie,  # Import ontologische categorieën voor classificatie
+)
 
 logger = logging.getLogger(__name__)  # Maak logger instantie voor database module
 
@@ -64,49 +62,49 @@ class DefinitieRecord:
     """
 
     # Basis definitie informatie
-    id: Optional[int] = None  # Unieke database ID
+    id: int | None = None  # Unieke database ID
     begrip: str = ""  # Het begrip dat gedefinieerd wordt
     definitie: str = ""  # De definitie tekst zelf
     categorie: str = ""  # Ontologische categorie
     organisatorische_context: str = ""  # Organisatie context
-    juridische_context: Optional[str] = ""  # Juridische context
+    juridische_context: str | None = ""  # Juridische context
 
     # Status en versioning - Houdt bij in welke fase de definitie zich bevindt
     status: str = DefinitieStatus.DRAFT.value  # Huidige status van de definitie
     version_number: int = 1  # Versienummer voor versiebeheer
-    previous_version_id: Optional[int] = None  # Verwijzing naar vorige versie
+    previous_version_id: int | None = None  # Verwijzing naar vorige versie
 
     # Validation - Kwaliteitscontrole informatie
-    validation_score: Optional[float] = None  # Kwaliteitsscore (0.0-1.0)
-    validation_date: Optional[datetime] = None  # Wanneer laatste validatie plaatsvond
-    validation_issues: Optional[str] = None  # JSON string met gevonden problemen
+    validation_score: float | None = None  # Kwaliteitsscore (0.0-1.0)
+    validation_date: datetime | None = None  # Wanneer laatste validatie plaatsvond
+    validation_issues: str | None = None  # JSON string met gevonden problemen
     # Source tracking - Herkomst van de definitie
     source_type: str = SourceType.GENERATED.value  # Hoe is definitie ontstaan
-    source_reference: Optional[str] = None  # Referentie naar originele bron
-    imported_from: Optional[str] = None  # Van welk systeem geïmporteerd
+    source_reference: str | None = None  # Referentie naar originele bron
+    imported_from: str | None = None  # Van welk systeem geïmporteerd
 
     # Metadata - Algemene record informatie
-    created_at: Optional[datetime] = None  # Wanneer record is aangemaakt
-    updated_at: Optional[datetime] = None  # Laatste wijziging
-    created_by: Optional[str] = (
+    created_at: datetime | None = None  # Wanneer record is aangemaakt
+    updated_at: datetime | None = None  # Laatste wijziging
+    created_by: str | None = (
         None  # Wie heeft record aangemaakt (ook gebruikt voor voorgesteld_door)
     )
-    updated_by: Optional[str] = None  # Wie heeft record laatst gewijzigd
+    updated_by: str | None = None  # Wie heeft record laatst gewijzigd
 
     # Legacy metadata fields
-    datum_voorstel: Optional[datetime] = None  # Datum van voorstel
-    ketenpartners: Optional[str] = None  # JSON string van ketenpartner array
+    datum_voorstel: datetime | None = None  # Datum van voorstel
+    ketenpartners: str | None = None  # JSON string van ketenpartner array
 
     # Approval - Goedkeuring workflow informatie
-    approved_by: Optional[str] = None  # Wie heeft definitie goedgekeurd
-    approved_at: Optional[datetime] = None  # Wanneer goedgekeurd
-    approval_notes: Optional[str] = None  # Opmerkingen bij goedkeuring
+    approved_by: str | None = None  # Wie heeft definitie goedgekeurd
+    approved_at: datetime | None = None  # Wanneer goedgekeurd
+    approval_notes: str | None = None  # Opmerkingen bij goedkeuring
 
     # Export - Export tracking informatie
-    last_exported_at: Optional[datetime] = None  # Laatste export datum
-    export_destinations: Optional[str] = None  # JSON string met export bestemmingen
+    last_exported_at: datetime | None = None  # Laatste export datum
+    export_destinations: str | None = None  # JSON string met export bestemmingen
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Converteer naar dictionary voor JSON serialization.
 
         Returns:
@@ -120,7 +118,7 @@ class DefinitieRecord:
                 result[key] = value.isoformat()  # Converteer naar ISO formaat string
         return result  # Geef dictionary terug
 
-    def get_validation_issues_list(self) -> List[Dict[str, Any]]:
+    def get_validation_issues_list(self) -> list[dict[str, Any]]:
         """Haal validation issues op als list.
 
         Returns:
@@ -136,7 +134,7 @@ class DefinitieRecord:
             # Als parsing faalt, geef lege lijst terug
             return []
 
-    def set_validation_issues(self, issues: List[Dict[str, Any]]):
+    def set_validation_issues(self, issues: list[dict[str, Any]]):
         """Set validation issues als JSON string.
 
         Args:
@@ -145,7 +143,7 @@ class DefinitieRecord:
         # Converteer lijst naar JSON string en sla op
         self.validation_issues = json.dumps(issues, ensure_ascii=False)
 
-    def get_export_destinations_list(self) -> List[str]:
+    def get_export_destinations_list(self) -> list[str]:
         """Haal export destinations op als list.
 
         Returns:
@@ -175,7 +173,7 @@ class DefinitieRecord:
             # Sla bijgewerkte lijst op als JSON string
             self.export_destinations = json.dumps(destinations)
 
-    def get_ketenpartners_list(self) -> List[str]:
+    def get_ketenpartners_list(self) -> list[str]:
         """Haal ketenpartners op als list."""
         if not self.ketenpartners:
             return []
@@ -184,7 +182,7 @@ class DefinitieRecord:
         except json.JSONDecodeError:
             return []
 
-    def set_ketenpartners(self, partners: List[str]):
+    def set_ketenpartners(self, partners: list[str]):
         """Set ketenpartners als JSON string."""
         self.ketenpartners = json.dumps(partners, ensure_ascii=False)
 
@@ -193,7 +191,7 @@ class DefinitieRecord:
 class VoorbeeldenRecord:
     """Representatie van een voorbeelden record in de database."""
 
-    id: Optional[int] = None
+    id: int | None = None
     definitie_id: int = 0
     voorbeeld_type: str = ""  # sentence, practical, counter, etc.
     voorbeeld_tekst: str = ""
@@ -201,22 +199,22 @@ class VoorbeeldenRecord:
 
     # Generation metadata
     gegenereerd_door: str = "system"
-    generation_model: Optional[str] = None
-    generation_parameters: Optional[str] = None  # JSON string
+    generation_model: str | None = None
+    generation_parameters: str | None = None  # JSON string
 
     # Status
     actief: bool = True
     beoordeeld: bool = False
-    beoordeeling: Optional[str] = None  # 'goed', 'matig', 'slecht'
-    beoordeeling_notities: Optional[str] = None
-    beoordeeld_door: Optional[str] = None
-    beoordeeld_op: Optional[datetime] = None
+    beoordeeling: str | None = None  # 'goed', 'matig', 'slecht'
+    beoordeeling_notities: str | None = None
+    beoordeeld_door: str | None = None
+    beoordeeld_op: datetime | None = None
 
     # Metadata
-    aangemaakt_op: Optional[datetime] = None
-    bijgewerkt_op: Optional[datetime] = None
+    aangemaakt_op: datetime | None = None
+    bijgewerkt_op: datetime | None = None
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Converteer naar dictionary voor JSON serialization."""
         result = asdict(self)
         # Convert datetime objects to ISO strings
@@ -225,7 +223,7 @@ class VoorbeeldenRecord:
                 result[key] = value.isoformat()
         return result
 
-    def get_generation_parameters_dict(self) -> Dict[str, Any]:
+    def get_generation_parameters_dict(self) -> dict[str, Any]:
         """Haal generation parameters op als dictionary."""
         if not self.generation_parameters:
             return {}
@@ -234,7 +232,7 @@ class VoorbeeldenRecord:
         except json.JSONDecodeError:
             return {}
 
-    def set_generation_parameters(self, params: Dict[str, Any]):
+    def set_generation_parameters(self, params: dict[str, Any]):
         """Stel generatie parameters in als JSON string.
 
         Args:
@@ -253,7 +251,7 @@ class DuplicateMatch:
 
     definitie_record: DefinitieRecord
     match_score: float
-    match_reasons: List[str]
+    match_reasons: list[str]
 
 
 class DefinitieRepository:
@@ -317,7 +315,7 @@ class DefinitieRepository:
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
             with self._get_connection() as conn:
-                with open(schema_path, "r", encoding="utf-8") as f:
+                with open(schema_path, encoding="utf-8") as f:
                     schema_sql = f.read()
                     try:
                         # Use executescript for better multi-statement handling
@@ -352,7 +350,7 @@ class DefinitieRepository:
                 )
                 conn.commit()
 
-    def _split_sql_statements(self, sql: str) -> List[str]:
+    def _split_sql_statements(self, sql: str) -> list[str]:
         """Split SQL bestand in individuele statements."""
         statements = []
         current_statement = ""
@@ -522,7 +520,7 @@ class DefinitieRepository:
             logger.info(f"Created definitie {record_id} voor '{record.begrip}'")
             return record_id
 
-    def get_definitie(self, definitie_id: int) -> Optional[DefinitieRecord]:
+    def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
         """
         Haal definitie op op basis van ID.
 
@@ -547,8 +545,8 @@ class DefinitieRepository:
         begrip: str,
         organisatorische_context: str,
         juridische_context: str = "",
-        status: Optional[DefinitieStatus] = None,
-    ) -> Optional[DefinitieRecord]:
+        status: DefinitieStatus | None = None,
+    ) -> DefinitieRecord | None:
         """
         Zoek definitie op basis van begrip en context.
 
@@ -563,8 +561,8 @@ class DefinitieRepository:
         """
         with self._get_connection() as conn:
             query = """
-                SELECT * FROM definities 
-                WHERE begrip = ? AND organisatorische_context = ? 
+                SELECT * FROM definities
+                WHERE begrip = ? AND organisatorische_context = ?
                 AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
             """
             params = [
@@ -589,7 +587,7 @@ class DefinitieRepository:
 
     def find_duplicates(
         self, begrip: str, organisatorische_context: str, juridische_context: str = ""
-    ) -> List[DuplicateMatch]:
+    ) -> list[DuplicateMatch]:
         """
         Zoek mogelijke duplicaten voor een begrip.
 
@@ -607,7 +605,7 @@ class DefinitieRepository:
             # Exact match
             cursor = conn.execute(
                 """
-                SELECT * FROM definities 
+                SELECT * FROM definities
                 WHERE begrip = ? AND organisatorische_context = ?
                 AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
                 AND status != 'archived'
@@ -634,7 +632,7 @@ class DefinitieRepository:
             if not matches:
                 cursor = conn.execute(
                     """
-                    SELECT * FROM definities 
+                    SELECT * FROM definities
                     WHERE begrip LIKE ? AND organisatorische_context = ?
                     AND status != 'archived'
                 """,
@@ -658,7 +656,7 @@ class DefinitieRepository:
         return sorted(matches, key=lambda x: x.match_score, reverse=True)
 
     def update_definitie(
-        self, definitie_id: int, updates: Dict[str, Any], updated_by: str = None
+        self, definitie_id: int, updates: dict[str, Any], updated_by: str = None
     ) -> bool:
         """
         Update bestaande definitie.
@@ -781,7 +779,7 @@ class DefinitieRepository:
         organisatorische_context: str = None,
         status: DefinitieStatus = None,
         limit: int = 100,
-    ) -> List[DefinitieRecord]:
+    ) -> list[DefinitieRecord]:
         """
         Zoek definities met verschillende filters.
 
@@ -833,7 +831,7 @@ class DefinitieRepository:
             cursor = conn.execute(base_query, params)
             return [self._row_to_record(row) for row in cursor.fetchall()]
 
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> dict[str, Any]:
         """Haal database statistieken op."""
         with self._get_connection() as conn:
             stats = {}
@@ -861,7 +859,7 @@ class DefinitieRepository:
             # Average validation score
             cursor = conn.execute(
                 """
-                SELECT AVG(validation_score) FROM definities 
+                SELECT AVG(validation_score) FROM definities
                 WHERE validation_score IS NOT NULL
             """
             )
@@ -872,7 +870,7 @@ class DefinitieRepository:
 
             return stats
 
-    def export_to_json(self, file_path: str, filters: Dict[str, Any] = None) -> int:
+    def export_to_json(self, file_path: str, filters: dict[str, Any] = None) -> int:
         """
         Exporteer definities naar JSON bestand.
 
@@ -924,7 +922,7 @@ class DefinitieRepository:
 
     def import_from_json(
         self, file_path: str, import_by: str = None
-    ) -> Tuple[int, int, List[str]]:
+    ) -> tuple[int, int, list[str]]:
         """
         Importeer definities uit JSON bestand.
 
@@ -940,7 +938,7 @@ class DefinitieRepository:
         errors = []
 
         try:
-            with open(file_path, "r", encoding="utf-8") as f:
+            with open(file_path, encoding="utf-8") as f:
                 data = json.load(f)
 
             definities = data.get("definities", [])
@@ -972,11 +970,11 @@ class DefinitieRepository:
                 except Exception as e:
                     failed += 1
                     errors.append(
-                        f"Failed to import '{item.get('begrip', 'unknown')}': {str(e)}"
+                        f"Failed to import '{item.get('begrip', 'unknown')}': {e!s}"
                     )
 
         except Exception as e:
-            errors.append(f"Failed to read import file: {str(e)}")
+            errors.append(f"Failed to read import file: {e!s}")
 
         # Log import
         self._log_import_export(
@@ -1048,7 +1046,7 @@ class DefinitieRepository:
 
             conn.execute(
                 """
-                INSERT INTO definitie_geschiedenis 
+                INSERT INTO definitie_geschiedenis
                 (definitie_id, begrip, wijziging_type, wijziging_reden, gewijzigd_door)
                 VALUES (?, ?, ?, ?, ?)
             """,
@@ -1067,8 +1065,8 @@ class DefinitieRepository:
         with self._get_connection() as conn:
             conn.execute(
                 """
-                INSERT INTO import_export_logs 
-                (operatie_type, bron_bestemming, aantal_verwerkt, aantal_succesvol, 
+                INSERT INTO import_export_logs
+                (operatie_type, bron_bestemming, aantal_verwerkt, aantal_succesvol,
                  aantal_gefaald, bestand_pad, status, voltooid_op)
                 VALUES (?, ?, ?, ?, ?, ?, 'completed', ?)
             """,
@@ -1108,11 +1106,11 @@ class DefinitieRepository:
     def save_voorbeelden(
         self,
         definitie_id: int,
-        voorbeelden_dict: Dict[str, List[str]],
+        voorbeelden_dict: dict[str, list[str]],
         generation_model: str = "gpt-4",
-        generation_params: Dict[str, Any] = None,
+        generation_params: dict[str, Any] = None,
         gegenereerd_door: str = "system",
-    ) -> List[int]:
+    ) -> list[int]:
         """
         Sla voorbeelden op voor een definitie.
 
@@ -1136,7 +1134,7 @@ class DefinitieRepository:
                 # Verwijder bestaande voorbeelden voor deze definitie (indien gewenst)
                 cursor.execute(
                     """
-                    UPDATE definitie_voorbeelden 
+                    UPDATE definitie_voorbeelden
                     SET actief = FALSE, bijgewerkt_op = CURRENT_TIMESTAMP
                     WHERE definitie_id = ? AND actief = TRUE
                 """,
@@ -1169,7 +1167,7 @@ class DefinitieRepository:
                         # Check of deze combinatie al bestaat
                         cursor.execute(
                             """
-                            SELECT id FROM definitie_voorbeelden 
+                            SELECT id FROM definitie_voorbeelden
                             WHERE definitie_id = ? AND voorbeeld_type = ? AND voorbeeld_volgorde = ?
                         """,
                             (
@@ -1184,9 +1182,9 @@ class DefinitieRepository:
                             # Update existing record
                             cursor.execute(
                                 """
-                                UPDATE definitie_voorbeelden 
-                                SET voorbeeld_tekst = ?, actief = TRUE, 
-                                    gegenereerd_door = ?, generation_model = ?, 
+                                UPDATE definitie_voorbeelden
+                                SET voorbeeld_tekst = ?, actief = TRUE,
+                                    gegenereerd_door = ?, generation_model = ?,
                                     generation_parameters = ?, bijgewerkt_op = CURRENT_TIMESTAMP
                                 WHERE id = ?
                             """,
@@ -1237,7 +1235,7 @@ class DefinitieRepository:
 
     def get_voorbeelden(
         self, definitie_id: int, voorbeeld_type: str = None, actief_only: bool = True
-    ) -> List[VoorbeeldenRecord]:
+    ) -> list[VoorbeeldenRecord]:
         """
         Haal voorbeelden op voor een definitie.
 
@@ -1310,7 +1308,7 @@ class DefinitieRepository:
 
             return voorbeelden
 
-    def get_voorbeelden_by_type(self, definitie_id: int) -> Dict[str, List[str]]:
+    def get_voorbeelden_by_type(self, definitie_id: int) -> dict[str, list[str]]:
         """
         Haal voorbeelden op gegroepeerd per type.
 
@@ -1358,7 +1356,7 @@ class DefinitieRepository:
                 cursor.execute(
                     """
                     UPDATE definitie_voorbeelden
-                    SET beoordeeld = TRUE, beoordeeling = ?, beoordeeling_notities = ?, 
+                    SET beoordeeld = TRUE, beoordeeling = ?, beoordeeling_notities = ?,
                         beoordeeld_door = ?, beoordeeld_op = CURRENT_TIMESTAMP
                     WHERE id = ?
                 """,
@@ -1377,9 +1375,8 @@ class DefinitieRepository:
                         f"Voorbeeld {voorbeeld_id} beoordeeld als '{beoordeeling}'"
                     )
                     return True
-                else:
-                    logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
-                    return False
+                logger.warning(f"Voorbeeld {voorbeeld_id} niet gevonden")
+                return False
 
             except Exception as e:
                 conn.rollback()
@@ -1403,7 +1400,7 @@ class DefinitieRepository:
             if voorbeeld_type:
                 cursor.execute(
                     """
-                    DELETE FROM definitie_voorbeelden 
+                    DELETE FROM definitie_voorbeelden
                     WHERE definitie_id = ? AND voorbeeld_type = ?
                 """,
                     (definitie_id, voorbeeld_type),
@@ -1411,7 +1408,7 @@ class DefinitieRepository:
             else:
                 cursor.execute(
                     """
-                    DELETE FROM definitie_voorbeelden 
+                    DELETE FROM definitie_voorbeelden
                     WHERE definitie_id = ?
                 """,
                     (definitie_id,),

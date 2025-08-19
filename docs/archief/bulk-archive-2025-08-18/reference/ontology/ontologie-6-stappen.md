@@ -12,7 +12,7 @@ Bepaal de exacte ontologische categorie van een begrip voor het opstellen van ju
 ```python
 # 1. Verzamel definities uit:
 - Van Dale / juridische woordenboeken
-- Wetteksten waarin begrip voorkomt  
+- Wetteksten waarin begrip voorkomt
 - Vaklliteratuur/standaarden (NEN, ISO)
 - Bestaande systemen/registraties
 
@@ -103,7 +103,7 @@ Bepaal de exacte ontologische categorie van een begrip voor het opstellen van ju
 
 # Bij rollen: identificeer de basisentiteit
 Aanvrager → Persoon/Organisatie
-Vergunninghouder → Persoon/Organisatie  
+Vergunninghouder → Persoon/Organisatie
 Bevoegd gezag → Bestuursorgaan
 ```
 
@@ -130,7 +130,7 @@ identiteitscriteria:
 persistentiecriteria:
   - ontstaat_door: [gebeurtenis/handeling]
   - eindigt_door: [gebeurtenis/handeling]
-  
+
 context_afhankelijkheden:
   - [afhankelijkheid 1]
   - [afhankelijkheid 2]
@@ -145,22 +145,22 @@ definitie: "[Gegenereerde definitie volgens template]"
 ```python
 def bepaal_ontologische_categorie(begrip: str) -> dict:
     """Doorloop 6-stappen protocol voor ontologische analyse."""
-    
+
     # Stap 1: Lexicale verkenning
     semantisch_profiel = verken_begrip(begrip)
-    
+
     # Stap 2: Context analyse
     context_map = analyseer_context(begrip, semantisch_profiel)
-    
+
     # Stap 3: Formele categorisatie
     categorie = toets_categorieen(semantisch_profiel, context_map)
-    
+
     # Stap 4: Identiteitscriteria
     identiteit = bepaal_identiteit(begrip, categorie)
-    
+
     # Stap 5: Rol-analyse
     rol_info = analyseer_rol_vs_intrinsiek(begrip, categorie)
-    
+
     # Stap 6: Documentatie
     return documenteer_resultaat(
         begrip, categorie, identiteit, rol_info
@@ -191,7 +191,7 @@ markdown## 🔍 Ontologische Categorisering Protocol
 Bij het bepalen van definities MOET eerst de ontologische categorie vastgesteld worden via dit 6-stappen protocol:
 
 1. **Lexicaal**: Verzamel definities, identificeer kenmerken (telbaar/tijdelijk/meetbaar)
-2. **Context**: Analyseer juridisch gebruik en afhankelijkheden  
+2. **Context**: Analyseer juridisch gebruik en afhankelijkheden
 3. **Categorie**: Bepaal of het een SUBSTANTIE/PROCES/EIGENSCHAP/ROL/DOCUMENT is
 4. **Identiteit**: Wat maakt instanties uniek? Wanneer eindigen ze?
 5. **Rol-check**: Is het intrinsiek of contextueel? Bij rollen: wat is de basis?
@@ -199,13 +199,13 @@ Bij het bepalen van definities MOET eerst de ontologische categorie vastgesteld 
 
 ### Definitietemplates per categorie:
 - SUBSTANTIE: "Een [genus] dat [kenmerken]"
-- PROCES: "Het [werkwoord] waarbij [actor] [handeling]"  
+- PROCES: "Het [werkwoord] waarbij [actor] [handeling]"
 - EIGENSCHAP: "De [kwaliteit] van [drager]"
 - ROL: "Een [basis-entiteit] die [functie] vervult"
 - DOCUMENT: "Een [type] waarin [inhoud] is vastgelegd"
 
 ### Quick-check (80% gevallen):
-Gebeurt het? → PROCES | Is het een ding? → SUBSTANTIE | 
+Gebeurt het? → PROCES | Is het een ding? → SUBSTANTIE |
 Kenmerk? → EIGENSCHAP | Functie? → ROL | Vastgelegd? → DOCUMENT
 
 ALTIJD: Ontologie bepalen → Dan pas definitie opstellen!

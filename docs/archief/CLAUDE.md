@@ -77,7 +77,7 @@ def validate_email(email: str) -> Optional[str]:
     """Valideer en sanitize email input."""
     # Strip whitespace en lowercase
     email = email.strip().lower()
-    
+
     # Check format met regex
     if not re.match(r'^[\w\.-]+@[\w\.-]+\.\w+
 
@@ -173,14 +173,14 @@ Als je deze patronen tegenkomt, handel dan direct:
 - **Consistentie controles**: Bij modulaire systemen, controleer dat alle onderdelen consistent zijn (bijv. matching JSON/Python bestanden)
 
 ## 🔍 Syntax Validatie - VERPLICHT
-- **Na elke code wijziging**: Run `python -m py_compile filename.py` 
+- **Na elke code wijziging**: Run `python -m py_compile filename.py`
 - **Bij complexe wijzigingen**: Test importeren met `python -c "import module_name"`
 - **Voor commits**: Controleer dat alle Python bestanden syntax-correct zijn
 - **Geen uitzonderingen**: Syntax fouten zijn onaanvaardbaar
 
 ## 🔄 Legacy Code Refactoring Protocol
 Bij het vinden van verouderde/legacy code:
-1. **Analyseer eerst**: Wat doet de code? Wordt het gebruikt? 
+1. **Analyseer eerst**: Wat doet de code? Wordt het gebruikt?
 2. **Check afhankelijkheden**: Zoek naar imports en aanroepen
 3. **Bepaal actie**:
    - Als niet gebruikt → Archiveer veilig
@@ -216,13 +216,13 @@ Ik begin met het upgraden naar bcrypt voor password hashing.
 def hash_password(password: str) -> str:
     """
     Hash een wachtwoord met bcrypt en automatische salt generatie.
-    
+
     Args:
         password: Platte tekst wachtwoord om te hashen
-        
+
     Returns:
         Gehashte wachtwoord string veilig voor database opslag
-        
+
     Note:
         Gebruikt bcrypt met cost factor 12 voor optimale beveiliging/performance balans
     """
@@ -238,14 +238,14 @@ def verify_login_attempt(username: str, password: str) -> tuple[bool, Optional[U
     if LoginAttemptTracker.is_rate_limited(username):
         logger.warning(f"Rate limit overschreden voor gebruiker: {username}")
         return False, None
-    
+
     # Haal gebruiker op en verifieer wachtwoord
     user = User.get_by_username(username)
     if user and verify_password(password, user.password_hash):
         # Reset mislukte pogingen bij succesvolle login
         LoginAttemptTracker.reset(username)
         return True, user
-    
+
     # Registreer mislukte poging voor rate limiting
     LoginAttemptTracker.record_failure(username)
     return False, None
@@ -267,7 +267,7 @@ markdown
 - Oude sessies worden automatisch opgeruimd
 ```, email):
         raise ValueError(f"Ongeldig email formaat: {email}")
-    
+
     # Voorkom SQL injection met parameterized queries
     return email
 Environment Variables:
@@ -328,7 +328,7 @@ def perform_risky_migration():
     # Maak backup voor riskante operaties
     backup_name = f"backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
     os.system(f"pg_dump database_name > {backup_name}")
-    
+
     try:
         # Voer migratie uit
         execute_migration()
@@ -364,13 +364,13 @@ def performance_check(max_time=1.0):
             start = time.time()
             result = func(*args, **kwargs)
             duration = time.time() - start
-            
+
             if duration > max_time:
                 logger.warning(
                     f"{func.__name__} duurde {duration:.2f}s "
                     f"(max: {max_time}s)"
                 )
-            
+
             return result
         return wrapper
     return decorator
@@ -577,13 +577,13 @@ repos:
     hooks:
       - id: black
         language_version: python3.11
-  
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.5
     hooks:
       - id: ruff
         args: [--fix]
-  
+
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v1.0.0
     hooks:
@@ -616,17 +616,17 @@ Rollback Strategie:
 python
 class TransactionalOperation:
     """Context manager voor operaties met rollback."""
-    
+
     def __init__(self):
         self.rollback_actions = []
-    
+
     def add_rollback(self, action):
         """Registreer rollback actie."""
         self.rollback_actions.append(action)
-    
+
     def __enter__(self):
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         if exc_type is not None:
             # Voer rollback uit in omgekeerde volgorde
@@ -639,21 +639,21 @@ Circuit Breaker:
 python
 class CircuitBreaker:
     """Voorkom cascade failures met circuit breaker pattern."""
-    
+
     def __init__(self, failure_threshold=5, recovery_timeout=60):
         self.failure_threshold = failure_threshold
         self.recovery_timeout = recovery_timeout
         self.failure_count = 0
         self.last_failure_time = None
         self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
-    
+
     def call(self, func, *args, **kwargs):
         if self.state == "OPEN":
             if time.time() - self.last_failure_time > self.recovery_timeout:
                 self.state = "HALF_OPEN"
             else:
                 raise Exception("Circuit breaker is OPEN")
-        
+
         try:
             result = func(*args, **kwargs)
             if self.state == "HALF_OPEN":
@@ -663,10 +663,10 @@ class CircuitBreaker:
         except Exception as e:
             self.failure_count += 1
             self.last_failure_time = time.time()
-            
+
             if self.failure_count >= self.failure_threshold:
                 self.state = "OPEN"
-            
+
             raise
 👥 Team Collaboration:
 Code Review Checklist:
@@ -790,13 +790,13 @@ python
 def hash_password(password: str) -> str:
     """
     Hash een wachtwoord met bcrypt en automatische salt generatie.
-    
+
     Args:
         password: Platte tekst wachtwoord om te hashen
-        
+
     Returns:
         Gehashte wachtwoord string veilig voor database opslag
-        
+
     Note:
         Gebruikt bcrypt met cost factor 12 voor optimale beveiliging/performance balans
     """
@@ -812,14 +812,14 @@ def verify_login_attempt(username: str, password: str) -> tuple[bool, Optional[U
     if LoginAttemptTracker.is_rate_limited(username):
         logger.warning(f"Rate limit overschreden voor gebruiker: {username}")
         return False, None
-    
+
     # Haal gebruiker op en verifieer wachtwoord
     user = User.get_by_username(username)
     if user and verify_password(password, user.password_hash):
         # Reset mislukte pogingen bij succesvolle login
         LoginAttemptTracker.reset(username)
         return True, user
-    
+
     # Registreer mislukte poging voor rate limiting
     LoginAttemptTracker.record_failure(username)
     return False, None

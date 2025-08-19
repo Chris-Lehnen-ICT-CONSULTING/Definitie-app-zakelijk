@@ -22,7 +22,7 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 - 📋 **45/46 Kwaliteitsregels** voor validatie (INT-05 ontbreekt)
 - 🏗️ **Hybride Architectuur** UnifiedDefinitionService + moderne services
 - 🌐 **Web Lookup** ⚠️ DEELS WERKEND - Backend werkt (28 tests), UI tab niet geïntegreerd
-- 📄 **Document Upload** voor kennisbasis uitbreiding  
+- 📄 **Document Upload** voor kennisbasis uitbreiding
 - ⚡ **Smart Caching** ⚠️ memory leaks geïdentificeerd
 - 🖥️ **10 Streamlit UI Tabs** (alle importeren succesvol)
 - 🔒 **Security** ❌ Geen authentication/encryption (productie blocker)
@@ -134,7 +134,7 @@ Zie [docs/requirements/ROADMAP.md](docs/requirements/ROADMAP.md) voor details.
 ```bash
 # Core services (hoge coverage)
 pytest tests/services/test_definition_generator.py    # 99% coverage
-pytest tests/services/test_definition_validator.py    # 98% coverage  
+pytest tests/services/test_definition_validator.py    # 98% coverage
 pytest tests/services/test_definition_repository.py   # 100% coverage
 
 # Integration tests
@@ -172,7 +172,7 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 
 ### 🚨 **CRITICAL FIXES - Immediate Impact**
 - **Bare except clauses** elimineren (security) - 2 uur
-- **E402 import errors** fixen main.py - 1 uur  
+- **E402 import errors** fixen main.py - 1 uur
 - **Feature flags implementatie** - 4 uur
 - **Test import issues** repareren - 3 uur
 
@@ -236,5 +236,5 @@ Private project. All rights reserved.
 
 ---
 
-**DefinitieAgent v2.3** - Features First Development  
+**DefinitieAgent v2.3** - Features First Development
 *"Legacy code is de specificatie"* 🚀

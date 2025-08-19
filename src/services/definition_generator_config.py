@@ -8,7 +8,6 @@ extracted from all 3 original implementations.
 import os
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict, List, Optional
 
 
 class GenerationStrategy(Enum):
@@ -44,9 +43,9 @@ class GPTConfig:
     backoff_factor: float = 2.0
 
     # API configuration
-    api_key: Optional[str] = None
-    api_base: Optional[str] = None
-    organization: Optional[str] = None
+    api_key: str | None = None
+    api_base: str | None = None
+    organization: str | None = None
 
     def __post_init__(self):
         """Load API key from environment if not provided."""
@@ -67,7 +66,7 @@ class CacheConfig:
     max_entries: int = 1000  # Memory cache limit
 
     # Redis configuration (if used)
-    redis_url: Optional[str] = None
+    redis_url: str | None = None
     redis_db: int = 0
     redis_prefix: str = "defgen:"
 
@@ -91,7 +90,7 @@ class ContextConfig:
     enable_rule_interpretation: bool = True
 
     # Context afkortingen (from generation)
-    context_abbreviations: Dict[str, str] = field(
+    context_abbreviations: dict[str, str] = field(
         default_factory=lambda: {
             "OM": "Openbaar Ministerie",
             "ZM": "Zittende Magistratuur",
@@ -131,15 +130,17 @@ class QualityConfig:
     enable_enhancement: bool = True
     enhancement_temperature: float = 0.5
     enhancement_max_tokens: int = 300
-    
+
     # New enhancement settings (Step 2)
     enable_completeness_enhancement: bool = True
     enable_linguistic_enhancement: bool = True
-    enhancement_confidence_threshold: float = 0.6  # Minimum confidence to apply enhancement
+    enhancement_confidence_threshold: float = (
+        0.6  # Minimum confidence to apply enhancement
+    )
 
     # Validation
     enable_post_validation: bool = False
-    validation_rules: List[str] = field(default_factory=list)
+    validation_rules: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -261,7 +262,7 @@ class UnifiedGeneratorConfig:
 
         return config
 
-    def validate(self) -> List[str]:
+    def validate(self) -> list[str]:
         """Validate configuration and return list of issues."""
         issues = []
 
@@ -285,7 +286,7 @@ class UnifiedGeneratorConfig:
 
         return issues
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         """Convert configuration to dictionary for serialization."""
         return {
             "gpt": {

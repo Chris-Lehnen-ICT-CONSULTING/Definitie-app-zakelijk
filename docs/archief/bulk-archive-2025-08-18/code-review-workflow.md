@@ -122,7 +122,7 @@ Add screenshots for UI changes
    # Add new commits for review feedback
    git add .
    git commit -m "address review feedback: <specific change>"
-   
+
    # After approval, squash if requested
    git rebase -i main
    ```
@@ -142,7 +142,7 @@ Add screenshots for UI changes
    # Fetch and checkout PR branch
    git fetch origin pull/123/head:pr-123
    git checkout pr-123
-   
+
    # Run tests locally
    make test
    ```
@@ -251,10 +251,10 @@ Follow the phases from [Code Review Protocol](../CODE_REVIEW_PROTOCOL.md):
    ```markdown
    ## Review Summary
    ✅ Approved with minor suggestions
-   
+
    Great implementation of the feature! A few non-blocking suggestions above.
    The SQL injection issue must be fixed before merge, but otherwise looks good.
-   
+
    Please address the blocking issue and consider the suggestions.
    ```
 
@@ -295,7 +295,7 @@ git checkout -b hotfix/critical-issue main
   1. Start with src/auth/* - new authentication logic
   2. Then src/api/* - API changes to support auth
   3. Finally tests/* - comprehensive test suite
-  
+
   Key decisions:
   - Used JWT for stateless auth (see auth/jwt.py)
   - Added rate limiting (see api/middleware.py)

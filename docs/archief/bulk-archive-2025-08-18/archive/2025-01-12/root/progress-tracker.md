@@ -55,7 +55,7 @@
 
 ## 🔥 Actieve Blockers
 
-1. **Database Concurrent Access** 
+1. **Database Concurrent Access**
    - Impact: Kritiek
    - Owner: Backend team
    - ETA: Dinsdag 14 jan

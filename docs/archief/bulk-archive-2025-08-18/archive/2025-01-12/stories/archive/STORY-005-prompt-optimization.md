@@ -1,8 +1,8 @@
 # STORY-005: Prompt Optimization for Performance
 
 ## User Story
-Als een **system administrator**  
-wil ik dat prompts geoptimaliseerd zijn naar <10k karakters  
+Als een **system administrator**
+wil ik dat prompts geoptimaliseerd zijn naar <10k karakters
 zodat de response tijd verbetert en API kosten dalen.
 
 ## Acceptance Criteria
@@ -72,13 +72,13 @@ OPTIMIZED_PROMPT = """
    PROMPT_TEMPLATE = """
    Genereer een {style} definitie voor '{term}'.
    Context: {compressed_context}
-   
+
    Belangrijkste regels:
    {rule_summary}
-   
+
    Voorbeelden:
    {dynamic_examples}
-   
+
    Definitie:
    """
    ```

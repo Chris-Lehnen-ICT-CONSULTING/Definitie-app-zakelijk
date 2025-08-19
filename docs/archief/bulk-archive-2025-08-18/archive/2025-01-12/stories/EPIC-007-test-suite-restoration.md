@@ -29,8 +29,8 @@
 
 **Story Points**: 2
 
-**Als een** developer  
-**wil ik** consistente imports  
+**Als een** developer
+**wil ik** consistente imports
 **zodat** tests kunnen draaien.
 
 #### Acceptance Criteria
@@ -67,35 +67,35 @@ class ImportFixer:
     def __init__(self, project_root: Path):
         self.project_root = project_root
         self.src_path = project_root / "src"
-        
+
     def fix_imports_in_file(self, file_path: Path):
         """Fix imports in a single file."""
         content = file_path.read_text()
-        
+
         # Fix patterns
         replacements = [
             # Old service imports
             (r'from services\.definition_service', 'from src.services.unified_definition_service'),
             (r'from services\.', 'from src.services.'),
-            
+
             # Relative imports
             (r'from \.\.models', 'from src.models'),
             (r'from \.\.', 'from src.'),
-            
+
             # Missing src prefix
             (r'from (ai_toetsing|generation|validation|web_lookup)',
              r'from src.\1'),
         ]
-        
+
         for pattern, replacement in replacements:
             content = re.sub(pattern, replacement, content)
-        
+
         file_path.write_text(content)
-        
+
     def add_path_setup(self, test_file: Path):
         """Add path setup to test file if missing."""
         content = test_file.read_text()
-        
+
         if 'sys.path.insert' not in content:
             setup = '''import sys
 import os
@@ -112,8 +112,8 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 **Story Points**: 3
 
-**Als een** developer  
-**wil ik** herbruikbare test data  
+**Als een** developer
+**wil ik** herbruikbare test data
 **zodat** tests consistent zijn.
 
 #### Acceptance Criteria
@@ -214,8 +214,8 @@ def mock_openai_client(mocker, mock_openai_response):
 
 **Story Points**: 5
 
-**Als een** developer  
-**wil ik** werkende unit tests  
+**Als een** developer
+**wil ik** werkende unit tests
 **zodat** business logic gedekt is.
 
 #### Acceptance Criteria
@@ -232,20 +232,20 @@ from unittest.mock import Mock, patch
 from src.services.unified_definition_service import UnifiedDefinitionService
 
 class TestUnifiedDefinitionService:
-    
+
     @pytest.fixture(autouse=True)
     def setup(self):
         """Setup before each test."""
         # Reset singleton
         UnifiedDefinitionService._instance = None
         self.service = UnifiedDefinitionService.get_instance()
-    
+
     def test_singleton_pattern(self):
         """Test singleton returns same instance."""
         service1 = UnifiedDefinitionService.get_instance()
         service2 = UnifiedDefinitionService.get_instance()
         assert service1 is service2
-    
+
     @patch('src.services.unified_definition_service.OpenAI')
     def test_generate_definition(self, mock_openai, sample_definition):
         """Test definition generation."""
@@ -253,18 +253,18 @@ class TestUnifiedDefinitionService:
         mock_openai.return_value.chat.completions.create.return_value = Mock(
             choices=[Mock(message=Mock(content="Test definitie"))]
         )
-        
+
         # Test
         result = self.service.generate_definition(
             term="test",
             context="algemeen"
         )
-        
+
         # Assertions
         assert result is not None
         assert result.term == "test"
         assert "definitie" in result.definition.lower()
-    
+
     def test_validation_integration(self, sample_definition):
         """Test validation is called correctly."""
         with patch.object(self.service, 'validator') as mock_validator:
@@ -273,9 +273,9 @@ class TestUnifiedDefinitionService:
                 passed_rules=40,
                 total_rules=46
             )
-            
+
             result = self.service.validate_definition(sample_definition)
-            
+
             assert result.score == 85
             mock_validator.validate.assert_called_once()
 ```
@@ -291,7 +291,7 @@ from src.ai_toetsing.validators import (
 )
 
 class TestValidators:
-    
+
     @pytest.mark.parametrize("definition,expected", [
         ("Aansprakelijkheid is aansprakelijkheid", False),
         ("De juridische verantwoordelijkheid", True),
@@ -302,7 +302,7 @@ class TestValidators:
         validator = SAM_01_CircularityValidator()
         result = validator.validate(definition, "aansprakelijkheid")
         assert result.passed == expected
-    
+
     @pytest.mark.parametrize("definition,expected", [
         ("de juridische term", False),  # No capital
         ("De juridische term", True),   # Correct
@@ -321,8 +321,8 @@ class TestValidators:
 
 **Story Points**: 5
 
-**Als een** developer  
-**wil ik** end-to-end tests  
+**Als een** developer
+**wil ik** end-to-end tests
 **zodat** user flows getest zijn.
 
 #### Acceptance Criteria
@@ -340,7 +340,7 @@ from src.app import create_app
 from src.database import Base
 
 class TestDefinitionFlow:
-    
+
     @pytest.fixture
     def test_db(self):
         """Create test database."""
@@ -348,13 +348,13 @@ class TestDefinitionFlow:
         Base.metadata.create_all(engine)
         yield engine
         Base.metadata.drop_all(engine)
-    
+
     @pytest.fixture
     def client(self, test_db):
         """Create test client."""
         app = create_app(test_db)
         return app.test_client()
-    
+
     def test_complete_definition_flow(self, client, mock_openai_client):
         """Test full flow from input to storage."""
         # 1. Generate definition
@@ -362,20 +362,20 @@ class TestDefinitionFlow:
             'term': 'test_term',
             'context': 'juridisch'
         })
-        
+
         assert response.status_code == 200
         definition_id = response.json['id']
-        
+
         # 2. Validate definition
         response = client.post(f'/api/validate/{definition_id}')
         assert response.status_code == 200
         assert 'score' in response.json
-        
+
         # 3. Enrich definition
         response = client.post(f'/api/enrich/{definition_id}')
         assert response.status_code == 200
         assert 'synonyms' in response.json
-        
+
         # 4. Export definition
         response = client.get(f'/api/export/{definition_id}?format=json')
         assert response.status_code == 200
@@ -391,16 +391,16 @@ def test_definition_generation_ui():
     """Test definition generation through UI."""
     at = AppTest.from_file("src/app.py")
     at.run()
-    
+
     # Enter term
     at.text_input[0].input("aansprakelijkheid")
-    
+
     # Select context
     at.selectbox[0].select("juridisch")
-    
+
     # Click generate
     at.button[0].click()
-    
+
     # Check results
     at.run()
     assert "aansprakelijkheid" in at.markdown[0].value
@@ -413,8 +413,8 @@ def test_definition_generation_ui():
 
 **Story Points**: 3
 
-**Als een** team  
-**willen wij** automated testing  
+**Als een** team
+**willen wij** automated testing
 **zodat** bugs vroeg gevangen worden.
 
 #### Acceptance Criteria
@@ -437,7 +437,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     services:
       redis:
         image: redis:6
@@ -446,33 +446,33 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Cache dependencies
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
-    
+
     - name: Run linting
       run: |
         black --check src tests
         isort --check-only src tests
         flake8 src tests
-    
+
     - name: Run tests with coverage
       env:
         OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -483,13 +483,13 @@ jobs:
           --cov-report=html \
           --cov-report=term-missing \
           -v
-    
+
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
         fail_ci_if_error: true
-    
+
     - name: Check coverage threshold
       run: |
         coverage report --fail-under=60
@@ -537,5 +537,5 @@ jobs:
 - Production incidents: -50%
 
 ---
-*Epic owner: QA Team*  
+*Epic owner: QA Team*
 *Last updated: 2025-01-18*

@@ -5,9 +5,8 @@ Deze service bevat alle business logic voor het detecteren van duplicaten,
 zonder enige database dependencies. Dit maakt de logic testbaar en herbruikbaar.
 """
 
-from dataclasses import dataclass
-from typing import List, Optional
 import logging
+from dataclasses import dataclass
 
 from services.interfaces import Definition
 
@@ -17,7 +16,7 @@ logger = logging.getLogger(__name__)
 @dataclass
 class DuplicateMatch:
     """Match resultaat voor duplicate detection."""
-    
+
     definition: Definition
     score: float
     reason: str
@@ -29,158 +28,162 @@ class DuplicateDetectionService:
     Pure business logic voor duplicate detection.
     Geen database dependencies!
     """
-    
+
     def __init__(self, similarity_threshold: float = 0.7):
         """
         Initialiseer de duplicate detection service.
-        
+
         Args:
             similarity_threshold: Minimum score voor fuzzy matches (0.0-1.0)
         """
         self.threshold = similarity_threshold
-        logger.info(f"DuplicateDetectionService initialized with threshold {similarity_threshold}")
-    
-    def find_duplicates(self, 
-                       new_definition: Definition,
-                       existing_definitions: List[Definition]) -> List[DuplicateMatch]:
+        logger.info(
+            f"DuplicateDetectionService initialized with threshold {similarity_threshold}"
+        )
+
+    def find_duplicates(
+        self, new_definition: Definition, existing_definitions: list[Definition]
+    ) -> list[DuplicateMatch]:
         """
         Business logic voor duplicate detection.
-        
+
         Zoekt naar exacte en fuzzy matches op basis van begrip en context.
-        
+
         Args:
             new_definition: De nieuwe definitie om te checken
             existing_definitions: Lijst van bestaande definities
-            
+
         Returns:
             Lijst van DuplicateMatch objecten, gesorteerd op score (hoogste eerst)
         """
         matches = []
-        
+
         for existing in existing_definitions:
             # Skip archived definitions
-            if hasattr(existing, 'status') and existing.status == 'archived':
+            if hasattr(existing, "status") and existing.status == "archived":
                 continue
-                
+
             # Check exact match
             if self._is_exact_match(new_definition, existing):
-                matches.append(DuplicateMatch(
-                    definition=existing,
-                    score=1.0,
-                    reason="Exact match: begrip + context",
-                    match_type="exact"
-                ))
+                matches.append(
+                    DuplicateMatch(
+                        definition=existing,
+                        score=1.0,
+                        reason="Exact match: begrip + context",
+                        match_type="exact",
+                    )
+                )
             # Check fuzzy match
             else:
                 score = self._calculate_similarity(
-                    new_definition.begrip, 
-                    existing.begrip
+                    new_definition.begrip, existing.begrip
                 )
                 if score > self.threshold:
-                    matches.append(DuplicateMatch(
-                        definition=existing,
-                        score=score,
-                        reason=f"Similar: {score:.0%} match op begrip",
-                        match_type="fuzzy"
-                    ))
-        
+                    matches.append(
+                        DuplicateMatch(
+                            definition=existing,
+                            score=score,
+                            reason=f"Similar: {score:.0%} match op begrip",
+                            match_type="fuzzy",
+                        )
+                    )
+
         # Sort by score (highest first)
         return sorted(matches, key=lambda x: x.score, reverse=True)
-    
+
     def _is_exact_match(self, def1: Definition, def2: Definition) -> bool:
         """
         Business rule voor exact match.
-        
+
         Een exacte match is wanneer begrip en context identiek zijn.
-        
+
         Args:
             def1: Eerste definitie
             def2: Tweede definitie
-            
+
         Returns:
             True als het een exacte match is
         """
         # Begrip moet exact matchen (case insensitive)
         if def1.begrip.lower() != def2.begrip.lower():
             return False
-        
+
         # Context moet ook matchen
         context1 = def1.context or ""
         context2 = def2.context or ""
-        
+
         return context1.lower() == context2.lower()
-    
+
     def _calculate_similarity(self, str1: str, str2: str) -> float:
         """
         Jaccard similarity algoritme voor fuzzy matching.
-        
+
         Berekent de similarity score tussen twee strings op basis van
         gemeenschappelijke woorden.
-        
+
         Args:
             str1: Eerste string
             str2: Tweede string
-            
+
         Returns:
             Similarity score tussen 0.0 en 1.0
         """
         # Handle empty strings
         if not str1 or not str2:
             return 0.0
-        
+
         # Convert to lowercase and split into words
         set1 = set(str1.lower().split())
         set2 = set(str2.lower().split())
-        
+
         # Handle empty sets
         if not set1 or not set2:
             return 0.0
-        
+
         # Calculate Jaccard similarity
         intersection = len(set1.intersection(set2))
         union = len(set1.union(set2))
-        
+
         return intersection / union if union > 0 else 0.0
-    
-    def check_duplicate_risk(self, 
-                           new_definition: Definition,
-                           existing_definitions: List[Definition]) -> str:
+
+    def check_duplicate_risk(
+        self, new_definition: Definition, existing_definitions: list[Definition]
+    ) -> str:
         """
         Bepaal het risico niveau voor duplicaten.
-        
+
         Args:
             new_definition: De nieuwe definitie
             existing_definitions: Bestaande definities
-            
+
         Returns:
             Risk level: "high", "medium", "low", or "none"
         """
         duplicates = self.find_duplicates(new_definition, existing_definitions)
-        
+
         if not duplicates:
             return "none"
-        
+
         # Check voor exact matches
         exact_matches = [d for d in duplicates if d.match_type == "exact"]
         if exact_matches:
             return "high"
-        
+
         # Check hoogste fuzzy score
         highest_score = max(d.score for d in duplicates)
         if highest_score >= 0.9:
             return "high"
-        elif highest_score >= 0.8:
+        if highest_score >= 0.8:
             return "medium"
-        else:
-            return "low"
-    
-    def get_duplicate_summary(self, matches: List[DuplicateMatch]) -> dict:
+        return "low"
+
+    def get_duplicate_summary(self, matches: list[DuplicateMatch]) -> dict:
         """
         Genereer een summary van gevonden duplicaten.
-        
+
         Args:
             matches: Lijst van duplicate matches
-            
+
         Returns:
             Dictionary met summary informatie
         """
@@ -190,40 +193,38 @@ class DuplicateDetectionService:
                 "exact_matches": 0,
                 "fuzzy_matches": 0,
                 "highest_score": 0.0,
-                "risk_level": "none"
+                "risk_level": "none",
             }
-        
+
         exact_count = sum(1 for m in matches if m.match_type == "exact")
         fuzzy_count = sum(1 for m in matches if m.match_type == "fuzzy")
         highest_score = max(m.score for m in matches)
-        
+
         # Determine risk level
-        if exact_count > 0:
-            risk_level = "high"
-        elif highest_score >= 0.9:
+        if exact_count > 0 or highest_score >= 0.9:
             risk_level = "high"
         elif highest_score >= 0.8:
             risk_level = "medium"
         else:
             risk_level = "low"
-        
+
         return {
             "total": len(matches),
             "exact_matches": exact_count,
             "fuzzy_matches": fuzzy_count,
             "highest_score": highest_score,
-            "risk_level": risk_level
+            "risk_level": risk_level,
         }
-    
+
     def update_threshold(self, new_threshold: float):
         """
         Update de similarity threshold.
-        
+
         Args:
             new_threshold: Nieuwe threshold (0.0-1.0)
         """
         if not 0.0 <= new_threshold <= 1.0:
             raise ValueError("Threshold moet tussen 0.0 en 1.0 zijn")
-        
+
         self.threshold = new_threshold
         logger.info(f"Similarity threshold updated to {new_threshold}")

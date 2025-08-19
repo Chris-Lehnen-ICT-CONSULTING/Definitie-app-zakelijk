@@ -14,7 +14,7 @@ Extract business logic from the legacy database repository (1437 lines) into cle
   - Exact match detection (case-insensitive)
   - Risk level assessment (high/medium/low/none)
   - Configurable similarity threshold
-- **Integration**: 
+- **Integration**:
   - Added to ServiceContainer
   - Can be injected into DefinitionRepository
   - Feature flag: `use_new_duplicate_detection`

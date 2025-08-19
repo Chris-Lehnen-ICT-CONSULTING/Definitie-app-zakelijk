@@ -4,7 +4,7 @@ Zorgt ervoor dat bestaande code die het oude JSON formaat gebruikt blijft werken
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from config.toetsregel_manager import get_toetsregel_manager
 
@@ -16,9 +16,9 @@ class ToetsregelsCompatibilityAdapter:
 
     def __init__(self):
         self.manager = get_toetsregel_manager()
-        self._legacy_cache: Optional[Dict[str, Any]] = None
+        self._legacy_cache: dict[str, Any] | None = None
 
-    def get_legacy_format(self) -> Dict[str, Any]:
+    def get_legacy_format(self) -> dict[str, Any]:
         """
         Genereer data in het oude JSON formaat voor backward compatibility.
 
@@ -57,7 +57,7 @@ class ToetsregelsCompatibilityAdapter:
 
 
 # Global adapter instance
-_adapter: Optional[ToetsregelsCompatibilityAdapter] = None
+_adapter: ToetsregelsCompatibilityAdapter | None = None
 
 
 def get_toetsregels_adapter() -> ToetsregelsCompatibilityAdapter:
@@ -68,7 +68,7 @@ def get_toetsregels_adapter() -> ToetsregelsCompatibilityAdapter:
     return _adapter
 
 
-def load_toetsregels() -> Dict[str, Any]:
+def load_toetsregels() -> dict[str, Any]:
     """
     Laad toetsregels in oude formaat (backward compatibility).
 
@@ -78,7 +78,7 @@ def load_toetsregels() -> Dict[str, Any]:
     return get_toetsregels_adapter().get_legacy_format()
 
 
-def get_toetsregels_by_priority(priority: str) -> List[Dict[str, Any]]:
+def get_toetsregels_by_priority(priority: str) -> list[dict[str, Any]]:
     """
     Haal regels op per prioriteit (backward compatibility).
 
@@ -100,7 +100,7 @@ def get_toetsregels_by_priority(priority: str) -> List[Dict[str, Any]]:
     return regels
 
 
-def get_toetsregels_by_category(category: str) -> List[Dict[str, Any]]:
+def get_toetsregels_by_category(category: str) -> list[dict[str, Any]]:
     """
     Haal regels op per categorie prefix (backward compatibility).
 
@@ -123,8 +123,8 @@ def get_toetsregels_by_category(category: str) -> List[Dict[str, Any]]:
 
 
 def validate_against_rules(
-    text: str, regel_ids: Optional[List[str]] = None
-) -> Dict[str, Any]:
+    text: str, regel_ids: list[str] | None = None
+) -> dict[str, Any]:
     """
     Valideer tekst tegen opgegeven regels (backward compatibility).
 

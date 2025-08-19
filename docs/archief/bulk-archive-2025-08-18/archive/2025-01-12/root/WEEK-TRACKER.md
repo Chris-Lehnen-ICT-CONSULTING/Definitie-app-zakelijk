@@ -11,7 +11,7 @@
 - [ ] Service refactoring afronden (85% → 100%)
 - [ ] 7 failing orchestrator tests fixen
 
-### Nice to Have  
+### Nice to Have
 - [ ] GPT temperature naar config file
 - [ ] Widget key errors fixen
 - [ ] Session state persistence

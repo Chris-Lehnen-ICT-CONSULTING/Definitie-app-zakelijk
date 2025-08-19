@@ -7,16 +7,17 @@ volgens de Nederlandse overheid kwaliteitscriteria.
 
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
-# Modern imports voor toetsregels systeem
-from toetsregels.manager import get_toetsregel_manager
-from validation.definitie_validator import DefinitieValidator
 from services.interfaces import (
     Definition,
     DefinitionValidatorInterface,
     ValidationResult,
 )
+
+# Modern imports voor toetsregels systeem
+from toetsregels.manager import get_toetsregel_manager
+from validation.definitie_validator import DefinitieValidator
 
 logger = logging.getLogger(__name__)
 
@@ -26,13 +27,13 @@ class ValidatorConfig:
     """Configuratie voor de DefinitionValidator."""
 
     enable_all_rules: bool = True
-    enabled_rule_categories: Set[str] = field(
+    enabled_rule_categories: set[str] = field(
         default_factory=lambda: {"CON", "ESS", "INT", "SAM", "STR", "VER", "ARAI"}
     )
     min_score_threshold: float = 0.6  # Minimale score voor acceptatie
     enable_suggestions: bool = True
     enable_detailed_scoring: bool = True
-    custom_rules_path: Optional[str] = None
+    custom_rules_path: str | None = None
 
 
 class DefinitionValidator(DefinitionValidatorInterface):
@@ -43,7 +44,7 @@ class DefinitionValidator(DefinitionValidatorInterface):
     module en maakt het herbruikbaar als een focused service.
     """
 
-    def __init__(self, config: Optional[ValidatorConfig] = None):
+    def __init__(self, config: ValidatorConfig | None = None):
         """
         Initialiseer de DefinitionValidator.
 
@@ -88,7 +89,7 @@ class DefinitionValidator(DefinitionValidatorInterface):
                 definition.metadata.get("voorkeursterm")
                 if definition.metadata
                 else None
-            )
+            ),
         )
 
         # Analyseer resultaten
@@ -220,10 +221,10 @@ class DefinitionValidator(DefinitionValidatorInterface):
         """Laad toetsregels uit modern toetsregels systeem."""
         self.toetsregel_manager = get_toetsregel_manager()
         self.modern_validator = DefinitieValidator()
-        
+
         # Get rules from modern system
         all_rules = self.toetsregel_manager.get_all_regels()
-        
+
         if self.config.enable_all_rules:
             self.rules = all_rules
         else:
@@ -237,7 +238,7 @@ class DefinitionValidator(DefinitionValidatorInterface):
 
         logger.info(f"Geladen: {len(self.rules)} validatie regels")
 
-    def _build_context_dict(self, definition: Definition) -> Dict[str, List[str]]:
+    def _build_context_dict(self, definition: Definition) -> dict[str, list[str]]:
         """Bouw context dictionary voor legacy toetser."""
         contexten = {"organisatorisch": [], "juridisch": [], "domein": []}
 
@@ -253,7 +254,7 @@ class DefinitionValidator(DefinitionValidatorInterface):
         return contexten
 
     def _create_violation(
-        self, regel_id: str, regel_data: Dict, resultaat: str, is_warning: bool = False
+        self, regel_id: str, regel_data: dict, resultaat: str, is_warning: bool = False
     ) -> str:
         """Creëer een violation string uit toets resultaat."""
         # Voor nu return gewoon het resultaat
@@ -271,8 +272,8 @@ class DefinitionValidator(DefinitionValidatorInterface):
         )
 
     def _generate_suggestions(
-        self, violations: List[str], definition: Definition
-    ) -> List[str]:
+        self, violations: list[str], definition: Definition
+    ) -> list[str]:
         """Genereer verbeter suggesties op basis van violations."""
         suggestions = []
 
@@ -311,7 +312,7 @@ class DefinitionValidator(DefinitionValidatorInterface):
 
     # Statistieken methods
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Haal validator statistieken op."""
         return self._stats.copy()
 
@@ -324,7 +325,7 @@ class DefinitionValidator(DefinitionValidatorInterface):
             "average_score": 0.0,
         }
 
-    def get_rule_info(self, rule_id: str) -> Optional[Dict[str, Any]]:
+    def get_rule_info(self, rule_id: str) -> dict[str, Any] | None:
         """
         Haal informatie op over een specifieke regel.
 

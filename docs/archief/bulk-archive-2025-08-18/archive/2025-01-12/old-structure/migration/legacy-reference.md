@@ -10,7 +10,7 @@ Deze directory bevat de oorspronkelijke werkende legacy code die teruggehaald is
 - **Inhoud**: Complete werkende UI implementatie met alle tabs
 - **Belangrijkste features**:
   - ✅ Definitie Generator tab
-  - ✅ Quality Control tab  
+  - ✅ Quality Control tab
   - ✅ Expert Review tab
   - ✅ Management tab
   - ✅ Orchestration tab

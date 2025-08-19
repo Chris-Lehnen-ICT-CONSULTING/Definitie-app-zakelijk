@@ -7,7 +7,6 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class INT09Validator:
     """Validator voor INT-09: Opsomming in extensionele definitie is limitatief."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -44,8 +43,8 @@ class INT09Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens INT-09 regel.
 
@@ -83,12 +82,11 @@ class INT09Validator:
                     f"✅ {self.id}: geen ongewenste termen, komt overeen met goed voorbeeld",
                     1.0,
                 )
-            else:
-                return (
-                    True,
-                    f"✅ {self.id}: geen ongewenste opsommingstermen gevonden",
-                    1.0,
-                )
+            return (
+                True,
+                f"✅ {self.id}: geen ongewenste opsommingstermen gevonden",
+                1.0,
+            )
 
         # 5️⃣ Wel ongewenste termen gevonden
         termen_str = ", ".join(sorted(ongewenste_termen))
@@ -113,7 +111,7 @@ class INT09Validator:
             0.0,
         )
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -155,7 +153,7 @@ def create_validator(config_path: str = None) -> INT09Validator:
         config_path = os.path.join(current_dir, "INT-09.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return INT09Validator(config)

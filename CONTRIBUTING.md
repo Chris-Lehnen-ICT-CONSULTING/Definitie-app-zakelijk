@@ -45,11 +45,11 @@ git push origin feature/jouw-feature-naam
 ```python
 def generate_definition(term: str, context: Optional[str] = None) -> Definition:
     """Genereer een definitie voor de gegeven term.
-    
+
     Args:
         term: De term om te definiëren
         context: Optionele context voor betere definities
-        
+
     Returns:
         Definition object met gegenereerde content
     """

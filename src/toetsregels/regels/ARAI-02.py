@@ -5,7 +5,6 @@ Automatisch gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 class ARAI02Validator:
     """Validator voor ARAI02."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -27,8 +26,8 @@ class ARAI02Validator:
         self.prioriteit = config.get("prioriteit", "midden")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens ARAI02 regel.
 
@@ -66,11 +65,10 @@ class ARAI02Validator:
                 else:
                     result = "✔️ ARAI02: geen containerbegrippen zonder concretisering aangetroffen"
 
+            elif fout_aanwezig:
+                result = f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), lijkt op fout voorbeeld"
             else:
-                if fout_aanwezig:
-                    result = f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), lijkt op fout voorbeeld"
-                else:
-                    result = f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), onvoldoende concreet"
+                result = f"❌ ARAI02: containerbegrippen zonder specificatie gevonden ({', '.join(containers)}), onvoldoende concreet"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
@@ -87,7 +85,7 @@ class ARAI02Validator:
         # Fallback
         return False, f"⚠️ {self.id}: geen resultaat", 0.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -123,7 +121,7 @@ def create_validator(config_path: str = None) -> ARAI02Validator:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(current_dir, "ARAI02.json")
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return ARAI02Validator(config)

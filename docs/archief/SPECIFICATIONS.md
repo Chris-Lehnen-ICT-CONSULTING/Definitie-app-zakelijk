@@ -1,7 +1,7 @@
 # 🔧 Kritieke Technische Specificaties
 
-**Gegenereerd**: 2025-01-15  
-**Doel**: Veiligstellen van essentiële technische parameters  
+**Gegenereerd**: 2025-01-15
+**Doel**: Veiligstellen van essentiële technische parameters
 **Bron**: Geëxtraheerd uit alle archief documenten
 
 ## 🎯 GPT Temperature Settings (EXACTE WAARDES)

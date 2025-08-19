@@ -1,8 +1,8 @@
 # STORY-002: UI Quick Wins Implementation
 
 ## User Story
-Als een **eindgebruiker**  
-wil ik dat alle UI elementen correct werken zonder bugs  
+Als een **eindgebruiker**
+wil ik dat alle UI elementen correct werken zonder bugs
 zodat ik een soepele gebruikerservaring heb bij het genereren van definities.
 
 ## Acceptance Criteria

@@ -1,6 +1,6 @@
 # 📋 Team Documentatie Guide - Reorganisatie Update
 
-**Datum:** 18 Augustus 2025  
+**Datum:** 18 Augustus 2025
 **Status:** Documentatie reorganisatie in progress (40% compleet)
 
 ## 🚨 Belangrijke Informatie
