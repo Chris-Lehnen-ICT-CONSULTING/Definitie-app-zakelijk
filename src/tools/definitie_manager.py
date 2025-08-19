@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)  # Logger instantie voor CLI tool
 class DefinitieManagerCLI:
     """Command line interface voor definitie database management en operaties."""
 
-    def __init__(self, db_path: str = None):
+    def __init__(self, db_path: str | None = None):
         """Initialiseer CLI met database repository en checker."""
         self.repository = get_definitie_repository(
             db_path

@@ -32,7 +32,7 @@ class DefinitieZoekerAdapter:
         self.web_lookup = web_lookup_service
 
     async def zoek_definities(
-        self, begrip: str, context: dict[str, Any] = None, max_results: int = 5
+        self, begrip: str, context: dict[str, Any] | None = None, max_results: int = 5
     ) -> dict[str, Any]:
         """Zoek definities via ModernWebLookupService."""
         # Map oude context naar nieuwe LookupRequest
@@ -887,7 +887,7 @@ class OntologischeAnalyzer:
         # Specifieke rol-eindingen
         if begrip_lower.endswith("er"):
             return "Persoon"
-        if begrip_lower.endswith("houder") or begrip_lower.endswith("beheerder"):
+        if begrip_lower.endswith(("houder", "beheerder")):
             return "Persoon/Organisatie"
 
         return "Onbekend"
@@ -1031,7 +1031,7 @@ class QuickOntologischeAnalyzer:
         if any(begrip_lower.endswith(patroon) for patroon in self.proces_patronen):
             return (
                 OntologischeCategorie.PROCES,
-                f"Proces patroon gedetecteerd (eindigt op {[p for p in self.proces_patronen if begrip_lower.endswith(p)][0]})",
+                f"Proces patroon gedetecteerd (eindigt op {next(p for p in self.proces_patronen if begrip_lower.endswith(p))})",
             )
 
         # 2. Is het een ding? → TYPE

@@ -389,7 +389,7 @@ class SmartSourceSelector:
 
             # Special handling voor legal content
             if doc_analysis["legal_complexity"] in ["medium", "high"]:
-                priority_sources = ["wetten_nl", "overheid_nl"] + priority_sources
+                priority_sources = ["wetten_nl", "overheid_nl", *priority_sources]
                 confidence_modifier += 0.1
 
         # Term-driven adjustments
@@ -409,9 +409,8 @@ class SmartSourceSelector:
 
         # EU context
         law_area = context_analysis.get("juridical", {}).get("law_area")
-        if law_area == "european":
-            if "iate" not in priority_sources:
-                priority_sources.append("iate")
+        if law_area == "european" and "iate" not in priority_sources:
+            priority_sources.append("iate")
 
         # Bepaal strategy name
         if doc_analysis["has_documents"] and doc_analysis["legal_complexity"] != "none":

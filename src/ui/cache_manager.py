@@ -144,13 +144,12 @@ class CacheManager:
 
 def render_cache_sidebar():
     """Render cache information in sidebar."""
-    with st.sidebar:
-        with st.expander("📊 Cache Status"):
-            stats = get_cache_stats()
-            st.write(f"**Entries:** {stats['entries']}")
-            st.write(f"**Size:** {stats['total_size_mb']:.1f} MB")
+    with st.sidebar, st.expander("📊 Cache Status"):
+        stats = get_cache_stats()
+        st.write(f"**Entries:** {stats['entries']}")
+        st.write(f"**Size:** {stats['total_size_mb']:.1f} MB")
 
-            if st.button("Clear Cache", key="sidebar_clear_cache"):
-                clear_cache()
-                st.success("Cache cleared!")
-                st.rerun()
+        if st.button("Clear Cache", key="sidebar_clear_cache"):
+            clear_cache()
+            st.success("Cache cleared!")
+            st.rerun()

@@ -149,15 +149,13 @@ def validate_against_rules(
 
     # Placeholder voor validatie logica
     # Dit zou normaal de werkelijke validatie uitvoeren
-    results = {
+    return {
         "text": text,
         "rules_checked": len(regels),
         "violations": [],
         "warnings": [],
         "passed": True,
     }
-
-    return results
 
 
 # Functies voor configuratie integratie
@@ -186,7 +184,7 @@ def migrate_legacy_code_usage():
     Helper om legacy code gebruik te identificeren.
     Scan naar patronen die moeten worden gemigreerd.
     """
-    migration_info = {
+    return {
         "oude_patronen": [
             'json.load(open("config/toetsregels.json"))',
             'with open("config/toetsregels.json")',
@@ -205,8 +203,6 @@ def migrate_legacy_code_usage():
             "Betere onderhoudbaarheid",
         ],
     }
-
-    return migration_info
 
 
 if __name__ == "__main__":

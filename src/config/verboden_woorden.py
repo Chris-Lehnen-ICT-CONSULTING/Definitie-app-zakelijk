@@ -41,9 +41,8 @@ def laad_verboden_woorden() -> list[str]:
                 data = json.load(f)
                 woorden = data.get("verboden_woorden", [])
                 if not isinstance(woorden, list):
-                    raise ValueError(
-                        "Ongeldige structuur: 'verboden_woorden' is geen lijst"
-                    )
+                    msg = "Ongeldige structuur: 'verboden_woorden' is geen lijst"
+                    raise ValueError(msg)
                 logger.debug(
                     f"Verboden woorden geladen uit JSON ({len(woorden)} woorden)."
                 )

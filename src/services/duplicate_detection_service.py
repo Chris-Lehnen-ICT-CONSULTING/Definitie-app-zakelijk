@@ -224,7 +224,8 @@ class DuplicateDetectionService:
             new_threshold: Nieuwe threshold (0.0-1.0)
         """
         if not 0.0 <= new_threshold <= 1.0:
-            raise ValueError("Threshold moet tussen 0.0 en 1.0 zijn")
+            msg = "Threshold moet tussen 0.0 en 1.0 zijn"
+            raise ValueError(msg)
 
         self.threshold = new_threshold
         logger.info(f"Similarity threshold updated to {new_threshold}")

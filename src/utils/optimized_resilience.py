@@ -4,6 +4,7 @@ Consolidates resilience.py, integrated_resilience.py, and resilience_summary.py.
 """
 
 import asyncio
+import contextlib
 import logging
 import time
 from collections.abc import Callable
@@ -154,10 +155,8 @@ class OptimizedResilienceSystem:
 
         if self._health_check_task:
             self._health_check_task.cancel()
-            try:
+            with contextlib.suppress(asyncio.CancelledError):
                 await self._health_check_task
-            except asyncio.CancelledError:
-                pass
 
         # Save retry manager history
         self.retry_manager._save_historical_data()
@@ -235,7 +234,8 @@ class OptimizedResilienceSystem:
                     **kwargs,
                 )
             else:
-                raise ValueError(f"Unsupported resilience mode: {mode}")
+                msg = f"Unsupported resilience mode: {mode}"
+                raise ValueError(msg)
 
             # Record success
             duration = time.time() - start_time
@@ -336,7 +336,8 @@ class OptimizedResilienceSystem:
 
         # Check rate limiting
         if not await self.rate_limiter.acquire(priority, timeout, request_id):
-            raise asyncio.TimeoutError(f"Rate limit timeout for {endpoint_name}")
+            msg = f"Rate limit timeout for {endpoint_name}"
+            raise asyncio.TimeoutError(msg)
 
         try:
             result = await self._call_function(func, *args, **kwargs)
@@ -367,7 +368,8 @@ class OptimizedResilienceSystem:
 
         # Check rate limiting
         if not await self.rate_limiter.acquire(priority, timeout, request_id):
-            raise asyncio.TimeoutError(f"Rate limit timeout for {endpoint_name}")
+            msg = f"Rate limit timeout for {endpoint_name}"
+            raise asyncio.TimeoutError(msg)
 
         # Execute with retry logic
         return await self._execute_enhanced(

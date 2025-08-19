@@ -510,7 +510,7 @@ class ManagementTab:
 
         st.markdown(f"##### 📋 Zoekresultaten ({len(results)} items)")
 
-        for i, definitie in enumerate(results):
+        for _i, definitie in enumerate(results):
             with st.expander(
                 f"📋 {definitie.begrip} (ID: {definitie.id}) - {definitie.status}",
                 expanded=False,

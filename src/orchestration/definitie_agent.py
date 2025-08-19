@@ -529,7 +529,7 @@ class DefinitieAgent:
         organisatorische_context: str,
         juridische_context: str = "",
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
-        initial_feedback: list[str] = None,
+        initial_feedback: list[str] | None = None,
         # Hybrid context parameters
         selected_document_ids: list[str] | None = None,
         enable_hybrid: bool = False,

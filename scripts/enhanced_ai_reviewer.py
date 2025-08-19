@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 class EnhancedCodeReviewer:
     """Verbeterde code reviewer met multiple fix tools."""
 
-    def __init__(self, project_root: Path = None):
+    def __init__(self, project_root: Path | None = None):
         self.project_root = project_root or Path.cwd()
         self.src_path = self.project_root / "src"
         self.total_fixes = 0

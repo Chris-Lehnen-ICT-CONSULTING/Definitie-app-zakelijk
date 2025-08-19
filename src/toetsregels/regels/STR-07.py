@@ -101,7 +101,7 @@ class STR07Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> STR07Validator:
+def create_validator(config_path: str | None = None) -> STR07Validator:
     """
     Factory functie om validator te maken.
 

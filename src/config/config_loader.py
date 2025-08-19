@@ -23,6 +23,7 @@ def laad_toetsregels(path=None):
             "Path parameter wordt genegeerd. Toetsregels worden nu "
             "geladen uit individuele bestanden in src/toetsregels/regels/",
             DeprecationWarning,
+            stacklevel=2,
         )
 
     # Gebruik nieuwe loader, maar return alleen regels dict

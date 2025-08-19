@@ -81,7 +81,7 @@ class HistoryTab:
 
                 context_filter = st.selectbox(
                     "Context",
-                    ["Alle"] + sorted(list(all_contexts)),
+                    ["Alle", *sorted(all_contexts)],
                     key="history_context_filter",
                 )
             except Exception:

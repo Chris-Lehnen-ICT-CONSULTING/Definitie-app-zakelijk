@@ -33,22 +33,22 @@ except ImportError:
 
 # Exporteer publieke interface - alle voorbeeld generatie componenten
 __all__ = [
-    # Hoofdklassen voor voorbeeld generatie management
-    "UnifiedExamplesGenerator",  # Geünificeerde generator hoofdklasse
     "ExampleRequest",  # Request container voor voorbeeld aanvragen
     "ExampleResponse",  # Response container voor gegenereerde voorbeelden
     "ExampleType",  # Enumeratie van voorbeeld types
     "GenerationMode",  # Enumeratie van generatie modi
-    # Convenience functies voor directe voorbeeld generatie
-    "genereer_voorbeeld_zinnen",  # Directe functie voor voorbeeld zinnen
-    "genereer_praktijkvoorbeelden",  # Directe functie voor praktijkvoorbeelden
-    "genereer_tegenvoorbeelden",  # Directe functie voor tegenvoorbeelden
-    "genereer_synoniemen",  # Directe functie voor synoniemen
-    "genereer_antoniemen",  # Directe functie voor antoniemen
-    "genereer_toelichting",  # Directe functie voor toelichtingen
+    # Hoofdklassen voor voorbeeld generatie management
+    "UnifiedExamplesGenerator",  # Geünificeerde generator hoofdklasse
     # Batch functies voor efficiënte bulk operaties
     "genereer_alle_voorbeelden",  # Synchrone batch generatie
     "genereer_alle_voorbeelden_async",  # Asynchrone batch generatie
+    "genereer_antoniemen",  # Directe functie voor antoniemen
+    "genereer_praktijkvoorbeelden",  # Directe functie voor praktijkvoorbeelden
+    "genereer_synoniemen",  # Directe functie voor synoniemen
+    "genereer_tegenvoorbeelden",  # Directe functie voor tegenvoorbeelden
+    "genereer_toelichting",  # Directe functie voor toelichtingen
+    # Convenience functies voor directe voorbeeld generatie
+    "genereer_voorbeeld_zinnen",  # Directe functie voor voorbeeld zinnen
     # Utility functies voor generator management
     "get_examples_generator",  # Factory functie voor generator instanties
 ]

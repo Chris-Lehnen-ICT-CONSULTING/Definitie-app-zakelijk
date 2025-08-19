@@ -28,14 +28,14 @@ def render_feature_flag_toggle(*args, **kwargs):
 
 # Export alle belangrijke classes
 __all__ = [
-    # Unified Generator
-    "UnifiedDefinitionGenerator",
-    "UnifiedGeneratorConfig",
+    "ContainerConfigs",
     "DefinitionGeneratorCache",
     # Container en Factory
     "ServiceContainer",
+    # Unified Generator
+    "UnifiedDefinitionGenerator",
+    "UnifiedGeneratorConfig",
     "get_container",
-    "ContainerConfigs",
     "get_definition_service",
     "render_feature_flag_toggle",
 ]

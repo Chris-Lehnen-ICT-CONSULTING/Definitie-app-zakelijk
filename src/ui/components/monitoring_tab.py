@@ -336,7 +336,7 @@ class MonitoringTab:
                         y=df_metrics["success_rate"] * 100,
                         mode="lines+markers",
                         name="Success Rate (%)",
-                        line=dict(color="green"),
+                        line={"color": "green"},
                     )
                 )
                 fig_rates.add_trace(
@@ -345,7 +345,7 @@ class MonitoringTab:
                         y=df_metrics["cache_hit_rate"] * 100,
                         mode="lines+markers",
                         name="Cache Hit Rate (%)",
-                        line=dict(color="blue"),
+                        line={"color": "blue"},
                     )
                 )
                 fig_rates.update_layout(
@@ -376,15 +376,19 @@ class MonitoringTab:
                         mode="lines+markers",
                         name="Cost ($/hour)",
                         yaxis="y2",
-                        line=dict(color="red"),
+                        line={"color": "red"},
                     )
                 )
 
                 fig_perf.update_layout(
                     title="Throughput & Cost",
                     xaxis_title="Time",
-                    yaxis=dict(title="Throughput (req/min)", side="left"),
-                    yaxis2=dict(title="Cost ($/hour)", side="right", overlaying="y"),
+                    yaxis={"title": "Throughput (req/min)", "side": "left"},
+                    yaxis2={
+                        "title": "Cost ($/hour)",
+                        "side": "right",
+                        "overlaying": "y",
+                    },
                 )
                 st.plotly_chart(fig_perf, use_container_width=True)
 
@@ -504,7 +508,7 @@ class MonitoringTab:
                         y=projected_costs,
                         mode="lines+markers",
                         name="Projected Cost",
-                        line=dict(color="red"),
+                        line={"color": "red"},
                     )
                 )
 

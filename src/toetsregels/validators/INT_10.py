@@ -123,7 +123,7 @@ class INT10Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> INT10Validator:
+def create_validator(config_path: str | None = None) -> INT10Validator:
     """
     Factory functie om validator te maken.
 

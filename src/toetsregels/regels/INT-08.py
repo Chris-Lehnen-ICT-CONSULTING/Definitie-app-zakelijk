@@ -147,7 +147,7 @@ class INT08Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> INT08Validator:
+def create_validator(config_path: str | None = None) -> INT08Validator:
     """
     Factory functie om validator te maken.
 

@@ -69,7 +69,8 @@ class ResilienceSystemDemo:
         async def failing_function():
             self.demo_calls += 1
             if self.demo_calls <= 2:
-                raise Exception(f"Simulated failure #{self.demo_calls}")
+                msg = f"Simulated failure #{self.demo_calls}"
+                raise Exception(msg)
             return f"Success after {self.demo_calls} attempts"
 
         self.demo_calls = 0
@@ -143,7 +144,8 @@ class ResilienceSystemDemo:
         )
         async def unreliable_function():
             # Always fail to trigger circuit breaker
-            raise Exception("Service unavailable")
+            msg = "Service unavailable"
+            raise Exception(msg)
 
         # Try multiple times to trigger circuit breaker
         for i in range(6):
@@ -169,7 +171,8 @@ class ResilienceSystemDemo:
         async def monitored_function(should_fail: bool = False):
             await asyncio.sleep(0.1)
             if should_fail:
-                raise Exception("Monitored failure")
+                msg = "Monitored failure"
+                raise Exception(msg)
             return "Monitored success"
 
         # Generate mixed results

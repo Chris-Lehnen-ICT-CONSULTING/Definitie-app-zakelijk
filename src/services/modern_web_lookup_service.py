@@ -288,7 +288,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         self, legacy_result: Any, source_name: str
     ) -> LookupResult:
         """Converteer legacy result naar moderne LookupResult."""
-        source_config = self.sources.get(source_name)
+        self.sources.get(source_name)
 
         return LookupResult(
             term=getattr(legacy_result, "term", ""),
@@ -344,9 +344,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
             name="Analyzed Source",
             url="",
             confidence=confidence,
-            is_juridical=(
-                bron_type == BronType.WETGEVING or bron_type == BronType.JURISPRUDENTIE
-            ),
+            is_juridical=(bron_type in (BronType.WETGEVING, BronType.JURISPRUDENTIE)),
         )
 
     def _determine_source_type(self, text: str) -> BronType:

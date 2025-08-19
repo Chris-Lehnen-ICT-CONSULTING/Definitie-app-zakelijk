@@ -386,7 +386,7 @@ class TabbedInterface:
             ]
 
             # Score per categorie
-            scores = {
+            return {
                 "proces": sum(
                     1 for indicator in proces_indicators if indicator in begrip_lower
                 ),
@@ -400,8 +400,6 @@ class TabbedInterface:
                     1 for indicator in exemplaar_indicators if indicator in begrip_lower
                 ),
             }
-
-            return scores
 
         except Exception as e:
             logger.warning(f"Failed to calculate category scores: {e}")
@@ -988,7 +986,7 @@ class TabbedInterface:
             if st.checkbox("ℹ️ Toon ondersteunde bestandstypen", value=False):
                 supported_types = supported_file_types()
                 st.markdown("**Ondersteunde bestandstypen:**")
-                for mime_type, description in supported_types.items():
+                for _mime_type, description in supported_types.items():
                     st.write(f"• {description}")
 
             # Process uploaded files
@@ -1147,7 +1145,7 @@ class TabbedInterface:
         tabs = st.tabs(tab_titles)
 
         # Render each tab
-        for i, (tab_key, tab) in enumerate(zip(tab_keys, tabs, strict=False)):
+        for _i, (tab_key, tab) in enumerate(zip(tab_keys, tabs, strict=False)):
             with tab:
                 self._render_tab_content(tab_key)
 

@@ -131,7 +131,7 @@ class ESS05Validator:
         return hints
 
 
-def create_validator(config_path: str = None) -> ESS05Validator:
+def create_validator(config_path: str | None = None) -> ESS05Validator:
     """
     Factory functie om validator te maken.
 

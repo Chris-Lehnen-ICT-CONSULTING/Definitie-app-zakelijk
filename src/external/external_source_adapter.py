@@ -137,9 +137,9 @@ class ExternalSourceAdapter(ABC):
     @abstractmethod
     def search_definitions(
         self,
-        query: str = None,
-        categorie: str = None,
-        context: str = None,
+        query: str | None = None,
+        categorie: str | None = None,
+        context: str | None = None,
         limit: int = 100,
     ) -> list[ExternalDefinition]:
         """
@@ -240,9 +240,9 @@ class MockExternalAdapter(ExternalSourceAdapter):
 
     def search_definitions(
         self,
-        query: str = None,
-        categorie: str = None,
-        context: str = None,
+        query: str | None = None,
+        categorie: str | None = None,
+        context: str | None = None,
         limit: int = 100,
     ) -> list[ExternalDefinition]:
         """Simuleer zoeken in mock data."""
@@ -366,9 +366,9 @@ class FileSystemAdapter(ExternalSourceAdapter):
 
     def search_definitions(
         self,
-        query: str = None,
-        categorie: str = None,
-        context: str = None,
+        query: str | None = None,
+        categorie: str | None = None,
+        context: str | None = None,
         limit: int = 100,
     ) -> list[ExternalDefinition]:
         """Laad en filter definities uit bestand."""
@@ -458,9 +458,9 @@ class ExternalSourceManager:
 
     def search_all_sources(
         self,
-        query: str = None,
-        categorie: str = None,
-        context: str = None,
+        query: str | None = None,
+        categorie: str | None = None,
+        context: str | None = None,
         limit_per_source: int = 50,
     ) -> dict[str, list[ExternalDefinition]]:
         """
@@ -512,7 +512,9 @@ def create_mock_source(
     return MockExternalAdapter(config)
 
 
-def create_file_source(file_path: str, source_name: str = None) -> FileSystemAdapter:
+def create_file_source(
+    file_path: str, source_name: str | None = None
+) -> FileSystemAdapter:
     """Maak file system externe bron."""
     config = ExternalSourceConfig(
         source_id=f"file_{hash(file_path) % 10000}",

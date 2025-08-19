@@ -103,7 +103,7 @@ class SessionStateManager:
         definitie_origineel: str,
         definitie_gecorrigeerd: str,
         marker: str = "",
-        beoordeling_gen: list[str] = None,
+        beoordeling_gen: list[str] | None = None,
     ):
         """
         Update sessie status met definitie generatie resultaten.
@@ -128,9 +128,9 @@ class SessionStateManager:
 
     @staticmethod
     def update_ai_content(
-        voorbeeld_zinnen: list[str] = None,
-        praktijkvoorbeelden: list[str] = None,
-        tegenvoorbeelden: list[str] = None,
+        voorbeeld_zinnen: list[str] | None = None,
+        praktijkvoorbeelden: list[str] | None = None,
+        tegenvoorbeelden: list[str] | None = None,
         toelichting: str = "",
         synoniemen: str = "",
         antoniemen: str = "",

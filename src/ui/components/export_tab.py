@@ -492,12 +492,11 @@ class ExportTab:
             elif date_range == "Laatste 3 maanden":
                 cutoff_date = datetime.now() - timedelta(days=90)
             elif start_date and end_date:
-                definitions = [
+                return [
                     d
                     for d in definitions
                     if d.created_at and start_date <= d.created_at.date() <= end_date
                 ]
-                return definitions
             else:
                 return definitions
 
@@ -522,7 +521,8 @@ class ExportTab:
             return self._generate_txt_export(definitions, include_metadata)
         if format_type == "Excel":
             return self._generate_excel_export(definitions, include_metadata)
-        raise ValueError(f"Unsupported format: {format_type}")
+        msg = f"Unsupported format: {format_type}"
+        raise ValueError(msg)
 
     def _generate_json_export(
         self, definitions: list[DefinitieRecord], include_metadata: bool

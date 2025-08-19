@@ -153,7 +153,7 @@ class AIMetricsDashboard:
 
         print(f"\n📄 Report exported to: {output_file}")
 
-    def reset_metrics(self, agent_name: str = None):
+    def reset_metrics(self, agent_name: str | None = None):
         """Reset metrics for specific agent or all agents."""
         if agent_name:
             if agent_name in self.metrics:
