@@ -1,5 +1,13 @@
 # AI Agent Configuration voor Code Review
 
+## Development Environment Setup
+
+**BELANGRIJK**: Dit project gebruikt twee requirements files:
+- `requirements.txt` - Productie dependencies
+- `requirements-dev.txt` - Development tools (ruff, black, pytest, etc.)
+
+Zie `.bmad-core/data/development-setup.md` voor complete setup instructies.
+
 ## Automatische Code Review Setup
 
 ### Voor BMAD Agents
