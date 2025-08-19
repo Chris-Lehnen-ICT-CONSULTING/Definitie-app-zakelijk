@@ -20,15 +20,15 @@ from document_processing.document_extractor import (  # Ondersteunde bestandstyp
 from document_processing.document_processor import (  # Document processor factory
     get_document_processor,
 )
+from domain.ontological_categories import (
+    OntologischeCategorie,  # Ontologische categorieën
+)
 from integration.definitie_checker import (  # Definitie integratie controle
     DefinitieChecker,
 )
 
 # Nieuwe services imports
 from services import get_definition_service, render_feature_flag_toggle
-from services.unified_definition_generator import (  # Ontologische categorieën
-    OntologischeCategorie,
-)
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.context_selector import ContextSelector  # Context selectie component

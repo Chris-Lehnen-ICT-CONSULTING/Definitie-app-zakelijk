@@ -44,6 +44,9 @@ cp .env.example .env
 # Install dependencies
 pip install -r requirements.txt
 
+# Voor development (optioneel)
+pip install -r requirements-dev.txt
+
 # Start applicatie
 streamlit run src/app.py
 ```
