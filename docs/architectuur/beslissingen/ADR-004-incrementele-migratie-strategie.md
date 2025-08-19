@@ -1,8 +1,8 @@
 # ADR-004: Incrementele Migratie Strategie
 
-**Status:** Geaccepteerd  
-**Datum:** 2025-07-17  
-**Deciders:** Development Team  
+**Status:** Geaccepteerd
+**Datum:** 2025-07-17
+**Deciders:** Development Team
 
 ## Context
 
@@ -60,20 +60,20 @@ We adopteren een incrementele "Strangler Fig" pattern waarbij we geleidelijk leg
 ```python
 class MigrationFacade:
     """Transparante migratie van legacy naar modern"""
-    
+
     def __init__(self):
         self.legacy = LegacySystem()
         self.modern = ModernSystem()
         self.feature_flags = FeatureFlags()
         self.metrics = MetricsCollector()
-    
+
     def process(self, request: Request) -> Response:
         # Decision logic
         use_modern = self._should_use_modern(request)
-        
+
         # Metrics collection
         self.metrics.record_decision(use_modern)
-        
+
         if use_modern:
             try:
                 response = self.modern.process(request)
@@ -83,24 +83,24 @@ class MigrationFacade:
                 logger.warning(f"Modern failed, falling back: {e}")
                 self.metrics.record_fallback()
                 return self.legacy.process(request)
-        
+
         response = self.legacy.process(request)
         self.metrics.record_success("legacy")
         return response
-    
+
     def _should_use_modern(self, request: Request) -> bool:
         # Canary deployment
         if self.feature_flags.is_enabled("modern_canary", request.user_id):
             return True
-        
+
         # Percentage rollout
         if self.feature_flags.percentage("modern_rollout") > random.random():
             return True
-        
+
         # Specific features
         if request.feature in self.feature_flags.get("modern_features", []):
             return True
-        
+
         return False
 ```
 
@@ -145,18 +145,18 @@ feature_flags:
   modern_definition_canary:
     type: user_list
     users: [beta_user_1, beta_user_2]
-  
+
   # Percentage rollout
   modern_definition_rollout:
     type: percentage
     value: 10  # Start with 10%
     increment: 10  # Increase by 10% daily if healthy
-  
+
   # Feature specific flags
   modern_validation:
     type: boolean
     value: false
-  
+
   # Emergency kill switch
   use_legacy_only:
     type: boolean
@@ -214,12 +214,12 @@ metrics_to_track = {
 ```python
 class DualWriteManager:
     """Ensure data consistency during migration"""
-    
+
     async def write(self, data: Any) -> None:
         # Write to both systems
         legacy_result = await self.legacy_writer.write(data)
         modern_result = await self.modern_writer.write(data)
-        
+
         # Verify consistency
         if not self._are_consistent(legacy_result, modern_result):
             await self._reconcile(legacy_result, modern_result)

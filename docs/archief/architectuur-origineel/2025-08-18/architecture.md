@@ -4,8 +4,8 @@
 
 DefinitieAgent is an AI-powered Nederlandse definitie generator voor juridische en overheidscontexten. Het systeem gebruikt GPT-4 met 46 kwaliteitsregels. De architectuur bevindt zich midden in een complexe transitie van legacy naar moderne structuur.
 
-**Version:** 2.3.0  
-**Last Updated:** 2025-01-18  
+**Version:** 2.3.0
+**Last Updated:** 2025-01-18
 **Status:** ⚠️ Hybride architectuur met significante technische schuld
 
 ## System Architecture
@@ -323,5 +323,5 @@ streamlit run src/app.py
 - Database change: Update models in `src/models/`
 
 ---
-*For detailed implementation status and roadmap, see [roadmap.md](roadmap.md)*  
+*For detailed implementation status and roadmap, see [roadmap.md](roadmap.md)*
 *For all work items, see [backlog.md](backlog.md)*

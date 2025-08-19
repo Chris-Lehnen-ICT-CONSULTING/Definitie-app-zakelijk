@@ -34,7 +34,7 @@ class SimpleCache:
         self._cache = {}
         self._timestamps = {}
         self.ttl = ttl
-    
+
     def get(self, key: str) -> Optional[Any]
     def set(self, key: str, value: Any)
     def invalidate(self, key: str)
@@ -84,14 +84,14 @@ class SmartRateLimiter:
         self.windows = {}  # Sliding windows per endpoint
         self.queues = {}   # Priority queues per endpoint
         self.metrics = {}  # Performance metrics
-    
+
     async def check_rate_limit(
-        self, 
-        endpoint: str, 
+        self,
+        endpoint: str,
         client_id: str,
         priority: Priority = Priority.MEDIUM
     ) -> RateLimitResult
-    
+
     def _adjust_limits_dynamically(self, endpoint: str)
     def _process_queue(self, endpoint: str)
 ```
@@ -131,17 +131,17 @@ class ResilienceConfig:
     max_retries: int = 3
     retry_delay: float = 1.0
     exponential_base: float = 2.0
-    
+
     # Circuit breaker
     failure_threshold: int = 5
     recovery_timeout: float = 60.0
-    
+
     # Rate limiting
     rate_limit: Optional[RateLimitConfig] = None
-    
+
     # Bulkhead
     max_concurrent: int = 10
-    
+
     # Timeout
     timeout: float = 30.0
 ```
@@ -173,7 +173,7 @@ class PerformanceMonitor:
             'max_time': 0,
             'errors': 0
         })
-    
+
     @contextmanager
     def track_operation(self, operation_name: str):
         start = time.time()
@@ -184,7 +184,7 @@ class PerformanceMonitor:
             raise
         finally:
             self.record_timing(operation_name, time.time() - start)
-    
+
     def get_statistics(self) -> Dict[str, Dict[str, float]]
 ```
 

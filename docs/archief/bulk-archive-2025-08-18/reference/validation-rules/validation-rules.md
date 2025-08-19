@@ -101,7 +101,7 @@ class BaseValidator:
         self.name = "Validator Name"
         self.category = "Category"
         self.priority = "medium"
-        
+
     def validate(self, definition: str, term: str, context: dict) -> ValidationResult:
         """
         Returns:
@@ -132,10 +132,10 @@ def calculate_score(results: List[ValidationResult]) -> int:
         "medium": 1.0,
         "laag": 0.5
     }
-    
+
     total_weight = sum(weights[r.priority] for r in results)
     passed_weight = sum(weights[r.priority] for r in results if r.passed)
-    
+
     return int((passed_weight / total_weight) * 100)
 ```
 

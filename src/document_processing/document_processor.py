@@ -11,7 +11,7 @@ from dataclasses import (  # Dataklassen voor gestructureerde document data
 )
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 from .document_extractor import (  # Importeer tekst extractie functionaliteit
     extract_text_from_file,
@@ -32,14 +32,14 @@ class ProcessedDocument:
     uploaded_at: datetime  # Upload tijdstip
     extracted_text: str  # Geëxtraheerde tekst
     text_length: int  # Lengte van geëxtraheerde tekst
-    keywords: List[str]  # Geëxtraheerde keywords
-    key_concepts: List[str]  # Belangrijke concepten
-    legal_references: List[str]  # Juridische verwijzingen
-    context_hints: List[str]  # Context hints voor definitie generatie
+    keywords: list[str]  # Geëxtraheerde keywords
+    key_concepts: list[str]  # Belangrijke concepten
+    legal_references: list[str]  # Juridische verwijzingen
+    context_hints: list[str]  # Context hints voor definitie generatie
     processing_status: str  # Status van verwerking
-    error_message: Optional[str] = None  # Error bericht indien van toepassing
+    error_message: str | None = None  # Error bericht indien van toepassing
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Converteer ProcessedDocument naar dictionary voor JSON opslag."""
         data = asdict(self)  # Converteer dataclass naar dictionary
         data["uploaded_at"] = (
@@ -48,7 +48,7 @@ class ProcessedDocument:
         return data  # Retourneer serialiseerbare dictionary
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "ProcessedDocument":
+    def from_dict(cls, data: dict[str, Any]) -> "ProcessedDocument":
         """Maak ProcessedDocument instantie van dictionary data."""
         data["uploaded_at"] = datetime.fromisoformat(
             data["uploaded_at"]
@@ -75,7 +75,7 @@ class DocumentProcessor:
         self._load_metadata()
 
     def process_uploaded_file(
-        self, file_content: bytes, filename: str, mime_type: Optional[str] = None
+        self, file_content: bytes, filename: str, mime_type: str | None = None
     ) -> ProcessedDocument:
         """
         Verwerk een geüpload bestand.
@@ -172,11 +172,11 @@ class DocumentProcessor:
                 error_message=str(e),
             )
 
-    def get_processed_documents(self) -> List[ProcessedDocument]:
+    def get_processed_documents(self) -> list[ProcessedDocument]:
         """Krijg alle verwerkte documenten."""
         return list(self._documents_cache.values())
 
-    def get_document_by_id(self, doc_id: str) -> Optional[ProcessedDocument]:
+    def get_document_by_id(self, doc_id: str) -> ProcessedDocument | None:
         """Krijg document op basis van ID."""
         return self._documents_cache.get(doc_id)
 
@@ -190,8 +190,8 @@ class DocumentProcessor:
         return False
 
     def get_aggregated_context(
-        self, selected_doc_ids: Optional[List[str]] = None
-    ) -> Dict[str, Any]:
+        self, selected_doc_ids: list[str] | None = None
+    ) -> dict[str, Any]:
         """
         Krijg geaggregeerde context van geselecteerde documenten.
 
@@ -269,7 +269,7 @@ class DocumentProcessor:
         hasher.update(filename.encode("utf-8"))
         return hasher.hexdigest()[:16]
 
-    def _extract_keywords(self, text: str) -> List[str]:
+    def _extract_keywords(self, text: str) -> list[str]:
         """Extraheer keywords uit tekst."""
         if not text or len(text.strip()) < 10:
             return []
@@ -335,7 +335,7 @@ class DocumentProcessor:
         word_counts = Counter(keywords)
         return [word for word, count in word_counts.most_common(20)]
 
-    def _extract_key_concepts(self, text: str) -> List[str]:
+    def _extract_key_concepts(self, text: str) -> list[str]:
         """Extraheer belangrijke concepten uit tekst."""
         if not text:
             return []
@@ -365,7 +365,7 @@ class DocumentProcessor:
 
         return concepts[:15]  # Beperk tot top 15
 
-    def _extract_legal_references(self, text: str) -> List[str]:
+    def _extract_legal_references(self, text: str) -> list[str]:
         """Extraheer juridische verwijzingen uit tekst."""
         if not text:
             return []
@@ -375,12 +375,13 @@ class DocumentProcessor:
             # Legacy import replaced with modern service
             # from web_lookup.juridische_lookup import zoek_wetsartikelstructuur  # DEPRECATED
             from services.modern_web_lookup_service import ModernWebLookupService
-            
+
             # Use modern service for juridical lookups
             async def zoek_wetsartikelstructuur(artikel_ref):
                 """Modern replacement for juridical lookup"""
                 service = ModernWebLookupService()
                 from services.interfaces import LookupRequest
+
                 request = LookupRequest(term=artikel_ref, max_results=1)
                 results = await service.lookup(request)
                 # Return first juridical result if found
@@ -414,8 +415,8 @@ class DocumentProcessor:
             return list(set(references))[:10]  # Beperk en dedupliceer
 
     def _generate_context_hints(
-        self, text: str, keywords: List[str], concepts: List[str]
-    ) -> List[str]:
+        self, text: str, keywords: list[str], concepts: list[str]
+    ) -> list[str]:
         """Genereer context hints voor definitie generatie."""
         hints = []
 
@@ -449,7 +450,7 @@ class DocumentProcessor:
         """Laad document metadata uit bestand."""
         if self.metadata_file.exists():
             try:
-                with open(self.metadata_file, "r", encoding="utf-8") as f:
+                with open(self.metadata_file, encoding="utf-8") as f:
                     data = json.load(f)
 
                 for doc_data in data.get("documents", []):

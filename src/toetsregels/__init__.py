@@ -15,6 +15,6 @@ from .manager import ToetsregelManager, get_toetsregel_manager
 __all__ = [
     "ToetsregelManager",
     "get_toetsregel_manager",
-    "load_toetsregels",
     "get_toetsregels",
+    "load_toetsregels",
 ]

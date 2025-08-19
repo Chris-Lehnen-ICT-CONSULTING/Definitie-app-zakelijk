@@ -5,25 +5,25 @@ UI components for DefinitieAgent Streamlit application.
 import json
 import os
 from datetime import datetime
-from typing import Any, Dict, List
+from typing import Any
 
 import pandas as pd
 import streamlit as st
+from ui.session_state import SessionStateManager
+from utils.exceptions import log_and_display_error
 
 from config.verboden_woorden import (
     laad_verboden_woorden,
     log_test_verboden_woord,
     sla_verboden_woorden_op,
 )
-from ui.session_state import SessionStateManager
-from utils.exceptions import log_and_display_error
 
 
 class UIComponents:
     """Collection of reusable UI components for the application."""
 
     @staticmethod
-    def render_input_form() -> Dict[str, Any]:
+    def render_input_form() -> dict[str, Any]:
         """
         Render the main input form for definition generation.
 
@@ -269,7 +269,7 @@ class UIComponents:
             st.warning("⚠️ Geen toetsresultaten beschikbaar voor de AI-versie.")
 
     @staticmethod
-    def _render_test_results(results: List[str]):
+    def _render_test_results(results: list[str]):
         """Render quality test results with appropriate styling."""
         for regel in results:
             if "✔️" in regel:
@@ -464,7 +464,7 @@ class UIComponents:
 
                 # Check JSON log
                 try:
-                    with open("log/definities_log.json", "r", encoding="utf-8") as f:
+                    with open("log/definities_log.json", encoding="utf-8") as f:
                         regels = [
                             json.loads(lijn) for lijn in f.readlines() if lijn.strip()
                         ]

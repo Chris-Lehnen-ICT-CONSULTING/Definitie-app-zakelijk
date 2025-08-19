@@ -27,14 +27,14 @@ echo "Max iterations: $MAX_ITERATIONS"
 run_python_review() {
     local iteration=$1
     echo -e "\n${BLUE}📍 Iteration $iteration/$MAX_ITERATIONS${NC}"
-    
+
     # Run the Python AI code reviewer
     python scripts/ai_code_reviewer.py \
         --max-iterations 1 \
         --project-root "$PROJECT_ROOT" \
         --ai-agent "${BMAD_AGENT_NAME:-bmad-agent}" \
         > "$PROJECT_ROOT/.bmad/review-output.txt" 2>&1
-    
+
     return $?
 }
 
@@ -42,31 +42,31 @@ run_python_review() {
 parse_review_results() {
     local output_file="$PROJECT_ROOT/.bmad/review-output.txt"
     local instructions_file="$PROJECT_ROOT/.bmad/agent-fix-instructions.md"
-    
+
     # Extract issues from review output
     echo "# 🔧 Code Fix Instructions for BMAD Agent" > "$instructions_file"
     echo "" >> "$instructions_file"
     echo "## Issues Found:" >> "$instructions_file"
     echo "" >> "$instructions_file"
-    
+
     # Parse BLOCKING issues
     if grep -q "BLOCKING" "$output_file"; then
         echo "### 🔴 BLOCKING Issues (Must Fix)" >> "$instructions_file"
         grep -A 5 "BLOCKING" "$output_file" >> "$instructions_file"
         echo "" >> "$instructions_file"
     fi
-    
+
     # Parse IMPORTANT issues
     if grep -q "IMPORTANT" "$output_file"; then
         echo "### 🟡 IMPORTANT Issues (Should Fix)" >> "$instructions_file"
         grep -A 3 "IMPORTANT" "$output_file" | head -20 >> "$instructions_file"
         echo "" >> "$instructions_file"
     fi
-    
+
     # Add specific fix instructions
     echo "## Fix Instructions:" >> "$instructions_file"
     echo "" >> "$instructions_file"
-    
+
     # SQL Injection fixes
     if grep -q "SQL injection" "$output_file"; then
         echo "### SQL Injection Fixes:" >> "$instructions_file"
@@ -77,7 +77,7 @@ parse_review_results() {
         echo '```' >> "$instructions_file"
         echo "" >> "$instructions_file"
     fi
-    
+
     # Import fixes
     if grep -q "F401" "$output_file"; then
         echo "### Unused Import Fixes:" >> "$instructions_file"
@@ -85,7 +85,7 @@ parse_review_results() {
         grep "F401" "$output_file" | awk '{print "- " $NF}' >> "$instructions_file"
         echo "" >> "$instructions_file"
     fi
-    
+
     # Type error fixes
     if grep -q "mypy" "$output_file"; then
         echo "### Type Error Fixes:" >> "$instructions_file"
@@ -101,7 +101,7 @@ all_passed=false
 
 while [ $iteration -lt $MAX_ITERATIONS ]; do
     iteration=$((iteration + 1))
-    
+
     # Run review
     if run_python_review $iteration; then
         echo -e "${GREEN}✅ All checks passed!${NC}"
@@ -109,17 +109,17 @@ while [ $iteration -lt $MAX_ITERATIONS ]; do
         break
     else
         echo -e "${YELLOW}⚠️  Issues found${NC}"
-        
+
         # Parse results and create fix instructions
         parse_review_results
-        
+
         if [ "$REVIEW_MODE" = "check" ]; then
             echo -e "${YELLOW}📝 Fix instructions written to: .bmad/agent-fix-instructions.md${NC}"
             break
         else
             # In fix mode, wait for agent to apply fixes
             echo -e "${BLUE}🔧 Applying fixes...${NC}"
-            
+
             # For BMAD agents: They will read the instructions and fix
             # For now, we just continue to next iteration
             sleep 2

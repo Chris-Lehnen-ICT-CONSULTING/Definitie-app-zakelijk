@@ -1,12 +1,10 @@
 import json
+import logging
 import os
 import re
-import sys
 from datetime import datetime
 
 import streamlit as st
-
-import logging
 
 # Gebruik standaard logging
 logger = logging.getLogger(__name__)
@@ -39,7 +37,7 @@ def laad_verboden_woorden() -> list[str]:
             os.path.dirname(__file__), "verboden_woorden.json"
         )
         if os.path.exists(verboden_woorden_path):
-            with open(verboden_woorden_path, "r", encoding="utf-8") as f:
+            with open(verboden_woorden_path, encoding="utf-8") as f:
                 data = json.load(f)
                 woorden = data.get("verboden_woorden", [])
                 if not isinstance(woorden, list):

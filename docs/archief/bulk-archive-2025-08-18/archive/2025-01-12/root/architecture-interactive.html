@@ -476,12 +476,12 @@
 </head>
 <body>
     <button class="mobile-menu-toggle" onclick="toggleSidebar()">☰ Menu</button>
-    
+
     <div class="container">
         <!-- Sidebar Navigation -->
         <nav class="sidebar" id="sidebar">
             <h2>🏗️ DefinitieAgent Architectuur</h2>
-            
+
             <div class="nav-section">
                 <div class="nav-section-title" onclick="toggleSection(this)">
                     Overzicht
@@ -544,7 +544,7 @@
             <!-- Overview Section -->
             <section id="overview" class="content-section active">
                 <h1>DefinitieAgent - Project Overzicht</h1>
-                
+
                 <div class="alert alert-info">
                     <strong>Status:</strong> In transitie van legacy naar moderne architectuur met Features First aanpak
                 </div>
@@ -603,12 +603,12 @@
                     <div class="progress-container">
                         <div class="progress-bar badge-success" style="width: 100%;">3→1 Services Voltooid</div>
                     </div>
-                    
+
                     <h3>UI Implementatie</h3>
                     <div class="progress-container">
                         <div class="progress-bar badge-warning" style="width: 30%;">3/10 Tabs Functioneel</div>
                     </div>
-                    
+
                     <h3>Test Coverage</h3>
                     <div class="progress-container">
                         <div class="progress-bar badge-danger" style="width: 13%;">13% (87% Tests Gebroken)</div>
@@ -631,23 +631,23 @@
             <!-- Status Section -->
             <section id="status" class="content-section">
                 <h1>Huidige Project Status</h1>
-                
+
                 <div class="timeline">
                     <div class="timeline-item completed">
                         <h3>Services Consolidatie ✅</h3>
                         <p>3 services succesvol samengevoegd tot UnifiedDefinitionService</p>
                     </div>
-                    
+
                     <div class="timeline-item">
                         <h3>UI Restauratie 🚧</h3>
                         <p>3 van 10 tabs functioneel, rest in ontwikkeling</p>
                     </div>
-                    
+
                     <div class="timeline-item">
                         <h3>Test Suite Reparatie ⏳</h3>
                         <p>87% tests moeten gerepareerd worden</p>
                     </div>
-                    
+
                     <div class="timeline-item">
                         <h3>Content Enrichment ❌</h3>
                         <p>Synoniemen, antoniemen functionaliteit ontbreekt</p>
@@ -668,7 +668,7 @@
             <!-- Goals Section -->
             <section id="goals" class="content-section">
                 <h1>Project Doelstellingen</h1>
-                
+
                 <div class="card">
                     <div class="card-header">🎯 Korte Termijn (6 weken)</div>
                     <ul>
@@ -695,35 +695,35 @@
             <!-- Current Analysis -->
             <section id="current-analysis" class="content-section">
                 <h1>Huidige Architectuur Analyse</h1>
-                
+
                 <div class="mermaid">
                     graph TB
                         subgraph "Frontend Layer"
                             UI[Streamlit UI<br/>10 tabs - 30% functioneel]
                         end
-                        
+
                         subgraph "Service Layer"
                             UDS[UnifiedDefinitionService<br/>Singleton Pattern]
                         end
-                        
+
                         subgraph "Business Logic"
                             AI[AI Generation<br/>GPT-4]
                             VAL[Validation<br/>46 Rules]
                             ONT[Ontologie<br/>6-stappen]
                         end
-                        
+
                         subgraph "Data Layer"
                             DB[(SQLite DB)]
                             REPO[Repository<br/>Pattern]
                         end
-                        
+
                         UI --> UDS
                         UDS --> AI
                         UDS --> VAL
                         UDS --> ONT
                         UDS --> REPO
                         REPO --> DB
-                        
+
                         style UI fill:#f9c74f
                         style UDS fill:#90be6d
                         style DB fill:#577590
@@ -762,7 +762,7 @@
             <!-- Current Tech -->
             <section id="current-tech" class="content-section">
                 <h1>Huidige Technology Stack</h1>
-                
+
                 <div class="card">
                     <div class="card-header">Frontend</div>
                     <pre><code>streamlit==1.29.0      # UI Framework
@@ -790,7 +790,7 @@ python-dotenv==1.0.0  # Environment config</code></pre>
             <!-- Current Issues -->
             <section id="current-issues" class="content-section">
                 <h1>Geïdentificeerde Problemen</h1>
-                
+
                 <div class="alert alert-warning">
                     <strong>⚠️ Technische Schuld</strong>
                 </div>
@@ -839,34 +839,34 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
             <!-- Target Design -->
             <section id="target-design" class="content-section">
                 <h1>Gewenste Architectuur Ontwerp</h1>
-                
+
                 <div class="mermaid">
                     graph TB
                         subgraph "Presentation Layer"
                             WEB[Web UI<br/>Streamlit]
                             API[REST API<br/>FastAPI]
                         end
-                        
+
                         subgraph "Application Layer"
                             ORCH[Orchestrator<br/>Service]
                             AUTH[Auth<br/>Service]
                             CACHE[Cache<br/>Manager]
                         end
-                        
+
                         subgraph "Domain Services"
                             DEF[Definition<br/>Service]
                             VAL[Validation<br/>Service]
                             ENR[Enrichment<br/>Service]
                             DOC[Document<br/>Service]
                         end
-                        
+
                         subgraph "Infrastructure"
                             QUEUE[Task Queue<br/>Celery]
                             DB[(PostgreSQL)]
                             REDIS[(Redis)]
                             S3[Object Storage]
                         end
-                        
+
                         WEB --> ORCH
                         API --> AUTH
                         AUTH --> ORCH
@@ -875,12 +875,12 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
                         ORCH --> ENR
                         ORCH --> DOC
                         ORCH --> CACHE
-                        
+
                         DEF --> QUEUE
                         CACHE --> REDIS
                         DOC --> S3
                         DEF --> DB
-                        
+
                         style WEB fill:#4ecdc4
                         style API fill:#4ecdc4
                         style DB fill:#ff6b6b
@@ -902,14 +902,14 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
             <!-- Target Components -->
             <section id="target-components" class="content-section">
                 <h1>Component Specificaties</h1>
-                
+
                 <h2>🎯 Core Services</h2>
-                
+
                 <div class="card">
                     <div class="card-header">Definition Service</div>
                     <pre><code>class DefinitionService:
     """Verantwoordelijk voor AI-gestuurde definitie generatie"""
-    
+
     async def generate_definition(
         self,
         term: str,
@@ -925,7 +925,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
                     <div class="card-header">Validation Service</div>
                     <pre><code>class ValidationService:
     """46 toetsregels met plugin architectuur"""
-    
+
     def validate(
         self,
         definition: Definition,
@@ -940,7 +940,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
                     <div class="card-header">Enrichment Service</div>
                     <pre><code>class EnrichmentService:
     """Content verrijking met externe bronnen"""
-    
+
     async def enrich(
         self,
         definition: Definition
@@ -951,7 +951,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
                 </div>
 
                 <h2>🔧 Infrastructure Components</h2>
-                
+
                 <table>
                     <tr>
                         <th>Component</th>
@@ -989,9 +989,9 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
             <!-- Target Patterns -->
             <section id="target-patterns" class="content-section">
                 <h1>Design Patterns & Best Practices</h1>
-                
+
                 <h2>🏗️ Architectural Patterns</h2>
-                
+
                 <div class="tabs">
                     <div class="tab active" onclick="showTab('patterns-structural')">Structural</div>
                     <div class="tab" onclick="showTab('patterns-behavioral')">Behavioral</div>
@@ -1004,10 +1004,10 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
                         <pre><code>class DefinitionRepository:
     def __init__(self, session: Session):
         self.session = session
-    
+
     async def find_by_term(self, term: str) -> Optional[Definition]:
         # Abstractie over data access
-        
+
     async def save(self, definition: Definition) -> Definition:
         # Transactional boundaries</code></pre>
                     </div>
@@ -1038,7 +1038,7 @@ from definitie_app.services.unified_definition_service import ...</code></pre>
 class GPT4Strategy(GenerationStrategy):
     async def generate(self, prompt: str) -> str:
         # GPT-4 specific implementation
-        
+
 class LocalLLMStrategy(GenerationStrategy):
     async def generate(self, prompt: str) -> str:
         # Local model implementation</code></pre>
@@ -1049,10 +1049,10 @@ class LocalLLMStrategy(GenerationStrategy):
                         <pre><code>class EventBus:
     def publish(self, event: DomainEvent):
         # Publish domain events
-        
+
     def subscribe(self, event_type: Type, handler: Callable):
         # Subscribe to events
-        
+
 # Usage
 bus.publish(DefinitionCreatedEvent(definition))</code></pre>
                     </div>
@@ -1077,22 +1077,22 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
                         <pre><code>class PromptBuilder:
     def __init__(self):
         self.reset()
-    
+
     def with_term(self, term: str):
         self.term = term
         return self
-    
+
     def with_context(self, context: str):
         self.context = context
         return self
-    
+
     def build(self) -> Prompt:
         # Construct optimized prompt</code></pre>
                     </div>
                 </div>
 
                 <h2>🛡️ Security Patterns</h2>
-                
+
                 <div class="card">
                     <ul>
                         <li><strong>Input Validation:</strong> Pydantic models op alle boundaries</li>
@@ -1108,7 +1108,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
             <!-- ADR-001 -->
             <section id="adr-001" class="content-section">
                 <h1>ADR-001: Behoud Monolithische Structuur</h1>
-                
+
                 <div class="alert alert-info">
                     <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
                 </div>
@@ -1171,7 +1171,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
             <!-- ADR-002 -->
             <section id="adr-002" class="content-section">
                 <h1>ADR-002: Features First Development</h1>
-                
+
                 <div class="alert alert-info">
                     <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
                 </div>
@@ -1220,7 +1220,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
             <!-- ADR-003 -->
             <section id="adr-003" class="content-section">
                 <h1>ADR-003: Legacy Code als Specificatie</h1>
-                
+
                 <div class="alert alert-info">
                     <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
                 </div>
@@ -1244,7 +1244,7 @@ bus.publish(DefinitionCreatedEvent(definition))</code></pre>
 class ModernDefinitionService:
     def __init__(self):
         self.legacy_service = LegacyDefinitionGenerator()
-    
+
     def generate(self, term: str, use_legacy: bool = False):
         if use_legacy or self._should_fallback():
             return self._wrap_legacy_response(
@@ -1266,7 +1266,7 @@ class ModernDefinitionService:
             <!-- ADR-004 -->
             <section id="adr-004" class="content-section">
                 <h1>ADR-004: Incrementele Migratie Strategie</h1>
-                
+
                 <div class="alert alert-info">
                     <strong>Status:</strong> Geaccepteerd | <strong>Datum:</strong> 2025-07-17
                 </div>
@@ -1284,7 +1284,7 @@ class ModernDefinitionService:
                         B -->|Fase 2| C[New Services]
                         C -->|Fase 3| D[Legacy Removal]
                         D -->|Fase 4| E[Optimization]
-                        
+
                         style A fill:#ff6b6b
                         style E fill:#51cf66
                 </div>
@@ -1292,12 +1292,12 @@ class ModernDefinitionService:
                 <h2>Implementatie Pattern</h2>
                 <pre><code>class MigrationFacade:
     """Transparante migratie van legacy naar modern"""
-    
+
     def __init__(self):
         self.legacy = LegacySystem()
         self.modern = ModernSystem()
         self.feature_flags = FeatureFlags()
-    
+
     def process(self, request):
         if self.feature_flags.is_enabled("use_modern", request.user):
             try:
@@ -1336,7 +1336,7 @@ class ModernDefinitionService:
             <!-- Migration Strategy -->
             <section id="migration-strategy" class="content-section">
                 <h1>Migratie Strategie</h1>
-                
+
                 <h2>🎯 Strategische Aanpak</h2>
                 <p>De migratie volgt een "Strangler Fig" pattern waarbij we incrementeel legacy componenten vervangen zonder de gebruikerservaring te verstoren.</p>
 
@@ -1358,27 +1358,27 @@ class ModernDefinitionService:
                             L2[Mixed Services]
                             L3[SQLite DB]
                         end
-                        
+
                         subgraph "Transition"
                             T1[Facade Pattern]
                             T2[Feature Flags]
                             T3[Dual Write]
                         end
-                        
+
                         subgraph "Target State"
                             N1[Modern UI]
                             N2[Clean Services]
                             N3[PostgreSQL]
                         end
-                        
+
                         L1 -->|Gradual| T1
                         L2 -->|Incremental| T2
                         L3 -->|Migration| T3
-                        
+
                         T1 --> N1
                         T2 --> N2
                         T3 --> N3
-                        
+
                         style L1 fill:#ff6b6b
                         style L2 fill:#ff6b6b
                         style L3 fill:#ff6b6b
@@ -1425,7 +1425,7 @@ class ModernDefinitionService:
             <!-- Migration Phases -->
             <section id="migration-phases" class="content-section">
                 <h1>Migratie Fases</h1>
-                
+
                 <div class="timeline">
                     <div class="timeline-item completed">
                         <h3>Fase 0: Consolidatie ✅</h3>
@@ -1483,7 +1483,7 @@ class ModernDefinitionService:
                 </div>
 
                 <h2>📋 Fase Details</h2>
-                
+
                 <div class="tabs">
                     <div class="tab active" onclick="showTab('phase-checklist')">Checklists</div>
                     <div class="tab" onclick="showTab('phase-deliverables')">Deliverables</div>
@@ -1538,7 +1538,7 @@ class ModernDefinitionService:
                             D --> E[API Layer]
                             E --> F[Database Migration]
                             F --> G[Scaling Tests]
-                            
+
                             style A fill:#51cf66
                             style B fill:#feca57
                             style C fill:#feca57
@@ -1550,9 +1550,9 @@ class ModernDefinitionService:
             <!-- Migration Risks -->
             <section id="migration-risks" class="content-section">
                 <h1>Risico Management</h1>
-                
+
                 <h2>🚨 Geïdentificeerde Risico's</h2>
-                
+
                 <div class="card">
                     <div class="card-header">🔴 Hoog Risico</div>
                     <table>
@@ -1629,7 +1629,7 @@ class ModernDefinitionService:
                             D[Burnout<br/>Medium/High]
                             E[Scope Creep<br/>Low/High]
                         end
-                        
+
                         style A fill:#ff6b6b
                         style B fill:#ff6b6b
                         style C fill:#feca57
@@ -1638,7 +1638,7 @@ class ModernDefinitionService:
                 </div>
 
                 <h2>🛡️ Contingency Plans</h2>
-                
+
                 <div class="card">
                     <div class="card-header">Rollback Procedures</div>
                     <pre><code># Database Rollback
@@ -1666,7 +1666,7 @@ curl -X POST /api/admin/features \
 
     <script>
         // Initialize Mermaid
-        mermaid.initialize({ 
+        mermaid.initialize({
             startOnLoad: true,
             theme: 'default',
             themeVariables: {
@@ -1685,21 +1685,21 @@ curl -X POST /api/admin/features \
             document.querySelectorAll('.content-section').forEach(section => {
                 section.classList.remove('active');
             });
-            
+
             // Remove active class from all nav links
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
             });
-            
+
             // Show selected section
             document.getElementById(sectionId).classList.add('active');
-            
+
             // Add active class to clicked nav link
             document.querySelector(`[onclick="showSection('${sectionId}')"]`).classList.add('active');
-            
+
             // Close mobile menu if open
             document.getElementById('sidebar').classList.remove('open');
-            
+
             // Scroll to top
             window.scrollTo(0, 0);
         }
@@ -1708,20 +1708,20 @@ curl -X POST /api/admin/features \
         function showTab(tabId) {
             // Get parent element of tabs
             const tabParent = event.target.closest('.content-section');
-            
+
             // Hide all tab contents in this section
             tabParent.querySelectorAll('.tab-content').forEach(content => {
                 content.classList.remove('active');
             });
-            
+
             // Remove active class from all tabs in this section
             tabParent.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
-            
+
             // Show selected tab content
             tabParent.querySelector(`#${tabId}`).classList.add('active');
-            
+
             // Add active class to clicked tab
             event.target.classList.add('active');
         }

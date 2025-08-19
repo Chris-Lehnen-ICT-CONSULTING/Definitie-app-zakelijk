@@ -34,7 +34,7 @@ Het DefinitieAgent project had verschillende services met lage test coverage:
 # Mock de legacy repository
 @pytest.fixture
 def repository(mock_legacy_repo):
-    with patch('services.definition_repository.LegacyRepository', 
+    with patch('services.definition_repository.LegacyRepository',
                return_value=mock_legacy_repo):
         return DefinitionRepository(db_path=':memory:')
 
@@ -95,7 +95,7 @@ with patch.dict(os.environ, {'USE_NEW_SERVICES': 'true'}):
 # FOUT
 with patch('external_module.function'):
 
-# GOED  
+# GOED
 with patch('my_module.function'):  # waar my_module het importeert
 ```
 

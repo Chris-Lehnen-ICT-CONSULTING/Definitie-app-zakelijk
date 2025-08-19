@@ -42,7 +42,7 @@ class IterationResult:
     improvement_feedback: List[str]
     processing_time: float
     status: AgentStatus
-    
+
     def is_successful(self) -> bool
     def get_score_improvement(self, previous: IterationResult) -> float
 ```
@@ -71,7 +71,7 @@ class AgentResult:
     reason: str
     best_iteration: IterationResult
     improvement_history: List[float]
-    
+
     @property
     def iteration_count(self) -> int
     @property
@@ -86,7 +86,7 @@ Intelligent feedback generation based on validation violations.
 **Key Methods**:
 ```python
 def build_improvement_feedback(
-    self, 
+    self,
     context: FeedbackContext,
     iteration_number: int
 ) -> List[str]:
@@ -170,20 +170,20 @@ if selected_document_ids and enable_hybrid:
 for iteration in range(1, self.max_iterations + 1):
     # Execute iteration
     iteration_result = self._execute_iteration(generation_context, iteration)
-    
+
     # Update best iteration
     if better_score:
         best_iteration = iteration_result
-    
+
     # Check success criteria
     if iteration_result.is_successful():
         success = True
         break
-    
+
     # Check improvement
     if improvement < self.improvement_threshold:
         # Consider stopping
-    
+
     # Prepare next iteration
     self._prepare_next_iteration(generation_context, iteration_result)
 ```
@@ -193,14 +193,14 @@ for iteration in range(1, self.max_iterations + 1):
 def _execute_iteration(self, context, iteration_number):
     # 1. Generate definition
     generation_result = self.generator.generate_with_examples(context)
-    
+
     # 2. Validate definition
     validation_result = self.validator.validate(definitie, context.categorie)
-    
+
     # 3. Generate improvement feedback
     if not validation_result.is_acceptable:
         feedback = self.feedback_builder.build_improvement_feedback(...)
-    
+
     return IterationResult(...)
 ```
 
@@ -248,7 +248,7 @@ generation_result = self.generator.generate_with_examples(
 ```python
 self.validator = DefinitieValidator()
 validation_result = self.validator.validate(
-    definitie, 
+    definitie,
     generation_context.categorie
 )
 ```

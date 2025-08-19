@@ -10,7 +10,7 @@ import logging
 from dataclasses import dataclass, field
 from datetime import datetime
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from services.interfaces import (
     Definition,
@@ -27,25 +27,27 @@ from services.interfaces import (
 try:
     # Legacy import replaced with modern service
     # from web_lookup.bron_lookup import zoek_bronnen_voor_begrip  # DEPRECATED
-    
+
     # Modern replacement using ModernWebLookupService
     async def zoek_bronnen_voor_begrip(term: str):
         """Modern replacement for source lookup"""
-        from services.modern_web_lookup_service import ModernWebLookupService
         from services.interfaces import LookupRequest
-        
+        from services.modern_web_lookup_service import ModernWebLookupService
+
         service = ModernWebLookupService()
         request = LookupRequest(term=term, max_results=5)
         results = await service.lookup(request)
-        
+
         # Extract sources from results
         sources = []
         for result in results:
-            sources.append({
-                'name': result.source.name,
-                'url': result.source.url,
-                'confidence': result.source.confidence
-            })
+            sources.append(
+                {
+                    "name": result.source.name,
+                    "url": result.source.url,
+                    "confidence": result.source.confidence,
+                }
+            )
         return sources
 
     WEB_LOOKUP_AVAILABLE = True
@@ -93,12 +95,12 @@ class ProcessingContext:
     """Context voor het verwerken van een definitie."""
 
     request: GenerationRequest
-    definition: Optional[Definition] = None
-    validation_result: Optional[ValidationResult] = None
-    enrichment_data: Dict[str, Any] = field(default_factory=dict)
+    definition: Definition | None = None
+    validation_result: ValidationResult | None = None
+    enrichment_data: dict[str, Any] = field(default_factory=dict)
     current_step: ProcessingStep = ProcessingStep.GENERATION
     start_time: datetime = field(default_factory=datetime.now)
-    errors: List[str] = field(default_factory=list)
+    errors: list[str] = field(default_factory=list)
 
 
 class DefinitionOrchestrator(DefinitionOrchestratorInterface):
@@ -115,7 +117,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
         generator: DefinitionGeneratorInterface,
         validator: DefinitionValidatorInterface,
         repository: DefinitionRepositoryInterface,
-        config: Optional[OrchestratorConfig] = None,
+        config: OrchestratorConfig | None = None,
     ):
         """
         Initialiseer de DefinitionOrchestrator.
@@ -217,7 +219,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             return self._create_failed_response(context, str(e))
 
     async def update_definition(
-        self, definition_id: int, updates: Dict[str, Any]
+        self, definition_id: int, updates: dict[str, Any]
     ) -> DefinitionResponse:
         """
         Orkestreer het update proces van een bestaande definitie.
@@ -272,20 +274,19 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
                     success=True,
                     message="Definitie succesvol geüpdatet",
                 )
-            else:
-                return DefinitionResponse(
-                    definition=existing,
-                    validation=validation_result,
-                    success=False,
-                    message="Update mislukt in repository",
-                )
+            return DefinitionResponse(
+                definition=existing,
+                validation=validation_result,
+                success=False,
+                message="Update mislukt in repository",
+            )
 
         except Exception as e:
             logger.error(f"Fout bij update definitie {definition_id}: {e}")
             return DefinitionResponse(
                 definition=Definition(),
                 success=False,
-                message=f"Update mislukt: {str(e)}",
+                message=f"Update mislukt: {e!s}",
             )
 
     async def validate_and_save(self, definition: Definition) -> DefinitionResponse:
@@ -348,7 +349,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             return DefinitionResponse(
                 definition=definition,
                 success=False,
-                message=f"Validatie/opslag mislukt: {str(e)}",
+                message=f"Validatie/opslag mislukt: {e!s}",
             )
 
     # Private helper methods
@@ -368,7 +369,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             return definition
 
         except Exception as e:
-            context.errors.append(f"Generatie fout: {str(e)}")
+            context.errors.append(f"Generatie fout: {e!s}")
             raise
 
     async def _validate_definition(
@@ -389,10 +390,10 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             return validation_result
 
         except Exception as e:
-            context.errors.append(f"Validatie fout: {str(e)}")
+            context.errors.append(f"Validatie fout: {e!s}")
             # Return basis validatie result bij fout
             return ValidationResult(
-                is_valid=False, errors=[f"Validatie mislukt: {str(e)}"], score=0.0
+                is_valid=False, errors=[f"Validatie mislukt: {e!s}"], score=0.0
             )
 
     async def _enrich_definition(self, context: ProcessingContext) -> None:
@@ -519,7 +520,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             context.definition.id = definition_id
 
         except Exception as e:
-            context.errors.append(f"Opslag fout: {str(e)}")
+            context.errors.append(f"Opslag fout: {e!s}")
             # Niet fataal - definitie is nog steeds bruikbaar
             logger.warning(f"Definitie opslag mislukt: {e}")
 
@@ -547,7 +548,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
 
     # Statistics methods
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """Haal orchestrator statistieken op."""
         return self._stats.copy()
 

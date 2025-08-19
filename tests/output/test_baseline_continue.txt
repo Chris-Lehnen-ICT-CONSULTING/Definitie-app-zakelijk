@@ -9,4 +9,4 @@ collected 383 items / 13 errors
 tests/functionality/test_bulk_with_delay.py .                            [  0%]
 tests/functionality/test_final_functionality.py ..F                      [  1%]
 tests/functionality/test_metadata_fields.py .                            [  1%]
-tests/functionality/test_simple_functionality.py 
+tests/functionality/test_simple_functionality.py

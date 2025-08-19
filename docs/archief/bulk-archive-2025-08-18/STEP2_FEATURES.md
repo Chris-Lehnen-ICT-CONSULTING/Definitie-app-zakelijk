@@ -29,7 +29,7 @@ enriched_context = await context_manager.build_enriched_context(request)
 
 **Configuratie opties**:
 - `enable_web_lookup`: Web lookup voor achtergrond informatie
-- `enable_document_search`: Document zoeken in kennisbank  
+- `enable_document_search`: Document zoeken in kennisbank
 - `enable_rule_interpretation`: Toetsregel interpretatie
 - `rule_interpretation_mode`: "creative", "strict", of "balanced"
 - `context_abbreviations`: Custom afkortingen dictionary
@@ -40,7 +40,7 @@ enriched_context = await context_manager.build_enriched_context(request)
 
 **Prompt Strategieën**:
 - **Legacy**: Compatibiliteit met bestaande prompt builder
-- **Basic**: Template-gebaseerde prompts voor verschillende categorieën  
+- **Basic**: Template-gebaseerde prompts voor verschillende categorieën
 - **Context-aware**: Intelligente prompts gebaseerd op context rijkheid
 - **Rule-based**: Prompts gebaseerd op toetsregels
 - **Adaptive**: Adaptieve prompts per begrip type
@@ -68,7 +68,7 @@ strategies = prompt_builder.get_available_strategies()
 
 **Metrics Types**:
 - **Performance**: Generatie tijd, success rate, cache hit rate
-- **Context**: Context bronnen, confidence scores, richness scores  
+- **Context**: Context bronnen, confidence scores, richness scores
 - **Quality**: Definitie lengte, enhancement rate, validation scores
 - **Errors**: Error tracking met alerting bij hoge faalratio
 
@@ -125,7 +125,7 @@ quality_report = enhancer.evaluate_definition_quality(definition)
 
 **Enhancement Types**:
 - `CLARITY`: Helderheid verbetering
-- `CONTEXT_INTEGRATION`: Context integratie  
+- `CONTEXT_INTEGRATION`: Context integratie
 - `COMPLETENESS`: Volledigheid verbetering
 - `LINGUISTIC`: Taalkundige verbetering
 - `DOMAIN_SPECIFICITY`: Domein specificiteit
@@ -137,7 +137,7 @@ quality_report = enhancer.evaluate_definition_quality(definition)
 @dataclass
 class ContextConfig:
     enable_web_lookup: bool = True
-    enable_document_search: bool = False  
+    enable_document_search: bool = False
     enable_rule_interpretation: bool = True
     rule_interpretation_mode: str = "creative"  # creative, strict, balanced
     context_abbreviations: Dict[str, str] = field(default_factory=dict)
@@ -145,7 +145,7 @@ class ContextConfig:
 
 ### QualityConfig (uitgebreid)
 ```python
-@dataclass  
+@dataclass
 class QualityConfig:
     enable_enhancement: bool = True
     enable_completeness_enhancement: bool = True
@@ -181,7 +181,7 @@ monitor_status = generator._monitor.get_current_status()
 
 **Overhead**: Minimaal (< 5ms extra per generatie)
 **Memory**: ~2MB extra voor caching en metrics
-**Benefits**: 
+**Benefits**:
 - 25% betere context rijkheid door multi-source integration
 - 40% minder vage definities door enhancement
 - 100% monitoring coverage voor debugging en optimalisatie
@@ -197,7 +197,7 @@ Alle Step 2 componenten zijn volledig backward compatible:
 
 Uitgebreide test suite in `tests/services/test_step2_components.py`:
 - Unit tests voor elke component
-- Integration tests voor component samenwerking  
+- Integration tests voor component samenwerking
 - Performance tests voor overhead validatie
 - Mocking voor externe dependencies
 

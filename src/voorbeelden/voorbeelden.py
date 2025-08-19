@@ -1,6 +1,5 @@
 import os
 import re
-from typing import Dict, List
 
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
@@ -12,8 +11,8 @@ _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
 def genereer_voorbeeld_zinnen(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> list[str]:
     prompt = (
         f"Geef 2 tot 3 korte voorbeeldzinnen waarin het begrip '{begrip}' "
         "op een duidelijke manier wordt gebruikt.\n"
@@ -34,7 +33,7 @@ def genereer_voorbeeld_zinnen(
         return [f"❌ Fout bij genereren korte voorbeelden: {e}"]
 
     # splitsen op regels en nummering weghalen
-    zinnen: List[str] = []
+    zinnen: list[str] = []
     for line in blob.splitlines():
         # als AI “1. …” of “- …” gebruikt, strip dat eraf
         zin = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
@@ -45,8 +44,8 @@ def genereer_voorbeeld_zinnen(
 
 
 def genereer_praktijkvoorbeelden(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]], aantal: int = 3
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]], aantal: int = 3
+) -> list[str]:
     """
     Genereert `aantal` praktijkvoorbeelden (verification by instantiation).
     Elke casus instantiëert alle elementen uit de definitie.
@@ -74,8 +73,8 @@ def genereer_praktijkvoorbeelden(
         return [f"❌ Fout bij genereren praktijkvoorbeelden: {e}"]
 
     # 🔧 Splits de respons op in afzonderlijke voorbeelden
-    voorbeelden: List[str] = []
-    current: List[str] = []
+    voorbeelden: list[str] = []
+    current: list[str] = []
     # We gaan ervan uit dat de AI elk voorbeeld laat beginnen met "1.", "2.", etc.
     for line in text.splitlines():
         # nieuw voorbeeld
@@ -92,8 +91,8 @@ def genereer_praktijkvoorbeelden(
 
 
 def genereer_tegenvoorbeelden(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]], aantal: int = 2
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]], aantal: int = 2
+) -> list[str]:
     """
     Genereert ‘aantal’ tegenvoorbeelden waarin:
      - één of meer criteria uit de definitie **niet** (correct) worden ingevuld, of
@@ -120,8 +119,8 @@ def genereer_tegenvoorbeelden(
         return [f"❌ Fout bij genereren tegenvoorbeelden: {e}"]
 
     # 🔧 Splits de respons op in afzonderlijke voorbeelden
-    voorbeelden: List[str] = []
-    current: List[str] = []
+    voorbeelden: list[str] = []
+    current: list[str] = []
     # We gaan ervan uit dat de AI elk voorbeeld laat beginnen met "1.", "2.", etc.
     for line in text.splitlines():
         # nieuw voorbeeld
@@ -139,9 +138,9 @@ def genereer_tegenvoorbeelden(
     # ───────────────────────────────────────────────────
     #  Parsen per genummerde casus: "1.", "2.", …
     # ───────────────────────────────────────────────────
-    resultaat: List[str] = []
+    resultaat: list[str] = []
     regels = text.splitlines()
-    buffer: List[str] = []
+    buffer: list[str] = []
     teller = 1
     for regel in regels:
         if regel.lstrip().startswith(f"{teller}."):

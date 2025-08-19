@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from validation.input_validator import ValidationSeverity, get_validator
 from validation.sanitizer import get_sanitizer
@@ -52,7 +52,7 @@ class SecurityEvent:
     source_ip: str
     user_agent: str
     endpoint: str
-    threat_data: Dict[str, Any]
+    threat_data: dict[str, Any]
     blocked: bool
     description: str
 
@@ -63,13 +63,13 @@ class ValidationRequest:
 
     endpoint: str
     method: str
-    data: Dict[str, Any]
-    headers: Dict[str, str]
+    data: dict[str, Any]
+    headers: dict[str, str]
     source_ip: str
     user_agent: str
     timestamp: datetime
-    session_id: Optional[str] = None
-    user_id: Optional[str] = None
+    session_id: str | None = None
+    user_id: str | None = None
 
 
 @dataclass
@@ -77,12 +77,12 @@ class ValidationResponse:
     """Response from security validation."""
 
     allowed: bool
-    sanitized_data: Dict[str, Any]
-    threats_detected: List[ThreatType]
-    security_events: List[SecurityEvent]
-    sanitization_changes: List[str]
-    validation_errors: List[str]
-    response_headers: Dict[str, str]
+    sanitized_data: dict[str, Any]
+    threats_detected: list[ThreatType]
+    security_events: list[SecurityEvent]
+    sanitization_changes: list[str]
+    validation_errors: list[str]
+    response_headers: dict[str, str]
 
 
 class SecurityMiddleware:
@@ -91,13 +91,13 @@ class SecurityMiddleware:
     def __init__(self):
         self.validator = get_validator()
         self.sanitizer = get_sanitizer()
-        self.security_events: List[SecurityEvent] = []
-        self.request_tracking: Dict[str, List[datetime]] = {}
-        self.blocked_ips: Dict[str, datetime] = {}
+        self.security_events: list[SecurityEvent] = []
+        self.request_tracking: dict[str, list[datetime]] = {}
+        self.blocked_ips: dict[str, datetime] = {}
         self.suspicious_patterns = self._load_suspicious_patterns()
         self.rate_limits = self._load_rate_limits()
 
-    def _load_suspicious_patterns(self) -> List[Dict[str, str]]:
+    def _load_suspicious_patterns(self) -> list[dict[str, str]]:
         """Load suspicious patterns for threat detection."""
         return [
             {
@@ -132,7 +132,7 @@ class SecurityMiddleware:
             },
         ]
 
-    def _load_rate_limits(self) -> Dict[str, Dict[str, int]]:
+    def _load_rate_limits(self) -> dict[str, dict[str, int]]:
         """Load rate limit configurations."""
         return {
             "default": {
@@ -335,7 +335,7 @@ class SecurityMiddleware:
                 endpoint=request.endpoint,
                 threat_data={"error": str(e)},
                 blocked=True,
-                description=f"Security validation failed: {str(e)}",
+                description=f"Security validation failed: {e!s}",
             )
             security_events.append(event)
 
@@ -345,7 +345,7 @@ class SecurityMiddleware:
                 threats_detected=[ThreatType.SUSPICIOUS_PATTERN],
                 security_events=security_events,
                 sanitization_changes=[],
-                validation_errors=[f"Security validation failed: {str(e)}"],
+                validation_errors=[f"Security validation failed: {e!s}"],
                 response_headers={"X-Security-Status": "error"},
             )
 
@@ -355,9 +355,8 @@ class SecurityMiddleware:
             block_time = self.blocked_ips[ip]
             if datetime.now() - block_time < timedelta(hours=1):  # 1 hour block
                 return True
-            else:
-                # Remove expired block
-                del self.blocked_ips[ip]
+            # Remove expired block
+            del self.blocked_ips[ip]
         return False
 
     def _block_ip_temporarily(self, ip: str):
@@ -422,7 +421,7 @@ class SecurityMiddleware:
             self.request_tracking[ip] = []
         self.request_tracking[ip].append(datetime.now())
 
-    def _detect_threats(self, request: ValidationRequest) -> List[Dict[str, Any]]:
+    def _detect_threats(self, request: ValidationRequest) -> list[dict[str, Any]]:
         """Detect security threats in request."""
         threats = []
 
@@ -501,7 +500,7 @@ class SecurityMiddleware:
         # If more than 30 requests in 1 minute, consider it brute force
         return len(recent_requests) > 30
 
-    def _get_validation_schema(self, endpoint: str) -> Optional[str]:
+    def _get_validation_schema(self, endpoint: str) -> str | None:
         """Get validation schema name for endpoint."""
         schema_mapping = {
             "definition_generation": "definition_generation",
@@ -510,7 +509,7 @@ class SecurityMiddleware:
         }
         return schema_mapping.get(endpoint)
 
-    def get_security_report(self) -> Dict[str, Any]:
+    def get_security_report(self) -> dict[str, Any]:
         """Generate comprehensive security report."""
         current_time = datetime.now()
 
@@ -555,7 +554,7 @@ class SecurityMiddleware:
             )[:5],
         }
 
-    def export_security_log(self, filename: Optional[str] = None) -> str:
+    def export_security_log(self, filename: str | None = None) -> str:
         """Export security log to file."""
         if filename is None:
             filename = f"security_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -594,7 +593,7 @@ class SecurityMiddleware:
 
 
 # Global security middleware instance
-_security_middleware: Optional[SecurityMiddleware] = None
+_security_middleware: SecurityMiddleware | None = None
 
 
 def get_security_middleware() -> SecurityMiddleware:

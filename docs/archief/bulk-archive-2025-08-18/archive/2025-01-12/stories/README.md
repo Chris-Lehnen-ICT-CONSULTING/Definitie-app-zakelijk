@@ -71,8 +71,8 @@ Voor nieuwe stories binnen epics:
 
 **Story Points**: X
 
-**Als een** [rol]  
-**wil ik** [functionaliteit]  
+**Als een** [rol]
+**wil ik** [functionaliteit]
 **zodat** [business value]
 
 #### Acceptance Criteria
@@ -98,5 +98,5 @@ Voor nieuwe stories binnen epics:
 - [Project Backlog](../backlog.md)
 
 ---
-*Laatste update: 2025-01-18*  
+*Laatste update: 2025-01-18*
 *Totaal: 7 epics, 41 stories, 85 story points, 6 sprints*

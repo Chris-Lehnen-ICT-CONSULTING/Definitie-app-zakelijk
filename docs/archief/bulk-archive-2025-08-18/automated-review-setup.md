@@ -306,12 +306,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
-    
+
     - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-    
+
     - name: Cache pip packages
       uses: actions/cache@v3
       with:
@@ -319,41 +319,41 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements-dev.txt
-    
+
     - name: Run pre-commit hooks
       run: pre-commit run --all-files
-    
+
     - name: Run tests with coverage
       run: |
         coverage run -m pytest
         coverage xml
-    
+
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
       with:
         file: ./coverage.xml
         flags: unittests
         name: codecov-umbrella
-    
+
     - name: Security scan with bandit
       run: bandit -r src/ -f json -o bandit-report.json
-    
+
     - name: Upload bandit results
       uses: actions/upload-artifact@v3
       if: always()
       with:
         name: bandit-report
         path: bandit-report.json
-    
+
     - name: Check dependencies with safety
       run: safety check --json > safety-report.json
       continue-on-error: true
-    
+
     - name: Upload safety results
       uses: actions/upload-artifact@v3
       if: always()

@@ -5,7 +5,7 @@ Deze module beheert alle sessie variabelen die gebruikt worden
 door de Streamlit interface om data tussen pagina refreshes te bewaren.
 """
 
-from typing import Any, Dict, List  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
 
@@ -103,7 +103,7 @@ class SessionStateManager:
         definitie_origineel: str,
         definitie_gecorrigeerd: str,
         marker: str = "",
-        beoordeling_gen: List[str] = None,
+        beoordeling_gen: list[str] = None,
     ):
         """
         Update sessie status met definitie generatie resultaten.
@@ -128,9 +128,9 @@ class SessionStateManager:
 
     @staticmethod
     def update_ai_content(
-        voorbeeld_zinnen: List[str] = None,
-        praktijkvoorbeelden: List[str] = None,
-        tegenvoorbeelden: List[str] = None,
+        voorbeeld_zinnen: list[str] = None,
+        praktijkvoorbeelden: list[str] = None,
+        tegenvoorbeelden: list[str] = None,
         toelichting: str = "",
         synoniemen: str = "",
         antoniemen: str = "",
@@ -171,7 +171,7 @@ class SessionStateManager:
             st.session_state["bronnen_gebruikt"] = bronnen_gebruikt
 
     @staticmethod
-    def get_context_dict() -> Dict[str, List[str]]:
+    def get_context_dict() -> dict[str, list[str]]:
         """
         Haal context woordenboek op uit sessie status.
 
@@ -190,7 +190,7 @@ class SessionStateManager:
         }
 
     @staticmethod
-    def get_export_data() -> Dict[str, Any]:
+    def get_export_data() -> dict[str, Any]:
         """
         Haal alle data op die nodig is voor export.
 

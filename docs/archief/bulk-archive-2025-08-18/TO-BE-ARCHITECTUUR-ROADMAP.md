@@ -1,7 +1,7 @@
 # TO-BE Architectuur & Roadmap - DefinitieAgent
 
-**Versie**: 2.0  
-**Laatste Update**: 2025-08-18  
+**Versie**: 2.0
+**Laatste Update**: 2025-08-18
 **Status**: Geconsolideerd implementatieplan
 
 ## 🎯 Visie & Doelstellingen
@@ -38,14 +38,14 @@ graph TB
             NT9[✅ Externe Bronnen]
             NT10[✅ Orchestratie]
         end
-        
+
         COMP[Component Library<br/>Reusable UI Parts]
         STATE[Centralized State<br/>Management]
     end
-    
+
     subgraph "Service Layer - Clean Architecture"
         FACADE[DefinitionFacade<br/>API Gateway]
-        
+
         subgraph "Focused Services"
             S1[DefinitionGenerator<br/>Core AI Logic]
             S2[ValidationOrchestrator<br/>ai_toetser + toetsregels]
@@ -54,62 +54,62 @@ graph TB
             S5[CacheManager<br/>Redis/Memory]
             S6[WebLookupService<br/>✅ Backend Gereed<br/>UI Integratie Nodig]
         end
-        
+
         subgraph "Cross-Cutting"
             AUTH[AuthenticationService<br/>User Management]
             MONITOR[MonitoringService<br/>Metrics & Logs]
             RATELIMIT[RateLimiter<br/>Smart Throttling]
         end
     end
-    
+
     subgraph "AI & External Services"
         AI_OPT[OpenAI GPT-4<br/><5 sec response]
         REDIS[Redis Cache<br/>80% hit rate]
-        
+
         subgraph "External APIs"
             EXT1[wetten.nl API]
             EXT2[rechtspraak.nl API]
             EXT3[officielebekendmakingen.nl]
         end
     end
-    
+
     subgraph "Data Layer - Clean Access"
         subgraph "Database"
             PG[(PostgreSQL<br/>Production)]
             SQLITE[(SQLite<br/>Development)]
         end
-        
+
         subgraph "Data Access"
             REPO_NEW[Repository Layer<br/>No Direct Access]
             MAPPER[Data Mappers]
             MIGRATE[Migration System]
         end
-        
+
         CACHE_LAYER[Cache Layer<br/>Query Cache]
     end
-    
+
     subgraph "Infrastructure - Unified"
         CONFIG[Unified Config<br/>Single Source]
-        
+
         subgraph "Quality Assurance"
             TESTS[Test Suite<br/>✅ 80% Coverage]
             CI[CI/CD Pipeline<br/>Automated]
             LINT[Code Quality<br/>Black/Ruff/MyPy]
         end
-        
+
         subgraph "Monitoring"
             LOG[Structured Logging]
             METRIC[Metrics Collection]
             ALERT[Alert System]
         end
-        
+
         DEPLOY[Deployment<br/>Docker/Cloud Ready]
     end
-    
+
     %% Connections TO-BE
     UI_NEW --> STATE
     STATE --> COMP
-    
+
     NT1 --> FACADE
     NT2 --> FACADE
     NT3 --> FACADE
@@ -120,18 +120,18 @@ graph TB
     NT8 --> FACADE
     NT9 --> FACADE
     NT10 --> FACADE
-    
+
     FACADE --> S1
     FACADE --> S2
     FACADE --> S3
     FACADE --> S4
     FACADE --> S5
     FACADE --> S6
-    
+
     FACADE --> AUTH
     FACADE --> MONITOR
     FACADE --> RATELIMIT
-    
+
     S1 --> AI_OPT
     S1 --> S4
     S2 --> MONITOR
@@ -140,35 +140,35 @@ graph TB
     S6 --> EXT1
     S6 --> EXT2
     S6 --> EXT3
-    
+
     S1 --> REPO_NEW
     S2 --> REPO_NEW
     S3 --> REPO_NEW
     S6 --> REPO_NEW
-    
+
     REPO_NEW --> MAPPER
     MAPPER --> PG
     MAPPER --> SQLITE
     REPO_NEW --> CACHE_LAYER
     CACHE_LAYER --> REDIS
-    
+
     AUTH --> REPO_NEW
     MONITOR --> LOG
     MONITOR --> METRIC
     METRIC --> ALERT
-    
+
     FACADE --> CONFIG
     S1 --> CONFIG
     S2 --> CONFIG
-    
+
     CI --> TESTS
     CI --> LINT
     CI --> DEPLOY
-    
+
     classDef working fill:#51cf66,stroke:#2b8a3e,color:#fff
     classDef new fill:#74c0fc,stroke:#339af0,color:#fff
     classDef improved fill:#63e6be,stroke:#20c997,color:#fff
-    
+
     class NT1,NT2,NT3,NT4,NT5,NT6,NT7,NT8,NT9,NT10,TESTS working
     class S1,S2,S3,S4,S5,S6,AUTH,MONITOR,RATELIMIT,FACADE new
     class AI_OPT,REDIS,CONFIG,CI,DEPLOY improved
@@ -207,7 +207,7 @@ class PromptOptimizer:
     def __init__(self, config: Config):
         self.max_tokens = config.prompt.max_tokens
         self.optimization_level = config.prompt.optimization_level
-    
+
     def optimize(self, prompt: str, context: Dict) -> str:
         # Verplaats prompt optimization logic hier
         optimized = self._reduce_tokens(prompt)
@@ -223,17 +223,17 @@ class DefinitionFacade:
         self.generator = container.get(DefinitionGenerator)
         self.validator = container.get(ValidationOrchestrator)
         self.cache = container.get(CacheManager)
-    
+
     async def generate_definition(self, request: DefinitionRequest) -> DefinitionResponse:
         # Orchestreer services
         cached = await self.cache.get(request.hash)
         if cached:
             return cached
-            
+
         result = await self.generator.generate(request)
         validated = await self.validator.validate(result)
         await self.cache.set(request.hash, validated)
-        
+
         return validated
 ```
 
@@ -260,7 +260,7 @@ Taken:
 class ExternalSourcesTab:
     def __init__(self, web_lookup_service: WebLookupService):
         self.web_lookup = web_lookup_service
-    
+
     def show_results(self, term: str):
         # Vervang mock met echte service call
         results = await self.web_lookup.search_definitions(term)
@@ -336,7 +336,7 @@ class IDefinitionService(ABC):
 
 class LegacyService(IDefinitionService):
     # Existing implementation
-    
+
 class ModernService(IDefinitionService):
     # New implementation
 ```
@@ -413,6 +413,6 @@ st.text_input("Name", key=f"name_input_{tab_id}_{timestamp}")
 
 De TO-BE architectuur transformeert de DefinitieAgent van een monolithische applicatie met technische schuld naar een moderne, schaalbare microservices architectuur. De 16-weken roadmap biedt een pragmatische, risicoarme aanpak voor deze transformatie met duidelijke milestones en success criteria.
 
-**Geschatte Investment**: 400-600 development uren  
-**ROI**: 60% performance verbetering, 70% onderhoudskosten reductie  
+**Geschatte Investment**: 400-600 development uren
+**ROI**: 60% performance verbetering, 70% onderhoudskosten reductie
 **Go-Live**: Week 16 met gefaseerde uitrol

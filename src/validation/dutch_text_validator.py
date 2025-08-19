@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Set
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -43,9 +43,9 @@ class DutchValidationRule:
     pattern: str
     description: str
     severity: ValidationSeverity
-    text_types: List[DutchTextType]
-    suggestion: Optional[str] = None
-    replacement: Optional[str] = None
+    text_types: list[DutchTextType]
+    suggestion: str | None = None
+    replacement: str | None = None
 
 
 @dataclass
@@ -55,21 +55,21 @@ class DutchValidationResult:
     text: str
     text_type: DutchTextType
     passed: bool
-    issues: List[Dict[str, Any]]
-    suggestions: List[str]
-    corrected_text: Optional[str] = None
-    statistics: Dict[str, Any] = None
+    issues: list[dict[str, Any]]
+    suggestions: list[str]
+    corrected_text: str | None = None
+    statistics: dict[str, Any] = None
 
 
 class DutchTextValidator:
     """Main Dutch text validation system."""
 
     def __init__(self):
-        self.validation_rules: Dict[DutchTextType, List[DutchValidationRule]] = {}
-        self.dutch_dictionary: Set[str] = set()
-        self.government_terms: Set[str] = set()
-        self.legal_terms: Set[str] = set()
-        self.validation_history: List[Dict[str, Any]] = []
+        self.validation_rules: dict[DutchTextType, list[DutchValidationRule]] = {}
+        self.dutch_dictionary: set[str] = set()
+        self.government_terms: set[str] = set()
+        self.legal_terms: set[str] = set()
+        self.validation_history: list[dict[str, Any]] = []
 
         self.load_validation_rules()
         self.load_dutch_dictionaries()
@@ -310,7 +310,6 @@ class DutchTextValidator:
             "waterschap",
             "rechtspraak",
             "openbaar",
-            "ministerie",
             "politie",
             "belastingdienst",
         }
@@ -438,7 +437,7 @@ class DutchTextValidator:
                 issues=[
                     {
                         "rule_name": "validation_error",
-                        "description": f"Validation error: {str(e)}",
+                        "description": f"Validation error: {e!s}",
                         "severity": "critical",
                         "position": (0, 0),
                         "matched_text": "",
@@ -457,7 +456,7 @@ class DutchTextValidator:
 
     def _check_spelling(
         self, text: str, text_type: DutchTextType
-    ) -> List[Dict[str, Any]]:
+    ) -> list[dict[str, Any]]:
         """Check spelling and terminology usage."""
         issues = []
 
@@ -502,7 +501,7 @@ class DutchTextValidator:
 
         return issues
 
-    def _calculate_statistics(self, text: str) -> Dict[str, Any]:
+    def _calculate_statistics(self, text: str) -> dict[str, Any]:
         """Calculate text statistics."""
         sentences = re.split(r"[.!?]+", text)
         words = re.findall(r"\b\w+\b", text)
@@ -539,7 +538,7 @@ class DutchTextValidator:
 
     def suggest_improvements(
         self, text: str, text_type: DutchTextType = DutchTextType.GENERAL
-    ) -> List[str]:
+    ) -> list[str]:
         """Suggest improvements for Dutch text."""
         result = self.validate_text(text, text_type)
 
@@ -581,7 +580,7 @@ class DutchTextValidator:
 
         return list(set(improvements))  # Remove duplicates
 
-    def get_validation_statistics(self) -> Dict[str, Any]:
+    def get_validation_statistics(self) -> dict[str, Any]:
         """Get validation statistics."""
         if not self.validation_history:
             return {"total_validations": 0}
@@ -617,7 +616,7 @@ class DutchTextValidator:
             "legal_terms_size": len(self.legal_terms),
         }
 
-    def export_validation_report(self, filename: Optional[str] = None) -> str:
+    def export_validation_report(self, filename: str | None = None) -> str:
         """Export validation report to file."""
         if filename is None:
             filename = f"dutch_validation_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
@@ -646,7 +645,7 @@ class DutchTextValidator:
 
 
 # Global Dutch text validator instance
-_dutch_validator: Optional[DutchTextValidator] = None
+_dutch_validator: DutchTextValidator | None = None
 
 
 def get_dutch_validator() -> DutchTextValidator:
@@ -667,7 +666,7 @@ def validate_dutch_text(
 
 def suggest_dutch_improvements(
     text: str, text_type: DutchTextType = DutchTextType.GENERAL
-) -> List[str]:
+) -> list[str]:
     """Convenience function for Dutch text improvement suggestions."""
     validator = get_dutch_validator()
     return validator.suggest_improvements(text, text_type)

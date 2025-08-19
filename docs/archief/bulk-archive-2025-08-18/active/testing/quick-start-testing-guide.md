@@ -25,15 +25,15 @@ from services.my_service import MyService
 
 class TestMyService:
     """Test suite voor MyService."""
-    
+
     def test_basic_functionality(self):
         """Test basis functionaliteit."""
         # Arrange
         service = MyService()
-        
+
         # Act
         result = service.do_something("input")
-        
+
         # Assert
         assert result == "expected output"
 ```
@@ -83,10 +83,10 @@ def test_api_call(self):
     with patch('services.my_service.requests.get') as mock_get:
         # Setup mock response
         mock_get.return_value.json.return_value = {'status': 'ok'}
-        
+
         # Execute
         result = my_service.check_api_status()
-        
+
         # Verify
         assert result == 'ok'
         mock_get.assert_called_once_with('https://api.example.com/status')
@@ -125,16 +125,16 @@ class TestDefinitionRepository:
         """Create repository met mock database."""
         with patch('services.repository.Database') as mock_db:
             return DefinitionRepository(mock_db)
-    
+
     def test_save_definition(self, repository):
         """Test opslaan van definitie."""
         # Arrange
         definition = Definition(begrip="Test", definitie="Test def")
         repository.db.insert.return_value = 123
-        
+
         # Act
         result_id = repository.save(definition)
-        
+
         # Assert
         assert result_id == 123
         repository.db.insert.assert_called_once()
@@ -148,10 +148,10 @@ def test_generate_with_mock_ai():
         # Setup
         mock_ai.generate.return_value = "Generated text"
         generator = DefinitionGenerator()
-        
+
         # Execute
         result = generator.generate("Test begrip")
-        
+
         # Verify
         assert "Generated text" in result.definitie
 ```
@@ -169,33 +169,33 @@ def test_feature_flag_enabled():
 ```python
 class TestServiceFactory:
     """Voorbeeld van complexe mocking uit ServiceFactory tests."""
-    
+
     def test_streamlit_context_manager_mocking(self):
         """Test Streamlit sidebar context manager."""
         with patch('services.service_factory.st') as mock_st:
             # Setup sidebar mock
             mock_sidebar = Mock()
             mock_st.sidebar = mock_sidebar
-            
+
             # BELANGRIJK: Mock de context manager methods!
             mock_sidebar.__enter__ = Mock(return_value=mock_st)
             mock_sidebar.__exit__ = Mock(return_value=None)
-            
+
             # Nu werkt: with st.sidebar:
             render_feature_flag_toggle()
-            
+
             # Verify
             mock_sidebar.__enter__.assert_called_once()
             mock_sidebar.__exit__.assert_called_once()
-    
+
     def test_async_mock_with_sync_method(self):
         """Test AsyncMock met sync methods."""
         # Maak AsyncMock voor async class
         orchestrator = AsyncMock()
-        
+
         # MAAR: sync methods moeten expliciet Mock zijn!
         orchestrator.get_stats = Mock(return_value={'stats': 'data'})
-        
+
         # Nu werkt get_stats() correct
         stats = orchestrator.get_stats()
         assert stats == {'stats': 'data'}

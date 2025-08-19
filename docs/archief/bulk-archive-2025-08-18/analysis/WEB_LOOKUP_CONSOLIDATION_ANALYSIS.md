@@ -15,7 +15,7 @@ De web lookup module bestond uit 5 verschillende implementaties met overlappende
 #### `/src/web_lookup/lookup.py` (475 regels)
 **Functionaliteit:**
 - Wikipedia lookup via MediaWiki API
-- Wiktionary lookup via MediaWiki API  
+- Wiktionary lookup via MediaWiki API
 - Ensie.nl web scraping
 - Overheid.nl SRU API zoekservice
 - Wetten.nl web scraping
@@ -82,7 +82,7 @@ De web lookup module bestond uit 5 verschillende implementaties met overlappende
 - `detecteer_duplicaten()` - Detecteert mogelijke duplicaten
 - Gelijkenis analyse met woord/structuur/semantische matching
 
-**Encoding probleem:** 
+**Encoding probleem:**
 - Regel 15: "Object-georiÃ«nteerde" (moet zijn: "Object-georiënteerde")
 - Regel 711: "=ï¿½" (moet zijn: "📊" of ander emoji)
 
@@ -105,7 +105,7 @@ De web lookup module bestond uit 5 verschillende implementaties met overlappende
 
 - `bron_lookup_backup.py` - Identiek aan bron_lookup.py
 - `bron_lookup_encoding_issue.py` - Bevat encoding problemen
-- `definitie_lookup_broken.py` - Bevat encoding problemen  
+- `definitie_lookup_broken.py` - Bevat encoding problemen
 - `definitie_lookup_encoding_issue.py` - Bevat encoding problemen
 
 ### 3. Data Bestanden
@@ -218,22 +218,22 @@ web_lookup/
 ```python
 class WebLookupService:
     """Unified web lookup service."""
-    
+
     async def search_definition(
-        self, 
-        term: str, 
+        self,
+        term: str,
         sources: List[str] = None,
         options: Dict[str, Any] = None
     ) -> DefinitionSearchResult:
         """Search for definitions across sources."""
-        
+
     async def validate_sources(
         self,
         text: str,
         expected_sources: List[str] = None
     ) -> SourceValidationResult:
         """Validate sources in text."""
-        
+
     async def detect_duplicates(
         self,
         term: str,
@@ -241,7 +241,7 @@ class WebLookupService:
         threshold: float = 0.8
     ) -> DuplicateDetectionResult:
         """Detect duplicate definitions."""
-        
+
     def analyze_juridical_references(
         self,
         text: str,
@@ -288,7 +288,7 @@ De web lookup module bevat waardevolle functionaliteit maar heeft consolidatie n
    - Async support met configureerbare timeouts
 
 2. **✅ Encoding issues opgelost**
-   - Fixed: "georiÃ«nteerde" → "georiënteerde" 
+   - Fixed: "georiÃ«nteerde" → "georiënteerde"
    - Fixed: "=ï¿½" → "📊"
 
 3. **✅ Duplicate bestanden verwijderd**

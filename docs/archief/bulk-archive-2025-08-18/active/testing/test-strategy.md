@@ -30,7 +30,7 @@ Dit document beschrijft de test strategie voor het DefinitieAgent project, inclu
 tests/
 ├── services/              # Service layer tests (✅ Werkend - 68% avg coverage)
 │   ├── test_definition_generator.py    # ✅ 99% coverage
-│   ├── test_definition_repository.py   # ✅ 100% coverage  
+│   ├── test_definition_repository.py   # ✅ 100% coverage
 │   ├── test_definition_validator.py    # ✅ 98% coverage
 │   ├── test_service_factory.py         # ⚠️ Some failures
 │   └── ...
@@ -97,7 +97,7 @@ def mock_legacy_repo():
 @pytest.fixture
 def repository(mock_legacy_repo):
     """Repository met gemockte legacy dependency."""
-    with patch('services.definition_repository.LegacyRepository', 
+    with patch('services.definition_repository.LegacyRepository',
                return_value=mock_legacy_repo):
         return DefinitionRepository(db_path=':memory:')
 ```
@@ -118,7 +118,7 @@ def test_streamlit_sidebar():
     with patch('services.service_factory.st') as mock_st:
         mock_sidebar = Mock()
         mock_st.sidebar = mock_sidebar
-        
+
         # Setup context manager behavior
         mock_sidebar.__enter__ = Mock(return_value=mock_st)
         mock_sidebar.__exit__ = Mock(return_value=None)
@@ -184,7 +184,7 @@ def test_none_handling():
     # Test met None
     result = function(None)
     assert result == default_value
-    
+
     # Test met lege collections
     result = function([])
     assert result == []
@@ -199,7 +199,7 @@ def test_all_branches():
     with patch('module.condition', return_value=True):
         result = function()
         assert result == "if_result"
-    
+
     # Test else branch
     with patch('module.condition', return_value=False):
         result = function()
@@ -212,11 +212,11 @@ def test_loop_coverage():
     # Empty list - loop body not executed
     result = process_items([])
     assert result == []
-    
+
     # Single item
     result = process_items([item])
     assert len(result) == 1
-    
+
     # Multiple items
     result = process_items([item1, item2, item3])
     assert len(result) == 3
@@ -234,7 +234,7 @@ pip install pytest pytest-cov
 [run]
 source = src
 branch = True
-omit = 
+omit =
     */tests/*
     */__init__.py
     */migrations/*
@@ -278,10 +278,10 @@ pytest --cov=src --no-cov-on-fail
 def test_example():
     # Arrange - setup test data
     test_data = create_test_data()
-    
+
     # Act - execute the function
     result = function_under_test(test_data)
-    
+
     # Assert - verify the result
     assert result == expected_result
 ```
@@ -328,12 +328,12 @@ assert mock.call_count == 2
 ```python
 class TestServiceIntegration:
     """Test interactie tussen services."""
-    
+
     def test_full_workflow(self):
         # Test complete flow van request tot response
         container = ServiceContainer()
         orchestrator = container.orchestrator()
-        
+
         response = orchestrator.create_definition(request)
         assert response.success
 ```

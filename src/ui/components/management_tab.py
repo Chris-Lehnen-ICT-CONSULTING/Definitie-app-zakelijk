@@ -8,23 +8,20 @@ import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
 from datetime import datetime  # Datum en tijd functionaliteit
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
-from typing import Dict  # Type hints voor code documentatie
 
 import pandas as pd  # Data manipulatie en analyse framework
 import streamlit as st  # Streamlit web interface framework
 
 # Database en core component imports
 from database.definitie_repository import (
-    DefinitieStatus,  # Database toegang en status enums
-)
-from database.definitie_repository import (
     DefinitieRepository,
-)
-from services.unified_definition_generator import (  # Categorieën voor definitie classificatie
-    OntologischeCategorie,
+    DefinitieStatus,  # Database toegang en status enums
 )
 from integration.definitie_checker import (  # Definitie validatie en check acties
     DefinitieChecker,
+)
+from services.unified_definition_generator import (  # Categorieën voor definitie classificatie
+    OntologischeCategorie,
 )
 from ui.session_state import (  # Sessie status management voor Streamlit
     SessionStateManager,
@@ -184,7 +181,7 @@ class ManagementTab:
                         st.write(f"**Definitie:** {definitie.definitie[:100]}...")
 
         except Exception as e:
-            st.error(f"❌ Fout bij ophalen dashboard data: {str(e)}")
+            st.error(f"❌ Fout bij ophalen dashboard data: {e!s}")
 
     def _render_database_browser(self):
         """Render database browser interface."""
@@ -448,7 +445,7 @@ class ManagementTab:
         if st.button("🔍 Health Check", key="health_check_btn"):
             self._perform_health_check()
 
-    def _get_context_statistics(self) -> Dict[str, int]:
+    def _get_context_statistics(self) -> dict[str, int]:
         """Haal context statistieken op."""
         try:
             all_definitions = self.repository.search_definities(limit=1000)
@@ -498,7 +495,7 @@ class ManagementTab:
             st.success(f"✅ {len(results)} resultaten gevonden")
 
         except Exception as e:
-            st.error(f"❌ Zoeken mislukt: {str(e)}")
+            st.error(f"❌ Zoeken mislukt: {e!s}")
 
     def _display_search_results(self):
         """Toon zoekresultaten."""
@@ -573,7 +570,7 @@ class ManagementTab:
                 st.session_state["confirm_reset_db"] = False
 
             except Exception as e:
-                st.error(f"❌ Reset mislukt: {str(e)}")
+                st.error(f"❌ Reset mislukt: {e!s}")
         else:
             st.warning("⚠️ Dit zal alle data wissen! Klik nogmaals om te bevestigen.")
             st.session_state["confirm_reset_db"] = True
@@ -599,7 +596,7 @@ class ManagementTab:
             st.success(f"✅ {added_count} test records toegevoegd!")
 
         except Exception as e:
-            st.error(f"❌ Test data laden mislukt: {str(e)}")
+            st.error(f"❌ Test data laden mislukt: {e!s}")
 
     def _cleanup_database(self):
         """Cleanup database (verwijder oude/ongeldige records)."""
@@ -613,7 +610,7 @@ class ManagementTab:
             # - Update deprecated fields
 
         except Exception as e:
-            st.error(f"❌ Cleanup mislukt: {str(e)}")
+            st.error(f"❌ Cleanup mislukt: {e!s}")
 
     def _export_definitions(self, status, context, category, filename):
         """Export definities naar bestand."""
@@ -647,7 +644,7 @@ class ManagementTab:
                 )
 
         except Exception as e:
-            st.error(f"❌ Export mislukt: {str(e)}")
+            st.error(f"❌ Export mislukt: {e!s}")
 
     def _preview_export(self, status, context, category):
         """Preview export data."""
@@ -689,7 +686,7 @@ class ManagementTab:
                     st.caption(f"... en {len(results) - 10} meer records")
 
         except Exception as e:
-            st.error(f"❌ Preview mislukt: {str(e)}")
+            st.error(f"❌ Preview mislukt: {e!s}")
 
     def _import_definitions(self, uploaded_file, import_by):
         """Import definities uit bestand."""
@@ -720,7 +717,7 @@ class ManagementTab:
                         st.write(f"... en {len(errors) - 10} meer fouten")
 
         except Exception as e:
-            st.error(f"❌ Import mislukt: {str(e)}")
+            st.error(f"❌ Import mislukt: {e!s}")
 
     def _show_recent_operations(self):
         """Toon recente import/export operaties."""
@@ -740,7 +737,7 @@ class ManagementTab:
             st.info("🔧 Duplicate scanning nog niet volledig geïmplementeerd")
 
         except Exception as e:
-            st.error(f"❌ Duplicate scan mislukt: {str(e)}")
+            st.error(f"❌ Duplicate scan mislukt: {e!s}")
 
     def _scan_validation_issues(self):
         """Scan voor validation issues."""
@@ -762,7 +759,7 @@ class ManagementTab:
                     )
 
         except Exception as e:
-            st.error(f"❌ Validation scan mislukt: {str(e)}")
+            st.error(f"❌ Validation scan mislukt: {e!s}")
 
     def _bulk_approve_interface(self):
         """Interface voor bulk approve."""
@@ -802,12 +799,12 @@ class ManagementTab:
                 DefinitieValidator()
                 st.success("✅ Validation system: OK")
             except Exception as e:
-                st.error(f"❌ Validation system: {str(e)}")
+                st.error(f"❌ Validation system: {e!s}")
 
             st.success("🎯 Health check completed!")
 
         except Exception as e:
-            st.error(f"❌ Health check failed: {str(e)}")
+            st.error(f"❌ Health check failed: {e!s}")
 
     def _approve_definition(self, definitie_id: int):
         """Keur definitie goed."""
@@ -825,7 +822,7 @@ class ManagementTab:
                 st.error(f"❌ Kon definitie {definitie_id} niet goedkeuren")
 
         except Exception as e:
-            st.error(f"❌ Goedkeuring mislukt: {str(e)}")
+            st.error(f"❌ Goedkeuring mislukt: {e!s}")
 
     def _delete_definition(self, definitie_id: int):
         """Verwijder definitie (met bevestiging)."""
@@ -838,7 +835,7 @@ class ManagementTab:
                 st.session_state[confirm_key] = False
 
             except Exception as e:
-                st.error(f"❌ Verwijderen mislukt: {str(e)}")
+                st.error(f"❌ Verwijderen mislukt: {e!s}")
         else:
             st.warning("⚠️ Definitie verwijderen? Klik nogmaals om te bevestigen.")
             st.session_state[confirm_key] = True
@@ -1009,10 +1006,10 @@ class ManagementTab:
                     st.markdown("**Prompt Preview:**")
                     prompt_preview = f"""
                     Je bent een expert in beleidsmatige definities.
-                    
+
                     **Begrip:** {test_begrip}
                     **Context:** {test_org_context} - {test_jur_context}
-                    
+
                     [... volledige prompt zou hier staan ...]
                     """
                     st.code(prompt_preview)
@@ -1151,8 +1148,6 @@ class ManagementTab:
 
                             # Log API call
                             try:
-                                pass
-
                                 # Simulate API monitoring
                                 st.caption("📊 API call would be monitored")
                             except ImportError:

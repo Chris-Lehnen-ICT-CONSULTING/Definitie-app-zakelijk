@@ -41,7 +41,7 @@
 - **09:00**: Standup (15 min)
   - Gisteren/Vandaag/Blockers
   - Update standup doc
-  
+
 - **16:00**: Progress Check
   - Update progress-tracker.md
   - Metrics bijwerken

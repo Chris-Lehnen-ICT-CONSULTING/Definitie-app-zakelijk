@@ -8,12 +8,13 @@ import json
 import logging
 import random
 import time
+from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from enum import Enum
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional
+from typing import Any
 
 from openai import APIConnectionError, APIError, RateLimitError
 
@@ -66,7 +67,7 @@ class RequestMetrics:
     timestamp: datetime
     duration: float
     success: bool
-    error_type: Optional[str] = None
+    error_type: str | None = None
     retry_count: int = 0
     endpoint: str = ""
 
@@ -78,8 +79,8 @@ class CircuitBreakerState:
     state: CircuitState = CircuitState.CLOSED
     failure_count: int = 0
     success_count: int = 0
-    last_failure_time: Optional[datetime] = None
-    last_success_time: Optional[datetime] = None
+    last_failure_time: datetime | None = None
+    last_success_time: datetime | None = None
     total_requests: int = 0
     total_failures: int = 0
 
@@ -90,9 +91,9 @@ class AdaptiveRetryManager:
     def __init__(self, config: RetryConfig):
         self.config = config
         self.circuit_state = CircuitBreakerState()
-        self.request_history: List[RequestMetrics] = []
-        self.error_patterns: Dict[str, List[float]] = {}
-        self.adaptive_delays: Dict[str, float] = {}
+        self.request_history: list[RequestMetrics] = []
+        self.error_patterns: dict[str, list[float]] = {}
+        self.adaptive_delays: dict[str, float] = {}
         self._lock = asyncio.Lock()
 
         # Load historical data if available
@@ -103,7 +104,7 @@ class AdaptiveRetryManager:
         try:
             history_file = Path("cache/retry_history.json")
             if history_file.exists():
-                with open(history_file, "r") as f:
+                with open(history_file) as f:
                     data = json.load(f)
                     self.error_patterns = data.get("error_patterns", {})
                     self.adaptive_delays = data.get("adaptive_delays", {})
@@ -285,7 +286,7 @@ class AdaptiveRetryManager:
             # Keep only recent patterns
             self.error_patterns[error_type] = self.error_patterns[error_type][-50:]
 
-    def get_health_metrics(self) -> Dict[str, Any]:
+    def get_health_metrics(self) -> dict[str, Any]:
         """Get current health and performance metrics."""
         total_requests = self.circuit_state.total_requests
         total_failures = self.circuit_state.total_failures
@@ -322,10 +323,10 @@ class AdaptiveRetryManager:
 
 
 # Global retry manager instance
-_retry_manager: Optional[AdaptiveRetryManager] = None
+_retry_manager: AdaptiveRetryManager | None = None
 
 
-def get_retry_manager(config: Optional[RetryConfig] = None) -> AdaptiveRetryManager:
+def get_retry_manager(config: RetryConfig | None = None) -> AdaptiveRetryManager:
     """Get or create global retry manager."""
     global _retry_manager
     if _retry_manager is None:
@@ -333,7 +334,7 @@ def get_retry_manager(config: Optional[RetryConfig] = None) -> AdaptiveRetryMana
     return _retry_manager
 
 
-def with_enhanced_retry(config: Optional[RetryConfig] = None, endpoint_name: str = ""):
+def with_enhanced_retry(config: RetryConfig | None = None, endpoint_name: str = ""):
     """
     Decorator for enhanced retry logic with circuit breaker pattern.
 
@@ -388,7 +389,7 @@ def with_enhanced_retry(config: Optional[RetryConfig] = None, endpoint_name: str
                 except Exception as e:
                     last_error = e
                     logger.warning(
-                        f"Attempt {attempt + 1} failed for {func.__name__}: {str(e)}"
+                        f"Attempt {attempt + 1} failed for {func.__name__}: {e!s}"
                     )
 
                     # Record failure internally

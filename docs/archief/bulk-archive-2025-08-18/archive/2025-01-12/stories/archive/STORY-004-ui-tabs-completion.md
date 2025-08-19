@@ -1,8 +1,8 @@
 # STORY-004: Complete UI Tab Activation
 
 ## User Story
-Als een **power user**  
-wil ik toegang tot alle 10 UI tabs met volledige functionaliteit  
+Als een **power user**
+wil ik toegang tot alle 10 UI tabs met volledige functionaliteit
 zodat ik alle features van de applicatie kan gebruiken voor mijn werk.
 
 ## Acceptance Criteria
@@ -21,16 +21,16 @@ zodat ik alle features van de applicatie kan gebruiken voor mijn werk.
    ```python
    def management_tab():
        st.header("📊 Management")
-       
+
        # Configuration section
        with st.expander("⚙️ Configuratie"):
            temperature = st.slider("Default Temperature", 0.0, 1.0, 0.3)
            model = st.selectbox("Default Model", ["gpt-4", "gpt-3.5-turbo"])
-           
+
        # User management (future)
        with st.expander("👥 Gebruikers"):
            st.info("Gebruikersbeheer komt in versie 2.0")
-           
+
        # System stats
        with st.expander("📈 Systeem Statistieken"):
            show_system_stats()
@@ -40,13 +40,13 @@ zodat ik alle features van de applicatie kan gebruiken voor mijn werk.
    ```python
    def orchestration_tab():
        st.header("🎭 Multi-Agent Orchestratie")
-       
+
        # Agent selection
        agents = st.multiselect(
            "Selecteer agents",
            ["Definitie", "Validatie", "Enrichment", "Export"]
        )
-       
+
        # Workflow builder
        if agents:
            build_workflow(agents)
@@ -56,7 +56,7 @@ zodat ik alle features van de applicatie kan gebruiken voor mijn werk.
    ```python
    def monitoring_tab():
        st.header("📈 Monitoring Dashboard")
-       
+
        # Real-time metrics
        col1, col2, col3 = st.columns(3)
        with col1:
@@ -65,7 +65,7 @@ zodat ik alle features van de applicatie kan gebruiken voor mijn werk.
            st.metric("Avg Response Time", "6.3s")
        with col3:
            st.metric("Cache Hit Rate", "73%")
-       
+
        # Charts
        show_performance_charts()
    ```
@@ -74,14 +74,14 @@ zodat ik alle features van de applicatie kan gebruiken voor mijn werk.
    ```python
    def external_sources_tab():
        st.header("🌐 Externe Bronnen")
-       
+
        # Drag-drop upload
        uploaded_files = st.file_uploader(
            "Sleep documenten hierheen",
            accept_multiple_files=True,
            type=['pdf', 'docx', 'txt']
        )
-       
+
        if uploaded_files:
            process_documents(uploaded_files)
    ```
@@ -90,13 +90,13 @@ zodat ik alle features van de applicatie kan gebruiken voor mijn werk.
    ```python
    def web_lookup_tab():
        st.header("🔍 Web Lookup")
-       
+
        term = st.text_input("Zoekterm")
        sources = st.multiselect(
            "Bronnen",
            ["wetten.nl", "officielebekendmakingen.nl", "rechtspraak.nl"]
        )
-       
+
        if st.button("Zoeken"):
            # Fixed encoding
            results = search_with_encoding_fix(term, sources)

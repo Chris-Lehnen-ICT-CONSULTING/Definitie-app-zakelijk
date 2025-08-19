@@ -1,7 +1,7 @@
 """
 Ontologische categorieën voor definitie classificatie.
 
-Dit bestand bevat de enum voor ontologische categorieën om circulaire 
+Dit bestand bevat de enum voor ontologische categorieën om circulaire
 imports te voorkomen tussen services en database modules.
 """
 

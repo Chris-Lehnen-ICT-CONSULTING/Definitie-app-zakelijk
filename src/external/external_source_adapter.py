@@ -7,7 +7,7 @@ import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from database.definitie_repository import DefinitieRecord, DefinitieStatus, SourceType
 
@@ -32,12 +32,12 @@ class ExternalSourceConfig:
     source_name: str
     source_type: ExternalSourceType
     connection_string: str
-    api_key: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None
+    api_key: str | None = None
+    username: str | None = None
+    password: str | None = None
     timeout: int = 30
     retry_count: int = 3
-    custom_config: Dict[str, Any] = None
+    custom_config: dict[str, Any] = None
 
     def __post_init__(self):
         if self.custom_config is None:
@@ -51,13 +51,13 @@ class ExternalDefinition:
     external_id: str
     begrip: str
     definitie: str
-    categorie: Optional[str] = None
-    context: Optional[str] = None
-    juridische_context: Optional[str] = None
-    status: Optional[str] = None
-    version: Optional[str] = None
-    last_modified: Optional[str] = None
-    metadata: Dict[str, Any] = None
+    categorie: str | None = None
+    context: str | None = None
+    juridische_context: str | None = None
+    status: str | None = None
+    version: str | None = None
+    last_modified: str | None = None
+    metadata: dict[str, Any] = None
 
     def __post_init__(self):
         if self.metadata is None:
@@ -79,7 +79,7 @@ class ExternalDefinition:
             imported_from=source_config.source_name,
         )
 
-    def _map_external_status(self, external_status: Optional[str]) -> str:
+    def _map_external_status(self, external_status: str | None) -> str:
         """Map externe status naar interne status."""
         if not external_status:
             return DefinitieStatus.DRAFT.value
@@ -141,7 +141,7 @@ class ExternalSourceAdapter(ABC):
         categorie: str = None,
         context: str = None,
         limit: int = 100,
-    ) -> List[ExternalDefinition]:
+    ) -> list[ExternalDefinition]:
         """
         Zoek definities in externe bron.
 
@@ -156,7 +156,7 @@ class ExternalSourceAdapter(ABC):
         """
 
     @abstractmethod
-    def get_definition(self, external_id: str) -> Optional[ExternalDefinition]:
+    def get_definition(self, external_id: str) -> ExternalDefinition | None:
         """
         Haal specifieke definitie op via ID.
 
@@ -206,7 +206,7 @@ class ExternalSourceAdapter(ABC):
             True als succesvol verwijderd
         """
 
-    def get_source_info(self) -> Dict[str, Any]:
+    def get_source_info(self) -> dict[str, Any]:
         """Haal informatie over externe bron op."""
         return {
             "source_id": self.config.source_id,
@@ -244,7 +244,7 @@ class MockExternalAdapter(ExternalSourceAdapter):
         categorie: str = None,
         context: str = None,
         limit: int = 100,
-    ) -> List[ExternalDefinition]:
+    ) -> list[ExternalDefinition]:
         """Simuleer zoeken in mock data."""
         results = []
 
@@ -269,7 +269,7 @@ class MockExternalAdapter(ExternalSourceAdapter):
         logger.info(f"Mock search returned {len(results)} results")
         return results
 
-    def get_definition(self, external_id: str) -> Optional[ExternalDefinition]:
+    def get_definition(self, external_id: str) -> ExternalDefinition | None:
         """Simuleer ophalen specifieke definitie."""
         for definition in self._mock_data:
             if definition.external_id == external_id:
@@ -304,7 +304,7 @@ class MockExternalAdapter(ExternalSourceAdapter):
                 return True
         return False
 
-    def _create_mock_data(self) -> List[ExternalDefinition]:
+    def _create_mock_data(self) -> list[ExternalDefinition]:
         """Maak mock data voor testing."""
         return [
             ExternalDefinition(
@@ -350,9 +350,8 @@ class FileSystemAdapter(ExternalSourceAdapter):
                 self.connected = True
                 logger.info(f"Connected to file system source: {path}")
                 return True
-            else:
-                logger.error(f"File system path not found: {path}")
-                return False
+            logger.error(f"File system path not found: {path}")
+            return False
         except Exception as e:
             logger.error(f"Failed to connect to file system: {e}")
             return False
@@ -371,13 +370,13 @@ class FileSystemAdapter(ExternalSourceAdapter):
         categorie: str = None,
         context: str = None,
         limit: int = 100,
-    ) -> List[ExternalDefinition]:
+    ) -> list[ExternalDefinition]:
         """Laad en filter definities uit bestand."""
         # Placeholder - zou echte file parsing implementeren
         logger.info("FileSystemAdapter: search_definitions not fully implemented")
         return []
 
-    def get_definition(self, external_id: str) -> Optional[ExternalDefinition]:
+    def get_definition(self, external_id: str) -> ExternalDefinition | None:
         """Haal definitie op uit bestand op basis van ID."""
         # Placeholder - zou echte file parsing implementeren
         logger.info(
@@ -414,7 +413,7 @@ class ExternalSourceManager:
     """Manager voor meerdere externe bronnen."""
 
     def __init__(self):
-        self.adapters: Dict[str, ExternalSourceAdapter] = {}
+        self.adapters: dict[str, ExternalSourceAdapter] = {}
 
     def register_source(self, adapter: ExternalSourceAdapter) -> bool:
         """
@@ -453,7 +452,7 @@ class ExternalSourceManager:
             return True
         return False
 
-    def get_adapter(self, source_id: str) -> Optional[ExternalSourceAdapter]:
+    def get_adapter(self, source_id: str) -> ExternalSourceAdapter | None:
         """Haal adapter op voor specifieke bron."""
         return self.adapters.get(source_id)
 
@@ -463,7 +462,7 @@ class ExternalSourceManager:
         categorie: str = None,
         context: str = None,
         limit_per_source: int = 50,
-    ) -> Dict[str, List[ExternalDefinition]]:
+    ) -> dict[str, list[ExternalDefinition]]:
         """
         Zoek in alle geregistreerde bronnen.
 
@@ -494,7 +493,7 @@ class ExternalSourceManager:
 
         return results
 
-    def get_source_info(self) -> List[Dict[str, Any]]:
+    def get_source_info(self) -> list[dict[str, Any]]:
         """Haal informatie over alle geregistreerde bronnen."""
         return [adapter.get_source_info() for adapter in self.adapters.values()]
 

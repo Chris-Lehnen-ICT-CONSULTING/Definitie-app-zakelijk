@@ -132,7 +132,7 @@ ServiceContainer
 
 **Evidence:**
 1. **High import count**: 24 unique imports (highest among all services)
-2. **Multiple concerns**: 
+2. **Multiple concerns**:
    - Configuration management
    - Context building (3+ strategies)
    - Prompt generation

@@ -57,12 +57,12 @@ def generate_definition(
 ) -> Dict[str, Union[str, Dict[str, Any]]]:
     """
     Genereert een definitie voor het gegeven begrip.
-    
+
     Args:
         term: Het te definiëren begrip
         context: Optionele context (juridisch, technisch, etc.)
         temperature: OpenAI temperature parameter
-        
+
     Returns:
         Dictionary met definitie en metadata
     """
@@ -86,7 +86,7 @@ except Exception as e:
 # FOUT:
 except:
     pass
-    
+
 # GOED:
 except Exception as e:
     logger.error(f"Error: {e}")
@@ -102,21 +102,21 @@ Gebruik Google-style docstrings in het Nederlands voor business logic:
 def validate_definition(definition: str, term: str) -> ValidationResult:
     """
     Valideert een definitie tegen de 46 kwaliteitsregels.
-    
+
     Deze functie controleert of de gegenereerde definitie voldoet aan
     alle verplichte en aanbevolen kwaliteitsregels. Bij het falen van
     verplichte regels wordt de definitie afgekeurd.
-    
+
     Args:
         definition: De te valideren definitietekst
         term: Het gedefinieerde begrip
-        
+
     Returns:
         ValidationResult object met score en details
-        
+
     Raises:
         ValidationError: Als de input ongeldig is
-        
+
     Example:
         >>> result = validate_definition("Een test is...", "test")
         >>> print(result.score)
@@ -125,7 +125,7 @@ def validate_definition(definition: str, term: str) -> ValidationResult:
     # Implementatie met inline commentaar voor complexe logica
     # Bereken eerst de basis score
     base_score = calculate_base_score(definition)
-    
+
     # Pas ontologische categorisatie toe volgens 6-stappen protocol
     ontology_score = apply_ontology_rules(definition, term)
 ```
@@ -159,7 +159,7 @@ class TestUnifiedDefinitionService:
     def test_generate_definition_with_valid_input(self):
         """Test dat definitie generatie werkt met valide input."""
         pass
-        
+
     def test_generate_definition_raises_on_empty_term(self):
         """Test dat lege term een ValidationError geeft."""
         pass

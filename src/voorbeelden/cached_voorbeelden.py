@@ -5,11 +5,9 @@ This module provides intelligent caching for all example generation functions.
 
 import os
 import re
-from typing import Dict, List
 
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
-
 from utils.cache import cache_example_generation, cache_synonym_generation
 
 # Load environment and initialize OpenAI client
@@ -19,8 +17,8 @@ _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @cache_example_generation(ttl=1800)  # Cache for 30 minutes
 def genereer_voorbeeld_zinnen(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> list[str]:
     """Generate example sentences with caching."""
     prompt = (
         f"Geef 2 tot 3 korte voorbeeldzinnen waarin het begrip '{begrip}' "
@@ -42,7 +40,7 @@ def genereer_voorbeeld_zinnen(
         return [f"❌ Fout bij genereren korte voorbeelden: {e}"]
 
     # Split on lines and remove numbering
-    zinnen: List[str] = []
+    zinnen: list[str] = []
     for line in blob.splitlines():
         # If AI uses "1. …" or "- …", strip it off
         zin = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
@@ -54,8 +52,8 @@ def genereer_voorbeeld_zinnen(
 
 @cache_example_generation(ttl=1800)  # Cache for 30 minutes
 def genereer_praktijkvoorbeelden(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> list[str]:
     """Generate practice examples with caching."""
     prompt = (
         f"Geef 2 tot 3 praktijkvoorbeelden waarin het begrip '{begrip}' "
@@ -78,7 +76,7 @@ def genereer_praktijkvoorbeelden(
         return [f"❌ Fout bij genereren praktijkvoorbeelden: {e}"]
 
     # Split into separate examples
-    voorbeelden: List[str] = []
+    voorbeelden: list[str] = []
     for line in blob.splitlines():
         # Remove numbering and clean up
         voorbeeld = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
@@ -90,8 +88,8 @@ def genereer_praktijkvoorbeelden(
 
 @cache_example_generation(ttl=1800)  # Cache for 30 minutes
 def genereer_tegenvoorbeelden(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> list[str]:
     """Generate counter-examples with caching."""
     prompt = (
         f"Geef 2 tot 3 tegenvoorbeelden die NIET onder het begrip '{begrip}' vallen, "
@@ -112,7 +110,7 @@ def genereer_tegenvoorbeelden(
         return [f"❌ Fout bij genereren tegenvoorbeelden: {e}"]
 
     # Split into separate counter-examples
-    tegenvoorbeelden: List[str] = []
+    tegenvoorbeelden: list[str] = []
     for line in blob.splitlines():
         # Remove numbering and clean up
         voorbeeld = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
@@ -123,7 +121,7 @@ def genereer_tegenvoorbeelden(
 
 
 @cache_synonym_generation(ttl=7200)  # Cache for 2 hours
-def genereer_synoniemen(begrip: str, context_dict: Dict[str, List[str]]) -> str:
+def genereer_synoniemen(begrip: str, context_dict: dict[str, list[str]]) -> str:
     """Generate synonyms with caching."""
     prompt = (
         f"Geef maximaal 5 synoniemen voor het begrip '{begrip}', "
@@ -146,7 +144,7 @@ def genereer_synoniemen(begrip: str, context_dict: Dict[str, List[str]]) -> str:
 
 
 @cache_synonym_generation(ttl=7200)  # Cache for 2 hours
-def genereer_antoniemen(begrip: str, context_dict: Dict[str, List[str]]) -> str:
+def genereer_antoniemen(begrip: str, context_dict: dict[str, list[str]]) -> str:
     """Generate antonyms with caching."""
     prompt = (
         f"Geef maximaal 5 antoniemen voor het begrip '{begrip}', "
@@ -169,7 +167,7 @@ def genereer_antoniemen(begrip: str, context_dict: Dict[str, List[str]]) -> str:
 
 
 @cache_synonym_generation(ttl=3600)  # Cache for 1 hour
-def genereer_toelichting(begrip: str, context_dict: Dict[str, List[str]]) -> str:
+def genereer_toelichting(begrip: str, context_dict: dict[str, list[str]]) -> str:
     """Generate explanation with caching."""
     prompt = (
         f"Geef een korte toelichting op de betekenis en toepassing van het begrip '{begrip}', "

@@ -75,5 +75,5 @@ This documentation is actively maintained. Updates should be made to:
 - **architecture.md** - When system changes occur
 
 ---
-*For project setup, see [SETUP.md](../SETUP.md)*  
+*For project setup, see [SETUP.md](../SETUP.md)*
 *For contributing, see [CONTRIBUTING.md](../CONTRIBUTING.md)*

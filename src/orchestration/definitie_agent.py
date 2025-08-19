@@ -13,7 +13,7 @@ from dataclasses import (  # Dataklassen voor gestructureerde resultaat data
     field,
 )
 from enum import Enum  # Enumeraties voor agent status tracking
-from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 # Initialiseer logger
 logger = logging.getLogger(__name__)
@@ -31,16 +31,22 @@ try:
 except ImportError:
     # Fallback imports if deprecated module is not available
     logger.warning("Could not import from deprecated.generation.definitie_generator")
-    
+
     # Import modern service interfaces as fallback
-    from services.interfaces import GenerationRequest, Definition
-    from services.unified_definition_generator import UnifiedDefinitionGenerator
-    
+
     # Define minimal compatibility classes
     class GenerationContext:
         """Minimal compatibility wrapper"""
-        def __init__(self, begrip, organisatorische_context=None, juridische_context=None, 
-                     categorie=None, feedback_history=None, **kwargs):
+
+        def __init__(
+            self,
+            begrip,
+            organisatorische_context=None,
+            juridische_context=None,
+            categorie=None,
+            feedback_history=None,
+            **kwargs,
+        ):
             self.begrip = begrip
             self.organisatorische_context = organisatorische_context or ""
             self.juridische_context = juridische_context or ""
@@ -49,78 +55,89 @@ except ImportError:
             # Handle additional attributes from kwargs
             for key, value in kwargs.items():
                 setattr(self, key, value)
-    
+
     class GenerationResult:
         """Minimal compatibility wrapper"""
+
         def __init__(self, definitie, metadata=None):
             self.definitie = definitie
             self.metadata = metadata or {}
             self.voorbeelden = {}  # Add voorbeelden attribute
             self.voorbeelden_gegenereerd = False
             self.voorbeelden_error = None
-    
+
     class DefinitieGenerator:
         """Minimal compatibility wrapper"""
+
         def __init__(self):
             logger.warning("Using minimal DefinitieGenerator wrapper")
             self.service_container = None
             try:
                 from services.container import ServiceContainer
+
                 self.service_container = ServiceContainer()
             except Exception as e:
                 logger.error(f"Could not initialize ServiceContainer: {e}")
-        
-        def generate_with_examples(self, generation_context, generate_examples=True, example_types=None):
+
+        def generate_with_examples(
+            self, generation_context, generate_examples=True, example_types=None
+        ):
             """Generate definition with examples using UnifiedDefinitionGenerator"""
             if not self.service_container:
                 # Return a minimal result
                 return GenerationResult(
                     definitie="[Error: Service container not available]",
-                    metadata={"error": "Service initialization failed"}
+                    metadata={"error": "Service initialization failed"},
                 )
-            
+
             try:
                 generator = self.service_container.generator()
-                
+
                 # Import GenerationRequest from interfaces
                 from services.interfaces import GenerationRequest
-                
+
                 request = GenerationRequest(
                     begrip=generation_context.begrip,
                     context=generation_context.organisatorische_context,
                     domein=generation_context.juridische_context,
                     # categorie is not part of GenerationRequest
                 )
-                
+
                 # Run async method in sync context
                 import asyncio
+
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                
+
                 try:
                     result = loop.run_until_complete(generator.generate(request))
                 finally:
                     loop.close()
-                
+
                 # Convert to GenerationResult
                 generation_result = GenerationResult(
-                    definitie=result.definitie if hasattr(result, 'definitie') else str(result),
-                    metadata=result.metadata if hasattr(result, 'metadata') else {}
+                    definitie=(
+                        result.definitie
+                        if hasattr(result, "definitie")
+                        else str(result)
+                    ),
+                    metadata=result.metadata if hasattr(result, "metadata") else {},
                 )
-                
+
                 # Add voorbeelden if available
-                if hasattr(result, 'voorbeelden') and result.voorbeelden:
+                if hasattr(result, "voorbeelden") and result.voorbeelden:
                     generation_result.voorbeelden = result.voorbeelden
                     generation_result.voorbeelden_gegenereerd = True
-                
+
                 return generation_result
-                
+
             except Exception as e:
                 logger.error(f"Generation failed: {e}")
                 return GenerationResult(
-                    definitie=f"[Error during generation: {str(e)}]",
-                    metadata={"error": str(e)}
+                    definitie=f"[Error during generation: {e!s}]",
+                    metadata={"error": str(e)},
                 )
+
 
 # Importeer validatie componenten voor kwaliteitscontrole
 from validation.definitie_validator import (
@@ -151,7 +168,7 @@ class IterationResult:
     definitie: str
     generation_result: GenerationResult
     validation_result: ValidationResult
-    improvement_feedback: List[str]
+    improvement_feedback: list[str]
     processing_time: float
     status: AgentStatus
 
@@ -177,11 +194,11 @@ class IterationResult:
 class FeedbackContext:
     """Context informatie voor feedback generatie."""
 
-    violations: List[RuleViolation]
-    previous_attempts: List[str]
-    score_history: List[float]
-    successful_patterns: List[str] = field(default_factory=list)
-    failed_patterns: List[str] = field(default_factory=list)
+    violations: list[RuleViolation]
+    previous_attempts: list[str]
+    score_history: list[float]
+    successful_patterns: list[str] = field(default_factory=list)
+    failed_patterns: list[str] = field(default_factory=list)
 
 
 @dataclass
@@ -189,12 +206,12 @@ class AgentResult:
     """Eindresultaat van de DefinitieAgent."""
 
     final_definitie: str
-    iterations: List[IterationResult]
+    iterations: list[IterationResult]
     total_processing_time: float
     success: bool
     reason: str
     best_iteration: IterationResult
-    improvement_history: List[float]
+    improvement_history: list[float]
 
     @property
     def iteration_count(self) -> int:
@@ -210,7 +227,7 @@ class AgentResult:
             else 0.0
         )
 
-    def get_performance_metrics(self) -> Dict[str, Any]:
+    def get_performance_metrics(self) -> dict[str, Any]:
         """Haal performance metrics op."""
         if not self.iterations:
             return {}
@@ -237,7 +254,7 @@ class FeedbackBuilder:
 
     def build_improvement_feedback(
         self, context: FeedbackContext, iteration_number: int
-    ) -> List[str]:
+    ) -> list[str]:
         """
         Bouw intelligente feedback op basis van violations en context.
 
@@ -283,7 +300,7 @@ class FeedbackBuilder:
         # Limiteer en prioriteer feedback
         return self._prioritize_feedback(feedback, max_items=5)
 
-    def _build_violation_feedback_mapping(self) -> Dict[str, str]:
+    def _build_violation_feedback_mapping(self) -> dict[str, str]:
         """Bouw mapping van regel violations naar specifieke feedback."""
         return {
             "CON-01": "Maak de definitie context-specifiek zonder expliciete vermelding van organisaties of context namen.",
@@ -299,7 +316,7 @@ class FeedbackBuilder:
             "STR-02": "Gebruik concrete, specifieke terminologie in plaats van abstracte of vage begrippen.",
         }
 
-    def _build_pattern_suggestions(self) -> Dict[str, List[str]]:
+    def _build_pattern_suggestions(self) -> dict[str, list[str]]:
         """Bouw pattern-based suggestions voor veelvoorkomende problemen."""
         return {
             "forbidden_context_words": [
@@ -325,8 +342,8 @@ class FeedbackBuilder:
         }
 
     def _handle_critical_violations(
-        self, critical_violations: List[RuleViolation]
-    ) -> List[str]:
+        self, critical_violations: list[RuleViolation]
+    ) -> list[str]:
         """Genereer urgente feedback voor kritieke violations."""
         feedback = []
 
@@ -341,8 +358,8 @@ class FeedbackBuilder:
         return feedback
 
     def _group_violations_by_type(
-        self, violations: List[RuleViolation]
-    ) -> Dict[ViolationType, List[RuleViolation]]:
+        self, violations: list[RuleViolation]
+    ) -> dict[ViolationType, list[RuleViolation]]:
         """Groepeer violations per type voor efficiënte behandeling."""
         groups = {}
         for violation in violations:
@@ -355,9 +372,9 @@ class FeedbackBuilder:
     def _generate_type_specific_feedback(
         self,
         v_type: ViolationType,
-        violations: List[RuleViolation],
+        violations: list[RuleViolation],
         iteration_number: int,
-    ) -> List[str]:
+    ) -> list[str]:
         """Genereer feedback specifiek voor violation type."""
         feedback = []
 
@@ -398,7 +415,7 @@ class FeedbackBuilder:
 
         return feedback
 
-    def _generate_learning_feedback(self, context: FeedbackContext) -> List[str]:
+    def _generate_learning_feedback(self, context: FeedbackContext) -> list[str]:
         """Genereer feedback op basis van eerdere pogingen."""
         feedback = []
 
@@ -428,8 +445,8 @@ class FeedbackBuilder:
         return feedback
 
     def _generate_reinforcement_feedback(
-        self, successful_patterns: List[str]
-    ) -> List[str]:
+        self, successful_patterns: list[str]
+    ) -> list[str]:
         """Genereer positieve feedback voor succesvolle patronen."""
         feedback = []
 
@@ -441,8 +458,8 @@ class FeedbackBuilder:
         return feedback
 
     def _prioritize_feedback(
-        self, feedback: List[str], max_items: int = 5
-    ) -> List[str]:
+        self, feedback: list[str], max_items: int = 5
+    ) -> list[str]:
         """Prioriteer en limiteer feedback tot meest belangrijke items."""
         # Sorteer op prioriteit (kritieke feedback eerst)
         prioritized = []
@@ -504,8 +521,8 @@ class DefinitieAgent:
 
         # State tracking
         self.current_status = AgentStatus.INITIALIZING
-        self.iterations: List[IterationResult] = []
-        self.start_time: Optional[float] = None
+        self.iterations: list[IterationResult] = []
+        self.start_time: float | None = None
 
     def generate_definition(
         self,
@@ -513,9 +530,9 @@ class DefinitieAgent:
         organisatorische_context: str,
         juridische_context: str = "",
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
-        initial_feedback: List[str] = None,
+        initial_feedback: list[str] = None,
         # Hybrid context parameters
-        selected_document_ids: Optional[List[str]] = None,
+        selected_document_ids: list[str] | None = None,
         enable_hybrid: bool = False,
     ) -> AgentResult:
         """
@@ -620,7 +637,7 @@ class DefinitieAgent:
         except Exception as e:
             logger.error(f"Error during definition generation: {e}")
             self.current_status = AgentStatus.FAILED
-            reason = f"Error: {str(e)}"
+            reason = f"Error: {e!s}"
             if not best_iteration and self.iterations:
                 best_iteration = self.iterations[-1]
 
@@ -806,7 +823,7 @@ class DefinitieAgent:
                     generation_context.feedback_history[-10:]
                 )
 
-    def get_status(self) -> Dict[str, Any]:
+    def get_status(self) -> dict[str, Any]:
         """Haal huidige status op."""
         return {
             "status": self.current_status.value,

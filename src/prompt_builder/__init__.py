@@ -11,9 +11,11 @@ Dit module biedt legacy functionaliteit voor het bouwen van AI prompts.
 # 📦 prompt_builder/__init__.py
 # ✅ Centrale export van classgebaseerde promptopbouw
 
-from .prompt_builder import PromptBouwer  # ✅ Nieuwe naam voor PromptBuilder
-from .prompt_builder import PromptConfiguratie  # ✅ Nieuwe naam voor PromptConfig
-from .prompt_builder import stuur_prompt_naar_gpt  # ✅ GPT-aanroepfunctie
+from .prompt_builder import (
+    PromptBouwer,  # ✅ Nieuwe naam voor PromptBuilder
+    PromptConfiguratie,  # ✅ Nieuwe naam voor PromptConfig
+    stuur_prompt_naar_gpt,  # ✅ GPT-aanroepfunctie
+)
 
 __all__ = [
     "PromptBouwer",

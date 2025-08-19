@@ -31,7 +31,7 @@ Bij legacy code: Analyseer → Check gebruik → Refactor/Archiveer → Document
 ## 🚀 Automatische Acties
 Direct aanpakken zonder te vragen:
 - **Duplicate code** → Extract naar shared functie
-- **Lange functies** (>20 regels) → Splits in kleinere delen  
+- **Lange functies** (>20 regels) → Splits in kleinere delen
 - **Ontbrekende tests** → Schrijf voor kritieke functionaliteit
 - **Slechte namen** → Hernoem naar beschrijvende namen
 - **Type errors** → Voeg type hints toe
@@ -65,7 +65,7 @@ Documentatie NOOIT in root, altijd in docs/ subdirectories.
 
 ### Branches
 - `feature/beschrijving` - nieuwe functionaliteit
-- `bugfix/issue-nummer` - bug fixes  
+- `bugfix/issue-nummer` - bug fixes
 - `refactor/module-naam` - restructurering
 
 ### Commit Format
@@ -117,7 +117,7 @@ Bij het maken van fix/maintenance scripts:
 ### Implementatie Eisen
 ```python
 # Verplicht: dry-run als default
-# Verplicht: backup voor destructieve operaties  
+# Verplicht: backup voor destructieve operaties
 # Verplicht: argparse voor CLI interface
 # Verplicht: uitgebreide logging van acties
 ```

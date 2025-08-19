@@ -21,7 +21,7 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps
 )
 from enum import Enum  # Enumeraties voor monitoring types en severity levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
-from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 logger = logging.getLogger(__name__)  # Logger instantie voor API monitor module
 
@@ -57,7 +57,7 @@ class Alert:
     severity: AlertSeverity
     window_minutes: int = 5
     cooldown_minutes: int = 15
-    last_triggered: Optional[datetime] = None
+    last_triggered: datetime | None = None
     trigger_count: int = 0
     enabled: bool = True
 
@@ -72,7 +72,7 @@ class APICall:
     request_id: str
     duration: float
     success: bool
-    error_type: Optional[str] = None
+    error_type: str | None = None
     tokens_used: int = 0
     cost: float = 0.0
     cache_hit: bool = False
@@ -135,8 +135,8 @@ class MetricsCollector:
     def __init__(self, retention_hours: int = 24):
         self.retention_hours = retention_hours
         self.api_calls: deque = deque()
-        self.metrics_history: Dict[str, deque] = defaultdict(lambda: deque())
-        self.alerts: List[Alert] = []
+        self.metrics_history: dict[str, deque] = defaultdict(lambda: deque())
+        self.alerts: list[Alert] = []
         self._lock = asyncio.Lock()
 
         # Load historical data
@@ -187,7 +187,7 @@ class MetricsCollector:
         try:
             history_file = Path("cache/api_metrics.json")
             if history_file.exists():
-                with open(history_file, "r") as f:
+                with open(history_file) as f:
                     data = json.load(f)
 
                     # Load recent API calls
@@ -346,13 +346,13 @@ class MetricsCollector:
 
             # Check threshold
             triggered = False
-            if alert.comparison == "gt" and metric_value > alert.threshold_value:
-                triggered = True
-            elif alert.comparison == "lt" and metric_value < alert.threshold_value:
-                triggered = True
-            elif (
-                alert.comparison == "eq"
-                and abs(metric_value - alert.threshold_value) < 0.001
+            if (
+                (alert.comparison == "gt" and metric_value > alert.threshold_value)
+                or (alert.comparison == "lt" and metric_value < alert.threshold_value)
+                or (
+                    alert.comparison == "eq"
+                    and abs(metric_value - alert.threshold_value) < 0.001
+                )
             ):
                 triggered = True
 
@@ -380,26 +380,26 @@ class MetricsCollector:
             response_times = [call.duration for call in recent_calls if call.success]
             return sum(response_times) / len(response_times) if response_times else 0.0
 
-        elif metric_type == MetricType.ERROR_RATE:
+        if metric_type == MetricType.ERROR_RATE:
             errors = [call for call in recent_calls if not call.success]
             return len(errors) / len(recent_calls)
 
-        elif metric_type == MetricType.THROUGHPUT:
+        if metric_type == MetricType.THROUGHPUT:
             window_minutes = (datetime.now() - window_start).total_seconds() / 60
             return len(recent_calls) / window_minutes if window_minutes > 0 else 0.0
 
-        elif metric_type == MetricType.COST:
+        if metric_type == MetricType.COST:
             window_hours = (datetime.now() - window_start).total_seconds() / 3600
             total_cost = sum(call.cost for call in recent_calls)
             return total_cost / window_hours if window_hours > 0 else 0.0
 
-        elif metric_type == MetricType.CACHE_HIT_RATE:
+        if metric_type == MetricType.CACHE_HIT_RATE:
             cache_hits = [call for call in recent_calls if call.cache_hit]
             return len(cache_hits) / len(recent_calls)
 
         return 0.0
 
-    def get_realtime_metrics(self, endpoint: Optional[str] = None) -> Dict[str, Any]:
+    def get_realtime_metrics(self, endpoint: str | None = None) -> dict[str, Any]:
         """Get real-time metrics dashboard data."""
         now = datetime.now()
         recent_cutoff = now - timedelta(minutes=5)
@@ -484,7 +484,7 @@ class MetricsCollector:
             ],
         }
 
-    def generate_cost_optimization_report(self) -> Dict[str, Any]:
+    def generate_cost_optimization_report(self) -> dict[str, Any]:
         """Generate cost optimization recommendations."""
         now = datetime.now()
         day_ago = now - timedelta(days=1)
@@ -551,7 +551,7 @@ class MetricsCollector:
             "recommendations": recommendations,
         }
 
-    def export_metrics_csv(self, filename: Optional[str] = None) -> str:
+    def export_metrics_csv(self, filename: str | None = None) -> str:
         """Export metrics to CSV file."""
         if filename is None:
             filename = f"api_metrics_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
@@ -585,7 +585,7 @@ class MetricsCollector:
 
 
 # Global metrics collector
-_metrics_collector: Optional[MetricsCollector] = None
+_metrics_collector: MetricsCollector | None = None
 
 
 def get_metrics_collector() -> MetricsCollector:
@@ -601,7 +601,7 @@ async def record_api_call(
     function_name: str,
     duration: float,
     success: bool,
-    error_type: Optional[str] = None,
+    error_type: str | None = None,
     tokens_used: int = 0,
     model: str = "gpt-4",
     cache_hit: bool = False,

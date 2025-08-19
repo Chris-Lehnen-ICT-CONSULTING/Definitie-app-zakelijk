@@ -14,8 +14,8 @@
 
 **Story Points**: 3
 
-**Als een** developer  
-**wil ik** WAL mode activeren voor de SQLite database  
+**Als een** developer
+**wil ik** WAL mode activeren voor de SQLite database
 **zodat** meerdere gebruikers tegelijk kunnen lezen zonder locks.
 
 #### Acceptance Criteria
@@ -51,8 +51,8 @@ with engine.connect() as conn:
 
 **Story Points**: 2
 
-**Als een** developer  
-**wil ik** proper connection pooling configureren  
+**Als een** developer
+**wil ik** proper connection pooling configureren
 **zodat** database resources efficiënt gebruikt worden.
 
 #### Acceptance Criteria
@@ -82,8 +82,8 @@ engine = create_engine(
 
 **Story Points**: 2
 
-**Als een** developer  
-**wil ik** UTF-8 encoding forceren voor alle database operaties  
+**Als een** developer
+**wil ik** UTF-8 encoding forceren voor alle database operaties
 **zodat** Nederlandse tekst correct opgeslagen wordt.
 
 #### Acceptance Criteria
@@ -97,7 +97,7 @@ engine = create_engine(
 # Force UTF-8 encoding
 with engine.connect() as conn:
     conn.execute(text("PRAGMA encoding='UTF-8'"))
-    
+
 # Test special characters
 test_chars = "ëïüéà§€©"
 ```
@@ -133,5 +133,5 @@ test_chars = "ëïüéà§€©"
 - Support voor 10+ concurrent users
 
 ---
-*Epic owner: Backend Team*  
+*Epic owner: Backend Team*
 *Last updated: 2025-01-18*

@@ -6,7 +6,7 @@ voor analyse en debugging doeleinden.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import streamlit as st
 
@@ -18,8 +18,8 @@ class PromptDebugSection:
 
     @staticmethod
     def render(
-        generation_result: Optional[Any] = None,
-        voorbeelden_prompts: Optional[Dict[str, str]] = None,
+        generation_result: Any | None = None,
+        voorbeelden_prompts: dict[str, str] | None = None,
     ):
         """
         Render de prompt debug sectie.
@@ -142,8 +142,8 @@ class PromptDebugSection:
 
 
 def capture_voorbeelden_prompts(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> Dict[str, str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> dict[str, str]:
     """
     Capture alle prompts die gebruikt worden voor voorbeelden generatie.
 

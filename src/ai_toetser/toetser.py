@@ -7,7 +7,6 @@ van verboden woorden in definities voor backwards compatibility.
 
 import json  # JSON bestand verwerking
 from pathlib import Path  # Pad manipulatie voor bestand toegang
-from typing import Set  # Type hints voor sets
 
 # Standaardpad naar verboden_woorden.json - relatief ten opzichte van dit bestand
 _DEFAULT_JSON = Path(__file__).parents[1] / "config" / "verboden_woorden.json"
@@ -52,7 +51,7 @@ class Toetser:
         # Haal woorden lijst uit data (ondersteunt zowel dict als lijst formaat)
         woorden = data["verboden_woorden"] if isinstance(data, dict) else data
         # Converteer alle woorden naar lowercase voor case-insensitive vergelijking
-        self._set: Set[str] = {w.lower() for w in woorden}
+        self._set: set[str] = {w.lower() for w in woorden}
 
     def is_verboden(self, woord: str) -> bool:
         """Controleer of een woord op de verboden lijst staat.

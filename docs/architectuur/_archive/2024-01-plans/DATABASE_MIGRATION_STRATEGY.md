@@ -18,16 +18,16 @@ class InMemoryDefinitionRepository(DefinitionRepositoryInterface):
     def __init__(self):
         self.definitions = {}
         self.next_id = 1
-    
+
     def save(self, definition: Definition) -> int:
         definition.id = self.next_id
         self.definitions[self.next_id] = definition
         self.next_id += 1
         return definition.id
-    
+
     def get(self, id: int) -> Optional[Definition]:
         return self.definitions.get(id)
-    
+
     def search(self, query: str) -> List[Definition]:
         # Simpele in-memory search
         results = []
@@ -37,7 +37,7 @@ class InMemoryDefinitionRepository(DefinitionRepositoryInterface):
         return results
 ```
 
-**Voordeel**: 
+**Voordeel**:
 - Generator werkt zonder database
 - Makkelijk testen
 - Geen legacy dependencies
@@ -53,13 +53,13 @@ class DefinitionStorageService:
     """
     def __init__(self, repository: DefinitionRepositoryInterface):
         self.repository = repository
-    
+
     def store_with_validation(self, definition: Definition):
         # Business logic hier
         if self.is_duplicate(definition):
             raise DuplicateError()
         return self.repository.save(definition)
-    
+
     def find_similar(self, begrip: str):
         # Zoek logica hier, niet in repository
         pass
@@ -98,7 +98,7 @@ def repository(self) -> DefinitionRepositoryInterface:
 # 1. Maak StorageService
 # 2. Verplaats business logic:
 #    - Duplicate detection → StorageService
-#    - Export logic → ExportService  
+#    - Export logic → ExportService
 #    - Import logic → ImportService
 ```
 
@@ -133,7 +133,7 @@ Dan werkt de generator zonder database dependencies!
 ## 📊 Geschatte Tijd
 
 - **In-Memory Repository**: 4 uur
-- **Storage Service**: 8 uur  
+- **Storage Service**: 8 uur
 - **UI Tab Migration**: 2-3 uur per tab
 - **Testing**: 8 uur
 

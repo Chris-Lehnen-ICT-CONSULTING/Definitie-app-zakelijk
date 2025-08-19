@@ -3,9 +3,8 @@ Analyse script om te controleren welke toetsregels gebruikt worden
 bij generatie en validatie van definities.
 """
 
-from typing import Any, Dict, List
+from typing import Any
 
-from config.toetsregel_manager import get_toetsregel_manager
 # Import from deprecated location - this analysis script needs the real implementation
 from deprecated.generation.definitie_generator import (
     DefinitieGenerator,
@@ -13,6 +12,8 @@ from deprecated.generation.definitie_generator import (
     OntologischeCategorie,
 )
 from validation.definitie_validator import DefinitieValidator
+
+from config.toetsregel_manager import get_toetsregel_manager
 
 
 def analyze_rule_usage():
@@ -72,7 +73,7 @@ def analyze_rule_usage():
 
 def analyze_generation_rules(
     generator: DefinitieGenerator, categorie: OntologischeCategorie
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Analyseer welke regels gebruikt worden voor generatie."""
 
     # Maak test context
@@ -113,7 +114,7 @@ def analyze_generation_rules(
 
 def analyze_validation_rules(
     validator: DefinitieValidator, categorie: OntologischeCategorie
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Analyseer welke regels gebruikt worden voor validatie."""
 
     # Test met dummy definitie
@@ -155,10 +156,10 @@ def analyze_validation_rules(
 
 
 def compare_rule_usage(
-    generation_rules: Dict[str, Any],
-    validation_rules: Dict[str, Any],
-    all_rules: List[str],
-) -> Dict[str, Any]:
+    generation_rules: dict[str, Any],
+    validation_rules: dict[str, Any],
+    all_rules: list[str],
+) -> dict[str, Any]:
     """Vergelijk regel gebruik tussen generatie en validatie."""
 
     gen_set = set(generation_rules["rule_ids"])
@@ -182,9 +183,9 @@ def compare_rule_usage(
 
 def print_category_analysis(
     category: str,
-    generation_rules: Dict[str, Any],
-    validation_rules: Dict[str, Any],
-    comparison: Dict[str, Any],
+    generation_rules: dict[str, Any],
+    validation_rules: dict[str, Any],
+    comparison: dict[str, Any],
 ):
     """Print analyse voor één categorie."""
 
@@ -211,7 +212,7 @@ def print_category_analysis(
         print(f"   ⚠️  Ongebruikte regels: {comparison['unused_rules']}")
 
 
-def print_overall_analysis(results: Dict[str, Any], all_rules: List[str]):
+def print_overall_analysis(results: dict[str, Any], all_rules: list[str]):
     """Print overall analyse over alle categorieën."""
 
     print("\n🎯 OVERALL ANALYSE")

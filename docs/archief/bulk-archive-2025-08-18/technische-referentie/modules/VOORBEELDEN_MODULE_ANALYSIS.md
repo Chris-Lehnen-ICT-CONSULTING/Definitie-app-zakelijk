@@ -91,20 +91,20 @@ class UnifiedVoorbeeldenGenerator:
 #### Generation Methods
 ```python
 def generate_examples(
-    self, 
+    self,
     request: ExampleRequest,
     mode: GenerationMode = GenerationMode.SYNC
 ) -> ExampleResult:
     """Main entry point for example generation"""
 
 async def generate_examples_async(
-    self, 
+    self,
     request: ExampleRequest
 ) -> ExampleResult:
     """Async generation method"""
 
 def generate_examples_batch(
-    self, 
+    self,
     requests: List[ExampleRequest]
 ) -> List[ExampleResult]:
     """Batch processing multiple requests"""
@@ -167,13 +167,13 @@ class VoorbeeldenCache:
         self._cache = {}
         self._timestamps = {}
         self.ttl = ttl
-    
+
     def get_cache_key(self, request: ExampleRequest) -> str:
         # Generate unique cache key
         return hashlib.md5(
             f"{request.begrip}:{request.definitie}:{request.example_type}".encode()
         ).hexdigest()
-    
+
     def get(self, request: ExampleRequest) -> Optional[ExampleResult]
     def set(self, request: ExampleRequest, result: ExampleResult)
 ```
@@ -456,17 +456,17 @@ class VoorbeeldenConfig:
     model: str = "gpt-4"
     temperature: float = 0.7
     max_tokens: int = 500
-    
+
     # Cache settings
     enable_cache: bool = True
     cache_ttl: int = 3600
     max_cache_size: int = 1000  # Not implemented
-    
+
     # Generation settings
     examples_per_type: int = 3
     timeout: float = 30.0
     max_retries: int = 3
-    
+
     # Batch settings
     batch_size: int = 5
     parallel_workers: int = 5

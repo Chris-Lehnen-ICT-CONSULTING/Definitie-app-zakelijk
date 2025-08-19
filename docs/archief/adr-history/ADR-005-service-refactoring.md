@@ -58,7 +58,7 @@ class DefinitionOrchestratorInterface(ABC):
 ```python
 # Environment-specific configurations
 ContainerConfigs.development()   # GPT-3.5, ontology enabled
-ContainerConfigs.testing()       # In-memory DB, ontology disabled  
+ContainerConfigs.testing()       # In-memory DB, ontology disabled
 ContainerConfigs.production()    # GPT-4, all features enabled
 ```
 

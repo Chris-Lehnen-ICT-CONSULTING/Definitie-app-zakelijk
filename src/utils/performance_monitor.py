@@ -8,8 +8,9 @@ om trage operaties te identificeren en optimaliseren.
 import asyncio
 import logging
 import time
+from collections.abc import Callable
 from functools import wraps
-from typing import Any, Callable, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,8 +19,8 @@ class PerformanceMonitor:
     """Monitor voor het bijhouden van performance metrics."""
 
     def __init__(self):
-        self.metrics: Dict[str, list] = {}
-        self.active_timers: Dict[str, float] = {}
+        self.metrics: dict[str, list] = {}
+        self.active_timers: dict[str, float] = {}
 
     def start_timer(self, operation: str) -> None:
         """Start een timer voor een operatie."""
@@ -48,7 +49,7 @@ class PerformanceMonitor:
 
         return duration
 
-    def get_summary(self) -> Dict[str, Dict[str, float]]:
+    def get_summary(self) -> dict[str, dict[str, float]]:
         """Get summary statistics voor alle operations."""
         summary = {}
 
@@ -129,8 +130,7 @@ def measure_performance(operation_name: str = None):
         # Return async of sync wrapper based op functie type
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
-        else:
-            return sync_wrapper
+        return sync_wrapper
 
     return decorator
 

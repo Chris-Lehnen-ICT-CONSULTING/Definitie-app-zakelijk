@@ -5,7 +5,6 @@ Automatisch gemigreerd van legacy core.py
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -13,7 +12,7 @@ logger = logging.getLogger(__name__)
 class ARAI05Validator:
     """Validator voor ARAI05."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -27,8 +26,8 @@ class ARAI05Validator:
         self.prioriteit = config.get("prioriteit", "midden")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens ARAI05 regel.
 
@@ -65,11 +64,10 @@ class ARAI05Validator:
                     result = "✔️ ARAI05: geen impliciete aannames gevonden, komt overeen met goed voorbeeld"
                 else:
                     result = "✔️ ARAI05: geen impliciete aannames aangetroffen"
+            elif fout_aanwezig:
+                result = f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), lijkt op fout voorbeeld"
             else:
-                if fout_aanwezig:
-                    result = f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), lijkt op fout voorbeeld"
-                else:
-                    result = f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), onvoldoende duidelijk"
+                result = f"❌ ARAI05: impliciete aannames gevonden ({', '.join(aannames)}), onvoldoende duidelijk"
         except Exception as e:
             logger.error(f"Fout in {self.id} validator: {e}")
             return False, f"⚠️ {self.id}: fout bij uitvoeren toetsregel", 0.0
@@ -86,7 +84,7 @@ class ARAI05Validator:
         # Fallback
         return False, f"⚠️ {self.id}: geen resultaat", 0.0
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -122,7 +120,7 @@ def create_validator(config_path: str = None) -> ARAI05Validator:
         current_dir = os.path.dirname(os.path.abspath(__file__))
         config_path = os.path.join(current_dir, "ARAI05.json")
 
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return ARAI05Validator(config)

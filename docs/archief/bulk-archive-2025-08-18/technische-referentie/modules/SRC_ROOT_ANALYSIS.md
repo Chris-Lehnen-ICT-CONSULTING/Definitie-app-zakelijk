@@ -43,7 +43,7 @@ def genereer_definitie(begrip, context_dict):
     """Generate definition using AI"""
     # Calls unified definition service
     # Returns raw GPT response with metadata
-    
+
 def genereer_toelichting(begrip, context=None, juridische_context=None):
     """Generate explanation for the term"""
     # Creates explanatory text
@@ -56,7 +56,7 @@ def genereer_synoniemen(begrip, context=None):
     """Generate synonyms for the term"""
     # Max 5 synonyms
     # Government context aware
-    
+
 def genereer_antoniemen(begrip, context=None):
     """Generate antonyms for the term"""
     # Max 5 antonyms
@@ -77,7 +77,7 @@ contextopties = st.multiselect(
 )
 
 juridische_opties = st.multiselect(
-    "Juridische context", 
+    "Juridische context",
     ["Strafrecht", "Civiel recht", "Bestuursrecht", ...]
 )
 
@@ -91,7 +91,7 @@ wetopties = st.multiselect(
 ```python
 tab_ai, tab_aangepast, tab_expert = st.tabs([
     "🤖 AI-gegenereerde definitie",
-    "✍️ Aangepaste definitie", 
+    "✍️ Aangepaste definitie",
     "📋 Expert-review & toelichting"
 ])
 ```
@@ -103,18 +103,18 @@ tab_ai, tab_aangepast, tab_expert = st.tabs([
 if actie and begrip:
     # 1. Generate raw definition
     raw = genereer_definitie(begrip, context_dict)
-    
+
     # 2. Parse metadata
     marker = None
     regels = raw.splitlines()
     for regel in regels:
         if regel.lower().startswith("ontologische categorie:"):
             marker = regel.split(":",1)[1].strip()
-    
+
     # 3. Clean definition
     from opschoning.opschoning import opschonen
     definitie_gecorrigeerd = opschonen(definitie_origineel, begrip)
-    
+
     # 4. AI validation
     st.session_state.beoordeling_gen = toets_definitie(
         definitie_gecorrigeerd,
@@ -142,13 +142,13 @@ st.session_state.antoniemen = genereer_antoniemen(begrip, context, juridische_co
 with tab_ai:
     st.markdown("### 📘 AI-gegenereerde definitie")
     st.markdown(st.session_state.gegenereerd)
-    
+
     if st.session_state.get("marker"):
         st.markdown(f"**Ontologische categorie:** {st.session_state['marker']}")
-    
+
     st.markdown("### ✨ Opgeschoonde definitie")
     st.markdown(st.session_state.get("definitie_gecorrigeerd", ""))
-    
+
     # Examples sections
     # Synonyms with preference selection
     # Export functionality
@@ -162,7 +162,7 @@ with tab_aangepast:
         value=st.session_state.gegenereerd,
         height=100
     )
-    
+
     if st.button("🔁 Hercontroleer aangepaste definitie"):
         st.session_state.beoordeling = toets_definitie(
             st.session_state.aangepaste_definitie,
@@ -180,7 +180,7 @@ with tab_expert:
         placeholder="Juridische beoordeling...",
         height=150
     )
-    
+
     # Forbidden words management
     with st.expander("⚙️ Verboden startwoorden beheren"):
         # Permanent word list management
@@ -229,10 +229,10 @@ test_zin = st.text_input("Testzin")
 if st.button("Voer test uit"):
     woord_norm = test_woord.strip().lower()
     zin_norm = test_zin.strip().lower()
-    
+
     komt_voor = woord_norm in zin_norm
     regex_match = bool(re.match(rf"^({re.escape(woord_norm)})\s+", zin_norm))
-    
+
     log_test_verboden_woord(test_woord, test_zin, komt_voor, regex_match)
 ```
 
@@ -240,14 +240,14 @@ if st.button("Voer test uit"):
 ```python
 if st.button("📤 Exporteer definitie naar TXT"):
     from export import exporteer_naar_txt
-    
+
     gegevens = {
         "begrip": st.session_state.get("begrip", ""),
         "definitie_gecorrigeerd": st.session_state.get("definitie_gecorrigeerd", ""),
         "metadata": st.session_state.get("metadata", {}),
         # ... all export data
     }
-    
+
     pad = exporteer_naar_txt(gegevens)
     st.success(f"Geëxporteerd naar: {pad}")
 ```
@@ -301,7 +301,7 @@ from dotenv import load_dotenv
 # Page configuration
 st.set_page_config(
     page_title="DefinitieAgent",
-    page_icon="🧠", 
+    page_icon="🧠",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -320,21 +320,21 @@ from utils.exceptions import log_and_display_error
 ```python
 def main():
     """Main application function.
-    
+
     This function is the entry point for the DefinitieAgent application.
     It initializes all required components and starts the user interface.
-    
+
     Raises:
         Exception: All unexpected errors are logged and shown to user
     """
     try:
         # Initialize session state
         SessionStateManager.initialize_session_state()
-        
+
         # Create and render tabbed interface
         interface = TabbedInterface()
         interface.render()
-            
+
     except Exception as e:
         # Log and display startup errors
         logger.error(f"Application error: {str(e)}")

@@ -1,5 +1,5 @@
 # 🏗️ REFACTOR PLAN - DEFINITIE-APP
-*Door Winston, System Architect*  
+*Door Winston, System Architect*
 *Datum: 2025-08-15*
 
 ## Executive Summary
@@ -158,7 +158,7 @@ class SecretsManager:
             url=os.getenv("VAULT_URL"),
             token=os.getenv("VAULT_TOKEN")
         )
-    
+
     def get_secret(self, path: str) -> str:
         response = self.client.secrets.kv.v2.read_secret_version(
             path=path
@@ -182,8 +182,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     try:
         payload = jwt.decode(
-            token, 
-            SECRET_KEY, 
+            token,
+            SECRET_KEY,
             algorithms=[ALGORITHM]
         )
         username: str = payload.get("sub")
@@ -296,13 +296,13 @@ def run_migrations_online():
         config.get_main_option("sqlalchemy.url"),
         poolclass=pool.NullPool,
     )
-    
+
     with connectable.connect() as connection:
         context.configure(
             connection=connection,
             target_metadata=Base.metadata
         )
-        
+
         with context.begin_transaction():
             context.run_migrations()
 ```
@@ -344,13 +344,13 @@ app = FastAPI(title="Validation Service")
 async def validate_definition(definition: Definition):
     validator = ToetsregelValidator()
     result = await validator.validate(definition)
-    
+
     # Publish event
     await publish_event(
         EventType.DEFINITION_VALIDATED,
         {"definition_id": definition.id, "result": result}
     )
-    
+
     return result
 ```
 
@@ -375,10 +375,10 @@ services = {
 async def gateway(service: str, path: str, request: Request):
     if service not in services:
         raise HTTPException(404, "Service not found")
-    
+
     async with AsyncClient() as client:
         url = f"{services[service]}/{path}"
-        
+
         response = await client.request(
             method=request.method,
             url=url,
@@ -386,7 +386,7 @@ async def gateway(service: str, path: str, request: Request):
             params=request.query_params,
             content=await request.body()
         )
-        
+
         return response.json()
 ```
 
@@ -403,17 +403,17 @@ from datetime import timedelta
 class RedisCache:
     def __init__(self, redis_url: str):
         self.client = redis.from_url(redis_url)
-    
+
     async def get(self, key: str) -> Optional[Any]:
         value = self.client.get(key)
         if value:
             return json.loads(value)
         return None
-    
+
     async def set(
-        self, 
-        key: str, 
-        value: Any, 
+        self,
+        key: str,
+        value: Any,
         ttl: Optional[timedelta] = None
     ):
         self.client.set(
@@ -421,7 +421,7 @@ class RedisCache:
             json.dumps(value),
             ex=ttl.total_seconds() if ttl else None
         )
-    
+
     async def invalidate_pattern(self, pattern: str):
         for key in self.client.scan_iter(match=pattern):
             self.client.delete(key)
@@ -445,11 +445,11 @@ definitions = session.query(Definition)\
 # Add database indexes
 class Definition(Base):
     __tablename__ = "definitions"
-    
+
     id = Column(Integer, primary_key=True, index=True)
     begrip = Column(String, index=True)  # Index for search
     created_at = Column(DateTime, index=True)  # Index for sorting
-    
+
     __table_args__ = (
         Index('idx_begrip_created', 'begrip', 'created_at'),
     )
@@ -469,9 +469,9 @@ export const DefinitionForm = () => {
         context: '',
         domein: ''
     });
-    
+
     const { createDefinition, isLoading } = useDefinitions();
-    
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         const result = await createDefinition(formData);
@@ -479,7 +479,7 @@ export const DefinitionForm = () => {
             // Handle success
         }
     };
-    
+
     return (
         <form onSubmit={handleSubmit}>
             {/* Form fields */}
@@ -502,11 +502,11 @@ class ApiClient {
             'Content-Type': 'application/json'
         }
     });
-    
+
     constructor() {
         this.setupInterceptors();
     }
-    
+
     private setupInterceptors() {
         // Request interceptor for auth
         this.client.interceptors.request.use(
@@ -518,7 +518,7 @@ class ApiClient {
                 return config;
             }
         );
-        
+
         // Response interceptor for errors
         this.client.interceptors.response.use(
             response => response,
@@ -530,7 +530,7 @@ class ApiClient {
             }
         );
     }
-    
+
     async createDefinition(data: DefinitionCreate) {
         const response = await this.client.post('/definitions', data);
         return response.data;
@@ -621,22 +621,22 @@ active_users = Gauge(
 @app.middleware("http")
 async def metrics_middleware(request: Request, call_next):
     start_time = time.time()
-    
+
     response = await call_next(request)
-    
+
     duration = time.time() - start_time
-    
+
     request_count.labels(
         method=request.method,
         endpoint=request.url.path,
         status=response.status_code
     ).inc()
-    
+
     request_duration.labels(
         method=request.method,
         endpoint=request.url.path
     ).observe(duration)
-    
+
     return response
 ```
 
@@ -653,7 +653,7 @@ class DefinitionService:
         self.legacy_service = UnifiedDefinitionService()
         self.new_service = NewDefinitionService()
         self.feature_flag = FeatureFlag("use_new_definition_service")
-    
+
     async def create_definition(self, data):
         if self.feature_flag.is_enabled():
             # New microservice
@@ -673,7 +673,7 @@ CREATE SCHEMA new_app;
 -- Application writes to both old and new schema
 
 -- Step 3: Migrate historical data
-INSERT INTO new_app.definitions 
+INSERT INTO new_app.definitions
 SELECT * FROM public.definitions;
 
 -- Step 4: Switch reads to new schema
@@ -828,7 +828,7 @@ class AuthHandler:
     security = HTTPBearer()
     secret = settings.JWT_SECRET
     algorithm = "HS256"
-    
+
     def encode_token(self, user_id: str, roles: List[str]) -> str:
         payload = {
             "exp": datetime.utcnow() + timedelta(days=30),
@@ -838,7 +838,7 @@ class AuthHandler:
             "permissions": self.get_permissions_for_roles(roles)
         }
         return jwt.encode(payload, self.secret, algorithm=self.algorithm)
-    
+
     def decode_token(self, token: str) -> dict:
         try:
             payload = jwt.decode(token, self.secret, algorithms=[self.algorithm])
@@ -939,31 +939,31 @@ class CacheService:
                 'socket_keepalive': True
             }
         )
-    
+
     def cache_key(self, prefix: str, *args) -> str:
         return f"{prefix}:{':'.join(str(arg) for arg in args)}"
-    
+
     def cache_result(self, prefix: str, ttl: int = 3600):
         def decorator(func):
             @wraps(func)
             async def wrapper(*args, **kwargs):
                 cache_key = self.cache_key(prefix, *args, *kwargs.values())
-                
+
                 # Try to get from cache
                 cached = self.redis_client.get(cache_key)
                 if cached:
                     return pickle.loads(cached)
-                
+
                 # Execute function
                 result = await func(*args, **kwargs)
-                
+
                 # Cache result
                 self.redis_client.setex(
-                    cache_key, 
-                    ttl, 
+                    cache_key,
+                    ttl,
                     pickle.dumps(result)
                 )
-                
+
                 return result
             return wrapper
         return decorator
@@ -984,7 +984,7 @@ class EventBus:
         self.connection = None
         self.channel = None
         self.exchange = None
-        
+
     async def connect(self):
         self.connection = await aio_pika.connect_robust(
             f"amqp://{settings.RABBITMQ_USER}:{settings.RABBITMQ_PASS}@{settings.RABBITMQ_HOST}/"
@@ -994,7 +994,7 @@ class EventBus:
             'definitie_events',
             aio_pika.ExchangeType.TOPIC
         )
-    
+
     async def publish(self, event_type: str, data: dict):
         message = aio_pika.Message(
             body=json.dumps({
@@ -1004,7 +1004,7 @@ class EventBus:
             }).encode(),
             content_type='application/json'
         )
-        
+
         await self.exchange.publish(
             message,
             routing_key=event_type
@@ -1041,13 +1041,13 @@ tracer = trace.get_tracer(__name__)
 def setup_telemetry(app: FastAPI):
     # Auto-instrument FastAPI
     FastAPIInstrumentor.instrument_app(app)
-    
+
     # Auto-instrument SQLAlchemy
     SQLAlchemyInstrumentor().instrument(
         engine=engine,
         service="definitie-service"
     )
-    
+
     # Prometheus metrics endpoint
     @app.get("/metrics")
     async def metrics():
@@ -1071,7 +1071,7 @@ from testcontainers.redis import RedisContainer
 async def test_containers():
     postgres = PostgresContainer("postgres:14")
     redis = RedisContainer("redis:7")
-    
+
     with postgres, redis:
         yield {
             "postgres_url": postgres.get_connection_url(),
@@ -1093,7 +1093,7 @@ async def test_definition_lifecycle(test_containers):
         )
         assert response.status_code == 201
         definition_id = response.json()["id"]
-        
+
         # Verify caching
         response2 = await client.get(
             f"/api/v1/definitions/{definition_id}",
@@ -1196,43 +1196,43 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v4
       with:
         python-version: '3.11'
-    
+
     - name: Install dependencies
       run: |
         pip install poetry
         poetry install
-    
+
     - name: Run tests
       run: |
         poetry run pytest --cov=src --cov-report=xml
-    
+
     - name: SonarQube Scan
       uses: sonarsource/sonarqube-scan-action@master
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  
+
   build:
     needs: test
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Build and push Docker images
       env:
         DOCKER_REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
       run: |
         docker build -t $DOCKER_REGISTRY/definition-service:$GITHUB_SHA ./services/definition
         docker push $DOCKER_REGISTRY/definition-service:$GITHUB_SHA
-  
+
   deploy:
     needs: build
     runs-on: ubuntu-latest
@@ -1257,8 +1257,8 @@ from sqlalchemy import select, func
 
 class DefinitionRepository:
     async def get_definitions_with_stats(
-        self, 
-        org_id: UUID, 
+        self,
+        org_id: UUID,
         limit: int = 50,
         offset: int = 0
     ) -> List[DefinitionWithStats]:
@@ -1272,7 +1272,7 @@ class DefinitionRepository:
             .group_by(ValidationLog.definition_id)
             .subquery()
         )
-        
+
         query = (
             select(Definition, stats_subquery.c.validation_count, stats_subquery.c.avg_duration)
             .outerjoin(stats_subquery, Definition.id == stats_subquery.c.definition_id)
@@ -1281,7 +1281,7 @@ class DefinitionRepository:
             .limit(limit)
             .offset(offset)
         )
-        
+
         result = await self.db.execute(query)
         return result.all()
 ```
@@ -1375,45 +1375,45 @@ class MicroservicesMigrator:
             'validations': get_validations_db(),
             'users': get_users_db()
         }
-        
+
     async def migrate_with_verification(self):
         # Phase 1: Dual-write mode
         await self.enable_dual_write_mode()
-        
+
         # Phase 2: Backfill historical data
         await self.backfill_data()
-        
+
         # Phase 3: Verify data consistency
         discrepancies = await self.verify_data_consistency()
         if discrepancies:
             await self.reconcile_discrepancies(discrepancies)
-        
+
         # Phase 4: Switch read traffic
         await self.switch_read_traffic()
-        
+
         # Phase 5: Stop writes to old system
         await self.disable_legacy_writes()
-    
+
     async def backfill_data(self):
         batch_size = 1000
         offset = 0
-        
+
         while True:
             # Get batch from legacy system
             legacy_data = await self.old_db.fetch(
                 "SELECT * FROM definitions LIMIT %s OFFSET %s",
                 batch_size, offset
             )
-            
+
             if not legacy_data:
                 break
-            
+
             # Transform and insert into new system
             transformed_data = self.transform_legacy_data(legacy_data)
             await self.new_dbs['definitions'].insert_many(transformed_data)
-            
+
             offset += batch_size
-            
+
             # Progress tracking
             logger.info(f"Migrated {offset} records")
 ```
@@ -1435,10 +1435,10 @@ class FeatureFlags:
             'rate_limiting_v2': False,
             'graphql_api': False
         }
-    
+
     async def is_enabled(
-        self, 
-        feature: str, 
+        self,
+        feature: str,
         user_id: Optional[str] = None,
         org_id: Optional[str] = None
     ) -> bool:
@@ -1447,18 +1447,18 @@ class FeatureFlags:
             user_flag = await self.redis.get(f"ff:user:{user_id}:{feature}")
             if user_flag is not None:
                 return user_flag == "1"
-        
+
         # Check org-specific override
         if org_id:
             org_flag = await self.redis.get(f"ff:org:{org_id}:{feature}")
             if org_flag is not None:
                 return org_flag == "1"
-        
+
         # Check global flag
         global_flag = await self.redis.get(f"ff:global:{feature}")
         if global_flag is not None:
             return global_flag == "1"
-        
+
         # Return default
         return self.default_flags.get(feature, False)
 ```
@@ -1473,7 +1473,7 @@ import random
 
 class DefinitieAPIUser(HttpUser):
     wait_time = between(0.5, 2)
-    
+
     def on_start(self):
         # Authenticate once
         response = self.client.post("/api/v1/auth/login", json={
@@ -1482,7 +1482,7 @@ class DefinitieAPIUser(HttpUser):
         })
         self.token = response.json()["access_token"]
         self.headers = {"Authorization": f"Bearer {self.token}"}
-    
+
     @task(3)
     def get_definitions(self):
         self.client.get(
@@ -1490,7 +1490,7 @@ class DefinitieAPIUser(HttpUser):
             headers=self.headers,
             params={"limit": 50}
         )
-    
+
     @task(2)
     def search_definitions(self):
         search_terms = ["wet", "artikel", "besluit", "regeling"]
@@ -1499,7 +1499,7 @@ class DefinitieAPIUser(HttpUser):
             headers=self.headers,
             params={"q": random.choice(search_terms)}
         )
-    
+
     @task(1)
     def create_definition(self):
         self.client.post(
@@ -1524,28 +1524,28 @@ from fastapi.openapi.utils import get_openapi
 def custom_openapi(app: FastAPI):
     if app.openapi_schema:
         return app.openapi_schema
-    
+
     openapi_schema = get_openapi(
         title="Definitie App API",
         version="1.0.0",
         description="""
         ## Overview
         The Definitie App API provides programmatic access to legal definitions and validation services.
-        
+
         ## Authentication
         All API requests require authentication using Bearer tokens.
-        
+
         ## Rate Limiting
         - Free tier: 1000 requests/hour
         - Pro tier: 5000 requests/hour
         - Enterprise: Custom limits
-        
+
         ## Webhooks
         Subscribe to events for real-time updates.
         """,
         routes=app.routes,
     )
-    
+
     # Add security schemes
     openapi_schema["components"]["securitySchemes"] = {
         "Bearer": {
@@ -1554,7 +1554,7 @@ def custom_openapi(app: FastAPI):
             "bearerFormat": "JWT",
         }
     }
-    
+
     # Add webhook definitions
     openapi_schema["webhooks"] = {
         "definitionCreated": {
@@ -1570,7 +1570,7 @@ def custom_openapi(app: FastAPI):
             }
         }
     }
-    
+
     app.openapi_schema = openapi_schema
     return app.openapi_schema
 ```
@@ -1649,7 +1649,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-  
+
   redis:
     image: redis:7-alpine
     command: redis-server --appendonly yes
@@ -1657,7 +1657,7 @@ services:
       - redis_data:/data
     ports:
       - "6379:6379"
-  
+
   rabbitmq:
     image: rabbitmq:3-management-alpine
     environment:
@@ -1666,7 +1666,7 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-  
+
   definition-service:
     build:
       context: ./services/definition

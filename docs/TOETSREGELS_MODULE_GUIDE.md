@@ -69,12 +69,12 @@ class TEST01Validator:
     def __init__(self, config: Dict):
         """Initialiseer met JSON config."""
         self.config = config
-        
-    def validate(self, definitie: str, begrip: str, 
+
+    def validate(self, definitie: str, begrip: str,
                 context: Optional[Dict] = None) -> Tuple[bool, str, float]:
         """
         Valideer de definitie.
-        
+
         Returns:
             - bool: Success (True/False)
             - str: Melding voor gebruiker
@@ -85,7 +85,7 @@ class TEST01Validator:
             return True, f"✔️ {self.id}: Regel voldaan", 1.0
         else:
             return False, f"❌ {self.id}: {self.uitleg}", 0.0
-    
+
     def get_generation_hints(self) -> List[str]:
         """Geef hints voor AI generatie."""
         return ["Hint 1", "Hint 2"]
@@ -116,11 +116,11 @@ def validate(self, definitie: str, begrip: str, context: Optional[Dict] = None):
         (r'\b(individueel|specifiek)\b', 0.8, "Impliciete uniciteit"),
         (r'\b(onderscheidbaar|herkenbaar)\b', 0.6, "Zwakke indicatie")
     ]
-    
+
     for pattern, score, beschrijving in patterns:
         if re.search(pattern, definitie, re.IGNORECASE):
             return True, f"✔️ {self.id}: {beschrijving}", score
-    
+
     return False, f"❌ {self.id}: Geen unieke identificatie", 0.0
 ```
 
@@ -130,10 +130,10 @@ def validate(self, definitie: str, begrip: str, context: Optional[Dict] = None):
 def validate(self, definitie: str, begrip: str, context: Optional[Dict] = None):
     # Tel belangrijke concepten
     concepten = self._extract_concepten(definitie)
-    
+
     score = len(concepten) / 5.0  # Normaliseer naar 0-1
     score = min(score, 1.0)
-    
+
     if score > 0.6:
         return True, f"✔️ Voldoende concepten: {', '.join(concepten)}", score
     else:
@@ -153,7 +153,7 @@ def test_test01_success():
     """Test succesvolle validatie."""
     definitie = "Een test is een voorbeeld met unieke ID"
     succes, melding, score = validate_met_regel("TEST-01", definitie, "test")
-    
+
     assert succes == True
     assert score > 0.8
     assert "✔️" in melding
@@ -162,7 +162,7 @@ def test_test01_failure():
     """Test gefaalde validatie."""
     definitie = "Een test is iets"
     succes, melding, score = validate_met_regel("TEST-01", definitie, "test")
-    
+
     assert succes == False
     assert score < 0.5
     assert "❌" in melding
@@ -176,7 +176,7 @@ from toetsregels.modular_loader import get_modular_loader
 
 loader = get_modular_loader()
 succes, melding, score = loader.validate_with_regel(
-    "ESS-03", 
+    "ESS-03",
     "Een auto is een voertuig met kenteken ABC-123",
     "auto"
 )

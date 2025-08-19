@@ -9,7 +9,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 
@@ -51,7 +50,7 @@ class MonitoringTab:
             self.collector = self.get_metrics_collector()
 
         except Exception as e:
-            st.error(f"❌ Kon API monitor niet laden: {str(e)}")
+            st.error(f"❌ Kon API monitor niet laden: {e!s}")
             self.collector = None
 
     def render(self):
@@ -239,7 +238,7 @@ class MonitoringTab:
                     )
 
         except Exception as e:
-            st.error(f"❌ Kon real-time metrics niet laden: {str(e)}")
+            st.error(f"❌ Kon real-time metrics niet laden: {e!s}")
 
         # Auto-refresh logic
         if auto_refresh:
@@ -390,7 +389,7 @@ class MonitoringTab:
                 st.plotly_chart(fig_perf, use_container_width=True)
 
         except Exception as e:
-            st.error(f"❌ Kon metrics dashboard niet laden: {str(e)}")
+            st.error(f"❌ Kon metrics dashboard niet laden: {e!s}")
 
     def _render_cost_dashboard(self):
         """Render cost analysis dashboard."""
@@ -552,7 +551,7 @@ class MonitoringTab:
                     )
 
         except Exception as e:
-            st.error(f"❌ Kon cost dashboard niet laden: {str(e)}")
+            st.error(f"❌ Kon cost dashboard niet laden: {e!s}")
 
     def _render_alerts_dashboard(self):
         """Render alerts configuration and history."""
@@ -675,7 +674,7 @@ class MonitoringTab:
                 )
 
         except Exception as e:
-            st.error(f"❌ Kon alerts dashboard niet laden: {str(e)}")
+            st.error(f"❌ Kon alerts dashboard niet laden: {e!s}")
 
     def simulate_api_call(self):
         """Simulate an API call for testing purposes."""

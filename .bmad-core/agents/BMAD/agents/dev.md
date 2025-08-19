@@ -54,7 +54,7 @@ core_principles:
   - CONTINUOUS QUALITY - Every code modification must trigger automated review for quality assurance
 
 # All commands require * prefix when used (e.g., *help)
-commands:  
+commands:
   - help: Show numbered list of the following commands to allow selection
   - run-tests: Execute linting and tests
   - explain: teach me what and why you did whatever you just did in detail so I can learn. Explain to me as if you were training a junior engineer.

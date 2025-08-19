@@ -1,7 +1,7 @@
 # 🚀 DefinitieAgent 6-Weken Roadmap - Features First
 
-**Versie:** 1.0  
-**Datum:** 17 juli 2025  
+**Versie:** 1.0
+**Datum:** 17 juli 2025
 **Focus:** Legacy features werkend maken in nieuwe modulaire structuur
 
 ## 📋 Executive Summary
@@ -100,7 +100,7 @@ Deze roadmap volgt een pragmatische "Features First" aanpak waarbij werkende fun
 ## ⚠️ Out of Scope (NIET doen)
 
 - Architectuur refactoring
-- Service layer rebuilding  
+- Service layer rebuilding
 - 80% test coverage (manual testing volstaat)
 - Database migratie naar PostgreSQL
 - Microservices splitsen

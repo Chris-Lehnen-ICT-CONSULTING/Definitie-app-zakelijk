@@ -18,7 +18,7 @@
 
 ### 🔴 ONTBREKENDE KRITIEKE FUNCTIONALITEITEN
 
-#### 1. **Ontologie 6-Stappen Protocol** 
+#### 1. **Ontologie 6-Stappen Protocol**
 **Status**: Gedocumenteerd maar NIET in MASTER-TODO
 **Beschrijving**: Complete implementatie van het 6-stappen protocol voor ontologische categorisering
 - Stap 1: Bepaal hoofdcategorie (SUBSTANTIE, EIGENSCHAP, etc.)

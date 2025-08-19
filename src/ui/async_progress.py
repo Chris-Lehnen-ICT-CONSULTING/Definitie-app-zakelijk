@@ -6,10 +6,9 @@ Provides real-time progress tracking for async operations.
 import asyncio
 import time
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 import streamlit as st
-
 from services.async_definition_service import AsyncProcessingResult, get_async_service
 
 
@@ -121,7 +120,7 @@ class AsyncDefinitionUI:
         self.progress_tracker = AsyncProgressTracker()
 
     def render_async_processing_button(
-        self, form_data: Dict[str, Any], toetsregels: Dict[str, Any]
+        self, form_data: dict[str, Any], toetsregels: dict[str, Any]
     ):
         """Render button for async definition processing."""
         col1, col2 = st.columns([3, 1])
@@ -138,7 +137,7 @@ class AsyncDefinitionUI:
                 self.show_async_stats()
 
     def run_async_definition_processing(
-        self, form_data: Dict[str, Any], toetsregels: Dict[str, Any]
+        self, form_data: dict[str, Any], toetsregels: dict[str, Any]
     ):
         """Run async definition processing with real-time progress."""
         # Create progress container
@@ -160,7 +159,7 @@ class AsyncDefinitionUI:
         self.display_async_results(result, result_container)
 
     async def _async_processing_wrapper(
-        self, form_data: Dict[str, Any], toetsregels: Dict[str, Any], progress_container
+        self, form_data: dict[str, Any], toetsregels: dict[str, Any], progress_container
     ) -> AsyncProcessingResult:
         """Wrapper for async processing with progress tracking."""
 
@@ -192,7 +191,7 @@ class AsyncDefinitionUI:
                 error_message="Operation cancelled by user",
             )
         except Exception as e:
-            self.progress_tracker.finish(f"Error: {str(e)}")
+            self.progress_tracker.finish(f"Error: {e!s}")
             return AsyncProcessingResult(
                 success=False, processing_time=0, error_message=str(e)
             )
@@ -228,7 +227,6 @@ class AsyncDefinitionUI:
                 # Show example results
                 if result.examples:
                     with st.expander("📝 Generated Examples", expanded=True):
-
                         if result.examples.voorbeeld_zinnen:
                             st.subheader("Example Sentences")
                             for i, zin in enumerate(

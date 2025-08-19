@@ -1,7 +1,7 @@
 # 📚 Archief Documentatie - Navigatiegids
 
-**Laatste update**: 2025-01-15  
-**Georganiseerd volgens**: Reorganisatie plan v1.0  
+**Laatste update**: 2025-01-15
+**Georganiseerd volgens**: Reorganisatie plan v1.0
 **Backup locatie**: `docs/archief_backup_20250115_164243/`
 
 ## 🎯 Overzicht

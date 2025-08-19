@@ -7,7 +7,6 @@ Controleert of een definitie criteria bevat voor unieke identificatie.
 
 import logging
 import re
-from typing import Dict, List, Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +14,7 @@ logger = logging.getLogger(__name__)
 class ESS03Validator:
     """Validator voor ESS-03: Instanties uniek onderscheidbaar."""
 
-    def __init__(self, config: Dict):
+    def __init__(self, config: dict):
         """
         Initialiseer validator met configuratie uit JSON.
 
@@ -37,8 +36,8 @@ class ESS03Validator:
                 logger.warning(f"Ongeldig regex patroon in {self.id}: {pattern} - {e}")
 
     def validate(
-        self, definitie: str, begrip: str, context: Optional[Dict] = None
-    ) -> Tuple[bool, str, float]:
+        self, definitie: str, begrip: str, context: dict | None = None
+    ) -> tuple[bool, str, float]:
         """
         Valideer definitie volgens ESS-03 regel.
 
@@ -65,19 +64,17 @@ class ESS03Validator:
             unieke_criteria = list(set(gevonden_criteria))
             melding = f"✔️ {self.id}: Unieke identificatie criteria gevonden: {', '.join(unieke_criteria)}"
             return True, melding, 1.0
-        else:
-            # Geavanceerdere check: zoek naar andere indicatoren
-            if self._heeft_impliciete_identificatie(definitie):
-                return (
-                    True,
-                    f"✔️ {self.id}: Impliciete identificatie criteria aanwezig",
-                    0.8,
-                )
-            else:
-                melding = f"❌ {self.id}: {self.config.get('uitleg', 'Geen unieke identificatie criteria gevonden')}"
-                return False, melding, 0.0
+        # Geavanceerdere check: zoek naar andere indicatoren
+        if self._heeft_impliciete_identificatie(definitie):
+            return (
+                True,
+                f"✔️ {self.id}: Impliciete identificatie criteria aanwezig",
+                0.8,
+            )
+        melding = f"❌ {self.id}: {self.config.get('uitleg', 'Geen unieke identificatie criteria gevonden')}"
+        return False, melding, 0.0
 
-    def _is_telbaar_begrip(self, begrip: str, context: Optional[Dict] = None) -> bool:
+    def _is_telbaar_begrip(self, begrip: str, context: dict | None = None) -> bool:
         """
         Bepaal of een begrip telbaar is.
 
@@ -126,7 +123,7 @@ class ESS03Validator:
 
         return False
 
-    def get_generation_hints(self) -> List[str]:
+    def get_generation_hints(self) -> list[str]:
         """
         Geef hints voor definitie generatie.
 
@@ -159,7 +156,7 @@ def create_validator(config_path: str = None) -> ESS03Validator:
         config_path = os.path.join(current_dir, "ESS-03.json")
 
     # Laad configuratie
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(config_path, encoding="utf-8") as f:
         config = json.load(f)
 
     return ESS03Validator(config)
@@ -167,8 +164,8 @@ def create_validator(config_path: str = None) -> ESS03Validator:
 
 # Voor backward compatibility
 def validate_ess03(
-    definitie: str, begrip: str, context: Optional[Dict] = None
-) -> Tuple[bool, str]:
+    definitie: str, begrip: str, context: dict | None = None
+) -> tuple[bool, str]:
     """
     Valideer volgens ESS-03 regel (backward compatible interface).
     """

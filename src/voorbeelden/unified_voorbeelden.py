@@ -13,7 +13,7 @@ from dataclasses import (  # Dataklassen voor gestructureerde request/response d
 )
 from datetime import datetime  # Datum en tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
-from typing import Any, Dict, List, Optional  # Type hints voor betere code documentatie
+from typing import Any  # Type hints voor betere code documentatie
 
 from prompt_builder.prompt_builder import stuur_prompt_naar_gpt  # GPT prompt interface
 from utils.cache import cached  # Caching decorator voor performance optimalisatie
@@ -55,7 +55,7 @@ class ExampleRequest:
 
     begrip: str
     definitie: str
-    context_dict: Dict[str, List[str]]
+    context_dict: dict[str, list[str]]
     example_type: ExampleType
     generation_mode: GenerationMode = GenerationMode.RESILIENT
     max_examples: int = 5  # Default naar 5 voor synoniemen/antoniemen
@@ -67,10 +67,10 @@ class ExampleRequest:
 class ExampleResponse:
     """Response from example generation."""
 
-    examples: List[str]
+    examples: list[str]
     success: bool
-    error_message: Optional[str] = None
-    generation_time: Optional[float] = None
+    error_message: str | None = None
+    generation_time: float | None = None
     cached: bool = False
 
 
@@ -140,7 +140,7 @@ class UnifiedExamplesGenerator:
 
             return ExampleResponse(examples=[], success=False, error_message=str(e))
 
-    def _generate_sync(self, request: ExampleRequest) -> List[str]:
+    def _generate_sync(self, request: ExampleRequest) -> list[str]:
         """Synchronous example generation."""
         prompt = self._build_prompt(request)
 
@@ -155,7 +155,7 @@ class UnifiedExamplesGenerator:
         except Exception as e:
             raise RuntimeError(f"Synchronous generation failed: {e}")
 
-    async def _generate_async(self, request: ExampleRequest) -> List[str]:
+    async def _generate_async(self, request: ExampleRequest) -> list[str]:
         """Asynchronous example generation."""
         prompt = self._build_prompt(request)
 
@@ -175,28 +175,27 @@ class UnifiedExamplesGenerator:
             raise RuntimeError(f"Asynchronous generation failed: {e}")
 
     @cached(ttl=3600)  # Cache for 1 hour
-    def _generate_cached(self, request: ExampleRequest) -> List[str]:
+    def _generate_cached(self, request: ExampleRequest) -> list[str]:
         """Cached example generation."""
         self.cache_hits += 1
         return self._generate_sync(request)
 
-    async def _generate_resilient(self, request: ExampleRequest) -> List[str]:
+    async def _generate_resilient(self, request: ExampleRequest) -> list[str]:
         """Resilient example generation with retry logic and rate limiting."""
         # Route to specific resilient method based on example type
         if request.example_type == ExampleType.SENTENCE:
             return await self._generate_resilient_sentence(request)
-        elif request.example_type == ExampleType.PRACTICAL:
+        if request.example_type == ExampleType.PRACTICAL:
             return await self._generate_resilient_practical(request)
-        elif request.example_type == ExampleType.COUNTER:
+        if request.example_type == ExampleType.COUNTER:
             return await self._generate_resilient_counter(request)
-        elif request.example_type == ExampleType.SYNONYMS:
+        if request.example_type == ExampleType.SYNONYMS:
             return await self._generate_resilient_synonyms(request)
-        elif request.example_type == ExampleType.ANTONYMS:
+        if request.example_type == ExampleType.ANTONYMS:
             return await self._generate_resilient_antonyms(request)
-        elif request.example_type == ExampleType.EXPLANATION:
+        if request.example_type == ExampleType.EXPLANATION:
             return await self._generate_resilient_explanation(request)
-        else:
-            raise ValueError(f"Unknown example type: {request.example_type}")
+        raise ValueError(f"Unknown example type: {request.example_type}")
 
     @with_full_resilience(
         endpoint_name="examples_generation_sentence",
@@ -205,7 +204,7 @@ class UnifiedExamplesGenerator:
         model="gpt-4",
         expected_tokens=200,
     )
-    async def _generate_resilient_sentence(self, request: ExampleRequest) -> List[str]:
+    async def _generate_resilient_sentence(self, request: ExampleRequest) -> list[str]:
         """Resilient sentence example generation."""
         return await self._generate_resilient_common(request)
 
@@ -216,7 +215,7 @@ class UnifiedExamplesGenerator:
         model="gpt-4",
         expected_tokens=200,
     )
-    async def _generate_resilient_practical(self, request: ExampleRequest) -> List[str]:
+    async def _generate_resilient_practical(self, request: ExampleRequest) -> list[str]:
         """Resilient practical example generation."""
         return await self._generate_resilient_common(request)
 
@@ -227,7 +226,7 @@ class UnifiedExamplesGenerator:
         model="gpt-4",
         expected_tokens=200,
     )
-    async def _generate_resilient_counter(self, request: ExampleRequest) -> List[str]:
+    async def _generate_resilient_counter(self, request: ExampleRequest) -> list[str]:
         """Resilient counter example generation."""
         return await self._generate_resilient_common(request)
 
@@ -238,7 +237,7 @@ class UnifiedExamplesGenerator:
         model="gpt-4",
         expected_tokens=200,
     )
-    async def _generate_resilient_synonyms(self, request: ExampleRequest) -> List[str]:
+    async def _generate_resilient_synonyms(self, request: ExampleRequest) -> list[str]:
         """Resilient synonyms generation."""
         return await self._generate_resilient_common(request)
 
@@ -249,7 +248,7 @@ class UnifiedExamplesGenerator:
         model="gpt-4",
         expected_tokens=200,
     )
-    async def _generate_resilient_antonyms(self, request: ExampleRequest) -> List[str]:
+    async def _generate_resilient_antonyms(self, request: ExampleRequest) -> list[str]:
         """Resilient antonyms generation."""
         return await self._generate_resilient_common(request)
 
@@ -262,7 +261,7 @@ class UnifiedExamplesGenerator:
     )
     async def _generate_resilient_explanation(
         self, request: ExampleRequest
-    ) -> List[str]:
+    ) -> list[str]:
         """Resilient explanation generation."""
         prompt = self._build_prompt(request)
 
@@ -281,7 +280,7 @@ class UnifiedExamplesGenerator:
         except Exception as e:
             raise RuntimeError(f"Resilient generation failed: {e}")
 
-    async def _generate_resilient_common(self, request: ExampleRequest) -> List[str]:
+    async def _generate_resilient_common(self, request: ExampleRequest) -> list[str]:
         """Common resilient generation logic."""
         prompt = self._build_prompt(request)
 
@@ -311,7 +310,7 @@ class UnifiedExamplesGenerator:
         # Type-specific prompts
         if request.example_type == ExampleType.SENTENCE:
             return f"""
-Geef {request.max_examples} korte voorbeeldzinnen waarin het begrip '{begrip}' 
+Geef {request.max_examples} korte voorbeeldzinnen waarin het begrip '{begrip}'
 op een duidelijke manier wordt gebruikt. De zinnen moeten passen binnen de gegeven context.
 
 Definitie: {definitie}
@@ -319,13 +318,13 @@ Definitie: {definitie}
 Context:
 {context_text}
 
-Integreer de context natuurlijk in de voorbeeldzinnen. Als er een organisatie of domein 
+Integreer de context natuurlijk in de voorbeeldzinnen. Als er een organisatie of domein
 is opgegeven, gebruik deze in de zinnen. Geef alleen de voorbeeldzinnen, elk op een nieuwe regel.
 """
 
-        elif request.example_type == ExampleType.PRACTICAL:
+        if request.example_type == ExampleType.PRACTICAL:
             return f"""
-Geef {request.max_examples} praktische voorbeelden waarbij het begrip '{begrip}' 
+Geef {request.max_examples} praktische voorbeelden waarbij het begrip '{begrip}'
 van toepassing is in de praktijk binnen de gegeven context.
 
 Definitie: {definitie}
@@ -333,11 +332,11 @@ Definitie: {definitie}
 Context:
 {context_text}
 
-Geef concrete, herkenbare situaties uit de opgegeven organisatie/domein waarin dit begrip 
+Geef concrete, herkenbare situaties uit de opgegeven organisatie/domein waarin dit begrip
 gebruikt wordt. Maak de voorbeelden specifiek voor de context.
 """
 
-        elif request.example_type == ExampleType.COUNTER:
+        if request.example_type == ExampleType.COUNTER:
             return f"""
 Geef {request.max_examples} tegenvoorbeelden die NIET onder het begrip '{begrip}' vallen,
 maar wel relevant zijn voor de gegeven context.
@@ -347,13 +346,13 @@ Definitie: {definitie}
 Context:
 {context_text}
 
-Geef voorbeelden uit dezelfde organisatie/domein die lijken op '{begrip}' maar er niet 
+Geef voorbeelden uit dezelfde organisatie/domein die lijken op '{begrip}' maar er niet
 onder vallen. Leg kort uit waarom deze voorbeelden niet onder de definitie vallen.
 """
 
-        elif request.example_type == ExampleType.SYNONYMS:
+        if request.example_type == ExampleType.SYNONYMS:
             return f"""
-Geef {request.max_examples} synoniemen of verwante termen voor '{begrip}' die gebruikt 
+Geef {request.max_examples} synoniemen of verwante termen voor '{begrip}' die gebruikt
 worden binnen de gegeven context.
 
 Definitie: {definitie}
@@ -361,13 +360,13 @@ Definitie: {definitie}
 Context:
 {context_text}
 
-Geef synoniemen die specifiek in deze organisatie/domein gebruikt worden. 
+Geef synoniemen die specifiek in deze organisatie/domein gebruikt worden.
 Geef alleen de synoniemen, elk op een nieuwe regel.
 """
 
-        elif request.example_type == ExampleType.ANTONYMS:
+        if request.example_type == ExampleType.ANTONYMS:
             return f"""
-Geef {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}' 
+Geef {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}'
 die relevant zijn binnen de gegeven context.
 
 Definitie: {definitie}
@@ -375,11 +374,11 @@ Definitie: {definitie}
 Context:
 {context_text}
 
-Geef antoniemen die in deze organisatie/domein gebruikt worden. 
+Geef antoniemen die in deze organisatie/domein gebruikt worden.
 Geef alleen de antoniemen, elk op een nieuwe regel.
 """
 
-        elif request.example_type == ExampleType.EXPLANATION:
+        if request.example_type == ExampleType.EXPLANATION:
             return f"""
 Geef een korte, heldere toelichting bij het begrip '{begrip}' specifiek voor de gegeven context.
 
@@ -388,16 +387,15 @@ Definitie: {definitie}
 Context:
 {context_text}
 
-Leg uit wat dit begrip betekent in de praktijk van deze organisatie/domein en waarom 
+Leg uit wat dit begrip betekent in de praktijk van deze organisatie/domein en waarom
 het daar belangrijk is. Maak de uitleg relevant voor de opgegeven context.
 
 GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAGRAFEN.
 """
 
-        else:
-            raise ValueError(f"Unsupported example type: {request.example_type}")
+        raise ValueError(f"Unsupported example type: {request.example_type}")
 
-    def _format_context(self, context_dict: Dict[str, List[str]]) -> str:
+    def _format_context(self, context_dict: dict[str, list[str]]) -> str:
         """Format context dictionary for prompts."""
         context_lines = []
 
@@ -409,7 +407,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
 
         return "\n".join(context_lines)
 
-    def _parse_response(self, response: str) -> List[str]:
+    def _parse_response(self, response: str) -> list[str]:
         """Parse GPT response into list of examples."""
         if not response:
             return []
@@ -427,7 +425,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
         # Fallback: return whole response if no lines found
         return examples if examples else [response.strip()]
 
-    def get_statistics(self) -> Dict[str, Any]:
+    def get_statistics(self) -> dict[str, Any]:
         """Get generation statistics."""
         return {
             "total_generations": self.generation_count,
@@ -442,7 +440,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
 
 
 # Global generator instance
-_generator: Optional[UnifiedExamplesGenerator] = None
+_generator: UnifiedExamplesGenerator | None = None
 
 
 def get_examples_generator() -> UnifiedExamplesGenerator:
@@ -457,9 +455,9 @@ def get_examples_generator() -> UnifiedExamplesGenerator:
 def genereer_voorbeeld_zinnen(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
+    context_dict: dict[str, list[str]],
     mode: GenerationMode = GenerationMode.RESILIENT,
-) -> List[str]:
+) -> list[str]:
     """Generate example sentences."""
     generator = get_examples_generator()
     request = ExampleRequest(
@@ -477,9 +475,9 @@ def genereer_voorbeeld_zinnen(
 def genereer_praktijkvoorbeelden(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
+    context_dict: dict[str, list[str]],
     mode: GenerationMode = GenerationMode.RESILIENT,
-) -> List[str]:
+) -> list[str]:
     """Generate practical examples."""
     generator = get_examples_generator()
     request = ExampleRequest(
@@ -497,9 +495,9 @@ def genereer_praktijkvoorbeelden(
 def genereer_tegenvoorbeelden(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
+    context_dict: dict[str, list[str]],
     mode: GenerationMode = GenerationMode.RESILIENT,
-) -> List[str]:
+) -> list[str]:
     """Generate counter examples."""
     generator = get_examples_generator()
     request = ExampleRequest(
@@ -517,9 +515,9 @@ def genereer_tegenvoorbeelden(
 def genereer_synoniemen(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
+    context_dict: dict[str, list[str]],
     mode: GenerationMode = GenerationMode.RESILIENT,
-) -> List[str]:
+) -> list[str]:
     """Generate synonyms."""
     generator = get_examples_generator()
     request = ExampleRequest(
@@ -537,9 +535,9 @@ def genereer_synoniemen(
 def genereer_antoniemen(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
+    context_dict: dict[str, list[str]],
     mode: GenerationMode = GenerationMode.RESILIENT,
-) -> List[str]:
+) -> list[str]:
     """Generate antonyms."""
     generator = get_examples_generator()
     request = ExampleRequest(
@@ -557,7 +555,7 @@ def genereer_antoniemen(
 def genereer_toelichting(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
+    context_dict: dict[str, list[str]],
     mode: GenerationMode = GenerationMode.RESILIENT,
 ) -> str:
     """Generate explanation/clarification."""
@@ -578,9 +576,9 @@ def genereer_toelichting(
 def genereer_alle_voorbeelden(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
+    context_dict: dict[str, list[str]],
     mode: str = "RESILIENT",
-) -> Dict[str, List[str]]:
+) -> dict[str, list[str]]:
     """Generate all types of examples in one call."""
     generator = get_examples_generator()
 
@@ -628,8 +626,8 @@ def genereer_alle_voorbeelden(
 
 # Async batch generation
 async def genereer_alle_voorbeelden_async(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> Dict[str, List[str]]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> dict[str, list[str]]:
     """Generate all types of examples concurrently."""
     generator = get_examples_generator()
 

@@ -12,7 +12,7 @@ import pickle
 import time
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any
 
 from services.definition_generator_config import CacheConfig, CacheStrategy
 from services.interfaces import Definition, GenerationRequest
@@ -54,29 +54,24 @@ class CacheBackend(ABC):
     """Abstract base class for cache backends."""
 
     @abstractmethod
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         """Get value from cache."""
-        pass
 
     @abstractmethod
     async def set(self, key: str, entry: CacheEntry) -> bool:
         """Set value in cache."""
-        pass
 
     @abstractmethod
     async def delete(self, key: str) -> bool:
         """Delete value from cache."""
-        pass
 
     @abstractmethod
     async def clear(self) -> bool:
         """Clear all cache entries."""
-        pass
 
     @abstractmethod
-    async def stats(self) -> Dict[str, Any]:
+    async def stats(self) -> dict[str, Any]:
         """Get cache statistics."""
-        pass
 
 
 class MemoryCacheBackend(CacheBackend):
@@ -84,7 +79,7 @@ class MemoryCacheBackend(CacheBackend):
 
     def __init__(self, max_entries: int = 1000):
         self.max_entries = max_entries
-        self._cache: Dict[str, CacheEntry] = {}
+        self._cache: dict[str, CacheEntry] = {}
         self._stats = {
             "hits": 0,
             "misses": 0,
@@ -93,7 +88,7 @@ class MemoryCacheBackend(CacheBackend):
             "evictions": 0,
         }
 
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         """Get from memory cache."""
         if key in self._cache:
             entry = self._cache[key]
@@ -132,7 +127,7 @@ class MemoryCacheBackend(CacheBackend):
         self._cache.clear()
         return True
 
-    async def stats(self) -> Dict[str, Any]:
+    async def stats(self) -> dict[str, Any]:
         """Get memory cache statistics."""
         return {
             **self._stats,
@@ -194,7 +189,7 @@ class RedisCacheBackend(CacheBackend):
 
         return self._redis
 
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         """Get from Redis cache."""
         try:
             redis = await self._get_redis()
@@ -268,7 +263,7 @@ class RedisCacheBackend(CacheBackend):
             self._stats["errors"] += 1
             return False
 
-    async def stats(self) -> Dict[str, Any]:
+    async def stats(self) -> dict[str, Any]:
         """Get Redis cache statistics."""
         try:
             redis = await self._get_redis()
@@ -301,7 +296,7 @@ class HybridCacheBackend(CacheBackend):
             "total_misses": 0,
         }
 
-    async def get(self, key: str) -> Optional[CacheEntry]:
+    async def get(self, key: str) -> CacheEntry | None:
         """Get from memory first, then Redis."""
         # Try memory cache first
         entry = await self.memory.get(key)
@@ -342,7 +337,7 @@ class HybridCacheBackend(CacheBackend):
 
         return memory_result and redis_result
 
-    async def stats(self) -> Dict[str, Any]:
+    async def stats(self) -> dict[str, Any]:
         """Get combined cache statistics."""
         memory_stats = await self.memory.stats()
         redis_stats = await self.redis.stats()
@@ -377,17 +372,17 @@ class DefinitionGeneratorCache:
         if self.config.strategy == CacheStrategy.NONE:
             return None
 
-        elif self.config.strategy == CacheStrategy.MEMORY:
+        if self.config.strategy == CacheStrategy.MEMORY:
             return MemoryCacheBackend(max_entries=self.config.max_entries)
 
-        elif self.config.strategy == CacheStrategy.REDIS:
+        if self.config.strategy == CacheStrategy.REDIS:
             return RedisCacheBackend(
                 redis_url=self.config.redis_url,
                 db=self.config.redis_db,
                 prefix=self.config.redis_prefix,
             )
 
-        elif self.config.strategy == CacheStrategy.HYBRID:
+        if self.config.strategy == CacheStrategy.HYBRID:
             memory_backend = MemoryCacheBackend(max_entries=self.config.max_entries)
             redis_backend = RedisCacheBackend(
                 redis_url=self.config.redis_url,
@@ -396,11 +391,10 @@ class DefinitionGeneratorCache:
             )
             return HybridCacheBackend(memory_backend, redis_backend)
 
-        else:
-            raise ValueError(f"Unknown cache strategy: {self.config.strategy}")
+        raise ValueError(f"Unknown cache strategy: {self.config.strategy}")
 
     def _generate_cache_key(
-        self, request: GenerationRequest, context: Optional[Dict] = None
+        self, request: GenerationRequest, context: dict | None = None
     ) -> str:
         """
         Generate intelligent cache key based on request and context.
@@ -441,8 +435,8 @@ class DefinitionGeneratorCache:
         return key
 
     async def get_cached_definition(
-        self, request: GenerationRequest, context: Optional[Dict] = None
-    ) -> Optional[Definition]:
+        self, request: GenerationRequest, context: dict | None = None
+    ) -> Definition | None:
         """Get cached definition if available."""
         if not self.backend:
             return None
@@ -473,7 +467,7 @@ class DefinitionGeneratorCache:
         self,
         request: GenerationRequest,
         definition: Definition,
-        context: Optional[Dict] = None,
+        context: dict | None = None,
     ) -> bool:
         """Cache a generated definition."""
         if not self.backend:
@@ -520,7 +514,7 @@ class DefinitionGeneratorCache:
             logger.error(f"Cache clear error: {e}")
             return False
 
-    async def get_cache_stats(self) -> Dict[str, Any]:
+    async def get_cache_stats(self) -> dict[str, Any]:
         """Get comprehensive cache statistics."""
         stats = {
             "cache_stats": self._cache_stats,
@@ -570,9 +564,8 @@ def cache_definition_generation(ttl: int = 3600):
                 if time.time() - timestamp < ttl:
                     logger.debug(f"Function cache hit: {func.__name__}")
                     return entry
-                else:
-                    # Expired
-                    del cache[key]
+                # Expired
+                del cache[key]
 
             # Generate and cache
             result = await func(*args, **kwargs)
@@ -590,9 +583,8 @@ def cache_definition_generation(ttl: int = 3600):
                 if time.time() - timestamp < ttl:
                     logger.debug(f"Function cache hit: {func.__name__}")
                     return entry
-                else:
-                    # Expired
-                    del cache[key]
+                # Expired
+                del cache[key]
 
             # Generate and cache
             result = func(*args, **kwargs)
@@ -603,7 +595,6 @@ def cache_definition_generation(ttl: int = 3600):
 
         if asyncio.iscoroutinefunction(func):
             return async_wrapper
-        else:
-            return sync_wrapper
+        return sync_wrapper
 
     return decorator

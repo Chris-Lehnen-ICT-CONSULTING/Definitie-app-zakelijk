@@ -1,7 +1,7 @@
 # Code Quality Improvements - Quinn QA Architect Report
 
-**Date**: 2025-08-15  
-**Agent**: Quinn (Senior Developer & QA Architect)  
+**Date**: 2025-08-15
+**Agent**: Quinn (Senior Developer & QA Architect)
 **Status**: Major improvements implemented ✅
 
 ## Executive Summary
@@ -55,7 +55,7 @@ Successfully reduced code quality issues by **91%** (235 → 20 issues) through 
 - Imports after `st.set_page_config()` calls
 - Require manual intervention due to Streamlit constraints
 
-### Priority 2: F401 (8 instances)  
+### Priority 2: F401 (8 instances)
 - Unused imports in try-except blocks for feature detection
 - Cannot be auto-fixed without breaking optional dependencies
 

@@ -4,8 +4,8 @@ Provides concurrent generation of all example types for improved performance.
 """
 
 import logging
+from collections.abc import Callable
 from dataclasses import dataclass
-from typing import Callable, Dict, List, Optional
 
 from utils.async_api import async_cached, async_gpt_call
 
@@ -16,9 +16,9 @@ logger = logging.getLogger(__name__)
 class ExampleGenerationResult:
     """Result container for example generation."""
 
-    voorbeeld_zinnen: List[str]
-    praktijkvoorbeelden: List[str]
-    tegenvoorbeelden: List[str]
+    voorbeeld_zinnen: list[str]
+    praktijkvoorbeelden: list[str]
+    tegenvoorbeelden: list[str]
     synoniemen: str
     antoniemen: str
     toelichting: str
@@ -35,8 +35,8 @@ class AsyncExampleGenerator:
 
     @async_cached(ttl=1800)  # 30 minutes
     async def _generate_voorbeeld_zinnen(
-        self, begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-    ) -> List[str]:
+        self, begrip: str, definitie: str, context_dict: dict[str, list[str]]
+    ) -> list[str]:
         """Generate example sentences asynchronously."""
         prompt = (
             f"Geef 2 tot 3 korte voorbeeldzinnen waarin het begrip '{begrip}' "
@@ -65,13 +65,13 @@ class AsyncExampleGenerator:
             return zinnen or [response]
 
         except Exception as e:
-            self.logger.error(f"Error generating example sentences: {str(e)}")
+            self.logger.error(f"Error generating example sentences: {e!s}")
             return [f"❌ Fout bij genereren korte voorbeelden: {e}"]
 
     @async_cached(ttl=1800)  # 30 minutes
     async def _generate_praktijkvoorbeelden(
-        self, begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-    ) -> List[str]:
+        self, begrip: str, definitie: str, context_dict: dict[str, list[str]]
+    ) -> list[str]:
         """Generate practice examples asynchronously."""
         prompt = (
             f"Geef 2 tot 3 praktijkvoorbeelden waarin het begrip '{begrip}' "
@@ -101,13 +101,13 @@ class AsyncExampleGenerator:
             return voorbeelden or [response]
 
         except Exception as e:
-            self.logger.error(f"Error generating practice examples: {str(e)}")
+            self.logger.error(f"Error generating practice examples: {e!s}")
             return [f"❌ Fout bij genereren praktijkvoorbeelden: {e}"]
 
     @async_cached(ttl=1800)  # 30 minutes
     async def _generate_tegenvoorbeelden(
-        self, begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-    ) -> List[str]:
+        self, begrip: str, definitie: str, context_dict: dict[str, list[str]]
+    ) -> list[str]:
         """Generate counter-examples asynchronously."""
         prompt = (
             f"Geef 2 tot 3 tegenvoorbeelden die NIET onder het begrip '{begrip}' vallen, "
@@ -135,12 +135,12 @@ class AsyncExampleGenerator:
             return tegenvoorbeelden or [response]
 
         except Exception as e:
-            self.logger.error(f"Error generating counter-examples: {str(e)}")
+            self.logger.error(f"Error generating counter-examples: {e!s}")
             return [f"❌ Fout bij genereren tegenvoorbeelden: {e}"]
 
     @async_cached(ttl=7200)  # 2 hours
     async def _generate_synoniemen(
-        self, begrip: str, context_dict: Dict[str, List[str]]
+        self, begrip: str, context_dict: dict[str, list[str]]
     ) -> str:
         """Generate synonyms asynchronously."""
         prompt = (
@@ -157,12 +157,12 @@ class AsyncExampleGenerator:
                 prompt=prompt, model="gpt-4", temperature=0.2, max_tokens=150
             )
         except Exception as e:
-            self.logger.error(f"Error generating synonyms: {str(e)}")
+            self.logger.error(f"Error generating synonyms: {e!s}")
             return f"❌ Fout bij genereren synoniemen: {e}"
 
     @async_cached(ttl=7200)  # 2 hours
     async def _generate_antoniemen(
-        self, begrip: str, context_dict: Dict[str, List[str]]
+        self, begrip: str, context_dict: dict[str, list[str]]
     ) -> str:
         """Generate antonyms asynchronously."""
         prompt = (
@@ -179,12 +179,12 @@ class AsyncExampleGenerator:
                 prompt=prompt, model="gpt-4", temperature=0.2, max_tokens=150
             )
         except Exception as e:
-            self.logger.error(f"Error generating antonyms: {str(e)}")
+            self.logger.error(f"Error generating antonyms: {e!s}")
             return f"❌ Fout bij genereren antoniemen: {e}"
 
     @async_cached(ttl=3600)  # 1 hour
     async def _generate_toelichting(
-        self, begrip: str, context_dict: Dict[str, List[str]]
+        self, begrip: str, context_dict: dict[str, list[str]]
     ) -> str:
         """Generate explanation asynchronously."""
         prompt = (
@@ -201,15 +201,15 @@ class AsyncExampleGenerator:
                 prompt=prompt, model="gpt-4", temperature=0.3, max_tokens=200
             )
         except Exception as e:
-            self.logger.error(f"Error generating explanation: {str(e)}")
+            self.logger.error(f"Error generating explanation: {e!s}")
             return f"❌ Fout bij genereren toelichting: {e}"
 
     async def generate_all_examples(
         self,
         begrip: str,
         definitie: str,
-        context_dict: Dict[str, List[str]],
-        progress_callback: Optional[Callable[[str, int, int], None]] = None,
+        context_dict: dict[str, list[str]],
+        progress_callback: Callable[[str, int, int], None] | None = None,
     ) -> ExampleGenerationResult:
         """
         Generate all types of examples concurrently.
@@ -264,8 +264,8 @@ class AsyncExampleGenerator:
                 self.logger.debug(f"Completed {name} ({completed}/{total})")
 
             except Exception as e:
-                self.logger.error(f"Error generating {name}: {str(e)}")
-                results[name] = f"❌ Error: {str(e)}"
+                self.logger.error(f"Error generating {name}: {e!s}")
+                results[name] = f"❌ Error: {e!s}"
                 completed += 1
 
                 if progress_callback:
@@ -289,7 +289,7 @@ class AsyncExampleGenerator:
 
 
 # Global async example generator
-_async_generator: Optional[AsyncExampleGenerator] = None
+_async_generator: AsyncExampleGenerator | None = None
 
 
 def get_async_generator() -> AsyncExampleGenerator:
@@ -303,8 +303,8 @@ def get_async_generator() -> AsyncExampleGenerator:
 async def async_generate_all_examples(
     begrip: str,
     definitie: str,
-    context_dict: Dict[str, List[str]],
-    progress_callback: Optional[Callable[[str, int, int], None]] = None,
+    context_dict: dict[str, list[str]],
+    progress_callback: Callable[[str, int, int], None] | None = None,
 ) -> ExampleGenerationResult:
     """
     Convenience function for async example generation.
@@ -329,16 +329,16 @@ async def async_generate_all_examples(
 
 # Individual async functions for compatibility
 async def async_genereer_voorbeeld_zinnen(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> list[str]:
     """Generate example sentences asynchronously."""
     generator = get_async_generator()
     return await generator._generate_voorbeeld_zinnen(begrip, definitie, context_dict)
 
 
 async def async_genereer_praktijkvoorbeelden(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> list[str]:
     """Generate practice examples asynchronously."""
     generator = get_async_generator()
     return await generator._generate_praktijkvoorbeelden(
@@ -347,15 +347,15 @@ async def async_genereer_praktijkvoorbeelden(
 
 
 async def async_genereer_tegenvoorbeelden(
-    begrip: str, definitie: str, context_dict: Dict[str, List[str]]
-) -> List[str]:
+    begrip: str, definitie: str, context_dict: dict[str, list[str]]
+) -> list[str]:
     """Generate counter-examples asynchronously."""
     generator = get_async_generator()
     return await generator._generate_tegenvoorbeelden(begrip, definitie, context_dict)
 
 
 async def async_genereer_synoniemen(
-    begrip: str, context_dict: Dict[str, List[str]]
+    begrip: str, context_dict: dict[str, list[str]]
 ) -> str:
     """Generate synonyms asynchronously."""
     generator = get_async_generator()
@@ -363,7 +363,7 @@ async def async_genereer_synoniemen(
 
 
 async def async_genereer_antoniemen(
-    begrip: str, context_dict: Dict[str, List[str]]
+    begrip: str, context_dict: dict[str, list[str]]
 ) -> str:
     """Generate antonyms asynchronously."""
     generator = get_async_generator()
@@ -371,7 +371,7 @@ async def async_genereer_antoniemen(
 
 
 async def async_genereer_toelichting(
-    begrip: str, context_dict: Dict[str, List[str]]
+    begrip: str, context_dict: dict[str, list[str]]
 ) -> str:
     """Generate explanation asynchronously."""
     generator = get_async_generator()

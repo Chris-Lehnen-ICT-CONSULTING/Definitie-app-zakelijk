@@ -3,10 +3,9 @@ Context Selector Component - Enhanced multi-select context management.
 """
 
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 import streamlit as st
-
 from ui.session_state import SessionStateManager
 
 
@@ -15,9 +14,9 @@ class ContextPreset:
     """Voorgedefinieerde context combinatie."""
 
     name: str
-    organisatorische_context: List[str]
-    juridische_context: List[str]
-    wettelijke_basis: List[str]
+    organisatorische_context: list[str]
+    juridische_context: list[str]
+    wettelijke_basis: list[str]
     description: str = ""
 
 
@@ -29,7 +28,7 @@ class ContextSelector:
         self.presets = self._load_context_presets()
         self.validation_rules = self._load_validation_rules()
 
-    def render(self) -> Dict[str, Any]:
+    def render(self) -> dict[str, Any]:
         """
         Render context selector interface.
 
@@ -51,7 +50,7 @@ class ContextSelector:
 
         return context_data
 
-    def _render_preset_selector(self) -> Optional[ContextPreset]:
+    def _render_preset_selector(self) -> ContextPreset | None:
         """Render preset selectie."""
         st.markdown("#### 🎯 Snelle Selectie")
 
@@ -71,7 +70,7 @@ class ContextSelector:
 
         return None
 
-    def _apply_preset(self, preset: ContextPreset) -> Dict[str, Any]:
+    def _apply_preset(self, preset: ContextPreset) -> dict[str, Any]:
         """Pas voorgedefinieerde context toe."""
         st.markdown("#### ✅ Geselecteerde Context")
 
@@ -99,10 +98,10 @@ class ContextSelector:
 
     def _render_manual_selector(
         self,
-        default_org: List[str] = None,
-        default_jur: List[str] = None,
-        default_wet: List[str] = None,
-    ) -> Dict[str, Any]:
+        default_org: list[str] = None,
+        default_jur: list[str] = None,
+        default_wet: list[str] = None,
+    ) -> dict[str, Any]:
         """Render handmatige context selectie."""
         st.markdown("#### 🛠️ Handmatige Selectie")
 
@@ -244,7 +243,7 @@ class ContextSelector:
             "ketenpartners": ketenpartners,
         }
 
-    def _render_context_validation(self, context_data: Dict[str, Any]):
+    def _render_context_validation(self, context_data: dict[str, Any]):
         """Render context validation en feedback."""
         issues = []
         suggestions = []
@@ -280,7 +279,7 @@ class ContextSelector:
         if org_contexts and (jur_contexts or context_data.get("wettelijke_basis")):
             st.success("✅ Context configuratie is compleet")
 
-    def _load_context_presets(self) -> List[ContextPreset]:
+    def _load_context_presets(self) -> list[ContextPreset]:
         """Laad voorgedefinieerde context presets."""
         return [
             ContextPreset(
@@ -329,7 +328,7 @@ class ContextSelector:
             ),
         ]
 
-    def _load_validation_rules(self) -> Dict[str, Any]:
+    def _load_validation_rules(self) -> dict[str, Any]:
         """Laad context validatie regels."""
         return {
             "required_fields": ["organisatorische_context"],
@@ -341,14 +340,14 @@ class ContextSelector:
         }
 
     def save_as_preset(
-        self, name: str, context_data: Dict[str, Any], description: str = ""
+        self, name: str, context_data: dict[str, Any], description: str = ""
     ):
         """Sla huidige context op als preset."""
         # TODO: Implement preset saving to database or config file
         st.success(f"Context preset '{name}' opgeslagen!")
 
 
-def render_context_selector() -> Dict[str, Any]:
+def render_context_selector() -> dict[str, Any]:
     """Standalone context selector rendering."""
     selector = ContextSelector()
     return selector.render()

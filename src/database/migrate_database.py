@@ -8,7 +8,6 @@ voor backward compatibility met de UI.
 import logging
 import sqlite3
 from pathlib import Path
-from typing import List, Tuple
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -37,7 +36,7 @@ def check_column_exists(conn: sqlite3.Connection, table: str, column: str) -> bo
     return column in columns
 
 
-def get_missing_columns(conn: sqlite3.Connection) -> List[Tuple[str, str]]:
+def get_missing_columns(conn: sqlite3.Connection) -> list[tuple[str, str]]:
     """
     Bepaal welke legacy kolommen ontbreken.
 
@@ -103,8 +102,8 @@ def migrate_database(db_path: str = "data/definities.db"):
                         if column_name == "datum_voorstel":
                             conn.execute(
                                 """
-                                UPDATE definities 
-                                SET datum_voorstel = created_at 
+                                UPDATE definities
+                                SET datum_voorstel = created_at
                                 WHERE datum_voorstel IS NULL
                             """
                             )

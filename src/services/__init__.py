@@ -6,11 +6,11 @@ geïntegreerde services en orchestratie functionaliteiten.
 
 # Import nieuwe services - lazy imports to avoid circular dependencies
 from services.container import ContainerConfigs, ServiceContainer, get_container
+from services.definition_generator_cache import DefinitionGeneratorCache
+from services.definition_generator_config import UnifiedGeneratorConfig
 
 # Import new unified services
 from services.unified_definition_generator import UnifiedDefinitionGenerator
-from services.definition_generator_config import UnifiedGeneratorConfig
-from services.definition_generator_cache import DefinitionGeneratorCache
 
 
 # Lazy import factory functions
