@@ -23,6 +23,19 @@ ai_enhanced: true
 # Ensure we're in the project root
 cd /Users/chrislehnen/Projecten/Definitie-app
 
+# Check if virtual environment exists
+if [ ! -d "venv" ]; then
+    echo "⚠️ Creating virtual environment..."
+    python3 -m venv venv
+fi
+
+# Activate virtual environment
+source venv/bin/activate
+
+# Install development dependencies
+echo "📦 Installing development dependencies..."
+pip install -r requirements-dev.txt
+
 # Check required tools
 which ruff black mypy bandit || echo "⚠️ Some tools missing"
 ```

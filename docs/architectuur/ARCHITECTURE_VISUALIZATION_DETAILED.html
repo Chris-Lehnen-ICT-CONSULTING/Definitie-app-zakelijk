@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DefinitieAgent - Complete Architectuur Visualisatie AS-IS & TO-BE</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        h1, h2, h3 {
+            color: #333;
+        }
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-top: 30px;
+        }
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .as-is {
+            border-left: 5px solid #3498db;
+        }
+        .to-be {
+            border-left: 5px solid #2ecc71;
+        }
+        .module {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px 0;
+            position: relative;
+        }
+        .module h4 {
+            margin: 0 0 10px 0;
+            color: #495057;
+        }
+        .file {
+            background: white;
+            border: 1px solid #e9ecef;
+            border-radius: 3px;
+            padding: 8px;
+            margin: 5px 0;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        .file:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+        }
+        .file-path {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #666;
+        }
+        .file-description {
+            font-size: 12px;
+            color: #555;
+            margin-top: 3px;
+        }
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-unused {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-partial {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .status-new {
+            background: #cce5ff;
+            color: #004085;
+        }
+        .status-todo {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+        .epic {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            border-radius: 5px;
+            padding: 15px;
+            margin: 10px 0;
+        }
+        .user-story {
+            background: #f3e5f5;
+            border: 1px solid #9c27b0;
+            border-radius: 3px;
+            padding: 10px;
+            margin: 5px 0 5px 20px;
+            font-size: 14px;
+        }
+        .priority-high {
+            border-left: 4px solid #f44336;
+        }
+        .priority-medium {
+            border-left: 4px solid #ff9800;
+        }
+        .priority-low {
+            border-left: 4px solid #4caf50;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            padding: 15px;
+            background: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .stat-number {
+            font-size: 36px;
+            font-weight: bold;
+            color: #2196f3;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+        .tab-container {
+            margin-top: 20px;
+        }
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #dee2e6;
+            margin-bottom: 20px;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            font-size: 16px;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+        .tab:hover {
+            color: #2196f3;
+        }
+        .tab.active {
+            color: #2196f3;
+            border-bottom: 3px solid #2196f3;
+            margin-bottom: -2px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .tree {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        .tree-item {
+            padding-left: 20px;
+        }
+        .collapse-toggle {
+            cursor: pointer;
+            user-select: none;
+            color: #2196f3;
+        }
+        .collapse-toggle:hover {
+            text-decoration: underline;
+        }
+        .collapsible {
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4caf50, #2196f3);
+            transition: width 0.5s ease;
+        }
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .feature-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        .feature-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #2196f3;
+        }
+        .timeline-item {
+            position: relative;
+            padding: 20px;
+            width: 45%;
+            margin: 20px 0;
+        }
+        .timeline-item:nth-child(odd) {
+            left: 0;
+            text-align: right;
+        }
+        .timeline-item:nth-child(even) {
+            left: 55%;
+        }
+        .timeline-dot {
+            position: absolute;
+            width: 16px;
+            height: 16px;
+            background: #2196f3;
+            border-radius: 50%;
+            top: 25px;
+        }
+        .timeline-item:nth-child(odd) .timeline-dot {
+            right: -58px;
+        }
+        .timeline-item:nth-child(even) .timeline-dot {
+            left: -58px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ DefinitieAgent - Complete Architectuur Visualisatie</h1>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="status status-active">✓ Actief</span>
+                <span>Geïmplementeerd & in gebruik</span>
+            </div>
+            <div class="legend-item">
+                <span class="status status-partial">⚠️ Deels</span>
+                <span>Gedeeltelijk geïmplementeerd</span>
+            </div>
+            <div class="legend-item">
+                <span class="status status-unused">✗ Ongebruikt</span>
+                <span>Bestaat maar wordt niet gebruikt</span>
+            </div>
+            <div class="legend-item">
+                <span class="status status-todo">⏳ To-Do</span>
+                <span>Nog te bouwen</span>
+            </div>
+            <div class="legend-item">
+                <span class="status status-new">🆕 Nieuw</span>
+                <span>Nieuwe functionaliteit TO-BE</span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number">304</div>
+                <div class="stat-label">Totaal Python bestanden</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">220</div>
+                <div class="stat-label">Source modules</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">72</div>
+                <div class="stat-label">Test modules</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">~30%</div>
+                <div class="stat-label">UI Tabs werkend</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">11%</div>
+                <div class="stat-label">Test coverage</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">16</div>
+                <div class="stat-label">Weken roadmap</div>
+            </div>
+        </div>
+
+        <div class="main-grid">
+            <!-- AS-IS Sectie -->
+            <div class="section as-is">
+                <h2>📊 AS-IS Architectuur</h2>
+                <p>Huidige implementatie status van alle Python modules</p>
+
+                <div class="module">
+                    <h4>🚀 Entry Point</h4>
+                    <div class="file">
+                        <div class="file-path">src/main.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Hoofdapplicatie met Streamlit interface - start punt van de applicatie</div>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <h4>🖼️ UI Componenten</h4>
+                    <div class="file">
+                        <div class="file-path">ui/tabbed_interface.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Hoofd UI controller - beheert alle tabs en navigatie</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ui/session_state.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Sessie beheer - houdt gebruikersdata bij tijdens sessie</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ui/components/definition_generator_tab.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Definitie generator tab - hoofdfunctionaliteit voor definitie creatie</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ui/components/expert_review_tab.py <span class="status status-partial">⚠️ Deels</span></div>
+                        <div class="file-description">Expert review tab - review workflow (UI bestaat, backend incomplete)</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ui/components/export_tab.py <span class="status status-partial">⚠️ Deels</span></div>
+                        <div class="file-description">Export tab - alleen TXT export werkt, andere formaten TODO</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ui/components/orchestration_tab.py <span class="status status-unused">✗ Ongebruikt</span></div>
+                        <div class="file-description">Orchestratie tab - tijdelijk uitgeschakeld wegens compatibility issues</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ui/components/web_lookup_tab.py <span class="status status-unused">✗ Ongebruikt</span></div>
+                        <div class="file-description">Web lookup tab - backend bestaat, UI integratie ontbreekt</div>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <h4>⚙️ Services (Nieuwe Architectuur)</h4>
+                    <div class="file">
+                        <div class="file-path">services/unified_definition_generator.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Centrale definitie generator - unificeert alle generatie logica</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">services/definition_orchestrator.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Orchestratie service - coördineert definitie workflow</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">services/definition_repository.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Repository service - abstractie laag voor database operaties</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">services/definition_validator.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Validatie service - voert kwaliteitscontroles uit</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">services/container.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Dependency injection container - beheert service instanties</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">services/web_lookup_service.py <span class="status status-partial">⚠️ Deels</span></div>
+                        <div class="file-description">Web lookup service - zoekt externe bronnen (geen UI koppeling)</div>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <h4>🗄️ Database</h4>
+                    <div class="file">
+                        <div class="file-path">database/definitie_repository.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Database laag - SQLAlchemy repository voor definitie opslag</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">database/migrate_database.py <span class="status status-partial">⚠️ Deels</span></div>
+                        <div class="file-description">Migratie script - standalone tool voor database upgrades</div>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <h4>🤖 AI/ML Componenten</h4>
+                    <div class="file">
+                        <div class="file-path">ai_toetser/modular_toetser.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Moderne toetser - modulaire regel-gebaseerde validatie</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ai_toetser/json_validator_loader.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">JSON validator loader - laadt validatie regels uit JSON</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">ai_toetser/toetser.py <span class="status status-partial">⚠️ Deels</span></div>
+                        <div class="file-description">Legacy wrapper - backward compatibility laag</div>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <h4>🛠️ Utilities</h4>
+                    <div class="file">
+                        <div class="file-path">utils/smart_rate_limiter.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Intelligente rate limiting voor API calls</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">utils/integrated_resilience.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Resilience framework - retry logic en circuit breakers</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">utils/cache.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Caching utilities - in-memory cache voor performance</div>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <h4>❌ Ongebruikte/Legacy Modules</h4>
+                    <div class="file">
+                        <div class="file-path">domain/context/*.py <span class="status status-unused">✗ Ongebruikt</span></div>
+                        <div class="file-description">Organisatie wetten context - niet geïntegreerd</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">domain/juridisch/*.py <span class="status status-unused">✗ Ongebruikt</span></div>
+                        <div class="file-description">Juridische patronen - niet in gebruik</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">toetsregels/regels/*.py <span class="status status-unused">✗ Ongebruikt</span></div>
+                        <div class="file-description">50+ Python regel implementaties - vervangen door JSON</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">toetsregels/validators/*.py <span class="status status-unused">✗ Ongebruikt</span></div>
+                        <div class="file-description">50+ duplicate validator bestanden - overbodig</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">voorbeelden/async_voorbeelden.py <span class="status status-unused">✗ Ongebruikt</span></div>
+                        <div class="file-description">Oude async implementatie - vervangen door unified versie</div>
+                    </div>
+                </div>
+
+                <div class="module">
+                    <h4>🧪 Test Suite</h4>
+                    <div class="file">
+                        <div class="file-path">tests/unit/*.py <span class="status status-partial">⚠️ Deels</span></div>
+                        <div class="file-description">Unit tests - veel tests gefaald door refactoring</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">tests/integration/*.py <span class="status status-partial">⚠️ Deels</span></div>
+                        <div class="file-description">Integratie tests - update nodig voor nieuwe architectuur</div>
+                    </div>
+                    <div class="file">
+                        <div class="file-path">tests/services/*.py <span class="status status-active">✓ Actief</span></div>
+                        <div class="file-description">Service tests - nieuwe tests voor service laag</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TO-BE Sectie -->
+            <div class="section to-be">
+                <h2>🚀 TO-BE Architectuur</h2>
+                <p>Geplande functionaliteiten en nog te bouwen modules</p>
+
+                <div class="epic">
+                    <h3>📋 EPIC-001: Database Infrastructure (7 pts)</h3>
+                    <div class="user-story priority-high">
+                        <strong>STORY-001-01:</strong> Enable SQLite WAL Mode (3 pts)
+                        <div class="file">
+                            <div class="file-path">database/wal_enabler.py <span class="status status-todo">⏳ To-Do</span></div>
+                            <div class="file-description">Write-Ahead Logging enabler voor betere concurrent access</div>
+                        </div>
+                    </div>
+                    <div class="user-story priority-high">
+                        <strong>STORY-001-02:</strong> Fix Connection Pooling (2 pts)
+                        <div class="file">
+                            <div class="file-path">database/connection_pool.py <span class="status status-todo">⏳ To-Do</span></div>
+                            <div class="file-description">Verbeterde connection pooling voor multi-user support</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="epic">
+                    <h3>📋 EPIC-002: Web Lookup Module (10 pts)</h3>
+                    <div class="user-story priority-high">
+                        <strong>UI Integratie:</strong> Koppel bestaande backend aan UI
+                        <div class="file">
+                            <div class="file-path">ui/components/web_lookup_tab.py <span class="status status-todo">⏳ To-Do</span></div>
+                            <div class="file-description">Activeer en integreer web lookup in UI</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="epic">
+                    <h3>📋 EPIC-003: Service Decomposition</h3>
+                    <div class="module">
+                        <h4>🆕 Nieuwe Services</h4>
+                        <div class="file">
+                            <div class="file-path">services/prompt_optimizer.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Optimaliseert prompts naar <10k tokens</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">services/validation_orchestrator.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Orkestreert alle validatie processen</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">services/content_enrichment_service.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Verrijkt content met synoniemen, antoniemen, etc.</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">services/cache_manager.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Centraal cache management met Redis support</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">services/monitoring_service.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Real-time monitoring en metrics collectie</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="epic">
+                    <h3>📋 EPIC-005: Tab Activation (21 pts) - GROOTSTE</h3>
+                    <div class="module">
+                        <h4>🖼️ Te Activeren UI Tabs</h4>
+                        <div class="file">
+                            <div class="file-path">ui/components/history_tab.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Version history en change tracking</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">ui/components/quality_control_tab.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Validation dashboard met alle kwaliteitsmetrics</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">ui/components/monitoring_tab.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Real-time metrics en performance monitoring</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">ui/components/external_sources_tab.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Configuratie van externe bronnen</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">ui/components/orchestration_designer.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Visuele workflow designer voor orchestratie</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="epic">
+                    <h3>📋 Infrastructuur Verbeteringen</h3>
+                    <div class="module">
+                        <h4>🔧 DevOps & CI/CD</h4>
+                        <div class="file">
+                            <div class="file-path">.github/workflows/ci.yml <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">GitHub Actions CI/CD pipeline</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">docker/Dockerfile.prod <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Production Docker container</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">k8s/deployment.yaml <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Kubernetes deployment configuratie</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="epic">
+                    <h3>📋 Export Functionaliteiten</h3>
+                    <div class="module">
+                        <h4>📤 Export Modules</h4>
+                        <div class="file">
+                            <div class="file-path">export/export_excel.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Excel export met formatting</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">export/export_pdf.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">PDF export met templates</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">export/export_jsonld.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">JSON-LD export voor linked data</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">export/export_api.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">REST API voor export functionaliteit</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="epic">
+                    <h3>📋 Performance & Scaling</h3>
+                    <div class="module">
+                        <h4>⚡ Performance Modules</h4>
+                        <div class="file">
+                            <div class="file-path">utils/redis_cache.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Redis distributed cache implementatie</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">utils/async_processor.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Async processing voor heavy operations</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">database/postgres_adapter.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">PostgreSQL adapter voor productie</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="epic">
+                    <h3>📋 Security & Auth</h3>
+                    <div class="module">
+                        <h4>🔐 Security Modules</h4>
+                        <div class="file">
+                            <div class="file-path">auth/authentication.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Basic authenticatie systeem</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">auth/authorization.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">Role-based access control</div>
+                        </div>
+                        <div class="file">
+                            <div class="file-path">security/api_security.py <span class="status status-new">🆕 Nieuw</span></div>
+                            <div class="file-description">API key management en rate limiting</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="margin-top: 30px;">
+            <h2>📈 Roadmap & Timeline</h2>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <h4>Week 1-4: Foundation</h4>
+                    <p>Emergency fixes, WAL mode, configuratie unificatie, CI/CD basis</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%"></div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <h4>Week 5-8: Service Decomposition</h4>
+                    <p>Extract services, elimineer God Object, implementeer Facade pattern</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 10%"></div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <h4>Week 9-12: Feature Completion</h4>
+                    <p>Activeer alle UI tabs, web lookup integratie, content enrichment</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+                <div class="timeline-item">
+                    <div class="timeline-dot"></div>
+                    <h4>Week 13-16: Optimization & Scale</h4>
+                    <p>Redis caching, async processing, PostgreSQL migration, monitoring</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="margin-top: 30px;">
+            <h2>🎯 Success Criteria</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h4>Performance</h4>
+                    <p><strong>Van:</strong> 8-12 sec response tijd</p>
+                    <p><strong>Naar:</strong> <5 sec (95th percentile)</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h4>UI Completeness</h4>
+                    <p><strong>Van:</strong> 30% tabs werkend</p>
+                    <p><strong>Naar:</strong> 100% tabs functioneel</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🧪</div>
+                    <h4>Test Coverage</h4>
+                    <p><strong>Van:</strong> 11% coverage</p>
+                    <p><strong>Naar:</strong> 80% coverage</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💰</div>
+                    <h4>API Kosten</h4>
+                    <p><strong>Reductie:</strong> 70%</p>
+                    <p><strong>Via:</strong> Prompt optimalisatie</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">👥</div>
+                    <h4>Schaalbaarheid</h4>
+                    <p><strong>Van:</strong> Single user</p>
+                    <p><strong>Naar:</strong> 10+ concurrent users</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🔒</div>
+                    <h4>Security</h4>
+                    <p><strong>Toevoegen:</strong> Auth & RBAC</p>
+                    <p><strong>Status:</strong> Basis authenticatie</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="margin-top: 30px;">
+            <h2>🔧 Kritieke Issues</h2>
+            <div class="module">
+                <div class="file priority-high">
+                    <div class="file-path">INT-05: Toetsregel ontbreekt</div>
+                    <div class="file-description">Medium priority - enkele validatie regels missen</div>
+                </div>
+                <div class="file priority-high">
+                    <div class="file-path">Database locks bij concurrent gebruik</div>
+                    <div class="file-description">Kritiek voor multi-user support - WAL mode nodig</div>
+                </div>
+                <div class="file priority-medium">
+                    <div class="file-path">Widget key duplicates in Streamlit</div>
+                    <div class="file-description">UI bug - duplicate keys veroorzaken crashes</div>
+                </div>
+                <div class="file priority-medium">
+                    <div class="file-path">Memory leaks in DefinitieAgent</div>
+                    <div class="file-description">Performance issue - geheugen gebruik loopt op</div>
+                </div>
+                <div class="file priority-low">
+                    <div class="file-path">UTF-8 encoding issues in database</div>
+                    <div class="file-description">Data integriteit - speciale karakters probleem</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" style="margin-top: 30px;">
+            <h2>💡 Aanbevelingen</h2>
+            <ol>
+                <li><strong>Verwijder dubbele toetsregels:</strong> 100+ Python bestanden in toetsregels/regels/ en toetsregels/validators/ zijn overbodig</li>
+                <li><strong>Archiveer ongebruikte domain modules:</strong> domain/context/, domain/juridisch/, domain/linguistisch/ worden niet gebruikt</li>
+                <li><strong>Cleanup legacy voorbeelden:</strong> async_voorbeelden.py en cached_voorbeelden.py zijn vervangen</li>
+                <li><strong>Prioriteer UI tab activatie:</strong> 7 tabs wachten op implementatie - grootste gebruikerswaarde</li>
+                <li><strong>Implementeer WAL mode direct:</strong> Lost database lock issues op voor multi-user</li>
+                <li><strong>Start met basis authenticatie:</strong> Security is kritiek voor productie</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        // Tab functionaliteit
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+
+                tab.classList.add('active');
+                const contentId = tab.getAttribute('data-content');
+                document.getElementById(contentId).classList.add('active');
+            });
+        });
+
+        // Collapsible functionaliteit
+        document.querySelectorAll('.collapse-toggle').forEach(toggle => {
+            toggle.addEventListener('click', () => {
+                const target = toggle.nextElementSibling;
+                if (target.style.maxHeight) {
+                    target.style.maxHeight = null;
+                } else {
+                    target.style.maxHeight = target.scrollHeight + "px";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
