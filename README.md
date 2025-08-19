@@ -3,14 +3,14 @@
 **Nederlandse AI-powered Definitie Generator voor Juridische en Overheidscontexten**
 
 [![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](./CHANGELOG.md)
-[![Python](https://img.shields.io/badge/python-3.8%2B-blue.svg)](https://python.org)
+[![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://python.org)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?style=flat-square)](https://pre-commit.com/)
-[![Tests](https://github.com/ChrisLehnen/Definitie-app/actions/workflows/python-ci.yml/badge.svg)](https://github.com/ChrisLehnen/Definitie-app/actions)
-[![Code Quality](https://img.shields.io/badge/ruff-235%20issues-orange.svg)](./docs/architectuur/COMPREHENSIVE_CODE_REVIEW_FINAL.md)
-[![Security](https://img.shields.io/badge/security-gaps%20identified-red.svg)](./docs/architectuur/)
+[![Tests](https://img.shields.io/badge/tests-522%20tests-yellow.svg)](./tests/)
+[![Code Quality](https://img.shields.io/badge/ruff-799%20issues-orange.svg)](./docs/architectuur/)
+[![Security](https://img.shields.io/badge/security-basic%20only-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
-> **🧪 Quinn QA Status**: Architecture review voltooid - 45% production ready, legacy refactoring PRIORITEIT 1
+> **🧪 Status Update (2025-08-19)**: F821 undefined name errors opgelost, imports gesorteerd, 84 kritieke errors gefixt
 
 ## 🎯 Overzicht
 
@@ -78,14 +78,17 @@ definitie-app/
 └── 📁 data/                  # Database & uploads
 ```
 
-## 📊 Project Status (Quinn QA Review 2025-08-15)
+## 📊 Project Status (Updated 2025-08-19)
 
-### ✅ Werkend & Geverifieerd (45% production ready)
+### ✅ Werkend & Geverifieerd (48% production ready)
 - **Core Services**: DefinitionGenerator (99%), Validator (98%), Repository (100%)
 - **Database**: Schema, migrations, UTF-8 encoding ✅
 - **Toetsregels**: 45/46 modulaire regels werkend
 - **Architecture**: Basis service layer geïmplementeerd
 - **Codebase**: 59.783 regels productie code, 15.526 regels tests
+- **Code Quality**: F821 undefined name errors (38→0) ✅ NIEUW
+- **Import Hygiene**: I001 unsorted imports (46→0) ✅ NIEUW
+- **Datetime Safety**: DTZ errors grotendeels opgelost ✅ NIEUW
 
 ### ❌ KRITIEKE BLOCKERS - Productie
 - **Authentication/Authorization**: Geen security layer (OWASP A07:2021)
