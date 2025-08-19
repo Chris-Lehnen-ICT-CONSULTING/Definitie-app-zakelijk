@@ -9,7 +9,7 @@ Elke toetsregel in DefinitieAgent bestaat uit twee delen:
 ## Structuur
 
 ```
-config/toetsregels/regels/
+src/toetsregels/regels/
 ├── ESS-03.json          # Configuratie
 ├── ESS_03.py           # Python validatie module
 ├── CON-01.json         # Alleen JSON (gebruikt fallback validator)
@@ -21,7 +21,7 @@ config/toetsregels/regels/
 ### Automatisch met Script
 
 ```bash
-cd src/config/toetsregels
+cd src/toetsregels
 python create_regel_module.py TEST-01 "Test regel naam" "Uitleg van de regel"
 ```
 
@@ -147,7 +147,7 @@ def validate(self, definitie: str, begrip: str, context: Optional[Dict] = None):
 ```python
 # tests/test_toetsregel_TEST_01.py
 import pytest
-from config.toetsregels.modular_loader import validate_met_regel
+from toetsregels.modular_loader import validate_met_regel
 
 def test_test01_success():
     """Test succesvolle validatie."""
@@ -172,7 +172,7 @@ def test_test01_failure():
 
 ```python
 # Test een specifieke regel
-from config.toetsregels.modular_loader import get_modular_loader
+from toetsregels.modular_loader import get_modular_loader
 
 loader = get_modular_loader()
 succes, melding, score = loader.validate_with_regel(
