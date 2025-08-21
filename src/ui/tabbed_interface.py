@@ -736,18 +736,16 @@ class TabbedInterface:
                 if hasattr(self, "definition_service") and hasattr(
                     self.definition_service, "get_service_info"
                 ):
-                    # Gebruik de V2 service voor generatie - async aanroep
-                    service_result = asyncio.run(
-                        self.definition_service.generate_definition(
-                            begrip=begrip,
-                            context_dict={
-                                "organisatorisch": org_context,
-                                "juridisch": jur_context,
-                                "wettelijk": context_data.get("wettelijke_basis", []),
-                            },
-                            organisatie=primary_org,
-                            categorie=auto_categorie,
-                        )
+                    # Gebruik de V2 service voor generatie - nu sync interface
+                    service_result = self.definition_service.generate_definition(
+                        begrip=begrip,
+                        context_dict={
+                            "organisatorisch": org_context,
+                            "juridisch": jur_context,
+                            "wettelijk": context_data.get("wettelijke_basis", []),
+                        },
+                        organisatie=primary_org,
+                        categorie=auto_categorie,
                     )
 
                     # Converteer naar checker formaat voor UI compatibility
