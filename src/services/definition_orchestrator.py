@@ -391,6 +391,8 @@ class DefinitionOrchestrator(
 
     async def _generate_definition(self, context: ProcessingContext) -> Definition:
         """Genereer basis definitie met echte GPT integration."""
+        prompt = "Geen prompt beschikbaar"  # Default waarde voor error handling
+        
         try:
             # Importeer de bestaande GPT functionaliteit
             from prompt_builder.prompt_builder import (
@@ -434,46 +436,42 @@ class DefinitionOrchestrator(
                 domein=context.request.domein,
             )
 
-            # Voeg request metadata toe
-            if not definition.metadata:
-                definition.metadata = {}
+        # Voeg request metadata toe (buiten try/except block)
+        if not definition.metadata:
+            definition.metadata = {}
 
-            definition.metadata["request_timestamp"] = context.start_time.isoformat()
-            definition.metadata["orchestrator_version"] = "1.0"
-            definition.metadata["prompt_template"] = prompt  # Voor debug sectie
+        definition.metadata["request_timestamp"] = context.start_time.isoformat()
+        definition.metadata["orchestrator_version"] = "1.0"
+        definition.metadata["prompt_template"] = prompt  # Voor debug sectie
 
-            # Pas opschoning toe (VOOR validatie - deel van GVI workflow)
-            if self.cleaning_service and definition.definitie:
-                logger.info(f"Cleaning definitie voor begrip: {definition.begrip}")
-                cleaning_result = self.cleaning_service.clean_definition(definition)
+        # Pas opschoning toe (VOOR validatie - deel van GVI workflow)
+        if self.cleaning_service and definition.definitie:
+            logger.info(f"Cleaning definitie voor begrip: {definition.begrip}")
+            cleaning_result = self.cleaning_service.clean_definition(definition)
 
-                # Update definitie met opgeschoond resultaat
-                definition.definitie = cleaning_result.cleaned_text
+            # Update definitie met opgeschoond resultaat
+            definition.definitie = cleaning_result.cleaned_text
 
-                # Voeg cleaning metadata toe
-                definition.metadata.update(
-                    {
-                        "cleaning_applied": cleaning_result.was_cleaned,
-                        "cleaning_rules": cleaning_result.applied_rules,
-                        "cleaning_improvements": cleaning_result.improvements,
-                    }
+            # Voeg cleaning metadata toe
+            definition.metadata.update(
+                {
+                    "cleaning_applied": cleaning_result.was_cleaned,
+                    "cleaning_rules": cleaning_result.applied_rules,
+                    "cleaning_improvements": cleaning_result.improvements,
+                }
+            )
+
+            if cleaning_result.was_cleaned:
+                definition.metadata["definitie_origineel"] = (
+                    cleaning_result.original_text
                 )
+                logger.info(
+                    f"Definitie opgeschoond: {len(cleaning_result.applied_rules)} regels toegepast"
+                )
+            else:
+                logger.debug("Geen opschoning nodig voor definitie")
 
-                if cleaning_result.was_cleaned:
-                    definition.metadata["definitie_origineel"] = (
-                        cleaning_result.original_text
-                    )
-                    logger.info(
-                        f"Definitie opgeschoond: {len(cleaning_result.applied_rules)} regels toegepast"
-                    )
-                else:
-                    logger.debug("Geen opschoning nodig voor definitie")
-
-            return definition
-
-        except Exception as e:
-            context.errors.append(f"Generatie fout: {e!s}")
-            raise
+        return definition
 
     async def _validate_definition(
         self, context: ProcessingContext
