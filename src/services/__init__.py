@@ -9,8 +9,8 @@ from services.container import ContainerConfigs, ServiceContainer, get_container
 from services.definition_generator_cache import DefinitionGeneratorCache
 from services.definition_generator_config import UnifiedGeneratorConfig
 
-# Import new unified services
-from services.unified_definition_generator import UnifiedDefinitionGenerator
+# UnifiedDefinitionGenerator vervangen door moderne architectuur
+# from services.unified_definition_generator import UnifiedDefinitionGenerator
 
 
 # Lazy import factory functions
@@ -32,8 +32,8 @@ __all__ = [
     "DefinitionGeneratorCache",
     # Container en Factory
     "ServiceContainer",
-    # Unified Generator
-    "UnifiedDefinitionGenerator",
+    # Unified Generator (DEPRECATED - vervangen door DefinitionOrchestrator)
+    # "UnifiedDefinitionGenerator",
     "UnifiedGeneratorConfig",
     "get_container",
     "get_definition_service",

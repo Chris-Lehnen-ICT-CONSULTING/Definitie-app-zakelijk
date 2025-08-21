@@ -6,20 +6,20 @@ met feature flags voor geleidelijke migratie.
 """
 
 import logging
-from typing import TYPE_CHECKING, Union
 
 import streamlit as st
 from services.container import ContainerConfigs, ServiceContainer, get_container
 
-if TYPE_CHECKING:
-    from services.unified_definition_generator import UnifiedDefinitionGenerator
+# TYPE_CHECKING import verwijderd - UnifiedDefinitionGenerator niet meer nodig
+# if TYPE_CHECKING:
+#     from services.unified_definition_generator import UnifiedDefinitionGenerator
 
 logger = logging.getLogger(__name__)
 
 
 def get_definition_service(
     use_container_config: dict | None = None,
-) -> Union["UnifiedDefinitionGenerator", "ServiceAdapter"]:
+) -> "ServiceAdapter":
     """
     Get de juiste service op basis van feature flag.
 
@@ -51,11 +51,11 @@ def get_definition_service(
         config = use_container_config or _get_environment_config()
         container = get_container(config)
         return ServiceAdapter(container)
-    logger.info("Using legacy UnifiedDefinitionGenerator")
-    # Gebruik legacy service - lazy import
-    from services.unified_definition_generator import UnifiedDefinitionGenerator
-
-    return UnifiedDefinitionGenerator.get_instance()
+    logger.info("Legacy fallback - gebruik moderne DefinitionOrchestrator")
+    # Legacy fallback vervangen door moderne architectuur
+    config = use_container_config or _get_environment_config()
+    container = get_container(config)
+    return ServiceAdapter(container)  # Altijd nieuwe services gebruiken
 
 
 def _get_environment_config() -> dict:

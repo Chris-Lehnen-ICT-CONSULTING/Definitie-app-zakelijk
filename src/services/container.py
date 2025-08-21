@@ -15,6 +15,7 @@ from services.definition_repository import DefinitionRepository
 from services.definition_validator import DefinitionValidator, ValidatorConfig
 from services.duplicate_detection_service import DuplicateDetectionService
 from services.interfaces import (
+    CleaningServiceInterface,
     DefinitionGeneratorInterface,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
@@ -22,7 +23,9 @@ from services.interfaces import (
     WebLookupServiceInterface,
 )
 from services.modern_web_lookup_service import ModernWebLookupService
-from services.unified_definition_generator import UnifiedDefinitionGenerator
+
+# UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
+# from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.workflow_service import WorkflowService
 
 logger = logging.getLogger(__name__)
@@ -97,20 +100,32 @@ class ServiceContainer:
             min_quality_score=self.config.get("min_quality_score", 0.6),
         )
 
+        # Cleaning service configuratie
+        from services.cleaning_service import CleaningConfig
+
+        self.cleaning_config = CleaningConfig(
+            enable_cleaning=self.config.get("enable_cleaning", True),
+            track_changes=self.config.get("cleaning_track_changes", True),
+            preserve_original=self.config.get("cleaning_preserve_original", True),
+            log_operations=self.config.get("cleaning_log_operations", True),
+        )
+
     # Service factory methods
 
     def generator(self) -> DefinitionGeneratorInterface:
         """
         Get of create DefinitionGenerator instance.
 
+        Vervangen door DefinitionOrchestrator voor moderne architectuur.
+
         Returns:
-            Singleton instance van DefinitionGenerator
+            Singleton instance van DefinitionGenerator (via Orchestrator)
         """
         if "generator" not in self._instances:
-            self._instances["generator"] = UnifiedDefinitionGenerator(
-                self.generator_config
-            )
-            logger.info("UnifiedDefinitionGenerator instance aangemaakt")
+            # Gebruik orchestrator als nieuwe generator implementatie
+            orchestrator_instance = self.orchestrator()
+            self._instances["generator"] = orchestrator_instance
+            logger.info("DefinitionOrchestrator instance aangemaakt als generator")
         return self._instances["generator"]
 
     def validator(self) -> DefinitionValidatorInterface:
@@ -169,9 +184,12 @@ class ServiceContainer:
                 generator=self.generator(),
                 validator=self.validator(),
                 repository=self.repository(),
+                cleaning_service=self.cleaning_service(),
                 config=self.orchestrator_config,
             )
-            logger.info("DefinitionOrchestrator instance aangemaakt")
+            logger.info(
+                "DefinitionOrchestrator instance aangemaakt met CleaningService"
+            )
         return self._instances["orchestrator"]
 
     def web_lookup(self) -> WebLookupServiceInterface:
@@ -217,6 +235,20 @@ class ServiceContainer:
             logger.info("WorkflowService instance aangemaakt")
         return self._instances["workflow"]
 
+    def cleaning_service(self) -> CleaningServiceInterface:
+        """
+        Get of create CleaningService instance.
+
+        Returns:
+            Singleton instance van CleaningService
+        """
+        if "cleaning_service" not in self._instances:
+            from services.cleaning_service import CleaningService
+
+            self._instances["cleaning_service"] = CleaningService(self.cleaning_config)
+            logger.info("CleaningService instance aangemaakt")
+        return self._instances["cleaning_service"]
+
     # Utility methods
 
     def reset(self):
@@ -242,6 +274,7 @@ class ServiceContainer:
             "web_lookup": self.web_lookup,
             "duplicate_detector": self.duplicate_detector,
             "workflow": self.workflow,
+            "cleaning_service": self.cleaning_service,
         }
 
         if name in service_map:
