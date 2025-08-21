@@ -392,21 +392,30 @@ class DefinitionOrchestrator(
     async def _generate_definition(self, context: ProcessingContext) -> Definition:
         """Genereer basis definitie met echte GPT integration."""
         prompt = "Geen prompt beschikbaar"  # Default waarde voor error handling
-        
+
         try:
             # Importeer de bestaande GPT functionaliteit
             from prompt_builder.prompt_builder import (
                 PromptBouwer,
+                PromptConfiguratie,
                 stuur_prompt_naar_gpt,
             )
 
+            # Maak context_dict voor PromptConfiguratie
+            context_dict = {
+                "organisatorisch": [context.request.context or ""],
+                "juridisch": [context.request.domein or ""],
+                "wettelijk": [],
+            }
+
             # Bouw prompt met bestaande logic
-            prompt_bouwer = PromptBouwer(
+            prompt_config = PromptConfiguratie(
                 begrip=context.request.begrip,
-                organisatorische_context=context.request.context or "",
-                juridische_context=context.request.domein or "",
-                aanvullende_instructies=context.request.extra_instructies or "",
+                context_dict=context_dict,
+                web_uitleg=context.request.extra_instructies or "",
             )
+            
+            prompt_bouwer = PromptBouwer(prompt_config)
 
             prompt = prompt_bouwer.bouw_prompt()
             logger.info(f"Prompt gebouwd voor begrip: {context.request.begrip}")
