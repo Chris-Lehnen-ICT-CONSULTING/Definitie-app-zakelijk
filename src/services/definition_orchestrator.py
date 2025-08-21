@@ -115,7 +115,6 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
 
     def __init__(
         self,
-        generator: DefinitionGeneratorInterface,
         validator: DefinitionValidatorInterface,
         repository: DefinitionRepositoryInterface,
         cleaning_service: CleaningServiceInterface | None = None,
@@ -125,13 +124,11 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
         Initialiseer de DefinitionOrchestrator.
 
         Args:
-            generator: Service voor definitie generatie
             validator: Service voor definitie validatie
             repository: Service voor definitie opslag
             cleaning_service: Service voor definitie opschoning
             config: Optionele configuratie
         """
-        self.generator = generator
         self.validator = validator
         self.repository = repository
         self.cleaning_service = cleaning_service
@@ -362,9 +359,16 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
     # Private helper methods
 
     async def _generate_definition(self, context: ProcessingContext) -> Definition:
-        """Genereer definitie via generator service."""
+        """Genereer definitie (orchestrator is zelf de generator)."""
         try:
-            definition = await self.generator.generate(context.request)
+            # TODO: Implement actual definition generation logic
+            # For now, create a mock definition
+            definition = Definition(
+                begrip=context.request.begrip,
+                definitie="Een mock definitie die door DefinitionOrchestrator wordt gegenereerd.",
+                context=context.request.context,
+                domein=context.request.domein,
+            )
 
             # Voeg request metadata toe
             if not definition.metadata:
@@ -500,22 +504,9 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
     async def _enrich_with_ai(self, context: ProcessingContext) -> None:
         """Verrijk met AI enhancement."""
         try:
-            enhanced = await self.generator.enhance(context.definition)
-
-            # Merge enhancements
-            if enhanced.synoniemen and not context.definition.synoniemen:
-                context.definition.synoniemen = enhanced.synoniemen
-
-            if (
-                enhanced.gerelateerde_begrippen
-                and not context.definition.gerelateerde_begrippen
-            ):
-                context.definition.gerelateerde_begrippen = (
-                    enhanced.gerelateerde_begrippen
-                )
-
-            if enhanced.toelichting and not context.definition.toelichting:
-                context.definition.toelichting = enhanced.toelichting
+            # TODO: Implement AI enhancement logic
+            # For now, skip AI enhancement
+            logger.debug("AI enhancement temporarily disabled - orchestrator is the generator")
 
         except Exception as e:
             logger.debug(f"AI enhancement mislukt: {e}")

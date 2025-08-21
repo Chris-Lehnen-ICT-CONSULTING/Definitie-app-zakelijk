@@ -181,7 +181,6 @@ class ServiceContainer:
         """
         if "orchestrator" not in self._instances:
             self._instances["orchestrator"] = DefinitionOrchestrator(
-                generator=self.generator(),
                 validator=self.validator(),
                 repository=self.repository(),
                 cleaning_service=self.cleaning_service(),
