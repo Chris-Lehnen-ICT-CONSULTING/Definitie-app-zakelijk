@@ -13,6 +13,7 @@ from enum import Enum
 from typing import Any
 
 from services.interfaces import (
+    CleaningServiceInterface,
     Definition,
     DefinitionGeneratorInterface,
     DefinitionOrchestratorInterface,
@@ -117,6 +118,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
         generator: DefinitionGeneratorInterface,
         validator: DefinitionValidatorInterface,
         repository: DefinitionRepositoryInterface,
+        cleaning_service: CleaningServiceInterface | None = None,
         config: OrchestratorConfig | None = None,
     ):
         """
@@ -126,11 +128,13 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
             generator: Service voor definitie generatie
             validator: Service voor definitie validatie
             repository: Service voor definitie opslag
+            cleaning_service: Service voor definitie opschoning
             config: Optionele configuratie
         """
         self.generator = generator
         self.validator = validator
         self.repository = repository
+        self.cleaning_service = cleaning_service
         self.config = config or OrchestratorConfig()
 
         self._stats = {
@@ -368,6 +372,33 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
 
             definition.metadata["request_timestamp"] = context.start_time.isoformat()
             definition.metadata["orchestrator_version"] = "1.0"
+
+            # Pas opschoning toe (VOOR validatie - deel van GVI workflow)
+            if self.cleaning_service and definition.definitie:
+                logger.info(f"Cleaning definitie voor begrip: {definition.begrip}")
+                cleaning_result = self.cleaning_service.clean_definition(definition)
+
+                # Update definitie met opgeschoond resultaat
+                definition.definitie = cleaning_result.cleaned_text
+
+                # Voeg cleaning metadata toe
+                definition.metadata.update(
+                    {
+                        "cleaning_applied": cleaning_result.was_cleaned,
+                        "cleaning_rules": cleaning_result.applied_rules,
+                        "cleaning_improvements": cleaning_result.improvements,
+                    }
+                )
+
+                if cleaning_result.was_cleaned:
+                    definition.metadata["definitie_origineel"] = (
+                        cleaning_result.original_text
+                    )
+                    logger.info(
+                        f"Definitie opgeschoond: {len(cleaning_result.applied_rules)} regels toegepast"
+                    )
+                else:
+                    logger.debug("Geen opschoning nodig voor definitie")
 
             return definition
 

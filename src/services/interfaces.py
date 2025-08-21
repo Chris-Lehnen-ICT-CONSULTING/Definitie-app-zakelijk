@@ -494,3 +494,53 @@ class DefinitionEventHandler(ABC):
     @abstractmethod
     def on_definition_saved(self, definition: Definition) -> None:
         """Handler voor wanneer een definitie is opgeslagen."""
+
+
+@dataclass
+class CleaningResult:
+    """Resultaat van een opschoning operatie."""
+
+    original_text: str
+    cleaned_text: str
+    was_cleaned: bool
+    applied_rules: list[str] = field(default_factory=list)
+    improvements: list[str] = field(default_factory=list)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+
+class CleaningServiceInterface(ABC):
+    """Interface voor definitie opschoning services."""
+
+    @abstractmethod
+    def clean_definition(self, definition: Definition) -> CleaningResult:
+        """
+        Schoon een definitie op en geef gedetailleerd resultaat terug.
+
+        Args:
+            definition: Definition object om op te schonen
+
+        Returns:
+            CleaningResult met origineel, opgeschoond en metadata
+        """
+
+    @abstractmethod
+    def clean_text(self, text: str, term: str) -> CleaningResult:
+        """
+        Schoon een definitie tekst op voor een specifieke term.
+
+        Args:
+            text: Te schonen definitie tekst
+            term: Het begrip dat gedefinieerd wordt
+
+        Returns:
+            CleaningResult met resultaat en metadata
+        """
+
+    @abstractmethod
+    def validate_cleaning_rules(self) -> bool:
+        """
+        Valideer of de opschoning regels correct geladen zijn.
+
+        Returns:
+            True als regels correct zijn, anders False
+        """
