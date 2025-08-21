@@ -147,11 +147,19 @@ class DefinitionGeneratorTab:
             is_dict = isinstance(agent_result, dict)
 
             # Success indicator
-            if (is_dict and agent_result.get("success")) or (
-                not is_dict
-                and hasattr(agent_result, "success")
-                and agent_result.success
-            ):
+            if is_dict:
+                # New service format
+                if agent_result.get("success"):
+                    score = agent_result.get(
+                        "validation_score", agent_result.get("final_score", 0.0)
+                    )
+                    st.success(
+                        f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})"
+                    )
+                else:
+                    reason = agent_result.get("reason", "Onbekende fout")
+                    st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {reason}")
+            elif hasattr(agent_result, "success") and agent_result.success:
                 st.success(
                     f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})"
                 )
@@ -166,41 +174,156 @@ class DefinitionGeneratorTab:
 
             # Generated definition
             st.markdown("#### 📝 Gegenereerde Definitie")
-            st.info(agent_result.final_definitie)
+            # Handle both dict (new service) and object (legacy) formats
+            if is_dict:
+                # New service returns dict with definitie_gecorrigeerd
+                definitie_to_show = agent_result.get(
+                    "definitie_gecorrigeerd", agent_result.get("definitie", "")
+                )
+                # Debug logging voor opschoning
+                if (
+                    "definitie_origineel" in agent_result
+                    and "definitie_gecorrigeerd" in agent_result
+                ):
+                    if (
+                        agent_result["definitie_origineel"]
+                        != agent_result["definitie_gecorrigeerd"]
+                    ):
+                        logger.info(
+                            f"Opschoning toegepast voor '{generation_result.get('begrip', 'onbekend')}'"
+                        )
+                        logger.debug(
+                            f"Origineel: {agent_result['definitie_origineel'][:100]}..."
+                        )
+                        logger.debug(
+                            f"Opgeschoond: {agent_result['definitie_gecorrigeerd'][:100]}..."
+                        )
+            else:
+                # Legacy returns object with final_definitie
+                definitie_to_show = agent_result.final_definitie
+            # Toon opschoning status
+            if (
+                is_dict
+                and "definitie_origineel" in agent_result
+                and "definitie_gecorrigeerd" in agent_result
+            ):
+                if (
+                    agent_result["definitie_origineel"]
+                    != agent_result["definitie_gecorrigeerd"]
+                ):
+                    st.success("🔧 **Definitie is opgeschoond**")
+
+            st.info(definitie_to_show)
 
             # Generation details
             with st.expander("📊 Generatie Details", expanded=False):
+                # Toon opschoning details als beschikbaar
+                if (
+                    is_dict
+                    and "definitie_origineel" in agent_result
+                    and "definitie_gecorrigeerd" in agent_result
+                ):
+                    if (
+                        agent_result["definitie_origineel"]
+                        != agent_result["definitie_gecorrigeerd"]
+                    ):
+                        st.warning("**🔧 Opschoning Details:**")
+                        st.text("Origineel:")
+                        st.code(agent_result["definitie_origineel"], language=None)
+                        st.text("Na opschoning:")
+                        st.code(agent_result["definitie_gecorrigeerd"], language=None)
+                        st.divider()
+
                 col1, col2, col3 = st.columns(3)
 
-                with col1:
-                    if agent_result.iteration_count > 1:
-                        st.metric("Iteraties", agent_result.iteration_count)
-                    st.metric("Finale Score", f"{agent_result.final_score:.2f}")
-
-                with col2:
-                    st.metric(
-                        "Verwerkingstijd", f"{agent_result.total_processing_time:.1f}s"
-                    )
-                    st.metric("Succes", "Ja" if agent_result.success else "Nee")
-
-                with col3:
-                    if agent_result.best_iteration:
-                        violations = len(
-                            agent_result.best_iteration.validation_result.violations
+                if is_dict:
+                    # New service format
+                    with col1:
+                        score = agent_result.get(
+                            "validation_score", agent_result.get("final_score", 0.0)
                         )
-                        st.metric("Violations", violations)
+                        st.metric("Finale Score", f"{score:.2f}")
+                        if agent_result.get("marker"):
+                            st.caption(agent_result["marker"])
 
-                # Iteration history
-                if len(agent_result.iterations) > 1:
-                    st.markdown("**Iteratie Geschiedenis:**")
-                    for iteration in agent_result.iterations:
-                        score = iteration.validation_result.overall_score
-                        st.write(
-                            f"Iteratie {iteration.iteration_number}: Score {score:.2f}"
+                    with col2:
+                        processing_time = agent_result.get("processing_time", 0.0)
+                        st.metric("Verwerkingstijd", f"{processing_time:.1f}s")
+                        st.metric(
+                            "Succes", "Ja" if agent_result.get("success") else "Nee"
                         )
+
+                    with col3:
+                        if "toetsresultaten" in agent_result:
+                            violations = len(agent_result["toetsresultaten"])
+                            st.metric("Violations", violations)
+                else:
+                    # Legacy format
+                    with col1:
+                        if agent_result.iteration_count > 1:
+                            st.metric("Iteraties", agent_result.iteration_count)
+                        st.metric("Finale Score", f"{agent_result.final_score:.2f}")
+
+                    with col2:
+                        st.metric(
+                            "Verwerkingstijd",
+                            f"{agent_result.total_processing_time:.1f}s",
+                        )
+                        st.metric("Succes", "Ja" if agent_result.success else "Nee")
+
+                    with col3:
+                        if agent_result.best_iteration:
+                            violations = len(
+                                agent_result.best_iteration.validation_result.violations
+                            )
+                            st.metric("Violations", violations)
+
+                    # Iteration history (only for legacy)
+                    if len(agent_result.iterations) > 1:
+                        st.markdown("**Iteratie Geschiedenis:**")
+                        for iteration in agent_result.iterations:
+                            score = iteration.validation_result.overall_score
+                            st.write(
+                                f"Iteratie {iteration.iteration_number}: Score {score:.2f}"
+                            )
 
             # Validation results
-            if agent_result.best_iteration:
+            if is_dict:
+                # New service format - validation details might be in different structure
+                if agent_result.get("validation_details"):
+                    self._render_validation_results(agent_result["validation_details"])
+
+                # Check for voorbeelden in dict format
+                if agent_result.get("voorbeelden"):
+                    self._render_voorbeelden_section(agent_result["voorbeelden"])
+
+                    # Store voorbeelden in session state for export
+                    voorbeelden = agent_result["voorbeelden"]
+                    if isinstance(voorbeelden, dict):
+                        SessionStateManager.set_value(
+                            "voorbeeld_zinnen", voorbeelden.get("sentence", [])
+                        )
+                        SessionStateManager.set_value(
+                            "praktijkvoorbeelden", voorbeelden.get("practical", [])
+                        )
+                        SessionStateManager.set_value(
+                            "tegenvoorbeelden", voorbeelden.get("counter", [])
+                        )
+                        SessionStateManager.set_value(
+                            "synoniemen", "\n".join(voorbeelden.get("synonyms", []))
+                        )
+                        SessionStateManager.set_value(
+                            "antoniemen", "\n".join(voorbeelden.get("antonyms", []))
+                        )
+                        SessionStateManager.set_value(
+                            "toelichting",
+                            (
+                                voorbeelden.get("explanation", [""])[0]
+                                if voorbeelden.get("explanation")
+                                else ""
+                            ),
+                        )
+            elif agent_result.best_iteration:
                 self._render_validation_results(
                     agent_result.best_iteration.validation_result
                 )
@@ -253,9 +376,14 @@ class DefinitionGeneratorTab:
                 elif not agent_result.best_iteration.generation_result.voorbeelden:
                     st.warning("⚠️ Voorbeelden dictionary is leeg")
 
-                # Render prompt debug section
-                from ui.components.prompt_debug_section import PromptDebugSection
+            # Render prompt debug section
+            from ui.components.prompt_debug_section import PromptDebugSection
 
+            if is_dict:
+                # New service format - skip prompt debug for now as structure is different
+                pass
+            else:
+                # Legacy format
                 iteration_result = (
                     agent_result.best_iteration.generation_result
                     if agent_result.best_iteration

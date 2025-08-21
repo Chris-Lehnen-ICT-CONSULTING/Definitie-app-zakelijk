@@ -99,7 +99,7 @@ class ProcessingContext:
     validation_result: ValidationResult | None = None
     enrichment_data: dict[str, Any] = field(default_factory=dict)
     current_step: ProcessingStep = ProcessingStep.GENERATION
-    start_time: datetime = field(default_factory=datetime.now)
+    start_time: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     errors: list[str] = field(default_factory=list)
 
 
