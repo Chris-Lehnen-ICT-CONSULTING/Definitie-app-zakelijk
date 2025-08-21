@@ -723,18 +723,31 @@
                     </div>
 
                     <h4>Current Value Stream</h4>
-                    <div class="mermaid">
-                        graph LR
-                            A[Manual Request] --> B[Research 2-3 days]
-                            B --> C[Write Definition]
-                            C --> D[Manual Review]
-                            D --> E[Publish]
-
-                            style A fill:#FFA500
-                            style B fill:#FFA500
-                            style C fill:#FFA500
-                            style D fill:#FFA500
-                            style E fill:#FFA500
+                    <div style="background: #FFF7ED; padding: 1.5rem; border-radius: 8px; overflow-x: auto;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: #FFA500; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Manual Request
+                            </div>
+                            <div style="color: #FFA500;">→</div>
+                            <div style="background: #FFA500; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Research<br/>2-3 days
+                            </div>
+                            <div style="color: #FFA500;">→</div>
+                            <div style="background: #FFA500; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Write Definition
+                            </div>
+                            <div style="color: #FFA500;">→</div>
+                            <div style="background: #FFA500; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Manual Review
+                            </div>
+                            <div style="color: #FFA500;">→</div>
+                            <div style="background: #FFA500; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Publish
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; color: #DC2626; font-weight: bold;">
+                            Total Time: 2-3 days per definition
+                        </div>
                     </div>
 
                     <h4>Key Issues</h4>
@@ -811,23 +824,39 @@
                     </div>
 
                     <h4>Optimized Value Stream</h4>
-                    <div class="mermaid">
-                        graph LR
-                            A[Request] --> B[AI Generate]
-                            B --> C[Auto-Validate]
-                            C --> D[Expert Review]
-                            D --> E[Publish]
-
-                            B --> F[Context DB]
-                            C --> G[Quality Rules]
-
-                            style A fill:#10B981
-                            style B fill:#10B981
-                            style C fill:#10B981
-                            style D fill:#10B981
-                            style E fill:#10B981
-                            style F fill:#3B82F6
-                            style G fill:#3B82F6
+                    <div style="background: #F0FDF4; padding: 1.5rem; border-radius: 8px; overflow-x: auto;">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                            <div style="background: #10B981; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Request
+                            </div>
+                            <div style="color: #10B981;">→</div>
+                            <div style="background: #10B981; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                AI Generate<br/><small>30 sec</small>
+                            </div>
+                            <div style="color: #10B981;">→</div>
+                            <div style="background: #10B981; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Auto-Validate<br/><small>5 sec</small>
+                            </div>
+                            <div style="color: #10B981;">→</div>
+                            <div style="background: #10B981; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Expert Review<br/><small>5 min</small>
+                            </div>
+                            <div style="color: #10B981;">→</div>
+                            <div style="background: #10B981; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-align: center;">
+                                Publish
+                            </div>
+                        </div>
+                        <div style="display: flex; justify-content: center; gap: 3rem; margin-top: 1rem;">
+                            <div style="background: #E0F2FE; padding: 0.5rem 1rem; border-radius: 8px;">
+                                ↑ Context DB
+                            </div>
+                            <div style="background: #E0F2FE; padding: 0.5rem 1rem; border-radius: 8px;">
+                                ↑ Quality Rules
+                            </div>
+                        </div>
+                        <div style="text-align: center; margin-top: 1rem; color: #059669; font-weight: bold;">
+                            Total Time: &lt;10 minutes per definition
+                        </div>
                     </div>
 
                     <h4>Target Benefits</h4>
@@ -871,144 +900,250 @@
                 <h2>🏛️ Detailed Enterprise Architecture Models</h2>
 
                 <h3>Complete Business Capability Hierarchy</h3>
-                <div class="mermaid">
-                    graph TD
-                        A[DefinitieAgent Platform] --> B[Core Capabilities]
-                        A --> C[Supporting Capabilities]
-                        A --> D[Management Capabilities]
+                <div style="background: #F3F4F6; padding: 2rem; border-radius: 8px;">
+                    <div style="text-align: center; margin-bottom: 2rem;">
+                        <div style="background: #1F2937; color: white; padding: 1rem 2rem; border-radius: 8px; display: inline-block; font-weight: bold;">
+                            DefinitieAgent Platform
+                        </div>
+                    </div>
 
-                        B --> B1[Definition Management]
-                        B --> B2[Quality Assurance]
-                        B --> B3[Knowledge Management]
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem;">
+                        <!-- Core Capabilities -->
+                        <div>
+                            <div style="background: #3B82F6; color: white; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                Core Capabilities
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: #DBEAFE; padding: 0.75rem; border-radius: 6px;">
+                                    <strong>Definition Management</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; font-size: 0.9rem;">
+                                        <li>AI Generation</li>
+                                        <li>Template Management</li>
+                                        <li>Version Control</li>
+                                    </ul>
+                                </div>
+                                <div style="background: #DBEAFE; padding: 0.75rem; border-radius: 6px;">
+                                    <strong>Quality Assurance</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; font-size: 0.9rem;">
+                                        <li>Automated Validation</li>
+                                        <li>Expert Review</li>
+                                        <li>Compliance Check</li>
+                                    </ul>
+                                </div>
+                                <div style="background: #DBEAFE; padding: 0.75rem; border-radius: 6px;">
+                                    <strong>Knowledge Management</strong>
+                                    <ul style="margin: 0.5rem 0 0 1rem; font-size: 0.9rem;">
+                                        <li>Search & Discovery</li>
+                                        <li>Reuse Management</li>
+                                        <li>Learning Analytics</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
 
-                        B1 --> B11[AI Generation]
-                        B1 --> B12[Template Management]
-                        B1 --> B13[Version Control]
+                        <!-- Supporting Capabilities -->
+                        <div>
+                            <div style="background: #10B981; color: white; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                Supporting Capabilities
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: #D1FAE5; padding: 0.75rem; border-radius: 6px;">
+                                    Integration Services
+                                </div>
+                                <div style="background: #D1FAE5; padding: 0.75rem; border-radius: 6px;">
+                                    Collaboration Tools
+                                </div>
+                                <div style="background: #D1FAE5; padding: 0.75rem; border-radius: 6px;">
+                                    Reporting & Analytics
+                                </div>
+                            </div>
+                        </div>
 
-                        B2 --> B21[Automated Validation]
-                        B2 --> B22[Expert Review]
-                        B2 --> B23[Compliance Check]
-
-                        B3 --> B31[Search & Discovery]
-                        B3 --> B32[Reuse Management]
-                        B3 --> B33[Learning Analytics]
-
-                        C --> C1[Integration Services]
-                        C --> C2[Collaboration Tools]
-                        C --> C3[Reporting & Analytics]
-
-                        D --> D1[User Management]
-                        D --> D2[System Administration]
-                        D --> D3[Performance Monitoring]
-
-                        style B fill:#3B82F6
-                        style C fill:#10B981
-                        style D fill:#FFA500
+                        <!-- Management Capabilities -->
+                        <div>
+                            <div style="background: #FFA500; color: white; padding: 1rem; border-radius: 8px; text-align: center; margin-bottom: 1rem;">
+                                Management Capabilities
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: #FED7AA; padding: 0.75rem; border-radius: 6px;">
+                                    User Management
+                                </div>
+                                <div style="background: #FED7AA; padding: 0.75rem; border-radius: 6px;">
+                                    System Administration
+                                </div>
+                                <div style="background: #FED7AA; padding: 0.75rem; border-radius: 6px;">
+                                    Performance Monitoring
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <h3>Detailed Value Stream Analysis</h3>
-                <div class="mermaid">
-                    flowchart LR
-                        subgraph VS1[Definition Creation Stream]
-                            VS11[Request Intake] --> VS12[Context Analysis]
-                            VS12 --> VS13[AI Generation]
-                            VS13 --> VS14[Quality Check]
-                            VS14 --> VS15[Publication]
-                        end
+                <div style="background: #F3F4F6; padding: 2rem; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;">
+                        <!-- Definition Creation Stream -->
+                        <div style="background: #E0F2FE; padding: 1.5rem; border-radius: 8px;">
+                            <h4 style="margin: 0 0 1rem 0; color: #1E40AF;">Definition Creation Stream</h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Request Intake</div>
+                                <div style="color: #3B82F6; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Context Analysis</div>
+                                <div style="color: #3B82F6; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">AI Generation</div>
+                                <div style="color: #3B82F6; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Quality Check</div>
+                                <div style="color: #3B82F6; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Publication</div>
+                            </div>
+                        </div>
 
-                        subgraph VS2[Quality Assurance Stream]
-                            VS21[Auto Validation] --> VS22[Rule Engine]
-                            VS22 --> VS23[Score Calculation]
-                            VS23 --> VS24[Expert Review]
-                            VS24 --> VS25[Final Approval]
-                        end
+                        <!-- Quality Assurance Stream -->
+                        <div style="background: #DCFCE7; padding: 1.5rem; border-radius: 8px;">
+                            <h4 style="margin: 0 0 1rem 0; color: #14532D;">Quality Assurance Stream</h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Auto Validation</div>
+                                <div style="color: #10B981; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Rule Engine</div>
+                                <div style="color: #10B981; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Score Calculation</div>
+                                <div style="color: #10B981; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Expert Review</div>
+                                <div style="color: #10B981; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Final Approval</div>
+                            </div>
+                        </div>
 
-                        subgraph VS3[Knowledge Management Stream]
-                            VS31[Content Indexing] --> VS32[Similarity Search]
-                            VS32 --> VS33[Reuse Analysis]
-                            VS33 --> VS34[Learning Loop]
-                            VS34 --> VS35[Model Update]
-                        end
+                        <!-- Knowledge Management Stream -->
+                        <div style="background: #FEF3C7; padding: 1.5rem; border-radius: 8px;">
+                            <h4 style="margin: 0 0 1rem 0; color: #78350F;">Knowledge Management Stream</h4>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Content Indexing</div>
+                                <div style="color: #F59E0B; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Similarity Search</div>
+                                <div style="color: #F59E0B; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Reuse Analysis</div>
+                                <div style="color: #F59E0B; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Learning Loop</div>
+                                <div style="color: #F59E0B; text-align: center;">↓</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Model Update</div>
+                            </div>
+                        </div>
+                    </div>
 
-                        VS15 --> VS31
-                        VS25 --> VS31
-                        VS35 --> VS13
-
-                        style VS1 fill:#E0F2FE
-                        style VS2 fill:#DCFCE7
-                        style VS3 fill:#FEF3C7
+                    <div style="text-align: center; margin-top: 1rem; color: #6B7280; font-style: italic;">
+                        → Streams are interconnected: Output feeds back into the system
+                    </div>
                 </div>
 
                 <h3>Business Process Model (BPMN)</h3>
-                <div class="mermaid">
-                    flowchart TB
-                        Start([User Request]) --> Check{Existing Definition?}
-                        Check -->|Yes| Reuse[Retrieve & Adapt]
-                        Check -->|No| Generate[AI Generation]
+                <div style="background: #F9FAFB; padding: 2rem; border-radius: 8px; overflow-x: auto;">
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 2rem;">
+                        <!-- Start -->
+                        <div style="background: #10B981; color: white; padding: 1rem 2rem; border-radius: 20px; font-weight: bold;">
+                            User Request
+                        </div>
 
-                        Generate --> Validate{Quality Score > 90%?}
-                        Reuse --> Validate
+                        <!-- Decision: Existing Definition? -->
+                        <div style="background: #FEF3C7; padding: 1rem 2rem; transform: rotate(45deg); margin: 2rem;">
+                            <div style="transform: rotate(-45deg); white-space: nowrap;">Existing Definition?</div>
+                        </div>
 
-                        Validate -->|No| Improve[Iterative Improvement]
-                        Improve --> Generate
+                        <!-- Two paths -->
+                        <div style="display: flex; gap: 4rem; justify-content: center;">
+                            <div style="text-align: center;">
+                                <div style="background: #DBEAFE; padding: 1rem; border-radius: 8px;">
+                                    Retrieve & Adapt
+                                </div>
+                                <div style="margin-top: 1rem; color: #10B981;">↓ Yes</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="background: #DBEAFE; padding: 1rem; border-radius: 8px;">
+                                    AI Generation
+                                </div>
+                                <div style="margin-top: 1rem; color: #EF4444;">↓ No</div>
+                            </div>
+                        </div>
 
-                        Validate -->|Yes| Review{Expert Review Required?}
-                        Review -->|Yes| Expert[Human Expert Review]
-                        Review -->|No| Publish[Auto Publish]
+                        <!-- Quality Check -->
+                        <div style="background: #3B82F6; color: white; padding: 1rem 2rem; border-radius: 8px;">
+                            Quality Score > 90%?
+                        </div>
 
-                        Expert --> Decision{Approved?}
-                        Decision -->|No| Feedback[Provide Feedback]
-                        Feedback --> Generate
-                        Decision -->|Yes| Publish
+                        <!-- Expert Review -->
+                        <div style="background: #FFA500; color: white; padding: 1rem 2rem; border-radius: 8px;">
+                            Expert Review (if needed)
+                        </div>
 
-                        Publish --> Store[Store in Knowledge Base]
-                        Store --> Analytics[Update Analytics]
-                        Analytics --> End([Definition Delivered])
-
-                        style Start fill:#10B981
-                        style End fill:#10B981
-                        style Validate fill:#3B82F6
-                        style Expert fill:#FFA500
+                        <!-- Final Steps -->
+                        <div style="display: flex; flex-direction: column; gap: 1rem; align-items: center;">
+                            <div style="background: #E5E7EB; padding: 1rem 2rem; border-radius: 8px;">
+                                Store in Knowledge Base
+                            </div>
+                            <div style="background: #E5E7EB; padding: 1rem 2rem; border-radius: 8px;">
+                                Update Analytics
+                            </div>
+                            <div style="background: #10B981; color: white; padding: 1rem 2rem; border-radius: 20px; font-weight: bold;">
+                                Definition Delivered
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <h3>Information Architecture Model</h3>
-                <div class="mermaid">
-                    graph LR
-                        subgraph Core[Core Information Objects]
-                            D[Definition]
-                            T[Template]
-                            R[Rule]
-                            U[User]
-                        end
+                <div style="background: #F9FAFB; padding: 2rem; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 2rem;">
+                        <!-- Core Information Objects -->
+                        <div>
+                            <h4 style="text-align: center; color: #1F2937; margin-bottom: 1rem;">Core Information Objects</h4>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="background: #3B82F6; color: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    Definition
+                                </div>
+                                <div style="background: #10B981; color: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    Template
+                                </div>
+                                <div style="background: #FFA500; color: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    Rule
+                                </div>
+                                <div style="background: #EC4899; color: white; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    User
+                                </div>
+                            </div>
+                        </div>
 
-                        subgraph Metadata[Metadata Layer]
-                            M1[Version Info]
-                            M2[Quality Metrics]
-                            M3[Usage Stats]
-                            M4[Compliance Tags]
-                        end
+                        <!-- Relationships -->
+                        <div style="display: flex; align-items: center; justify-content: center;">
+                            <div style="text-align: center;">
+                                <div style="font-weight: bold; margin-bottom: 1rem;">Relationships</div>
+                                <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.9rem;">
+                                    <div>→ Definition uses Template</div>
+                                    <div>→ Definition validated by Rules</div>
+                                    <div>→ User creates Definition</div>
+                                    <div>→ Definition references Definition</div>
+                                </div>
+                            </div>
+                        </div>
 
-                        subgraph Relations[Relationships]
-                            R1[Definition uses Template]
-                            R2[Definition validated by Rules]
-                            R3[User creates Definition]
-                            R4[Definition references Definition]
-                        end
-
-                        D --> M1
-                        D --> M2
-                        D --> M3
-                        D --> M4
-
-                        T --> R1
-                        R --> R2
-                        U --> R3
-                        D --> R4
-
-                        style D fill:#3B82F6
-                        style T fill:#10B981
-                        style R fill:#FFA500
-                        style U fill:#EC4899
+                        <!-- Metadata Layer -->
+                        <div>
+                            <h4 style="text-align: center; color: #1F2937; margin-bottom: 1rem;">Metadata Layer</h4>
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    Version Info
+                                </div>
+                                <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    Quality Metrics
+                                </div>
+                                <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    Usage Stats
+                                </div>
+                                <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                    Compliance Tags
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <h3>Stakeholder Map & Influence Matrix</h3>
@@ -1081,25 +1216,45 @@
                     <h3>Current Technical State - Monolithic</h3>
 
                     <h4>System Architecture</h4>
-                    <div class="mermaid">
-                        graph TB
-                            subgraph "Monolithic Application"
-                                UI[Streamlit UI]
-                                BL[Business Logic - Tightly Coupled]
-                                DB[(SQLite - Single User)]
-                            end
+                    <div style="background: #FFF7ED; padding: 2rem; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-around; align-items: center;">
+                            <!-- Monolithic Application -->
+                            <div style="border: 3px solid #DC2626; background: #FEE2E2; padding: 2rem; border-radius: 12px; text-align: center;">
+                                <h5 style="margin: 0 0 1rem 0; color: #DC2626;">Monolithic Application</h5>
+                                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                    <div style="background: #FFA500; color: white; padding: 1rem; border-radius: 8px;">
+                                        Streamlit UI
+                                    </div>
+                                    <div style="color: #FFA500;">↓</div>
+                                    <div style="background: #FFA500; color: white; padding: 1rem; border-radius: 8px;">
+                                        Business Logic<br/><small>Tightly Coupled</small>
+                                    </div>
+                                    <div style="color: #FFA500;">↓</div>
+                                    <div style="background: #EF4444; color: white; padding: 1rem; border-radius: 8px;">
+                                        SQLite<br/><small>Single User</small>
+                                    </div>
+                                </div>
+                            </div>
 
-                            subgraph "External"
-                                AI[OpenAI API]
-                            end
+                            <!-- External Services -->
+                            <div style="text-align: center;">
+                                <div style="font-size: 2rem; color: #DC2626;">→</div>
+                                <div style="color: #DC2626; font-weight: bold;">API Calls</div>
+                            </div>
 
-                            UI --> BL
-                            BL --> DB
-                            BL --> AI
+                            <div style="border: 2px dashed #6B7280; background: #F9FAFB; padding: 2rem; border-radius: 12px; text-align: center;">
+                                <h5 style="margin: 0 0 1rem 0; color: #6B7280;">External</h5>
+                                <div style="background: #6B7280; color: white; padding: 1rem; border-radius: 8px;">
+                                    OpenAI API
+                                </div>
+                            </div>
+                        </div>
 
-                            style UI fill:#FFA500
-                            style BL fill:#FFA500
-                            style DB fill:#EF4444
+                        <div style="text-align: center; margin-top: 1.5rem;">
+                            <span style="background: #FEE2E2; color: #DC2626; padding: 0.5rem 1rem; border-radius: 6px; font-weight: bold;">
+                                ⚠️ Major Issues: Single User Lock, No API, No Auth
+                            </span>
+                        </div>
                     </div>
 
                     <h4>Current Technology Stack</h4>
@@ -1155,6 +1310,109 @@
                             <span><strong>Memory Leak:</strong> 3.2GB memory usage</span>
                         </li>
                     </ul>
+
+                    <h4>Current Data Flow (AS-IS)</h4>
+                    <div style="background: #FFF7ED; padding: 2rem; border-radius: 8px;">
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 2rem;">
+                            <div style="text-align: center;">
+                                <div style="background: #FFA500; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                                    User Input
+                                </div>
+                                <div style="color: #DC2626;">↓ Manual</div>
+                            </div>
+
+                            <div style="text-align: center;">
+                                <div style="background: #FFA500; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                                    Streamlit Session
+                                </div>
+                                <div style="color: #DC2626;">↓ No validation</div>
+                            </div>
+
+                            <div style="text-align: center;">
+                                <div style="background: #FFA500; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                                    Python Processing
+                                </div>
+                                <div style="color: #DC2626;">↓ Synchronous</div>
+                            </div>
+
+                            <div style="text-align: center;">
+                                <div style="background: #EF4444; color: white; padding: 1rem; border-radius: 8px; margin-bottom: 0.5rem;">
+                                    SQLite Write
+                                </div>
+                                <div style="color: #DC2626;">↓ Locks DB</div>
+                            </div>
+
+                            <div style="text-align: center;">
+                                <div style="background: #6B7280; color: white; padding: 1rem; border-radius: 8px;">
+                                    Display Result
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 1.5rem; text-align: center;">
+                            <span style="color: #DC2626; font-weight: bold;">⚠️ Single-threaded, blocking operations, no error recovery</span>
+                        </div>
+                    </div>
+
+                    <h4>Current Security Model (AS-IS)</h4>
+                    <div style="background: #FEE2E2; padding: 2rem; border-radius: 8px; border: 2px solid #DC2626;">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; text-align: center;">
+                            <div>
+                                <div style="font-size: 3rem; color: #DC2626;">🔓</div>
+                                <h5 style="color: #DC2626;">No Authentication</h5>
+                                <p style="font-size: 0.9rem;">Anyone can access</p>
+                            </div>
+                            <div>
+                                <div style="font-size: 3rem; color: #DC2626;">📂</div>
+                                <h5 style="color: #DC2626;">No Data Protection</h5>
+                                <p style="font-size: 0.9rem;">Plain text storage</p>
+                            </div>
+                            <div>
+                                <div style="font-size: 3rem; color: #DC2626;">📝</div>
+                                <h5 style="color: #DC2626;">No Audit Trail</h5>
+                                <p style="font-size: 0.9rem;">No logging or monitoring</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4>Current Integration Landscape (AS-IS)</h4>
+                    <div style="background: #FFF7ED; padding: 2rem; border-radius: 8px;">
+                        <div style="text-align: center;">
+                            <div style="display: inline-block; background: #FFA500; color: white; padding: 2rem; border-radius: 12px; position: relative;">
+                                <h5 style="margin: 0 0 1rem 0;">DefinitieAgent</h5>
+                                <div style="font-size: 0.9rem;">Isolated Application</div>
+
+                                <!-- Single external connection -->
+                                <div style="position: absolute; right: -100px; top: 50%; transform: translateY(-50%);">
+                                    <div style="display: flex; align-items: center;">
+                                        <div style="width: 80px; height: 2px; background: #6B7280;"></div>
+                                        <div style="background: #6B7280; color: white; padding: 0.5rem 1rem; border-radius: 6px;">
+                                            OpenAI API
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; opacity: 0.5;">
+                            <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="text-decoration: line-through;">RijksWoordenboek</div>
+                                <small>Not integrated</small>
+                            </div>
+                            <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="text-decoration: line-through;">Document DB</div>
+                                <small>Not integrated</small>
+                            </div>
+                            <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="text-decoration: line-through;">User Directory</div>
+                                <small>Not integrated</small>
+                            </div>
+                            <div style="background: #E5E7EB; padding: 1rem; border-radius: 8px; text-align: center;">
+                                <div style="text-decoration: line-through;">Analytics</div>
+                                <small>Not integrated</small>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- TO-BE Technical View -->
@@ -1162,52 +1420,80 @@
                     <h3>Target Technical State - Microservices</h3>
 
                     <h4>Microservices Architecture</h4>
-                    <div class="mermaid">
-                        graph TB
-                            subgraph "Frontend"
-                                UI[React SPA]
-                            end
+                    <div style="background: #F0FDF4; padding: 2rem; border-radius: 8px;">
+                        <div style="display: grid; grid-template-rows: repeat(4, auto); gap: 2rem;">
+                            <!-- Frontend Layer -->
+                            <div style="text-align: center;">
+                                <div style="background: #10B981; color: white; padding: 1rem 3rem; border-radius: 8px; display: inline-block;">
+                                    React SPA
+                                </div>
+                                <div style="color: #10B981; margin: 0.5rem;">↓</div>
+                            </div>
 
-                            subgraph "API Layer"
-                                GW[API Gateway - Kong]
-                            end
+                            <!-- API Gateway -->
+                            <div style="text-align: center;">
+                                <div style="background: #3B82F6; color: white; padding: 1rem 3rem; border-radius: 8px; display: inline-block;">
+                                    API Gateway - Kong
+                                </div>
+                                <div style="color: #3B82F6; margin: 0.5rem;">↓</div>
+                            </div>
 
-                            subgraph "Core Services"
-                                DS[Definition Service]
-                                VS[Validation Service]
-                                CS[Context Service]
-                                AS[Auth Service]
-                            end
+                            <!-- Core Services -->
+                            <div>
+                                <h5 style="text-align: center; color: #059669; margin-bottom: 1rem;">Core Services</h5>
+                                <div style="display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap;">
+                                    <div style="background: #10B981; color: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                        Definition<br/>Service
+                                    </div>
+                                    <div style="background: #10B981; color: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                        Validation<br/>Service
+                                    </div>
+                                    <div style="background: #10B981; color: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                        Context<br/>Service
+                                    </div>
+                                    <div style="background: #10B981; color: white; padding: 1rem 1.5rem; border-radius: 8px;">
+                                        Auth<br/>Service
+                                    </div>
+                                </div>
+                                <div style="text-align: center; color: #10B981; margin: 0.5rem;">↓</div>
+                            </div>
 
-                            subgraph "Data Layer"
-                                PG[(PostgreSQL)]
-                                RD[(Redis Cache)]
-                                S3[Object Storage]
-                            end
+                            <!-- Data & External Layer -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                                <div>
+                                    <h5 style="text-align: center; color: #059669; margin-bottom: 1rem;">Data Layer</h5>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+                                        <div style="background: #D1FAE5; color: #059669; padding: 0.75rem 1.5rem; border-radius: 8px;">
+                                            PostgreSQL
+                                        </div>
+                                        <div style="background: #D1FAE5; color: #059669; padding: 0.75rem 1.5rem; border-radius: 8px;">
+                                            Redis Cache
+                                        </div>
+                                        <div style="background: #D1FAE5; color: #059669; padding: 0.75rem 1.5rem; border-radius: 8px;">
+                                            Object Storage
+                                        </div>
+                                    </div>
+                                </div>
 
-                            subgraph "External"
-                                AI[OpenAI API]
-                                EXT[External Sources]
-                            end
+                                <div>
+                                    <h5 style="text-align: center; color: #6B7280; margin-bottom: 1rem;">External Services</h5>
+                                    <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+                                        <div style="background: #F3F4F6; color: #6B7280; padding: 0.75rem 1.5rem; border-radius: 8px;">
+                                            OpenAI API
+                                        </div>
+                                        <div style="background: #F3F4F6; color: #6B7280; padding: 0.75rem 1.5rem; border-radius: 8px;">
+                                            External Sources
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
 
-                            UI --> GW
-                            GW --> DS
-                            GW --> VS
-                            GW --> CS
-                            GW --> AS
-
-                            DS --> PG
-                            DS --> RD
-                            VS --> RD
-                            CS --> S3
-
-                            DS --> AI
-                            DS --> EXT
-
-                            style UI fill:#10B981
-                            style GW fill:#3B82F6
-                            style DS fill:#10B981
-                            style PG fill:#10B981
+                        <div style="text-align: center; margin-top: 1.5rem;">
+                            <span style="background: #D1FAE5; color: #059669; padding: 0.5rem 1rem; border-radius: 6px; font-weight: bold;">
+                                ✅ Scalable, Secure, Multi-user, High Performance
+                            </span>
+                        </div>
                     </div>
 
                     <h4>Target Technology Stack</h4>
@@ -1308,179 +1594,195 @@
                 <h2>🔧 Detailed Technical Architecture Diagrams</h2>
 
                 <h3>Complete Microservices Interaction Model</h3>
-                <div class="mermaid">
-                    graph TB
-                        subgraph Client[Client Layer]
-                            Web[Web App]
-                            Mobile[Mobile App]
-                            API[External API Clients]
-                        end
+                <div style="background: #F3F4F6; padding: 2rem; border-radius: 8px;">
+                    <div style="display: grid; grid-template-rows: repeat(5, auto); gap: 1.5rem;">
+                        <!-- Client Layer -->
+                        <div style="background: #E0F2FE; padding: 1rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 0.5rem 0; text-align: center;">Client Layer</h5>
+                            <div style="display: flex; justify-content: center; gap: 2rem;">
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Web App</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">Mobile App</div>
+                                <div style="background: white; padding: 0.5rem 1rem; border-radius: 6px;">External API Clients</div>
+                            </div>
+                        </div>
 
-                        subgraph Gateway[API Gateway Layer]
-                            Kong[Kong Gateway]
-                            Auth[Auth Middleware]
-                            RL[Rate Limiter]
-                        end
+                        <div style="text-align: center; color: #3B82F6;">↓</div>
 
-                        subgraph Services[Core Microservices]
-                            DS[Definition Service]
-                            VS[Validation Service]
-                            CS[Context Service]
-                            ES[Enrichment Service]
-                            SS[Search Service]
-                            NS[Notification Service]
-                            AS[Analytics Service]
-                            WS[Workflow Service]
-                        end
+                        <!-- API Gateway Layer -->
+                        <div style="background: #DBEAFE; padding: 1rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 0.5rem 0; text-align: center;">API Gateway Layer</h5>
+                            <div style="display: flex; justify-content: center; gap: 1.5rem;">
+                                <div style="background: #3B82F6; color: white; padding: 0.5rem 1rem; border-radius: 6px;">Kong Gateway</div>
+                                <div style="background: #3B82F6; color: white; padding: 0.5rem 1rem; border-radius: 6px;">Auth Middleware</div>
+                                <div style="background: #3B82F6; color: white; padding: 0.5rem 1rem; border-radius: 6px;">Rate Limiter</div>
+                            </div>
+                        </div>
 
-                        subgraph Data[Data Layer]
-                            PG[(PostgreSQL)]
-                            RD[(Redis Cache)]
-                            ES2[(Elasticsearch)]
-                            S3[Object Storage]
-                            MQ[Message Queue]
-                        end
+                        <div style="text-align: center; color: #10B981;">↓</div>
 
-                        subgraph External[External Services]
-                            AI[OpenAI API]
-                            RWB[RijksWoordenboek]
-                            LDAP[LDAP/AD]
-                            SMTP[Email Service]
-                        end
+                        <!-- Core Microservices -->
+                        <div style="background: #D1FAE5; padding: 1rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 0.5rem 0; text-align: center;">Core Microservices</h5>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Definition Service</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Validation Service</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Context Service</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Enrichment Service</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Search Service</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Notification Service</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Analytics Service</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Workflow Service</div>
+                            </div>
+                        </div>
 
-                        Web --> Kong
-                        Mobile --> Kong
-                        API --> Kong
+                        <div style="text-align: center; color: #6B7280;">↓</div>
 
-                        Kong --> Auth
-                        Auth --> RL
-                        RL --> DS
-                        RL --> VS
-                        RL --> CS
+                        <!-- Data & External Services -->
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div style="background: #F9FAFB; padding: 1rem; border-radius: 8px;">
+                                <h5 style="margin: 0 0 0.5rem 0; text-align: center;">Data Layer</h5>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                    <div style="background: #E5E7EB; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">PostgreSQL</div>
+                                    <div style="background: #E5E7EB; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Redis Cache</div>
+                                    <div style="background: #E5E7EB; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Elasticsearch</div>
+                                    <div style="background: #E5E7EB; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Object Storage</div>
+                                    <div style="background: #E5E7EB; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem; grid-column: span 2;">Message Queue</div>
+                                </div>
+                            </div>
 
-                        DS --> PG
-                        DS --> RD
-                        DS --> AI
-
-                        VS --> RD
-                        VS --> MQ
-
-                        CS --> ES2
-                        CS --> RWB
-
-                        NS --> MQ
-                        NS --> SMTP
-
-                        AS --> PG
-                        WS --> MQ
-
-                        style Kong fill:#3B82F6
-                        style DS fill:#10B981
-                        style PG fill:#FFA500
+                            <div style="background: #FEF3C7; padding: 1rem; border-radius: 8px;">
+                                <h5 style="margin: 0 0 0.5rem 0; text-align: center;">External Services</h5>
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                    <div style="background: #FED7AA; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">OpenAI API</div>
+                                    <div style="background: #FED7AA; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">RijksWoordenboek</div>
+                                    <div style="background: #FED7AA; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">LDAP/AD</div>
+                                    <div style="background: #FED7AA; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Email Service</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <h3>Data Flow Architecture</h3>
-                <div class="mermaid">
-                    flowchart LR
-                        subgraph Input[Data Input]
-                            UI[User Input]
-                            API[API Request]
-                            Batch[Batch Import]
-                        end
+                <div style="background: #F3F4F6; padding: 2rem; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem;">
+                        <!-- Data Input -->
+                        <div style="background: #E0F2FE; padding: 1rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #1E40AF;">Data Input</h5>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">User Input</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">API Request</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Batch Import</div>
+                            </div>
+                        </div>
 
-                        subgraph Processing[Processing Pipeline]
-                            Valid[Validation Layer]
-                            Trans[Transformation]
-                            Enrich[Enrichment]
-                            Cache[Caching Layer]
-                        end
+                        <!-- Processing Pipeline -->
+                        <div style="background: #FEE2E2; padding: 1rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #991B1B;">Processing Pipeline</h5>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: #EF4444; color: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Validation Layer</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Transformation</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Enrichment</div>
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Caching Layer</div>
+                            </div>
+                        </div>
 
-                        subgraph Storage[Storage Tiers]
-                            Hot[Hot Storage - Redis]
-                            Warm[Warm Storage - PostgreSQL]
-                            Cold[Cold Storage - S3]
-                        end
+                        <!-- Storage Tiers -->
+                        <div style="background: #FFF7ED; padding: 1rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #92400E;">Storage Tiers</h5>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: #FFA500; color: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Hot Storage<br/><small>Redis</small></div>
+                                <div style="background: #F59E0B; color: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Warm Storage<br/><small>PostgreSQL</small></div>
+                                <div style="background: #D97706; color: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Cold Storage<br/><small>S3</small></div>
+                            </div>
+                        </div>
 
-                        subgraph Output[Data Output]
-                            REST[REST API]
-                            Graph[GraphQL]
-                            Export[Export Service]
-                            Stream[Event Stream]
-                        end
+                        <!-- Data Output -->
+                        <div style="background: #D1FAE5; padding: 1rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #14532D;">Data Output</h5>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">REST API</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">GraphQL</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Export Service</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center;">Event Stream</div>
+                            </div>
+                        </div>
+                    </div>
 
-                        UI --> Valid
-                        API --> Valid
-                        Batch --> Valid
-
-                        Valid --> Trans
-                        Trans --> Enrich
-                        Enrich --> Cache
-
-                        Cache --> Hot
-                        Hot --> Warm
-                        Warm --> Cold
-
-                        Hot --> REST
-                        Hot --> Graph
-                        Warm --> Export
-                        Cache --> Stream
-
-                        style Valid fill:#EF4444
-                        style Cache fill:#10B981
-                        style Hot fill:#FFA500
+                    <!-- Flow arrows -->
+                    <div style="text-align: center; margin-top: 1rem; color: #6B7280;">
+                        <div style="display: flex; justify-content: center; align-items: center; gap: 1rem;">
+                            <span>Input</span>
+                            <span>→</span>
+                            <span>Process</span>
+                            <span>→</span>
+                            <span>Store</span>
+                            <span>→</span>
+                            <span>Output</span>
+                        </div>
+                    </div>
                 </div>
 
                 <h3>Security Architecture Layers</h3>
-                <div class="mermaid">
-                    graph TD
-                        subgraph Network[Network Security]
-                            FW[Firewall]
-                            WAF[Web Application Firewall]
-                            DDoS[DDoS Protection]
-                        end
+                <div style="background: #F3F4F6; padding: 2rem; border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 1.5rem;">
+                        <!-- Network Security -->
+                        <div style="background: #FEE2E2; padding: 1.5rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #991B1B;">
+                                <span style="font-size: 1.5rem;">🔒</span> Network Security
+                            </h5>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Firewall</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Web Application Firewall</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem; grid-column: span 2;">DDoS Protection</div>
+                            </div>
+                        </div>
 
-                        subgraph Application[Application Security]
-                            OAuth[OAuth 2.0]
-                            JWT[JWT Tokens]
-                            RBAC[Role-Based Access]
-                            MFA[Multi-Factor Auth]
-                        end
+                        <!-- Application Security -->
+                        <div style="background: #DBEAFE; padding: 1.5rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #1E40AF;">
+                                <span style="font-size: 1.5rem;">🔐</span> Application Security
+                            </h5>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                <div style="background: #3B82F6; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">OAuth 2.0</div>
+                                <div style="background: #3B82F6; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">JWT Tokens</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Role-Based Access</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Multi-Factor Auth</div>
+                            </div>
+                        </div>
 
-                        subgraph Data[Data Security]
-                            TLS[TLS 1.3]
-                            E2E[End-to-End Encryption]
-                            FPE[Format Preserving Encryption]
-                            Mask[Data Masking]
-                        end
+                        <!-- Data Security -->
+                        <div style="background: #D1FAE5; padding: 1.5rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #14532D;">
+                                <span style="font-size: 1.5rem;">🔏</span> Data Security
+                            </h5>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                <div style="background: #10B981; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">TLS 1.3</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">End-to-End Encryption</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Format Preserving Encryption</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Data Masking</div>
+                            </div>
+                        </div>
 
-                        subgraph Compliance[Compliance & Audit]
-                            GDPR[GDPR Compliance]
-                            Log[Audit Logging]
-                            SIEM[SIEM Integration]
-                            Report[Compliance Reports]
-                        end
+                        <!-- Compliance & Audit -->
+                        <div style="background: #FFF7ED; padding: 1.5rem; border-radius: 8px;">
+                            <h5 style="margin: 0 0 1rem 0; text-align: center; color: #92400E;">
+                                <span style="font-size: 1.5rem;">📋</span> Compliance & Audit
+                            </h5>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;">
+                                <div style="background: #FFA500; color: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">GDPR Compliance</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Audit Logging</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">SIEM Integration</div>
+                                <div style="background: white; padding: 0.5rem; border-radius: 6px; text-align: center; font-size: 0.9rem;">Compliance Reports</div>
+                            </div>
+                        </div>
+                    </div>
 
-                        FW --> WAF
-                        WAF --> DDoS
-                        DDoS --> OAuth
-
-                        OAuth --> JWT
-                        JWT --> RBAC
-                        RBAC --> MFA
-
-                        MFA --> TLS
-                        TLS --> E2E
-                        E2E --> FPE
-                        FPE --> Mask
-
-                        Mask --> GDPR
-                        GDPR --> Log
-                        Log --> SIEM
-                        SIEM --> Report
-
-                        style OAuth fill:#3B82F6
-                        style TLS fill:#10B981
-                        style GDPR fill:#FFA500
+                    <div style="text-align: center; margin-top: 1.5rem;">
+                        <span style="background: #E0F2FE; padding: 0.5rem 1rem; border-radius: 6px; color: #1E40AF;">
+                            🛡️ Defense in Depth: Multiple layers of security protection
+                        </span>
+                    </div>
                 </div>
 
                 <h3>Deployment Architecture (Kubernetes)</h3>
@@ -1489,7 +1791,7 @@
                         subgraph Ingress[Ingress Layer]
                             LB[Load Balancer]
                             Cert[Cert Manager]
-                            Ingress[Nginx Ingress]
+                            NGX[Nginx Ingress]
                         end
 
                         subgraph Namespaces[K8s Namespaces]
@@ -1519,9 +1821,9 @@
                         end
 
                         LB --> Cert
-                        Cert --> Ingress
-                        Ingress --> Prod
-                        Ingress --> Stage
+                        Cert --> NGX
+                        NGX --> Prod
+                        NGX --> Stage
 
                         Prod --> PVC1
                         Stage --> PVC2
