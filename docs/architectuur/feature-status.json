@@ -1,0 +1,24 @@
+{
+  "lastUpdated": "2025-08-19T10:00:00Z",
+  "source": "github",
+  "statistics": {
+    "total": 87,
+    "complete": 23,
+    "inProgress": 12,
+    "notStarted": 52
+  },
+  "epics": [
+    {
+      "id": "epic-001",
+      "name": "Basis Definitie Generatie",
+      "description": "Core functionality voor het genereren van definities",
+      "features": [
+        { "id": "DEF-001", "name": "AI-gestuurde definitie generator", "status": "complete" },
+        { "id": "DEF-002", "name": "Context-bewuste generatie", "status": "complete" },
+        { "id": "DEF-003", "name": "Definitie templates", "status": "complete" },
+        { "id": "DEF-004", "name": "Bulk generatie mogelijkheden", "status": "not-started" },
+        { "id": "DEF-005", "name": "Multi-taal ondersteuning", "status": "complete" }
+      ]
+    }
+  ]
+}

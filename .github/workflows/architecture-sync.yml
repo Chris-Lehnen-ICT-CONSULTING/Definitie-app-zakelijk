@@ -1,0 +1,246 @@
+name: Architecture Documentation Sync & Validation
+
+on:
+  push:
+    paths:
+      - 'docs/architectuur/**/*.md'
+      - 'scripts/architecture*.py'
+      - '.github/workflows/architecture-sync.yml'
+  pull_request:
+    paths:
+      - 'docs/architectuur/**/*.md'
+      - 'scripts/architecture*.py'
+  schedule:
+    - cron: '0 9 * * 1'  # Elke maandag om 9:00
+
+env:
+  PYTHON_VERSION: '3.11'
+
+jobs:
+  validate-architecture:
+    name: Validate Architecture Documents
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pyyaml jinja2 markdown beautifulsoup4
+
+    - name: Run Architecture Validation
+      id: validation
+      run: |
+        echo "🔍 Running architecture validation..."
+        python scripts/architecture_validator.py --project-root . --output validation-report.json
+        echo "validation_status=$?" >> $GITHUB_OUTPUT
+
+    - name: Upload validation report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-report
+        path: docs/architectuur/validation-report.json
+        retention-days: 30
+
+    - name: Comment PR with validation results
+      if: github.event_name == 'pull_request' && always()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const fs = require('fs');
+          try {
+            const report = JSON.parse(fs.readFileSync('docs/architectuur/validation-report.json', 'utf8'));
+            const status = report.summary.overall_status;
+            const emoji = status === 'pass' ? '✅' : status === 'warning' ? '⚠️' : '❌';
+
+            const body = `## ${emoji} Architecture Validation Results
+
+            **Status**: ${status.toUpperCase()}
+            - **Total checks**: ${report.summary.total_checks}
+            - **Passed**: ${report.summary.passed}
+            - **Warnings**: ${report.summary.warnings}
+            - **Errors**: ${report.summary.errors}
+
+            ${report.errors.length > 0 ? '### ❌ Errors\n' + report.errors.map(e => `- ${e.message}`).join('\n') : ''}
+            ${report.warnings.length > 0 ? '### ⚠️ Warnings\n' + report.warnings.map(w => `- ${w.message}`).join('\n') : ''}
+
+            <details>
+            <summary>View full validation report</summary>
+
+            \`\`\`json
+            ${JSON.stringify(report, null, 2)}
+            \`\`\`
+            </details>`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          } catch (error) {
+            console.log('Could not read validation report:', error);
+          }
+
+  sync-architecture:
+    name: Synchronize Architecture Documents
+    runs-on: ubuntu-latest
+    needs: validate-architecture
+    if: needs.validate-architecture.outputs.validation_status != '1'  # Continue if not critical errors
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Python ${{ env.PYTHON_VERSION }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+        cache: 'pip'
+
+    - name: Install dependencies
+      run: |
+        pip install --upgrade pip
+        pip install pyyaml jinja2 markdown beautifulsoup4
+
+    - name: Run Architecture Synchronization
+      id: sync
+      run: |
+        echo "🔄 Starting architecture synchronization..."
+        python scripts/architecture_sync.py --project-root . --output sync-report.json
+        echo "sync_status=$?" >> $GITHUB_OUTPUT
+
+    - name: Generate sync dashboard
+      run: |
+        echo "📊 Generating sync dashboard..."
+        python scripts/architecture_sync.py --project-root . --dashboard
+
+    - name: Update feature status
+      if: success()
+      run: |
+        echo "📈 Updating feature status..."
+        python scripts/update_feature_status.py --project-root .
+
+    - name: Upload sync artifacts
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: sync-artifacts
+        path: |
+          docs/architectuur/sync-report.json
+          docs/architectuur/sync-dashboard.html
+          docs/architectuur/feature-status.json
+        retention-days: 30
+
+    - name: Check for documentation updates
+      id: changes
+      run: |
+        git add docs/architectuur/
+        if git diff --staged --quiet; then
+          echo "has_changes=false" >> $GITHUB_OUTPUT
+        else
+          echo "has_changes=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Commit sync updates
+      if: steps.changes.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/architectuur/
+        git commit -m "chore: auto-sync architecture documentation
+
+        🤖 Generated with Claude Code
+
+        - Updated sync reports and dashboards
+        - Synchronized cross-references
+        - Validated document consistency
+
+        Co-Authored-By: Claude <noreply@anthropic.com>"
+
+    - name: Push changes
+      if: steps.changes.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+      uses: ad-m/github-push-action@master
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Create Pull Request for sync updates
+      if: steps.changes.outputs.has_changes == 'true' && github.event_name == 'schedule'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: |
+          chore: weekly architecture sync
+
+          🤖 Generated with Claude Code
+        title: 'Weekly Architecture Synchronization'
+        body: |
+          ## 🔄 Weekly Architecture Sync
+
+          This PR contains automatic synchronization updates for architecture documentation.
+
+          ### Changes
+          - ✅ Architecture validation completed
+          - ✅ Document synchronization updated
+          - ✅ Cross-references validated
+          - ✅ Feature status updated
+          - ✅ Dashboards regenerated
+
+          ### Sync Report
+          - Status: ${{ steps.sync.outputs.sync_status == '0' && 'SUCCESS' || 'WARNINGS' }}
+          - Timestamp: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
+
+          ### Files Updated
+          - Architecture sync reports
+          - HTML dashboards
+          - Feature status tracking
+
+          🤖 Generated with [Claude Code](https://claude.ai/code)
+
+          Co-Authored-By: Claude <noreply@anthropic.com>
+        branch: architecture-sync-${{ github.run_number }}
+        delete-branch: true
+
+  notify-status:
+    name: Notify Architecture Status
+    runs-on: ubuntu-latest
+    needs: [validate-architecture, sync-architecture]
+    if: always()
+
+    steps:
+    - name: Send status notification
+      if: failure()
+      uses: actions/github-script@v6
+      with:
+        script: |
+          const title = "Architecture Sync Failed";
+          const body = `Architecture synchronization workflow failed.
+
+          **Validation Status**: ${{ needs.validate-architecture.result }}
+          **Sync Status**: ${{ needs.sync-architecture.result }}
+
+          Please check the workflow logs for details.
+
+          Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}`;
+
+          // Create an issue if sync fails
+          await github.rest.issues.create({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            title: title,
+            body: body,
+            labels: ['architecture', 'automation', 'bug']
+          });
