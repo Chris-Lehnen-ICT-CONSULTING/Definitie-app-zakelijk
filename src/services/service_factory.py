@@ -17,6 +17,38 @@ from services.container import ContainerConfigs, ServiceContainer, get_container
 logger = logging.getLogger(__name__)
 
 
+class LegacyGenerationResult:
+    """
+    Wrapper die nieuwe service response omzet naar legacy object interface.
+    
+    De UI verwacht een object met attributen zoals final_definitie, success, etc.
+    Deze class biedt die interface terwijl intern de nieuwe service data gebruikt.
+    """
+
+    def __init__(self, **kwargs):
+        """Initialiseer met alle kwargs als attributen."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        
+        # Zorg voor backwards compatibility defaults
+        if not hasattr(self, 'success'):
+            self.success = True
+        if not hasattr(self, 'final_definitie'):
+            self.final_definitie = getattr(self, 'definitie_gecorrigeerd', '')
+        if not hasattr(self, 'final_score'):
+            self.final_score = getattr(self, 'validation_score', 0.0)
+        if not hasattr(self, 'reason'):
+            self.reason = getattr(self, 'error_message', '')
+
+    def __getitem__(self, key):
+        """Dict-like access voor backward compatibility."""
+        return getattr(self, key, None)
+    
+    def get(self, key, default=None):
+        """Dict-like get method."""
+        return getattr(self, key, default)
+
+
 def get_definition_service(
     use_container_config: dict | None = None,
 ) -> "ServiceAdapter":
@@ -96,7 +128,7 @@ class ServiceAdapter:
         return {
             "service_mode": "container_v2",
             "architecture": "microservices",
-            "version": "2.0"
+            "version": "2.0",
         }
 
     def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
@@ -107,6 +139,7 @@ class ServiceAdapter:
         Deze methode is sync om legacy UI compatibility te behouden.
         """
         import asyncio
+
         from services.interfaces import GenerationRequest
 
         # Converteer legacy context_dict naar GenerationRequest
@@ -121,34 +154,38 @@ class ServiceAdapter:
         # Gebruik orchestrator via asyncio.run() voor sync interface
         response = asyncio.run(self.orchestrator.create_definition(request))
 
-        # Converteer response naar legacy format
+        # Converteer response naar legacy format met object-achtige interface
         if response.success and response.definition:
-            return {
-                "success": True,
-                "definitie_origineel": response.definition.metadata.get(
+            return LegacyGenerationResult(
+                success=True,
+                definitie_origineel=response.definition.metadata.get(
                     "origineel", response.definition.definitie
                 ),
-                "definitie_gecorrigeerd": response.definition.definitie,
-                "marker": response.definition.metadata.get("marker", ""),
-                "toetsresultaten": (
+                definitie_gecorrigeerd=response.definition.definitie,
+                final_definitie=response.definition.definitie,  # Voor legacy UI compatibility
+                marker=response.definition.metadata.get("marker", ""),
+                toetsresultaten=(
                     response.validation.errors if response.validation else []
                 ),
-                # Add detailed validation results for UI
-                "validation_details": (
+                validation_details=(
                     response.validation if response.validation else None
                 ),
-                "validation_score": (
+                validation_score=(
                     response.validation.score if response.validation else 0.0
                 ),
-                "voorbeelden": response.definition.voorbeelden or [],
-                "processing_time": response.definition.metadata.get(
+                final_score=(
+                    response.validation.score if response.validation else 0.0
+                ),
+                voorbeelden=response.definition.voorbeelden or [],
+                processing_time=response.definition.metadata.get(
                     "processing_time", 0
                 ),
-            }
-        return {
-            "success": False,
-            "error_message": response.message or "Generatie mislukt",
-        }
+            )
+        return LegacyGenerationResult(
+            success=False,
+            error_message=response.message or "Generatie mislukt",
+            final_definitie="Generatie mislukt",
+        )
 
     def get_stats(self) -> dict:
         """Get statistieken van alle services."""
@@ -171,6 +208,7 @@ class ServiceAdapter:
             Legacy format resultaat dict
         """
         import asyncio
+
         from services.interfaces import LookupRequest
 
         request = LookupRequest(term=term, sources=sources, max_results=5)
