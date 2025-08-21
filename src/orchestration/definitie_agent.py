@@ -27,122 +27,148 @@ from validation.definitie_validator import (
 # Initialiseer logger
 logger = logging.getLogger(__name__)
 
-# Import legacy classes from deprecated location for compatibility
+# Import modern service interfaces
 try:
-    from deprecated.generation.definitie_generator import (
-        DefinitieGenerator,
-        GenerationContext,
-        GenerationResult,
-    )
+    from services.container import ServiceContainer
+    from services.interfaces import GenerationRequest
+
+    MODERN_SERVICES_AVAILABLE = True
 except ImportError:
-    # Fallback imports if deprecated module is not available
-    logger.warning("Could not import from deprecated.generation.definitie_generator")
+    logger.error("Could not import modern service interfaces")
+    MODERN_SERVICES_AVAILABLE = False
 
-    # Import modern service interfaces as fallback
 
-    # Define minimal compatibility classes
-    class GenerationContext:
-        """Minimal compatibility wrapper"""
+# Define compatibility classes for legacy interface
+class GenerationContext:
+    """Compatibility wrapper for legacy interface"""
 
-        def __init__(
-            self,
-            begrip,
-            organisatorische_context=None,
-            juridische_context=None,
-            categorie=None,
-            feedback_history=None,
-            **kwargs,
-        ):
-            self.begrip = begrip
-            self.organisatorische_context = organisatorische_context or ""
-            self.juridische_context = juridische_context or ""
-            self.categorie = categorie
-            self.feedback_history = feedback_history or []
-            # Handle additional attributes from kwargs
-            for key, value in kwargs.items():
-                setattr(self, key, value)
+    def __init__(
+        self,
+        begrip,
+        organisatorische_context=None,
+        juridische_context=None,
+        categorie=None,
+        feedback_history=None,
+        **kwargs,
+    ):
+        self.begrip = begrip
+        self.organisatorische_context = organisatorische_context or ""
+        self.juridische_context = juridische_context or ""
+        self.categorie = categorie
+        self.feedback_history = feedback_history or []
+        # Handle additional attributes from kwargs
+        for key, value in kwargs.items():
+            setattr(self, key, value)
 
-    class GenerationResult:
-        """Minimal compatibility wrapper"""
 
-        def __init__(self, definitie, metadata=None):
-            self.definitie = definitie
-            self.metadata = metadata or {}
-            self.voorbeelden = {}  # Add voorbeelden attribute
-            self.voorbeelden_gegenereerd = False
-            self.voorbeelden_error = None
+class GenerationResult:
+    """Compatibility wrapper for legacy interface"""
 
-    class DefinitieGenerator:
-        """Minimal compatibility wrapper"""
+    def __init__(self, definitie, metadata=None, context=None):
+        self.definitie = definitie
+        self.metadata = metadata or {}
+        self.context = context  # Store context for compatibility
+        self.voorbeelden = {}  # Add voorbeelden attribute
+        self.voorbeelden_gegenereerd = False
+        self.voorbeelden_error = None
 
-        def __init__(self):
-            logger.warning("Using minimal DefinitieGenerator wrapper")
-            self.service_container = None
+
+class DefinitieGenerator:
+    """Modern DefinitionOrchestrator adapter for legacy compatibility"""
+
+    def __init__(self, service_container=None):
+        """Initialize with modern ServiceContainer"""
+        self.service_container = service_container or ServiceContainer()
+        logger.info("DefinitieGenerator initialized with modern DefinitionOrchestrator")
+
+    def generate_with_examples(
+        self, generation_context, _generate_examples=True, _example_types=None
+    ):
+        """Generate definition using modern DefinitionOrchestrator"""
+        if not MODERN_SERVICES_AVAILABLE:
+            return GenerationResult(
+                definitie="[Error: Modern services not available]",
+                metadata={"error": "Service initialization failed"},
+            )
+
+        try:
+            # Get DefinitionOrchestrator via service container
+            orchestrator = self.service_container.orchestrator()
+
+            # Create GenerationRequest from legacy context
+            request = GenerationRequest(
+                begrip=generation_context.begrip,
+                context=generation_context.organisatorische_context,
+                domein=generation_context.juridische_context,
+                organisatie=generation_context.organisatorische_context,
+                extra_instructies=self._format_feedback_history(
+                    generation_context.feedback_history
+                ),
+            )
+
+            # Run async method in sync context
+            import asyncio
+
+            loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(loop)
+
             try:
-                from services.container import ServiceContainer
-
-                self.service_container = ServiceContainer()
-            except Exception as e:
-                logger.error(f"Could not initialize ServiceContainer: {e}")
-
-        def generate_with_examples(
-            self, generation_context, generate_examples=True, example_types=None
-        ):
-            """Generate definition with examples using UnifiedDefinitionGenerator"""
-            if not self.service_container:
-                # Return a minimal result
-                return GenerationResult(
-                    definitie="[Error: Service container not available]",
-                    metadata={"error": "Service initialization failed"},
+                response = loop.run_until_complete(
+                    orchestrator.create_definition(request)
                 )
+            finally:
+                loop.close()
 
-            try:
-                generator = self.service_container.generator()
-
-                # Import GenerationRequest from interfaces
-                from services.interfaces import GenerationRequest
-
-                request = GenerationRequest(
-                    begrip=generation_context.begrip,
-                    context=generation_context.organisatorische_context,
-                    domein=generation_context.juridische_context,
-                    # categorie is not part of GenerationRequest
-                )
-
-                # Run async method in sync context
-                import asyncio
-
-                loop = asyncio.new_event_loop()
-                asyncio.set_event_loop(loop)
-
-                try:
-                    result = loop.run_until_complete(generator.generate(request))
-                finally:
-                    loop.close()
-
-                # Convert to GenerationResult
+            # Convert DefinitionResponse to GenerationResult for compatibility
+            if response.success and response.definition:
                 generation_result = GenerationResult(
-                    definitie=(
-                        result.definitie
-                        if hasattr(result, "definitie")
-                        else str(result)
-                    ),
-                    metadata=result.metadata if hasattr(result, "metadata") else {},
+                    definitie=response.definition.definitie,
+                    metadata=response.definition.metadata or {},
+                    context=generation_context,  # Store original context
                 )
 
                 # Add voorbeelden if available
-                if hasattr(result, "voorbeelden") and result.voorbeelden:
-                    generation_result.voorbeelden = result.voorbeelden
+                if response.definition.voorbeelden:
+                    generation_result.voorbeelden = {
+                        "sentence": (
+                            response.definition.voorbeelden[:3]
+                            if response.definition.voorbeelden
+                            else []
+                        ),
+                        "practical": (
+                            response.definition.voorbeelden[3:6]
+                            if len(response.definition.voorbeelden) > 3
+                            else []
+                        ),
+                        "counter": (
+                            response.definition.voorbeelden[6:]
+                            if len(response.definition.voorbeelden) > 6
+                            else []
+                        ),
+                    }
                     generation_result.voorbeelden_gegenereerd = True
 
                 return generation_result
 
-            except Exception as e:
-                logger.error(f"Generation failed: {e}")
-                return GenerationResult(
-                    definitie=f"[Error during generation: {e!s}]",
-                    metadata={"error": str(e)},
-                )
+            return GenerationResult(
+                definitie=f"[Error: {response.message}]",
+                metadata={"error": response.message or "Unknown error"},
+                context=generation_context,
+            )
+
+        except Exception as e:
+            logger.error(f"Generation failed: {e}")
+            return GenerationResult(
+                definitie=f"[Error during generation: {e!s}]",
+                metadata={"error": str(e)},
+                context=generation_context,
+            )
+
+    def _format_feedback_history(self, feedback_history):
+        """Format feedback history for extra instructions"""
+        if not feedback_history:
+            return None
+        return "Feedback van vorige iteraties: " + "; ".join(feedback_history)
 
 
 # Validatie imports zijn al bovenaan toegevoegd
@@ -500,16 +526,22 @@ class DefinitieAgent:
         max_iterations: int = 3,
         acceptance_threshold: float = 0.8,
         improvement_threshold: float = 0.05,
+        service_container: ServiceContainer = None,
     ):
         """
-        Initialiseer DefinitieAgent.
+        Initialiseer DefinitieAgent met moderne ServiceContainer.
 
         Args:
             max_iterations: Maximum aantal iteraties
             acceptance_threshold: Minimum score voor acceptatie
             improvement_threshold: Minimum verbetering per iteratie
+            service_container: ServiceContainer instance voor dependency injection
         """
-        self.generator = DefinitieGenerator()
+        # Initialize service container
+        self.service_container = service_container or ServiceContainer()
+
+        # Initialize components via service container
+        self.generator = DefinitieGenerator(self.service_container)
         self.validator = DefinitieValidator()
         self.feedback_builder = FeedbackBuilder()
 
@@ -784,7 +816,9 @@ class DefinitieAgent:
         )
 
     def _build_feedback_context(
-        self, validation_result: ValidationResult, generation_context: GenerationContext
+        self,
+        validation_result: ValidationResult,
+        generation_context: GenerationContext,  # noqa: ARG002
     ) -> FeedbackContext:
         """Bouw context voor feedback generatie."""
         # Collect score history
@@ -844,16 +878,19 @@ def generate_definition_with_feedback(
     organisatorische_context: str,
     categorie: str = "type",
     max_iterations: int = 3,
+    service_container: ServiceContainer = None,
     **kwargs,
 ) -> AgentResult:
     """
     Convenience functie voor definitie generatie met feedback loop.
+    Gebruikt moderne ServiceContainer architectuur.
 
     Args:
         begrip: Het te definiëren begrip
         organisatorische_context: Organisatorische context
         categorie: Ontologische categorie ("type", "proces", "resultaat", "exemplaar")
         max_iterations: Maximum aantal iteraties
+        service_container: ServiceContainer instance voor dependency injection
         **kwargs: Extra parameters
 
     Returns:
@@ -869,7 +906,10 @@ def generate_definition_with_feedback(
 
     cat_enum = cat_mapping.get(categorie.lower(), OntologischeCategorie.TYPE)
 
-    agent = DefinitieAgent(max_iterations=max_iterations)
+    # Initialize agent with service container for modern architecture
+    agent = DefinitieAgent(
+        max_iterations=max_iterations, service_container=service_container
+    )
 
     return agent.generate_definition(
         begrip=begrip,
@@ -877,6 +917,8 @@ def generate_definition_with_feedback(
         juridische_context=kwargs.get("juridische_context", ""),
         categorie=cat_enum,
         initial_feedback=kwargs.get("initial_feedback"),
+        selected_document_ids=kwargs.get("selected_document_ids"),
+        enable_hybrid=kwargs.get("enable_hybrid", False),
     )
 
 
@@ -918,9 +960,13 @@ if __name__ == "__main__":
     for item in feedback:
         print(f"   - {item}")
 
-    # Test DefinitieAgent
+    # Test DefinitieAgent with modern architecture
     print("\n🤖 Testing DefinitieAgent...")
-    agent = DefinitieAgent(max_iterations=2)  # Beperkt voor test
+    service_container = ServiceContainer() if MODERN_SERVICES_AVAILABLE else None
+    agent = DefinitieAgent(
+        max_iterations=2,  # Beperkt voor test
+        service_container=service_container,
+    )
 
     result = agent.generate_definition(
         begrip="verificatie",
@@ -948,7 +994,11 @@ if __name__ == "__main__":
     # Test convenience function
     print("\n🔧 Testing convenience function...")
     quick_result = generate_definition_with_feedback(
-        "toezicht", "OM", "proces", max_iterations=1
+        "toezicht",
+        "OM",
+        "proces",
+        max_iterations=1,
+        service_container=service_container,
     )
     print(
         f"✅ Quick result: {quick_result.success}, Score: {quick_result.final_score:.3f}"
