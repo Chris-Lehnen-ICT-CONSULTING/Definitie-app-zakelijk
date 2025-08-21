@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class LegacyGenerationResult:
     """
     Wrapper die nieuwe service response omzet naar legacy object interface.
-    
+
     De UI verwacht een object met attributen zoals final_definitie, success, etc.
     Deze class biedt die interface terwijl intern de nieuwe service data gebruikt.
     """
@@ -29,21 +29,31 @@ class LegacyGenerationResult:
         """Initialiseer met alle kwargs als attributen."""
         for key, value in kwargs.items():
             setattr(self, key, value)
-        
+
         # Zorg voor backwards compatibility defaults
-        if not hasattr(self, 'success'):
+        if not hasattr(self, "success"):
             self.success = True
-        if not hasattr(self, 'final_definitie'):
-            self.final_definitie = getattr(self, 'definitie_gecorrigeerd', '')
-        if not hasattr(self, 'final_score'):
-            self.final_score = getattr(self, 'validation_score', 0.0)
-        if not hasattr(self, 'reason'):
-            self.reason = getattr(self, 'error_message', '')
+        if not hasattr(self, "final_definitie"):
+            self.final_definitie = getattr(self, "definitie_gecorrigeerd", "")
+        if not hasattr(self, "final_score"):
+            self.final_score = getattr(self, "validation_score", 0.0)
+        if not hasattr(self, "reason"):
+            self.reason = getattr(self, "error_message", "")
+        
+        # Legacy UI compatibiliteit - voor iterative generation workflow
+        if not hasattr(self, "iteration_count"):
+            self.iteration_count = 1
+        if not hasattr(self, "total_processing_time"):
+            self.total_processing_time = getattr(self, "processing_time", 0.0)
+        if not hasattr(self, "iterations"):
+            self.iterations = []
+        if not hasattr(self, "best_iteration"):
+            self.best_iteration = None
 
     def __getitem__(self, key):
         """Dict-like access voor backward compatibility."""
         return getattr(self, key, None)
-    
+
     def get(self, key, default=None):
         """Dict-like get method."""
         return getattr(self, key, default)
@@ -173,13 +183,9 @@ class ServiceAdapter:
                 validation_score=(
                     response.validation.score if response.validation else 0.0
                 ),
-                final_score=(
-                    response.validation.score if response.validation else 0.0
-                ),
+                final_score=(response.validation.score if response.validation else 0.0),
                 voorbeelden=response.definition.voorbeelden or [],
-                processing_time=response.definition.metadata.get(
-                    "processing_time", 0
-                ),
+                processing_time=response.definition.metadata.get("processing_time", 0),
             )
         return LegacyGenerationResult(
             success=False,
