@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DefinitieAgent - Enterprise Architecture Dashboard</title>
+    <style>
+        :root {
+            --primary-color: #1a5490;
+            --secondary-color: #f39c12;
+            --success-color: #27ae60;
+            --warning-color: #e74c3c;
+            --bg-color: #f8f9fa;
+            --text-color: #2c3e50;
+            --border-color: #ddd;
+            --card-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary-color), #2980b9);
+            color: white;
+            padding: 40px 0;
+            text-align: center;
+            margin-bottom: 40px;
+            border-radius: 10px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+
+        .card h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .kpi-item {
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .kpi-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .kpi-label {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--success-color), #2ecc71);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .capability-matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .capability {
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+            font-size: 0.9em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .capability.core {
+            background: #3498db;
+            color: white;
+        }
+
+        .capability.supporting {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .capability.generic {
+            background: #bdc3c7;
+            color: #2c3e50;
+        }
+
+        .capability:hover {
+            transform: scale(1.05);
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .timeline-date {
+            min-width: 100px;
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .timeline-content {
+            flex: 1;
+            background: var(--bg-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-left: 20px;
+            position: relative;
+        }
+
+        .timeline-content::before {
+            content: '';
+            position: absolute;
+            left: -10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 10px;
+            height: 10px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .investment-chart {
+            height: 300px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .chart-bar {
+            position: absolute;
+            bottom: 0;
+            width: 18%;
+            background: linear-gradient(180deg, var(--primary-color), #3498db);
+            border-radius: 5px 5px 0 0;
+            transition: height 0.5s ease;
+            cursor: pointer;
+        }
+
+        .chart-bar:hover {
+            opacity: 0.8;
+        }
+
+        .chart-label {
+            position: absolute;
+            bottom: -25px;
+            width: 100%;
+            text-align: center;
+            font-size: 0.8em;
+        }
+
+        .risk-matrix {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .risk-item {
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .risk-high {
+            background: var(--warning-color);
+        }
+
+        .risk-medium {
+            background: var(--secondary-color);
+        }
+
+        .risk-low {
+            background: var(--success-color);
+        }
+
+        .risk-item:hover {
+            transform: scale(1.05);
+        }
+
+        .compliance-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .compliance-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .compliance-status {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+
+        .compliant {
+            background: var(--success-color);
+        }
+
+        .in-progress {
+            background: var(--secondary-color);
+        }
+
+        .non-compliant {
+            background: var(--warning-color);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .update-indicator {
+            display: inline-block;
+            padding: 5px 10px;
+            background: var(--success-color);
+            color: white;
+            border-radius: 20px;
+            font-size: 0.8em;
+            margin-left: 10px;
+        }
+
+        .cross-reference {
+            display: inline-block;
+            padding: 5px 10px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 0.9em;
+            margin-top: 10px;
+            transition: background 0.3s ease;
+        }
+
+        .cross-reference:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏢 DefinitieAgent Enterprise Architecture</h1>
+            <p>Strategic View • Business Capabilities • Investment Portfolio</p>
+            <span class="update-indicator">Live</span>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Business KPIs Card -->
+            <div class="card">
+                <h2>📊 Business KPIs</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">10min</div>
+                        <div class="kpi-label">Definition Time</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">95%</div>
+                        <div class="kpi-label">Quality Score</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">1000+</div>
+                        <div class="kpi-label">Target Users</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">€25</div>
+                        <div class="kpi-label">Cost/Definition</div>
+                    </div>
+                </div>
+                <a href="SOLUTION_ARCHITECTURE.html#performance" class="cross-reference">
+                    → Technical Metrics
+                </a>
+            </div>
+
+            <!-- Business Capabilities Card -->
+            <div class="card">
+                <h2>🎯 Business Capabilities</h2>
+                <div class="capability-matrix">
+                    <div class="capability core">AI Generation</div>
+                    <div class="capability core">Validation</div>
+                    <div class="capability core">Enrichment</div>
+                    <div class="capability supporting">Integration</div>
+                    <div class="capability supporting">Expert Review</div>
+                    <div class="capability supporting">Analytics</div>
+                    <div class="capability generic">User Mgmt</div>
+                    <div class="capability generic">Compliance</div>
+                    <div class="capability generic">Admin</div>
+                </div>
+                <a href="SOLUTION_ARCHITECTURE.html#components" class="cross-reference">
+                    → Technical Components
+                </a>
+            </div>
+
+            <!-- Strategic Roadmap Card -->
+            <div class="card">
+                <h2>🗺️ Strategic Roadmap</h2>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q4 2024</div>
+                        <div class="timeline-content">Foundation & Architecture</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q1-Q2 2025</div>
+                        <div class="timeline-content">MVP & 3 Ministry Pilots</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">Q3-Q4 2025</div>
+                        <div class="timeline-content">Government-wide Rollout</div>
+                    </div>
+                    <div class="timeline-item">
+                        <div class="timeline-date">2026</div>
+                        <div class="timeline-content">Excellence & Innovation</div>
+                    </div>
+                </div>
+                <a href="SOLUTION_ARCHITECTURE.html#migration" class="cross-reference">
+                    → Technical Migration Plan
+                </a>
+            </div>
+
+            <!-- Investment Portfolio Card -->
+            <div class="card">
+                <h2>💰 Investment Portfolio</h2>
+                <div class="investment-chart">
+                    <div class="chart-bar" style="left: 0%; height: 80%;" title="Core Platform: €800k">
+                        <div class="chart-label">Core Platform</div>
+                    </div>
+                    <div class="chart-bar" style="left: 20%; height: 20%;" title="AI Enhancement: €200k">
+                        <div class="chart-label">AI</div>
+                    </div>
+                    <div class="chart-bar" style="left: 40%; height: 20%;" title="Mobile: €200k">
+                        <div class="chart-label">Mobile</div>
+                    </div>
+                    <div class="chart-bar" style="left: 60%; height: 15%;" title="Analytics: €150k">
+                        <div class="chart-label">Analytics</div>
+                    </div>
+                    <div class="chart-bar" style="left: 80%; height: 15%;" title="Voice: €150k">
+                        <div class="chart-label">Voice</div>
+                    </div>
+                </div>
+                <div style="margin-top: 40px; text-align: center;">
+                    <strong>Total: €1.5M</strong> • ROI: 167%
+                </div>
+                <a href="SOLUTION_ARCHITECTURE.html#cost" class="cross-reference">
+                    → Cost Optimization Details
+                </a>
+            </div>
+
+            <!-- Risk Architecture Card -->
+            <div class="card">
+                <h2>⚠️ Risk Architecture</h2>
+                <div class="risk-matrix">
+                    <div class="risk-item risk-high">AI Hallucination</div>
+                    <div class="risk-item risk-high">Data Breach</div>
+                    <div class="risk-item risk-medium">Adoption</div>
+                    <div class="risk-item risk-medium">Vendor Lock-in</div>
+                    <div class="risk-item risk-low">Performance</div>
+                    <div class="risk-item risk-low">Availability</div>
+                </div>
+                <a href="SOLUTION_ARCHITECTURE.html#security" class="cross-reference">
+                    → Security Implementation
+                </a>
+            </div>
+
+            <!-- Compliance Status Card -->
+            <div class="card">
+                <h2>🛡️ Compliance Status</h2>
+                <ul class="compliance-list">
+                    <li class="compliance-item">
+                        <div class="compliance-status compliant"></div>
+                        <span>GDPR/AVG - Fully Compliant</span>
+                    </li>
+                    <li class="compliance-item">
+                        <div class="compliance-status in-progress"></div>
+                        <span>BIO - Implementation in Progress</span>
+                    </li>
+                    <li class="compliance-item">
+                        <div class="compliance-status compliant"></div>
+                        <span>WCAG 2.1 AA - Compliant</span>
+                    </li>
+                    <li class="compliance-item">
+                        <div class="compliance-status in-progress"></div>
+                        <span>ISO 27001 - Certification Pending</span>
+                    </li>
+                    <li class="compliance-item">
+                        <div class="compliance-status compliant"></div>
+                        <span>DigiD/eHerkenning - Ready</span>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Application Portfolio Card -->
+            <div class="card">
+                <h2>💻 Application Portfolio</h2>
+                <div style="margin-bottom: 20px;">
+                    <h3 style="font-size: 1.1em; margin-bottom: 10px;">Current State</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 30%;">30%</div>
+                    </div>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Legacy systems being phased out</p>
+                </div>
+                <div>
+                    <h3 style="font-size: 1.1em; margin-bottom: 10px;">Target State</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%;">100%</div>
+                    </div>
+                    <p style="font-size: 0.9em; color: #666; margin-top: 5px;">Full microservices architecture</p>
+                </div>
+                <a href="SOLUTION_ARCHITECTURE.html#architecture" class="cross-reference">
+                    → Technical Architecture
+                </a>
+            </div>
+
+            <!-- Benefits Realization Card -->
+            <div class="card">
+                <h2>📈 Benefits Realization</h2>
+                <div class="kpi-grid">
+                    <div class="kpi-item">
+                        <div class="kpi-value">€3M</div>
+                        <div class="kpi-label">Annual Savings</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">1000h</div>
+                        <div class="kpi-label">Monthly FTE Saved</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">95%</div>
+                        <div class="kpi-label">Quality Improvement</div>
+                    </div>
+                    <div class="kpi-item">
+                        <div class="kpi-value">70%</div>
+                        <div class="kpi-label">Reuse Rate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>Enterprise Architecture Dashboard • Updated: <span id="lastUpdate"></span></p>
+            <p>Data source: Live architecture repository • <a href="#" style="color: var(--primary-color);">Export Report</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Update last modified date
+        document.getElementById('lastUpdate').textContent = new Date().toLocaleString('nl-NL');
+
+        // Animate progress bars
+        window.addEventListener('load', () => {
+            const progressBars = document.querySelectorAll('.progress-fill');
+            progressBars.forEach(bar => {
+                const width = bar.style.width;
+                bar.style.width = '0';
+                setTimeout(() => {
+                    bar.style.width = width;
+                }, 100);
+            });
+
+            // Animate chart bars
+            const chartBars = document.querySelectorAll('.chart-bar');
+            chartBars.forEach((bar, index) => {
+                const height = bar.style.height;
+                bar.style.height = '0';
+                setTimeout(() => {
+                    bar.style.height = height;
+                }, 100 + (index * 100));
+            });
+        });
+
+        // Add click handlers for capabilities
+        document.querySelectorAll('.capability').forEach(cap => {
+            cap.addEventListener('click', () => {
+                alert(`Capability: ${cap.textContent}\nClick to see detailed implementation in Solution Architecture`);
+            });
+        });
+
+        // Add click handlers for risks
+        document.querySelectorAll('.risk-item').forEach(risk => {
+            risk.addEventListener('click', () => {
+                alert(`Risk: ${risk.textContent}\nClick to see mitigation strategy`);
+            });
+        });
+
+        // Add click handlers for investment bars
+        document.querySelectorAll('.chart-bar').forEach(bar => {
+            bar.addEventListener('click', () => {
+                alert(bar.getAttribute('title'));
+            });
+        });
+
+        // Periodic update simulation
+        setInterval(() => {
+            document.getElementById('lastUpdate').textContent = new Date().toLocaleString('nl-NL');
+        }, 60000);
+    </script>
+</body>
+</html>
