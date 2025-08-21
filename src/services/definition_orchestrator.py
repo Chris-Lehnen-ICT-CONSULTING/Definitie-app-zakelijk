@@ -388,13 +388,46 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGenerato
         return definition
 
     async def _generate_definition(self, context: ProcessingContext) -> Definition:
-        """Genereer basis definitie met GPT integration."""
+        """Genereer basis definitie met echte GPT integration."""
         try:
-            # TODO: Integreer echte GPT calls hier
-            # Voor nu, gebruik mock data
+            # Importeer de bestaande GPT functionaliteit
+            from prompt_builder.prompt_builder import PromptBouwer, stuur_prompt_naar_gpt
+            
+            # Bouw prompt met bestaande logic
+            prompt_bouwer = PromptBouwer(
+                begrip=context.request.begrip,
+                organisatorische_context=context.request.context or "",
+                juridische_context=context.request.domein or "",
+                aanvullende_instructies=context.request.extra_instructies or ""
+            )
+            
+            prompt = prompt_bouwer.bouw_prompt()
+            logger.info(f"Prompt gebouwd voor begrip: {context.request.begrip}")
+            
+            # Stuur naar GPT
+            gpt_response = stuur_prompt_naar_gpt(
+                prompt=prompt,
+                model="gpt-4",
+                temperatuur=0.01,
+                max_tokens=300
+            )
+            
+            # Maak definitie met GPT response
             definition = Definition(
                 begrip=context.request.begrip,
-                definitie="Een basis definitie die door DefinitionOrchestrator wordt gegenereerd.",
+                definitie=gpt_response.strip(),
+                context=context.request.context,
+                domein=context.request.domein,
+            )
+            
+            logger.info(f"GPT definitie gegenereerd: {gpt_response[:50]}...")
+            
+        except Exception as e:
+            logger.error(f"GPT generatie fout: {e}")
+            # Fallback naar basis definitie bij fout
+            definition = Definition(
+                begrip=context.request.begrip,
+                definitie=f"Fout bij GPT generatie: {str(e)}",
                 context=context.request.context,
                 domein=context.request.domein,
             )
