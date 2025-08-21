@@ -2007,7 +2007,11 @@
                 </div>
 
                 <h3>📊 Expected Results</h3>
-                <canvas id="gviChart" width="400" height="200"></canvas>
+                <div style="background: #F3F4F6; padding: 2rem; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 3rem; color: #10B981; margin-bottom: 1rem;">60% → 90%</div>
+                    <div style="font-size: 1.25rem; color: #059669;">Quality Score Improvement</div>
+                    <div style="margin-top: 1rem; color: #6B7280;">Within 3 weeks of implementation</div>
+                </div>
 
                 <h3>💡 Quick Win: 65% Code Already Built!</h3>
                 <p>Analysis shows 119 of 182 files (65%) are unused but contain valuable microservice implementations:</p>
@@ -2043,7 +2047,7 @@
                             V3 --> V6[Score Calculation]
                             V4 --> V6
                             V5 --> V6
-                            V6 --> V7{Score >= 90%?}
+                            V6 --> V7{Score Above 90%}
                         end
 
                         subgraph Integration[Integration Phase]

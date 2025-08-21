@@ -207,6 +207,16 @@ DefinitieAgent is een AI-powered tool voor het genereren van hoogwaardige Nederl
 - **AI Model**: OpenAI GPT-4
 - **Language**: Python 3.11
 - **Deployment**: Single instance
+- **Code Usage**: 35% actief, 65% ongebruikt (119/222 files)
+
+### Identified Architecture Issues (Augustus 2025)
+| Issue | Impact | Priority | Solution |
+|-------|--------|----------|----------|
+| Feedback integration broken | 40% rejection rate | HIGH | Fix prompt_builder to use feedback_history |
+| CON-01 violations | Quality issues | HIGH | Implement implicit context handling |
+| Duplicate validation rules | 91 files (46 duplicates) | MEDIUM | Consolidate to shared implementation |
+| No caching | 8-12s response time | HIGH | Implement Redis cache layer |
+| 65% unused code | Maintenance burden | MEDIUM | Activate existing microservice components |
 
 ### Target Architecture
 - **Framework**: FastAPI (microservices)
@@ -215,6 +225,15 @@ DefinitieAgent is een AI-powered tool voor het genereren van hoogwaardige Nederl
 - **Queue**: RabbitMQ/Celery
 - **Container**: Docker/Kubernetes
 - **Monitoring**: Prometheus/Grafana
+
+### Ready-to-Activate Components (Ongebruikt)
+| Component | Location | Status | Purpose |
+|-----------|----------|--------|---------|
+| Security Middleware | `security/security_middleware.py` | 100% Complete | Threat detection, rate limiting |
+| A/B Testing Framework | `services/ab_testing_framework.py` | Complete | Feature rollout, metrics |
+| Config Manager | `config/config_manager.py` | Complete | Centralized configuration |
+| Async API Layer | `utils/async_api.py` | Complete | Async request handling |
+| 46 Validators | `toetsregels/validators/` | Complete (duplicated) | Validation rules |
 
 ### Integration Points
 | System | Purpose | Status | Priority |
@@ -229,9 +248,17 @@ DefinitieAgent is een AI-powered tool voor het genereren van hoogwaardige Nederl
 
 ## 🗓️ Implementation Roadmap
 
-### Phase 1: Foundation (Weeks 1-4) - Current
+### Phase 0: Quality First (Weeks 1-2) - NEW PRIORITY
+- [ ] Fix feedback integration in prompt_builder
+- [ ] Implement implicit context handling (CON-01)
+- [ ] Enable preventive validation
+- [ ] Achieve 90% first-time-right target
+- [ ] Consolidate duplicate validation rules
+
+### Phase 1: Foundation (Weeks 3-6) - Updated
 - [x] Fix critical bugs
 - [x] Stabilize core features
+- [ ] Activate unused security middleware
 - [ ] Implement authentication
 - [ ] Fix all UI tabs
 - [ ] Complete test suite
@@ -264,11 +291,13 @@ DefinitieAgent is een AI-powered tool voor het genereren van hoogwaardige Nederl
 ### Key Performance Indicators (KPIs)
 | Metric | Current | Target | Deadline |
 |--------|---------|---------|----------|
-| Feature Completion | 26% | 100% | Q2 2024 |
-| Test Coverage | 11% | 80% | Q1 2024 |
-| Response Time | 8-12s | <5s | Q1 2024 |
-| User Satisfaction | Unknown | >4.5/5 | Q2 2024 |
-| API Uptime | 95% | 99.9% | Q2 2024 |
+| First-Time-Right | 60% | 90% | Week 2 (Priority!) |
+| Feature Completion | 26% | 100% | Q4 2025 |
+| Test Coverage | 11% | 80% | Q3 2025 |
+| Response Time | 8-12s | <3s | Q3 2025 |
+| Code Utilization | 35% | 80% | Q4 2025 |
+| User Satisfaction | Unknown | >4.5/5 | Q4 2025 |
+| API Uptime | 95% | 99.9% | Q4 2025 |
 
 ### Definition of Done
 - [ ] Feature implemented according to acceptance criteria
