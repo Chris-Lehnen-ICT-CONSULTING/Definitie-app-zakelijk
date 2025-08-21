@@ -1,0 +1,2682 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DefinitieAgent Architecture Viewer</title>
+    <!-- External Libraries -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            --color-as-is: #FFA500;
+            --color-to-be: #10B981;
+            --color-progress: #3B82F6;
+            --color-risk: #EF4444;
+            --color-bg: #F3F4F6;
+            --color-card: #FFFFFF;
+            --color-text: #1F2937;
+            --color-text-light: #6B7280;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Base Styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, #1E3A8A 0%, #3B82F6 100%);
+            color: white;
+            padding: 2rem 0;
+            box-shadow: var(--shadow-lg);
+        }
+
+        header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            opacity: 0.9;
+        }
+
+        /* Navigation */
+        nav {
+            background: var(--color-card);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: var(--shadow);
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 0.75rem 1.5rem;
+            background: none;
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            white-space: nowrap;
+            transition: all 0.3s ease;
+        }
+
+        .nav-tab:hover {
+            background: var(--color-bg);
+        }
+
+        .nav-tab.active {
+            background: var(--color-progress);
+            color: white;
+            border-color: var(--color-progress);
+        }
+
+        /* Toggle Switch */
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: var(--color-as-is);
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--color-to-be);
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            transform: translateX(30px);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .content-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--color-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+            color: var(--color-text);
+        }
+
+        .card h3 {
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: var(--color-text);
+        }
+
+        /* Metrics Grid */
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: var(--color-card);
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--color-progress);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--color-text-light);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .metric-status {
+            margin-top: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            display: inline-block;
+        }
+
+        .status-good { background: #D1FAE5; color: #065F46; }
+        .status-warning { background: #FEF3C7; color: #92400E; }
+        .status-critical { background: #FEE2E2; color: #991B1B; }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        th {
+            background: var(--color-bg);
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        /* Progress Bars */
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #E5E7EB;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--color-progress);
+            transition: width 0.5s ease;
+        }
+
+        /* Comparison View */
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        .as-is-section {
+            border-left: 4px solid var(--color-as-is);
+            padding-left: 1rem;
+        }
+
+        .to-be-section {
+            border-left: 4px solid var(--color-to-be);
+            padding-left: 1rem;
+        }
+
+        /* Mermaid Diagrams */
+        .mermaid {
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-tabs {
+                flex-wrap: nowrap;
+                overflow-x: scroll;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            header h1 {
+                font-size: 1.5rem;
+            }
+        }
+
+        /* Loading Spinner */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--color-bg);
+            border-radius: 50%;
+            border-top-color: var(--color-progress);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 2rem;
+        }
+
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            background: var(--color-progress);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+
+        .timeline-content {
+            margin-left: 2rem;
+            flex: 1;
+        }
+
+        .timeline-item:not(:last-child) .timeline-marker::after {
+            content: '';
+            position: absolute;
+            width: 2px;
+            height: calc(100% + 2rem);
+            background: #E5E7EB;
+            left: 19px;
+            top: 40px;
+        }
+
+        /* Issue List */
+        .issue-list {
+            list-style: none;
+            margin-top: 1rem;
+        }
+
+        .issue-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem;
+            margin-bottom: 0.5rem;
+            background: var(--color-bg);
+            border-radius: 8px;
+        }
+
+        .issue-severity {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 1rem;
+        }
+
+        .severity-critical { background: var(--color-risk); }
+        .severity-high { background: var(--color-as-is); }
+        .severity-medium { background: #FCD34D; }
+
+        /* Capability Cards */
+        .capability-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .capability-card {
+            background: var(--color-bg);
+            padding: 1rem;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .maturity-level {
+            display: flex;
+            justify-content: center;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .maturity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #E5E7EB;
+        }
+
+        .maturity-dot.filled {
+            background: var(--color-progress);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>🏛️ DefinitieAgent Architecture Viewer</h1>
+            <p>Interactive visualization of AS-IS and TO-BE architecture states</p>
+        </div>
+    </header>
+
+    <nav>
+        <div class="container">
+            <div class="nav-tabs">
+                <button type="button" class="nav-tab active" onclick="showSection('dashboard', event)">
+                    🏠 Dashboard
+                </button>
+                <button type="button" class="nav-tab" onclick="showSection('enterprise', event)">
+                    🏢 Enterprise Architecture
+                </button>
+                <button type="button" class="nav-tab" onclick="showSection('solution', event)">
+                    🔧 Solution Architecture
+                </button>
+                <button type="button" class="nav-tab" onclick="showSection('gvi', event)">
+                    🚀 GVI Implementation
+                </button>
+                <button type="button" class="nav-tab" onclick="showSection('progress', event)">
+                    📊 Progress &amp; Roadmap
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="content-section active">
+            <div class="card">
+                <h2>📊 Architecture Overview Dashboard</h2>
+
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">26%</div>
+                        <div class="metric-label">Features Complete</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 26%"></div>
+                        </div>
+                        <div class="metric-status status-warning">23 of 87 features</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">8-12s</div>
+                        <div class="metric-label">Response Time</div>
+                        <div class="metric-status status-critical">Target: &lt;2s</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">65%</div>
+                        <div class="metric-label">Unused Code</div>
+                        <div class="metric-status status-warning">119/182 files</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">€1.5M</div>
+                        <div class="metric-label">Investment</div>
+                        <div class="metric-status status-good">ROI: 167%</div>
+                    </div>
+                </div>
+
+                <h3>🚨 Critical Architecture Issues</h3>
+                <ul class="issue-list">
+                    <li class="issue-item">
+                        <span class="issue-severity severity-critical"></span>
+                        <span><strong>No Authentication:</strong> Application has no security layer</span>
+                    </li>
+                    <li class="issue-item">
+                        <span class="issue-severity severity-critical"></span>
+                        <span><strong>Single User Limitation:</strong> SQLite locks prevent concurrent usage</span>
+                    </li>
+                    <li class="issue-item">
+                        <span class="issue-severity severity-high"></span>
+                        <span><strong>Performance:</strong> 8-12s response time (target &lt;2s)</span>
+                    </li>
+                    <li class="issue-item">
+                        <span class="issue-severity severity-medium"></span>
+                        <span><strong>Technical Debt:</strong> 65% unused code, memory leaks</span>
+                    </li>
+                </ul>
+
+                <h3>🎯 Transformation Overview</h3>
+                <div class="mermaid">
+                    graph LR
+                        subgraph "Current State (AS-IS)"
+                            A1[Monolithic App]
+                            A2[SQLite DB]
+                            A3[Single User]
+                            A4[No Auth]
+                        end
+
+                        subgraph "Transformation"
+                            T1[Microservices]
+                            T2[API Gateway]
+                            T3[Cloud Native]
+                            T4[Security Layer]
+                        end
+
+                        subgraph "Target State (TO-BE)"
+                            B1[12 Services]
+                            B2[PostgreSQL+Redis]
+                            B3[100+ Users]
+                            B4[OAuth+RBAC]
+                        end
+
+                        A1 --> T1 --> B1
+                        A2 --> T2 --> B2
+                        A3 --> T3 --> B3
+                        A4 --> T4 --> B4
+
+                        style A1 fill:#FFA500
+                        style T1 fill:#3B82F6
+                        style B1 fill:#10B981
+                </div>
+            </div>
+
+            <!-- Uitgebreide Dashboard Schema's -->
+            <div class="card">
+                <h2>📈 Detailed Performance Analytics</h2>
+
+                <h3>Feature Completion Breakdown by Category</h3>
+                <div class="mermaid">
+                    graph TD
+                        A[Total Features: 87] --> B[Core Features: 30]
+                        A --> C[Integration Features: 25]
+                        A --> D[UI/UX Features: 20]
+                        A --> E[Security Features: 12]
+
+                        B --> B1[Completed: 12]
+                        B --> B2[In Progress: 8]
+                        B --> B3[Planned: 10]
+
+                        C --> C1[Completed: 5]
+                        C --> C2[In Progress: 3]
+                        C --> C3[Planned: 17]
+
+                        D --> D1[Completed: 4]
+                        D --> D2[In Progress: 1]
+                        D --> D3[Planned: 15]
+
+                        E --> E1[Completed: 2]
+                        E --> E2[In Progress: 0]
+                        E --> E3[Planned: 10]
+
+                        style B1 fill:#10B981
+                        style C1 fill:#10B981
+                        style D1 fill:#10B981
+                        style E1 fill:#10B981
+
+                        style B2 fill:#3B82F6
+                        style C2 fill:#3B82F6
+                        style D2 fill:#3B82F6
+
+                        style B3 fill:#FFA500
+                        style C3 fill:#FFA500
+                        style D3 fill:#FFA500
+                        style E3 fill:#FFA500
+                </div>
+
+                <h3>System Health Monitoring</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+                    <div>
+                        <h4>Performance Metrics Timeline</h4>
+                        <canvas id="performanceChart" width="400" height="200"></canvas>
+                    </div>
+                    <div>
+                        <h4>Resource Utilization</h4>
+                        <canvas id="resourceChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <h3>Cost-Benefit Analysis Flow</h3>
+                <div class="mermaid">
+                    flowchart LR
+                        subgraph Current[Current Costs]
+                            CC1[Manual Labor: €500k/year]
+                            CC2[Errors & Rework: €300k/year]
+                            CC3[Slow Process: €200k/year]
+                            CC4[Total: €1M/year]
+                        end
+
+                        subgraph Investment[Investment]
+                            I1[Development: €1M]
+                            I2[Infrastructure: €300k]
+                            I3[Training: €200k]
+                            I4[Total: €1.5M]
+                        end
+
+                        subgraph Benefits[Future Benefits]
+                            B1[Automation: -€400k/year]
+                            B2[Quality: -€250k/year]
+                            B3[Speed: -€150k/year]
+                            B4[Scale: -€200k/year]
+                            B5[Total Savings: €1M/year]
+                        end
+
+                        Current --> Investment
+                        Investment --> Benefits
+
+                        B5 --> ROI[ROI: 18 months]
+
+                        style CC4 fill:#EF4444
+                        style I4 fill:#FFA500
+                        style B5 fill:#10B981
+                        style ROI fill:#10B981,stroke:#333,stroke-width:3px
+                </div>
+
+                <h3>Risk Assessment Matrix</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Risk Category</th>
+                            <th>Current Risk Level</th>
+                            <th>Mitigation Progress</th>
+                            <th>Target Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Security</strong></td>
+                            <td><span class="badge badge-danger">Critical</span></td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 15%; background: #EF4444;"></div>
+                                </div>
+                            </td>
+                            <td>Week 4</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td><span class="badge badge-warning">High</span></td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 30%; background: #FFA500;"></div>
+                                </div>
+                            </td>
+                            <td>Week 8</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scalability</strong></td>
+                            <td><span class="badge badge-warning">High</span></td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 10%; background: #FFA500;"></div>
+                                </div>
+                            </td>
+                            <td>Week 12</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Integration</strong></td>
+                            <td><span class="badge badge-info">Medium</span></td>
+                            <td>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" style="width: 40%; background: #3B82F6;"></div>
+                                </div>
+                            </td>
+                            <td>Week 6</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Enterprise Architecture Section -->
+        <section id="enterprise" class="content-section">
+            <div class="card">
+                <h2>🏢 Enterprise Architecture</h2>
+
+                <div class="toggle-container">
+                    <span style="color: var(--color-as-is); font-weight: bold;">AS-IS</span>
+                    <div class="toggle-switch" id="ea-toggle" onclick="toggleEA()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span style="color: var(--color-to-be); font-weight: bold;">TO-BE</span>
+                </div>
+
+                <!-- AS-IS View -->
+                <div id="ea-as-is" class="ea-view">
+                    <h3>Current State - Limited Capabilities</h3>
+
+                    <h4>Business Capabilities (AS-IS)</h4>
+                    <div class="capability-grid">
+                        <div class="capability-card">
+                            <strong>Basic Definition Creation</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot"></span>
+                                <span class="maturity-dot"></span>
+                                <span class="maturity-dot"></span>
+                            </div>
+                            <small>Maturity: 2/5</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Manual Quality Control</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot"></span>
+                                <span class="maturity-dot"></span>
+                                <span class="maturity-dot"></span>
+                                <span class="maturity-dot"></span>
+                            </div>
+                            <small>Maturity: 1/5</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Limited Search</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot"></span>
+                                <span class="maturity-dot"></span>
+                                <span class="maturity-dot"></span>
+                            </div>
+                            <small>Maturity: 2/5</small>
+                        </div>
+                    </div>
+
+                    <h4>Current Value Stream</h4>
+                    <div class="mermaid">
+                        graph LR
+                            A[Manual Request] --> B[Research 2-3 days]
+                            B --> C[Write Definition]
+                            C --> D[Manual Review]
+                            D --> E[Publish]
+
+                            style A fill:#FFA500
+                            style B fill:#FFA500
+                            style C fill:#FFA500
+                            style D fill:#FFA500
+                            style E fill:#FFA500
+                    </div>
+
+                    <h4>Key Issues</h4>
+                    <ul>
+                        <li>Manual processes dominate workflow</li>
+                        <li>No integration with external sources</li>
+                        <li>Quality depends on individual expertise</li>
+                        <li>No systematic reuse of definitions</li>
+                        <li>Limited to single department</li>
+                    </ul>
+                </div>
+
+                <!-- TO-BE View -->
+                <div id="ea-to-be" class="ea-view" style="display: none;">
+                    <h3>Target State - AI-Powered Platform</h3>
+
+                    <h4>Business Capabilities (TO-BE)</h4>
+                    <div class="capability-grid">
+                        <div class="capability-card">
+                            <strong>AI-Powered Generation</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                            </div>
+                            <small>Target: 5/5</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Multi-Level Validation</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                            </div>
+                            <small>Target: 5/5</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Smart Search & Reuse</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                            </div>
+                            <small>Target: 5/5</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>External Integration</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot"></span>
+                            </div>
+                            <small>Target: 4/5</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Cross-Department</strong>
+                            <div class="maturity-level">
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot filled"></span>
+                                <span class="maturity-dot"></span>
+                            </div>
+                            <small>Target: 4/5</small>
+                        </div>
+                    </div>
+
+                    <h4>Optimized Value Stream</h4>
+                    <div class="mermaid">
+                        graph LR
+                            A[Request] --> B[AI Generate]
+                            B --> C[Auto-Validate]
+                            C --> D[Expert Review]
+                            D --> E[Publish]
+
+                            B --> F[Context DB]
+                            C --> G[Quality Rules]
+
+                            style A fill:#10B981
+                            style B fill:#10B981
+                            style C fill:#10B981
+                            style D fill:#10B981
+                            style E fill:#10B981
+                            style F fill:#3B82F6
+                            style G fill:#3B82F6
+                    </div>
+
+                    <h4>Target Benefits</h4>
+                    <table>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Current</th>
+                            <th>Target</th>
+                            <th>Improvement</th>
+                        </tr>
+                        <tr>
+                            <td>Creation Time</td>
+                            <td>2-3 days</td>
+                            <td><10 minutes</td>
+                            <td>99% reduction</td>
+                        </tr>
+                        <tr>
+                            <td>Quality Score</td>
+                            <td>60%</td>
+                            <td>95%</td>
+                            <td>58% increase</td>
+                        </tr>
+                        <tr>
+                            <td>Reuse Rate</td>
+                            <td>10%</td>
+                            <td>70%</td>
+                            <td>600% increase</td>
+                        </tr>
+                        <tr>
+                            <td>Cost per Definition</td>
+                            <td>€250</td>
+                            <td>€25</td>
+                            <td>90% reduction</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Uitgebreide Enterprise Architecture Schema's -->
+            <div class="card">
+                <h2>🏛️ Detailed Enterprise Architecture Models</h2>
+
+                <h3>Complete Business Capability Hierarchy</h3>
+                <div class="mermaid">
+                    graph TD
+                        A[DefinitieAgent Platform] --> B[Core Capabilities]
+                        A --> C[Supporting Capabilities]
+                        A --> D[Management Capabilities]
+
+                        B --> B1[Definition Management]
+                        B --> B2[Quality Assurance]
+                        B --> B3[Knowledge Management]
+
+                        B1 --> B11[AI Generation]
+                        B1 --> B12[Template Management]
+                        B1 --> B13[Version Control]
+
+                        B2 --> B21[Automated Validation]
+                        B2 --> B22[Expert Review]
+                        B2 --> B23[Compliance Check]
+
+                        B3 --> B31[Search & Discovery]
+                        B3 --> B32[Reuse Management]
+                        B3 --> B33[Learning Analytics]
+
+                        C --> C1[Integration Services]
+                        C --> C2[Collaboration Tools]
+                        C --> C3[Reporting & Analytics]
+
+                        D --> D1[User Management]
+                        D --> D2[System Administration]
+                        D --> D3[Performance Monitoring]
+
+                        style B fill:#3B82F6
+                        style C fill:#10B981
+                        style D fill:#FFA500
+                </div>
+
+                <h3>Detailed Value Stream Analysis</h3>
+                <div class="mermaid">
+                    flowchart LR
+                        subgraph VS1[Definition Creation Stream]
+                            VS11[Request Intake] --> VS12[Context Analysis]
+                            VS12 --> VS13[AI Generation]
+                            VS13 --> VS14[Quality Check]
+                            VS14 --> VS15[Publication]
+                        end
+
+                        subgraph VS2[Quality Assurance Stream]
+                            VS21[Auto Validation] --> VS22[Rule Engine]
+                            VS22 --> VS23[Score Calculation]
+                            VS23 --> VS24[Expert Review]
+                            VS24 --> VS25[Final Approval]
+                        end
+
+                        subgraph VS3[Knowledge Management Stream]
+                            VS31[Content Indexing] --> VS32[Similarity Search]
+                            VS32 --> VS33[Reuse Analysis]
+                            VS33 --> VS34[Learning Loop]
+                            VS34 --> VS35[Model Update]
+                        end
+
+                        VS15 --> VS31
+                        VS25 --> VS31
+                        VS35 --> VS13
+
+                        style VS1 fill:#E0F2FE
+                        style VS2 fill:#DCFCE7
+                        style VS3 fill:#FEF3C7
+                </div>
+
+                <h3>Business Process Model (BPMN)</h3>
+                <div class="mermaid">
+                    flowchart TB
+                        Start([User Request]) --> Check{Existing Definition?}
+                        Check -->|Yes| Reuse[Retrieve & Adapt]
+                        Check -->|No| Generate[AI Generation]
+
+                        Generate --> Validate{Quality Score > 90%?}
+                        Reuse --> Validate
+
+                        Validate -->|No| Improve[Iterative Improvement]
+                        Improve --> Generate
+
+                        Validate -->|Yes| Review{Expert Review Required?}
+                        Review -->|Yes| Expert[Human Expert Review]
+                        Review -->|No| Publish[Auto Publish]
+
+                        Expert --> Decision{Approved?}
+                        Decision -->|No| Feedback[Provide Feedback]
+                        Feedback --> Generate
+                        Decision -->|Yes| Publish
+
+                        Publish --> Store[Store in Knowledge Base]
+                        Store --> Analytics[Update Analytics]
+                        Analytics --> End([Definition Delivered])
+
+                        style Start fill:#10B981
+                        style End fill:#10B981
+                        style Validate fill:#3B82F6
+                        style Expert fill:#FFA500
+                </div>
+
+                <h3>Information Architecture Model</h3>
+                <div class="mermaid">
+                    graph LR
+                        subgraph Core[Core Information Objects]
+                            D[Definition]
+                            T[Template]
+                            R[Rule]
+                            U[User]
+                        end
+
+                        subgraph Metadata[Metadata Layer]
+                            M1[Version Info]
+                            M2[Quality Metrics]
+                            M3[Usage Stats]
+                            M4[Compliance Tags]
+                        end
+
+                        subgraph Relations[Relationships]
+                            R1[Definition uses Template]
+                            R2[Definition validated by Rules]
+                            R3[User creates Definition]
+                            R4[Definition references Definition]
+                        end
+
+                        D --> M1
+                        D --> M2
+                        D --> M3
+                        D --> M4
+
+                        T --> R1
+                        R --> R2
+                        U --> R3
+                        D --> R4
+
+                        style D fill:#3B82F6
+                        style T fill:#10B981
+                        style R fill:#FFA500
+                        style U fill:#EC4899
+                </div>
+
+                <h3>Stakeholder Map & Influence Matrix</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Stakeholder Group</th>
+                            <th>Interest Level</th>
+                            <th>Influence</th>
+                            <th>Key Concerns</th>
+                            <th>Engagement Strategy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Policy Makers</strong></td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>High</td>
+                            <td>Quality, Compliance</td>
+                            <td>Weekly updates, demos</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Department Heads</strong></td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>High</td>
+                            <td>Efficiency, Cost</td>
+                            <td>Monthly steering committee</td>
+                        </tr>
+                        <tr>
+                            <td><strong>End Users</strong></td>
+                            <td>⭐⭐⭐⭐⭐</td>
+                            <td>Medium</td>
+                            <td>Usability, Speed</td>
+                            <td>Training, feedback sessions</td>
+                        </tr>
+                        <tr>
+                            <td><strong>IT Department</strong></td>
+                            <td>⭐⭐⭐</td>
+                            <td>Medium</td>
+                            <td>Security, Integration</td>
+                            <td>Technical workshops</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Legal/Compliance</strong></td>
+                            <td>⭐⭐⭐⭐</td>
+                            <td>High</td>
+                            <td>Regulatory adherence</td>
+                            <td>Compliance reviews</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- Solution Architecture Section -->
+        <section id="solution" class="content-section">
+            <div class="card">
+                <h2>🔧 Solution Architecture</h2>
+
+                <div class="toggle-container">
+                    <span style="color: var(--color-as-is); font-weight: bold;">AS-IS</span>
+                    <div class="toggle-switch" id="sa-toggle" onclick="toggleSA()">
+                        <div class="toggle-slider"></div>
+                    </div>
+                    <span style="color: var(--color-to-be); font-weight: bold;">TO-BE</span>
+                </div>
+
+                <!-- AS-IS Technical View -->
+                <div id="sa-as-is" class="sa-view">
+                    <h3>Current Technical State - Monolithic</h3>
+
+                    <h4>System Architecture</h4>
+                    <div class="mermaid">
+                        graph TB
+                            subgraph "Monolithic Application"
+                                UI[Streamlit UI]
+                                BL[Business Logic - Tightly Coupled]
+                                DB[(SQLite - Single User)]
+                            end
+
+                            subgraph "External"
+                                AI[OpenAI API]
+                            end
+
+                            UI --> BL
+                            BL --> DB
+                            BL --> AI
+
+                            style UI fill:#FFA500
+                            style BL fill:#FFA500
+                            style DB fill:#EF4444
+                    </div>
+
+                    <h4>Current Technology Stack</h4>
+                    <table>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Technology</th>
+                            <th>Issues</th>
+                        </tr>
+                        <tr>
+                            <td>Frontend</td>
+                            <td>Streamlit</td>
+                            <td>Limited UI flexibility</td>
+                        </tr>
+                        <tr>
+                            <td>Backend</td>
+                            <td>Python (Monolithic)</td>
+                            <td>Tightly coupled, 65% unused</td>
+                        </tr>
+                        <tr>
+                            <td>Database</td>
+                            <td>SQLite</td>
+                            <td>Single user only</td>
+                        </tr>
+                        <tr>
+                            <td>Security</td>
+                            <td>None</td>
+                            <td>No authentication</td>
+                        </tr>
+                        <tr>
+                            <td>Deployment</td>
+                            <td>Local</td>
+                            <td>No scalability</td>
+                        </tr>
+                    </table>
+
+                    <h4>Critical Technical Issues</h4>
+                    <ul class="issue-list">
+                        <li class="issue-item">
+                            <span class="issue-severity severity-critical"></span>
+                            <span><strong>No Authentication:</strong> Completely open system</span>
+                        </li>
+                        <li class="issue-item">
+                            <span class="issue-severity severity-critical"></span>
+                            <span><strong>Database Lock:</strong> SQLite prevents concurrent users</span>
+                        </li>
+                        <li class="issue-item">
+                            <span class="issue-severity severity-high"></span>
+                            <span><strong>Performance:</strong> 8-12 second response time</span>
+                        </li>
+                        <li class="issue-item">
+                            <span class="issue-severity severity-high"></span>
+                            <span><strong>Memory Leak:</strong> 3.2GB memory usage</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- TO-BE Technical View -->
+                <div id="sa-to-be" class="sa-view" style="display: none;">
+                    <h3>Target Technical State - Microservices</h3>
+
+                    <h4>Microservices Architecture</h4>
+                    <div class="mermaid">
+                        graph TB
+                            subgraph "Frontend"
+                                UI[React SPA]
+                            end
+
+                            subgraph "API Layer"
+                                GW[API Gateway - Kong]
+                            end
+
+                            subgraph "Core Services"
+                                DS[Definition Service]
+                                VS[Validation Service]
+                                CS[Context Service]
+                                AS[Auth Service]
+                            end
+
+                            subgraph "Data Layer"
+                                PG[(PostgreSQL)]
+                                RD[(Redis Cache)]
+                                S3[Object Storage]
+                            end
+
+                            subgraph "External"
+                                AI[OpenAI API]
+                                EXT[External Sources]
+                            end
+
+                            UI --> GW
+                            GW --> DS
+                            GW --> VS
+                            GW --> CS
+                            GW --> AS
+
+                            DS --> PG
+                            DS --> RD
+                            VS --> RD
+                            CS --> S3
+
+                            DS --> AI
+                            DS --> EXT
+
+                            style UI fill:#10B981
+                            style GW fill:#3B82F6
+                            style DS fill:#10B981
+                            style PG fill:#10B981
+                    </div>
+
+                    <h4>Target Technology Stack</h4>
+                    <table>
+                        <tr>
+                            <th>Layer</th>
+                            <th>Technology</th>
+                            <th>Benefits</th>
+                        </tr>
+                        <tr>
+                            <td>Frontend</td>
+                            <td>React + TypeScript</td>
+                            <td>Modern, responsive UI</td>
+                        </tr>
+                        <tr>
+                            <td>API Gateway</td>
+                            <td>Kong</td>
+                            <td>Rate limiting, auth, routing</td>
+                        </tr>
+                        <tr>
+                            <td>Backend</td>
+                            <td>FastAPI + Python</td>
+                            <td>High performance, async</td>
+                        </tr>
+                        <tr>
+                            <td>Database</td>
+                            <td>PostgreSQL + Redis</td>
+                            <td>Scalable, concurrent</td>
+                        </tr>
+                        <tr>
+                            <td>Security</td>
+                            <td>OAuth 2.0 + RBAC</td>
+                            <td>Enterprise-grade security</td>
+                        </tr>
+                        <tr>
+                            <td>Deployment</td>
+                            <td>Kubernetes</td>
+                            <td>Cloud-native, auto-scaling</td>
+                        </tr>
+                    </table>
+
+                    <h4>12 Microservices (65% Already Built)</h4>
+                    <div class="capability-grid">
+                        <div class="capability-card" style="background: #D1FAE5;">
+                            <strong>Definition Service</strong>
+                            <small>Status: Partial</small>
+                        </div>
+                        <div class="capability-card" style="background: #D1FAE5;">
+                            <strong>Validation Service</strong>
+                            <small>Status: Built</small>
+                        </div>
+                        <div class="capability-card" style="background: #D1FAE5;">
+                            <strong>Context Service</strong>
+                            <small>Status: Built</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Auth Service</strong>
+                            <small>Status: Planned</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Notification Service</strong>
+                            <small>Status: Planned</small>
+                        </div>
+                        <div class="capability-card" style="background: #D1FAE5;">
+                            <strong>Search Service</strong>
+                            <small>Status: Built</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Analytics Service</strong>
+                            <small>Status: Planned</small>
+                        </div>
+                        <div class="capability-card" style="background: #D1FAE5;">
+                            <strong>Export Service</strong>
+                            <small>Status: Built</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Workflow Service</strong>
+                            <small>Status: Planned</small>
+                        </div>
+                        <div class="capability-card" style="background: #D1FAE5;">
+                            <strong>Integration Service</strong>
+                            <small>Status: Partial</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Config Service</strong>
+                            <small>Status: Planned</small>
+                        </div>
+                        <div class="capability-card">
+                            <strong>Audit Service</strong>
+                            <small>Status: Planned</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Uitgebreide Solution Architecture Schema's -->
+            <div class="card">
+                <h2>🔧 Detailed Technical Architecture Diagrams</h2>
+
+                <h3>Complete Microservices Interaction Model</h3>
+                <div class="mermaid">
+                    graph TB
+                        subgraph Client[Client Layer]
+                            Web[Web App]
+                            Mobile[Mobile App]
+                            API[External API Clients]
+                        end
+
+                        subgraph Gateway[API Gateway Layer]
+                            Kong[Kong Gateway]
+                            Auth[Auth Middleware]
+                            RL[Rate Limiter]
+                        end
+
+                        subgraph Services[Core Microservices]
+                            DS[Definition Service]
+                            VS[Validation Service]
+                            CS[Context Service]
+                            ES[Enrichment Service]
+                            SS[Search Service]
+                            NS[Notification Service]
+                            AS[Analytics Service]
+                            WS[Workflow Service]
+                        end
+
+                        subgraph Data[Data Layer]
+                            PG[(PostgreSQL)]
+                            RD[(Redis Cache)]
+                            ES2[(Elasticsearch)]
+                            S3[Object Storage]
+                            MQ[Message Queue]
+                        end
+
+                        subgraph External[External Services]
+                            AI[OpenAI API]
+                            RWB[RijksWoordenboek]
+                            LDAP[LDAP/AD]
+                            SMTP[Email Service]
+                        end
+
+                        Web --> Kong
+                        Mobile --> Kong
+                        API --> Kong
+
+                        Kong --> Auth
+                        Auth --> RL
+                        RL --> DS
+                        RL --> VS
+                        RL --> CS
+
+                        DS --> PG
+                        DS --> RD
+                        DS --> AI
+
+                        VS --> RD
+                        VS --> MQ
+
+                        CS --> ES2
+                        CS --> RWB
+
+                        NS --> MQ
+                        NS --> SMTP
+
+                        AS --> PG
+                        WS --> MQ
+
+                        style Kong fill:#3B82F6
+                        style DS fill:#10B981
+                        style PG fill:#FFA500
+                </div>
+
+                <h3>Data Flow Architecture</h3>
+                <div class="mermaid">
+                    flowchart LR
+                        subgraph Input[Data Input]
+                            UI[User Input]
+                            API[API Request]
+                            Batch[Batch Import]
+                        end
+
+                        subgraph Processing[Processing Pipeline]
+                            Valid[Validation Layer]
+                            Trans[Transformation]
+                            Enrich[Enrichment]
+                            Cache[Caching Layer]
+                        end
+
+                        subgraph Storage[Storage Tiers]
+                            Hot[Hot Storage - Redis]
+                            Warm[Warm Storage - PostgreSQL]
+                            Cold[Cold Storage - S3]
+                        end
+
+                        subgraph Output[Data Output]
+                            REST[REST API]
+                            Graph[GraphQL]
+                            Export[Export Service]
+                            Stream[Event Stream]
+                        end
+
+                        UI --> Valid
+                        API --> Valid
+                        Batch --> Valid
+
+                        Valid --> Trans
+                        Trans --> Enrich
+                        Enrich --> Cache
+
+                        Cache --> Hot
+                        Hot --> Warm
+                        Warm --> Cold
+
+                        Hot --> REST
+                        Hot --> Graph
+                        Warm --> Export
+                        Cache --> Stream
+
+                        style Valid fill:#EF4444
+                        style Cache fill:#10B981
+                        style Hot fill:#FFA500
+                </div>
+
+                <h3>Security Architecture Layers</h3>
+                <div class="mermaid">
+                    graph TD
+                        subgraph Network[Network Security]
+                            FW[Firewall]
+                            WAF[Web Application Firewall]
+                            DDoS[DDoS Protection]
+                        end
+
+                        subgraph Application[Application Security]
+                            OAuth[OAuth 2.0]
+                            JWT[JWT Tokens]
+                            RBAC[Role-Based Access]
+                            MFA[Multi-Factor Auth]
+                        end
+
+                        subgraph Data[Data Security]
+                            TLS[TLS 1.3]
+                            E2E[End-to-End Encryption]
+                            FPE[Format Preserving Encryption]
+                            Mask[Data Masking]
+                        end
+
+                        subgraph Compliance[Compliance & Audit]
+                            GDPR[GDPR Compliance]
+                            Log[Audit Logging]
+                            SIEM[SIEM Integration]
+                            Report[Compliance Reports]
+                        end
+
+                        FW --> WAF
+                        WAF --> DDoS
+                        DDoS --> OAuth
+
+                        OAuth --> JWT
+                        JWT --> RBAC
+                        RBAC --> MFA
+
+                        MFA --> TLS
+                        TLS --> E2E
+                        E2E --> FPE
+                        FPE --> Mask
+
+                        Mask --> GDPR
+                        GDPR --> Log
+                        Log --> SIEM
+                        SIEM --> Report
+
+                        style OAuth fill:#3B82F6
+                        style TLS fill:#10B981
+                        style GDPR fill:#FFA500
+                </div>
+
+                <h3>Deployment Architecture (Kubernetes)</h3>
+                <div class="mermaid">
+                    graph TB
+                        subgraph Ingress[Ingress Layer]
+                            LB[Load Balancer]
+                            Cert[Cert Manager]
+                            Ingress[Nginx Ingress]
+                        end
+
+                        subgraph Namespaces[K8s Namespaces]
+                            subgraph Prod[production]
+                                PDS[Definition Service]
+                                PVS[Validation Service]
+                                PCS[Context Service]
+                            end
+
+                            subgraph Stage[staging]
+                                SDS[Definition Service]
+                                SVS[Validation Service]
+                                SCS[Context Service]
+                            end
+
+                            subgraph Infra[infrastructure]
+                                Mon[Prometheus]
+                                Graf[Grafana]
+                                ELK[ELK Stack]
+                            end
+                        end
+
+                        subgraph Storage[Persistent Storage]
+                            PVC1[Data Volume]
+                            PVC2[Config Volume]
+                            PVC3[Logs Volume]
+                        end
+
+                        LB --> Cert
+                        Cert --> Ingress
+                        Ingress --> Prod
+                        Ingress --> Stage
+
+                        Prod --> PVC1
+                        Stage --> PVC2
+                        Infra --> PVC3
+
+                        style Prod fill:#10B981
+                        style Stage fill:#FFA500
+                        style Infra fill:#3B82F6
+                </div>
+
+                <h3>Performance Architecture</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>Current Performance</th>
+                            <th>Target Performance</th>
+                            <th>Optimization Strategy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>API Gateway</strong></td>
+                            <td>N/A</td>
+                            <td><100ms latency</td>
+                            <td>Kong with Redis caching</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Definition Service</strong></td>
+                            <td>8-12s</td>
+                            <td><2s</td>
+                            <td>Async processing, caching</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Database Queries</strong></td>
+                            <td>500ms avg</td>
+                            <td><50ms</td>
+                            <td>Query optimization, indexing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>AI Generation</strong></td>
+                            <td>5-8s</td>
+                            <td><3s</td>
+                            <td>Model optimization, batching</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Search Service</strong></td>
+                            <td>2s</td>
+                            <td><200ms</td>
+                            <td>Elasticsearch with sharding</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Integration Architecture</h3>
+                <div class="mermaid">
+                    graph LR
+                        subgraph Internal[Internal Systems]
+                            DA[DefinitieAgent]
+                            CMS[Content Management]
+                            DMS[Document Management]
+                            WF[Workflow Engine]
+                        end
+
+                        subgraph Integration[Integration Layer]
+                            ESB[Enterprise Service Bus]
+                            API[API Management]
+                            ETL[ETL Pipeline]
+                            CDC[Change Data Capture]
+                        end
+
+                        subgraph External[External Systems]
+                            GOV[Government APIs]
+                            AI[AI Services]
+                            AUTH[Authentication]
+                            MON[Monitoring]
+                        end
+
+                        DA --> ESB
+                        CMS --> ESB
+                        DMS --> ESB
+                        WF --> ESB
+
+                        ESB --> API
+                        ESB --> ETL
+                        ESB --> CDC
+
+                        API --> GOV
+                        API --> AI
+                        API --> AUTH
+                        CDC --> MON
+
+                        style DA fill:#10B981
+                        style ESB fill:#3B82F6
+                        style API fill:#FFA500
+                </div>
+            </div>
+        </section>
+
+        <!-- GVI Implementation Section -->
+        <section id="gvi" class="content-section">
+            <div class="card">
+                <h2>🚀 GVI Implementation Plan</h2>
+
+                <h3>The Root Cause: Disconnected Components</h3>
+                <p>Like a stereo system without cables - all quality components exist but aren't connected properly.</p>
+
+                <div style="display: flex; justify-content: space-around; margin: 2rem 0; align-items: center;">
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--color-as-is);">Current State (Disconnected)</h4>
+                        <div style="display: flex; gap: 2rem; align-items: center; margin-top: 1rem;">
+                            <div style="padding: 1rem 2rem; background: var(--color-as-is); color: white; border-radius: 8px;">Generation</div>
+                            <span style="color: #ccc;">❌</span>
+                            <div style="padding: 1rem 2rem; background: var(--color-as-is); color: white; border-radius: 8px;">Validation</div>
+                            <span style="color: #ccc;">❌</span>
+                            <div style="padding: 1rem 2rem; background: var(--color-as-is); color: white; border-radius: 8px;">Integration</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-around; margin: 2rem 0; align-items: center;">
+                    <div style="text-align: center;">
+                        <h4 style="color: var(--color-to-be);">GVI Solution (Connected)</h4>
+                        <div style="display: flex; gap: 1rem; align-items: center; margin-top: 1rem;">
+                            <div style="padding: 1rem 2rem; background: var(--color-to-be); color: white; border-radius: 8px;">Generation</div>
+                            <span style="color: #EF4444; font-weight: bold;">→</span>
+                            <div style="padding: 1rem 2rem; background: var(--color-to-be); color: white; border-radius: 8px;">Validation</div>
+                            <span style="color: #FCD34D; font-weight: bold;">→</span>
+                            <div style="padding: 1rem 2rem; background: var(--color-to-be); color: white; border-radius: 8px;">Integration</div>
+                            <span style="color: #3B82F6; font-weight: bold;">↩</span>
+                        </div>
+                        <div style="margin-top: 1rem; font-size: 0.875rem;">
+                            <span style="color: #EF4444;">● Red Cable</span> |
+                            <span style="color: #FCD34D;">● Yellow Cable</span> |
+                            <span style="color: #3B82F6;">● Blue Cable</span>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>🔌 Three Cable Fixes (3 Weeks to 90% Quality)</h3>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #EF4444;">1</div>
+                        <div class="timeline-content">
+                            <h4>Red Cable: Feedback Integration (2 days)</h4>
+                            <p>Connect validation output back to regeneration loop</p>
+                            <ul>
+                                <li>Route validation feedback to prompt builder</li>
+                                <li>Implement iterative improvement</li>
+                                <li>Max 3 iterations for quality</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #FCD34D;">2</div>
+                        <div class="timeline-content">
+                            <h4>Yellow Cable: Context Preservation (1 day)</h4>
+                            <p>Pass implicit context through the entire pipeline</p>
+                            <ul>
+                                <li>Capture user intent and domain</li>
+                                <li>Maintain context through validation</li>
+                                <li>Use context in regeneration</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker" style="background: #3B82F6;">3</div>
+                        <div class="timeline-content">
+                            <h4>Blue Cable: Preventive Validation (3 days)</h4>
+                            <p>Pre-generation quality checks to prevent issues</p>
+                            <ul>
+                                <li>Validate input completeness</li>
+                                <li>Check context availability</li>
+                                <li>Ensure preconditions met</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>📊 Expected Results</h3>
+                <canvas id="gviChart" width="400" height="200"></canvas>
+
+                <h3>💡 Quick Win: 65% Code Already Built!</h3>
+                <p>Analysis shows 119 of 182 files (65%) are unused but contain valuable microservice implementations:</p>
+                <ul>
+                    <li>✅ Validation Service: Complete with 46 quality rules</li>
+                    <li>✅ Context Service: Built and tested</li>
+                    <li>✅ Search Service: Elasticsearch ready</li>
+                    <li>✅ Export Service: Multiple format support</li>
+                    <li>⚠️ Just need to connect them properly!</li>
+                </ul>
+            </div>
+
+            <!-- Uitgebreide GVI Implementation Schema's -->
+            <div class="card">
+                <h2>🔧 Detailed GVI Implementation Architecture</h2>
+
+                <h3>Complete GVI Flow with Technical Details</h3>
+                <div class="mermaid">
+                    flowchart TB
+                        subgraph Generation[Generation Phase]
+                            G1[User Input] --> G2[Context Extraction]
+                            G2 --> G3[Prompt Engineering]
+                            G3 --> G4[AI Model Selection]
+                            G4 --> G5[Initial Generation]
+                            G5 --> G6[Output Formatting]
+                        end
+
+                        subgraph Validation[Validation Phase]
+                            V1[Load 46 Rules] --> V2[Rule Categories]
+                            V2 --> V3[Syntax Check]
+                            V2 --> V4[Semantic Check]
+                            V2 --> V5[Compliance Check]
+                            V3 --> V6[Score Calculation]
+                            V4 --> V6
+                            V5 --> V6
+                            V6 --> V7{Score >= 90%?}
+                        end
+
+                        subgraph Integration[Integration Phase]
+                            I1[Feedback Processing] --> I2[Context Enrichment]
+                            I2 --> I3[External Sources]
+                            I3 --> I4[Knowledge Base]
+                            I4 --> I5[Final Assembly]
+                            I5 --> I6[Quality Assurance]
+                        end
+
+                        G6 --> V1
+                        V7 -->|No| I1
+                        V7 -->|Yes| I5
+                        I1 --> G3
+                        I6 --> Output[Final Definition]
+
+                        style G5 fill:#3B82F6
+                        style V6 fill:#FFA500
+                        style I5 fill:#10B981
+                </div>
+
+                <h3>Cable Implementation Details</h3>
+                <div class="mermaid">
+                    graph TD
+                        subgraph RedCable[Red Cable - Feedback Loop]
+                            R1[Validation Results] --> R2[Error Analysis]
+                            R2 --> R3[Improvement Suggestions]
+                            R3 --> R4[Prompt Modification]
+                            R4 --> R5[Regeneration Trigger]
+                        end
+
+                        subgraph YellowCable[Yellow Cable - Context Flow]
+                            Y1[User Context] --> Y2[Domain Knowledge]
+                            Y2 --> Y3[Historical Data]
+                            Y3 --> Y4[Related Definitions]
+                            Y4 --> Y5[Context Package]
+                        end
+
+                        subgraph BlueCable[Blue Cable - Prevention]
+                            B1[Input Validation] --> B2[Completeness Check]
+                            B2 --> B3[Prerequisites]
+                            B3 --> B4[Resource Check]
+                            B4 --> B5[Go/No-Go Decision]
+                        end
+
+                        R5 --> Engine[GVI Engine]
+                        Y5 --> Engine
+                        B5 --> Engine
+
+                        style R1 fill:#EF4444
+                        style Y1 fill:#FCD34D
+                        style B1 fill:#3B82F6
+                </div>
+
+                <h3>Implementation Timeline with Dependencies</h3>
+                <div class="mermaid">
+                    gantt
+                        title GVI Implementation Schedule
+                        dateFormat  YYYY-MM-DD
+                        section Week 1
+                        Red Cable Dev       :r1, 2024-01-01, 2d
+                        Red Cable Test      :r2, after r1, 1d
+
+                        section Week 2
+                        Yellow Cable Dev    :y1, 2024-01-04, 1d
+                        Integration Test    :y2, after y1, 1d
+
+                        section Week 3
+                        Blue Cable Dev      :b1, 2024-01-08, 3d
+                        System Test         :b2, after b1, 2d
+                        Production Deploy   :p1, after b2, 1d
+                </div>
+
+                <h3>Code Architecture for GVI Pattern</h3>
+                <div class="mermaid">
+                    classDiagram
+                        class GVIEngine {
+                            -context: ContextManager
+                            -validator: ValidationEngine
+                            -generator: GenerationService
+                            +execute(input): Definition
+                            +validateInput(): boolean
+                            +generateWithContext(): string
+                            +integrateResults(): Definition
+                        }
+
+                        class GenerationService {
+                            -aiClient: OpenAIClient
+                            -promptBuilder: PromptBuilder
+                            +generate(context): string
+                            +regenerate(feedback): string
+                        }
+
+                        class ValidationEngine {
+                            -rules: Rule[]
+                            -scorer: QualityScorer
+                            +validate(content): ValidationResult
+                            +calculateScore(): number
+                        }
+
+                        class ContextManager {
+                            -userContext: UserContext
+                            -domainKnowledge: Knowledge
+                            +extractContext(input): Context
+                            +enrichContext(data): Context
+                        }
+
+                        GVIEngine --> GenerationService
+                        GVIEngine --> ValidationEngine
+                        GVIEngine --> ContextManager
+                </div>
+
+                <h3>Quality Metrics & Monitoring</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric</th>
+                            <th>Before GVI</th>
+                            <th>Week 1</th>
+                            <th>Week 2</th>
+                            <th>Week 3 Target</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Quality Score</strong></td>
+                            <td>60%</td>
+                            <td>75%</td>
+                            <td>85%</td>
+                            <td>90%+</td>
+                        </tr>
+                        <tr>
+                            <td><strong>First-Time-Right</strong></td>
+                            <td>40%</td>
+                            <td>60%</td>
+                            <td>80%</td>
+                            <td>95%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Generation Time</strong></td>
+                            <td>8-12s</td>
+                            <td>6-8s</td>
+                            <td>4-6s</td>
+                            <td>2-4s</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Iteration Count</strong></td>
+                            <td>3-5</td>
+                            <td>2-3</td>
+                            <td>1-2</td>
+                            <td>1</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Implementation Checklist</h3>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+                    <div style="background: #FEE2E2; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #EF4444;">🔴 Red Cable Tasks</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>☐ Build feedback parser</li>
+                            <li>☐ Create error categorizer</li>
+                            <li>☐ Implement prompt modifier</li>
+                            <li>☐ Add iteration limiter</li>
+                            <li>☐ Test feedback loop</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #FEF3C7; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #F59E0B;">🟡 Yellow Cable Tasks</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>☐ Extract user context</li>
+                            <li>☐ Load domain knowledge</li>
+                            <li>☐ Query similar definitions</li>
+                            <li>☐ Build context package</li>
+                            <li>☐ Test context flow</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #DBEAFE; padding: 1rem; border-radius: 8px;">
+                        <h4 style="color: #3B82F6;">🔵 Blue Cable Tasks</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>☐ Define prerequisites</li>
+                            <li>☐ Build input validator</li>
+                            <li>☐ Check resource availability</li>
+                            <li>☐ Implement circuit breaker</li>
+                            <li>☐ Test prevention logic</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Success Criteria & KPIs</h3>
+                <div class="mermaid">
+                    graph LR
+                        subgraph Week1[Week 1 Goals]
+                            W1A[Feedback Loop Active]
+                            W1B[75% Quality Score]
+                            W1C[Basic Integration]
+                        end
+
+                        subgraph Week2[Week 2 Goals]
+                            W2A[Context Flow Complete]
+                            W2B[85% Quality Score]
+                            W2C[Performance Improved]
+                        end
+
+                        subgraph Week3[Week 3 Goals]
+                            W3A[All Cables Connected]
+                            W3B[90%+ Quality Score]
+                            W3C[Production Ready]
+                        end
+
+                        W1A --> W2A
+                        W1B --> W2B
+                        W1C --> W2C
+
+                        W2A --> W3A
+                        W2B --> W3B
+                        W2C --> W3C
+
+                        style W1B fill:#FFA500
+                        style W2B fill:#3B82F6
+                        style W3B fill:#10B981
+                </div>
+            </div>
+        </section>
+
+        <!-- Progress & Roadmap Section -->
+        <section id="progress" class="content-section">
+            <div class="card">
+                <h2>📊 Progress & Implementation Roadmap</h2>
+
+                <h3>Current Progress Overview</h3>
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-value">23/87</div>
+                        <div class="metric-label">Features Complete</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 26%"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">Week 0</div>
+                        <div class="metric-label">of 16 Weeks</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">€0</div>
+                        <div class="metric-label">of €1.5M Budget</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-value">0</div>
+                        <div class="metric-label">Milestones Complete</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>16-Week Implementation Roadmap</h3>
+
+                <div class="comparison-grid">
+                    <div class="as-is-section">
+                        <h4>Phase 1: Foundation (Weeks 1-4)</h4>
+                        <ul>
+                            <li>✓ GVI Implementation (Week 1)</li>
+                            <li>✓ Authentication Layer (Week 2)</li>
+                            <li>✓ PostgreSQL Migration (Week 3)</li>
+                            <li>✓ Basic API Gateway (Week 4)</li>
+                        </ul>
+
+                        <h4>Phase 2: Core Services (Weeks 5-8)</h4>
+                        <ul>
+                            <li>Extract Definition Service</li>
+                            <li>Deploy Validation Service</li>
+                            <li>Web Lookup Integration</li>
+                            <li>Context Service Activation</li>
+                        </ul>
+                    </div>
+
+                    <div class="to-be-section">
+                        <h4>Phase 3: Enhancement (Weeks 9-12)</h4>
+                        <ul>
+                            <li>Expert Review Workflow</li>
+                            <li>Analytics Dashboard</li>
+                            <li>Performance Optimization</li>
+                            <li>Cross-Department Features</li>
+                        </ul>
+
+                        <h4>Phase 4: Scale (Weeks 13-16)</h4>
+                        <ul>
+                            <li>Kubernetes Deployment</li>
+                            <li>Multi-Tenancy Support</li>
+                            <li>Full Security Implementation</li>
+                            <li>Production Release</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Investment & ROI Timeline</h3>
+                <canvas id="roiChart" width="400" height="200"></canvas>
+
+                <h3>Risk Mitigation Strategy</h3>
+                <table>
+                    <tr>
+                        <th>Risk</th>
+                        <th>Impact</th>
+                        <th>Mitigation</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr>
+                        <td>Integration Complexity</td>
+                        <td>High</td>
+                        <td>Use existing 65% code base</td>
+                        <td>🟡 Monitor</td>
+                    </tr>
+                    <tr>
+                        <td>User Adoption</td>
+                        <td>Medium</td>
+                        <td>Phased rollout with training</td>
+                        <td>🟢 Planned</td>
+                    </tr>
+                    <tr>
+                        <td>Performance Goals</td>
+                        <td>High</td>
+                        <td>Early optimization in Phase 1</td>
+                        <td>🟢 Planned</td>
+                    </tr>
+                    <tr>
+                        <td>Budget Overrun</td>
+                        <td>Low</td>
+                        <td>Reuse existing components</td>
+                        <td>🟢 Controlled</td>
+                    </tr>
+                </table>
+            </div>
+
+            <!-- Uitgebreide Progress & Roadmap Schema's -->
+            <div class="card">
+                <h2>📅 Detailed Implementation Roadmap & Milestones</h2>
+
+                <h3>Complete 16-Week Implementation Timeline</h3>
+                <div class="mermaid">
+                    gantt
+                        title Complete DefinitieAgent Transformation Roadmap
+                        dateFormat YYYY-MM-DD
+
+                        section Foundation
+                        GVI Implementation           :done, gvi, 2024-01-01, 5d
+                        Authentication & Security    :crit, auth, after gvi, 5d
+                        Database Migration          :db, after auth, 5d
+                        API Gateway Setup           :gw, after db, 5d
+
+                        section Core Services
+                        Definition Service          :ds, 2024-01-29, 5d
+                        Validation Service Deploy   :vs, after ds, 5d
+                        Context Service Activation  :cs, after vs, 5d
+                        Web Lookup Integration      :wl, after cs, 5d
+
+                        section Enhancement
+                        Expert Review Workflow      :er, 2024-02-26, 5d
+                        Analytics Dashboard         :ad, after er, 5d
+                        Performance Optimization    :po, after ad, 5d
+                        Cross-Department Features   :cd, after po, 5d
+
+                        section Scale & Deploy
+                        Kubernetes Setup            :k8s, 2024-03-25, 5d
+                        Multi-Tenancy              :mt, after k8s, 5d
+                        Security Hardening         :sh, after mt, 5d
+                        Production Release         :crit, pr, after sh, 5d
+                </div>
+
+                <h3>Feature Completion Tracking</h3>
+                <div class="mermaid">
+                    graph TD
+                        subgraph Completed[Completed - 23 Features]
+                            C1[Basic UI - 5]
+                            C2[Core Generation - 8]
+                            C3[Simple Validation - 6]
+                            C4[Basic Storage - 4]
+                        end
+
+                        subgraph InProgress[In Progress - 12 Features]
+                            I1[GVI Pattern - 3]
+                            I2[Authentication - 4]
+                            I3[API Gateway - 3]
+                            I4[Performance - 2]
+                        end
+
+                        subgraph Planned[Planned - 52 Features]
+                            P1[Advanced UI - 15]
+                            P2[Integration - 12]
+                            P3[Analytics - 10]
+                            P4[Security - 8]
+                            P5[Scale - 7]
+                        end
+
+                        C1 --> I1
+                        C2 --> I2
+                        I1 --> P1
+                        I2 --> P2
+                        I3 --> P3
+                        I4 --> P4
+
+                        style C1 fill:#10B981
+                        style I1 fill:#3B82F6
+                        style P1 fill:#FFA500
+                </div>
+
+                <h3>Dependencies & Critical Path</h3>
+                <div class="mermaid">
+                    flowchart LR
+                        subgraph Critical[Critical Path]
+                            CP1[Security] --> CP2[Database]
+                            CP2 --> CP3[API Gateway]
+                            CP3 --> CP4[Core Services]
+                            CP4 --> CP5[Production]
+                        end
+
+                        subgraph Parallel[Parallel Work]
+                            PW1[UI Enhancement]
+                            PW2[Documentation]
+                            PW3[Testing]
+                            PW4[Training]
+                        end
+
+                        subgraph Dependencies[Key Dependencies]
+                            D1[PostgreSQL] --> CP2
+                            D2[Kong] --> CP3
+                            D3[Kubernetes] --> CP5
+                            D4[OAuth Provider] --> CP1
+                        end
+
+                        CP1 -.-> PW1
+                        CP2 -.-> PW2
+                        CP3 -.-> PW3
+                        CP4 -.-> PW4
+
+                        style CP1 fill:#EF4444
+                        style CP3 fill:#3B82F6
+                        style CP5 fill:#10B981
+                </div>
+
+                <h3>Resource Allocation Plan</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Phase</th>
+                            <th>Team Size</th>
+                            <th>Skills Required</th>
+                            <th>External Support</th>
+                            <th>Budget Allocation</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Foundation (W1-4)</strong></td>
+                            <td>5 developers</td>
+                            <td>Python, Security, Database</td>
+                            <td>Security consultant</td>
+                            <td>€375k (25%)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Core Services (W5-8)</strong></td>
+                            <td>8 developers</td>
+                            <td>Microservices, API, Python</td>
+                            <td>Architecture review</td>
+                            <td>€375k (25%)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Enhancement (W9-12)</strong></td>
+                            <td>6 developers</td>
+                            <td>Frontend, Analytics, UX</td>
+                            <td>UX designer</td>
+                            <td>€375k (25%)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Scale (W13-16)</strong></td>
+                            <td>4 developers + 2 DevOps</td>
+                            <td>Kubernetes, Cloud, Security</td>
+                            <td>Cloud architect</td>
+                            <td>€375k (25%)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Milestone Success Criteria</h3>
+                <div class="mermaid">
+                    graph LR
+                        subgraph M1[Milestone 1 - Week 4]
+                            M1A[✓ GVI Working]
+                            M1B[✓ Auth Active]
+                            M1C[✓ PostgreSQL Live]
+                            M1D[✓ Gateway Running]
+                        end
+
+                        subgraph M2[Milestone 2 - Week 8]
+                            M2A[✓ 4 Services Live]
+                            M2B[✓ <5s Response]
+                            M2C[✓ 85% Quality]
+                            M2D[✓ Integration Tests]
+                        end
+
+                        subgraph M3[Milestone 3 - Week 12]
+                            M3A[✓ All Features]
+                            M3B[✓ <2s Response]
+                            M3C[✓ 90% Quality]
+                            M3D[✓ 100 Users]
+                        end
+
+                        subgraph M4[Milestone 4 - Week 16]
+                            M4A[✓ Production Ready]
+                            M4B[✓ 1000+ Users]
+                            M4C[✓ 95% Quality]
+                            M4D[✓ Full Security]
+                        end
+
+                        M1 --> M2
+                        M2 --> M3
+                        M3 --> M4
+
+                        style M1 fill:#FFA500
+                        style M2 fill:#3B82F6
+                        style M3 fill:#10B981
+                        style M4 fill:#22C55E
+                </div>
+
+                <h3>Risk Mitigation Timeline</h3>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
+                    <div>
+                        <h4>Technical Risks</h4>
+                        <canvas id="techRiskChart" width="400" height="200"></canvas>
+                    </div>
+                    <div>
+                        <h4>Business Risks</h4>
+                        <canvas id="bizRiskChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+
+                <h3>Go-Live Checklist</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                    <div style="background: #FEE2E2; padding: 1rem; border-radius: 8px;">
+                        <h4>🔒 Security</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>☐ Penetration test</li>
+                            <li>☐ OWASP compliance</li>
+                            <li>☐ SSL certificates</li>
+                            <li>☐ Access controls</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #FEF3C7; padding: 1rem; border-radius: 8px;">
+                        <h4>⚡ Performance</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>☐ Load testing</li>
+                            <li>☐ <2s response</li>
+                            <li>☐ 1000+ users</li>
+                            <li>☐ Auto-scaling</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #DCFCE7; padding: 1rem; border-radius: 8px;">
+                        <h4>📋 Compliance</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>☐ GDPR ready</li>
+                            <li>☐ Audit trails</li>
+                            <li>☐ Data retention</li>
+                            <li>☐ Legal review</li>
+                        </ul>
+                    </div>
+
+                    <div style="background: #DBEAFE; padding: 1rem; border-radius: 8px;">
+                        <h4>🚀 Operations</h4>
+                        <ul style="list-style: none; padding: 0;">
+                            <li>☐ Monitoring</li>
+                            <li>☐ Backup tested</li>
+                            <li>☐ Runbooks ready</li>
+                            <li>☐ Support team</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#3B82F6',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#2563EB',
+                lineColor: '#E5E7EB',
+                secondaryColor: '#10B981',
+                tertiaryColor: '#FFA500'
+            }
+        });
+
+        // Navigation
+        function showSection(sectionId, event) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+
+            // Update nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            if (event && event.target) {
+                event.target.classList.add('active');
+            }
+
+            // Initialize charts if showing relevant sections
+            if (sectionId === 'dashboard') {
+                initDashboardCharts();
+            } else if (sectionId === 'gvi') {
+                initGVIChart();
+            } else if (sectionId === 'progress') {
+                initProgressCharts();
+            }
+
+            // Re-render Mermaid diagrams for the active section
+            mermaid.init();
+        }
+
+        // Toggle switches
+        function toggleEA() {
+            const toggle = document.getElementById('ea-toggle');
+            const asIs = document.getElementById('ea-as-is');
+            const toBe = document.getElementById('ea-to-be');
+
+            toggle.classList.toggle('active');
+
+            if (toggle.classList.contains('active')) {
+                asIs.style.display = 'none';
+                toBe.style.display = 'block';
+            } else {
+                asIs.style.display = 'block';
+                toBe.style.display = 'none';
+            }
+        }
+
+        function toggleSA() {
+            const toggle = document.getElementById('sa-toggle');
+            const asIs = document.getElementById('sa-as-is');
+            const toBe = document.getElementById('sa-to-be');
+
+            toggle.classList.toggle('active');
+
+            if (toggle.classList.contains('active')) {
+                asIs.style.display = 'none';
+                toBe.style.display = 'block';
+            } else {
+                asIs.style.display = 'block';
+                toBe.style.display = 'none';
+            }
+        }
+
+        // Chart initialization
+        let chartsInitialized = {
+            dashboard: false,
+            gvi: false,
+            progress: false
+        };
+
+        function initDashboardCharts() {
+            if (chartsInitialized.dashboard) return;
+
+            // Cost-Benefit Analysis Chart
+            const costCtx = document.getElementById('costBenefitChart');
+            if (costCtx) {
+                new Chart(costCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Current State', 'Target State'],
+                        datasets: [{
+                            label: 'Cost per Definition (€)',
+                            data: [250, 25],
+                            backgroundColor: ['#EF4444', '#10B981']
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Cost (€)'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Tech Risk Chart
+            const techRiskCtx = document.getElementById('techRiskChart');
+            if (techRiskCtx) {
+                new Chart(techRiskCtx.getContext('2d'), {
+                    type: 'radar',
+                    data: {
+                        labels: ['Security', 'Performance', 'Scalability', 'Maintenance', 'Quality'],
+                        datasets: [{
+                            label: 'Current Risk',
+                            data: [8, 7, 9, 6, 7],
+                            borderColor: '#EF4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.2)'
+                        }, {
+                            label: 'After Mitigation',
+                            data: [2, 3, 2, 3, 2],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.2)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            r: {
+                                beginAtZero: true,
+                                max: 10
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Business Risk Chart
+            const bizRiskCtx = document.getElementById('bizRiskChart');
+            if (bizRiskCtx) {
+                new Chart(bizRiskCtx.getContext('2d'), {
+                    type: 'bubble',
+                    data: {
+                        datasets: [{
+                            label: 'Business Risks',
+                            data: [
+                                {x: 8, y: 9, r: 15, label: 'No Auth'},
+                                {x: 7, y: 8, r: 12, label: 'Single User'},
+                                {x: 6, y: 7, r: 10, label: 'Slow Response'},
+                                {x: 5, y: 6, r: 8, label: 'Manual Process'}
+                            ],
+                            backgroundColor: 'rgba(239, 68, 68, 0.6)'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            x: {
+                                title: { display: true, text: 'Probability' },
+                                min: 0,
+                                max: 10
+                            },
+                            y: {
+                                title: { display: true, text: 'Impact' },
+                                min: 0,
+                                max: 10
+                            }
+                        }
+                    }
+                });
+            }
+
+            chartsInitialized.dashboard = true;
+        }
+
+        function initGVIChart() {
+            if (chartsInitialized.gvi) return;
+
+            const ctx = document.getElementById('gviChart');
+            if (ctx) {
+                new Chart(ctx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Current', 'Week 1', 'Week 2', 'Week 3'],
+                        datasets: [{
+                            label: 'Quality Score',
+                            data: [60, 75, 85, 90],
+                            borderColor: '#10B981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100
+                            }
+                        }
+                    }
+                });
+            }
+
+            chartsInitialized.gvi = true;
+        }
+
+        function initProgressCharts() {
+            if (chartsInitialized.progress) return;
+
+            // ROI Chart
+            const roiCtx = document.getElementById('roiChart');
+            if (roiCtx) {
+                new Chart(roiCtx.getContext('2d'), {
+                    type: 'bar',
+                    data: {
+                        labels: ['Q1 2025', 'Q2 2025', 'Q3 2025', 'Q4 2025', 'Q1 2026'],
+                        datasets: [{
+                            label: 'Investment (€K)',
+                            data: [375, 375, 375, 375, 0],
+                            backgroundColor: '#EF4444'
+                        }, {
+                            label: 'Savings (€K)',
+                            data: [0, 200, 500, 800, 1000],
+                            backgroundColor: '#10B981'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Performance Chart
+            const perfCtx = document.getElementById('performanceChart');
+            if (perfCtx) {
+                new Chart(perfCtx.getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['Week 1', 'Week 4', 'Week 8', 'Week 12', 'Week 16'],
+                        datasets: [{
+                            label: 'Response Time (s)',
+                            data: [10, 8, 6, 3, 2],
+                            borderColor: '#3B82F6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Seconds'
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Resource Allocation Chart
+            const resourceCtx = document.getElementById('resourceChart');
+            if (resourceCtx) {
+                new Chart(resourceCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Development', 'Testing', 'Infrastructure', 'Training', 'Management'],
+                        datasets: [{
+                            data: [40, 20, 20, 10, 10],
+                            backgroundColor: [
+                                '#3B82F6',
+                                '#10B981',
+                                '#F59E0B',
+                                '#8B5CF6',
+                                '#EF4444'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }
+
+            chartsInitialized.progress = true;
+        }
+
+        function initROIChart() {
+            // Legacy function - redirects to new implementation
+            initProgressCharts();
+        }
+
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key >= '1' && e.key <= '5') {
+                const sections = ['dashboard', 'enterprise', 'solution', 'gvi', 'progress'];
+                const index = parseInt(e.key) - 1;
+                if (sections[index]) {
+                    const navTabs = document.querySelectorAll('.nav-tab');
+                    if (navTabs[index]) {
+                        navTabs[index].click();
+                    }
+                }
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Architecture Viewer loaded successfully');
+
+            // Initialize dashboard charts on load
+            initDashboardCharts();
+
+            // Initialize Mermaid diagrams
+            mermaid.init();
+        });
+    </script>
+</body>
+</html>
