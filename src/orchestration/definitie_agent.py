@@ -72,6 +72,11 @@ class GenerationResult:
         self.voorbeelden_gegenereerd = False
         self.voorbeelden_error = None
 
+    @property
+    def prompt_template(self):
+        """Get prompt template from metadata for debug section"""
+        return self.metadata.get("prompt_template", "Geen prompt beschikbaar")
+
 
 class DefinitieGenerator:
     """Modern DefinitionOrchestrator adapter for legacy compatibility"""

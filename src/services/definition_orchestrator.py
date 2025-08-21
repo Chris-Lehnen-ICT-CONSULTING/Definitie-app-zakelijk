@@ -104,7 +104,9 @@ class ProcessingContext:
     errors: list[str] = field(default_factory=list)
 
 
-class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGeneratorInterface):
+class DefinitionOrchestrator(
+    DefinitionOrchestratorInterface, DefinitionGeneratorInterface
+):
     """
     Service voor het orkestreren van definitie operaties.
 
@@ -361,7 +363,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGenerato
     async def generate(self, request: GenerationRequest) -> Definition:
         """
         Implementeer DefinitionGeneratorInterface.generate().
-        
+
         Dit is de hoofdmethode voor definitie generatie.
         """
         # Gebruik create_definition voor de complete workflow
@@ -380,7 +382,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGenerato
     async def enhance(self, definition: Definition) -> Definition:
         """
         Implementeer DefinitionGeneratorInterface.enhance().
-        
+
         Verbeter een bestaande definitie.
         """
         # TODO: Implement enhancement logic
@@ -391,27 +393,27 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGenerato
         """Genereer basis definitie met echte GPT integration."""
         try:
             # Importeer de bestaande GPT functionaliteit
-            from prompt_builder.prompt_builder import PromptBouwer, stuur_prompt_naar_gpt
-            
+            from prompt_builder.prompt_builder import (
+                PromptBouwer,
+                stuur_prompt_naar_gpt,
+            )
+
             # Bouw prompt met bestaande logic
             prompt_bouwer = PromptBouwer(
                 begrip=context.request.begrip,
                 organisatorische_context=context.request.context or "",
                 juridische_context=context.request.domein or "",
-                aanvullende_instructies=context.request.extra_instructies or ""
+                aanvullende_instructies=context.request.extra_instructies or "",
             )
-            
+
             prompt = prompt_bouwer.bouw_prompt()
             logger.info(f"Prompt gebouwd voor begrip: {context.request.begrip}")
-            
+
             # Stuur naar GPT
             gpt_response = stuur_prompt_naar_gpt(
-                prompt=prompt,
-                model="gpt-4",
-                temperatuur=0.01,
-                max_tokens=300
+                prompt=prompt, model="gpt-4", temperatuur=0.01, max_tokens=300
             )
-            
+
             # Maak definitie met GPT response
             definition = Definition(
                 begrip=context.request.begrip,
@@ -419,15 +421,15 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGenerato
                 context=context.request.context,
                 domein=context.request.domein,
             )
-            
+
             logger.info(f"GPT definitie gegenereerd: {gpt_response[:50]}...")
-            
+
         except Exception as e:
             logger.error(f"GPT generatie fout: {e}")
             # Fallback naar basis definitie bij fout
             definition = Definition(
                 begrip=context.request.begrip,
-                definitie=f"Fout bij GPT generatie: {str(e)}",
+                definitie=f"Fout bij GPT generatie: {e!s}",
                 context=context.request.context,
                 domein=context.request.domein,
             )
@@ -438,6 +440,7 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGenerato
 
             definition.metadata["request_timestamp"] = context.start_time.isoformat()
             definition.metadata["orchestrator_version"] = "1.0"
+            definition.metadata["prompt_template"] = prompt  # Voor debug sectie
 
             # Pas opschoning toe (VOOR validatie - deel van GVI workflow)
             if self.cleaning_service and definition.definitie:
@@ -568,7 +571,9 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGenerato
         try:
             # TODO: Implement AI enhancement logic
             # For now, skip AI enhancement
-            logger.debug("AI enhancement temporarily disabled - orchestrator is the generator")
+            logger.debug(
+                "AI enhancement temporarily disabled - orchestrator is the generator"
+            )
 
         except Exception as e:
             logger.debug(f"AI enhancement mislukt: {e}")
