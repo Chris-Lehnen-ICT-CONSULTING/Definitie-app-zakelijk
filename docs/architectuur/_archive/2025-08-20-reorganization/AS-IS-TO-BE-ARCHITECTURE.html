@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DefinitieAgent - AS-IS/TO-BE Architectuur Analyse</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Tab styles */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            background: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        .tab-button:hover {
+            background: #f0f0f0;
+        }
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #764ba2;
+        }
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 30px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Architecture diagram styles */
+        .architecture-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+        .architecture-section h2 {
+            color: #333;
+            margin-top: 0;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .architecture-section h3 {
+            color: #555;
+            margin-top: 20px;
+        }
+
+        /* Diagram container */
+        .diagram-container {
+            position: relative;
+            width: 100%;
+            margin: 20px 0;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        /* Component styles */
+        .component {
+            position: absolute;
+            background: #fff;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        .component:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .component.ui { background: #e3f2fd; border-color: #2196f3; }
+        .component.service { background: #e8f5e9; border-color: #4caf50; }
+        .component.domain { background: #fff3e0; border-color: #ff9800; }
+        .component.infrastructure { background: #fce4ec; border-color: #e91e63; }
+        .component.unused { background: #f5f5f5; border-color: #9e9e9e; opacity: 0.6; }
+        .component.ready { background: #c8e6c9; border-color: #388e3c; }
+
+        /* Connection lines */
+        .connection {
+            position: absolute;
+            background: #666;
+            transition: all 0.3s ease;
+        }
+        .connection.horizontal { height: 2px; }
+        .connection.vertical { width: 2px; }
+        .connection.api { background: #2196f3; }
+        .connection.data { background: #4caf50; }
+        .connection.event { background: #ff9800; stroke-dasharray: 5,5; }
+
+        /* Stats cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Phase timeline */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+            margin: 30px 0;
+        }
+        .timeline-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .timeline-marker {
+            width: 40px;
+            height: 40px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 20px;
+            z-index: 2;
+        }
+        .timeline-content {
+            flex: 1;
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        .timeline-line {
+            position: absolute;
+            left: 20px;
+            top: 40px;
+            bottom: -30px;
+            width: 2px;
+            background: #ddd;
+            z-index: 1;
+        }
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+        /* Priority badge */
+        .priority-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .priority-badge.high {
+            background: #ff5252;
+            color: white;
+        }
+        .priority-badge.medium {
+            background: #ff9800;
+            color: white;
+        }
+        .priority-badge.low {
+            background: #4caf50;
+            color: white;
+        }
+
+        /* Service readiness indicator */
+        .readiness-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-left: 10px;
+        }
+        .readiness-indicator.ready {
+            background: #4caf50;
+            animation: pulse 2s infinite;
+        }
+        .readiness-indicator.partial {
+            background: #ff9800;
+        }
+        .readiness-indicator.not-ready {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(76, 175, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .legend-box {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DefinitieAgent - AS-IS/TO-BE Architectuur</h1>
+        <p>Complete architectuur analyse met quality-first microservices transitie</p>
+        <p style="font-size: 0.9em; opacity: 0.8;">Augustus 2025 - Winston, BMad Solution Architect</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('overview')">Overzicht</button>
+            <button class="tab-button" onclick="showTab('as-is')">AS-IS Architectuur</button>
+            <button class="tab-button" onclick="showTab('to-be')">TO-BE Architectuur</button>
+            <button class="tab-button" onclick="showTab('transition')">Transitie Plan</button>
+            <button class="tab-button" onclick="showTab('services')">Microservices Ready</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="architecture-section">
+                <h2>Executive Summary</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Totaal Python Files</div>
+                        <div class="stat-value">222</div>
+                        <div class="stat-label">100% codebase</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Actief Gebruikt</div>
+                        <div class="stat-value">64</div>
+                        <div class="stat-label">35% van totaal</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Ongebruikt</div>
+                        <div class="stat-value">119</div>
+                        <div class="stat-label">65% van totaal</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Microservice Ready</div>
+                        <div class="stat-value">5+</div>
+                        <div class="stat-label">Direct deployable</div>
+                    </div>
+                </div>
+
+                <h3>Belangrijkste Bevindingen</h3>
+                <ul>
+                    <li><strong>65% van de code is ongebruikt</strong> - Veel microservice componenten zijn al gebouwd maar niet geactiveerd</li>
+                    <li><strong>Quality-First approach</strong> - Prioriteit verschoven naar 90% first-time-right voordat we migreren</li>
+                    <li><strong>Reuse over Rebuild</strong> - Activeer bestaande componenten in plaats van nieuwe bouwen</li>
+                    <li><strong>3 maanden roadmap</strong> - Van monoliet naar quality-first microservices</li>
+                </ul>
+
+                <h3>Nieuwe Prioriteiten (Augustus 2025)</h3>
+                <div style="display: flex; gap: 40px; align-items: center; margin: 20px 0;">
+                    <div>
+                        <h4>Kwaliteit</h4>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; color: #f44336;">60%</div>
+                                <div style="font-size: 12px; color: #666;">Was</div>
+                            </div>
+                            <div style="font-size: 30px;">→</div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 24px; color: #4caf50;">90%</div>
+                                <div style="font-size: 12px; color: #666;">Target</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <h4>Architectuur</h4>
+                        <div style="display: flex; align-items: center; gap: 20px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 18px;">Monolith</div>
+                            </div>
+                            <div style="font-size: 30px;">→</div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 18px;">Quality-First<br/>Microservices</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AS-IS Architecture Tab -->
+        <div id="as-is" class="tab-content">
+            <div class="architecture-section">
+                <h2>Huidige Architectuur (AS-IS)</h2>
+
+                <h3>Layered Monolith met Streamlit Frontend</h3>
+                <div class="diagram-container" style="height: 600px;">
+                    <!-- UI Layer -->
+                    <div class="component ui" style="left: 50%; top: 20px; transform: translateX(-50%); width: 300px;">
+                        <strong>Streamlit UI</strong><br/>
+                        main.py
+                    </div>
+
+                    <!-- UI Components -->
+                    <div class="component ui" style="left: 10%; top: 100px; width: 150px;">
+                        TabInterface
+                    </div>
+                    <div class="component ui" style="left: 30%; top: 100px; width: 150px;">
+                        10 Tab Components
+                    </div>
+                    <div class="component ui unused" style="left: 50%; top: 100px; width: 150px;">
+                        Orchestration Tab<br/>
+                        <small>(Ongebruikt)</small>
+                    </div>
+                    <div class="component ui" style="left: 70%; top: 100px; width: 150px;">
+                        Session State
+                    </div>
+
+                    <!-- Service Layer -->
+                    <div class="component service" style="left: 20%; top: 200px; width: 200px;">
+                        UnifiedDefinitionGenerator
+                    </div>
+                    <div class="component service" style="left: 50%; top: 200px; width: 200px;">
+                        ServiceFactory
+                    </div>
+                    <div class="component service unused" style="left: 80%; top: 200px; width: 180px;">
+                        A/B Testing Framework<br/>
+                        <small>(Ongebruikt)</small>
+                    </div>
+
+                    <!-- Domain Layer -->
+                    <div class="component domain" style="left: 10%; top: 300px; width: 150px;">
+                        Toetsregels<br/>
+                        <small>45 rules</small>
+                    </div>
+                    <div class="component domain" style="left: 30%; top: 300px; width: 150px;">
+                        Validation
+                    </div>
+                    <div class="component domain" style="left: 50%; top: 300px; width: 150px;">
+                        Ontologie
+                    </div>
+                    <div class="component domain unused" style="left: 70%; top: 300px; width: 150px;">
+                        78 Validators<br/>
+                        <small>(Ongebruikt)</small>
+                    </div>
+
+                    <!-- Infrastructure Layer -->
+                    <div class="component infrastructure" style="left: 10%; top: 400px; width: 120px;">
+                        SQLite DB
+                    </div>
+                    <div class="component infrastructure" style="left: 30%; top: 400px; width: 120px;">
+                        Cache
+                    </div>
+                    <div class="component infrastructure" style="left: 50%; top: 400px; width: 120px;">
+                        Monitoring
+                    </div>
+                    <div class="component infrastructure unused" style="left: 70%; top: 400px; width: 150px;">
+                        Security Middleware<br/>
+                        <small>(Ongebruikt)</small>
+                    </div>
+
+                    <!-- External -->
+                    <div class="component infrastructure" style="left: 30%; top: 500px; width: 120px;">
+                        OpenAI API
+                    </div>
+                    <div class="component infrastructure" style="left: 50%; top: 500px; width: 120px;">
+                        Web Sources
+                    </div>
+                </div>
+
+                <h3>Problemen in Huidige Architectuur</h3>
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-left: 4px solid #f44336;">
+                        <h4>Integration Issues</h4>
+                        <p>Feedback wordt niet gebruikt in prompt generation</p>
+                        <p><strong>Impact:</strong> 40% rejection rate</p>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #ff9800;">
+                        <h4>Context Handling</h4>
+                        <p>Expliciete context vermeldingen (CON-01 violations)</p>
+                        <p><strong>Impact:</strong> Quality issues</p>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #ff9800;">
+                        <h4>Performance</h4>
+                        <p>8-12s response tijd, geen caching</p>
+                        <p><strong>Impact:</strong> User frustration</p>
+                    </div>
+                    <div class="stat-card" style="border-left: 4px solid #f44336;">
+                        <h4>Scalability</h4>
+                        <p>Single user only, SQLite limitaties</p>
+                        <p><strong>Impact:</strong> Business limitation</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TO-BE Architecture Tab -->
+        <div id="to-be" class="tab-content">
+            <div class="architecture-section">
+                <h2>Target Architectuur (TO-BE)</h2>
+
+                <h3>Quality-First Microservices Architecture</h3>
+                <div class="diagram-container" style="height: 700px;">
+                    <!-- Frontend -->
+                    <div class="component ui" style="left: 20%; top: 20px; width: 150px;">
+                        React/Vue<br/>Frontend
+                    </div>
+                    <div class="component ui" style="left: 50%; top: 20px; width: 150px;">
+                        Mobile App
+                    </div>
+                    <div class="component ui" style="left: 80%; top: 20px; width: 150px;">
+                        API Clients
+                    </div>
+
+                    <!-- API Gateway -->
+                    <div class="component service" style="left: 50%; top: 120px; transform: translateX(-50%); width: 300px; background: #e1f5fe; border-color: #01579b;">
+                        <strong>API Gateway</strong><br/>
+                        Kong/Nginx + Security Service
+                    </div>
+
+                    <!-- Core Services -->
+                    <div class="component service ready" style="left: 10%; top: 220px; width: 180px;">
+                        <strong>Validation Engine</strong><br/>
+                        78 rules ready<br/>
+                        <span class="readiness-indicator ready"></span>
+                    </div>
+                    <div class="component service" style="left: 30%; top: 220px; width: 180px;">
+                        <strong>Definition Service</strong><br/>
+                        Core generation
+                    </div>
+                    <div class="component service" style="left: 50%; top: 220px; width: 180px;">
+                        <strong>Context Service</strong><br/>
+                        Enrichment
+                    </div>
+                    <div class="component service ready" style="left: 70%; top: 220px; width: 180px;">
+                        <strong>Security Service</strong><br/>
+                        Complete & ready<br/>
+                        <span class="readiness-indicator ready"></span>
+                    </div>
+
+                    <!-- Supporting Services -->
+                    <div class="component service ready" style="left: 15%; top: 340px; width: 160px;">
+                        <strong>Config Service</strong><br/>
+                        Ready to deploy<br/>
+                        <span class="readiness-indicator ready"></span>
+                    </div>
+                    <div class="component service" style="left: 35%; top: 340px; width: 160px;">
+                        <strong>Export Service</strong><br/>
+                        Multi-format
+                    </div>
+                    <div class="component service" style="left: 55%; top: 340px; width: 160px;">
+                        <strong>Monitoring</strong><br/>
+                        Prometheus/Grafana
+                    </div>
+                    <div class="component service ready" style="left: 75%; top: 340px; width: 160px;">
+                        <strong>A/B Testing</strong><br/>
+                        Framework ready<br/>
+                        <span class="readiness-indicator ready"></span>
+                    </div>
+
+                    <!-- Infrastructure -->
+                    <div class="component infrastructure" style="left: 20%; top: 460px; width: 150px;">
+                        PostgreSQL<br/>
+                        <small>Primary DB</small>
+                    </div>
+                    <div class="component infrastructure" style="left: 40%; top: 460px; width: 150px;">
+                        Redis Cluster<br/>
+                        <small>Cache & Session</small>
+                    </div>
+                    <div class="component infrastructure" style="left: 60%; top: 460px; width: 150px;">
+                        RabbitMQ<br/>
+                        <small>Event Bus</small>
+                    </div>
+                    <div class="component infrastructure" style="left: 80%; top: 460px; width: 150px;">
+                        S3/Blob<br/>
+                        <small>Documents</small>
+                    </div>
+
+                    <!-- External Services -->
+                    <div class="component infrastructure" style="left: 30%; top: 560px; width: 120px;">
+                        OpenAI API
+                    </div>
+                    <div class="component infrastructure" style="left: 50%; top: 560px; width: 120px;">
+                        Azure AD
+                    </div>
+                    <div class="component infrastructure" style="left: 70%; top: 560px; width: 120px;">
+                        External APIs
+                    </div>
+                </div>
+
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: #c8e6c9; border-color: #388e3c;"></div>
+                        <span>Microservice Ready (Ongebruikt)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: #e8f5e9; border-color: #4caf50;"></div>
+                        <span>Nieuwe Service</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-box" style="background: #e1f5fe; border-color: #01579b;"></div>
+                        <span>Critical Infrastructure</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transition Plan Tab -->
+        <div id="transition" class="tab-content">
+            <div class="architecture-section">
+                <h2>Transitie Plan</h2>
+
+                <h3>Quality-First Gefaseerde Aanpak</h3>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker">0</div>
+                        <div class="timeline-content">
+                            <h4>Fase 0: Quality First in Monolith <span class="priority-badge high">PRIORITEIT</span></h4>
+                            <p><strong>Duur:</strong> 2 weken (Week 1-2)</p>
+                            <ul>
+                                <li>Fix feedback integration (3 dagen)</li>
+                                <li>Implementeer impliciete context (2 dagen)</li>
+                                <li>Activeer preventieve validatie (3 dagen)</li>
+                                <li>Meet & valideer 90% quality target (2 dagen)</li>
+                            </ul>
+                            <p><strong>Deliverable:</strong> 90% first-time-right definities</p>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker">1</div>
+                        <div class="timeline-content">
+                            <h4>Fase 1: Extract High-Value Services</h4>
+                            <p><strong>Duur:</strong> 4 weken (Week 3-6)</p>
+                            <ul>
+                                <li><strong>Validation Rules Engine</strong> - 78 files ready</li>
+                                <li><strong>Security Gateway</strong> - Complete middleware ready</li>
+                                <li><strong>Configuration Service</strong> - Central config ready</li>
+                            </ul>
+                            <p><strong>Focus:</strong> Activeer bestaande ongebruikte componenten</p>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker">2</div>
+                        <div class="timeline-content">
+                            <h4>Fase 2: Core Services Extraction</h4>
+                            <p><strong>Duur:</strong> 6 weken (Week 7-12)</p>
+                            <ul>
+                                <li><strong>Definition Generation Service</strong> - Extract core</li>
+                                <li><strong>Context Enrichment Service</strong> - HybridEngine</li>
+                                <li><strong>API Gateway Setup</strong> - Kong/Nginx</li>
+                            </ul>
+                            <p><strong>Deliverable:</strong> Volledig microservices platform</p>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Success Metrics</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Quality Metrics</h4>
+                        <ul style="text-align: left;">
+                            <li>First-time-right: 90%+ ✅</li>
+                            <li>Response time: <3s</li>
+                            <li>Zero quality regression</li>
+                        </ul>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Architecture Metrics</h4>
+                        <ul style="text-align: left;">
+                            <li>Service isolation: 100%</li>
+                            <li>API versioning</li>
+                            <li>Independent deployability</li>
+                        </ul>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Operational Metrics</h4>
+                        <ul style="text-align: left;">
+                            <li>Daily deployments mogelijk</li>
+                            <li>MTTR: <30 min</li>
+                            <li>99.9% uptime</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Microservices Ready Tab -->
+        <div id="services" class="tab-content">
+            <div class="architecture-section">
+                <h2>Microservice-Ready Components</h2>
+                <p>Deze componenten zijn al volledig gebouwd maar worden momenteel niet gebruikt. Ze kunnen direct worden geactiveerd als microservices.</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 30px;">
+                    <!-- Security Service -->
+                    <div class="stat-card" style="border-top: 4px solid #4caf50; text-align: left;">
+                        <h3>🔒 Security Service</h3>
+                        <p><strong>Locatie:</strong> <code>security/security_middleware.py</code></p>
+                        <p><strong>Features:</strong></p>
+                        <ul>
+                            <li>Complete security pipeline</li>
+                            <li>Threat detection (XSS, SQL injection, etc.)</li>
+                            <li>Rate limiting</li>
+                            <li>Security event logging</li>
+                        </ul>
+                        <p><strong>Status:</strong> <span style="color: #4caf50;">100% Ready</span></p>
+                        <p><strong>Deployment:</strong> Direct als API Gateway security layer</p>
+                    </div>
+
+                    <!-- Validation Engine -->
+                    <div class="stat-card" style="border-top: 4px solid #4caf50; text-align: left;">
+                        <h3>✅ Validation Rules Engine</h3>
+                        <p><strong>Locatie:</strong> <code>toetsregels/validators/</code> (78 files)</p>
+                        <p><strong>Features:</strong></p>
+                        <ul>
+                            <li>39 validator implementations</li>
+                            <li>39 validation rules</li>
+                            <li>Modular rule system</li>
+                            <li>Scoring & feedback generation</li>
+                        </ul>
+                        <p><strong>Status:</strong> <span style="color: #4caf50;">Ready for extraction</span></p>
+                        <p><strong>Benefits:</strong> Herbruikbaar across projecten</p>
+                    </div>
+
+                    <!-- A/B Testing -->
+                    <div class="stat-card" style="border-top: 4px solid #4caf50; text-align: left;">
+                        <h3>🧪 A/B Testing Framework</h3>
+                        <p><strong>Locatie:</strong> <code>services/ab_testing_framework.py</code></p>
+                        <p><strong>Features:</strong></p>
+                        <ul>
+                            <li>Complete A/B test framework</li>
+                            <li>Performance metrics</li>
+                            <li>Quality metrics</li>
+                            <li>Test variant management</li>
+                        </ul>
+                        <p><strong>Status:</strong> <span style="color: #4caf50;">Ready to deploy</span></p>
+                        <p><strong>Use case:</strong> Gradual feature rollout</p>
+                    </div>
+
+                    <!-- Config Service -->
+                    <div class="stat-card" style="border-top: 4px solid #4caf50; text-align: left;">
+                        <h3>⚙️ Configuration Service</h3>
+                        <p><strong>Locatie:</strong> <code>config/config_manager.py</code></p>
+                        <p><strong>Features:</strong></p>
+                        <ul>
+                            <li>Central config management</li>
+                            <li>Config adapters</li>
+                            <li>Feature flags support</li>
+                            <li>Runtime configuration</li>
+                        </ul>
+                        <p><strong>Status:</strong> <span style="color: #4caf50;">Direct deployable</span></p>
+                        <p><strong>Benefits:</strong> Runtime config zonder redeploy</p>
+                    </div>
+
+                    <!-- Async API -->
+                    <div class="stat-card" style="border-top: 4px solid #ff9800; text-align: left;">
+                        <h3>🚀 Async API Layer</h3>
+                        <p><strong>Locatie:</strong> <code>utils/async_api.py</code></p>
+                        <p><strong>Features:</strong></p>
+                        <ul>
+                            <li>Async request handling</li>
+                            <li>Progress streaming</li>
+                            <li>WebSocket support ready</li>
+                            <li>Event-driven architecture</li>
+                        </ul>
+                        <p><strong>Status:</strong> <span style="color: #ff9800;">Ready for API gateway</span></p>
+                        <p><strong>Integration:</strong> Perfect voor real-time updates</p>
+                    </div>
+
+                    <!-- Monitoring -->
+                    <div class="stat-card" style="border-top: 4px solid #ff9800; text-align: left;">
+                        <h3>📊 Enhanced Monitoring</h3>
+                        <p><strong>Locatie:</strong> <code>monitoring/api_monitor.py</code></p>
+                        <p><strong>Features:</strong></p>
+                        <ul>
+                            <li>API performance tracking</li>
+                            <li>Resource usage monitoring</li>
+                            <li>Error tracking</li>
+                            <li>Metrics export ready</li>
+                        </ul>
+                        <p><strong>Status:</strong> <span style="color: #ff9800;">Partial implementation</span></p>
+                        <p><strong>Next:</strong> Connect to Prometheus</p>
+                    </div>
+                </div>
+
+                <h3 style="margin-top: 40px;">Implementatie Volgorde</h3>
+                <ol>
+                    <li><strong>Security Service</strong> - Kritisch voor enterprise deployment</li>
+                    <li><strong>Validation Engine</strong> - Grootste impact op kwaliteit</li>
+                    <li><strong>Config Service</strong> - Enabler voor andere services</li>
+                    <li><strong>A/B Testing</strong> - Safe rollout van nieuwe features</li>
+                    <li><strong>Async API</strong> - Performance verbetering</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+        }
+
+        // Add hover effects for components
+        document.addEventListener('DOMContentLoaded', function() {
+            const components = document.querySelectorAll('.component');
+            components.forEach(comp => {
+                comp.addEventListener('mouseenter', function() {
+                    this.style.zIndex = '10';
+                });
+                comp.addEventListener('mouseleave', function() {
+                    this.style.zIndex = '1';
+                });
+            });
+        });
+    </script>
+</body>
+</html>

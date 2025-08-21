@@ -1,0 +1,1531 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DefinitieAgent - AS-IS/TO-BE Architectuur Analyse</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f5f5f5;
+            line-height: 1.6;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.5em;
+            font-weight: 300;
+        }
+        .header p {
+            margin: 10px 0 0 0;
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Tab styles */
+        .tabs {
+            display: flex;
+            background: white;
+            border-radius: 10px 10px 0 0;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 0;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 20px;
+            border: none;
+            background: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            font-weight: 500;
+        }
+        .tab-button:hover {
+            background: #f0f0f0;
+        }
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+        }
+        .tab-button.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #764ba2;
+        }
+        .tab-content {
+            display: none;
+            background: white;
+            padding: 40px;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            min-height: 600px;
+        }
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Section styles */
+        .section {
+            margin-bottom: 40px;
+        }
+        .section h2 {
+            color: #333;
+            border-bottom: 3px solid #667eea;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            color: #555;
+            margin-top: 30px;
+            margin-bottom: 15px;
+        }
+
+        /* Mermaid diagram container */
+        .mermaid-container {
+            background: #f8f9fa;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+        .mermaid {
+            text-align: center;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+        .stat-card h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+            font-size: 18px;
+        }
+        .stat-value {
+            font-size: 42px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+            line-height: 1;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+            margin-top: 5px;
+        }
+        .stat-card.warning {
+            border-left: 4px solid #ff9800;
+        }
+        .stat-card.danger {
+            border-left: 4px solid #f44336;
+        }
+        .stat-card.success {
+            border-left: 4px solid #4caf50;
+        }
+
+        /* Table styles */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+        }
+        th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 500;
+        }
+        td {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        tr:hover {
+            background: #f5f5f5;
+        }
+
+        /* Timeline styles */
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+        .timeline-item {
+            display: flex;
+            margin-bottom: 40px;
+            position: relative;
+        }
+        .timeline-marker {
+            width: 50px;
+            height: 50px;
+            background: #667eea;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 20px;
+            margin-right: 30px;
+            flex-shrink: 0;
+            z-index: 2;
+            box-shadow: 0 3px 10px rgba(102, 126, 234, 0.3);
+        }
+        .timeline-content {
+            flex: 1;
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+        }
+        .timeline-content h4 {
+            margin: 0 0 10px 0;
+            color: #333;
+            font-size: 20px;
+        }
+        .timeline-line {
+            position: absolute;
+            left: 25px;
+            top: 50px;
+            bottom: -40px;
+            width: 2px;
+            background: #ddd;
+            z-index: 1;
+        }
+        .timeline-item:last-child .timeline-line {
+            display: none;
+        }
+
+        /* Badge styles */
+        .badge {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 10px;
+            text-transform: uppercase;
+        }
+        .badge.high {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+        .badge.ready {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 1px solid #66bb6a;
+        }
+        .badge.partial {
+            background: #fff3e0;
+            color: #e65100;
+            border: 1px solid #ff9800;
+        }
+
+        /* Component grid */
+        .component-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        .component-card {
+            background: white;
+            border-radius: 10px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
+        }
+        .component-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.12);
+        }
+        .component-card.ready {
+            border-top: 4px solid #4caf50;
+        }
+        .component-card.partial {
+            border-top: 4px solid #ff9800;
+        }
+        .component-card h4 {
+            margin: 0 0 15px 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .component-icon {
+            font-size: 24px;
+        }
+
+        /* Code block */
+        .code-block {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        /* Alert box */
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .alert-icon {
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .alert.info {
+            background: #e3f2fd;
+            border: 1px solid #2196f3;
+            color: #1565c0;
+        }
+        .alert.warning {
+            background: #fff3e0;
+            border: 1px solid #ff9800;
+            color: #e65100;
+        }
+        .alert.success {
+            background: #e8f5e9;
+            border: 1px solid #4caf50;
+            color: #2e7d32;
+        }
+
+        /* Progress bar */
+        .progress-container {
+            background: #e0e0e0;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>DefinitieAgent - AS-IS/TO-BE Architectuur Analyse</h1>
+        <p>Complete architectuur transformatie met quality-first microservices strategie</p>
+        <p style="font-size: 0.9em; opacity: 0.8;">Augustus 2025 - Winston, BMad Solution Architect</p>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-button active" onclick="showTab('overview')">📊 Overzicht</button>
+            <button class="tab-button" onclick="showTab('as-is')">🏗️ AS-IS Architectuur</button>
+            <button class="tab-button" onclick="showTab('to-be')">🚀 TO-BE Architectuur</button>
+            <button class="tab-button" onclick="showTab('transition')">📈 Transitie Roadmap</button>
+            <button class="tab-button" onclick="showTab('services')">⚙️ Service Catalog</button>
+            <button class="tab-button" onclick="showTab('technical')">🔧 Technische Details</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="overview" class="tab-content active">
+            <div class="section">
+                <h2>Executive Dashboard</h2>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>📁 Totale Codebase</h4>
+                        <div class="stat-value">222</div>
+                        <div class="stat-label">Python bestanden</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 100%">100%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card success">
+                        <h4>✅ Actief Gebruikt</h4>
+                        <div class="stat-value">64</div>
+                        <div class="stat-label">35% van totaal</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 35%; background: #4caf50;">35%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card warning">
+                        <h4>⚠️ Ongebruikt</h4>
+                        <div class="stat-value">119</div>
+                        <div class="stat-label">65% van totaal</div>
+                        <div class="progress-container">
+                            <div class="progress-bar" style="width: 65%; background: #ff9800;">65%</div>
+                        </div>
+                    </div>
+                    <div class="stat-card success">
+                        <h4>🚀 Service Ready</h4>
+                        <div class="stat-value">5+</div>
+                        <div class="stat-label">Direct deployable</div>
+                        <div style="margin-top: 10px; font-size: 12px; color: #666;">
+                            Security • Validation • Config • A/B Testing • Async API
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert info">
+                    <span class="alert-icon">💡</span>
+                    <div>
+                        <strong>Belangrijkste Inzicht:</strong> 65% van de code is ongebruikt, maar veel daarvan bevat volledig uitgewerkte microservice componenten
+                        die direct kunnen worden geactiveerd. Dit betekent dat we geen nieuwe services hoeven te bouwen, maar bestaande code kunnen hergebruiken.
+                    </div>
+                </div>
+
+                <h3>Strategische Prioriteiten</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aspect</th>
+                            <th>Huidige Situatie</th>
+                            <th>Target</th>
+                            <th>Strategie</th>
+                            <th>Timeline</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Kwaliteit</strong></td>
+                            <td>60% first-time-right</td>
+                            <td>90% first-time-right</td>
+                            <td>Fix feedback loop, implicit context, preventive validation</td>
+                            <td>Week 1-2</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Architectuur</strong></td>
+                            <td>Monolithic (Streamlit)</td>
+                            <td>Microservices (FastAPI)</td>
+                            <td>Activeer bestaande services, gefaseerde extractie</td>
+                            <td>Week 3-12</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Performance</strong></td>
+                            <td>8-12s response</td>
+                            <td><3s response</td>
+                            <td>Caching, async processing, service optimization</td>
+                            <td>Week 4-8</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Schaalbaarheid</strong></td>
+                            <td>1 concurrent user</td>
+                            <td>100+ concurrent users</td>
+                            <td>PostgreSQL, Redis, horizontal scaling</td>
+                            <td>Week 6-10</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- AS-IS Architecture Tab -->
+        <div id="as-is" class="tab-content">
+            <div class="section">
+                <h2>Huidige Architectuur (AS-IS)</h2>
+
+                <h3>High-Level Architectuur Overzicht</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base', 'themeVariables': { 'primaryColor':'#667eea', 'primaryBorderColor':'#764ba2', 'primaryTextColor':'#fff', 'lineColor':'#333', 'secondaryColor':'#f5f5f5', 'tertiaryColor':'#e8f5e9'}}}%%
+graph TB
+    subgraph PL["Presentation Layer"]
+        UI["Streamlit Web UI<br/>main.py"]
+        TABS["10 Tab Components"]
+        SESSION["Session State Manager"]
+    end
+
+    subgraph ALA["Application Layer - Active 35%"]
+        ORCH["DefinitieOrchestrator"]
+        GEN["UnifiedDefinitionGenerator"]
+        VAL["DefinitionValidator"]
+        CTX["HybridContextManager"]
+        FACT["ServiceFactory"]
+    end
+
+    subgraph ALU["Application Layer - Unused 65%"]
+        SEC["Security Middleware<br/>❌ Niet gebruikt"]
+        ABTEST["A/B Testing Framework<br/>❌ Niet gebruikt"]
+        ASYNC["Async API Layer<br/>❌ Niet gebruikt"]
+        CONFIG["Config Manager<br/>❌ Niet gebruikt"]
+    end
+
+    subgraph DL["Domain Layer"]
+        RULES["45 Toetsregels<br/>✅ Actief"]
+        VALID["46 Validators<br/>❌ Ongebruikt"]
+        ONT["Ontologie Engine"]
+        CLEAN["Opschoning Module"]
+    end
+
+    subgraph INF["Infrastructure"]
+        DB[("SQLite Database")]
+        CACHE["Simple Cache"]
+        MONITOR["Basic Monitoring"]
+    end
+
+    subgraph EXT["External Services"]
+        AI["OpenAI API"]
+        WEB["Web Sources<br/>Wikipedia, SRU"]
+    end
+
+    UI --> TABS
+    TABS --> SESSION
+    SESSION --> ORCH
+    ORCH --> GEN
+    ORCH --> VAL
+    GEN --> CTX
+    GEN --> AI
+    CTX --> WEB
+    VAL --> RULES
+    ORCH --> DB
+
+    classDef unused fill:#ffcccc,stroke:#ff6666,stroke-width:2px
+    classDef active fill:#ccffcc,stroke:#66cc66,stroke-width:2px
+    class SEC,ABTEST,ASYNC,CONFIG,VALID unused
+    class RULES active
+                    </div>
+                </div>
+
+                <h3>Component Dependencies</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+graph LR
+    subgraph AC["Active Import Chain - 64 files"]
+        MAIN["main.py"] --> TABBED["tabbed_interface.py"]
+        TABBED --> GENUI["definition_generator_tab.py"]
+        TABBED --> EXPUI["expert_review_tab.py"]
+        TABBED --> HISTUI["history_tab.py"]
+        GENUI --> SERVICE["service_factory.py"]
+        SERVICE --> UNIDEF["unified_definition_generator.py"]
+        UNIDEF --> PROMPT["prompt_builder.py"]
+        UNIDEF --> HYBRID["hybrid_context_engine.py"]
+    end
+
+    subgraph OC["Orphaned Components - 119 files"]
+        SEC2["security/*.py<br/>Complete security pipeline"]
+        VAL2["validators/*.py<br/>46 validation rules"]
+        CFG2["config_manager.py<br/>Advanced config"]
+        TEST2["ab_testing_framework.py<br/>A/B testing"]
+    end
+
+    classDef ready fill:#90EE90,stroke:#228B22,stroke-width:2px
+    class SEC2,VAL2,CFG2,TEST2 ready
+                    </div>
+                </div>
+
+                <h3>Architectuur Problemen</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4><span class="component-icon">🔌</span> Integration Issues</h4>
+                        <p><strong>Probleem:</strong> Feedback history wordt meegegeven maar niet gebruikt in prompt generation</p>
+                        <div class="code-block">
+# Huidige situatie
+prompt = self.prompt_builder.build_prompt(
+    request, context, rules, feedback_history  # ← IGNORED!
+)</div>
+                        <p><strong>Impact:</strong> 40% rejection rate</p>
+                        <p><strong>Oplossing:</strong> Implementeer feedback processing in prompt builder</p>
+                    </div>
+
+                    <div class="component-card">
+                        <h4><span class="component-icon">📝</span> Context Violations</h4>
+                        <p><strong>Probleem:</strong> Context wordt expliciet genoemd (CON-01 regel schending)</p>
+                        <div class="code-block">
+# Fout
+"Organisatorische context: NP"  # ← CON-01 violation!</div>
+                        <p><strong>Impact:</strong> Kwaliteitsproblemen, afwijzingen</p>
+                        <p><strong>Oplossing:</strong> Implementeer impliciete context handling</p>
+                    </div>
+
+                    <div class="component-card">
+                        <h4><span class="component-icon">⚡</span> Performance Bottlenecks</h4>
+                        <p><strong>Probleem:</strong> Synchrone calls, geen caching, sequentiële processing</p>
+                        <ul>
+                            <li>Response tijd: 8-12 seconden (geschat)</li>
+                            <li>Geen parallelle verwerking</li>
+                            <li>Herhaalde API calls voor zelfde data</li>
+                        </ul>
+                        <div class="alert warning" style="margin-top: 10px;">
+                            <span class="alert-icon">⚠️</span>
+                            <div><strong>Note:</strong> Performance metrics zijn schattingen gebaseerd op typisch gedrag, niet gemeten data</div>
+                        </div>
+                        <p><strong>Oplossing:</strong> Async processing, Redis cache, parallel execution</p>
+                    </div>
+                </div>
+
+                <h3>Database Schema (SQLite)</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+erDiagram
+    DEFINITIES {
+        text id PK
+        text term
+        text definition
+        text context
+        text organization
+        timestamp created_at
+        real confidence_score
+        text validation_results
+        text source
+    }
+
+    FEEDBACK {
+        text id PK
+        text definition_id FK
+        text feedback_type
+        text feedback_text
+        timestamp created_at
+    }
+
+    CACHE {
+        text key PK
+        text value
+        timestamp expires_at
+    }
+
+    DEFINITIES ||--o{ FEEDBACK : has
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TO-BE Architecture Tab -->
+        <div id="to-be" class="tab-content">
+            <div class="section">
+                <h2>Target Architectuur (TO-BE)</h2>
+
+                <h3>Microservices Architecture Overview</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+graph TB
+    subgraph CL["Client Layer"]
+        REACT["React/Vue SPA"]
+        MOBILE["Mobile App"]
+        API["API Clients"]
+    end
+
+    subgraph AGL["API Gateway Layer"]
+        KONG["Kong API Gateway"]
+        AUTH["Auth Service<br/>OAuth 2.0/JWT"]
+        RATE["Rate Limiter"]
+        SEC["Security Service<br/>✅ Ready"]
+    end
+
+    subgraph CS["Core Services"]
+        DEF["Definition Service<br/>FastAPI"]
+        VAL["Validation Engine<br/>✅ Ready - 46 rules"]
+        CTX["Context Service<br/>Enrichment"]
+        EXP["Export Service"]
+    end
+
+    subgraph SS["Supporting Services"]
+        CONFIG["Config Service<br/>✅ Ready"]
+        MONITOR["Monitoring Service<br/>Prometheus/Grafana"]
+        ABTEST["A/B Testing<br/>✅ Ready"]
+        ASYNC["Async Queue<br/>✅ Ready"]
+    end
+
+    subgraph DL["Data Layer"]
+        PG[("PostgreSQL<br/>Primary DB")]
+        REDIS[("Redis<br/>Cache & Session")]
+        S3["S3/MinIO<br/>Documents"]
+        ELASTIC[("ElasticSearch<br/>Full-text")]
+    end
+
+    subgraph MB["Message Bus"]
+        RABBIT["RabbitMQ<br/>Event Bus"]
+        KAFKA["Kafka<br/>Event Stream"]
+    end
+
+    REACT --> KONG
+    MOBILE --> KONG
+    API --> KONG
+
+    KONG --> AUTH
+    KONG --> RATE
+    KONG --> SEC
+
+    AUTH --> DEF
+    AUTH --> VAL
+    AUTH --> CTX
+    AUTH --> EXP
+
+    DEF --> PG
+    DEF --> REDIS
+    DEF --> RABBIT
+
+    VAL --> REDIS
+    CTX --> ELASTIC
+    EXP --> S3
+
+    CONFIG --> REDIS
+    MONITOR --> PG
+
+    classDef ready fill:#90EE90,stroke:#228B22,stroke-width:2px
+    class SEC,VAL,CONFIG,ABTEST,ASYNC ready
+                    </div>
+                </div>
+
+                <h3>Service Communication Pattern</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+sequenceDiagram
+    participant C as Client
+    participant G as API Gateway
+    participant A as Auth Service
+    participant D as Definition Service
+    participant V as Validation Service
+    participant E as Enrichment Service
+    participant Q as Message Queue
+    participant DB as PostgreSQL
+
+    C->>G: POST /api/v1/definitions
+    G->>A: Validate JWT Token
+    A-->>G: User Context + Permissions
+    G->>D: Create Definition Request
+
+    par Parallel Processing
+        D->>E: Enrich Context
+        E-->>D: Enriched Data
+    and
+        D->>Q: Publish "definition.requested"
+    end
+
+    D->>D: Generate Definition (AI)
+    D->>V: Validate Definition
+    V-->>D: Validation Score + Feedback
+
+    alt Validation Failed
+        D->>D: Apply Feedback
+        D->>D: Regenerate
+        D->>V: Revalidate
+    end
+
+    D->>DB: Store Definition
+    D->>Q: Publish "definition.created"
+    D-->>G: Definition Response
+    G-->>C: 200 OK + Definition
+                    </div>
+                </div>
+
+                <h3>Data Architecture</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+graph LR
+    subgraph WP["Write Path"]
+        W1["API Request"] --> W2["Definition Service"]
+        W2 --> W3[("PostgreSQL Master")]
+        W2 --> W4["Redis Cache Invalidate"]
+        W2 --> W5["Event Bus"]
+    end
+
+    subgraph RP["Read Path"]
+        R1["API Request"] --> R2["API Gateway"]
+        R2 --> R3{"Cache Hit?"}
+        R3 -->|Yes| R4["Redis Cache"]
+        R3 -->|No| R5[("PostgreSQL Replica")]
+        R5 --> R6["Update Cache"]
+        R4 --> R7["Response"]
+        R6 --> R7
+    end
+
+    subgraph SP["Search Path"]
+        S1["Search Query"] --> S2["Search Service"]
+        S2 --> S3[("ElasticSearch")]
+        S3 --> S4["Filtered Results"]
+        S4 --> S5[("PostgreSQL")]
+        S5 --> S6["Full Data"]
+    end
+
+    W3 -.sync.-> R5
+    W5 -.index.-> S3
+                    </div>
+                </div>
+
+                <h3>Security Architecture</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+graph TB
+    subgraph EX["External"]
+        USER["User/Client"]
+        ATTACKER["Potential Threats"]
+    end
+
+    subgraph ES["Edge Security"]
+        CDN["CloudFlare CDN"]
+        WAF["Web Application Firewall"]
+        DDOS["DDoS Protection"]
+    end
+
+    subgraph NS["Network Security"]
+        LB["Load Balancer<br/>SSL Termination"]
+        FW["Firewall Rules"]
+        VPC["VPC Network"]
+    end
+
+    subgraph AS["Application Security"]
+        GATEWAY["API Gateway<br/>Rate Limiting"]
+        AUTHSVC["Auth Service<br/>OAuth 2.0/JWT"]
+        SECSVC["Security Service<br/>✅ Ready to Deploy"]
+    end
+
+    subgraph SM["Service Mesh"]
+        ISTIO["Istio Service Mesh<br/>mTLS, Circuit Breaker"]
+        SERVICES["Microservices"]
+    end
+
+    USER --> CDN
+    ATTACKER -.blocked.-> WAF
+    CDN --> WAF
+    WAF --> DDOS
+    DDOS --> LB
+    LB --> FW
+    FW --> VPC
+    VPC --> GATEWAY
+    GATEWAY --> AUTHSVC
+    GATEWAY --> SECSVC
+    AUTHSVC --> ISTIO
+    ISTIO --> SERVICES
+
+    classDef ready fill:#90EE90,stroke:#228B22,stroke-width:2px
+    class SECSVC ready
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Transition Roadmap Tab -->
+        <div id="transition" class="tab-content">
+            <div class="section">
+                <h2>Transitie Roadmap</h2>
+
+                <div class="alert warning">
+                    <span class="alert-icon">⚠️</span>
+                    <div>
+                        <strong>Quality-First Approach:</strong> We focussen eerst op het bereiken van 90% first-time-right kwaliteit
+                        binnen de huidige monoliet voordat we beginnen met de microservices migratie. Dit voorkomt dat we
+                        kwaliteitsproblemen meenemen naar de nieuwe architectuur.
+                    </div>
+                </div>
+
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <div class="timeline-marker">0</div>
+                        <div class="timeline-content">
+                            <h4>Fase 0: Quality Improvements in Monolith <span class="badge high">PRIORITEIT</span></h4>
+                            <p><strong>Duur:</strong> 2 weken (20-31 augustus 2025)</p>
+                            <table style="margin-top: 15px;">
+                                <tr>
+                                    <td><strong>Fix Feedback Integration</strong></td>
+                                    <td>3 dagen</td>
+                                    <td>Update prompt_builder.py om feedback_history te gebruiken</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Implicit Context Handling</strong></td>
+                                    <td>2 dagen</td>
+                                    <td>Implementeer CON-01 compliant context processing</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Preventive Validation</strong></td>
+                                    <td>3 dagen</td>
+                                    <td>Activeer rules tijdens generation, niet alleen achteraf</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Quality Metrics Testing</strong></td>
+                                    <td>2 dagen</td>
+                                    <td>Meet en valideer 90% first-time-right target</td>
+                                </tr>
+                            </table>
+                            <div class="alert success" style="margin-top: 15px;">
+                                <span class="alert-icon">✅</span>
+                                <div><strong>Deliverable:</strong> 90% first-time-right definities zonder architectuur wijzigingen</div>
+                            </div>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker">1</div>
+                        <div class="timeline-content">
+                            <h4>Fase 1: Activate Existing Services <span class="badge ready">READY</span></h4>
+                            <p><strong>Duur:</strong> 4 weken (1-30 september 2025)</p>
+
+                            <div class="component-grid" style="margin-top: 15px;">
+                                <div class="component-card ready">
+                                    <h4>Week 1-2: Security Gateway</h4>
+                                    <ul>
+                                        <li>Deploy security_middleware.py als standalone service</li>
+                                        <li>Configure Kong/Nginx met security service</li>
+                                        <li>Implement rate limiting & threat detection</li>
+                                    </ul>
+                                </div>
+                                <div class="component-card ready">
+                                    <h4>Week 2-3: Validation Engine</h4>
+                                    <ul>
+                                        <li>Package 46 validators als REST API</li>
+                                        <li>Deploy met horizontal scaling</li>
+                                        <li>Connect to existing definition flow</li>
+                                    </ul>
+                                </div>
+                                <div class="component-card ready">
+                                    <h4>Week 3-4: Config Service</h4>
+                                    <ul>
+                                        <li>Centralize all configuration</li>
+                                        <li>Implement feature flags</li>
+                                        <li>Enable A/B testing framework</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker">2</div>
+                        <div class="timeline-content">
+                            <h4>Fase 2: Core Services Migration</h4>
+                            <p><strong>Duur:</strong> 6 weken (1 oktober - 15 november 2025)</p>
+
+                            <h5>Database Migration (Week 1-2)</h5>
+                            <div class="code-block">
+-- Step 1: Add versioning to SQLite
+ALTER TABLE definities ADD COLUMN version INTEGER DEFAULT 1;
+ALTER TABLE definities ADD COLUMN updated_at TIMESTAMP;
+
+-- Step 2: Setup PostgreSQL replica
+-- Step 3: Implement dual-write pattern
+-- Step 4: Migrate read traffic
+-- Step 5: Cutover writes to PostgreSQL</div>
+
+                            <h5>Service Extraction Pattern (Week 3-6)</h5>
+                            <div class="mermaid-container">
+                                <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+graph LR
+    A["Monolith"] -->|"Strangler Fig"| B["Facade"]
+    B --> C{"Route"}
+    C -->|New| D["Microservice"]
+    C -->|Legacy| E["Monolith Code"]
+    D --> F[("PostgreSQL")]
+    E --> G[("SQLite")]
+                                </div>
+                            </div>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker">3</div>
+                        <div class="timeline-content">
+                            <h4>Fase 3: Full Production Deployment</h4>
+                            <p><strong>Duur:</strong> 2 weken (15-30 november 2025)</p>
+                            <ul>
+                                <li>Complete frontend migration to React/Vue</li>
+                                <li>Decommission monolith components</li>
+                                <li>Full monitoring & alerting setup</li>
+                                <li>Performance optimization</li>
+                                <li>Documentation & training</li>
+                            </ul>
+                        </div>
+                        <div class="timeline-line"></div>
+                    </div>
+
+                    <div class="timeline-item">
+                        <div class="timeline-marker">+</div>
+                        <div class="timeline-content">
+                            <h4>Risk Buffer & Contingency <span class="badge warning">AANBEVOLEN</span></h4>
+                            <p><strong>Extra tijd:</strong> 2-4 weken buffer</p>
+                            <ul>
+                                <li>Onvoorziene integratie problemen</li>
+                                <li>Performance tuning iterations</li>
+                                <li>Security audit findings</li>
+                                <li>User acceptance testing feedback</li>
+                            </ul>
+                            <div class="alert info" style="margin-top: 15px;">
+                                <span class="alert-icon">💡</span>
+                                <div><strong>Advies:</strong> Plan conservatief - beter vroeg klaar dan te laat</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h3>Migration Risks & Mitigation</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Risk</th>
+                            <th>Impact</th>
+                            <th>Likelihood</th>
+                            <th>Mitigation Strategy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Quality degradation during migration</td>
+                            <td>High</td>
+                            <td>Medium</td>
+                            <td>Fix quality first, continuous testing, feature flags</td>
+                        </tr>
+                        <tr>
+                            <td>Data migration failures</td>
+                            <td>High</td>
+                            <td>Low</td>
+                            <td>Dual-write pattern, incremental migration, rollback plan</td>
+                        </tr>
+                        <tr>
+                            <td>Service integration issues</td>
+                            <td>Medium</td>
+                            <td>Medium</td>
+                            <td>Contract testing, service mesh, circuit breakers</td>
+                        </tr>
+                        <tr>
+                            <td>Performance regression</td>
+                            <td>Medium</td>
+                            <td>Low</td>
+                            <td>Load testing, gradual rollout, monitoring</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Service Catalog Tab -->
+        <div id="services" class="tab-content">
+            <div class="section">
+                <h2>Microservice Catalog</h2>
+
+                <h3>Ready-to-Deploy Services (Ongebruikte Code)</h3>
+                <div class="component-grid">
+                    <div class="component-card ready">
+                        <h4><span class="component-icon">🔒</span> Security Service</h4>
+                        <table style="width: 100%; margin-top: 15px;">
+                            <tr><td><strong>Status</strong></td><td><span class="badge ready">100% READY</span></td></tr>
+                            <tr><td><strong>Locatie</strong></td><td><code>security/security_middleware.py</code></td></tr>
+                            <tr><td><strong>Grootte</strong></td><td>~500 lines of code</td></tr>
+                        </table>
+                        <h5 style="margin-top: 15px;">Features:</h5>
+                        <ul>
+                            <li>Complete security validation pipeline</li>
+                            <li>XSS, SQL Injection, CSRF protection</li>
+                            <li>Rate limiting per user/IP</li>
+                            <li>Security event logging & alerting</li>
+                            <li>Brute force protection</li>
+                        </ul>
+                        <h5>Deployment:</h5>
+                        <div class="code-block">
+docker build -t security-service:latest .
+docker run -p 8001:8000 security-service:latest
+kubectl apply -f k8s/security-service.yaml</div>
+                    </div>
+
+                    <div class="component-card ready">
+                        <h4><span class="component-icon">✅</span> Validation Rules Engine</h4>
+                        <table style="width: 100%; margin-top: 15px;">
+                            <tr><td><strong>Status</strong></td><td><span class="badge ready">READY</span></td></tr>
+                            <tr><td><strong>Locatie</strong></td><td><code>toetsregels/validators/</code></td></tr>
+                            <tr><td><strong>Grootte</strong></td><td>46 validator files</td></tr>
+                        </table>
+                        <h5 style="margin-top: 15px;">Validation Categories:</h5>
+                        <ul>
+                            <li><strong>ARAI</strong> - 9 rules (Artikel indeling)</li>
+                            <li><strong>CON</strong> - 2 rules (Context regels)</li>
+                            <li><strong>ESS</strong> - 5 rules (Essentiële elementen)</li>
+                            <li><strong>INT</strong> - 10 rules (Interne consistentie)</li>
+                            <li><strong>SAM</strong> - 8 rules (Samenhang)</li>
+                            <li><strong>STR</strong> - 9 rules (Structuur)</li>
+                            <li><strong>VER</strong> - 3 rules (Verwijzingen)</li>
+                            <li><strong>Totaal</strong> - 91 toetsregel files (DUPLICAAT PROBLEEM):
+                                <ul>
+                                    <li>46 validators in /validators/</li>
+                                    <li>45 regels in /regels/</li>
+                                    <li>⚠️ <strong>EXACT DEZELFDE CODE</strong> - DRY violation!</li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <h5>API Design:</h5>
+                        <div class="code-block">
+POST /api/v1/validate
+{
+    "definition": "...",
+    "rules": ["CON-01", "ESS-*"],
+    "context": {...}
+}</div>
+                    </div>
+
+                    <div class="component-card ready">
+                        <h4><span class="component-icon">🧪</span> A/B Testing Framework</h4>
+                        <table style="width: 100%; margin-top: 15px;">
+                            <tr><td><strong>Status</strong></td><td><span class="badge ready">READY</span></td></tr>
+                            <tr><td><strong>Locatie</strong></td><td><code>services/ab_testing_framework.py</code></td></tr>
+                            <tr><td><strong>Grootte</strong></td><td>Complete framework</td></tr>
+                        </table>
+                        <h5 style="margin-top: 15px;">Capabilities:</h5>
+                        <ul>
+                            <li>Test variant management (A/B/n)</li>
+                            <li>Performance metrics collection</li>
+                            <li>Quality metrics tracking</li>
+                            <li>Statistical significance testing</li>
+                            <li>Gradual rollout support</li>
+                        </ul>
+                        <h5>Use Cases:</h5>
+                        <ul>
+                            <li>New prompt strategies testing</li>
+                            <li>UI/UX improvements</li>
+                            <li>Algorithm optimization</li>
+                            <li>Feature flag management</li>
+                        </ul>
+                    </div>
+
+                    <div class="component-card ready">
+                        <h4><span class="component-icon">⚙️</span> Configuration Service</h4>
+                        <table style="width: 100%; margin-top: 15px;">
+                            <tr><td><strong>Status</strong></td><td><span class="badge ready">READY</span></td></tr>
+                            <tr><td><strong>Locatie</strong></td><td><code>config/config_manager.py</code></td></tr>
+                            <tr><td><strong>Grootte</strong></td><td>Full implementation</td></tr>
+                        </table>
+                        <h5 style="margin-top: 15px;">Features:</h5>
+                        <ul>
+                            <li>Centralized configuration management</li>
+                            <li>Environment-specific configs</li>
+                            <li>Runtime configuration updates</li>
+                            <li>Feature flags & toggles</li>
+                            <li>Config versioning & rollback</li>
+                        </ul>
+                    </div>
+
+                    <div class="component-card partial">
+                        <h4><span class="component-icon">🚀</span> Async API Layer</h4>
+                        <table style="width: 100%; margin-top: 15px;">
+                            <tr><td><strong>Status</strong></td><td><span class="badge partial">PARTIAL</span></td></tr>
+                            <tr><td><strong>Locatie</strong></td><td><code>utils/async_api.py</code></td></tr>
+                            <tr><td><strong>Grootte</strong></td><td>Core implementation</td></tr>
+                        </table>
+                        <h5 style="margin-top: 15px;">What's Ready:</h5>
+                        <ul>
+                            <li>Async request handling</li>
+                            <li>Progress streaming</li>
+                            <li>Non-blocking I/O</li>
+                        </ul>
+                        <h5>What's Needed:</h5>
+                        <ul>
+                            <li>WebSocket integration</li>
+                            <li>Message queue connection</li>
+                            <li>Event publishing</li>
+                        </ul>
+                    </div>
+
+                    <div class="component-card partial">
+                        <h4><span class="component-icon">📊</span> Monitoring Service</h4>
+                        <table style="width: 100%; margin-top: 15px;">
+                            <tr><td><strong>Status</strong></td><td><span class="badge partial">PARTIAL</span></td></tr>
+                            <tr><td><strong>Locatie</strong></td><td><code>monitoring/api_monitor.py</code></td></tr>
+                            <tr><td><strong>Grootte</strong></td><td>Basic implementation</td></tr>
+                        </table>
+                        <h5 style="margin-top: 15px;">Current Features:</h5>
+                        <ul>
+                            <li>API call tracking</li>
+                            <li>Basic performance metrics</li>
+                            <li>Error logging</li>
+                        </ul>
+                        <h5>Integration Needed:</h5>
+                        <ul>
+                            <li>Prometheus metrics export</li>
+                            <li>Grafana dashboards</li>
+                            <li>Alert rules configuration</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>New Services to Build</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>Purpose</th>
+                            <th>Priority</th>
+                            <th>Dependencies</th>
+                            <th>Estimated Effort</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Definition Service</strong></td>
+                            <td>Core definition generation logic</td>
+                            <td>High</td>
+                            <td>Extract from unified_definition_generator.py</td>
+                            <td>2 weeks</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Context Enrichment Service</strong></td>
+                            <td>Web lookup, document processing</td>
+                            <td>High</td>
+                            <td>Extract from hybrid_context_engine.py</td>
+                            <td>1 week</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Export Service</strong></td>
+                            <td>Multi-format export capabilities</td>
+                            <td>Medium</td>
+                            <td>New implementation needed</td>
+                            <td>1 week</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Notification Service</strong></td>
+                            <td>Email, webhook notifications</td>
+                            <td>Low</td>
+                            <td>New implementation needed</td>
+                            <td>3 days</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Technical Details Tab -->
+        <div id="technical" class="tab-content">
+            <div class="section">
+                <h2>Technische Implementatie Details</h2>
+
+                <h3>Technology Stack Comparison</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Component</th>
+                            <th>AS-IS (Current)</th>
+                            <th>TO-BE (Target)</th>
+                            <th>Rationale</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Frontend</strong></td>
+                            <td>Streamlit (Python)</td>
+                            <td>React/Vue + TypeScript</td>
+                            <td>Better UX, scalability, modern tooling</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Backend API</strong></td>
+                            <td>Streamlit embedded</td>
+                            <td>FastAPI + Pydantic</td>
+                            <td>True REST API, async support, OpenAPI</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Database</strong></td>
+                            <td>SQLite (file-based)</td>
+                            <td>PostgreSQL 15+</td>
+                            <td>Concurrent access, better performance</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Cache</strong></td>
+                            <td>In-memory Python dict</td>
+                            <td>Redis Cluster</td>
+                            <td>Distributed cache, persistence</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Search</strong></td>
+                            <td>SQL LIKE queries</td>
+                            <td>ElasticSearch</td>
+                            <td>Full-text search, faceted search</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Message Queue</strong></td>
+                            <td>None</td>
+                            <td>RabbitMQ / Kafka</td>
+                            <td>Async processing, event sourcing</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Container</strong></td>
+                            <td>None</td>
+                            <td>Docker + K8s</td>
+                            <td>Portability, orchestration</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Monitoring</strong></td>
+                            <td>Basic logging</td>
+                            <td>Prometheus + Grafana</td>
+                            <td>Metrics, alerting, dashboards</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>API Design Standards</h3>
+                <div class="code-block">
+# RESTful API Design
+GET    /api/v1/definitions?term={term}&limit=10
+POST   /api/v1/definitions
+PUT    /api/v1/definitions/{id}
+DELETE /api/v1/definitions/{id}
+
+# Response Format
+{
+    "data": {...},
+    "meta": {
+        "version": "1.0",
+        "timestamp": "2025-08-19T10:00:00Z"
+    },
+    "errors": []
+}
+
+# Error Response
+{
+    "errors": [{
+        "code": "VALIDATION_ERROR",
+        "message": "Definition failed CON-01 rule",
+        "field": "context",
+        "details": {...}
+    }]
+}</div>
+
+                <h3>Service Configuration Template</h3>
+                <div class="code-block">
+# service-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: definition-service-config
+data:
+  config.yaml: |
+    service:
+      name: definition-service
+      port: 8000
+      workers: 4
+
+    database:
+      host: postgresql.database.svc.cluster.local
+      port: 5432
+      name: definitions
+      pool_size: 20
+
+    redis:
+      host: redis.cache.svc.cluster.local
+      port: 6379
+      ttl: 3600
+
+    openai:
+      model: gpt-4
+      temperature: 0.7
+      max_tokens: 1000
+
+    monitoring:
+      metrics_port: 9090
+      health_check_path: /health
+      ready_check_path: /ready</div>
+
+                <h3>Deployment Pipeline</h3>
+                <div class="mermaid-container">
+                    <div class="mermaid">
+%%{init: {'theme':'base'}}%%
+graph LR
+    A["Git Push"] --> B["GitHub Actions"]
+    B --> C{"Tests Pass?"}
+    C -->|No| D["Notify Developer"]
+    C -->|Yes| E["Build Docker Image"]
+    E --> F["Push to Registry"]
+    F --> G["Deploy to Staging"]
+    G --> H{"Integration Tests"}
+    H -->|Pass| I["Deploy to Production"]
+    H -->|Fail| J["Rollback"]
+    I --> K["Smoke Tests"]
+    K --> L["Monitor Metrics"]
+                    </div>
+                </div>
+
+                <h3>Performance Targets</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <h4>Response Time</h4>
+                        <div class="stat-value"><3s</div>
+                        <div class="stat-label">95th percentile</div>
+                        <ul style="margin-top: 10px; font-size: 14px;">
+                            <li>API Gateway: <50ms</li>
+                            <li>Service call: <500ms</li>
+                            <li>Database query: <100ms</li>
+                            <li>AI generation: <2s</li>
+                        </ul>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Throughput</h4>
+                        <div class="stat-value">1000</div>
+                        <div class="stat-label">requests/second</div>
+                        <ul style="margin-top: 10px; font-size: 14px;">
+                            <li>Read: 900 req/s</li>
+                            <li>Write: 100 req/s</li>
+                            <li>Burst: 2000 req/s</li>
+                        </ul>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Availability</h4>
+                        <div class="stat-value">99.9%</div>
+                        <div class="stat-label">uptime SLA</div>
+                        <ul style="margin-top: 10px; font-size: 14px;">
+                            <li>Max downtime: 43min/month</li>
+                            <li>RTO: 30 minutes</li>
+                            <li>RPO: 1 hour</li>
+                        </ul>
+                    </div>
+                    <div class="stat-card">
+                        <h4>Scalability</h4>
+                        <div class="stat-value">100+</div>
+                        <div class="stat-label">concurrent users</div>
+                        <ul style="margin-top: 10px; font-size: 14px;">
+                            <li>Auto-scale: 2-20 pods</li>
+                            <li>CPU target: 70%</li>
+                            <li>Memory limit: 1GB</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>Security Implementation</h3>
+                <div class="component-grid">
+                    <div class="component-card">
+                        <h4>Authentication & Authorization</h4>
+                        <div class="code-block">
+# OAuth 2.0 + JWT Implementation
+@app.post("/auth/token")
+async def login(credentials: OAuth2PasswordRequestForm):
+    user = authenticate_user(credentials)
+    access_token = create_access_token(
+        data={"sub": user.username},
+        expires_delta=timedelta(minutes=30)
+    )
+    return {"access_token": access_token, "token_type": "bearer"}
+
+# RBAC Middleware
+@app.middleware("http")
+async def check_permissions(request: Request, call_next):
+    token = get_token_from_header(request)
+    user = decode_token(token)
+    if not has_permission(user, request.url.path, request.method):
+        raise HTTPException(status_code=403)
+    return await call_next(request)</div>
+                    </div>
+
+                    <div class="component-card">
+                        <h4>Data Encryption</h4>
+                        <ul>
+                            <li><strong>In Transit:</strong> TLS 1.3 for all connections</li>
+                            <li><strong>At Rest:</strong> AES-256 database encryption</li>
+                            <li><strong>Secrets:</strong> HashiCorp Vault integration</li>
+                            <li><strong>PII:</strong> Field-level encryption for sensitive data</li>
+                        </ul>
+                        <div class="code-block">
+# Encryption example
+from cryptography.fernet import Fernet
+
+class EncryptedField:
+    def __init__(self, key):
+        self.cipher = Fernet(key)
+
+    def encrypt(self, value: str) -> str:
+        return self.cipher.encrypt(value.encode()).decode()
+
+    def decrypt(self, token: str) -> str:
+        return self.cipher.decrypt(token.encode()).decode()</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Mermaid
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'default',
+            themeVariables: {
+                primaryColor: '#667eea',
+                primaryTextColor: '#fff',
+                primaryBorderColor: '#764ba2',
+                lineColor: '#333',
+                secondaryColor: '#f5f5f5',
+                tertiaryColor: '#e8f5e9',
+                background: '#fff',
+                mainBkg: '#667eea',
+                secondBkg: '#f5f5f5',
+                tertiaryBkg: '#e8f5e9'
+            }
+        });
+
+        // Tab switching functionality
+        function showTab(tabName) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
+
+            // Remove active class from all buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+
+            // Add active class to clicked button
+            event.target.classList.add('active');
+
+            // Re-render Mermaid diagrams in the active tab
+            mermaid.init();
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Ensure first tab is active
+            showTab('overview');
+        });
+    </script>
+</body>
+</html>
