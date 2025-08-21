@@ -167,7 +167,27 @@ pytest tests/unit/test_config_system.py               # NameError issues
 
 ## 📖 Documentatie
 
-- [Brownfield Architecture](docs/brownfield-architecture.md) - Actuele systeem architectuur
+> **📋 TODO**: Documentatie reorganisatie plan uitvoeren - zie [DOCUMENTATIE_REORGANISATIE_PLAN.md](DOCUMENTATIE_REORGANISATIE_PLAN.md)
+
+### Requirements & Features
+- **[Complete Requirements & Features](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md)** - Alle user stories, epics en feature status
+  - 87 features gedefinieerd
+  - 9 epics met acceptance criteria
+  - Real-time status tracking
+
+### Technische Architectuur
+- **[Architectuur Overzicht](docs/architectuur/README.md)** - Index van alle architectuur documentatie
+- **[Enterprise Architecture](docs/architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategie alignment
+- **[Solution Architecture](docs/architectuur/SOLUTION_ARCHITECTURE.md)** - Technische implementatie details
+- **[Product Delivery Tracker](docs/architectuur/PRODUCT_DELIVERY_TRACKER.md)** - Sprint voortgang & metrics
+- **[Legacy Migratie](docs/LEGACY_CODE_MIGRATION_ROADMAP.md)** - 10-weken migratie roadmap
+
+### Quick Links
+- 🎯 [Wat moet er nog gebeuren?](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#epic-overview) - 60% features nog niet gestart
+- 🔒 [Security Requirements](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#epic-6-security--auth) - KRITIEK: 0% geïmplementeerd
+- 🚀 [Roadmap](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#implementation-roadmap) - 4 fasen implementatie plan
+
+### Overige Documentatie
 - [Roadmap](docs/requirements/ROADMAP.md) - 6-weken development plan
 - [Backlog](docs/BACKLOG.md) - 77+ items met quick wins
 - [Analyses](docs/analysis/) - Technische documentatie
@@ -233,7 +253,7 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 
 - Check [Setup Guide](SETUP.md) voor installatie
 - Zie [Roadmap](docs/requirements/ROADMAP.md) voor planning
-- Browse [Architecture](docs/brownfield-architecture.md) voor technische details
+- Browse [Architecture](docs/architectuur/README.md) voor technische details
 - Review [Backlog](docs/BACKLOG.md) voor open taken
 
 ## 📜 License
