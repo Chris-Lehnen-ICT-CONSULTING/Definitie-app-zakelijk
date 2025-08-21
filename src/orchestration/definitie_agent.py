@@ -710,10 +710,10 @@ class DefinitieAgent:
         try:
             generation_result = self.generator.generate_with_examples(
                 generation_context,
-                generate_examples=(
+                _generate_examples=(
                     iteration_number == 1
                 ),  # Alleen voorbeelden in eerste iteratie
-                example_types=None,  # Gebruik standaard: sentence, practical, counter
+                _example_types=None,  # Gebruik standaard: sentence, practical, counter
             )
             definitie = generation_result.definitie
 
