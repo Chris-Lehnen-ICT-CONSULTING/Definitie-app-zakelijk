@@ -626,11 +626,93 @@
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
                     <div>
                         <h4>Performance Metrics Timeline</h4>
-                        <canvas id="performanceChart" width="400" height="200"></canvas>
+                        <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #E5E7EB;">
+                            <div style="display: flex; justify-content: space-between; align-items: end; height: 120px; gap: 0.5rem;">
+                                <!-- Timeline bars representing performance over weeks -->
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="height: 60px; width: 20px; background: #EF4444; border-radius: 2px; margin-bottom: 4px;"></div>
+                                    <span style="font-size: 0.75rem; color: #6B7280;">W1</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="height: 75px; width: 20px; background: #F59E0B; border-radius: 2px; margin-bottom: 4px;"></div>
+                                    <span style="font-size: 0.75rem; color: #6B7280;">W2</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="height: 90px; width: 20px; background: #10B981; border-radius: 2px; margin-bottom: 4px;"></div>
+                                    <span style="font-size: 0.75rem; color: #6B7280;">W3</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="height: 85px; width: 20px; background: #10B981; border-radius: 2px; margin-bottom: 4px;"></div>
+                                    <span style="font-size: 0.75rem; color: #6B7280;">W4</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="height: 95px; width: 20px; background: #22C55E; border-radius: 2px; margin-bottom: 4px;"></div>
+                                    <span style="font-size: 0.75rem; color: #6B7280;">W5</span>
+                                </div>
+                                <div style="display: flex; flex-direction: column; align-items: center;">
+                                    <div style="height: 100px; width: 20px; background: #22C55E; border-radius: 2px; margin-bottom: 4px;"></div>
+                                    <span style="font-size: 0.75rem; color: #6B7280;">W6</span>
+                                </div>
+                            </div>
+                            <div style="margin-top: 1rem; font-size: 0.875rem;">
+                                <div style="display: flex; gap: 1rem;">
+                                    <span><span style="color: #EF4444;">●</span> Poor (&lt;60%)</span>
+                                    <span><span style="color: #F59E0B;">●</span> Fair (60-80%)</span>
+                                    <span><span style="color: #10B981;">●</span> Good (80-90%)</span>
+                                    <span><span style="color: #22C55E;">●</span> Excellent (&gt;90%)</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <h4>Resource Utilization</h4>
-                        <canvas id="resourceChart" width="400" height="200"></canvas>
+                        <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #E5E7EB;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- CPU Usage -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">CPU Usage</span>
+                                        <span style="font-size: 0.875rem; font-weight: bold; color: #F59E0B;">72%</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; width: 72%; background: #F59E0B; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Memory Usage -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Memory Usage</span>
+                                        <span style="font-size: 0.875rem; font-weight: bold; color: #10B981;">58%</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; width: 58%; background: #10B981; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Storage Usage -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Storage Usage</span>
+                                        <span style="font-size: 0.875rem; font-weight: bold; color: #EF4444;">89%</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; width: 89%; background: #EF4444; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Network I/O -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Network I/O</span>
+                                        <span style="font-size: 0.875rem; font-weight: bold; color: #3B82F6;">34%</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 8px; border-radius: 4px; overflow: hidden;">
+                                        <div style="height: 100%; width: 34%; background: #3B82F6; border-radius: 4px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -2679,7 +2761,47 @@
                 </div>
 
                 <h3>Investment & ROI Timeline</h3>
-                <canvas id="roiChart" width="400" height="200"></canvas>
+                <div style="background: white; padding: 2rem; border-radius: 8px; border: 1px solid #E5E7EB;">
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem;">
+                            <!-- Q1 -->
+                            <div style="text-align: center; padding: 1rem; background: #FEE2E2; border-radius: 6px;">
+                                <div style="font-size: 0.875rem; color: #6B7280; margin-bottom: 0.5rem;">Q1 2024</div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #EF4444;">-€375k</div>
+                                <div style="font-size: 0.75rem; color: #9CA3AF;">Investment</div>
+                            </div>
+                            <!-- Q2 -->
+                            <div style="text-align: center; padding: 1rem; background: #FFF7ED; border-radius: 6px;">
+                                <div style="font-size: 0.875rem; color: #6B7280; margin-bottom: 0.5rem;">Q2 2024</div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #F59E0B;">-€750k</div>
+                                <div style="font-size: 0.75rem; color: #9CA3AF;">Cumulative</div>
+                            </div>
+                            <!-- Q3 -->
+                            <div style="text-align: center; padding: 1rem; background: #FFF7ED; border-radius: 6px;">
+                                <div style="font-size: 0.875rem; color: #6B7280; margin-bottom: 0.5rem;">Q3 2024</div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #F59E0B;">-€250k</div>
+                                <div style="font-size: 0.75rem; color: #9CA3AF;">Break-even</div>
+                            </div>
+                            <!-- Q4 -->
+                            <div style="text-align: center; padding: 1rem; background: #D1FAE5; border-radius: 6px;">
+                                <div style="font-size: 0.875rem; color: #6B7280; margin-bottom: 0.5rem;">Q4 2024</div>
+                                <div style="font-size: 1.5rem; font-weight: bold; color: #10B981;">+€250k</div>
+                                <div style="font-size: 0.75rem; color: #9CA3AF;">Profit</div>
+                            </div>
+                        </div>
+                        
+                        <!-- ROI Progress Bar -->
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="font-size: 0.875rem; font-weight: medium;">ROI Progress</span>
+                                <span style="font-size: 0.875rem; color: #10B981; font-weight: bold;">18 months to positive ROI</span>
+                            </div>
+                            <div style="background: #F3F4F6; height: 12px; border-radius: 6px; overflow: hidden;">
+                                <div style="height: 100%; width: 67%; background: linear-gradient(90deg, #EF4444, #F59E0B, #10B981); border-radius: 6px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
                 <h3>Risk Mitigation Strategy</h3>
                 <table>
@@ -3163,11 +3285,103 @@
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;">
                     <div>
                         <h4>Technical Risks</h4>
-                        <canvas id="techRiskChart" width="400" height="200"></canvas>
+                        <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #E5E7EB;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- High Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Database Migration</span>
+                                        <span style="background: #EF4444; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">High</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 85%; background: #EF4444; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Medium Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Performance Issues</span>
+                                        <span style="background: #F59E0B; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Medium</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 60%; background: #F59E0B; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Medium Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Integration Complexity</span>
+                                        <span style="background: #F59E0B; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Medium</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 45%; background: #F59E0B; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Low Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Scalability Concerns</span>
+                                        <span style="background: #10B981; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Low</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 25%; background: #10B981; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <h4>Business Risks</h4>
-                        <canvas id="bizRiskChart" width="400" height="200"></canvas>
+                        <div style="background: white; padding: 1.5rem; border-radius: 8px; border: 1px solid #E5E7EB;">
+                            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                                <!-- High Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">User Adoption</span>
+                                        <span style="background: #EF4444; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">High</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 75%; background: #EF4444; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Medium Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Training Requirements</span>
+                                        <span style="background: #F59E0B; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Medium</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 55%; background: #F59E0B; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Low Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Budget Overrun</span>
+                                        <span style="background: #10B981; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Low</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 30%; background: #10B981; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Low Risk -->
+                                <div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                        <span style="font-size: 0.875rem;">Timeline Delays</span>
+                                        <span style="background: #10B981; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">Low</span>
+                                    </div>
+                                    <div style="background: #F3F4F6; height: 6px; border-radius: 3px;">
+                                        <div style="height: 100%; width: 20%; background: #10B981; border-radius: 3px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
