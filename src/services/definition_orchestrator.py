@@ -104,7 +104,7 @@ class ProcessingContext:
     errors: list[str] = field(default_factory=list)
 
 
-class DefinitionOrchestrator(DefinitionOrchestratorInterface):
+class DefinitionOrchestrator(DefinitionOrchestratorInterface, DefinitionGeneratorInterface):
     """
     Service voor het orkestreren van definitie operaties.
 
@@ -358,14 +358,43 @@ class DefinitionOrchestrator(DefinitionOrchestratorInterface):
 
     # Private helper methods
 
+    async def generate(self, request: GenerationRequest) -> Definition:
+        """
+        Implementeer DefinitionGeneratorInterface.generate().
+        
+        Dit is de hoofdmethode voor definitie generatie.
+        """
+        # Gebruik create_definition voor de complete workflow
+        response = await self.create_definition(request)
+        if response.success and response.definition:
+            return response.definition
+        else:
+            # Als create_definition faalt, maak een basis definitie
+            return Definition(
+                begrip=request.begrip,
+                definitie=f"Fout bij generatie: {response.message}",
+                context=request.context,
+                domein=request.domein,
+            )
+
+    async def enhance(self, definition: Definition) -> Definition:
+        """
+        Implementeer DefinitionGeneratorInterface.enhance().
+        
+        Verbeter een bestaande definitie.
+        """
+        # TODO: Implement enhancement logic
+        # Voor nu, return de originele definitie
+        return definition
+
     async def _generate_definition(self, context: ProcessingContext) -> Definition:
-        """Genereer definitie (orchestrator is zelf de generator)."""
+        """Genereer basis definitie met GPT integration."""
         try:
-            # TODO: Implement actual definition generation logic
-            # For now, create a mock definition
+            # TODO: Integreer echte GPT calls hier
+            # Voor nu, gebruik mock data
             definition = Definition(
                 begrip=context.request.begrip,
-                definitie="Een mock definitie die door DefinitionOrchestrator wordt gegenereerd.",
+                definitie="Een basis definitie die door DefinitionOrchestrator wordt gegenereerd.",
                 context=context.request.context,
                 domein=context.request.domein,
             )
