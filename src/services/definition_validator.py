@@ -152,13 +152,22 @@ class DefinitionValidator(DefinitionValidatorInterface):
         errors = [v for v in violations if v.startswith("❌")]
         warnings = [v for v in violations if v.startswith("🟡")]
 
-        return ValidationResult(
+        result = ValidationResult(
             is_valid=is_acceptable,
             errors=errors,
             warnings=warnings,
             suggestions=suggestions,
             score=overall_score,
         )
+        
+        # Voeg legacy UI compatibility toe - bewaar ALLE toetsresultaten
+        if not hasattr(result, 'metadata'):
+            result.metadata = {}
+        result.metadata['toetsresultaten'] = toets_resultaten  # Volledige lijst voor UI
+        result.metadata['detailed_scores'] = detailed_scores
+        result.metadata['passed_rules'] = passed_rules
+        
+        return result
 
     def validate_field(self, field_name: str, value: Any) -> ValidationResult:
         """

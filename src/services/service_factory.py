@@ -39,7 +39,7 @@ class LegacyGenerationResult:
             self.final_score = getattr(self, "validation_score", 0.0)
         if not hasattr(self, "reason"):
             self.reason = getattr(self, "error_message", "")
-        
+
         # Legacy UI compatibiliteit - voor iterative generation workflow
         if not hasattr(self, "iteration_count"):
             self.iteration_count = 1
@@ -48,7 +48,19 @@ class LegacyGenerationResult:
         if not hasattr(self, "iterations"):
             self.iterations = []
         if not hasattr(self, "best_iteration"):
-            self.best_iteration = None
+            # Maak een fake best_iteration voor UI compatibility
+            class FakeIteration:
+                def __init__(self, parent):
+                    self.iteration_number = 1
+                    self.validation_result = FakeValidationResult(parent)
+                    self.generation_result = parent
+                    
+            class FakeValidationResult:
+                def __init__(self, parent):
+                    self.overall_score = parent.final_score
+                    self.violations = []
+                    
+            self.best_iteration = FakeIteration(self) if self.success else None
 
     def __getitem__(self, key):
         """Dict-like access voor backward compatibility."""
@@ -175,7 +187,10 @@ class ServiceAdapter:
                 final_definitie=response.definition.definitie,  # Voor legacy UI compatibility
                 marker=response.definition.metadata.get("marker", ""),
                 toetsresultaten=(
-                    response.validation.errors if response.validation else []
+                    response.validation.metadata.get('toetsresultaten', response.validation.errors) 
+                    if response.validation and hasattr(response.validation, 'metadata') 
+                    else response.validation.errors if response.validation 
+                    else []
                 ),
                 validation_details=(
                     response.validation if response.validation else None
