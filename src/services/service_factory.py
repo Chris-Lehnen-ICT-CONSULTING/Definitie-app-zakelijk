@@ -91,12 +91,22 @@ class ServiceAdapter:
         self.orchestrator = container.orchestrator()
         self.web_lookup = container.web_lookup()
 
-    async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
+    def get_service_info(self) -> dict:
+        """Return service info voor UI detectie."""
+        return {
+            "service_mode": "container_v2",
+            "architecture": "microservices",
+            "version": "2.0"
+        }
+
+    def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
         """
-        Legacy compatible definitie generatie.
+        Legacy compatible definitie generatie (SYNC for legacy UI).
 
         Vertaalt de legacy interface naar de nieuwe service calls.
+        Deze methode is sync om legacy UI compatibility te behouden.
         """
+        import asyncio
         from services.interfaces import GenerationRequest
 
         # Converteer legacy context_dict naar GenerationRequest
@@ -108,8 +118,8 @@ class ServiceAdapter:
             extra_instructies=kwargs.get("extra_instructies"),
         )
 
-        # Gebruik orchestrator
-        response = await self.orchestrator.create_definition(request)
+        # Gebruik orchestrator via asyncio.run() voor sync interface
+        response = asyncio.run(self.orchestrator.create_definition(request))
 
         # Converteer response naar legacy format
         if response.success and response.definition:
@@ -149,9 +159,9 @@ class ServiceAdapter:
             "orchestrator": self.orchestrator.get_stats(),
         }
 
-    async def search_web_sources(self, term: str, sources: list | None = None) -> dict:
+    def search_web_sources(self, term: str, sources: list | None = None) -> dict:
         """
-        Legacy compatible web lookup.
+        Legacy compatible web lookup (SYNC for legacy UI).
 
         Args:
             term: Zoekterm
@@ -160,11 +170,12 @@ class ServiceAdapter:
         Returns:
             Legacy format resultaat dict
         """
+        import asyncio
         from services.interfaces import LookupRequest
 
         request = LookupRequest(term=term, sources=sources, max_results=5)
 
-        results = await self.web_lookup.lookup(request)
+        results = asyncio.run(self.web_lookup.lookup(request))
 
         # Converteer naar legacy format
         legacy_results = {}
