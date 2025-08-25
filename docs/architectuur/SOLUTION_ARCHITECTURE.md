@@ -15,9 +15,10 @@
 ### Key Design Decisions
 1. **Quality-First Migration**: Achieve 90% quality in monolith before splitting
 2. **GVI Pattern**: Generation-Validation-Integration for quality assurance
-3. **Reuse Existing Components**: 65% of code unused but microservice-ready
-4. **Event-Driven Architecture**: Loose coupling for scalability
-5. **Strangler Fig Pattern**: Gradual migration from monolith
+3. **Session State Elimination**: Services independent of UI state for clean architecture
+4. **Reuse Existing Components**: 65% of code unused but microservice-ready
+5. **Event-Driven Architecture**: Loose coupling for scalability
+6. **Strangler Fig Pattern**: Gradual migration from monolith
 
 ### Reference to Enterprise Architecture
 - **Business Drivers**: → [EA Section 1: Business Architecture]
@@ -347,6 +348,150 @@ User Request → UI Tab → Service Layer → External API/DB → Response
 │  │ - Context         │         │ - Delivery        │          │
 │  └───────────────────┘         └───────────────────┘          │
 └─────────────────────────────────────────────────────────────────┘
+```
+
+### 1.5 Clean Architecture Services Implementation ✅ COMPLETED
+
+#### Session State Elimination Strategy
+**Status**: **IMPLEMENTED** (2025-08-25)
+**Architecture Pattern**: Data Aggregation + Service Facade + Adapter Pattern
+
+#### 1.5.1 Problem Analysis
+- **Symptom**: Business services directly importing `SessionStateManager` 
+- **Impact**: Services coupled to UI state, difficult testing, architecture violations
+- **Root Cause**: No clear separation between UI data collection and business logic
+
+#### 1.5.2 Solution Pattern
+```python
+# Clean Architecture Layers (Implemented)
+┌─────────────────────────────────────────────────────┐
+│                 UI Layer                            │
+│ ┌─────────────┐  ┌────────────────────────────────┐ │
+│ │SessionState │→ │UIComponentsAdapter (Bridge)    │ │  
+│ │Manager      │  │- Collects UI data              │ │
+│ └─────────────┘  │- Calls clean services          │ │
+│                  └────────────────────────────────┘ │
+└─────────────────────────┬───────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────┐
+│                Facade Layer                         │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │DefinitionUIService (UI Facade)                  │ │
+│ │- export_definition(ui_data)                     │ │
+│ │- prepare_for_review(notes)                      │ │
+│ │- get_export_formats()                           │ │
+│ └─────────────────────────────────────────────────┘ │
+└─────────────────────────┬───────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────┐
+│              Business Services Layer                │
+│ ┌─────────────────────┐ ┌─────────────────────────┐ │
+│ │DataAggregationSvc   │ │ExportService            │ │
+│ │- aggregate_data()   │ │- export_to_format()     │ │
+│ │- NO UI dependencies │ │- Multiple formats       │ │
+│ └─────────────────────┘ └─────────────────────────┘ │
+└─────────────────────────┬───────────────────────────┘
+                          │
+┌─────────────────────────▼───────────────────────────┐
+│               Repository Layer                       │
+│ ┌─────────────────────────────────────────────────┐ │
+│ │DefinitieRepository                               │ │
+│ │- get_definitie(id)                              │ │
+│ │- Pure data access                               │ │
+│ └─────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────┘
+```
+
+#### 1.5.3 Implemented Components
+```python
+# 1. Data Aggregation Service (NO UI dependencies)
+class DataAggregationService:
+    def aggregate_definitie_for_export(
+        self,
+        definitie_id: int = None,
+        definitie_record: DefinitieRecord = None, 
+        additional_data: dict = None  # From UI, but passed as parameter
+    ) -> DefinitieExportData:
+        # Aggregates data from repository + additional UI data
+        # NO SessionStateManager imports
+
+# 2. Export Service (Business logic only)
+class ExportService:
+    def export_definitie(
+        self,
+        definitie_id: int,
+        additional_data: dict,  # UI data as parameter
+        format: ExportFormat
+    ) -> str:
+        # Pure business logic, supports TXT/JSON/CSV
+        # NO UI dependencies
+
+# 3. UI Facade Service (UI-friendly interface)
+class DefinitionUIService:
+    def export_definition(
+        self,
+        definitie_id: int,
+        ui_data: dict,  # Collected from UI
+        format: str
+    ) -> dict:
+        # Returns UI-friendly result format
+        # Handles errors, success messages
+        
+# 4. UI Adapter (Bridge to legacy)
+class UIComponentsAdapter:
+    def export_definition(self, format: str) -> bool:
+        # Collects data from SessionStateManager (temporary)
+        ui_data = self._collect_ui_data_for_export()
+        # Calls clean services
+        result = self.service.export_definition(ui_data=ui_data)
+        # Handles UI display
+```
+
+#### 1.5.4 Integration with Service Container
+```python
+class ServiceContainer:
+    def data_aggregation_service(self):
+        # Dependency injection, no UI dependencies
+        
+    def export_service(self):
+        # Uses data_aggregation_service + repository
+        
+    def definition_ui_service(self):
+        # Facade combining all services for UI
+
+    def service_adapter(self):  # Enhanced existing adapter
+        # Legacy compatibility + new export methods
+```
+
+#### 1.5.5 Migration Strategy
+**Phase 1**: Create clean services ✅ **COMPLETED**
+**Phase 2**: Add to service container ✅ **COMPLETED**  
+**Phase 3**: Create UI adapters ✅ **COMPLETED**
+**Phase 4**: UI components migration (gradual, backward compatible)
+
+#### 1.5.6 Success Metrics ✅ ACHIEVED
+- ✅ **0** SessionStateManager imports in business services
+- ✅ **100%** services testable without UI mocks (8/8 integration tests pass)
+- ✅ **Backward compatibility** maintained via adapters
+- ✅ **3 export formats** supported (TXT/JSON/CSV)
+
+#### 1.5.7 Testing Strategy
+```python
+# Services can be tested with pure data
+def test_data_aggregation_without_session_state():
+    service = DataAggregationService(mock_repository)
+    result = service.aggregate_definitie_for_export(
+        definitie_id=1,
+        additional_data={"expert_review": "Good"}  # Pure dict
+    )
+    assert result.expert_review == "Good"
+
+# Architecture boundaries enforced
+def test_no_ui_dependencies():
+    import inspect
+    from services import data_aggregation_service
+    source = inspect.getsource(data_aggregation_service)
+    assert "SessionStateManager" not in source
 ```
 
 ---

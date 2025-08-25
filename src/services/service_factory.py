@@ -148,6 +148,7 @@ class ServiceAdapter:
         self.container = container
         self.orchestrator = container.orchestrator()
         self.web_lookup = container.web_lookup()
+        self.ui_service = container.definition_ui_service()
 
     def get_service_info(self) -> dict:
         """Return service info voor UI detectie."""
@@ -185,12 +186,23 @@ class ServiceAdapter:
             logger.info(f"Enhanced prompt with regeneration context for '{begrip}'")
 
         # Converteer legacy context_dict naar GenerationRequest
+        # Extract ontologische categorie uit kwargs
+        categorie = kwargs.get("categorie")
+        ontologische_categorie = None
+        if categorie:
+            # Converteer OntologischeCategorie enum naar string
+            if hasattr(categorie, 'value'):
+                ontologische_categorie = categorie.value
+            else:
+                ontologische_categorie = str(categorie)
+        
         request = GenerationRequest(
             begrip=begrip,
             context=", ".join(context_dict.get("organisatorisch", [])),
             domein=", ".join(context_dict.get("domein", [])),
             organisatie=kwargs.get("organisatie", ""),
             extra_instructies=extra_instructions,
+            ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
         )
 
         # Gebruik orchestrator via asyncio.run() voor sync interface
@@ -308,6 +320,24 @@ class ServiceAdapter:
             }
             for ref in refs
         ]
+    
+    def export_definition(self, definition_id: int = None, ui_data: dict = None, format: str = "txt") -> dict:
+        """
+        Export definitie via UI service.
+        
+        Args:
+            definition_id: ID van definitie om te exporteren
+            ui_data: UI data zoals voorbeelden, review, etc.
+            format: Export formaat
+            
+        Returns:
+            Export resultaat dict
+        """
+        return self.ui_service.export_definition(
+            definitie_id=definition_id,
+            ui_data=ui_data,
+            format=format
+        )
 
     # Voeg meer legacy compatible methods toe indien nodig...
 

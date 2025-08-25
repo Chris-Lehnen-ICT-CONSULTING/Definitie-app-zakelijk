@@ -510,6 +510,11 @@ class DefinitionGeneratorTab:
                 )
                 PromptDebugSection.render(iteration_result, voorbeelden_prompts)
 
+        # Category change regeneration preview (op logische locatie)
+        category_change_state = generation_result.get("category_change_state")
+        if category_change_state and category_change_state.show_regeneration_preview:
+            self._render_category_change_preview(category_change_state, generation_result, saved_record)
+
         # Saved record info
         if saved_record:
             st.markdown("#### 💾 Database Record")
@@ -688,15 +693,10 @@ class DefinitionGeneratorTab:
 
         # Handel UI acties af op basis van workflow resultaat
         if result.action == WorkflowAction.SHOW_REGENERATION_PREVIEW:
-            # Render regeneration preview met data uit workflow
-            self._render_regeneration_preview(
-                begrip=result.preview_data["begrip"],
-                current_definition=result.preview_data["current_definition"],
-                old_category=result.old_category,
-                new_category=result.new_category,
-                generation_result=generation_result,
-                saved_record=saved_record,
-            )
+            # Store category change state in generation_result voor later rendering
+            generation_result["category_change_state"] = result.preview_data.get("category_change_state")
+            # Hide category selector nu preview wordt getoond
+            SessionStateManager.set_value("show_category_selector", False)
         elif result.action == WorkflowAction.SHOW_SUCCESS:
             # Geen verdere actie nodig, success message is al getoond
             pass
@@ -1389,3 +1389,88 @@ class DefinitionGeneratorTab:
         """Toon instellingen modal."""
         # TODO: Implement settings modal
         st.info("⚙️ Settings modal coming soon...")
+
+    def _render_category_change_preview(
+        self, 
+        category_change_state, 
+        generation_result: dict[str, Any], 
+        saved_record: Any
+    ):
+        """Render category change preview via DataAggregationService state."""
+        st.markdown("---")
+        st.markdown("### 🔄 Definitie Regeneratie Preview")
+        
+        # Success message
+        if category_change_state.success_message:
+            st.success(category_change_state.success_message)
+
+        # Category change overview
+        col1, col2, col3 = st.columns([1, 1, 1])
+
+        with col1:
+            st.markdown("**Oude Categorie:**")
+            st.markdown(f"🏷️ `{self._get_category_display_name(category_change_state.old_category)}`")
+
+        with col2:
+            st.markdown("**➡️**")
+
+        with col3:
+            st.markdown("**Nieuwe Categorie:**")
+            st.markdown(f"🎯 `{self._get_category_display_name(category_change_state.new_category)}`")
+
+        # Current definition preview
+        st.markdown("**Huidige Definitie:**")
+        definition_preview = category_change_state.current_definition
+        st.info(
+            definition_preview[:200] + ("..." if len(definition_preview) > 200 else "")
+        )
+
+        # Impact preview
+        if category_change_state.impact_analysis:
+            st.markdown("**Verwachte Impact:**")
+            for impact in category_change_state.impact_analysis:
+                st.markdown(f"• {impact}")
+
+        # Enhanced action options
+        st.markdown("**Kies je actie:**")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            if st.button(
+                "🚀 Direct Regenereren",
+                key="direct_regenerate_clean",
+                help="Genereer direct een nieuwe definitie met de nieuwe categorie",
+                type="primary",
+            ):
+                self._direct_regenerate_definition(
+                    begrip=category_change_state.begrip,
+                    new_category=category_change_state.new_category,
+                    old_category=category_change_state.old_category,
+                    saved_record=saved_record,
+                    generation_result=generation_result,
+                )
+
+        with col2:
+            if st.button(
+                "🎯 Handmatig Aanpassen",
+                key="manual_regenerate_clean",
+                help="Ga naar generator om handmatig aan te passen",
+            ):
+                self._trigger_regeneration_with_category(
+                    begrip=category_change_state.begrip,
+                    new_category=category_change_state.new_category,
+                    old_category=category_change_state.old_category,
+                    saved_record=saved_record,
+                )
+
+        with col3:
+            if st.button(
+                "✅ Behoud Huidige",
+                key="keep_current_def_clean",
+                help="Behoud de huidige definitie met nieuwe categorie",
+            ):
+                # Clear the category change state 
+                generation_result.pop("category_change_state", None)
+                st.success("✅ Definitie behouden met nieuwe categorie!")
+                st.rerun()
