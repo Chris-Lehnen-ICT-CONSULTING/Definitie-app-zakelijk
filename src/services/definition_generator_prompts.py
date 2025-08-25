@@ -543,3 +543,7 @@ class UnifiedPromptBuilder:
         """Clear geforceerde strategy."""
         if hasattr(self, "_forced_strategy"):
             delattr(self, "_forced_strategy")
+
+
+# Backwards compatibility alias
+DefinitionGeneratorPrompts = UnifiedPromptBuilder

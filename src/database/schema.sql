@@ -12,7 +12,18 @@ CREATE TABLE definities (
     -- Kern informatie
     begrip VARCHAR(255) NOT NULL,
     definitie TEXT NOT NULL,
-    categorie VARCHAR(50) NOT NULL CHECK (categorie IN ('type', 'proces', 'resultaat', 'exemplaar')),
+    categorie VARCHAR(50) NOT NULL CHECK (categorie IN (
+        -- Basis categorieën (legacy support)
+        'type', 'proces', 'resultaat', 'exemplaar',
+        -- Uitgebreide ontologische categorieën
+        'ENT',    -- Entiteit (type/klasse)
+        'ACT',    -- Activiteit (proces/handeling)
+        'REL',    -- Relatie (verband tussen entiteiten)
+        'ATT',    -- Attribuut (eigenschap/kenmerk)
+        'AUT',    -- Autorisatie (bevoegdheid/rechten)
+        'STA',    -- Status (toestand/fase)
+        'OTH'     -- Overig (niet-gecategoriseerd)
+    )),
 
     -- Context informatie
     organisatorische_context VARCHAR(255) NOT NULL,
@@ -54,8 +65,9 @@ CREATE TABLE definities (
     datum_voorstel DATE,
     ketenpartners TEXT, -- JSON array van ketenpartner namen
 
-    -- Unique constraint voor begrip + context combinatie (per versie)
-    UNIQUE(begrip, organisatorische_context, juridische_context, status)
+    -- Category-aware unique constraint voor begrip + context + categorie combinatie (per versie)
+    -- This allows multiple definitions for the same begrip+context with different categories
+    UNIQUE(begrip, organisatorische_context, juridische_context, categorie, status)
 );
 
 -- Index voor snelle lookups
