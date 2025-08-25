@@ -370,14 +370,13 @@ class DefinitionOrchestrator(
         response = await self.create_definition(request)
         if response.success and response.definition:
             return response.definition
-        else:
-            # Als create_definition faalt, maak een basis definitie
-            return Definition(
-                begrip=request.begrip,
-                definitie=f"Fout bij generatie: {response.message}",
-                context=request.context,
-                domein=request.domein,
-            )
+        # Als create_definition faalt, maak een basis definitie
+        return Definition(
+            begrip=request.begrip,
+            definitie=f"Fout bij generatie: {response.message}",
+            context=request.context,
+            domein=request.domein,
+        )
 
     async def enhance(self, definition: Definition) -> Definition:
         """
@@ -414,7 +413,7 @@ class DefinitionOrchestrator(
                 context_dict=context_dict,
                 web_uitleg=context.request.extra_instructies or "",
             )
-            
+
             prompt_bouwer = PromptBouwer(prompt_config)
 
             prompt = prompt_bouwer.bouw_prompt()
@@ -470,10 +469,10 @@ class DefinitionOrchestrator(
                 }
             )
 
+            # Sla ALTIJD de originele definitie op, ook als er geen opschoning was
+            definition.metadata["definitie_origineel"] = cleaning_result.original_text
+            
             if cleaning_result.was_cleaned:
-                definition.metadata["definitie_origineel"] = (
-                    cleaning_result.original_text
-                )
                 logger.info(
                     f"Definitie opgeschoond: {len(cleaning_result.applied_rules)} regels toegepast"
                 )
