@@ -1,6 +1,6 @@
 # Category Update Refactoring Plan
 
-**Status**: ✅ Phase 1-3 COMPLETE (2025-08-25)
+**Status**: ✅ Phase 1-4 COMPLETE (2025-08-25)
 
 ## ✅ Wat is gedaan:
 
@@ -20,13 +20,29 @@
 - UI heeft geen directe session state mutations meer
 - Voorbereid voor event-driven architecture
 
+### Phase 4: Category-Aware Duplicate Detection ✅
+- **RegenerationService** - Context management voor category-aware regeneratie
+- **Database Schema Update** - UNIQUE constraint nu inclusief `categorie` veld
+- **Repository Updates** - `find_definitie()` en `find_duplicates()` met categorie parameter
+- **UI Flow Enhancement** - Regeneratie optie bij categorie wijziging
+- **Integration met GVI Rode Kabel** - Feedback loop voor betere prompts
+
 ## 📊 Resultaten:
 - **Type Safety**: ✅ Domain models in plaats van tuples
 - **Audit Trail**: ✅ User, timestamp, reason tracking
-- **Testing**: ✅ 11 nieuwe tests, 100% coverage
+- **Testing**: ✅ 11 nieuwe tests + uitgebreide manual tests voor regeneratie
 - **Maintainability**: ✅ Clean separation of concerns
+- **Core Fix**: ✅ Categorie wijzigingen worden niet meer geblokkeerd door duplicate detection
 
-## ⏸️ Future Phases (niet urgent):
+## 🚀 Nieuwe Regeneratie Flow:
+
+1. **Gebruiker wijzigt categorie** → CategoryService.update_category_v2()
+2. **UI toont regeneratie optie** → CategoryRegenerationHelper component
+3. **Gebruiker kiest regeneratie** → RegenerationService.set_regeneration_context()
+4. **Nieuwe definitie generatie** → Met categorie-aware duplicate check
+5. **Success** → Nieuwe definitie met juiste categorie zonder blokkering
+
+## ⏸️ Future Phases (nice-to-have):
 
 ## 1. Session State Probleem
 

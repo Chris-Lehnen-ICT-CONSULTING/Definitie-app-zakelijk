@@ -592,6 +592,11 @@ class DefinitionGeneratorTab:
             generation_result, new_category
         )
 
+        # Get current category and definition
+        old_category = generation_result.get("determined_category", "proces")
+        current_definition = self._extract_definition_from_result(generation_result)
+        begrip = generation_result.get("begrip", "")
+
         # Update database record als deze bestaat
         saved_record = generation_result.get("saved_record")
         if saved_record:
@@ -605,20 +610,28 @@ class DefinitionGeneratorTab:
 
             if result.success:
                 st.success(result.message)
-
-                # Enhanced UI Flow - Preview van wat er gaat gebeuren
-                self._render_regeneration_preview(
-                    begrip=generation_result.get("begrip"),
-                    current_definition=saved_record.definitie,
-                    old_category=result.previous_category,
-                    new_category=new_category,
-                    generation_result=generation_result,
-                    saved_record=saved_record,
-                )
+                old_category = result.previous_category
             else:
                 st.error(f"Fout: {result.message}")
+                return
+        else:
+            # No saved record, but still show success for in-memory update
+            st.success(
+                f"Categorie gewijzigd naar: {self._get_category_display_name(new_category)}"
+            )
 
-            # Action buttons
+        # ALTIJD regeneration preview tonen, ongeacht of er een saved_record is
+        self._render_regeneration_preview(
+            begrip=begrip,
+            current_definition=current_definition,
+            old_category=old_category,
+            new_category=new_category,
+            generation_result=generation_result,
+            saved_record=saved_record,
+        )
+
+        # Action buttons alleen als er een saved_record is
+        if saved_record:
             col1, col2, col3 = st.columns(3)
 
             with col1:
@@ -1247,6 +1260,23 @@ class DefinitionGeneratorTab:
         if isinstance(new_result, dict) and "validation_score" in new_result:
             new_score = new_result["validation_score"]
             st.markdown(f"**Kwaliteitsscore nieuwe definitie:** {new_score:.2f}")
+
+    def _extract_definition_from_result(self, generation_result: dict[str, Any]) -> str:
+        """Extract definitie uit generation result, ongeacht format."""
+        # Check voor agent_result
+        agent_result = generation_result.get("agent_result")
+        if not agent_result:
+            return ""
+
+        # Check if it's a dict (new service) or object (legacy)
+        if isinstance(agent_result, dict):
+            # New service format
+            return agent_result.get(
+                "definitie_gecorrigeerd", agent_result.get("definitie", "")
+            )
+        else:
+            # Legacy format
+            return getattr(agent_result, "final_definitie", "")
 
     def _clear_results(self):
         """Wis alle resultaten."""
