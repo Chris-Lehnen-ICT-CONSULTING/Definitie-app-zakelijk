@@ -126,21 +126,23 @@ class DefinitieChecker:
             f"Checking for existing definitions of '{begrip}' in context {organisatorische_context}"
         )
 
-        # Zoek exact match
+        # Zoek exact match - inclusief categorie voor category-aware duplicate detection
         existing = self.repository.find_definitie(
             begrip=begrip,
             organisatorische_context=organisatorische_context,
             juridische_context=juridische_context,
+            categorie=categorie.value if categorie else None,
         )
 
         if existing:
             return self._handle_exact_match(existing)
 
-        # Zoek duplicates/fuzzy matches
+        # Zoek duplicates/fuzzy matches - inclusief categorie
         duplicates = self.repository.find_duplicates(
             begrip=begrip,
             organisatorische_context=organisatorische_context,
             juridische_context=juridische_context,
+            categorie=categorie.value if categorie else None,
         )
 
         if duplicates:

@@ -58,7 +58,7 @@ def opschonen(definitie: str, begrip: str) -> str:
 
     3. ITERATIEF PROCES:
        Herhaalt tot geen verboden patronen meer gevonden worden:
-       "is een belangrijk proces waarbij" 
+       "is een belangrijk proces waarbij"
        → "een belangrijk proces waarbij" (verwijder "is")
        → "proces waarbij" (verwijder "een belangrijk")
        → "" (verwijder "proces waarbij")

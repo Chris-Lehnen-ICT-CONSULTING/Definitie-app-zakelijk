@@ -471,7 +471,7 @@ class DefinitionOrchestrator(
 
             # Sla ALTIJD de originele definitie op, ook als er geen opschoning was
             definition.metadata["definitie_origineel"] = cleaning_result.original_text
-            
+
             if cleaning_result.was_cleaned:
                 logger.info(
                     f"Definitie opgeschoond: {len(cleaning_result.applied_rules)} regels toegepast"

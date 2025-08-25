@@ -28,8 +28,12 @@ class DefinitionGeneratorTab:
         self.checker = checker
         self.category_service = CategoryService(get_definitie_repository())
         # TODO: Inject via dependency injection wanneer beschikbaar
-        from services.definition_generator_prompts import DefinitionGeneratorPrompts
-        prompt_builder = DefinitionGeneratorPrompts()
+        from services.definition_generator_config import UnifiedGeneratorConfig
+        from services.definition_generator_prompts import UnifiedPromptBuilder
+
+        # Basic config voor regeneration service
+        config = UnifiedGeneratorConfig()
+        prompt_builder = UnifiedPromptBuilder(config)
         self.regeneration_service = RegenerationService(prompt_builder)
 
     def render(self):
@@ -408,26 +412,27 @@ class DefinitionGeneratorTab:
                 # New service format - extraheer prompt uit metadata
                 class PromptContainer:
                     """Wrapper om prompt_template beschikbaar te maken voor PromptDebugSection."""
+
                     def __init__(self, prompt_template: str):
                         self.prompt_template = prompt_template
-                
+
                 # Check of er een prompt_template in de metadata zit
                 prompt_template = None
-                if "metadata" in agent_result and isinstance(agent_result["metadata"], dict):
+                if "metadata" in agent_result and isinstance(
+                    agent_result["metadata"], dict
+                ):
                     prompt_template = agent_result["metadata"].get("prompt_template")
                 elif "prompt_template" in agent_result:
                     prompt_template = agent_result["prompt_template"]
-                
+
                 if prompt_template:
                     prompt_container = PromptContainer(prompt_template)
                     PromptDebugSection.render(prompt_container, None)
-                else:
-                    # Probeer de prompt uit de saved_record te halen
-                    if saved_record and saved_record.metadata:
-                        metadata = saved_record.metadata
-                        if isinstance(metadata, dict) and "prompt_template" in metadata:
-                            prompt_container = PromptContainer(metadata["prompt_template"])
-                            PromptDebugSection.render(prompt_container, None)
+                elif saved_record and saved_record.metadata:
+                    metadata = saved_record.metadata
+                    if isinstance(metadata, dict) and "prompt_template" in metadata:
+                        prompt_container = PromptContainer(metadata["prompt_template"])
+                        PromptDebugSection.render(prompt_container, None)
             else:
                 # Legacy format
                 iteration_result = (
@@ -601,26 +606,15 @@ class DefinitionGeneratorTab:
             if result.success:
                 st.success(result.message)
 
-                # Vraag of gebruiker nieuwe definitie wil genereren
-                st.info(
-                    "💡 De categorie is gewijzigd. De definitie is mogelijk niet meer passend voor de nieuwe categorie."
+                # Enhanced UI Flow - Preview van wat er gaat gebeuren
+                self._render_regeneration_preview(
+                    begrip=generation_result.get("begrip"),
+                    current_definition=saved_record.definitie,
+                    old_category=result.previous_category,
+                    new_category=new_category,
+                    generation_result=generation_result,
+                    saved_record=saved_record,
                 )
-
-                col1, col2 = st.columns(2)
-                with col1:
-                    if st.button(
-                        "🔄 Genereer nieuwe definitie", key="regenerate_for_category"
-                    ):
-                        self._trigger_regeneration_with_category(
-                            begrip=generation_result.get("begrip"),
-                            new_category=new_category,
-                            old_category=result.previous_category,
-                            saved_record=saved_record,
-                        )
-
-                with col2:
-                    if st.button("✅ Behoud huidige definitie", key="keep_definition"):
-                        st.info("Definitie behouden met nieuwe categorie.")
             else:
                 st.error(f"Fout: {result.message}")
 
@@ -903,9 +897,9 @@ class DefinitionGeneratorTab:
             old_category=old_category,
             new_category=new_category,
             previous_definition=saved_record.definitie if saved_record else None,
-            reason="Gebruiker heeft categorie handmatig aangepast"
+            reason="Gebruiker heeft categorie handmatig aangepast",
         )
-        
+
         # Ook in session voor UI navigation (temporary bridge)
         SessionStateManager.set_value("regeneration_active", True)
         SessionStateManager.set_value("regeneration_begrip", begrip)
@@ -921,10 +915,338 @@ class DefinitionGeneratorTab:
         - De generator zal rekening houden met de nieuwe categorie
         """
         )
-        
+
         # Show navigation button
         if st.button("🏠 Ga naar Generator", key="nav_to_generator"):
             st.switch_page("app.py")
+
+    def _render_regeneration_preview(
+        self,
+        begrip: str,
+        current_definition: str,
+        old_category: str,
+        new_category: str,
+        generation_result: dict[str, Any],
+        saved_record: Any,
+    ):
+        """Render enhanced preview voor regeneration met betere UX."""
+        st.markdown("---")
+        st.markdown("### 🔄 Definitie Regeneratie Preview")
+
+        # Category change overview
+        col1, col2, col3 = st.columns([1, 1, 1])
+
+        with col1:
+            st.markdown("**Oude Categorie:**")
+            st.markdown(f"🏷️ `{self._get_category_display_name(old_category)}`")
+
+        with col2:
+            st.markdown("**➡️**")
+
+        with col3:
+            st.markdown("**Nieuwe Categorie:**")
+            st.markdown(f"🎯 `{self._get_category_display_name(new_category)}`")
+
+        # Current definition preview
+        st.markdown("**Huidige Definitie:**")
+        st.info(
+            current_definition[:200] + ("..." if len(current_definition) > 200 else "")
+        )
+
+        # Impact preview
+        impact_analysis = self._analyze_regeneration_impact(old_category, new_category)
+
+        st.markdown("**Verwachte Impact:**")
+        for impact in impact_analysis:
+            st.markdown(f"• {impact}")
+
+        # Enhanced action options
+        st.markdown("**Kies je actie:**")
+
+        col1, col2, col3 = st.columns(3)
+
+        with col1:
+            if st.button(
+                "🚀 Direct Regenereren",
+                key="direct_regenerate",
+                help="Genereer direct een nieuwe definitie met de nieuwe categorie",
+                type="primary",
+            ):
+                self._direct_regenerate_definition(
+                    begrip=begrip,
+                    new_category=new_category,
+                    old_category=old_category,
+                    saved_record=saved_record,
+                    generation_result=generation_result,
+                )
+
+        with col2:
+            if st.button(
+                "🎯 Handmatig Aanpassen",
+                key="manual_regenerate",
+                help="Ga naar generator om handmatig aan te passen",
+            ):
+                # Set regeneration context en navigate
+                self._trigger_regeneration_with_category(
+                    begrip=begrip,
+                    new_category=new_category,
+                    old_category=old_category,
+                    saved_record=saved_record,
+                )
+
+        with col3:
+            if st.button(
+                "✅ Behoud Huidige",
+                key="keep_current_def",
+                help="Behoud de huidige definitie met nieuwe categorie",
+            ):
+                st.success("✅ Definitie behouden met nieuwe categorie!")
+                st.info(
+                    "De categorie is bijgewerkt, maar de definitie blijft ongewijzigd."
+                )
+
+    def _get_category_display_name(self, category: str) -> str:
+        """Get user-friendly display name voor categorie."""
+        category_names = {
+            "type": "🏷️ Type/Klasse",
+            "proces": "⚙️ Proces/Activiteit",
+            "resultaat": "📊 Resultaat/Uitkomst",
+            "exemplaar": "🔍 Exemplaar/Instantie",
+            "ENT": "🏷️ Entiteit",
+            "ACT": "⚙️ Activiteit",
+            "REL": "🔗 Relatie",
+            "ATT": "📋 Attribuut",
+            "AUT": "⚖️ Autorisatie",
+            "STA": "📊 Status",
+            "OTH": "❓ Overig",
+        }
+        return category_names.get(category, f"❓ {category}")
+
+    def _analyze_regeneration_impact(
+        self, old_category: str, new_category: str
+    ) -> list[str]:
+        """Analyseer verwachte impact van category change."""
+        impacts = []
+
+        # Category-specific impact analysis
+        if old_category == "proces" and new_category == "type":
+            impacts.extend(
+                [
+                    "🔄 Focus verschuift van 'hoe' naar 'wat'",
+                    "📝 Definitie wordt meer beschrijvend dan procedureel",
+                    "⚖️ Juridische precisie kan toenemen",
+                ]
+            )
+        elif old_category == "type" and new_category == "proces":
+            impacts.extend(
+                [
+                    "🔄 Focus verschuift van 'wat' naar 'hoe'",
+                    "📋 Definitie wordt meer procedureel",
+                    "⚙️ Stappen/fasen kunnen worden toegevoegd",
+                ]
+            )
+        elif "resultaat" in [old_category, new_category]:
+            impacts.append("📊 Uitkomst-georiënteerde bewoordingen")
+        elif "exemplaar" in [old_category, new_category]:
+            impacts.append("🔍 Specificiteit niveau kan wijzigen")
+
+        # General impacts
+        impacts.extend(
+            [
+                "🎯 Terminologie wordt aangepast aan nieuwe categorie",
+                "✅ Kwaliteitstoetsing wordt opnieuw uitgevoerd",
+                "📄 Nieuwe definitie krijgt eigen versiehistorie",
+            ]
+        )
+
+        return impacts
+
+    def _direct_regenerate_definition(
+        self,
+        begrip: str,
+        new_category: str,
+        old_category: str,
+        saved_record: Any,
+        generation_result: dict[str, Any],
+    ):
+        """Voer directe definitie regeneration uit zonder navigation."""
+        st.markdown("---")
+        st.markdown("### 🚀 Directe Regeneration Gestart")
+
+        # Progress indicator
+        progress_bar = st.progress(0)
+        status_text = st.empty()
+
+        try:
+            # Step 1: Set regeneration context
+            status_text.text("🔄 Setting regeneration context...")
+            progress_bar.progress(20)
+
+            self.regeneration_service.set_regeneration_context(
+                begrip=begrip,
+                old_category=old_category,
+                new_category=new_category,
+                previous_definition=saved_record.definitie,
+                reason="Direct regeneration na category wijziging",
+            )
+
+            # Step 2: Get definition service
+            status_text.text("⚙️ Initializing definition service...")
+            progress_bar.progress(40)
+
+            # Import here to avoid circular imports
+            from services import get_definition_service
+
+            definition_service = get_definition_service()
+
+            # Step 3: Prepare generation context
+            status_text.text("📝 Preparing generation context...")
+            progress_bar.progress(60)
+
+            # Extract context from original generation result
+            context_dict = self._extract_context_from_generation_result(
+                generation_result
+            )
+
+            # Step 4: Generate new definition
+            status_text.text("🤖 Generating new definition...")
+            progress_bar.progress(80)
+
+            from domain.ontological_categories import OntologischeCategorie
+
+            service_result = definition_service.generate_definition(
+                begrip=begrip,
+                context_dict=context_dict,
+                organisatie=generation_result.get("organisatie", ""),
+                categorie=OntologischeCategorie(new_category.lower()),
+                regeneration_context=self.regeneration_service.get_active_context(),
+            )
+
+            # Step 5: Update UI with results
+            status_text.text("✅ Processing results...")
+            progress_bar.progress(100)
+
+            # Store new results in session state
+            from datetime import datetime, timezone
+
+            from ui.session_state import SessionStateManager
+
+            SessionStateManager.set_value(
+                "last_generation_result",
+                {
+                    "begrip": begrip,
+                    "check_result": None,
+                    "agent_result": service_result,
+                    "saved_record": None,  # Will be created if user saves
+                    "determined_category": new_category,
+                    "category_reasoning": f"Direct regeneration: {old_category} → {new_category}",
+                    "category_scores": {
+                        new_category: 1.0
+                    },  # Perfect score for manual selection
+                    "timestamp": datetime.now(timezone.utc),
+                    "regeneration_used": True,
+                    "direct_regeneration": True,
+                },
+            )
+
+            # Clear regeneration context
+            self.regeneration_service.clear_context()
+
+            # Show success and results
+            progress_bar.empty()
+            status_text.empty()
+
+            st.success("🎉 Nieuwe definitie succesvol gegenereerd!")
+
+            # Show comparison
+            self._render_definition_comparison(
+                old_definition=saved_record.definitie,
+                new_result=service_result,
+                old_category=old_category,
+                new_category=new_category,
+            )
+
+            # Auto-navigation option
+            st.info("💡 De nieuwe definitie staat klaar in het Generator tabblad")
+            if st.button("👀 Bekijk Resultaat", key="view_new_result"):
+                st.switch_page("app.py")
+
+        except Exception as e:
+            progress_bar.empty()
+            status_text.empty()
+
+            st.error(f"❌ Regeneration mislukt: {e}")
+            st.info("Probeer de handmatige aanpassing optie.")
+
+            # Clear any partial context
+            self.regeneration_service.clear_context()
+
+    def _extract_context_from_generation_result(
+        self, generation_result: dict[str, Any]
+    ) -> dict:
+        """Extract context information from previous generation result."""
+        # Try to get context from various sources in the generation result
+        context_dict = {"organisatorisch": [], "juridisch": [], "wettelijk": []}
+
+        # Extract from stored context if available
+        if "document_context" in generation_result:
+            doc_context = generation_result["document_context"]
+            if isinstance(doc_context, dict):
+                for key in context_dict:
+                    if key in doc_context:
+                        context_dict[key] = doc_context[key]
+
+        # Fallback: extract from session state
+        from ui.session_state import SessionStateManager
+
+        for context_type in context_dict:
+            session_value = SessionStateManager.get_value(f"{context_type}_context", [])
+            if session_value and not context_dict[context_type]:
+                context_dict[context_type] = session_value
+
+        return context_dict
+
+    def _render_definition_comparison(
+        self,
+        old_definition: str,
+        new_result: dict,
+        old_category: str,
+        new_category: str,
+    ):
+        """Render comparison tussen oude en nieuwe definitie."""
+        st.markdown("---")
+        st.markdown("### 📊 Definitie Vergelijking")
+
+        col1, col2 = st.columns(2)
+
+        with col1:
+            st.markdown(
+                f"**Oude Definitie** ({self._get_category_display_name(old_category)}):"
+            )
+            st.info(old_definition)
+
+        with col2:
+            st.markdown(
+                f"**Nieuwe Definitie** ({self._get_category_display_name(new_category)}):"
+            )
+
+            # Extract new definition from result
+            if isinstance(new_result, dict):
+                new_definition = new_result.get(
+                    "definitie_gecorrigeerd",
+                    new_result.get("definitie", "Geen definitie beschikbaar"),
+                )
+            else:
+                new_definition = getattr(
+                    new_result, "final_definitie", "Geen definitie beschikbaar"
+                )
+
+            st.success(new_definition)
+
+        # Quality comparison if available
+        if isinstance(new_result, dict) and "validation_score" in new_result:
+            new_score = new_result["validation_score"]
+            st.markdown(f"**Kwaliteitsscore nieuwe definitie:** {new_score:.2f}")
 
     def _clear_results(self):
         """Wis alle resultaten."""

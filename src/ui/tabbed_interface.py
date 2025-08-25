@@ -29,6 +29,7 @@ from integration.definitie_checker import (  # Definitie integratie controle
 
 # Nieuwe services imports
 from services import get_definition_service, render_feature_flag_toggle
+from services.regeneration_service import RegenerationService
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.context_selector import ContextSelector  # Context selectie component
@@ -92,6 +93,15 @@ class TabbedInterface:
         if hasattr(self.definition_service, "get_service_info"):
             # V2 service heeft get_service_info methode
             self.checker._definition_service = self.definition_service
+
+        # Initialiseer RegenerationService voor category regeneration (GVI Rode Kabel)
+        from services.definition_generator_config import UnifiedGeneratorConfig
+        from services.definition_generator_prompts import UnifiedPromptBuilder
+
+        # Basic config voor regeneration service
+        config = UnifiedGeneratorConfig()
+        prompt_builder = UnifiedPromptBuilder(config)
+        self.regeneration_service = RegenerationService(prompt_builder)
 
         self.context_selector = (
             ContextSelector()
@@ -732,6 +742,33 @@ class TabbedInterface:
                         "🔄 Hybrid context activief - combineer document en web context..."
                     )
 
+                # Check voor actieve regeneration context (GVI Rode Kabel)
+                regeneration_context = self.regeneration_service.get_active_context()
+                if regeneration_context:
+                    # Override categorie met nieuwe categorie uit regeneration context
+                    auto_categorie_original = auto_categorie
+                    try:
+                        # Convert string to OntologischeCategorie if needed
+                        if isinstance(regeneration_context.new_category, str):
+                            auto_categorie = OntologischeCategorie(
+                                regeneration_context.new_category.lower()
+                            )
+                        else:
+                            auto_categorie = regeneration_context.new_category
+
+                        logger.info(
+                            f"Regeneration actief: categorie override {auto_categorie_original.value} -> {auto_categorie.value}"
+                        )
+
+                        # Update category reasoning voor UI feedback
+                        category_reasoning = f"Regeneratie: aangepast van {auto_categorie_original.value} naar {auto_categorie.value}"
+
+                    except Exception as e:
+                        logger.warning(
+                            f"Could not apply regeneration category override: {e}"
+                        )
+                        auto_categorie = auto_categorie_original
+
                 # Gebruik de nieuwe service factory indien beschikbaar
                 if hasattr(self, "definition_service") and hasattr(
                     self.definition_service, "get_service_info"
@@ -746,6 +783,8 @@ class TabbedInterface:
                         },
                         organisatie=primary_org,
                         categorie=auto_categorie,
+                        # Pass regeneration context for GVI feedback loop
+                        regeneration_context=regeneration_context,
                     )
 
                     # Converteer naar checker formaat voor UI compatibility
@@ -807,8 +846,21 @@ class TabbedInterface:
                         "document_context": document_context,
                         "voorbeelden_prompts": voorbeelden_prompts,
                         "timestamp": datetime.now(timezone.utc),
+                        "regeneration_used": regeneration_context is not None,
                     },
                 )
+
+                # Clear regeneration context after successful generation (GVI cleanup)
+                if regeneration_context:
+                    self.regeneration_service.clear_context()
+                    logger.info(
+                        f"Regeneration context cleared after successful generation for '{begrip}'"
+                    )
+
+                    # Also clear UI session state markers
+                    SessionStateManager.clear_value("regeneration_active")
+                    SessionStateManager.clear_value("regeneration_begrip")
+                    SessionStateManager.clear_value("regeneration_category")
 
                 # Store detailed validation results for display
                 # Check for both legacy (best_iteration) and new service (dict) formats

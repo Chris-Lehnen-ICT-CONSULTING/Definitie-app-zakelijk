@@ -168,13 +168,29 @@ class ServiceAdapter:
 
         from services.interfaces import GenerationRequest
 
+        # Handle regeneration context (GVI Rode Kabel integration)
+        regeneration_context = kwargs.get("regeneration_context")
+        extra_instructions = kwargs.get("extra_instructies", "")
+
+        if regeneration_context:
+            from services.regeneration_service import RegenerationService
+
+            # Create temporary service to enhance prompt
+            temp_service = RegenerationService(
+                None
+            )  # No prompt builder needed for enhancement
+            extra_instructions = temp_service.enhance_prompt_with_context(
+                extra_instructions or "", regeneration_context
+            )
+            logger.info(f"Enhanced prompt with regeneration context for '{begrip}'")
+
         # Converteer legacy context_dict naar GenerationRequest
         request = GenerationRequest(
             begrip=begrip,
             context=", ".join(context_dict.get("organisatorisch", [])),
             domein=", ".join(context_dict.get("domein", [])),
             organisatie=kwargs.get("organisatie", ""),
-            extra_instructies=kwargs.get("extra_instructies"),
+            extra_instructies=extra_instructions,
         )
 
         # Gebruik orchestrator via asyncio.run() voor sync interface
