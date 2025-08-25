@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 import streamlit as st
+
 from database.definitie_repository import DefinitieRecord, DefinitieStatus
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from ui.session_state import SessionStateManager
@@ -201,39 +202,32 @@ class DefinitionGeneratorTab:
             else:
                 # Legacy returns object with final_definitie
                 definitie_to_show = agent_result.final_definitie
-            # Toon opschoning status
+            # Toon ALTIJD beide versies
             if (
                 is_dict
                 and "definitie_origineel" in agent_result
                 and "definitie_gecorrigeerd" in agent_result
             ):
+                # Toon opschoning status alleen als ze verschillen
                 if (
                     agent_result["definitie_origineel"]
                     != agent_result["definitie_gecorrigeerd"]
                 ):
                     st.success("🔧 **Definitie is opgeschoond**")
 
-            st.info(definitie_to_show)
+                # Toon ALTIJD beide versies
+                st.subheader("1️⃣ Originele AI Definitie")
+                st.info(agent_result["definitie_origineel"])
+
+                st.subheader("2️⃣ Opgeschoonde Definitie")
+                st.info(agent_result["definitie_gecorrigeerd"])
+            else:
+                # Legacy format - toon enkele definitie
+                st.subheader("📝 Definitie")
+                st.info(definitie_to_show)
 
             # Generation details
             with st.expander("📊 Generatie Details", expanded=False):
-                # Toon opschoning details als beschikbaar
-                if (
-                    is_dict
-                    and "definitie_origineel" in agent_result
-                    and "definitie_gecorrigeerd" in agent_result
-                ):
-                    if (
-                        agent_result["definitie_origineel"]
-                        != agent_result["definitie_gecorrigeerd"]
-                    ):
-                        st.warning("**🔧 Opschoning Details:**")
-                        st.text("Origineel:")
-                        st.code(agent_result["definitie_origineel"], language=None)
-                        st.text("Na opschoning:")
-                        st.code(agent_result["definitie_gecorrigeerd"], language=None)
-                        st.divider()
-
                 col1, col2, col3 = st.columns(3)
 
                 if is_dict:
