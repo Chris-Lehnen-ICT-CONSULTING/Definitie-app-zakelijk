@@ -195,6 +195,39 @@ def build_prompt(self, request, context, rules, feedback_history=None):
 4. Test met mock feedback data
 5. Verify in logs dat feedback wordt gebruikt
 
+#### RegenerationService Implementation (COMPLETED)
+**File**: `services/regeneration_service.py`
+
+**Wat is geïmplementeerd:**
+1. **RegenerationContext dataclass** - Houdt regeneratie context bij
+   - begrip, old_category, new_category, previous_definition
+   - `to_feedback_entry()` method voor GVI Rode Kabel integratie
+
+2. **RegenerationService class** - Beheert category-aware regeneratie
+   - `set_regeneration_context()` - Activeer regeneratie modus
+   - `enhance_prompt_with_context()` - Voeg categorie context aan prompts toe
+   - `get_feedback_history()` - Integratie met UnifiedPromptBuilder
+
+3. **Database Layer Updates**:
+   - UNIQUE constraint nu: (begrip, organisatorische_context, categorie)
+   - `find_definitie()` met optionele categorie parameter
+   - `find_duplicates()` met categorie filtering
+
+4. **UI Components**:
+   - `CategoryRegenerationHelper` - Dialoog voor regeneratie keuze
+   - `RegenerationHandler` - State management voor regeneratie flow
+
+**Integration met bestaande systemen:**
+```python
+# In UnifiedDefinitionGenerator
+if regeneration_service.get_active_context():
+    feedback_history = regeneration_service.get_feedback_history()
+    prompt = prompt_builder.build_prompt(
+        request, context, rules,
+        feedback_history=feedback_history
+    )
+```
+
 ### Dag 3-4: Gele Kabel - Impliciete Context
 
 #### Make Context Implicit
@@ -347,6 +380,34 @@ pytest tests/test_ui_service_integration.py -v
 | Feedback | Used in prompts | Log analysis |
 | Context | No explicit mentions | CON-01 rate |
 | Validation | Preventive rules active | Error reduction |
+
+---
+
+## 🧪 Category-Aware Regeneration Test Results
+
+### Manual Test Suite Results:
+1. **Repository Category-Aware Tests** ✅
+   - `find_definitie()` met categorie parameter werkt
+   - `find_duplicates()` filtert correct op categorie
+   - Verschillende categorieën = geen duplicaat
+
+2. **DefinitieChecker Integration** ✅
+   - Category-aware duplicate detection geïntegreerd
+   - CheckAction.CATEGORY_DIFFERS voor verschillende categorieën
+
+3. **End-to-End Regeneration Flow** ✅
+   - Gebruiker kan categorie wijzigen
+   - Regeneratie optie wordt getoond
+   - Nieuwe definitie met nieuwe categorie zonder blokkering
+
+4. **Edge Cases** ✅
+   - None categorie handling
+   - Empty string categorie
+   - Special characters in categorie
+
+### Performance Impact:
+- Geen merkbare performance degradatie
+- Query's blijven snel door indexed columns
 
 ---
 
