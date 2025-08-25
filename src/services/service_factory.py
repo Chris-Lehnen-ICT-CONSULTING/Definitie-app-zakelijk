@@ -70,6 +70,10 @@ class LegacyGenerationResult:
         """Dict-like get method."""
         return getattr(self, key, default)
 
+    def __contains__(self, key):
+        """Support 'in' operator voor dict-like behavior."""
+        return hasattr(self, key)
+
 
 def get_definition_service(
     use_container_config: dict | None = None,
@@ -202,6 +206,7 @@ class ServiceAdapter:
                 final_score=(response.validation.score if response.validation else 0.0),
                 voorbeelden=response.definition.voorbeelden or [],
                 processing_time=response.definition.metadata.get("processing_time", 0),
+                metadata=response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
             )
         return LegacyGenerationResult(
             success=False,
