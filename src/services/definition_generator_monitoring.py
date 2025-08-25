@@ -1,11 +1,13 @@
 """
 Definition Generator Monitoring Module.
 
-Monitoring en metrics systeem voor de UnifiedDefinitionGenerator:
+Monitoring en metrics systeem (voorheen voor UnifiedDefinitionGenerator):
 - API call tracking (van services implementatie)
 - Performance monitoring (van definitie_generator implementatie)
 - Quality metrics (van generation implementatie)
 - Error tracking en alerting
+
+NOTE: Dit kan herbruikt worden voor DefinitionOrchestrator monitoring.
 """
 
 import logging

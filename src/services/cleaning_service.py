@@ -117,26 +117,32 @@ class CleaningService(CleaningServiceInterface):
             # Initialiseer tracking lijsten
             applied_rules = []
             improvements = []
-            
+
             # Check of we GPT format moeten hanteren
             handle_gpt = "ontologische categorie:" in original_text.lower()
-            
+
             if handle_gpt:
                 # Import analyze_gpt_response voor metadata extractie
                 from opschoning.opschoning_enhanced import analyze_gpt_response
-                
+
                 # Extract metadata eerst
                 gpt_metadata = analyze_gpt_response(original_text)
-                
+
                 # Pas opschoning toe
-                cleaned_text = opschonen_enhanced(original_text, term, handle_gpt_format=True)
-                
+                cleaned_text = opschonen_enhanced(
+                    original_text, term, handle_gpt_format=True
+                )
+
                 # Voeg GPT metadata toe aan applied_rules als het relevant is
-                if gpt_metadata.get('ontologische_categorie'):
-                    applied_rules.append(f"extracted_ontology_{gpt_metadata['ontologische_categorie']}")
+                if gpt_metadata.get("ontologische_categorie"):
+                    applied_rules.append(
+                        f"extracted_ontology_{gpt_metadata['ontologische_categorie']}"
+                    )
             else:
                 # Gebruik ook enhanced voor consistentie, maar zonder GPT format handling
-                cleaned_text = opschonen_enhanced(original_text, term, handle_gpt_format=False)
+                cleaned_text = opschonen_enhanced(
+                    original_text, term, handle_gpt_format=False
+                )
 
             # Analyseer welke wijzigingen zijn toegepast
             if original_text != cleaned_text:

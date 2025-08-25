@@ -403,11 +403,12 @@ class DefinitieRepository:
             ID van nieuw aangemaakte record
         """
         with self._get_connection() as conn:
-            # Check voor duplicates
+            # Check voor duplicates - inclusief categorie voor category-aware duplicate prevention
             duplicates = self.find_duplicates(
                 record.begrip,
                 record.organisatorische_context,
                 record.juridische_context or "",
+                categorie=record.categorie,  # Include category in duplicate check
             )
 
             if duplicates and any(
@@ -545,6 +546,7 @@ class DefinitieRepository:
         organisatorische_context: str,
         juridische_context: str = "",
         status: DefinitieStatus | None = None,
+        categorie: str | None = None,
     ) -> DefinitieRecord | None:
         """
         Zoek definitie op basis van begrip en context.
@@ -554,6 +556,7 @@ class DefinitieRepository:
             organisatorische_context: Organisatorische context
             juridische_context: Juridische context
             status: Optionele status filter
+            categorie: Optionele ontologische categorie filter
 
         Returns:
             DefinitieRecord of None
@@ -571,6 +574,11 @@ class DefinitieRepository:
                 juridische_context,
             ]
 
+            # Add categorie filter if provided (category-aware duplicate detection)
+            if categorie:
+                query += " AND categorie = ?"
+                params.append(categorie)
+
             if status:
                 query += " AND status = ?"
                 params.append(status.value)
@@ -585,7 +593,11 @@ class DefinitieRepository:
             return None
 
     def find_duplicates(
-        self, begrip: str, organisatorische_context: str, juridische_context: str = ""
+        self,
+        begrip: str,
+        organisatorische_context: str,
+        juridische_context: str = "",
+        categorie: str | None = None,
     ) -> list[DuplicateMatch]:
         """
         Zoek mogelijke duplicaten voor een begrip.
@@ -594,6 +606,7 @@ class DefinitieRepository:
             begrip: Het begrip om te checken
             organisatorische_context: Organisatorische context
             juridische_context: Juridische context
+            categorie: Optionele ontologische categorie filter
 
         Returns:
             List van DuplicateMatch objecten
@@ -601,21 +614,25 @@ class DefinitieRepository:
         matches = []
 
         with self._get_connection() as conn:
-            # Exact match
-            cursor = conn.execute(
-                """
+            # Build exact match query with optional categorie filter
+            exact_query = """
                 SELECT * FROM definities
                 WHERE begrip = ? AND organisatorische_context = ?
                 AND (juridische_context = ? OR (juridische_context IS NULL AND ? = ''))
                 AND status != 'archived'
-            """,
-                (
-                    begrip,
-                    organisatorische_context,
-                    juridische_context,
-                    juridische_context,
-                ),
-            )
+            """
+            exact_params = [
+                begrip,
+                organisatorische_context,
+                juridische_context,
+                juridische_context,
+            ]
+
+            if categorie:
+                exact_query += " AND categorie = ?"
+                exact_params.append(categorie)
+
+            cursor = conn.execute(exact_query, exact_params)
 
             for row in cursor.fetchall():
                 record = self._row_to_record(row)
@@ -629,14 +646,18 @@ class DefinitieRepository:
 
             # Fuzzy match op begrip (alleen als geen exact match)
             if not matches:
-                cursor = conn.execute(
-                    """
+                fuzzy_query = """
                     SELECT * FROM definities
                     WHERE begrip LIKE ? AND organisatorische_context = ?
                     AND status != 'archived'
-                """,
-                    (f"%{begrip}%", organisatorische_context),
-                )
+                """
+                fuzzy_params = [f"%{begrip}%", organisatorische_context]
+
+                if categorie:
+                    fuzzy_query += " AND categorie = ?"
+                    fuzzy_params.append(categorie)
+
+                cursor = conn.execute(fuzzy_query, fuzzy_params)
 
                 for row in cursor.fetchall():
                     record = self._row_to_record(row)
