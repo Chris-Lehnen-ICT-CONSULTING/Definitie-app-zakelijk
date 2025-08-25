@@ -14,6 +14,7 @@ from database.definitie_repository import (
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
+from services.regeneration_service import RegenerationService
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -26,6 +27,10 @@ class DefinitionGeneratorTab:
         """Initialiseer generator tab."""
         self.checker = checker
         self.category_service = CategoryService(get_definitie_repository())
+        # TODO: Inject via dependency injection wanneer beschikbaar
+        from services.definition_generator_prompts import DefinitionGeneratorPrompts
+        prompt_builder = DefinitionGeneratorPrompts()
+        self.regeneration_service = RegenerationService(prompt_builder)
 
     def render(self):
         """Render definitie generatie tab."""
@@ -400,8 +405,29 @@ class DefinitionGeneratorTab:
             from ui.components.prompt_debug_section import PromptDebugSection
 
             if is_dict:
-                # New service format - skip prompt debug for now as structure is different
-                pass
+                # New service format - extraheer prompt uit metadata
+                class PromptContainer:
+                    """Wrapper om prompt_template beschikbaar te maken voor PromptDebugSection."""
+                    def __init__(self, prompt_template: str):
+                        self.prompt_template = prompt_template
+                
+                # Check of er een prompt_template in de metadata zit
+                prompt_template = None
+                if "metadata" in agent_result and isinstance(agent_result["metadata"], dict):
+                    prompt_template = agent_result["metadata"].get("prompt_template")
+                elif "prompt_template" in agent_result:
+                    prompt_template = agent_result["prompt_template"]
+                
+                if prompt_template:
+                    prompt_container = PromptContainer(prompt_template)
+                    PromptDebugSection.render(prompt_container, None)
+                else:
+                    # Probeer de prompt uit de saved_record te halen
+                    if saved_record and saved_record.metadata:
+                        metadata = saved_record.metadata
+                        if isinstance(metadata, dict) and "prompt_template" in metadata:
+                            prompt_container = PromptContainer(metadata["prompt_template"])
+                            PromptDebugSection.render(prompt_container, None)
             else:
                 # Legacy format
                 iteration_result = (
@@ -871,33 +897,34 @@ class DefinitionGeneratorTab:
             f"🔄 Nieuwe definitie genereren voor categorie: {self.category_service.get_category_display_name(new_category)}"
         )
 
-        # Sla feedback op voor de generator
-        feedback_message = f"Vorige definitie was voor categorie {old_category}. Maak nu een definitie passend bij categorie {new_category}."
-
-        # Set context voor regeneratie
-        SessionStateManager.set_value(
-            "regenerate_with_category",
-            {
-                "begrip": begrip,
-                "category": new_category,
-                "feedback": feedback_message,
-                "previous_definition": saved_record.definitie if saved_record else None,
-            },
+        # Set regeneration context in service layer (conform GVI architectuur)
+        self.regeneration_service.set_regeneration_context(
+            begrip=begrip,
+            old_category=old_category,
+            new_category=new_category,
+            previous_definition=saved_record.definitie if saved_record else None,
+            reason="Gebruiker heeft categorie handmatig aangepast"
         )
+        
+        # Ook in session voor UI navigation (temporary bridge)
+        SessionStateManager.set_value("regeneration_active", True)
+        SessionStateManager.set_value("regeneration_begrip", begrip)
+        SessionStateManager.set_value("regeneration_category", new_category)
 
         # Informeer gebruiker
         st.info(
             f"""
-        📝 **Regeneratie instructies**:
-        1. Ga naar het hoofdscherm
-        2. Het begrip '{begrip}' is al ingevuld
-        3. De nieuwe categorie '{new_category}' wordt automatisch gebruikt
-        4. Klik op 'Genereer Definitie' voor een nieuwe versie
+        📝 **Regeneratie geactiveerd**:
+        - Ga naar het hoofdscherm
+        - Het begrip '{begrip}' wordt automatisch ingevuld
+        - Categorie '{new_category}' wordt gebruikt
+        - De generator zal rekening houden met de nieuwe categorie
         """
         )
-
-        # Optioneel: Direct redirect (commented out voor nu)
-        # st.switch_page("pages/main.py")
+        
+        # Show navigation button
+        if st.button("🏠 Ga naar Generator", key="nav_to_generator"):
+            st.switch_page("app.py")
 
     def _clear_results(self):
         """Wis alle resultaten."""
