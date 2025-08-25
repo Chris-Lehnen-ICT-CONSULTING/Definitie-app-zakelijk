@@ -313,6 +313,31 @@ DefinitieAgent is een AI-powered tool voor het genereren van hoogwaardige Nederl
 
 ---
 
+## 📋 Backlog Items
+
+### BLG-CLN-001: Intelligent Definitie Opschoning Systeem
+- **Status**: 📋 Todo
+- **Prioriteit**: 🔴 Hoog
+- **Geschatte Effort**: 8-16 uur
+- **Aangemaakt**: 2025-08-25
+- **Aanvrager**: Code Debugger (via gebruiker feedback)
+
+#### Probleemstelling
+Het huidige opschoningssysteem is gebaseerd op een statische lijst van verboden woorden. Dit vereist constant onderhoud en mist nieuwe variaties.
+
+#### Voorgestelde Oplossing
+1. **AI-Gedreven Opschoning**: Gebruik GPT om intelligent op te schonen volgens Nederlandse wetgevingstechniek
+2. **Pattern-Based Detectie**: Grammaticale patterns i.p.v. woorden
+3. **Hybride Aanpak**: Combineer rules met AI fallback
+
+#### Acceptatiecriteria
+- Geen handmatige updates meer nodig voor nieuwe koppelwerkwoorden
+- 95%+ success rate op definitie opschoning
+- Backward compatible met bestaande systeem
+- Max 2 seconden voor opschoning
+
+---
+
 ## 🔄 Change Log
 
 ### Version 1.0 (Current)
