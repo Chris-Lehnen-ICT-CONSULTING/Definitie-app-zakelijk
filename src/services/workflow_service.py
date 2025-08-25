@@ -352,3 +352,38 @@ class WorkflowService:
                 DefinitionStatus.ARCHIVED.value,
             ],
         }
+
+    def submit_for_review(
+        self, definition_id: int, user: str = "web_user", notes: str | None = None
+    ) -> dict[str, Any]:
+        """
+        Submit een definitie voor review (DRAFT → REVIEW).
+
+        Dit is een convenience methode die specifiek voor het UI
+        de submit-for-review workflow implementeert.
+
+        Args:
+            definition_id: ID van de definitie
+            user: Gebruiker die submit uitvoert
+            notes: Optionele notities
+
+        Returns:
+            Dictionary met status change informatie voor de repository layer
+
+        Raises:
+            ValueError: Als de huidige status geen DRAFT is
+
+        Note:
+            Deze service layer methode bereidt alleen de changes voor.
+            De daadwerkelijke database update gebeurt in de repository layer
+            volgens het principe van separation of concerns.
+        """
+        # Dit geeft de changes terug die doorgevoerd moeten worden
+        # De repository layer is verantwoordelijk voor de database update
+        return self.prepare_status_change(
+            definition_id=definition_id,
+            current_status=DefinitionStatus.DRAFT.value,
+            new_status=DefinitionStatus.REVIEW.value,
+            user=user,
+            notes=notes or "Submitted for review via web interface",
+        )

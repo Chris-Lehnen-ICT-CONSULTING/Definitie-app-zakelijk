@@ -1,22 +1,20 @@
 # 🤖 AI Code Review Report
 
-**Date**: 2025-08-25 10:55:09
-**Duration**: 11.5 seconds
+**Date**: 2025-08-25 13:13:56
+**Duration**: 12.2 seconds
 **Status**: ❌ FAILED
 **Iterations**: 3
-**Auto-fixes Applied**: 39
+**Auto-fixes Applied**: 27
 
 ## Remaining Issues
 
-### 🟡 IMPORTANT (756)
+### 🟡 IMPORTANT (763)
 
 - **ruff**: ARG002: Unused method argument: `regel_config` (`/Users/chrislehnen/Projecten/Definitie-app/src/ai_toetser/modular_toetser.py`:92)
 - **ruff**: PLC2401: Variable name `categorieën` contains a non-ASCII character (`/Users/chrislehnen/Projecten/Definitie-app/src/analysis/toetsregels_usage_analysis.py`:36)
 - **ruff**: ARG001: Unused function argument: `category` (`/Users/chrislehnen/Projecten/Definitie-app/src/analysis/toetsregels_usage_analysis.py`:185)
 - **ruff**: PLW0603: Using the global statement to update `_feature_cache` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/api/feature_status_api.py`:31)
 - **ruff**: PLW0603: Using the global statement to update `_cache_timestamp` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/api/feature_status_api.py`:31)
-- **ruff**: DTZ005: `datetime.datetime.now()` called without a `tz` argument (`/Users/chrislehnen/Projecten/Definitie-app/src/api/feature_status_api.py`:35)
-- **ruff**: DTZ005: `datetime.datetime.now()` called without a `tz` argument (`/Users/chrislehnen/Projecten/Definitie-app/src/api/feature_status_api.py`:52)
 - **ruff**: B904: Within an `except` clause, raise exceptions with `raise ... from err` or `raise ... from None` to distinguish them from errors in exception handling (`/Users/chrislehnen/Projecten/Definitie-app/src/api/feature_status_api.py`:56)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/config/config_loader.py`:37)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/config/config_loader.py`:38)
@@ -83,12 +81,11 @@
 - **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/hybrid_context/smart_source_selector.py`:371)
 - **ruff**: SIM102: Use a single `if` statement instead of nested `if` statements (`/Users/chrislehnen/Projecten/Definitie-app/src/hybrid_context/smart_source_selector.py`:406)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:91)
-- **ruff**: ARG002: Unused method argument: `categorie` (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:111)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:409)
-- **ruff**: PLR0911: Too many return statements (7 > 6) (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:542)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:654)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:679)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:709)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:411)
+- **ruff**: PLR0911: Too many return statements (7 > 6) (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:544)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:656)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:681)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/integration/definitie_checker.py`:711)
 - **ruff**: RUF012: Mutable class attributes should be annotated with `typing.ClassVar` (`/Users/chrislehnen/Projecten/Definitie-app/src/monitoring/api_monitor.py`:103)
 - **ruff**: PLR0911: Too many return statements (7 > 6) (`/Users/chrislehnen/Projecten/Definitie-app/src/monitoring/api_monitor.py`:369)
 - **ruff**: PLW0603: Using the global statement to update `_metrics_collector` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/monitoring/api_monitor.py`:598)
@@ -111,7 +108,6 @@
 - **ruff**: ARG002: Unused method argument: `categorie` (`/Users/chrislehnen/Projecten/Definitie-app/src/ontologie/ontological_analyzer.py`:911)
 - **ruff**: ARG002: Unused method argument: `org_context` (`/Users/chrislehnen/Projecten/Definitie-app/src/ontologie/ontological_analyzer.py`:979)
 - **ruff**: ARG002: Unused method argument: `jur_context` (`/Users/chrislehnen/Projecten/Definitie-app/src/ontologie/ontological_analyzer.py`:979)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/opschoning/opschoning_enhanced.py`:124)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/orchestration/definitie_agent.py`:115)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/orchestration/definitie_agent.py`:746)
 - **ruff**: PLR0912: Too many branches (24 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/prompt_builder/prompt_builder.py`:144)
@@ -140,8 +136,9 @@
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/__init__.py`:18)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/__init__.py`:24)
 - **ruff**: PLR0912: Too many branches (15 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/services/ab_testing_framework.py`:351)
-- **ruff**: ARG002: Unused method argument: `update_session_data` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/category_service.py`:24)
-- **ruff**: ARG002: Unused method argument: `new_category` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/category_service.py`:89)
+- **ruff**: ARG002: Unused method argument: `update_session_data` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/category_service.py`:25)
+- **ruff**: ARG002: Unused method argument: `reason` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/category_service.py`:36)
+- **ruff**: ARG002: Unused method argument: `new_category` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/category_service.py`:126)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/cleaning_service.py`:126)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/cleaning_service.py`:196)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:65)
@@ -170,9 +167,6 @@
 - **ruff**: SIM102: Use a single `if` statement instead of nested `if` statements (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:264)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:397)
 - **ruff**: ARG002: Unused method argument: `context` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:575)
-- **ruff**: ARG002: Unused method argument: `regel_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_validator.py`:264)
-- **ruff**: ARG002: Unused method argument: `regel_data` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_validator.py`:264)
-- **ruff**: ARG002: Unused method argument: `is_warning` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_validator.py`:264)
 - **ruff**: ARG002: Unused method argument: `definition_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:243)
 - **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:243)
 - **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:268)
@@ -202,8 +196,9 @@
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:122)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:168)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:170)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:237)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:239)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:177)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:270)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:272)
 - **ruff**: SIM108: Use ternary operator `base_confidence = 0.95 if term_lower == title.lower().strip() else 0.85` instead of `if`-`else`-block (`/Users/chrislehnen/Projecten/Definitie-app/src/services/web_lookup/sru_service.py`:345)
 - **ruff**: ARG002: Unused method argument: `include_extract` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/web_lookup/wikipedia_service.py`:59)
 - **ruff**: RUF012: Mutable class attributes should be annotated with `typing.ClassVar` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/workflow_service.py`:47)
@@ -603,18 +598,24 @@
 - **ruff**: PD901: Avoid using the generic variable name `df` for DataFrames (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components.py`:480)
 - **ruff**: ARG002: Unused method argument: `context_data` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/context_selector.py`:344)
 - **ruff**: ARG002: Unused method argument: `description` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/context_selector.py`:344)
-- **ruff**: PLR0912: Too many branches (37 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:143)
-- **ruff**: PLR0915: Too many statements (123 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:143)
-- **ruff**: SIM102: Use a single `if` statement instead of nested `if` statements (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:209)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:400)
-- **ruff**: ARG002: Unused method argument: `definitie` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:654)
-- **ruff**: ARG002: Unused method argument: `definitie` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:659)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:684)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:686)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:760)
-- **ruff**: PLR0912: Too many branches (14 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:764)
-- **ruff**: B007: Loop control variable `i` not used within loop body (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:777)
-- **ruff**: B007: Loop control variable `i` not used within loop body (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:783)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:35)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:36)
+- **ruff**: PLR0912: Too many branches (51 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:156)
+- **ruff**: PLR0915: Too many statements (161 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:156)
+- **ruff**: SIM102: Use a single `if` statement instead of nested `if` statements (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:233)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:424)
+- **ruff**: ARG002: Unused method argument: `definitie` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:775)
+- **ruff**: ARG002: Unused method argument: `definitie` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:780)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:831)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:833)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:907)
+- **ruff**: PLR0912: Too many branches (14 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:911)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:1200)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:1217)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:1232)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:1234)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:1302)
+- **ruff**: PLC0206: Extracting value from dictionary without calling `.items()` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py`:1304)
 - **ruff**: ARG002: Unused method argument: `definitie` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py`:423)
 - **ruff**: ARG002: Unused method argument: `decision` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py`:423)
 - **ruff**: ARG002: Unused method argument: `comments` (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/expert_review_tab.py`:423)
@@ -678,7 +679,10 @@
 - **ruff**: PD901: Avoid using the generic variable name `df` for DataFrames (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:379)
 - **ruff**: PD901: Avoid using the generic variable name `df` for DataFrames (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:485)
 - **ruff**: PD901: Avoid using the generic variable name `df` for DataFrames (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/orchestration_tab.py`:881)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/prompt_debug_section.py`:158)
+- **ruff**: PLR0912: Too many branches (19 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/prompt_debug_section.py`:20)
+- **ruff**: PLR0915: Too many statements (66 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/prompt_debug_section.py`:20)
+- **ruff**: SIM102: Use a single `if` statement instead of nested `if` statements (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/prompt_debug_section.py`:106)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/prompt_debug_section.py`:190)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/quality_control_tab.py`:56)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/quality_control_tab.py`:57)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/quality_control_tab.py`:61)
@@ -709,14 +713,17 @@
 - **ruff**: PD901: Avoid using the generic variable name `df` for DataFrames (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/web_lookup_tab.py`:558)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/web_lookup_tab.py`:723)
 - **ruff**: PLR0915: Too many statements (54 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/web_lookup_tab.py`:761)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:187)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:621)
-- **ruff**: PLR0915: Too many statements (55 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:700)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:778)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:823)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:824)
-- **ruff**: PLR0912: Too many branches (13 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:1050)
-- **ruff**: PLR0915: Too many statements (51 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:1050)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:99)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:100)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:197)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:631)
+- **ruff**: PLR0912: Too many branches (17 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:710)
+- **ruff**: PLR0915: Too many statements (74 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:710)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:817)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:875)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:876)
+- **ruff**: PLR0912: Too many branches (13 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:1102)
+- **ruff**: PLR0915: Too many statements (51 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/ui/tabbed_interface.py`:1102)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/utils/async_api.py`:140)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/utils/async_api.py`:162)
 - **ruff**: PLW0603: Using the global statement to update `_async_client` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/utils/async_api.py`:297)
@@ -767,7 +774,7 @@
 - **ruff**: RUF002: Docstring contains ambiguous `’` (RIGHT SINGLE QUOTATION MARK). Did you mean ``` (GRAVE ACCENT)? (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/voorbeelden.py`:97)
 - **ruff**: RUF002: Docstring contains ambiguous `‐` (HYPHEN). Did you mean `-` (HYPHEN-MINUS)? (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/voorbeelden.py`:100)
 
-### 🟢 SUGGESTION (183)
+### 🟢 SUGGESTION (188)
 
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/main.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ontologie/ontological_analyzer.py`)
@@ -776,6 +783,7 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/cache_manager.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/async_progress.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/regeneration_handler.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/database/definitie_repository.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/database/migrate_database.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/tools/setup_database.py`)
@@ -805,6 +813,7 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/utils/async_api.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/utils/enhanced_retry.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/utils/resilience.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/models/category_models.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/document_processing/document_extractor.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/document_processing/document_processor.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/opschoning/opschoning_enhanced.py`)
@@ -835,10 +844,12 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/container.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_prompts.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/workflow_service.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/category_state_manager.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_monitoring.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_cache.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/service_factory.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_validator.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/regeneration_service.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/definition_generator_config.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/duplicate_detection_service.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/validation/sanitizer.py`)
@@ -945,6 +956,7 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/context_selector.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/prompt_debug_section.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/history_tab.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/category_regeneration_helper.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/expert_review_tab.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/web_lookup_tab.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ui/components/export_tab.py`)
@@ -956,11 +968,11 @@
 ## 📊 Metrics
 
 - Total issues found: 0
-- Issues auto-fixed: 39
-- Manual fixes required: 939
+- Issues auto-fixed: 27
+- Manual fixes required: 951
 - Review efficiency: 100.0%
 
 ### Issues by Tool
 
-- **custom**: 183 issues
-- **ruff**: 756 issues
+- **custom**: 188 issues
+- **ruff**: 763 issues
