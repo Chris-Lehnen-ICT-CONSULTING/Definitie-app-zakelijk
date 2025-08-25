@@ -1,7 +1,23 @@
 """Opschoning module voor het verbeteren van AI-gegenereerde definities.
 
-Dit module bevat functionaliteit voor het opschonen van definities
+Dit module bevat de BASIS opschoningsfunctionaliteit voor definities
 door verboden beginconstructies te verwijderen en formatting te verbeteren.
+
+BELANGRIJK: Dit is de originele/basis versie. Voor moderne GPT responses
+           met ontologische categorieën, gebruik opschoning_enhanced.py
+
+Nederlandse Wetgevingstechniek vereist dat definities:
+- NIET beginnen met lidwoorden (de, het, een)
+- NIET beginnen met koppelwerkwoorden (is, zijn, wordt)
+- NIET circulair zijn (begrip herhaalt zichzelf)
+- WEL beginnen met een hoofdletter
+- WEL eindigen met een punt
+
+Voorbeelden van opschoning:
+- "is een uitspraak" → "Uitspraak."
+- "de rechterlijke beslissing" → "Rechterlijke beslissing."
+- "Vonnis is een uitspraak" → "Uitspraak." (circulaire definitie)
+- "betekent dat" → "Dat."
 """
 
 import re  # Reguliere expressies voor patroon matching
@@ -16,6 +32,10 @@ def opschonen(definitie: str, begrip: str) -> str:
     """
     Verwijdert herhaaldelijk alle verboden beginconstructies uit definitie.
 
+    Deze functie past de Nederlandse wetgevingstechniek toe door systematisch
+    alle niet-toegestane beginconstructies te verwijderen tot een correcte
+    definitie overblijft.
+
     Args:
         definitie: De te schonen definitie tekst
         begrip: Het begrip dat gedefinieerd wordt
@@ -23,12 +43,34 @@ def opschonen(definitie: str, begrip: str) -> str:
     Returns:
         Opgeschoonde definitie met correcte formatting
 
-    Verwijdert:
-    - Koppelwerkwoorden (bijv. 'is', 'omvat', 'betekent')
-    - Lidwoorden (bijv. 'de', 'het', 'een')
-    - Cirkeldefinities (begrip + verboden woord of dubbelepunt)
+    OPSCHONINGSREGELS IN DETAIL:
 
-    Dwingt daarna een hoofdletter en eindpunt af.
+    1. VERBODEN WOORDEN (uit verboden_woorden.json):
+       - Koppelwerkwoorden: "is", "omvat", "betekent", "verwijst naar"
+       - Lidwoorden: "de", "het", "een"
+       - Verboden frasen: "proces waarbij", "handeling die", "vorm van"
+       - Overbodige constructies: "een belangrijk", "een essentieel"
+
+    2. DRIE OPSCHONINGSPATRONEN:
+       A. Woord aan begin: "is een proces" → "proces"
+       B. Circulaire definitie: "Vonnis is een uitspraak" → "uitspraak"
+       C. Begrip met leesteken: "Vonnis: een uitspraak" → "uitspraak"
+
+    3. ITERATIEF PROCES:
+       Herhaalt tot geen verboden patronen meer gevonden worden:
+       "is een belangrijk proces waarbij" 
+       → "een belangrijk proces waarbij" (verwijder "is")
+       → "proces waarbij" (verwijder "een belangrijk")
+       → "" (verwijder "proces waarbij")
+
+    4. FORMATTING:
+       - Eerste letter wordt hoofdletter
+       - Voegt punt toe indien ontbrekend
+
+    Voorbeelden:
+    - opschonen("is een uitspraak", "vonnis") → "Uitspraak."
+    - opschonen("de rechterlijke beslissing", "vonnis") → "Rechterlijke beslissing."
+    - opschonen("vonnis betekent een beslissing", "vonnis") → "Beslissing."
     """
     # Stap 1: Voorbewerking - verwijder leading/trailing whitespace
     d = definitie.strip()  # Verwijder spaties aan begin en einde van definitie
@@ -58,14 +100,19 @@ def opschonen(definitie: str, begrip: str) -> str:
         )  # Escape speciale regex karakters voor veilige pattern matching
 
         # Patroon 3a: Exact woord aan het begin van definitie
+        # Voorbeeld: "is een uitspraak" → matcht "is" aan begin
+        # Regex: ^is\b (^ = begin, \b = woordgrens)
         regex_lijst.append(rf"^{w_esc}\b")
 
         # Patroon 3b: Begrip gevolgd door verboden woord (circulaire definitie)
+        # Voorbeeld: "vonnis is een uitspraak" → matcht "vonnis is"
+        # Regex: ^vonnis\s+is\b (\s+ = één of meer spaties)
         regex_lijst.append(rf"^{begrip_esc}\s+{w_esc}\b")
 
     # Patroon 3c: Extra patroon voor begrip gevolgd door dubbelepunt of streepje
+    # Voorbeelden: 'Vonnis:', 'vonnis -', 'vonnis: '
+    # Regex: ^vonnis\s*[:\-]?\s* (\s* = nul of meer spaties, [:\-]? = optioneel : of -)
     regex_lijst.append(rf"^{begrip_esc}\s*[:\-]?\s*")
-    # Vangt constructies zoals 'Vonnis:', 'vonnis -', 'vonnis :'
 
     # ✅ 4. Verwijder alle opeenvolgende verboden prefixes
     while True:
