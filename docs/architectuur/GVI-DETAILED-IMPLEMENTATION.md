@@ -1,8 +1,29 @@
 # GVI Detailed Implementation Guide
 
-**Versie**: 1.0
-**Datum**: 2025-08-25
+**Versie**: 1.1
+**Datum**: 2025-08-25 (Updated)
 **Doel**: Stap-voor-stap implementatie per functionaliteit
+**Status Update**: ServiceAdapter strategie gedocumenteerd
+
+---
+
+## 🔄 Status Update Summary
+
+### Completed ✅
+- **CategoryService**: Phase 1-3 refactoring complete
+- **RegenerationService**: Rode kabel fix geïmplementeerd
+- **ServiceAdapter**: Alternative implementation voor backward compatibility
+- **Legacy Service Removal**: UnifiedDefinitionGenerator verwijderd
+
+### In Progress 🚧
+- **UI Migration**: Gradual updates naar V2 format
+- **WorkflowService**: Partial implementation
+- **ExportService**: Still embedded in UI
+
+### Pending ⏳
+- **Phase 6**: Complete adapter removal (Week 11-12)
+- **Direct UI integration**: Remove LegacyGenerationResult dependencies
+- **Full service decoupling**: Extract remaining business logic
 
 ---
 
@@ -10,30 +31,21 @@
 
 ### Dag 1-2: Extract Business Logic naar Services
 
-#### 1. CategoryService Implementation
+#### 1. CategoryService Implementation ✅ COMPLETED
 ```bash
 # Create new file
 touch src/services/category_service.py
 ```
 
-**Stappen:**
-1. Identificeer alle category-gerelateerde business logic in `definition_generator_tab.py`
-2. Extract naar service:
-```python
-class CategoryService:
-    def __init__(self, repository: DefinitieRepository):
-        self.repository = repository
+**Status**: ✅ Geïmplementeerd in Phase 1-3 van category refactoring
+- CategoryService met v2 interface
+- CategoryStateManager voor UI state
+- RegenerationService voor category-aware regeneration
 
-    def update_category(self, definition_id: int, new_category: str) -> bool:
-        # Business logic from _update_category method
-        # Add validation, logging, events
-```
-3. Update UI om service te gebruiken:
-```python
-# OLD: self._update_category(new_category, generation_result)
-# NEW: self.category_service.update_category(definitie.id, new_category)
-```
-4. Test schrijven: `tests/test_category_service.py`
+**Geleerde lessen**:
+- ServiceAdapter pattern werkt goed voor backward compatibility
+- UI heeft tijd nodig voor volledige migratie
+- Gradual migration voorkomt breaking changes
 
 #### 2. WorkflowService Implementation
 **Locatie**: `src/services/workflow_service.py` (bestaat al!)
@@ -134,35 +146,33 @@ self.web_lookup = ServiceFactory.create_web_lookup_service()
 3. Update async handling waar nodig
 4. Remove legacy fallback code
 
-#### 2. Implement Adapter Pattern
-**Locatie**: `src/ui/adapters/agent_result_adapter.py`
+#### 2. Implement Adapter Pattern ✅ ALTERNATIVE IMPLEMENTATION
+**Status**: ✅ Geïmplementeerd als ServiceAdapter in service_factory.py
 
-**Stappen:**
-1. Create adapter interface:
+**Huidige situatie**:
+- Geen aparte AgentResultAdapter class
+- ServiceAdapter biedt complete backward compatibility
+- LegacyGenerationResult wrapt nieuwe service responses
+
+**Waarom anders dan gepland**:
+- Centralized adapter logic is cleaner
+- Minder conversie code nodig
+- UI hoeft niet aangepast voor adapter pattern
+
+**Code locatie**: `src/services/service_factory.py`
 ```python
-class AgentResultAdapter:
-    @staticmethod
-    def create(result: Any) -> 'IAgentResult':
-        if isinstance(result, dict):
-            return DictAgentResult(result)
-        return LegacyAgentResult(result)
+class ServiceAdapter:
+    """Wraps V2 services met legacy interface"""
+    def generate_definition(self, **kwargs):
+        # Convert legacy naar V2 format
+        # Call V2 service
+        # Convert response naar LegacyGenerationResult
 ```
 
-2. Replace all `is_dict` checks in UI:
-```python
-# OLD
-if isinstance(agent_result, dict):
-    definitie = agent_result.get("definitie_gecorrigeerd")
-else:
-    definitie = agent_result.final_definitie
-
-# NEW
-adapter = AgentResultAdapter.create(agent_result)
-definitie = adapter.get_corrected_definition()
-```
-
-3. Test beide formats
-4. Plan legacy format deprecation
+**Next steps**:
+- Phase 6 van migration roadmap voor adapter removal
+- Gradual UI component updates
+- Maintain backward compatibility tot alle UI is gemigreerd
 
 ---
 

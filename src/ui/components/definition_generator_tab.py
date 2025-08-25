@@ -15,6 +15,7 @@ from integration.definitie_checker import CheckAction, DefinitieChecker
 from services.category_service import CategoryService
 from services.category_state_manager import CategoryStateManager
 from services.regeneration_service import RegenerationService
+from services.workflow_service import WorkflowService
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,8 @@ class DefinitionGeneratorTab:
         """Initialiseer generator tab."""
         self.checker = checker
         self.category_service = CategoryService(get_definitie_repository())
+        self.workflow_service = WorkflowService()  # Business logic voor status workflow
+
         # TODO: Inject via dependency injection wanneer beschikbaar
         from services.definition_generator_config import UnifiedGeneratorConfig
         from services.definition_generator_prompts import UnifiedPromptBuilder
@@ -635,14 +638,13 @@ class DefinitionGeneratorTab:
         with col2:
             if st.button("✅ Toepassen", key="apply_category"):
                 new_category = selected_option[0]
-                self._update_category(new_category, generation_result)
-                st.success(f"Categorie gewijzigd naar: {selected_option[1]}")
                 SessionStateManager.set_value("show_category_selector", False)
-                st.rerun()
+                self._update_category(new_category, generation_result)
+                # GEEN st.rerun() hier - we willen de regeneration preview zien!
 
         with col3:
             if st.button("❌ Annuleren", key="cancel_category"):
-                CategoryStateManager.clear_category_selector()
+                SessionStateManager.set_value("show_category_selector", False)
                 st.rerun()
 
     def _update_category(self, new_category: str, generation_result: dict[str, Any]):
@@ -780,21 +782,47 @@ class DefinitionGeneratorTab:
         st.info("🔄 Edit functionality coming soon...")
 
     def _submit_for_review(self, definitie: DefinitieRecord):
-        """Submit definitie voor expert review."""
+        """Submit definitie voor expert review via WorkflowService."""
         try:
+            # First, validate the transition via WorkflowService (business logic)
+            if not self.workflow_service.can_change_status(
+                current_status=definitie.status, new_status=DefinitieStatus.REVIEW.value
+            ):
+                st.error(
+                    "❌ Deze definitie kan niet voor review worden ingediend vanuit de huidige status"
+                )
+                return
+
+            # Get the prepared status changes from service
+            status_changes = self.workflow_service.submit_for_review(
+                definition_id=definitie.id,
+                user="web_user",
+                notes="Submitted via web interface",
+            )
+
+            # Apply changes via repository (data access layer)
+            # TODO: In Phase 2, create a DefinitionWorkflowService that combines both
             success = self.checker.repository.change_status(
-                definitie.id,
-                DefinitieStatus.REVIEW,
-                "web_user",
-                "Submitted via web interface",
+                definitie_id=definitie.id,
+                new_status=DefinitieStatus.REVIEW,
+                changed_by=status_changes["updated_by"],
+                notes="Submitted via web interface",
             )
 
             if success:
                 st.success("✅ Definitie ingediend voor review")
+                # Log the workflow change for audit purposes
+                logger.info(
+                    f"Definition {definitie.id} submitted for review by {status_changes['updated_by']}"
+                )
             else:
                 st.error("❌ Kon status niet wijzigen")
+        except ValueError as e:
+            # WorkflowService throws ValueError for invalid transitions
+            st.error(f"❌ Workflow fout: {e!s}")
         except Exception as e:
-            st.error(f"❌ Fout: {e!s}")
+            st.error(f"❌ Onverwachte fout: {e!s}")
+            logger.exception("Error submitting definition for review")
 
     def _export_definition(self, definitie: DefinitieRecord):
         """Exporteer definitie naar TXT bestand."""
@@ -1334,9 +1362,8 @@ class DefinitionGeneratorTab:
             return agent_result.get(
                 "definitie_gecorrigeerd", agent_result.get("definitie", "")
             )
-        else:
-            # Legacy format
-            return getattr(agent_result, "final_definitie", "")
+        # Legacy format
+        return getattr(agent_result, "final_definitie", "")
 
     def _clear_results(self):
         """Wis alle resultaten."""
