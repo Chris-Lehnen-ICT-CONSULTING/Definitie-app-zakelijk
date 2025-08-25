@@ -9,7 +9,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
-from opschoning.opschoning import opschonen
+from opschoning.opschoning_enhanced import opschonen_enhanced
 from services.interfaces import CleaningResult, CleaningServiceInterface, Definition
 
 logger = logging.getLogger(__name__)
@@ -114,13 +114,31 @@ class CleaningService(CleaningServiceInterface):
             )
 
         try:
-            # Gebruik de bestaande opschoning functie
-            cleaned_text = opschonen(original_text, term)
-
-            # Analyseer welke wijzigingen zijn toegepast
+            # Initialiseer tracking lijsten
             applied_rules = []
             improvements = []
+            
+            # Check of we GPT format moeten hanteren
+            handle_gpt = "ontologische categorie:" in original_text.lower()
+            
+            if handle_gpt:
+                # Import analyze_gpt_response voor metadata extractie
+                from opschoning.opschoning_enhanced import analyze_gpt_response
+                
+                # Extract metadata eerst
+                gpt_metadata = analyze_gpt_response(original_text)
+                
+                # Pas opschoning toe
+                cleaned_text = opschonen_enhanced(original_text, term, handle_gpt_format=True)
+                
+                # Voeg GPT metadata toe aan applied_rules als het relevant is
+                if gpt_metadata.get('ontologische_categorie'):
+                    applied_rules.append(f"extracted_ontology_{gpt_metadata['ontologische_categorie']}")
+            else:
+                # Gebruik ook enhanced voor consistentie, maar zonder GPT format handling
+                cleaned_text = opschonen_enhanced(original_text, term, handle_gpt_format=False)
 
+            # Analyseer welke wijzigingen zijn toegepast
             if original_text != cleaned_text:
                 applied_rules.extend(
                     self._analyze_changes(original_text, cleaned_text, term)
