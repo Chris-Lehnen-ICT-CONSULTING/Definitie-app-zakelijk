@@ -47,15 +47,28 @@ class CategoryService:
             CategoryChangeResult met status en details
         """
         try:
-            # Valideer categorie
-            valid_categories = ["ENT", "REL", "ACT", "ATT", "AUT", "STA", "OTH"]
-            if new_category not in valid_categories:
+            # Valideer categorie - ondersteun beide uppercase codes EN lowercase namen
+            valid_categories_uppercase = [
+                "ENT",
+                "REL",
+                "ACT",
+                "ATT",
+                "AUT",
+                "STA",
+                "OTH",
+            ]
+            valid_categories_lowercase = ["type", "proces", "resultaat", "exemplaar"]
+
+            if (
+                new_category not in valid_categories_uppercase
+                and new_category not in valid_categories_lowercase
+            ):
                 return CategoryChangeResult(
                     success=False, message=f"Ongeldige categorie: {new_category}"
                 )
 
             # Haal definitie op
-            definition = self.repository.get_definitie_by_id(definition_id)
+            definition = self.repository.get_definitie(definition_id)
             if not definition:
                 return CategoryChangeResult(
                     success=False,
@@ -72,11 +85,12 @@ class CategoryService:
             # Bewaar oude categorie
             old_category = definition.categorie
 
-            # Update categorie
-            definition.categorie = new_category
-
-            # Sla op in database
-            success = self.repository.update_definitie(definition)
+            # Sla op in database met updates dictionary
+            success = self.repository.update_definitie(
+                definitie_id=definition_id,
+                updates={"categorie": new_category},
+                updated_by=user,
+            )
 
             if success:
                 logger.info(
@@ -106,12 +120,14 @@ class CategoryService:
         """Geef de display naam voor een categorie code.
 
         Args:
-            category_code: De categorie code (bijv. 'ENT')
+            category_code: De categorie code (bijv. 'ENT' of 'type')
 
         Returns:
-            De display naam (bijv. 'Entiteit')
+            De display naam (bijv. 'Entiteit' of 'Type/Klasse')
         """
+        # Ondersteun zowel uppercase codes als lowercase namen
         category_map = {
+            # Uppercase codes (legacy)
             "ENT": "Entiteit",
             "REL": "Relatie",
             "ACT": "Activiteit",
@@ -119,6 +135,11 @@ class CategoryService:
             "AUT": "Autorisatie",
             "STA": "Status",
             "OTH": "Overig",
+            # Lowercase namen (nieuw)
+            "type": "Type/Klasse",
+            "proces": "Proces/Activiteit",
+            "resultaat": "Resultaat/Uitkomst",
+            "exemplaar": "Exemplaar/Instantie",
         }
         return category_map.get(category_code, category_code)
 

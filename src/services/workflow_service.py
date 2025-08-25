@@ -14,6 +14,30 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+class WorkflowAction(Enum):
+    """Mogelijke UI acties na een workflow stap."""
+
+    SHOW_REGENERATION_PREVIEW = "show_regeneration_preview"
+    NAVIGATE_TO_GENERATOR = "navigate_to_generator"
+    SHOW_SUCCESS = "show_success"
+    SHOW_ERROR = "show_error"
+    NO_ACTION = "no_action"
+
+
+@dataclass
+class CategoryChangeResult:
+    """Resultaat van category change workflow."""
+
+    success: bool
+    message: str
+    action: WorkflowAction
+    old_category: str
+    new_category: str
+    requires_regeneration: bool = True
+    preview_data: dict[str, Any] | None = None
+    error: str | None = None
+
+
 class DefinitionStatus(Enum):
     """Status van een definitie in het systeem."""
 
@@ -387,3 +411,267 @@ class WorkflowService:
             user=user,
             notes=notes or "Submitted for review via web interface",
         )
+
+    # ===== Category Change Orchestration =====
+
+    def execute_category_change_workflow(
+        self,
+        definition_id: int | None,
+        old_category: str,
+        new_category: str,
+        current_definition: str,
+        begrip: str,
+        user: str = "web_user",
+        reason: str = "Handmatige aanpassing via UI",
+    ) -> CategoryChangeResult:
+        """
+        Orchestreer complete category change workflow volgens SA architectuur.
+
+        Deze methode implementeert de business logic voor category changes
+        en coördineert tussen verschillende services zonder zelf data access
+        te doen (separation of concerns).
+
+        Workflow stappen:
+        1. Valideer category change
+        2. Update category (delegeer naar CategoryService)
+        3. Bepaal vervolgacties
+        4. Prepareer UI response
+
+        Args:
+            definition_id: ID van opgeslagen definitie (None voor unsaved)
+            old_category: Huidige categorie
+            new_category: Nieuwe categorie
+            current_definition: Huidige definitie tekst
+            begrip: Het begrip
+            user: Gebruiker die wijziging uitvoert
+            reason: Reden voor wijziging
+
+        Returns:
+            CategoryChangeResult met instructies voor UI
+        """
+        try:
+            # Stap 1: Valideer category change
+            if old_category == new_category:
+                return CategoryChangeResult(
+                    success=False,
+                    message="Nieuwe categorie is gelijk aan huidige categorie",
+                    action=WorkflowAction.NO_ACTION,
+                    old_category=old_category,
+                    new_category=new_category,
+                    requires_regeneration=False,
+                    error="Geen wijziging",
+                )
+
+            # Stap 2: Update database indien nodig
+            actual_old_category = old_category
+            if definition_id:
+                # Delegeer naar CategoryService voor database update
+                # Dit is waar we normaal dependency injection zouden gebruiken
+                from database.definitie_repository import get_definitie_repository
+                from services.category_service import CategoryService
+
+                repo = get_definitie_repository()
+                category_service = CategoryService(repo)
+
+                update_result = category_service.update_category_v2(
+                    definition_id, new_category, user=user, reason=reason
+                )
+
+                if not update_result.success:
+                    return CategoryChangeResult(
+                        success=False,
+                        message=f"Fout bij update: {update_result.message}",
+                        action=WorkflowAction.SHOW_ERROR,
+                        old_category=old_category,
+                        new_category=new_category,
+                        requires_regeneration=False,
+                        error=update_result.message,
+                    )
+
+                # Gebruik werkelijke oude categorie uit database
+                actual_old_category = update_result.previous_category
+
+                # Log voor audit trail
+                logger.info(
+                    f"Category updated for definition {definition_id}: "
+                    f"{actual_old_category} → {new_category} by {user}"
+                )
+
+            # Stap 3: Bepaal vervolgacties
+            requires_regeneration = self._should_regenerate_for_category_change(
+                actual_old_category, new_category
+            )
+
+            # Stap 4: Prepareer UI response
+            preview_data = None
+            if requires_regeneration:
+                preview_data = {
+                    "begrip": begrip,
+                    "current_definition": current_definition,
+                    "impact_analysis": self._analyze_category_change_impact(
+                        actual_old_category, new_category
+                    ),
+                    "saved_record_id": definition_id,
+                }
+
+            # Bepaal UI actie
+            action = (
+                WorkflowAction.SHOW_REGENERATION_PREVIEW
+                if requires_regeneration
+                else WorkflowAction.SHOW_SUCCESS
+            )
+
+            # Bouw success message
+            message = f"Categorie succesvol gewijzigd van '{actual_old_category}' naar '{new_category}'."
+            if requires_regeneration:
+                message += " Regeneratie opties zijn beschikbaar."
+
+            # Trigger event voor andere systemen (event-driven architecture)
+            self._emit_category_changed_event(
+                {
+                    "definition_id": definition_id,
+                    "old_category": actual_old_category,
+                    "new_category": new_category,
+                    "user": user,
+                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                }
+            )
+
+            return CategoryChangeResult(
+                success=True,
+                message=message,
+                action=action,
+                old_category=actual_old_category,
+                new_category=new_category,
+                requires_regeneration=requires_regeneration,
+                preview_data=preview_data,
+            )
+
+        except Exception as e:
+            logger.error(f"Error in category change workflow: {e}", exc_info=True)
+            return CategoryChangeResult(
+                success=False,
+                message=f"Workflow fout: {e!s}",
+                action=WorkflowAction.SHOW_ERROR,
+                old_category=old_category,
+                new_category=new_category,
+                requires_regeneration=False,
+                error=str(e),
+            )
+
+    def _should_regenerate_for_category_change(
+        self, old_category: str, new_category: str
+    ) -> bool:
+        """
+        Business rule: bepaal of regeneratie nodig is bij category change.
+
+        Args:
+            old_category: Oude categorie
+            new_category: Nieuwe categorie
+
+        Returns:
+            True als regeneratie aanbevolen wordt
+        """
+        # Normaliseer voor vergelijking
+        old_normalized = old_category.lower().strip()
+        new_normalized = new_category.lower().strip()
+
+        # Geen regeneratie nodig als het alleen een formatting verschil is
+        if old_normalized == new_normalized:
+            return False
+
+        # Business rule: significante category changes vereisen regeneratie
+        significant_changes = {
+            ("proces", "type"),  # Van activiteit naar object
+            ("type", "proces"),  # Van object naar activiteit
+            ("proces", "resultaat"),  # Van activiteit naar uitkomst
+            ("type", "resultaat"),  # Van object naar uitkomst
+        }
+
+        change_tuple = (old_normalized, new_normalized)
+
+        # Altijd regenereren bij significante wijzigingen
+        if change_tuple in significant_changes:
+            logger.info(f"Significant category change detected: {change_tuple}")
+            return True
+
+        # Default: aanbevelen om te regenereren
+        return True
+
+    def _analyze_category_change_impact(
+        self, old_category: str, new_category: str
+    ) -> list[str]:
+        """
+        Analyseer de impact van een category wijziging.
+
+        Args:
+            old_category: Oude categorie
+            new_category: Nieuwe categorie
+
+        Returns:
+            Lijst met impact beschrijvingen
+        """
+        impacts = []
+
+        # Category-specific impact analysis
+        category_impacts = {
+            ("proces", "type"): [
+                "🔄 Focus verschuift van 'hoe' naar 'wat'",
+                "📝 Definitie wordt meer beschrijvend dan procedureel",
+                "⚖️ Juridische precisie kan toenemen",
+            ],
+            ("type", "proces"): [
+                "🔄 Focus verschuift van 'wat' naar 'hoe'",
+                "📋 Definitie wordt meer procedureel",
+                "⚙️ Stappen of fasen kunnen worden toegevoegd",
+            ],
+            ("proces", "resultaat"): [
+                "🔄 Focus verschuift van activiteit naar uitkomst",
+                "📊 Nadruk op het eindresultaat",
+                "🎯 Doelgerichtheid wordt belangrijker",
+            ],
+            ("type", "resultaat"): [
+                "🔄 Focus verschuift van object naar uitkomst",
+                "📊 Definitie wordt resultaatgericht",
+                "✅ Meetbaarheid kan verbeteren",
+            ],
+        }
+
+        # Zoek specifieke impacts
+        change_tuple = (old_category.lower(), new_category.lower())
+        specific_impacts = category_impacts.get(change_tuple, [])
+
+        if specific_impacts:
+            impacts.extend(specific_impacts)
+        else:
+            # Generieke impacts voor andere wijzigingen
+            impacts.append(
+                f"🔄 Categorie wijzigt van '{old_category}' naar '{new_category}'"
+            )
+
+        # Algemene impacts die altijd gelden
+        impacts.extend(
+            [
+                "🎯 Terminologie wordt aangepast aan nieuwe categorie",
+                "✅ Kwaliteitstoetsing wordt opnieuw uitgevoerd",
+                "📄 Nieuwe versie wordt aangemaakt in historie",
+            ]
+        )
+
+        return impacts
+
+    def _emit_category_changed_event(self, event_data: dict[str, Any]):
+        """
+        Emit event voor category change (voor event-driven architecture).
+
+        In een volledig event-driven systeem zou dit een event publisher
+        aanroepen. Voor nu loggen we alleen.
+
+        Args:
+            event_data: Event data om te verzenden
+        """
+        # TODO: Implement actual event publishing when event bus is available
+        logger.info(f"Category change event: {event_data}")
+
+        # Hier zou normaal een event publisher worden aangeroepen:
+        # self.event_publisher.publish('definition.category.changed', event_data)
