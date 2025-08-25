@@ -34,78 +34,110 @@ class PromptDebugSection:
                 "Deze sectie toont de exacte prompts die naar de AI zijn gestuurd voor analyse doeleinden."
             )
 
-            # Definitie generatie prompt
+            # Verzamel alle prompts voor tabs
+            all_prompts = {}
+
+            # Voeg definitie generatie prompt toe
             if generation_result and hasattr(generation_result, "prompt_template"):
-                st.markdown("#### 📝 Definitie Generatie Prompt")
-
-                # Toon prompt in code block voor makkelijk kopiëren
-                st.code(generation_result.prompt_template, language="text")
-
-                # Download knop
-                st.download_button(
-                    label="⬇️ Download Definitie Prompt",
-                    data=generation_result.prompt_template,
-                    file_name="definitie_prompt.txt",
-                    mime="text/plain",
-                    key="download_def_prompt",
+                all_prompts["📝 Definitie Generatie"] = (
+                    generation_result.prompt_template
                 )
 
-                # Toon metadata
-                if hasattr(generation_result, "context") and generation_result.context:
-                    st.markdown("##### 📊 Context Metadata")
-                    context_dict = {
-                        "begrip": generation_result.context.begrip,
-                        "organisatorische_context": generation_result.context.organisatorische_context,
-                        "juridische_context": generation_result.context.juridische_context,
-                        "categorie": (
-                            generation_result.context.categorie.value
-                            if generation_result.context.categorie
-                            else None
-                        ),
-                    }
-                    st.json(context_dict)
-
-            # Voorbeelden prompts
+            # Voeg voorbeelden prompts toe
             if voorbeelden_prompts:
-                st.markdown("#### 🎯 Voorbeelden Generatie Prompts")
+                for example_type, prompt in voorbeelden_prompts.items():
+                    # Maak mooiere tab namen
+                    tab_name = example_type
+                    if example_type == "sentence":
+                        tab_name = "📄 Voorbeeldzinnen"
+                    elif example_type == "practical":
+                        tab_name = "💼 Praktijkvoorbeelden"
+                    elif example_type == "counter":
+                        tab_name = "❌ Tegenvoorbeelden"
+                    elif example_type == "synonyms":
+                        tab_name = "🔄 Synoniemen"
+                    elif example_type == "antonyms":
+                        tab_name = "↔️ Antoniemen"
+                    elif example_type == "clarifications":
+                        tab_name = "💡 Toelichting"
+                    else:
+                        tab_name = f"📌 {example_type.title()}"
 
-                tabs = st.tabs(list(voorbeelden_prompts.keys()))
+                    all_prompts[tab_name] = prompt
 
-                for i, (example_type, prompt) in enumerate(voorbeelden_prompts.items()):
+            # Toon alle prompts in tabs
+            if all_prompts:
+                tabs = st.tabs(list(all_prompts.keys()))
+
+                for i, (tab_name, prompt) in enumerate(all_prompts.items()):
                     with tabs[i]:
+                        # Toon prompt in code block
                         st.code(prompt, language="text")
 
-                        # Download knop per type
+                        # Prompt statistieken
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric("Prompt lengte", f"{len(prompt):,} karakters")
+                        with col2:
+                            st.metric("Geschatte tokens", f"~{len(prompt) // 4:,}")
+
+                        # Download knop
+                        file_name = (
+                            tab_name.replace(" ", "_")
+                            .replace("📝", "")
+                            .replace("📄", "")
+                            .replace("💼", "")
+                            .replace("❌", "")
+                            .replace("🔄", "")
+                            .replace("↔️", "")
+                            .replace("💡", "")
+                            .replace("📌", "")
+                            .strip()
+                        )
                         st.download_button(
-                            label=f"⬇️ Download {example_type} Prompt",
+                            label=f"⬇️ Download {tab_name} Prompt",
                             data=prompt,
-                            file_name=f"{example_type}_prompt.txt",
+                            file_name=f"{file_name}_prompt.txt",
                             mime="text/plain",
-                            key=f"download_{example_type}_prompt",
+                            key=f"download_{file_name}_prompt",
                         )
 
-            # Prompt statistieken
-            st.markdown("#### 📈 Prompt Statistieken")
-            col1, col2, col3 = st.columns(3)
+                        # Context metadata alleen voor definitie generatie
+                        if "Definitie Generatie" in tab_name and generation_result:
+                            if (
+                                hasattr(generation_result, "context")
+                                and generation_result.context
+                            ):
+                                st.markdown("##### 📊 Context Metadata")
+                                context_dict = {
+                                    "begrip": generation_result.context.begrip,
+                                    "organisatorische_context": generation_result.context.organisatorische_context,
+                                    "juridische_context": generation_result.context.juridische_context,
+                                    "categorie": (
+                                        generation_result.context.categorie.value
+                                        if generation_result.context.categorie
+                                        else None
+                                    ),
+                                }
+                                st.json(context_dict)
+            else:
+                st.info("Geen prompt informatie beschikbaar voor deze generatie.")
 
-            with col1:
-                if generation_result and hasattr(generation_result, "prompt_template"):
-                    st.metric(
-                        "Definitie Prompt Lengte",
-                        f"{len(generation_result.prompt_template)} chars",
-                    )
+            # Algemene prompt statistieken
+            if all_prompts:
+                st.markdown("#### 📈 Algemene Statistieken")
+                col1, col2, col3 = st.columns(3)
 
-            with col2:
-                if voorbeelden_prompts:
-                    avg_length = sum(
-                        len(p) for p in voorbeelden_prompts.values()
-                    ) / len(voorbeelden_prompts)
-                    st.metric("Gem. Voorbeeld Prompt", f"{int(avg_length)} chars")
+                with col1:
+                    st.metric("Totaal Prompts", len(all_prompts))
 
-            with col3:
-                total_prompts = 1 if generation_result else 0
-                total_prompts += len(voorbeelden_prompts) if voorbeelden_prompts else 0
-                st.metric("Totaal Prompts", total_prompts)
+                with col2:
+                    total_chars = sum(len(p) for p in all_prompts.values())
+                    st.metric("Totale Lengte", f"{total_chars:,} chars")
+
+                with col3:
+                    total_tokens = sum(len(p) // 4 for p in all_prompts.values())
+                    st.metric("Geschatte Tokens", f"~{total_tokens:,}")
 
             # Test prompt functionaliteit
             st.markdown("#### 🧪 Test Prompt")
