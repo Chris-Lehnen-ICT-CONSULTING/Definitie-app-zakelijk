@@ -158,6 +158,17 @@ class DefinitionGeneratorTab:
         generation_result.get("timestamp")
         determined_category = generation_result.get("determined_category")
 
+        # Debug: Log de structuur van generation_result
+        logger.debug(f"Generation result keys: {list(generation_result.keys())}")
+        if agent_result and isinstance(agent_result, dict):
+            logger.debug(f"Agent result type: dict, keys: {list(agent_result.keys())}")
+            if "metadata" in agent_result:
+                logger.debug(
+                    f"Agent result metadata keys: {list(agent_result['metadata'].keys()) if isinstance(agent_result['metadata'], dict) else 'Not a dict'}"
+                )
+        elif agent_result:
+            logger.debug(f"Agent result type: {type(agent_result).__name__}")
+
         if agent_result:
             # Check if it's a dict (new service) or object (legacy)
             is_dict = isinstance(agent_result, dict)
@@ -416,23 +427,45 @@ class DefinitionGeneratorTab:
                     def __init__(self, prompt_template: str):
                         self.prompt_template = prompt_template
 
-                # Check of er een prompt_template in de metadata zit
+                # Probeer eerst de prompt uit saved_record te halen (meest betrouwbaar)
                 prompt_template = None
-                if "metadata" in agent_result and isinstance(
-                    agent_result["metadata"], dict
-                ):
-                    prompt_template = agent_result["metadata"].get("prompt_template")
-                elif "prompt_template" in agent_result:
-                    prompt_template = agent_result["prompt_template"]
 
+                if saved_record and saved_record.metadata:
+                    metadata = saved_record.metadata
+                    if isinstance(metadata, dict) and "prompt_template" in metadata:
+                        prompt_template = metadata["prompt_template"]
+                        logger.debug("Prompt gevonden in saved_record metadata")
+
+                # Als dat niet lukt, probeer uit agent_result
+                if not prompt_template:
+                    if "metadata" in agent_result and isinstance(
+                        agent_result["metadata"], dict
+                    ):
+                        prompt_template = agent_result["metadata"].get(
+                            "prompt_template"
+                        )
+                        if prompt_template:
+                            logger.debug("Prompt gevonden in agent_result metadata")
+                    elif "prompt_template" in agent_result:
+                        prompt_template = agent_result["prompt_template"]
+                        logger.debug("Prompt gevonden direct in agent_result")
+                    elif "prompt" in agent_result:
+                        prompt_template = agent_result["prompt"]
+                        logger.debug("Prompt gevonden als 'prompt' in agent_result")
+
+                # Render de debug sectie
                 if prompt_template:
                     prompt_container = PromptContainer(prompt_template)
                     PromptDebugSection.render(prompt_container, None)
-                elif saved_record and saved_record.metadata:
-                    metadata = saved_record.metadata
-                    if isinstance(metadata, dict) and "prompt_template" in metadata:
-                        prompt_container = PromptContainer(metadata["prompt_template"])
-                        PromptDebugSection.render(prompt_container, None)
+                else:
+                    # Als er nog steeds geen prompt is, toon de debug sectie met lege prompt
+                    with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
+                        st.info(
+                            "Geen prompt informatie beschikbaar voor deze generatie."
+                        )
+                        st.caption(
+                            "Dit kan gebeuren bij oudere generaties of wanneer de prompt niet is opgeslagen."
+                        )
             else:
                 # Legacy format
                 iteration_result = (

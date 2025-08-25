@@ -198,32 +198,48 @@ class ServiceAdapter:
 
         # Converteer response naar legacy format met object-achtige interface
         if response.success and response.definition:
-            return LegacyGenerationResult(
-                success=True,
-                definitie_origineel=response.definition.metadata.get(
+            # Zorg dat prompt_template zichtbaar is op het juiste niveau
+            result_dict = {
+                "success": True,
+                "definitie_origineel": response.definition.metadata.get(
                     "definitie_origineel", response.definition.definitie
                 ),
-                definitie_gecorrigeerd=response.definition.definitie,
-                final_definitie=response.definition.definitie,  # Voor legacy UI compatibility
-                marker=response.definition.metadata.get("marker", ""),
-                toetsresultaten=(
+                "definitie_gecorrigeerd": response.definition.definitie,
+                "final_definitie": response.definition.definitie,  # Voor legacy UI compatibility
+                "marker": response.definition.metadata.get("marker", ""),
+                "toetsresultaten": (
                     response.validation.metadata.get(
                         "toetsresultaten", response.validation.errors
                     )
                     if response.validation and hasattr(response.validation, "metadata")
                     else response.validation.errors if response.validation else []
                 ),
-                validation_details=(
+                "validation_details": (
                     response.validation if response.validation else None
                 ),
-                validation_score=(
+                "validation_score": (
                     response.validation.score if response.validation else 0.0
                 ),
-                final_score=(response.validation.score if response.validation else 0.0),
-                voorbeelden=response.definition.voorbeelden or [],
-                processing_time=response.definition.metadata.get("processing_time", 0),
-                metadata=response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
-            )
+                "final_score": (
+                    response.validation.score if response.validation else 0.0
+                ),
+                "voorbeelden": response.definition.voorbeelden or [],
+                "processing_time": response.definition.metadata.get(
+                    "processing_time", 0
+                ),
+                "metadata": response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
+            }
+
+            # Voeg prompt_template ook direct toe voor makkelijkere toegang
+            if (
+                response.definition.metadata
+                and "prompt_template" in response.definition.metadata
+            ):
+                result_dict["prompt_template"] = response.definition.metadata[
+                    "prompt_template"
+                ]
+
+            return LegacyGenerationResult(**result_dict)
         return LegacyGenerationResult(
             success=False,
             error_message=response.message or "Generatie mislukt",
