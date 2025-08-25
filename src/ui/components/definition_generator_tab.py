@@ -6,7 +6,6 @@ import logging
 from typing import Any
 
 import streamlit as st
-
 from database.definitie_repository import DefinitieRecord, DefinitieStatus
 from integration.definitie_checker import CheckAction, DefinitieChecker
 from ui.session_state import SessionStateManager
@@ -208,18 +207,20 @@ class DefinitionGeneratorTab:
                 and "definitie_origineel" in agent_result
                 and "definitie_gecorrigeerd" in agent_result
             ):
-                # Toon opschoning status alleen als ze verschillen
+                # Toon opschoning status
                 if (
                     agent_result["definitie_origineel"]
                     != agent_result["definitie_gecorrigeerd"]
                 ):
                     st.success("🔧 **Definitie is opgeschoond**")
+                else:
+                    st.info("✅ **Geen opschoning nodig - definitie was al correct**")
 
                 # Toon ALTIJD beide versies
                 st.subheader("1️⃣ Originele AI Definitie")
                 st.info(agent_result["definitie_origineel"])
 
-                st.subheader("2️⃣ Opgeschoonde Definitie")
+                st.subheader("2️⃣ Finale Definitie")
                 st.info(agent_result["definitie_gecorrigeerd"])
             else:
                 # Legacy format - toon enkele definitie
