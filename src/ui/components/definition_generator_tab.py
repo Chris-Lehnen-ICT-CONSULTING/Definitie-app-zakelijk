@@ -6,8 +6,14 @@ import logging
 from typing import Any
 
 import streamlit as st
-from database.definitie_repository import DefinitieRecord, DefinitieStatus
+from database.definitie_repository import (
+    DefinitieRecord,
+    DefinitieStatus,
+    get_definitie_repository,
+)
 from integration.definitie_checker import CheckAction, DefinitieChecker
+from services.category_service import CategoryService
+from services.category_state_manager import CategoryStateManager
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
@@ -19,6 +25,7 @@ class DefinitionGeneratorTab:
     def __init__(self, checker: DefinitieChecker):
         """Initialiseer generator tab."""
         self.checker = checker
+        self.category_service = CategoryService(get_definitie_repository())
 
     def render(self):
         """Render definitie generatie tab."""
@@ -174,6 +181,24 @@ class DefinitionGeneratorTab:
 
             # Generated definition
             st.markdown("#### 📝 Gegenereerde Definitie")
+
+            # Debug: toon wat we hebben
+            if st.checkbox(
+                "🐛 Debug: Toon agent_result structuur", key="debug_agent_result"
+            ):
+                st.code(f"Type: {type(agent_result)}")
+                st.code(f"Is dict: {is_dict}")
+                if is_dict:
+                    st.code(f"Keys: {list(agent_result.keys())}")
+                    st.code(
+                        f"Has definitie_origineel: {'definitie_origineel' in agent_result}"
+                    )
+                    st.code(
+                        f"Has definitie_gecorrigeerd: {'definitie_gecorrigeerd' in agent_result}"
+                    )
+                else:
+                    st.code(f"Attributes: {dir(agent_result)}")
+
             # Handle both dict (new service) and object (legacy) formats
             if is_dict:
                 # New service returns dict with definitie_gecorrigeerd
@@ -202,9 +227,9 @@ class DefinitionGeneratorTab:
                 # Legacy returns object with final_definitie
                 definitie_to_show = agent_result.final_definitie
             # Toon ALTIJD beide versies
+            # Nu werkt 'in' operator voor zowel dict als LegacyGenerationResult
             if (
-                is_dict
-                and "definitie_origineel" in agent_result
+                "definitie_origineel" in agent_result
                 and "definitie_gecorrigeerd" in agent_result
             ):
                 # Toon opschoning status
@@ -530,24 +555,27 @@ class DefinitionGeneratorTab:
                 st.rerun()
 
     def _update_category(self, new_category: str, generation_result: dict[str, Any]):
-        """Update de ontologische categorie in de sessie en database."""
-        # Update generation result
-        generation_result["determined_category"] = new_category
-        SessionStateManager.set_value("last_generation_result", generation_result)
+        """Update de ontologische categorie via services."""
+        # Update generation result via CategoryStateManager
+        CategoryStateManager.update_generation_result_category(
+            generation_result, new_category
+        )
 
         # Update database record als deze bestaat
         saved_record = generation_result.get("saved_record")
         if saved_record:
-            try:
-                # Update record in database
-                saved_record.categorie = new_category
-                from database.definitie_repository import get_definitie_repository
+            # Gebruik CategoryService v2 voor betere tracking
+            result = self.category_service.update_category_v2(
+                saved_record.id,
+                new_category,
+                user="web_user",  # TODO: Get actual user when auth implemented
+                reason="Handmatige aanpassing via UI",
+            )
 
-                repo = get_definitie_repository()
-                repo.update_definitie(saved_record)
-                st.success("Categorie bijgewerkt in database")
-            except Exception as e:
-                st.error(f"Fout bij bijwerken database: {e}")
+            if result.success:
+                st.success(result.message)
+            else:
+                st.error(f"Fout: {result.message}")
 
             # Action buttons
             col1, col2, col3 = st.columns(3)
@@ -744,19 +772,19 @@ class DefinitionGeneratorTab:
         # Voorbeeldzinnen
         if voorbeelden.get("sentence"):
             with st.expander("🔤 Voorbeeldzinnen", expanded=True):
-                for i, voorbeeld in enumerate(voorbeelden["sentence"], 1):
-                    st.write(f"{i}. {voorbeeld}")
+                for voorbeeld in voorbeelden["sentence"]:
+                    st.write(f"• {voorbeeld}")
 
         # Praktijkvoorbeelden
         if voorbeelden.get("practical"):
             with st.expander("💼 Praktijkvoorbeelden", expanded=True):
-                for i, voorbeeld in enumerate(voorbeelden["practical"], 1):
+                for voorbeeld in voorbeelden["practical"]:
                     st.info(voorbeeld)
 
         # Tegenvoorbeelden
         if voorbeelden.get("counter"):
             with st.expander("❌ Tegenvoorbeelden (wat het NIET is)", expanded=False):
-                for i, voorbeeld in enumerate(voorbeelden["counter"], 1):
+                for voorbeeld in voorbeelden["counter"]:
                     st.warning(voorbeeld)
 
         # Synoniemen met voorkeursterm selectie
