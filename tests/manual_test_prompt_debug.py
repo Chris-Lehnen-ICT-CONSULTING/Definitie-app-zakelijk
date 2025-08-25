@@ -6,7 +6,6 @@ Dit script test of de GPT prompts correct worden opgeslagen en
 weergegeven in de UI debug sectie.
 """
 
-import asyncio
 import logging
 import sys
 from pathlib import Path
@@ -61,23 +60,25 @@ def test_prompt_storage():
     print(f"   - Success: {result.success}")
 
     if hasattr(result, "metadata"):
-        print(f"   - Heeft metadata: Ja")
+        print("   - Heeft metadata: Ja")
         if result.metadata:
             print(f"   - Metadata keys: {list(result.metadata.keys())}")
             if "prompt_template" in result.metadata:
-                print(f"   ✅ prompt_template in metadata")
-                print(f"   - Prompt lengte: {len(result.metadata['prompt_template'])} chars")
+                print("   ✅ prompt_template in metadata")
+                print(
+                    f"   - Prompt lengte: {len(result.metadata['prompt_template'])} chars"
+                )
             else:
-                print(f"   ❌ prompt_template NIET in metadata")
+                print("   ❌ prompt_template NIET in metadata")
     else:
-        print(f"   - Heeft metadata: Nee")
+        print("   - Heeft metadata: Nee")
 
     # Check direct prompt_template
     if hasattr(result, "prompt_template"):
-        print(f"   ✅ Direct prompt_template attribuut aanwezig")
+        print("   ✅ Direct prompt_template attribuut aanwezig")
         print(f"   - Prompt lengte: {len(result.prompt_template)} chars")
     else:
-        print(f"   ❌ Geen direct prompt_template attribuut")
+        print("   ❌ Geen direct prompt_template attribuut")
 
     # 4. Simuleer wat de UI doet
     print("\n4. Simuleer UI toegang tot prompt...")
@@ -90,7 +91,10 @@ def test_prompt_storage():
 
     # Check metadata eerst (zoals de UI fix doet)
     if hasattr(agent_result, "metadata") and agent_result.metadata:
-        if isinstance(agent_result.metadata, dict) and "prompt_template" in agent_result.metadata:
+        if (
+            isinstance(agent_result.metadata, dict)
+            and "prompt_template" in agent_result.metadata
+        ):
             prompt_found = True
             prompt_location = "metadata.prompt_template"
             prompt_preview = agent_result.metadata["prompt_template"][:200] + "..."
@@ -105,10 +109,11 @@ def test_prompt_storage():
         print(f"   ✅ Prompt gevonden via: {prompt_location}")
         print(f"   Preview: {prompt_preview}")
     else:
-        print(f"   ❌ Geen prompt gevonden in agent_result")
+        print("   ❌ Geen prompt gevonden in agent_result")
 
     # 5. Test saved_record simulatie
     print("\n5. Test saved_record scenario...")
+
     # In werkelijkheid komt dit uit de database
     class MockSavedRecord:
         def __init__(self, metadata):
@@ -116,9 +121,9 @@ def test_prompt_storage():
 
     if result.metadata and "prompt_template" in result.metadata:
         saved_record = MockSavedRecord(result.metadata)
-        print(f"   ✅ Saved record zou prompt_template bevatten")
+        print("   ✅ Saved record zou prompt_template bevatten")
     else:
-        print(f"   ❌ Saved record zou GEEN prompt_template bevatten")
+        print("   ❌ Saved record zou GEEN prompt_template bevatten")
 
     # 6. Conclusie
     print("\n=== Test Conclusie ===")
@@ -140,6 +145,7 @@ def main():
     except Exception as e:
         print(f"\n❌ Test gefaald met error: {e}")
         import traceback
+
         traceback.print_exc()
         sys.exit(1)
 

@@ -648,49 +648,61 @@ class DefinitionGeneratorTab:
                 st.rerun()
 
     def _update_category(self, new_category: str, generation_result: dict[str, Any]):
-        """Update de ontologische categorie via services."""
-        # Update generation result via CategoryStateManager
-        CategoryStateManager.update_generation_result_category(
-            generation_result, new_category
-        )
+        """
+        Update de ontologische categorie via WorkflowService (SA architectuur).
 
-        # Get current category and definition
+        Deze methode delegeert alle business logic naar de WorkflowService
+        en reageert alleen op het resultaat voor UI updates.
+        """
+        # Extract benodigde data voor workflow
         old_category = generation_result.get("determined_category", "proces")
         current_definition = self._extract_definition_from_result(generation_result)
         begrip = generation_result.get("begrip", "")
-
-        # Update database record als deze bestaat
         saved_record = generation_result.get("saved_record")
-        if saved_record:
-            # Gebruik CategoryService v2 voor betere tracking
-            result = self.category_service.update_category_v2(
-                saved_record.id,
-                new_category,
-                user="web_user",  # TODO: Get actual user when auth implemented
-                reason="Handmatige aanpassing via UI",
-            )
 
-            if result.success:
-                st.success(result.message)
-                old_category = result.previous_category
-            else:
-                st.error(f"Fout: {result.message}")
-                return
-        else:
-            # No saved record, but still show success for in-memory update
-            st.success(
-                f"Categorie gewijzigd naar: {self._get_category_display_name(new_category)}"
-            )
+        # Voer workflow uit via orchestration layer
+        from services.workflow_service import WorkflowAction
 
-        # ALTIJD regeneration preview tonen, ongeacht of er een saved_record is
-        self._render_regeneration_preview(
-            begrip=begrip,
-            current_definition=current_definition,
+        result = self.workflow_service.execute_category_change_workflow(
+            definition_id=saved_record.id if saved_record else None,
             old_category=old_category,
             new_category=new_category,
-            generation_result=generation_result,
-            saved_record=saved_record,
+            current_definition=current_definition,
+            begrip=begrip,
+            user="web_user",  # TODO: Get actual user when auth implemented
+            reason="Handmatige aanpassing via UI",
         )
+
+        # Update local state voor UI consistency
+        if result.success:
+            CategoryStateManager.update_generation_result_category(
+                generation_result, new_category
+            )
+
+        # Toon workflow resultaat
+        if result.success:
+            st.success(result.message)
+        else:
+            st.error(result.message)
+            return
+
+        # Handel UI acties af op basis van workflow resultaat
+        if result.action == WorkflowAction.SHOW_REGENERATION_PREVIEW:
+            # Render regeneration preview met data uit workflow
+            self._render_regeneration_preview(
+                begrip=result.preview_data["begrip"],
+                current_definition=result.preview_data["current_definition"],
+                old_category=result.old_category,
+                new_category=result.new_category,
+                generation_result=generation_result,
+                saved_record=saved_record,
+            )
+        elif result.action == WorkflowAction.SHOW_SUCCESS:
+            # Geen verdere actie nodig, success message is al getoond
+            pass
+        elif result.action == WorkflowAction.SHOW_ERROR:
+            # Error is al getoond, log voor debugging
+            logger.error(f"Category change workflow error: {result.error}")
 
         # Action buttons alleen als er een saved_record is
         if saved_record:
@@ -1054,8 +1066,10 @@ class DefinitionGeneratorTab:
             current_definition[:200] + ("..." if len(current_definition) > 200 else "")
         )
 
-        # Impact preview
-        impact_analysis = self._analyze_regeneration_impact(old_category, new_category)
+        # Impact preview - gebruik workflow service analyse
+        impact_analysis = self.workflow_service._analyze_category_change_impact(
+            old_category, new_category
+        )
 
         st.markdown("**Verwachte Impact:**")
         for impact in impact_analysis:
