@@ -206,6 +206,98 @@ Proces definitie:""",
                 variables=["begrip", "organisatorische_context"],
                 category="specialized",
             ),
+            # Ontologische categorie templates
+            "ontologie_type": PromptTemplate(
+                name="ontologie_type",
+                template="""
+Genereer een definitie voor het TYPE begrip: {begrip}
+
+{context_section}
+
+BELANGRIJK - Ontologische categorie: TYPE
+De definitie moet beginnen met een formulering zoals:
+- "{begrip} is een soort/type..."
+- "{begrip} betreft een categorie van..."
+- "{begrip} is een klasse van..."
+
+De definitie moet:
+- Het genus (bovenliggende categorie) benoemen
+- De differentia (onderscheidende kenmerken) specificeren
+- Duidelijk zijn over wat wel/niet tot deze categorie behoort
+
+Type definitie:""",
+                variables=["begrip", "context_section"],
+                category="ontological",
+            ),
+            "ontologie_proces": PromptTemplate(
+                name="ontologie_proces",
+                template="""
+Genereer een definitie voor het PROCES begrip: {begrip}
+
+{context_section}
+
+BELANGRIJK - Ontologische categorie: PROCES
+De definitie moet beginnen met een formulering zoals:
+- "{begrip} is een activiteit waarbij..."
+- "{begrip} is het proces waarin..."
+- "{begrip} behelst de handeling van..."
+
+De definitie moet:
+- De activiteit/handeling beschrijven
+- Begin en eind aangeven
+- Actoren en rollen specificeren
+- Doel of uitkomst benoemen
+
+Proces definitie:""",
+                variables=["begrip", "context_section"],
+                category="ontological",
+            ),
+            "ontologie_resultaat": PromptTemplate(
+                name="ontologie_resultaat",
+                template="""
+Genereer een definitie voor het RESULTAAT begrip: {begrip}
+
+{context_section}
+
+BELANGRIJK - Ontologische categorie: RESULTAAT
+De definitie moet beginnen met een formulering zoals:
+- "{begrip} is het resultaat van..."
+- "{begrip} is de uitkomst van..."
+- "{begrip} betreft het gevolg van..."
+
+De definitie moet:
+- Het voorafgaande proces benoemen
+- De vorm/nature van het resultaat specificeren
+- Duidelijk zijn over wat het resultaat inhoudt
+- Eventuele vervolgstappen aangeven
+
+Resultaat definitie:""",
+                variables=["begrip", "context_section"],
+                category="ontological",
+            ),
+            "ontologie_exemplaar": PromptTemplate(
+                name="ontologie_exemplaar",
+                template="""
+Genereer een definitie voor het EXEMPLAAR begrip: {begrip}
+
+{context_section}
+
+BELANGRIJK - Ontologische categorie: EXEMPLAAR
+De definitie moet beginnen met een formulering zoals:
+- "{begrip} is een exemplaar van..."
+- "{begrip} is een specifieke instantie van..."
+- "{begrip} betreft een concrete uitwerking van..."
+
+De definitie moet:
+- Het algemene type waartoe het behoort benoemen
+- De specifieke kenmerken van dit exemplaar aangeven
+- Duidelijk zijn over wat dit exemplaar uniek maakt
+- Context specificeren waarin dit exemplaar relevant is
+
+Exemplaar definitie:""",
+                variables=["begrip", "context_section"],
+                category="ontological",
+            ),
         }
 
     def build_prompt(
@@ -230,21 +322,35 @@ Proces definitie:""",
         """Selecteer juiste template gebaseerd op begrip en context."""
         begrip_lower = begrip.lower()
 
-        # Check for juridische context
+        # PRIORITEIT 1: Ontologische categorie uit 6-stappen protocol
+        ontologische_categorie = context.metadata.get("ontologische_categorie")
+        if ontologische_categorie:
+            template_mapping = {
+                "type": "ontologie_type",
+                "proces": "ontologie_proces", 
+                "resultaat": "ontologie_resultaat",
+                "exemplaar": "ontologie_exemplaar"
+            }
+            template_key = template_mapping.get(ontologische_categorie.lower())
+            if template_key and template_key in self.templates:
+                logger.info(f"Gebruikelijke ontologische template: {template_key} voor categorie: {ontologische_categorie}")
+                return self.templates[template_key]
+
+        # PRIORITEIT 2: Check for juridische context (legacy)
         juridische_items = context.base_context.get("juridisch", [])
         wettelijke_items = context.base_context.get("wettelijk", [])
 
         if juridische_items or wettelijke_items:
             return self.templates["juridisch"]
 
-        # Check for proces begrippen
+        # PRIORITEIT 3: Check for proces begrippen (legacy pattern matching)
         if any(
             word in begrip_lower
             for word in ["proces", "procedure", "methode", "workflow"]
         ):
             return self.templates["proces"]
 
-        # Default template
+        # PRIORITEIT 4: Default template
         return self.templates["default"]
 
     def _prepare_template_variables(

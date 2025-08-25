@@ -247,6 +247,72 @@ class ServiceContainer:
             self._instances["cleaning_service"] = CleaningService(self.cleaning_config)
             logger.info("CleaningService instance aangemaakt")
         return self._instances["cleaning_service"]
+    
+    def data_aggregation_service(self) -> "DataAggregationService":
+        """
+        Get of create DataAggregationService instance.
+        
+        Returns:
+            Singleton instance van DataAggregationService
+        """
+        if "data_aggregation_service" not in self._instances:
+            from services.data_aggregation_service import DataAggregationService
+            
+            # Use existing repository instance
+            repo = self.repository()
+            self._instances["data_aggregation_service"] = DataAggregationService(repo)
+            logger.info("DataAggregationService instance aangemaakt")
+        return self._instances["data_aggregation_service"]
+    
+    def export_service(self) -> "ExportService":
+        """
+        Get of create ExportService instance.
+        
+        Returns:
+            Singleton instance van ExportService
+        """
+        if "export_service" not in self._instances:
+            from services.export_service import ExportService
+            
+            # Use existing services
+            repo = self.repository()
+            data_agg_service = self.data_aggregation_service()
+            
+            # Get export directory from config
+            export_dir = self.config.get("export_dir", "exports")
+            
+            self._instances["export_service"] = ExportService(
+                repository=repo,
+                data_aggregation_service=data_agg_service,
+                export_dir=export_dir
+            )
+            logger.info("ExportService instance aangemaakt")
+        return self._instances["export_service"]
+    
+    def definition_ui_service(self) -> "DefinitionUIService":
+        """
+        Get of create DefinitionUIService instance.
+        
+        Returns:
+            Singleton instance van DefinitionUIService
+        """
+        if "definition_ui_service" not in self._instances:
+            from ui.services.definition_ui_service import DefinitionUIService
+            
+            # Use existing services
+            repo = self.repository()
+            workflow_service = self.workflow()
+            export_service = self.export_service()
+            data_agg_service = self.data_aggregation_service()
+            
+            self._instances["definition_ui_service"] = DefinitionUIService(
+                repository=repo,
+                workflow_service=workflow_service,
+                export_service=export_service,
+                data_aggregation_service=data_agg_service
+            )
+            logger.info("DefinitionUIService instance aangemaakt")
+        return self._instances["definition_ui_service"]
 
     # Utility methods
 

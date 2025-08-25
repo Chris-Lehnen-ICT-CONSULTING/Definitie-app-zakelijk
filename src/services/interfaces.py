@@ -42,6 +42,7 @@ class GenerationRequest:
     domein: str | None = None
     organisatie: str | None = None
     extra_instructies: str | None = None
+    ontologische_categorie: str | None = None  # Categorie uit 6-stappen protocol
 
 
 @dataclass

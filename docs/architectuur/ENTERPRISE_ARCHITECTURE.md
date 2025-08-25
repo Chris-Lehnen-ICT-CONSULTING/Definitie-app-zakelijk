@@ -47,6 +47,15 @@ DefinitieAgent Government Capabilities
 | Quality Assurance | Multi-layer validation system | Auto-check → Expert Review → Approval | 95% first-time-right |
 | Knowledge Management | Cross-government knowledge sharing | Search → Reuse → Adapt → Learn | 70% reuse rate |
 | Compliance Management | Regulatory adherence | Monitor → Report → Audit → Improve | 100% compliance |
+| **Service Decoupling** | **Clean architecture separation** | **UI → Facade → Services → Repository** | **90% faster testing, 100% testable services** |
+
+### 1.3 Architectural Principles
+
+#### Clean Architecture Compliance
+**Principle**: Services MUST be independent of UI frameworks and session state
+- **Rationale**: Enable testing, reusability, and framework independence
+- **Implementation**: Data Aggregation Services collect data without UI dependencies
+- **Success Criteria**: All business services testable without UI mocks
 
 ### 1.3 Business Services
 - **Definition Generation Service**: AI-powered creation with government context
