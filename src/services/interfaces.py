@@ -63,7 +63,7 @@ class Definition:
     updated_at: datetime | None = None
     metadata: dict[str, Any] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.synoniemen is None:
             self.synoniemen = []
         if self.gerelateerde_begrippen is None:
@@ -95,7 +95,7 @@ class ValidationResult:
     score: float | None = None
     violations: list[ValidationViolation] | None = None
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         if self.errors is None:
             self.errors = []
         if self.warnings is None:
