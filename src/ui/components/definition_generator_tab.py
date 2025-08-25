@@ -453,10 +453,17 @@ class DefinitionGeneratorTab:
                         prompt_template = agent_result["prompt"]
                         logger.debug("Prompt gevonden als 'prompt' in agent_result")
 
+                # Haal voorbeelden_prompts op voor beide paths
+                voorbeelden_prompts = (
+                    generation_result.get("voorbeelden_prompts")
+                    if generation_result
+                    else None
+                )
+
                 # Render de debug sectie
                 if prompt_template:
                     prompt_container = PromptContainer(prompt_template)
-                    PromptDebugSection.render(prompt_container, None)
+                    PromptDebugSection.render(prompt_container, voorbeelden_prompts)
                 else:
                     # Als er nog steeds geen prompt is, toon de debug sectie met lege prompt
                     with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
@@ -466,6 +473,26 @@ class DefinitionGeneratorTab:
                         st.caption(
                             "Dit kan gebeuren bij oudere generaties of wanneer de prompt niet is opgeslagen."
                         )
+
+                        # Als er wel voorbeelden prompts zijn, toon die alsnog
+                        if voorbeelden_prompts:
+                            st.markdown("#### 🎯 Voorbeelden Generatie Prompts")
+                            tabs = st.tabs(list(voorbeelden_prompts.keys()))
+
+                            for i, (example_type, prompt) in enumerate(
+                                voorbeelden_prompts.items()
+                            ):
+                                with tabs[i]:
+                                    st.code(prompt, language="text")
+
+                                    # Download knop per type
+                                    st.download_button(
+                                        label=f"⬇️ Download {example_type} Prompt",
+                                        data=prompt,
+                                        file_name=f"{example_type}_prompt.txt",
+                                        mime="text/plain",
+                                        key=f"download_{example_type}_prompt_fallback",
+                                    )
             else:
                 # Legacy format
                 iteration_result = (
