@@ -327,13 +327,15 @@ Exemplaar definitie:""",
         if ontologische_categorie:
             template_mapping = {
                 "type": "ontologie_type",
-                "proces": "ontologie_proces", 
+                "proces": "ontologie_proces",
                 "resultaat": "ontologie_resultaat",
-                "exemplaar": "ontologie_exemplaar"
+                "exemplaar": "ontologie_exemplaar",
             }
             template_key = template_mapping.get(ontologische_categorie.lower())
             if template_key and template_key in self.templates:
-                logger.info(f"Gebruikelijke ontologische template: {template_key} voor categorie: {ontologische_categorie}")
+                logger.info(
+                    f"Gebruikelijke ontologische template: {template_key} voor categorie: {ontologische_categorie}"
+                )
                 return self.templates[template_key]
 
         # PRIORITEIT 2: Check for juridische context (legacy)
