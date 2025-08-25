@@ -1,9 +1,11 @@
 # Generation-Validation Integration (GVI) Implementation Plan
 
-**Versie**: 4.0
-**Datum**: 2025-08-20
-**Status**: Praktische implementatie gids - complementair aan Solution Architecture
+**Versie**: 5.0
+**Datum**: 2025-08-25
+**Status**: Praktische implementatie gids - UPDATED met UI decoupling requirement
 **Referentie**: Zie [Solution Architecture Section 7.1](./SOLUTION_ARCHITECTURE.md#71-phased-migration-approach) voor high-level GVI strategie
+
+> ⚠️ **CRITICAL UPDATE**: UI refactoring analyse toont aan dat business logic in de UI layer de GVI fixes zal blokkeren. Week 0 UI Decoupling is nu een prerequisite.
 
 ---
 
@@ -29,17 +31,19 @@ Dit document bevat de **praktische implementatie details** voor het GVI quality 
 
 We hoeven geen nieuwe stereo te kopen, alleen de kabels aansluiten.
 
-### De "ontbrekende kabels" in code:
+### De "ontbrekende kabels" in code
 
 | Kabel | Component | Probleem | Impact |
 |-------|-----------|----------|---------|
 | 🔴 Rode kabel | Feedback loop | `feedback_history` parameter wordt GENEGEERD | Systeem leert niet van fouten |
 | 🟡 Gele kabel | Context | Context wordt EXPLICIET genoemd: "Context: NP" | CON-01 regel violations |
 | 🔵 Blauwe kabel | Preventie | Validatie alleen achteraf, niet preventief | Onnodig veel retries |
+| 🖤 **Zwarte kabel** (NIEUW) | Data Flow | Business logic in UI layer muteert data direct | GVI fixes worden geblokkeerd |
+| 🟣 **Paarse kabel** (NIEUW) | Legacy Replace | Legacy services worden gebruikt i.p.v. modern | Performance/quality issues blijven |
 
 ---
 
-## 2. Concrete Code Fixes - De 4 Bestanden
+## 2. Concrete Code Fixes - De 5 Bestanden
 
 ### 2.1 Fix 1: Feedback Integration (Rode Kabel 🔴)
 
@@ -107,6 +111,66 @@ def _make_context_implicit(self, contexts: List[str]) -> List[str]:
 
 **File**: `services/unified_definition_generator.py` (regel ~156)
 
+### 2.4 Fix 4: Data Flow Integrity (Zwarte Kabel 🖤) - NIEUW
+
+**Files**:
+- `ui/components/definition_generator_tab.py` - Remove business logic
+- `services/definition_ui_service.py` - NEW service facade
+
+```python
+# HUIDIGE CODE - UI doet business operations
+def _update_category(self, new_category: str, generation_result: dict):
+    # Direct DB update vanuit UI!
+    repo = get_definitie_repository()
+    repo.update_definitie(saved_record)
+
+# NIEUWE CODE - Via service layer
+class DefinitionUIService:
+    def update_category(self, definition_id: int, new_category: str) -> bool:
+        """Handle category update met alle business rules."""
+        # Validatie, logging, events, etc.
+        return self.category_service.update(definition_id, new_category)
+
+# In UI:
+if self.ui_service.update_category(definitie.id, new_category):
+    st.success("✅ Categorie bijgewerkt")
+```
+
+### 2.5 Fix 5: Legacy to Modern Service Migration (Paarse Kabel 🟣) - NIEUW
+
+**Files**: Alle services die legacy implementaties gebruiken
+
+**Legacy → Modern Service Mapping:**
+
+| Legacy Component | Modern Replacement | Benefit |
+|-----------------|-------------------|---------|
+| `legacy_web_lookup_service.py` | `modern_web_lookup_service.py` | Async, 70% sneller |
+| Direct scraping | `wikipedia_service.py` + `sru_service.py` | Structured data |
+| Hardcoded API calls | `ServiceFactory` pattern | Configureerbaar |
+| Session state business logic | Service layer operations | Testbaar |
+
+```python
+# HUIDIGE CODE - Legacy service gebruik
+from services.legacy_web_lookup_service import LegacyWebLookupService
+service = LegacyWebLookupService()
+results = service.fetch_wikipedia_info(begrip)  # Sync, traag
+
+# NIEUWE CODE - Modern service via factory
+from services.service_factory import ServiceFactory
+service = ServiceFactory.create_web_lookup_service()
+results = await service.lookup(begrip)  # Async, snel
+
+# HUIDIGE CODE - is_dict checks overal
+if isinstance(agent_result, dict):
+    # New format
+else:
+    # Legacy format
+
+# NIEUWE CODE - Adapter pattern
+result_adapter = AgentResultAdapter.create(agent_result)
+definitie = result_adapter.get_definition()  # Uniform interface
+```
+
 ```python
 def _build_preventive_constraints(self, validation_rules: List[Rule]) -> str:
     """Bouw constraints van validatie regels voor in de prompt"""
@@ -154,10 +218,25 @@ def _build_preventive_constraints(self, validation_rules: List[Rule]) -> str:
 
 ## 4. Quick Wins Implementation Plan
 
-### Week 1: De 4 Fixes (Direct Impact)
-- **Dag 1-2**: Rode kabel - Feedback integration
-- **Dag 3-4**: Gele kabel - Impliciete context
-- **Dag 5**: Blauwe kabel - Preventieve constraints
+### ⚠️ Week 0: UI Decoupling (NIEUW - PREREQUISITE)
+**MOET EERST**: Business logic in UI blokkeert GVI fixes
+
+- **Dag 1-2**: Extract Business Logic naar Services
+  - `CategoryService` voor category updates
+  - `WorkflowService` voor status changes
+  - `ExportService` voor export logic
+- **Dag 3**: Create Service Facade (`DefinitionUIService`)
+- **Dag 4-5**: Replace Legacy Services
+  - Switch naar `modern_web_lookup_service.py`
+  - Implementeer `ServiceFactory` pattern
+  - Fix Session State Usage (alleen UI state)
+
+**Deliverable**: Clean UI layer met modern services
+
+### Week 1: De 5 Fixes (Nu mogelijk)
+- **Dag 1-2**: Rode kabel - Feedback integration via service layer
+- **Dag 3-4**: Gele kabel - Impliciete context in service
+- **Dag 5**: Blauwe kabel - Preventieve constraints in pipeline
 
 **Verwacht resultaat**: 70%+ first-time-right
 
@@ -177,15 +256,23 @@ def _build_preventive_constraints(self, validation_rules: List[Rule]) -> str:
 
 ---
 
-## 5. Business Case
+## 5. Business Case (UPDATED)
 
 | Aanpak | Effort | Tijd | Quality Gain | Risico |
 |--------|--------|------|--------------|--------|
-| **4 Fixes (dit plan)** | Klein | 3 weken | 60% → 90% | Laag |
+| **UI Decoupling + 4 Fixes** | Medium | 4 weken | 60% → 90% | Laag |
+| **Alleen 4 Fixes (zonder UI)** | Klein | 3 weken | 60% → 65% | **HOOG - Fixes werken niet!** |
 | **Nieuwe architectuur** | Groot | 6+ weken | 60% → 95% | Hoog |
 | **Niets doen** | Geen | 0 weken | 60% blijft | Zeer hoog |
 
-**ROI**: Met 3 weken werk bereiken we 90% van het ideale resultaat.
+**ROI**: Met 4 weken werk (incl. UI decoupling) bereiken we 90% van het ideale resultaat.
+
+### Waarom UI Decoupling essentieel is:
+1. **Rode kabel**: UI overschrijft feedback data in session state
+2. **Gele kabel**: UI doet eigen context updates zonder rules
+3. **Blauwe kabel**: UI valideert los van service pipeline
+4. **Zwarte kabel**: Business mutations gebeuren in UI layer
+5. **Paarse kabel**: Legacy services blijven in gebruik ondanks betere alternatieven
 
 ---
 
@@ -204,6 +291,20 @@ tests/test_gvi_integration.py           # Test complete flow
 - CON-01 compliance: 60% → 95%
 - Response time: 8-12s → <5s
 - API kosten: -50%
+
+---
+
+## 📋 Detailed Implementation Guide
+
+Voor een **stap-voor-stap aanpak per functionaliteit**, zie:
+→ [GVI Detailed Implementation Guide](./GVI-DETAILED-IMPLEMENTATION.md)
+
+Dit bevat:
+- Concrete code wijzigingen per dag
+- Exacte file locaties en method names
+- Test strategie per component
+- Rollout planning
+- Success criteria per functionaliteit
 
 ---
 

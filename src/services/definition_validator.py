@@ -159,14 +159,14 @@ class DefinitionValidator(DefinitionValidatorInterface):
             suggestions=suggestions,
             score=overall_score,
         )
-        
+
         # Voeg legacy UI compatibility toe - bewaar ALLE toetsresultaten
-        if not hasattr(result, 'metadata'):
+        if not hasattr(result, "metadata"):
             result.metadata = {}
-        result.metadata['toetsresultaten'] = toets_resultaten  # Volledige lijst voor UI
-        result.metadata['detailed_scores'] = detailed_scores
-        result.metadata['passed_rules'] = passed_rules
-        
+        result.metadata["toetsresultaten"] = toets_resultaten  # Volledige lijst voor UI
+        result.metadata["detailed_scores"] = detailed_scores
+        result.metadata["passed_rules"] = passed_rules
+
         return result
 
     def validate_field(self, field_name: str, value: Any) -> ValidationResult:
@@ -264,8 +264,9 @@ class DefinitionValidator(DefinitionValidatorInterface):
         self, regel_id: str, regel_data: dict, resultaat: str, is_warning: bool = False
     ) -> str:
         """Creëer een violation string uit toets resultaat."""
-        # Voor nu return gewoon het resultaat
-        # In toekomst kunnen we dit uitbreiden naar RuleViolation objects
+        # Parameters regel_id, regel_data en is_warning worden gereserveerd voor toekomstige uitbreidingen
+        # waarin we meer gedetailleerde RuleViolation objects willen creëren
+        _ = (regel_id, regel_data, is_warning)  # Markeer als intentioneel unused
         return resultaat
 
     def _create_empty_result(self, reason: str) -> ValidationResult:
