@@ -1,8 +1,14 @@
 # Legacy Code Migration Roadmap
 
+**Laatste update**: 2025-08-25
+**Status**: In uitvoering met adapter pattern strategie
+
 ## Executive Summary
 
 This document identifies legacy code that needs migration to the new service architecture and provides a prioritized migration roadmap. The analysis reveals several areas still using the old architecture patterns, including direct database access, UI components bypassing services, and business logic outside the service layer.
+
+### Update: Adapter Pattern Strategy
+The migration strategy has been refined to use an adapter pattern approach, allowing gradual migration without breaking changes. The `ServiceAdapter` and `LegacyGenerationResult` provide backward compatibility while the UI is incrementally updated.
 
 ## Current Architecture State
 
@@ -91,12 +97,12 @@ This document identifies legacy code that needs migration to the new service arc
 
 ### Phase 2: High Priority Services (Weeks 3-4)
 
-3. **Definition Generation Service**
-   - Complete migration from `UnifiedDefinitionGenerator`
-   - Create clean service interface
-   - Remove direct usage from all components
-   - **Blockers**: Repository refactoring
-   - **Impact**: Core functionality modernization
+3. **Definition Generation Service** ✅ COMPLETED
+   - ~~Complete migration from `UnifiedDefinitionGenerator`~~ ✅ Removed
+   - ~~Create clean service interface~~ ✅ ServiceAdapter implemented
+   - ~~Remove direct usage from all components~~ ✅ Via adapter pattern
+   - **Current State**: Using ServiceAdapter for backward compatibility
+   - **Next Step**: See Phase 6 for adapter removal
 
 4. **Integration Service Refactoring**
    - Fix `definitie_checker.py` circular dependencies
@@ -152,6 +158,67 @@ This document identifies legacy code that needs migration to the new service arc
     - Implement service-based validation
     - **Blockers**: None
     - **Impact**: Unified validation
+
+### Phase 6: Adapter Pattern Removal (Weeks 11-12) 🆕
+
+11. **UI Components Direct Service Integration**
+    - Update all UI components to use V2 service responses directly
+    - Remove `LegacyGenerationResult` dependencies
+    - Update session state structure for new format
+    - **Blockers**: All UI components must be migrated first
+    - **Impact**: Remove technical debt
+
+12. **ServiceAdapter Deprecation**
+    - Remove `ServiceAdapter` wrapper
+    - Update all imports to use services directly
+    - Clean up compatibility code
+    - **Blockers**: UI migration complete
+    - **Impact**: Clean architecture achieved
+
+## Adapter Pattern Trade-offs 🆕
+
+### Advantages of Adapter Pattern Approach:
+1. **Gradual Migration**
+   - No big-bang refactoring needed
+   - Components can be migrated one at a time
+   - Reduced risk of breaking changes
+
+2. **Backward Compatibility**
+   - UI continues to work during migration
+   - Session state remains compatible
+   - Export/import functionality preserved
+
+3. **Testing Benefits**
+   - Can test new services with adapter
+   - A/B testing possible between implementations
+   - Rollback capability maintained
+
+4. **Development Velocity**
+   - Teams can work independently
+   - UI updates decoupled from service changes
+   - Parallel development possible
+
+### Disadvantages:
+1. **Technical Debt**
+   - Temporary code that must be removed later
+   - Additional complexity during transition
+   - Dual format support overhead
+
+2. **Performance Impact**
+   - Extra translation layer
+   - Object conversion overhead
+   - Memory usage for dual representations
+
+3. **Maintenance Burden**
+   - Two patterns to maintain
+   - Risk of adapter becoming permanent
+   - Documentation complexity
+
+### Mitigation Strategy:
+- Set clear deadline for Phase 6 completion
+- Regular reviews of adapter usage
+- Gradual UI component migration
+- Automated tests for both formats
 
 ## Migration Guidelines
 
@@ -213,4 +280,10 @@ This document identifies legacy code that needs migration to the new service arc
 
 ## Conclusion
 
-The migration to the new service architecture is essential for maintainability, scalability, and feature development. The prioritized approach ensures critical components are migrated first, with each phase building on the previous one. The estimated timeline is 10 weeks for complete migration, with measurable improvements at each phase.
+The migration to the new service architecture is essential for maintainability, scalability, and feature development. The adapter pattern strategy allows for a safer, more gradual migration path than originally planned.
+
+**Updated Timeline**: 12 weeks (added 2 weeks for Phase 6)
+- Weeks 1-10: Service migration with adapter pattern
+- Weeks 11-12: Adapter removal and final cleanup
+
+The prioritized approach ensures critical components are migrated first, with each phase building on the previous one. The adapter pattern provides stability during transition while maintaining forward progress toward the target architecture.
