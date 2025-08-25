@@ -551,7 +551,7 @@ class DefinitionGeneratorTab:
 
         with col3:
             if st.button("❌ Annuleren", key="cancel_category"):
-                SessionStateManager.set_value("show_category_selector", False)
+                CategoryStateManager.clear_category_selector()
                 st.rerun()
 
     def _update_category(self, new_category: str, generation_result: dict[str, Any]):
@@ -574,6 +574,27 @@ class DefinitionGeneratorTab:
 
             if result.success:
                 st.success(result.message)
+
+                # Vraag of gebruiker nieuwe definitie wil genereren
+                st.info(
+                    "💡 De categorie is gewijzigd. De definitie is mogelijk niet meer passend voor de nieuwe categorie."
+                )
+
+                col1, col2 = st.columns(2)
+                with col1:
+                    if st.button(
+                        "🔄 Genereer nieuwe definitie", key="regenerate_for_category"
+                    ):
+                        self._trigger_regeneration_with_category(
+                            begrip=generation_result.get("begrip"),
+                            new_category=new_category,
+                            old_category=result.previous_category,
+                            saved_record=saved_record,
+                        )
+
+                with col2:
+                    if st.button("✅ Behoud huidige definitie", key="keep_definition"):
+                        st.info("Definitie behouden met nieuwe categorie.")
             else:
                 st.error(f"Fout: {result.message}")
 
@@ -837,6 +858,46 @@ class DefinitionGeneratorTab:
                     if isinstance(voorbeelden["explanation"], list)
                     else voorbeelden["explanation"]
                 )
+
+    def _trigger_regeneration_with_category(
+        self,
+        begrip: str,
+        new_category: str,
+        old_category: str,
+        saved_record: DefinitieRecord,
+    ):
+        """Trigger nieuwe definitie generatie met aangepaste categorie."""
+        st.warning(
+            f"🔄 Nieuwe definitie genereren voor categorie: {self.category_service.get_category_display_name(new_category)}"
+        )
+
+        # Sla feedback op voor de generator
+        feedback_message = f"Vorige definitie was voor categorie {old_category}. Maak nu een definitie passend bij categorie {new_category}."
+
+        # Set context voor regeneratie
+        SessionStateManager.set_value(
+            "regenerate_with_category",
+            {
+                "begrip": begrip,
+                "category": new_category,
+                "feedback": feedback_message,
+                "previous_definition": saved_record.definitie if saved_record else None,
+            },
+        )
+
+        # Informeer gebruiker
+        st.info(
+            f"""
+        📝 **Regeneratie instructies**:
+        1. Ga naar het hoofdscherm
+        2. Het begrip '{begrip}' is al ingevuld
+        3. De nieuwe categorie '{new_category}' wordt automatisch gebruikt
+        4. Klik op 'Genereer Definitie' voor een nieuwe versie
+        """
+        )
+
+        # Optioneel: Direct redirect (commented out voor nu)
+        # st.switch_page("pages/main.py")
 
     def _clear_results(self):
         """Wis alle resultaten."""
