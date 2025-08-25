@@ -394,37 +394,43 @@ class DefinitionOrchestrator(
 
         try:
             # Gebruik nieuwe Clean Services UnifiedPromptBuilder met categorie ondersteuning
-            from services.definition_generator_prompts import UnifiedPromptBuilder
+            from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
             from services.definition_generator_config import UnifiedGeneratorConfig
             from services.definition_generator_context import EnrichedContext
-            from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+            from services.definition_generator_prompts import UnifiedPromptBuilder
 
             # Maak config voor de nieuwe prompt builder
             config = UnifiedGeneratorConfig()
-            
+
             # Converteer GenerationRequest naar EnrichedContext met ontologische categorie
             base_context = {
-                "organisatorisch": [context.request.context] if context.request.context else [],
+                "organisatorisch": (
+                    [context.request.context] if context.request.context else []
+                ),
                 "juridisch": [context.request.domein] if context.request.domein else [],
                 "wettelijk": [],
-                "ontologische_categorie": context.request.ontologische_categorie  # NIEUWE CATEGORIE VELD
+                "ontologische_categorie": context.request.ontologische_categorie,  # NIEUWE CATEGORIE VELD
             }
-            
+
             enriched_context = EnrichedContext(
                 base_context=base_context,
                 sources=[],  # Geen externe bronnen voor nu
                 metadata={
                     "ontologische_categorie": context.request.ontologische_categorie,
-                    "extra_instructies": context.request.extra_instructies
-                }
+                    "extra_instructies": context.request.extra_instructies,
+                },
             )
-            
+
             # Gebruik UnifiedPromptBuilder met categorie-ondersteuning
             prompt_builder = UnifiedPromptBuilder(config)
-            prompt = prompt_builder.build_prompt(context.request.begrip, enriched_context)
-            
+            prompt = prompt_builder.build_prompt(
+                context.request.begrip, enriched_context
+            )
+
             if context.request.ontologische_categorie:
-                logger.info(f"Prompt gebouwd met ontologische categorie: {context.request.ontologische_categorie}")
+                logger.info(
+                    f"Prompt gebouwd met ontologische categorie: {context.request.ontologische_categorie}"
+                )
             else:
                 logger.info("Prompt gebouwd zonder specifieke categorie")
 
