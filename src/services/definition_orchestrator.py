@@ -393,31 +393,40 @@ class DefinitionOrchestrator(
         prompt = "Geen prompt beschikbaar"  # Default waarde voor error handling
 
         try:
-            # Importeer de bestaande GPT functionaliteit
-            from prompt_builder.prompt_builder import (
-                PromptBouwer,
-                PromptConfiguratie,
-                stuur_prompt_naar_gpt,
-            )
+            # Gebruik nieuwe Clean Services UnifiedPromptBuilder met categorie ondersteuning
+            from services.definition_generator_prompts import UnifiedPromptBuilder
+            from services.definition_generator_config import UnifiedGeneratorConfig
+            from services.definition_generator_context import EnrichedContext
+            from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
 
-            # Maak context_dict voor PromptConfiguratie
-            context_dict = {
-                "organisatorisch": [context.request.context or ""],
-                "juridisch": [context.request.domein or ""],
+            # Maak config voor de nieuwe prompt builder
+            config = UnifiedGeneratorConfig()
+            
+            # Converteer GenerationRequest naar EnrichedContext met ontologische categorie
+            base_context = {
+                "organisatorisch": [context.request.context] if context.request.context else [],
+                "juridisch": [context.request.domein] if context.request.domein else [],
                 "wettelijk": [],
+                "ontologische_categorie": context.request.ontologische_categorie  # NIEUWE CATEGORIE VELD
             }
-
-            # Bouw prompt met bestaande logic
-            prompt_config = PromptConfiguratie(
-                begrip=context.request.begrip,
-                context_dict=context_dict,
-                web_uitleg=context.request.extra_instructies or "",
+            
+            enriched_context = EnrichedContext(
+                base_context=base_context,
+                sources=[],  # Geen externe bronnen voor nu
+                metadata={
+                    "ontologische_categorie": context.request.ontologische_categorie,
+                    "extra_instructies": context.request.extra_instructies
+                }
             )
-
-            prompt_bouwer = PromptBouwer(prompt_config)
-
-            prompt = prompt_bouwer.bouw_prompt()
-            logger.info(f"Prompt gebouwd voor begrip: {context.request.begrip}")
+            
+            # Gebruik UnifiedPromptBuilder met categorie-ondersteuning
+            prompt_builder = UnifiedPromptBuilder(config)
+            prompt = prompt_builder.build_prompt(context.request.begrip, enriched_context)
+            
+            if context.request.ontologische_categorie:
+                logger.info(f"Prompt gebouwd met ontologische categorie: {context.request.ontologische_categorie}")
+            else:
+                logger.info("Prompt gebouwd zonder specifieke categorie")
 
             # Stuur naar GPT
             gpt_response = stuur_prompt_naar_gpt(

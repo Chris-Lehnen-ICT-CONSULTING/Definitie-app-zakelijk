@@ -502,15 +502,33 @@ class WorkflowService:
                 actual_old_category, new_category
             )
 
-            # Stap 4: Prepareer UI response
+            # Stap 4: Prepareer UI response via DataAggregationService
             preview_data = None
             if requires_regeneration:
-                preview_data = {
-                    "begrip": begrip,
-                    "current_definition": current_definition,
-                    "impact_analysis": self._analyze_category_change_impact(
+                # Gebruik DataAggregationService voor clean state management
+                from services.data_aggregation_service import DataAggregationService
+                from database.definitie_repository import get_definitie_repository
+                
+                data_service = DataAggregationService(get_definitie_repository())
+                
+                category_state = data_service.create_category_change_state(
+                    old_category=actual_old_category,
+                    new_category=new_category,
+                    begrip=begrip,
+                    current_definition=current_definition,
+                    impact_analysis=self._analyze_category_change_impact(
                         actual_old_category, new_category
                     ),
+                    saved_record_id=definition_id,
+                    success_message=f"Categorie succesvol gewijzigd van '{actual_old_category}' naar '{new_category}'."
+                )
+                
+                # Converteer naar dictionary voor backward compatibility
+                preview_data = {
+                    "category_change_state": category_state,
+                    "begrip": begrip,
+                    "current_definition": current_definition,
+                    "impact_analysis": category_state.impact_analysis,
                     "saved_record_id": definition_id,
                 }
 

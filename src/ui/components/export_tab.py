@@ -13,6 +13,7 @@ from database.definitie_repository import (
     DefinitieRepository,
     DefinitieStatus,
 )
+from services.service_factory import get_definition_service
 
 
 class ExportTab:
