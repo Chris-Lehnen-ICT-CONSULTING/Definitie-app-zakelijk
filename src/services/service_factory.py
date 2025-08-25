@@ -54,12 +54,12 @@ class LegacyGenerationResult:
                     self.iteration_number = 1
                     self.validation_result = FakeValidationResult(parent)
                     self.generation_result = parent
-                    
+
             class FakeValidationResult:
                 def __init__(self, parent):
                     self.overall_score = parent.final_score
                     self.violations = []
-                    
+
             self.best_iteration = FakeIteration(self) if self.success else None
 
     def __getitem__(self, key):
@@ -181,16 +181,17 @@ class ServiceAdapter:
             return LegacyGenerationResult(
                 success=True,
                 definitie_origineel=response.definition.metadata.get(
-                    "origineel", response.definition.definitie
+                    "definitie_origineel", response.definition.definitie
                 ),
                 definitie_gecorrigeerd=response.definition.definitie,
                 final_definitie=response.definition.definitie,  # Voor legacy UI compatibility
                 marker=response.definition.metadata.get("marker", ""),
                 toetsresultaten=(
-                    response.validation.metadata.get('toetsresultaten', response.validation.errors) 
-                    if response.validation and hasattr(response.validation, 'metadata') 
-                    else response.validation.errors if response.validation 
-                    else []
+                    response.validation.metadata.get(
+                        "toetsresultaten", response.validation.errors
+                    )
+                    if response.validation and hasattr(response.validation, "metadata")
+                    else response.validation.errors if response.validation else []
                 ),
                 validation_details=(
                     response.validation if response.validation else None
