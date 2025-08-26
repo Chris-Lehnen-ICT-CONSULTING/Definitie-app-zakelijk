@@ -578,7 +578,7 @@ class UnifiedPromptBuilder:
         # Modular builder (nieuwe prioriteit)
         self.builders["modular"] = ModularPromptBuilder()
         logger.info("ModularPromptBuilder toegevoegd aan strategies")
-        
+
         # Legacy builder
         try:
             self.builders["legacy"] = LegacyPromptBuilder()

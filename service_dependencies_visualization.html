@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>Service Dependencies Visualisatie - Definitie App</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f0f0f0;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        #graph {
+            flex: 1;
+            background: white;
+            position: relative;
+        }
+
+        #sidebar {
+            width: 400px;
+            background: #2c3e50;
+            color: white;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        #sidebar h2, #sidebar h3 {
+            margin-top: 0;
+        }
+
+        .legend {
+            margin: 20px 0;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+
+        .legend-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+            border: 2px solid #333;
+        }
+
+        .node {
+            cursor: pointer;
+            stroke: #333;
+            stroke-width: 2px;
+        }
+
+        .node-core { fill: #e74c3c; }
+        .node-config { fill: #3498db; }
+        .node-interface_user { fill: #2ecc71; }
+        .node-service { fill: #95a5a6; }
+
+        .link {
+            stroke: #999;
+            stroke-opacity: 0.6;
+            marker-end: url(#arrowhead);
+        }
+
+        .node-label {
+            font-size: 12px;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .tooltip {
+            position: absolute;
+            text-align: left;
+            padding: 10px;
+            font-size: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 5px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stats-section {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+
+        .stat-item {
+            margin: 10px 0;
+            padding: 5px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .highlight {
+            font-weight: bold;
+            color: #3498db;
+        }
+
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #2980b9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="graph">
+            <div id="controls">
+                <button onclick="resetView()">Reset View</button>
+                <button onclick="toggleLabels()">Toggle Labels</button>
+                <button onclick="highlightCore()">Highlight Core</button>
+            </div>
+        </div>
+
+        <div id="sidebar">
+            <h2>Service Dependencies Analyse</h2>
+
+            <div class="legend">
+                <h3>Legenda</h3>
+                <div class="legend-item">
+                    <div class="legend-circle node-core"></div>
+                    <span>Kern Service (≥3 imports)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-circle node-config"></div>
+                    <span>Configuratie Service</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-circle node-interface_user"></div>
+                    <span>Interface Gebruiker</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-circle node-service"></div>
+                    <span>Normale Service</span>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h3>Statistieken</h3>
+                <div id="stats"></div>
+            </div>
+
+            <div class="stats-section">
+                <h3>Top Geïmporteerde Services</h3>
+                <div id="top-imports"></div>
+            </div>
+
+            <div class="stats-section">
+                <h3>Externe Dependencies</h3>
+                <div id="external-deps"></div>
+            </div>
+
+            <div class="stats-section">
+                <h3>Service Details</h3>
+                <div id="service-details">
+                    <p>Klik op een node voor details</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tooltip"></div>
+
+    <script>
+        let data = null;
+        let simulation = null;
+        let showLabels = true;
+        let svg = null;
+        let g = null;
+
+        // Load the data
+        d3.json('service_dependencies.json').then(function(loadedData) {
+            data = loadedData;
+            initVisualization();
+            displayStats();
+        }).catch(function(error) {
+            console.error('Error loading data:', error);
+            // Use embedded data if file not found
+            data = {
+                "nodes": [],
+                "links": [],
+                "stats": {
+                    "total_services": 0,
+                    "interface_users": 0,
+                    "top_imports": {},
+                    "external_deps": {}
+                }
+            };
+
+            // Create a simple example visualization
+            alert('Could not load service_dependencies.json. Please run analyze_dependencies.py first.');
+        });
+
+        function initVisualization() {
+            const width = document.getElementById('graph').offsetWidth;
+            const height = document.getElementById('graph').offsetHeight;
+
+            // Create SVG
+            svg = d3.select('#graph')
+                .append('svg')
+                .attr('width', width)
+                .attr('height', height);
+
+            // Add arrow marker
+            svg.append('defs').append('marker')
+                .attr('id', 'arrowhead')
+                .attr('viewBox', '-0 -5 10 10')
+                .attr('refX', 20)
+                .attr('refY', 0)
+                .attr('orient', 'auto')
+                .attr('markerWidth', 10)
+                .attr('markerHeight', 10)
+                .append('path')
+                .attr('d', 'M 0,-5 L 10,0 L 0,5')
+                .attr('fill', '#999');
+
+            g = svg.append('g');
+
+            // Add zoom
+            const zoom = d3.zoom()
+                .scaleExtent([0.1, 10])
+                .on('zoom', (event) => {
+                    g.attr('transform', event.transform);
+                });
+
+            svg.call(zoom);
+
+            // Create force simulation
+            simulation = d3.forceSimulation(data.nodes)
+                .force('link', d3.forceLink(data.links)
+                    .id(d => d.id)
+                    .distance(100))
+                .force('charge', d3.forceManyBody()
+                    .strength(d => d.imports_count > 0 ? -500 : -200))
+                .force('center', d3.forceCenter(width / 2, height / 2))
+                .force('collision', d3.forceCollide()
+                    .radius(d => d.imports_count * 5 + 30));
+
+            // Create links
+            const link = g.append('g')
+                .selectAll('line')
+                .data(data.links)
+                .enter().append('line')
+                .attr('class', 'link')
+                .attr('stroke-width', 2);
+
+            // Create nodes
+            const node = g.append('g')
+                .selectAll('.node-group')
+                .data(data.nodes)
+                .enter().append('g')
+                .attr('class', 'node-group')
+                .call(drag(simulation));
+
+            node.append('circle')
+                .attr('class', d => `node node-${d.group}`)
+                .attr('r', d => Math.max(20, d.imports_count * 5 + 20))
+                .on('mouseover', showTooltip)
+                .on('mouseout', hideTooltip)
+                .on('click', showServiceDetails);
+
+            // Add labels
+            const labels = node.append('text')
+                .attr('class', 'node-label')
+                .attr('dy', '.35em')
+                .attr('text-anchor', 'middle')
+                .text(d => d.id)
+                .style('font-size', d => d.imports_count > 2 ? '14px' : '12px');
+
+            // Update positions on each tick
+            simulation.on('tick', () => {
+                link
+                    .attr('x1', d => d.source.x)
+                    .attr('y1', d => d.source.y)
+                    .attr('x2', d => d.target.x)
+                    .attr('y2', d => d.target.y);
+
+                node.attr('transform', d => `translate(${d.x},${d.y})`);
+            });
+        }
+
+        function drag(simulation) {
+            function dragstarted(event) {
+                if (!event.active) simulation.alphaTarget(0.3).restart();
+                event.subject.fx = event.subject.x;
+                event.subject.fy = event.subject.y;
+            }
+
+            function dragged(event) {
+                event.subject.fx = event.x;
+                event.subject.fy = event.y;
+            }
+
+            function dragended(event) {
+                if (!event.active) simulation.alphaTarget(0);
+                event.subject.fx = null;
+                event.subject.fy = null;
+            }
+
+            return d3.drag()
+                .on('start', dragstarted)
+                .on('drag', dragged)
+                .on('end', dragended);
+        }
+
+        function showTooltip(event, d) {
+            const tooltip = d3.select('.tooltip');
+            tooltip.transition()
+                .duration(200)
+                .style('opacity', .9);
+
+            let content = `<strong>${d.id}</strong><br/>`;
+            content += `Type: ${d.group}<br/>`;
+            content += `Geïmporteerd: ${d.imports_count} keer<br/>`;
+            content += `Gebruikt interfaces: ${d.uses_interfaces ? 'Ja' : 'Nee'}`;
+
+            tooltip.html(content)
+                .style('left', (event.pageX + 10) + 'px')
+                .style('top', (event.pageY - 28) + 'px');
+        }
+
+        function hideTooltip() {
+            d3.select('.tooltip')
+                .transition()
+                .duration(500)
+                .style('opacity', 0);
+        }
+
+        function showServiceDetails(event, d) {
+            let details = `<h4>${d.id}</h4>`;
+            details += `<p><strong>Type:</strong> ${d.group}</p>`;
+            details += `<p><strong>Aantal keer geïmporteerd:</strong> ${d.imports_count}</p>`;
+            details += `<p><strong>Gebruikt interfaces:</strong> ${d.uses_interfaces ? 'Ja' : 'Nee'}</p>`;
+
+            // Find what this service imports
+            const imports = data.links
+                .filter(link => link.source.id === d.id || link.source === d.id)
+                .map(link => link.target.id || link.target);
+
+            if (imports.length > 0) {
+                details += `<p><strong>Importeert:</strong></p><ul>`;
+                imports.forEach(imp => {
+                    details += `<li>${imp}</li>`;
+                });
+                details += '</ul>';
+            }
+
+            // Find what imports this service
+            const importedBy = data.links
+                .filter(link => link.target.id === d.id || link.target === d.id)
+                .map(link => link.source.id || link.source);
+
+            if (importedBy.length > 0) {
+                details += `<p><strong>Geïmporteerd door:</strong></p><ul>`;
+                importedBy.forEach(imp => {
+                    details += `<li>${imp}</li>`;
+                });
+                details += '</ul>';
+            }
+
+            document.getElementById('service-details').innerHTML = details;
+        }
+
+        function displayStats() {
+            // General stats
+            const statsHtml = `
+                <div class="stat-item">Totaal services: <span class="highlight">${data.stats.total_services}</span></div>
+                <div class="stat-item">Interface gebruikers: <span class="highlight">${data.stats.interface_users}</span></div>
+                <div class="stat-item">Totaal relaties: <span class="highlight">${data.links.length}</span></div>
+            `;
+            document.getElementById('stats').innerHTML = statsHtml;
+
+            // Top imports
+            let topImportsHtml = '';
+            for (const [service, count] of Object.entries(data.stats.top_imports)) {
+                topImportsHtml += `<div class="stat-item">${service}: <span class="highlight">${count}x</span></div>`;
+            }
+            document.getElementById('top-imports').innerHTML = topImportsHtml;
+
+            // External deps
+            let externalDepsHtml = '';
+            for (const [dep, count] of Object.entries(data.stats.external_deps)) {
+                externalDepsHtml += `<div class="stat-item">${dep}: <span class="highlight">${count}x</span></div>`;
+            }
+            document.getElementById('external-deps').innerHTML = externalDepsHtml;
+        }
+
+        function resetView() {
+            svg.transition()
+                .duration(750)
+                .call(d3.zoom().transform, d3.zoomIdentity);
+        }
+
+        function toggleLabels() {
+            showLabels = !showLabels;
+            d3.selectAll('.node-label')
+                .style('display', showLabels ? 'block' : 'none');
+        }
+
+        function highlightCore() {
+            d3.selectAll('.node')
+                .style('opacity', d => d.group === 'core' ? 1 : 0.3);
+
+            setTimeout(() => {
+                d3.selectAll('.node')
+                    .style('opacity', 1);
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
