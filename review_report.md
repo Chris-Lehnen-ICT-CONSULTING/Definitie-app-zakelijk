@@ -1,14 +1,14 @@
 # 🤖 AI Code Review Report
 
-**Date**: 2025-08-26 07:25:34
-**Duration**: 16.6 seconds
+**Date**: 2025-08-26 12:17:22
+**Duration**: 10.5 seconds
 **Status**: ❌ FAILED
-**Iterations**: 5
-**Auto-fixes Applied**: 39
+**Iterations**: 3
+**Auto-fixes Applied**: 12
 
 ## Remaining Issues
 
-### 🟡 IMPORTANT (784)
+### 🟡 IMPORTANT (807)
 
 - **ruff**: ARG002: Unused method argument: `regel_config` (`/Users/chrislehnen/Projecten/Definitie-app/src/ai_toetser/modular_toetser.py`:92)
 - **ruff**: PLC2401: Variable name `categorieën` contains a non-ASCII character (`/Users/chrislehnen/Projecten/Definitie-app/src/analysis/toetsregels_usage_analysis.py`:36)
@@ -141,18 +141,17 @@
 - **ruff**: ARG002: Unused method argument: `new_category` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/category_service.py`:147)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/cleaning_service.py`:126)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/cleaning_service.py`:196)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:65)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:104)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:166)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:245)
-- **ruff**: F821: Undefined name `DataAggregationService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:251)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:259)
-- **ruff**: F821: Undefined name `ExportService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:267)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:275)
-- **ruff**: F821: Undefined name `DefinitionUIService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:292)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:300)
-- **ruff**: PLW0603: Using the global statement to update `_default_container` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:376)
-- **ruff**: PLW0603: Using the global statement to update `_default_container` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:386)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:81)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:120)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:182)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:206)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:213)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:299)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:313)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:329)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:354)
+- **ruff**: PLW0603: Using the global statement to update `_default_container` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:430)
+- **ruff**: PLW0603: Using the global statement to update `_default_container` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/services/container.py`:440)
 - **ruff**: F402: Import `field` from line 9 shadowed by loop variable (`/Users/chrislehnen/Projecten/Definitie-app/src/services/data_aggregation_service.py`:180)
 - **ruff**: DTZ005: `datetime.datetime.now()` called without a `tz` argument (`/Users/chrislehnen/Projecten/Definitie-app/src/services/data_aggregation_service.py`:309)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_cache.py`:173)
@@ -172,23 +171,21 @@
 - **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:618)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:35)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:36)
-- **ruff**: SIM102: Use a single `if` statement instead of nested `if` statements (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:264)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:397)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:398)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:399)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:400)
-- **ruff**: ARG002: Unused method argument: `context` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:592)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:613)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/export_service.py`:113)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/export_service.py`:192)
 - **ruff**: DTZ006: `datetime.datetime.fromtimestamp()` called without a `tz` argument (`/Users/chrislehnen/Projecten/Definitie-app/src/services/export_service.py`:279)
 - **ruff**: DTZ005: `datetime.datetime.now()` called without a `tz` argument (`/Users/chrislehnen/Projecten/Definitie-app/src/services/export_service.py`:300)
 - **ruff**: DTZ006: `datetime.datetime.fromtimestamp()` called without a `tz` argument (`/Users/chrislehnen/Projecten/Definitie-app/src/services/export_service.py`:305)
-- **ruff**: ARG002: Unused method argument: `definition_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:244)
-- **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:244)
-- **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:269)
-- **ruff**: ARG002: Unused method argument: `definition_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:326)
+- **ruff**: ARG002: Unused method argument: `definition_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:257)
+- **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:257)
+- **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:282)
 - **ruff**: ARG002: Unused method argument: `definition_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:339)
-- **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:339)
+- **ruff**: ARG002: Unused method argument: `definition_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:352)
+- **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/interfaces.py`:352)
 - **ruff**: ARG002: Unused method argument: `request` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/modern_web_lookup_service.py`:187)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/modern_web_lookup_service.py`:195)
 - **ruff**: ARG002: Unused method argument: `request` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/modern_web_lookup_service.py`:217)
@@ -208,13 +205,39 @@
 - **ruff**: ARG002: Unused method argument: `definition` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/null_repository.py`:58)
 - **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/null_repository.py`:62)
 - **ruff**: ARG002: Unused method argument: `limit` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/null_repository.py`:62)
+- **ruff**: F821: Undefined name `PromptServiceV2` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:49)
+- **ruff**: F821: Undefined name `IntelligentAIService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:50)
+- **ruff**: F821: Undefined name `ValidationServiceV2` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:51)
+- **ruff**: F821: Undefined name `EnhancementService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:52)
+- **ruff**: F821: Undefined name `SecurityService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:54)
+- **ruff**: F821: Undefined name `CleaningServiceInterface` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:56)
+- **ruff**: F821: Undefined name `DefinitionRepositoryInterface` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:57)
+- **ruff**: F821: Undefined name `MonitoringService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:58)
+- **ruff**: F821: Undefined name `FeedbackEngine` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:60)
+- **ruff**: PLR0912: Too many branches (20 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:98)
+- **ruff**: PLR0915: Too many statements (67 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:98)
+- **ruff**: ARG002: Unused method argument: `generation_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:469)
+- **ruff**: ARG002: Unused method argument: `feedback_history` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:499)
+- **ruff**: ARG002: Unused method argument: `context` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:500)
+- **ruff**: F821: Undefined name `PromptResult` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:501)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:503)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:533)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:562)
+- **ruff**: ARG002: Unused method argument: `term` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:587)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:589)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:618)
+- **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:69)
+- **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:233)
+- **ruff**: ARG002: Unused method argument: `context` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:413)
+- **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:442)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:95)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:122)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:169)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:171)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:178)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:282)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:284)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:200)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:287)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:289)
 - **ruff**: SIM108: Use ternary operator `base_confidence = 0.95 if term_lower == title.lower().strip() else 0.85` instead of `if`-`else`-block (`/Users/chrislehnen/Projecten/Definitie-app/src/services/web_lookup/sru_service.py`:345)
 - **ruff**: ARG002: Unused method argument: `include_extract` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/web_lookup/wikipedia_service.py`:59)
 - **ruff**: RUF012: Mutable class attributes should be annotated with `typing.ClassVar` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/workflow_service.py`:71)
@@ -795,7 +818,7 @@
 - **ruff**: RUF002: Docstring contains ambiguous `’` (RIGHT SINGLE QUOTATION MARK). Did you mean ``` (GRAVE ACCENT)? (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/voorbeelden.py`:97)
 - **ruff**: RUF002: Docstring contains ambiguous `‐` (HYPHEN). Did you mean `-` (HYPHEN-MINUS)? (`/Users/chrislehnen/Projecten/Definitie-app/src/voorbeelden/voorbeelden.py`:100)
 
-### 🟢 SUGGESTION (192)
+### 🟢 SUGGESTION (195)
 
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/main.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/ontologie/ontological_analyzer.py`)
@@ -880,6 +903,9 @@
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/validation/dutch_text_validator.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/validation/definitie_validator.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/validation/input_validator.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/orchestrators/definition_orchestrator_v2.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/prompts/modular_prompt_builder.py`)
+- **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/prompts/prompt_service_v2.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/web_lookup/wikipedia_service.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/services/web_lookup/sru_service.py`)
 - **custom**: Docstring lijkt Engels te bevatten, gebruik Nederlands (`src/toetsregels/regels/INT-03.py`)
@@ -993,11 +1019,11 @@
 ## 📊 Metrics
 
 - Total issues found: 0
-- Issues auto-fixed: 39
-- Manual fixes required: 976
+- Issues auto-fixed: 12
+- Manual fixes required: 1002
 - Review efficiency: 100.0%
 
 ### Issues by Tool
 
-- **custom**: 192 issues
-- **ruff**: 784 issues
+- **custom**: 195 issues
+- **ruff**: 807 issues

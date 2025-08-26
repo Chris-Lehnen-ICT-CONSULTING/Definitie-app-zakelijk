@@ -618,6 +618,18 @@ class UnifiedPromptBuilder:
     def _select_strategy(self, begrip: str, context: EnrichedContext) -> str:
         """Selecteer beste prompt strategy voor deze situatie."""
 
+        # PRIORITEIT 1: Ontologische categorie - gebruik legacy builder voor volledige ESS-02 prompt
+        if context.metadata.get("ontologische_categorie"):
+            if "legacy" in self.builders:
+                logger.info(
+                    f"Ontologische categorie gedetecteerd: {context.metadata['ontologische_categorie']}, gebruik legacy strategy (volledige ESS-02 prompt)"
+                )
+                return "legacy"
+            logger.warning(
+                "Legacy builder niet beschikbaar, fallback naar basic voor ontologische categorie"
+            )
+            return "basic"
+
         # Als legacy beschikbaar is en context simpel, gebruik legacy voor consistency
         if "legacy" in self.builders and len(context.sources) <= 1:
             total_context_items = sum(

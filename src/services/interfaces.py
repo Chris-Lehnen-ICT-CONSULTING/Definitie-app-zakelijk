@@ -37,12 +37,16 @@ class ValidationSeverity(Enum):
 class GenerationRequest:
     """Request voor het genereren van een definitie."""
 
+    id: str  # Unique identifier for tracking
     begrip: str
     context: str | None = None
     domein: str | None = None
     organisatie: str | None = None
     extra_instructies: str | None = None
     ontologische_categorie: str | None = None  # Categorie uit 6-stappen protocol
+    options: dict[str, Any] | None = None  # Temperature, model, etc.
+    actor: str | None = None  # User/system creating request
+    legal_basis: str | None = None  # DPIA compliance
 
 
 @dataclass
@@ -60,6 +64,12 @@ class Definition:
     gerelateerde_begrippen: list[str] | None = None
     voorbeelden: list[str] | None = None
     categorie: str | None = None
+    ontologische_categorie: str | None = None  # V2 addition
+    valid: bool | None = None  # Validation status
+    validation_violations: list | None = (
+        None  # V2 validation - ValidationViolations list
+    )
+    created_by: str | None = None  # Actor tracking
     created_at: datetime | None = None
     updated_at: datetime | None = None
     metadata: dict[str, Any] | None = None
@@ -73,6 +83,8 @@ class Definition:
             self.voorbeelden = []
         if self.metadata is None:
             self.metadata = {}
+        if self.validation_violations is None:
+            self.validation_violations = []
 
 
 @dataclass
@@ -90,6 +102,7 @@ class ValidationResult:
     """Resultaat van definitie validatie."""
 
     is_valid: bool
+    definition_text: str | None = None  # V2: Text that was validated
     errors: list[str] | None = None
     warnings: list[str] | None = None
     suggestions: list[str] | None = None
@@ -545,3 +558,58 @@ class CleaningServiceInterface(ABC):
         Returns:
             True als regels correct zijn, anders False
         """
+
+
+# ==========================================
+# V2 ARCHITECTURE ADDITIONS
+# ==========================================
+
+
+@dataclass
+class OrchestratorConfig:
+    """Configuration for DefinitionOrchestratorV2 behavior."""
+
+    enable_feedback_loop: bool = True
+    enable_enhancement: bool = True
+    enable_caching: bool = True
+    max_retries: int = 3
+    timeout_seconds: int = 30
+
+
+@dataclass
+class PromptResult:
+    """Enhanced prompt result with feedback integration."""
+
+    text: str
+    token_count: int
+    components_used: list[str]
+    feedback_integrated: bool
+    optimization_applied: bool
+    metadata: dict[str, Any]
+
+
+@dataclass
+class PromptServiceConfig:
+    """Configuration for prompt service behavior."""
+
+    max_token_limit: int = 10000  # Hard limit
+    cache_enabled: bool = True
+    cache_ttl_seconds: int = 3600
+    feedback_integration: bool = True
+    token_optimization: bool = True
+
+
+# Enhanced DefinitionResponse for V2
+@dataclass
+class DefinitionResponseV2:
+    """Enhanced response object voor V2 orchestrator."""
+
+    success: bool = True
+    definition: Definition | None = None
+    validation_result: ValidationResult | None = None
+    error: str | None = None
+    metadata: dict[str, Any] | None = None
+
+    def __post_init__(self):
+        if self.metadata is None:
+            self.metadata = {}
