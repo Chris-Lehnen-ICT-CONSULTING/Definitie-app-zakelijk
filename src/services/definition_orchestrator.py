@@ -261,8 +261,7 @@ class DefinitionOrchestrator(
                 validation_result = self.validator.validate(existing)
 
                 # Alleen validatie voor gewijzigde velden
-                if "definitie" in updates or "begrip" in updates:
-                    if validation_result.score < self.config.min_quality_score:
+                if ("definitie" in updates or "begrip" in updates) and validation_result.score < self.config.min_quality_score:
                         return DefinitionResponse(
                             definition=existing,
                             validation=validation_result,
@@ -409,7 +408,7 @@ class DefinitionOrchestrator(
                 ),
                 "juridisch": [context.request.domein] if context.request.domein else [],
                 "wettelijk": [],
-                "ontologische_categorie": context.request.ontologische_categorie,  # NIEUWE CATEGORIE VELD
+                # ontologische_categorie verwijderd uit base_context om string->char array bug te fixen
             }
 
             enriched_context = EnrichedContext(
@@ -589,7 +588,7 @@ class DefinitionOrchestrator(
         except Exception as e:
             logger.debug(f"Voorbeelden generatie mislukt: {e}")
 
-    async def _enrich_with_ai(self, context: ProcessingContext) -> None:
+    async def _enrich_with_ai(self, context: ProcessingContext) -> None:  # noqa: ARG002
         """Verrijk met AI enhancement."""
         try:
             # TODO: Implement AI enhancement logic
