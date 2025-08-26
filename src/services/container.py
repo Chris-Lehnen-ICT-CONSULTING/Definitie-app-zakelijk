@@ -7,7 +7,7 @@ Dit maakt het makkelijk om services te configureren, testen en swappen.
 
 import logging
 import os
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
@@ -27,6 +27,11 @@ from services.modern_web_lookup_service import ModernWebLookupService
 # UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
 # from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.workflow_service import WorkflowService
+
+if TYPE_CHECKING:
+    from services.data_aggregation_service import DataAggregationService
+    from services.definition_ui_service import DefinitionUIService
+    from services.export_service import ExportService
 
 logger = logging.getLogger(__name__)
 
@@ -397,7 +402,7 @@ class ContainerConfigs:
     def development() -> dict[str, Any]:
         """Development configuratie."""
         return {
-            "db_path": "data/dev_definities.db",
+            "db_path": "data/definities.db",
             "generator_model": "gpt-3.5-turbo",  # Goedkoper voor dev
             "generator_temperature": 0.5,
             "enable_monitoring": True,
@@ -423,7 +428,7 @@ class ContainerConfigs:
     def production() -> dict[str, Any]:
         """Production configuratie."""
         return {
-            "db_path": "data/production_definities.db",
+            "db_path": "data/definities.db",
             "generator_model": "gpt-4",
             "generator_temperature": 0.4,
             "enable_monitoring": True,
