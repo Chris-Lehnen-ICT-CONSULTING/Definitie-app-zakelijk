@@ -13,10 +13,10 @@ Referentie: SERVICE_ARCHITECTUUR_IMPLEMENTATIE_BLAUWDRUK.md - Sectie 3
 """
 
 import logging
+import time
 from dataclasses import dataclass
 from typing import Any
 
-from abc import ABC, abstractmethod
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 
@@ -82,7 +82,7 @@ class ModularPromptBuilder:
         Raises:
             ValueError: Als essentiële componenten ontbreken
         """
-        start_time = time.time() if "time" in globals() else None
+        start_time = time.time()
 
         try:
             # Valideer input
@@ -119,7 +119,7 @@ class ModularPromptBuilder:
                 logger.debug("Component 4 (Validatie regels) toegevoegd")
 
             if self.component_config.include_forbidden_patterns:
-                forbidden_component = self._build_forbidden_patterns_section()
+                forbidden_component = self._build_forbidden_patterns_section(context)
                 components.append(forbidden_component)
                 logger.debug("Component 5 (Verboden patronen) toegevoegd")
 
@@ -313,7 +313,13 @@ Gebruik formuleringen zoals:
 - 'is het resultaat van...'
 - 'betreft een specifieke soort...'
 - 'is een exemplaar van...'
-⚠️ Ondubbelzinnigheid is vereist."""
+⚠️ Ondubbelzinnigheid is vereist.
+
+BELANGRIJK: Bepaal de juiste categorie op basis van het BEGRIP zelf:
+- Eindigt op -ING of -TIE en beschrijft een handeling? → PROCES
+- Is het een gevolg/uitkomst van iets? → RESULTAAT (bijv. sanctie, rapport, besluit)
+- Is het een classificatie/soort? → TYPE
+- Is het een specifiek geval? → EXEMPLAAR"""
 
         # INTELLIGENTE CATEGORY-SPECIFIC GUIDANCE
         if categorie and self.component_config.detailed_category_guidance:
@@ -355,7 +361,12 @@ Gebruik formuleringen zoals:
 - Geef aan waar het proces BEGINT en EINDIGT
 - Vermeld de ACTOREN (wie voert uit)
 - Focus op de HANDELING, niet het doel
-- Gebruik actieve in plaats van passieve bewoordingen""",
+- Gebruik actieve in plaats van passieve bewoordingen
+
+VOORBEELDEN van procesbegrippen:
+- validatie: proces waarbij gecontroleerd wordt of...
+- toezicht: activiteit waarbij systematisch gevolgd wordt...
+- sanctionering: het proces van opleggen van maatregelen (NIET de sanctie zelf!)""",
             "type": """**TYPE CATEGORIE - Focus op CLASSIFICATIE en KENMERKEN:**
 Gebruik formuleringen zoals:
 - 'is een soort...'
@@ -375,13 +386,20 @@ Gebruik formuleringen zoals:
 - 'is de uitkomst van...'
 - 'ontstaat door...'
 - 'wordt veroorzaakt door...'
+- 'is een maatregel die volgt op...'
+- 'is een besluit/beslissing genomen door...'
 
 ⚠️ **RESULTAAT SPECIFIEKE RICHTLIJNEN:**
 - Beschrijf WAAR het uit voortkomt (oorsprong)
 - Leg uit WAT het betekent of bewerkstelligt (gevolg)
 - Focus op de CAUSALE RELATIE
 - Vermeld het proces of de handeling die het resultaat oplevert
-- Gebruik resultatgerichte taal (uitkomst, gevolg, product)""",
+- Gebruik resultatgerichte taal (uitkomst, gevolg, product, maatregel, besluit)
+
+VOORBEELDEN van resultaatbegrippen:
+- sanctie: maatregel die volgt op normovertreding
+- rapport: document dat het resultaat is van onderzoek
+- besluit: uitkomst van een besluitvormingsproces""",
             "exemplaar": """**EXEMPLAAR CATEGORIE - Focus op SPECIFICITEIT en INDIVIDUALITEIT:**
 Gebruik formuleringen zoals:
 - 'is een specifiek exemplaar van...'
@@ -402,170 +420,269 @@ Gebruik formuleringen zoals:
     def _build_validation_rules_section(self) -> str:
         """Component 4: Alle toetsregels gegroepeerd per categorie."""
         return """### ✅ Richtlijnen voor de definitie:
+🔹 **CON-01 - Eigen definitie voor elke context. Contextspecifieke formulering zonder expliciete benoeming**
+- Formuleer de definitie zó dat deze past binnen de opgegeven context(en), zonder deze expliciet te benoemen in de definitie zelf.
+- Toetsvraag: Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?
+  ✅ Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.
+  ✅ Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem.
+  ✅ Een maatregel is een opgelegde beperking of correctie bij vastgestelde overtredingen.
+  ❌ Toezicht is controle uitgevoerd door DJI in juridische context, op basis van het Wetboek van Strafvordering.
+  ❌ Registratie: het vastleggen van persoonsgegevens binnen de organisatie DJI, in strafrechtelijke context.
+  ❌ Een maatregel is, binnen de context van het strafrecht, een corrigerende sanctie.
+🔹 **CON-02 - Baseren op authentieke bron**
+- Gebruik een gezaghebbende of officiële bron als basis voor de definitie.
+- Toetsvraag: Is duidelijk op welke authentieke of officiële bron de definitie is gebaseerd?
+  ✅ gegevensverwerking: iedere handeling met gegevens zoals bedoeld in de AVG
+  ✅ delict: gedraging die volgens het Wetboek van Strafrecht strafbaar is gesteld
+  ❌ gegevensverwerking: handeling met gegevens (geen bron vermeld)
+  ❌ delict: iets strafbaars (geen verwijzing naar wet)
+🔹 **ESS-01 - Essentie, niet doel**
+- Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.
+- Toetsvraag: Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?
+  ✅ meldpunt: instantie die meldingen registreert over strafbare feiten
+  ✅ sanctie: maatregel die volgt op normovertreding
+  ❌ meldpunt: instantie om meldingen te kunnen verwerken
+  ❌ sanctie: maatregel met als doel naleving te bevorderen
+🔹 **ESS-02 - Ontologische categorie expliciteren (type / particulier / proces / resultaat)**
+- Indien een begrip meerdere ontologische categorieën kan aanduiden, moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt: soort (type), exemplaar (particulier), proces (activiteit) of resultaat (uitkomst).
+- Toetsvraag: Geeft de definitie ondubbelzinnig aan of het begrip een type, een particular, een proces of een resultaat is?
+🔹 **ESS-04 - Toetsbaarheid**
+- Een definitie bevat objectief toetsbare elementen (harde deadlines, aantallen, percentages, meetbare criteria).
+- Toetsvraag: Bevat de definitie elementen waarmee je objectief kunt vaststellen of iets wel of niet onder het begrip valt?
+  ✅ …binnen 3 dagen nadat het verzoek is ingediend…
+  ✅ …tenminste 80% van de steekproef voldoet…
+  ✅ …uiterlijk na 1 week na ontvangst…
+  ❌ …zo snel mogelijk na ontvangst…
+  ❌ …zo veel mogelijk resultaten…
+  ❌ …moet zo mogelijk conform…
+🔹 **ESS-05 - Voldoende onderscheidend**
+- Een definitie moet duidelijk maken wat het begrip uniek maakt ten opzichte van andere verwante begrippen.
+- Toetsvraag: Maakt de definitie expliciet duidelijk waarin het begrip zich onderscheidt van andere begrippen?
+  ✅ Reclasseringstoezicht: toezicht gericht op gedragsverandering, in tegenstelling tot detentietoezicht dat gericht is op vrijheidsbeneming.
+  ✅ Een onttrekking is een incident waarbij een jeugdige zonder toestemming één van de volgende voorzieningen verlaat: open justitiële inrichting of gesloten inrichtingsgebied.
+  ✅ Auto: vierwielig motorvoertuig met uniek chassisnummer en kenteken, waardoor elke auto individueel wordt geïdentificeerd.
+  ❌ Toezicht: het houden van toezicht op iemand.
+  ❌ Een onttrekking is een incident waarbij een jeugdige zonder toestemming de inrichting verlaat.
+🔹 **INT-01 - Compacte en begrijpelijke zin**
+- Een definitie is compact en in één enkele zin geformuleerd.
+- Toetsvraag: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
+  ✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+🔹 **INT-02 - Geen beslisregel**
+- Een definitie bevat geen beslisregels of voorwaarden.
+- Toetsvraag: Bevat de definitie geen voorwaardelijke of normatieve formuleringen zoals beslisregels?
+  ✅ transitie-eis: eis die een organisatie ondersteunt om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ✅ Toegang: toestemming verleend door een bevoegde autoriteit om een systeem te gebruiken.
+  ✅ Beschikking: schriftelijk besluit genomen door een bevoegde autoriteit.
+  ✅ Register: officiële inschrijving in een openbaar register door een bevoegde instantie.
+  ❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+  ❌ Toegang: toestemming verleend door een bevoegde autoriteit, indien alle voorwaarden zijn vervuld.
+  ❌ Beschikking: schriftelijk besluit, mits de aanvraag compleet is ingediend.
+  ❌ Register: officiële inschrijving in een openbaar register, tenzij er bezwaar ligt.
+🔹 **INT-03 - Voornaamwoord-verwijzing duidelijk**
+- Definities mogen geen voornaamwoorden bevatten waarvan niet direct duidelijk is waarnaar verwezen wordt.
+- Toetsvraag: Bevat de definitie voornaamwoorden zoals 'deze', 'dit', 'die'? Zo ja: is voor de lezer direct helder waarnaar ze verwijzen?
+  ✅ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor die gebeurtenis volledig kan worden begrepen en geanalyseerd.
+  ✅ Voorwaarde: bepaling die aangeeft onder welke omstandigheden een handeling is toegestaan.
+  ❌ Geheel van omstandigheden die de omgeving van een gebeurtenis vormen en die de basis vormen waardoor het volledig kan worden begrepen en geanalyseerd.
+  ❌ Voorwaarde: bepaling die aangeeft onder welke omstandigheden deze geldt.
+🔹 **INT-04 - Lidwoord-verwijzing duidelijk**
+- Definities mogen geen onduidelijke verwijzingen met de lidwoorden 'de' of 'het' bevatten.
+- Toetsvraag: Bevat de definitie zinnen als 'de instelling', 'het systeem'? Zo ja: is in diezelfde zin expliciet benoemd welke instelling of welk systeem wordt bedoeld?
+  ✅ Een instelling (de Raad voor de Rechtspraak) neemt beslissingen binnen het strafrechtelijk systeem.
+  ✅ Het systeem (Reclasseringsapplicatie) voert controles automatisch uit.
+  ❌ De instelling neemt beslissingen binnen het strafrechtelijk systeem.
+  ❌ Het systeem voert controles uit zonder verdere specificatie.
+🔹 **INT-06 - Definitie bevat geen toelichting**
+- Een definitie bevat geen nadere toelichting of voorbeelden, maar uitsluitend de afbakening van het begrip.
+- Toetsvraag: Bevat de definitie signalen van toelichting zoals 'bijvoorbeeld', 'zoals', 'dit houdt in', enzovoort?
+  ✅ model: vereenvoudigde weergave van de werkelijkheid
+  ❌ model: vereenvoudigde weergave van de werkelijkheid, die visueel wordt weergegeven
+🔹 **INT-07 - Alleen toegankelijke afkortingen**
+- In een definitie gebruikte afkortingen zijn voorzien van een voor de doelgroep direct toegankelijke referentie.
+- Toetsvraag: Bevat de definitie afkortingen? Zo ja: zijn deze in hetzelfde stuk tekst uitgelegd of gelinkt?
+  ✅ Dienst Justitiële Inrichtingen (DJI)
+  ✅ OM (Openbaar Ministerie)
+  ✅ AVG (Algemene verordening gegevensbescherming)
+  ✅ KvK (Kamer van Koophandel)
+  ✅ [[Algemene verordening gegevensbescherming]]
+  ❌ DJI voert toezicht uit.
+  ❌ De AVG vereist naleving.
+  ❌ OM is bevoegd tot vervolging.
+  ❌ KvK registreert bedrijven.
+🔹 **INT-08 - Positieve formulering**
+- Een definitie wordt in principe positief geformuleerd, dus zonder ontkenningen te gebruiken; uitzondering voor onderdelen die de definitie specifieker maken (bijv. relatieve bijzinnen).
+- Toetsvraag: Is de definitie in principe positief geformuleerd en vermijdt deze negatieve formuleringen, behalve om specifieke onderdelen te verduidelijken?
+  ✅ bevoegd persoon: medewerker met formele autorisatie om gegevens in te zien
+  ✅ gevangene: persoon die zich niet vrij kan bewegen
+  ❌ bevoegd persoon: iemand die niet onbevoegd is
+  ❌ toegang: mogelijkheid om een ruimte te betreden, uitgezonderd voor onbevoegden
+🔹 **SAM-01 - Kwalificatie leidt niet tot afwijking**
+- Een definitie mag niet zodanig zijn geformuleerd dat deze afwijkt van de betekenis die de term in andere contexten heeft.
+- Toetsvraag: Leidt de gebruikte kwalificatie in de definitie tot een betekenis die wezenlijk afwijkt van het algemeen aanvaarde begrip?
+  ✅ proces: reeks activiteiten met een gemeenschappelijk doel
+  ✅ juridisch proces: proces binnen de context van rechtspleging
+  ❌ proces: technische afhandeling van informatie tussen systemen (terwijl 'proces' elders breder wordt gebruikt)
+🔹 **SAM-05 - Geen cirkeldefinities**
+- Een cirkeldefinitie (wederzijdse of meerdiepse verwijzing tussen begrippen) mag niet voorkomen.
+- Toetsvraag: Treden er wederzijdse verwijzingen op tussen begrippen (cirkeldefinitie)?
+  ✅ object: fysiek ding dat bestaat in ruimte en tijd
+  ✅ entiteit: iets dat bestaat
+  ❌ object: een ding is een object
+  ❌ ding: een object is een ding
+🔹 **SAM-07 - Geen betekenisverruiming binnen definitie**
+- De definitie mag de betekenis van de term niet uitbreiden met extra elementen die niet in de term besloten liggen.
+- Toetsvraag: Bevat de definitie uitsluitend elementen die inherent zijn aan de term, zonder aanvullende uitbreidingen?
+  ✅ toezicht houden: het controleren of regels worden nageleefd
+  ❌ toezicht houden: het controleren en indien nodig corrigeren van gedrag
+🔹 **STR-01 - definitie start met zelfstandig naamwoord**
+- De definitie moet starten met een zelfstandig naamwoord of naamwoordgroep, niet met een werkwoord.
+- Toetsvraag: Begint de definitie met een zelfstandig naamwoord of naamwoordgroep, en niet met een werkwoord?
+  ✅ proces dat beslissers identificeert...
+  ✅ maatregel die recidive voorkomt...
+  ❌ is een maatregel die recidive voorkomt
+  ❌ wordt toegepast in het gevangeniswezen
+🔹 **STR-02 - Kick-off ≠ de term**
+- De definitie moet beginnen met verwijzing naar een breder begrip, en dan de verbijzondering ten opzichte daarvan aangeven.
+- Toetsvraag: Begint de definitie met een breder begrip en specificeert het vervolgens hoe het te definiëren begrip daarvan verschilt?
+  ✅ analist: professional verantwoordelijk voor …
+  ❌ analist: analist die verantwoordelijk is voor …
+🔹 **STR-03 - Definitie ≠ synoniem**
+- De definitie van een begrip mag niet simpelweg een synoniem zijn van de te definiëren term.
+- Toetsvraag: Is de definitie meer dan alleen een synoniem van de term?
+  ✅ evaluatie: resultaat van iets beoordelen, appreciëren of interpreteren
+  ❌ evaluatie: beoordeling
+  ❌ registratie: vastlegging (in een systeem)
+🔹 **STR-04 - Kick-off vervolgen met toespitsing**
+- Een definitie moet na de algemene opening meteen toespitsen op het specifieke begrip.
+- Toetsvraag: Volgt na de algemene opening direct een toespitsing die uitlegt welk soort proces of element bedoeld wordt?
+  ✅ proces dat beslissers informeert
+  ✅ gegeven over de verblijfplaats van een betrokkene
+  ❌ proces
+  ❌ gegeven
+  ❌ activiteit die plaatsvindt
+🔹 **STR-05 - Definitie ≠ constructie**
+- Een definitie moet aangeven wat iets is, niet uit welke onderdelen het bestaat.
+- Toetsvraag: Geeft de definitie aan wat het begrip is, in plaats van alleen waar het uit bestaat?
+  ✅ motorvoertuig: gemotoriseerd voertuig dat niet over rails rijdt, zoals auto's, vrachtwagens en bussen
+  ❌ motorvoertuig: een voertuig met een chassis, vier wielen en een motor van meer dan 50 cc
+🔹 **STR-06 - Essentie ≠ informatiebehoefte**
+- Een definitie geeft de aard van het begrip weer, niet de reden waarom het nodig is.
+- Toetsvraag: Bevat de definitie uitsluitend wat het begrip is, en niet waarom het nodig is of waarvoor het gebruikt wordt?
+  ✅ beveiligingsmaatregel: voorziening die ongeautoriseerde toegang voorkomt
+  ❌ beveiligingsmaatregel: voorziening om ongeautoriseerde toegang te voorkomen
+🔹 **STR-07 - Geen dubbele ontkenning**
+- Een definitie bevat geen dubbele ontkenning.
+- Toetsvraag: Bevat de definitie een dubbele ontkenning die de begrijpelijkheid schaadt?
+  ✅ Beveiliging: maatregelen die toegang beperken tot bevoegde personen
+  ❌ Beveiliging: maatregelen die het niet onmogelijk maken om geen toegang te verkrijgen
+🔹 **STR-08 - Dubbelzinnige 'en' is verboden**
+- Een definitie bevat geen 'en' die onduidelijk maakt of beide kenmerken vereist zijn of slechts één van beide.
+- Toetsvraag: Is het gebruik van 'en' in de definitie ondubbelzinnig? Is het duidelijk of beide elementen vereist zijn of slechts één?
+  ✅ Toegang is beperkt tot personen met een geldig toegangspasje en een schriftelijke toestemming
+  ❌ Toegang is beperkt tot personen met een pasje en toestemming
+  ❌ Het systeem vereist login en verificatie
+🔹 **STR-09 - Dubbelzinnige 'of' is verboden**
+- Een definitie bevat geen 'of' die onduidelijk maakt of beide mogelijkheden gelden of slechts één van de twee.
+- Toetsvraag: Is het gebruik van 'of' in de definitie ondubbelzinnig? Is het duidelijk of het gaat om een inclusieve of exclusieve keuze?
+  ✅ Een persoon met een paspoort of, indien niet beschikbaar, een identiteitskaart
+  ❌ Een persoon met een paspoort of identiteitskaart
+  ❌ Een verdachte is iemand die een misdrijf beraamt of uitvoert"""
 
-#### 🔷 STRUCTUUR (STR) - Opbouw van de definitie
-**STR-01**: Begin ALTIJD met een zelfstandig naamwoord ✓
-  - ✅ "Een **overeenkomst** is..."
-  - ❌ "**Controleren** is..." (werkwoord)
-
-**STR-02**: Herhaal NIET het te definiëren begrip aan het begin ✗
-  - ✅ "Een proces waarbij..." (voor begrip 'validatie')
-  - ❌ "Validatie is een validatie van..."
-
-**STR-03**: Geen synoniemen als definitie ✗
-  - ✅ "Een proces waarbij documenten worden gecontroleerd"
-  - ❌ "Een verificatie" (synoniem)
-
-**STR-04**: Na het hoofdbegrip volgt een TOESPITSING ✓
-  - ✅ "Een document **dat** vereisten bevat..."
-  - ❌ "Een document" (geen toespitsing)
-
-**STR-07**: GEEN dubbele ontkenning ✗
-  - ✅ "Een proces dat fouten detecteert"
-  - ❌ "Een proces dat niet zonder fouten is"
-
-#### 🔶 ESSENTIE (ESS) - De kern van het begrip
-**ESS-01**: Definieer WAT iets IS, niet waarvoor het dient ✓
-  - ✅ "Een overzicht van taken die..."
-  - ❌ "Een hulpmiddel om taken te beheren"
-
-**ESS-02**: Maak de ONTOLOGISCHE CATEGORIE duidelijk (KRITIEK!) ✓
-  - Type: "is een soort/categorie..."
-  - Exemplaar: "is een specifiek geval van..."
-  - Proces: "is een activiteit waarbij..."
-  - Resultaat: "is het resultaat van..."
-
-**ESS-03**: Instanties moeten TELBAAR zijn ✓
-  - ✅ "Een document" (telbaar: 1, 2, 3 documenten)
-  - ❌ "Documentatie" (massa-naamwoord)
-
-**ESS-04**: De definitie moet TOETSBAAR zijn ✓
-  - ✅ "Een rapport met minimaal 5 hoofdstukken"
-  - ❌ "Een goed rapport" (subjectief)
-
-#### 🔸 CONTEXT (CON) - Aanpassing aan de situatie
-**CON-01**: Pas de formulering aan op de CONTEXT zonder deze te noemen ✓
-  - ✅ Context impliciet: "Een verzoek tot wijziging van..."
-  - ❌ "In de ICT-context is dit..."
-
-#### 🔹 INTERNE COHERENTIE (INT) - Helderheid en eenvoud
-**INT-01**: Houd de definitie COMPACT en begrijpelijk ✓
-  - ✅ Eén heldere zin van max 25 woorden
-  - ❌ Lange zinnen met meerdere bijzinnen
-
-**INT-02**: GEEN beslisregels in de definitie ✗
-  - ✅ "Een verzoek tot wijziging"
-  - ❌ "Een verzoek dat goedgekeurd moet worden als..."
-
-**INT-06**: GEEN toelichting in de definitie ✗
-  - ✅ "Een systematische controle van..."
-  - ❌ "Een controle (dit wordt uitgevoerd door...)"
-
-**INT-08**: Gebruik POSITIEVE formulering ✓
-  - ✅ "Een proces dat fouten detecteert"
-  - ❌ "Een proces dat niet foutloos is"
-
-#### 🔺 SAMENHANG (SAM) - Relatie met andere begrippen
-**SAM-05**: Voorkom CIRKELDEFINITIES ✗
-  - ✅ "Een overzicht van geplande activiteiten"
-  - ❌ "Een planning van taken" (voor begrip 'takenplanning')
-
-#### ⚡ AI-SPECIFIEK (ARAI) - Veelgemaakte AI-fouten voorkomen
-**ARAI-02**: Vermijd VAGE containerbegrippen ✗
-  - ❌ "aspect", "element", "onderdeel", "component", "factor"
-  - ✓ Gebruik specifieke termen
-
-**ARAI-03**: BEPERK bijvoeglijke naamwoorden ✓
-  - ✅ "Een gestructureerd overzicht"
-  - ❌ "Een zeer uitgebreid en gedetailleerd overzicht"
-
-**ARAI-04**: GEEN modale hulpwerkwoorden ✗
-  - ❌ "kan", "moet", "mag", "zou", "dient"
-  - ✓ Gebruik feitelijke formuleringen
-
-**ARAI-06**: Start CORRECT: geen lidwoord, geen koppelwerkwoord ✓
-  - ✅ "Proces waarbij..."
-  - ❌ "Het is een proces..." of "Een proces is..."
-
-#### 📋 SAMENVATTING KERNREGELS:
-1. Start met zelfstandig naamwoord, NIET met het begrip zelf
-2. Expliciteer de ontologische categorie (proces/type/resultaat/exemplaar)
-3. Definieer WAT het is, niet het doel
-4. Eén compacte zin zonder toelichting
-5. Vermijd vage woorden en modale werkwoorden"""
-
-    def _build_forbidden_patterns_section(self) -> str:
+    def _build_forbidden_patterns_section(self, context: EnrichedContext = None) -> str:
         """Component 5: Veelgemaakte fouten en verboden startwoorden."""
-        return """### ⚠️ Veelgemaakte fouten (vermijden!):
+        # Basis verboden patronen
+        base_section = """### ⚠️ Veelgemaakte fouten (vermijden!):
+- ❌ Begin niet met lidwoorden ('de', 'het', 'een')
+- ❌ Gebruik geen koppelwerkwoord aan het begin ('is', 'betekent', 'omvat')
+- ❌ Herhaal het begrip niet letterlijk
+- ❌ Gebruik geen synoniem als definitie
+- ❌ Vermijd containerbegrippen ('proces', 'activiteit')
+- ❌ Vermijd bijzinnen zoals 'die', 'waarin', 'zoals'
+- ❌ Gebruik enkelvoud; infinitief bij werkwoorden
+- ❌ Start niet met 'is'
+- ❌ Start niet met 'betreft'
+- ❌ Start niet met 'omvat'
+- ❌ Start niet met 'betekent'
+- ❌ Start niet met 'verwijst naar'
+- ❌ Start niet met 'houdt in'
+- ❌ Start niet met 'heeft betrekking op'
+- ❌ Start niet met 'duidt op'
+- ❌ Start niet met 'staat voor'
+- ❌ Start niet met 'impliceert'
+- ❌ Start niet met 'definieert'
+- ❌ Start niet met 'beschrijft'
+- ❌ Start niet met 'wordt'
+- ❌ Start niet met 'zijn'
+- ❌ Start niet met 'was'
+- ❌ Start niet met 'waren'
+- ❌ Start niet met 'behelst'
+- ❌ Start niet met 'bevat'
+- ❌ Start niet met 'bestaat uit'
+- ❌ Start niet met 'de'
+- ❌ Start niet met 'het'
+- ❌ Start niet met 'een'
+- ❌ Start niet met 'proces waarbij'
+- ❌ Start niet met 'handeling die'
+- ❌ Start niet met 'vorm van'
+- ❌ Start niet met 'type van'
+- ❌ Start niet met 'soort van'
+- ❌ Start niet met 'methode voor'
+- ❌ Start niet met 'wijze waarop'
+- ❌ Start niet met 'manier om'
+- ❌ Start niet met 'een belangrijk'
+- ❌ Start niet met 'een essentieel'
+- ❌ Start niet met 'een vaak gebruikte'
+- ❌ Start niet met 'een veelvoorkomende'
 
-#### 🚫 VERBODEN STARTWOORDEN:
-**NOOIT beginnen met:**
-- ❌ "Het..." → "Het proces waarbij..."
-- ❌ "De..." → "De activiteit die..."
-- ❌ "Een..." als het begrip al "een" bevat
-- ❌ Het begrip zelf → "Validatie is een validatie..."
-- ❌ Werkwoorden → "Controleren is..."
-- ❌ "Dit is..." / "Dat is..."
+| Probleem                             | Afgedekt? | Toelichting                                |
+|--------------------------------------|-----------|---------------------------------------------|
+| Start met begrip                     | ✅        | Vermijd cirkeldefinities                     |
+| Abstracte constructies               | ✅        | 'proces waarbij', 'handeling die', enz.      |
+| Koppelwerkwoorden aan het begin      | ✅        | 'is', 'omvat', 'betekent'                    |
+| Lidwoorden aan het begin             | ✅        | 'de', 'het', 'een'                           |
+| Letterlijke contextvermelding        | ✅        | Noem context niet letterlijk                 |
+| Afkortingen onverklaard              | ✅        | Licht afkortingen toe in de definitie       |
+| Subjectieve termen                   | ✅        | Geen 'essentieel', 'belangrijk', 'adequaat' |
+| Bijzinconstructies                   | ✅        | Vermijd 'die', 'waarin', 'zoals' enz.       |
 
-**WEL beginnen met:**
-- ✅ Direct het hoofdwoord: "Proces waarbij..."
-- ✅ "Activiteit waarbij..." (voor processen)
-- ✅ "Document dat..." (voor objecten)
-- ✅ "Systematische aanpak waarbij..." (voor methoden)
+🚫 Let op: context en bronnen mogen niet letterlijk of herleidbaar in de definitie voorkomen."""
 
-#### 🔴 VAGE CONTAINERBEGRIPPEN - ABSOLUUT VERMIJDEN:
-**Lexicale containers** (te abstract):
-- ❌ "aspect", "element", "onderdeel", "component", "factor"
-- ❌ "kwestie", "item", "punt", "deel", "stuk"
-- ❌ "gebied", "terrein", "veld", "domein" (als vage aanduiding)
+        # Voeg context-specifieke verboden toe
+        if context and context.base_context:
+            context_verboden = []
 
-**Ambtelijke containers** (nietszeggende):
-- ❌ "aangelegenheid", "materie", "zaak", "geval"
-- ❌ "situatie", "omstandigheid", "toestand", "conditie"
-- ❌ "middel", "instrument" (tenzij letterlijk een instrument)
+            # Organisatorische context verboden
+            if context.base_context.get("organisatorisch"):
+                for org in context.base_context["organisatorisch"]:
+                    context_verboden.append(
+                        f"- Gebruik de term '{org}' of een variant daarvan niet letterlijk in de definitie."
+                    )
 
-**Alternatieven - gebruik specifieke termen:**
-- ✅ "proces", "methode", "systeem", "structuur"
-- ✅ "document", "rapport", "overzicht", "analyse"
-- ✅ "beoordeling", "evaluatie", "controle", "verificatie"
+                    # Voeg ook volledige namen toe voor afkortingen
+                    org_mappings = {
+                        "NP": "Nederlands Politie",
+                        "DJI": "Dienst Justitiële Inrichtingen",
+                        "OM": "Openbaar Ministerie",
+                        "ZM": "Zittende Magistratuur",
+                    }
+                    if org in org_mappings:
+                        context_verboden.append(
+                            f"- Gebruik de term '{org_mappings[org]}' of een variant daarvan niet letterlijk in de definitie."
+                        )
 
-#### ⛔ MODALE WERKWOORDEN - NIET GEBRUIKEN:
-**Verboden modaliteiten:**
-- ❌ "kan", "moet", "mag", "zou", "dient", "behoort"
-- ❌ "mogelijke", "eventuele", "potentiële"
-- ❌ "verplichte", "noodzakelijke", "vereiste" (als bijvoeglijk)
+            # Domein context verboden
+            if context.base_context.get("domein"):
+                for domein in context.base_context["domein"]:
+                    context_verboden.append(
+                        f"- Vermijd expliciete vermelding van domein '{domein}' in de definitie."
+                    )
 
-**Schrijf feitelijk:**
-- ❌ "Een proces dat uitgevoerd **kan** worden..."
-- ✅ "Een proces waarbij... wordt uitgevoerd"
-- ❌ "Een document dat **moet** bevatten..."
-- ✅ "Een document met..."
+            if context_verboden:
+                base_section += "\n\n### 🚨 CONTEXT-SPECIFIEKE VERBODEN:\n"
+                base_section += "\n".join(context_verboden)
 
-#### 🚨 CONTEXT-SPECIFIEKE VALKUILEN:
-**Vermijd expliciete contextbenoeming:**
-- ❌ "In de context van X is dit..."
-- ❌ "Voor organisatie Y betekent dit..."
-- ❌ "Binnen domein Z wordt dit gezien als..."
-
-**Context impliciet verwerken:**
-- ✅ Terminologie aanpassen aan domein
-- ✅ Relevante processen/systemen noemen zonder "in context van"
-- ✅ Domeinspecifieke termen natuurlijk integreren
-
-#### 💥 TOELICHTING & UITWEIDINGEN:
-**Absoluut GEEN:**
-- ❌ Haakjes met uitleg: "(dit wordt gebruikt voor...)"
-- ❌ Voorbeelden in de definitie: "bijvoorbeeld..."
-- ❌ Opsommingen: "zoals A, B, C..."
-- ❌ Bijzinnen met "waarbij opgemerkt dat..."
-
-#### 📝 POSITIEVE ALTERNATIEVEN:
-In plaats van vage/verboden patronen, gebruik:
-1. **Concrete hoofdwoorden** als startpunt
-2. **Actieve, feitelijke formuleringen**
-3. **Eén hoofdgedachte** zonder uitweidingen
-4. **Specifieke terminologie** uit het domein
-5. **Heldere relaties** (proces/resultaat/type)"""
+        return base_section
 
     def _build_final_instructions_section(
         self, begrip: str, context: EnrichedContext
@@ -621,7 +738,15 @@ Stel jezelf deze vragen:
 
 ---
 
-**ANTWOORD:** Geef nu direct de definitie zonder verdere uitleg of formatting:"""
+📋 **Ontologische marker (lever als eerste regel):**
+- Ontologische categorie: kies uit [soort, exemplaar, proces, resultaat]
+
+✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting.
+
+🆔 Promptmetadata:
+- Begrip: {begrip}
+- Termtype: {"werkwoord" if begrip.endswith(("en", "eren", "ieren")) else "anders"}
+- Organisatorische context(en): {', '.join(context.base_context.get('organisatorisch', [])) if context and context.base_context.get('organisatorisch') else 'geen'}"""
 
     # ==========================================
     # UTILITY METHODEN
