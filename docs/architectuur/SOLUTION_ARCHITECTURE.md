@@ -357,7 +357,7 @@ User Request → UI Tab → Service Layer → External API/DB → Response
 **Architecture Pattern**: Data Aggregation + Service Facade + Adapter Pattern
 
 #### 1.5.1 Problem Analysis
-- **Symptom**: Business services directly importing `SessionStateManager` 
+- **Symptom**: Business services directly importing `SessionStateManager`
 - **Impact**: Services coupled to UI state, difficult testing, architecture violations
 - **Root Cause**: No clear separation between UI data collection and business logic
 
@@ -367,7 +367,7 @@ User Request → UI Tab → Service Layer → External API/DB → Response
 ┌─────────────────────────────────────────────────────┐
 │                 UI Layer                            │
 │ ┌─────────────┐  ┌────────────────────────────────┐ │
-│ │SessionState │→ │UIComponentsAdapter (Bridge)    │ │  
+│ │SessionState │→ │UIComponentsAdapter (Bridge)    │ │
 │ │Manager      │  │- Collects UI data              │ │
 │ └─────────────┘  │- Calls clean services          │ │
 │                  └────────────────────────────────┘ │
@@ -409,7 +409,7 @@ class DataAggregationService:
     def aggregate_definitie_for_export(
         self,
         definitie_id: int = None,
-        definitie_record: DefinitieRecord = None, 
+        definitie_record: DefinitieRecord = None,
         additional_data: dict = None  # From UI, but passed as parameter
     ) -> DefinitieExportData:
         # Aggregates data from repository + additional UI data
@@ -436,7 +436,7 @@ class DefinitionUIService:
     ) -> dict:
         # Returns UI-friendly result format
         # Handles errors, success messages
-        
+
 # 4. UI Adapter (Bridge to legacy)
 class UIComponentsAdapter:
     def export_definition(self, format: str) -> bool:
@@ -452,10 +452,10 @@ class UIComponentsAdapter:
 class ServiceContainer:
     def data_aggregation_service(self):
         # Dependency injection, no UI dependencies
-        
+
     def export_service(self):
         # Uses data_aggregation_service + repository
-        
+
     def definition_ui_service(self):
         # Facade combining all services for UI
 
@@ -465,7 +465,7 @@ class ServiceContainer:
 
 #### 1.5.5 Migration Strategy
 **Phase 1**: Create clean services ✅ **COMPLETED**
-**Phase 2**: Add to service container ✅ **COMPLETED**  
+**Phase 2**: Add to service container ✅ **COMPLETED**
 **Phase 3**: Create UI adapters ✅ **COMPLETED**
 **Phase 4**: UI components migration (gradual, backward compatible)
 

@@ -506,11 +506,11 @@ class WorkflowService:
             preview_data = None
             if requires_regeneration:
                 # Gebruik DataAggregationService voor clean state management
-                from services.data_aggregation_service import DataAggregationService
                 from database.definitie_repository import get_definitie_repository
-                
+                from services.data_aggregation_service import DataAggregationService
+
                 data_service = DataAggregationService(get_definitie_repository())
-                
+
                 category_state = data_service.create_category_change_state(
                     old_category=actual_old_category,
                     new_category=new_category,
@@ -520,9 +520,9 @@ class WorkflowService:
                         actual_old_category, new_category
                     ),
                     saved_record_id=definition_id,
-                    success_message=f"Categorie succesvol gewijzigd van '{actual_old_category}' naar '{new_category}'."
+                    success_message=f"Categorie succesvol gewijzigd van '{actual_old_category}' naar '{new_category}'.",
                 )
-                
+
                 # Converteer naar dictionary voor backward compatibility
                 preview_data = {
                     "category_change_state": category_state,

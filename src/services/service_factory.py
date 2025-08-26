@@ -322,7 +322,10 @@ class ServiceAdapter:
         ]
 
     def export_definition(
-        self, definition_id: int = None, ui_data: dict = None, format: str = "txt"
+        self,
+        definition_id: int | None = None,
+        ui_data: dict | None = None,
+        format: str = "txt",
     ) -> dict:
         """
         Export definitie via UI service.
