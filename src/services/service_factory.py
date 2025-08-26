@@ -196,16 +196,21 @@ class ServiceAdapter:
             else:
                 ontologische_categorie = str(categorie)
 
+        import uuid
+
         request = GenerationRequest(
+            id=str(uuid.uuid4()),  # Generate unique ID for tracking
             begrip=begrip,
             context=", ".join(context_dict.get("organisatorisch", [])),
             domein=", ".join(context_dict.get("domein", [])),
             organisatie=kwargs.get("organisatie", ""),
             extra_instructies=extra_instructions,
             ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
+            actor="legacy_ui",  # Track that this comes from legacy UI
+            legal_basis="legitimate_interest",  # Default legal basis for DPIA compliance
         )
 
-        # Gebruik orchestrator via asyncio.run() voor sync interface
+        # Handle V2 orchestrator async call properly
         response = asyncio.run(self.orchestrator.create_definition(request))
 
         # Converteer response naar legacy format met object-achtige interface

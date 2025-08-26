@@ -12,6 +12,17 @@ from typing import TYPE_CHECKING, Any
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
 from services.definition_repository import DefinitionRepository
+
+# V2 Architecture imports (conditional)
+try:
+    from services.orchestrators.definition_orchestrator_v2 import (
+        DefinitionOrchestratorV2,
+    )
+
+    V2_ORCHESTRATOR_AVAILABLE = True
+except ImportError:
+    V2_ORCHESTRATOR_AVAILABLE = False
+    DefinitionOrchestratorV2 = None
 from services.definition_validator import DefinitionValidator, ValidatorConfig
 from services.duplicate_detection_service import DuplicateDetectionService
 from services.interfaces import (
@@ -182,18 +193,56 @@ class ServiceContainer:
         Get of create DefinitionOrchestrator instance.
 
         Returns:
-            Singleton instance van DefinitionOrchestrator
+            Singleton instance van DefinitionOrchestrator (V1 or V2)
         """
         if "orchestrator" not in self._instances:
-            self._instances["orchestrator"] = DefinitionOrchestrator(
-                validator=self.validator(),
-                repository=self.repository(),
-                cleaning_service=self.cleaning_service(),
-                config=self.orchestrator_config,
-            )
-            logger.info(
-                "DefinitionOrchestrator instance aangemaakt met CleaningService"
-            )
+            # Check for V2 orchestrator feature flag
+            use_v2_orchestrator = os.getenv(
+                "USE_V2_ORCHESTRATOR", ""
+            ).lower() == "true" or self.config.get("use_v2_orchestrator", False)
+
+            if use_v2_orchestrator and V2_ORCHESTRATOR_AVAILABLE:
+                # Create V2 orchestrator with current services as fallbacks
+                from services.interfaces import (
+                    OrchestratorConfig as V2OrchestratorConfig,
+                )
+
+                v2_config = V2OrchestratorConfig()
+
+                # Create V2 prompt service
+                from services.prompts.prompt_service_v2 import PromptServiceV2
+
+                prompt_service_v2 = PromptServiceV2()
+
+                self._instances["orchestrator"] = DefinitionOrchestratorV2(
+                    # V2 services - NOW WITH WORKING PROMPT SERVICE
+                    prompt_service=prompt_service_v2,  # FIXED: Category-aware prompts
+                    ai_service=None,  # Will use legacy fallback
+                    validation_service=None,  # Will use legacy fallback
+                    enhancement_service=None,  # Will use legacy fallback
+                    security_service=None,  # V2 only feature
+                    # Infrastructure services (existing)
+                    cleaning_service=self.cleaning_service(),
+                    repository=self.repository(),
+                    monitoring=None,  # Not implemented yet
+                    # Feedback system (not implemented yet)
+                    feedback_engine=None,
+                    # Configuration
+                    config=v2_config,
+                )
+                logger.info(
+                    "DefinitionOrchestratorV2 instance created with legacy service fallbacks"
+                )
+            else:
+                # Use V1 orchestrator (current/legacy)
+                self._instances["orchestrator"] = DefinitionOrchestrator(
+                    validator=self.validator(),
+                    repository=self.repository(),
+                    cleaning_service=self.cleaning_service(),
+                    config=self.orchestrator_config,
+                )
+                logger.info("DefinitionOrchestrator V1 instance created")
+
         return self._instances["orchestrator"]
 
     def web_lookup(self) -> WebLookupServiceInterface:
