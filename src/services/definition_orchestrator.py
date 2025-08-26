@@ -261,13 +261,15 @@ class DefinitionOrchestrator(
                 validation_result = self.validator.validate(existing)
 
                 # Alleen validatie voor gewijzigde velden
-                if ("definitie" in updates or "begrip" in updates) and validation_result.score < self.config.min_quality_score:
-                        return DefinitionResponse(
-                            definition=existing,
-                            validation=validation_result,
-                            success=False,
-                            message=f"Update geweigerd: kwaliteitsscore te laag ({validation_result.score:.2f})",
-                        )
+                if (
+                    "definitie" in updates or "begrip" in updates
+                ) and validation_result.score < self.config.min_quality_score:
+                    return DefinitionResponse(
+                        definition=existing,
+                        validation=validation_result,
+                        success=False,
+                        message=f"Update geweigerd: kwaliteitsscore te laag ({validation_result.score:.2f})",
+                    )
 
             # Sla updates op
             success = self.repository.update(definition_id, existing)
@@ -393,7 +395,6 @@ class DefinitionOrchestrator(
 
         try:
             # Gebruik nieuwe Clean Services UnifiedPromptBuilder met categorie ondersteuning
-            from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
             from services.definition_generator_config import UnifiedGeneratorConfig
             from services.definition_generator_context import EnrichedContext
             from services.definition_generator_prompts import UnifiedPromptBuilder
@@ -435,10 +436,8 @@ class DefinitionOrchestrator(
             else:
                 logger.info("Prompt gebouwd zonder specifieke categorie")
 
-            # Stuur naar GPT
-            gpt_response = stuur_prompt_naar_gpt(
-                prompt=prompt, model="gpt-4", temperatuur=0.01, max_tokens=300
-            )
+            # Stuur naar GPT via extracted AI service method
+            gpt_response = await self._ai_service_call(prompt)
 
             # Maak definitie met GPT response
             definition = Definition(
@@ -587,6 +586,50 @@ class DefinitionOrchestrator(
 
         except Exception as e:
             logger.debug(f"Voorbeelden generatie mislukt: {e}")
+
+    async def _ai_service_call(
+        self,
+        prompt: str,
+        model: str = "gpt-4",
+        temperature: float = 0.01,
+        max_tokens: int = 300,
+    ) -> str:
+        """
+        Extracted AI service call - first step toward IntelligentAIService.
+
+        This method isolates the AI generation logic to prepare for eventual
+        extraction into a dedicated AI service following SOA principles.
+
+        Args:
+            prompt: The prompt to send to AI
+            model: AI model to use (default: gpt-4)
+            temperature: Randomness level (default: 0.01 for consistency)
+            max_tokens: Maximum tokens in response
+
+        Returns:
+            AI-generated response text
+        """
+        try:
+            from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+
+            logger.debug(
+                f"AI service call: model={model}, temp={temperature}, max_tokens={max_tokens}"
+            )
+
+            response = stuur_prompt_naar_gpt(
+                prompt=prompt,
+                model=model,
+                temperatuur=temperature,
+                max_tokens=max_tokens,
+            )
+
+            logger.info(f"AI response generated: {len(response)} characters")
+            return response.strip()
+
+        except Exception as e:
+            logger.error(f"AI service call failed: {e}")
+            # Return error message that can be processed by caller
+            return f"AI generatie fout: {e!s}"
 
     async def _enrich_with_ai(self, context: ProcessingContext) -> None:  # noqa: ARG002
         """Verrijk met AI enhancement."""
