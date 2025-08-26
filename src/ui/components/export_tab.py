@@ -22,6 +22,7 @@ class ExportTab:
     def __init__(self, repository: DefinitieRepository):
         """Initialiseer export tab."""
         self.repository = repository
+        self.service = get_definition_service()
 
     def render(self):
         """Render export tab."""
@@ -414,7 +415,7 @@ class ExportTab:
         start_date,
         end_date,
     ):
-        """Voer export uit."""
+        """Voer export uit via nieuwe services."""
         try:
             # Get filtered data
             filtered_data = self._get_filtered_export_data(
@@ -431,23 +432,55 @@ class ExportTab:
                 st.error("Geen data gevonden voor export")
                 return
 
-            # Generate export file
-            export_data = self._generate_export_data(
-                filtered_data, format_type, include_metadata
-            )
-
-            # Create download
-            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
-            filename = f"definities_export_{timestamp}.{format_type.lower()}"
-
-            st.download_button(
-                label=f"📥 Download {format_type}",
-                data=export_data,
-                file_name=filename,
-                mime=self._get_mime_type(format_type),
-            )
-
             st.success(f"✅ Export gegenereerd: {len(filtered_data)} definities")
+
+            # Voor bulk export via nieuwe services - loop through filtered_data
+            for def_rec in filtered_data:
+                try:
+                    # Bereid additional_data voor voor elke definitie
+                    additional_data = {
+                        "metadata": (
+                            {
+                                "id": def_rec.id,
+                                "status": def_rec.status,
+                                "categorie": def_rec.categorie,
+                                "domein": def_rec.domein,
+                                "datum_voorstel": def_rec.created_at,
+                                "voorsteller": def_rec.created_by or "Systeem",
+                                "versie": def_rec.versie,
+                            }
+                            if include_metadata
+                            else {}
+                        ),
+                        "context_dict": def_rec.context or {},
+                    }
+
+                    # Gebruik nieuwe export service
+                    result = self.service.export_definition(
+                        definition_id=def_rec.id,
+                        ui_data=additional_data,
+                        format=format_type.lower(),
+                    )
+
+                    if result["success"] and "content" in result:
+                        # Voor bulk export, verzamel content
+                        # Voor nu tonen we download voor eerste definitie als voorbeeld
+                        if def_rec == filtered_data[0]:
+                            timestamp = datetime.now(timezone.utc).strftime(
+                                "%Y%m%d_%H%M%S"
+                            )
+                            filename = f"definitie_{def_rec.begrip}_{timestamp}.{format_type.lower()}"
+
+                            st.download_button(
+                                label=f"📥 Download {format_type} (Voorbeeld: {def_rec.begrip})",
+                                data=result["content"],
+                                file_name=filename,
+                                mime=self._get_mime_type(format_type),
+                            )
+
+                except Exception as e:
+                    st.warning(f"⚠️ Export fout voor '{def_rec.begrip}': {e!s}")
+                    continue
 
         except Exception as e:
             st.error(f"❌ Export gefaald: {e!s}")
@@ -513,7 +546,12 @@ class ExportTab:
         format_type: str,
         include_metadata: bool,
     ):
-        """Genereer export data in gewenste formaat."""
+        """
+        LEGACY: Genereer export data in gewenste formaat.
+
+        NOTE: Deze methode wordt vervangen door de nieuwe ExportService.
+        De nieuwe implementatie gebruikt service.export_definition() per definitie.
+        """
         if format_type == "JSON":
             return self._generate_json_export(definitions, include_metadata)
         if format_type == "CSV":

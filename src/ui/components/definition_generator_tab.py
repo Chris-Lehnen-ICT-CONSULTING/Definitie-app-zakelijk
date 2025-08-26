@@ -513,7 +513,9 @@ class DefinitionGeneratorTab:
         # Category change regeneration preview (op logische locatie)
         category_change_state = generation_result.get("category_change_state")
         if category_change_state and category_change_state.show_regeneration_preview:
-            self._render_category_change_preview(category_change_state, generation_result, saved_record)
+            self._render_category_change_preview(
+                category_change_state, generation_result, saved_record
+            )
 
         # Saved record info
         if saved_record:
@@ -694,7 +696,9 @@ class DefinitionGeneratorTab:
         # Handel UI acties af op basis van workflow resultaat
         if result.action == WorkflowAction.SHOW_REGENERATION_PREVIEW:
             # Store category change state in generation_result voor later rendering
-            generation_result["category_change_state"] = result.preview_data.get("category_change_state")
+            generation_result["category_change_state"] = result.preview_data.get(
+                "category_change_state"
+            )
             # Hide category selector nu preview wordt getoond
             SessionStateManager.set_value("show_category_selector", False)
         elif result.action == WorkflowAction.SHOW_SUCCESS:
@@ -837,87 +841,38 @@ class DefinitionGeneratorTab:
             logger.exception("Error submitting definition for review")
 
     def _export_definition(self, definitie: DefinitieRecord):
-        """Exporteer definitie naar TXT bestand."""
+        """Exporteer definitie via nieuwe ExportService."""
         try:
-            import os
+            # Gebruik UI Components Adapter voor clean export
+            from ui.components_adapter import get_ui_adapter
 
-            from export.export_txt import exporteer_naar_txt
+            adapter = get_ui_adapter()
 
-            # Bereid gegevens voor voor export
-            export_data = {
-                "begrip": definitie.begrip,
-                "definitie_gecorrigeerd": definitie.definitie,
-                "definitie_origineel": definitie.definitie,  # TODO: originele bewaren
-                "metadata": {
-                    "organisatorische_context": definitie.organisatorische_context,
-                    "juridische_context": definitie.juridische_context,
-                    "categorie": definitie.categorie,
-                    "datum_voorstel": definitie.created_at,
-                    "voorgesteld_door": definitie.created_by or "",
-                    "ketenpartners": SessionStateManager.get_value("ketenpartners", []),
-                },
-                "context_dict": {
-                    "organisatorisch": (
-                        [definitie.organisatorische_context]
-                        if definitie.organisatorische_context
-                        else []
-                    ),
-                    "juridisch": (
-                        [definitie.juridische_context]
-                        if definitie.juridische_context
-                        else []
-                    ),
-                    "wettelijk": SessionStateManager.get_value("wet_basis", []),
-                },
-                "toetsresultaten": {
-                    "score": definitie.validation_score or 0.0,
-                    "resultaten": SessionStateManager.get_value("beoordeling_gen", []),
-                },
-                "bronnen": SessionStateManager.get_value("bronnen", []),
-                # Voorbeelden uit session state
-                "voorbeeld_zinnen": SessionStateManager.get_value(
-                    "voorbeeld_zinnen", []
-                ),
-                "praktijkvoorbeelden": SessionStateManager.get_value(
-                    "praktijkvoorbeelden", []
-                ),
-                "tegenvoorbeelden": SessionStateManager.get_value(
-                    "tegenvoorbeelden", []
-                ),
-                "toelichting": SessionStateManager.get_value("toelichting", ""),
-                "synoniemen": SessionStateManager.get_value("synoniemen", ""),
-                "voorkeursterm": SessionStateManager.get_value("voorkeursterm", ""),
-                "antoniemen": SessionStateManager.get_value("antoniemen", ""),
-            }
+            # Offer multiple formats
+            col1, col2 = st.columns([3, 1])
 
-            # Zorg dat export directory bestaat
-            export_dir = "exports"
-            if not os.path.exists(export_dir):
-                os.makedirs(export_dir)
+            with col1:
+                export_format = st.selectbox(
+                    "Export formaat:",
+                    ["txt", "json", "csv"],
+                    format_func=lambda x: x.upper(),
+                    key=f"export_format_{definitie.id}",
+                )
 
-            # Exporteer naar TXT
-            bestandspad = exporteer_naar_txt(export_data)
+            with col2:
+                if st.button("📤 Exporteer", key=f"export_btn_{definitie.id}"):
+                    # Set current definition ID in session state
+                    SessionStateManager.set_value("current_definition_id", definitie.id)
 
-            # Lees bestand voor download
-            with open(bestandspad, encoding="utf-8") as f:
-                txt_content = f.read()
+                    # Use adapter to export
+                    success = adapter.export_definition(format=export_format)
 
-            # Bied download aan
-            bestandsnaam = os.path.basename(bestandspad)
-            st.download_button(
-                label="📥 Download TXT Export",
-                data=txt_content,
-                file_name=bestandsnaam,
-                mime="text/plain",
-            )
-
-            st.success(f"✅ Export succesvol: {bestandsnaam}")
+                    if success:
+                        st.balloons()
 
         except Exception as e:
             st.error(f"❌ Export mislukt: {e!s}")
-            import traceback
-
-            st.code(traceback.format_exc())
+            logger.exception(f"Export failed for definition {definitie.id}")
 
     def _render_voorbeelden_section(self, voorbeelden: dict[str, list[str]]):
         """Render sectie met gegenereerde voorbeelden."""
@@ -1391,15 +1346,15 @@ class DefinitionGeneratorTab:
         st.info("⚙️ Settings modal coming soon...")
 
     def _render_category_change_preview(
-        self, 
-        category_change_state, 
-        generation_result: dict[str, Any], 
-        saved_record: Any
+        self,
+        category_change_state,
+        generation_result: dict[str, Any],
+        saved_record: Any,
     ):
         """Render category change preview via DataAggregationService state."""
         st.markdown("---")
         st.markdown("### 🔄 Definitie Regeneratie Preview")
-        
+
         # Success message
         if category_change_state.success_message:
             st.success(category_change_state.success_message)
@@ -1409,14 +1364,18 @@ class DefinitionGeneratorTab:
 
         with col1:
             st.markdown("**Oude Categorie:**")
-            st.markdown(f"🏷️ `{self._get_category_display_name(category_change_state.old_category)}`")
+            st.markdown(
+                f"🏷️ `{self._get_category_display_name(category_change_state.old_category)}`"
+            )
 
         with col2:
             st.markdown("**➡️**")
 
         with col3:
             st.markdown("**Nieuwe Categorie:**")
-            st.markdown(f"🎯 `{self._get_category_display_name(category_change_state.new_category)}`")
+            st.markdown(
+                f"🎯 `{self._get_category_display_name(category_change_state.new_category)}`"
+            )
 
         # Current definition preview
         st.markdown("**Huidige Definitie:**")
@@ -1470,7 +1429,7 @@ class DefinitionGeneratorTab:
                 key="keep_current_def_clean",
                 help="Behoud de huidige definitie met nieuwe categorie",
             ):
-                # Clear the category change state 
+                # Clear the category change state
                 generation_result.pop("category_change_state", None)
                 st.success("✅ Definitie behouden met nieuwe categorie!")
                 st.rerun()

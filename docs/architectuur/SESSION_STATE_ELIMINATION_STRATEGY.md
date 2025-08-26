@@ -41,12 +41,12 @@ class ExportData:
 
 class DataAggregationService:
     """Centraliseert data verzameling."""
-    
+
     def __init__(self, repository: Repository):
         self.repository = repository  # Alleen dependency injection
-    
+
     def aggregate_for_export(
-        self, 
+        self,
         record_id: Optional[int] = None,
         record: Optional[Record] = None,
         additional_data: Optional[dict] = None
@@ -55,12 +55,12 @@ class DataAggregationService:
         # Haal data op uit database
         if record is None and record_id:
             record = self.repository.get_by_id(record_id)
-        
+
         # Merge met additional data (van UI)
         export_data = ExportData(...)
         if additional_data:
             self._merge_additional_data(export_data, additional_data)
-        
+
         return export_data
 ```
 
@@ -71,7 +71,7 @@ Bouw business services bovenop de data aggregation service:
 ```python
 class ExportService:
     """Clean export service zonder UI dependencies."""
-    
+
     def __init__(
         self,
         repository: Repository,
@@ -79,7 +79,7 @@ class ExportService:
     ):
         self.repository = repository
         self.data_service = data_service
-    
+
     def export_to_format(
         self,
         record_id: int = None,
@@ -92,7 +92,7 @@ class ExportService:
             record_id=record_id,
             additional_data=additional_data
         )
-        
+
         # Export naar gewenst formaat
         return self._export_to_format(export_data, format)
 ```
@@ -104,7 +104,7 @@ Creëer een facade die UI operaties afhandelt zonder business logic:
 ```python
 class UIService:
     """Facade voor UI operaties."""
-    
+
     def __init__(
         self,
         repository: Repository,
@@ -113,7 +113,7 @@ class UIService:
     ):
         self.repository = repository
         self.export_service = export_service
-    
+
     def export_from_ui(
         self,
         record_id: int = None,
@@ -124,14 +124,14 @@ class UIService:
         try:
             # Transform UI data naar clean format
             clean_data = self._prepare_ui_data(ui_data)
-            
+
             # Delegate naar business service
             result_path = self.export_service.export_to_format(
                 record_id=record_id,
                 additional_data=clean_data,
                 format=format
             )
-            
+
             return {
                 "success": True,
                 "path": result_path,
@@ -152,22 +152,22 @@ Gebruik adapters om bestaande interfaces te behouden:
 ```python
 class UIComponentsAdapter:
     """Adapter tussen legacy UI en nieuwe services."""
-    
+
     def __init__(self):
         self.ui_service = get_ui_service()
-    
+
     def export_definition_legacy(self, format: str = "txt") -> bool:
         """Legacy compatible export method."""
         try:
             # Verzamel data uit session state (tijdelijk)
             ui_data = self._collect_from_session_state()
-            
+
             # Roep nieuwe service aan
             result = self.ui_service.export_from_ui(
                 ui_data=ui_data,
                 format=format
             )
-            
+
             # Handle result voor UI
             if result["success"]:
                 st.success(result["message"])
@@ -175,11 +175,11 @@ class UIComponentsAdapter:
             else:
                 st.error(result["message"])
                 return False
-                
+
         except Exception as e:
             st.error(f"Fout: {e}")
             return False
-    
+
     def _collect_from_session_state(self) -> dict:
         """Verzamel UI data (temporary bridge)."""
         return {
@@ -200,14 +200,14 @@ class ServiceContainer:
             repo = self.repository()
             self._instances["data_service"] = DataAggregationService(repo)
         return self._instances["data_service"]
-    
+
     def export_service(self):
         if "export_service" not in self._instances:
             repo = self.repository()
             data_service = self.data_aggregation_service()
             self._instances["export_service"] = ExportService(repo, data_service)
         return self._instances["export_service"]
-    
+
     def ui_service(self):
         if "ui_service" not in self._instances:
             repo = self.repository()
@@ -312,7 +312,7 @@ class ServiceContainer:
    def render_export_button_legacy():
        if SessionStateManager.has_data():
            # ... legacy code
-   
+
    # New (optional)
    def render_export_button_new():
        adapter = get_ui_adapter()
@@ -322,7 +322,7 @@ class ServiceContainer:
 3. **Feature Flags**
    ```python
    USE_CLEAN_SERVICES = os.getenv("USE_CLEAN_SERVICES", "true")
-   
+
    if USE_CLEAN_SERVICES:
        render_export_button_new()
    else:
@@ -336,10 +336,10 @@ class ServiceContainer:
 def test_service_isolation():
     """Services moeten werken zonder externe dependencies."""
     service = DataService(mock_repository)
-    
+
     # Pure data input
     result = service.process_data({"clean": "input"})
-    
+
     # Verifiable output
     assert isinstance(result, CleanDataStructure)
     assert result.field1 == "expected_value"
@@ -351,9 +351,9 @@ def test_no_ui_imports():
     """Services mogen geen UI modules importeren."""
     import inspect
     from services import business_service
-    
+
     source = inspect.getsource(business_service)
-    
+
     # Verify no UI imports
     ui_modules = ["streamlit", "SessionStateManager", "ui.components"]
     for module in ui_modules:
@@ -368,7 +368,7 @@ def test_architecture_boundaries():
     service = BusinessService()
     assert not hasattr(service, 'render')
     assert not hasattr(service, 'session_state')
-    
+
     # UI layer mag services gebruiken
     ui_adapter = UIAdapter()
     assert hasattr(ui_adapter, 'service')
@@ -380,10 +380,10 @@ def test_end_to_end_without_session_state():
     """Test complete flow zonder session state."""
     # Arrange: Clean input data
     input_data = {"field": "value"}
-    
+
     # Act: Through service chain
     result = service_factory.create_service().process(input_data)
-    
+
     # Assert: Expected output
     assert result["success"] is True
 ```
