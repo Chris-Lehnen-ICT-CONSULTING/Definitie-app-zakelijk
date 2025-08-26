@@ -1,14 +1,14 @@
 # 🤖 AI Code Review Report
 
-**Date**: 2025-08-26 12:17:22
-**Duration**: 10.5 seconds
+**Date**: 2025-08-26 15:35:41
+**Duration**: 9.2 seconds
 **Status**: ❌ FAILED
 **Iterations**: 3
-**Auto-fixes Applied**: 12
+**Auto-fixes Applied**: 26
 
 ## Remaining Issues
 
-### 🟡 IMPORTANT (807)
+### 🟡 IMPORTANT (795)
 
 - **ruff**: ARG002: Unused method argument: `regel_config` (`/Users/chrislehnen/Projecten/Definitie-app/src/ai_toetser/modular_toetser.py`:92)
 - **ruff**: PLC2401: Variable name `categorieën` contains a non-ASCII character (`/Users/chrislehnen/Projecten/Definitie-app/src/analysis/toetsregels_usage_analysis.py`:36)
@@ -164,11 +164,10 @@
 - **ruff**: PLW0603: Using the global statement to update `_monitor_instance` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_monitoring.py`:397)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_monitoring.py`:401)
 - **ruff**: PLW0603: Using the global statement to update `_monitor_instance` is discouraged (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_monitoring.py`:411)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:71)
-- **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:81)
-- **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:304)
-- **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:422)
-- **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:618)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:73)
+- **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:83)
+- **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:306)
+- **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_generator_prompts.py`:424)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:35)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:36)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/definition_orchestrator.py`:398)
@@ -205,31 +204,20 @@
 - **ruff**: ARG002: Unused method argument: `definition` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/null_repository.py`:58)
 - **ruff**: ARG002: Unused method argument: `status` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/null_repository.py`:62)
 - **ruff**: ARG002: Unused method argument: `limit` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/null_repository.py`:62)
-- **ruff**: F821: Undefined name `PromptServiceV2` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:49)
-- **ruff**: F821: Undefined name `IntelligentAIService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:50)
-- **ruff**: F821: Undefined name `ValidationServiceV2` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:51)
-- **ruff**: F821: Undefined name `EnhancementService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:52)
-- **ruff**: F821: Undefined name `SecurityService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:54)
-- **ruff**: F821: Undefined name `CleaningServiceInterface` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:56)
-- **ruff**: F821: Undefined name `DefinitionRepositoryInterface` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:57)
-- **ruff**: F821: Undefined name `MonitoringService` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:58)
-- **ruff**: F821: Undefined name `FeedbackEngine` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:60)
-- **ruff**: PLR0912: Too many branches (20 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:98)
-- **ruff**: PLR0915: Too many statements (67 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:98)
-- **ruff**: ARG002: Unused method argument: `generation_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:469)
-- **ruff**: ARG002: Unused method argument: `feedback_history` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:499)
-- **ruff**: ARG002: Unused method argument: `context` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:500)
-- **ruff**: F821: Undefined name `PromptResult` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:501)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:503)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:533)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:562)
-- **ruff**: ARG002: Unused method argument: `term` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:587)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:589)
-- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:618)
+- **ruff**: PLR0912: Too many branches (20 > 12) (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:108)
+- **ruff**: PLR0915: Too many statements (67 > 50) (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:108)
+- **ruff**: ARG002: Unused method argument: `generation_id` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:479)
+- **ruff**: ARG002: Unused method argument: `feedback_history` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:509)
+- **ruff**: ARG002: Unused method argument: `context` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:510)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:513)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:543)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:572)
+- **ruff**: ARG002: Unused method argument: `term` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:597)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:599)
+- **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/orchestrators/definition_orchestrator_v2.py`:628)
 - **ruff**: ARG002: Unused method argument: `config` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:69)
 - **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:233)
-- **ruff**: ARG002: Unused method argument: `context` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:413)
-- **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:442)
+- **ruff**: ARG002: Unused method argument: `begrip` (`/Users/chrislehnen/Projecten/Definitie-app/src/services/prompts/modular_prompt_builder.py`:774)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:95)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:122)
 - **ruff**: PLC0415: `import` should be at the top-level of a file (`/Users/chrislehnen/Projecten/Definitie-app/src/services/service_factory.py`:169)
@@ -1019,11 +1007,11 @@
 ## 📊 Metrics
 
 - Total issues found: 0
-- Issues auto-fixed: 12
-- Manual fixes required: 1002
+- Issues auto-fixed: 26
+- Manual fixes required: 990
 - Review efficiency: 100.0%
 
 ### Issues by Tool
 
 - **custom**: 195 issues
-- **ruff**: 807 issues
+- **ruff**: 795 issues
