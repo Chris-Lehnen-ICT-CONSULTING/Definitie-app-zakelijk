@@ -281,17 +281,12 @@ class UIComponents:
 
     @staticmethod
     def _render_export_button():
-        """Render export button if definition is available."""
+        """Render export button using new clean services."""
         if SessionStateManager.has_generated_definition():
-            if st.button("📤 Exporteer definitie naar TXT", key="exporteer_txt_knop"):
-                try:
-                    from export.export_txt import exporteer_naar_txt
+            # Use the new export functionality from components_adapter
+            from ui.components_adapter import render_export_button_new
 
-                    gegevens = SessionStateManager.get_export_data()
-                    pad = exporteer_naar_txt(gegevens)
-                    st.success(f"✅ TXT-bestand succesvol geëxporteerd naar: {pad}")
-                except Exception as e:
-                    st.error(log_and_display_error(e, "export"))
+            render_export_button_new()
 
     @staticmethod
     def _render_prompt_viewer():

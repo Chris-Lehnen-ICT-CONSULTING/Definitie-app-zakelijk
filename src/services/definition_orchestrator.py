@@ -415,6 +415,8 @@ class DefinitionOrchestrator(
             enriched_context = EnrichedContext(
                 base_context=base_context,
                 sources=[],  # Geen externe bronnen voor nu
+                expanded_terms={},  # Geen afkortingen om te expanderen
+                confidence_scores={},  # Geen confidence scores zonder bronnen
                 metadata={
                     "ontologische_categorie": context.request.ontologische_categorie,
                     "extra_instructies": context.request.extra_instructies,

@@ -22,7 +22,7 @@
 ### Recently Completed ✅
 - **Session State Elimination**: Clean architecture services implemented
 - **DataAggregationService**: Services independent of UI state
-- **ExportService**: Multiple format support (TXT/JSON/CSV) 
+- **ExportService**: Multiple format support (TXT/JSON/CSV)
 - **DefinitionUIService**: UI Facade pattern implemented
 
 ### Pending ⏳
@@ -89,7 +89,7 @@ def submit_for_review(
 ```python
 class DataAggregationService:
     def aggregate_definitie_for_export(
-        self, 
+        self,
         definitie_id: int = None,
         definitie_record: DefinitieRecord = None,
         additional_data: dict = None  # UI data als parameter
@@ -98,7 +98,7 @@ class DataAggregationService:
         # Aggregates data from repository + UI data
 ```
 
-##### b. ExportService ✅ 
+##### b. ExportService ✅
 **Locatie**: `src/services/export_service.py`
 ```python
 class ExportService:
@@ -154,8 +154,8 @@ class UIComponentsAdapter:
 # For new code (clean)
 service = get_definition_service()
 result = service.export_definition(
-    definition_id=1, 
-    ui_data={"expert_review": "Good"}, 
+    definition_id=1,
+    ui_data={"expert_review": "Good"},
     format="json"
 )
 
