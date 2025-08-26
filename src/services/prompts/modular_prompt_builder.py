@@ -16,9 +16,9 @@ import logging
 from dataclasses import dataclass
 from typing import Any
 
+from abc import ABC, abstractmethod
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
-from services.definition_generator_prompts import PromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -45,7 +45,7 @@ class PromptComponentConfig:
     enable_component_metadata: bool = True
 
 
-class ModularPromptBuilder(PromptBuilder):
+class ModularPromptBuilder:
     """
     Modulaire prompt builder die legacy functionaliteit behoudt maar opsplitst.
 

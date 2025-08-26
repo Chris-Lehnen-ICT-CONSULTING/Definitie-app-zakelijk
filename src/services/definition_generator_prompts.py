@@ -14,6 +14,7 @@ from enum import Enum
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
+from services.prompts.modular_prompt_builder import ModularPromptBuilder
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ logger = logging.getLogger(__name__)
 class PromptStrategy(Enum):
     """Strategieën voor prompt building."""
 
+    MODULAR = "modular"  # ModularPromptBuilder met 6 configureerbare componenten
     LEGACY = "legacy"  # Gebruik legacy prompt builder
     BASIC = "basic"  # Basis template prompt
     CONTEXT_AWARE = "context"  # Context-aware prompts
@@ -573,6 +575,10 @@ class UnifiedPromptBuilder:
 
     def _init_builders(self):
         """Initialiseer beschikbare prompt builders."""
+        # Modular builder (nieuwe prioriteit)
+        self.builders["modular"] = ModularPromptBuilder()
+        logger.info("ModularPromptBuilder toegevoegd aan strategies")
+        
         # Legacy builder
         try:
             self.builders["legacy"] = LegacyPromptBuilder()
@@ -618,7 +624,14 @@ class UnifiedPromptBuilder:
     def _select_strategy(self, begrip: str, context: EnrichedContext) -> str:
         """Selecteer beste prompt strategy voor deze situatie."""
 
-        # PRIORITEIT 1: Ontologische categorie - gebruik legacy builder voor volledige ESS-02 prompt
+        # PRIORITEIT 1: Modular builder - nieuwe standaard voor alle scenarios
+        if "modular" in self.builders:
+            logger.info(
+                f"ModularPromptBuilder beschikbaar - gebruik modular strategy voor '{begrip}'"
+            )
+            return "modular"
+
+        # PRIORITEIT 2: Ontologische categorie - gebruik legacy builder voor volledige ESS-02 prompt
         if context.metadata.get("ontologische_categorie"):
             if "legacy" in self.builders:
                 logger.info(
