@@ -13,6 +13,7 @@ from typing import Any
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
 from utils.cache import cache_gpt_call, cached
+from config.config_manager import get_default_model, get_default_temperature
 
 # Load environment variables
 load_dotenv()
@@ -25,10 +26,17 @@ class AIRequest:
     """Request object voor AI calls."""
 
     prompt: str
-    model: str = "gpt-5"
-    temperature: float = 0.0
+    model: str | None = None
+    temperature: float | None = None
     max_tokens: int = 300
     system_message: str | None = None
+    
+    def __post_init__(self):
+        """Fill in defaults from central configuration."""
+        if self.model is None:
+            self.model = get_default_model()
+        if self.temperature is None:
+            self.temperature = get_default_temperature()
 
 
 @dataclass
@@ -179,8 +187,8 @@ class AIService:
     def generate_definition(
         self,
         prompt: str,
-        model: str = "gpt-5",
-        temperature: float = 0.0,
+        model: str | None = None,
+        temperature: float | None = None,
         max_tokens: int = 300,
     ) -> str:
         """
@@ -198,6 +206,12 @@ class AIService:
         Raises:
             AIServiceError: Bij AI service fouten
         """
+        # Use central config for defaults
+        if model is None:
+            model = get_default_model()
+        if temperature is None:
+            temperature = get_default_temperature()
+            
         request = AIRequest(
             prompt=prompt, model=model, temperature=temperature, max_tokens=max_tokens
         )
@@ -228,7 +242,7 @@ def get_ai_service() -> AIService:
 
 
 def stuur_prompt_naar_gpt(
-    prompt: str, model: str = "gpt-5", temperatuur: float = 0.0, max_tokens: int = 300
+    prompt: str, model: str | None = None, temperatuur: float | None = None, max_tokens: int = 300
 ) -> str:
     """
     Legacy compatibility function - DEPRECATED.
@@ -249,6 +263,12 @@ def stuur_prompt_naar_gpt(
         "Use AIService.generate_definition() instead."
     )
 
+    # Use central config for defaults
+    if model is None:
+        model = get_default_model()
+    if temperatuur is None:
+        temperatuur = get_default_temperature()
+    
     service = get_ai_service()
     return service.generate_definition(
         prompt=prompt, model=model, temperature=temperatuur, max_tokens=max_tokens

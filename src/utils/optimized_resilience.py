@@ -171,7 +171,7 @@ class OptimizedResilienceSystem:
         priority: RequestPriority = RequestPriority.NORMAL,
         timeout: float | None = None,
         mode: ResilienceMode = ResilienceMode.FULL,
-        model: str = "gpt-5",
+        model: str = None,
         expected_tokens: int = 0,
         **kwargs,
     ) -> Any:
@@ -676,7 +676,7 @@ def with_full_resilience(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
     timeout: float | None = None,
-    model: str = "gpt-5",
+    model: str = None,
     expected_tokens: int = 0,
 ):
     """Decorator for full resilience with all features."""
@@ -751,7 +751,7 @@ async def test_optimized_resilience():
     async def smart_function():
         return "Smart resilience working"
 
-    @with_full_resilience("test_full", model="gpt-5", expected_tokens=100)
+    @with_full_resilience("test_full", model=None, expected_tokens=100)
     async def full_function():
         return "Full resilience working"
 

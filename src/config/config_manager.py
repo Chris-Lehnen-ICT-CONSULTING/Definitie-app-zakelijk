@@ -670,6 +670,27 @@ def set_config(section: ConfigSection, key: str, value: Any):
     get_config_manager().set_config(section, key, value)
 
 
+def get_default_model() -> str:
+    """Get the default AI model from configuration."""
+    api_config: APIConfig = get_config(ConfigSection.API)
+    return api_config.default_model
+
+
+def get_default_temperature() -> float:
+    """Get the default temperature from configuration."""
+    api_config: APIConfig = get_config(ConfigSection.API)
+    return api_config.default_temperature
+
+
+def fill_ai_defaults(**kwargs) -> dict:
+    """Fill AI request parameters with defaults from config where None."""
+    if 'model' in kwargs and kwargs['model'] is None:
+        kwargs['model'] = get_default_model()
+    if 'temperature' in kwargs and kwargs['temperature'] is None:
+        kwargs['temperature'] = get_default_temperature()
+    return kwargs
+
+
 def reload_config():
     """Convenience function to reload configuration."""
     get_config_manager().reload_configuration()
