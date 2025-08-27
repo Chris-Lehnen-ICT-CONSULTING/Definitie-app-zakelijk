@@ -28,7 +28,7 @@ Four test cases were executed:
 
 **12 Registered Modules:**
 1. `expertise` - Expert Role & Basic Instructions
-2. `output_specification` - Output Format Specifications  
+2. `output_specification` - Output Format Specifications
 3. `grammar` - Grammar & Language Rules
 4. `context_awareness` - Context Understanding
 5. `semantic_categorisation` - Ontological Categories
@@ -87,7 +87,7 @@ The system uses multiple abstraction layers:
 ## Issues Found
 
 1. **Prompt Length**: Prompts are too long (>30KB) and get truncated
-2. **Module Failures**: 
+2. **Module Failures**:
    - `metrics` module fails due to missing `org_contexts` attribute
    - `template` module skips when no semantic category is set
 3. **Validation Rule Detection**: Test script only detects 4-6 rules instead of 31 due to pattern matching issue

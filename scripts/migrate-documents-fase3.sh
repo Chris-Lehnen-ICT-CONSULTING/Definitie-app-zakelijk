@@ -80,7 +80,7 @@ create_directories() {
 show_remaining_files() {
     echo -e "\n${BLUE}Bestanden die in root blijven:${NC}"
     echo "✓ README.md"
-    echo "✓ CONTRIBUTING.md" 
+    echo "✓ CONTRIBUTING.md"
     echo "✓ CHANGELOG.md"
     echo "✓ pyproject.toml"
     echo "✓ requirements.txt"

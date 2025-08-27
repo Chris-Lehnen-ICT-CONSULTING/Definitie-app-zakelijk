@@ -153,58 +153,57 @@ Voor nieuwe features:
 - Discussions voor vragen
 - Email voor security issues
 
-## 📁 Document Organisatie Richtlijnen
+# 📁 Document Organisatie
 
-### Waar nieuwe documenten plaatsen
+Alle documenten moeten in de juiste mappen worden geplaatst volgens onderstaande structuur:
 
-Gebruik deze beslisboom:
+```
+docs/
+├── architectuur/           # Architectuur documentatie
+│   ├── workflows/          # Architectuur workflows
+│   ├── definitie service/  # Service-specifieke architectuur
+│   └── _archive/           # Verouderde architectuur docs
+├── workflows/              # Algemene workflow beschrijvingen  
+├── analyse/                # Analyse rapporten
+├── requirements/           # Requirements & planning
+├── technisch/              # Technische documentatie
+├── reviews/                # Review rapporten
+└── archief/                # Algemeen archief
 
-1. **Code/Scripts** → `scripts/`
-   - Analyse scripts → `scripts/analysis/`
-   - Onderhoud scripts → `scripts/maintenance/`
-   - Test scripts → `scripts/testing/`
+scripts/
+├── analyse/                # Nederlandse analyse scripts
+├── analysis/               # Legacy Engelse scripts
+├── maintenance/            # Onderhoud scripts
+├── hooks/                  # Pre-commit hooks
+└── migrate-*.sh            # Migratie scripts
 
-2. **Documentatie** → `docs/`
-   - Architectuur docs → `docs/architecture/`
-   - Workflows → `docs/workflows/`
-   - Handleidingen/Tutorials → `docs/guides/`
-   - Vergadering notities → `docs/meeting-notes/`
-   - API docs → `docs/api/`
+reports/
+├── analysis/               # Analyse rapporten (JSON)
+├── visualizations/         # HTML visualisaties
+└── exports/                # Gegenereerde exports
 
-3. **Gegenereerde Rapporten** → `reports/` (git-ignored)
-   - Analyse rapporten → `reports/analysis/`
-   - Test rapporten → `reports/validation/`
-   - Visualisaties → `reports/visualizations/`
+tests/
+├── integration/            # Integratie tests
+├── unit/                   # Unit tests  
+├── data/                   # Test data bestanden
+└── fixtures/               # Test fixtures
+```
 
-4. **Tests** → `tests/`
-   - Unit tests → `tests/unit/`
-   - Integratie tests → `tests/integration/`
-   - Service tests → `tests/services/`
+## Bestand Naamgeving Conventies
 
-### Naamgeving Conventies voor Documenten
+- **Nederlandse bestandsnamen** voor nieuwe bestanden
+- **kleine-letters-met-streepjes** naamgeving
+- **Geen documenten in root** (behalve README, LICENSE, etc.)
+- **Pre-commit hook** controleert automatisch bestand locaties
 
-- **Taal:** Alleen Nederlands in bestandsnamen (geen Engels)
-- **Hoofdlettergebruik:** kleine letters met streepjes (`mijn-document.md`)
-- **Geen HOOFDLETTERS** behalve: README.md, LICENSE, CHANGELOG.md, CONTRIBUTING.md
-- **Vergadering notities:** `JJJJ-MM-DD-onderwerp.md`
-- **Architectuur Beslissing Records:** `ADR-001-titel.md`
-- **Gearchiveerde bestanden:** Verplaats naar `docs/archief/JJJJ-MM/` map
+## Document Migratie Scripts
 
-### ❌ Wat NIET te doen
+We hebben 3 migratie scripts om documenten te organiseren:
+- `scripts/migrate-documents.sh` - Fase 1: Basis organisatie
+- `scripts/migrate-documents-fase2.sh` - Fase 2: Architectuur & technische docs
+- `scripts/migrate-documents-fase3.sh` - Fase 3: Laatste opruiming
 
-- Plaats nooit documentatie in de root directory
-- Mix geen talen in bestandsnamen
-- Maak geen diep geneste structuren (max 3 niveaus)
-- Plaats geen code bestanden in docs mappen
-- Vermijd dubbele documentatie
-
-### ✅ Pre-commit Hooks
-
-Onze pre-commit hooks zullen:
-- Document locaties automatisch controleren
-- Naamgeving conventies afdwingen
-- Code formatteren met black/ruff
-- Trailing whitespace verwijderen
+Bij twijfel: gebruik `--dry-run` optie om te zien wat er zou gebeuren.
 
 ## 🙏 Credits
 
