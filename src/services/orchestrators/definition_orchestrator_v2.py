@@ -216,9 +216,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     else 500
                 ),
                 model=(
-                    sanitized_request.options.get("model", "gpt-4")
+                    sanitized_request.options.get("model", "gpt-5")
                     if sanitized_request.options
-                    else "gpt-4"
+                    else "gpt-5"
                 ),
             )
             logger.info(f"Generation {generation_id}: AI generation complete")
@@ -537,7 +537,7 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
                     prompt: str,
                     temperature: float = 0.7,
                     max_tokens: int = 500,
-                    model: str = "gpt-4",
+                    model: str = "gpt-5",
                 ):
                     """Use services.ai_service.AIService"""
                     from services.ai_service import get_ai_service

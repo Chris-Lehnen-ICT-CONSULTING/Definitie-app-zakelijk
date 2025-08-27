@@ -65,10 +65,10 @@ class APIConfig:
                 "temperature": 0.01,  # Zeer lage temperatuur voor consistentie
                 "cost_per_token": 0.00003,  # Kosten per token in USD
             },
-            "gpt-3.5-turbo": {  # GPT-3.5 configuratie - sneller en goedkoper
-                "max_tokens": 350,  # Iets meer tokens toegestaan
-                "temperature": 0.1,  # Iets meer creativiteit toegestaan
-                "cost_per_token": 0.0000015,  # Lagere kosten per token
+            "gpt-5": {  # GPT-5 configuratie - nieuwste model
+                "max_tokens": 300,  # Standaard token limiet
+                "temperature": 0.0,  # Maximale consistentie
+                "cost_per_token": 0.00003,  # Kosten per token in USD
             },
         }
     )
@@ -254,7 +254,7 @@ class MonitoringConfig:
 
     # OpenAI pricing (per 1K tokens)
     openai_pricing: dict[str, float] = field(
-        default_factory=lambda: {"gpt-4": 0.03, "gpt-3.5-turbo": 0.0015}
+        default_factory=lambda: {"gpt-5": 0.03, "gpt-4": 0.03}
     )
 
 

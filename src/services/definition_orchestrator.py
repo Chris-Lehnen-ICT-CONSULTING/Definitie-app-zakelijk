@@ -590,7 +590,7 @@ class DefinitionOrchestrator(
     async def _ai_service_call(
         self,
         prompt: str,
-        model: str = "gpt-4",
+        model: str = "gpt-5",
         temperature: float = 0.01,
         max_tokens: int = 300,
     ) -> str:
@@ -602,7 +602,7 @@ class DefinitionOrchestrator(
 
         Args:
             prompt: The prompt to send to AI
-            model: AI model to use (default: gpt-4)
+            model: AI model to use (default: gpt-5)
             temperature: Randomness level (default: 0.01 for consistency)
             max_tokens: Maximum tokens in response
 
