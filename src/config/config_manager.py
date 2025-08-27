@@ -7,68 +7,68 @@ Deze module beheert alle configuratie instellingen voor de applicatie,
 inclusief API keys, cache instellingen en omgeving-specifieke configuraties.
 """
 
-import logging
-import os
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
-from pathlib import Path
-from typing import Any
+import logging  # Logging systeem voor foutrapportage en debugging
+import os  # Operating system interface voor omgevingsvariabelen
+from dataclasses import dataclass, field  # Decorators voor gestructureerde data klassen
+from datetime import datetime, timezone  # Datum/tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeratie types voor constante waarden
+from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
+from typing import Any  # Type hints voor betere code documentatie
 
-import yaml
-from dotenv import load_dotenv
+import yaml  # YAML bestand parser voor configuratie bestanden
+from dotenv import load_dotenv  # Laadt .env variabelen in omgeving
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
 class Environment(Enum):
-    """Environment types for configuration."""
+    """Omgeving types voor configuratie bepaling."""
 
-    DEVELOPMENT = "development"
-    TESTING = "testing"
-    STAGING = "staging"
-    PRODUCTION = "production"
+    DEVELOPMENT = "development"  # Ontwikkel omgeving voor lokale ontwikkeling
+    TESTING = "testing"  # Test omgeving voor geautomatiseerde tests
+    STAGING = "staging"  # Pre-productie omgeving voor laatste verificatie
+    PRODUCTION = "production"  # Live productie omgeving voor eindgebruikers
 
 
 class ConfigSection(Enum):
-    """Configuration sections."""
+    """Configuratie secties voor georganiseerde instellingen."""
 
-    API = "api"
-    CACHE = "cache"
-    PATHS = "paths"
-    UI = "ui"
-    VALIDATION = "validation"
-    MONITORING = "monitoring"
-    LOGGING = "logging"
-    RATE_LIMITING = "rate_limiting"
-    RESILIENCE = "resilience"
-    SECURITY = "security"
+    API = "api"  # API configuratie (keys, endpoints, timeouts)
+    CACHE = "cache"  # Cache instellingen (TTL, grootte, strategie)
+    PATHS = "paths"  # Bestandspaden (data, logs, exports)
+    UI = "ui"  # Gebruikersinterface instellingen (layout, theming)
+    VALIDATION = "validation"  # Validatie regels en criteria
+    MONITORING = "monitoring"  # Monitoring en metriek verzameling
+    LOGGING = "logging"  # Log niveaus en output configuratie
+    RATE_LIMITING = "rate_limiting"  # API rate limiting instellingen
+    RESILIENCE = "resilience"  # Fout tolerantie en retry strategieën
+    SECURITY = "security"  # Beveiligingsinstellingen en toegangscontrole
 
 
 @dataclass
 class APIConfig:
-    """API configuration settings."""
+    """API configuratie instellingen voor externe service communicatie."""
 
-    openai_api_key: str = ""
-    default_model: str = "gpt-4"
-    default_temperature: float = 0.01
-    default_max_tokens: int = 300
-    request_timeout: float = 30.0
-    max_retries: int = 3
-    retry_backoff_factor: float = 1.5
+    openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
+    default_model: str = "gpt-4"  # Standaard AI model voor definitie generatie
+    default_temperature: float = 0.01  # Creativiteit niveau (laag = consistenter)
+    default_max_tokens: int = 300  # Maximum aantal tokens per API response
+    request_timeout: float = 30.0  # Timeout in seconden voor API verzoeken
+    max_retries: int = 3  # Maximum aantal herhaalpogingen bij mislukte verzoeken
+    retry_backoff_factor: float = 1.5  # Exponentiële vertraging tussen pogingen
 
-    # Model-specific settings
+    # Model-specifieke instellingen per AI model type
     model_settings: dict[str, dict[str, Any]] = field(
         default_factory=lambda: {
-            "gpt-4": {
-                "max_tokens": 300,
-                "temperature": 0.01,
-                "cost_per_token": 0.00003,
+            "gpt-4": {  # GPT-4 configuratie - hoogste kwaliteit
+                "max_tokens": 300,  # Standaard token limiet voor GPT-4
+                "temperature": 0.01,  # Zeer lage temperatuur voor consistentie
+                "cost_per_token": 0.00003,  # Kosten per token in USD
             },
-            "gpt-3.5-turbo": {
-                "max_tokens": 350,
-                "temperature": 0.1,
-                "cost_per_token": 0.0000015,
+            "gpt-3.5-turbo": {  # GPT-3.5 configuratie - sneller en goedkoper
+                "max_tokens": 350,  # Iets meer tokens toegestaan
+                "temperature": 0.1,  # Iets meer creativiteit toegestaan
+                "cost_per_token": 0.0000015,  # Lagere kosten per token
             },
         }
     )

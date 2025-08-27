@@ -45,7 +45,7 @@ FORBIDDEN_ROOT_PATTERNS = [
     "*_report.json",
     "*_analysis.json",
     "*_report.md",
-    "*_analysis.md", 
+    "*_analysis.md",
     "*_summary.md",
     "*_test_*.md",
     "test_*.py",
@@ -104,6 +104,7 @@ def check_file_location(filepath):
     if "/" not in str(path):
         # Check if it matches forbidden patterns
         import fnmatch
+
         for pattern in FORBIDDEN_ROOT_PATTERNS:
             if fnmatch.fnmatch(path.name, pattern):
                 suggestion = get_suggested_location(path)
@@ -111,7 +112,7 @@ def check_file_location(filepath):
                     False,
                     f"File '{filepath}' matches forbidden pattern '{pattern}' and should not be in root directory. Suggested location: {suggestion}",
                 )
-        
+
         suggestion = get_suggested_location(path)
         return (
             False,
@@ -151,7 +152,18 @@ def get_suggested_location(path):
             return "docs/workflows/"
         elif "architecture" in filename.lower() or "architectuur" in filename.lower():
             return "docs/architectuur/"
-        elif any(word in filename.lower() for word in ["test", "report", "rapport", "summary", "samenvatting", "analysis", "analyse"]):
+        elif any(
+            word in filename.lower()
+            for word in [
+                "test",
+                "report",
+                "rapport",
+                "summary",
+                "samenvatting",
+                "analysis",
+                "analyse",
+            ]
+        ):
             return "reports/analysis/"
         elif "review" in filename.lower():
             return "docs/reviews/"

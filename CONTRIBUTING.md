@@ -163,7 +163,7 @@ docs/
 │   ├── workflows/          # Architectuur workflows
 │   ├── definitie service/  # Service-specifieke architectuur
 │   └── _archive/           # Verouderde architectuur docs
-├── workflows/              # Algemene workflow beschrijvingen  
+├── workflows/              # Algemene workflow beschrijvingen
 ├── analyse/                # Analyse rapporten
 ├── requirements/           # Requirements & planning
 ├── technisch/              # Technische documentatie
@@ -184,7 +184,7 @@ reports/
 
 tests/
 ├── integration/            # Integratie tests
-├── unit/                   # Unit tests  
+├── unit/                   # Unit tests
 ├── data/                   # Test data bestanden
 └── fixtures/               # Test fixtures
 ```
