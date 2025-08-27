@@ -1,6 +1,6 @@
 # Gearchiveerde Ongebruikte Prompt Components
 
-**Datum:** 27 augustus 2025  
+**Datum:** 27 augustus 2025
 **Reden:** Cleanup na Enhanced ContextAwarenessModule migratie
 
 ## 📁 Gearchiveerde Bestanden
@@ -10,7 +10,7 @@
 - **Doel:** Modulaire implementatie van CoreInstructionsModule
 - **Reden archivering:** Proof-of-concept die niet werd geadopteerd
 
-### `core_instructions_v2.py` 
+### `core_instructions_v2.py`
 - **Status:** Ongebruikt (geen imports gevonden)
 - **Doel:** Verbeterde implementatie van core instructions
 - **Reden archivering:** Verbeterde implementatie die niet werd geadopteerd
@@ -30,7 +30,7 @@ grep -r "core_instructions_v2" src/ tests/ scripts/
 De volgende bestanden blijven actief omdat ze nog gebruikt worden:
 
 - `modular_prompt_adapter.py` - Bridge naar nieuwe modulaire architectuur
-- `modular_prompt_builder.py` - Facade voor backwards compatibility  
+- `modular_prompt_builder.py` - Facade voor backwards compatibility
 - `prompt_service_v2.py` - Category-aware prompt generation
 - `prompt_builder.py` - Legacy builder (nog steeds gebruikt)
 

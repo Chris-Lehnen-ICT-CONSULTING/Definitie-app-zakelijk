@@ -5,7 +5,7 @@ Deze module integreert alle business logic van de Context Aware builder:
 1. Context richness scoring (0.0-1.0)
 2. Dynamische prompt aanpassing op basis van context kwaliteit
 3. Confidence indicators met emoji's (🔴🟡🟢)
-4. Advanced source formatting 
+4. Advanced source formatting
 5. Abbreviation/expansion handling
 6. Organisatorische en domein context verwerking
 """
@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 class ContextAwarenessModule(BasePromptModule):
     """
     Enhanced module voor intelligente context verwerking.
-    
+
     Combineert alle context processing logic in één module:
     - Context richness scoring
     - Adaptive formatting based on context quality
@@ -50,7 +50,7 @@ class ContextAwarenessModule(BasePromptModule):
         """
         self._config = config
         self.adaptive_formatting = config.get("adaptive_formatting", True)
-        self.confidence_indicators = config.get("confidence_indicators", True)  
+        self.confidence_indicators = config.get("confidence_indicators", True)
         self.include_abbreviations = config.get("include_abbreviations", True)
         self._initialized = True
         logger.info(
@@ -85,10 +85,10 @@ class ContextAwarenessModule(BasePromptModule):
         try:
             # Bereken context richness score
             context_score = self._calculate_context_score(context.enriched_context)
-            
+
             # Sla score op voor andere modules
             context.set_shared("context_richness_score", context_score)
-            
+
             # Bepaal formatting strategie op basis van score
             if context_score >= 0.8:
                 content = self._build_rich_context_section(context)
@@ -111,7 +111,8 @@ class ContextAwarenessModule(BasePromptModule):
                     "adaptive_formatting": self.adaptive_formatting,
                     "sources_count": len(context.enriched_context.sources),
                     "base_context_items": sum(
-                        len(items) for items in context.enriched_context.base_context.values()
+                        len(items)
+                        for items in context.enriched_context.base_context.values()
                     ),
                     "expanded_terms_count": len(
                         context.enriched_context.expanded_terms or {}
@@ -120,7 +121,9 @@ class ContextAwarenessModule(BasePromptModule):
             )
 
         except Exception as e:
-            logger.error(f"Enhanced ContextAwarenessModule execution failed: {e}", exc_info=True)
+            logger.error(
+                f"Enhanced ContextAwarenessModule execution failed: {e}", exc_info=True
+            )
             return ModuleOutput(
                 content=self._build_fallback_context_section(),
                 metadata={"error": str(e), "fallback_used": True},
@@ -140,7 +143,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _calculate_context_score(self, enriched_context) -> float:
         """
         Bereken context richheid score (0.0 - 1.0).
-        
+
         Gebaseerd op ContextAwarePromptBuilder logic.
 
         Args:
@@ -152,14 +155,16 @@ class ContextAwarenessModule(BasePromptModule):
         score = 0.0
 
         # Base context contribution (max 0.3)
-        total_base_items = sum(len(items) for items in enriched_context.base_context.values())
+        total_base_items = sum(
+            len(items) for items in enriched_context.base_context.values()
+        )
         score += min(total_base_items / 10, 0.3)
 
         # Sources contribution (max 0.4)
         if enriched_context.sources:
-            source_score = sum(source.confidence for source in enriched_context.sources) / len(
-                enriched_context.sources
-            )
+            source_score = sum(
+                source.confidence for source in enriched_context.sources
+            ) / len(enriched_context.sources)
             score += source_score * 0.4
 
         # Expanded terms contribution (max 0.2)
@@ -167,7 +172,10 @@ class ContextAwarenessModule(BasePromptModule):
             score += min(len(enriched_context.expanded_terms) / 5, 0.2)
 
         # Confidence scores contribution (max 0.1)
-        if hasattr(enriched_context, 'confidence_scores') and enriched_context.confidence_scores:
+        if (
+            hasattr(enriched_context, "confidence_scores")
+            and enriched_context.confidence_scores
+        ):
             avg_confidence = sum(enriched_context.confidence_scores.values()) / len(
                 enriched_context.confidence_scores
             )
@@ -178,7 +186,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _build_rich_context_section(self, context: ModuleContext) -> str:
         """
         Build uitgebreide context sectie voor rijke context (score ≥ 0.8).
-        
+
         Args:
             context: Module context
 
@@ -192,24 +200,30 @@ class ContextAwarenessModule(BasePromptModule):
         sections.append("")
 
         # Base context met categorieën
-        sections.extend(self._format_detailed_base_context(enriched_context.base_context))
+        sections.extend(
+            self._format_detailed_base_context(enriched_context.base_context)
+        )
 
         # Sources met confidence indicators
         if enriched_context.sources:
             sections.append("")
-            sections.extend(self._format_sources_with_confidence(enriched_context.sources))
+            sections.extend(
+                self._format_sources_with_confidence(enriched_context.sources)
+            )
 
         # Expanded terms
         if self.include_abbreviations and enriched_context.expanded_terms:
             sections.append("")
-            sections.extend(self._format_abbreviations_detailed(enriched_context.expanded_terms))
+            sections.extend(
+                self._format_abbreviations_detailed(enriched_context.expanded_terms)
+            )
 
         return "\n".join(sections)
 
     def _build_moderate_context_section(self, context: ModuleContext) -> str:
         """
         Build standaard context sectie voor matige context (0.5 ≤ score < 0.8).
-        
+
         Args:
             context: Module context
 
@@ -233,14 +247,16 @@ class ContextAwarenessModule(BasePromptModule):
         if self.include_abbreviations and enriched_context.expanded_terms:
             sections.append("")
             sections.append("AFKORTINGEN:")
-            sections.extend(self._format_abbreviations_simple(enriched_context.expanded_terms))
+            sections.extend(
+                self._format_abbreviations_simple(enriched_context.expanded_terms)
+            )
 
         return "\n".join(sections)
 
     def _build_minimal_context_section(self, context: ModuleContext) -> str:
         """
         Build minimale context sectie voor beperkte context (score < 0.5).
-        
+
         Args:
             context: Module context
 
@@ -258,7 +274,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _format_detailed_base_context(self, base_context: dict) -> list[str]:
         """
         Format base context met categorieën voor rijke context.
-        
+
         Args:
             base_context: Dictionary met base context
 
@@ -281,7 +297,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _format_sources_with_confidence(self, sources) -> list[str]:
         """
         Format sources met confidence indicators.
-        
+
         Args:
             sources: Lijst van source objecten
 
@@ -314,7 +330,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _format_abbreviations_detailed(self, expanded_terms: dict) -> list[str]:
         """
         Format afkortingen voor rijke context.
-        
+
         Args:
             expanded_terms: Dictionary met afkortingen
 
@@ -330,7 +346,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _format_abbreviations_simple(self, expanded_terms: dict) -> list[str]:
         """
         Format afkortingen voor matige context.
-        
+
         Args:
             expanded_terms: Dictionary met afkortingen
 
@@ -345,7 +361,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _share_traditional_context(self, context: ModuleContext) -> None:
         """
         Deel traditionele org/domain context voor andere modules (backwards compatibility).
-        
+
         Args:
             context: Module context
         """
@@ -364,7 +380,7 @@ class ContextAwarenessModule(BasePromptModule):
     def _extract_contexts(self, context_value: Any) -> list[str]:
         """
         Extract context lijst uit verschillende input formaten.
-        
+
         Backwards compatibility method.
 
         Args:
@@ -384,8 +400,10 @@ class ContextAwarenessModule(BasePromptModule):
             return [context_value]
         if isinstance(context_value, list):
             return [str(item) for item in context_value if item]
-        
-        logger.warning(f"Onbekend context type: {type(context_value)} - {context_value}")
+
+        logger.warning(
+            f"Onbekend context type: {type(context_value)} - {context_value}"
+        )
         return []
 
     def _build_fallback_context_section(self) -> str:

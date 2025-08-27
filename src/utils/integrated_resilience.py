@@ -351,7 +351,7 @@ def with_full_resilience(
     priority: RequestPriority = RequestPriority.NORMAL,
     timeout: float | None = None,
     enable_fallback: bool = True,
-    model: str = "gpt-4",
+    model: str = "gpt-5",
     expected_tokens: int = 0,
 ):
     """
@@ -420,7 +420,7 @@ def with_background_resilience(endpoint_name: str = "", timeout: float = 60.0):
 
 
 def with_cost_optimized_resilience(
-    endpoint_name: str = "", model: str = "gpt-3.5-turbo"
+    endpoint_name: str = "", model: str = "gpt-5"
 ):
     """Decorator for cost-optimized operations."""
     return with_full_resilience(

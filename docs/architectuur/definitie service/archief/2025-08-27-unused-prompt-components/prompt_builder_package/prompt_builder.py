@@ -14,6 +14,7 @@ Voor nieuwe code: gebruik direct services/ai_service.py
 
 import logging
 import os
+
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
 
@@ -29,31 +30,28 @@ def stuur_prompt_naar_gpt(
 ) -> str:
     """
     Legacy AI interface - DEPRECATED maar nog in gebruik door 6 bestanden.
-    
+
     Nu gebruikt nieuwe AI Service voor consistency en betere error handling.
     Gebruik direct AIService.generate_definition() voor nieuwe code.
-    
+
     Args:
         prompt: De prompt tekst
         model: OpenAI model naam (default: gpt-5)
         temperatuur: Temperature waarde (default: 0.0 voor definitie consistentie)
         max_tokens: Maximum tokens
-        
+
     Returns:
         AI gegenereerde content
     """
     try:
         # Import en gebruik nieuwe AI Service
         from services.ai_service import get_ai_service
-        
+
         service = get_ai_service()
         return service.generate_definition(
-            prompt=prompt,
-            model=model,
-            temperature=temperatuur,
-            max_tokens=max_tokens
+            prompt=prompt, model=model, temperature=temperatuur, max_tokens=max_tokens
         )
-        
+
     except Exception as e:
         # Fallback naar legacy implementatie bij problemen
         logger.warning(f"AI Service fallback gebruikt: {e}")
@@ -65,13 +63,13 @@ def _legacy_gpt_call(
 ) -> str:
     """
     Legacy GPT call implementatie als fallback.
-    
+
     Args:
         prompt: De prompt tekst
-        model: OpenAI model naam  
+        model: OpenAI model naam
         temperatuur: Temperature waarde
         max_tokens: Maximum tokens
-        
+
     Returns:
         AI gegenereerde content
     """

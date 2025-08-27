@@ -50,7 +50,7 @@ class APIConfig:
     """API configuratie instellingen voor externe service communicatie."""
 
     openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
-    default_model: str = "gpt-4"  # Standaard AI model voor definitie generatie
+    default_model: str = "gpt-5"  # Standaard AI model voor definitie generatie
     default_temperature: float = 0.01  # Creativiteit niveau (laag = consistenter)
     default_max_tokens: int = 300  # Maximum aantal tokens per API response
     request_timeout: float = 30.0  # Timeout in seconden voor API verzoeken

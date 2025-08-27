@@ -46,7 +46,7 @@ class PromptBuilder(ABC):
 # ARCHIVED: LegacyPromptBuilder en ContextAwarePromptBuilder zijn gearchiveerd naar:
 # docs/architectuur/definitie service/archief/2025-08-27-legacy-prompt-builders/
 # Deze klassen werden niet gebruikt in runtime (zie analyse).
-# 
+#
 # MIGRATIE COMPLEET: Alle business logic is gemigreerd naar Enhanced ContextAwarenessModule
 # in het modulaire systeem. De context scoring, confidence indicators, source formatting
 # en adaptive prompt logic zijn nu geïntegreerd in de modulaire architectuur.
@@ -76,7 +76,7 @@ class UnifiedPromptBuilder:
         # Modular builder - enige actieve strategy
         self.builders["modular"] = ModularPromptBuilder()
         logger.info("ModularPromptBuilder geïnitialiseerd als primaire strategy")
-        
+
         # ARCHIVED: Legacy en context-aware builders zijn gearchiveerd
         # Alle business logic is gemigreerd naar Enhanced ContextAwarenessModule
 
