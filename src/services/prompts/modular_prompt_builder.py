@@ -32,7 +32,7 @@ class PromptComponentConfig:
     compact_mode: bool = False  # Voor kortere prompts (experimenteel)
 
     # Advanced configuratie
-    max_prompt_length: int = 20000  # Hard limit voor prompt lengte
+    max_prompt_length: int = 35000  # Hard limit voor prompt lengte (verhoogd van 20K naar 35K)
     enable_component_metadata: bool = True
 
 
