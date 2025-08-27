@@ -235,8 +235,8 @@ class HybridContextManager:
         return enriched_context
 
     def _build_base_context(self, request: GenerationRequest) -> dict[str, list[str]]:
-        """Bouw basis context dictionary (van services implementatie)."""
-        context = {
+        """Bouw basis context dictionary met ALLE contextvelden (PER-007)."""
+        context: dict[str, list[str]] = {
             "organisatorisch": [],
             "juridisch": [],
             "wettelijk": [],
@@ -245,15 +245,45 @@ class HybridContextManager:
             "historisch": [],
         }
 
-        # Basis velden
-        if request.organisatie:
-            context["organisatorisch"].append(request.organisatie)
-        if request.domein:
-            context["domein"].append(request.domein)
+        def extend_unique(values: list[str] | None, into: list[str]) -> None:
+            if not values:
+                return
+            seen = set(into)
+            for v in values:
+                if v and v not in seen:
+                    into.append(v)
+                    seen.add(v)
 
-        # Parse context string
-        if request.context:
+        # Map expliciete UI-velden naar context (organisatorisch/juridisch/wettelijk)
+        extend_unique(getattr(request, "organisatorische_context", None), context["organisatorisch"])
+        extend_unique(getattr(request, "juridische_context", None), context["juridisch"])
+        extend_unique(getattr(request, "wettelijke_basis", None), context["wettelijk"])
+
+        # Basis velden (legacy enkelvoudige velden)
+        if request.organisatie:
+            extend_unique([request.organisatie], context["organisatorisch"])
+        if request.domein:
+            extend_unique([request.domein], context["domein"])
+
+        # Parse legacy context string alleen als de nieuwe velden ontbreken
+        if (
+            not any(
+                [
+                    getattr(request, "organisatorische_context", None),
+                    getattr(request, "juridische_context", None),
+                    getattr(request, "wettelijke_basis", None),
+                ]
+            )
+            and request.context
+        ):
             self._parse_context_string(request.context, context)
+
+        logger.debug(
+            "Base context opgebouwd: org=%d, jur=%d, wet=%d",
+            len(context["organisatorisch"]),
+            len(context["juridisch"]),
+            len(context["wettelijk"]),
+        )
 
         return context
 

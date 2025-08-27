@@ -137,16 +137,43 @@ class PromptServiceV2:
     ) -> EnrichedContext:
         """Convert V2 GenerationRequest to EnrichedContext for existing prompt system."""
 
-        # Build base context from request
-        base_context = {}
+        # Build base context from request (PER-007: volledige mapping met dedupe)
+        base_context: dict[str, list[str]] = {
+            "organisatorisch": [],
+            "juridisch": [],
+            "wettelijk": [],
+            "domein": [],
+        }
 
-        if request.context:
-            # Parse organisational context
-            base_context["organisatorisch"] = [request.context]
+        def extend_unique(values: list[str] | None, into: list[str]) -> None:
+            if not values:
+                return
+            seen = set(into)
+            for v in values:
+                if v and v not in seen:
+                    into.append(v)
+                    seen.add(v)
 
+        # Expliciete UI-velden
+        extend_unique(getattr(request, "organisatorische_context", None), base_context["organisatorisch"])
+        extend_unique(getattr(request, "juridische_context", None), base_context["juridisch"])
+        extend_unique(getattr(request, "wettelijke_basis", None), base_context["wettelijk"])
+
+        # Legacy velden
         if request.domein:
-            # Parse domain context
-            base_context["domein"] = [request.domein]
+            extend_unique([request.domein], base_context["domein"])
+        # Gebruik legacy vrije context enkel als de nieuwe velden leeg zijn
+        if (
+            not any(
+                [
+                    getattr(request, "organisatorische_context", None),
+                    getattr(request, "juridische_context", None),
+                    getattr(request, "wettelijke_basis", None),
+                ]
+            )
+            and request.context
+        ):
+            extend_unique([request.context], base_context["organisatorisch"])
 
         # 🚨 CRITICAL FIX: Preserve context_dict from extra_context
         # This fixes the voorbeelden dictionary regression
