@@ -28,7 +28,7 @@ class TemplateModule(BasePromptModule):
         super().__init__(
             module_id="template",
             module_name="Definition Templates & Patterns",
-            priority=60  # Medium prioriteit - hulpmiddel
+            priority=60,  # Medium prioriteit - hulpmiddel
         )
         self.include_examples = True
         self.detailed_templates = True
@@ -246,5 +246,5 @@ class TemplateModule(BasePromptModule):
 
         return examples_map.get(
             category,
-            ["  ℹ️ Geen specifieke voorbeelden beschikbaar voor deze categorie"],  # noqa: RUF001
+            ["  ℹ️ Geen specifieke voorbeelden beschikbaar voor deze categorie"],
         )

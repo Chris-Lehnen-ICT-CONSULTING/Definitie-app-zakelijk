@@ -28,7 +28,7 @@ class GrammarModule(BasePromptModule):
         super().__init__(
             module_id="grammar",
             module_name="Grammar & Language Rules",
-            priority=85  # Hoge prioriteit - grammatica regels
+            priority=85,  # Hoge prioriteit - grammatica regels
         )
         self.include_examples = True
         self.strict_mode = False
@@ -49,7 +49,7 @@ class GrammarModule(BasePromptModule):
             f"(examples={self.include_examples}, strict={self.strict_mode})"
         )
 
-    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:  # noqa: ARG002
+    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
         """
         Deze module draait altijd.
 

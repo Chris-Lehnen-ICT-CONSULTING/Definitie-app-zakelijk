@@ -331,21 +331,21 @@ class PromptOrchestrator:
 
         # Combineer met consistent spacing
         return "\n\n".join(ordered_sections)
-    
+
     def set_module_order(self, module_order: list[str]) -> None:
         """
         Update de module output volgorde.
-        
+
         Args:
             module_order: Lijst met module IDs in gewenste volgorde
         """
         self._custom_module_order = module_order
         logger.info(f"Module volgorde aangepast: {module_order}")
-    
+
     def _get_default_module_order(self) -> list[str]:
         """
         Verkrijg de standaard module volgorde.
-        
+
         Returns:
             Lijst met module IDs in standaard volgorde
         """
@@ -390,20 +390,18 @@ class PromptOrchestrator:
             }
             for module_id, module in self.modules.items()
         ]
-        
+
         # Sorteer op prioriteit (hoogste eerst)
         return sorted(modules_info, key=lambda x: x["priority"], reverse=True)
-    
+
     def get_modules_by_priority(self) -> list[str]:
         """
         Verkrijg module IDs gesorteerd op prioriteit.
-        
+
         Returns:
             Lijst van module IDs gesorteerd op prioriteit (hoogste eerst)
         """
         sorted_modules = sorted(
-            self.modules.items(),
-            key=lambda x: x[1].priority,
-            reverse=True
+            self.modules.items(), key=lambda x: x[1].priority, reverse=True
         )
         return [module_id for module_id, _ in sorted_modules]

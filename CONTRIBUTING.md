@@ -9,7 +9,7 @@ Bedankt voor je interesse in het bijdragen aan DefinitieAgent! Deze guide helpt 
 - Lees de [SETUP.md](SETUP.md) voor installatie instructies
 - Bekijk de [Roadmap](docs/requirements/ROADMAP.md) voor geplande features
 - Check de [Backlog](docs/BACKLOG.md) voor open taken
-- Lees [CLAUDE.md](CLAUDE.md) voor AI-specifieke coding guidelines
+- Lees [README.md](README.md) voor AI-specifieke coding guidelines (BMAD methode)
 
 ### 2. Development Workflow
 
@@ -153,9 +153,62 @@ Voor nieuwe features:
 - Discussions voor vragen
 - Email voor security issues
 
+## 📁 Document Organisatie Richtlijnen
+
+### Waar nieuwe documenten plaatsen
+
+Gebruik deze beslisboom:
+
+1. **Code/Scripts** → `scripts/`
+   - Analyse scripts → `scripts/analysis/`
+   - Onderhoud scripts → `scripts/maintenance/`
+   - Test scripts → `scripts/testing/`
+
+2. **Documentatie** → `docs/`
+   - Architectuur docs → `docs/architecture/`
+   - Workflows → `docs/workflows/`
+   - Handleidingen/Tutorials → `docs/guides/`
+   - Vergadering notities → `docs/meeting-notes/`
+   - API docs → `docs/api/`
+
+3. **Gegenereerde Rapporten** → `reports/` (git-ignored)
+   - Analyse rapporten → `reports/analysis/`
+   - Test rapporten → `reports/validation/`
+   - Visualisaties → `reports/visualizations/`
+
+4. **Tests** → `tests/`
+   - Unit tests → `tests/unit/`
+   - Integratie tests → `tests/integration/`
+   - Service tests → `tests/services/`
+
+### Naamgeving Conventies voor Documenten
+
+- **Taal:** Alleen Nederlands in bestandsnamen (geen Engels)
+- **Hoofdlettergebruik:** kleine letters met streepjes (`mijn-document.md`)
+- **Geen HOOFDLETTERS** behalve: README.md, LICENSE, CHANGELOG.md, CONTRIBUTING.md
+- **Vergadering notities:** `JJJJ-MM-DD-onderwerp.md`
+- **Architectuur Beslissing Records:** `ADR-001-titel.md`
+- **Gearchiveerde bestanden:** Verplaats naar `docs/archief/JJJJ-MM/` map
+
+### ❌ Wat NIET te doen
+
+- Plaats nooit documentatie in de root directory
+- Mix geen talen in bestandsnamen
+- Maak geen diep geneste structuren (max 3 niveaus)
+- Plaats geen code bestanden in docs mappen
+- Vermijd dubbele documentatie
+
+### ✅ Pre-commit Hooks
+
+Onze pre-commit hooks zullen:
+- Document locaties automatisch controleren
+- Naamgeving conventies afdwingen
+- Code formatteren met black/ruff
+- Trailing whitespace verwijderen
+
 ## 🙏 Credits
 
 Alle contributors worden vermeld in het project. Bedankt voor je bijdrage!
 
 ---
-*Laatste update: 17 juli 2025*
+*Laatste update: 27 januari 2025*

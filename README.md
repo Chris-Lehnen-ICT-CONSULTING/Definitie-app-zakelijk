@@ -247,6 +247,31 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 - **Automated quality checks** via `scripts/ai_code_reviewer.py`
 - **BMAD framework** voor development workflow
 - **Quinn QA agent** voor architecture reviews
+
+## 📁 Project Structuur (Voor Claude Code)
+
+```
+/
+├── src/              # Alleen broncode
+├── tests/            # Alleen test bestanden
+├── docs/             # Alle documentatie
+│   ├── architecture/ # Architectuur docs
+│   ├── workflows/    # Workflow docs
+│   └── guides/       # Handleidingen & tutorials
+├── scripts/          # Hulp scripts
+│   ├── analysis/     # Analyse scripts
+│   └── maintenance/  # Onderhoud scripts
+├── reports/          # Gegenereerde rapporten (git-ignored)
+└── config/           # Configuratie bestanden
+```
+
+**Bestand Plaatsingsregels:**
+- ❌ GEEN documenten in root (behalve README, LICENSE, etc.)
+- ❌ GEEN test bestanden in root → gebruik `tests/`
+- ❌ GEEN scripts in root → gebruik `scripts/`
+- ✅ Alleen Nederlandse bestandsnamen
+- ✅ kleine-letters-met-streepjes naamgeving
+- ✅ Rapporten naar `reports/` (automatisch genegeerd)
 - **Pre-commit hooks** voor immediate feedback
 
 ## 📞 Support

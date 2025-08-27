@@ -28,7 +28,7 @@ class IntegrityRulesModule(BasePromptModule):
         super().__init__(
             module_id="integrity_rules",
             module_name="Integrity Validation Rules (INT)",
-            priority=65  # Medium-hoge prioriteit
+            priority=65,  # Medium-hoge prioriteit
         )
         self.include_examples = True
 
@@ -46,7 +46,7 @@ class IntegrityRulesModule(BasePromptModule):
             f"IntegrityRulesModule geïnitialiseerd (examples={self.include_examples})"
         )
 
-    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:  # noqa: ARG002
+    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
         """
         Deze module draait altijd.
 
