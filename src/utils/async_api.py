@@ -101,7 +101,7 @@ class AsyncGPTClient:
     async def chat_completion(
         self,
         prompt: str,
-        model: str = "gpt-4",
+        model: str = "gpt-5",
         temperature: float = 0.01,
         max_tokens: int = 300,
         use_cache: bool = True,
@@ -215,7 +215,7 @@ class AsyncGPTClient:
     async def batch_completion(
         self,
         prompts: list[str],
-        model: str = "gpt-4",
+        model: str = "gpt-5",
         temperature: float = 0.01,
         max_tokens: int = 300,
         progress_callback: Callable[[int, int], None] | None = None,
@@ -301,7 +301,7 @@ async def get_async_client() -> AsyncGPTClient:
 
 async def async_gpt_call(
     prompt: str,
-    model: str = "gpt-4",
+    model: str = "gpt-5",
     temperature: float = 0.01,
     max_tokens: int = 300,
     **kwargs,
@@ -331,7 +331,7 @@ async def async_gpt_call(
 
 async def async_batch_gpt_calls(
     prompts: list[str],
-    model: str = "gpt-4",
+    model: str = "gpt-5",
     temperature: float = 0.01,
     max_tokens: int = 300,
     progress_callback: Callable[[int, int], None] | None = None,

@@ -1129,7 +1129,7 @@ class DefinitieRepository:
         self,
         definitie_id: int,
         voorbeelden_dict: dict[str, list[str]],
-        generation_model: str = "gpt-4",
+        generation_model: str = "gpt-5",
         generation_params: dict[str, Any] | None = None,
         gegenereerd_door: str = "system",
     ) -> list[int]:

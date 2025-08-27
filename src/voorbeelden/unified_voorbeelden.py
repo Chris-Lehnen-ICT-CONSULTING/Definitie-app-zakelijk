@@ -63,7 +63,7 @@ class ExampleRequest:
     generation_mode: GenerationMode = GenerationMode.RESILIENT
     max_examples: int = 5  # Default naar 5 voor synoniemen/antoniemen
     temperature: float = 0.5
-    model: str = "gpt-4"
+    model: str = "gpt-5"
 
 
 @dataclass
@@ -207,7 +207,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_sentence",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model="gpt-5",
         expected_tokens=200,
     )
     async def _generate_resilient_sentence(self, request: ExampleRequest) -> list[str]:
@@ -218,7 +218,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_practical",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model="gpt-5",
         expected_tokens=200,
     )
     async def _generate_resilient_practical(self, request: ExampleRequest) -> list[str]:
@@ -229,7 +229,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_counter",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model="gpt-5",
         expected_tokens=200,
     )
     async def _generate_resilient_counter(self, request: ExampleRequest) -> list[str]:
@@ -240,7 +240,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_synonyms",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model="gpt-5",
         expected_tokens=200,
     )
     async def _generate_resilient_synonyms(self, request: ExampleRequest) -> list[str]:
@@ -251,7 +251,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_antonyms",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model="gpt-5",
         expected_tokens=200,
     )
     async def _generate_resilient_antonyms(self, request: ExampleRequest) -> list[str]:
@@ -262,7 +262,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_explanation",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model="gpt-5",
         expected_tokens=200,
     )
     async def _generate_resilient_explanation(

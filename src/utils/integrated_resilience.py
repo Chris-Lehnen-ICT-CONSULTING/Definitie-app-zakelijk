@@ -148,7 +148,7 @@ class IntegratedResilienceSystem:
         priority: RequestPriority = RequestPriority.NORMAL,
         timeout: float | None = None,
         enable_fallback: bool = True,
-        model: str = "gpt-4",
+        model: str = "gpt-5",
         expected_tokens: int = 0,
         **kwargs,
     ) -> Any:
@@ -370,7 +370,7 @@ def with_full_resilience(
             endpoint_name="gpt_definition",
             priority=RequestPriority.HIGH,
             timeout=30.0,
-            model="gpt-4",
+            model="gpt-5",
             expected_tokens=300
         )
         async def generate_definition(term: str, context: dict):
@@ -443,7 +443,7 @@ async def test_integrated_system():
         endpoint_name="test_api",
         priority=RequestPriority.HIGH,
         timeout=30.0,
-        model="gpt-4",
+        model="gpt-5",
         expected_tokens=200,
     )
     async def test_function(should_fail: bool = False, delay: float = 0.5):
