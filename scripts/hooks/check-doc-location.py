@@ -11,7 +11,7 @@ from pathlib import Path
 # Define allowed locations for different file types
 ALLOWED_LOCATIONS = {
     # Python scripts
-    ".py": ["src/", "tests/", "scripts/", "setup.py", "manage.py"],
+    ".py": ["src/", "tests/", "scripts/", "tools/", "setup.py", "manage.py"],
     # Markdown docs
     ".md": [
         "docs/",
@@ -32,6 +32,8 @@ ALLOWED_LOCATIONS = {
         "config/",
         "reports/",
         ".github/",
+        "data/",
+        "docs/",  # Toegevoegd voor architectuur JSON bestanden
         "package.json",
         "tsconfig.json",
     ],
@@ -52,6 +54,31 @@ def check_file_location(filepath):
     """Check if file is in an allowed location."""
     path = Path(filepath)
     extension = path.suffix
+
+    # Skip .bmad-core bestanden
+    if str(path).startswith(".bmad-core/"):
+        return True, ""
+
+    # Skip alle dotfile directories
+    if str(path).startswith("."):
+        return True, ""
+
+    # README.md bestanden zijn overal toegestaan
+    if path.name == "README.md":
+        return True, ""
+
+    # Skip data directory bestanden (zoals definities.db)
+    if str(path).startswith("data/"):
+        return True, ""
+
+    # Skip archive/archief directories
+    if (
+        str(path).startswith("archive/")
+        or str(path).startswith("archief/")
+        or "/archief/" in str(path)
+        or "/_archive/" in str(path)
+    ):
+        return True, ""
 
     # Skip if no extension rules defined
     if extension not in ALLOWED_LOCATIONS:

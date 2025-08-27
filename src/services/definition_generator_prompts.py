@@ -24,7 +24,6 @@ class PromptStrategy(Enum):
 
     MODULAR = "modular"  # ModularPromptBuilder met 6 configureerbare componenten
     LEGACY = "legacy"  # Gebruik legacy prompt builder
-    BASIC = "basic"  # Basis template prompt
     CONTEXT_AWARE = "context"  # Context-aware prompts
     RULE_BASED = "rule_based"  # Gebaseerd op toetsregels
     ADAPTIVE = "adaptive"  # Adaptieve prompts gebaseerd op begrip type
@@ -630,26 +629,6 @@ class UnifiedPromptBuilder:
                 f"ModularPromptBuilder beschikbaar - gebruik modular strategy voor '{begrip}'"
             )
             return "modular"
-
-        # PRIORITEIT 2: Ontologische categorie - gebruik legacy builder voor volledige ESS-02 prompt
-        if context.metadata.get("ontologische_categorie"):
-            if "legacy" in self.builders:
-                logger.info(
-                    f"Ontologische categorie gedetecteerd: {context.metadata['ontologische_categorie']}, gebruik legacy strategy (volledige ESS-02 prompt)"
-                )
-                return "legacy"
-            logger.warning(
-                "Legacy builder niet beschikbaar, fallback naar basic voor ontologische categorie"
-            )
-            return "basic"
-
-        # Als legacy beschikbaar is en context simpel, gebruik legacy voor consistency
-        if "legacy" in self.builders and len(context.sources) <= 1:
-            total_context_items = sum(
-                len(items) for items in context.base_context.values()
-            )
-            if total_context_items <= 3:
-                return "legacy"
 
         # Voor rijke context, gebruik context-aware
         if (
