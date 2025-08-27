@@ -25,7 +25,11 @@ class GrammarModule(BasePromptModule):
 
     def __init__(self):
         """Initialize de grammar module."""
-        super().__init__(module_id="grammar", module_name="Grammar & Language Rules")
+        super().__init__(
+            module_id="grammar",
+            module_name="Grammar & Language Rules",
+            priority=85  # Hoge prioriteit - grammatica regels
+        )
         self.include_examples = True
         self.strict_mode = False
 

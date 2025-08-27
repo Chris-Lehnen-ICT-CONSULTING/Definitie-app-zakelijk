@@ -58,16 +58,18 @@ class BasePromptModule(ABC):
     Modules kunnen onafhankelijk getest en vervangen worden.
     """
 
-    def __init__(self, module_id: str, module_name: str):
+    def __init__(self, module_id: str, module_name: str, priority: int = 50):
         """
         Initialize base module.
 
         Args:
             module_id: Unieke identifier voor de module
             module_name: Menselijk leesbare naam
+            priority: Module prioriteit (0-100, hoger = belangrijker)
         """
         self.module_id = module_id
         self.module_name = module_name
+        self.priority = priority
         self._initialized = False
         self._config: dict[str, Any] = {}
 
@@ -123,6 +125,7 @@ class BasePromptModule(ABC):
         return {
             "module_id": self.module_id,
             "module_name": self.module_name,
+            "priority": self.priority,
             "initialized": self._initialized,
             "dependencies": self.get_dependencies(),
             "config": self._config,

@@ -26,7 +26,9 @@ class OutputSpecificationModule(BasePromptModule):
     def __init__(self):
         """Initialize de output specification module."""
         super().__init__(
-            module_id="output_specification", module_name="Output Format Specifications"
+            module_id="output_specification",
+            module_name="Output Format Specifications",
+            priority=90  # Hoge prioriteit - output specificaties
         )
         self.default_min_chars = 150
         self.default_max_chars = 350

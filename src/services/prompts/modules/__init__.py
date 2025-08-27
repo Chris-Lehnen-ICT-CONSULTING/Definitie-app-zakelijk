@@ -14,6 +14,7 @@ from .error_prevention_module import ErrorPreventionModule
 from .expertise_module import ExpertiseModule
 from .grammar_module import GrammarModule
 from .integrity_rules_module import IntegrityRulesModule
+from .metrics_module import MetricsModule
 from .output_specification_module import OutputSpecificationModule
 
 # Orchestrator
@@ -34,6 +35,7 @@ __all__ = [
     "ExpertiseModule",
     "GrammarModule",
     "IntegrityRulesModule",
+    "MetricsModule",
     "ModuleContext",
     "ModuleOutput",
     "OutputSpecificationModule",

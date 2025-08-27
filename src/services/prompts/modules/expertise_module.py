@@ -26,7 +26,9 @@ class ExpertiseModule(BasePromptModule):
     def __init__(self):
         """Initialize de expertise module."""
         super().__init__(
-            module_id="expertise", module_name="Expert Role & Basic Instructions"
+            module_id="expertise",
+            module_name="Expert Role & Basic Instructions",
+            priority=100  # Hoogste prioriteit - basis instructies
         )
 
     def initialize(self, config: dict[str, Any]) -> None:

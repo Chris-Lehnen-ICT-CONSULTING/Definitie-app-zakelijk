@@ -26,7 +26,9 @@ class IntegrityRulesModule(BasePromptModule):
     def __init__(self):
         """Initialize de integrity rules module."""
         super().__init__(
-            module_id="integrity_rules", module_name="Integrity Validation Rules (INT)"
+            module_id="integrity_rules",
+            module_name="Integrity Validation Rules (INT)",
+            priority=65  # Medium-hoge prioriteit
         )
         self.include_examples = True
 

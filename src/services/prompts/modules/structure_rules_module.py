@@ -26,7 +26,9 @@ class StructureRulesModule(BasePromptModule):
     def __init__(self):
         """Initialize de structure rules module."""
         super().__init__(
-            module_id="structure_rules", module_name="Structure Validation Rules (STR)"
+            module_id="structure_rules",
+            module_name="Structure Validation Rules (STR)",
+            priority=65  # Medium-hoge prioriteit
         )
         self.include_examples = True
 

@@ -26,7 +26,9 @@ class QualityRulesModule(BasePromptModule):
     def __init__(self):
         """Initialize de quality rules module."""
         super().__init__(
-            module_id="quality_rules", module_name="Validation Rules Module"
+            module_id="quality_rules",
+            module_name="Validation Rules Module",
+            priority=70  # Belangrijke prioriteit - validatie regels
         )
         self.include_arai_rules = True
         self.include_examples = True

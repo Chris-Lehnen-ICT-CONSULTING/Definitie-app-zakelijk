@@ -26,7 +26,9 @@ class TemplateModule(BasePromptModule):
     def __init__(self):
         """Initialize de template module."""
         super().__init__(
-            module_id="template", module_name="Definition Templates & Patterns"
+            module_id="template",
+            module_name="Definition Templates & Patterns",
+            priority=60  # Medium prioriteit - hulpmiddel
         )
         self.include_examples = True
         self.detailed_templates = True

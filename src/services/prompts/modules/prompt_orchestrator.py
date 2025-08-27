@@ -38,18 +38,20 @@ class PromptOrchestrator:
     en output combinatie voor het genereren van de complete prompt.
     """
 
-    def __init__(self, max_workers: int = 4):
+    def __init__(self, max_workers: int = 4, module_order: list[str] | None = None):
         """
         Initialize de orchestrator.
 
         Args:
             max_workers: Maximum aantal parallel workers voor module execution
+            module_order: Optionele lijst met module IDs voor output volgorde
         """
         self.modules: dict[str, BasePromptModule] = {}
-        self.module_order: list[str] = []
+        self.module_order: list[str] = module_order or []
         self.dependency_graph: dict[str, set[str]] = defaultdict(set)
         self.max_workers = max_workers
         self._execution_metadata: dict[str, Any] = {}
+        self._custom_module_order = module_order or self._get_default_module_order()
         logger.info(f"PromptOrchestrator initialized met {max_workers} workers")
 
     def register_module(self, module: BasePromptModule) -> None:
@@ -310,21 +312,10 @@ class PromptOrchestrator:
         Returns:
             Gecombineerde prompt string
         """
-        # Gebruik de volgorde van module registratie
-        # Dit moet later verfijnd worden op basis van een configureerbare volgorde
         ordered_sections = []
 
-        # Standaard module volgorde (kan later configureerbaar worden)
-        module_order = [
-            "expertise",
-            "output_specification",
-            "grammar",
-            "context_awareness",
-            "semantic_categorisation",
-            "quality_rules",
-            "error_prevention",
-            "definition_task",
-        ]
+        # Gebruik custom module order of default
+        module_order = self._custom_module_order
 
         # Verzamel outputs in volgorde
         for module_id in module_order:
@@ -340,6 +331,38 @@ class PromptOrchestrator:
 
         # Combineer met consistent spacing
         return "\n\n".join(ordered_sections)
+    
+    def set_module_order(self, module_order: list[str]) -> None:
+        """
+        Update de module output volgorde.
+        
+        Args:
+            module_order: Lijst met module IDs in gewenste volgorde
+        """
+        self._custom_module_order = module_order
+        logger.info(f"Module volgorde aangepast: {module_order}")
+    
+    def _get_default_module_order(self) -> list[str]:
+        """
+        Verkrijg de standaard module volgorde.
+        
+        Returns:
+            Lijst met module IDs in standaard volgorde
+        """
+        return [
+            "expertise",
+            "output_specification",
+            "grammar",
+            "context_awareness",
+            "semantic_categorisation",
+            "template",
+            "quality_rules",
+            "structure_rules",
+            "integrity_rules",
+            "error_prevention",
+            "metrics",
+            "definition_task",
+        ]
 
     def get_execution_metadata(self) -> dict[str, Any]:
         """
@@ -355,14 +378,32 @@ class PromptOrchestrator:
         Verkrijg informatie over alle geregistreerde modules.
 
         Returns:
-            List van module informatie dictionaries
+            List van module informatie dictionaries gesorteerd op prioriteit
         """
-        return [
+        modules_info = [
             {
                 "module_id": module_id,
                 "module_name": module.module_name,
+                "priority": module.priority,
                 "dependencies": list(self.dependency_graph[module_id]),
                 "info": module.get_info(),
             }
             for module_id, module in self.modules.items()
         ]
+        
+        # Sorteer op prioriteit (hoogste eerst)
+        return sorted(modules_info, key=lambda x: x["priority"], reverse=True)
+    
+    def get_modules_by_priority(self) -> list[str]:
+        """
+        Verkrijg module IDs gesorteerd op prioriteit.
+        
+        Returns:
+            Lijst van module IDs gesorteerd op prioriteit (hoogste eerst)
+        """
+        sorted_modules = sorted(
+            self.modules.items(),
+            key=lambda x: x[1].priority,
+            reverse=True
+        )
+        return [module_id for module_id, _ in sorted_modules]

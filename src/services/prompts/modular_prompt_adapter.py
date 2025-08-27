@@ -18,6 +18,7 @@ from .modules import (
     ExpertiseModule,
     GrammarModule,
     IntegrityRulesModule,
+    MetricsModule,
     OutputSpecificationModule,
     PromptOrchestrator,
     QualityRulesModule,
@@ -75,6 +76,7 @@ class ModularPromptAdapter:
             StructureRulesModule(),
             IntegrityRulesModule(),
             ErrorPreventionModule(),
+            MetricsModule(),
             DefinitionTaskModule(),
         ]
 
@@ -147,6 +149,11 @@ class ModularPromptAdapter:
                 # Template module settings
                 "include_examples": config.include_examples_in_rules,
                 "detailed_templates": config.detailed_category_guidance,
+            },
+            "metrics": {
+                # Metrics module settings
+                "include_detailed_metrics": not config.compact_mode,
+                "track_history": False,
             },
         }
 
