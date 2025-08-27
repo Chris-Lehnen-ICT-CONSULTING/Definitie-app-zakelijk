@@ -18,7 +18,7 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
-from prompt_builder.prompt_builder import stuur_prompt_naar_gpt  # GPT prompt interface
+from services.ai_service import get_ai_service  # Modern AI service interface
 from utils.cache import cached  # Caching decorator voor performance optimalisatie
 
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
@@ -147,10 +147,11 @@ class UnifiedExamplesGenerator:
         prompt = self._build_prompt(request)
 
         try:
-            response = stuur_prompt_naar_gpt(
+            ai_service = get_ai_service()
+            response = ai_service.generate_definition(
                 prompt=prompt,
                 model=request.model,
-                temperatuur=request.temperature,
+                temperature=request.temperature,
                 max_tokens=300,
             )
             return self._parse_response(response)
@@ -166,10 +167,10 @@ class UnifiedExamplesGenerator:
             # Use async wrapper for GPT call
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: stuur_prompt_naar_gpt(
+                lambda: get_ai_service().generate_definition(
                     prompt=prompt,
                     model=request.model,
-                    temperatuur=request.temperature,
+                    temperature=request.temperature,
                     max_tokens=300,
                 ),
             )
@@ -273,10 +274,10 @@ class UnifiedExamplesGenerator:
         try:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: stuur_prompt_naar_gpt(
+                lambda: get_ai_service().generate_definition(
                     prompt=prompt,
                     model=request.model,
-                    temperatuur=request.temperature,
+                    temperature=request.temperature,
                     max_tokens=300,
                 ),
             )
@@ -293,10 +294,10 @@ class UnifiedExamplesGenerator:
         try:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: stuur_prompt_naar_gpt(
+                lambda: get_ai_service().generate_definition(
                     prompt=prompt,
                     model=request.model,
-                    temperatuur=request.temperature,
+                    temperature=request.temperature,
                     max_tokens=300,
                 ),
             )

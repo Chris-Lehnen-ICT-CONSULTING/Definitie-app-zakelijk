@@ -452,7 +452,7 @@ class ContainerConfigs:
         """Development configuratie."""
         return {
             "db_path": "data/definities.db",
-            "generator_model": "gpt-3.5-turbo",  # Goedkoper voor dev
+            "generator_model": "gpt-5",  # Updated to latest model
             "generator_temperature": 0.5,
             "enable_monitoring": True,
             "enable_auto_save": False,  # Geen auto-save in dev
@@ -465,7 +465,7 @@ class ContainerConfigs:
         """Test configuratie."""
         return {
             "db_path": ":memory:",  # In-memory database
-            "generator_model": "gpt-3.5-turbo",
+            "generator_model": "gpt-5",
             "enable_monitoring": False,
             "enable_auto_save": False,
             "enable_validation": True,
@@ -478,8 +478,8 @@ class ContainerConfigs:
         """Production configuratie."""
         return {
             "db_path": "data/definities.db",
-            "generator_model": "gpt-4",
-            "generator_temperature": 0.4,
+            "generator_model": "gpt-5",
+            "generator_temperature": 0.0,
             "enable_monitoring": True,
             "enable_auto_save": True,
             "enable_all_rules": True,

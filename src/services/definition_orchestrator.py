@@ -610,16 +610,17 @@ class DefinitionOrchestrator(
             AI-generated response text
         """
         try:
-            from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+            from services.ai_service import get_ai_service
 
             logger.debug(
                 f"AI service call: model={model}, temp={temperature}, max_tokens={max_tokens}"
             )
 
-            response = stuur_prompt_naar_gpt(
+            ai_service = get_ai_service()
+            response = ai_service.generate_definition(
                 prompt=prompt,
                 model=model,
-                temperatuur=temperature,
+                temperature=temperature,
                 max_tokens=max_tokens,
             )
 

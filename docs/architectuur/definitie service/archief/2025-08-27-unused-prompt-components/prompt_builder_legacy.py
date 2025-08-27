@@ -96,15 +96,63 @@ class PromptConfiguratie:
     toetsregels: dict[str, dict] = field(default_factory=laad_toetsregels)
 
 
-# ✅ PromptBouwer - genereert de volledige instructietekst
+# ✅ PromptBouwer - FACADE naar modulaire architectuur
 class PromptBouwer:
+    """
+    Legacy PromptBouwer - nu een facade naar het modulaire systeem.
+    
+    Deze klasse behoud de oude interface maar gebruikt intern
+    het nieuwe UnifiedPromptBuilder systeem.
+    """
+    
     def __init__(self, configuratie: PromptConfiguratie):
-        # 💚 Slaat de configuratie op en initialiseert helperdata
+        """
+        Initialize PromptBouwer facade.
+        
+        Args:
+            configuratie: Legacy prompt configuratie
+        """
         self.configuratie = configuratie
-        self.geziene_termen: set[str] = set()
-        self.verboden_startwoorden = laad_verboden_woorden()
         logging.basicConfig(level=logging.INFO)
         self.logger = logging.getLogger(__name__)
+        
+        # Import het nieuwe systeem
+        from services.definition_generator_prompts import UnifiedPromptBuilder
+        from services.definition_generator_config import UnifiedGeneratorConfig
+        from services.definition_generator_context import EnrichedContext
+        
+        self._unified_builder = UnifiedPromptBuilder(None)
+        
+        # Convert legacy config naar nieuwe context
+        self._enriched_context = self._convert_legacy_config_to_context()
+        
+        self.logger.info("PromptBouwer facade geïnitialiseerd met modulaire backend")
+    
+    def _convert_legacy_config_to_context(self) -> 'EnrichedContext':
+        """
+        Convert legacy PromptConfiguratie naar nieuwe EnrichedContext.
+        
+        Returns:
+            EnrichedContext voor het nieuwe systeem
+        """
+        from services.definition_generator_context import EnrichedContext
+        
+        # Convert legacy context_dict naar nieuwe base_context
+        base_context = {}
+        for key, value in self.configuratie.context_dict.items():
+            if isinstance(value, list) and value:
+                base_context[key] = value
+            elif isinstance(value, bool) and value:
+                base_context[key] = [key]  # Convert boolean True naar lijst
+        
+        # Create EnrichedContext
+        return EnrichedContext(
+            base_context=base_context,
+            sources=[],  # Geen legacy sources
+            expanded_terms={},  # Geen legacy expanded terms
+            metadata={},  # Geen legacy metadata
+            confidence_scores={}  # Geen legacy confidence
+        )
 
     def bepaal_woordsoort(self) -> str:
         # 💚 Detecteert automatisch of begrip een werkwoord, deverbaal of naamwoord is
@@ -142,14 +190,59 @@ class PromptBouwer:
                 self.geziene_termen.add(sleutel)
 
     def bouw_prompt(self) -> str:
-        regels: list[str] = []
+        """
+        Bouw prompt met nieuwe modulaire architectuur.
+        
+        Deze method is een facade die intern het UnifiedPromptBuilder
+        systeem gebruikt voor consistency en onderhoud.
+        
+        Returns:
+            Complete prompt string
+            
+        Raises:
+            ValueError: Bij ontbrekend begrip
+        """
         begrip = self.configuratie.begrip
         if not begrip:
-            msg = "Begrip mag niet leeg zijn."
-            raise ValueError(msg)
+            raise ValueError("Begrip mag niet leeg zijn.")
+        
+        try:
+            # Gebruik het nieuwe modulaire systeem
+            prompt = self._unified_builder.build_prompt(
+                begrip=begrip,
+                context=self._enriched_context
+            )
+            
+            self.logger.info(f"Prompt gegenereerd via modulaire architectuur voor '{begrip}'")
+            return prompt
+            
+        except Exception as e:
+            self.logger.error(f"Fout bij genereren prompt via modulair systeem: {e}")
+            # Fallback naar legacy implementatie indien nodig
+            return self._build_legacy_fallback_prompt()
+    
+    def _build_legacy_fallback_prompt(self) -> str:
+        """
+        Minimale fallback prompt builder.
+        
+        Alleen gebruikt als laatste redmiddel wanneer het modulaire
+        systeem faalt. Biedt basis functionaliteit.
+        
+        Returns:
+            Basis fallback prompt
+        """
+        self.logger.warning("Gebruikmaking van legacy fallback prompt builder")
+        
+        begrip = self.configuratie.begrip
+        
+        # Minimale prompt voor fallback
+        return f"""Je bent een expert in beleidsmatige definities voor overheidsgebruik.
+Formuleer een definitie in één enkele zin, zonder toelichting.
 
-        woordsoort = self.bepaal_woordsoort()
-        geselecteerde_regels = self.filter_regels()
+Begrip: {begrip}
+
+Gebruik objectieve, neutrale taal en vermijd vage termen.
+Geef nu de definitie van het begrip **{begrip}** in één enkele zin."""
 
         # ✅ Inleiding
         regels.append(
@@ -305,12 +398,55 @@ Gebruik formuleringen zoals:
 
 # ✅ Functie om prompt aan GPT te sturen (with caching)
 def stuur_prompt_naar_gpt(
-    prompt: str, model: str = "gpt-4", temperatuur: float = 0.01, max_tokens: int = 300
+    prompt: str, model: str = "gpt-5", temperatuur: float = 0.0, max_tokens: int = 300
 ) -> str:
     """
-    ✅ Standaardtemperatuur verlaagd naar 0.01 voor maximale voorspelbaarheid en herhaalbaarheid.
-    ✅ Deze aanpassing zorgt ervoor dat de GPT-output bij gelijke input zo identiek mogelijk blijft.
-    ✅ Now includes intelligent caching to avoid redundant API calls.
+    Legacy function - DEPRECATED.
+    
+    Nu gebruikt nieuwe AI Service voor consistency en betere error handling.
+    Gebruik direct AIService.generate_definition() voor nieuwe code.
+    
+    Args:
+        prompt: De prompt tekst
+        model: OpenAI model naam
+        temperatuur: Temperature waarde
+        max_tokens: Maximum tokens
+        
+    Returns:
+        AI gegenereerde content
+    """
+    try:
+        # Import en gebruik nieuwe AI Service
+        from services.ai_service import get_ai_service
+        
+        service = get_ai_service()
+        return service.generate_definition(
+            prompt=prompt,
+            model=model,
+            temperature=temperatuur,
+            max_tokens=max_tokens
+        )
+        
+    except Exception as e:
+        # Fallback naar legacy implementatie bij problemen
+        logging.warning(f"AI Service fallback: {e}")
+        return _legacy_gpt_call(prompt, model, temperatuur, max_tokens)
+
+
+def _legacy_gpt_call(
+    prompt: str, model: str, temperatuur: float, max_tokens: int
+) -> str:
+    """
+    Legacy GPT call implementatie als fallback.
+    
+    Args:
+        prompt: De prompt tekst
+        model: OpenAI model naam  
+        temperatuur: Temperature waarde
+        max_tokens: Maximum tokens
+        
+    Returns:
+        AI gegenereerde content
     """
     from utils.cache import cache_gpt_call, cached
 

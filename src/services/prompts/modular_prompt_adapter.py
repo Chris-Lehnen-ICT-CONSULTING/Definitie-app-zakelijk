@@ -111,7 +111,10 @@ class ModularPromptAdapter:
                 "default_max_chars": getattr(config, "max_chars", 350),
             },
             "context_awareness": {
-                # Context module heeft geen specifieke config
+                # Enhanced context module configuratie
+                "adaptive_formatting": not config.compact_mode,  # Adaptive formatting uit in compact mode
+                "confidence_indicators": config.enable_component_metadata,  # Confidence indicators bij metadata
+                "include_abbreviations": config.include_examples_in_rules,  # Afkortingen bij examples
             },
             "semantic_categorisation": {
                 # Map detailed guidance setting

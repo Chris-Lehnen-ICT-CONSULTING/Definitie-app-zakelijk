@@ -539,8 +539,8 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
                     max_tokens: int = 500,
                     model: str = "gpt-4",
                 ):
-                    """Use prompt_builder.prompt_builder.stuur_prompt_naar_gpt"""
-                    from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+                    """Use services.ai_service.AIService"""
+                    from services.ai_service import get_ai_service
 
                     class MockResponse:
                         def __init__(self, text):
@@ -548,9 +548,10 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
                             self.model = model
                             self.tokens_used = len(text.split()) * 1.3  # Rough estimate
 
-                    response_text = stuur_prompt_naar_gpt(
+                    ai_service = get_ai_service()
+                    response_text = ai_service.generate_definition(
                         prompt=prompt,
-                        temperatuur=temperature,
+                        temperature=temperature,
                         max_tokens=max_tokens,
                         model=model,
                     )
