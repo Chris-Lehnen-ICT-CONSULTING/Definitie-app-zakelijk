@@ -12,7 +12,7 @@ Deze wijzigingen zijn automatisch toegepast door pre-commit hooks (black/ruff) e
 - Lege regel toegevoegd na regel 15 (tussen imports)
 - Whitespace verwijderd op regels 33, 214, 275
 
-#### 2. src/services/definition_orchestrator.py  
+#### 2. src/services/definition_orchestrator.py
 **Wijzigingen:**
 - Import toegevoegd: `from config.config_manager import get_default_model, get_default_temperature`
 - Whitespace formatting fixes
