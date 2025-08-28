@@ -193,7 +193,7 @@ class ExpertiseModule(BasePromptModule):
         """
         return """BELANGRIJKE VEREISTEN:
 - Gebruik objectieve, neutrale taal
-- Vermijd vage of subjectieve termen  
+- Vermijd vage of subjectieve termen
 - Focus op de essentie van het begrip
 - Wees precies en ondubbelzinnig
 - Vermijd normatieve of evaluatieve uitspraken"""

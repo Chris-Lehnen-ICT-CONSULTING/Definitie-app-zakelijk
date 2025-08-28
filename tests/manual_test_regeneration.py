@@ -274,9 +274,8 @@ def main():
             print("✅ GVI Rode Kabel architectuur correct geïmplementeerd")
             print("✅ Category regeneration flow werkt end-to-end")
             return True
-        else:
-            print("❌ Some tests failed")
-            return False
+        print("❌ Some tests failed")
+        return False
 
     except Exception as e:
         print(f"❌ Test suite failed with error: {e}")

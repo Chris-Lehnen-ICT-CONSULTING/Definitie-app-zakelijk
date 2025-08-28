@@ -7,6 +7,7 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
+
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,

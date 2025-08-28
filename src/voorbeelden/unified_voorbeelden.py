@@ -18,6 +18,9 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
+from config.config_manager import (
+    get_component_config,  # Centrale component configuratie
+)
 from services.ai_service import get_ai_service  # Modern AI service interface
 from utils.cache import cached  # Caching decorator voor performance optimalisatie
 
@@ -27,10 +30,6 @@ from utils.integrated_resilience import (  # Volledig resilience systeem
 )
 from utils.smart_rate_limiter import (  # Smart rate limiting voor API calls
     RequestPriority,
-)
-
-from config.config_manager import (
-    get_component_config,  # Centrale component configuratie
 )
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module

@@ -462,9 +462,8 @@ def main():
             print("✅ User experience significantly improved")
             print("✅ Direct regeneration with preview works end-to-end")
             return True
-        else:
-            print(f"❌ {len(failed_tests)} tests failed: {', '.join(failed_tests)}")
-            return False
+        print(f"❌ {len(failed_tests)} tests failed: {', '.join(failed_tests)}")
+        return False
 
     except Exception as e:
         print(f"❌ Test suite failed with error: {e}")

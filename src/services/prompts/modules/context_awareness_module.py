@@ -60,7 +60,7 @@ class ContextAwarenessModule(BasePromptModule):
 
     def validate_input(
         self, context: ModuleContext
-    ) -> tuple[bool, str | None]:  # noqa: ARG002
+    ) -> tuple[bool, str | None]:
         """
         Valideer input - deze module werkt altijd (ook bij geen context).
 
