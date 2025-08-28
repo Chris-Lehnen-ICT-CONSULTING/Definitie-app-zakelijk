@@ -1,0 +1,2229 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Definitie Generator - Modulaire Architectuur Visualisatie</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .stats {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .stat-item {
+            display: inline-block;
+            margin: 0 20px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .stat-green {
+            background: #4CAF50;
+            color: white;
+        }
+        .stat-yellow {
+            background: #FFC107;
+            color: #333;
+        }
+        .stat-red {
+            background: #f44336;
+            color: white;
+        }
+        .architecture-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .layer {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .layer-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #34495e;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #ecf0f1;
+            border-radius: 5px;
+        }
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 10px;
+        }
+        .service {
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid #e0e0e0;
+            position: relative;
+            overflow: hidden;
+        }
+        .service:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .service.implemented {
+            background: #E8F5E9;
+            border-color: #4CAF50;
+        }
+        .service.partial {
+            background: #FFF9C4;
+            border-color: #FFC107;
+        }
+        .service.not-implemented {
+            background: #FFEBEE;
+            border-color: #f44336;
+        }
+        .service-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 0.9em;
+        }
+        .service-status {
+            font-size: 0.75em;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .service-file {
+            font-size: 0.7em;
+            color: #888;
+            font-family: monospace;
+            word-break: break-all;
+        }
+        .click-hint {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.6em;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .service:hover .click-hint {
+            opacity: 1;
+        }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 0;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            padding: 20px;
+            background-color: #2c3e50;
+            color: white;
+            border-radius: 10px 10px 0 0;
+        }
+        .modal-header h2 {
+            margin: 0;
+            font-size: 1.5em;
+        }
+        .modal-body {
+            padding: 20px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        .close {
+            color: white;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .close:hover,
+        .close:focus {
+            color: #ddd;
+        }
+        .detail-section {
+            margin-bottom: 20px;
+        }
+        .detail-section h3 {
+            color: #2c3e50;
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 5px;
+            margin-bottom: 10px;
+        }
+        .code-block {
+            background: #f4f4f4;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.9em;
+            line-height: 1.4;
+            margin: 10px 0;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-right: 10px;
+        }
+        .badge-implemented {
+            background: #4CAF50;
+            color: white;
+        }
+        .badge-partial {
+            background: #FFC107;
+            color: #333;
+        }
+        .badge-not-implemented {
+            background: #f44336;
+            color: white;
+        }
+        .file-path {
+            font-family: monospace;
+            background: #e8e8e8;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 0.85em;
+        }
+        .prompt-components {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .component-item {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .component-implemented {
+            background: #d4edda;
+        }
+        .component-not-implemented {
+            background: #f8d7da;
+        }
+        .legend {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .legend-item {
+            display: inline-block;
+            margin-right: 20px;
+        }
+        .legend-color {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border-radius: 3px;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏗️ Definitie Generator - Modulaire Architectuur</h1>
+        <h2 style="text-align: center; color: #e74c3c; margin: 10px 0;">⚠️ Werkelijke Status vs Blueprint Claims</h2>
+
+        <div class="stats">
+            <div class="stat-item stat-green">✅ Geïmplementeerd: 12</div>
+            <div class="stat-item stat-yellow">⚠️ Gedeeltelijk: 1</div>
+            <div class="stat-item stat-red">❌ Ontbrekend: 16</div>
+            <div class="stat-item" style="background: #3498db; color: white;">📊 Totaal: 29 services</div>
+        </div>
+
+        <div class="stats" style="background: #fee; border: 2px solid #f44336; margin-top: 10px;">
+            <h3 style="margin: 10px 0; color: #c62828;">Session State Reality Check:</h3>
+            <div class="stat-item" style="background: #4CAF50; color: white;">✅ Services Layer: 98% Clean</div>
+            <div class="stat-item" style="background: #f44336; color: white;">❌ UI Layer: 0% Gemigreerd</div>
+            <div class="stat-item" style="background: #FF9800; color: white;">⚠️ 63 Session State References</div>
+            <div class="stat-item" style="background: #9C27B0; color: white;">🎭 "85%" = Business Logic Only</div>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <span class="legend-color" style="background: #4CAF50;"></span>
+                <span>Volledig Geïmplementeerd</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #FFC107;"></span>
+                <span>Gedeeltelijk Geïmplementeerd</span>
+            </div>
+            <div class="legend-item">
+                <span class="legend-color" style="background: #f44336;"></span>
+                <span>Nog Niet Geïmplementeerd</span>
+            </div>
+            <div class="legend-item">
+                <strong>💡 Klik op een service voor details</strong>
+            </div>
+        </div>
+
+        <div class="architecture-grid">
+            <!-- Layer 1: UI Layer -->
+            <div class="layer">
+                <div class="layer-title">Layer 1: UI Layer (Session-Free)</div>
+                <div class="services-grid">
+                    <div class="service not-implemented" onclick="showModal('streamlit-ui')">
+                        <div class="service-name">Streamlit UI</div>
+                        <div class="service-status">❌ 0% Gemigreerd - 63 session state refs</div>
+                        <div class="service-file">src/ui/session_state.py (40 refs)</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('rest-api')">
+                        <div class="service-name">REST API</div>
+                        <div class="service-status">❌ Niet Geïmplementeerd</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('cli-interface')">
+                        <div class="service-name">CLI Interface</div>
+                        <div class="service-status">❌ Niet Geïmplementeerd</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 2: Facade Layer -->
+            <div class="layer">
+                <div class="layer-title">Layer 2: Facade Layer (Bridge Pattern)</div>
+                <div class="services-grid">
+                    <div class="service not-implemented" onclick="showModal('definition-ui-facade')">
+                        <div class="service-name">DefinitionUIFacade</div>
+                        <div class="service-status">❌ Niet Geïmplementeerd</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service partial" onclick="showModal('ui-components-adapter')">
+                        <div class="service-name">UIComponentsAdapter</div>
+                        <div class="service-status">⚠️ Bridge Pattern - Nog Session State</div>
+                        <div class="service-file">src/ui/components_adapter.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 3: Orchestration Layer -->
+            <div class="layer">
+                <div class="layer-title">Layer 3: Orchestration Layer (Stateless)</div>
+                <div class="services-grid">
+                    <div class="service implemented" onclick="showModal('definition-orchestrator-v2')">
+                        <div class="service-name">DefinitionOrchestratorV2</div>
+                        <div class="service-status">✅ Volledig Geïmplementeerd</div>
+                        <div class="service-file">src/services/orchestrators/definition_orchestrator_v2.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service implemented" onclick="showModal('workflow-service')">
+                        <div class="service-name">WorkflowService</div>
+                        <div class="service-status">✅ Geïmplementeerd</div>
+                        <div class="service-file">src/services/workflow_service.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service implemented" onclick="showModal('regeneration-service')">
+                        <div class="service-name">RegenerationService</div>
+                        <div class="service-status">✅ Geïmplementeerd</div>
+                        <div class="service-file">src/services/regeneration_service.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 4: Core Business Services -->
+            <div class="layer">
+                <div class="layer-title">Layer 4: Core Business Services (Clean)</div>
+                <div class="services-grid">
+                    <div class="service implemented" onclick="showModal('prompt-service-v2')">
+                        <div class="service-name">PromptServiceV2</div>
+                        <div class="service-status">✅ Geïmplementeerd</div>
+                        <div class="service-file">src/services/prompts/prompt_service_v2.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('intelligent-ai-service')">
+                        <div class="service-name">IntelligentAIService</div>
+                        <div class="service-status">❌ Alleen Interface</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('validation-service-v2')">
+                        <div class="service-name">ValidationServiceV2</div>
+                        <div class="service-status">❌ Alleen Interface</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('enhancement-service')">
+                        <div class="service-name">EnhancementService</div>
+                        <div class="service-status">❌ Alleen Interface</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('security-service')">
+                        <div class="service-name">SecurityService</div>
+                        <div class="service-status">❌ Niet Geïmplementeerd</div>
+                        <div class="service-file">src/services/security/ (leeg)</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 5: Component Layer -->
+            <div class="layer">
+                <div class="layer-title">Layer 5: Component Layer (Modular)</div>
+                <div class="services-grid">
+                    <div class="service implemented" onclick="showModal('prompt-orchestrator')">
+                        <div class="service-name">PromptOrchestrator</div>
+                        <div class="service-status">✅ Via ModularPromptBuilder</div>
+                        <div class="service-file">src/services/prompts/modular_prompt_builder.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('feedback-engine')">
+                        <div class="service-name">FeedbackEngine</div>
+                        <div class="service-status">❌ GVI Rode Kabel ontbreekt</div>
+                        <div class="service-file">src/services/feedback/ (leeg)</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service implemented" onclick="showModal('prompt-components')">
+                        <div class="service-name">PromptComponents</div>
+                        <div class="service-status">⚠️ 3/6 Componenten</div>
+                        <div class="service-file">src/services/prompts/modular_prompt_builder.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('token-optimizer')">
+                        <div class="service-name">TokenOptimizer</div>
+                        <div class="service-status">❌ Niet Geïmplementeerd</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 6: Infrastructure -->
+            <div class="layer">
+                <div class="layer-title">Layer 6: Infrastructure (Stateless)</div>
+                <div class="services-grid">
+                    <div class="service implemented" onclick="showModal('data-aggregation-service')">
+                        <div class="service-name">DataAggregationService ⭐</div>
+                        <div class="service-status">✅ GOED VOORBEELD - Stateless Pattern</div>
+                        <div class="service-file">src/services/data_aggregation_service.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service partial" onclick="showModal('monitoring-service')">
+                        <div class="service-name">MonitoringService</div>
+                        <div class="service-status">⚠️ Gedeeltelijk</div>
+                        <div class="service-file">src/services/definition_generator_monitoring.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('cache-service')">
+                        <div class="service-name">CacheService</div>
+                        <div class="service-status">❌ Niet als Service</div>
+                        <div class="service-file">src/ui/cache_manager.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service implemented" onclick="showModal('service-container')">
+                        <div class="service-name">ServiceContainer</div>
+                        <div class="service-status">✅ Basis DI Container</div>
+                        <div class="service-file">src/services/container.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Layer 7: Data Layer -->
+            <div class="layer">
+                <div class="layer-title">Layer 7: Data Layer</div>
+                <div class="services-grid">
+                    <div class="service implemented" onclick="showModal('definition-repository')">
+                        <div class="service-name">DefinitionRepository</div>
+                        <div class="service-status">✅ Geïmplementeerd</div>
+                        <div class="service-file">src/services/definition_repository.py</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                    <div class="service not-implemented" onclick="showModal('configuration-repository')">
+                        <div class="service-name">ConfigurationRepository</div>
+                        <div class="service-status">❌ Niet Geïmplementeerd</div>
+                        <div class="service-file">-</div>
+                        <span class="click-hint">Klik voor details</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Special Section: Modular Prompt Builder -->
+            <div class="layer" style="background: #e3f2fd;">
+                <div class="layer-title" style="background: #1976d2; color: white;">🔧 Modulaire Prompt Builder - Detail</div>
+                <div class="prompt-components">
+                    <h3>Prompt Componenten Status:</h3>
+                    <div class="component-item component-implemented">
+                        <span>✅ Component 1: Rol & Basis Instructies</span>
+                        <span class="file-path">_build_role_and_basic_rules()</span>
+                    </div>
+                    <div class="component-item component-implemented">
+                        <span>✅ Component 2: Context Sectie</span>
+                        <span class="file-path">_build_context_section()</span>
+                    </div>
+                    <div class="component-item component-implemented">
+                        <span>✅ Component 3: Ontologische Categorie Sectie</span>
+                        <span class="file-path">_build_ontological_section()</span>
+                    </div>
+                    <div class="component-item component-not-implemented">
+                        <span>❌ Component 4: Validatie Regels Sectie</span>
+                        <span class="file-path">_build_validation_rules_section()</span>
+                    </div>
+                    <div class="component-item component-not-implemented">
+                        <span>❌ Component 5: Verboden Woorden & Patronen</span>
+                        <span class="file-path">_build_forbidden_patterns_section()</span>
+                    </div>
+                    <div class="component-item component-implemented">
+                        <span>✅ Component 6: Afsluitende Instructies</span>
+                        <span class="file-path">_build_final_instructions_section()</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Template -->
+    <div id="detailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="close">&times;</span>
+                <h2 id="modalTitle">Service Details</h2>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- Content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Service details data
+        const serviceDetails = {
+            'definition-orchestrator-v2': {
+                title: 'DefinitionOrchestratorV2',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Volledig Geïmplementeerd</span>
+                        <span class="file-path">src/services/orchestrators/definition_orchestrator_v2.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Next-generation stateless orchestrator die de monolithische _generate_definition() vervangt met een clean 11-phase flow. Coördineert alle services voor definitiegeneratie zonder session state dependencies.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📋 11 Orchestration Phases</h3>
+                        <ol>
+                            <li><strong>Security & Privacy</strong> - DPIA/AVG Compliance via SecurityService</li>
+                            <li><strong>Feedback Integration</strong> - GVI Rode Kabel feedback laden</li>
+                            <li><strong>Intelligent Prompt Generation</strong> - Modulaire prompt building</li>
+                            <li><strong>AI Generation</strong> - Met retry logic</li>
+                            <li><strong>Text Cleaning</strong> - Normalisatie via CleaningService</li>
+                            <li><strong>Validation</strong> - Toetsregels validatie</li>
+                            <li><strong>Enhancement</strong> - Bij validation failures</li>
+                            <li><strong>Definition Object Creation</strong> - Met alle metadata</li>
+                            <li><strong>Storage</strong> - Conditioneel op quality gate</li>
+                            <li><strong>Feedback Loop Update</strong> - Voor continue verbetering</li>
+                            <li><strong>Monitoring & Metrics</strong> - Performance tracking</li>
+                        </ol>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Code Voorbeeld</h3>
+                        <div class="code-block">
+async def create_definition(
+    self,
+    request: GenerationRequest,
+    context: Optional[Dict[str, Any]] = None
+) -> DefinitionResponse:
+    """Main orchestration method - stateless and testable."""
+    start_time = time.time()
+    generation_id = request.id
+
+    # Phase 1: Security & Privacy
+    sanitized_request = await self.security.sanitize_request(request)
+
+    # Phase 2: Feedback Integration
+    feedback_history = await self.feedback_engine.get_feedback_for_request(
+        request.begrip,
+        request.ontologische_categorie
+    )
+
+    # ... [rest of 11 phases]
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚙️ Dependencies</h3>
+                        <ul>
+                            <li>PromptServiceV2 - Voor prompt generatie</li>
+                            <li>IntelligentAIService - Voor AI calls</li>
+                            <li>ValidationServiceV2 - Voor toetsregels</li>
+                            <li>EnhancementService - Voor verbetering</li>
+                            <li>SecurityService - Voor PII redactie</li>
+                            <li>CleaningService - Voor text normalisatie</li>
+                            <li>DefinitionRepository - Voor opslag</li>
+                            <li>MonitoringService - Voor metrics</li>
+                            <li>FeedbackEngine - Voor GVI Rode Kabel</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'prompt-service-v2': {
+                title: 'PromptServiceV2',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Geïmplementeerd</span>
+                        <span class="file-path">src/services/prompts/prompt_service_v2.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Next-generation prompt service met modulaire componenten en feedback integratie. Vervangt monolithische prompt building met component-based architectuur.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔑 Key Features</h3>
+                        <ul>
+                            <li>Modulaire prompt componenten via PromptOrchestrator</li>
+                            <li>GVI Rode Kabel feedback integratie</li>
+                            <li>Token optimalisatie (max 10k tokens)</li>
+                            <li>Intelligent caching met TTL</li>
+                            <li>Performance monitoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Core Method</h3>
+                        <div class="code-block">
+async def build_generation_prompt(
+    self,
+    request: GenerationRequest,
+    feedback_history: Optional[List[Dict]] = None,
+    context: Optional[Dict[str, Any]] = None
+) -> PromptResult:
+    """Build intelligent prompt with feedback integration."""
+
+    # Check cache first
+    cache_key = self._generate_cache_key(request, feedback_history)
+    if cached := await self.cache.get(cache_key):
+        return cached
+
+    # Build using modular orchestrator
+    raw_result = await self.orchestrator.build_prompt(
+        request=request,
+        feedback_history=feedback_history,
+        context=context
+    )
+
+    # Apply token optimization if needed
+    if raw_result.token_count > self.config.max_token_limit:
+        optimized_result = await self.orchestrator.optimize_to_limit(
+            raw_result,
+            self.config.max_token_limit
+        )
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📊 Output Format</h3>
+                        <div class="code-block">
+@dataclass
+class PromptResult:
+    text: str                    # Generated prompt text
+    token_count: int            # Token count
+    components_used: List[str]  # Which components were used
+    feedback_integrated: bool   # Was feedback integrated
+    optimization_applied: bool  # Was optimization needed
+    metadata: Dict[str, Any]    # Additional metadata
+                        </div>
+                    </div>
+                `
+            },
+            'modular-prompt-builder': {
+                title: 'ModularPromptBuilder',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Geïmplementeerd</span>
+                        <span class="file-path">src/services/prompts/modular_prompt_builder.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Splitst de monolithische 17k karakter ESS-02 prompt op in 6 configureerbare componenten. Elke component is apart testbaar en configureerbaar.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🧩 Prompt Componenten</h3>
+                        <ol>
+                            <li>
+                                <strong>✅ Rol & Basis Instructies</strong>
+                                <div class="code-block">def _build_role_and_basic_rules(self, begrip: str) -> str:
+    """Expert rol en fundamentele schrijfregels."""
+    return f"""Je bent een expert in beleidsmatige definities...
+    Geef nu de definitie van het begrip **{begrip}** in één enkele zin."""</div>
+                            </li>
+                            <li>
+                                <strong>✅ Context Sectie</strong> - Organisatorische en domein context (ADAPTIEF)
+                            </li>
+                            <li>
+                                <strong>✅ Ontologische Categorie Sectie ⭐</strong>
+                                <div class="code-block"># Category-specific guidance voor:
+- proces: "is een activiteit waarbij..."
+- type: "is een soort..."
+- resultaat: "is het resultaat van..."
+- exemplaar: "is een specifiek exemplaar van..."</div>
+                            </li>
+                            <li>
+                                <strong>❌ Validatie Regels Sectie</strong> - Alle toetsregels (CON, ESS, STR, etc.)
+                            </li>
+                            <li>
+                                <strong>❌ Verboden Woorden & Patronen</strong> - Veelgemaakte fouten
+                            </li>
+                            <li>
+                                <strong>✅ Afsluitende Instructies</strong> - Metadata en laatste checks
+                            </li>
+                        </ol>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚙️ Configuratie</h3>
+                        <div class="code-block">
+@dataclass
+class PromptComponentConfig:
+    include_role: bool = True
+    include_context: bool = True
+    include_ontological: bool = True
+    include_validation_rules: bool = True
+    include_forbidden_patterns: bool = True
+    include_final_instructions: bool = True
+
+    # Per-category customization
+    detailed_category_guidance: bool = True
+    include_examples_in_rules: bool = True
+    compact_mode: bool = False  # Voor kortere prompts
+                        </div>
+                    </div>
+                `
+            },
+            'security-service': {
+                title: 'SecurityService',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet Geïmplementeerd</span>
+                        <span class="file-path">src/services/security/ (leeg)</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>DPIA/AVG compliant security service voor PII detectie en redactie. Implementeert privacy-by-design voor JenV/migratieketen context.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔐 Geplande Features</h3>
+                        <ul>
+                            <li>PII Pattern Detection (BSN, geboortedatum, naam, adres, etc.)</li>
+                            <li>Automatische PII Redactie</li>
+                            <li>Data Minimalisatie (max 4000 chars)</li>
+                            <li>Legal Basis Validatie (AVG Art. 6)</li>
+                            <li>Privacy Impact Assessment generatie</li>
+                            <li>Audit logging zonder PII blootstelling</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Voorgestelde Implementatie</h3>
+                        <div class="code-block">
+# PII Patterns voor Nederlandse overheidscontext
+PII_PATTERNS = [
+    PIIPattern(
+        name="BSN",
+        pattern=re.compile(r"\b(?:BSN|burgerservicenummer)[:\s]*\d{8,9}\b"),
+        replacement="[BSN-REDACTED]",
+        confidence=0.95
+    ),
+    PIIPattern(
+        name="geboortedatum",
+        pattern=re.compile(r"\b(?:geboortedatum|DOB|geboren)[:\s]*\d{1,2}[-/]\d{1,2}[-/]\d{4}\b"),
+        replacement="[DATUM-REDACTED]",
+        confidence=0.90
+    )
+]
+
+async def sanitize_request(self, request: GenerationRequest) -> GenerationRequest:
+    """Sanitize generation request for privacy compliance."""
+    sanitized_context, report = self._sanitize_text(request.context)
+    # Apply data minimization
+    if len(sanitized_context) > self.max_context_length:
+        sanitized_context = sanitized_context[:self.max_context_length]
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚠️ Impact van Ontbreken</h3>
+                        <ul>
+                            <li>Geen DPIA/AVG compliance</li>
+                            <li>Risico op PII in prompts naar AI</li>
+                            <li>Geen audit trail voor privacy</li>
+                            <li>Niet compliant met overheidsstandaarden</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'feedback-engine': {
+                title: 'FeedbackEngine',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet Geïmplementeerd</span>
+                        <span class="file-path">src/services/feedback/ (leeg)</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>GVI Rode Kabel implementatie - verwerkt validatie feedback en integreert dit in toekomstige prompt generatie voor iteratieve kwaliteitsverbetering.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔄 Geplande Features</h3>
+                        <ul>
+                            <li>Feedback processing van validation failures</li>
+                            <li>Pattern detectie in veelvoorkomende fouten</li>
+                            <li>Feedback integratie in prompts</li>
+                            <li>Lerende feedback loop</li>
+                            <li>User correction tracking</li>
+                            <li>Category-specific feedback patterns</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Core Workflow</h3>
+                        <div class="code-block">
+async def process_validation_feedback(
+    self,
+    definition_id: str,
+    validation_result: ValidationResult,
+    original_request: GenerationRequest
+) -> FeedbackEntry:
+    """Process validation feedback for GVI Rode Kabel integration."""
+
+    feedback_entry = FeedbackEntry(
+        begrip=original_request.begrip,
+        ontologische_categorie=original_request.ontologische_categorie,
+        feedback_type=FeedbackType.VALIDATION_FAILURE,
+        violations=[v.rule_id for v in validation_result.violations],
+        suggestions=validation_result.suggestions,
+        original_definition=validation_result.definition_text
+    )
+
+    # Store for future use
+    await self.repository.save_feedback_entry(feedback_entry)
+
+    # Update active learning context
+    self._update_context_patterns(feedback_entry)
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📊 Feedback Format voor Prompts</h3>
+                        <div class="code-block">
+{
+    "attempt_number": 1,
+    "definition": "originele poging...",
+    "violations": ["CON-01", "ESS-01"],
+    "suggestions": ["Vermijd circulaire redenering", "Focus op essentie"],
+    "focus_areas": ["Avoid circular reasoning", "Include essential elements"],
+    "improvement_hints": ["Define without using term itself", "Start with what IS"]
+}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚠️ Impact van Ontbreken</h3>
+                        <ul>
+                            <li>Geen lerende feedback loop</li>
+                            <li>Herhaalde fouten in definities</li>
+                            <li>Geen continue kwaliteitsverbetering</li>
+                            <li>GVI Rode Kabel niet geïmplementeerd</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'intelligent-ai-service': {
+                title: 'IntelligentAIService',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Alleen Interface</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>Intelligente AI service die model selectie, retry logic, en response parsing handled. Vervangt directe OpenAI/Anthropic calls met abstractie layer.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🤖 Geplande Features</h3>
+                        <ul>
+                            <li>Multi-model support (GPT-4, Claude, etc.)</li>
+                            <li>Intelligente model selectie op basis van task</li>
+                            <li>Automatic retry met exponential backoff</li>
+                            <li>Response parsing en validatie</li>
+                            <li>Token counting en cost tracking</li>
+                            <li>Streaming support voor real-time feedback</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Interface Definitie</h3>
+                        <div class="code-block">
+async def generate_definition(
+    self,
+    prompt: str,
+    temperature: float = 0.7,
+    max_tokens: int = 500,
+    model: str = "gpt-4"
+) -> AIGenerationResult:
+    """Generate definition using intelligent model selection."""
+
+    # Select optimal model based on task complexity
+    selected_model = self._select_model(prompt, model)
+
+    # Execute with retry logic
+    for attempt in range(self.max_retries):
+        try:
+            response = await self._call_model(
+                selected_model,
+                prompt,
+                temperature,
+                max_tokens
+            )
+            return self._parse_response(response)
+        except RateLimitError:
+            await self._exponential_backoff(attempt)
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚠️ Huidige Workaround</h3>
+                        <p>Orchestrator gebruikt waarschijnlijk directe API calls of legacy AI service. Geen abstractie of intelligente features.</p>
+                    </div>
+                `
+            },
+            'prompt-components': {
+                title: 'PromptComponents',
+                status: 'partial',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-partial">⚠️ 4/6 Componenten Geïmplementeerd</span>
+                        <span class="file-path">src/services/prompts/modular_prompt_builder.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🧩 Component Status</h3>
+                        <table style="width: 100%; border-collapse: collapse;">
+                            <tr style="background: #f5f5f5;">
+                                <th style="padding: 10px; border: 1px solid #ddd;">Component</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Status</th>
+                                <th style="padding: 10px; border: 1px solid #ddd;">Functie</th>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Component 1: Rol & Basis</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">✅ Geïmplementeerd</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Expert rol, basis instructies</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px; border: 1px solid #ddd;">Component 2: Context</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">✅ Geïmplementeerd</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Organisatorische/domein context</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Component 3: Ontologisch ⭐</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">✅ Geïmplementeerd</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Category-specific guidance</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px; border: 1px solid #ddd;">Component 4: Validatie</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">❌ Ontbreekt</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Toetsregels (CON, ESS, STR)</td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Component 5: Verboden</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">❌ Ontbreekt</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Forbidden patterns</td>
+                            </tr>
+                            <tr style="background: #f9f9f9;">
+                                <td style="padding: 10px; border: 1px solid #ddd;">Component 6: Finale</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">✅ Geïmplementeerd</td>
+                                <td style="padding: 10px; border: 1px solid #ddd;">Laatste instructies</td>
+                            </tr>
+                        </table>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🌟 Component 3: Ontologische Categorie (Kern)</h3>
+                        <div class="code-block">
+category_guidance = {
+    "proces": """Gebruik formuleringen zoals:
+    - 'is een activiteit waarbij...'
+    - 'is het proces waarin...'
+    ⚠️ Focus op de HANDELING en het VERLOOP.""",
+
+    "type": """Gebruik formuleringen zoals:
+    - 'is een soort...'
+    - 'betreft een categorie van...'
+    ⚠️ Focus op CLASSIFICATIE en ONDERSCHEIDENDE KENMERKEN.""",
+
+    "resultaat": """Gebruik formuleringen zoals:
+    - 'is het resultaat van...'
+    - 'is de uitkomst van...'
+    ⚠️ Focus op OORSPRONG en GEVOLG.""",
+
+    "exemplaar": """Gebruik formuleringen zoals:
+    - 'is een specifiek exemplaar van...'
+    - 'betreft een individueel geval van...'
+    ⚠️ Focus op SPECIFICITEIT en INDIVIDUALITEIT."""
+}
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📊 Impact Analyse</h3>
+                        <p><strong>Met 4/6 componenten:</strong> Basis functionaliteit werkt, ontologische categorieën worden correct verwerkt.</p>
+                        <p><strong>Ontbrekende componenten:</strong> Validatie regels en verboden patronen ontbreken, wat kan leiden tot meer validation failures.</p>
+                    </div>
+                `
+            },
+            'data-aggregation-service': {
+                title: 'DataAggregationService',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Correct Geïmplementeerd - Geen Session State</span>
+                        <span class="file-path">src/services/data_aggregation_service.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Dit is het GOEDE Voorbeeld</h3>
+                        <p><strong>Deze service toont HOE het moet:</strong> Geen session state dependencies, data wordt als parameters doorgegeven.</p>
+
+                        <div class="code-block" style="background: #e8f5e9;">
+# ✅ CORRECT PATTERN:
+def aggregate_definitie_for_export(
+    self,
+    definitie_id: int | None = None,
+    definitie_record: DefinitieRecord | None = None,
+    additional_data: dict[str, Any] | None = None
+) -> DefinitieExportData:
+    """Data wordt expliciet doorgegeven, GEEN session state access."""
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>✨ Key Features</h3>
+                        <ul>
+                            <li>Session state elimination pattern</li>
+                            <li>Clean data aggregation</li>
+                            <li>Multiple source support</li>
+                            <li>Type-safe data structures</li>
+                            <li>Stateless operations</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Session State Elimination Pattern</h3>
+                        <div class="code-block">
+def aggregate_definition_data(
+    self,
+    ui_state: Dict[str, Any]  # Explicitly passed, not accessed
+) -> AggregatedData:
+    """Transform UI state to clean data structure."""
+
+    # Extract and transform data
+    return AggregatedData(
+        begrip=ui_state.get("begrip"),
+        context=self._extract_context(ui_state),
+        metadata=self._extract_metadata(ui_state),
+        options=self._extract_options(ui_state)
+    )
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🏆 Success Pattern</h3>
+                        <p>Dit is het bewezen pattern dat 85% session state eliminatie heeft bereikt. Wordt gebruikt als template voor andere services.</p>
+                    </div>
+                `
+            },
+            'definition-ui-facade': {
+                title: 'DefinitionUIFacade',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet Geïmplementeerd</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>UI Facade following proven session state elimination pattern. Bridge tussen UI layer en clean services zonder session state dependencies.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🌉 Bridge Pattern Features</h3>
+                        <ul>
+                            <li>UI state naar clean request transformatie</li>
+                            <li>Response formatting voor UI</li>
+                            <li>Error handling en user feedback</li>
+                            <li>Progress tracking zonder session state</li>
+                            <li>Batch operations support</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Voorgestelde Implementatie</h3>
+                        <div class="code-block">
+class DefinitionUIFacade:
+    """UI Facade following proven session state elimination pattern."""
+
+    def __init__(self, orchestrator: DefinitionOrchestratorV2):
+        self.orchestrator = orchestrator
+
+    def generate_definition_from_ui(
+        self,
+        ui_state: dict  # Explicitly passed, not accessed
+    ) -> DefinitionResponse:
+        """Transform UI state to clean service call."""
+        request = self._transform_ui_to_request(ui_state)
+        return await self.orchestrator.create_definition(request)
+
+    def _transform_ui_to_request(self, ui_state: dict) -> GenerationRequest:
+        """Transform UI state to clean service parameters."""
+        return GenerationRequest(
+            id=str(uuid.uuid4()),
+            begrip=ui_state.get("begrip", ""),
+            ontologische_categorie=ui_state.get("categorie"),
+            context=ui_state.get("context"),
+            domein=ui_state.get("domein"),
+            actor=ui_state.get("voorgesteld_door"),
+            legal_basis="legitimate_interest"
+        )
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚠️ Impact van Ontbreken</h3>
+                        <ul>
+                            <li>UI blijft direct gekoppeld aan services</li>
+                            <li>Session state dependencies blijven bestaan</li>
+                            <li>Moeilijker te testen UI logic</li>
+                            <li>Geen clean separation of concerns</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'service-container': {
+                title: 'ServiceContainer',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Basis Implementatie</span>
+                        <span class="file-path">src/services/container.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Basis dependency injection container voor service registratie en lifecycle management. Ondersteunt singleton en transient services.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📦 Features</h3>
+                        <ul>
+                            <li>Service registratie met lifecycle</li>
+                            <li>Singleton pattern support</li>
+                            <li>Lazy initialization</li>
+                            <li>Type-safe service resolution</li>
+                            <li>Basic dependency graph</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Gebruik</h3>
+                        <div class="code-block">
+# Service registratie
+container = ServiceContainer()
+container.register_singleton(
+    'definition_service',
+    lambda: DefinitionOrchestrator(...)
+)
+
+# Service resolution
+definition_service = container.get('definition_service')
+
+# Lifecycle management
+container.dispose()  # Clean shutdown
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔄 Uitbreidingsmogelijkheden</h3>
+                        <ul>
+                            <li>Scoped lifetime support</li>
+                            <li>Auto-wiring capabilities</li>
+                            <li>Configuration integration</li>
+                            <li>Health check support</li>
+                            <li>Service decorators</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'streamlit-ui': {
+                title: 'Streamlit UI',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ 0% Gemigreerd naar Stateless</span>
+                        <span class="file-path">63 session state references gevonden</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🚨 Werkelijke Situatie</h3>
+                        <p><strong>De UI layer is NIET gemigreerd naar stateless patterns.</strong> Er zijn 63 directe session state references verspreid over de UI componenten.</p>
+
+                        <h4>Session State Usage per File:</h4>
+                        <ul>
+                            <li><code>src/ui/session_state.py</code>: 40 references (centrale manager)</li>
+                            <li><code>src/ui/components/external_sources_tab.py</code>: 9 references</li>
+                            <li><code>src/ui/components/management_tab.py</code>: 6 references</li>
+                            <li><code>src/ui/components/export_tab.py</code>: 3 references</li>
+                            <li><code>src/ui/async_progress.py</code>: 1 reference</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔧 Aanwezige Componenten</h3>
+                        <ul>
+                            <li>src/ui/tabbed_interface.py - Hoofdinterface</li>
+                            <li>src/ui/components/ - Tab componenten</li>
+                            <li>src/ui/components_adapter.py - Service bridge</li>
+                            <li>src/ui/cache_manager.py - Caching logic</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚠️ Session State Dependencies</h3>
+                        <ul>
+                            <li>st.session_state gebruikt door alle componenten</li>
+                            <li>Directe service calls vanuit UI</li>
+                            <li>State management verspreid over tabs</li>
+                            <li>Geen clean separation tussen UI en business logic</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Gewenste Architectuur</h3>
+                        <div class="code-block">
+# Stateless UI component pattern
+def render_definition_tab(facade: DefinitionUIFacade):
+    """Render definition tab zonder session state."""
+
+    # Collect user input
+    ui_data = {
+        "begrip": st.text_input("Begrip"),
+        "context": st.text_area("Context"),
+        "categorie": st.selectbox("Categorie", categories)
+    }
+
+    if st.button("Genereer"):
+        # Pass all data explicitly
+        result = facade.generate_definition_from_ui(ui_data)
+        display_result(result)
+                        </div>
+                    </div>
+                `
+            },
+            'rest-api': {
+                title: 'REST API',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet Geïmplementeerd</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>RESTful API voor externe integratie met definitie generator. Maakt het mogelijk om de service via HTTP aan te roepen.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🌐 Geplande Endpoints</h3>
+                        <ul>
+                            <li>POST /api/v1/definitions - Genereer nieuwe definitie</li>
+                            <li>GET /api/v1/definitions/{id} - Haal definitie op</li>
+                            <li>PUT /api/v1/definitions/{id} - Update definitie</li>
+                            <li>POST /api/v1/validate - Valideer definitie</li>
+                            <li>POST /api/v1/lookup - Web lookup</li>
+                            <li>GET /api/v1/health - Health check</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Voorgestelde Stack</h3>
+                        <div class="code-block">
+# FastAPI implementation
+from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
+
+app = FastAPI(title="Definition Generator API")
+
+class DefinitionRequest(BaseModel):
+    begrip: str
+    context: Optional[str]
+    ontologische_categorie: Optional[str]
+    domein: Optional[str]
+
+@app.post("/api/v1/definitions")
+async def create_definition(request: DefinitionRequest):
+    """Generate new definition via API."""
+    facade = get_definition_facade()
+    result = await facade.create_definition(request)
+    return result
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔐 Security Features</h3>
+                        <ul>
+                            <li>API Key authentication</li>
+                            <li>Rate limiting</li>
+                            <li>Request validation</li>
+                            <li>CORS configuration</li>
+                            <li>OpenAPI documentation</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'cli-interface': {
+                title: 'CLI Interface',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet Geïmplementeerd</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>Command-line interface voor definitie generatie. Maakt scripting en automation mogelijk.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🖥️ Geplande Commands</h3>
+                        <div class="code-block">
+# Generate definition
+$ defgen create "authenticatie" --context "NP" --category "proces"
+
+# Validate definition
+$ defgen validate "authenticatie is een proces waarbij..."
+
+# Batch processing
+$ defgen batch input.csv --output results.json
+
+# Web lookup
+$ defgen lookup "authenticatie" --sources wikipedia,juridisch
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Implementatie met Click</h3>
+                        <div class="code-block">
+import click
+from services.interfaces import GenerationRequest
+
+@click.group()
+def cli():
+    """Definition Generator CLI."""
+    pass
+
+@cli.command()
+@click.argument('begrip')
+@click.option('--context', help='Organizational context')
+@click.option('--category', type=click.Choice(['proces', 'type', 'resultaat', 'exemplaar']))
+def create(begrip, context, category):
+    """Generate a new definition."""
+    facade = get_definition_facade()
+    request = GenerationRequest(
+        begrip=begrip,
+        context=context,
+        ontologische_categorie=category
+    )
+    result = facade.create_definition(request)
+    click.echo(result.definition.definitie)
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>✨ Features</h3>
+                        <ul>
+                            <li>Interactive mode</li>
+                            <li>Batch processing</li>
+                            <li>JSON/CSV output</li>
+                            <li>Progress bars</li>
+                            <li>Configuration files</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'ui-components-adapter': {
+                title: 'UIComponentsAdapter',
+                status: 'partial',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-partial">⚠️ Bridge Pattern met Session State Dependencies</span>
+                        <span class="file-path">src/ui/components_adapter.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Werkelijke Situatie</h3>
+                        <p><strong>Deze adapter gebruikt nog steeds SessionStateManager</strong> om data uit de UI te verzamelen. Het is een bridge pattern maar elimineert session state niet.</p>
+
+                        <div class="code-block">
+# Huidige implementatie:
+from ui.session_state import SessionStateManager
+
+def _collect_ui_data_for_export(self):
+    ui_data = {
+        "begrip": SessionStateManager.get_value("begrip"),
+        "definitie_origineel": SessionStateManager.get_value("gegenereerd"),
+        # etc...
+    }
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🌉 Bridge Functionaliteit</h3>
+                        <ul>
+                            <li>UI event handling</li>
+                            <li>Service call translation</li>
+                            <li>Response formatting</li>
+                            <li>Error message mapping</li>
+                            <li>Progress tracking</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Core Pattern</h3>
+                        <div class="code-block">
+class UIComponentsAdapter:
+    """Adapter tussen UI componenten en services."""
+
+    def __init__(self, service_factory):
+        self.service = service_factory.get_definition_service()
+
+    def handle_generate_click(self, ui_data: dict):
+        """Handle generate button click."""
+        try:
+            # Transform UI data
+            request = self._create_request(ui_data)
+
+            # Call service
+            result = self.service.generate_definition(request)
+
+            # Format for UI
+            return self._format_response(result)
+        except Exception as e:
+            return self._format_error(e)
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>✅ Implementatie Status</h3>
+                        <p>Basis adapter is geïmplementeerd maar kan uitgebreid worden met meer geavanceerde patterns zoals event sourcing en command pattern.</p>
+                    </div>
+                `
+            },
+            'workflow-service': {
+                title: 'WorkflowService',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Geïmplementeerd</span>
+                        <span class="file-path">src/services/workflow_service.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Beheert complexe workflows voor definitiegeneratie, inclusief multi-step processen en conditionele logic.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📋 Workflow Features</h3>
+                        <ul>
+                            <li>Multi-step definition workflows</li>
+                            <li>Conditional branching</li>
+                            <li>Retry logic</li>
+                            <li>State persistence</li>
+                            <li>Progress tracking</li>
+                            <li>Rollback capabilities</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Workflow Definition</h3>
+                        <div class="code-block">
+@dataclass
+class DefinitionWorkflow:
+    """Definition generation workflow."""
+    steps: List[WorkflowStep] = field(default_factory=list)
+
+    def add_step(self, step: WorkflowStep):
+        self.steps.append(step)
+
+    async def execute(self, context: WorkflowContext):
+        for step in self.steps:
+            if step.should_execute(context):
+                result = await step.execute(context)
+                context.add_result(step.name, result)
+
+                if not result.success and step.is_critical:
+                    return self._handle_failure(step, result)
+
+        return WorkflowResult(success=True, context=context)
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔄 Standaard Workflows</h3>
+                        <ul>
+                            <li>Simple Generation - Basis flow</li>
+                            <li>Enhanced Generation - Met validatie en verbetering</li>
+                            <li>Bulk Generation - Voor meerdere begrippen</li>
+                            <li>Regeneration - Met feedback integratie</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'regeneration-service': {
+                title: 'RegenerationService',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Geïmplementeerd</span>
+                        <span class="file-path">src/services/regeneration_service.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Service voor het regenereren van definities met feedback integratie. Implementeert iteratieve verbetering op basis van validatie resultaten.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔄 Regeneration Features</h3>
+                        <ul>
+                            <li>Feedback-based regeneration</li>
+                            <li>Context preservation</li>
+                            <li>Incremental improvements</li>
+                            <li>Validation history tracking</li>
+                            <li>Smart prompt enhancement</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Core Functionality</h3>
+                        <div class="code-block">
+class RegenerationService:
+    """Service for definition regeneration with feedback."""
+
+    def enhance_prompt_with_context(
+        self,
+        base_prompt: str,
+        regeneration_context: RegenerationContext
+    ) -> str:
+        """Enhance prompt with feedback from previous attempts."""
+
+        enhanced = base_prompt
+
+        # Add violation feedback
+        if regeneration_context.violations:
+            enhanced += "\n\n⚠️ Vermijd deze fouten uit eerdere pogingen:\n"
+            for violation in regeneration_context.violations:
+                enhanced += f"- {violation.description}\n"
+
+        # Add positive examples
+        if regeneration_context.improvements:
+            enhanced += "\n\n✅ Verbeteringen om toe te passen:\n"
+            for improvement in regeneration_context.improvements:
+                enhanced += f"- {improvement}\n"
+
+        return enhanced
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 GVI Rode Kabel Integratie</h3>
+                        <p>Deze service vormt de basis voor de toekomstige GVI Rode Kabel feedback loop, waarbij validatie feedback wordt gebruikt voor continue verbetering.</p>
+                    </div>
+                `
+            },
+            'validation-service-v2': {
+                title: 'ValidationServiceV2',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Alleen Interface</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>Next-generation validation service met uitgebreide toetsregels, machine learning integratie en context-aware validatie.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔍 Geplande Features</h3>
+                        <ul>
+                            <li>30+ toetsregels (CON, ESS, STR, INT, SAM)</li>
+                            <li>Context-aware validation</li>
+                            <li>Ontological category validation</li>
+                            <li>ML-based quality scoring</li>
+                            <li>Suggestion generation</li>
+                            <li>Parallel rule execution</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Voorgestelde Architectuur</h3>
+                        <div class="code-block">
+class ValidationServiceV2:
+    """Advanced validation with ML integration."""
+
+    async def validate_definition(
+        self,
+        begrip: str,
+        definitie: str,
+        ontologische_categorie: Optional[str] = None
+    ) -> ValidationResult:
+        """Validate with all rules and ML scoring."""
+
+        # Parallel rule execution
+        rule_results = await asyncio.gather(*[
+            rule.validate(begrip, definitie, ontologische_categorie)
+            for rule in self.rules
+        ])
+
+        # ML quality scoring
+        ml_score = await self.ml_scorer.score(definitie, ontologische_categorie)
+
+        # Generate intelligent suggestions
+        suggestions = await self.suggestion_engine.generate(
+            rule_results,
+            ml_score,
+            ontologische_categorie
+        )
+
+        return ValidationResult(
+            is_valid=all(r.passed for r in rule_results),
+            violations=[r for r in rule_results if not r.passed],
+            score=ml_score,
+            suggestions=suggestions
+        )
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚠️ Huidige Workaround</h3>
+                        <p>V2 orchestrator valt terug op legacy ValidationService via adapter pattern.</p>
+                    </div>
+                `
+            },
+            'enhancement-service': {
+                title: 'EnhancementService',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Alleen Interface</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>Service voor automatische verbetering van definities op basis van validatie feedback. Gebruikt AI om definities te verfijnen.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>✨ Enhancement Features</h3>
+                        <ul>
+                            <li>Automatic definition improvement</li>
+                            <li>Violation-specific corrections</li>
+                            <li>Style consistency enforcement</li>
+                            <li>Terminology alignment</li>
+                            <li>Context integration</li>
+                            <li>Iterative refinement</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Enhancement Pipeline</h3>
+                        <div class="code-block">
+class EnhancementService:
+    """AI-powered definition enhancement."""
+
+    async def enhance_definition(
+        self,
+        definition: str,
+        violations: List[ValidationViolation],
+        context: GenerationRequest
+    ) -> str:
+        """Enhance definition based on violations."""
+
+        # Build enhancement prompt
+        prompt = self._build_enhancement_prompt(
+            definition,
+            violations,
+            context
+        )
+
+        # Get AI enhancement
+        enhanced = await self.ai_service.enhance(prompt)
+
+        # Verify improvements
+        if await self._verify_improvements(enhanced, violations):
+            return enhanced
+
+        # Fallback to rule-based fixes
+        return self._apply_rule_based_fixes(definition, violations)
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Violation-Specific Fixes</html>
+                        <ul>
+                            <li>CON-01: Remove circular definitions</li>
+                            <li>STR-01: Fix structure issues</li>
+                            <li>ESS-01: Add essential elements</li>
+                            <li>INT-02: Remove decision rules</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'prompt-orchestrator': {
+                title: 'PromptOrchestrator',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Via ModularPromptBuilder</span>
+                        <span class="file-path">src/services/prompts/modular_prompt_builder.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Orchestreert de modulaire prompt opbouw door verschillende componenten te combineren tot een coherente prompt.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🧩 Orchestration Pattern</h3>
+                        <ul>
+                            <li>Component selection based on context</li>
+                            <li>Dynamic prompt assembly</li>
+                            <li>Token optimization</li>
+                            <li>Feedback integration</li>
+                            <li>Version management</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Implementatie via ModularPromptBuilder</h3>
+                        <div class="code-block">
+class ModularPromptBuilder:
+    """Acts as prompt orchestrator."""
+
+    def build_prompt(
+        self,
+        begrip: str,
+        context: EnrichedContext,
+        config: UnifiedGeneratorConfig
+    ) -> str:
+        """Orchestrate prompt building from components."""
+
+        components = []
+
+        # Conditionally include components
+        if self.component_config.include_role:
+            components.append(self._build_role_and_basic_rules(begrip))
+
+        if self.component_config.include_context and context:
+            components.append(self._build_context_section(context))
+
+        if self.component_config.include_ontological:
+            components.append(self._build_ontological_section(context))
+
+        # ... more components
+
+        return "\n\n".join(filter(None, components))
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Smart Component Selection</h3>
+                        <p>De orchestrator selecteert intelligente welke componenten nodig zijn op basis van de context en het type definitie dat gegenereerd moet worden.</p>
+                    </div>
+                `
+            },
+            'token-optimizer': {
+                title: 'TokenOptimizer',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet Geïmplementeerd</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>Optimaliseert prompts om binnen token limieten te blijven terwijl essentiële informatie behouden blijft.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔧 Optimization Strategies</h3>
+                        <ul>
+                            <li>Component prioritization</li>
+                            <li>Dynamic truncation</li>
+                            <li>Example reduction</li>
+                            <li>Rule compression</li>
+                            <li>Context summarization</li>
+                            <li>Smart whitespace removal</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Voorgestelde Implementatie</h3>
+                        <div class="code-block">
+class TokenOptimizer:
+    """Optimize prompts for token limits."""
+
+    def optimize_to_limit(
+        self,
+        prompt_result: PromptResult,
+        max_tokens: int
+    ) -> PromptResult:
+        """Optimize prompt to fit token limit."""
+
+        if prompt_result.token_count <= max_tokens:
+            return prompt_result
+
+        # Priority-based optimization
+        optimized = prompt_result.text
+
+        # 1. Remove examples first
+        if self._has_examples(optimized):
+            optimized = self._reduce_examples(optimized)
+
+        # 2. Compress rules
+        if self._token_count(optimized) > max_tokens:
+            optimized = self._compress_rules(optimized)
+
+        # 3. Summarize context
+        if self._token_count(optimized) > max_tokens:
+            optimized = self._summarize_context(optimized)
+
+        return PromptResult(
+            text=optimized,
+            token_count=self._token_count(optimized),
+            components_used=prompt_result.components_used,
+            optimization_applied=True
+        )
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📊 Cost Optimization</h3>
+                        <p>Door token optimalisatie kunnen API kosten met 30-50% worden verminderd zonder kwaliteitsverlies.</p>
+                    </div>
+                `
+            },
+            'monitoring-service': {
+                title: 'MonitoringService',
+                status: 'partial',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-partial">⚠️ Gedeeltelijk Geïmplementeerd</span>
+                        <span class="file-path">src/services/definition_generator_monitoring.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Huidige Functionaliteit</h3>
+                        <p>Basis monitoring functionaliteit aanwezig maar niet als clean service. Moet worden gerefactored naar service pattern.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>📊 Monitoring Features</h3>
+                        <ul>
+                            <li>Generation metrics tracking</li>
+                            <li>Performance monitoring</li>
+                            <li>Error rate tracking</li>
+                            <li>Token usage statistics</li>
+                            <li>API call monitoring</li>
+                            <li>Basic dashboards</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Gewenste Service Pattern</h3>
+                        <div class="code-block">
+class MonitoringService(MonitoringServiceInterface):
+    """Clean monitoring service implementation."""
+
+    async def start_generation(self, generation_id: str):
+        """Track generation start."""
+        await self.metrics.increment("generations.started")
+        await self.traces.start_trace(generation_id)
+
+    async def track_prompt_generation(
+        self,
+        token_count: int,
+        components_used: List[str],
+        generation_time: float
+    ):
+        """Track prompt generation metrics."""
+        await self.metrics.histogram("prompt.tokens", token_count)
+        await self.metrics.histogram("prompt.time", generation_time)
+
+        for component in components_used:
+            await self.metrics.increment(f"components.{component}")
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Enterprise Features Needed</h3>
+                        <ul>
+                            <li>OpenTelemetry integration</li>
+                            <li>Distributed tracing</li>
+                            <li>Custom metrics export</li>
+                            <li>Alert configuration</li>
+                            <li>SLA monitoring</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'cache-service': {
+                title: 'CacheService',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet als Service</span>
+                        <span class="file-path">src/ui/cache_manager.py (UI gebonden)</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>Centralized caching service voor alle componenten. Vervangt UI-gebonden cache manager met clean service.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💾 Cache Features</h3>
+                        <ul>
+                            <li>Multi-level caching (memory, Redis)</li>
+                            <li>TTL management</li>
+                            <li>Cache invalidation strategies</li>
+                            <li>Distributed cache support</li>
+                            <li>Cache warming</li>
+                            <li>Statistics & monitoring</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Clean Cache Pattern</h3>
+                        <div class="code-block">
+class CacheService:
+    """Centralized caching service."""
+
+    async def get(
+        self,
+        key: str,
+        namespace: str = "default"
+    ) -> Optional[Any]:
+        """Get value from cache."""
+        # Try memory cache first
+        if value := self.memory_cache.get(f"{namespace}:{key}"):
+            self.stats.increment("cache.memory.hit")
+            return value
+
+        # Fall back to Redis
+        if self.redis_enabled:
+            if value := await self.redis.get(f"{namespace}:{key}"):
+                self.stats.increment("cache.redis.hit")
+                # Populate memory cache
+                self.memory_cache.set(f"{namespace}:{key}", value)
+                return value
+
+        self.stats.increment("cache.miss")
+        return None
+
+    async def set(
+        self,
+        key: str,
+        value: Any,
+        ttl: int = 3600,
+        namespace: str = "default"
+    ):
+        """Set value in cache with TTL."""
+        cache_key = f"{namespace}:{key}"
+
+        # Set in memory
+        self.memory_cache.set(cache_key, value, ttl)
+
+        # Set in Redis if enabled
+        if self.redis_enabled:
+            await self.redis.setex(cache_key, ttl, value)
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Cache Strategies</h3>
+                        <ul>
+                            <li>Prompt caching (reduce API calls)</li>
+                            <li>Definition caching (speed up lookups)</li>
+                            <li>Validation result caching</li>
+                            <li>Web lookup caching</li>
+                        </ul>
+                    </div>
+                `
+            },
+            'definition-repository': {
+                title: 'DefinitionRepository',
+                status: 'implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-implemented">✅ Geïmplementeerd</span>
+                        <span class="file-path">src/services/definition_repository.py</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Doel & Functionaliteit</h3>
+                        <p>Repository pattern implementatie voor definitie persistentie. Wraps legacy database met clean interface.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💾 Repository Features</h3>
+                        <ul>
+                            <li>CRUD operations voor definities</li>
+                            <li>Search en filter functionaliteit</li>
+                            <li>Version management</li>
+                            <li>Bulk operations</li>
+                            <li>Transaction support</li>
+                            <li>Query optimization</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Clean Repository Pattern</h3>
+                        <div class="code-block">
+class DefinitionRepository(DefinitionRepositoryInterface):
+    """Repository for definition persistence."""
+
+    def __init__(self, db_path: str):
+        self.legacy_repo = DefinitieRepository(db_path)
+
+    async def save_definition(self, definition: Definition) -> int:
+        """Save definition with clean interface."""
+        # Transform to legacy format
+        legacy_data = self._to_legacy_format(definition)
+
+        # Save using legacy repo
+        definition_id = self.legacy_repo.voeg_definitie_toe(
+            legacy_data['begrip'],
+            legacy_data['definitie'],
+            legacy_data['context']
+        )
+
+        # Save additional metadata
+        await self._save_metadata(definition_id, definition.metadata)
+
+        return definition_id
+
+    async def find_by_criteria(
+        self,
+        criteria: SearchCriteria
+    ) -> List[Definition]:
+        """Search definitions by criteria."""
+        query = self._build_query(criteria)
+        results = self.legacy_repo.execute_query(query)
+        return [self._from_legacy_format(r) for r in results]
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔄 Migration Path</h3>
+                        <p>Repository biedt een clean interface terwijl het de legacy database gebruikt, wat geleidelijke migratie mogelijk maakt.</p>
+                    </div>
+                `
+            },
+            'configuration-repository': {
+                title: 'ConfigurationRepository',
+                status: 'not-implemented',
+                content: `
+                    <div class="detail-section">
+                        <span class="status-badge badge-not-implemented">❌ Niet Geïmplementeerd</span>
+                        <span class="file-path">-</span>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🎯 Beoogde Functionaliteit</h3>
+                        <p>Centralized configuration management voor alle services. Ondersteunt dynamic configuration updates.</p>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>⚙️ Configuration Features</h3>
+                        <ul>
+                            <li>Hierarchical configuration</li>
+                            <li>Environment-specific settings</li>
+                            <li>Dynamic updates without restart</li>
+                            <li>Configuration versioning</li>
+                            <li>Secret management</li>
+                            <li>Feature flags</li>
+                        </ul>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>💻 Configuration Schema</h3>
+                        <div class="code-block">
+class ConfigurationRepository:
+    """Centralized configuration management."""
+
+    async def get_config(
+        self,
+        key: str,
+        environment: str = None
+    ) -> Any:
+        """Get configuration value."""
+        # Check environment override
+        env = environment or self.current_environment
+
+        # Build config path
+        config_path = f"{env}.{key}"
+
+        # Try cache first
+        if value := self.cache.get(config_path):
+            return value
+
+        # Load from store
+        value = await self.store.get(config_path)
+
+        # Apply transformations
+        value = self._apply_transformations(value, key)
+
+        # Cache and return
+        self.cache.set(config_path, value)
+        return value
+
+    async def watch_config(
+        self,
+        key: str,
+        callback: Callable
+    ):
+        """Watch configuration changes."""
+        self.watchers[key].append(callback)
+
+        # Start watcher if not running
+        if key not in self.active_watchers:
+            asyncio.create_task(self._watch_key(key))
+                        </div>
+                    </div>
+
+                    <div class="detail-section">
+                        <h3>🔐 Security Features</h3>
+                        <ul>
+                            <li>Encrypted secret storage</li>
+                            <li>Access control per key</li>
+                            <li>Audit logging</li>
+                            <li>Rotation support</li>
+                        </ul>
+                    </div>
+                `
+            }
+        };
+
+        // Modal functionality
+        const modal = document.getElementById('detailModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalBody = document.getElementById('modalBody');
+        const span = document.getElementsByClassName('close')[0];
+
+        function showModal(serviceId) {
+            const details = serviceDetails[serviceId];
+            if (details) {
+                modalTitle.textContent = details.title;
+                modalBody.innerHTML = details.content;
+                modal.style.display = 'block';
+            }
+        }
+
+        span.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Add keyboard support
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape' && modal.style.display === 'block') {
+                modal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

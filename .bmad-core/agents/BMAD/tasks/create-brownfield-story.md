@@ -1,3 +1,9 @@
+# /create-brownfield-story Task
+
+When this command is used, execute the following task:
+
+<!-- Powered by BMAD™ Core -->
+
 # Create Brownfield Story Task
 
 ## Purpose
@@ -139,16 +145,19 @@ Critical: This is where you'll need to be interactive with the user if informati
 
 Create Dev Technical Guidance section with available information:
 
-```markdown
+````markdown
 ## Dev Technical Guidance
 
 ### Existing System Context
+
 [Extract from available documentation]
 
 ### Integration Approach
+
 [Based on patterns found or ask user]
 
 ### Technical Constraints
+
 [From documentation or user input]
 
 ### Missing Information
@@ -191,6 +200,7 @@ Example task structure for brownfield:
   - [ ] Integration test for {{integration point}}
   - [ ] Update existing tests if needed
 ```
+````
 
 ### 5. Risk Assessment and Mitigation
 
@@ -202,14 +212,17 @@ Add section for brownfield-specific risks:
 ## Risk Assessment
 
 ### Implementation Risks
+
 - **Primary Risk**: {{main risk to existing system}}
 - **Mitigation**: {{how to address}}
 - **Verification**: {{how to confirm safety}}
 
 ### Rollback Plan
+
 - {{Simple steps to undo changes if needed}}
 
 ### Safety Checks
+
 - [ ] Existing {{feature}} tested before changes
 - [ ] Changes can be feature-flagged or isolated
 - [ ] Rollback procedure documented
@@ -252,6 +265,7 @@ Include header noting documentation context:
 <!-- Context: Brownfield enhancement to {{existing system}} -->
 
 ## Status: Draft
+
 [Rest of story content...]
 ```
 

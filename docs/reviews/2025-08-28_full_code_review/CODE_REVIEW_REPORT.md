@@ -1,0 +1,52 @@
+# Volledige Code- en Documentatiereview — Rapport
+
+Dit rapport bevat per bestand de reviewbevindingen en concrete voorstellen. Een bestand mag in de checklist worden afgevinkt zodra de sectie hieronder het voorstel en acceptatiecriteria bevat (zie REVIEW_PLAN.md).
+
+## Inhoudsopgave
+- De inhoudsopgave wordt incrementeel bijgewerkt naarmate bestanden worden toegevoegd.
+
+---
+
+## Sjabloon voor nieuwe entries
+
+### [pad/naar/bestand.ext]
+- Status: REVIEWED | PROPOSED | DONE | BLOCKED
+- Datum/Reviewer: 2025-08-28 / Codex
+
+#### Kernsamenvatting
+Korte samenvatting van de belangrijkste punten (1–2 zinnen).
+
+#### Bevindingen
+- Stijl: …
+- Types: …
+- Tests: …
+- Docs: …
+- Architectuur: …
+
+#### Voorstel
+- [ ] Actie 1 …
+- [ ] Actie 2 …
+
+#### Acceptatiecriteria
+- [ ] Objectieve check 1 …
+- [ ] Objectieve check 2 …
+
+#### Links
+- Tests/Docs/Referenties (optioneel)
+
+---
+
+## Startpunten (worden tijdens de review ingevuld)
+
+### [src/main.py]
+- Status: PENDING
+- Datum/Reviewer: 2025-08-28 / Codex
+
+### [src/services/definition_orchestrator.py]
+- Status: PENDING
+- Datum/Reviewer: 2025-08-28 / Codex
+
+### [src/services/prompts/modular_prompt_builder.py]
+- Status: PENDING
+- Datum/Reviewer: 2025-08-28 / Codex
+
