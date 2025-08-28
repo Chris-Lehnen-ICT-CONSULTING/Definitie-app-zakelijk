@@ -138,12 +138,23 @@ class AIService:
                     messages.append({"role": "system", "content": system_message})
                 messages.append({"role": "user", "content": prompt})
 
-                response = self._client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=max_tokens,
-                )
+                # Model-specifieke API parameters
+                if model == "gpt-4.1":
+                    # GPT-4.1 gebruikt max_completion_tokens ipv max_tokens
+                    response = self._client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        temperature=temperature,
+                        max_completion_tokens=max_tokens,
+                    )
+                else:
+                    # Oudere modellen gebruiken max_tokens
+                    response = self._client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        temperature=temperature,
+                        max_tokens=max_tokens,
+                    )
 
                 content = response.choices[0].message.content.strip()
                 tokens = response.usage.total_tokens if response.usage else 0
