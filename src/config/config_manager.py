@@ -50,8 +50,12 @@ class APIConfig:
     """API configuratie instellingen voor externe service communicatie."""
 
     openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
-    default_model: str = "gpt-5"  # Standaard AI model voor definitie generatie
-    default_temperature: float = 0.01  # Creativiteit niveau (laag = consistenter)
+    default_model: str = (
+        "gpt-4.1"  # Standaard AI model voor definitie generatie (stabiel voor juridische definities)
+    )
+    default_temperature: float = (
+        0.0  # Creativiteit niveau (0.0 = deterministisch voor juridische definities)
+    )
     default_max_tokens: int = 300  # Maximum aantal tokens per API response
     request_timeout: float = 30.0  # Timeout in seconden voor API verzoeken
     max_retries: int = 3  # Maximum aantal herhaalpogingen bij mislukte verzoeken
@@ -65,9 +69,9 @@ class APIConfig:
                 "temperature": 0.01,  # Zeer lage temperatuur voor consistentie
                 "cost_per_token": 0.00003,  # Kosten per token in USD
             },
-            "gpt-5": {  # GPT-5 configuratie - nieuwste model
+            "gpt-4.1": {  # GPT-4.1 configuratie - stabiel voor juridische definities
                 "max_tokens": 300,  # Standaard token limiet
-                "temperature": 0.0,  # Maximale consistentie
+                "temperature": 0.0,  # Maximale consistentie (deterministisch)
                 "cost_per_token": 0.00003,  # Kosten per token in USD
             },
         }
@@ -254,7 +258,7 @@ class MonitoringConfig:
 
     # OpenAI pricing (per 1K tokens)
     openai_pricing: dict[str, float] = field(
-        default_factory=lambda: {"gpt-5": 0.03, "gpt-4": 0.03}
+        default_factory=lambda: {"gpt-4": 0.03, "gpt-4.1": 0.03}
     )
 
 
