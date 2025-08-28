@@ -6,10 +6,11 @@ Dit document beschrijft de coding standards en conventies voor het DefinitieAgen
 
 ## Algemene Principes
 
-1. **Clarity over Cleverness**: Code moet leesbaar en begrijpelijk zijn
-2. **Consistency**: Volg bestaande patronen in de codebase
-3. **Documentation**: Documenteer complexe logica en publieke interfaces
+1. **Duidelijkheid boven Slimheid**: Code moet leesbaar en begrijpelijk zijn voor iedereen
+2. **Consistentie**: Volg bestaande patronen in de codebase
+3. **Documentatie**: Documenteer ALLE code met Nederlandse commentaren voor niet-programmeurs
 4. **Testing**: Schrijf tests voor nieuwe functionaliteit
+5. **Nederlands**: Alle code, commentaar en documentatie in het Nederlands
 
 ## Python Code Standards
 
@@ -84,25 +85,44 @@ async def generate_definition(term, context=None, category="type"):
 
 ### Naming Conventions
 
-- **Classes**: PascalCase (e.g., `DefinitionOrchestrator`)
-- **Functions/Methods**: snake_case (e.g., `generate_definition`)
-- **Constants**: UPPER_SNAKE_CASE (e.g., `MAX_RETRIES`)
-- **Private**: Prefix with underscore (e.g., `_internal_method`)
+- **Classes**: PascalCase in Nederlands (bijv. `DefinitieOrchestrator`)
+- **Functions/Methods**: snake_case in Nederlands (bijv. `genereer_definitie`)
+- **Constants**: UPPER_SNAKE_CASE in Nederlands (bijv. `MAX_POGINGEN`)
+- **Private**: Prefix met underscore (bijv. `_interne_methode`)
+
+Voorbeelden:
+```python
+# Classes
+class DefinitieService:  # NIET: DefinitionService
+class ValidatieRegel:    # NIET: ValidationRule
+
+# Functies
+def genereer_definitie():     # NIET: generate_definition
+def valideer_invoer():         # NIET: validate_input
+
+# Constanten
+MAX_POGINGEN = 3               # NIET: MAX_RETRIES
+DAGELIJKS_LIMIET = 1000       # NIET: DAILY_LIMIT
+```
 
 ### Async/Await Patterns
 
 ```python
-# Correct - Gebruik async/await voor I/O operations
-async def fetch_definition(self, term: str) -> Definition:
-    async with self.session as session:
-        result = await session.execute(query)
-        return result.scalar_one_or_none()
+# Correct - Gebruik async/await voor I/O operaties
+async def haal_definitie_op(self, term: str) -> Definitie:
+    """Haalt een definitie op uit de database voor de gegeven term."""
+    # Maak verbinding met de database
+    async with self.sessie as sessie:
+        # Voer de zoekopdracht uit in de database
+        resultaat = await sessie.execute(zoekopdracht)
+        # Geef het eerste resultaat terug (of None als er geen is)
+        return resultaat.scalar_one_or_none()
 
-# Incorrect - Blocking I/O in async context
-async def fetch_definition(self, term: str) -> Definition:
-    # DON'T: This blocks the event loop
-    result = requests.get(f"/api/definitions/{term}")
-    return result.json()
+# Incorrect - Blokkerende I/O in async context
+async def haal_definitie_op(self, term: str) -> Definitie:
+    # FOUT: Dit blokkeert het hele programma
+    resultaat = requests.get(f"/api/definities/{term}")
+    return resultaat.json()
 ```
 
 ## Architecture Patterns
@@ -110,77 +130,87 @@ async def fetch_definition(self, term: str) -> Definition:
 ### Service Layer Pattern
 
 ```python
-class DefinitionService(BaseService):
-    """Service for managing definitions."""
+class DefinitieService(BasisService):
+    """Service voor het beheren van juridische definities."""
 
     def __init__(
         self,
-        repository: DefinitionRepository,
+        repository: DefinitieRepository,
         ai_service: AIServiceInterface,
-        validator: DefinitionValidator
+        validator: DefinitieValidator
     ):
-        self._repository = repository
-        self._ai_service = ai_service
-        self._validator = validator
+        # Bewaar de verschillende componenten die we nodig hebben
+        self._repository = repository    # Voor database operaties
+        self._ai_service = ai_service   # Voor AI gegenereerde content
+        self._validator = validator     # Voor het controleren van invoer
 
-    async def create_definition(
+    async def maak_definitie(
         self,
-        request: CreateDefinitionRequest
-    ) -> Definition:
-        """Create a new definition."""
-        # Validate input
-        validated_data = await self._validator.validate(request)
+        aanvraag: MaakDefinitieAanvraag
+    ) -> Definitie:
+        """Maakt een nieuwe juridische definitie aan."""
+        # Stap 1: Controleer of de aanvraag geldig is
+        gevalideerde_data = await self._validator.valideer(aanvraag)
 
-        # Generate via AI
-        ai_response = await self._ai_service.generate(validated_data)
+        # Stap 2: Laat de AI een definitie genereren
+        ai_antwoord = await self._ai_service.genereer(gevalideerde_data)
 
-        # Persist
-        return await self._repository.save(ai_response)
+        # Stap 3: Sla de definitie op in de database
+        return await self._repository.bewaar(ai_antwoord)
 ```
 
 ### Error Handling
 
 ```python
-# Correct - Specific error handling
+# Correct - Specifieke foutafhandeling
 try:
-    result = await ai_service.generate(prompt)
-except RateLimitError as e:
-    logger.warning(f"Rate limit hit: {e}")
-    await asyncio.sleep(e.retry_after)
-    return await self.retry_with_backoff(prompt)
-except AIServiceError as e:
-    logger.error(f"AI service error: {e}")
-    raise DefinitionGenerationError(f"Could not generate definition: {e}")
+    # Probeer een definitie te genereren via de AI service
+    resultaat = await ai_service.genereer(prompt)
+except RateLimietFout as e:
+    # We hebben te veel verzoeken gedaan, wacht even
+    logger.waarschuwing(f"Rate limiet bereikt: {e}")
+    # Wacht het aantal seconden dat de API aangeeft
+    await asyncio.sleep(e.wacht_seconden)
+    # Probeer opnieuw met langzamere snelheid
+    return await self.probeer_opnieuw_met_vertraging(prompt)
+except AIServiceFout as e:
+    # Er ging iets mis met de AI service
+    logger.fout(f"AI service fout: {e}")
+    # Geef een duidelijke foutmelding door
+    raise DefinitieGeneratieFout(f"Kon geen definitie genereren: {e}")
 
-# Incorrect - Generic catch-all
+# Incorrect - Algemene catch-all (vangt alle fouten)
 try:
-    result = await ai_service.generate(prompt)
+    resultaat = await ai_service.genereer(prompt)
 except Exception as e:
-    logger.error(f"Error: {e}")
+    # FOUT: We weten niet wat er mis ging
+    logger.fout(f"Fout: {e}")
     raise
 ```
 
 ### Dependency Injection
 
 ```python
-# Correct - Dependencies injected
-class OrchestrationService:
+# Correct - Afhankelijkheden worden meegegeven (dependency injection)
+class OrchestratieService:
     def __init__(
         self,
         ai_service: AIServiceInterface,
         cache: CacheInterface,
         metrics: MetricsInterface
     ):
-        self._ai_service = ai_service
-        self._cache = cache
-        self._metrics = metrics
+        # Services worden van buitenaf meegegeven
+        self._ai_service = ai_service      # AI service voor tekst generatie
+        self._cache = cache                # Cache voor snelheid
+        self._metrics = metrics            # Metrics voor monitoring
 
-# Incorrect - Hard dependencies
-class OrchestrationService:
+# Incorrect - Harde afhankelijkheden (vast in code)
+class OrchestratieService:
     def __init__(self):
-        self._ai_service = OpenAIService()  # Hard-coded dependency
-        self._cache = RedisCache()         # Hard-coded dependency
-        self._metrics = PrometheusMetrics() # Hard-coded dependency
+        # FOUT: Services worden hier aangemaakt (niet flexibel)
+        self._ai_service = OpenAIService()  # Vast gekoppeld aan OpenAI
+        self._cache = RedisCache()         # Vast gekoppeld aan Redis
+        self._metrics = PrometheusMetrics() # Vast gekoppeld aan Prometheus
 ```
 
 ## Documentation Standards
@@ -190,26 +220,27 @@ class OrchestrationService:
 Gebruik Google-style docstrings:
 
 ```python
-def calculate_confidence_score(
-    definition: Definition,
-    validation_results: List[ValidationResult]
+def bereken_vertrouwensscore(
+    definitie: Definitie,
+    validatie_resultaten: List[ValidatieResultaat]
 ) -> float:
-    """Calculate confidence score for a definition.
+    """Berekent vertrouwensscore voor een definitie.
 
     Args:
-        definition: The definition to score
-        validation_results: Results from validation rules
+        definitie: De definitie om te scoren
+        validatie_resultaten: Resultaten van validatieregels
 
     Returns:
-        Confidence score between 0.0 and 1.0
+        Vertrouwensscore tussen 0.0 en 1.0
 
     Raises:
-        ValueError: If validation_results is empty
+        ValueError: Als validatie_resultaten leeg is
     """
-    if not validation_results:
-        raise ValueError("Cannot calculate score without validation results")
+    # Controleer of we validatie resultaten hebben
+    if not validatie_resultaten:
+        raise ValueError("Kan geen score berekenen zonder validatie resultaten")
 
-    # Implementation...
+    # Implementatie...
 ```
 
 ### Code Comments
@@ -296,33 +327,38 @@ tests/
 ### Test Naming
 
 ```python
-# Pattern: test_{method_name}_{scenario}_{expected_result}
+# Patroon: test_{methode_naam}_{scenario}_{verwacht_resultaat}
 
-def test_generate_definition_valid_input_returns_definition():
-    """Test that valid input produces a definition."""
+def test_genereer_definitie_geldige_invoer_geeft_definitie():
+    """Test dat geldige invoer een definitie oplevert."""
     ...
 
-def test_generate_definition_empty_term_raises_validation_error():
-    """Test that empty term raises ValidationError."""
+def test_genereer_definitie_lege_term_geeft_validatie_fout():
+    """Test dat een lege term een ValidatieFout geeft."""
     ...
 ```
 
 ### Test Structure (AAA Pattern)
 
 ```python
-async def test_definition_caching():
-    # Arrange
-    service = DefinitionService(mock_ai, mock_cache)
+async def test_definitie_caching():
+    # Arrange (Voorbereiden)
+    # Maak een test service met nep AI en cache
+    service = DefinitieService(nep_ai, nep_cache)
     term = "contract"
 
-    # Act
-    result1 = await service.generate(term)
-    result2 = await service.generate(term)  # Should hit cache
+    # Act (Uitvoeren)
+    # Vraag twee keer dezelfde definitie op
+    resultaat1 = await service.genereer(term)
+    resultaat2 = await service.genereer(term)  # Moet uit cache komen
 
-    # Assert
-    assert result1 == result2
-    mock_ai.generate.assert_called_once()  # AI only called once
-    mock_cache.get.assert_called_with(f"definition:{term}")
+    # Assert (Controleren)
+    # Beide resultaten moeten hetzelfde zijn
+    assert resultaat1 == resultaat2
+    # De AI moet maar één keer aangeroepen zijn
+    nep_ai.genereer.assert_called_once()
+    # De cache moet gebruikt zijn voor de term
+    nep_cache.haal_op.assert_called_with(f"definitie:{term}")
 ```
 
 ## Security Standards
@@ -330,29 +366,32 @@ async def test_definition_caching():
 ### Input Validation
 
 ```python
-# Always validate and sanitize user input
-def create_definition(self, user_input: str) -> Definition:
-    # Sanitize input
-    clean_input = self._sanitizer.clean(user_input)
+# Valideer en zuiver altijd gebruikersinvoer
+def maak_definitie(self, gebruiker_invoer: str) -> Definitie:
+    # Stap 1: Maak de invoer schoon (verwijder gevaarlijke tekens)
+    schone_invoer = self._zuiveraar.zuiver(gebruiker_invoer)
 
-    # Validate format
-    if not self._validator.is_valid_term(clean_input):
-        raise ValidationError("Invalid term format")
+    # Stap 2: Controleer of het formaat klopt
+    if not self._validator.is_geldige_term(schone_invoer):
+        # De term voldoet niet aan onze regels
+        raise ValidatieFout("Ongeldig term formaat")
 
-    # Proceed with clean, validated input
-    return self._generate_definition(clean_input)
+    # Stap 3: Ga verder met de schoongemaakte en gevalideerde invoer
+    return self._genereer_definitie(schone_invoer)
 ```
 
 ### Secret Management
 
 ```python
-# Correct - Use environment variables
-api_key = os.environ.get("OPENAI_API_KEY")
-if not api_key:
-    raise ConfigurationError("OPENAI_API_KEY not set")
+# Correct - Gebruik omgevingsvariabelen voor geheime sleutels
+# Haal de API sleutel op uit de omgevingsvariabelen
+api_sleutel = os.environ.get("OPENAI_API_KEY")
+# Controleer of de sleutel wel bestaat
+if not api_sleutel:
+    raise ConfiguratieFout("OPENAI_API_KEY niet ingesteld")
 
-# Incorrect - Hardcoded secrets
-api_key = "sk-1234567890abcdef"  # NEVER DO THIS
+# Incorrect - Hardgecodeerde geheimen
+api_sleutel = "sk-1234567890abcdef"  # NOOIT DOEN! Dit is een veiligheidsrisico
 ```
 
 ## Performance Standards
@@ -360,32 +399,38 @@ api_key = "sk-1234567890abcdef"  # NEVER DO THIS
 ### Caching
 
 ```python
-# Use caching for expensive operations
-@cached(ttl=3600)
-async def get_enriched_definition(term: str) -> EnrichedDefinition:
-    """Get definition with expensive enrichments."""
-    base = await self.get_definition(term)
-    enrichments = await self.fetch_enrichments(base)
-    return EnrichedDefinition(base, enrichments)
+# Gebruik caching voor dure operaties
+@gecached(ttl=3600)  # Cache voor 1 uur (3600 seconden)
+async def haal_verrijkte_definitie_op(term: str) -> VerrijkteDefinitie:
+    """Haalt definitie op met extra informatie (duurt lang)."""
+    # Stap 1: Haal de basis definitie op
+    basis = await self.haal_definitie_op(term)
+    # Stap 2: Zoek extra informatie op (dit kost veel tijd)
+    verrijkingen = await self.haal_verrijkingen_op(basis)
+    # Stap 3: Combineer alles in een verrijkte definitie
+    return VerrijkteDefinitie(basis, verrijkingen)
 ```
 
 ### Batch Operations
 
 ```python
-# Correct - Batch operations for efficiency
-async def process_terms(self, terms: List[str]) -> List[Definition]:
-    """Process multiple terms efficiently."""
-    tasks = [self.generate_definition(term) for term in terms]
-    return await asyncio.gather(*tasks)
+# Correct - Batch operaties voor efficiëntie
+async def verwerk_termen(self, termen: List[str]) -> List[Definitie]:
+    """Verwerkt meerdere termen tegelijk (snel)."""
+    # Maak een lijst van taken die tegelijk uitgevoerd kunnen worden
+    taken = [self.genereer_definitie(term) for term in termen]
+    # Voer alle taken tegelijk uit (parallel)
+    return await asyncio.gather(*taken)
 
-# Incorrect - Sequential processing
-async def process_terms(self, terms: List[str]) -> List[Definition]:
-    """Process terms one by one."""
-    results = []
-    for term in terms:
-        result = await self.generate_definition(term)
-        results.append(result)
-    return results
+# Incorrect - Sequentiële verwerking (langzaam)
+async def verwerk_termen(self, termen: List[str]) -> List[Definitie]:
+    """Verwerkt termen één voor één."""
+    resultaten = []
+    # FOUT: Dit doet elke term na elkaar (traag)
+    for term in termen:
+        resultaat = await self.genereer_definitie(term)
+        resultaten.append(resultaat)
+    return resultaten
 ```
 
 ## Language Standards
@@ -444,16 +489,18 @@ refactor(services): extract AI interface to separate module
 
 ## Code Review Checklist
 
-- [ ] Code follows formatting standards (Black, Ruff)
-- [ ] Type hints are present and correct
-- [ ] Public methods have docstrings
-- [ ] Complex logic is commented
-- [ ] Tests are included for new functionality
-- [ ] Security considerations addressed
-- [ ] Performance impact considered
-- [ ] No hardcoded secrets or credentials
-- [ ] Error handling is appropriate
-- [ ] Code is DRY (Don't Repeat Yourself)
+- [ ] Code volgt formatting standards (Black, Ruff)
+- [ ] Type hints zijn aanwezig en correct
+- [ ] Alle publieke methoden hebben Nederlandse docstrings
+- [ ] ALLE code heeft Nederlandse inline commentaar voor niet-programmeurs
+- [ ] Complexe logica is extra uitgebreid gedocumenteerd
+- [ ] Variabelen, functies en classes hebben Nederlandse namen
+- [ ] Tests zijn toegevoegd voor nieuwe functionaliteit
+- [ ] Security overwegingen zijn geadresseerd
+- [ ] Performance impact is overwogen
+- [ ] Geen hardgecodeerde geheimen of credentials
+- [ ] Foutafhandeling is passend
+- [ ] Code is DRY (Don't Repeat Yourself - Herhaal jezelf niet)
 
 ## Exceptions and Edge Cases
 
