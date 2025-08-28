@@ -5,7 +5,7 @@
 ### Analysis Source
 Document-project output available at: `docs/architectuur/V2_AI_SERVICE_MIGRATIE_BROWNFIELD.md`
 
-### Current Project State  
+### Current Project State
 DefinitieAgent is een juridische definitie generatie service met een hybride architectuur:
 - **V1 Orchestrator**: Monolithische sync implementatie (490+ regels, productie-klaar)
 - **V2 Orchestrator**: 11-fase gestructureerde async flow met **legacy fallbacks**
@@ -14,9 +14,9 @@ DefinitieAgent is een juridische definitie generatie service met een hybride arc
 
 ### Available Documentation Analysis
 Document-project analysis available - using existing technical documentation:
-- ✅ Tech Stack Documentatie 
+- ✅ Tech Stack Documentatie
 - ✅ Source Tree/Architectuur
-- ✅ API Documentatie  
+- ✅ API Documentatie
 - ✅ Externe API Documentatie
 - ✅ Technische Schuld Documentatie
 
@@ -24,12 +24,12 @@ Document-project analysis available - using existing technical documentation:
 
 **Enhancement Type**: ☑️ Integratie met Nieuwe Systemen (AsyncGPTClient → V2 Orchestrator)
 
-**Enhancement Description**: 
+**Enhancement Description**:
 Implementatie van AIServiceV2 om de legacy fallback mechanismen in V2 orchestrator te vervangen door native async AI calls via bestaande AsyncGPTClient infrastructuur.
 
 **Impact Assessment**: ☑️ Gemiddelde Impact (enkele bestaande code wijzigingen)
 - Nieuwe AIServiceV2 klasse toevoegen
-- V2 orchestrator legacy fallback vervangen  
+- V2 orchestrator legacy fallback vervangen
 - Interface definitie toevoegen aan interfaces.py
 - V1 orchestrator blijft ongewijzigd
 
@@ -48,6 +48,8 @@ De V2 orchestrator is gebouwd voor async AI verwerking maar valt terug op sync l
 | Wijziging | Datum | Versie | Beschrijving | Auteur |
 |-----------|-------|--------|--------------|---------|
 | Initial PRD | 2025-08-28 | 1.0 | V2 AI Service migratie requirements | PM John |
+| Codex Updates | 2025-08-28 | 1.1 | Codex cross-validation: FR6, NFR6-7, story updates | PM John |
+| Strategic Pivot | 2025-08-28 | 2.0 | V1 elimination strategy: Remove compatibility requirements, add validation requirements | PM John |
 
 ## Requirements
 
@@ -57,25 +59,43 @@ De V2 orchestrator is gebouwd voor async AI verwerking maar valt terug op sync l
 
 **FR2**: AIServiceV2 moet AsyncGPTClient hergebruiken voor rate limiting, caching, en retry logic
 
-**FR3**: AIServiceInterface moet gedefinieerd worden in interfaces.py met async en batch methoden
+**FR3**: AIServiceInterface moet gedefinieerd worden in interfaces.py met async generate_definition() en batch_generate() methoden
 
-**FR4**: **[PRE-MORTEM]** V2 orchestrator moet automatisch terugvallen naar V1 legacy calls als AIServiceV2 faalt
+**FR4**: **[V1 ELIMINATION]** V1 orchestrator code moet volledig gedeactiveerd en verwijderd worden uit service container routing
 
-**FR5**: AIServiceV2 moet sync wrapper methoden bieden voor V1 orchestrator backward compatibility
+**FR5**: **[V1 ELIMINATION]** Legacy functions (`stuur_prompt_naar_gpt()`) moeten gedepreceerd en verwijderd worden
+
+**FR8**: **[ARCHITECT]** Interface moet explicit batch support bevatten met AIGenerationResult structured response inclusief generation_time, cached status, en retry_count
+
+**FR9**: **[ARCHITECT]** Error taxonomie moet geharmoniseerd worden naar AIServiceError wrapper als facade over OpenAI errors
+
+**FR6**: **[CODEX]** AIServiceV2 moet OpenAI errors (OpenAIError, RateLimitError) wrappen naar AIServiceError voor consistent error handling
+
+**FR7**: **[ARCHITECT REQUIREMENT]** Emergency rollback procedure moet gedocumenteerd zijn voor V1 restoration indien nodig
 
 ### Niet-Functionele Requirements
 
-**NFR1**: AIServiceV2 moet 3-5x performance verbetering leveren voor batch operaties vergeleken met legacy sync calls
+**NFR1**: AIServiceV2 moet 3-5x performance verbetering leveren voor batch operaties vergeleken met legacy sync calls (throughput ≥ 3x V1 bij parallelle prompts)
 
-**NFR2**: AIServiceV2 implementatie mag geen breaking changes veroorzaken voor bestaande V1 orchestrator flows
+**NFR2**: **[ARCHITECT CRITICAL]** V2 orchestrator met AIServiceV2 moet performance parity behouden met V1 baseline voor single requests (p95 latency ≤ V1 ±10%)
 
 **NFR3**: **[PRE-MORTEM]** AsyncGPTClient rate limiter moet thread-safe zijn onder concurrent load (min 50 requests/sec)
 
-**NFR4**: **[PRE-MORTEM]** AIServiceV2 moet gebruik maken van dezelfde cache keys als legacy AI service voor consistency
+**NFR4**: **[PRE-MORTEM]** AIServiceV2 moet gebruik maken van dezelfde cache keys als legacy AI service voor consistency, met thread-pool execution voor sync cache calls in async context
 
 **NFR5**: **[PRE-MORTEM]** V2 orchestrator met AIServiceV2 moet minimaal gelijke performance hebben als V1 voor single requests
 
-**NFR6**: **[PRE-MORTEM]** AIServiceV2 token counting moet binnen 10% accuraatheid zijn van werkelijke OpenAI response usage
+**NFR6**: **[CODEX REVISED]** AIServiceV2 token counting implementeert heuristiek (tiktoken) met ≥90% accuracy of rapportage met 'tokens_estimated' flag totdat per-call usage beschikbaar
+
+**NFR7**: **[CODEX]** AIServiceV2 moet RateLimitConfig centraliseren via config_manager i.p.v. eigen configuratie om conflicten te voorkomen
+
+**NFR10**: **[ARCHITECT]** Observability metrics moeten minimaal bevatten: generation_time, tokens_used/tokens_estimated, model, retry_count, cache_hit
+
+**NFR11**: **[ARCHITECT]** Logging moet eenduidige, parsebare logs genereren (JSON of gestructureerde velden) voor alle AI calls
+
+**NFR8**: **[ARCHITECT MANDATORY]** Comprehensive performance benchmarking suite moet V1 vs V2+AIServiceV2 vergelijking uitvoeren voor validation (single request p95 ≤ +10%, batch throughput ≥ 3x)
+
+**NFR9**: **[ARCHITECT MANDATORY]** AsyncGPTClient stability testing moet concurrent load scenarios valideren (50 rps gedurende 30-60 min voor rate limiter stabiliteit)
 
 ### Compatibiliteit Requirements
 
@@ -83,20 +103,22 @@ De V2 orchestrator is gebouwd voor async AI verwerking maar valt terug op sync l
 
 **CR2**: Database schema compatibility - geen database wijzigingen vereist voor migratie
 
-**CR3**: UI/UX consistency - eindgebruiker ervaart geen verschil tussen V1 en V2 orchestrator responses
+**CR3**: UI/UX consistency - eindgebruiker ervaart geen verschil tussen V1 en V2 orchestrator responses (UI/endpoint compatibiliteit ongewijzigd)
 
-**CR4**: Integration compatibility - bestaande API endpoints blijven ongewijzigd functioneren
+**CR4**: **[V1 ELIMINATION]** Alle definitie generation requests moeten exclusief via V2 orchestrator worden gerouteerd
 
-**CR5**: **[PRE-MORTEM]** AIServiceV2 sync wrapper mag geen impact hebben op bestaande V1 orchestrator performance (max 5% overhead)
+**CR5**: **[ARCHITECT REQUIREMENT]** Error handling completeness - alle V1 error scenarios moeten gemapped zijn naar V2 equivalenten
+
+**CR6**: **[ARCHITECT]** Voorbeelden-generatie functionaliteit moet gelijkwaardig of beter zijn dan V1 baseline
 
 ## Technische Constraints en Integratie Requirements
 
 ### Bestaande Technology Stack
 
-**Talen**: Python 3.x  
-**Frameworks**: FastAPI, AsyncIO  
-**Database**: SQLite (definitie opslag)  
-**Infrastructuur**: Service container architectuur met dependency injection  
+**Talen**: Python 3.x
+**Frameworks**: FastAPI, AsyncIO
+**Database**: SQLite (definitie opslag)
+**Infrastructuur**: Service container architectuur met dependency injection
 **Externe Dependencies**: OpenAI API via AsyncGPTClient, bestaande cache systeem
 
 ### Integratie Benadering
@@ -123,7 +145,7 @@ De V2 orchestrator is gebouwd voor async AI verwerking maar valt terug op sync l
 
 **Build Process Integratie**: Geen wijzigingen - AIServiceV2 wordt geimporteerd zoals bestaande services
 
-**Deployment Strategie**: Feature flag via USE_V2_AI_SERVICE environment variable, gradual rollout mogelijk
+**Deployment Strategie**: Direct V2-only replacement - V1 orchestrator volledig gedeactiveerd, geen dual-mode ondersteuning
 
 **Monitoring en Logging**: Hergebruik bestaande logging patterns, uitbreiding met async performance metrics
 
@@ -131,13 +153,13 @@ De V2 orchestrator is gebouwd voor async AI verwerking maar valt terug op sync l
 
 ### Risico Beoordeling en Mitigatie
 
-**Technische Risico's**: Thread safety issues in rate limiter, async/sync cache inconsistency, nested event loop problemen in sync wrapper
+**Technische Risico's**: AsyncGPTClient concurrency bugs, cache consistency issues, V2 performance regression vs V1 baseline
 
-**Integratie Risico's**: V1 orchestrator performance degradatie, cache coherentie tussen legacy en nieuwe service, error handling verschillen
+**Integratie Risico's**: Error handling gaps in V2, token counting inaccuracy impact, production stability zonder fallback
 
-**Deployment Risico's**: Feature flag failures, gradual rollout complexiteit, rollback naar legacy fallbacks
+**Deployment Risico's**: V1 elimination zonder adequate rollback testing, performance regression detection delay
 
-**Mitigatie Strategieën**: Comprehensive async testing, V1/V2 compatibility test suite, performance benchmarking, graceful degradation mechanismen
+**Mitigatie Strategieën**: Mandatory performance benchmarking, AsyncGPTClient stability testing, emergency rollback procedures, comprehensive V2-only testing
 
 ## Epic en Story Structuur
 
@@ -145,93 +167,103 @@ De V2 orchestrator is gebouwd voor async AI verwerking maar valt terug op sync l
 
 **Epic Structure Beslissing**: Enkele comprehensive epic met rationale - De V2 AI Service migratie vereist gecoördineerde wijzigingen over meerdere service lagen (interfaces, implementatie, container wiring) die samen één coherente feature leveren. Multiple epics zouden onnodige complexiteit toevoegen voor wat essentieel een integratie taak is.
 
-## Epic 1: V2 AI Service Migratie - Native Async Implementatie
+## Epic 1: V2 AI Service - Complete V1 Elimination
 
-**Epic Goal**: Vervang legacy fallback mechanismen in V2 orchestrator door native async AI calls via AIServiceV2 gebaseerd op bestaande AsyncGPTClient infrastructuur
+**Epic Goal**: Complete eliminatie van V1 orchestrator en implementatie van pure async V2 architecture met native AIServiceV2, resulting in clean production-ready codebase zonder legacy dependencies
 
-**Integratie Requirements**: Behoud volledige backward compatibility met V1 orchestrator, hergebruik bestaande AsyncGPTClient functionaliteit, implementeer graceful degradation voor production stability
+**Integratie Requirements**: Volledige V1 code removal, AsyncGPTClient native integration, performance validation voor production readiness, emergency rollback capability voor risk mitigation
 
 ### Story 1.1: AIServiceInterface Definitie
 
-Als een **ontwikkelaar**,  
-Wil ik **een gedefinieerde AIServiceInterface in interfaces.py**,  
+Als een **ontwikkelaar**,
+Wil ik **een gedefinieerde AIServiceInterface in interfaces.py**,
 Zodat **V2 orchestrator type-safe async AI calls kan maken**.
 
 #### Acceptance Criteria
 1. AIServiceInterface gedefinieerd met async generate_definition() methode
-2. Interface bevat batch_generate() methode voor parallelle verwerking  
-3. Type hints consistent met bestaande service interfaces
-4. Interface ondersteunt optionele parameters (model, temperature, max_tokens)
+2. Interface bevat batch_generate() methode voor parallelle verwerking
+3. Interface definieert AIGenerationResult met text, model, tokens_used, generation_time, cached, retry_count, metadata fields
+4. Type hints consistent met bestaande service interfaces
+5. Interface ondersteunt optionele parameters (model, temperature, max_tokens, system_prompt, timeout_seconds)
+6. Error taxonomie geharmoniseerd naar AIServiceError wrapper voor OpenAI errors
 
 #### Integratie Verificatie
 **IV1**: Bestaande import statements in V2 orchestrator blijven werken zonder wijzigingen
-**IV2**: IDE type checking rapporteert geen errors voor AIServiceInterface usage  
+**IV2**: IDE type checking rapporteert geen errors voor AIServiceInterface usage
 **IV3**: Bestaande services kunnen interface implementeren zonder breaking changes
 
 ### Story 1.2: AIServiceV2 Core Implementatie
 
-Als een **V2 orchestrator**,  
-Wil ik **een native async AI service die AsyncGPTClient hergebruikt**,  
+Als een **V2 orchestrator**,
+Wil ik **een native async AI service die AsyncGPTClient hergebruikt**,
 Zodat **ik echte async AI calls kan maken zonder legacy fallbacks**.
 
 #### Acceptance Criteria
-1. AIServiceV2 implementeert AIServiceInterface volledig
+1. AIServiceV2 implementeert AIServiceInterface volledig met batch_generate() ondersteuning
 2. Hergebruik AsyncGPTClient voor rate limiting, retries en caching
-3. Structured response objecten met tokens, model, metadata
-4. Error handling consistent met bestaande service patterns
+3. Structured AIGenerationResult objecten met heuristiek token counting (≥90% accuracy of 'tokens_estimated' flag)
+4. OpenAI errors (OpenAIError, RateLimitError) gewrapped naar AIServiceError
+5. RateLimitConfig gecentraliseerd via config_manager
+6. Zelfde cache keys als V1 voor compatibility
+7. Timeouts/retries/rate limiting aantoonbaar actief via logs/metrics
 
-#### Integratie Verificatie  
+#### Integratie Verificatie
 **IV1**: AsyncGPTClient rate limiter werkt correct onder concurrent requests
-**IV2**: Cache integratie gebruikt dezelfde keys als legacy AI service
+**IV2**: Cache integratie gebruikt dezelfde keys als legacy AI service met thread-pool voor sync calls
 **IV3**: Performance voor single requests minimaal gelijk aan legacy service
+**IV4**: Error consistency - OpenAI errors correct gewrapped naar AIServiceError
 
-### Story 1.3: V1 Backward Compatibility Wrapper
+### Story 1.3: V1 Orchestrator Elimination
 
-Als een **V1 orchestrator gebruiker**,  
-Wil ik **dat mijn bestaande sync calls blijven werken**,  
-Zodat **er geen breaking changes zijn tijdens de migratie**.
-
-#### Acceptance Criteria
-1. AIServiceV2 heeft sync wrapper methoden voor V1 compatibility
-2. Sync wrapper gebruikt thread executor voor async calls
-3. Response formats identiek aan legacy AI service
-4. Error types en messages consistent met legacy implementatie
-
-#### Integratie Verificatie
-**IV1**: V1 orchestrator tests slagen zonder wijzigingen
-**IV2**: Performance overhead sync wrapper < 5% vergeleken met legacy
-**IV3**: Memory usage sync wrapper acceptabel voor production load
-
-### Story 1.4: Service Container Integratie 
-
-Als een **service container**,  
-Wil ik **AIServiceV2 kunnen injecteren in V2 orchestrator**,  
-Zodat **de legacy fallback vervangen wordt door native implementation**.
+Als een **development team**,
+Wil ik **alle V1 orchestrator code volledig verwijderen**,
+Zodat **we een clean async-only architecture hebben voor production**.
 
 #### Acceptance Criteria
-1. Container factory methode ai_service_v2() toegevoegd
-2. V2 orchestrator krijgt AIServiceV2 i.p.v. None bij USE_V2_AI_SERVICE=true
-3. Feature flag controleert welke AI service wordt geïnjecteerd
-4. Graceful degradation naar legacy bij AIServiceV2 failures
+1. V1 orchestrator (`src/services/definition_orchestrator.py`) gedeactiveerd in service container
+2. Legacy functions (`stuur_prompt_naar_gpt()`) verwijderd uit codebase
+3. V2 orchestrator legacy fallback methods (`_get_legacy_ai_service()`) geëlimineerd
+4. Service container routing exclusief via V2 orchestrator
+5. Dual-path test coverage geconsolideerd naar async-only test suite
 
 #### Integratie Verificatie
-**IV1**: Bestaande container tests blijven slagen 
-**IV2**: V1 orchestrator injection ongewijzigd bij feature flag disabled
-**IV3**: V2 orchestrator startup succesvol met nieuwe AI service injection
+**IV1**: Alle definition generation requests lopen via V2 orchestrator only
+**IV2**: Zero legacy fallback code paths in production
+**IV3**: Emergency rollback procedure gedocumenteerd en getest
 
-### Story 1.5: Testing en Validatie Suite
+### Story 1.4: Performance Validation & Benchmarking
 
-Als een **QA engineer**,  
-Wil ik **comprehensive tests voor de V2 AI service migratie**,  
-Zodat **production stability gegarandeerd is**.
+Als een **development team**,
+Wil ik **comprehensive performance validation van V2-only architecture**,
+Zodat **we kunnen garanderen dat performance parity wordt behaald**.
 
 #### Acceptance Criteria
-1. Unit tests voor AIServiceV2 async behavior en error handling
-2. Integration tests V2 orchestrator met AIServiceV2
-3. V1/V2 compatibility test suite voor regression prevention
-4. Performance benchmarks async vs sync voor verschillende request patterns
+1. Performance benchmarking suite ontwikkeld voor V1 vs V2+AIServiceV2 vergelijking
+2. Single request latency validation (p95 ≤ V1 ±10%)
+3. Batch operation throughput confirmation (≥3x V1 bij parallelle prompts)
+4. AsyncGPTClient concurrent load testing (50 rps gedurende 30-60 min)
+5. Cache consistency verification onder load scenarios
+6. Rate limiter stabiliteit, foutpercentages, geheugenverbruik geverifieerd
 
 #### Integratie Verificatie
-**IV1**: Alle bestaande tests blijven slagen na migratie
-**IV2**: Performance benchmarks tonen verwachte verbetering voor batch operations
-**IV3**: Error scenario tests valideren graceful degradation mechanismen
+**IV1**: V2 orchestrator behaalt performance parity met V1 baseline
+**IV2**: Async batch operations tonen 3-5x performance improvement
+**IV3**: No performance regressions detected onder production-like load
+
+### Story 1.5: V2-Only Production Readiness
+
+Als een **QA engineer**,
+Wil ik **comprehensive testing van V2-only architecture**,
+Zodat **production launch succesvol verloopt zonder V1 dependencies**.
+
+#### Acceptance Criteria
+1. Async-only test suite voor V2 orchestrator + AIServiceV2 integration
+2. Error handling completeness testing (alle V1 scenarios mapped naar V2)
+3. Production readiness validation (zero legacy dependencies)
+4. Emergency rollback testing en procedure validation
+5. Load testing onder production-like scenarios
+
+#### Integratie Verificatie
+**IV1**: V2-only architecture slaagt voor alle production readiness criteria
+**IV2**: Error scenarios gehandled consistent zonder V1 fallback dependencies
+**IV3**: Rollback procedures gevalideerd en gedocumenteerd voor emergency use

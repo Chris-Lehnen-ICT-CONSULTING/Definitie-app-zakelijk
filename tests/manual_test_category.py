@@ -1,7 +1,6 @@
 """Manual test script voor category refactoring."""
 
 import streamlit as st
-
 from database.definitie_repository import get_definitie_repository
 from models.category_models import DefinitionCategory
 from services.category_service import CategoryService

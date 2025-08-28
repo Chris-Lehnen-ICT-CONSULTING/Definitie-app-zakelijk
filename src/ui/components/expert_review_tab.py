@@ -5,7 +5,6 @@ Expert Review Tab - Interface voor expert review en approval workflow.
 from datetime import datetime
 
 import streamlit as st
-
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,

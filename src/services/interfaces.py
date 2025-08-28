@@ -55,9 +55,15 @@ class GenerationRequest:
     actor: str | None = None  # Gebruiker/systeem die request maakt
     legal_basis: str | None = None  # Juridische basis voor DPIA/privacy compliance
     # Uitgebreide context velden voor rijke context ondersteuning
-    juridische_context: list[str] | None = None  # Juridische context (Civiel recht, Strafrecht, etc.)
-    wettelijke_basis: list[str] | None = None  # Wettelijke basis (Wetboek van Strafvordering, etc.)
-    organisatorische_context: list[str] | None = None  # Organisatorische context (DJI, OM, etc.)
+    juridische_context: list[str] | None = (
+        None  # Juridische context (Civiel recht, Strafrecht, etc.)
+    )
+    wettelijke_basis: list[str] | None = (
+        None  # Wettelijke basis (Wetboek van Strafvordering, etc.)
+    )
+    organisatorische_context: list[str] | None = (
+        None  # Organisatorische context (DJI, OM, etc.)
+    )
 
 
 @dataclass
@@ -186,7 +192,11 @@ class DefinitionGeneratorInterface(ABC):
 
 
 class DefinitionValidatorInterface(ABC):
-    """Interface voor definitie validatie services volgens Nederlandse kwaliteitseisen."""
+    """Interface voor definitie validatie services volgens Nederlandse kwaliteitseisen.
+
+    DEPRECATED: Deze sync interface is onderdeel van V1 architectuur.
+    Gebruik ValidationServiceInterface voor V2 async implementaties.
+    """
 
     @abstractmethod
     def validate(self, definition: Definition) -> ValidationResult:
@@ -340,7 +350,9 @@ class DefinitionOrchestratorInterface(ABC):
     """Interface voor het orkestreren van definitie operaties."""
 
     @abstractmethod
-    async def create_definition(self, request: GenerationRequest) -> DefinitionResponse:
+    async def create_definition(
+        self, request: GenerationRequest, context: dict[str, Any] | None = None
+    ) -> "DefinitionResponse | DefinitionResponseV2":
         """
         Orkestreer het complete proces van definitie creatie.
 
@@ -348,9 +360,10 @@ class DefinitionOrchestratorInterface(ABC):
 
         Args:
             request: GenerationRequest met input data
+            context: Optionele extra context voor orchestratie
 
         Returns:
-            DefinitionResponse met resultaat en status
+            DefinitionResponse of DefinitionResponseV2 met resultaat en status
         """
 
     @abstractmethod
@@ -567,10 +580,10 @@ class CleaningResult:
 
 
 class CleaningServiceInterface(ABC):
-    """Interface voor definitie opschoning services."""
+    """Interface voor definitie opschoning services - V2 async versie."""
 
     @abstractmethod
-    def clean_definition(self, definition: Definition) -> CleaningResult:
+    async def clean_definition(self, definition: Definition) -> CleaningResult:
         """
         Schoon een definitie op en geef gedetailleerd resultaat terug.
 
@@ -582,7 +595,7 @@ class CleaningServiceInterface(ABC):
         """
 
     @abstractmethod
-    def clean_text(self, text: str, term: str) -> CleaningResult:
+    async def clean_text(self, text: str, term: str) -> CleaningResult:
         """
         Schoon een definitie tekst op voor een specifieke term.
 
@@ -609,15 +622,110 @@ class CleaningServiceInterface(ABC):
 # ==========================================
 
 
+# AI Service Data Transfer Objects
 @dataclass
-class OrchestratorConfig:
-    """Configuration for DefinitionOrchestratorV2 behavior."""
+class AIGenerationResult:
+    """Resultaat van een AI generatie operatie met alle metadata."""
 
-    enable_feedback_loop: bool = True
-    enable_enhancement: bool = True
-    enable_caching: bool = True
-    max_retries: int = 3
-    timeout_seconds: int = 30
+    text: str  # De gegenereerde tekst
+    model: str  # Het gebruikte AI model (bijv. "gpt-4", "gpt-4-1106-preview")
+    tokens_used: int | None  # Aantal tokens gebruikt (None als estimated)
+    generation_time: float  # Generatie tijd in seconden
+    cached: bool = False  # Geeft aan of resultaat uit cache kwam
+    retry_count: int = 0  # Aantal retries voordat succes werd behaald
+    metadata: dict[str, Any] = field(
+        default_factory=dict
+    )  # Extra metadata zoals tokens_estimated flag
+
+    def __post_init__(self):
+        """Post-initialisatie voor metadata validatie."""
+        if self.tokens_used is None and "tokens_estimated" not in self.metadata:
+            self.metadata["tokens_estimated"] = True
+
+
+@dataclass
+class AIBatchRequest:
+    """Request voor batch AI generatie operaties."""
+
+    prompt: str  # De prompt voor AI generatie
+    temperature: float = 0.7  # Temperatuur parameter voor creativiteit
+    max_tokens: int = 500  # Maximum aantal tokens in response
+    model: str | None = None  # Optioneel specifiek model
+    system_prompt: str | None = None  # Optionele system prompt
+    timeout_seconds: int = 30  # Timeout voor deze specifieke request
+    metadata: dict[str, Any] = field(default_factory=dict)  # Extra metadata
+
+
+# AI Service Interface
+class AIServiceInterface(ABC):
+    """Interface voor AI service implementaties met async support."""
+
+    @abstractmethod
+    async def generate_definition(
+        self,
+        prompt: str,
+        temperature: float = 0.7,
+        max_tokens: int = 500,
+        model: str | None = None,
+        system_prompt: str | None = None,
+        timeout_seconds: int = 30,
+    ) -> AIGenerationResult:
+        """
+        Genereer een definitie met AI op basis van de gegeven prompt.
+
+        Deze methode roept het AI model aan met de opgegeven parameters
+        en retourneert een gestructureerd resultaat met metadata.
+
+        Args:
+            prompt: De prompt voor het AI model
+            temperature: Creativiteit parameter (0.0 = deterministisch, 1.0 = creatief)
+            max_tokens: Maximum aantal tokens in de response
+            model: Optioneel specifiek model om te gebruiken
+            system_prompt: Optionele system prompt voor context
+            timeout_seconds: Timeout voor de AI call
+
+        Returns:
+            AIGenerationResult met gegenereerde tekst en metadata
+
+        Raises:
+            AIServiceError: Bij fouten in de AI service (rate limits, timeouts, etc.)
+        """
+
+    @abstractmethod
+    async def batch_generate(
+        self, requests: list[AIBatchRequest]
+    ) -> list[AIGenerationResult]:
+        """
+        Voer meerdere AI generatie requests parallel uit.
+
+        Deze methode optimaliseert batch verwerking door parallelle
+        uitvoering waar mogelijk, met respect voor rate limits.
+
+        Args:
+            requests: Lijst van AIBatchRequest objecten
+
+        Returns:
+            Lijst van AIGenerationResult objecten in dezelfde volgorde
+
+        Raises:
+            AIServiceError: Bij fouten in de AI service
+        """
+
+
+# AI Service Exceptions
+class AIServiceError(Exception):
+    """Base exception voor AI service fouten."""
+
+
+class AIRateLimitError(AIServiceError):
+    """Exception voor rate limit overschrijdingen."""
+
+
+class AITimeoutError(AIServiceError):
+    """Exception voor timeout fouten."""
+
+
+# ==========================================
 
 
 @dataclass
@@ -630,6 +738,318 @@ class PromptResult:
     feedback_integrated: bool
     optimization_applied: bool
     metadata: dict[str, Any]
+
+
+# Prompt Service V2 Interfaces
+class PromptServiceInterface(ABC):
+    """Interface voor prompt building services met V2 features."""
+
+    @abstractmethod
+    async def build_generation_prompt(
+        self,
+        request: GenerationRequest,
+        feedback_history: list[dict[str, Any]] | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> PromptResult:
+        """
+        Bouw een geoptimaliseerde prompt voor definitie generatie.
+
+        Args:
+            request: GenerationRequest met begrip en context
+            feedback_history: Historische feedback voor optimalisatie
+            context: Extra context informatie
+
+        Returns:
+            PromptResult met gestructureerde prompt informatie
+        """
+
+    @abstractmethod
+    async def optimize_prompt(self, prompt: str, max_tokens: int) -> str:
+        """
+        Optimaliseer een prompt binnen token limieten.
+
+        Args:
+            prompt: Originele prompt
+            max_tokens: Maximum aantal tokens
+
+        Returns:
+            Geoptimaliseerde prompt
+        """
+
+
+# Validation Service V2 Interface
+class ValidationServiceInterface(ABC):
+    """Interface voor async definitie validatie met V2 features."""
+
+    @abstractmethod
+    async def validate_definition(
+        self,
+        begrip: str,
+        text: str,
+        ontologische_categorie: str | None = None,
+        context: dict[str, Any] | None = None,
+    ) -> ValidationResult:
+        """
+        Valideer een definitie async volgens alle regels.
+
+        Args:
+            begrip: Het begrip dat gedefinieerd wordt
+            text: De definitie tekst
+            ontologische_categorie: Optionele categorie
+            context: Extra validatie context
+
+        Returns:
+            ValidationResult met validatie details
+        """
+
+    @abstractmethod
+    async def batch_validate(
+        self, definitions: list[tuple[str, str]]
+    ) -> list[ValidationResult]:
+        """
+        Valideer meerdere definities tegelijk.
+
+        Args:
+            definitions: Lijst van (begrip, definitie) tuples
+
+        Returns:
+            Lijst van ValidationResult objecten
+        """
+
+
+# Enhancement Service Interface
+class EnhancementServiceInterface(ABC):
+    """Interface voor definitie verrijking services."""
+
+    @abstractmethod
+    async def enhance_definition(
+        self,
+        text: str,
+        violations: list[Any],  # list[RuleViolation] from validation
+        context: GenerationRequest,
+    ) -> str:
+        """
+        Verbeter een definitie op basis van validatie violations.
+
+        Args:
+            text: De definitie tekst om te verbeteren
+            violations: Lijst van validatie violations
+            context: Originele GenerationRequest voor context
+
+        Returns:
+            Verbeterde definitie tekst
+        """
+
+    @abstractmethod
+    async def generate_examples(
+        self, begrip: str, definitie: str, aantal: int = 3
+    ) -> list[str]:
+        """
+        Genereer voorbeelden voor een definitie.
+
+        Args:
+            begrip: Het begrip
+            definitie: De definitie tekst
+            aantal: Aantal voorbeelden om te genereren
+
+        Returns:
+            Lijst van gegenereerde voorbeelden
+        """
+
+
+# Security Service Interface
+class SecurityServiceInterface(ABC):
+    """Interface voor security en privacy services."""
+
+    @abstractmethod
+    async def sanitize_request(self, request: GenerationRequest) -> GenerationRequest:
+        """
+        Sanitize een request voor DPIA/AVG compliance.
+
+        Args:
+            request: Te sanitizen GenerationRequest
+
+        Returns:
+            Gesanitized GenerationRequest
+        """
+
+    @abstractmethod
+    async def redact_pii(self, text: str, redaction_level: str = "medium") -> str:
+        """
+        Verwijder persoonlijk identificeerbare informatie uit tekst.
+
+        Args:
+            text: Te redacteren tekst
+            redaction_level: Niveau van redactie (low/medium/high)
+
+        Returns:
+            Geredacteerde tekst
+        """
+
+    @abstractmethod
+    async def validate_compliance(
+        self, definition: Definition, compliance_rules: list[str] | None = None
+    ) -> dict[str, bool]:
+        """
+        Valideer compliance met privacy regels.
+
+        Args:
+            definition: Te valideren definitie
+            compliance_rules: Specifieke regels om te checken
+
+        Returns:
+            Dictionary met compliance status per regel
+        """
+
+
+# Monitoring Service Interface
+class MonitoringServiceInterface(ABC):
+    """Interface voor monitoring en metrics services."""
+
+    @abstractmethod
+    async def start_generation(self, generation_id: str) -> None:
+        """
+        Start tracking van een generatie operatie.
+
+        Args:
+            generation_id: Unieke generatie identifier
+        """
+
+    @abstractmethod
+    async def complete_generation(
+        self,
+        generation_id: str,
+        success: bool,
+        duration: float,
+        token_count: int | None = None,
+        **kwargs: Any,
+    ) -> None:
+        """
+        Markeer een generatie als compleet met metrics.
+
+        Args:
+            generation_id: Unieke generatie identifier
+            success: Of generatie succesvol was
+            duration: Duur in seconden
+            token_count: Aantal gebruikte tokens
+            **kwargs: Extra metrics
+        """
+
+    @abstractmethod
+    async def track_error(
+        self, generation_id: str, error: Exception, error_type: str | None = None
+    ) -> None:
+        """
+        Track een error tijdens generatie.
+
+        Args:
+            generation_id: Unieke generatie identifier
+            error: De opgetreden error
+            error_type: Optioneel error type
+        """
+
+    @abstractmethod
+    def get_metrics_summary(
+        self, time_range: tuple[datetime, datetime] | None = None
+    ) -> dict[str, Any]:
+        """
+        Haal metrics samenvatting op.
+
+        Args:
+            time_range: Optioneel tijdsbereik
+
+        Returns:
+            Dictionary met metrics samenvatting
+        """
+
+
+# Feedback Engine Interface
+class FeedbackEngineInterface(ABC):
+    """Interface voor feedback processing en integratie."""
+
+    @abstractmethod
+    async def get_feedback_for_request(
+        self, begrip: str, categorie: str | None = None
+    ) -> list[dict[str, Any]]:
+        """
+        Haal relevante feedback op voor een request.
+
+        Args:
+            begrip: Het begrip waarvoor feedback gezocht wordt
+            categorie: Optionele ontologische categorie
+
+        Returns:
+            Lijst van relevante feedback items
+        """
+
+    @abstractmethod
+    async def process_validation_feedback(
+        self,
+        definition_id: str,
+        validation_result: ValidationResult,
+        original_request: GenerationRequest,
+    ) -> dict[str, Any]:
+        """
+        Verwerk validatie feedback voor toekomstig gebruik.
+
+        Args:
+            definition_id: ID van de definitie
+            validation_result: Validatie resultaat
+            original_request: Originele generatie request
+
+        Returns:
+            Verwerkte feedback resultaat
+        """
+
+    @abstractmethod
+    async def process_feedback(
+        self,
+        definition_id: str,
+        feedback_type: str,
+        feedback_content: str,
+        metadata: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """
+        Verwerk algemene gebruikersfeedback voor een definitie.
+
+        Args:
+            definition_id: ID van de definitie
+            feedback_type: Type feedback (quality/accuracy/etc)
+            feedback_content: Feedback inhoud
+            metadata: Extra metadata
+
+        Returns:
+            Verwerkte feedback resultaat
+        """
+
+    @abstractmethod
+    async def get_feedback_history(
+        self, definition_id: str | None = None, limit: int = 10
+    ) -> list[dict[str, Any]]:
+        """
+        Haal feedback geschiedenis op.
+
+        Args:
+            definition_id: Optioneel filter op definitie ID
+            limit: Maximum aantal resultaten
+
+        Returns:
+            Lijst van feedback items
+        """
+
+
+# ==========================================
+
+
+@dataclass
+class OrchestratorConfig:
+    """Configuration for DefinitionOrchestratorV2 behavior."""
+
+    enable_feedback_loop: bool = True
+    enable_enhancement: bool = True
+    enable_caching: bool = True
+    max_retries: int = 3
+    timeout_seconds: int = 30
 
 
 @dataclass

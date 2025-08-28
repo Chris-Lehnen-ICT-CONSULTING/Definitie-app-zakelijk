@@ -58,9 +58,7 @@ class ContextAwarenessModule(BasePromptModule):
             f"(adaptive={self.adaptive_formatting}, confidence={self.confidence_indicators})"
         )
 
-    def validate_input(
-        self, context: ModuleContext
-    ) -> tuple[bool, str | None]:
+    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
         """
         Valideer input - deze module werkt altijd (ook bij geen context).
 

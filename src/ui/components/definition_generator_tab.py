@@ -6,7 +6,6 @@ import logging
 from typing import Any
 
 import streamlit as st
-
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieStatus,
