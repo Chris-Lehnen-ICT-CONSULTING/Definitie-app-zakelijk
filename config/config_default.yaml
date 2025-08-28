@@ -3,22 +3,121 @@
 
 # API Configuration
 api:
-  default_model: "gpt-4"
-  default_temperature: 0.01
+  default_model: "gpt-5"
+  default_temperature: 0.0
   default_max_tokens: 300
   request_timeout: 30.0
   max_retries: 3
   retry_backoff_factor: 1.5
 
   model_settings:
+    gpt-5:
+      max_tokens: 300
+      temperature: 0.0
+      cost_per_token: 0.00003
     gpt-4:
       max_tokens: 300
       temperature: 0.01
       cost_per_token: 0.00003
-    gpt-3.5-turbo:
-      max_tokens: 350
-      temperature: 0.1
-      cost_per_token: 0.0000015
+
+# Component-specific AI Configuration
+# Definieert de optimale temperature en model per component type
+ai_components:
+  # Hoofddefinitie generatie
+  definition_generator:
+    model: "gpt-5"
+    temperature: 0.0  # Maximale consistentie voor definities
+    max_tokens: 300
+
+  # Voorbeelden sectie (verschillende types)
+  voorbeelden:
+    # Taalkundige voorbeelden
+    synoniemen:
+      model: "gpt-5"
+      temperature: 0.2  # Lage creativiteit voor linguistische precisie
+      max_tokens: 150
+    antoniemen:
+      model: "gpt-5"
+      temperature: 0.2  # Lage creativiteit voor linguistische precisie
+      max_tokens: 150
+
+    # Verklarende voorbeelden
+    toelichting:  # Was 'uitleg' in sommige modules
+      model: "gpt-5"
+      temperature: 0.3  # Balanced voor informatieve content
+      max_tokens: 300
+    explanation:  # Alias voor toelichting (EnglishExampleType)
+      model: "gpt-5"
+      temperature: 0.3  # Balanced voor informatieve content
+      max_tokens: 300
+
+    # Context voorbeelden
+    voorbeeldzinnen:  # SENTENCE type
+      model: "gpt-5"
+      temperature: 0.5  # Medium creativiteit voor variatie
+      max_tokens: 250
+    sentence:  # Alias voor voorbeeldzinnen (EnglishExampleType)
+      model: "gpt-5"
+      temperature: 0.5  # Medium creativiteit voor variatie
+      max_tokens: 250
+
+    # Praktijk voorbeelden
+    praktijkvoorbeelden:  # PRACTICAL type
+      model: "gpt-5"
+      temperature: 0.6  # Hogere creativiteit voor realistische scenarios
+      max_tokens: 300
+    practical:  # Alias voor praktijkvoorbeelden (EnglishExampleType)
+      model: "gpt-5"
+      temperature: 0.6  # Hogere creativiteit voor realistische scenarios
+      max_tokens: 300
+    praktisch_voorbeeld:  # Legacy naam
+      model: "gpt-5"
+      temperature: 0.6  # Hogere creativiteit voor realistische scenarios
+      max_tokens: 300
+
+    # Contrast voorbeelden
+    tegenvoorbeelden:  # COUNTER type
+      model: "gpt-5"
+      temperature: 0.6  # Hogere creativiteit voor contrasterende scenarios
+      max_tokens: 300
+    counter:  # Alias voor tegenvoorbeelden (EnglishExampleType)
+      model: "gpt-5"
+      temperature: 0.6  # Hogere creativiteit voor contrasterende scenarios
+      max_tokens: 300
+    counter_voorbeeld:  # Legacy naam
+      model: "gpt-5"
+      temperature: 0.6  # Hogere creativiteit voor contrasterende scenarios
+      max_tokens: 300
+
+    # Synoniemen alternatieven (voor backwards compatibility)
+    synonyms:  # English variant
+      model: "gpt-5"
+      temperature: 0.2  # Lage creativiteit voor linguistische precisie
+      max_tokens: 150
+
+    # Antoniemen alternatieven (voor backwards compatibility)
+    antonyms:  # English variant
+      model: "gpt-5"
+      temperature: 0.2  # Lage creativiteit voor linguistische precisie
+      max_tokens: 150
+
+  # Expert review
+  expert_review:
+    model: "gpt-5"
+    temperature: 0.1  # Lage temperature voor kritische analyse
+    max_tokens: 500
+
+  # Validatie
+  validation:
+    model: "gpt-5"
+    temperature: 0.0  # Zero temperature voor consistente validatie
+    max_tokens: 200
+
+  # Web search query generation
+  search_query:
+    model: "gpt-5"
+    temperature: 0.3  # Enige creativiteit voor query variaties
+    max_tokens: 100
 
 # Cache Configuration
 cache:
@@ -167,8 +266,8 @@ monitoring:
 
   # OpenAI pricing (per 1K tokens)
   openai_pricing:
+    gpt-5: 0.03
     gpt-4: 0.03
-    gpt-3.5-turbo: 0.0015
 
 # Logging Configuration
 logging:

@@ -9,7 +9,7 @@ Bedankt voor je interesse in het bijdragen aan DefinitieAgent! Deze guide helpt 
 - Lees de [SETUP.md](SETUP.md) voor installatie instructies
 - Bekijk de [Roadmap](docs/requirements/ROADMAP.md) voor geplande features
 - Check de [Backlog](docs/BACKLOG.md) voor open taken
-- Lees [CLAUDE.md](CLAUDE.md) voor AI-specifieke coding guidelines
+- Lees [README.md](README.md) voor AI-specifieke coding guidelines (BMAD methode)
 
 ### 2. Development Workflow
 
@@ -153,9 +153,61 @@ Voor nieuwe features:
 - Discussions voor vragen
 - Email voor security issues
 
+# 📁 Document Organisatie
+
+Alle documenten moeten in de juiste mappen worden geplaatst volgens onderstaande structuur:
+
+```
+docs/
+├── architectuur/           # Architectuur documentatie
+│   ├── workflows/          # Architectuur workflows
+│   ├── definitie service/  # Service-specifieke architectuur
+│   └── _archive/           # Verouderde architectuur docs
+├── workflows/              # Algemene workflow beschrijvingen
+├── analyse/                # Analyse rapporten
+├── requirements/           # Requirements & planning
+├── technisch/              # Technische documentatie
+├── reviews/                # Review rapporten
+└── archief/                # Algemeen archief
+
+scripts/
+├── analyse/                # Nederlandse analyse scripts
+├── analysis/               # Legacy Engelse scripts
+├── maintenance/            # Onderhoud scripts
+├── hooks/                  # Pre-commit hooks
+└── migrate-*.sh            # Migratie scripts
+
+reports/
+├── analysis/               # Analyse rapporten (JSON)
+├── visualizations/         # HTML visualisaties
+└── exports/                # Gegenereerde exports
+
+tests/
+├── integration/            # Integratie tests
+├── unit/                   # Unit tests
+├── data/                   # Test data bestanden
+└── fixtures/               # Test fixtures
+```
+
+## Bestand Naamgeving Conventies
+
+- **Nederlandse bestandsnamen** voor nieuwe bestanden
+- **kleine-letters-met-streepjes** naamgeving
+- **Geen documenten in root** (behalve README, LICENSE, etc.)
+- **Pre-commit hook** controleert automatisch bestand locaties
+
+## Document Migratie Scripts
+
+We hebben 3 migratie scripts om documenten te organiseren:
+- `scripts/migrate-documents.sh` - Fase 1: Basis organisatie
+- `scripts/migrate-documents-fase2.sh` - Fase 2: Architectuur & technische docs
+- `scripts/migrate-documents-fase3.sh` - Fase 3: Laatste opruiming
+
+Bij twijfel: gebruik `--dry-run` optie om te zien wat er zou gebeuren.
+
 ## 🙏 Credits
 
 Alle contributors worden vermeld in het project. Bedankt voor je bijdrage!
 
 ---
-*Laatste update: 17 juli 2025*
+*Laatste update: 27 januari 2025*
