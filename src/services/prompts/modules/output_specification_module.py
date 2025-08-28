@@ -141,10 +141,9 @@ class OutputSpecificationModule(BasePromptModule):
         return """### 📏 OUTPUT FORMAT VEREISTEN:
 - Definitie in één enkele zin
 - Geen punt aan het einde
-- Geen haakjes voor toelichtingen
+- Geen haakjes voor toelichtingen  
 - Geen voorbeelden in de definitie
-- Gebruik enkelvoud (tenzij meervoud essentieel is)
-- Bij werkwoorden: gebruik infinitief vorm"""
+- Focus op WAT het is, niet het doel of gebruik"""
 
     def _build_character_limit_warning(self, min_chars: int, max_chars: int) -> str:
         """
@@ -167,10 +166,9 @@ Deze definitie heeft specifieke lengte-eisen:
 
     def _build_format_guidelines(self) -> str:
         """Bouw extra format richtlijnen."""
-        return """### 📝 SCHRIJFSTIJL RICHTLIJNEN:
+        return """### 📝 DEFINITIE KWALITEIT:
 - Gebruik formele, zakelijke taal
-- Vermijd jargon tenzij noodzakelijk
-- Schrijf in actieve vorm waar mogelijk
+- Vermijd jargon tenzij noodzakelijk voor het vakgebied
 - Gebruik concrete, specifieke termen
 - Vermijd vage kwalificaties (veel, weinig, meestal)
-- Wees consistent in terminologie"""
+- Maak onderscheid tussen het begrip en verwante begrippen"""
