@@ -1,13 +1,13 @@
 api:
   default_max_tokens: 300
-  default_model: gpt-4
-  default_temperature: 0.9
+  default_model: gpt-5
+  default_temperature: 0.0
   max_retries: 5
   model_settings:
-    gpt-3.5-turbo:
-      cost_per_token: 1.5e-06
-      max_tokens: 350
-      temperature: 0.1
+    gpt-5:
+      cost_per_token: 3.0e-05
+      max_tokens: 300
+      temperature: 0.0
     gpt-4:
       cost_per_token: 3.0e-05
       max_tokens: 300
@@ -50,7 +50,7 @@ monitoring:
   health_check_interval: 15
   metrics_interval: 30
   openai_pricing:
-    gpt-3.5-turbo: 0.0015
+    gpt-5: 0.03
     gpt-4: 0.03
   response_time_threshold: 10.0
 paths:

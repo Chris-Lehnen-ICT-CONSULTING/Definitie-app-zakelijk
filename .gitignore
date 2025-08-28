@@ -127,3 +127,6 @@ STREAMLIT_APP_TEST_SUMMARY.md
 # 💚 Log directories
 log/
 logs/
+
+# Generated reports
+reports/
