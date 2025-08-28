@@ -247,7 +247,43 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 - **Automated quality checks** via `scripts/ai_code_reviewer.py`
 - **BMAD framework** voor development workflow
 - **Quinn QA agent** voor architecture reviews
-- **Pre-commit hooks** voor immediate feedback
+
+## 📁 Project Structuur (Voor Claude Code)
+
+```
+/
+├── src/                    # Alleen broncode
+├── tests/                  # Alleen test bestanden
+├── docs/                   # Alle documentatie
+│   ├── architectuur/       # Architectuur docs
+│   ├── workflows/          # Workflow docs
+│   ├── analyse/            # Analyse rapporten
+│   ├── technisch/          # Technische documentatie
+│   ├── reviews/            # Review rapporten
+│   └── requirements/       # Requirements & features
+├── scripts/                # Hulp scripts
+│   ├── analyse/            # Analyse scripts
+│   ├── analysis/           # Engelse legacy scripts
+│   ├── hooks/              # Pre-commit hooks
+│   └── maintenance/        # Onderhoud scripts
+├── reports/                # Gegenereerde rapporten (git-ignored)
+├── config/                 # Configuratie bestanden
+├── data/                   # Database & data bestanden
+├── logs/                   # Log bestanden
+├── cache/                  # Tijdelijke cache bestanden
+├── exports/                # Gegenereerde exports
+└── static/                 # Statische assets
+```
+
+**Bestand Plaatsingsregels:**
+- ❌ GEEN documenten in root (behalve README, LICENSE, etc.)
+- ❌ GEEN test bestanden in root → gebruik `tests/`
+- ❌ GEEN scripts in root → gebruik `scripts/`
+- ✅ Alleen Nederlandse bestandsnamen (nieuwe bestanden)
+- ✅ kleine-letters-met-streepjes naamgeving
+- ✅ Rapporten naar `reports/` (automatisch genegeerd)
+- ✅ Logs naar `logs/` directory
+- **Pre-commit hooks** controleren automatisch bestand locaties
 
 ## 📞 Support
 
