@@ -43,7 +43,7 @@ As per ADR-005, we use a **Direct Replacement Strategy** with no runtime fallbac
    ```bash
    # Run tests
    python -m pytest
-   
+
    # Verify V1 orchestrator works
    python -m pytest tests/services/test_definition_orchestrator.py
    ```

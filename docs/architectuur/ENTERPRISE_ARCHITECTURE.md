@@ -19,6 +19,14 @@
 
 ---
 
+### Current Snapshot (2025-08-28)
+- **Kern**: AI-definitiegeneratie en validatie werken; 45/46 toetsregels actief
+- **UI**: 10 Streamlit tabs laden; Web Lookup tab nog niet geïntegreerd
+- **Security**: Geen AuthN/Z, geen DB-encryptie; enkele bare excepts aanwezig
+- **Performance**: Cache memory leaks geïdentificeerd; N+1 query patronen
+- **Tests**: 522 tests; import issues in enkele suites; ~26% test-to-code
+- **Tech debt**: Legacy UnifiedDefinitionService te groot; E402 importfouten
+
 ## 1. Business Architecture
 
 ### 1.1 Business Capability Model
@@ -175,6 +183,14 @@ Integration Categories:
 
 ## 4. Technology Architecture
 
+### 4.0 Current Technical Snapshot (2025-08-28)
+- **Taal/Runtime**: Python 3.11; Streamlit UI
+- **Data**: SQLite (unencrypted) met migraties; export naar TXT/JSON
+- **Services**: Modulair (generatie, validatie, lookup, repo, monitoring)
+- **Resilience**: Retries/ratelimiting aanwezig, centralisatie gewenst
+- **Observability**: Basis monitoring/logging; uitbreiden met structured logging en P95/P99 metrics
+- **Beperkingen**: Geen auth/crypto; UI-coupling in enkele services; import hygiëne issues
+
 ### 4.1 Technology Standards
 
 #### Government-Wide Standards
@@ -230,6 +246,13 @@ Integration Categories:
 | Adoption Resistance | Medium | Medium | Change management, training program |
 | Compliance Violation | High | Low | Automated compliance checks |
 | Vendor Lock-in | Medium | Medium | Open standards, portability |
+
+### 5.4 Open Issues (2025-08-28)
+- 🔴 Geen authenticatie/autorisatie (BIO/NORA blocker)
+- 🔴 Geen encryptie at rest (SQLite) en in transit buiten dev
+- 🟠 8 bare excepts en E402 importfouten riskeren stabiliteit
+- 🟠 Rate limiting/resilience niet uniform toegepast
+- 🟡 Logging/monitoring niet gestandaardiseerd; auditability beperkt
 
 ### 5.3 Security Principles
 1. **Privacy by Design**: Built-in from the start
@@ -298,6 +321,24 @@ Integration Categories:
 ├── European Integration
 ├── Blockchain Audit
 └── AI Autonomous Mode
+
+### 7.1.1 Revised Roadmap (Post‑Quinn Review, Aug 2025)
+Week 1–2: FOUNDATION & SECURITY
+- Splits legacy Unified service; fix E402/imports; verwijder bare excepts
+- AuthN/AuthZ (OIDC) en feature flags; DB-encryptie of migratie
+
+Week 3–4: TESTING & INTEGRATION
+- Testinfra herstellen; AI Toetser coverage omhoog; Web Lookup UI integratie
+- Observability: structured logging, performance monitors en tracing
+- Voorbeelden-module: consolideren naar `src/voorbeelden/unified_voorbeelden.py`,
+  temperature-config centraliseren; legacy modules uitfaseren en orchestrators migreren
+
+Week 5–8: PERFORMANCE & QUALITY
+- N+1/caching‑leaks oplossen; resilience policies centraliseren; strict rate limiting
+- 46/46 toetsregels; prompt/duplicaat‑detectie bijstellen
+
+Week 9–12: PRODUCTION READINESS
+- BIO/NORA hardening; monitoring/alerts; exportformaten; governance/ADR’s afronden
 ```
 
 ### 7.2 Investment Portfolio
@@ -429,15 +470,19 @@ Full Product: Week 20
 ## 9. Cross-References
 
 ### Solution Architecture Documents
-- **DefinitieAgent Solution Architecture**: [Link] - Technical implementation details
-- **API Specifications**: [Link] - Detailed API documentation
-- **Security Implementation Guide**: [Link] - Security control details
-- **Migration Plan**: [Link] - Technical migration approach
+- **DefinitieAgent Solution Architecture**: docs/architectuur/SOLUTION_ARCHITECTURE.md
+- **API Specifications**: docs/api/
+- **Security Analysis & Guidance**: docs/SECURITY_AND_FEEDBACK_ANALYSIS.md
+- **Legacy Migration Plan**: docs/LEGACY_CODE_MIGRATION_ROADMAP.md
+ - **Voorbeelden Temperature/Refactor Analyse**: temperature_analysis_complete.md
 
 ### Governance Documents
-- **Architecture Decision Records**: `/docs/architectuur/beslissingen/`
-- **Business Case**: `/docs/business-case-definitieagent.pdf`
-- **Compliance Matrix**: `/docs/compliance/gdpr-bio-matrix.xlsx`
+- **Architecture Decision Records (ADR’s)**: docs/architectuur/beslissingen/
+- **Product Requirements (PRD)**: docs/prd.md
+- **Architecture Viewer**: docs/architectuur/architecture-viewer.html
+- **Compliance (BIO/NORA/WCAG) – status & acties**: docs/SECURITY_AND_FEEDBACK_ANALYSIS.md
+ - **Compliance Matrix (Skeleton)**: docs/compliance/COMPLIANCE_MATRIX.md
+ - **Capability Map (Compact)**: docs/architectuur/CAPABILITY_MAP.md
 
 ### Standards & Frameworks
 - **NORA**: [Nederlandse Overheid Referentie Architectuur](https://www.noraonline.nl)
@@ -488,11 +533,11 @@ Full Product: Week 20
 - €3M+ annual savings
 
 ### D. Document Control
-- **Version**: 1.0
-- **Status**: Draft for Review
+- **Version**: 1.1
+- **Status**: Draft for Review (updated AS‑IS, roadmap, links)
 - **Owner**: Enterprise Architecture Office
-- **Last Updated**: 2024-08-19
-- **Next Review**: 2024-09-19
+- **Last Updated**: 2025-08-28
+- **Next Review**: 2025-09-30
 - **Distribution**: CIO Council, Architecture Board, CDO Network
 
 ---
