@@ -1,7 +1,6 @@
 """Handler voor regeneration flow in UI."""
 
 import streamlit as st
-
 from ui.session_state import SessionStateManager
 
 

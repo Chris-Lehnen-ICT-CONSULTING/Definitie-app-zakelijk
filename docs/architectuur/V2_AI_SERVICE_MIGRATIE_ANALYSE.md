@@ -1,7 +1,7 @@
 # V2 AI Service Migratie - Technische Analyse
 
-**Datum:** 28 augustus 2025  
-**Status:** Conceptanalyse  
+**Datum:** 28 augustus 2025
+**Status:** Conceptanalyse
 **Auteur:** AI Architectuur Specialist
 
 ## 1. Huidige Situatie Analyse

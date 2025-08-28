@@ -25,7 +25,7 @@ Deze analyse toont aan wat er nodig is om volledig over te schakelen van V1 (Def
 # Nodig: src/services/ai_service_v2.py
 class AIServiceV2(AIServiceInterface):
     async def generate_definition(
-        self, prompt: str, temperature: float = 0.7, 
+        self, prompt: str, temperature: float = 0.7,
         max_tokens: int = 500, model: str = None
     ) -> AIGenerationResult
 ```
@@ -38,7 +38,7 @@ class AIServiceV2(AIServiceInterface):
 # Nodig: src/services/validation_service_v2.py
 class ValidationServiceV2(ValidationServiceInterface):
     async def validate_definition(
-        self, begrip: str, text: str, 
+        self, begrip: str, text: str,
         ontologische_categorie: str = None
     ) -> ValidationResult
 ```
@@ -70,7 +70,7 @@ class SecurityService(SecurityServiceInterface):
     async def sanitize_request(
         self, request: GenerationRequest
     ) -> GenerationRequest
-    
+
     async def redact_pii(self, text: str) -> str
 ```
 **Status**: Niet geïmplementeerd
@@ -98,9 +98,9 @@ class FeedbackEngine(FeedbackEngineInterface):
     async def get_feedback_for_request(
         self, begrip: str, categorie: str
     ) -> list[Feedback]
-    
+
     async def process_validation_feedback(
-        self, definition_id: str, 
+        self, definition_id: str,
         validation_result: ValidationResult,
         original_request: GenerationRequest
     )
@@ -244,7 +244,7 @@ class EnhancementServiceInterface(ABC):
 
 ### Risico 1: Breaking Changes
 **Impact**: Bestaande integraties kunnen breken
-**Mitigatie**: 
+**Mitigatie**:
 - Maintain backward compatibility layer
 - Deprecation warnings
 - Migration guide

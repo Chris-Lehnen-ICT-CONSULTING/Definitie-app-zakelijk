@@ -8,7 +8,6 @@ from datetime import datetime, timezone
 
 import pandas as pd
 import streamlit as st
-
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 

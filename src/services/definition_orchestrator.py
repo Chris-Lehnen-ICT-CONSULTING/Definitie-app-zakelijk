@@ -406,17 +406,18 @@ class DefinitionOrchestrator(
             base_context = {
                 "organisatorisch": (
                     # Gebruik nieuwe rijke context velden als beschikbaar, anders fallback naar legacy
-                    context.request.organisatorische_context or 
-                    ([context.request.context] if context.request.context else [])
+                    context.request.organisatorische_context
+                    or ([context.request.context] if context.request.context else [])
                 ),
                 "juridisch": (
                     # Gebruik nieuwe juridische_context veld, anders fallback naar domein
-                    context.request.juridische_context or
-                    ([context.request.domein] if context.request.domein else [])
+                    context.request.juridische_context
+                    or ([context.request.domein] if context.request.domein else [])
                 ),
                 "wettelijk": (
                     # Gebruik nieuwe wettelijke_basis veld
-                    context.request.wettelijke_basis or []
+                    context.request.wettelijke_basis
+                    or []
                 ),
                 # ontologische_categorie verwijderd uit base_context om string->char array bug te fixen
             }
@@ -619,8 +620,9 @@ class DefinitionOrchestrator(
             AI-generated response text
         """
         try:
-            from config.config_manager import get_default_model, get_default_temperature
             from services.ai_service import get_ai_service
+
+            from config.config_manager import get_default_model, get_default_temperature
 
             # Use central config for defaults
             if model is None:
