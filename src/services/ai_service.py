@@ -139,8 +139,8 @@ class AIService:
                 messages.append({"role": "user", "content": prompt})
 
                 # Model-specifieke API parameters
-                if model == "gpt-4.1":
-                    # GPT-4.1 gebruikt max_completion_tokens ipv max_tokens
+                if model == "gpt-5":
+                    # ALLEEN GPT-5 gebruikt max_completion_tokens
                     response = self._client.chat.completions.create(
                         model=model,
                         messages=messages,
@@ -148,7 +148,7 @@ class AIService:
                         max_completion_tokens=max_tokens,
                     )
                 else:
-                    # Oudere modellen gebruiken max_tokens
+                    # GPT-4.1 en andere modellen gebruiken gewoon max_tokens
                     response = self._client.chat.completions.create(
                         model=model,
                         messages=messages,
