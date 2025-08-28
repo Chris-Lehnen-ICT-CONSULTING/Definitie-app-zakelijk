@@ -12,12 +12,15 @@ from dataclasses import (  # Dataklassen voor gestructureerde request/response d
     dataclass,
 )
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
+    UTC,
     datetime,
-    timezone,
 )
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
+from config.config_manager import (
+    get_component_config,  # Centrale component configuratie
+)
 from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
 from utils.cache import cached  # Caching decorator voor performance optimalisatie
 
@@ -27,10 +30,6 @@ from utils.integrated_resilience import (  # Volledig resilience systeem
 )
 from utils.smart_rate_limiter import (  # Smart rate limiting voor API calls
     RequestPriority,
-)
-
-from config.config_manager import (
-    get_component_config,  # Centrale component configuratie
 )
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
@@ -111,6 +110,21 @@ class UnifiedExamplesGenerator:
         config_key = type_mapping.get(example_type, "sentence")
         return get_component_config("voorbeelden", config_key)
 
+    def _get_config_for_type(self, example_type: ExampleType) -> dict:
+        """Get configuration for a specific example type from central config."""
+        # Map ExampleType enum to config keys
+        type_mapping = {
+            ExampleType.SENTENCE: "sentence",
+            ExampleType.PRACTICAL: "practical",
+            ExampleType.COUNTER: "counter",
+            ExampleType.SYNONYMS: "synonyms",
+            ExampleType.ANTONYMS: "antonyms",
+            ExampleType.EXPLANATION: "explanation",
+        }
+
+        config_key = type_mapping.get(example_type, "sentence")
+        return get_component_config("voorbeelden", config_key)
+
     def _run_async_safe(self, coro):
         """Run async coroutine safely, detecting existing event loop."""
         try:
@@ -139,7 +153,7 @@ class UnifiedExamplesGenerator:
 
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
         """Generate examples based on request configuration."""
-        start_time = datetime.now(timezone.utc)
+        start_time = datetime.now(UTC)
 
         # Get configuration for this example type if not specified
         config = self._get_config_for_type(request.example_type)
@@ -163,7 +177,7 @@ class UnifiedExamplesGenerator:
                 raise ValueError(msg)
 
             self.generation_count += 1
-            generation_time = (datetime.now(timezone.utc) - start_time).total_seconds()
+            generation_time = (datetime.now(UTC) - start_time).total_seconds()
 
             return ExampleResponse(
                 examples=examples, success=True, generation_time=generation_time
