@@ -225,20 +225,29 @@ class ServiceAdapter:
                 "final_definitie": response.definition.definitie,  # Voor legacy UI compatibility
                 "marker": response.definition.metadata.get("marker", ""),
                 "toetsresultaten": (
-                    response.validation.metadata.get(
-                        "toetsresultaten", response.validation.errors
+                    response.validation_result.metadata.get(
+                        "toetsresultaten", response.validation_result.errors
                     )
-                    if response.validation and hasattr(response.validation, "metadata")
-                    else response.validation.errors if response.validation else []
+                    if response.validation_result
+                    and hasattr(response.validation_result, "metadata")
+                    else (
+                        response.validation_result.errors
+                        if response.validation_result
+                        else []
+                    )
                 ),
                 "validation_details": (
-                    response.validation if response.validation else None
+                    response.validation_result if response.validation_result else None
                 ),
                 "validation_score": (
-                    response.validation.score if response.validation else 0.0
+                    response.validation_result.score
+                    if response.validation_result
+                    else 0.0
                 ),
                 "final_score": (
-                    response.validation.score if response.validation else 0.0
+                    response.validation_result.score
+                    if response.validation_result
+                    else 0.0
                 ),
                 "voorbeelden": response.definition.voorbeelden or [],
                 "processing_time": response.definition.metadata.get(
@@ -259,7 +268,7 @@ class ServiceAdapter:
             return LegacyGenerationResult(**result_dict)
         return LegacyGenerationResult(
             success=False,
-            error_message=response.message or "Generatie mislukt",
+            error_message=response.error or "Generatie mislukt",
             final_definitie="Generatie mislukt",
         )
 
