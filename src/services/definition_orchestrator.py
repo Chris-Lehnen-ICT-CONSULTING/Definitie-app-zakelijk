@@ -405,10 +405,19 @@ class DefinitionOrchestrator(
             # Converteer GenerationRequest naar EnrichedContext met ontologische categorie
             base_context = {
                 "organisatorisch": (
-                    [context.request.context] if context.request.context else []
+                    # Gebruik nieuwe rijke context velden als beschikbaar, anders fallback naar legacy
+                    context.request.organisatorische_context or 
+                    ([context.request.context] if context.request.context else [])
                 ),
-                "juridisch": [context.request.domein] if context.request.domein else [],
-                "wettelijk": [],
+                "juridisch": (
+                    # Gebruik nieuwe juridische_context veld, anders fallback naar domein
+                    context.request.juridische_context or
+                    ([context.request.domein] if context.request.domein else [])
+                ),
+                "wettelijk": (
+                    # Gebruik nieuwe wettelijke_basis veld
+                    context.request.wettelijke_basis or []
+                ),
                 # ontologische_categorie verwijderd uit base_context om string->char array bug te fixen
             }
 
