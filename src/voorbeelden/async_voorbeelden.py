@@ -49,7 +49,7 @@ class AsyncExampleGenerator:
 
         try:
             response = await async_gpt_call(
-                prompt=prompt, model="gpt-4", temperature=0.5, max_tokens=200
+                prompt=prompt, model=None, temperature=0.5, max_tokens=200
             )
 
             # Parse response into separate sentences

@@ -41,3 +41,13 @@ repos:
   #       pass_filenames: false
   #       always_run: true
   #       args: [tests/services/, --cov=src/services, --cov-fail-under=80]
+
+  - repo: local
+    hooks:
+      - id: check-doc-location
+        name: Check document locations
+        entry: python scripts/hooks/check-doc-location.py
+        language: system
+        pass_filenames: true
+        files: '\.(md|py|json|html)$'
+        exclude: '^(\.git|\.venv|venv|__pycache__|\.pytest_cache|htmlcov)/'

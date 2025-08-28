@@ -148,7 +148,7 @@ class IntegratedResilienceSystem:
         priority: RequestPriority = RequestPriority.NORMAL,
         timeout: float | None = None,
         enable_fallback: bool = True,
-        model: str = "gpt-4",
+        model: str | None = None,
         expected_tokens: int = 0,
         **kwargs,
     ) -> Any:
@@ -351,7 +351,7 @@ def with_full_resilience(
     priority: RequestPriority = RequestPriority.NORMAL,
     timeout: float | None = None,
     enable_fallback: bool = True,
-    model: str = "gpt-4",
+    model: str = "gpt-5",
     expected_tokens: int = 0,
 ):
     """
@@ -370,7 +370,7 @@ def with_full_resilience(
             endpoint_name="gpt_definition",
             priority=RequestPriority.HIGH,
             timeout=30.0,
-            model="gpt-4",
+            model=None,
             expected_tokens=300
         )
         async def generate_definition(term: str, context: dict):
@@ -420,7 +420,7 @@ def with_background_resilience(endpoint_name: str = "", timeout: float = 60.0):
 
 
 def with_cost_optimized_resilience(
-    endpoint_name: str = "", model: str = "gpt-3.5-turbo"
+    endpoint_name: str = "", model: str = "gpt-5"
 ):
     """Decorator for cost-optimized operations."""
     return with_full_resilience(
@@ -443,7 +443,7 @@ async def test_integrated_system():
         endpoint_name="test_api",
         priority=RequestPriority.HIGH,
         timeout=30.0,
-        model="gpt-4",
+        model=None,
         expected_tokens=200,
     )
     async def test_function(should_fail: bool = False, delay: float = 0.5):

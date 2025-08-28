@@ -216,9 +216,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     else 500
                 ),
                 model=(
-                    sanitized_request.options.get("model", "gpt-4")
+                    sanitized_request.options.get("model")
                     if sanitized_request.options
-                    else "gpt-4"
+                    else None
                 ),
             )
             logger.info(f"Generation {generation_id}: AI generation complete")
@@ -537,10 +537,17 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
                     prompt: str,
                     temperature: float = 0.7,
                     max_tokens: int = 500,
-                    model: str = "gpt-4",
+                    model: str | None = None,
                 ):
-                    """Use prompt_builder.prompt_builder.stuur_prompt_naar_gpt"""
-                    from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+                    """Use services.ai_service.AIService"""
+                    from services.ai_service import get_ai_service
+                    from config.config_manager import get_default_model, get_default_temperature
+                    
+                    # Use central config for defaults
+                    if model is None:
+                        model = get_default_model()
+                    if temperature is None:
+                        temperature = get_default_temperature()
 
                     class MockResponse:
                         def __init__(self, text):
@@ -548,9 +555,10 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
                             self.model = model
                             self.tokens_used = len(text.split()) * 1.3  # Rough estimate
 
-                    response_text = stuur_prompt_naar_gpt(
+                    ai_service = get_ai_service()
+                    response_text = ai_service.generate_definition(
                         prompt=prompt,
-                        temperatuur=temperature,
+                        temperature=temperature,
                         max_tokens=max_tokens,
                         model=model,
                     )
