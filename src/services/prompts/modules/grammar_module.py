@@ -79,7 +79,7 @@ class GrammarModule(BasePromptModule):
             sections = []
 
             # Hoofdsectie
-            sections.append("### 📝 Grammatica en Taalgebruik:")
+            sections.append("### 🔤 GRAMMATICA REGELS:")
             sections.append("")
 
             # Basis grammaticaregels
@@ -90,10 +90,7 @@ class GrammarModule(BasePromptModule):
             if word_type_rules:
                 sections.extend(word_type_rules)
 
-            # Schrijfstijl regels
-            sections.extend(self._build_style_rules())
-
-            # Interpunctie regels
+            # Interpunctie regels (echte grammatica)
             sections.extend(self._build_punctuation_rules())
 
             # Strikte modus extra regels
@@ -207,57 +204,31 @@ class GrammarModule(BasePromptModule):
 
         return rules
 
-    def _build_style_rules(self) -> list[str]:
-        """Bouw schrijfstijl regels."""
-        rules = []
-
-        rules.append("🔸 **Zakelijke en neutrale taal**")
-        rules.append("- Gebruik formeel taalgebruik")
-        rules.append("- Vermijd emotionele of subjectieve taal")
-        rules.append("- Geen jargon zonder uitleg")
-
-        if self.include_examples:
-            rules.append("  ✅ persoon die verantwoordelijk is voor")
-            rules.append("  ❌ iemand die de taak heeft om")
-            rules.append("")
-
-        rules.append("🔸 **Consistente terminologie**")
-        rules.append("- Gebruik dezelfde term voor hetzelfde concept")
-        rules.append("- Vermijd synoniemen binnen één definitie")
-
-        rules.append("🔸 **Geen redundantie**")
-        rules.append("- Vermijd onnodige herhalingen")
-        rules.append("- Elk woord moet waarde toevoegen")
-
-        if self.include_examples:
-            rules.append("  ✅ systeem voor gegevensverwerking")
-            rules.append("  ❌ systeem voor het verwerken en behandelen van gegevens")
-            rules.append("")
-
-        return rules
 
     def _build_punctuation_rules(self) -> list[str]:
         """Bouw interpunctie regels."""
         rules = []
 
-        rules.append("🔸 **Interpunctie conventies**")
-        rules.append("- Geen punt aan het einde van de definitie")
-        rules.append("- Gebruik komma's spaarzaam")
-        rules.append("- Dubbele punt alleen voor uitleg van afkortingen")
+        rules.append("🔸 **Komma gebruik**")
+        rules.append("- Gebruik komma's spaarzaam en alleen waar nodig voor duidelijkheid")
+        rules.append("- Bij opsommingen: gebruik komma's tussen elementen")
+        rules.append("- Voor bijzinnen: plaats komma voor 'waarbij', 'waardoor', etc.")
 
         if self.include_examples:
-            rules.append("  ✅ proces dat leidt tot besluitvorming")
-            rules.append("  ❌ proces dat leidt tot besluitvorming.")
-            rules.append("  ✅ Algemene Verordening Gegevensbescherming (AVG)")
+            rules.append("  ✅ proces waarbij gegevens worden verzameld, verwerkt en opgeslagen")
+            rules.append("  ❌ proces, waarbij, gegevens, worden verzameld")
             rules.append("")
 
-        rules.append("🔸 **Haakjes gebruik**")
-        rules.append("- Gebruik haakjes alleen voor afkortingen")
-        rules.append("- Geen toelichtingen tussen haakjes")
+        rules.append("🔸 **Afkortingen en haakjes**")
+        rules.append("- Plaats afkortingen direct na de volledige term tussen haakjes")
+        rules.append("- Gebruik haakjes ALLEEN voor afkortingen, niet voor uitleg")
+        rules.append("- Schrijf afkortingen consistent in hoofdletters")
 
         if self.include_examples:
             rules.append("  ✅ Dienst Justitiële Inrichtingen (DJI)")
+            rules.append("  ✅ Algemene Verordening Gegevensbescherming (AVG)")
             rules.append("  ❌ maatregel (corrigerend of preventief)")
+            rules.append("  ❌ systeem (meestal digitaal)")
             rules.append("")
 
         return rules
