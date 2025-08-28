@@ -398,6 +398,7 @@ class DefinitionOrchestrator(
             from services.definition_generator_config import UnifiedGeneratorConfig
             from services.definition_generator_context import EnrichedContext
             from services.definition_generator_prompts import UnifiedPromptBuilder
+            from config.config_manager import get_default_model, get_default_temperature
 
             # Maak config voor de nieuwe prompt builder
             config = UnifiedGeneratorConfig()
@@ -590,7 +591,7 @@ class DefinitionOrchestrator(
     async def _ai_service_call(
         self,
         prompt: str,
-        model: str = "gpt-4",
+        model: str | None = None,
         temperature: float = 0.01,
         max_tokens: int = 300,
     ) -> str:
@@ -602,7 +603,7 @@ class DefinitionOrchestrator(
 
         Args:
             prompt: The prompt to send to AI
-            model: AI model to use (default: gpt-4)
+            model: AI model to use (default: gpt-5)
             temperature: Randomness level (default: 0.01 for consistency)
             max_tokens: Maximum tokens in response
 
@@ -610,16 +611,23 @@ class DefinitionOrchestrator(
             AI-generated response text
         """
         try:
-            from prompt_builder.prompt_builder import stuur_prompt_naar_gpt
+            from services.ai_service import get_ai_service
+            
+            # Use central config for defaults
+            if model is None:
+                model = get_default_model()
+            if temperature is None:
+                temperature = get_default_temperature()
 
             logger.debug(
                 f"AI service call: model={model}, temp={temperature}, max_tokens={max_tokens}"
             )
 
-            response = stuur_prompt_naar_gpt(
+            ai_service = get_ai_service()
+            response = ai_service.generate_definition(
                 prompt=prompt,
                 model=model,
-                temperatuur=temperature,
+                temperature=temperature,
                 max_tokens=max_tokens,
             )
 

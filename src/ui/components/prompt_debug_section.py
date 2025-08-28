@@ -154,7 +154,7 @@ class PromptDebugSection:
 
             col1, col2 = st.columns(2)
             with col1:
-                st.selectbox("Model", ["gpt-4", "gpt-3.5-turbo"], key="test_model")
+                st.selectbox("Model", ["gpt-5", "gpt-4"], key="test_model")
 
             with col2:
                 st.slider(

@@ -30,7 +30,7 @@ def genereer_voorbeeld_zinnen(
     )
     try:
         resp = _client.chat.completions.create(
-            model="gpt-4",
+            model=None,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.5,
             max_tokens=200,
@@ -66,7 +66,7 @@ def genereer_praktijkvoorbeelden(
     )
     try:
         resp = _client.chat.completions.create(
-            model="gpt-4",
+            model=None,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6,
             max_tokens=400,
@@ -100,7 +100,7 @@ def genereer_tegenvoorbeelden(
     )
     try:
         resp = _client.chat.completions.create(
-            model="gpt-4",
+            model=None,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.6,
             max_tokens=300,
@@ -133,7 +133,7 @@ def genereer_synoniemen(begrip: str, context_dict: dict[str, list[str]]) -> str:
     )
     try:
         resp = _client.chat.completions.create(
-            model="gpt-4",
+            model=None,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=150,
@@ -156,7 +156,7 @@ def genereer_antoniemen(begrip: str, context_dict: dict[str, list[str]]) -> str:
     )
     try:
         resp = _client.chat.completions.create(
-            model="gpt-4",
+            model=None,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.2,
             max_tokens=150,
@@ -179,7 +179,7 @@ def genereer_toelichting(begrip: str, context_dict: dict[str, list[str]]) -> str
     )
     try:
         resp = _client.chat.completions.create(
-            model="gpt-4",
+            model=None,
             messages=[{"role": "user", "content": prompt}],
             temperature=0.3,
             max_tokens=200,

@@ -7,68 +7,68 @@ Deze module beheert alle configuratie instellingen voor de applicatie,
 inclusief API keys, cache instellingen en omgeving-specifieke configuraties.
 """
 
-import logging
-import os
-from dataclasses import dataclass, field
-from datetime import datetime, timezone
-from enum import Enum
-from pathlib import Path
-from typing import Any
+import logging  # Logging systeem voor foutrapportage en debugging
+import os  # Operating system interface voor omgevingsvariabelen
+from dataclasses import dataclass, field  # Decorators voor gestructureerde data klassen
+from datetime import datetime, timezone  # Datum/tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeratie types voor constante waarden
+from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
+from typing import Any  # Type hints voor betere code documentatie
 
-import yaml
-from dotenv import load_dotenv
+import yaml  # YAML bestand parser voor configuratie bestanden
+from dotenv import load_dotenv  # Laadt .env variabelen in omgeving
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
 class Environment(Enum):
-    """Environment types for configuration."""
+    """Omgeving types voor configuratie bepaling."""
 
-    DEVELOPMENT = "development"
-    TESTING = "testing"
-    STAGING = "staging"
-    PRODUCTION = "production"
+    DEVELOPMENT = "development"  # Ontwikkel omgeving voor lokale ontwikkeling
+    TESTING = "testing"  # Test omgeving voor geautomatiseerde tests
+    STAGING = "staging"  # Pre-productie omgeving voor laatste verificatie
+    PRODUCTION = "production"  # Live productie omgeving voor eindgebruikers
 
 
 class ConfigSection(Enum):
-    """Configuration sections."""
+    """Configuratie secties voor georganiseerde instellingen."""
 
-    API = "api"
-    CACHE = "cache"
-    PATHS = "paths"
-    UI = "ui"
-    VALIDATION = "validation"
-    MONITORING = "monitoring"
-    LOGGING = "logging"
-    RATE_LIMITING = "rate_limiting"
-    RESILIENCE = "resilience"
-    SECURITY = "security"
+    API = "api"  # API configuratie (keys, endpoints, timeouts)
+    CACHE = "cache"  # Cache instellingen (TTL, grootte, strategie)
+    PATHS = "paths"  # Bestandspaden (data, logs, exports)
+    UI = "ui"  # Gebruikersinterface instellingen (layout, theming)
+    VALIDATION = "validation"  # Validatie regels en criteria
+    MONITORING = "monitoring"  # Monitoring en metriek verzameling
+    LOGGING = "logging"  # Log niveaus en output configuratie
+    RATE_LIMITING = "rate_limiting"  # API rate limiting instellingen
+    RESILIENCE = "resilience"  # Fout tolerantie en retry strategieën
+    SECURITY = "security"  # Beveiligingsinstellingen en toegangscontrole
 
 
 @dataclass
 class APIConfig:
-    """API configuration settings."""
+    """API configuratie instellingen voor externe service communicatie."""
 
-    openai_api_key: str = ""
-    default_model: str = "gpt-4"
-    default_temperature: float = 0.01
-    default_max_tokens: int = 300
-    request_timeout: float = 30.0
-    max_retries: int = 3
-    retry_backoff_factor: float = 1.5
+    openai_api_key: str = ""  # OpenAI API sleutel voor AI model toegang
+    default_model: str = "gpt-5"  # Standaard AI model voor definitie generatie
+    default_temperature: float = 0.01  # Creativiteit niveau (laag = consistenter)
+    default_max_tokens: int = 300  # Maximum aantal tokens per API response
+    request_timeout: float = 30.0  # Timeout in seconden voor API verzoeken
+    max_retries: int = 3  # Maximum aantal herhaalpogingen bij mislukte verzoeken
+    retry_backoff_factor: float = 1.5  # Exponentiële vertraging tussen pogingen
 
-    # Model-specific settings
+    # Model-specifieke instellingen per AI model type
     model_settings: dict[str, dict[str, Any]] = field(
         default_factory=lambda: {
-            "gpt-4": {
-                "max_tokens": 300,
-                "temperature": 0.01,
-                "cost_per_token": 0.00003,
+            "gpt-4": {  # GPT-4 configuratie - hoogste kwaliteit
+                "max_tokens": 300,  # Standaard token limiet voor GPT-4
+                "temperature": 0.01,  # Zeer lage temperatuur voor consistentie
+                "cost_per_token": 0.00003,  # Kosten per token in USD
             },
-            "gpt-3.5-turbo": {
-                "max_tokens": 350,
-                "temperature": 0.1,
-                "cost_per_token": 0.0000015,
+            "gpt-5": {  # GPT-5 configuratie - nieuwste model
+                "max_tokens": 300,  # Standaard token limiet
+                "temperature": 0.0,  # Maximale consistentie
+                "cost_per_token": 0.00003,  # Kosten per token in USD
             },
         }
     )
@@ -254,7 +254,7 @@ class MonitoringConfig:
 
     # OpenAI pricing (per 1K tokens)
     openai_pricing: dict[str, float] = field(
-        default_factory=lambda: {"gpt-4": 0.03, "gpt-3.5-turbo": 0.0015}
+        default_factory=lambda: {"gpt-5": 0.03, "gpt-4": 0.03}
     )
 
 
@@ -391,6 +391,9 @@ class ConfigManager:
         self.resilience: ResilienceConfig = ResilienceConfig()
         self.security: SecurityConfig = SecurityConfig()
 
+        # Component-specific AI configurations
+        self.ai_components: dict = {}
+
         # Load configuration
         self._load_configuration()
 
@@ -482,7 +485,10 @@ class ConfigManager:
             config_dict: Dictionary met configuratie instellingen
         """
         for section_name, section_config in config_dict.items():
-            if hasattr(self, section_name):
+            if section_name == "ai_components":
+                # Speciale behandeling voor ai_components
+                self.ai_components = section_config
+            elif hasattr(self, section_name):
                 section_obj = getattr(self, section_name)
                 for key, value in section_config.items():
                     if hasattr(section_obj, key):
@@ -668,6 +674,59 @@ def get_config(section: ConfigSection) -> Any:
 def set_config(section: ConfigSection, key: str, value: Any):
     """Convenience function to set configuration value."""
     get_config_manager().set_config(section, key, value)
+
+
+def get_default_model() -> str:
+    """Get the default AI model from configuration."""
+    api_config: APIConfig = get_config(ConfigSection.API)
+    return api_config.default_model
+
+
+def get_default_temperature() -> float:
+    """Get the default temperature from configuration."""
+    api_config: APIConfig = get_config(ConfigSection.API)
+    return api_config.default_temperature
+
+
+def fill_ai_defaults(**kwargs) -> dict:
+    """Fill AI request parameters with defaults from config where None."""
+    if "model" in kwargs and kwargs["model"] is None:
+        kwargs["model"] = get_default_model()
+    if "temperature" in kwargs and kwargs["temperature"] is None:
+        kwargs["temperature"] = get_default_temperature()
+    return kwargs
+
+
+def get_component_config(component: str, sub_component: str = None) -> dict:
+    """Get AI configuration for a specific component.
+
+    Args:
+        component: Main component (e.g. 'voorbeelden', 'expert_review')
+        sub_component: Optional sub-component (e.g. 'synoniemen', 'uitleg')
+
+    Returns:
+        Dict with model, temperature, and max_tokens settings
+    """
+    config = get_config_manager()
+
+    # Check if we have ai_components in config
+    if hasattr(config, "ai_components") and config.ai_components:
+        comp_config = config.ai_components.get(component, {})
+
+        # If sub_component specified, get nested config
+        if sub_component and isinstance(comp_config, dict):
+            comp_config = comp_config.get(sub_component, comp_config)
+
+        # Return config if found
+        if comp_config:
+            return comp_config
+
+    # Fallback to defaults
+    return {
+        "model": get_default_model(),
+        "temperature": get_default_temperature(),
+        "max_tokens": config.api.default_max_tokens,
+    }
 
 
 def reload_config():
