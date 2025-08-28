@@ -58,7 +58,9 @@ class ContextAwarenessModule(BasePromptModule):
             f"(adaptive={self.adaptive_formatting}, confidence={self.confidence_indicators})"
         )
 
-    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
+    def validate_input(
+        self, context: ModuleContext
+    ) -> tuple[bool, str | None]:  # noqa: ARG002
         """
         Valideer input - deze module werkt altijd (ook bij geen context).
 
@@ -197,6 +199,9 @@ class ContextAwarenessModule(BasePromptModule):
         enriched_context = context.enriched_context
 
         sections.append("📊 UITGEBREIDE CONTEXT ANALYSE:")
+        sections.append(
+            "⚠️ VERPLICHT: Gebruik onderstaande specifieke context om de definitie te formuleren voor deze organisatorische, juridische en wettelijke setting. Maak de definitie contextspecifiek zonder de context expliciet te benoemen."
+        )
         sections.append("")
 
         # Base context met categorieën
@@ -233,12 +238,16 @@ class ContextAwarenessModule(BasePromptModule):
         sections = []
         enriched_context = context.enriched_context
 
-        sections.append("📌 CONTEXT INFORMATIE:")
+        sections.append("📌 VERPLICHTE CONTEXT INFORMATIE:")
+        sections.append(
+            "⚠️ BELANGRIJKE INSTRUCTIE: Gebruik onderstaande context om de definitie specifiek te maken voor deze organisatorische, juridische en wettelijke context. Formuleer de definitie zodanig dat deze past binnen deze specifieke context, zonder de context expliciet te benoemen."
+        )
         sections.append("")
 
         # Basis context formatting
         context_text = enriched_context.get_all_context_text()
         if context_text:
+            sections.append("🎯 SPECIFIEKE CONTEXT VOOR DEZE DEFINITIE:")
             sections.append(context_text)
         else:
             sections.append("Geen specifieke context beschikbaar.")
@@ -267,9 +276,9 @@ class ContextAwarenessModule(BasePromptModule):
         context_text = enriched_context.get_all_context_text()
 
         if context_text:
-            return f"📍 Context: {context_text}"
-        else:
-            return "📍 Context: Geen specifieke context beschikbaar."
+            return f"📍 VERPLICHTE CONTEXT: {context_text}\n⚠️ INSTRUCTIE: Formuleer de definitie specifiek voor bovenstaande organisatorische, juridische en wettelijke context zonder deze expliciet te benoemen."
+
+        return "📍 Context: Geen specifieke context beschikbaar."
 
     def _format_detailed_base_context(self, base_context: dict) -> list[str]:
         """
