@@ -204,18 +204,21 @@ class GrammarModule(BasePromptModule):
 
         return rules
 
-
     def _build_punctuation_rules(self) -> list[str]:
         """Bouw interpunctie regels."""
         rules = []
 
         rules.append("🔸 **Komma gebruik**")
-        rules.append("- Gebruik komma's spaarzaam en alleen waar nodig voor duidelijkheid")
+        rules.append(
+            "- Gebruik komma's spaarzaam en alleen waar nodig voor duidelijkheid"
+        )
         rules.append("- Bij opsommingen: gebruik komma's tussen elementen")
         rules.append("- Voor bijzinnen: plaats komma voor 'waarbij', 'waardoor', etc.")
 
         if self.include_examples:
-            rules.append("  ✅ proces waarbij gegevens worden verzameld, verwerkt en opgeslagen")
+            rules.append(
+                "  ✅ proces waarbij gegevens worden verzameld, verwerkt en opgeslagen"
+            )
             rules.append("  ❌ proces, waarbij, gegevens, worden verzameld")
             rules.append("")
 

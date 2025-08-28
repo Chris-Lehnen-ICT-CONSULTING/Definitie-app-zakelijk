@@ -8,11 +8,10 @@ import os
 from dataclasses import asdict
 from typing import Any
 
+from config.config_manager import ConfigSection, get_config, get_config_manager
 from utils.enhanced_retry import RetryConfig
 from utils.resilience import ResilienceConfig as FrameworkResilienceConfig
 from utils.smart_rate_limiter import RateLimitConfig
-
-from config.config_manager import ConfigSection, get_config, get_config_manager
 
 logger = logging.getLogger(__name__)
 

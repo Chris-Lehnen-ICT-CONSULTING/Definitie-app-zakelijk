@@ -610,9 +610,8 @@ class DefinitionOrchestrator(
             AI-generated response text
         """
         try:
-            from services.ai_service import get_ai_service
-
             from config.config_manager import get_default_model, get_default_temperature
+            from services.ai_service import get_ai_service
 
             # Use central config for defaults
             if model is None:
