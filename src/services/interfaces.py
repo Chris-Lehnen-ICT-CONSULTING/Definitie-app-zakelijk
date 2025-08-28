@@ -825,7 +825,7 @@ class EnhancementServiceInterface(ABC):
     async def enhance_definition(
         self,
         text: str,
-        violations: list[Any],  # list[RuleViolation] from validation
+        violations: list[ValidationViolation],  # Concrete type voor betere type safety
         context: GenerationRequest,
     ) -> str:
         """

@@ -360,11 +360,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 11: Monitoring & Metrics
             # =====================================
             if self.monitoring:
+                # Ensure token_count is int or None
+                token_count = getattr(generation_result, "tokens_used", None)
+                if token_count is not None:
+                    token_count = int(token_count)
+
                 await self.monitoring.complete_generation(
                     generation_id=generation_id,
                     success=validation_result.is_valid,
                     duration=time.time() - start_time,
-                    token_count=getattr(generation_result, "tokens_used", 0),
+                    token_count=token_count,
                     components_used=(
                         prompt_result.components_used if prompt_result else []
                     ),
@@ -397,7 +402,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         except Exception as e:
             logger.error(f"Generation {generation_id} failed: {e!s}", exc_info=True)
             if self.monitoring:
-                await self.monitoring.track_error(generation_id, str(e))
+                await self.monitoring.track_error(
+                    generation_id, e, error_type=type(e).__name__
+                )
 
             return DefinitionResponseV2(
                 success=False,
