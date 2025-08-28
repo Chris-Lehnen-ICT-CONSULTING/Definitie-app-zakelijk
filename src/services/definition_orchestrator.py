@@ -398,7 +398,6 @@ class DefinitionOrchestrator(
             from services.definition_generator_config import UnifiedGeneratorConfig
             from services.definition_generator_context import EnrichedContext
             from services.definition_generator_prompts import UnifiedPromptBuilder
-            from config.config_manager import get_default_model, get_default_temperature
 
             # Maak config voor de nieuwe prompt builder
             config = UnifiedGeneratorConfig()
@@ -612,7 +611,8 @@ class DefinitionOrchestrator(
         """
         try:
             from services.ai_service import get_ai_service
-            
+            from config.config_manager import get_default_model, get_default_temperature
+
             # Use central config for defaults
             if model is None:
                 model = get_default_model()

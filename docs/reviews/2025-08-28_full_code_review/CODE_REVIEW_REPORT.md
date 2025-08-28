@@ -49,4 +49,3 @@ Korte samenvatting van de belangrijkste punten (1–2 zinnen).
 ### [src/services/prompts/modular_prompt_builder.py]
 - Status: PENDING
 - Datum/Reviewer: 2025-08-28 / Codex
-

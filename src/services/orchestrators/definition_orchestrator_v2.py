@@ -541,8 +541,12 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
                 ):
                     """Use services.ai_service.AIService"""
                     from services.ai_service import get_ai_service
-                    from config.config_manager import get_default_model, get_default_temperature
-                    
+
+                    from config.config_manager import (
+                        get_default_model,
+                        get_default_temperature,
+                    )
+
                     # Use central config for defaults
                     if model is None:
                         model = get_default_model()

@@ -384,4 +384,3 @@ Regel: vink een bestand pas af als het voorstel + acceptatiecriteria in `CODE_RE
 - [ ] [config/config_production.yaml](CODE_REVIEW_REPORT.md#config-config_production-yaml)
 - [ ] [config/config_testing.yaml](CODE_REVIEW_REPORT.md#config-config_testing-yaml)
 - [ ] [config/pytest.ini](CODE_REVIEW_REPORT.md#config-pytest-ini)
-

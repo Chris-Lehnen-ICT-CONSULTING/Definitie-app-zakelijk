@@ -15,7 +15,7 @@ Er zijn 4 verschillende voorbeelden modules met verschillende temperature strate
 - **Functies**: Uitgebreid met synoniemen, antoniemen, toelichting
 
 ### 3. **async_voorbeelden.py**
-- **Status**: ❌ NIET actief gebruikt  
+- **Status**: ❌ NIET actief gebruikt
 - **Temperature Strategie**: Identiek aan cached_voorbeelden.py
 - **Model**: Hardcoded "gpt-4" voor meeste functies
 
