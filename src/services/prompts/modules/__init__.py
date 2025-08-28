@@ -5,10 +5,14 @@ Orchestrator pattern: PromptOrchestrator roept modules aan in de juiste volgorde
 """
 
 # Base classes
+# Rule modules - elke categorie heeft eigen module
+from .arai_rules_module import AraiRulesModule
 from .base_module import BasePromptModule, CompositeModule, ModuleContext, ModuleOutput
+from .con_rules_module import ConRulesModule
 from .context_awareness_module import ContextAwarenessModule
 from .definition_task_module import DefinitionTaskModule
 from .error_prevention_module import ErrorPreventionModule
+from .ess_rules_module import EssRulesModule
 
 # Concrete modules
 from .expertise_module import ExpertiseModule
@@ -19,10 +23,13 @@ from .output_specification_module import OutputSpecificationModule
 
 # Orchestrator
 from .prompt_orchestrator import PromptOrchestrator
-from .quality_rules_module import QualityRulesModule
+from .sam_rules_module import SamRulesModule
+
+# Other modules
 from .semantic_categorisation_module import SemanticCategorisationModule
 from .structure_rules_module import StructureRulesModule
 from .template_module import TemplateModule
+from .ver_rules_module import VerRulesModule
 
 __all__ = [
     # Base classes
@@ -31,18 +38,24 @@ __all__ = [
     "ContextAwarenessModule",
     "DefinitionTaskModule",
     "ErrorPreventionModule",
-    # Implemented modules
+    # Core modules
     "ExpertiseModule",
     "GrammarModule",
-    "IntegrityRulesModule",
     "MetricsModule",
     "ModuleContext",
     "ModuleOutput",
     "OutputSpecificationModule",
+    # Rule modules
+    "AraiRulesModule",
+    "ConRulesModule",
+    "EssRulesModule",
+    "IntegrityRulesModule",
+    "SamRulesModule",
+    "StructureRulesModule",
+    "VerRulesModule",
+    # Other modules
+    "SemanticCategorisationModule",
+    "TemplateModule",
     # Orchestrator
     "PromptOrchestrator",
-    "QualityRulesModule",
-    "SemanticCategorisationModule",
-    "StructureRulesModule",
-    "TemplateModule",
 ]
