@@ -1113,7 +1113,7 @@ class ManagementTab:
             # Direct AI prompt testing
             test_model = st.selectbox(
                 "AI Model",
-                ["gpt-5", "gpt-4", "gpt-4-turbo"],
+                ["gpt-4.1", "gpt-4", "gpt-4-turbo"],
                 key="ai_test_model",
             )
 

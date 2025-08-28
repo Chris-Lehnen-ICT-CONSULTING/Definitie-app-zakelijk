@@ -105,7 +105,7 @@ class CostCalculator:
             "input": 0.00003,  # per token
             "output": 0.00006,  # per token
         },
-        "gpt-5": {
+        "gpt-4.1": {
             "input": 0.00003,
             "output": 0.00006,
         },
@@ -114,7 +114,7 @@ class CostCalculator:
     @classmethod
     def calculate_cost(cls, model: str, input_tokens: int, output_tokens: int) -> float:
         """Calculate cost for API call."""
-        pricing = cls.PRICING.get(model, cls.PRICING["gpt-5"])
+        pricing = cls.PRICING.get(model, cls.PRICING["gpt-4.1"])
         return input_tokens * pricing["input"] + output_tokens * pricing["output"]
 
     @classmethod
