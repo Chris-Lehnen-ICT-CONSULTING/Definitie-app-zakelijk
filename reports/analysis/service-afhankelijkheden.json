@@ -1,0 +1,311 @@
+{
+  "nodes": [
+    {
+      "id": "container",
+      "group": "interface_user",
+      "imports_count": 1,
+      "uses_interfaces": true
+    },
+    {
+      "id": "definition_generator_prompts",
+      "group": "config",
+      "imports_count": 2,
+      "uses_interfaces": false
+    },
+    {
+      "id": "export_service",
+      "group": "service",
+      "imports_count": 1,
+      "uses_interfaces": false
+    },
+    {
+      "id": "definition_generator_config",
+      "group": "config",
+      "imports_count": 7,
+      "uses_interfaces": false
+    },
+    {
+      "id": "definition_generator_context",
+      "group": "config",
+      "imports_count": 2,
+      "uses_interfaces": true
+    },
+    {
+      "id": "cleaning_service",
+      "group": "interface_user",
+      "imports_count": 1,
+      "uses_interfaces": true
+    },
+    {
+      "id": "unified_definition_generator",
+      "group": "service",
+      "imports_count": 2,
+      "uses_interfaces": false
+    },
+    {
+      "id": "definition_repository",
+      "group": "interface_user",
+      "imports_count": 1,
+      "uses_interfaces": true
+    },
+    {
+      "id": "duplicate_detection_service",
+      "group": "interface_user",
+      "imports_count": 1,
+      "uses_interfaces": true
+    },
+    {
+      "id": "workflow_service",
+      "group": "service",
+      "imports_count": 1,
+      "uses_interfaces": false
+    },
+    {
+      "id": "definition_generator_monitoring",
+      "group": "interface_user",
+      "imports_count": 0,
+      "uses_interfaces": true
+    },
+    {
+      "id": "definition_generator_cache",
+      "group": "interface_user",
+      "imports_count": 0,
+      "uses_interfaces": true
+    },
+    {
+      "id": "definition_validator",
+      "group": "interface_user",
+      "imports_count": 1,
+      "uses_interfaces": true
+    },
+    {
+      "id": "definition_orchestrator",
+      "group": "interface_user",
+      "imports_count": 1,
+      "uses_interfaces": true
+    },
+    {
+      "id": "definition_generator_enhancement",
+      "group": "interface_user",
+      "imports_count": 0,
+      "uses_interfaces": true
+    },
+    {
+      "id": "regeneration_service",
+      "group": "service",
+      "imports_count": 1,
+      "uses_interfaces": false
+    },
+    {
+      "id": "data_aggregation_service",
+      "group": "core",
+      "imports_count": 3,
+      "uses_interfaces": false
+    },
+    {
+      "id": "category_service",
+      "group": "service",
+      "imports_count": 1,
+      "uses_interfaces": false
+    },
+    {
+      "id": "null_repository",
+      "group": "interface_user",
+      "imports_count": 1,
+      "uses_interfaces": true
+    },
+    {
+      "id": "ab_testing_framework",
+      "group": "interface_user",
+      "imports_count": 0,
+      "uses_interfaces": true
+    },
+    {
+      "id": "service_factory",
+      "group": "interface_user",
+      "imports_count": 0,
+      "uses_interfaces": true
+    },
+    {
+      "id": "modern_web_lookup_service",
+      "group": "core",
+      "imports_count": 3,
+      "uses_interfaces": true
+    }
+  ],
+  "links": [
+    {
+      "source": "definition_generator_enhancement",
+      "target": "definition_generator_config",
+      "type": "imports"
+    },
+    {
+      "source": "definition_orchestrator",
+      "target": "definition_generator_config",
+      "type": "imports"
+    },
+    {
+      "source": "definition_orchestrator",
+      "target": "definition_generator_context",
+      "type": "imports"
+    },
+    {
+      "source": "definition_orchestrator",
+      "target": "definition_generator_prompts",
+      "type": "imports"
+    },
+    {
+      "source": "definition_orchestrator",
+      "target": "modern_web_lookup_service",
+      "type": "imports"
+    },
+    {
+      "source": "definition_generator_context",
+      "target": "definition_generator_config",
+      "type": "imports"
+    },
+    {
+      "source": "definition_generator_context",
+      "target": "modern_web_lookup_service",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "export_service",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "data_aggregation_service",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "definition_generator_config",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "cleaning_service",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "null_repository",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "unified_definition_generator",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "definition_validator",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "definition_orchestrator",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "definition_repository",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "duplicate_detection_service",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "workflow_service",
+      "type": "imports"
+    },
+    {
+      "source": "container",
+      "target": "modern_web_lookup_service",
+      "type": "imports"
+    },
+    {
+      "source": "definition_generator_prompts",
+      "target": "definition_generator_config",
+      "type": "imports"
+    },
+    {
+      "source": "definition_generator_prompts",
+      "target": "definition_generator_context",
+      "type": "imports"
+    },
+    {
+      "source": "workflow_service",
+      "target": "data_aggregation_service",
+      "type": "imports"
+    },
+    {
+      "source": "workflow_service",
+      "target": "category_service",
+      "type": "imports"
+    },
+    {
+      "source": "export_service",
+      "target": "data_aggregation_service",
+      "type": "imports"
+    },
+    {
+      "source": "definition_generator_monitoring",
+      "target": "definition_generator_config",
+      "type": "imports"
+    },
+    {
+      "source": "definition_generator_cache",
+      "target": "definition_generator_config",
+      "type": "imports"
+    },
+    {
+      "source": "service_factory",
+      "target": "container",
+      "type": "imports"
+    },
+    {
+      "source": "service_factory",
+      "target": "regeneration_service",
+      "type": "imports"
+    },
+    {
+      "source": "service_factory",
+      "target": "unified_definition_generator",
+      "type": "imports"
+    },
+    {
+      "source": "regeneration_service",
+      "target": "definition_generator_prompts",
+      "type": "imports"
+    }
+  ],
+  "stats": {
+    "total_services": 22,
+    "interface_users": 14,
+    "top_imports": {
+      "definition_generator_config": 7,
+      "modern_web_lookup_service": 3,
+      "data_aggregation_service": 3,
+      "definition_generator_context": 2,
+      "definition_generator_prompts": 2
+    },
+    "external_deps": {
+      "logging": 22,
+      "dataclasses": 17,
+      "typing": 17,
+      "enum": 10,
+      "datetime": 8,
+      "asyncio": 6,
+      "abc": 4,
+      "os": 4,
+      "time": 3,
+      "prompt_builder": 2
+    }
+  }
+}

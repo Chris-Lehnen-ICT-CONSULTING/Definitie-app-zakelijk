@@ -1,0 +1,85 @@
+{
+  "total_cases": 5,
+  "successful": 5,
+  "failed": 0,
+  "average_output_length": 209.0,
+  "common_sections": [],
+  "character_limit_usage": {
+    "percentage_with_limit": 0.0,
+    "percentage_with_remaining": 0.0,
+    "common_limits": [],
+    "varying_limits": false
+  },
+  "detailed_results": [
+    {
+      "begrip": "blockchain",
+      "output_length": 209,
+      "line_count": 3,
+      "sections": [],
+      "warnings": [],
+      "character_info": {
+        "has_limit": false,
+        "limit_value": null,
+        "remaining_indication": false
+      },
+      "success": true,
+      "output": "Je bent een expert in beleidsmatige definities voor overheidsgebruik.\nFormuleer een definitie in één enkele zin, zonder toelichting.\nGebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."
+    },
+    {
+      "begrip": "opsporing",
+      "output_length": 209,
+      "line_count": 3,
+      "sections": [],
+      "warnings": [],
+      "character_info": {
+        "has_limit": false,
+        "limit_value": null,
+        "remaining_indication": false
+      },
+      "success": true,
+      "output": "Je bent een expert in beleidsmatige definities voor overheidsgebruik.\nFormuleer een definitie in één enkele zin, zonder toelichting.\nGebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."
+    },
+    {
+      "begrip": "natuurinclusief bouwen",
+      "output_length": 209,
+      "line_count": 3,
+      "sections": [],
+      "warnings": [],
+      "character_info": {
+        "has_limit": false,
+        "limit_value": null,
+        "remaining_indication": false
+      },
+      "success": true,
+      "output": "Je bent een expert in beleidsmatige definities voor overheidsgebruik.\nFormuleer een definitie in één enkele zin, zonder toelichting.\nGebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."
+    },
+    {
+      "begrip": "AI",
+      "output_length": 209,
+      "line_count": 3,
+      "sections": [],
+      "warnings": [],
+      "character_info": {
+        "has_limit": false,
+        "limit_value": null,
+        "remaining_indication": false
+      },
+      "success": true,
+      "output": "Je bent een expert in beleidsmatige definities voor overheidsgebruik.\nFormuleer een definitie in één enkele zin, zonder toelichting.\nGebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."
+    },
+    {
+      "begrip": "zeer-lange-begrip-met-veel-woorden-en-koppeltekens-voor-edge-case-testing",
+      "output_length": 209,
+      "line_count": 3,
+      "sections": [],
+      "warnings": [],
+      "character_info": {
+        "has_limit": false,
+        "limit_value": null,
+        "remaining_indication": false
+      },
+      "success": true,
+      "output": "Je bent een expert in beleidsmatige definities voor overheidsgebruik.\nFormuleer een definitie in één enkele zin, zonder toelichting.\nGebruik een zakelijke en generieke stijl voor het definiëren van dit begrip."
+    }
+  ]
+}
