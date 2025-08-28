@@ -176,4 +176,3 @@ Regel: vink een document pas af als het voorstel + acceptatiecriteria in `CODE_R
 - [ ] [docs/workflows/MODULE_1_CORE_INSTRUCTIONS_WORKFLOW.md](CODE_REVIEW_REPORT.md#docs-workflows-module_1_core_instructions_workflow-md)
 - [ ] [docs/workflows/phase-6-implementation-checklist.md](CODE_REVIEW_REPORT.md#docs-workflows-phase-6-implementation-checklist-md)
 - [ ] [docs/workflows/test-categorie-workflow.md](CODE_REVIEW_REPORT.md#docs-workflows-test-categorie-workflow-md)
-
