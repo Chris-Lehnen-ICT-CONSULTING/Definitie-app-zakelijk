@@ -31,6 +31,7 @@ class AIRequest:
     temperature: float | None = None
     max_tokens: int = 300
     system_message: str | None = None
+
     def __post_init__(self):
         """Fill in defaults from central configuration."""
         if self.model is None:
@@ -211,11 +212,6 @@ class AIService:
             model = get_default_model()
         if temperature is None:
             temperature = get_default_temperature()
-<<<<<<< HEAD
-
-=======
-            
->>>>>>> 17f541b2d0857be7b47fe1d20643f1035aa0e786
         request = AIRequest(
             prompt=prompt, model=model, temperature=temperature, max_tokens=max_tokens
         )
@@ -239,7 +235,7 @@ def get_ai_service() -> AIService:
     Returns:
         AIService instance
     """
-    global _ai_service
+    global _ai_service  # noqa: PLW0603
     if _ai_service is None:
         _ai_service = AIService()
     return _ai_service
