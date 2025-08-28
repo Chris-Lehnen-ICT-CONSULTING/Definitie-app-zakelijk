@@ -177,8 +177,8 @@ class DefinitieGenerator:
                 return generation_result
 
             return GenerationResult(
-                definitie=f"[Error: {response.message}]",
-                metadata={"error": response.message or "Unknown error"},
+                definitie=f"[Error: {response.error}]",
+                metadata={"error": response.error or "Unknown error"},
                 context=generation_context,
             )
 
