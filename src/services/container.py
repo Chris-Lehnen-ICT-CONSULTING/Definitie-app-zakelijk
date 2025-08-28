@@ -5,24 +5,12 @@ Deze container beheert de instanties van alle services en hun dependencies.
 Dit maakt het makkelijk om services te configureren, testen en swappen.
 """
 
-import asyncio
 import logging
 import os
 from typing import TYPE_CHECKING, Any
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_repository import DefinitionRepository
-
-from config.config_manager import (
-    get_component_config,
-    get_default_model,
-    get_default_temperature,
-)
-
-# V2 Architecture imports
-from services.orchestrators.definition_orchestrator_v2 import (
-    DefinitionOrchestratorV2,
-)
 from services.definition_validator import DefinitionValidator, ValidatorConfig
 from services.duplicate_detection_service import DuplicateDetectionService
 from services.interfaces import (
@@ -35,9 +23,20 @@ from services.interfaces import (
 )
 from services.modern_web_lookup_service import ModernWebLookupService
 
+# V2 Architecture imports
+from services.orchestrators.definition_orchestrator_v2 import (
+    DefinitionOrchestratorV2,
+)
+
 # UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
 # from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.workflow_service import WorkflowService
+
+from config.config_manager import (
+    get_component_config,
+    get_default_model,
+    get_default_temperature,
+)
 
 if TYPE_CHECKING:
     from services.data_aggregation_service import DataAggregationService
@@ -116,7 +115,6 @@ class ServiceContainer:
             min_score_threshold=self.config.get("min_score_threshold", 0.6),
             enable_suggestions=self.config.get("enable_suggestions", True),
         )
-
 
         # Cleaning service configuratie
         from services.cleaning_service import CleaningConfig
@@ -199,23 +197,26 @@ class ServiceContainer:
         """
         if "orchestrator" not in self._instances:
             # V2 is now the only orchestrator
+            from services.adapters.cleaning_service_adapter import (
+                CleaningServiceAdapterV1toV2,
+            )
+            from services.adapters.validation_service_adapter import (
+                ValidationServiceAdapterV1toV2,
+            )
+            from services.ai_service_v2 import AIServiceV2
             from services.interfaces import (
                 OrchestratorConfig as V2OrchestratorConfig,
             )
-            from services.ai_service_v2 import AIServiceV2
             from services.prompts.prompt_service_v2 import PromptServiceV2
-            from services.adapters.cleaning_service_adapter import CleaningServiceAdapterV1toV2
-            from services.adapters.validation_service_adapter import ValidationServiceAdapterV1toV2
 
             v2_config = V2OrchestratorConfig()
 
             # Create all required V2 services
             prompt_service = PromptServiceV2()
             ai_service = AIServiceV2(
-                default_model=self.generator_config.gpt.model,
-                use_cache=True
+                default_model=self.generator_config.gpt.model, use_cache=True
             )
-            
+
             # Create adapters for sync services
             validation_service = ValidationServiceAdapterV1toV2(self.validator())
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())

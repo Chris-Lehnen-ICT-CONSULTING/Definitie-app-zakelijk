@@ -6,8 +6,8 @@
 **Priority**: Critical
 
 ## User Story
-Als een **development team**,  
-Wil ik **alle V1 orchestrator code volledig verwijderen**,  
+Als een **development team**,
+Wil ik **alle V1 orchestrator code volledig verwijderen**,
 Zodat **we een clean async-only architecture hebben voor production**.
 
 ## Context
