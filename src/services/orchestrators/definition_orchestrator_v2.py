@@ -84,7 +84,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             raise ValueError("CleaningServiceInterface is required")
         if not repository:
             raise ValueError("DefinitionRepositoryInterface is required")
-            
+
         self.prompt_service = prompt_service
         self.ai_service = ai_service
         self.validation_service = validation_service
@@ -217,44 +217,27 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 5: Text Cleaning & Normalization
             # =====================================
-            if hasattr(self.cleaning_service, "clean_text"):
-                # V2 cleaning service interface
-                cleaning_result = await self.cleaning_service.clean_text(
-                    (
-                        generation_result.text
-                        if hasattr(generation_result, "text")
-                        else str(generation_result)
-                    ),
-                    sanitized_request.begrip,
-                )
-                cleaned_text = cleaning_result.cleaned_text
-                logger.info(f"Generation {generation_id}: Text cleaned with V2 service")
-            else:
-                # Legacy cleaning service fallback
-                cleaned_text = await self.cleaning_service.clean_definition(
+            # V2 cleaning service (always available through adapter)
+            cleaning_result = await self.cleaning_service.clean_text(
+                (
                     generation_result.text
                     if hasattr(generation_result, "text")
                     else str(generation_result)
-                )
-                logger.info(
-                    f"Generation {generation_id}: Text cleaned with legacy service"
-                )
+                ),
+                sanitized_request.begrip,
+            )
+            cleaned_text = cleaning_result.cleaned_text
+            logger.info(f"Generation {generation_id}: Text cleaned with V2 service")
 
             # =====================================
             # PHASE 6: Validation
             # =====================================
-            if hasattr(self.validation_service, "validate_definition"):
-                # V2 validation service interface
-                validation_result = await self.validation_service.validate_definition(
-                    sanitized_request.begrip,
-                    cleaned_text,
-                    ontologische_categorie=sanitized_request.ontologische_categorie,
-                )
-            else:
-                # Legacy validation service fallback
-                validation_result = self.validation_service.validate(
-                    Definition(begrip=sanitized_request.begrip, definitie=cleaned_text)
-                )
+            # V2 validation service (always available through adapter)
+            validation_result = await self.validation_service.validate_definition(
+                sanitized_request.begrip,
+                cleaned_text,
+                ontologische_categorie=sanitized_request.ontologische_categorie,
+            )
 
             logger.info(
                 f"Generation {generation_id}: Validation complete (valid: {validation_result.is_valid})"
@@ -276,18 +259,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 )
 
                 # Re-validate enhanced text
-                if hasattr(self.validation_service, "validate_definition"):
-                    validation_result = await self.validation_service.validate_definition(
-                        sanitized_request.begrip,
-                        enhanced_text,
-                        ontologische_categorie=sanitized_request.ontologische_categorie,
-                    )
-                else:
-                    validation_result = self.validation_service.validate(
-                        Definition(
-                            begrip=sanitized_request.begrip, definitie=enhanced_text
-                        )
-                    )
+                validation_result = await self.validation_service.validate_definition(
+                    sanitized_request.begrip,
+                    enhanced_text,
+                    ontologische_categorie=sanitized_request.ontologische_categorie,
+                )
 
                 cleaned_text = enhanced_text
                 was_enhanced = True
@@ -488,6 +464,3 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 logger.debug("Repository does not support failed attempt tracking")
         except Exception as e:
             logger.error(f"Failed to save failed attempt: {e!s}")
-
-
-
