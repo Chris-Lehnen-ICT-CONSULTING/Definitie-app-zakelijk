@@ -90,8 +90,10 @@ class UnifiedExamplesGenerator:
         self.cache_hits = 0
         # Initialize AI service V2
         self.ai_service = AIServiceV2(
-            default_model=get_component_config("ai_service").get("model", "gpt-4o-mini"),
-            use_cache=True
+            default_model=get_component_config("ai_service").get(
+                "model", "gpt-4o-mini"
+            ),
+            use_cache=True,
         )
 
     def _get_config_for_type(self, example_type: ExampleType) -> dict:

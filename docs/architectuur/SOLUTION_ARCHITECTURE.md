@@ -1,5 +1,16 @@
 # DefinitieAgent Solution Architecture
 
+## Wijzigingshistorie
+
+- 2025-08-28: Modularisatie-update (delta op bestaande SA)
+  - Toegevoegd: modulaire grenzen en dependency‑regels (adapters → services → domain; infrastructure implementeert interfaces).
+  - Toegevoegd: stabiele contracten voor AI en prompts (AIProviderInterface, PromptBuilderInterface).
+  - Aangescherpt: Orchestrator‑first; UI gebruikt uitsluitend services via factory/container (geen directe DB/SDK‑imports).
+  - Toegevoegd: feature flags voor gefaseerde uitfasering (FEATURE_ORCHESTRATOR_ONLY, FEATURE_MODERN_LOOKUP, FEATURE_DISABLE_LEGACY_AFTER).
+  - Gedeprecieerd: UnifiedDefinitionGenerator en legacy Web Lookup‑paden; vervanging via Orchestrator en ModernWebLookupService.
+  - Toegevoegd: NFR’s voor security/observability (structured logging, metrics, cost‑tracking, authN/Z, encryptie‑at‑rest).
+  - Herijking: microservices blijft langetermijn; korte‑middellange termijn is “modular monolith” + API‑first backend.
+
 ## Executive Summary
 
 ### Solution Overview
@@ -11,6 +22,8 @@
 - **Architecture**: Event-driven microservices with API Gateway
 - **Performance**: From 8-12s to <2s response time
 - **Scale**: From single-user to 100+ concurrent users
+
+> Herijking 2025-08-28: Eerstvolgende stap is een modulaire monoliet met API‑first backend. De microservices‑doelarchitectuur blijft richtinggevend voor de langere termijn na stabilisatie van interfaces en NFR’s.
 
 ### Key Design Decisions
 1. **Quality-First Migration**: Achieve 90% quality in monolith before splitting
@@ -95,6 +108,8 @@ graph TB
     VS --> NS
     ES --> S3
 ```
+
+> Herijking 2025-08-28: Onderstaande microservices‑doelarchitectuur blijft richtinggevend, maar de kort‑middellange termijn focus ligt op modulair snijden binnen de bestaande codebase. Zie sectie “Modulaire Opzet en Legacy‑Uitfasering (2025‑08‑28)” voor de concrete delta.
 
 #### Discovered Microservice-Ready Components
 ```yaml
@@ -517,6 +532,57 @@ def test_no_ui_dependencies():
 - **Testing**: Pytest with 80% coverage
 - **Code Style**: Black + Ruff
 - **Documentation**: Sphinx + Markdown
+
+## NFR Updates (Security & Observability) – 2025-08-28
+- Security: OAuth2/JWT + RBAC (adapters), input‑sanitization, rate limiting, secrets management, encryptie at rest (SQLCipher/PostgreSQL TDE), TLS everywhere.
+- Observability: Structured JSON logging (request_id, user_id, latency_ms, tokens_used), Prometheus metrics (cache hit‑ratio, GPT tokens, validation failures), tracing (OpenTelemetry) met 10–20% sampling.
+- Performance: Non‑GPT p95 < 250ms; GPT acties met duidelijke feedback/timeout (30s); retries met jitter; queue waar nodig.
+- Testbaarheid: Contracttests voor interfaces; golden tests voor prompts; mocks voor AI/lookup providers.
+- Kosten: Dagelijkse AI‑kostenrapportage; alerts bij overschrijding.
+
+---
+
+## Modulaire Opzet en Legacy‑Uitfasering (Update 2025-08-28)
+
+### Module‑grenzen en dependency‑regels
+- Lagen: adapters → services → domain; infrastructure implementeert service‑interfaces.
+- Regels:
+  - Adapters (UI/API/CLI) gebruiken uitsluitend services/factory; geen directe DB/SDK (OpenAI/SQLite) imports.
+  - Services kennen alleen domain en services.interfaces (contracten) en spreken providers/repositories via interfaces.
+  - Infrastructure (DB/AI/cache/storage) implementeert de interfaces; geen afhankelijkheid terug naar adapters.
+  - Config/feature flags uitsluitend via de config module.
+
+### Stabiele contracten (nieuw/expliciet)
+- AIProviderInterface: uniforme chat/completion interface (OpenAI/Azure/lokaal) → pluggable backends zonder codewijziging in services/UI.
+- PromptBuilderInterface: scheidt promptopbouw (templates/regels) van orchestrator/services; vergemakkelijkt testen (golden snapshots) en varianten.
+- Bestaand: DefinitionGenerator, Validator, Repository, Cleaning, WebLookup, Orchestrator blijven leidend als interfaces.
+
+### Orchestrator‑first aansturing
+- Alle generaties via DefinitionOrchestrator (generate → validate → enrich → store).
+- UI‑tabs roepen geen generator/validator of repository direct aan; uitsluitend services/orchestrator.
+
+### Feature flags en shims
+- FEATURE_ORCHESTRATOR_ONLY: dwingt orchestrator‑pad af voor alle generaties.
+- FEATURE_MODERN_LOOKUP: forceer ModernWebLookupService in alle paden (UI + services).
+- FEATURE_DISABLE_LEGACY_AFTER: datum voor waarschuwing/telemetrie richting legacy paden.
+- Shims behouden backward compatibility en loggen deprecation‑waarschuwingen.
+
+### Legacy deprecations
+- UnifiedDefinitionGenerator (monoliet) → vervangen door Orchestrator + losse services.
+- Legacy Web Lookup modules → vervangen door ModernWebLookupService + LookupRequest.
+- UI → DB/SDK imports → vervangen door service‑aanroepen; repository blijft in infrastructure.
+
+### Teststrategie (modulair)
+- Contracttests per interface (generator, validator, repository, AI‑provider, prompts).
+- Golden master voor prompts (input→prompt snapshots).
+- Integratietests over het orchestrator‑pad met gemockte providers.
+- Lint‑regels die UI→infra of UI→SDK imports blokkeren.
+
+### Acceptatiecriteria (DoD)
+- UI importeert enkel services/* en domain/*; 0 directe imports naar OpenAI/DB.
+- rg toont 0 legacy imports (UnifiedDefinitionGenerator, legacy Web Lookup) in actieve paden.
+- Alle servicecalls via interfaces/factory/container; contracttests groen; prompt‑goldens stabiel.
+- Feature flags “modern‑only” aan zonder regressies (smoke per tab).
 
 ### 2.2 Frontend Evolution Strategy
 

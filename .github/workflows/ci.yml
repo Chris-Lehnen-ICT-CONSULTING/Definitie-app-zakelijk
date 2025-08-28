@@ -55,36 +55,36 @@ jobs:
       - name: Check for forbidden V1 symbols
         run: |
           echo "Checking for forbidden V1 symbols..."
-          
+
           # Check for V1 files that should not exist
           if [ -f "src/services/ai_service.py" ]; then
             echo "ERROR: V1 AI service file found (src/services/ai_service.py)"
             exit 1
           fi
-          
+
           if [ -f "src/services/definition_orchestrator.py" ]; then
             echo "ERROR: V1 orchestrator file found (src/services/definition_orchestrator.py)"
             exit 1
           fi
-          
+
           # Check for V1 function references
           if grep -r "stuur_prompt_naar_gpt" src/ --exclude-dir=__pycache__ --include="*.py" 2>/dev/null; then
             echo "ERROR: Found references to V1 function 'stuur_prompt_naar_gpt'"
             exit 1
           fi
-          
+
           # Check for V1 class references (but allow DefinitionOrchestratorV2 and Interface)
           if grep -r "^class DefinitionOrchestrator[^VI]" src/ --exclude-dir=__pycache__ --include="*.py" 2>/dev/null | grep -v "DefinitionOrchestratorInterface"; then
             echo "ERROR: Found V1 DefinitionOrchestrator class (should use DefinitionOrchestratorV2)"
             exit 1
           fi
-          
+
           # Check for get_ai_service imports
           if grep -r "from services.ai_service import get_ai_service" src/ --exclude-dir=__pycache__ --include="*.py" 2>/dev/null; then
             echo "ERROR: Found imports of V1 get_ai_service function"
             exit 1
           fi
-          
+
           echo "✓ No forbidden V1 symbols found"
 
       # 9) Pytest
@@ -92,7 +92,7 @@ jobs:
         run: |
           export PYTHONPATH=$PWD/src
           pytest -q
-          
+
       # 10) Forbidden symbols test
       - name: Test for forbidden V1 symbols
         run: |

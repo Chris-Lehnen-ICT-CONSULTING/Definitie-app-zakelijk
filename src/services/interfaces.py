@@ -728,6 +728,9 @@ class AITimeoutError(AIServiceError):
 # ==========================================
 
 
+# (Verplaatst naar Appendix in SA document – geen codewijzigingen nu)
+
+
 @dataclass
 class PromptResult:
     """Enhanced prompt result with feedback integration."""
