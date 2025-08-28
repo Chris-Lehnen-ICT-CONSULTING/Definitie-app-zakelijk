@@ -18,7 +18,7 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
-from services.ai_service import get_ai_service  # Modern AI service interface
+from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
 from utils.cache import cached  # Caching decorator voor performance optimalisatie
 
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
@@ -88,6 +88,11 @@ class UnifiedExamplesGenerator:
         self.generation_count = 0
         self.error_count = 0
         self.cache_hits = 0
+        # Initialize AI service V2
+        self.ai_service = AIServiceV2(
+            default_model=get_component_config("ai_service").get("model", "gpt-4o-mini"),
+            use_cache=True
+        )
 
     def _get_config_for_type(self, example_type: ExampleType) -> dict:
         """Get configuration for a specific example type from central config."""
@@ -173,14 +178,16 @@ class UnifiedExamplesGenerator:
         prompt = self._build_prompt(request)
 
         try:
-            ai_service = get_ai_service()
-            response = ai_service.generate_definition(
-                prompt=prompt,
-                model=request.model,
-                temperature=request.temperature,
-                max_tokens=300,
+            # Run async method synchronously
+            response = self._run_async_safe(
+                self.ai_service.generate_definition(
+                    prompt=prompt,
+                    model=request.model,
+                    temperature=request.temperature,
+                    max_tokens=300,
+                )
             )
-            return self._parse_response(response)
+            return self._parse_response(response.text)
         except Exception as e:
             msg = f"Synchronous generation failed: {e}"
             raise RuntimeError(msg)
@@ -190,17 +197,14 @@ class UnifiedExamplesGenerator:
         prompt = self._build_prompt(request)
 
         try:
-            # Use async wrapper for GPT call
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: get_ai_service().generate_definition(
-                    prompt=prompt,
-                    model=request.model,
-                    temperature=request.temperature,
-                    max_tokens=300,
-                ),
+            # Direct async call to V2 service
+            response = await self.ai_service.generate_definition(
+                prompt=prompt,
+                model=request.model,
+                temperature=request.temperature,
+                max_tokens=300,
             )
-            return self._parse_response(response)
+            return self._parse_response(response.text)
         except Exception as e:
             msg = f"Asynchronous generation failed: {e}"
             raise RuntimeError(msg)
@@ -298,17 +302,14 @@ class UnifiedExamplesGenerator:
         prompt = self._build_prompt(request)
 
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: get_ai_service().generate_definition(
-                    prompt=prompt,
-                    model=request.model,
-                    temperature=request.temperature,
-                    max_tokens=300,
-                ),
+            response = await self.ai_service.generate_definition(
+                prompt=prompt,
+                model=request.model,
+                temperature=request.temperature,
+                max_tokens=300,
             )
             # Voor explanation, return de hele response als één item
-            return [response.strip()] if response.strip() else []
+            return [response.text.strip()] if response.text.strip() else []
         except Exception as e:
             msg = f"Resilient generation failed: {e}"
             raise RuntimeError(msg)
@@ -318,16 +319,13 @@ class UnifiedExamplesGenerator:
         prompt = self._build_prompt(request)
 
         try:
-            response = await asyncio.get_event_loop().run_in_executor(
-                None,
-                lambda: get_ai_service().generate_definition(
-                    prompt=prompt,
-                    model=request.model,
-                    temperature=request.temperature,
-                    max_tokens=300,
-                ),
+            response = await self.ai_service.generate_definition(
+                prompt=prompt,
+                model=request.model,
+                temperature=request.temperature,
+                max_tokens=300,
             )
-            return self._parse_response(response)
+            return self._parse_response(response.text)
         except Exception as e:
             msg = f"Resilient generation failed: {e}"
             raise RuntimeError(msg)
