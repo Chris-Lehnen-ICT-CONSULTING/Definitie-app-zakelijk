@@ -391,6 +391,9 @@ class ConfigManager:
         self.resilience: ResilienceConfig = ResilienceConfig()
         self.security: SecurityConfig = SecurityConfig()
 
+        # Component-specific AI configurations
+        self.ai_components: dict = {}
+
         # Load configuration
         self._load_configuration()
 
@@ -482,7 +485,10 @@ class ConfigManager:
             config_dict: Dictionary met configuratie instellingen
         """
         for section_name, section_config in config_dict.items():
-            if hasattr(self, section_name):
+            if section_name == "ai_components":
+                # Speciale behandeling voor ai_components
+                self.ai_components = section_config
+            elif hasattr(self, section_name):
                 section_obj = getattr(self, section_name)
                 for key, value in section_config.items():
                     if hasattr(section_obj, key):
@@ -684,11 +690,43 @@ def get_default_temperature() -> float:
 
 def fill_ai_defaults(**kwargs) -> dict:
     """Fill AI request parameters with defaults from config where None."""
-    if 'model' in kwargs and kwargs['model'] is None:
-        kwargs['model'] = get_default_model()
-    if 'temperature' in kwargs and kwargs['temperature'] is None:
-        kwargs['temperature'] = get_default_temperature()
+    if "model" in kwargs and kwargs["model"] is None:
+        kwargs["model"] = get_default_model()
+    if "temperature" in kwargs and kwargs["temperature"] is None:
+        kwargs["temperature"] = get_default_temperature()
     return kwargs
+
+
+def get_component_config(component: str, sub_component: str = None) -> dict:
+    """Get AI configuration for a specific component.
+
+    Args:
+        component: Main component (e.g. 'voorbeelden', 'expert_review')
+        sub_component: Optional sub-component (e.g. 'synoniemen', 'uitleg')
+
+    Returns:
+        Dict with model, temperature, and max_tokens settings
+    """
+    config = get_config_manager()
+
+    # Check if we have ai_components in config
+    if hasattr(config, "ai_components") and config.ai_components:
+        comp_config = config.ai_components.get(component, {})
+
+        # If sub_component specified, get nested config
+        if sub_component and isinstance(comp_config, dict):
+            comp_config = comp_config.get(sub_component, comp_config)
+
+        # Return config if found
+        if comp_config:
+            return comp_config
+
+    # Fallback to defaults
+    return {
+        "model": get_default_model(),
+        "temperature": get_default_temperature(),
+        "max_tokens": config.api.default_max_tokens,
+    }
 
 
 def reload_config():

@@ -13,6 +13,12 @@ from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
 from services.definition_repository import DefinitionRepository
 
+from config.config_manager import (
+    get_component_config,
+    get_default_model,
+    get_default_temperature,
+)
+
 # V2 Architecture imports (conditional)
 try:
     from services.orchestrators.definition_orchestrator_v2 import (
@@ -84,9 +90,17 @@ class ServiceContainer:
             QualityConfig,
         )
 
+        # Gebruik centrale configuratie voor definition generator
+        definition_config = get_component_config("definition_generator")
+
         gpt_config = GPTConfig(
-            model=self.config.get("generator_model", "gpt-5"),
-            temperature=self.config.get("generator_temperature", 0.4),
+            model=self.config.get(
+                "generator_model", definition_config.get("model", get_default_model())
+            ),
+            temperature=self.config.get(
+                "generator_temperature",
+                definition_config.get("temperature", get_default_temperature()),
+            ),
             api_key=self.openai_api_key,  # Pass the API key
         )
 
@@ -450,10 +464,10 @@ class ContainerConfigs:
     @staticmethod
     def development() -> dict[str, Any]:
         """Development configuratie."""
+        # Laat generator_model en generator_temperature weg zodat centrale config gebruikt wordt
         return {
             "db_path": "data/definities.db",
-            "generator_model": "gpt-5",  # Updated to latest model
-            "generator_temperature": 0.5,
+            # Model en temperature worden uit centrale config gehaald
             "enable_monitoring": True,
             "enable_auto_save": False,  # Geen auto-save in dev
             "enable_ontology": True,  # Test ontologie in dev
@@ -465,7 +479,7 @@ class ContainerConfigs:
         """Test configuratie."""
         return {
             "db_path": ":memory:",  # In-memory database
-            "generator_model": "gpt-5",
+            # Model wordt uit centrale config gehaald
             "enable_monitoring": False,
             "enable_auto_save": False,
             "enable_validation": True,
@@ -478,8 +492,7 @@ class ContainerConfigs:
         """Production configuratie."""
         return {
             "db_path": "data/definities.db",
-            "generator_model": "gpt-5",
-            "generator_temperature": 0.0,
+            # Model en temperature worden uit centrale config gehaald
             "enable_monitoring": True,
             "enable_auto_save": True,
             "enable_all_rules": True,

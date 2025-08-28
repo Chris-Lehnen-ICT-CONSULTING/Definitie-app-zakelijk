@@ -29,6 +29,10 @@ from utils.smart_rate_limiter import (  # Smart rate limiting voor API calls
     RequestPriority,
 )
 
+from config.config_manager import (
+    get_component_config,  # Centrale component configuratie
+)
+
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
 
 
@@ -62,7 +66,7 @@ class ExampleRequest:
     example_type: ExampleType
     generation_mode: GenerationMode = GenerationMode.RESILIENT
     max_examples: int = 5  # Default naar 5 voor synoniemen/antoniemen
-    temperature: float = 0.5
+    temperature: float | None = None  # None betekent: gebruik centrale config
     model: str | None = None
 
 
@@ -84,6 +88,21 @@ class UnifiedExamplesGenerator:
         self.generation_count = 0
         self.error_count = 0
         self.cache_hits = 0
+
+    def _get_config_for_type(self, example_type: ExampleType) -> dict:
+        """Get configuration for a specific example type from central config."""
+        # Map ExampleType enum to config keys
+        type_mapping = {
+            ExampleType.SENTENCE: "sentence",
+            ExampleType.PRACTICAL: "practical",
+            ExampleType.COUNTER: "counter",
+            ExampleType.SYNONYMS: "synonyms",
+            ExampleType.ANTONYMS: "antonyms",
+            ExampleType.EXPLANATION: "explanation",
+        }
+
+        config_key = type_mapping.get(example_type, "sentence")
+        return get_component_config("voorbeelden", config_key)
 
     def _run_async_safe(self, coro):
         """Run async coroutine safely, detecting existing event loop."""
@@ -114,6 +133,13 @@ class UnifiedExamplesGenerator:
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
         """Generate examples based on request configuration."""
         start_time = datetime.now(timezone.utc)
+
+        # Get configuration for this example type if not specified
+        config = self._get_config_for_type(request.example_type)
+        if request.model is None:
+            request.model = config.get("model")
+        if request.temperature is None:  # Use config if not specified
+            request.temperature = config.get("temperature", 0.5)
 
         try:
             # Route to appropriate generation method
