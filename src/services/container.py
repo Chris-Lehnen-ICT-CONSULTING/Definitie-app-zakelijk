@@ -5,12 +5,12 @@ Deze container beheert de instanties van alle services en hun dependencies.
 Dit maakt het makkelijk om services te configureren, testen en swappen.
 """
 
+import asyncio
 import logging
 import os
 from typing import TYPE_CHECKING, Any
 
 from services.definition_generator_config import UnifiedGeneratorConfig
-from services.definition_orchestrator import DefinitionOrchestrator, OrchestratorConfig
 from services.definition_repository import DefinitionRepository
 
 from config.config_manager import (
@@ -19,16 +19,10 @@ from config.config_manager import (
     get_default_temperature,
 )
 
-# V2 Architecture imports (conditional)
-try:
-    from services.orchestrators.definition_orchestrator_v2 import (
-        DefinitionOrchestratorV2,
-    )
-
-    V2_ORCHESTRATOR_AVAILABLE = True
-except ImportError:
-    V2_ORCHESTRATOR_AVAILABLE = False
-    DefinitionOrchestratorV2 = None
+# V2 Architecture imports
+from services.orchestrators.definition_orchestrator_v2 import (
+    DefinitionOrchestratorV2,
+)
 from services.definition_validator import DefinitionValidator, ValidatorConfig
 from services.duplicate_detection_service import DuplicateDetectionService
 from services.interfaces import (
@@ -123,12 +117,6 @@ class ServiceContainer:
             enable_suggestions=self.config.get("enable_suggestions", True),
         )
 
-        self.orchestrator_config = OrchestratorConfig(
-            enable_validation=self.config.get("enable_validation", True),
-            enable_enrichment=self.config.get("enable_enrichment", True),
-            enable_auto_save=self.config.get("enable_auto_save", True),
-            min_quality_score=self.config.get("min_quality_score", 0.6),
-        )
 
         # Cleaning service configuratie
         from services.cleaning_service import CleaningConfig
@@ -146,16 +134,16 @@ class ServiceContainer:
         """
         Get of create DefinitionGenerator instance.
 
-        Vervangen door DefinitionOrchestrator voor moderne architectuur.
+        V2 orchestrator is nu de enige implementatie.
 
         Returns:
-            Singleton instance van DefinitionGenerator (via Orchestrator)
+            Singleton instance van DefinitionGeneratorInterface (via V2 Orchestrator)
         """
         if "generator" not in self._instances:
-            # Gebruik orchestrator als nieuwe generator implementatie
+            # V2 orchestrator is de enige generator implementatie
             orchestrator_instance = self.orchestrator()
             self._instances["generator"] = orchestrator_instance
-            logger.info("DefinitionOrchestrator instance aangemaakt als generator")
+            logger.info("DefinitionOrchestratorV2 instance aangemaakt als generator")
         return self._instances["generator"]
 
     def validator(self) -> DefinitionValidatorInterface:
@@ -207,55 +195,47 @@ class ServiceContainer:
         Get of create DefinitionOrchestrator instance.
 
         Returns:
-            Singleton instance van DefinitionOrchestrator (V1 or V2)
+            Singleton instance van DefinitionOrchestratorV2
         """
         if "orchestrator" not in self._instances:
-            # Check for V2 orchestrator feature flag
-            use_v2_orchestrator = os.getenv(
-                "USE_V2_ORCHESTRATOR", ""
-            ).lower() == "true" or self.config.get("use_v2_orchestrator", False)
+            # V2 is now the only orchestrator
+            from services.interfaces import (
+                OrchestratorConfig as V2OrchestratorConfig,
+            )
+            from services.ai_service_v2 import AIServiceV2
+            from services.prompts.prompt_service_v2 import PromptServiceV2
+            from services.adapters.cleaning_service_adapter import CleaningServiceAdapterV1toV2
+            from services.adapters.validation_service_adapter import ValidationServiceAdapterV1toV2
 
-            if use_v2_orchestrator and V2_ORCHESTRATOR_AVAILABLE:
-                # Create V2 orchestrator with current services as fallbacks
-                from services.interfaces import (
-                    OrchestratorConfig as V2OrchestratorConfig,
-                )
+            v2_config = V2OrchestratorConfig()
 
-                v2_config = V2OrchestratorConfig()
+            # Create all required V2 services
+            prompt_service = PromptServiceV2()
+            ai_service = AIServiceV2(
+                default_model=self.generator_config.gpt.model,
+                use_cache=True
+            )
+            
+            # Create adapters for sync services
+            validation_service = ValidationServiceAdapterV1toV2(self.validator())
+            cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
 
-                # Create V2 prompt service
-                from services.prompts.prompt_service_v2 import PromptServiceV2
-
-                prompt_service_v2 = PromptServiceV2()
-
-                self._instances["orchestrator"] = DefinitionOrchestratorV2(
-                    # V2 services - NOW WITH WORKING PROMPT SERVICE
-                    prompt_service=prompt_service_v2,  # FIXED: Category-aware prompts
-                    ai_service=None,  # Will use legacy fallback
-                    validation_service=None,  # Will use legacy fallback
-                    enhancement_service=None,  # Will use legacy fallback
-                    security_service=None,  # V2 only feature
-                    # Infrastructure services (existing)
-                    cleaning_service=self.cleaning_service(),
-                    repository=self.repository(),
-                    monitoring=None,  # Not implemented yet
-                    # Feedback system (not implemented yet)
-                    feedback_engine=None,
-                    # Configuration
-                    config=v2_config,
-                )
-                logger.info(
-                    "DefinitionOrchestratorV2 instance created with legacy service fallbacks"
-                )
-            else:
-                # Use V1 orchestrator (current/legacy)
-                self._instances["orchestrator"] = DefinitionOrchestrator(
-                    validator=self.validator(),
-                    repository=self.repository(),
-                    cleaning_service=self.cleaning_service(),
-                    config=self.orchestrator_config,
-                )
-                logger.info("DefinitionOrchestrator V1 instance created")
+            self._instances["orchestrator"] = DefinitionOrchestratorV2(
+                # Required V2 services
+                prompt_service=prompt_service,
+                ai_service=ai_service,
+                validation_service=validation_service,
+                cleaning_service=cleaning_service,
+                repository=self.repository(),
+                # Optional services
+                enhancement_service=None,  # Not implemented yet
+                security_service=None,  # Not implemented yet
+                monitoring=None,  # Not implemented yet
+                feedback_engine=None,  # Not implemented yet
+                # Configuration
+                config=v2_config,
+            )
+            logger.info("DefinitionOrchestratorV2 instance created")
 
         return self._instances["orchestrator"]
 

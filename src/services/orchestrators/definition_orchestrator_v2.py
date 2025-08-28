@@ -30,7 +30,6 @@ from services.interfaces import (
     GenerationRequest,
     MonitoringServiceInterface as MonitoringService,
     OrchestratorConfig,
-    PromptResult,
     PromptServiceInterface as PromptServiceV2,
     SecurityServiceInterface as SecurityService,
     ValidationResult,
@@ -55,18 +54,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
     def __init__(
         self,
-        # Core generation services
-        prompt_service: Optional["PromptServiceV2"] = None,
-        ai_service: Optional["IntelligentAIService"] = None,
-        validation_service: Optional["ValidationServiceV2"] = None,
+        # Core generation services (required)
+        prompt_service: "PromptServiceV2",
+        ai_service: "IntelligentAIService",
+        validation_service: "ValidationServiceV2",
+        cleaning_service: "CleaningServiceInterface",
+        repository: "DefinitionRepositoryInterface",
+        # Optional services
         enhancement_service: Optional["EnhancementService"] = None,
-        # Security & compliance
         security_service: Optional["SecurityService"] = None,
-        # Infrastructure services
-        cleaning_service: Optional["CleaningServiceInterface"] = None,
-        repository: Optional["DefinitionRepositoryInterface"] = None,
         monitoring: Optional["MonitoringService"] = None,
-        # Feedback system
         feedback_engine: Optional["FeedbackEngine"] = None,
         # Configuration
         config: OrchestratorConfig | None = None,
@@ -74,22 +71,31 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         """
         Clean dependency injection - no session state access.
 
-        Uses optional dependencies with graceful degradation for gradual migration.
+        All core services are required for V2-only operation.
         """
-        # V2 Services (with fallbacks)
+        # V2 Services (required)
+        if not prompt_service:
+            raise ValueError("PromptServiceV2 is required")
+        if not ai_service:
+            raise ValueError("AIServiceInterface is required")
+        if not validation_service:
+            raise ValueError("ValidationServiceInterface is required")
+        if not cleaning_service:
+            raise ValueError("CleaningServiceInterface is required")
+        if not repository:
+            raise ValueError("DefinitionRepositoryInterface is required")
+            
         self.prompt_service = prompt_service
-        self.ai_service = ai_service or self._get_legacy_ai_service()
-        self.validation_service = (
-            validation_service or self._get_legacy_validation_service()
-        )
+        self.ai_service = ai_service
+        self.validation_service = validation_service
         self.enhancement_service = enhancement_service
 
         # Security (V2 only)
         self.security_service = security_service
 
         # Infrastructure
-        self.cleaning_service = cleaning_service or self._get_legacy_cleaning_service()
-        self.repository = repository or self._get_legacy_repository()
+        self.cleaning_service = cleaning_service
+        self.repository = repository
         self.monitoring = monitoring
 
         # Feedback system
@@ -175,36 +181,21 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
             # =====================================
-            prompt_result = None
-            if self.prompt_service:
-                prompt_result = await self.prompt_service.build_generation_prompt(
-                    sanitized_request,
-                    feedback_history=feedback_history,
-                    context=context,
-                )
-                logger.info(
-                    f"Generation {generation_id}: V2 Prompt built ({prompt_result.token_count} tokens, "
-                    f"ontological_category={sanitized_request.ontologische_categorie})"
-                )
-            else:
-                # Fallback to legacy prompt generation
-                logger.warning(
-                    f"Generation {generation_id}: Using legacy prompt generation - "
-                    "ontological category may not be properly integrated"
-                )
-                prompt_result = await self._generate_legacy_prompt(
-                    sanitized_request, feedback_history, context
-                )
+            prompt_result = await self.prompt_service.build_generation_prompt(
+                sanitized_request,
+                feedback_history=feedback_history,
+                context=context,
+            )
+            logger.info(
+                f"Generation {generation_id}: V2 Prompt built ({prompt_result.token_count} tokens, "
+                f"ontological_category={sanitized_request.ontologische_categorie})"
+            )
 
             # =====================================
             # PHASE 4: AI Generation with Retry Logic
             # =====================================
             generation_result = await self.ai_service.generate_definition(
-                prompt=(
-                    prompt_result.text
-                    if prompt_result
-                    else self._create_basic_prompt(sanitized_request)
-                ),
+                prompt=prompt_result.text,
                 temperature=(
                     sanitized_request.options.get("temperature", 0.7)
                     if sanitized_request.options
@@ -272,6 +263,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 7: Enhancement (if validation failed and enabled)
             # =====================================
+            was_enhanced = False
             if (
                 not validation_result.is_valid
                 and self.config.enable_enhancement
@@ -298,6 +290,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     )
 
                 cleaned_text = enhanced_text
+                was_enhanced = True
                 logger.info(
                     f"Generation {generation_id}: Enhancement applied, re-validated"
                 )
@@ -316,8 +309,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         prompt_result.components_used if prompt_result else []
                     ),
                     "has_feedback": bool(feedback_history),
-                    "enhanced": not validation_result.is_valid
-                    and self.config.enable_enhancement,
+                    "enhanced": was_enhanced,
                     "generation_time": time.time() - start_time,
                     "generated_at": datetime.now(timezone.utc).isoformat(),
                     "orchestrator_version": "v2.0",
@@ -396,6 +388,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "ontological_category": sanitized_request.ontologische_categorie,
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
+                    "enhanced": was_enhanced,
                 },
             )
 
@@ -496,157 +489,5 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         except Exception as e:
             logger.error(f"Failed to save failed attempt: {e!s}")
 
-    def _create_basic_prompt(self, request: GenerationRequest) -> str:
-        """Create basic fallback prompt when prompt service unavailable."""
-        ontological_hint = ""
-        if request.ontologische_categorie:
-            ontological_hint = f"\n\nDit begrip is een {request.ontologische_categorie}. Houd hier rekening mee in de definitie."
 
-        return f"""Genereer een Nederlandse definitie voor het begrip: {request.begrip}
 
-Context: {request.context or 'Geen specifieke context gegeven'}
-Domein: {request.domein or 'Algemeen'}
-{ontological_hint}
-
-Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitseisen voor juridisch gebruik."""
-
-    async def _generate_legacy_prompt(
-        self,
-        request: GenerationRequest,
-        feedback_history: list | None,
-        context: dict[str, Any] | None,
-    ) -> "PromptResult":
-        """Generate prompt using legacy services as fallback."""
-        from services.interfaces import PromptResult
-
-        basic_prompt = self._create_basic_prompt(request)
-
-        return PromptResult(
-            text=basic_prompt,
-            token_count=len(basic_prompt.split()) * 1.3,  # Rough estimate
-            components_used=["legacy_fallback"],
-            feedback_integrated=False,
-            optimization_applied=False,
-            metadata={"fallback_reason": "prompt_service_unavailable"},
-        )
-
-    # =====================================
-    # LEGACY SERVICE FALLBACKS
-    # =====================================
-
-    def _get_legacy_ai_service(self):
-        """Get legacy AI service as fallback."""
-        try:
-            # Use the same AI service as the legacy orchestrator
-            class LegacyAIAdapter:
-                async def generate_definition(
-                    self,
-                    prompt: str,
-                    temperature: float = 0.7,
-                    max_tokens: int = 500,
-                    model: str | None = None,
-                ):
-                    """Use services.ai_service.AIService"""
-                    from services.ai_service import get_ai_service
-
-                    from config.config_manager import (
-                        get_default_model,
-                        get_default_temperature,
-                    )
-
-                    # Use central config for defaults
-                    if model is None:
-                        model = get_default_model()
-                    if temperature is None:
-                        temperature = get_default_temperature()
-
-                    class MockResponse:
-                        def __init__(self, text):
-                            self.text = text
-                            self.model = model
-                            self.tokens_used = len(text.split()) * 1.3  # Rough estimate
-
-                    ai_service = get_ai_service()
-                    response_text = ai_service.generate_definition(
-                        prompt=prompt,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                        model=model,
-                    )
-
-                    return MockResponse(response_text)
-
-            return LegacyAIAdapter()
-        except ImportError as e:
-            logger.warning(f"Legacy AI service not available: {e}")
-            return None
-
-    def _get_legacy_validation_service(self):
-        """Get legacy validation service as fallback."""
-        try:
-            # Create a simple validation adapter that works
-            class SimpleValidationAdapter:
-                def validate(self, definition):
-                    """Simple validation that always passes for testing."""
-                    from services.interfaces import ValidationResult
-
-                    # Basic length check
-                    is_valid = len(definition.definitie) > 10
-                    score = 0.8 if is_valid else 0.3
-
-                    return ValidationResult(
-                        is_valid=is_valid,
-                        definition_text=definition.definitie,
-                        score=score,
-                        errors=[] if is_valid else ["Definitie te kort"],
-                        warnings=[],
-                        suggestions=[],
-                    )
-
-            return SimpleValidationAdapter()
-        except Exception as e:
-            logger.warning(f"Legacy validation service not available: {e}")
-            return None
-
-    def _get_legacy_cleaning_service(self):
-        """Get legacy cleaning service as fallback."""
-        try:
-            # Simple cleaning adapter
-            class SimpleCleaningAdapter:
-                def clean_text(self, text: str, term: str):
-                    """Simple text cleaning."""
-                    from services.interfaces import CleaningResult
-
-                    # Basic cleaning: strip whitespace and normalize
-                    cleaned = text.strip()
-                    if not cleaned.endswith("."):
-                        cleaned += "."
-
-                    was_cleaned = cleaned != text
-
-                    return CleaningResult(
-                        original_text=text,
-                        cleaned_text=cleaned,
-                        was_cleaned=was_cleaned,
-                        applied_rules=["normalize_punctuation"] if was_cleaned else [],
-                        improvements=["Added period"] if was_cleaned else [],
-                    )
-
-                async def clean_definition(self, text: str):
-                    """Legacy async interface."""
-                    return self.clean_text(text, "").cleaned_text
-
-            return SimpleCleaningAdapter()
-        except Exception as e:
-            logger.warning(f"Legacy cleaning service not available: {e}")
-            return None
-
-    def _get_legacy_repository(self):
-        """Get legacy repository as fallback."""
-        try:
-            from services.definition_repository import DefinitionRepository
-
-            return DefinitionRepository("data/definities.db")
-        except ImportError:
-            logger.warning("Legacy repository not available")
-            return None
