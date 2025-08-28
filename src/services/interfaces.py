@@ -5,241 +5,281 @@ Deze interfaces definiëren de contracten voor de verschillende services
 in de applicatie. Ze maken dependency injection en testing mogelijk.
 """
 
-from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from datetime import datetime
-from enum import Enum
-from typing import Any
+from abc import ABC, abstractmethod  # Abstract Base Classes voor interface definitie
+from dataclasses import (  # Dataclass decorators voor gestructureerde data
+    dataclass,
+    field,
+)
+from datetime import datetime  # Datum/tijd functionaliteit voor timestamps
+from enum import Enum  # Enumeratie types voor constante waarden
+from typing import Any  # Type hints voor flexibele type definities
 
 
-# Enums
+# Enumeraties voor status en severity tracking
 class DefinitionStatus(Enum):
-    """Status van een definitie."""
+    """Status van een definitie in de workflow."""
 
-    DRAFT = "draft"
-    REVIEW = "review"
-    APPROVED = "approved"
-    REJECTED = "rejected"
-    ARCHIVED = "archived"
+    DRAFT = "draft"  # Concept versie, nog in bewerking
+    REVIEW = "review"  # Klaar voor juridische review
+    APPROVED = "approved"  # Goedgekeurd voor gebruik
+    REJECTED = "rejected"  # Afgekeurd, moet aangepast worden
+    ARCHIVED = "archived"  # Gearchiveerd, niet meer actief
 
 
 class ValidationSeverity(Enum):
-    """Ernst van validatie fouten."""
+    """Ernst niveau van validatie fouten voor prioritering."""
 
-    LOW = "low"
-    MEDIUM = "medium"
-    HIGH = "high"
-    CRITICAL = "critical"
+    LOW = "low"  # Kleine verbeteringen, niet kritisch
+    MEDIUM = "medium"  # Moet opgelost worden maar niet urgent
+    HIGH = "high"  # Belangrijke problemen die aandacht vereisen
+    CRITICAL = "critical"  # Kritieke fouten die directe actie vereisen
 
 
-# Data Transfer Objects
+# Data Transfer Objects voor service communicatie
 @dataclass
 class GenerationRequest:
-    """Request voor het genereren van een definitie."""
+    """Request object voor het genereren van een definitie."""
 
-    id: str  # Unique identifier for tracking
-    begrip: str
-    context: str | None = None
-    domein: str | None = None
-    organisatie: str | None = None
-    extra_instructies: str | None = None
-    ontologische_categorie: str | None = None  # Categorie uit 6-stappen protocol
-    options: dict[str, Any] | None = None  # Temperature, model, etc.
-    actor: str | None = None  # User/system creating request
-    legal_basis: str | None = None  # DPIA compliance
+    id: str  # Unieke identifier voor tracking en logging
+    begrip: str  # Het begrip waarvoor een definitie gegenereerd wordt
+    context: str | None = None  # Contextuele informatie voor betere definitie
+    domein: str | None = None  # Juridisch domein (bijv. "Belasting", "Milieu")
+    organisatie: str | None = None  # Verantwoordelijke organisatie
+    extra_instructies: str | None = None  # Specifieke instructies van gebruiker
+    ontologische_categorie: str | None = (
+        None  # Categorie uit 6-stappen classificatie protocol
+    )
+    options: dict[str, Any] | None = (
+        None  # AI model opties (temperatuur, model type, etc.)
+    )
+    actor: str | None = None  # Gebruiker/systeem die request maakt
+    legal_basis: str | None = None  # Juridische basis voor DPIA/privacy compliance
 
 
 @dataclass
 class Definition:
-    """Definitie data object."""
+    """Definitie data object met alle benodigde metadata voor juridische definities."""
 
-    id: int | None = None
-    begrip: str = ""
-    definitie: str = ""
-    toelichting: str | None = None
-    bron: str | None = None
-    context: str | None = None
-    domein: str | None = None
-    synoniemen: list[str] | None = None
-    gerelateerde_begrippen: list[str] | None = None
-    voorbeelden: list[str] | None = None
-    categorie: str | None = None
-    ontologische_categorie: str | None = None  # V2 addition
-    valid: bool | None = None  # Validation status
-    validation_violations: list | None = (
-        None  # V2 validation - ValidationViolations list
+    id: int | None = None  # Database primary key voor unieke identificatie
+    begrip: str = ""  # Het begrip dat wordt gedefinieerd (hoofdterm)
+    definitie: str = ""  # De eigenlijke definitie tekst
+    toelichting: str | None = None  # Uitgebreidere uitleg of context
+    bron: str | None = None  # Juridische bron (wet, artikel, jurisprudentie)
+    context: str | None = None  # Specifieke context waar definitie geldt
+    domein: str | None = None  # Juridisch domein (bijv. belastingrecht)
+    synoniemen: list[str] | None = None  # Alternatieve benamingen voor hetzelfde begrip
+    gerelateerde_begrippen: list[str] | None = (
+        None  # Begrippen die inhoudelijk gerelateerd zijn
     )
-    created_by: str | None = None  # Actor tracking
-    created_at: datetime | None = None
-    updated_at: datetime | None = None
-    metadata: dict[str, Any] | None = None
+    voorbeelden: list[str] | None = None  # Concrete voorbeelden ter verduidelijking
+    categorie: str | None = None  # Legacy categorisering (wordt vervangen)
+    ontologische_categorie: str | None = (
+        None  # V2: Nieuwe classificatie volgens 6-stappen protocol
+    )
+    valid: bool | None = None  # Status van laatste validatie check
+    validation_violations: list | None = (
+        None  # V2: Lijst van gevonden validatie overtredingen
+    )
+    created_by: str | None = None  # Wie heeft deze definitie aangemaakt (audit trail)
+    created_at: datetime | None = None  # Wanneer werd definitie aangemaakt
+    updated_at: datetime | None = None  # Laatste wijzigingsdatum
+    metadata: dict[str, Any] | None = None  # Extra metadata voor uitbreidbaarheid
 
     def __post_init__(self) -> None:
+        """Post-initialisatie om None waarden te vervangen door lege lijsten/dictionaries."""
         if self.synoniemen is None:
-            self.synoniemen = []
+            self.synoniemen = []  # Zorg voor lege lijst in plaats van None
         if self.gerelateerde_begrippen is None:
-            self.gerelateerde_begrippen = []
+            self.gerelateerde_begrippen = []  # Voorkom None pointer fouten
         if self.voorbeelden is None:
-            self.voorbeelden = []
+            self.voorbeelden = []  # Initialiseer als lege lijst
         if self.metadata is None:
-            self.metadata = {}
+            self.metadata = {}  # Zorg voor lege dictionary voor uitbreidbaarheid
         if self.validation_violations is None:
-            self.validation_violations = []
+            self.validation_violations = []  # Lege lijst voor validatie resultaten
 
 
 @dataclass
 class ValidationViolation:
-    """Een specifieke validatie overtreding."""
+    """Een specifieke validatie overtreding met details voor herstel."""
 
-    rule_id: str
-    severity: ValidationSeverity
-    description: str
-    suggestion: str | None = None
+    rule_id: str  # Unieke identifier van de overtreden validatieregel
+    severity: ValidationSeverity  # Ernst niveau van de overtreding
+    description: str  # Menselijke beschrijving van wat er fout is
+    suggestion: str | None = None  # Optioneel voorstel voor verbetering
 
 
 @dataclass
 class ValidationResult:
-    """Resultaat van definitie validatie."""
+    """Resultaat van definitie validatie met gedetailleerde feedback."""
 
-    is_valid: bool
-    definition_text: str | None = None  # V2: Text that was validated
-    errors: list[str] | None = None
-    warnings: list[str] | None = None
-    suggestions: list[str] | None = None
-    score: float | None = None
-    violations: list[ValidationViolation] | None = None
+    is_valid: bool  # Hoofdresultaat: is de definitie geldig volgens alle regels
+    definition_text: str | None = None  # V2: De tekst die gevalideerd werd
+    errors: list[str] | None = None  # Kritieke fouten die opgelost moeten worden
+    warnings: list[str] | None = None  # Waarschuwingen voor mogelijke problemen
+    suggestions: list[str] | None = None  # Voorstellen voor verbeteringen
+    score: float | None = None  # Numerieke kwaliteitsscore (0.0 - 1.0)
+    violations: list[ValidationViolation] | None = (
+        None  # V2: Gedetailleerde overtreding lijst
+    )
 
     def __post_init__(self) -> None:
+        """Post-initialisatie om None waarden te vervangen door lege lijsten."""
         if self.errors is None:
-            self.errors = []
+            self.errors = []  # Initialiseer lege error lijst
         if self.warnings is None:
-            self.warnings = []
+            self.warnings = []  # Initialiseer lege warning lijst
         if self.suggestions is None:
-            self.suggestions = []
+            self.suggestions = []  # Initialiseer lege suggestie lijst
         if self.violations is None:
-            self.violations = []
+            self.violations = []  # Initialiseer lege violations lijst
 
 
 @dataclass
 class DefinitionResponse:
-    """Response object voor definitie operaties."""
+    """Response object voor definitie operaties met status en resultaat."""
 
-    success: bool = True
-    definition: Definition | None = None
-    validation: ValidationResult | None = None
-    definition_id: int | None = None
-    message: str | None = None
+    success: bool = True  # Geeft aan of de operatie succesvol was
+    definition: Definition | None = None  # De resulterende definitie (bij success)
+    validation: ValidationResult | None = None  # Validatie resultaat indien uitgevoerd
+    definition_id: int | None = None  # Database ID van opgeslagen definitie
+    message: str | None = None  # Optionele message (fout of info)
 
 
-# Service Interfaces
+# Service Interfaces - Abstract base classes voor service contracten
 class DefinitionGeneratorInterface(ABC):
-    """Interface voor definitie generatie services."""
+    """Interface voor definitie generatie services die AI models aansturen."""
 
     @abstractmethod
     async def generate(self, request: GenerationRequest) -> Definition:
         """
         Genereer een nieuwe definitie op basis van het request.
 
+        Deze methode gebruikt AI modellen om een juridische definitie te creëren
+        op basis van het opgegeven begrip en context informatie.
+
         Args:
-            request: GenerationRequest met begrip en context
+            request: GenerationRequest met begrip, context en generatie opties
 
         Returns:
-            Definition object met gegenereerde content
+            Definition object met gegenereerde definitie tekst en metadata
         """
 
     @abstractmethod
     async def enhance(self, definition: Definition) -> Definition:
         """
-        Verbeter een bestaande definitie met extra informatie.
+        Verbeter een bestaande definitie met extra informatie en context.
+
+        Deze methode verrijkt een bestaande definitie door het toevoegen van
+        synoniemen, gerelateerde begrippen, voorbeelden en verbeterde toelichting.
 
         Args:
-            definition: Bestaande definitie om te verbeteren
+            definition: Bestaande definitie om te verbeteren en uit te breiden
 
         Returns:
-            Verbeterde definitie
+            Verbeterde definitie met aanvullende informatie
         """
 
 
 class DefinitionValidatorInterface(ABC):
-    """Interface voor definitie validatie services."""
+    """Interface voor definitie validatie services volgens Nederlandse kwaliteitseisen."""
 
     @abstractmethod
     def validate(self, definition: Definition) -> ValidationResult:
         """
-        Valideer een definitie volgens de geldende regels.
+        Valideer een definitie volgens alle geldende juridische en taalkundige regels.
+
+        Deze methode controleert de definitie op conformiteit met Nederlandse
+        overheids-standaarden voor juridische definities, inclusief taalgebruik,
+        structuur en inhoudelijke volledigheid.
 
         Args:
-            definition: Te valideren definitie
+            definition: Te valideren definitie object
 
         Returns:
-            ValidationResult met status en eventuele fouten/waarschuwingen
+            ValidationResult met validatie status, fouten, waarschuwingen en verbetervoorstellen
         """
 
     @abstractmethod
     def validate_field(self, field_name: str, value: Any) -> ValidationResult:
         """
-        Valideer een specifiek veld van een definitie.
+        Valideer een specifiek veld van een definitie tegen geldende regels.
+
+        Deze methode maakt gedetailleerde validatie mogelijk per individueel
+        veld voor real-time feedback in de gebruikersinterface.
 
         Args:
-            field_name: Naam van het veld
-            value: Waarde om te valideren
+            field_name: Naam van het definitie veld (bijv. "begrip", "definitie")
+            value: De waarde om te valideren
 
         Returns:
-            ValidationResult voor het specifieke veld
+            ValidationResult specifiek voor dit veld met gerichte feedback
         """
 
 
 class DefinitionRepositoryInterface(ABC):
-    """Interface voor definitie opslag services."""
+    """Interface voor definitie opslag services met database operaties."""
 
     @abstractmethod
     def save(self, definition: Definition) -> int:
         """
-        Sla een definitie op in de repository.
+        Sla een definitie op in de database repository.
+
+        Deze methode persisteert een definitie object in de database
+        en houdt audit trails bij voor traceability.
 
         Args:
-            definition: Op te slaan definitie
+            definition: Definitie object om op te slaan
 
         Returns:
-            ID van de opgeslagen definitie
+            Database ID van de opgeslagen definitie voor referentie
         """
 
     @abstractmethod
     def get(self, definition_id: int) -> Definition | None:
         """
-        Haal een definitie op basis van ID.
+        Haal een definitie op uit de database op basis van ID.
+
+        Deze methode haalt een complete definitie op inclusief
+        alle metadata en gerelateerde informatie.
 
         Args:
-            definition_id: ID van de definitie
+            definition_id: Database ID van de definitie om op te halen
 
         Returns:
-            Definition indien gevonden, anders None
+            Definition object indien gevonden, anders None
         """
 
     @abstractmethod
     def search(self, query: str, limit: int = 10) -> list[Definition]:
         """
-        Zoek definities op basis van een query.
+        Zoek definities op basis van een zoekterm in begrip en definitie tekst.
+
+        Deze methode voert een full-text search uit over alle definitie
+        velden om relevante matches te vinden.
 
         Args:
-            query: Zoekterm
-            limit: Maximum aantal resultaten
+            query: Zoekterm of zoekopdracht
+            limit: Maximum aantal resultaten om te retourneren
 
         Returns:
-            Lijst van gevonden definities
+            Lijst van gevonden definities gesorteerd op relevantie
         """
 
     @abstractmethod
     def update(self, definition_id: int, definition: Definition) -> bool:
         """
-        Update een bestaande definitie.
+        Update een bestaande definitie in de database.
+
+        Deze methode werkt een bestaande definitie bij en houdt
+        versie historie bij voor audit doeleinden.
 
         Args:
-            definition_id: ID van de te updaten definitie
-            definition: Nieuwe definitie data
+            definition_id: Database ID van de te updaten definitie
+            definition: Nieuwe definitie data om op te slaan
 
         Returns:
-            True indien succesvol, anders False
+            True indien update succesvol was, anders False
         """
 
     @abstractmethod

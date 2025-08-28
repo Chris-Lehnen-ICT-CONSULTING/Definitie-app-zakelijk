@@ -18,7 +18,7 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
-from prompt_builder.prompt_builder import stuur_prompt_naar_gpt  # GPT prompt interface
+from services.ai_service import get_ai_service  # Modern AI service interface
 from utils.cache import cached  # Caching decorator voor performance optimalisatie
 
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
@@ -27,6 +27,10 @@ from utils.integrated_resilience import (  # Volledig resilience systeem
 )
 from utils.smart_rate_limiter import (  # Smart rate limiting voor API calls
     RequestPriority,
+)
+
+from config.config_manager import (
+    get_component_config,  # Centrale component configuratie
 )
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
@@ -62,8 +66,8 @@ class ExampleRequest:
     example_type: ExampleType
     generation_mode: GenerationMode = GenerationMode.RESILIENT
     max_examples: int = 5  # Default naar 5 voor synoniemen/antoniemen
-    temperature: float = 0.5
-    model: str = "gpt-4"
+    temperature: float | None = None  # None betekent: gebruik centrale config
+    model: str | None = None
 
 
 @dataclass
@@ -84,6 +88,21 @@ class UnifiedExamplesGenerator:
         self.generation_count = 0
         self.error_count = 0
         self.cache_hits = 0
+
+    def _get_config_for_type(self, example_type: ExampleType) -> dict:
+        """Get configuration for a specific example type from central config."""
+        # Map ExampleType enum to config keys
+        type_mapping = {
+            ExampleType.SENTENCE: "sentence",
+            ExampleType.PRACTICAL: "practical",
+            ExampleType.COUNTER: "counter",
+            ExampleType.SYNONYMS: "synonyms",
+            ExampleType.ANTONYMS: "antonyms",
+            ExampleType.EXPLANATION: "explanation",
+        }
+
+        config_key = type_mapping.get(example_type, "sentence")
+        return get_component_config("voorbeelden", config_key)
 
     def _run_async_safe(self, coro):
         """Run async coroutine safely, detecting existing event loop."""
@@ -114,6 +133,13 @@ class UnifiedExamplesGenerator:
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
         """Generate examples based on request configuration."""
         start_time = datetime.now(timezone.utc)
+
+        # Get configuration for this example type if not specified
+        config = self._get_config_for_type(request.example_type)
+        if request.model is None:
+            request.model = config.get("model")
+        if request.temperature is None:  # Use config if not specified
+            request.temperature = config.get("temperature", 0.5)
 
         try:
             # Route to appropriate generation method
@@ -147,10 +173,11 @@ class UnifiedExamplesGenerator:
         prompt = self._build_prompt(request)
 
         try:
-            response = stuur_prompt_naar_gpt(
+            ai_service = get_ai_service()
+            response = ai_service.generate_definition(
                 prompt=prompt,
                 model=request.model,
-                temperatuur=request.temperature,
+                temperature=request.temperature,
                 max_tokens=300,
             )
             return self._parse_response(response)
@@ -166,10 +193,10 @@ class UnifiedExamplesGenerator:
             # Use async wrapper for GPT call
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: stuur_prompt_naar_gpt(
+                lambda: get_ai_service().generate_definition(
                     prompt=prompt,
                     model=request.model,
-                    temperatuur=request.temperature,
+                    temperature=request.temperature,
                     max_tokens=300,
                 ),
             )
@@ -206,7 +233,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_sentence",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model=None,
         expected_tokens=200,
     )
     async def _generate_resilient_sentence(self, request: ExampleRequest) -> list[str]:
@@ -217,7 +244,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_practical",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model=None,
         expected_tokens=200,
     )
     async def _generate_resilient_practical(self, request: ExampleRequest) -> list[str]:
@@ -228,7 +255,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_counter",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model=None,
         expected_tokens=200,
     )
     async def _generate_resilient_counter(self, request: ExampleRequest) -> list[str]:
@@ -239,7 +266,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_synonyms",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model=None,
         expected_tokens=200,
     )
     async def _generate_resilient_synonyms(self, request: ExampleRequest) -> list[str]:
@@ -250,7 +277,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_antonyms",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model=None,
         expected_tokens=200,
     )
     async def _generate_resilient_antonyms(self, request: ExampleRequest) -> list[str]:
@@ -261,7 +288,7 @@ class UnifiedExamplesGenerator:
         endpoint_name="examples_generation_explanation",
         priority=RequestPriority.NORMAL,
         timeout=10.0,
-        model="gpt-4",
+        model=None,
         expected_tokens=200,
     )
     async def _generate_resilient_explanation(
@@ -273,10 +300,10 @@ class UnifiedExamplesGenerator:
         try:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: stuur_prompt_naar_gpt(
+                lambda: get_ai_service().generate_definition(
                     prompt=prompt,
                     model=request.model,
-                    temperatuur=request.temperature,
+                    temperature=request.temperature,
                     max_tokens=300,
                 ),
             )
@@ -293,10 +320,10 @@ class UnifiedExamplesGenerator:
         try:
             response = await asyncio.get_event_loop().run_in_executor(
                 None,
-                lambda: stuur_prompt_naar_gpt(
+                lambda: get_ai_service().generate_definition(
                     prompt=prompt,
                     model=request.model,
-                    temperatuur=request.temperature,
+                    temperature=request.temperature,
                     max_tokens=300,
                 ),
             )
