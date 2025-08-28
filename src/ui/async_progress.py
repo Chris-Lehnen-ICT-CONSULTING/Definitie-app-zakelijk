@@ -9,7 +9,6 @@ from dataclasses import dataclass
 from typing import Any
 
 import streamlit as st
-
 from services.async_definition_service import AsyncProcessingResult, get_async_service
 
 

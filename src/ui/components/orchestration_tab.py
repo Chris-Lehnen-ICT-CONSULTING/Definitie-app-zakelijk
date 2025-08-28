@@ -11,7 +11,6 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
-
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 
@@ -33,7 +32,6 @@ class OrchestrationTab:
             sys.path.append(str(Path(__file__).parents[2] / "orchestration"))
 
             from definitie_agent import AgentStatus, DefinitieAgent, IterationResult
-
             from domain.ontological_categories import OntologischeCategorie
 
             # Store classes for use

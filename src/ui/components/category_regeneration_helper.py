@@ -1,7 +1,6 @@
 """Helper voor category-based regeneration."""
 
 import streamlit as st
-
 from ui.session_state import SessionStateManager
 
 

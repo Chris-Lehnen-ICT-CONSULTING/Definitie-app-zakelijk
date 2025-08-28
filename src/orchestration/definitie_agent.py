@@ -106,25 +106,28 @@ class DefinitieGenerator:
             request = GenerationRequest(
                 begrip=generation_context.begrip,
                 context=generation_context.organisatorische_context,  # Legacy fallback
-                domein=generation_context.juridische_context,        # Legacy fallback
+                domein=generation_context.juridische_context,  # Legacy fallback
                 organisatie=generation_context.organisatorische_context,
                 extra_instructies=self._format_feedback_history(
                     generation_context.feedback_history
                 ),
                 # Nieuwe rijke context velden
                 juridische_context=(
-                    [generation_context.juridische_context] 
-                    if generation_context.juridische_context and generation_context.juridische_context.strip()
+                    [generation_context.juridische_context]
+                    if generation_context.juridische_context
+                    and generation_context.juridische_context.strip()
                     else None
                 ),
                 wettelijke_basis=(
                     generation_context.wettelijke_basis
-                    if hasattr(generation_context, 'wettelijke_basis') and generation_context.wettelijke_basis
+                    if hasattr(generation_context, "wettelijke_basis")
+                    and generation_context.wettelijke_basis
                     else None
                 ),
                 organisatorische_context=(
                     [generation_context.organisatorische_context]
-                    if generation_context.organisatorische_context and generation_context.organisatorische_context.strip()
+                    if generation_context.organisatorische_context
+                    and generation_context.organisatorische_context.strip()
                     else None
                 ),
             )

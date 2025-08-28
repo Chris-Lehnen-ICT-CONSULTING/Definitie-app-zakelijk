@@ -11,7 +11,6 @@ from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezo
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
-
 from database.definitie_repository import (  # Database toegang factory
     get_definitie_repository,
 )

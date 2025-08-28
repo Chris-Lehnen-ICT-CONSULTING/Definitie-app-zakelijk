@@ -12,9 +12,9 @@ from typing import Any
 
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
+from utils.cache import cache_gpt_call, cached
 
 from config.config_manager import get_default_model, get_default_temperature
-from utils.cache import cache_gpt_call, cached
 
 # Load environment variables
 load_dotenv()

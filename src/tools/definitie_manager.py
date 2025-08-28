@@ -13,13 +13,12 @@ from pathlib import Path  # Object-georiënteerde pad manipulatie
 sys.path.insert(0, str(Path(__file__).parent.parent))  # Relatief pad naar src directory
 
 # Importeer database en core componenten voor definitie management
-from generation.definitie_generator import (  # Ontologische categorieën
-    OntologischeCategorie,
-)
-
 from database.definitie_repository import (
     DefinitieStatus,  # Status en bron type enumeraties
     get_definitie_repository,
+)
+from generation.definitie_generator import (  # Ontologische categorieën
+    OntologischeCategorie,
 )
 from integration.definitie_checker import (
     DefinitieChecker,
