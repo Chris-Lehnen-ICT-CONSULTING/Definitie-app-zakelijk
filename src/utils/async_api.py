@@ -105,6 +105,7 @@ class AsyncGPTClient:
         temperature: float = 0.01,
         max_tokens: int = 300,
         use_cache: bool = True,
+        system_prompt: str | None = None,
         **kwargs,
     ) -> str:
         """
@@ -116,6 +117,7 @@ class AsyncGPTClient:
             temperature: Response randomness (0.0-1.0)
             max_tokens: Maximum response tokens
             use_cache: Whether to use caching
+            system_prompt: Optional system prompt for context
             **kwargs: Additional OpenAI parameters
 
         Returns:
@@ -131,6 +133,7 @@ class AsyncGPTClient:
                 model=model,
                 temperature=temperature,
                 max_tokens=max_tokens,
+                system_prompt=system_prompt,
                 **kwargs,
             )
 
@@ -153,6 +156,7 @@ class AsyncGPTClient:
                 model=model,
                 temperature=temperature,
                 max_tokens=max_tokens,
+                system_prompt=system_prompt,
                 **kwargs,
             )
 
@@ -174,16 +178,28 @@ class AsyncGPTClient:
             self.session_stats["total_requests"] += 1
 
     async def _make_request_with_retries(
-        self, prompt: str, model: str, temperature: float, max_tokens: int, **kwargs
+        self,
+        prompt: str,
+        model: str,
+        temperature: float,
+        max_tokens: int,
+        system_prompt: str | None = None,
+        **kwargs,
     ) -> str:
         """Make API request with exponential backoff retries."""
         last_error = None
 
         for attempt in range(self.rate_limiter.config.max_retries):
             try:
+                # Build messages with optional system prompt
+                messages = []
+                if system_prompt:
+                    messages.append({"role": "system", "content": system_prompt})
+                messages.append({"role": "user", "content": prompt})
+
                 response = await self.client.chat.completions.create(
                     model=model,
-                    messages=[{"role": "user", "content": prompt}],
+                    messages=messages,
                     temperature=temperature,
                     max_tokens=max_tokens,
                     **kwargs,
