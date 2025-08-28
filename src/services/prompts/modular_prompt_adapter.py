@@ -12,19 +12,23 @@ from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_generator_context import EnrichedContext
 
 from .modules import (
+    AraiRulesModule,
+    ConRulesModule,
     ContextAwarenessModule,
     DefinitionTaskModule,
     ErrorPreventionModule,
+    EssRulesModule,
     ExpertiseModule,
     GrammarModule,
     IntegrityRulesModule,
     MetricsModule,
     OutputSpecificationModule,
     PromptOrchestrator,
-    QualityRulesModule,
+    SamRulesModule,
     SemanticCategorisationModule,
     StructureRulesModule,
     TemplateModule,
+    VerRulesModule,
 )
 
 logger = logging.getLogger(__name__)
@@ -72,9 +76,14 @@ class ModularPromptAdapter:
             ContextAwarenessModule(),
             SemanticCategorisationModule(),
             TemplateModule(),
-            QualityRulesModule(),
-            StructureRulesModule(),
-            IntegrityRulesModule(),
+            # Regel modules - elke categorie eigen module
+            AraiRulesModule(),  # ARAI regels
+            ConRulesModule(),  # CON regels
+            EssRulesModule(),  # ESS regels
+            IntegrityRulesModule(),  # INT regels (bestaand)
+            SamRulesModule(),  # SAM regels
+            StructureRulesModule(),  # STR regels (bestaand)
+            VerRulesModule(),  # VER regels
             ErrorPreventionModule(),
             MetricsModule(),
             DefinitionTaskModule(),
@@ -120,9 +129,20 @@ class ModularPromptAdapter:
                 # Map detailed guidance setting
                 "detailed_guidance": config.detailed_category_guidance,
             },
-            "quality_rules": {
-                # Map rule settings
-                "include_arai_rules": not config.compact_mode,  # In compact mode, skip ARAI
+            # Regel modules configuratie
+            "arai_rules": {
+                "include_examples": config.include_examples_in_rules,
+            },
+            "con_rules": {
+                "include_examples": config.include_examples_in_rules,
+            },
+            "ess_rules": {
+                "include_examples": config.include_examples_in_rules,
+            },
+            "sam_rules": {
+                "include_examples": config.include_examples_in_rules,
+            },
+            "ver_rules": {
                 "include_examples": config.include_examples_in_rules,
             },
             "error_prevention": {
@@ -277,7 +297,7 @@ class ModularPromptAdapter:
         if config.include_ontological:
             count += 1  # SemanticCategorisationModule
         if config.include_validation_rules:
-            count += 1  # QualityRulesModule
+            count += 7  # Alle regel modules (ARAI, CON, ESS, INT, SAM, STR, VER)
         if config.include_forbidden_patterns:
             count += 1  # ErrorPreventionModule
         if config.include_final_instructions:

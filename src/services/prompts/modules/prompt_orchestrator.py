@@ -356,9 +356,14 @@ class PromptOrchestrator:
             "context_awareness",
             "semantic_categorisation",
             "template",
-            "quality_rules",
-            "structure_rules",
-            "integrity_rules",
+            # Validatie regels in logische volgorde
+            "arai_rules",  # Algemene regels eerst
+            "con_rules",  # Context regels
+            "ess_rules",  # Essentie regels
+            "structure_rules",  # Structuur regels
+            "integrity_rules",  # Integriteit regels
+            "sam_rules",  # Samenhang regels
+            "ver_rules",  # Vorm regels
             "error_prevention",
             "metrics",
             "definition_task",
