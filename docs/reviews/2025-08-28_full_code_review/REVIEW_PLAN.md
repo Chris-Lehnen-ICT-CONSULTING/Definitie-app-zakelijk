@@ -2,7 +2,7 @@
 
 ## Doel & Scope
 - Doel: Volledige review van code, configuraties, JSON/YAML en documentatie met per bestand een concreet voorstel en acceptatiecriteria.
-- Scope: `src/`, `tests/`, `scripts/`, `config/`, `docs/` (incl. relevante JSON/YAML/SQL). 
+- Scope: `src/`, `tests/`, `scripts/`, `config/`, `docs/` (incl. relevante JSON/YAML/SQL).
 - Uitsluitingen: Security-audit valt buiten scope (alleen informatief noteren, geen beoordeling).
 
 ## Werkwijze
@@ -55,4 +55,3 @@ Een bestand mag in de checklist afgevinkt worden als in `CODE_REVIEW_REPORT.md` 
 ## Versie & Datum
 - Planversie: v1.0
 - Datum: 2025-08-28
-
