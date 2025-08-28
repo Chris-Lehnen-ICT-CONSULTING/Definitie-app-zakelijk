@@ -1,5 +1,7 @@
-version: 4.29.0
+# <!-- Powered by BMAD™ Core -->
 markdownExploder: true
+qa:
+  qaLocation: docs/qa
 prd:
   prdFile: docs/prd.md
   prdVersion: v4
