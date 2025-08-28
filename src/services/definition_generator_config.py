@@ -33,7 +33,7 @@ class GPTConfig:
     """GPT-specific configuration (from all implementations)."""
 
     # Model configuration (optimized from definitie_generator)
-    model: str = "gpt-5"
+    model: str = "gpt-4.1"
     temperature: float = 0.0  # Optimized for consistency
     max_tokens: int = 350  # Balanced for quality/cost
 
