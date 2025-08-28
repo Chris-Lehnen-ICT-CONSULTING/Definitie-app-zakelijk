@@ -87,6 +87,16 @@ jobs:
 
           echo "✓ No forbidden V1 symbols found"
 
+      # 8b) Guard V2 response field usage in core modules
+      - name: Guard V2 response field usage
+        run: |
+          echo "Checking for legacy response fields in core modules..."
+          if grep -R -nE 'response\.message\b|response\.validation\b' src/services src/orchestration --exclude-dir=__pycache__ --include='*.py' 2>/dev/null; then
+            echo "ERROR: Found legacy response field usage in core modules (use '.error' and '.validation_result')."
+            exit 1
+          fi
+          echo "✓ No legacy response fields in core modules"
+
       # 9) Pytest
       - name: Pytest
         run: |
