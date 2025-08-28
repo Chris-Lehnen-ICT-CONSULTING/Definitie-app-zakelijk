@@ -20,7 +20,7 @@ from src.database.definitie_repository import (
 )
 
 
-@pytest.fixture()
+@pytest.fixture
 def temp_db():
     """Create temporary database for testing."""
     with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as tmp:
@@ -31,13 +31,13 @@ def temp_db():
         os.unlink(db_path)
 
 
-@pytest.fixture()
+@pytest.fixture
 def repository(temp_db):
     """Create repository instance with temp database."""
     return DefinitieRepository(temp_db)
 
 
-@pytest.fixture()
+@pytest.fixture
 def test_definitie(repository):
     """Create test definitie for voorbeelden tests."""
     record = DefinitieRecord(

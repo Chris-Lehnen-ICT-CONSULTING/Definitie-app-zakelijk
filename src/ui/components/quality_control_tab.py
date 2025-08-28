@@ -5,6 +5,7 @@ Quality Control Tab - Interface voor kwaliteitscontrole en toetsregels analyse.
 from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
 
 import streamlit as st  # Streamlit web interface framework
+
 from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
 )

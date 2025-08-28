@@ -10,6 +10,7 @@ import logging
 
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand
+
 from ui.session_state import SessionStateManager  # Sessie status beheer
 from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
 from utils.exceptions import log_and_display_error  # Foutafhandeling utilities

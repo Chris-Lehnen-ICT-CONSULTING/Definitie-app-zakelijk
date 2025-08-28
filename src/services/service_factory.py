@@ -8,6 +8,7 @@ met feature flags voor geleidelijke migratie.
 import logging
 
 import streamlit as st
+
 from services.container import ContainerConfigs, ServiceContainer, get_container
 
 # TYPE_CHECKING import verwijderd - UnifiedDefinitionGenerator niet meer nodig

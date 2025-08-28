@@ -7,6 +7,7 @@ from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezo
 from pathlib import Path  # Bestandspad manipulatie
 
 import streamlit as st  # Streamlit web interface framework
+
 from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
     DefinitieStatus,

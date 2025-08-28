@@ -8,6 +8,7 @@ import re
 
 from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
+
 from utils.cache import cache_example_generation, cache_synonym_generation
 
 # Load environment and initialize OpenAI client
