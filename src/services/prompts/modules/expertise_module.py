@@ -164,7 +164,7 @@ class ExpertiseModule(BasePromptModule):
         Returns:
             Taak instructie tekst
         """
-        return "Formuleer een definitie in één enkele zin, zonder toelichting."
+        return "Formuleer een heldere definitie die het begrip precies afbakent."
 
     def _build_word_type_advice(self, woordsoort: str) -> str | None:
         """
@@ -192,8 +192,8 @@ class ExpertiseModule(BasePromptModule):
             Basis vereisten tekst
         """
         return """BELANGRIJKE VEREISTEN:
-- Definieer in één enkele zin
-- Geen punt aan het einde van de definitie
 - Gebruik objectieve, neutrale taal
-- Vermijd vage of subjectieve termen
-- Focus op WAT het is, niet het doel"""
+- Vermijd vage of subjectieve termen  
+- Focus op de essentie van het begrip
+- Wees precies en ondubbelzinnig
+- Vermijd normatieve of evaluatieve uitspraken"""
