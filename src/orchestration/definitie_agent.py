@@ -47,6 +47,7 @@ class GenerationContext:
         begrip,
         organisatorische_context=None,
         juridische_context=None,
+        wettelijke_basis=None,
         categorie=None,
         feedback_history=None,
         **kwargs,
@@ -54,6 +55,7 @@ class GenerationContext:
         self.begrip = begrip
         self.organisatorische_context = organisatorische_context or ""
         self.juridische_context = juridische_context or ""
+        self.wettelijke_basis = wettelijke_basis or []
         self.categorie = categorie
         self.feedback_history = feedback_history or []
         # Handle additional attributes from kwargs
@@ -103,11 +105,27 @@ class DefinitieGenerator:
             # Create GenerationRequest from legacy context
             request = GenerationRequest(
                 begrip=generation_context.begrip,
-                context=generation_context.organisatorische_context,
-                domein=generation_context.juridische_context,
+                context=generation_context.organisatorische_context,  # Legacy fallback
+                domein=generation_context.juridische_context,        # Legacy fallback
                 organisatie=generation_context.organisatorische_context,
                 extra_instructies=self._format_feedback_history(
                     generation_context.feedback_history
+                ),
+                # Nieuwe rijke context velden
+                juridische_context=(
+                    [generation_context.juridische_context] 
+                    if generation_context.juridische_context and generation_context.juridische_context.strip()
+                    else None
+                ),
+                wettelijke_basis=(
+                    generation_context.wettelijke_basis
+                    if hasattr(generation_context, 'wettelijke_basis') and generation_context.wettelijke_basis
+                    else None
+                ),
+                organisatorische_context=(
+                    [generation_context.organisatorische_context]
+                    if generation_context.organisatorische_context and generation_context.organisatorische_context.strip()
+                    else None
                 ),
             )
 

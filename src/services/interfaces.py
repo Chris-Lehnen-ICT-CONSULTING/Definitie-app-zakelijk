@@ -54,6 +54,10 @@ class GenerationRequest:
     )
     actor: str | None = None  # Gebruiker/systeem die request maakt
     legal_basis: str | None = None  # Juridische basis voor DPIA/privacy compliance
+    # Uitgebreide context velden voor rijke context ondersteuning
+    juridische_context: list[str] | None = None  # Juridische context (Civiel recht, Strafrecht, etc.)
+    wettelijke_basis: list[str] | None = None  # Wettelijke basis (Wetboek van Strafvordering, etc.)
+    organisatorische_context: list[str] | None = None  # Organisatorische context (DJI, OM, etc.)
 
 
 @dataclass
