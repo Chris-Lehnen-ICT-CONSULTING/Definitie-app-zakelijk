@@ -611,6 +611,7 @@ class DefinitionOrchestrator(
         """
         try:
             from services.ai_service import get_ai_service
+
             from config.config_manager import get_default_model, get_default_temperature
 
             # Use central config for defaults
