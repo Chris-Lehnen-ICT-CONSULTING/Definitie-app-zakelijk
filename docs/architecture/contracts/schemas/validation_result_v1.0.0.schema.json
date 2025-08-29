@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://definitie-app.nl/schemas/validation-result/v1.0.0",
+  "title": "ValidationResult",
+  "description": "Contract for validation results in the DefinitieAgent system",
+  "type": "object",
+  "required": [
+    "overall_score",
+    "is_acceptable",
+    "violations",
+    "passed_rules",
+    "detailed_scores",
+    "metadata"
+  ],
+  "properties": {
+    "overall_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Overall validation score between 0.0 (completely invalid) and 1.0 (perfect)"
+    },
+    "is_acceptable": {
+      "type": "boolean",
+      "description": "Whether the validation result meets the minimum acceptance criteria"
+    },
+    "violations": {
+      "type": "array",
+      "description": "List of validation rule violations",
+      "items": {
+        "$ref": "#/$defs/RuleViolation"
+      }
+    },
+    "passed_rules": {
+      "type": "array",
+      "description": "List of rule IDs that passed validation",
+      "items": {
+        "type": "string",
+        "pattern": "^[A-Z][A-Z0-9_]+$"
+      }
+    },
+    "detailed_scores": {
+      "type": "object",
+      "description": "Detailed scores per validation category",
+      "properties": {
+        "grammatica": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "structuur": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "volledigheid": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "consistentie": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "juridisch": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        }
+      },
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0.0,
+        "maximum": 1.0
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "Additional metadata about the validation",
+      "required": ["timestamp", "validator_version"],
+      "properties": {
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of validation"
+        },
+        "validator_version": {
+          "type": "string",
+          "pattern": "^v?\\d+\\.\\d+\\.\\d+$",
+          "description": "Version of the validator used"
+        },
+        "correlation_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Correlation ID for distributed tracing"
+        },
+        "processing_time_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Processing time in milliseconds"
+        },
+        "rule_set_version": {
+          "type": "string",
+          "description": "Version of the validation rule set used"
+        }
+      }
+    },
+    "suggestions": {
+      "type": "array",
+      "description": "Optional improvement suggestions",
+      "items": {
+        "$ref": "#/$defs/Suggestion"
+      }
+    },
+    "warnings": {
+      "type": "array",
+      "description": "Non-critical warnings",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "$defs": {
+    "RuleViolation": {
+      "type": "object",
+      "required": ["rule_id", "severity", "message"],
+      "properties": {
+        "rule_id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]+$",
+          "description": "Unique identifier for the validation rule"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["error", "warning", "info"],
+          "description": "Severity level of the violation"
+        },
+        "message": {
+          "type": "string",
+          "description": "Human-readable description of the violation"
+        },
+        "location": {
+          "type": "object",
+          "description": "Location of the violation in the validated content",
+          "properties": {
+            "line": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "column": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "path": {
+              "type": "string",
+              "description": "JSONPath or similar path to the violation"
+            }
+          }
+        },
+        "expected": {
+          "type": "string",
+          "description": "What was expected"
+        },
+        "actual": {
+          "type": "string",
+          "description": "What was actually found"
+        }
+      }
+    },
+    "Suggestion": {
+      "type": "object",
+      "required": ["type", "description"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["improvement", "alternative", "clarification"],
+          "description": "Type of suggestion"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the suggestion"
+        },
+        "example": {
+          "type": "string",
+          "description": "Example implementation of the suggestion"
+        },
+        "priority": {
+          "type": "string",
+          "enum": ["high", "medium", "low"],
+          "default": "medium"
+        }
+      }
+    }
+  },
+  "examples": [
+    {
+      "overall_score": 0.85,
+      "is_acceptable": true,
+      "violations": [
+        {
+          "rule_id": "GRAMMAR_001",
+          "severity": "warning",
+          "message": "Definitie begint met een lidwoord",
+          "location": {
+            "line": 1,
+            "column": 1
+          },
+          "expected": "Geen lidwoord aan begin",
+          "actual": "De"
+        }
+      ],
+      "passed_rules": [
+        "STRUCTURE_001",
+        "COMPLETENESS_001",
+        "CONSISTENCY_001"
+      ],
+      "detailed_scores": {
+        "grammatica": 0.8,
+        "structuur": 0.9,
+        "volledigheid": 0.85,
+        "consistentie": 0.9,
+        "juridisch": 0.8
+      },
+      "metadata": {
+        "timestamp": "2025-08-29T10:30:00Z",
+        "validator_version": "v2.0.0",
+        "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
+        "processing_time_ms": 234,
+        "rule_set_version": "2025.1"
+      },
+      "suggestions": [
+        {
+          "type": "improvement",
+          "description": "Verwijder het lidwoord 'De' aan het begin van de definitie",
+          "example": "natuurlijk persoon die...",
+          "priority": "high"
+        }
+      ],
+      "warnings": [
+        "Definitie is langer dan 100 woorden"
+      ]
+    }
+  ]
+}

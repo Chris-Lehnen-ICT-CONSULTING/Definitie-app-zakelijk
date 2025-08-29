@@ -196,7 +196,23 @@ tests/
 - **Geen documenten in root** (behalve README, LICENSE, etc.)
 - **Pre-commit hook** controleert automatisch bestand locaties
 
-## Document Migratie Scripts
+## Documentatie-organisatie (alleen maintainers)
+
+Deze sectie gaat over het organiseren/valideren van documentatie (EA/SA e.d.), niet over code‑migratie. Als je geen documentatie
+herstructureert, kun je dit overslaan.
+
+- `scripts/hooks/check-doc-location.py`: pre-commit hook die controleert of documenten in de juiste mappen staan en suggesties
+  geeft voor relocatie.
+- `scripts/migrate-documents-fase3.sh`: script om documenten te verplaatsen/hernoemen volgens de afgesproken docs-structuur.
+  Gebruik met `--dry-run` om eerst te zien wat er zou gebeuren en alleen door maintainers met `--execute` uitvoeren.
+- `scripts/architecture_validator.py`: valideert EA/SA-documenten op scheiding van concerns, overlap en template‑naleving.
+- `scripts/architecture_sync.py`: synchroniseert gedeelde secties/metadata (bijv. ADR‑referenties, metrics) tussen EA en SA.
+
+Gebruik
+- Contributors: negeer deze scripts tenzij je aan documentatie‑reorganisatie werkt.
+- Maintainers: draai eerst `./scripts/migrate-documents-fase3.sh --dry-run`, review de wijzigingen en voer daarna expliciet uit.
+  Commit documentverplaatsingen in een aparte PR. Verander geen inhoud, alleen paden/locaties.
+- Validatie: `python scripts/architecture_validator.py` om EA/SA‑kwaliteit te checken. Sync: `python scripts/architecture_sync.py`.
 
 We hebben 3 migratie scripts om documenten te organiseren:
 - `scripts/migrate-documents.sh` - Fase 1: Basis organisatie
