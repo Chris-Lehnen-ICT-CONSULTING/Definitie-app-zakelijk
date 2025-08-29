@@ -12,7 +12,7 @@ related:
   - validation_orchestrator_rollout.md
 see-also:
   - golden-dataset-validation.md
-  - ADR-006-validation-orchestrator-separation.md
+  - ADR-006-validation-orchestrator-v2.md
 owner: Dev Lead
 created: 2024-12-29
 updated: 2024-12-29
@@ -76,7 +76,7 @@ interface ValidationViolation {
   // Identification
   code: string;              // Error code (zie Error Catalog)
   rule_id: string;           // Specific rule (e.g., "ARAI04SUB1")
-  category: string;          // Category (taal|juridisch|structuur|samenhang)
+  category: string;          // Category (taal|juridisch|structuur|samenhang|system)
 
   // Details
   severity: 'info' | 'warning' | 'error';
@@ -255,6 +255,19 @@ def test_contract_compatibility():
         # Check backward compatibility
         assert can_deserialize_v1(snapshot)
 ```
+
+## Backward Compatibility Mapping (v1.0.0 → latest)
+
+- Pinned schema `validation_result_v1.0.0.schema.json` hanteert andere veldnamen/structuur dan de “latest” variant.
+- Belangrijkste verschillen en mapping voor consumers:
+  - `metadata` (v1) → `system` (latest)
+    - `metadata.correlation_id` → `system.correlation_id`
+    - `metadata.processing_time_ms` → `system.duration_ms`
+    - `metadata.validator_version` → `system.engine_version`
+  - `warnings` (v1 optioneel array) → geen direct equivalent; opnemen als `violations` met `severity="info"` indien gewenst.
+- Richtlijn:
+  - Producers: lever “latest” (`system`) uit.
+  - Consumers: ondersteun v1 via een lichte adapter die bovenstaande mapping toepast.
 
 ## Related Documents
 - **Parent**: [Validation Orchestrator V2 Architecture](../validation_orchestrator_v2.md)

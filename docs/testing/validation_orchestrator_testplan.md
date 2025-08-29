@@ -11,6 +11,7 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - Interface methods: `validate_text`, `validate_definition`, `batch_validate`
 - Resultaatcontract: `docs/architecture/contracts/schemas/validation_result.schema.json`
 - Foutpad: degraded resultaten volgens error‑catalogus (SYS‑… codes)
+ - Policy: aanwezigheid van `system.correlation_id` (UUID) wordt getest als teambeleid, niet als schema‑verplichte eis
 
 ## Testsoorten
 - Contracttests: JSON Schema validatie tegen `contracts/schemas/validation_result.schema.json`.
@@ -41,7 +42,7 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - Verwacht: `is_acceptable == False` (of relevante rule violation); schema‑conform.
 
 5) Batch — Sequentieel
-- Call: `batch_validate(items=[ValidationRequest(...)] * N, parallelism=1)`
+- Call: `batch_validate(items=[ValidationRequest(...)] * N, max_concurrency=1)`
 - Verwacht: lengte N; elk item schema‑conform; geen exceptions.
 
 6) Degraded — Timeout/Upstream failure

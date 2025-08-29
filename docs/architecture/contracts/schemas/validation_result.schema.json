@@ -182,6 +182,7 @@
     "system": {
       "type": "object",
       "description": "System metadata",
+      "required": ["correlation_id"],
       "properties": {
         "correlation_id": {
           "type": "string",

@@ -33,14 +33,14 @@
    - → Depends on: Contract, Error Catalog, Golden Dataset
 
 ### 🏛️ Governance
-6. **[ADR-006: Validation Orchestrator Separation](../architectuur/beslissingen/ADR-006-validation-orchestrator-separation.md)**
+6. **[ADR-006: ValidationOrchestratorV2](../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)**
    - Status: `PROPOSED` | Type: `Decision` | Version: `Draft`
    - Formele architectuur beslissing
    - → Rationale voor: Alle bovenstaande
 
 ### 🧪 Testing & Quality
 7. **[Golden Dataset](../testing/golden-dataset-validation.md)**
-   - Status: `TODO` | Type: `Test Data` | Version: `TBD`
+   - Status: `DRAFT` | Type: `Test Data` | Version: `TBD`
    - Referentie dataset voor regression testing
    - → Gebruikt: Contract schema voor validatie
 
@@ -96,7 +96,7 @@ graph LR
 - Contract: [JSON Schema](./contracts/schemas/validation_result.schema.json)
 
 ### Voor Architecten
-- Decision: [ADR-006](../architectuur/beslissingen/ADR-006-validation-orchestrator-separation.md)
+- Decision: [ADR-006](../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
 - Design: [Architectuur](./validation_orchestrator_v2.md)
 - Contracts: [All Specs](./contracts/)
 
@@ -113,6 +113,12 @@ graph LR
 ## 🔍 Zoektermen / Tags
 
 `#validation #orchestrator #v2 #async #architecture #migration #contract #rollout #testing`
+
+## 🧩 Schema Versies
+
+- Latest: `contracts/schemas/validation_result.schema.json` — huidige contractversie (SemVer in veld `version`).
+- Pinned: `contracts/schemas/validation_result_v1.0.0.schema.json` — bevroren referentie (afwijkende veldnamen zoals `metadata` i.p.v. `system`).
+- Richtlijn: produceer outputs volgens “Latest”; tests bewaken backward compatibility tegen “Pinned” waar relevant.
 
 ## 📝 Onderhouds Notities
 

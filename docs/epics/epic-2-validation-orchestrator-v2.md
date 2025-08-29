@@ -49,7 +49,7 @@ Zodat **alle validatie implementaties een consistent contract volgen**.
 
 **Key Deliverables**:
 - `src/services/interfaces/validation.py`
-- ValidationResult dataclass
+- ValidationResult TypedDict + schema-validatie (tests)
 - Contract tests tegen JSON Schema
 
 ---

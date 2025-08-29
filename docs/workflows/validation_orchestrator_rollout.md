@@ -83,7 +83,7 @@ async def shadow_compare(request: ValidationRequest) -> ShadowResult:
     # Log differences
     if diff.has_differences:
         await log_shadow_diff(
-            correlation_id=request.correlation_id,
+            correlation_id=request.context.correlation_id,
             diff=diff,
             old_result=sanitize(old_result),
             new_result=sanitize(new_result)

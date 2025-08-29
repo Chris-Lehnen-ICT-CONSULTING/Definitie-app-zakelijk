@@ -27,18 +27,19 @@
 - [ ] Interface bevat 3 async methods:
   - `validate_text(begrip: str, text: str, ontologische_categorie: str | None = None, context: ValidationContext | None = None) -> ValidationResult`
   - `validate_definition(definition: Definition, context: ValidationContext | None = None) -> ValidationResult`
-  - `batch_validate(items: Iterable[ValidationRequest], parallelism: int = 1) -> list[ValidationResult]`
+  - `batch_validate(items: Iterable[ValidationRequest], max_concurrency: int = 1) -> list[ValidationResult]`
 - [ ] Type hints volledig voor alle parameters en return types
 - [ ] Interface volgt Python ABC‑pattern (of Protocol indien passend)
 
 ### AC2: ValidationResult Contract Compliance (schema‑eerste)
 - [ ] `ValidationResult` is contract‑gebonden aan `validation_result.schema.json` (TypedDict/Pydantic of runtime schema‑validatie aan de boundary)
-- [ ] Alle verplichte velden aanwezig met correcte types (incl. `version`, `overall_score`, `is_acceptable`, `violations`, `passed_rules`, `detailed_scores`, `system.correlation_id` als UUID)
+- [ ] Alle schema-verplichte velden aanwezig met correcte types (incl. `version`, `overall_score`, `is_acceptable`, `violations`, `passed_rules`, `detailed_scores`).
+- [ ] Policy: `system.correlation_id` is een geldige UUID en wordt door de implementatie gegenereerd indien afwezig in de aangeleverde context.
 - [ ] Optionele velden (o.a. `improvement_suggestions`, `system.timings`) worden alleen toegevoegd indien relevant
 - [ ] Contracttests valideren responses tegen het JSON Schema
 
 ### AC3: Validation Context Support (privacy‑bewust)
-- [ ] `ValidationContext` (frozen dataclass) bevat minimaal: `correlation_id: UUID`, `profile: str | None`, `locale: str | None`, `trace_parent: str | None`, `feature_flags: dict[str, bool]`
+- [ ] `ValidationContext` (frozen dataclass) bevat minimaal: `correlation_id: UUID | None`, `profile: str | None`, `locale: str | None`, `trace_parent: str | None`, `feature_flags: Mapping[str, bool]`
 - [ ] Geen PII in context (geen user_id/e‑mail). Extra metadata via `feature_flags` of gecontroleerde `metadata: Mapping[str, Any]` indien noodzakelijk
 - [ ] Context is optioneel in API; bij ontbreken genereert de implementatie zelf een `correlation_id`
 
@@ -109,7 +110,7 @@ assert result.is_acceptable == False
 
 # Large batch validation
 items = [ValidationRequest(begrip="a", text="...", context=ctx) for _ in range(100)]
-results = await orchestrator.batch_validate(items, parallelism=1)
+results = await orchestrator.batch_validate(items, max_concurrency=1)
 assert len(results) == 100
 ```
 

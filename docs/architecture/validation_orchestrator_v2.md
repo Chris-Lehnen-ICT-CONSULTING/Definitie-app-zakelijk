@@ -54,15 +54,21 @@ class ValidationOrchestratorInterface(ABC):
         begrip: str,
         text: str,
         ontologische_categorie: str | None = None,
-        context: dict[str, Any] | None = None,
+        context: ValidationContext | None = None,
     ) -> ValidationResult: ...
 
     @abstractmethod
-    async def validate_definition(self, definition: Definition) -> ValidationResult: ...
+    async def validate_definition(
+        self,
+        definition: Definition,
+        context: ValidationContext | None = None,
+    ) -> ValidationResult: ...
 
     @abstractmethod
     async def batch_validate(
-        self, items: list[tuple[str, str, str | None]]
+        self,
+        items: Iterable[ValidationRequest],
+        max_concurrency: int = 1,
     ) -> list[ValidationResult]: ...
 ```
 
@@ -74,7 +80,7 @@ class ValidationOrchestratorInterface(ABC):
 
 ## Configuratie
 - Thresholds en regelcategorieën in een `ValidationConfig` (min_score, enabled_categories).
-- (Optioneel) Toggle pre‑cleaning, performance parameters (batch size, parallelism).
+- (Optioneel) Toggle pre‑cleaning, performance parameters (batch size, max_concurrency).
 
 ## Migratieplan
 Fase 1 — Bugfix & contractzuivering (korte termijn)
@@ -123,7 +129,7 @@ Guardrails (CI/tests)
 
 ## Appendix: Voorbeeld skelet ValidationOrchestratorV2
 ```
-from typing import Any
+from typing import Any, Iterable
 from services.interfaces import (
     Definition,
     ValidationResult,
@@ -165,12 +171,19 @@ class ValidationOrchestratorV2:
         )
 
     async def batch_validate(
-        self, items: list[tuple[str, str, str | None]]
+        self,
+        items: Iterable[ValidationRequest],
+        max_concurrency: int = 1,
     ) -> list[ValidationResult]:
         results: list[ValidationResult] = []
-        for begrip, text, cat in items:
+        for req in items:
             results.append(
-                await self.validate_text(begrip, text, ontologische_categorie=cat)
+                await self.validate_text(
+                    req.begrip,
+                    req.text,
+                    ontologische_categorie=req.ontologische_categorie,
+                    context=req.context,
+                )
             )
         return results
 ```

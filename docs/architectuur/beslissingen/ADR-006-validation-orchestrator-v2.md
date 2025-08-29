@@ -24,10 +24,31 @@ We implementeren een dedicated `ValidationOrchestratorV2` class die:
 
 #### 1. Async-First Design
 ```python
+from typing import Iterable
+
 class ValidationOrchestratorV2:
-    async def validate_text(self, text: str, context: ValidationContext) -> ValidationResult
-    async def validate_definition(self, definition: Definition) -> ValidationResult
-    async def batch_validate(self, items: List[Validatable]) -> List[ValidationResult]
+    async def validate_text(
+        self,
+        begrip: str,
+        text: str,
+        ontologische_categorie: str | None = None,
+        context: ValidationContext | None = None,
+    ) -> ValidationResult:
+        ...
+
+    async def validate_definition(
+        self,
+        definition: Definition,
+        context: ValidationContext | None = None,
+    ) -> ValidationResult:
+        ...
+
+    async def batch_validate(
+        self,
+        items: Iterable[ValidationRequest],
+        max_concurrency: int = 1,
+    ) -> list[ValidationResult]:
+        ...
 ```
 
 #### 2. Contract-Based Interface
@@ -108,7 +129,7 @@ VALIDATION_ORCHESTRATOR_V2 = os.getenv("VALIDATION_ORCHESTRATOR_V2", "false").lo
 
 - [Validation Orchestrator V2 Design](../validation_orchestrator_v2.md)
 - [ValidationResult Contract](../contracts/validation_result_contract.md)
-- [Implementation Workflow](../../workflows/VALIDATION_ORCHESTRATOR_V2_IMPLEMENTATION_WORKFLOW.md)
+- [Rollout Runbook](../../workflows/validation_orchestrator_rollout.md)
 - [Original Migration Doc (Archived)](../../archief/validation/validation-orchestrator-migration.md)
 
 ## Decision
