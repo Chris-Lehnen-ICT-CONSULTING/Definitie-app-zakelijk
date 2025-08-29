@@ -1,5 +1,13 @@
 # Technology Stack - DefinitieAgent
 
+## Wijzigingshistorie
+
+- 2025-08-28: Consistentie en API‑first
+  - Python versie gesynchroniseerd naar 3.11+
+  - Startcommando gecorrigeerd naar `streamlit run src/main.py`
+  - UI ↔ Service laag verduidelijkt (Orchestrator‑first, geen directe DB/SDK in UI)
+  - Security/Observability en Cost‑management toegelicht
+
 ## Overzicht
 
 Dit document beschrijft de complete technology stack van DefinitieAgent, inclusief frameworks, libraries, tools en infrastructuur componenten.
@@ -8,7 +16,7 @@ Dit document beschrijft de complete technology stack van DefinitieAgent, inclusi
 
 ### Programming Language
 
-**Python 3.10+**
+**Python 3.11+**
 - Modern async/await support
 - Type hints en annotations
 - Structured pattern matching
@@ -159,6 +167,12 @@ FROM base as runtime
 - **Error tracking**: Detailed error context
 - **Performance metrics**: Response time tracking
 - **Usage analytics**: Feature adoption metrics
+
+### Security & Observability (uitgebreid)
+
+- **Security**: OAuth2/JWT + RBAC, input‑sanitization, rate limiting, circuit breakers, secrets‑beheer, encryptie in transit (TLS) en at rest (SQLCipher/PostgreSQL TDE).
+- **Observability**: Structured JSON logging (request_id, user_id, latency_ms, tokens_used), Prometheus‑metrics (cache hit‑ratio, AI‑tokens, validatie‑fouten), OpenTelemetry tracing (10–20% sampling).
+- **Cost management**: Dagelijkse AI‑kostenrapportage, budget‑alerts, token‑limieten per omgeving.
 
 ## Architecture Components
 
@@ -316,10 +330,10 @@ rate_limit_config = RateLimitConfig(
 
 ### Internal Integrations
 
-- **UI ↔ Service Layer**: Streamlit session state
+- **UI ↔ Services**: Orchestrator‑first (UI roept services/orchestrator aan; geen directe DB/SDK‑imports)
 - **Services ↔ Database**: Repository pattern
-- **AI ↔ Validation**: Prompt injection
-- **Cache ↔ Services**: Decorator pattern
+- **AI ↔ Validation**: Prompt/validator integratie via services
+- **Cache ↔ Services**: Decorator pattern (TTL, bounded size)
 
 ## Performance Optimizations
 
@@ -470,7 +484,7 @@ cp .env.example .env
 # Edit .env with your settings
 
 # Run application
-streamlit run app.py
+streamlit run src/main.py
 ```
 
 ## Deployment Considerations
@@ -492,6 +506,11 @@ streamlit run app.py
 - Redis cluster
 - Error logging only
 - Full monitoring stack
+
+### Configuratie & Secrets per omgeving
+- Config via `.env` in dev; via secret store in staging/prod (geen secrets in repo).
+- Feature flags per omgeving (toggle orchestrator‑first, modern lookup).
+- Afgesproken limieten voor AI‑tokens/kosten per omgeving met alerts.
 
 ---
 
