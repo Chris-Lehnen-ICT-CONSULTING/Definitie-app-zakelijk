@@ -1,8 +1,8 @@
 # Golden Dataset voor Validation Testing
 
-**Status**: ACTIVE  
-**Version**: 1.0.0  
-**Last Updated**: 2025-08-29  
+**Status**: ACTIVE
+**Version**: 1.0.0
+**Last Updated**: 2025-08-29
 **Owner**: QA Team
 
 ## Overzicht
@@ -134,7 +134,7 @@ def check_drift(current_results, golden_results):
         "version": GOLDEN_DATASET_VERSION,
         "drifts": []
     }
-    
+
     for golden, current in zip(golden_results, current_results):
         score_drift = abs(golden.score - current.score)
         if score_drift > golden.tolerance:
@@ -145,7 +145,7 @@ def check_drift(current_results, golden_results):
                 "drift": score_drift,
                 "severity": "CRITICAL" if score_drift > 0.05 else "WARNING"
             })
-    
+
     return drift_report
 ```
 
@@ -186,12 +186,12 @@ def test_golden_dataset_regression():
     """Test alle golden dataset cases."""
     orchestrator = ValidationOrchestratorV2()
     results = []
-    
+
     for case in load_golden_dataset():
         result = await orchestrator.validate_definition(case.definition)
         assert_within_tolerance(result.score, case.expected_score, case.tolerance)
         results.append(result)
-    
+
     generate_drift_report(results)
 ```
 

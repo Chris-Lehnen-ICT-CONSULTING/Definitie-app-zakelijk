@@ -1,8 +1,8 @@
 # Validation Observability & Privacy Guide
 
-**Status**: ACTIVE  
-**Version**: 1.0.0  
-**Last Updated**: 2025-08-29  
+**Status**: ACTIVE
+**Version**: 1.0.0
+**Last Updated**: 2025-08-29
 **Compliance**: AVG/GDPR Compliant
 
 ## Overzicht
@@ -106,10 +106,10 @@ logger.error(
 def sanitize_for_logging(data: dict) -> dict:
     """Remove/mask PII before logging."""
     SENSITIVE_KEYS = {
-        'definition', 'content', 'text', 
+        'definition', 'content', 'text',
         'user_id', 'email', 'name'
     }
-    
+
     sanitized = {}
     for key, value in data.items():
         if key.lower() in SENSITIVE_KEYS:
@@ -118,7 +118,7 @@ def sanitize_for_logging(data: dict) -> dict:
             sanitized[key] = f"[STRING_{len(value)}_CHARS]"
         else:
             sanitized[key] = value
-    
+
     return sanitized
 ```
 
@@ -159,7 +159,7 @@ class ValidationContext:
         self.correlation_id = correlation_id or str(uuid.uuid4())
         self.start_time = time.time()
         self.spans = []
-    
+
     def create_span(self, operation: str):
         return Span(
             correlation_id=self.correlation_id,
@@ -172,7 +172,7 @@ class ValidationContext:
 ```python
 TRACE_HEADERS = {
     "X-Correlation-ID": "uuid",
-    "X-Request-ID": "uuid", 
+    "X-Request-ID": "uuid",
     "X-Trace-Parent": "trace-id",
     "X-Trace-State": "vendor-specific"
 }
@@ -185,13 +185,13 @@ TRACE_HEADERS = {
 panels:
   - title: "Request Rate"
     query: "rate(validation.request.count[5m])"
-    
+
   - title: "Latency P95"
     query: "histogram_quantile(0.95, validation.request.duration)"
-    
+
   - title: "Error Rate"
     query: "rate(validation.request.error[5m]) / rate(validation.request.count[5m])"
-    
+
   - title: "Score Distribution"
     query: "validation.score.distribution"
     type: "heatmap"
@@ -203,11 +203,11 @@ alerts:
   - name: "HighErrorRate"
     expr: "rate(validation.request.error[5m]) > 0.05"
     severity: "warning"
-    
+
   - name: "SlowValidation"
     expr: "validation.request.duration > 2000"
     severity: "warning"
-    
+
   - name: "ServiceDown"
     expr: "up{job='validation'} == 0"
     severity: "critical"
@@ -258,7 +258,7 @@ async def health_check():
             "validator": await check_validator_service()
         }
     }
-    
+
     # Determine overall health
     if all(check["status"] == "healthy" for check in checks["checks"].values()):
         return JSONResponse(checks, status_code=200)

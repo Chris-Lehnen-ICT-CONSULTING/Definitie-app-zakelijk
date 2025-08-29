@@ -1,16 +1,16 @@
 # Story 2.4: Integration & Migration
 
-**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation  
-**Status**: Ready  
-**Priority**: Critical  
-**Size**: 8 story points  
-**Duration**: 3 days  
-**Owner**: Senior Developer  
+**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation
+**Status**: Ready
+**Priority**: Critical
+**Size**: 8 story points
+**Duration**: 3 days
+**Owner**: Senior Developer
 
 ## User Story
 
-**Als een** integrator,  
-**Wil ik** DefinitionOrchestratorV2 volledig geïntegreerd met ValidationOrchestratorV2,  
+**Als een** integrator,
+**Wil ik** DefinitionOrchestratorV2 volledig geïntegreerd met ValidationOrchestratorV2,
 **Zodat** alle validation flows via de nieuwe orchestrator lopen en we een clean separation of concerns hebben.
 
 ## Business Value
@@ -34,7 +34,7 @@
 - [ ] Error handling properly delegates to ValidationOrchestrator
 - [ ] Performance comparable to direct validation calls
 
-### AC3: Migration of Existing Validation Calls  
+### AC3: Migration of Existing Validation Calls
 - [ ] All direct validation calls in codebase updated
 - [ ] API endpoints use ValidationOrchestratorInterface
 - [ ] Background job validation migrated
@@ -50,7 +50,7 @@
 
 ### DefinitionOrchestratorV2 Integration
 - [ ] Update `src/services/definition/definition_orchestrator_v2.py`
-- [ ] Replace direct validation calls met ValidationOrchestratorInterface  
+- [ ] Replace direct validation calls met ValidationOrchestratorInterface
 - [ ] Remove validation logic from definition orchestrator
 - [ ] Update constructor voor ValidationOrchestrator dependency injection
 - [ ] Add proper error handling en logging
@@ -71,7 +71,7 @@
 
 ### Background Job Integration
 - [ ] Update definition processing jobs
-- [ ] Update bulk validation jobs  
+- [ ] Update bulk validation jobs
 - [ ] Add proper async/await support in job handlers
 - [ ] Update job error handling
 - [ ] Add job performance monitoring
@@ -100,13 +100,13 @@
 ```python
 async def test_definition_orchestrator_uses_validation_orchestrator():
     definition_orchestrator = container.resolve(DefinitionOrchestratorV2)
-    
+
     # Should delegate validation to ValidationOrchestratorV2
     result = await definition_orchestrator.create_definition(
-        text="Test definitie", 
+        text="Test definitie",
         validate=True
     )
-    
+
     # Verify validation was performed via ValidationOrchestrator
     assert result.validation_result is not None
     assert isinstance(result.validation_result, ValidationResult)
@@ -119,7 +119,7 @@ async def test_validate_endpoint_backward_compatibility():
         "text": "Test definitie",
         "profile": "standard"
     })
-    
+
     # Response format should match legacy format
     assert response.status_code == 200
     assert "overall_score" in response.json()
@@ -128,18 +128,18 @@ async def test_validate_endpoint_backward_compatibility():
 ```
 
 ### Migration Flow Tests
-```python  
+```python
 async def test_validation_flow_with_feature_flag():
     # Test both V1 and V2 paths produce compatible results
-    
+
     # V1 path (feature flag disabled)
     with feature_flag("VALIDATION_ORCHESTRATOR_V2", False):
         result_v1 = await validate_definition(test_definition)
-    
-    # V2 path (feature flag enabled) 
+
+    # V2 path (feature flag enabled)
     with feature_flag("VALIDATION_ORCHESTRATOR_V2", True):
         result_v2 = await validate_definition(test_definition)
-    
+
     # Results should be functionally equivalent
     assert result_v1.is_acceptable == result_v2.is_acceptable
     assert abs(result_v1.overall_score - result_v2.overall_score) < 0.1
@@ -150,11 +150,11 @@ async def test_validation_flow_with_feature_flag():
 async def test_integration_performance():
     # V2 should not be significantly slower than V1
     test_items = [create_test_definition() for _ in range(100)]
-    
+
     start_time = time.time()
     results = await definition_orchestrator.batch_validate_definitions(test_items)
     duration = time.time() - start_time
-    
+
     # Should complete within performance budget
     assert duration < v1_baseline * 1.05  # Max 5% regression
     assert len(results) == 100
@@ -178,7 +178,7 @@ async def test_integration_performance():
 
 ### Phase 1: Interface Integration
 1. Update DefinitionOrchestratorV2 to use ValidationOrchestratorInterface
-2. Create adapter layer voor response compatibility  
+2. Create adapter layer voor response compatibility
 3. Add feature flag gating
 4. Test in development environment
 
@@ -217,7 +217,7 @@ async def test_integration_performance():
 ```json
 {
   "overall_score": 0.85,
-  "is_acceptable": true,  
+  "is_acceptable": true,
   "violations": [...],
   "passed_rules": [...],
   "detailed_scores": {...},
@@ -237,7 +237,7 @@ async def test_integration_performance():
 
 - **DefinitionOrchestratorV2**: Primary integration point
 - **API Layer**: All validation endpoints
-- **Background Jobs**: Async validation processing  
+- **Background Jobs**: Async validation processing
 - **Batch Processing**: Bulk validation workflows
 - **Error Handling**: Centralized error processing
 
@@ -251,7 +251,7 @@ async def test_integration_performance():
 
 ---
 
-**Created**: 2025-08-29  
-**Story Owner**: Senior Developer  
-**Technical Reviewer**: Senior Architect  
+**Created**: 2025-08-29
+**Story Owner**: Senior Developer
+**Technical Reviewer**: Senior Architect
 **Stakeholders**: Development Team, API Team, QA Engineer

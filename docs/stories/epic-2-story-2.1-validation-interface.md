@@ -1,16 +1,16 @@
 # Story 2.1: ValidationOrchestratorInterface Definition
 
-**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation  
-**Status**: Ready  
-**Priority**: High  
-**Size**: 3 story points  
-**Duration**: 2 days  
-**Owner**: Senior Developer  
+**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation
+**Status**: Ready
+**Priority**: High
+**Size**: 3 story points
+**Duration**: 2 days
+**Owner**: Senior Developer
 
 ## User Story
 
-**Als een** architect,  
-**Wil ik** een gedefinieerde ValidationOrchestratorInterface met contract specificatie,  
+**Als een** architect,
+**Wil ik** een gedefinieerde ValidationOrchestratorInterface met contract specificatie,
 **Zodat** alle validatie implementaties een consistent contract volgen en toekomstige uitbreidingen mogelijk zijn.
 
 ## Business Value
@@ -51,7 +51,7 @@
 - [ ] Create `src/services/interfaces/validation.py`
 - [ ] Define `ValidationOrchestratorInterface` abstract base class
 - [ ] Implement `validate_text(text: str, context: ValidationContext) -> ValidationResult`
-- [ ] Implement `validate_definition(definition: Definition) -> ValidationResult`  
+- [ ] Implement `validate_definition(definition: Definition) -> ValidationResult`
 - [ ] Implement `batch_validate(items: List[Validatable]) -> List[ValidationResult]`
 - [ ] Add comprehensive type hints en docstrings
 
@@ -144,20 +144,20 @@ assert result.system.error is not None
 ## Integration Points
 
 - **AIServiceV2**: ValidationOrchestrator will use AsyncGPTClient
-- **DefinitionOrchestratorV2**: Will depend on ValidationOrchestrator interface  
+- **DefinitionOrchestratorV2**: Will depend on ValidationOrchestrator interface
 - **Container System**: DI registration voor interface implementations
 - **Testing Framework**: Mock implementations voor unit tests
 
 ## Success Metrics
 
 - [ ] Interface completeness: 100% coverage van validation use cases
-- [ ] Contract compliance: 100% JSON Schema adherence  
+- [ ] Contract compliance: 100% JSON Schema adherence
 - [ ] Type safety: Zero MyPy errors in interface usage
 - [ ] Developer experience: Positive feedback on interface clarity
 
 ---
 
-**Created**: 2025-08-29  
-**Story Owner**: Senior Developer  
-**Technical Reviewer**: Senior Architect  
+**Created**: 2025-08-29
+**Story Owner**: Senior Developer
+**Technical Reviewer**: Senior Architect
 **Stakeholders**: Development Team, QA Engineer

@@ -1,8 +1,8 @@
 # Epic 2: ValidationOrchestratorV2 Implementation
 
-**Status**: Ready for Development  
-**Priority**: Critical  
-**Size**: Large (6 stories, 36 story points)  
+**Status**: Ready for Development
+**Priority**: Critical
+**Size**: Large (6 stories, 36 story points)
 **Dependencies**: Epic 1 (V2 AI Service Migration) ✅ COMPLETED
 
 ## Epic Overview
@@ -40,11 +40,11 @@ Implementatie van een dedicated ValidationOrchestratorV2 die validatie-logica vo
 ## Stories
 
 ### Story 2.1: ValidationOrchestratorInterface Definition (3 pts)
-**Owner**: Senior Developer  
+**Owner**: Senior Developer
 **Duration**: 2 days
 
-Als een **architect**,  
-Wil ik **een gedefinieerde ValidationOrchestratorInterface**,  
+Als een **architect**,
+Wil ik **een gedefinieerde ValidationOrchestratorInterface**,
 Zodat **alle validatie implementaties een consistent contract volgen**.
 
 **Key Deliverables**:
@@ -55,11 +55,11 @@ Zodat **alle validatie implementaties een consistent contract volgen**.
 ---
 
 ### Story 2.2: ValidationOrchestratorV2 Core Implementation (8 pts)
-**Owner**: Senior Developer  
+**Owner**: Senior Developer
 **Duration**: 4 days
 
-Als een **development team**,  
-Wil ik **de core ValidationOrchestratorV2 implementatie**,  
+Als een **development team**,
+Wil ik **de core ValidationOrchestratorV2 implementatie**,
 Zodat **we async validatie logic hebben die de moderne validator gebruikt**.
 
 **Key Deliverables**:
@@ -71,11 +71,11 @@ Zodat **we async validatie logic hebben die de moderne validator gebruikt**.
 ---
 
 ### Story 2.3: Container Wiring & Feature Flags (5 pts)
-**Owner**: DevOps + Developer  
+**Owner**: DevOps + Developer
 **Duration**: 2 days
 
-Als een **DevOps engineer**,  
-Wil ik **proper container wiring met feature flag control**,  
+Als een **DevOps engineer**,
+Wil ik **proper container wiring met feature flag control**,
 Zodat **we veilig kunnen deployen en rollbacken**.
 
 **Key Deliverables**:
@@ -87,11 +87,11 @@ Zodat **we veilig kunnen deployen en rollbacken**.
 ---
 
 ### Story 2.4: Integration & Migration (8 pts)
-**Owner**: Senior Developer  
+**Owner**: Senior Developer
 **Duration**: 3 days
 
-Als een **integrator**,  
-Wil ik **DefinitionOrchestratorV2 geïntegreerd met ValidationOrchestratorV2**,  
+Als een **integrator**,
+Wil ik **DefinitionOrchestratorV2 geïntegreerd met ValidationOrchestratorV2**,
 Zodat **alle validation flows via de nieuwe orchestrator lopen**.
 
 **Key Deliverables**:
@@ -103,11 +103,11 @@ Zodat **alle validation flows via de nieuwe orchestrator lopen**.
 ---
 
 ### Story 2.5: Testing & Quality Assurance (8 pts)
-**Owner**: QA Engineer + Developer  
+**Owner**: QA Engineer + Developer
 **Duration**: 4 days
 
-Als een **QA engineer**,  
-Wil ik **comprehensive test coverage voor de validation layer**,  
+Als een **QA engineer**,
+Wil ik **comprehensive test coverage voor de validation layer**,
 Zodat **we vertrouwen hebben in de productie deployment**.
 
 **Key Deliverables**:
@@ -120,11 +120,11 @@ Zodat **we vertrouwen hebben in de productie deployment**.
 ---
 
 ### Story 2.6: Production Rollout (2 pts)
-**Owner**: Product Owner + DevOps  
+**Owner**: Product Owner + DevOps
 **Duration**: 1 week (gradual)
 
-Als een **product owner**,  
-Wil ik **een gecontroleerde productie rollout**,  
+Als een **product owner**,
+Wil ik **een gecontroleerde productie rollout**,
 Zodat **we risico minimaliseren en snel kunnen reageren op issues**.
 
 **Rollout Phases**:
@@ -179,8 +179,8 @@ Zodat **we risico minimaliseren en snel kunnen reageren op issues**.
 ## Timeline
 
 ### Sprint Planning (3 weeks)
-**Week 1**: Stories 2.1, 2.2 (Interface + Core)  
-**Week 2**: Stories 2.3, 2.4, 2.5 (Integration + Testing)  
+**Week 1**: Stories 2.1, 2.2 (Interface + Core)
+**Week 2**: Stories 2.3, 2.4, 2.5 (Integration + Testing)
 **Week 3**: Story 2.6 (Production Rollout)
 
 ### Milestones
@@ -214,7 +214,7 @@ Zodat **we risico minimaliseren en snel kunnen reageren op issues**.
 
 ---
 
-**Created**: 2025-08-29  
-**Last Updated**: 2025-08-29  
-**Epic Owner**: Product Owner  
+**Created**: 2025-08-29
+**Last Updated**: 2025-08-29
+**Epic Owner**: Product Owner
 **Technical Lead**: Senior Architect

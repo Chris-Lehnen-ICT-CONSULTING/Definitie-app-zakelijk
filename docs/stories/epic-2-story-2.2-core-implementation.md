@@ -1,16 +1,16 @@
 # Story 2.2: ValidationOrchestratorV2 Core Implementation
 
-**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation  
-**Status**: Ready  
-**Priority**: Critical  
-**Size**: 8 story points  
-**Duration**: 4 days  
-**Owner**: Senior Developer  
+**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation
+**Status**: Ready
+**Priority**: Critical
+**Size**: 8 story points
+**Duration**: 4 days
+**Owner**: Senior Developer
 
 ## User Story
 
-**Als een** development team,  
-**Wil ik** de core ValidationOrchestratorV2 implementatie met async/await patterns,  
+**Als een** development team,
+**Wil ik** de core ValidationOrchestratorV2 implementatie met async/await patterns,
 **Zodat** we moderne, performante validatie logic hebben die volledig gescheiden is van definitie-generatie.
 
 ## Business Value
@@ -58,7 +58,7 @@
 
 ### AI Service Integration
 - [ ] Integrate with `AsyncGPTClient` voor validation requests
-- [ ] Implement prompt engineering voor validation tasks  
+- [ ] Implement prompt engineering voor validation tasks
 - [ ] Add retry logic met exponential backoff
 - [ ] Handle rate limiting gracefully
 - [ ] Parse AI responses into ValidationResult format
@@ -102,9 +102,9 @@
 async def test_validate_text_success():
     orchestrator = ValidationOrchestratorV2(ai_service, validator)
     context = ValidationContext(correlation_id=uuid4())
-    
+
     result = await orchestrator.validate_text("Test tekst", context)
-    
+
     assert isinstance(result, ValidationResult)
     assert result.version == "1.0.0"
     assert 0.0 <= result.overall_score <= 1.0
@@ -113,20 +113,20 @@ async def test_validate_text_success():
 async def test_batch_validate_parallel():
     items = [create_validation_item() for _ in range(50)]
     start_time = time.time()
-    
+
     results = await orchestrator.batch_validate(items)
     duration = time.time() - start_time
-    
+
     assert len(results) == 50
     assert duration < 30  # Should be much faster than sequential
 ```
 
-### Error Handling Tests  
+### Error Handling Tests
 ```python
 async def test_ai_service_timeout():
     # Mock timeout scenario
     result = await orchestrator.validate_text("test", context, timeout=0.001)
-    
+
     assert result.system.error is not None
     assert "timeout" in result.system.error.lower()
     assert result.is_acceptable == False
@@ -134,7 +134,7 @@ async def test_ai_service_timeout():
 async def test_invalid_input_handling():
     with pytest.raises(ValidationError) as exc_info:
         await orchestrator.validate_text("", None)
-    
+
     assert exc_info.value.code.startswith("VAL-")
 ```
 
@@ -142,18 +142,18 @@ async def test_invalid_input_handling():
 ```python
 async def test_batch_performance_target():
     items = [create_large_validation_item() for _ in range(100)]
-    
+
     start = time.time()
     results = await orchestrator.batch_validate(items)
     duration = time.time() - start
-    
+
     # Should be at least 3x faster than sequential processing
     assert duration < sequential_baseline / 3
 ```
 
 ## Dependencies
 
-### Prerequisites  
+### Prerequisites
 - [ ] Story 2.1 completed (ValidationOrchestratorInterface)
 - [ ] AIServiceV2 is operational met AsyncGPTClient
 - [ ] Modern validation rules available in `src/validation/`
@@ -168,7 +168,7 @@ async def test_batch_performance_target():
 ## Performance Requirements
 
 - **Latency**: Single validation < 2 seconds P95
-- **Throughput**: Batch validation > 100 items per minute  
+- **Throughput**: Batch validation > 100 items per minute
 - **Memory**: < 100MB increase voor 100 concurrent validations
 - **Error Rate**: < 1% failures onder normal load
 - **Recovery**: < 30 seconds recovery from AI service outage
@@ -208,7 +208,7 @@ async def test_batch_performance_target():
 
 ---
 
-**Created**: 2025-08-29  
-**Story Owner**: Senior Developer  
-**Technical Reviewer**: Senior Architect  
+**Created**: 2025-08-29
+**Story Owner**: Senior Developer
+**Technical Reviewer**: Senior Architect
 **Stakeholders**: Development Team, Performance Team

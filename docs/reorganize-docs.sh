@@ -145,77 +145,12 @@ echo ""
 echo -e "${BLUE}=== STAP 2: Nieuwe Directory Structuur ===${NC}"
 echo ""
 
-create_directory "$DOCS_DIR/ESSENTIEEL/product/requirements"
-create_directory "$DOCS_DIR/ESSENTIEEL/product/stories"
-create_directory "$DOCS_DIR/ESSENTIEEL/architectuur/current"
-create_directory "$DOCS_DIR/ESSENTIEEL/architectuur/decisions"
-create_directory "$DOCS_DIR/ESSENTIEEL/architectuur/reference"
-create_directory "$DOCS_DIR/ESSENTIEEL/architectuur/diagrams"
-create_directory "$DOCS_DIR/ESSENTIEEL/handleidingen/gebruiker"
-create_directory "$DOCS_DIR/ESSENTIEEL/handleidingen/ontwikkelaar"
-create_directory "$DOCS_DIR/ESSENTIEEL/projectdocs/planning"
-create_directory "$DOCS_DIR/ESSENTIEEL/projectdocs/meetings"
-create_directory "$DOCS_DIR/ESSENTIEEL/projectdocs/compliance"
-create_directory "$DOCS_DIR/ESSENTIEEL/workflows"
-create_directory "$DOCS_DIR/ARCHIEF/2025-Q1"
+create_directory "$DOCS_DIR/archief/2025-08-29"
 
 echo ""
 
-# Stap 3: Verplaats essentiële documenten
-echo -e "${BLUE}=== STAP 3: Essentiële Documenten Identificeren ===${NC}"
-echo ""
-
-# Product documenten
-copy_file "$DOCS_DIR/prd.md" "$DOCS_DIR/ESSENTIEEL/product/prd.md"
-copy_file "$DOCS_DIR/brief.md" "$DOCS_DIR/ESSENTIEEL/product/brief.md"
-copy_file "$DOCS_DIR/REQUIREMENTS_AND_FEATURES_COMPLETE.md" "$DOCS_DIR/ESSENTIEEL/product/requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md"
-
-# Architectuur documenten
-copy_file "$DOCS_DIR/CURRENT_ARCHITECTURE_OVERVIEW.md" "$DOCS_DIR/ESSENTIEEL/architectuur/current/CURRENT_ARCHITECTURE_OVERVIEW.md"
-
-# ADRs
-for adr in "$DOCS_DIR"/architectuur/beslissingen/ADR-*.md; do
-    if [ -f "$adr" ]; then
-        filename=$(basename "$adr")
-        copy_file "$adr" "$DOCS_DIR/ESSENTIEEL/architectuur/decisions/$filename"
-    fi
-done
-
-# Stories
-if [ -d "$DOCS_DIR/stories" ]; then
-    for story in "$DOCS_DIR"/stories/*.md; do
-        if [ -f "$story" ]; then
-            filename=$(basename "$story")
-            copy_file "$story" "$DOCS_DIR/ESSENTIEEL/product/stories/$filename"
-        fi
-    done
-fi
-
-# Technische docs
-for tech in "$DOCS_DIR"/technisch/*.md; do
-    if [ -f "$tech" ]; then
-        filename=$(basename "$tech")
-        copy_file "$tech" "$DOCS_DIR/ESSENTIEEL/architectuur/reference/$filename"
-    fi
-done
-
-# Frontend guide
-copy_file "$DOCS_DIR/frontend/AI-FRONTEND-PROMPT-NL.md" "$DOCS_DIR/ESSENTIEEL/handleidingen/ontwikkelaar/AI-FRONTEND-PROMPT-NL.md"
-
-# Compliance
-if [ -d "$DOCS_DIR/compliance" ]; then
-    for comp in "$DOCS_DIR"/compliance/*.md; do
-        if [ -f "$comp" ]; then
-            filename=$(basename "$comp")
-            copy_file "$comp" "$DOCS_DIR/ESSENTIEEL/projectdocs/compliance/$filename"
-        fi
-    done
-fi
-
-# Actieve workflows (handmatig geselecteerd)
-copy_file "$DOCS_DIR/workflows/validation_orchestrator_rollout.md" "$DOCS_DIR/ESSENTIEEL/workflows/validation_orchestrator_rollout.md"
-copy_file "$DOCS_DIR/workflows/test-categorie-workflow.md" "$DOCS_DIR/ESSENTIEEL/workflows/test-categorie-workflow.md"
-
+# Stap 3: Identificeer te archiveren documenten
+echo -e "${BLUE}=== STAP 3: Te Archiveren Documenten Identificeren ===${NC}"
 echo ""
 
 # Stap 4: Archiveer oude documenten
@@ -228,7 +163,7 @@ ARCHIVED_COUNT=0
 # Archiveer alle LEGACY/DEPRECATED/OLD files
 for file in $(find "$DOCS_DIR" -type f \( -name "*LEGACY*" -o -name "*DEPRECATED*" -o -name "*OLD*" -o -name "*ARCHIVED*" \) 2>/dev/null); do
     rel_path="${file#$DOCS_DIR/}"
-    dest_path="$DOCS_DIR/ARCHIEF/2025-Q1/$rel_path"
+    dest_path="$DOCS_DIR/archief/2025-08-29/$rel_path"
     move_file "$file" "$dest_path"
     ((ARCHIVED_COUNT++))
 done
@@ -237,7 +172,7 @@ done
 for file in "$DOCS_DIR"/*REORGANIZATION*.md "$DOCS_DIR"/*reorganization*.md "$DOCS_DIR"/*REORGANISATIE*.md; do
     if [ -f "$file" ]; then
         filename=$(basename "$file")
-        move_file "$file" "$DOCS_DIR/ARCHIEF/2025-Q1/reorganization-attempts/$filename"
+        move_file "$file" "$DOCS_DIR/archief/2025-08-29/reorganization-attempts/$filename"
         ((ARCHIVED_COUNT++))
     fi
 done
@@ -248,7 +183,7 @@ for workflow in "$DOCS_DIR"/workflows/*.md; do
         filename=$(basename "$workflow")
         # Skip de actieve workflows
         if [[ "$filename" != "validation_orchestrator_rollout.md" && "$filename" != "test-categorie-workflow.md" ]]; then
-            move_file "$workflow" "$DOCS_DIR/ARCHIEF/2025-Q1/workflows/$filename"
+            move_file "$workflow" "$DOCS_DIR/archief/2025-08-29/workflows/$filename"
             ((ARCHIVED_COUNT++))
         fi
     fi
@@ -259,7 +194,7 @@ if [ -d "$DOCS_DIR/evaluations" ]; then
     for eval in "$DOCS_DIR"/evaluations/*.md; do
         if [ -f "$eval" ]; then
             filename=$(basename "$eval")
-            move_file "$eval" "$DOCS_DIR/ARCHIEF/2025-Q1/evaluations/$filename"
+            move_file "$eval" "$DOCS_DIR/archief/2025-08-29/evaluations/$filename"
             ((ARCHIVED_COUNT++))
         fi
     done
@@ -270,7 +205,7 @@ if [ -d "$DOCS_DIR/reviews" ]; then
     for review in "$DOCS_DIR"/reviews/*.md; do
         if [ -f "$review" ]; then
             filename=$(basename "$review")
-            move_file "$review" "$DOCS_DIR/ARCHIEF/2025-Q1/reviews/$filename"
+            move_file "$review" "$DOCS_DIR/archief/2025-08-29/reviews/$filename"
             ((ARCHIVED_COUNT++))
         fi
     done
@@ -281,7 +216,7 @@ if [ -d "$DOCS_DIR/modules" ]; then
     for module in "$DOCS_DIR"/modules/*.md; do
         if [ -f "$module" ]; then
             filename=$(basename "$module")
-            move_file "$module" "$DOCS_DIR/ARCHIEF/2025-Q1/modules/$filename"
+            move_file "$module" "$DOCS_DIR/archief/2025-08-29/modules/$filename"
             ((ARCHIVED_COUNT++))
         fi
     done
@@ -291,7 +226,7 @@ fi
 for analysis in "$DOCS_DIR"/analyse/*.md "$DOCS_DIR"/analysis/*.md; do
     if [ -f "$analysis" ]; then
         filename=$(basename "$analysis")
-        move_file "$analysis" "$DOCS_DIR/ARCHIEF/2025-Q1/analyses/$filename"
+        move_file "$analysis" "$DOCS_DIR/archief/2025-08-29/analyses/$filename"
         ((ARCHIVED_COUNT++))
     fi
 done
@@ -299,10 +234,10 @@ done
 # Verplaats hele archief directory
 if [ -d "$DOCS_DIR/archief" ] && [ "$ARCHIEF_COUNT" -gt 0 ]; then
     if [ "$DRY_RUN" = true ]; then
-        log_action "Would move entire archief/ directory (125 files) to ARCHIEF/2025-Q1/old-archive/"
+        log_action "Would move entire archief/ directory (125 files) to archief/2025-08-29/old-archive/"
     else
-        mv "$DOCS_DIR/archief" "$DOCS_DIR/ARCHIEF/2025-Q1/old-archive"
-        log_action "Moved entire archief/ directory to ARCHIEF/2025-Q1/old-archive/"
+        mv "$DOCS_DIR/archief" "$DOCS_DIR/archief/2025-08-29/old-archive"
+        log_action "Moved entire archief/ directory to archief/2025-08-29/old-archive/"
     fi
     ((ARCHIVED_COUNT+=125))
 fi

@@ -1,16 +1,16 @@
 # Story 2.3: Container Wiring & Feature Flags
 
-**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation  
-**Status**: Ready  
-**Priority**: High  
-**Size**: 5 story points  
-**Duration**: 2 days  
-**Owner**: DevOps Engineer + Developer  
+**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation
+**Status**: Ready
+**Priority**: High
+**Size**: 5 story points
+**Duration**: 2 days
+**Owner**: DevOps Engineer + Developer
 
 ## User Story
 
-**Als een** DevOps engineer,  
-**Wil ik** proper dependency injection wiring met feature flag controle,  
+**Als een** DevOps engineer,
+**Wil ik** proper dependency injection wiring met feature flag controle,
 **Zodat** we veilig kunnen deployen, testen en rollbacken zonder downtime of risk.
 
 ## Business Value
@@ -36,7 +36,7 @@
 
 ### AC3: Environment Configuration
 - [ ] Development environment default: V2 enabled
-- [ ] Test environment: configurable per test suite  
+- [ ] Test environment: configurable per test suite
 - [ ] Production environment: V2 disabled by default initially
 - [ ] Configuration validation prevents misconfiguration
 
@@ -70,7 +70,7 @@
 - [ ] Create configuration migration guide
 
 ### Health Checks & Monitoring
-- [ ] Add health check endpoint voor orchestrator status  
+- [ ] Add health check endpoint voor orchestrator status
 - [ ] Create metrics voor feature flag state
 - [ ] Add configuration change logging
 - [ ] Implement orchestrator readiness probes
@@ -120,16 +120,16 @@ def test_feature_flag_various_formats():
 ```python
 def test_container_resolves_v1_when_disabled():
     container = create_test_container(validation_v2=False)
-    
+
     orchestrator = container.resolve(ValidationOrchestratorInterface)
-    
+
     assert isinstance(orchestrator, ValidationOrchestratorV1)
 
 def test_container_resolves_v2_when_enabled():
     container = create_test_container(validation_v2=True)
-    
+
     orchestrator = container.resolve(ValidationOrchestratorInterface)
-    
+
     assert isinstance(orchestrator, ValidationOrchestratorV2)
 ```
 
@@ -137,13 +137,13 @@ def test_container_resolves_v2_when_enabled():
 ```python
 def test_dev_environment_defaults():
     config = EnvironmentConfig.load("development")
-    
+
     assert config.validation_orchestrator_v2 == True
     assert config.feature_flags["VALIDATION_ORCHESTRATOR_V2"] == True
 
 def test_prod_environment_safety():
-    config = EnvironmentConfig.load("production") 
-    
+    config = EnvironmentConfig.load("production")
+
     assert config.validation_orchestrator_v2 == False  # Safe default
 ```
 
@@ -152,12 +152,12 @@ def test_prod_environment_safety():
 async def test_instant_rollback():
     # Start with V2 enabled
     container = create_container(validation_v2=True)
-    
+
     # Simulate feature flag toggle
     start_time = time.time()
     toggle_feature_flag("VALIDATION_ORCHESTRATOR_V2", False)
     container.reload_config()
-    
+
     # Should resolve to V1 within 30 seconds
     orchestrator = container.resolve(ValidationOrchestratorInterface)
     assert isinstance(orchestrator, ValidationOrchestratorV1)
@@ -196,7 +196,7 @@ LOG_LEVEL=DEBUG
 FEATURE_FLAG_REFRESH_INTERVAL=10
 ```
 
-### Test Environment  
+### Test Environment
 ```bash
 # .env.test
 VALIDATION_ORCHESTRATOR_V2=${TEST_V2_ENABLED:-false}
@@ -230,7 +230,7 @@ FEATURE_FLAG_REFRESH_INTERVAL=60
 
 ### Planned Rollback (< 15 minutes)
 1. Schedule maintenance window
-2. Update feature flag in configuration management  
+2. Update feature flag in configuration management
 3. Deploy configuration changes
 4. Run post-deployment validation
 5. Update monitoring dashboards
@@ -253,7 +253,7 @@ FEATURE_FLAG_REFRESH_INTERVAL=60
 
 ---
 
-**Created**: 2025-08-29  
-**Story Owner**: DevOps Engineer  
-**Technical Reviewer**: Senior Developer  
+**Created**: 2025-08-29
+**Story Owner**: DevOps Engineer
+**Technical Reviewer**: Senior Developer
 **Stakeholders**: DevOps Team, Development Team, SRE

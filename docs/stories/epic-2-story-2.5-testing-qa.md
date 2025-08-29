@@ -1,22 +1,22 @@
 # Story 2.5: Testing & Quality Assurance
 
-**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation  
-**Status**: Ready  
-**Priority**: Critical  
-**Size**: 8 story points  
-**Duration**: 4 days  
-**Owner**: QA Engineer + Developer  
+**Epic**: Epic 2 - ValidationOrchestratorV2 Implementation
+**Status**: Ready
+**Priority**: Critical
+**Size**: 8 story points
+**Duration**: 4 days
+**Owner**: QA Engineer + Developer
 
 ## User Story
 
-**Als een** QA engineer,  
-**Wil ik** comprehensive test coverage voor de complete validation layer,  
+**Als een** QA engineer,
+**Wil ik** comprehensive test coverage voor de complete validation layer,
 **Zodat** we volledige vertrouwen hebben in de productie deployment en kunnen aantonen dat alle validation scenarios correct werken.
 
 ## Business Value
 
 - Provides confidence in production deployment readiness
-- Establishes baseline voor performance regression detection  
+- Establishes baseline voor performance regression detection
 - Creates comprehensive test suite voor future validation changes
 - Enables automated quality gates in CI/CD pipeline
 
@@ -30,7 +30,7 @@
 
 ### AC2: Integration Test Suite
 - [ ] End-to-end validation flow tests
-- [ ] DefinitionOrchestrator integration tests  
+- [ ] DefinitionOrchestrator integration tests
 - [ ] API endpoint integration tests
 - [ ] Feature flag integration tests
 - [ ] Container wiring integration tests
@@ -41,7 +41,7 @@
 - [ ] Error code format validation
 - [ ] Response format backward compatibility
 
-### AC4: Performance & Load Testing  
+### AC4: Performance & Load Testing
 - [ ] Performance benchmarks established
 - [ ] Load testing voor concurrent validation
 - [ ] Memory usage profiling
@@ -58,7 +58,7 @@
 
 ### ValidationOrchestratorV2 Unit Tests
 - [ ] Test `validate_text()` success paths
-- [ ] Test `validate_definition()` comprehensive scenarios  
+- [ ] Test `validate_definition()` comprehensive scenarios
 - [ ] Test `batch_validate()` parallel processing
 - [ ] Test error handling en resilience patterns
 - [ ] Test timeout scenarios en graceful degradation
@@ -73,7 +73,7 @@
 
 ### Contract Compliance Tests
 - [ ] JSON Schema validation tests voor all ValidationResult outputs
-- [ ] Interface contract adherence verification  
+- [ ] Interface contract adherence verification
 - [ ] Error code format en consistency testing
 - [ ] Response compatibility with legacy systems
 - [ ] API contract testing (input/output validation)
@@ -111,9 +111,9 @@ class TestValidationOrchestratorV2:
     async def test_validate_text_success(self):
         orchestrator = ValidationOrchestratorV2(mock_ai_service, mock_validator)
         context = ValidationContext(correlation_id=uuid4())
-        
+
         result = await orchestrator.validate_text("Goed geschreven definitie.", context)
-        
+
         assert isinstance(result, ValidationResult)
         assert result.version == "1.0.0"
         assert 0.0 <= result.overall_score <= 1.0
@@ -122,9 +122,9 @@ class TestValidationOrchestratorV2:
 
     async def test_validate_text_with_violations(self):
         orchestrator = ValidationOrchestratorV2(mock_ai_service, mock_validator)
-        
+
         result = await orchestrator.validate_text("slecht geschreven tekst", context)
-        
+
         assert result.overall_score < 0.5
         assert result.is_acceptable == False
         assert len(result.violations) > 0
@@ -133,10 +133,10 @@ class TestValidationOrchestratorV2:
     async def test_batch_validate_performance(self):
         items = [create_test_text() for _ in range(50)]
         start_time = time.time()
-        
+
         results = await orchestrator.batch_validate(items)
         duration = time.time() - start_time
-        
+
         assert len(results) == 50
         assert duration < 30  # Should be much faster than sequential
 ```
@@ -150,19 +150,19 @@ class TestValidationIntegration:
             text="Test definitie tekst",
             validate=True
         )
-        
+
         assert definition_result.validation is not None
         assert isinstance(definition_result.validation, ValidationResult)
-        
+
     async def test_api_endpoint_integration(self):
         response = await client.post("/api/definitions/validate", json={
             "text": "Test definitie voor API validatie",
             "profile": "standard"
         })
-        
+
         assert response.status_code == 200
         data = response.json()
-        
+
         # Verify response matches ValidationResult schema
         validate_json_schema(data, validation_result_schema)
 ```
@@ -177,14 +177,14 @@ class TestContractCompliance:
             create_failed_validation_result(),
             create_partial_validation_result(),
         ]
-        
+
         for result in test_cases:
             # Should validate against JSON schema
             validate_json_schema(result.to_dict(), validation_result_schema)
-            
+
     def test_error_code_format_consistency(self):
         result = create_validation_with_violations()
-        
+
         for violation in result.violations:
             # All error codes should match VAL-XXX-000 format
             assert re.match(r"^[A-Z]{3}-[A-Z]{3}-\d{3}$", violation.code)
@@ -195,26 +195,26 @@ class TestContractCompliance:
 class TestValidationPerformance:
     async def test_single_validation_latency(self):
         measurements = []
-        
+
         for _ in range(100):
             start = time.time()
             result = await orchestrator.validate_text("Test tekst", context)
             duration = time.time() - start
             measurements.append(duration)
-        
+
         p95_latency = numpy.percentile(measurements, 95)
         assert p95_latency < 2.0  # P95 should be under 2 seconds
-        
+
     async def test_batch_validation_throughput(self):
         batch_sizes = [10, 50, 100, 200]
-        
+
         for batch_size in batch_sizes:
             items = [create_test_text() for _ in range(batch_size)]
-            
+
             start = time.time()
             results = await orchestrator.batch_validate(items)
             duration = time.time() - start
-            
+
             throughput = batch_size / duration
             assert throughput > 5  # Should process > 5 items per second
 ```
@@ -252,7 +252,7 @@ def sample_validation_context():
         metadata={"test": True}
     )
 
-@pytest.fixture  
+@pytest.fixture
 def mock_ai_service():
     service = Mock(spec=AsyncGPTClient)
     service.validate_text.return_value = create_mock_ai_response()
@@ -270,7 +270,7 @@ def mock_ai_service():
 
 ### Performance Benchmarks
 - **Single Validation**: P95 < 2 seconds
-- **Batch Validation**: > 100 items per minute  
+- **Batch Validation**: > 100 items per minute
 - **Memory Usage**: < 100MB increase voor concurrent processing
 - **Error Rate**: < 1% under normal load
 
@@ -291,7 +291,7 @@ def mock_ai_service():
 - SQLite test database
 - Docker containers voor isolation
 
-### CI/CD Testing  
+### CI/CD Testing
 - Parallel test execution
 - Shared test database
 - Mock external services
@@ -313,7 +313,7 @@ def mock_ai_service():
 
 ---
 
-**Created**: 2025-08-29  
-**Story Owner**: QA Engineer  
-**Technical Reviewer**: Senior Developer  
+**Created**: 2025-08-29
+**Story Owner**: QA Engineer
+**Technical Reviewer**: Senior Developer
 **Stakeholders**: Development Team, QA Team, DevOps

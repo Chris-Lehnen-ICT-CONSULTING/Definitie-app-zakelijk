@@ -456,9 +456,9 @@ class TestCoreFunctionality(unittest.TestCase):
             mock_client = MagicMock()
             mock_response = MagicMock()
             mock_response.choices = [MagicMock()]
-            mock_response.choices[
-                0
-            ].message.content = "Test definitie gegenereerd door AI"
+            mock_response.choices[0].message.content = (
+                "Test definitie gegenereerd door AI"
+            )
             mock_client.chat.completions.create.return_value = mock_response
             mock_openai.return_value = mock_client
 
