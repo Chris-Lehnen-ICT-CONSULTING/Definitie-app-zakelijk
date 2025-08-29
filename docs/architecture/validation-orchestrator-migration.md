@@ -1,5 +1,12 @@
 # Migratie naar Validation Orchestrator Module
 
+**Status: SUPERSEDED**
+**Superseded By: [validation_orchestrator_v2.md](validation_orchestrator_v2.md)**
+**Version: 0.9.0**
+**Last Updated: 2025-08-28**
+
+> ⚠️ **Note**: Dit document is vervangen door het canonieke [Validation Orchestrator V2](validation_orchestrator_v2.md) document. Gebruik dat document voor de meest actuele informatie.
+
 ## Executive Summary
 
 Dit document beschrijft de voorgestelde migratie van de huidige gemengde validatie-implementatie naar een dedicated **Validation Orchestrator** module. Deze architectuurwijziging verbetert modulariteit, testbaarheid en schaalbaarheid door validatie als een first-class concern te behandelen.

@@ -246,11 +246,7 @@ class InputValidator:
             "begrip",
             r"^[a-zA-Z0-9\s\-_()]+$",
             message="Term contains invalid characters",
-        ).required(
-            "context_dict"
-        ).type_check(
-            "context_dict", dict
-        ).custom(
+        ).required("context_dict").type_check("context_dict", dict).custom(
             "context_dict",
             self._validate_context_dict,
             "Invalid context dictionary structure",
@@ -268,13 +264,9 @@ class InputValidator:
             "voorsteller",
             r"^[a-zA-Z\s\-']+$",
             message="Proposer name contains invalid characters",
-        ).type_check(
-            "datum", str
-        ).pattern(
+        ).type_check("datum", str).pattern(
             "datum", r"^\d{4}-\d{2}-\d{2}$", message="Date must be in YYYY-MM-DD format"
-        ).type_check(
-            "ketenpartners", list
-        ).custom(
+        ).type_check("ketenpartners", list).custom(
             "ketenpartners",
             self._validate_ketenpartners,
             "Invalid ketenpartners format",

@@ -76,7 +76,9 @@ class DefinitionGeneratorTab:
         confidence_color = (
             "green"
             if check_result.confidence > 0.8
-            else "orange" if check_result.confidence > 0.5 else "red"
+            else "orange"
+            if check_result.confidence > 0.5
+            else "red"
         )
         st.markdown(
             f"**Vertrouwen:** <span style='color: {confidence_color}'>{check_result.confidence:.1%}</span>",
@@ -732,7 +734,9 @@ class DefinitionGeneratorTab:
         score_color = (
             "green"
             if validation_result.overall_score > 0.8
-            else "orange" if validation_result.overall_score > 0.6 else "red"
+            else "orange"
+            if validation_result.overall_score > 0.6
+            else "red"
         )
         st.markdown(
             f"**Overall Score:** <span style='color: {score_color}'>{validation_result.overall_score:.2f}</span>",

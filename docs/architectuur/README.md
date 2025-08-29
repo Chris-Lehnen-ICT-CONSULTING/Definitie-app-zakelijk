@@ -4,6 +4,14 @@
 
 This directory contains the complete architecture documentation for the DefinitieAgent project, including Enterprise Architecture (EA) and Solution Architecture (SA) documents with automated synchronization and validation.
 
+### Documentatie-organisatie scripts (toelichting)
+Deze scripts gaan over documentstructuur en consistentie (niet over applicatiecode):
+- `scripts/hooks/check-doc-location.py`: pre-commit controle op juiste mappen + relocatie‑suggesties.
+- `scripts/migrate-documents-fase3.sh`: verplaats/hernoem docs volgens structuur. Eerst `--dry-run`, alleen maintainers met `--execute`.
+- `scripts/architecture_validator.py`: valideert EA/SA op scheiding van concerns, overlap, templates.
+- `scripts/architecture_sync.py`: synchroniseert gedeelde secties/metadata (ADR‑referenties, metrics) tussen EA en SA.
+Zie ook: CONTRIBUTING.md → “Documentatie‑organisatie (alleen maintainers)”.
+
 ## 🎯 Hoofddocumenten
 
 | Document | Doel | Status | Laatste Update |
@@ -20,12 +28,15 @@ This directory contains the complete architecture documentation for the Definiti
 ## 📁 Directory Structuur
 
 ### Core Documenten
+
 - **Enterprise Architecture** - Business view inclusief product portfolio status
 - **Solution Architecture** - Technische view met feature implementation details
 - **Product Delivery Tracker** - Sprint voortgang en blockers
 
 ### [beslissingen/](./beslissingen/)
+
 Architecture Decision Records (ADRs) - Belangrijke architectuur beslissingen
+
 - ADR-001: Monolithische Structuur
 - ADR-002: Features First Development
 - ADR-003: Legacy Code als Specificatie
@@ -33,13 +44,17 @@ Architecture Decision Records (ADRs) - Belangrijke architectuur beslissingen
 - ADR-005: Service Architecture Evolution
 
 ### [templates/](./templates/)
+
 Herbruikbare templates en voorbeelden
+
 - Enterprise Architecture Template
 - Solution Architecture Template
 - Cross-reference Guide
 
 ### [_archive/](./archive/)
+
 Gearchiveerde documentatie
+
 - 2024-01-* - Eerdere analyses en reviews
 - 2025-08-20-reorganization - Duplicate documenten van reorganisatie
 
@@ -53,7 +68,8 @@ Gearchiveerde documentatie
 ## 📊 Product & Architectuur Status
 
 ### Overall Product Completion: 26%
-```
+
+```text
 Features: 23/87 complete (26%)
 Epics Status:
 ├─ Basis Definitie: ████████░░ 80% ✅
@@ -68,6 +84,7 @@ Epics Status:
 ```
 
 ### Critical Blockers
+
 - 🔴 No Authentication (cannot deploy)
 - 🔴 Single-user database (SQLite locks)
 - 🔴 Missing Web Lookup (core feature)
@@ -86,6 +103,25 @@ Epics Status:
 - **Diagrammen**: Mermaid (.mmd) of PlantUML (.puml)
 - **Updates**: Altijd versie en datum bijwerken
 
+## 📝 Voor Documentatie Schrijvers
+
+### Belangrijke Richtlijnen
+
+- **Geen code in deze directory** - alleen documentatie
+- Gebruik de juiste subdirectory voor je document type
+- ADRs volgen het ADR-XXX-titel.md formaat
+- Contracts hebben altijd een versienummer
+
+### Document Validatie Tools
+
+Voor maintainers zijn er hulpscripts beschikbaar om documentatie kwaliteit te waarborgen:
+
+- **Locatie check**: De pre-commit hook controleert automatisch of documenten in de juiste directories staan
+- **EA/SA validatie**: `python scripts/architecture_validator.py` controleert scheiding van concerns
+- **Synchronisatie**: `python scripts/architecture_sync.py` houdt gedeelde secties consistent
+
+⚠️ **Let op**: Document migratie scripts zijn alleen voor maintainers. Zie [CONTRIBUTING.md](../../CONTRIBUTING.md#documentatie-organisatie-alleen-maintainers) voor details.
+
 ## 🚧 Onderhoud
 
 | Document | Laatste Update | Review Cyclus | Owner |
@@ -100,6 +136,7 @@ Epics Status:
 ## 🔄 Recente Updates (2025-08-20)
 
 ### Architectuur Reorganisatie Voltooid
+
 - ✅ EA uitgebreid met Product Portfolio Status (Section 8)
 - ✅ SA uitgebreid met Feature Registry (Section 12) en Tech Debt (Section 13)
 - ✅ Nieuw PRODUCT_DELIVERY_TRACKER.md voor sprint tracking
