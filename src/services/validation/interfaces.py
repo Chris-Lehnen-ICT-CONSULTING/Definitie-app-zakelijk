@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import Any
 from uuid import UUID
 
-from models.definition import Definition
+from services.interfaces import Definition
 from typing_extensions import NotRequired, TypedDict
 
 # Contract version voor schema compliance

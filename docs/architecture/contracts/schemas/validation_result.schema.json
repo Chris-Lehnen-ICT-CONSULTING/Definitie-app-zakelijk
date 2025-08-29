@@ -10,7 +10,8 @@
     "is_acceptable",
     "violations",
     "passed_rules",
-    "detailed_scores"
+    "detailed_scores",
+    "system"
   ],
   "properties": {
     "version": {

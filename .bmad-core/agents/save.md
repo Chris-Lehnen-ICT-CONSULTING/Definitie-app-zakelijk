@@ -1,4 +1,7 @@
+# /save
+
 ---
+
 description: Maak checkpoint (samenvatting) en update latest.md
 allowed-tools: Bash(claude-save:*)
 ---
