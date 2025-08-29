@@ -1,0 +1,74 @@
+name: Contract Tests
+
+on:
+  pull_request:
+    paths:
+      - 'src/services/validation/**'
+      - 'src/services/interfaces/**'
+      - 'tests/contracts/**'
+      - 'docs/architecture/contracts/**'
+  push:
+    branches:
+      - main
+      - 'feat/story-*'
+
+jobs:
+  contract-validation:
+    runs-on: ubuntu-latest
+    name: Validation Contract Tests
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Cache pip packages
+      uses: actions/cache@v4
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest pytest-asyncio jsonschema
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+    - name: Run contract tests
+      env:
+        PYTHONPATH: src
+      run: |
+        pytest tests/contracts/ -v --tb=short -m contract || pytest tests/contracts/ -v --tb=short
+
+    - name: Validate schema files
+      run: |
+        python -c "
+        import json
+        import jsonschema
+        from pathlib import Path
+
+        schema_dir = Path('docs/architecture/contracts/schemas')
+        if schema_dir.exists():
+            for schema_file in schema_dir.glob('*.schema.json'):
+                print(f'Validating {schema_file.name}...')
+                with open(schema_file) as f:
+                    schema = json.load(f)
+                # Basic schema validation
+                jsonschema.Draft202012Validator.check_schema(schema)
+                print(f'✓ {schema_file.name} is valid')
+        "
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: contract-test-results
+        path: |
+          pytest.xml
+          .coverage
+        retention-days: 30

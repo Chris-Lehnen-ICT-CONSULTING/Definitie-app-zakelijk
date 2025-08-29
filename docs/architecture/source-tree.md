@@ -415,6 +415,7 @@ services/
 ├── definition_service.py    # Definitie business logic
 ├── orchestrators/          # Service-specifieke orchestrators
 │   ├── definition_orchestrator_v2.py
+│   ├── validation_orchestrator_v2.py
 │   └── prompt_orchestrator.py
 ├── prompts/               # Prompt management
 │   ├── base_module.py    # Base prompt module
@@ -653,7 +654,7 @@ graph TD
 | Repository | `src/services/definition_repository.py`, `src/database/definitie_repository.py` | `src/infrastructure/database/definition_repository_<db>.py` + `DefinitionRepositoryInterface` | Repository pattern; paging/filtering; N+1 oplossen |
 | Web Lookup | `src/services/modern_web_lookup_service.py` | `src/services/web_lookup/modern_web_lookup_service.py` + interface | Timeouts/retries configurabel; UI‑tab gebruikt moderne service |
 | Prompts | `src/services/definition_generator_prompts.py` | `src/services/prompts/*` + PromptBuilder‑interface | Golden tests voor prompts; orchestrator vraagt builder |
-| Validatie | `src/services/definition_validator.py`, `src/toetsregels/*` | `src/services/validator` (interface) + regels ongewijzigd | 45/46 regels behouden; ontbrekende regel toevoegen |
+| Validatie | `src/services/definition_validator.py`, `src/toetsregels/*` | `src/services/orchestrators/validation_orchestrator_v2.py` + `src/services/interfaces/validation.py` | ValidationOrchestratorV2 scheidt validatie van definitie-generatie; moderne validator als dependency |
 | UI | `src/ui/tabbed_interface.py`, `src/ui/components/*` | UI→Services (via factory/container) | Geen DB/OpenAI imports in UI; feature flags voor cutover |
 
 ## Stepping Plan (kort)
