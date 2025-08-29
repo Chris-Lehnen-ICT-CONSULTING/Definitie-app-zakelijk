@@ -1,5 +1,15 @@
 # Coding Standards - DefinitieAgent
 
+## Wijzigingshistorie
+
+- 2025-08-28: Consistentie en veiligheid
+  - Python versie gesynchroniseerd naar 3.11+
+  - Loggingvoorbeelden gecorrigeerd (`logger.warning/error`)
+  - Caching-decorator voorbeeld aansluitend op project (`cached`)
+  - NL‑naamgeving aangescherpt met uitzonderingen voor externe API’s/logging
+  - Inline commentaar richtlijn genuanceerd (focus op complexe/business‑kritieke logica)
+  - Security- en concurrency‑richtlijnen toegevoegd
+
 ## Overzicht
 
 Dit document beschrijft de coding standards en conventies voor het DefinitieAgent project. Deze standards zorgen voor consistentie, leesbaarheid en onderhoudbaarheid van de codebase.
@@ -10,7 +20,7 @@ Dit document beschrijft de coding standards en conventies voor het DefinitieAgen
 2. **Consistentie**: Volg bestaande patronen in de codebase
 3. **Documentatie**: Documenteer ALLE code met Nederlandse commentaren voor niet-programmeurs
 4. **Testing**: Schrijf tests voor nieuwe functionaliteit
-5. **Nederlands**: Alle code, commentaar en documentatie in het Nederlands
+5. **Nederlands**: Gebruik Nederlandse namen voor eigen code (variabelen, functies, classes) en schrijf commentaar/docstrings in het Nederlands. Uitzonderingen: externe API’s, logging‑levels, HTTP‑methoden en protocollen blijven Engels.
 
 ## Python Code Standards
 
@@ -168,14 +178,14 @@ try:
     resultaat = await ai_service.genereer(prompt)
 except RateLimietFout as e:
     # We hebben te veel verzoeken gedaan, wacht even
-    logger.waarschuwing(f"Rate limiet bereikt: {e}")
+    logger.warning("Rate limiet bereikt: %s", e)
     # Wacht het aantal seconden dat de API aangeeft
     await asyncio.sleep(e.wacht_seconden)
     # Probeer opnieuw met langzamere snelheid
     return await self.probeer_opnieuw_met_vertraging(prompt)
 except AIServiceFout as e:
     # Er ging iets mis met de AI service
-    logger.fout(f"AI service fout: {e}")
+    logger.error("AI service fout: %s", e, exc_info=True)
     # Geef een duidelijke foutmelding door
     raise DefinitieGeneratieFout(f"Kon geen definitie genereren: {e}")
 
@@ -245,7 +255,7 @@ def bereken_vertrouwensscore(
 
 ### Code Comments
 
-**BELANGRIJK**: Alle code moet voorzien worden van inline commentaar in het Nederlands dat uitlegt wat de code doet voor niet-programmeurs.
+**BELANGRIJK**: Voor complexe of business‑kritieke logica schrijf inline commentaar in het Nederlands dat uitlegt wat de code doet en waarom, gericht op niet‑programmeurs. Voor triviale code volstaat duidelijke naamgeving.
 
 ```python
 # Correct - Legt uit WAT en WAAROM in begrijpelijke taal
@@ -290,11 +300,11 @@ def bereken_vertrouwensscore(definitie: Definitie, validatie_resultaten: List[Va
         Een getal tussen 0.0 en 1.0 dat aangeeft hoe betrouwbaar de definitie is
 
     Raises:
-        FoutmeldinWaarde: Als er geen validatieresultaten zijn
+        ValueError: Als er geen validatieresultaten zijn
     """
     # Controleer eerst of we wel validatieresultaten hebben
     if not validatie_resultaten:
-        raise FoutmeldinWaarde("Kan geen score berekenen zonder validatieresultaten")
+        raise ValueError("Kan geen score berekenen zonder validatieresultaten")
 
     # Tel hoeveel validaties geslaagd zijn
     aantal_geslaagd = 0
@@ -400,7 +410,9 @@ api_sleutel = "sk-1234567890abcdef"  # NOOIT DOEN! Dit is een veiligheidsrisico
 
 ```python
 # Gebruik caching voor dure operaties
-@gecached(ttl=3600)  # Cache voor 1 uur (3600 seconden)
+from utils.cache import cached
+
+@cached(ttl=3600)  # Cache voor 1 uur (3600 seconden)
 async def haal_verrijkte_definitie_op(term: str) -> VerrijkteDefinitie:
     """Haalt definitie op met extra informatie (duurt lang)."""
     # Stap 1: Haal de basis definitie op
@@ -517,6 +529,26 @@ Voor performance-kritieke code:
 1. Documenteer performance requirements
 2. Include benchmarks in tests
 3. Consider sync alternatives waar async overhead te groot is
+
+## Security Coding Standards
+
+- Geen `bare except`; vang specifieke excepties en geef context.
+- Nooit secrets hardcoderen; gebruik `.env`/secret store; log geen secrets/PII.
+- Valideer en sanitize alle invoer (XSS/SQLi); gebruik bestaande validator/sanitizer.
+- Gebruik TLS; verifieer certificaten standaard.
+- Principle of least privilege voor DB/API‑sleutels en service accounts.
+
+## Docstring Stijl en Tools
+
+- Docstrings in Nederlands, Google‑style (Sphinx Napoleon compatibel).
+- Documenteer parameters, returnwaarden en uitzonderingen consequent.
+- Gebruik type hints als bron voor documentatiegeneratie.
+
+## Versies en Tools (bron van waarheid)
+
+- Python: 3.11+
+- Formatter: Black (line‑length 88)
+- Linter: Ruff (regels zoals geconfigureerd in `pyproject.toml`)
 
 ### External Dependencies
 
