@@ -61,6 +61,8 @@ Fixes #(issue number)
 - [ ] I have added tests that prove my fix is effective or that my feature works
 - [ ] New and existing unit tests pass locally with my changes
 - [ ] Any dependent changes have been merged and published
+- [ ] Contract schema validation uitgevoerd (if applicable)
+- [ ] ValidationResult contract compliance verified (if applicable)
 
 ## 🚀 Deployment Notes
 <!-- Any special deployment considerations -->
@@ -80,6 +82,9 @@ Fixes #(issue number)
 Flag name: `FEATURE_`
 Default value:
 Rollback procedure:
+
+- [ ] Flag default = false verified in code and tests
+- [ ] Rollback procedure documented and tested
 
 ## 👥 Reviewers Checklist
 <!-- For reviewers to check -->

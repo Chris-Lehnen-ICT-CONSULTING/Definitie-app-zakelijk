@@ -11,7 +11,7 @@ related:
   - validation_orchestrator_rollout.md
   - validation_observability_privacy.md
 see-also:
-  - ADR-006-validation-orchestrator-separation.md
+  - ../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md
 owner: Dev Lead
 created: 2024-12-29
 updated: 2024-12-29
@@ -172,7 +172,7 @@ def get_retry_delay(attempt: int, base_delay: float = 1.0) -> float:
       "actual": 35
     }
   },
-  "correlation_id": "req-123e4567-e89b",
+  "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
   "timestamp": "2024-12-29T10:30:00Z"
 }
 ```
@@ -185,7 +185,7 @@ def get_retry_delay(attempt: int, base_delay: float = 1.0) -> float:
     {"code": "VAL-JUR-002", "message": "..."}
   ],
   "partial_results": [...],
-  "correlation_id": "req-123e4567-e89b"
+  "correlation_id": "550e8400-e29b-41d4-a716-446655440000"
 }
 ```
 

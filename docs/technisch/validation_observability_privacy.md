@@ -42,7 +42,7 @@ validation.cache.memory_usage_mb
 logger.debug(
     "Validation started",
     extra={
-        "correlation_id": "uuid-here",
+        "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
         "method": "validate_definition",
         "flags": {"feature_x": True}
     }
@@ -55,7 +55,7 @@ logger.debug(
 logger.info(
     "Validation completed",
     extra={
-        "correlation_id": "uuid-here",
+        "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
         "duration_ms": 234,
         "score_bucket": "high",  # Niet exact score
         "cache_hit": True
@@ -68,7 +68,7 @@ logger.info(
 logger.warning(
     "Validation slow",
     extra={
-        "correlation_id": "uuid-here",
+        "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
         "duration_ms": 5234,
         "threshold_ms": 2000
     }
@@ -80,7 +80,7 @@ logger.warning(
 logger.error(
     "Validation failed",
     extra={
-        "correlation_id": "uuid-here",
+        "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
         "error_code": "VAL-SVC-001",
         "error_category": "service_unavailable"
         # GEEN user input of definitie content!

@@ -33,6 +33,22 @@ class AIServiceV2(AIServiceInterface):
 **Prioriteit**: HOOG
 **Geschatte tijd**: 2-3 dagen
 
+#### ValidationOrchestratorV2
+```python
+# Nodig: src/services/orchestrators/validation_orchestrator_v2.py
+class ValidationOrchestratorV2(ValidationOrchestratorInterface):
+    async def validate_text(text: str, context: ValidationContext) -> ValidationResult
+    async def validate_definition(definition: Definition) -> ValidationResult
+    async def batch_validate(items: List[Validatable]) -> List[ValidationResult]
+```
+**Status**: ⚠️ IN DEVELOPMENT (Epic 2)
+**Prioriteit**: KRITISCH (blocks DefinitionOrchestrator V2 migration)
+**Geschatte tijd**: 3 weken (Epic 2: 6 stories, 36 points)
+**Dependencies**: 
+- ValidationOrchestratorInterface (Story 2.1)
+- Modern validator in src/validation/
+- Feature flag VALIDATION_ORCHESTRATOR_V2
+
 #### ValidationServiceV2
 ```python
 # Nodig: src/services/validation_service_v2.py
@@ -43,7 +59,7 @@ class ValidationServiceV2(ValidationServiceInterface):
     ) -> ValidationResult
 ```
 **Status**: Gebruikt legacy validator
-**Prioriteit**: HOOG
+**Prioriteit**: MEDIUM (na ValidationOrchestrator)
 **Geschatte tijd**: 3-4 dagen
 
 ### 2. Enhancement Services (BELANGRIJK)
