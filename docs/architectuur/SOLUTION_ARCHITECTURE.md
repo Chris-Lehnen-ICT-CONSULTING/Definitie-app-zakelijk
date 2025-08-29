@@ -584,6 +584,38 @@ def test_no_ui_dependencies():
 - Alle servicecalls via interfaces/factory/container; contracttests groen; prompt‑goldens stabiel.
 - Feature flags “modern‑only” aan zonder regressies (smoke per tab).
 
+---
+
+## Knowledge Preservation Plan (Nieuw – 2025-08-28)
+
+- Inventarisatie: volledige lijst van legacy functies, regels, prompts en gebruikshotspots (rapport per module).
+- Mappingtabel: legacy → nieuwe modules (1:1 of 1:n), inclusief uitzonderingen en rationale.
+- Golden datasets: input→output snapshots van kritieke casussen en randgevallen (regressiecontrole).
+- Shims + telemetrie: dual‑run/ shadow‑mode van legacy paden met diff‑rapportage en drempelwaarden.
+- Catalogi: Rule Catalog (regel, rationale, voorbeelden, beslisnotities) en Prompt Catalog (variant, constraints, token budget, voorbeelden).
+- Lineage/metadata: voeg `legacy_origin`, `ruleset_version`, `prompt_version`, bronverwijzingen toe aan definities.
+- ADR’s: leg ontwerpkeuzes en context vast (alternatieven, consequenties) per wijziging.
+
+Acceptatiecriteria (kennisbehoud)
+- 100% van legacy regels en prompts gemapt en gedocumenteerd.
+- ≥ 90% match op golden set (of expliciet verbeterd) met verklaarde verschillen.
+- Catalogi en ADR’s gepubliceerd en versie‑beheerd.
+- Telemetrie toont 0 onbekende legacy‑aanroepen bij uitfasering.
+
+---
+
+## Appendix A: Reference Interfaces (niet‑bindend)
+
+Doel: illustratieve contracten om modularisatie te sturen; implementatie volgt na governance‑go/no‑go. Dit documenteert intentie zonder code te wijzigen.
+
+- AIProviderInterface: uniforme chat/completion API (OpenAI/Azure/lokaal)
+  - `chat(messages: list[Message], model: str, temperature: float, max_tokens: int) -> (content: str, tokens_used: int)`
+
+- PromptBuilderInterface: scheidt promptopbouw van services/orchestrator
+  - `build_prompt(begrip: str, context: Any) -> str`
+
+Opmerking: deze referenties dienen als richtlijn voor toekomstige implementaties; de huidige code blijft ongewijzigd totdat een expliciet migratie‑besluit is genomen.
+
 ### 2.2 Frontend Evolution Strategy
 
 #### Phased UI Migration Approach
