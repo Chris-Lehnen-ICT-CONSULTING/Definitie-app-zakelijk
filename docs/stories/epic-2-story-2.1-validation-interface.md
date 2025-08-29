@@ -22,52 +22,51 @@
 
 ## Acceptance Criteria
 
-### AC1: Interface Definition Complete
-- [ ] `src/services/interfaces/validation.py` exists met complete interface definitie
-- [ ] Interface bevat alle 3 async methods: `validate_text()`, `validate_definition()`, `batch_validate()`
-- [ ] Type hints zijn volledig gedefinieerd voor alle parameters en return types
-- [ ] Interface follows Python ABC (Abstract Base Class) pattern
+### AC1: Interface Definition Complete (async‑first, expliciete domeinvelden)
+- [ ] `src/services/interfaces/validation.py` bestaat met complete interface definitie
+- [ ] Interface bevat 3 async methods:
+  - `validate_text(begrip: str, text: str, ontologische_categorie: str | None = None, context: ValidationContext | None = None) -> ValidationResult`
+  - `validate_definition(definition: Definition, context: ValidationContext | None = None) -> ValidationResult`
+  - `batch_validate(items: Iterable[ValidationRequest], parallelism: int = 1) -> list[ValidationResult]`
+- [ ] Type hints volledig voor alle parameters en return types
+- [ ] Interface volgt Python ABC‑pattern (of Protocol indien passend)
 
-### AC2: ValidationResult Contract Compliance
-- [ ] ValidationResult dataclass matches JSON Schema exact contract
-- [ ] All required fields zijn gedefinieerd met correct types
-- [ ] Optional fields hebben proper defaults
-- [ ] Dataclass supports JSON serialization/deserialization
+### AC2: ValidationResult Contract Compliance (schema‑eerste)
+- [ ] `ValidationResult` is contract‑gebonden aan `validation_result.schema.json` (TypedDict/Pydantic of runtime schema‑validatie aan de boundary)
+- [ ] Alle verplichte velden aanwezig met correcte types (incl. `version`, `overall_score`, `is_acceptable`, `violations`, `passed_rules`, `detailed_scores`, `system.correlation_id` als UUID)
+- [ ] Optionele velden (o.a. `improvement_suggestions`, `system.timings`) worden alleen toegevoegd indien relevant
+- [ ] Contracttests valideren responses tegen het JSON Schema
 
-### AC3: Validation Context Support
-- [ ] ValidationContext dataclass supports correlation_id tracking
-- [ ] Context supports profile/rule configuratie per validation request
-- [ ] Context allows voor custom metadata passing
+### AC3: Validation Context Support (privacy‑bewust)
+- [ ] `ValidationContext` (frozen dataclass) bevat minimaal: `correlation_id: UUID`, `profile: str | None`, `locale: str | None`, `trace_parent: str | None`, `feature_flags: dict[str, bool]`
+- [ ] Geen PII in context (geen user_id/e‑mail). Extra metadata via `feature_flags` of gecontroleerde `metadata: Mapping[str, Any]` indien noodzakelijk
+- [ ] Context is optioneel in API; bij ontbreken genereert de implementatie zelf een `correlation_id`
 
-### AC4: Contract Testing Framework
-- [ ] Contract tests validate interface compliance tegen JSON Schema
-- [ ] Tests verificeren all required fields in ValidationResult
-- [ ] Tests validate error code format (VAL-XXX-000 pattern)
-- [ ] Mock implementatie available voor downstream testing
+### AC4: Contract & Error Testing Framework
+- [ ] Contracttests valideren interface‑responses tegen JSON Schema (happy/edge)
+- [ ] Tests verifiëren alle verplichte velden + `violations[*].code` patroon `^[A-Z]{3}-[A-Z]{3}-\d{3}$`
+- [ ] Mock implementatie beschikbaar voor downstream (returns schema‑conforme resultaten)
+- [ ] Degraded‑pad test: operationele fout resulteert in schema‑conform resultaat met `SYS-...` code en `system.error`
 
 ## Technical Tasks
 
 ### Core Interface Implementation
 - [ ] Create `src/services/interfaces/validation.py`
 - [ ] Define `ValidationOrchestratorInterface` abstract base class
-- [ ] Implement `validate_text(text: str, context: ValidationContext) -> ValidationResult`
-- [ ] Implement `validate_definition(definition: Definition) -> ValidationResult`
-- [ ] Implement `batch_validate(items: List[Validatable]) -> List[ValidationResult]`
-- [ ] Add comprehensive type hints en docstrings
+- [ ] Signatures met expliciete domeinvelden (zie AC1)
+- [ ] `ValidationRequest` (frozen) met `begrip`, `text`, `ontologische_categorie?`, `context?`
+- [ ] Uitgebreide docstrings (parameters, returns, errorbeleid)
 
 ### Data Structures
-- [ ] Create `ValidationResult` dataclass in `src/models/validation.py`
-- [ ] Create `ValidationContext` dataclass
-- [ ] Create `RuleViolation` dataclass voor violation objects
-- [ ] Add JSON serialization methods (`to_dict()`, `from_dict()`)
-- [ ] Add `__str__` en `__repr__` methods voor debugging
+- [ ] Create `ValidationContext` (frozen dataclass)
+- [ ] Create `ValidationRequest` (frozen dataclass)
+- [ ] `ValidationResult` niet als eigen dataclass; koppel aan JSON Schema via TypedDict/Pydantic of boundary‑validatie
 
 ### Contract Testing
 - [ ] Create `tests/contracts/test_validation_interface.py`
-- [ ] Implement JSON Schema validation tests
-- [ ] Create reference ValidationResult fixtures
-- [ ] Add contract compliance test suite
-- [ ] Create mock ValidationOrchestrator implementatie
+- [ ] JSON Schema validatie van responses (happy/edge/degraded)
+- [ ] Reference fixtures voor `ValidationResult` conform schema (incl. echte UUID voor `system.correlation_id`)
+- [ ] Mock `ValidationOrchestrator` implementatie
 
 ### Documentation
 - [ ] Add interface documentation in docstrings
@@ -91,7 +90,12 @@
 ### Happy Path
 ```python
 # Should successfully validate interface contract
-result = await orchestrator.validate_text("sample text", context)
+result = await orchestrator.validate_text(
+    begrip="natuurlijk persoon",
+    text="mens van vlees en bloed ...",
+    ontologische_categorie="juridisch",
+    context=ctx,
+)
 assert isinstance(result, ValidationResult)
 assert result.version == "1.0.0"
 assert 0.0 <= result.overall_score <= 1.0
@@ -100,24 +104,21 @@ assert 0.0 <= result.overall_score <= 1.0
 ### Edge Cases
 ```python
 # Empty text validation
-result = await orchestrator.validate_text("", context)
+result = await orchestrator.validate_text(begrip="x", text="", context=ctx)
 assert result.is_acceptable == False
 
 # Large batch validation
-items = [create_test_item() for _ in range(100)]
-results = await orchestrator.batch_validate(items)
+items = [ValidationRequest(begrip="a", text="...", context=ctx) for _ in range(100)]
+results = await orchestrator.batch_validate(items, parallelism=1)
 assert len(results) == 100
 ```
 
 ### Error Handling
 ```python
-# Invalid context should raise appropriate error
-with pytest.raises(ValidationError):
-    await orchestrator.validate_text("test", None)
-
-# Network timeout should return degraded result
-result = await orchestrator.validate_text("test", context, timeout=0.001)
-assert result.system.error is not None
+# Operational timeout should return degraded result (no exception)
+result = await orchestrator.validate_text(begrip="x", text="test", context=ctx)
+assert isinstance(result.system.get("correlation_id"), str)
+assert result.version == "1.0.0"
 ```
 
 ## Dependencies
