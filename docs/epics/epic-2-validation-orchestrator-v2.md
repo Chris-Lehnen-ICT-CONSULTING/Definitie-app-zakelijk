@@ -2,7 +2,7 @@
 
 **Status**: Ready for Development
 **Priority**: Critical
-**Size**: Large (6 stories, 36 story points)
+**Size**: Large (6 stories, ~34 story points)
 **Dependencies**: Epic 1 (V2 AI Service Migration) ✅ COMPLETED
 
 ## Epic Overview
@@ -154,7 +154,7 @@ Zodat **we risico minimaliseren en snel kunnen reageren op issues**.
 ## Technical Decisions
 
 ### ADR References
-- [ADR-006: ValidationOrchestratorV2 Design](../architecture/decisions/ADR-006-validation-orchestrator-v2.md)
+- [ADR-006: ValidationOrchestratorV2 Design](../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
 
 ### Key Design Choices
 1. **Async-first**: Geen sync wrappers of adapters

@@ -3,7 +3,7 @@
 **Status: CANONICAL**
 **Version: 1.0.0**
 **Last Updated: 2025-08-29**
-**Previous Version: [Archived Migration Doc](../ARCHIEF/validation/validation-orchestrator-migration.md)**
+**Previous Version: [Archived Migration Doc](../archief/validation/validation-orchestrator-migration.md)**
 
 Dit document beschrijft de rationale, architectuur en migratiestappen om validatie te scheiden in een eigen, moderne V2‑orchestrator, conform de EA/SA‑principes. Het doel is een duidelijke verantwoordelijkheidsscheiding, hergebruikbare validatieflows en beter testbare, async‑vriendelijke modules.
 

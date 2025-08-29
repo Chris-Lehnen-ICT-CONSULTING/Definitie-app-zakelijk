@@ -109,7 +109,7 @@ VALIDATION_ORCHESTRATOR_V2 = os.getenv("VALIDATION_ORCHESTRATOR_V2", "false").lo
 - [Validation Orchestrator V2 Design](../validation_orchestrator_v2.md)
 - [ValidationResult Contract](../contracts/validation_result_contract.md)
 - [Implementation Workflow](../../workflows/VALIDATION_ORCHESTRATOR_V2_IMPLEMENTATION_WORKFLOW.md)
-- [Original Migration Doc (Archived)](../../ARCHIEF/validation/validation-orchestrator-migration.md)
+- [Original Migration Doc (Archived)](../../archief/validation/validation-orchestrator-migration.md)
 
 ## Decision
 

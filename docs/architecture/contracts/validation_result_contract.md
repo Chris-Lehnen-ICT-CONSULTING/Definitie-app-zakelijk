@@ -205,7 +205,7 @@ except Exception as e:
     "samenhang": 0.88
   },
   "system": {
-    "correlation_id": "req-123e4567-e89b",
+    "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
     "engine_version": "2.1.0",
     "profile_used": "default",
     "duration_ms": 145
