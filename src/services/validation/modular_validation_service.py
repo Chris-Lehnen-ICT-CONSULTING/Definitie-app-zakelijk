@@ -416,6 +416,10 @@ class ModularValidationService:
         if TYPE_CHECKING:
             pass
 
+        # Handle None or empty list
+        if not items:
+            return []
+
         results = []
 
         if max_concurrency == 1:
