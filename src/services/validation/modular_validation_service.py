@@ -18,6 +18,45 @@ from .aggregation import calculate_weighted_score, determine_acceptability
 from .types_internal import EvaluationContext
 
 
+class ValidationResultWrapper:
+    """Wrapper class om dict result als object properties toegankelijk te maken.
+
+    Maakt het mogelijk om zowel dict-style access (result['key']) als
+    attribute-style access (result.key) te gebruiken. Map ook is_valid
+    naar is_acceptable voor backwards compatibility met orchestrator.
+    """
+
+    def __init__(self, data: dict[str, Any]):
+        self._data = data
+
+    def __getattr__(self, name: str) -> Any:
+        # Map is_valid naar is_acceptable voor backwards compatibility
+        if name == "is_valid":
+            return self._data.get("is_acceptable", False)
+        return self._data.get(name)
+
+    def __getitem__(self, key: str) -> Any:
+        return self._data[key]
+
+    def __contains__(self, key: str) -> bool:
+        return key in self._data
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self._data.get(key, default)
+
+    def keys(self):
+        return self._data.keys()
+
+    def values(self):
+        return self._data.values()
+
+    def items(self):
+        return self._data.items()
+
+    def __repr__(self):
+        return f"ValidationResultWrapper({self._data!r})"
+
+
 class ModularValidationService:
     """Eenvoudige modulaire validatie met deterministische resultaten.
 
@@ -194,7 +233,8 @@ class ModularValidationService:
             "detailed_scores": detailed,
             "system": {"correlation_id": correlation_id},
         }
-        return result
+        # Return wrapper voor backwards compatibility met orchestrator
+        return ValidationResultWrapper(result)
 
     # Interne regel-evaluatie (houd simpel en deterministisch)
     def _evaluate_rule(
