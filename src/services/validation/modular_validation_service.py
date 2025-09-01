@@ -8,6 +8,7 @@ dit uitgebreid worden om ToetsregelManager en Python-regelmodules te gebruiken.
 
 from __future__ import annotations
 
+import logging
 import re
 import uuid
 from typing import Any
@@ -16,6 +17,8 @@ from services.validation.interfaces import CONTRACT_VERSION
 
 from .aggregation import calculate_weighted_score, determine_acceptability
 from .types_internal import EvaluationContext
+
+logger = logging.getLogger(__name__)
 
 
 class ValidationResultWrapper:
@@ -56,6 +59,10 @@ class ValidationResultWrapper:
     def __repr__(self):
         return f"ValidationResultWrapper({self._data!r})"
 
+    def to_dict(self) -> dict[str, Any]:
+        """Convert to plain dictionary for JSON serialization."""
+        return self._data
+
 
 class ModularValidationService:
     """Eenvoudige modulaire validatie met deterministische resultaten.
@@ -75,26 +82,30 @@ class ModularValidationService:
         self.cleaning_service = cleaning_service
         self.config = config
 
-        # Interne default regelset (kan later vervangen worden door ToetsregelManager)
-        self._internal_rules: list[str] = [
-            "VAL-EMP-001",
-            "VAL-LEN-001",
-            "VAL-LEN-002",
-            "ESS-CONT-001",
-            "CON-CIRC-001",
-            "STR-TERM-001",
-            "STR-ORG-001",
-        ]
-        # Default gewichten (overschrijfbaar via config.weights)
-        self._default_weights: dict[str, float] = {
-            "VAL-EMP-001": 1.0,
-            "VAL-LEN-001": 0.9,
-            "VAL-LEN-002": 0.6,
-            "ESS-CONT-001": 1.0,
-            "CON-CIRC-001": 0.8,
-            "STR-TERM-001": 0.5,
-            "STR-ORG-001": 0.7,
-        }
+        # Load rules from ToetsregelManager if available, otherwise use defaults
+        if self.toetsregel_manager is not None:
+            self._load_rules_from_manager()
+        else:
+            # Interne default regelset (fallback als geen ToetsregelManager)
+            self._internal_rules: list[str] = [
+                "VAL-EMP-001",
+                "VAL-LEN-001",
+                "VAL-LEN-002",
+                "ESS-CONT-001",
+                "CON-CIRC-001",
+                "STR-TERM-001",
+                "STR-ORG-001",
+            ]
+            # Default gewichten (overschrijfbaar via config.weights)
+            self._default_weights: dict[str, float] = {
+                "VAL-EMP-001": 1.0,
+                "VAL-LEN-001": 0.9,
+                "VAL-LEN-002": 0.6,
+                "ESS-CONT-001": 1.0,
+                "CON-CIRC-001": 0.8,
+                "STR-TERM-001": 0.5,
+                "STR-ORG-001": 0.7,
+            }
         # Acceptatiedrempel (overschrijfbaar via config.thresholds.overall_accept)
         self._overall_threshold: float = 0.75
         if getattr(self.config, "thresholds", None):
@@ -108,6 +119,66 @@ class ModularValidationService:
                 pass
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
+    def _load_rules_from_manager(self) -> None:
+        """Load rules from ToetsregelManager if available."""
+        try:
+            # Get all available rules from manager
+            all_rules = self.toetsregel_manager.get_all_regels()
+
+            if all_rules:
+                self._internal_rules = list(all_rules.keys())
+                self._default_weights = {}
+
+                # Extract weights from rule metadata
+                for rule_id, rule_data in all_rules.items():
+                    # Use priority to determine weight
+                    priority = rule_data.get("prioriteit", "midden")
+                    if priority == "hoog":
+                        weight = 1.0
+                    elif priority == "midden":
+                        weight = 0.7
+                    else:  # laag
+                        weight = 0.4
+
+                    # Override with specific weight if provided
+                    if "weight" in rule_data:
+                        weight = float(rule_data["weight"])
+
+                    self._default_weights[rule_id] = weight
+
+                logger.info(
+                    f"Loaded {len(self._internal_rules)} rules from ToetsregelManager"
+                )
+            else:
+                # Fall back to defaults if no rules available
+                self._set_default_rules()
+
+        except Exception as e:
+            logger.warning(f"Could not load rules from ToetsregelManager: {e}")
+            # Fall back to defaults on error
+            self._set_default_rules()
+
+    def _set_default_rules(self) -> None:
+        """Set default rules when ToetsregelManager is not available."""
+        self._internal_rules = [
+            "VAL-EMP-001",
+            "VAL-LEN-001",
+            "VAL-LEN-002",
+            "ESS-CONT-001",
+            "CON-CIRC-001",
+            "STR-TERM-001",
+            "STR-ORG-001",
+        ]
+        self._default_weights = {
+            "VAL-EMP-001": 1.0,
+            "VAL-LEN-001": 0.9,
+            "VAL-LEN-002": 0.6,
+            "ESS-CONT-001": 1.0,
+            "CON-CIRC-001": 0.8,
+            "STR-TERM-001": 0.5,
+            "STR-ORG-001": 0.7,
+        }
+
     def _get_rule_evaluation_order(
         self,
     ) -> list[str]:  # pragma: no cover - used by optional test
@@ -229,8 +300,9 @@ class ModularValidationService:
             "detailed_scores": detailed,
             "system": {"correlation_id": correlation_id},
         }
-        # Return wrapper voor backwards compatibility met orchestrator
-        return ValidationResultWrapper(result)
+        # Return plain dict voor JSON serialisatie
+        # De orchestrator verwacht een dict, niet een wrapper
+        return result
 
     # Interne regel-evaluatie (houd simpel en deterministisch)
     def _evaluate_rule(
@@ -323,3 +395,72 @@ class ModularValidationService:
         if code.startswith("ESS-") or code.startswith("VAL-"):
             return "juridisch"
         return "system"
+
+    async def batch_validate(
+        self,
+        items: list[Any],
+        max_concurrency: int = 1,
+    ) -> list[dict[str, Any]]:
+        """Batch validatie van meerdere items.
+
+        Args:
+            items: List van ValidationRequest objects of tuples
+            max_concurrency: Maximum parallelle validaties (default: sequentieel)
+
+        Returns:
+            List van ValidationResult dicts in zelfde volgorde als input
+        """
+        import asyncio
+        from typing import TYPE_CHECKING
+
+        if TYPE_CHECKING:
+            pass
+
+        results = []
+
+        if max_concurrency == 1:
+            # Sequentiële verwerking
+            for item in items:
+                if hasattr(item, "begrip"):
+                    # ValidationRequest object
+                    result = await self.validate_definition(
+                        begrip=item.begrip,
+                        text=item.text,
+                        ontologische_categorie=item.ontologische_categorie,
+                        context=item.context.__dict__ if item.context else None,
+                    )
+                elif isinstance(item, tuple):
+                    begrip, text = item
+                    result = await self.validate_definition(begrip, text)
+                else:
+                    result = await self.validate_definition(
+                        item.get("begrip", ""), item.get("text", "")
+                    )
+                results.append(result)
+        else:
+            # Parallelle verwerking met semaphore voor concurrency control
+            semaphore = asyncio.Semaphore(max_concurrency)
+
+            async def validate_with_semaphore(item):
+                async with semaphore:
+                    if hasattr(item, "begrip"):
+                        return await self.validate_definition(
+                            begrip=item.begrip,
+                            text=item.text,
+                            ontologische_categorie=item.ontologische_categorie,
+                            context=item.context.__dict__ if item.context else None,
+                        )
+                    elif isinstance(item, tuple):
+                        begrip, text = item
+                        return await self.validate_definition(begrip, text)
+                    else:
+                        return await self.validate_definition(
+                            item.get("begrip", ""), item.get("text", "")
+                        )
+
+            # Voer alle validaties parallel uit
+            results = await asyncio.gather(
+                *[validate_with_semaphore(item) for item in items]
+            )
+
+        return results
