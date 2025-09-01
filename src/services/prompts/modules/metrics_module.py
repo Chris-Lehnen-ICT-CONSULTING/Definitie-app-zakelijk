@@ -51,7 +51,7 @@ class MetricsModule(BasePromptModule):
             f"(detailed={self.include_detailed_metrics}, history={self.track_history})"
         )
 
-    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
+    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:  # noqa: ARG002
         """
         Deze module draait altijd maar kan optioneel zijn.
 
@@ -77,7 +77,11 @@ class MetricsModule(BasePromptModule):
         try:
             # Verzamel basis informatie
             begrip = context.begrip
-            org_contexts = context.enriched_context.org_contexts
+
+            # Extract org_contexts from base_context (fix compatibility issue)
+            base_context = context.enriched_context.base_context
+            org_contexts = base_context.get("organisatorisch", [])
+
             char_limits = self._get_char_limits(context)
 
             # Bereken metrics
