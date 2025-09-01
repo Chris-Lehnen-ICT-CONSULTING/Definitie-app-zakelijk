@@ -65,4 +65,5 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - Contract: `docs/architecture/contracts/validation_result_contract.md`
 - Schema: `docs/architecture/contracts/schemas/validation_result.schema.json`
 - Error catalogus: `docs/technisch/error_catalog_validation.md`
-- Story: `docs/stories/epic-2-story-2.1-validation-interface.md`
+- Story 2.1: `docs/stories/epic-2-story-2.1-validation-interface.md`
+- Story 2.3 Tests: `docs/testing/story-2.3-test-implementation.md`
