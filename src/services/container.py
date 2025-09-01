@@ -11,14 +11,14 @@ from typing import TYPE_CHECKING, Any
 
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_repository import DefinitionRepository
-from services.definition_validator import DefinitionValidator, ValidatorConfig
+
+# Legacy DefinitionValidator removed - using V2 orchestrator for validation
 from services.duplicate_detection_service import DuplicateDetectionService
 from services.interfaces import (
     CleaningServiceInterface,
     DefinitionGeneratorInterface,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
-    DefinitionValidatorInterface,
     WebLookupServiceInterface,
 )
 from services.modern_web_lookup_service import ModernWebLookupService
@@ -110,11 +110,7 @@ class ServiceContainer:
             gpt=gpt_config, quality=quality_config, monitoring=monitoring_config
         )
 
-        self.validator_config = ValidatorConfig(
-            enable_all_rules=self.config.get("enable_all_rules", True),
-            min_score_threshold=self.config.get("min_score_threshold", 0.6),
-            enable_suggestions=self.config.get("enable_suggestions", True),
-        )
+        # Legacy validator config removed - V2 orchestrator handles validation
 
         # Cleaning service configuratie
         from services.cleaning_service import CleaningConfig
@@ -144,17 +140,7 @@ class ServiceContainer:
             logger.info("DefinitionOrchestratorV2 instance aangemaakt als generator")
         return self._instances["generator"]
 
-    def validator(self) -> DefinitionValidatorInterface:
-        """
-        Get of create DefinitionValidator instance.
-
-        Returns:
-            Singleton instance van DefinitionValidator
-        """
-        if "validator" not in self._instances:
-            self._instances["validator"] = DefinitionValidator(self.validator_config)
-            logger.info("DefinitionValidator instance aangemaakt")
-        return self._instances["validator"]
+    # Legacy validator() method removed - validation now handled by V2 orchestrator
 
     def repository(self) -> DefinitionRepositoryInterface:
         """
