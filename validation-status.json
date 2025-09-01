@@ -1,0 +1,37 @@
+{
+  "last_updated": "2025-09-01T15:30:46.386046",
+  "components": {
+    "modular_validation_service": {
+      "status": "working",
+      "message": "Service operational",
+      "test_score": 0.85,
+      "rules_tested": 7,
+      "violations": 1
+    },
+    "validation_config": {
+      "status": "working",
+      "message": "Config loaded successfully",
+      "rules_count": 7,
+      "threshold": 0.75
+    },
+    "container_integration": {
+      "status": "working",
+      "message": "Container integration functional",
+      "has_validation_service": true
+    },
+    "toetsregel_manager": {
+      "status": "working",
+      "message": "ToetsregelManager operational",
+      "rules_available": 45
+    },
+    "test_suite": {
+      "status": "working",
+      "message": "Contract tests passed",
+      "output": "_contract.py:72\n  /Users/chrislehnen/Projecten/Definitie-app/tests/services/test_modular_validation_service_contract.py:72: PytestUnknownMarkWarning: Unknown pytest.mark.contract - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html\n    @pytest.mark.contract\n\n-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html\n======================== 3 passed, 6 warnings in 0.06s =========================\n"
+    }
+  },
+  "test_results": {},
+  "connections": {},
+  "overall_health": "healthy",
+  "health_score": 100.0
+}
