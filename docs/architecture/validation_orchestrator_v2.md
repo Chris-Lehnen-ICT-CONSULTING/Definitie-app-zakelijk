@@ -1,9 +1,37 @@
 # Validation Orchestrator V2 — Architectuur & Migratieplan
 
-**Status: CANONICAL**
+**Status: CANONICAL - IMPLEMENTED (Story 2.1 & 2.2)**
 **Version: 1.0.0**
 **Last Updated: 2025-08-29**
 **Previous Version: [Archived Migration Doc](../archief/validation/validation-orchestrator-migration.md)**
+
+## Implementation Status
+- ✅ **Story 2.1**: ValidationOrchestratorInterface - COMPLETED
+- ✅ **Story 2.2**: Core Implementation - COMPLETED
+- ⏳ **Story 2.3**: Container Wiring - PENDING
+- ⏳ **Story 2.4**: Integration & Migration - PENDING
+- ⏳ **Story 2.5**: Testing & QA - PENDING
+- ⏳ **Story 2.6**: Production Rollout - PENDING
+
+## Implementation Details
+
+### Core Files (Story 2.2)
+- `src/services/orchestrators/validation_orchestrator_v2.py` - Thin orchestration layer (135 lines)
+- `src/services/validation/interfaces.py` - ValidationOrchestratorInterface & TypedDict contracts
+- `src/services/validation/mappers.py` - Dataclass → Schema conversion
+- `src/services/feature_flags.py` - Shadow mode & canary deployment support
+
+### Error Policy
+- **Degraded Mode**: Operationele fouten resulteren in SYS-SVC-001 violations
+- **No Exceptions**: Alle paden retourneren ValidationResult
+- **Correlation Tracking**: UUID propagatie door hele stack
+
+### Context Propagation
+Volledige context wordt doorgegeven:
+- `correlation_id` - Voor distributed tracing
+- `profile` - Voor validatie profiel selectie
+- `locale` - Voor taal-specifieke validatie
+- `feature_flags` - Voor runtime configuratie
 
 Dit document beschrijft de rationale, architectuur en migratiestappen om validatie te scheiden in een eigen, moderne V2‑orchestrator, conform de EA/SA‑principes. Het doel is een duidelijke verantwoordelijkheidsscheiding, hergebruikbare validatieflows en beter testbare, async‑vriendelijke modules.
 

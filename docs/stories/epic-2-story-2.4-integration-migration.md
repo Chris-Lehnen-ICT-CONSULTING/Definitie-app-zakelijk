@@ -40,11 +40,11 @@
 - [ ] Background job validation migrated
 - [ ] Batch processing flows updated
 
-### AC4: Backward Compatibility Layer
+### AC4: Clean Cutover Validation
 - [ ] Existing API contracts maintained (no breaking changes)
-- [ ] Legacy response formats supported during transition
-- [ ] Feature flag enables gradual migration
-- [ ] Deprecation notices added voor old patterns
+- [ ] Legacy response formats supported via mapping
+- [ ] V1 adapter fully removed from dependency injection
+- [ ] Golden tests validate business logic preservation
 
 ## Technical Tasks
 
