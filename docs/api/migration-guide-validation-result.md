@@ -67,7 +67,7 @@ Update your code to use dictionary access:
 # Before
 if validation_result.is_valid:
     score = validation_result.score
-    
+
 # After
 if validation_result.get("is_acceptable", False):
     score = validation_result.get("overall_score", 0.0)
@@ -81,19 +81,19 @@ Create a wrapper to maintain object-style access:
 class ValidationResultAdapter:
     def __init__(self, result_dict):
         self._data = result_dict
-    
+
     @property
     def is_valid(self):
         return self._data.get("is_acceptable", False)
-    
+
     @property
     def score(self):
         return self._data.get("overall_score", 0.0)
-    
+
     @property
     def errors(self):
         return self._data.get("violations", [])
-    
+
     def __getitem__(self, key):
         return self._data[key]
 
@@ -186,7 +186,7 @@ def test_validation():
     result = Mock()
     result.is_valid = True
     result.score = 0.85
-    
+
 # After
 def test_validation():
     result = {
@@ -203,7 +203,7 @@ def test_validation():
 @patch('validator.validate')
 def test_integration(mock_validate):
     mock_validate.return_value.is_valid = True
-    
+
 # After
 @patch('validator.validate_definition')
 async def test_integration(mock_validate):
