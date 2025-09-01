@@ -82,8 +82,6 @@ class ModularValidationService:
             "VAL-LEN-002",
             "ESS-CONT-001",
             "CON-CIRC-001",
-            "LANG-INF-001",
-            "LANG-MIX-001",
             "STR-TERM-001",
             "STR-ORG-001",
         ]
@@ -94,8 +92,6 @@ class ModularValidationService:
             "VAL-LEN-002": 0.6,
             "ESS-CONT-001": 1.0,
             "CON-CIRC-001": 0.8,
-            "LANG-INF-001": 0.6,
-            "LANG-MIX-001": 0.7,
             "STR-TERM-001": 0.5,
             "STR-ORG-001": 0.7,
         }
@@ -292,36 +288,6 @@ class ModularValidationService:
                 )
             return 1.0, None
 
-        # Informele taal
-        if code == "LANG-INF-001":
-            if re.search(
-                r"\b(enzo|zo'n|ding|internetten|spelen enzo)\b",
-                text_norm,
-                re.IGNORECASE,
-            ):
-                return 0.0, vio("LANG-INF-001", "Informeel taalgebruik gedetecteerd")
-            return 1.0, None
-
-        # Gemengde taal NL/EN (zeer basaal: aanwezigheid van bekende Engelse termen)
-        if code == "LANG-MIX-001":
-            en_terms = [
-                "software",
-                "framework",
-                "developers",
-                "builden",
-                "clients",
-                "protocol",
-            ]
-            if any(
-                term.lower() in text_norm.lower() for term in en_terms
-            ) and re.search(
-                r"\b(de|het|een|worden|waarbij|die|dat)\b", text_norm, re.IGNORECASE
-            ):
-                return 0.0, vio(
-                    "LANG-MIX-001", "Gemengd taalgebruik (NL/EN) gedetecteerd"
-                )
-            return 1.0, None
-
         # Terminologie/structuur kleine kwestie (bijv. ontbrekende koppelteken)
         if code == "STR-TERM-001":
             if "HTTP protocol" in text_norm:
@@ -350,8 +316,6 @@ class ModularValidationService:
         return 1.0, None
 
     def _category_for(self, code: str) -> str:
-        if code.startswith("LANG-"):
-            return "taal"
         if code.startswith("STR-"):
             return "structuur"
         if code.startswith("CON-"):
