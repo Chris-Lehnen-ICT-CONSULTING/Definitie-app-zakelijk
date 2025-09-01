@@ -240,7 +240,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             )
 
             logger.info(
-                f"Generation {generation_id}: Validation complete (valid: {validation_result.is_valid})"
+                f"Generation {generation_id}: Validation complete (valid: {validation_result.get('is_acceptable', False)})"
             )
 
             # =====================================
@@ -248,13 +248,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             was_enhanced = False
             if (
-                not validation_result.is_valid
+                not validation_result.get("is_acceptable", False)
                 and self.config.enable_enhancement
                 and self.enhancement_service
             ):
                 enhanced_text = await self.enhancement_service.enhance_definition(
                     cleaned_text,
-                    validation_result.violations,
+                    validation_result.get("violations", []),
                     context=sanitized_request,
                 )
 
@@ -297,7 +297,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 9: Storage (Conditional on Quality Gate)
             # =====================================
             definition_id = None
-            if validation_result.is_valid:
+            if validation_result.get("is_acceptable", False):
                 definition_id = await self._safe_save_definition(definition)
                 logger.info(
                     f"Generation {generation_id}: Definition saved (ID: {definition_id})"
@@ -314,7 +314,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 10: Feedback Loop Update (GVI Rode Kabel)
             # =====================================
-            if not validation_result.is_valid and self.feedback_engine:
+            if (
+                not validation_result.get("is_acceptable", False)
+                and self.feedback_engine
+            ):
                 await self.feedback_engine.process_validation_feedback(
                     definition_id=generation_id,
                     validation_result=validation_result,
@@ -335,7 +338,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                 await self.monitoring.complete_generation(
                     generation_id=generation_id,
-                    success=validation_result.is_valid,
+                    success=validation_result.get("is_acceptable", False),
                     duration=time.time() - start_time,
                     token_count=token_count,
                     components_used=(
@@ -350,7 +353,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             final_duration = time.time() - start_time
             logger.info(
                 f"Generation {generation_id}: Complete in {final_duration:.2f}s, "
-                f"valid={validation_result.is_valid}"
+                f"valid={validation_result.get('is_acceptable', False)}"
             )
 
             return DefinitionResponseV2(
@@ -430,8 +433,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             context=request.context,
             domein=request.domein,
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
-            valid=validation_result.is_valid,
-            validation_violations=validation_result.violations,
+            valid=validation_result.get("is_acceptable", False),
+            validation_violations=validation_result.get("violations", []),
             metadata=generation_metadata,
             created_by=request.actor,
             created_at=datetime.now(timezone.utc),
