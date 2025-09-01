@@ -7,6 +7,13 @@ handling initialization, configuration, and launching the main user interface.
 """
 
 import logging
+import sys
+from pathlib import Path
+
+# Add src directory to Python path for proper imports
+src_path = Path(__file__).parent
+if str(src_path) not in sys.path:
+    sys.path.insert(0, str(src_path))
 
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
 from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand

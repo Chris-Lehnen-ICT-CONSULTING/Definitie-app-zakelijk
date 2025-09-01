@@ -60,7 +60,7 @@ sequence item 0: expected str instance, dict found
 #### 1. Batch Validation (Priority 1)
 ```python
 async def batch_validate(
-    self, 
+    self,
     definitions: list[Definition],
     max_concurrency: int = 5
 ) -> list[ValidationResult]:
@@ -109,17 +109,17 @@ if isinstance(validation_result, dict):
 async def batch_validate(self, definitions, max_concurrency=5):
     """Batch validation met concurrency control."""
     import asyncio
-    
+
     async def validate_with_semaphore(sem, definition):
         async with sem:
             return await self.validate_definition(
                 definition.begrip,
                 definition.text
             )
-    
+
     semaphore = asyncio.Semaphore(max_concurrency)
     tasks = [
-        validate_with_semaphore(semaphore, d) 
+        validate_with_semaphore(semaphore, d)
         for d in definitions
     ]
     return await asyncio.gather(*tasks)
@@ -188,7 +188,7 @@ async def test():
     result = await o.create_definition(request)
     print(f'Valid: {result.valid}')
     print(f'Score: {result.score}')
-    
+
 asyncio.run(test())
 "
 
@@ -249,11 +249,11 @@ import asyncio
 
 async def test():
     svc = ModularValidationService()
-    
+
     # Test lege definitie
     result = await svc.validate_definition('test', '')
     print(f'Empty: {result.is_valid}, Score: {result.overall_score}')
-    
+
     # Test goede definitie
     result = await svc.validate_definition('test', 'Een goede definitie met voldoende informatie.')
     print(f'Good: {result.is_valid}, Score: {result.overall_score}')
