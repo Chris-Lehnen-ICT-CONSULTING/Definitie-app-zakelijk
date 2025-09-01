@@ -225,14 +225,11 @@ class ServiceAdapter:
                 "final_definitie": response.definition.definitie,  # Voor legacy UI compatibility
                 "marker": response.definition.metadata.get("marker", ""),
                 "toetsresultaten": (
-                    response.validation_result.metadata.get(
-                        "toetsresultaten", response.validation_result.errors
-                    )
-                    if response.validation_result
-                    and hasattr(response.validation_result, "metadata")
+                    response.validation_result.get("violations", [])
+                    if response.validation_result and isinstance(response.validation_result, dict)
                     else (
                         response.validation_result.errors
-                        if response.validation_result
+                        if response.validation_result and hasattr(response.validation_result, "errors")
                         else []
                     )
                 ),
@@ -240,14 +237,22 @@ class ServiceAdapter:
                     response.validation_result if response.validation_result else None
                 ),
                 "validation_score": (
-                    response.validation_result.score
-                    if response.validation_result
-                    else 0.0
+                    response.validation_result.get("overall_score", 0.0)
+                    if response.validation_result and isinstance(response.validation_result, dict)
+                    else (
+                        response.validation_result.score
+                        if response.validation_result and hasattr(response.validation_result, "score")
+                        else 0.0
+                    )
                 ),
                 "final_score": (
-                    response.validation_result.score
-                    if response.validation_result
-                    else 0.0
+                    response.validation_result.get("overall_score", 0.0)
+                    if response.validation_result and isinstance(response.validation_result, dict)
+                    else (
+                        response.validation_result.score
+                        if response.validation_result and hasattr(response.validation_result, "score")
+                        else 0.0
+                    )
                 ),
                 "voorbeelden": response.definition.voorbeelden or [],
                 "processing_time": response.definition.metadata.get(
