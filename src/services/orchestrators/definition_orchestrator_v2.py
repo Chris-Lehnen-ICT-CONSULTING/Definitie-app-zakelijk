@@ -10,6 +10,7 @@ Key improvements:
 - DPIA/AVG compliance with PII redaction
 - Performance optimization with caching
 - Ontological category support (fixes template selection bug)
+- Story 2.4: Uses ValidationOrchestratorInterface for clean separation of concerns
 """
 
 import logging
@@ -33,8 +34,8 @@ from services.interfaces import (
     PromptServiceInterface as PromptServiceV2,
     SecurityServiceInterface as SecurityService,
     ValidationResult,
-    ValidationServiceInterface as ValidationServiceV2,
 )
+from services.validation.interfaces import ValidationOrchestratorInterface
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         # Core generation services (required)
         prompt_service: "PromptServiceV2",
         ai_service: "IntelligentAIService",
-        validation_service: "ValidationServiceV2",
+        validation_service: "ValidationOrchestratorInterface",
         cleaning_service: "CleaningServiceInterface",
         repository: "DefinitionRepositoryInterface",
         # Optional services
@@ -79,7 +80,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         if not ai_service:
             raise ValueError("AIServiceInterface is required")
         if not validation_service:
-            raise ValueError("ValidationServiceInterface is required")
+            raise ValueError("ValidationOrchestratorInterface is required")
         if not cleaning_service:
             raise ValueError("CleaningServiceInterface is required")
         if not repository:
@@ -232,11 +233,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 6: Validation
             # =====================================
-            # V2 validation service (always available through adapter)
-            validation_result = await self.validation_service.validate_definition(
-                sanitized_request.begrip,
-                cleaned_text,
+            # Use ValidationOrchestratorInterface.validate_text
+            from services.validation.interfaces import ValidationContext
+
+            validation_context = ValidationContext(
+                correlation_id=uuid.UUID(generation_id),
+                metadata={"generation_id": generation_id},
+            )
+            validation_result = await self.validation_service.validate_text(
+                begrip=sanitized_request.begrip,
+                text=cleaned_text,
                 ontologische_categorie=sanitized_request.ontologische_categorie,
+                context=validation_context,
             )
 
             logger.info(
@@ -258,11 +266,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     context=sanitized_request,
                 )
 
-                # Re-validate enhanced text
-                validation_result = await self.validation_service.validate_definition(
-                    sanitized_request.begrip,
-                    enhanced_text,
+                # Re-validate enhanced text with new context
+                enhanced_context = ValidationContext(
+                    correlation_id=uuid.UUID(generation_id),
+                    metadata={"generation_id": generation_id, "enhanced": True},
+                )
+                validation_result = await self.validation_service.validate_text(
+                    begrip=sanitized_request.begrip,
+                    text=enhanced_text,
                     ontologische_categorie=sanitized_request.ontologische_categorie,
+                    context=enhanced_context,
                 )
 
                 cleaned_text = enhanced_text
