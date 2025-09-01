@@ -51,7 +51,7 @@ class MetricsModule(BasePromptModule):
             f"(detailed={self.include_detailed_metrics}, history={self.track_history})"
         )
 
-    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:  # noqa: ARG002
+    def validate_input(self, context: ModuleContext) -> tuple[bool, str | None]:
         """
         Deze module draait altijd maar kan optioneel zijn.
 

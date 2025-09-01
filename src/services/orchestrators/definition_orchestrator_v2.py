@@ -381,6 +381,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
                     "enhanced": was_enhanced,
+                    "prompt_text": prompt_result.text,  # Add prompt text for UI display
+                    "voorbeelden": getattr(
+                        generation_result, "voorbeelden", {}
+                    ),  # Add voorbeelden if available
                 },
             )
 

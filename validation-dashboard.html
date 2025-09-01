@@ -338,15 +338,15 @@
             .components-grid {
                 grid-template-columns: 1fr;
             }
-            
+
             .status-overview {
                 grid-template-columns: repeat(2, 1fr);
             }
-            
+
             .connection-flow {
                 flex-direction: column;
             }
-            
+
             .update-controls {
                 flex-direction: column;
                 align-items: center;
@@ -379,11 +379,11 @@
                 </div>
             </div>
             <div class="status-card">
-                <h3>Connecties</h3>
-                <div class="status-number verified" id="connections-count">3</div>
-                <div>Werkend</div>
+                <h3>Legacy Cleanup</h3>
+                <div class="status-number pending" id="cleanup-count">50%</div>
+                <div>Story 2.4 ToDo</div>
                 <div class="progress-bar">
-                    <div class="progress-fill" style="width: 60%"></div>
+                    <div class="progress-fill" style="width: 50%"></div>
                 </div>
             </div>
             <div class="status-card">
@@ -543,11 +543,11 @@
                     </div>
                     <div class="component-item missing">
                         <div class="component-info">
-                            <div class="component-name">V1 Adapter Verwijdering</div>
+                            <div class="component-name">⚠️ ValidationServiceAdapterV1toV2</div>
                             <div class="component-path">src/services/adapters/validation_service_adapter.py</div>
-                            <div class="component-description">Legacy adapter uit DI container verwijderen</div>
+                            <div class="component-description">🚨 LEGACY ADAPTER BESTAAT NOG! Story 2.4 moet dit verwijderen</div>
                         </div>
-                        <div class="status-indicator status-missing">Te Doen</div>
+                        <div class="status-indicator status-missing">Story 2.4</div>
                     </div>
                 </div>
             </div>
@@ -611,15 +611,29 @@
                 <div class="flow-arrow">→</div>
                 <div class="flow-item">ValidationResult</div>
             </div>
-            
+
             <div style="margin-top: 20px;">
-                <h3 style="text-align: center; margin-bottom: 15px; color: #e74c3c;">Ontbrekende Connecties</h3>
+                <h3 style="text-align: center; margin-bottom: 15px; color: #e74c3c;">🚨 Story 2.4 Legacy Cleanup</h3>
                 <div class="connection-flow">
-                    <div class="flow-item missing-connection">ModularValidationService</div>
-                    <div class="flow-arrow">❌</div>
-                    <div class="flow-item missing-connection">ToetsregelManager</div>
-                    <div class="flow-arrow">❌</div>
-                    <div class="flow-item missing-connection">45+ External Rules</div>
+                    <div class="flow-item missing-connection">ValidationServiceAdapterV1toV2</div>
+                    <div class="flow-arrow">🗑️</div>
+                    <div class="flow-item missing-connection">Legacy Response Mapping</div>
+                    <div class="flow-arrow">🗑️</div>
+                    <div class="flow-item missing-connection">Direct Validator Calls</div>
+                </div>
+                <div style="text-align: center; margin-top: 15px; color: #e74c3c; font-weight: bold;">
+                    Deze legacy components moeten allemaal weg in Story 2.4!
+                </div>
+            </div>
+
+            <div style="margin-top: 20px;">
+                <h3 style="text-align: center; margin-bottom: 15px; color: #f39c12;">⚠️ Partiële Connecties</h3>
+                <div class="connection-flow">
+                    <div class="flow-item" style="background: #f39c12 !important;">ModularValidationService</div>
+                    <div class="flow-arrow">⚠️</div>
+                    <div class="flow-item" style="background: #f39c12 !important;">ToetsregelManager (45 regels beschikbaar)</div>
+                    <div class="flow-arrow">⚠️</div>
+                    <div class="flow-item" style="background: #f39c12 !important;">Interne regels gebruikt</div>
                 </div>
             </div>
         </div>
@@ -645,9 +659,13 @@
                 <button class="btn btn-primary" onclick="runHealthCheck()">🔍 Health Check</button>
                 <button class="btn btn-success" onclick="testValidation()">✅ Test Validatie</button>
                 <button class="btn btn-warning" onclick="refreshStatus()">🔄 Ververs Status</button>
+                <button class="btn" style="background: #e74c3c; color: white;" onclick="checkLegacyCleanup()">🚨 Check Legacy</button>
             </div>
             <div class="last-updated" id="last-updated">
                 Laatste update: <span id="update-timestamp">2025-01-09 15:30</span>
+            </div>
+            <div style="margin-top: 20px; padding: 15px; background: #fff3cd; border-left: 4px solid #ffc107; border-radius: 5px;">
+                <strong>⚠️ Story 2.4 Status:</strong> Legacy cleanup nog niet uitgevoerd. ValidationServiceAdapterV1toV2 bestaat nog steeds en moet verwijderd worden!
             </div>
         </div>
     </div>
@@ -670,7 +688,7 @@
             toast.textContent = message;
             toast.style.background = type === 'success' ? '#27ae60' : '#e74c3c';
             toast.style.display = 'block';
-            
+
             setTimeout(() => {
                 toast.style.display = 'none';
             }, 3000);
@@ -684,7 +702,7 @@
 
         function runHealthCheck() {
             showToast('🔍 Health check wordt uitgevoerd...');
-            
+
             // Simulate health check
             setTimeout(() => {
                 const healthy = Math.random() > 0.2; // 80% chance of success
@@ -699,7 +717,7 @@
 
         function testValidation() {
             showToast('🧪 Validatie test wordt uitgevoerd...');
-            
+
             // Simulate validation test
             setTimeout(() => {
                 const success = Math.random() > 0.3; // 70% chance of success
@@ -718,7 +736,7 @@
 
         function refreshStatus() {
             showToast('🔄 Status wordt ververst...');
-            
+
             // Simulate status refresh
             setTimeout(() => {
                 // Randomly update some metrics
@@ -726,15 +744,25 @@
                     componentData.connections = Math.min(componentData.connections + 1, componentData.totalConnections);
                     document.getElementById('connections-count').textContent = componentData.connections;
                 }
-                
+
                 if (Math.random() > 0.7) {
                     componentData.validationRules = Math.min(componentData.validationRules + 1, componentData.totalRules);
                     document.getElementById('rules-count').textContent = componentData.validationRules;
                 }
-                
+
                 showToast('✅ Status bijgewerkt!', 'success');
                 updateTimestamp();
             }, 1000);
+        }
+
+        function checkLegacyCleanup() {
+            showToast('🚨 Legacy cleanup controle...');
+
+            // Simulate legacy check
+            setTimeout(() => {
+                showToast('⚠️ Legacy adapter gevonden! ValidationServiceAdapterV1toV2 moet weg in Story 2.4', 'error');
+                updateTimestamp();
+            }, 1500);
         }
 
         // Auto-refresh every 30 seconds
