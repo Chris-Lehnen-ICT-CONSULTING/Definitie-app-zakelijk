@@ -222,18 +222,28 @@ class ServiceContainer:
             )
 
             # Create ModularValidationService (V2)
-            validation_service = ModularValidationService(
+            modular_validation_service = ModularValidationService(
                 get_toetsregel_manager(),
                 None,
                 ValidationConfig.from_yaml("src/config/validation_rules.yaml"),
             )
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
 
+            # Create ValidationOrchestratorV2 wrapping ModularValidationService
+            from services.orchestrators.validation_orchestrator_v2 import (
+                ValidationOrchestratorV2,
+            )
+
+            validation_orchestrator = ValidationOrchestratorV2(
+                validation_service=modular_validation_service,
+                cleaning_service=cleaning_service,
+            )
+
             self._instances["orchestrator"] = DefinitionOrchestratorV2(
                 # Required V2 services
                 prompt_service=prompt_service,
                 ai_service=ai_service,
-                validation_service=validation_service,
+                validation_service=validation_orchestrator,
                 cleaning_service=cleaning_service,
                 repository=self.repository(),
                 # Optional services
