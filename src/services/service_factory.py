@@ -274,11 +274,17 @@ class ServiceAdapter:
                     if response.metadata
                     else ""
                 ),  # Add prompt text from metadata
+                "prompt_template": (
+                    response.metadata.get("prompt_text", "")  # Map prompt_text to prompt_template for UI
+                    if response.metadata
+                    else ""
+                ),
             }
 
-            # Voeg prompt_template ook direct toe voor makkelijkere toegang
+            # Voeg prompt_template ook direct toe voor makkelijkere toegang (alleen als nog niet gezet)
             if (
-                response.definition.metadata
+                not result_dict.get("prompt_template")  # Alleen als nog niet gezet via prompt_text
+                and response.definition.metadata
                 and "prompt_template" in response.definition.metadata
             ):
                 result_dict["prompt_template"] = response.definition.metadata[
