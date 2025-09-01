@@ -306,7 +306,7 @@ class ServiceAdapter:
         """Get statistieken van alle services."""
         return {
             "generator": self.container.generator().get_stats(),
-            "validator": self.container.validator().get_stats(),
+            # Legacy validator removed - validation now handled by V2 orchestrator
             "repository": self.container.repository().get_stats(),
             "orchestrator": self.orchestrator.get_stats(),
         }
