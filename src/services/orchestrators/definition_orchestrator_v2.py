@@ -216,7 +216,50 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.info(f"Generation {generation_id}: AI generation complete")
 
             # =====================================
-            # PHASE 5: Text Cleaning & Normalization
+            # PHASE 5: Generate Voorbeelden (Examples)
+            # =====================================
+            voorbeelden = {}
+            try:
+                from voorbeelden import genereer_alle_voorbeelden
+
+                # Build context_dict for voorbeelden generation
+                voorbeelden_context = {
+                    "organisatorisch": (
+                        [sanitized_request.context] if sanitized_request.context else []
+                    ),
+                    "juridisch": (
+                        context.get("context_dict", {}).get("juridisch", [])
+                        if context
+                        else []
+                    ),
+                    "wettelijk": (
+                        context.get("context_dict", {}).get("wettelijk", [])
+                        if context
+                        else []
+                    ),
+                }
+
+                # Generate voorbeelden using the cleaned text
+                voorbeelden = genereer_alle_voorbeelden(
+                    begrip=sanitized_request.begrip,
+                    definitie=(
+                        generation_result.text
+                        if hasattr(generation_result, "text")
+                        else str(generation_result)
+                    ),
+                    context_dict=voorbeelden_context,
+                )
+                logger.info(
+                    f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
+                )
+            except Exception as e:
+                logger.warning(
+                    f"Generation {generation_id}: Voorbeelden generation failed: {e}"
+                )
+                # Continue without voorbeelden
+
+            # =====================================
+            # PHASE 6: Text Cleaning & Normalization
             # =====================================
             # V2 cleaning service (always available through adapter)
             cleaning_result = await self.cleaning_service.clean_text(
@@ -382,9 +425,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "phases_completed": 11,
                     "enhanced": was_enhanced,
                     "prompt_text": prompt_result.text,  # Add prompt text for UI display
-                    "voorbeelden": getattr(
-                        generation_result, "voorbeelden", {}
-                    ),  # Add voorbeelden if available
+                    "voorbeelden": voorbeelden,  # Add generated voorbeelden
                 },
             )
 

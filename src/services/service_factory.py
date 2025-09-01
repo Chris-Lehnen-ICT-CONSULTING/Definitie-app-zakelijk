@@ -260,11 +260,20 @@ class ServiceAdapter:
                         else 0.0
                     )
                 ),
-                "voorbeelden": response.definition.voorbeelden or [],
+                "voorbeelden": (
+                    response.metadata.get("voorbeelden", {})
+                    if response.metadata
+                    else {}
+                ),
                 "processing_time": response.definition.metadata.get(
                     "processing_time", 0
                 ),
                 "metadata": response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
+                "prompt_text": (
+                    response.metadata.get("prompt_text", "")
+                    if response.metadata
+                    else ""
+                ),  # Add prompt text from metadata
             }
 
             # Voeg prompt_template ook direct toe voor makkelijkere toegang
