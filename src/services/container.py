@@ -200,14 +200,18 @@ class ServiceContainer:
             from services.adapters.cleaning_service_adapter import (
                 CleaningServiceAdapterV1toV2,
             )
-            from services.adapters.validation_service_adapter import (
-                ValidationServiceAdapterV1toV2,
-            )
             from services.ai_service_v2 import AIServiceV2
             from services.interfaces import (
                 OrchestratorConfig as V2OrchestratorConfig,
             )
             from services.prompts.prompt_service_v2 import PromptServiceV2
+            from services.validation.config import ValidationConfig
+
+            # Validation service: cutover to modular V2 implementation
+            from services.validation.modular_validation_service import (
+                ModularValidationService,
+            )
+            from toetsregels.manager import get_toetsregel_manager
 
             v2_config = V2OrchestratorConfig()
 
@@ -217,8 +221,12 @@ class ServiceContainer:
                 default_model=self.generator_config.gpt.model, use_cache=True
             )
 
-            # Create adapters for sync services
-            validation_service = ValidationServiceAdapterV1toV2(self.validator())
+            # Create ModularValidationService (V2)
+            validation_service = ModularValidationService(
+                get_toetsregel_manager(),
+                None,
+                ValidationConfig.from_yaml("src/config/validation_rules.yaml"),
+            )
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
 
             self._instances["orchestrator"] = DefinitionOrchestratorV2(
@@ -334,6 +342,10 @@ class ServiceContainer:
                 repository=repo,
                 data_aggregation_service=data_agg_service,
                 export_dir=export_dir,
+                validation_orchestrator=self.orchestrator(),
+                enable_validation_gate=self.config.get(
+                    "enable_export_validation_gate", False
+                ),
             )
             logger.info("ExportService instance aangemaakt")
         return self._instances["export_service"]
