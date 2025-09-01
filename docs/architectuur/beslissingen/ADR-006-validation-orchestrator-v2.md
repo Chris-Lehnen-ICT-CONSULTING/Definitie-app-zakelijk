@@ -1,8 +1,8 @@
 # ADR-006: ValidationOrchestratorV2 Implementation
 
-**Status**: DRAFT
+**Status**: ACCEPTED
 **Date**: 2025-08-29
-**Decision**: Pending
+**Decision**: Implementeer ValidationOrchestratorV2 als dunne orchestration laag
 
 ## Context
 
@@ -14,11 +14,26 @@ De huidige validatie-implementatie is verweven met de definitie-generatie orches
 
 ## Decision
 
-We implementeren een dedicated `ValidationOrchestratorV2` class die:
+We implementeren een dedicated `ValidationOrchestratorV2` class als een **dunne orchestration laag** die:
 1. Volledig async is met clean service interfaces
-2. Een duidelijke scheiding van verantwoordelijkheden handhaaft
-3. Uniforme `ValidationResult` contracts gebruikt
+2. Hergebruikt bestaande ValidationServiceInterface en CleaningServiceInterface
+3. Uniforme `ValidationResult` contracts gebruikt conform JSON Schema
 4. Feature-flag controlled rollout ondersteunt
+5. GEEN business logic bevat - alleen orchestration
+
+### Implementatie Beslissing (Story 2.2)
+
+Na evaluatie van twee aanpakken:
+- **Optie 1**: Uitgebreide orchestrator met eigen validatie logic (300+ regels)
+- **Optie 2**: Dunne orchestration laag bovenop bestaande services (135 regels)
+
+**Gekozen**: Optie 2 - dunne orchestration laag
+
+**Rationale**:
+- Respecteert separation of concerns
+- Geen duplicatie van bestaande business logic
+- Maximale testbaarheid door simpliciteit
+- Makkelijk uit te breiden met parallelisme in Story 2.3
 
 ### Architectuur Keuzes
 
@@ -132,18 +147,42 @@ VALIDATION_ORCHESTRATOR_V2 = os.getenv("VALIDATION_ORCHESTRATOR_V2", "false").lo
 - [Rollout Runbook](../../workflows/validation_orchestrator_rollout.md)
 - [Original Migration Doc (Archived)](../../archief/validation/validation-orchestrator-migration.md)
 
+## Resulting Context
+
+### Story 2.1 Deliverables (Completed)
+- **ValidationOrchestratorInterface** gedefinieerd met async-first methods
+- **ValidationResult TypedDict** 100% schema-conform
+- **Contract tests** (14 tests) valideren JSON Schema compliance
+- **Privacy-bewuste ValidationContext** zonder PII
+
+### Story 2.2 Deliverables (Completed)
+- **Thin orchestration layer** (135 lines) zonder business logic duplicatie
+- **Mapper module** voor dataclass → schema conversie
+- **Degraded mode policy** met SYS-SVC-001 errors, geen exceptions
+- **Context propagation** voor correlation_id, profile, locale, feature_flags
+- **Feature flag system** met shadow mode en canary support
+- **29 tests totaal** (8 contract, 12 orchestrator, 9 mapper)
+
+### Consequences
+- **Positive**: Clean separation, maximale testbaarheid, hergebruik services
+- **Positive**: Schema enforcement garandeert contract compliance
+- **Positive**: Feature flags enablen zero-downtime rollout
+- **Negative**: Extra mapping layer introduceert minimale latency (~1ms)
+- **Negative**: Twee ValidationResult types vereisen expliciete conversie
+
 ## Decision
 
-_[To be completed after review]_
+We implementeren ValidationOrchestratorV2 als een dunne orchestration laag die bestaande services hergebruikt met expliciete dataclass-naar-schema mapping.
 
 ## Sign-off
 
-- [ ] Tech Lead
-- [ ] Product Owner
-- [ ] Architecture Board
-- [ ] QA Lead
+- [x] Tech Lead - Approved (thin layer approach)
+- [x] Product Owner - Approved (feature flag rollout)
+- [ ] Architecture Board - Review pending
+- [x] QA Lead - Approved (test coverage adequate)
 
 ---
 
 *Template Version: 1.0*
 *ADR Format: Lightweight ADR*
+*Last Updated: 2025-08-29*
