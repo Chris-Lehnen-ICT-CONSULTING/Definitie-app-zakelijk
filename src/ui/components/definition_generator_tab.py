@@ -461,7 +461,9 @@ class DefinitionGeneratorTab:
                     elif "prompt_text" in agent_result:
                         # Support voor nieuwe V2 orchestrator die prompt_text gebruikt
                         prompt_template = agent_result["prompt_text"]
-                        logger.debug("Prompt gevonden als 'prompt_text' in agent_result")
+                        logger.debug(
+                            "Prompt gevonden als 'prompt_text' in agent_result"
+                        )
                     elif "prompt" in agent_result:
                         prompt_template = agent_result["prompt"]
                         logger.debug("Prompt gevonden als 'prompt' in agent_result")
