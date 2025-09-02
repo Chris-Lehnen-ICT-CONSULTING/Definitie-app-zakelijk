@@ -32,6 +32,28 @@ Bronnen:
 
 Toelichting: dit is een representatieve tabel; de exacte set en waarden staan in de YAML‑config en zijn de bron van waarheid.
 
+## Validation Rules Details (harde drempels)
+
+- VAL-LEN-001 (te kort): minder dan 5 woorden of minder dan 15 karakters → fail (0.0) met violation VAL-LEN-001.
+- VAL-LEN-002 (te lang): meer dan 80 woorden of meer dan 600 karakters → fail (0.0) met violation VAL-LEN-002.
+- ESS-CONT-001 (essentie ontbreekt): minder dan 6 woorden → fail (0.0) met ESS-CONT-001.
+- CON-CIRC-001 (circulair): begrip komt (case-insensitive) in de definitietekst voor → major violation.
+- STR-TERM-001/STR-ORG-001 (terminologie/structuur): structurele/terminologie‑issues met impact conform YAML‑gewichten.
+
+NB: berichtteksten zijn implementatie‑details; drempels en codes borgen het beleid.
+
+## Resultaatcontract‑invarianten (ValidationResult)
+
+- Verplichte velden: version, overall_score, is_acceptable, violations, passed_rules, detailed_scores, system.
+- system.correlation_id: altijd aanwezig; UUID (gegenereerd indien niet meegegeven).
+- Violations: deterministisch gesorteerd (stabiele volgorde).
+- is_acceptable: afgeleid van thresholds/weights; overall_accept (YAML) = 0.75.
+
+## Determinisme
+
+- V2‑validatie is deterministisch: bij identieke input/parameters blijft score/violations/detailed_scores gelijk.
+- Golden cases moeten identieke resultaten geven bij herhaalde runs (geen randomness in regels/aggregatie).
+
 ## Quality Thresholds
 
 - Perfect: ≥ 0.80
@@ -44,10 +66,19 @@ Toelichting: dit is een representatieve tabel; de exacte set en waarden staan in
 - Gebruik overheidsterminologie; geen mixed‑language in NL definities.
 - Goedgekeurde definities (established) zijn immutable; wijzigingen via nieuwe versieflow.
 
+NB: Taalregels (LANG‑…) zijn config‑afhankelijk. In de standaard YAML zijn deze niet geactiveerd; golden cases met taal‑mix gelden alleen wanneer de betreffende regels enabled zijn.
+
 ## Duplicate Detection Policy (samenvatting)
 
-- Exact: begrip + context (organisatorisch/juridisch) gelijk → duplicaat.
-- Fuzzy: vergelijk begrip semantisch/normalized; status ‘archived’ wordt niet meegenomen.
+- Exact: begrip + context (organisatorisch/juridisch) exact gelijk (case‑insensitive) → duplicaat.
+- Fuzzy: Jaccard‑similarity op woordsets van begrip met threshold ≥ 0.7.
+- Statusfilter: definitions met status 'archived' worden uitgesloten.
+- Risicobuckets: high (≥ 0.9), medium (≥ 0.8), low (anders).
+
+Voorbeelden:
+- Exact: ("Belasting", context="OM|Strafrecht") ↔ ("Belasting", context="OM|Strafrecht").
+- Fuzzy medium: ("Inspectierapport" ↔ "Rapport inspectie") ≈ 0.8.
+- Geen match: lege of totaal afwijkende begrippen.
 
 ## Artefacten en Tests
 
