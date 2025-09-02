@@ -2,6 +2,7 @@
 Test dat nieuwe services nu default zijn.
 """
 import os
+import pytest
 import sys
 from pathlib import Path
 
@@ -13,6 +14,13 @@ if 'USE_NEW_SERVICES' in os.environ:
     del os.environ['USE_NEW_SERVICES']
 
 print("🧪 Testing nieuwe default services...\n")
+
+# Skip when no API key configured to avoid creating real AI client
+if not os.getenv("OPENAI_API_KEY"):
+    pytest.skip(
+        "OPENAI_API_KEY not set; skipping new-default services test that instantiates AI client",
+        allow_module_level=True,
+    )
 
 # Import service factory
 from services.service_factory import get_definition_service

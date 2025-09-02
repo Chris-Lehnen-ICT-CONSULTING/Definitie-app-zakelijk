@@ -14,12 +14,12 @@ from services.interfaces import (
     ValidationServiceInterface,
     CleaningServiceInterface,
     Definition,
-    ValidationResult,
-    ValidationRequest
 )
 from services.validation.interfaces import (
     ValidationContext,
     ValidationOrchestratorInterface,
+    ValidationRequest,
+    ValidationResult,
 )
 
 
@@ -76,12 +76,16 @@ class TestV2ValidationOrchestrator:
     def mock_validation_service(self):
         """Create mock validation service."""
         service = Mock(spec=ValidationServiceInterface)
-        service.validate_text = AsyncMock(return_value=ValidationResult(
-            is_valid=True,
-            confidence_score=0.85,
-            messages=[],
-            metadata={}
-        ))
+        # TypedDict-style ValidationResult stub
+        service.validate_text = AsyncMock(return_value={
+            "version": "1.0.0",
+            "overall_score": 0.85,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": [],
+            "detailed_scores": {},
+            "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+        })
         return service
 
     @pytest.fixture
@@ -109,9 +113,9 @@ class TestV2ValidationOrchestrator:
         )
 
         assert result is not None
-        assert isinstance(result, ValidationResult)
-        assert result.is_valid is True
-        assert result.confidence_score == 0.85
+        assert isinstance(result, dict)
+        assert result["is_acceptable"] is True
+        assert result["overall_score"] == 0.85
 
     @pytest.mark.asyncio
     async def test_v2_orchestrator_with_context(self, orchestrator):
@@ -142,8 +146,8 @@ class TestV2ValidationOrchestrator:
         result = await orchestrator.validate_definition(definition)
 
         assert result is not None
-        assert isinstance(result, ValidationResult)
-        assert result.is_valid is True
+        assert isinstance(result, dict)
+        assert result["is_acceptable"] is True
 
     @pytest.mark.asyncio
     async def test_v2_orchestrator_batch_validate(self, orchestrator):
@@ -161,8 +165,8 @@ class TestV2ValidationOrchestrator:
 
         assert len(results) == 3
         for result in results:
-            assert isinstance(result, ValidationResult)
-            assert result.is_valid is True
+            assert isinstance(result, dict)
+            assert result["is_acceptable"] is True
 
     @pytest.mark.asyncio
     async def test_v2_orchestrator_with_cleaning(self, orchestrator):
