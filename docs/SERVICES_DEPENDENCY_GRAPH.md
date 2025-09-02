@@ -1,4 +1,11 @@
-# Services Dependency Graph
+---
+canonical: false
+status: archived
+last_verified: 2025-09-02
+notes: Historisch (V1). Voor actuele afhankelijkheden: zie Modular Validation Service en V2 orchestrator in Solution Architecture.
+---
+
+# Services Dependency Graph (Historisch – V1)
 
 ## Visual Dependency Flow
 
@@ -88,7 +95,7 @@ voorbeelden ───────► definition_orchestrator ──────�
 interfaces <──── All Services depend on interfaces
     │
     ├──► DefinitionGeneratorInterface ◄─── implemented by ─── UnifiedDefinitionGenerator
-    ├──► DefinitionValidatorInterface ◄─── implemented by ─── DefinitionValidator
+    ├──► ValidationServiceInterface ◄──── implemented by ─── ModularValidationService (V2)
     ├──► DefinitionRepositoryInterface ◄── implemented by ─── DefinitionRepository
     ├──► DefinitionOrchestratorInterface ◄─ implemented by ─── DefinitionOrchestrator
     └──► WebLookupServiceInterface ◄────── implemented by ─── ModernWebLookupService
@@ -108,7 +115,7 @@ DefinitionOrchestrator
 ServiceContainer
     │
     ├──► UnifiedDefinitionGenerator (creates)
-    ├──► DefinitionValidator (creates)
+    ├──► ModularValidationService (creates)
     ├──► DefinitionRepository (creates)
     ├──► DefinitionOrchestrator (creates with dependencies)
     └──► ModernWebLookupService (creates)
