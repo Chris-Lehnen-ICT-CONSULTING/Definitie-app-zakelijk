@@ -1,3 +1,10 @@
+---
+canonical: true
+status: active
+last_verified: 2025-09-02
+owner: architecture
+---
+
 # Technology Stack - DefinitieAgent
 
 ## Wijzigingshistorie

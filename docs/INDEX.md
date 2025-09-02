@@ -97,6 +97,7 @@ docs/
 - Meerdere LEGACY_, DEPRECATED_, OLD_ prefixes overal
 - Veel "REORGANIZATION" documenten (ironisch!)
 - Meeting notes en evaluaties zijn verouderd
+- **Opgelost:** `architecture` en `architectuur` directories geconsolideerd
 
 ## 📊 Impact van Reorganisatie
 
