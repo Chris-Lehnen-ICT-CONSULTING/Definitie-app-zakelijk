@@ -1,4 +1,17 @@
-# DefinitieAgent Brownfield Enhancement PRD
+---
+canonical: false
+status: archived
+owner: product
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
+# [ARCHIVED] DefinitieAgent Brownfield Enhancement PRD
+
+Deze PRD is gearchiveerd. Voor de actuele architectuur en implementatiestatus:
+- Canoniek: `docs/architectuur/SOLUTION_ARCHITECTURE.md`
+- Validatie V2: `docs/stories/epic-2-story-2.4-integration-migration.md`
+- Health/Status: `reports/status/validation-status.json`
 
 ## Intro Project Analysis and Context
 
