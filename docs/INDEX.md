@@ -119,6 +119,10 @@ docs/
 - Categorie Refactor → `architectuur/CATEGORY-REFACTORING-PLAN.md` (owner: domain)
 - Health/Status (canonical) → `../reports/status/validation-status.json`
 
+## 🧰 Tasks & Checklists
+
+- Backend Refactor Checklist → `tasks/backend-refactor-checklist.md`
+
 Zie ook: `DOCUMENTATION_POLICY.md` voor labels, archivering en reviewregels.
 
 ## 🚀 Volgende Stappen (PR’s)
