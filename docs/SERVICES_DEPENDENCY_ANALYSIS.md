@@ -1,4 +1,11 @@
-# Services Directory Dependency Analysis
+---
+canonical: false
+status: archived
+last_verified: 2025-09-02
+notes: Historisch (V1). Vervangen door V2: ModularValidationService en vernieuwde orchestrator.
+---
+
+# Services Directory Dependency Analysis (Historisch – V1)
 
 ## Import Count Summary
 
@@ -41,7 +48,7 @@
 - `typing` (Any, Dict, List, Optional)
 
 #### Service layer imports (5):
-- `services.interfaces` (Definition, DefinitionGeneratorInterface, DefinitionOrchestratorInterface, DefinitionRepositoryInterface, DefinitionResponse, DefinitionValidatorInterface, GenerationRequest, ValidationResult)
+- `services.interfaces` (Definition, DefinitionGeneratorInterface, DefinitionOrchestratorInterface, DefinitionRepositoryInterface, DefinitionResponse, ValidationServiceInterface, GenerationRequest, ValidationResult)
 - `services.modern_web_lookup_service` (ModernWebLookupService) - conditional
 
 #### Other module imports (0):
@@ -64,7 +71,7 @@
 #### Other module imports (2):
 - `database.definitie_repository` (DefinitieRecord, DefinitieRepository as LegacyRepository, DefinitieStatus, SourceType)
 
-### 4. definition_validator.py
+### 4. definition_validator.py (Legacy – verwijderd)
 **Total imports: 8 unique imports**
 
 #### External dependencies (3):
@@ -73,7 +80,7 @@
 - `typing` (Any, Dict, List, Optional, Set)
 
 #### Service layer imports (1):
-- `services.interfaces` (Definition, DefinitionValidatorInterface, ValidationResult)
+- `services.interfaces` (Definition, ValidationServiceInterface, ValidationResult)
 
 #### Other module imports (2):
 - `toetsregels.manager` (get_toetsregel_manager)
