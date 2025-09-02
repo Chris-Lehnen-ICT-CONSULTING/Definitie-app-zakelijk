@@ -526,3 +526,10 @@ bash scripts/run_app.sh
 ---
 
 Dit technology stack document wordt regelmatig bijgewerkt om de huidige staat van de applicatie te reflecteren.
+---
+canonical: false
+status: active
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---

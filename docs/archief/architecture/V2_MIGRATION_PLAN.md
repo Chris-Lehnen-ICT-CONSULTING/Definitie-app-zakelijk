@@ -1,4 +1,16 @@
-# V2 Orchestrator Migration Plan
+---
+canonical: false
+status: archived
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
+# [ARCHIVED] V2 Orchestrator Migration Plan
+
+Gearchiveerd. Zie actuele bronnen:
+- `docs/architectuur/SOLUTION_ARCHITECTURE.md`
+- `docs/architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md`
 
 ## Executive Summary
 

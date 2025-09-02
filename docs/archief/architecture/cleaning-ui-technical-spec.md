@@ -1,4 +1,15 @@
-# 🏗️ Technische Specificatie: Cleaning UI Componenten
+---
+canonical: false
+status: archived
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
+# [ARCHIVED] Technische Specificatie: Cleaning UI Componenten
+
+Deze versie is gearchiveerd. Actuele informatie staat in:
+- `docs/architectuur/cleaning-ui-technical-spec.md`
 
 **Auteur**: Winston (System Architect)
 **Datum**: 2025-08-25
