@@ -68,6 +68,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         feedback_engine: Optional["FeedbackEngine"] = None,
         # Configuration
         config: OrchestratorConfig | None = None,
+        # Web lookup (Epic 3)
+        web_lookup_service: Optional["WebLookupServiceInterface"] = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -104,6 +106,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
         # Configuration
         self.config = config or OrchestratorConfig()
+
+        # Epic 3: optional web lookup service
+        self.web_lookup_service = web_lookup_service
 
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
@@ -178,6 +183,75 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 logger.debug(
                     f"Generation {generation_id}: Feedback system disabled or unavailable"
                 )
+
+            # =====================================
+            # PHASE 2.5: Web Lookup Context Enrichment (Epic 3)
+            # =====================================
+            provenance_sources = []
+            if (
+                getattr(self.config, "enable_web_lookup", True)
+                and self.web_lookup_service
+            ):
+                try:
+                    from services.interfaces import LookupRequest
+                    from services.web_lookup.provenance import build_provenance
+
+                    lookup_request = LookupRequest(
+                        term=sanitized_request.begrip,
+                        sources=None,
+                        max_results=5,
+                        include_examples=False,
+                        timeout=self.config.timeout_seconds,
+                    )
+
+                    web_results = await self.web_lookup_service.lookup(lookup_request)
+
+                    # Build provenance records
+                    # Convert LookupResults to minimal dicts expected by build_provenance
+                    prepared = []
+                    for r in web_results or []:
+                        prepared.append(
+                            {
+                                "provider": r.source.name.lower(),
+                                "title": (
+                                    r.metadata.get("dc_title")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                )
+                                or r.source.name,
+                                "url": r.source.url,
+                                "snippet": r.definition or r.context or "",
+                                "score": float(r.source.confidence or 0.0),
+                                "used_in_prompt": False,
+                                "retrieved_at": (
+                                    r.metadata.get("retrieved_at")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                ),
+                            }
+                        )
+
+                    provenance_sources = build_provenance(prepared)
+
+                    # Mark top-K as used_in_prompt (we'll include these first in any context pack)
+                    top_k = max(0, int(getattr(self.config, "web_lookup_top_k", 3)))
+                    for i, src in enumerate(provenance_sources):
+                        if i < top_k:
+                            src["used_in_prompt"] = True
+
+                    # Attach to context so prompt service can optionally use it
+                    context = context or {}
+                    context["web_lookup"] = {
+                        "sources": provenance_sources,
+                        "top_k": top_k,
+                    }
+                    logger.info(
+                        f"Generation {generation_id}: Web lookup enriched context with {len(provenance_sources)} sources"
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"Generation {generation_id}: Web lookup enrichment failed: {e!s}"
+                    )
 
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
@@ -346,6 +420,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "generated_at": datetime.now(timezone.utc).isoformat(),
                     "orchestrator_version": "v2.0",
                     "ontological_category_used": sanitized_request.ontologische_categorie,
+                    # Epic 3: provenance sources (MVP, no DB schema changes)
+                    "sources": provenance_sources,
                 },
             )
 
