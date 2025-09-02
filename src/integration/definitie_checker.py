@@ -86,21 +86,17 @@ class DefinitieChecker:
         }
 
     def _get_integrated_service(self):
-        """Lazy load integrated service to avoid circular imports."""
-        if self.integrated_service is None:
-            from services.integrated_service import (
-                ServiceConfig,
-                ServiceMode,
-                get_integrated_service,
-            )
+        """Lazy load service adapter (V2) to avoid circular imports.
 
-            service_config = ServiceConfig(
-                mode=ServiceMode(self._service_config["mode"].lower()),
-                enable_web_lookup=self._service_config["enable_web_lookup"],
-                enable_monitoring=self._service_config["enable_monitoring"],
-                enable_validation=self._service_config["enable_validation"],
-            )
-            self.integrated_service = get_integrated_service(service_config)
+        Vervangt de niet-bestaande services.integrated_service door de
+        ServiceAdapter uit services.service_factory, die de V2 orchestrator
+        en services gebruikt met een legacy-compatibele interface.
+        """
+        if self.integrated_service is None:
+            from services.service_factory import get_definition_service
+
+            # Gebruik standaard containerconfig; toggles zitten in de container
+            self.integrated_service = get_definition_service()
         return self.integrated_service
 
     def check_before_generation(
@@ -589,10 +585,9 @@ def generate_or_retrieve_definition(
 
         # Step 3: Generate using integrated service
         try:
-            integrated_result = (
-                await self._get_integrated_service().generate_definition(
-                    begrip, context
-                )
+            # ServiceAdapter.generate_definition is sync (legacy-compatibel)
+            integrated_result = self._get_integrated_service().generate_definition(
+                begrip, context
             )
 
             if integrated_result.success:
@@ -653,15 +648,13 @@ def generate_or_retrieve_definition(
         except Exception as e:
             logger.error(f"Integrated service error for '{begrip}': {e!s}")
             # Create error result
-            from services.integrated_service import IntegratedResult
-
-            error_result = IntegratedResult(
-                success=False,
-                operation="generate_definition",
-                processing_time=0.0,
-                service_mode=self._get_integrated_service().active_mode,
-                error_message=str(e),
-            )
+            # Minimal error dict voor compatibiliteit
+            error_result = {
+                "success": False,
+                "operation": "generate_definition",
+                "processing_time": 0.0,
+                "error_message": str(e),
+            }
             return check_result, error_result, None
 
     async def validate_with_integrated_service(
@@ -678,21 +671,31 @@ def generate_or_retrieve_definition(
         Returns:
             IntegratedResult with validation results
         """
-        from services.integrated_service import IntegratedResult
-
         try:
-            return await self._get_integrated_service().validate_definition(
-                definitie, categorie, context
+            # Gebruik ValidationOrchestratorV2 via container
+            from services.container import get_container
+            from services.validation.interfaces import ValidationContext
+
+            container = get_container()
+            orchestrator = container.orchestrator()
+            validation_orch = getattr(orchestrator, "validation_service", None)
+            if validation_orch is None:
+                raise RuntimeError("Validation orchestrator not available")
+
+            vctx = None
+            if context:
+                vctx = ValidationContext()
+            return await validation_orch.validate_text(
+                begrip="", text=definitie, ontologische_categorie=categorie, context=vctx
             )
         except Exception as e:
             logger.error(f"Integrated validation error: {e!s}")
-            return IntegratedResult(
-                success=False,
-                operation="validate_definition",
-                processing_time=0.0,
-                service_mode=self._get_integrated_service().active_mode,
-                error_message=str(e),
-            )
+            return {
+                "success": False,
+                "operation": "validate_definition",
+                "processing_time": 0.0,
+                "error_message": str(e),
+            }
 
     async def check_duplicates_with_integrated_service(
         self, begrip: str, definitie: str, threshold: float = 0.8
@@ -708,21 +711,40 @@ def generate_or_retrieve_definition(
         Returns:
             IntegratedResult with duplicate analysis
         """
-        from services.integrated_service import IntegratedResult
-
         try:
-            return await self._get_integrated_service().check_duplicates(
-                begrip, definitie, threshold
+            # Gebruik repository + duplicate service
+            from services.container import get_container
+
+            container = get_container()
+            repo = container.repository()
+            # Simpele duplicate analyse: vind records met zelfde begrip/context
+            # Hier gebruiken we alleen de tekst niet; threshold wordt genegeerd in fallback
+            dups = repo.find_duplicates(
+                DefinitieRecord(
+                    begrip=begrip, definitie=definitie, organisatorische_context=""
+                )
             )
+            return {
+                "success": True,
+                "operation": "check_duplicates",
+                "processing_time": 0.0,
+                "matches": [
+                    {
+                        "id": m.definitie_record.id,
+                        "begrip": m.definitie_record.begrip,
+                        "score": m.match_score,
+                    }
+                    for m in dups
+                ],
+            }
         except Exception as e:
             logger.error(f"Integrated duplicate check error: {e!s}")
-            return IntegratedResult(
-                success=False,
-                operation="check_duplicates",
-                processing_time=0.0,
-                service_mode=self._get_integrated_service().active_mode,
-                error_message=str(e),
-            )
+            return {
+                "success": False,
+                "operation": "check_duplicates",
+                "processing_time": 0.0,
+                "error_message": str(e),
+            }
 
     def get_service_info(self) -> dict[str, Any]:
         """Get information about available services."""

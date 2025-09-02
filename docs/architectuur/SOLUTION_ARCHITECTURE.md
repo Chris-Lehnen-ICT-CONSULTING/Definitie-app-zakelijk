@@ -25,6 +25,15 @@ owner: architecture
 
 ### Technical Scope
 - **System**: DefinitieAgent v2.0 - Government Definition Platform
+
+## Current Focus & Constraints (2025-09)
+
+- Small-user deployment: non-enterprise footprint. Streamlit UI remains acceptable short-term.
+- Priority is Epic 2 (ValidationOrchestratorV2):
+  - Finish Story 2.4 Integration & Migration (DefinitionOrchestratorV2 → ValidationOrchestratorV2, migrate all validation calls, no breaking changes).
+  - Quick wins after Story 2.4: database indexes, testing/coverage, documentation hygiene.
+- API layer (FastAPI) introduced incrementally after Story 2.4 + quick wins (read-only endpoints first).
+- Kubernetes and SPA are de-prioritized until a broader user base requires it.
 - **Components**: 12 microservices (many pre-built), 3 databases, 8+ external integrations
 - **Architecture**: Event-driven microservices with API Gateway
 - **Performance**: From 8-12s to <2s response time
