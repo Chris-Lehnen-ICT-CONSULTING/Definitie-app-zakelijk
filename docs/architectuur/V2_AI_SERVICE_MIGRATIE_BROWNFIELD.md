@@ -1,4 +1,16 @@
-# Brownfield Architectuur: V2 AI Service Migratie voor DefinitieAgent
+---
+canonical: false
+status: archived
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
+# [ARCHIVED] Brownfield Architectuur: V2 AI Service Migratie voor DefinitieAgent
+
+Gearchiveerd. Voor actuele architectuur & besluitvorming:
+- `docs/architectuur/SOLUTION_ARCHITECTURE.md`
+- `docs/architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md`
 
 ## 1. Executive Summary
 

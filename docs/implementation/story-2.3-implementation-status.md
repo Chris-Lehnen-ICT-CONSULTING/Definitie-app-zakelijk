@@ -1,4 +1,15 @@
-# Story 2.3 Implementation Status - ModularValidationService V2
+---
+canonical: false
+status: archived
+owner: validation
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
+# [ARCHIVED] Story 2.3 Implementation Status - ModularValidationService V2
+
+Deze statusnotitie is gearchiveerd. De actuele specificatie/status staat in:
+- `docs/stories/epic-2-story-2.3-modular-validation-service.md`
 
 **Datum**: 2025-01-09
 **Branch**: `feat/story-2.3-container-wiring`

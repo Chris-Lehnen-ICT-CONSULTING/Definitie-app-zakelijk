@@ -1,3 +1,10 @@
+---
+canonical: true
+status: active
+last_verified: 2025-09-02
+owner: architecture
+---
+
 # Technology Stack - DefinitieAgent
 
 ## Wijzigingshistorie
@@ -89,7 +96,7 @@ Dit document beschrijft de complete technology stack van DefinitieAgent, inclusi
 
 ### Configuration Management
 
-- **python-dotenv**: Environment variable loading
+- **Environment variables**: Runtime secrets/config via OS env (geen `.env` loading in runtime)
 - **YAML configs**: Hierarchical configuration
 - **Environment overrides**: 12-factor app compliance
 - **Feature flags**: Runtime configuration
@@ -479,12 +486,16 @@ venv\Scripts\activate  # Windows
 pip install -r requirements.txt
 pip install -r requirements-dev.txt
 
-# Environment configuration
-cp .env.example .env
-# Edit .env with your settings
+# Environment configuration (geen `.env` loading in runtime)
+# Optie A (aanbevolen): zet je sleutel in de omgeving en start
+export OPENAI_API_KEY_PROD='sk-...'
+OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 
-# Run application
-streamlit run src/main.py
+# Optie B: gebruik het run-script dat automatisch mapt
+bash scripts/run_app.sh
+
+# VS Code: gebruik het launch-profiel dat
+# OPENAI_API_KEY ← ${env:OPENAI_API_KEY_PROD} zet
 ```
 
 ## Deployment Considerations
@@ -508,7 +519,7 @@ streamlit run src/main.py
 - Full monitoring stack
 
 ### Configuratie & Secrets per omgeving
-- Config via `.env` in dev; via secret store in staging/prod (geen secrets in repo).
+- Config via environment variables in alle omgevingen; geen `.env` loading in runtime.
 - Feature flags per omgeving (toggle orchestrator‑first, modern lookup).
 - Afgesproken limieten voor AI‑tokens/kosten per omgeving met alerts.
 

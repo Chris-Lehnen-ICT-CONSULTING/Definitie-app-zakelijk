@@ -88,8 +88,8 @@ docs/
 
 ### 🔴 Kritiek
 1. **Reorganisatie Recursie**: 6+ verschillende reorganisatie plannen gevonden!
-2. **Duplicaat Directories**: `architecture` vs `architectuur`, `analyse` vs `analysis`
-3. **Lege Directories**: 5 directories zonder inhoud
+2. **Duplicaat Directories**: ✅ OPGELOST - `architectuur` is canonical, `architecture` bevat technische specs
+3. **Lege Directories**: ✅ OPGELOST - `docs/reviews` verwijderd, archief dirs behouden voor structuur
 4. **Geen Scheiding**: Actuele en verouderde docs door elkaar
 
 ### 🟡 Belangrijke Observaties
@@ -97,6 +97,7 @@ docs/
 - Meerdere LEGACY_, DEPRECATED_, OLD_ prefixes overal
 - Veel "REORGANIZATION" documenten (ironisch!)
 - Meeting notes en evaluaties zijn verouderd
+- **Opgelost:** `architecture` en `architectuur` directories geconsolideerd
 
 ## 📊 Impact van Reorganisatie
 
@@ -116,7 +117,7 @@ docs/
 - Toetsregels/Validators → `TOETSREGELS_MODULE_GUIDE.md` (owner: validation)
 - Session-State Eliminatie → `architectuur/SESSION_STATE_ELIMINATION_STRATEGY.md` (owner: platform)
 - Categorie Refactor → `architectuur/CATEGORY-REFACTORING-PLAN.md` (owner: domain)
-- Health/Status (canonical) → `../validation-status.json`
+- Health/Status (canonical) → `../reports/status/validation-status.json`
 
 Zie ook: `DOCUMENTATION_POLICY.md` voor labels, archivering en reviewregels.
 

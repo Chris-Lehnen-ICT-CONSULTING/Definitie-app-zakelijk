@@ -193,24 +193,26 @@ The following components are marked as deprecated:
 ### Using the New Architecture
 
 ```python
-# Getting services via container
+# Getting services via container (V2)
+from services.container import get_container
+from services.interfaces import GenerationRequest
+
 container = get_container()
-orchestrator = container.get_definition_orchestrator()
-workflow_service = container.get_workflow_service()
+orchestrator = container.orchestrator()
+workflow_service = container.workflow()
 
-# Generating a definition
+# Generating a definition (async)
 request = GenerationRequest(
-    term="example",
-    context="legal",
-    additional_fields={}
+    id="<uuid>",
+    begrip="voorbeeld",
+    context="DJI",
+    domein="Strafrecht",
 )
-response = await orchestrator.generate(request)
+response = await orchestrator.create_definition(request)
 
-# Submitting for review
-result = workflow_service.submit_for_review(
-    definition_id=123,
-    user="current_user",
-    notes="Ready for review"
+# Checking workflow rules (example)
+can_approve = workflow_service.can_change_status(
+    current_status="review", new_status="established", user_role="reviewer"
 )
 ```
 
