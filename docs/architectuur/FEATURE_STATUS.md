@@ -10,9 +10,9 @@ applies_to: definitie-app@v2
 
 Dit document wijst de dashboard‑bron aan voor statusoverzichten.
 
-- Canonieke health/statusbron: `validation-status.json` (wortel van repo)
+- Canonieke health/statusbron: `reports/status/validation-status.json`.
 - `architectuur/feature-status.json` wordt alleen gebruikt door het web‑dashboard en is geen bron van waarheid voor implementatiestatus.
 
 Richtlijn:
-- Gebruik `validation-status.json` voor rapportage en audits.
+- Gebruik `reports/status/validation-status.json` voor rapportage en audits.
 - Verwijs in stories/architectuur naar de canonieke bron.

@@ -1,5 +1,7 @@
 # 🚀 Plan: Legacy Validation Verwijderen
 
+> Status: VOLTOOID (v2.3.1). Legacy `DefinitionValidator` en `DefinitionValidatorInterface` zijn verwijderd. Deze pagina blijft bewaard als historisch migratieplan.
+
 ## Doel
 Volledig verwijderen van legacy DefinitionValidator en overstappen naar V2 modulaire architectuur.
 

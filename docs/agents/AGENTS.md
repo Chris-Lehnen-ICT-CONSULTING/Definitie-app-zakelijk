@@ -40,7 +40,7 @@
 - ADR’s (Architecture Decision Records): `docs/architectuur/beslissingen/` (bijv. ADR‑001 t/m ADR‑005). Raadpleeg relevante ADR’s bij grotere wijzigingen of refactors.
 
 ## Security & configuratie
-- Config: kopieer `.env.example` naar `.env`; commit nooit secrets. Gebruik minimale keys voor lokale ontwikkeling.
+- Config: runtime laadt geen `.env`. Stel `OPENAI_API_KEY` (of `OPENAI_API_KEY_PROD`) in via je omgeving of gebruik het VS Code launch‑profiel (mapping). Gebruik `.env.example` alleen als template voor tooling; commit nooit secrets.
 - Status: geen productie‑auth/encryptie; behandel als dev‑omgeving. Zie `src/security/security_middleware.py` en `docs/SECURITY_AND_FEEDBACK_ANALYSIS.md` voor risico’s.
 - Data: houd gevoelige/gegenereerde outputs in `data/`, `cache/`, `reports/` buiten git.
 

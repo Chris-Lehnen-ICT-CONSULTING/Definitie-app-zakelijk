@@ -35,7 +35,7 @@ Dit document bevat een volledig moderniseringsplan voor de Definitie-app applica
 
 #### 3. **Backend Issues** ⚙️
 - **Legacy V1 code** nog steeds aanwezig:
-  - `DefinitionValidatorInterface` (unused maar niet verwijderd)
+  - `DefinitionValidatorInterface` (verwijderd in v2.3.1)
   - `UnifiedGeneratorConfig` (87+ references!)
   - Dubbele validator implementaties
 - **Service layer inconsistenties**:
@@ -295,7 +295,7 @@ Dit document bevat een volledig moderniseringsplan voor de Definitie-app applica
 Deze kunnen binnen 1-2 sprints uitgevoerd worden:
 
 1. **Remove dead code**
-   - Verwijder `DefinitionValidatorInterface`
+   - Verwijder `DefinitionValidatorInterface` (gedaan in v2.3.1)
    - Clean up legacy imports
    - Remove commented code
 

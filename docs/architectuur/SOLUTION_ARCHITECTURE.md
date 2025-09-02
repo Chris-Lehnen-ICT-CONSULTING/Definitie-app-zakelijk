@@ -2244,7 +2244,7 @@ docs/
 ##### Epic 002: Kwaliteitstoetsing (75% Complete)
 | Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
 |------------|--------------|--------|-------------------------|--------------|
-| VAL-001 | Automatische validatie regels | ✅ Complete | `DefinitionValidator` (45 rules) | Rules engine |
+| VAL-001 | Automatische validatie regels | ✅ Complete | Validation Service (Modular V2, 45+ rules) | Rules engine |
 | VAL-002 | Expert review workflow | 🔄 In Progress | `expert_review_tab.py` | Review service |
 | VAL-003 | Kwaliteitsscore berekening | ✅ Complete | `quality_scorer.py` | Scoring engine |
 | VAL-004 | Feedback incorporatie systeem | ✅ Complete | `feedback_service.py` | State management |
@@ -2478,7 +2478,7 @@ Current State          →    Intermediate      →    Target State
 
 tabbed_interface.py    →    UI Controller     →    React Frontend
 UnifiedGenerator      →    Generator Service  →    Definition API
-DefinitionValidator   →    Validator Service  →    Validation API
+Validation Service (Modular V2)   →    Validation API
 SQLite Repository     →    PostgreSQL Repo    →    Data Service
 In-memory cache       →    Redis Cache        →    Cache Service
 No auth               →    OAuth Module       →    Auth Service
