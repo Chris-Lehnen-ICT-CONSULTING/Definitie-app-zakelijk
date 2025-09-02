@@ -9,7 +9,7 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 
 ## Scope
 - Interface methods: `validate_text`, `validate_definition`, `batch_validate`
-- Resultaatcontract: `docs/architecture/contracts/schemas/validation_result.schema.json`
+- Resultaatcontract: `docs/architectuur/contracts/schemas/validation_result.schema.json`
 - Foutpad: degraded resultaten volgens error‑catalogus (SYS‑… codes)
  - Policy: aanwezigheid van `system.correlation_id` (UUID) wordt getest als teambeleid, niet als schema‑verplichte eis
 
@@ -19,7 +19,7 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - Integratie (licht): feature‑flag toggle en basisrooktests (optioneel in latere stories).
 
 ## Benodigdheden
-- JSON Schema: `docs/architecture/contracts/schemas/validation_result.schema.json`.
+- JSON Schema: `docs/architectuur/contracts/schemas/validation_result.schema.json`.
 - Fixtures: geldige `ValidationResult` voorbeelden met echte UUID’s voor `system.correlation_id`.
 - Mock orchestrator die schema‑conforme resultaten teruggeeft (happy/edge/degraded).
 
@@ -62,8 +62,8 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - (Optioneel) JSON Schema validatie als pre‑merge stap op sample‑responses.
 
 ## Relaties
-- Contract: `docs/architecture/contracts/validation_result_contract.md`
-- Schema: `docs/architecture/contracts/schemas/validation_result.schema.json`
+- Contract: `docs/architectuur/contracts/validation_result_contract.md`
+- Schema: `docs/architectuur/contracts/schemas/validation_result.schema.json`
 - Error catalogus: `docs/technisch/error_catalog_validation.md`
 - Story 2.1: `docs/stories/epic-2-story-2.1-validation-interface.md`
 - Story 2.3 Tests: `docs/testing/story-2.3-test-implementation.md`

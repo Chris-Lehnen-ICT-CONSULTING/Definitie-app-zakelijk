@@ -738,3 +738,10 @@ graph TD
 ---
 
 Deze source tree documentatie wordt bijgewerkt wanneer de structuur van de applicatie verandert.
+---
+canonical: false
+status: active
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---

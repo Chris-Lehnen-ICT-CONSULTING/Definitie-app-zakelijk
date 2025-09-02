@@ -1,4 +1,15 @@
-# 🏗️ Verbeterde Definitie Opschoning Architectuur
+---
+canonical: false
+status: archived
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
+# [ARCHIVED] Verbeterde Definitie Opschoning Architectuur
+
+Deze versie is gearchiveerd. Actuele informatie staat in:
+- `docs/architectuur/improved-cleaning-architecture.md`
 
 **Auteur**: Winston (System Architect)
 **Datum**: 2025-08-25

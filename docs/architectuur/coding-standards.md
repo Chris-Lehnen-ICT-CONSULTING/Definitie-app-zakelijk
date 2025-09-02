@@ -585,3 +585,10 @@ repos:
 ---
 
 Deze coding standards zijn een levend document. Suggesties voor verbeteringen kunnen via pull requests worden ingediend.
+---
+canonical: false
+status: active
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
