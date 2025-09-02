@@ -78,7 +78,8 @@ htmlcov/
 build/temp/
 
 # 💚 Test files
-test_*.py
+# Alleen root-level test helpers negeren; laat tests/ intact
+/test_*.py
 
 # 💚 Legacy code
 oude legacy broncode om te controleren/
