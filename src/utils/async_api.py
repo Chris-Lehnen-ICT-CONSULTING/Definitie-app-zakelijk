@@ -12,11 +12,10 @@ from datetime import datetime, timedelta, timezone
 from functools import wraps
 from typing import Any
 
-from dotenv import load_dotenv
 from openai import AsyncOpenAI, OpenAIError
-from utils.cache import cache_gpt_call
 
-load_dotenv()
+from utils.cache import _cache, cache_gpt_call
+
 logger = logging.getLogger(__name__)
 
 
@@ -137,10 +136,7 @@ class AsyncGPTClient:
                 **kwargs,
             )
 
-            # Try to get from cache using sync cache for now
-            # TODO: Implement async cache
-            from utils.cache import _cache
-
+            # Try to get from cache (sync cache)
             cached_result = _cache.get(cache_key)
             if cached_result is not None:
                 self.session_stats["cache_hits"] += 1
@@ -162,8 +158,6 @@ class AsyncGPTClient:
 
             # Cache the result
             if use_cache:
-                from utils.cache import _cache
-
                 _cache.set(cache_key, result, ttl=3600)
 
             self.session_stats["successful_requests"] += 1
@@ -309,7 +303,7 @@ _async_client: AsyncGPTClient | None = None
 
 async def get_async_client() -> AsyncGPTClient:
     """Get or create global async GPT client."""
-    global _async_client
+    global _async_client  # noqa: PLW0603
     if _async_client is None:
         _async_client = AsyncGPTClient()
     return _async_client
@@ -393,8 +387,6 @@ def async_cached(ttl: int = 3600):
         @wraps(func)
         async def wrapper(*args, **kwargs):
             # Generate cache key
-            from utils.cache import _cache
-
             cache_key = _cache._generate_cache_key(func.__name__, *args, **kwargs)
 
             # Try cache first
@@ -418,7 +410,7 @@ def async_cached(ttl: int = 3600):
 
 async def cleanup_async_resources():
     """Clean up async resources on shutdown."""
-    global _async_client
+    global _async_client  # noqa: PLW0603
     if _async_client:
         await _async_client.close()
         _async_client = None

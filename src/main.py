@@ -16,7 +16,7 @@ if str(src_path) not in sys.path:
     sys.path.insert(0, str(src_path))
 
 import streamlit as st  # Web applicatie framework voor de gebruikersinterface
-from dotenv import load_dotenv  # Laadt omgevingsvariabelen uit .env bestand
+
 from ui.session_state import SessionStateManager  # Sessie status beheer
 from ui.tabbed_interface import TabbedInterface  # Hoofd gebruikersinterface
 from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
@@ -37,8 +37,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",  # Start met uitgevouwen sidebar
 )
 
-# Laad omgevingsvariabelen - Laad configuratie uit .env bestand
-load_dotenv()  # Laadt API keys, database configuratie, etc.
+# Let op: geen .env-bestand laden; vertrouw op systeem-omgeving
 
 
 def main():
