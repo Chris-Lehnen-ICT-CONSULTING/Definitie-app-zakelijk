@@ -6,6 +6,7 @@ import logging
 from typing import Any
 
 import streamlit as st
+
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieStatus,
@@ -274,6 +275,9 @@ class DefinitionGeneratorTab:
                 # Legacy format - toon enkele definitie
                 st.subheader("📝 Definitie")
                 st.info(definitie_to_show)
+
+            # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
+            self._render_sources_section(generation_result, agent_result, saved_record)
 
             # Generation details
             with st.expander("📊 Generatie Details", expanded=False):
@@ -735,6 +739,45 @@ class DefinitionGeneratorTab:
             with col3:
                 if st.button("📤 Exporteer"):
                     self._export_definition(saved_record)
+
+    def _render_sources_section(self, generation_result, agent_result, saved_record):
+        """Render sectie met gebruikte bronnen (provenance)."""
+        try:
+            sources = None
+
+            # 1) Probeer uit saved_record.metadata (na opslag)
+            if saved_record and getattr(saved_record, "metadata", None):
+                metadata = saved_record.metadata
+                if isinstance(metadata, dict):
+                    sources = metadata.get("sources")
+
+            # 2) Val terug op agent_result.metadata (preview vóór opslag)
+            if sources is None and isinstance(agent_result, dict):
+                meta = agent_result.get("metadata")
+                if isinstance(meta, dict):
+                    sources = meta.get("sources")
+
+            if not sources:
+                return  # Niks te tonen
+
+            st.markdown("#### 📚 Gebruikte Bronnen")
+            for idx, src in enumerate(sources[:5]):  # Toon max 5
+                # Ondersteun dict-achtige records met verwachte velden
+                provider = src.get("provider") or src.get("name") or "bron"
+                title = src.get("title") or src.get("definition") or "(zonder titel)"
+                url = src.get("url") or src.get("link") or ""
+                score = src.get("score") or src.get("confidence") or 0.0
+                used = src.get("used_in_prompt", False)
+                snippet = src.get("snippet") or src.get("context") or ""
+
+                with st.expander(f"{idx+1}. {provider} — {title}", expanded=(idx == 0)):
+                    if url:
+                        st.markdown(f"🔗 [Open bron]({url})")
+                    st.markdown(f"Score: `{score:.2f}` • In prompt: `{used}`")
+                    if snippet:
+                        st.write(snippet[:500] + ("…" if len(snippet) > 500 else ""))
+        except Exception as e:
+            logger.debug(f"Kon bronnen sectie niet renderen: {e}")
 
     def _render_validation_results(self, validation_result):
         """Render validation resultaten."""
