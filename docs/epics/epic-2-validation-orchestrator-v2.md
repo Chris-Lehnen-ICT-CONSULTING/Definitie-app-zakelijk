@@ -54,7 +54,7 @@ Zodat **alle validatie implementaties een consistent contract volgen**.
 - ✅ `src/services/validation/interfaces.py` - ValidationOrchestratorInterface met async methods
 - ✅ ValidationResult TypedDict - 100% schema-conform
 - ✅ Contract tests - 14 tests in `tests/contracts/test_validation_interface.py`
-- ✅ JSON Schema - `docs/architecture/contracts/schemas/validation_result.schema.json`
+- ✅ JSON Schema - `docs/architectuur/contracts/schemas/validation_result.schema.json`
 - ✅ MockValidationOrchestrator voor testing
 
 ---

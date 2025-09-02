@@ -215,3 +215,10 @@ class ValidationOrchestratorV2:
             )
         return results
 ```
+---
+canonical: false
+status: active
+owner: validation
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
