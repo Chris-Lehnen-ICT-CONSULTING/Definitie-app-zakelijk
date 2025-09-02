@@ -533,7 +533,7 @@ Voor performance-kritieke code:
 ## Security Coding Standards
 
 - Geen `bare except`; vang specifieke excepties en geef context.
-- Nooit secrets hardcoderen; gebruik `.env`/secret store; log geen secrets/PII.
+- Nooit secrets hardcoderen; gebruik environment/secret store; log geen secrets/PII. Let op: runtime laadt geen `.env`.
 - Valideer en sanitize alle invoer (XSS/SQLi); gebruik bestaande validator/sanitizer.
 - Gebruik TLS; verifieer certificaten standaard.
 - Principle of least privilege voor DB/API‑sleutels en service accounts.
