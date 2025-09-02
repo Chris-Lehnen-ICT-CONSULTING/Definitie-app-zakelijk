@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Test rate limiter in Streamlit UI context."""
 
+import pytest
 import streamlit as st
 import asyncio
 import time
@@ -8,6 +9,13 @@ import sys
 sys.path.insert(0, 'src')
 
 # Configureer pagina
+# Skip this UI test when running under pytest without full Streamlit API
+if not hasattr(st, "set_page_config"):
+    pytest.skip(
+        "Streamlit mocked without set_page_config; skipping UI rate limiter UI test",
+        allow_module_level=True,
+    )
+
 st.set_page_config(
     page_title="Rate Limiter Test",
     page_icon="🧪",

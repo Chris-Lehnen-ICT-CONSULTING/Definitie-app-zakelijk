@@ -13,13 +13,24 @@ Test alle kritieke componenten:
 import asyncio
 import sys
 import os
+import pytest
 import time
 from typing import Dict, List
+
+from dotenv import load_dotenv
+
+# Load dotenv and skip if no API key configured BEFORE importing modules that touch OpenAI
+load_dotenv()
+if not os.getenv("OPENAI_API_KEY"):
+    pytest.skip(
+        "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
+        allow_module_level=True,
+    )
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
-# Import test modules
+# Import test modules (after skip guard)
 from voorbeelden.unified_voorbeelden import (
     genereer_synoniemen, genereer_antoniemen, genereer_alle_voorbeelden,
     genereer_voorbeeld_zinnen, genereer_praktijkvoorbeelden,
@@ -30,7 +41,14 @@ from utils.performance_monitor import get_performance_monitor, start_timing, sto
 from services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
 from services.interfaces import GenerationRequest, OrchestratorConfig
 from services.container import get_container
-from dotenv import load_dotenv
+
+# Load dotenv and skip if no API key configured
+load_dotenv()
+if not os.getenv("OPENAI_API_KEY"):
+    pytest.skip(
+        "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
+        allow_module_level=True,
+    )
 
 
 async def test_synoniemen_antoniemen():

@@ -6,6 +6,7 @@ Test bulk generatie met delay tussen synoniemen/antoniemen.
 import asyncio
 import sys
 import os
+import pytest
 import time
 
 # Add src to path
@@ -13,6 +14,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from dotenv import load_dotenv
 load_dotenv()
+
+# Skip this functionality test when no API key is configured
+if not os.getenv("OPENAI_API_KEY"):
+    pytest.skip(
+        "OPENAI_API_KEY not set; skipping bulk-with-delay functionality test",
+        allow_module_level=True,
+    )
 
 from voorbeelden.unified_voorbeelden import (
     ExampleRequest, ExampleType, GenerationMode,
