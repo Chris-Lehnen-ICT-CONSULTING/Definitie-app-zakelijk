@@ -572,6 +572,10 @@ def test_no_ui_dependencies():
 - Legacy Web Lookup modules → vervangen door ModernWebLookupService + LookupRequest.
 - UI → DB/SDK imports → vervangen door service‑aanroepen; repository blijft in infrastructure.
 
+### Web Lookup (modern‑only)
+- Canonisch pad: ModernWebLookupService (geen legacy fallback in productie).
+- UI‑tab koppelt aan ModernWebLookupService; legacy modules blijven gearchiveerd.
+
 ### Teststrategie (modulair)
 - Contracttests per interface (generator, validator, repository, AI‑provider, prompts).
 - Golden master voor prompts (input→prompt snapshots).
