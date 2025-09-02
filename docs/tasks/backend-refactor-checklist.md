@@ -54,4 +54,3 @@ Doel: afronden Story 2.4, quick wins, en een kleine FastAPI‑basis, passend bij
 ## Observability & Config (continu)
 - [ ] Loggen in orchestrator V2: duration, generation_id, validatie status
 - [ ] Feature flags: geen legacy fallbacks in productie‑pad
-
