@@ -117,7 +117,11 @@ docs/
 - Toetsregels/Validators → `TOETSREGELS_MODULE_GUIDE.md` (owner: validation)
 - Session-State Eliminatie → `architectuur/SESSION_STATE_ELIMINATION_STRATEGY.md` (owner: platform)
 - Categorie Refactor → `architectuur/CATEGORY-REFACTORING-PLAN.md` (owner: domain)
-- Health/Status (canonical) → `../reports/status/validation-status.json`
+- Health/Status (canonical) → `../validation-status.json`
+
+## 🧰 Tasks & Checklists
+
+- Backend Refactor Checklist → `tasks/backend-refactor-checklist.md`
 
 Zie ook: `DOCUMENTATION_POLICY.md` voor labels, archivering en reviewregels.
 

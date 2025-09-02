@@ -67,8 +67,13 @@ class ModularToetsregelLoader:
             "validate_func": None,
         }
 
-        # Probeer Python module te laden
-        py_path = self.regels_dir / f"{module_name}.py"
+        # Probeer Python module te laden (voorkeur: validators/ directory)
+        validators_dir = self.regels_dir.parent / "validators"
+        py_path = validators_dir / f"{module_name}.py"
+        if not py_path.exists():
+            # Backward compatibility: probeer regels_dir als fallback
+            py_path = self.regels_dir / f"{module_name}.py"
+
         if py_path.exists():
             try:
                 # Dynamisch laden van Python module

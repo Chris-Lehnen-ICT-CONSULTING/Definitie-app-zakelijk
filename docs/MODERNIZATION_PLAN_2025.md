@@ -114,6 +114,11 @@ Dit document bevat een volledig moderniseringsplan voor de Definitie-app applica
 
 ### Phase 1: Foundation (Q1 2025) 🏗️
 
+Sequencing update (2025-09):
+- Eerst: Story 2.4 (Integration & Migration) afronden (±3 dagen)
+- Dan: Quick wins (database indexes, testing/coverage, docs)
+- Vervolgens: FastAPI foundation (read-only endpoints, auth skeleton)
+
 #### Sprint 1-2: API Layer Introduction
 ```python
 # Nieuwe FastAPI applicatie naast Streamlit

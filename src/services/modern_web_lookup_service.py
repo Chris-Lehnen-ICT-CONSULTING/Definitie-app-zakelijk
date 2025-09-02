@@ -70,7 +70,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
         else:
             self.betrouwbaarheids_calculator = None
 
-        self._legacy_fallback_enabled = True
+        # In productie geen legacy fallback meer gebruiken
+        self._legacy_fallback_enabled = False
         self._setup_sources()
 
     def _setup_sources(self) -> None:
@@ -176,11 +177,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
         except Exception as e:
             logger.error(f"Error in {source_name} lookup: {e}")
-
-            # Fallback naar legacy implementatie indien beschikbaar
-            if self._legacy_fallback_enabled:
-                return await self._legacy_fallback(term, source_name, request)
-
+            # Geen legacy fallback in modern-only modus
             return None
 
     async def _lookup_mediawiki(
