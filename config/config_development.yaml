@@ -12,7 +12,7 @@ api:
       cost_per_token: 3.0e-05
       max_tokens: 300
       temperature: 0.01
-  openai_api_key: REDACTED-DEF522
+  openai_api_key: ${OPENAI_API_KEY}
   request_timeout: 60.0
   retry_backoff_factor: 1.5
 cache:
