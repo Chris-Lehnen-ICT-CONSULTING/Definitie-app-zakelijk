@@ -88,8 +88,8 @@ docs/
 
 ### 🔴 Kritiek
 1. **Reorganisatie Recursie**: 6+ verschillende reorganisatie plannen gevonden!
-2. **Duplicaat Directories**: `architecture` vs `architectuur`, `analyse` vs `analysis`
-3. **Lege Directories**: 5 directories zonder inhoud
+2. **Duplicaat Directories**: ✅ OPGELOST - `architectuur` is canonical, `architecture` bevat technische specs
+3. **Lege Directories**: ✅ OPGELOST - `docs/reviews` verwijderd, archief dirs behouden voor structuur
 4. **Geen Scheiding**: Actuele en verouderde docs door elkaar
 
 ### 🟡 Belangrijke Observaties
