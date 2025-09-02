@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## [Unreleased]
+
+### Added
+- VS Code Run & Debug profiel dat `OPENAI_API_KEY` mapt vanuit `OPENAI_API_KEY_PROD`.
+- Makefile targets: `dev`, `lint`, `test`, `status` voor snelle DX.
+- README cheatsheet met 4 kerncommando's (run app, mapping, status, tests).
+
+### Changed
+- Runtime: geen `dotenv` meer; config leest direct uit environment variables.
+- Environment: fallback naar `OPENAI_API_KEY_PROD` als `OPENAI_API_KEY` ontbreekt (dev‑vriendelijk, geen .env nodig).
+- Pre-commit: Ruff/Black alleen op gewijzigde Python‑bestanden onder `src/` en `config/` via lokale hooks.
+- Status-updater: verplaatst naar `scripts/validation/` en schrijft naar `reports/status/validation-status.json`.
+- Documentatie: README en CONTRIBUTING bijgewerkt (run policy, env mapping, pre-commit policy, scripts/Makefile).
+- .gitignore: archief/QA mappen genegeerd (`archive/`, `archived/`, `archief/`, `docs/archief/`, `qa.qaLocation/`).
+
+### Removed
+- macOS LaunchAgent setup script (niet meer nodig door fallback/mapping).
+
 ## [2.3.0] - 2025-07-17
 
 ### Added

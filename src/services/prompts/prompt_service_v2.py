@@ -135,25 +135,46 @@ class PromptServiceV2:
             # Parse domain context
             base_context["domein"] = [request.domein]
 
+        # 🚨 CRITICAL FIX: Preserve context_dict from extra_context
+        # This fixes the voorbeelden dictionary regression
+        if extra_context and "context_dict" in extra_context:
+            context_dict = extra_context["context_dict"]
+            logger.debug(
+                f"Preserving context_dict with keys: {list(context_dict.keys())}"
+            )
+
+            # Merge context_dict into base_context (prioritize context_dict)
+            for key, value in context_dict.items():
+                if isinstance(value, list) and value:  # Only add non-empty lists
+                    base_context[key] = value
+                    logger.debug(f"Added context_dict[{key}] = {value}")
+
         # Create sources list (empty for now, could be extended)
         sources = []
 
         # Build metadata with ontological category
         metadata = {
             "ontologische_categorie": request.ontologische_categorie,
+            "semantic_category": request.ontologische_categorie,  # For template module compatibility
             "request_id": request.id,
             "actor": request.actor,
             "legal_basis": request.legal_basis,
         }
 
         if extra_context:
+            # Add all extra_context to metadata (including context_dict for reference)
             metadata.update(extra_context)
 
         # Create enriched context
-        return EnrichedContext(
+        enriched = EnrichedContext(
             base_context=base_context,
             sources=sources,
             expanded_terms={},  # Could be extended with abbreviation expansion
             confidence_scores={},
             metadata=metadata,
         )
+
+        logger.info(
+            f"EnrichedContext created with base_context keys: {list(base_context.keys())}"
+        )
+        return enriched

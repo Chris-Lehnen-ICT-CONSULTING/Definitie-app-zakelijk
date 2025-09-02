@@ -226,10 +226,12 @@ class ServiceAdapter:
                 "marker": response.definition.metadata.get("marker", ""),
                 "toetsresultaten": (
                     response.validation_result.get("violations", [])
-                    if response.validation_result and isinstance(response.validation_result, dict)
+                    if response.validation_result
+                    and isinstance(response.validation_result, dict)
                     else (
                         response.validation_result.errors
-                        if response.validation_result and hasattr(response.validation_result, "errors")
+                        if response.validation_result
+                        and hasattr(response.validation_result, "errors")
                         else []
                     )
                 ),
@@ -238,32 +240,55 @@ class ServiceAdapter:
                 ),
                 "validation_score": (
                     response.validation_result.get("overall_score", 0.0)
-                    if response.validation_result and isinstance(response.validation_result, dict)
+                    if response.validation_result
+                    and isinstance(response.validation_result, dict)
                     else (
                         response.validation_result.score
-                        if response.validation_result and hasattr(response.validation_result, "score")
+                        if response.validation_result
+                        and hasattr(response.validation_result, "score")
                         else 0.0
                     )
                 ),
                 "final_score": (
                     response.validation_result.get("overall_score", 0.0)
-                    if response.validation_result and isinstance(response.validation_result, dict)
+                    if response.validation_result
+                    and isinstance(response.validation_result, dict)
                     else (
                         response.validation_result.score
-                        if response.validation_result and hasattr(response.validation_result, "score")
+                        if response.validation_result
+                        and hasattr(response.validation_result, "score")
                         else 0.0
                     )
                 ),
-                "voorbeelden": response.definition.voorbeelden or [],
+                "voorbeelden": (
+                    response.metadata.get("voorbeelden", {})
+                    if response.metadata
+                    else {}
+                ),
                 "processing_time": response.definition.metadata.get(
                     "processing_time", 0
                 ),
                 "metadata": response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
+                "prompt_text": (
+                    response.metadata.get("prompt_text", "")
+                    if response.metadata
+                    else ""
+                ),  # Add prompt text from metadata
+                "prompt_template": (
+                    response.metadata.get(
+                        "prompt_text", ""
+                    )  # Map prompt_text to prompt_template for UI
+                    if response.metadata
+                    else ""
+                ),
             }
 
-            # Voeg prompt_template ook direct toe voor makkelijkere toegang
+            # Voeg prompt_template ook direct toe voor makkelijkere toegang (alleen als nog niet gezet)
             if (
-                response.definition.metadata
+                not result_dict.get(
+                    "prompt_template"
+                )  # Alleen als nog niet gezet via prompt_text
+                and response.definition.metadata
                 and "prompt_template" in response.definition.metadata
             ):
                 result_dict["prompt_template"] = response.definition.metadata[
@@ -281,7 +306,7 @@ class ServiceAdapter:
         """Get statistieken van alle services."""
         return {
             "generator": self.container.generator().get_stats(),
-            "validator": self.container.validator().get_stats(),
+            # Legacy validator removed - validation now handled by V2 orchestrator
             "repository": self.container.repository().get_stats(),
             "orchestrator": self.orchestrator.get_stats(),
         }

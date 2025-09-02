@@ -337,6 +337,12 @@ class DefinitionGeneratorTab:
                     self._render_validation_results(agent_result["validation_details"])
 
                 # Check for voorbeelden in dict format
+                # Store prompt_text in session state if available
+                if agent_result.get("prompt_text"):
+                    SessionStateManager.set_value(
+                        "prompt_text", agent_result["prompt_text"]
+                    )
+
                 if agent_result.get("voorbeelden"):
                     self._render_voorbeelden_section(agent_result["voorbeelden"])
 
@@ -452,6 +458,12 @@ class DefinitionGeneratorTab:
                     elif "prompt_template" in agent_result:
                         prompt_template = agent_result["prompt_template"]
                         logger.debug("Prompt gevonden direct in agent_result")
+                    elif "prompt_text" in agent_result:
+                        # Support voor nieuwe V2 orchestrator die prompt_text gebruikt
+                        prompt_template = agent_result["prompt_text"]
+                        logger.debug(
+                            "Prompt gevonden als 'prompt_text' in agent_result"
+                        )
                     elif "prompt" in agent_result:
                         prompt_template = agent_result["prompt"]
                         logger.debug("Prompt gevonden als 'prompt' in agent_result")
