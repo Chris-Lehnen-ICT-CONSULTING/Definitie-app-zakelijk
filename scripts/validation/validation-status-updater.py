@@ -218,12 +218,14 @@ class ValidationStatusChecker:
 
         return self.status_data
 
-    def save_status(self, filename: str = "validation-status.json"):
+    def save_status(self, filename: str = "reports/status/validation-status.json"):
         """Bewaar de status naar een JSON bestand."""
         try:
-            with open(filename, "w", encoding="utf-8") as f:
+            path = Path(filename)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            with open(path, "w", encoding="utf-8") as f:
                 json.dump(self.status_data, f, indent=2, ensure_ascii=False)
-            logger.info(f"Status saved to {filename}")
+            logger.info(f"Status saved to {path}")
         except Exception as e:
             logger.error(f"Failed to save status: {e}")
 

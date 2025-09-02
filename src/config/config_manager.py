@@ -16,7 +16,6 @@ from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
 import yaml  # YAML bestand parser voor configuratie bestanden
-from dotenv import load_dotenv  # Laadt .env variabelen in omgeving
 
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
@@ -408,8 +407,7 @@ class ConfigManager:
 
     def _load_configuration(self):
         """Load configuration from files and environment variables."""
-        # Load environment variables first
-        load_dotenv()
+        # Geen .env laden; vertrouw op al ingestelde omgeving
 
         # Load from YAML files
         self._load_from_yaml()
@@ -654,7 +652,7 @@ _config_manager: ConfigManager | None = None
 
 def get_config_manager(environment: Environment | None = None) -> ConfigManager:
     """Get or create global configuration manager."""
-    global _config_manager
+    global _config_manager  # noqa: PLW0603
 
     if _config_manager is None:
         # Determine environment
@@ -701,7 +699,7 @@ def fill_ai_defaults(**kwargs) -> dict:
     return kwargs
 
 
-def get_component_config(component: str, sub_component: str = None) -> dict:
+def get_component_config(component: str, sub_component: str | None = None) -> dict:
     """Get AI configuration for a specific component.
 
     Args:

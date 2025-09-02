@@ -6,12 +6,11 @@ This module provides intelligent caching for all example generation functions.
 import os
 import re
 
-from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
+
 from utils.cache import cache_example_generation, cache_synonym_generation
 
-# Load environment and initialize OpenAI client
-load_dotenv()
+# Initialize OpenAI client using environment variable only
 _client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -24,6 +23,7 @@ def genereer_voorbeeld_zinnen(
         f"Geef 2 tot 3 korte voorbeeldzinnen waarin het begrip '{begrip}' "
         "op een duidelijke manier wordt gebruikt.\n"
         "Gebruik onderstaande contexten alleen als achtergrond, maar noem ze niet letterlijk:\n\n"
+        f"Definitie ter referentie: {definitie}\n"
         f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
         f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
         f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
