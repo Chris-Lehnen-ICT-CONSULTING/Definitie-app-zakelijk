@@ -194,3 +194,10 @@ class CategoryPresenter:
 - [ ] Legacy adapters removed
 - [ ] Full test coverage
 - [ ] Event-driven updates working
+---
+canonical: true
+status: active
+owner: domain
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---

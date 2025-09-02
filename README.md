@@ -12,6 +12,22 @@
 
 > **🧪 Status Update (2025-08-19)**: F821 undefined name errors opgelost, imports gesorteerd, 84 kritieke errors gefixt
 
+## 🧾 Snelstart Cheatsheet
+
+```bash
+# Start app met automatische env-mapping (aanbevolen)
+bash scripts/run_app.sh
+
+# Alternatief: direct via Streamlit (gebruik omgeving)
+OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
+
+# Componentstatus genereren
+make validation-status
+
+# Tests draaien (quiet)
+pytest -q
+```
+
 ## 🎯 Overzicht
 
 DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 46 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
@@ -48,8 +64,25 @@ pip install -r requirements.txt
 pip install -r requirements-dev.txt
 
 # Start applicatie
-streamlit run src/app.py
+streamlit run src/main.py
 ```
+
+### 🔑 Environment-variabelen (geen .env)
+- De app leest `OPENAI_API_KEY` rechtstreeks uit de omgeving.
+- In VS Code mappen we `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` via de launch-config.
+- In de terminal kun je hetzelfde doen met het script of een inline export:
+
+```bash
+# VS Code (launch): OPENAI_API_KEY <- ${env:OPENAI_API_KEY_PROD}
+
+# Terminal (script):
+bash scripts/run_app.sh
+
+# Terminal (inline):
+OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
+```
+
+Let op: we laden geen `.env`; stel je sleutel in via je shell of VS Code.
 
 ## 📁 Project Structuur
 
@@ -66,7 +99,7 @@ definitie-app/
 │   ├── services/             # UnifiedDefinitionService
 │   ├── ai_toetsing/          # 46 validators
 │   ├── tabs/                 # 10 UI tabs
-│   └── app.py                # Main entry
+│   └── main.py               # Main entry
 │
 ├── 📁 docs/                  # Documentatie
 │   ├── README.md             # Docs index
@@ -76,6 +109,11 @@ definitie-app/
 │
 ├── 📁 tests/                 # Test suites (87% broken)
 └── 📁 data/                  # Database & uploads
+
+### 🧰 Handige scripts
+- `scripts/run_app.sh`: start de app en mapt automatisch `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` indien nodig.
+- `scripts/validation/validation-status-updater.py`: draait component-checks en schrijft status naar `reports/status/validation-status.json`.
+- `make validation-status`: kortere alias voor de status-updater.
 ```
 
 ## 📊 Project Status (Updated 2025-08-19)

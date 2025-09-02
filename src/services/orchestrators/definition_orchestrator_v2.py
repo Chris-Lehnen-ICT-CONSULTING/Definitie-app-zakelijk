@@ -10,6 +10,7 @@ Key improvements:
 - DPIA/AVG compliance with PII redaction
 - Performance optimization with caching
 - Ontological category support (fixes template selection bug)
+- Story 2.4: Uses ValidationOrchestratorInterface for clean separation of concerns
 """
 
 import logging
@@ -33,8 +34,8 @@ from services.interfaces import (
     PromptServiceInterface as PromptServiceV2,
     SecurityServiceInterface as SecurityService,
     ValidationResult,
-    ValidationServiceInterface as ValidationServiceV2,
 )
+from services.validation.interfaces import ValidationOrchestratorInterface
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         # Core generation services (required)
         prompt_service: "PromptServiceV2",
         ai_service: "IntelligentAIService",
-        validation_service: "ValidationServiceV2",
+        validation_service: "ValidationOrchestratorInterface",
         cleaning_service: "CleaningServiceInterface",
         repository: "DefinitionRepositoryInterface",
         # Optional services
@@ -79,7 +80,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         if not ai_service:
             raise ValueError("AIServiceInterface is required")
         if not validation_service:
-            raise ValueError("ValidationServiceInterface is required")
+            raise ValueError("ValidationOrchestratorInterface is required")
         if not cleaning_service:
             raise ValueError("CleaningServiceInterface is required")
         if not repository:
@@ -215,7 +216,50 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.info(f"Generation {generation_id}: AI generation complete")
 
             # =====================================
-            # PHASE 5: Text Cleaning & Normalization
+            # PHASE 5: Generate Voorbeelden (Examples)
+            # =====================================
+            voorbeelden = {}
+            try:
+                from voorbeelden import genereer_alle_voorbeelden
+
+                # Build context_dict for voorbeelden generation
+                voorbeelden_context = {
+                    "organisatorisch": (
+                        [sanitized_request.context] if sanitized_request.context else []
+                    ),
+                    "juridisch": (
+                        context.get("context_dict", {}).get("juridisch", [])
+                        if context
+                        else []
+                    ),
+                    "wettelijk": (
+                        context.get("context_dict", {}).get("wettelijk", [])
+                        if context
+                        else []
+                    ),
+                }
+
+                # Generate voorbeelden using the cleaned text
+                voorbeelden = genereer_alle_voorbeelden(
+                    begrip=sanitized_request.begrip,
+                    definitie=(
+                        generation_result.text
+                        if hasattr(generation_result, "text")
+                        else str(generation_result)
+                    ),
+                    context_dict=voorbeelden_context,
+                )
+                logger.info(
+                    f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
+                )
+            except Exception as e:
+                logger.warning(
+                    f"Generation {generation_id}: Voorbeelden generation failed: {e}"
+                )
+                # Continue without voorbeelden
+
+            # =====================================
+            # PHASE 6: Text Cleaning & Normalization
             # =====================================
             # V2 cleaning service (always available through adapter)
             cleaning_result = await self.cleaning_service.clean_text(
@@ -232,11 +276,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 6: Validation
             # =====================================
-            # V2 validation service (always available through adapter)
-            validation_result = await self.validation_service.validate_definition(
-                sanitized_request.begrip,
-                cleaned_text,
+            # Use ValidationOrchestratorInterface.validate_text
+            from services.validation.interfaces import ValidationContext
+
+            validation_context = ValidationContext(
+                correlation_id=uuid.UUID(generation_id),
+                metadata={"generation_id": generation_id},
+            )
+            validation_result = await self.validation_service.validate_text(
+                begrip=sanitized_request.begrip,
+                text=cleaned_text,
                 ontologische_categorie=sanitized_request.ontologische_categorie,
+                context=validation_context,
             )
 
             logger.info(
@@ -258,11 +309,16 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     context=sanitized_request,
                 )
 
-                # Re-validate enhanced text
-                validation_result = await self.validation_service.validate_definition(
-                    sanitized_request.begrip,
-                    enhanced_text,
+                # Re-validate enhanced text with new context
+                enhanced_context = ValidationContext(
+                    correlation_id=uuid.UUID(generation_id),
+                    metadata={"generation_id": generation_id, "enhanced": True},
+                )
+                validation_result = await self.validation_service.validate_text(
+                    begrip=sanitized_request.begrip,
+                    text=enhanced_text,
                     ontologische_categorie=sanitized_request.ontologische_categorie,
+                    context=enhanced_context,
                 )
 
                 cleaned_text = enhanced_text
@@ -368,6 +424,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
                     "enhanced": was_enhanced,
+                    "prompt_text": prompt_result.text,  # Add prompt text for UI display
+                    "voorbeelden": voorbeelden,  # Add generated voorbeelden
                 },
             )
 

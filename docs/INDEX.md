@@ -22,7 +22,8 @@
 - [User Stories](./stories/) 📁
 
 ### Architectuur
-- [Huidige Architectuur Overzicht](./CURRENT_ARCHITECTURE_OVERVIEW.md) ✅
+- [Huidige Architectuur Overzicht](./CURRENT_ARCHITECTURE_OVERVIEW.md) ✅ (canonical)
+- [Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) ✅ (canonical)
 - [Architecture Decision Records](./architectuur/beslissingen/) 📁
   - [ADR-001: Monolithische structuur](./architectuur/beslissingen/ADR-001-monolithische-structuur.md)
   - [ADR-002: Features-first development](./architectuur/beslissingen/ADR-002-features-first-development.md)
@@ -32,6 +33,9 @@
 
 ### Technische Documentatie
 - [Services Dependency Analysis](./SERVICES_DEPENDENCY_ANALYSIS.md) ✅
+- [Session-State Eliminatie Strategie](./architectuur/SESSION_STATE_ELIMINATION_STRATEGY.md) ✅ (canonical)
+- [Toetsregels Module Guide](./TOETSREGELS_MODULE_GUIDE.md) ✅ (canonical)
+- [Categorie Refactoring Plan](./architectuur/CATEGORY-REFACTORING-PLAN.md) ✅ (canonical)
 - [Technische Referentie](./technisch/) 📁
 - [Module Documentatie](./modules/) 📁
 
@@ -104,12 +108,23 @@ docs/
 | **Duplicaten** | 15+ | 0 | 100% |
 | **Lege dirs** | 5 | 0 | 100% |
 
-## 🚀 Volgende Stappen
+## 📌 Canonical Mapping (Single Source of Truth)
 
-1. ✅ **INDEX.md geplaatst** (dit document)
-2. ⏳ **Dry-run script genereren** voor veilige reorganisatie
-3. ⏳ **Review met team** van reorganisatie plan
-4. ⏳ **Uitvoeren** na goedkeuring
+- Architectuur Overzicht → `CURRENT_ARCHITECTURE_OVERVIEW.md` (owner: architecture)
+- Solution Architecture Detail → `architectuur/SOLUTION_ARCHITECTURE.md` (owner: architecture)
+- Validatie Orchestrator Story → `stories/epic-2-story-2.4-integration-migration.md` (owner: validation)
+- Toetsregels/Validators → `TOETSREGELS_MODULE_GUIDE.md` (owner: validation)
+- Session-State Eliminatie → `architectuur/SESSION_STATE_ELIMINATION_STRATEGY.md` (owner: platform)
+- Categorie Refactor → `architectuur/CATEGORY-REFACTORING-PLAN.md` (owner: domain)
+- Health/Status (canonical) → `../validation-status.json`
+
+Zie ook: `DOCUMENTATION_POLICY.md` voor labels, archivering en reviewregels.
+
+## 🚀 Volgende Stappen (PR’s)
+
+1) Canonicaliseren & labelen (deze stap) – frontmatter + INDEX + policy.
+2) Consolidatie & redirects – duplicaten archiveren en samenvatten in canonieke docs.
+3) CI‑bewaking – doc‑lint (canonical duplicaten, stalen verificatie, linkcheck).
 
 ## 📝 Notities
 

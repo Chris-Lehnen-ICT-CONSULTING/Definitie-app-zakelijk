@@ -7,6 +7,10 @@ __pycache__/
 .venv/
 venv/
 env/
+.env
+.env.*
+*.env
+*secrets*.yaml
 
 # 💚 Build / release - NEW STRUCTURE
 build/
@@ -104,6 +108,13 @@ backup/
 *_backup_*/
 docs/archief_backup_*/
 
+# 💚 Archives and QA locations (ignored)
+archive/
+archived/
+archief/
+docs/archief/
+qa.qaLocation/
+
 # 💚 Upload folders
 data/uploaded_documents/
 uploads/
@@ -130,3 +141,4 @@ logs/
 
 # Generated reports
 reports/
+.env

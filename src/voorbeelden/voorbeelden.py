@@ -1,13 +1,12 @@
 import os
 import re
 
-from dotenv import load_dotenv
 from openai import OpenAI, OpenAIError
 
-# 💚 Laad .env zodat OPENAI_API_KEY beschikbaar wordt
-load_dotenv()
 # ✅ Initialiseer de OpenAI-client met de api_key uit de omgeving
-_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_client = OpenAI(
+    api_key=(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD"))
+)
 
 
 def genereer_voorbeeld_zinnen(
@@ -17,6 +16,7 @@ def genereer_voorbeeld_zinnen(
         f"Geef 2 tot 3 korte voorbeeldzinnen waarin het begrip '{begrip}' "
         "op een duidelijke manier wordt gebruikt.\n"
         "Gebruik onderstaande contexten alleen als achtergrond, maar noem ze niet letterlijk:\n\n"
+        f"Definitie ter referentie: {definitie}\n"
         f"Organisatorische context: {', '.join(context_dict.get('organisatorisch', [])) or 'geen'}\n"
         f"Juridische context:      {', '.join(context_dict.get('juridisch', [])) or 'geen'}\n"
         f"Wettelijke basis:        {', '.join(context_dict.get('wettelijk', [])) or 'geen'}"
@@ -94,10 +94,10 @@ def genereer_tegenvoorbeelden(
     begrip: str, definitie: str, context_dict: dict[str, list[str]], aantal: int = 2
 ) -> list[str]:
     """
-    Genereert ‘aantal’ tegenvoorbeelden waarin:
-     - één of meer criteria uit de definitie **niet** (correct) worden ingevuld, of
+    Genereert 'aantal' tegenvoorbeelden waarin:
+     - een of meer criteria uit de definitie niet (correct) worden ingevuld, of
      - het begrip geheel misbruikt wordt.
-    Retourneert een lijst met string‐beschrijvingen.
+    Retourneert een lijst met string-beschrijvingen.
     """
     prompt = (
         f"Geef {aantal} korte tegenvoorbeelden voor het begrip '{begrip}' met definitie:\n"
@@ -134,28 +134,3 @@ def genereer_tegenvoorbeelden(
         voorbeelden.append("\n".join(current).strip())
 
     return voorbeelden
-
-    # ───────────────────────────────────────────────────
-    #  Parsen per genummerde casus: "1.", "2.", ...
-    # ───────────────────────────────────────────────────
-    resultaat: list[str] = []
-    regels = text.splitlines()
-    buffer: list[str] = []
-    teller = 1
-    for regel in regels:
-        if regel.lstrip().startswith(f"{teller}."):
-            if buffer:
-                resultaat.append("\n".join(buffer).strip())
-                buffer = []
-            # begin nieuwe casus
-            buffer.append(regel)
-            teller += 1
-        else:
-            buffer.append(regel)
-    if buffer:
-        resultaat.append("\n".join(buffer).strip())
-
-    # Indien het AI-antwoord minder gestructureerd was, fallback:
-    if len(resultaat) < aantal:
-        return [text]  # hele blob als fallback
-    return resultaat
