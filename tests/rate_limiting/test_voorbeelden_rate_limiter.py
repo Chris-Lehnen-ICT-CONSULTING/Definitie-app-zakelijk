@@ -4,7 +4,16 @@
 import asyncio
 import sys
 import time
+import os
+import pytest
 sys.path.insert(0, 'src')
+
+# Skip if no API key configured; voorbeelden generator depends on external API
+if not os.getenv("OPENAI_API_KEY"):
+    pytest.skip(
+        "OPENAI_API_KEY not set; skipping voorbeelden rate limiter test",
+        allow_module_level=True,
+    )
 
 from voorbeelden.unified_voorbeelden import (
     genereer_alle_voorbeelden_async,
