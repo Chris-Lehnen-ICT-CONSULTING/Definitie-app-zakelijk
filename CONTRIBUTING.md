@@ -73,6 +73,30 @@ python scripts/validation/validation-status-updater.py
 SKIP=check-doc-location git commit -m "..."
 ```
 
+### 📄 Documentatie hooks (docs lint)
+
+Installeer pre-commit en activeer de hooks:
+
+```bash
+pip install pre-commit
+pre-commit install
+```
+
+Handig:
+
+```bash
+# draai alle hooks op alle bestanden
+pre-commit run --all-files
+
+# tijdelijk een hook overslaan
+SKIP=doc-link-check pre-commit run --all-files
+```
+
+Hooks:
+- check-doc-location: valideert doc‑locaties en whitelist.
+- doc-link-check: controleert interne Markdown‑links in `docs/`.
+- doc-metadata-staleness: waarschuwt bij verouderde `last_verified` in canonical docs.
+
 ## 🏁 Starten (korte samenvatting)
 
 - VS Code: gebruik het launch-profiel “Streamlit: DefinitieAgent”.
