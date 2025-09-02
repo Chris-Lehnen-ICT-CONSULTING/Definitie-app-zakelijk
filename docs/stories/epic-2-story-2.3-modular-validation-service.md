@@ -93,7 +93,7 @@
   - [ ] Set thresholds per category (ESS, CON, STR, etc.)
   - [ ] Configure aggregation parameters
   - [ ] Document each configuration option
-- [ ] Update `.env.example` met configuration examples
+- [ ] Documenteer benodigde environment variabelen (geen runtime `.env` loading; gebruik OS env of editor‑mapping)
 
 ### Container Wiring (Direct Cutover)
 - [ ] Update `src/services/container.py`
