@@ -12,6 +12,22 @@
 
 > **🧪 Status Update (2025-08-19)**: F821 undefined name errors opgelost, imports gesorteerd, 84 kritieke errors gefixt
 
+## 🧾 Snelstart Cheatsheet
+
+```bash
+# Start app met automatische env-mapping (aanbevolen)
+bash scripts/run_app.sh
+
+# Alternatief: direct via Streamlit (gebruik omgeving)
+OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
+
+# Componentstatus genereren
+make validation-status
+
+# Tests draaien (quiet)
+pytest -q
+```
+
 ## 🎯 Overzicht
 
 DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 46 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.

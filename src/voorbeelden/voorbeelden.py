@@ -4,7 +4,9 @@ import re
 from openai import OpenAI, OpenAIError
 
 # ✅ Initialiseer de OpenAI-client met de api_key uit de omgeving
-_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_client = OpenAI(
+    api_key=(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD"))
+)
 
 
 def genereer_voorbeeld_zinnen(

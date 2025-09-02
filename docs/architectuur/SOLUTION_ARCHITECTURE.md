@@ -2525,3 +2525,10 @@ This Solution Architecture implements the strategic vision and requirements defi
 5. **Strategic Alignment** → [EA Section 7.1: Strategic Roadmap] - Business transformation timeline
 
 This document focuses on the technical implementation while ensuring alignment with enterprise standards and strategic objectives.
+---
+canonical: true
+status: active
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---

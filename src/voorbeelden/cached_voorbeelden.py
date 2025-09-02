@@ -11,7 +11,9 @@ from openai import OpenAI, OpenAIError
 from utils.cache import cache_example_generation, cache_synonym_generation
 
 # Initialize OpenAI client using environment variable only
-_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+_client = OpenAI(
+    api_key=(os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD"))
+)
 
 
 @cache_example_generation(ttl=1800)  # Cache for 30 minutes

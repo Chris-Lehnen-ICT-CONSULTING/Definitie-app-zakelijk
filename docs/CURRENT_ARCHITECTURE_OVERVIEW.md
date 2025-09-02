@@ -267,3 +267,10 @@ The following documents have been archived as they reference the old architectur
 ## Conclusion
 
 The DefinitieAgent has successfully transitioned from a monolithic God Object architecture to a clean, modular service architecture. This provides a solid foundation for future enhancements while maintaining backward compatibility through thoughtful adapter patterns.
+---
+canonical: true
+status: active
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---

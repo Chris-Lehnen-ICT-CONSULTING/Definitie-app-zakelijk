@@ -468,3 +468,10 @@ Deze session state elimination strategy biedt een bewezen aanpak voor het refact
 - [Facade Pattern](https://refactoring.guru/design-patterns/facade)
 - [Adapter Pattern](https://refactoring.guru/design-patterns/adapter)
 - [Strangler Fig Pattern](https://martinfowler.com/bliki/StranglerFigApplication.html)
+---
+canonical: true
+status: active
+owner: platform
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---

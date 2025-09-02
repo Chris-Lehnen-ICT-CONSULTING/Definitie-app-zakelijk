@@ -206,3 +206,10 @@ print(f"{melding} (score: {score})")
 - Check logs voor regex fouten
 - Test patronen met https://regex101.com
 - Gebruik debugger in validate() methode
+---
+canonical: true
+status: active
+owner: validation
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---

@@ -50,7 +50,9 @@ class GPTConfig:
     def __post_init__(self):
         """Load API key from environment if not provided."""
         if self.api_key is None:
-            self.api_key = os.getenv("OPENAI_API_KEY")
+            self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv(
+                "OPENAI_API_KEY_PROD"
+            )
         if self.api_base is None:
             self.api_base = os.getenv("OPENAI_API_BASE")
         if self.organization is None:

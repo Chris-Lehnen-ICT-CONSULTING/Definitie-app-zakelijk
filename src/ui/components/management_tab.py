@@ -1238,7 +1238,9 @@ class ManagementTab:
                 try:
                     import os
 
-                    openai_key = os.getenv("OPENAI_API_KEY")
+                    openai_key = os.getenv("OPENAI_API_KEY") or os.getenv(
+                        "OPENAI_API_KEY_PROD"
+                    )
 
                     if openai_key:
                         # Mask API key for security
