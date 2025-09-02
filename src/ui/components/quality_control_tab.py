@@ -5,6 +5,7 @@ Quality Control Tab - Interface voor kwaliteitscontrole en toetsregels analyse.
 from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
 
 import streamlit as st  # Streamlit web interface framework
+
 from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
 )
@@ -136,7 +137,9 @@ class QualityControlTab:
                 try:
                     import os
 
-                    api_key = os.getenv("OPENAI_API_KEY")
+                    api_key = os.getenv("OPENAI_API_KEY") or os.getenv(
+                        "OPENAI_API_KEY_PROD"
+                    )
                     ai_status = "✅ Geconfigureerd" if api_key else "❌ Ontbreekt"
                     st.metric("🤖 AI Service", ai_status)
                 except Exception:

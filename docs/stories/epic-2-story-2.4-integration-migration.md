@@ -1,5 +1,15 @@
 # Story 2.4: Integration & Migration
 
+# Story 2.4: Integration & Migration
+
+---
+canonical: true
+status: active
+owner: validation
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
 **Epic**: Epic 2 - ValidationOrchestratorV2 Implementation
 **Status**: Ready
 **Priority**: Critical

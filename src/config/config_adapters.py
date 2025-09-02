@@ -8,11 +8,10 @@ import os
 from dataclasses import asdict
 from typing import Any
 
+from config.config_manager import ConfigSection, get_config, get_config_manager
 from utils.enhanced_retry import RetryConfig
 from utils.resilience import ResilienceConfig as FrameworkResilienceConfig
 from utils.smart_rate_limiter import RateLimitConfig
-
-from config.config_manager import ConfigSection, get_config, get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -92,7 +91,7 @@ class APIConfigAdapter(ConfigAdapter):
 
         if not api_key:
             # Fallback to environment variable
-            api_key = os.getenv("OPENAI_API_KEY")
+            api_key = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")
             if api_key:
                 self.set_value("openai_api_key", api_key)
 

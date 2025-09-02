@@ -82,7 +82,8 @@ class AsyncGPTClient:
     """Async wrapper for OpenAI GPT API calls."""
 
     def __init__(self, rate_limit_config: RateLimitConfig | None = None):
-        self.api_key = os.getenv("OPENAI_API_KEY")
+        # Prefer OPENAI_API_KEY, fallback to OPENAI_API_KEY_PROD for dev convenience
+        self.api_key = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")
         if not self.api_key:
             msg = "OPENAI_API_KEY not found in environment"
             raise ValueError(msg)

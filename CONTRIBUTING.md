@@ -42,6 +42,42 @@ git push origin feature/jouw-feature-naam
 
 Focus op het toevoegen van nieuwe features, niet op het fixen van alle style issues.
 
+## ⚙️ Environment & Run Policy
+
+- Geen `.env` in runtime: de app leest `OPENAI_API_KEY` rechtstreeks uit de omgeving.
+- VS Code: launch-profiel zet `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD`.
+- Terminal: gebruik `bash scripts/run_app.sh` (mapt automatisch), of:
+
+```bash
+OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
+```
+
+- Status-updater draaien:
+
+```bash
+make validation-status
+# of
+python scripts/validation/validation-status-updater.py
+# Schrijft naar: reports/status/validation-status.json
+```
+
+- Secrets: geen sleutels of `.env` files committen; `.vscode/` blijft untracked.
+
+## 🧹 Pre-commit policy
+
+- Ruff/Black draaien tijdens commit alleen op gewijzigde Python-bestanden in `src/` en `config/`.
+- Documentlocatie-hook controleert staged bestanden op juiste paden.
+- Bij een valse positieven kun je eenmalig skippen:
+
+```bash
+SKIP=check-doc-location git commit -m "..."
+```
+
+## 🏁 Starten (korte samenvatting)
+
+- VS Code: gebruik het launch-profiel “Streamlit: DefinitieAgent”.
+- Terminal: `bash scripts/run_app.sh` of `streamlit run src/main.py` met `OPENAI_API_KEY` gezet.
+
 ## 🎯 Code Guidelines
 
 ### Python Style

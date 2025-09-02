@@ -443,7 +443,8 @@ class ConfigManager:
         voor flexibele deployment configuratie.
         """
         # API configuratie uit omgevingsvariabelen
-        if api_key := os.getenv("OPENAI_API_KEY"):
+        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")
+        if api_key:
             self.api.openai_api_key = api_key
 
         if model := os.getenv("OPENAI_DEFAULT_MODEL"):
