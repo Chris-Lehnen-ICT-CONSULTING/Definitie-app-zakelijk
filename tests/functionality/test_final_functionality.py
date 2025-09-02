@@ -5,6 +5,7 @@ Final test voor alle functionaliteit met juiste sync/async handling.
 
 import sys
 import os
+import pytest
 import time
 import json
 
@@ -13,6 +14,13 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
 
 from dotenv import load_dotenv
 load_dotenv()
+
+# Skip early if no API key configured; these tests call external generators
+if not os.getenv("OPENAI_API_KEY"):
+    pytest.skip(
+        "OPENAI_API_KEY not set; skipping final functionality tests requiring external API",
+        allow_module_level=True,
+    )
 
 from voorbeelden.unified_voorbeelden import (
     genereer_synoniemen, genereer_antoniemen, genereer_alle_voorbeelden,
