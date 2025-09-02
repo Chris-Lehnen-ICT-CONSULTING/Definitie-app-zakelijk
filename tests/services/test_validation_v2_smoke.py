@@ -25,4 +25,3 @@ def test_validation_v2_smoke():
     assert "overall_score" in result
     assert "is_acceptable" in result
     assert "violations" in result
-
