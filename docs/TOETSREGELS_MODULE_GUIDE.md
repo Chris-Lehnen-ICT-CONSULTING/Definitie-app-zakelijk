@@ -8,13 +8,23 @@ Elke toetsregel in DefinitieAgent bestaat uit twee delen:
 
 ## Structuur
 
+V2 gebruikt primair JSON‑regels via de ToetsregelManager. Python validators zijn optioneel en leven in een aparte map.
+
 ```
-src/toetsregels/regels/
-├── ESS-03.json          # Configuratie
-├── ESS_03.py           # Python validatie module
-├── CON-01.json         # Alleen JSON (gebruikt fallback validator)
-└── ...
+src/toetsregels/
+├── regels/
+│   ├── ESS-03.json          # JSON configuratie (canoniek voor V2)
+│   ├── CON-01.json          # Alleen JSON (fallback pattern‑based)
+│   └── ...
+└── validators/
+    ├── ESS_03.py            # Python validator (underscores)
+    ├── CON_01.py            # Python validator (underscores)
+    └── ...
 ```
+
+Let op naamgeving:
+- JSON: koppeltekens (bijv. `ESS-03.json`).
+- Python: underscores (bijv. `ESS_03.py`) in de map `validators/`.
 
 ## Nieuwe Toetsregel Maken
 
@@ -60,9 +70,9 @@ Dit maakt:
 }
 ```
 
-### Python Module
+### Python Module (optioneel)
 
-De Python module geeft je volledige controle over de validatie logica:
+De Python validator geeft je volledige controle over de validatie logica en wordt door UI‑detailvalidatie gebruikt. V2‑service kan deze ook via een adapter benutten.
 
 ```python
 class TEST01Validator:
@@ -140,9 +150,14 @@ def validate(self, definitie: str, begrip: str, context: Optional[Dict] = None):
         return False, f"❌ Te weinig concepten", score
 ```
 
-## Testen
+## V2 Validatie en Testen
 
-### Unit Test Template
+### V2 Service (ModularValidationService)
+- Laadt JSON‑regels via de ToetsregelManager.
+- Kan uitgebreid worden om Python validators via een module‑adapter te evalueren.
+- Geeft schema‑conforme resultaten terug (overall_score, violations, enz.).
+
+### Unit Test Template (validators)
 
 ```python
 # tests/test_toetsregel_TEST_01.py
