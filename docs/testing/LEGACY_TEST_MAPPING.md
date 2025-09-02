@@ -18,21 +18,23 @@ Bronnen:
 
 ## Mapping Tabel
 
-| Testbestand | Legacy‑import/reden | Geborgde kennis | Golden cases | V2 tests |
-|-------------|----------------------|------------------|--------------|----------|
+| Testbestand | Legacy‑import/reden | Geborgde kennis (BUSINESS_RULES.md) | Golden cases | V2 tests |
+|-------------|----------------------|------------------------------------|--------------|----------|
 | tests/integration/test_performance_comparison.py | UnifiedDefinitionService/definition_generator | N.v.t. (infra/perf) | n/a | smoke V2 |
-| tests/regression/test_complete_orchestrator.py | prompt_builder / oude orchestrator | Circulair/essentie/lengte → BUSINESS_RULES; route = V2 | voeg cases toe | smoke V2 + unit (determinisme) |
-| tests/regression/test_modular_orchestrator.py | prompt_builder | Idem | voeg cases toe | smoke V2 |
-| tests/regression/test_prompt_comparison.py | prompt_builder | Alleen promptstijl; geen extra businessregels | n/a | n/a |
-| tests/test_new_services_integration.py | definition_generator | Acceptatie 0.75; drempels (LEN/ESS/CIRC) → BUSINESS_RULES | koppel cases | smoke V2 |
+| tests/regression/test_complete_orchestrator.py | prompt_builder / oude orchestrator | Core Acceptance + Drempels + Determinisme | voeg toe/koppel | smoke V2; unit determinisme |
+| tests/regression/test_modular_orchestrator.py | prompt_builder | Idem | voeg toe/koppel | smoke V2 |
+| tests/regression/test_prompt_comparison.py | prompt_builder | Promptstijl niet leidend voor V2 validatie | n/a | n/a |
+| tests/test_new_services_integration.py | definition_generator | Core Acceptance (≥0.75), LEN/ESS/CIRC drempels | koppel cases | smoke V2 |
 | tests/test_services_simple.py | definition_generator | Idem | koppel cases | smoke V2 |
-| tests/unit/test_voorbeelden.py | generation.* | Niet‑leidend voor V2 validatie; voorbeelden los | n/a | n/a |
+| tests/test_services_basic.py | definition_generator | Idem | koppel cases | smoke V2 |
+| tests/test_ai_service_v2.py | oudere AI service | N.v.t. voor V2 validatiepad | n/a | n/a |
+| tests/unit/test_voorbeelden.py | generation.* | Niet leidend voor V2 validatie | n/a | n/a |
 | tests/unit/test_voorbeelden_clean.py | generation.* | Idem | n/a | n/a |
-| tests/unit/test_toets_ver_02.py | ai_toetser.core | Regelinhoud nu in BUSINESS_RULES/ YAML | koppel cases | unit (aggregatie) |
-| tests/unit/test_toets_ver_03.py | ai_toetser.core | Idem | koppel cases | unit (aggregatie) |
-| tests/services/test_service_factory.py | mixed legacy | Geen businessregels; route in V2 via factory | n/a | smoke V2 |
-| tests/test_services_basic.py | definition_generator | Drempel/acceptatie → BUSINESS_RULES | koppel cases | smoke V2 |
-| tests/test_ai_service_v2.py | oudere AI service | Niet relevant voor V2 validatie | n/a | n/a |
+| tests/unit/test_toets_ver_02.py | ai_toetser.core | Drempels/regels → Validation Rules Details | koppel cases | unit aggregatie |
+| tests/unit/test_toets_ver_03.py | ai_toetser.core | Idem | koppel cases | unit aggregatie |
+| tests/integration/test_integration_comprehensive.py | mixed legacy | Core Acceptance + Drempels | koppel cases | smoke V2 |
+| tests/regression/test_legacy_activation.py | legacy toggles | N.v.t. voor V2 | n/a | n/a |
+| tests/test_prompt_security_and_edge_cases.py | prompt_builder | STR‑/ESS‑/VAL‑regels → al geborgd | koppel cases | smoke V2 |
 
 NB: “voeg cases toe / koppel cases” = expliciet linken naar één of meer golden case ID’s zodra deze gereed zijn.
 
