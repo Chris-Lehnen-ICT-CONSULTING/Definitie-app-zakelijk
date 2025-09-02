@@ -9,6 +9,11 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any
 
+from config.config_manager import (
+    get_component_config,
+    get_default_model,
+    get_default_temperature,
+)
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_repository import DefinitionRepository
 
@@ -31,12 +36,6 @@ from services.orchestrators.definition_orchestrator_v2 import (
 # UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
 # from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.workflow_service import WorkflowService
-
-from config.config_manager import (
-    get_component_config,
-    get_default_model,
-    get_default_temperature,
-)
 
 if TYPE_CHECKING:
     from services.data_aggregation_service import DataAggregationService
@@ -73,7 +72,8 @@ class ServiceContainer:
         # Basis configuratie
         self.db_path = self.config.get("db_path", "data/definities.db")
         self.openai_api_key = self.config.get(
-            "openai_api_key", os.getenv("OPENAI_API_KEY")
+            "openai_api_key",
+            (os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")),
         )
 
         # Service specifieke configuratie - Use default and override via sub-configs
