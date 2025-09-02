@@ -1,4 +1,15 @@
-# Definition Generation Architecture Analysis
+---
+canonical: false
+status: archived
+owner: architecture
+last_verified: 2025-09-02
+applies_to: definitie-app@v2
+---
+
+# [ARCHIVED] Definition Generation Architecture Analysis
+
+Gearchiveerd ten gunste van de actuele Solution Architecture.
+Zie: `docs/architectuur/SOLUTION_ARCHITECTURE.md`.
 
 ## Executive Summary
 
