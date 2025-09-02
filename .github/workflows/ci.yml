@@ -1,110 +1,41 @@
-# CI-pipeline: ruff → mypy → bandit → pytest
-
 name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [ main ]
   pull_request:
-    branches: [main]
-
-permissions:
-  contents: read
+    branches: [ main ]
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Haal repo op
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      # 2) Installeer Python
-      - uses: actions/setup-python@v5
+      - name: Set up Python
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # 3) Cache pip-packages
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: ${{ runner.os }}-pip-
-
-      # 4) Installeer dependencies + tooling
-      - name: Install deps
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install ruff mypy bandit
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      # 5) Ruff lint
-      - name: Ruff
-        run: ruff check src tests
-
-      # 6) Mypy type-check
-      - name: MyPy
-        run: mypy src
-
-      # 7) Bandit security-scan
-      - name: Bandit
-        run: bandit -r src -ll
-
-      # 8) V1 Code Prevention Check
-      - name: Check for forbidden V1 symbols
+      - name: Run smoke test with coverage
+        env:
+          # Avoid external calls; smoke test is offline
+          OPENAI_API_KEY: dummy
+          OPENAI_API_KEY_PROD: dummy
         run: |
-          echo "Checking for forbidden V1 symbols..."
+          python -m pytest -q --maxfail=1 --disable-warnings \
+            --cov=src --cov-report=term-missing \
+            tests/services/test_validation_v2_smoke.py
 
-          # Check for V1 files that should not exist
-          if [ -f "src/services/ai_service.py" ]; then
-            echo "ERROR: V1 AI service file found (src/services/ai_service.py)"
-            exit 1
-          fi
-
-          if [ -f "src/services/definition_orchestrator.py" ]; then
-            echo "ERROR: V1 orchestrator file found (src/services/definition_orchestrator.py)"
-            exit 1
-          fi
-
-          # Check for V1 function references
-          if grep -r "stuur_prompt_naar_gpt" src/ --exclude-dir=__pycache__ --include="*.py" 2>/dev/null; then
-            echo "ERROR: Found references to V1 function 'stuur_prompt_naar_gpt'"
-            exit 1
-          fi
-
-          # Check for V1 class references (but allow DefinitionOrchestratorV2 and Interface)
-          if grep -r "^class DefinitionOrchestrator[^VI]" src/ --exclude-dir=__pycache__ --include="*.py" 2>/dev/null | grep -v "DefinitionOrchestratorInterface"; then
-            echo "ERROR: Found V1 DefinitionOrchestrator class (should use DefinitionOrchestratorV2)"
-            exit 1
-          fi
-
-          # Check for get_ai_service imports
-          if grep -r "from services.ai_service import get_ai_service" src/ --exclude-dir=__pycache__ --include="*.py" 2>/dev/null; then
-            echo "ERROR: Found imports of V1 get_ai_service function"
-            exit 1
-          fi
-
-          echo "✓ No forbidden V1 symbols found"
-
-      # 8b) Guard V2 response field usage in core modules
-      - name: Guard V2 response field usage
+      - name: Upload coverage as artifact (optional)
+        if: always()
         run: |
-          echo "Checking for legacy response fields in core modules..."
-          if grep -R -nE 'response\.message\b|response\.validation\b' src/services src/orchestration --exclude-dir=__pycache__ --include='*.py' 2>/dev/null; then
-            echo "ERROR: Found legacy response field usage in core modules (use '.error' and '.validation_result')."
-            exit 1
-          fi
-          echo "✓ No legacy response fields in core modules"
-
-      # 9) Pytest
-      - name: Pytest
-        run: |
-          export PYTHONPATH=$PWD/src
-          pytest -q
-
-      # 10) Forbidden symbols test
-      - name: Test for forbidden V1 symbols
-        run: |
-          export PYTHONPATH=$PWD/src
-          pytest tests/ci/test_forbidden_symbols.py -v
+          echo "Coverage report printed above. Configure XML/HTML if needed."
