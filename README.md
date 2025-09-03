@@ -10,7 +10,7 @@
 [![Security](https://img.shields.io/badge/security-basic%20only-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
-> **🧪 Status Update (2025-08-19)**: F821 undefined name errors opgelost, imports gesorteerd, 84 kritieke errors gefixt
+> **🧪 Status Update (2025-09-03)**: Performance analyse uitgevoerd, prompt optimalisatie (7.250→1.250 tokens), Toetsregel-Prompt Module architectuur voorgesteld
 
 ## 🧾 Snelstart Cheatsheet
 
@@ -41,13 +41,13 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 
 - 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
 - 📋 **45/46 Kwaliteitsregels** voor validatie (INT-05 ontbreekt)
-- 🏗️ **Hybride Architectuur** UnifiedDefinitionService + moderne services
-- 🌐 **Web Lookup** ⚠️ DEELS WERKEND - Backend werkt (28 tests), UI tab niet geïntegreerd
+- 🏗️ **Modulaire Architectuur** ValidationOrchestratorV2 + PromptServiceV2
+- 🌐 **Web Lookup Epic 3** Backend werkt, prompt augmentatie geïntegreerd
 - 📄 **Document Upload** voor kennisbasis uitbreiding
-- ⚡ **Smart Caching** ⚠️ memory leaks geïdentificeerd
-- 🖥️ **10 Streamlit UI Tabs** (alle importeren succesvol)
+- ⚡ **Performance Issues** 6x service init, 45x regel laden, 7.250 prompt tokens
+- 🖥️ **10 Streamlit UI Tabs** (3 actief, 7 placeholder)
 - 🔒 **Security** ❌ Geen authentication/encryption (productie blocker)
-- 🧪 **AI Code Review** ✅ Geautomatiseerd met 235 issues geïdentificeerd
+- 📦 **Single Source of Truth** (voorstel) voor toetsregels = prompt instructies
 
 ## 🚀 Quick Start
 
@@ -89,6 +89,43 @@ OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 
 Let op: we laden geen `.env`; stel je sleutel in via je shell of VS Code.
 
+## 📖 Documentatie Richtlijnen
+
+### 🎯 Single Source of Truth Policy
+
+Elk document moet frontmatter bevatten:
+```yaml
+---
+canonical: true|false      # Is dit de officiële bron?
+status: active|draft|archived
+owner: architecture|product|validation|platform
+last_verified: 2025-09-03  # Laatste controle datum
+applies_to: definitie-app@v2
+---
+```
+
+### 📂 Waar plaats je documenten?
+
+Zie [CANONICAL_LOCATIONS.md](docs/CANONICAL_LOCATIONS.md) voor de juiste locaties:
+
+| Type Document | Locatie | Voorbeeld |
+|--------------|---------|----------|
+| **Architectuur** | `docs/architectuur/` | EA.md, SA.md |
+| **Beslissingen** | `docs/architectuur/beslissingen/` | ADR-XXX-*.md |
+| **Requirements** | `docs/` | REQUIREMENTS_AND_FEATURES_COMPLETE.md |
+| **User Stories** | `docs/stories/` | epic-X-story-Y.md |
+| **Technisch** | `docs/technisch/` | web_lookup_config.md |
+| **Archief** | `docs/archief/` | Verouderde docs |
+
+### ✏️ Bij wijzigingen
+
+1. **Update `last_verified`** datum in frontmatter
+2. **Check duplicaten** - gebruik bestaande docs i.p.v. nieuwe maken
+3. **Link naar canoniek** - verwijs altijd naar de officiële bron
+4. **Archiveer oude versies** - zet `status: archived` met verwijzing
+
+Zie [DOCUMENTATION_POLICY.md](docs/DOCUMENTATION_POLICY.md) voor complete richtlijnen.
+
 ## 📁 Project Structuur
 
 ```
@@ -121,7 +158,7 @@ definitie-app/
 - `make validation-status`: kortere alias voor de status-updater.
 ```
 
-## 📊 Project Status (Updated 2025-08-19)
+## 📊 Project Status (Updated 2025-09-03)
 
 ### ✅ Werkend & Geverifieerd (48% production ready)
 - **Core Services**: DefinitionGenerator (99%), Validator (98%), Repository (100%)
@@ -134,12 +171,12 @@ definitie-app/
 - **Datetime Safety**: DTZ errors grotendeels opgelost ✅ NIEUW
 
 ### ❌ KRITIEKE BLOCKERS - Productie
+- **Performance**: Services worden 6x geïnitialiseerd door Streamlit reruns (20s startup)
+- **Prompt Inefficiëntie**: 7.250 tokens met duplicaties/tegenstrijdigheden (83% reductie mogelijk)
 - **Authentication/Authorization**: Geen security layer (OWASP A07:2021)
 - **Data Encryption**: SQLite databases unencrypted (OWASP A02:2021)
-- **Web Lookup UI**: Tab toont geen resultaten - integratie ontbreekt
-- **Legacy Refactoring**: UnifiedDefinitionService (698 regels) nog niet opgesplitst
-- **Import Architecture**: E402 errors in main.py en legacy modules
-- **Error Handling**: 8 bare except clauses maskeren critical errors
+- **Web Lookup**: SRU Rechtspraak 404 errors, beperkte bronnen
+- **Toetsregels**: 45x herladen per sessie, geen caching
 
 ### 🚧 Performance & Quality Issues
 - **Database**: N+1 queries in voorbeelden system
@@ -147,25 +184,25 @@ definitie-app/
 - **Test Infrastructure**: 26% test-to-code ratio, import failures
 - **Code Quality**: 92 important issues, 175 suggestions (AI review)
 
-### 📈 HERZIENE Roadmap (Post-Quinn Review)
+### 📈 HERZIENE Roadmap (Post-Codex Review 2025-09-03)
 
-Week 1-2: **🚨 FOUNDATION STABILITEIT (PRIO 1)**
-- Legacy refactoring: UnifiedDefinitionService échte split
-- Import architecture fix: E402 errors main.py/legacy
-- Eliminate 8 bare except clauses (security risk)
-- Feature flags implementatie (nu gedocumenteerd maar bestaat niet)
+Week 1: **🚨 QUICK WINS (80% impact, 20% effort)**
+- Streamlit caching: @st.cache_resource voor ServiceContainer (6x→1x init)
+- Prompt refactoring: 7.250→1.250 tokens implementatie (83% reductie)
+- Toetsregels caching: @st.cache_data voor 45x→1x loading
+- Config security: WEB_LOOKUP_CONFIG path validation
 
-Week 3-4: **🔒 SECURITY & TESTING**
-- Authentication/authorization systeem implementeren
-- Database encryption voor sensitive data
-- Test infrastructure fix (import issues)
-- WebLookupService complete rebuild starten
+Week 2-3: **🏗️ TOETSREGEL-PROMPT MODULE PILOT**
+- Implementeer ToetsregelModule base class
+- Pilot met 5 regels (ARAI-01 t/m ARAI-05)
+- Single Source of Truth: validate() + get_prompt_instruction()
+- Test token reductie en consistency
 
-Week 5-8: **⚡ PERFORMANCE & QUALITY**
-- Database N+1 queries optimalisatie
-- Memory leak fixes in cache system
-- Code quality: 92 important issues → <10
-- Performance monitoring implementatie
+Week 4-6: **📦 FULL MIGRATION & INTEGRATION**
+- Migreer alle 45 toetsregels naar modules
+- Context-aware prompt compositie
+- Integratie met ModularValidationService
+- A/B testing oude vs nieuwe prompt
 
 Week 9-12: **🎯 PRODUCTION READINESS**
 - Security hardening (OWASP compliance)

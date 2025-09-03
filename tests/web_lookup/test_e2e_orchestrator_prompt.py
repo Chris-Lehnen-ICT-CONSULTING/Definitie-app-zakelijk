@@ -126,4 +126,3 @@ async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
     assert "### Contextinformatie uit bronnen:" in prompt_text
     # There should be exactly 2 list items (max_snippets=2)
     assert prompt_text.count("- ") >= 2
-

@@ -18,12 +18,20 @@
 ### Product & Requirements
 - [Product Requirements (PRD)](./prd.md) ✅
 - [Project Brief](./brief.md) ✅
-- [Requirements Compleet](./REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
+- [Requirements Compleet](./requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅ **[VERPLAATST]**
 - [User Stories](./stories/) 📁
 
 ### Architectuur
-- [Huidige Architectuur Overzicht](./CURRENT_ARCHITECTURE_OVERVIEW.md) ✅ (canonical)
+- [Huidige Architectuur Overzicht](./architectuur/CURRENT_ARCHITECTURE_OVERVIEW.md) ✅ (canonical) **[VERPLAATST]**
+- [Enterprise Architecture (EA)](./architectuur/EA.md) ✅ **[VERPLAATST]**
+- [Solution Architecture (SA)](./architectuur/SA.md) ✅ **[VERPLAATST]**
+- [Technical Architecture (TA)](./architectuur/TA.md) ✅ **[VERPLAATST]**
 - [Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) ✅ (canonical)
+- [Modernization Plan 2025](./architectuur/MODERNIZATION_PLAN_2025.md) ✅ **[VERPLAATST]**
+- [Services Dependency Analysis](./architectuur/SERVICES_DEPENDENCY_ANALYSIS.md) ✅ **[VERPLAATST]**
+- [Services Dependency Graph](./architectuur/SERVICES_DEPENDENCY_GRAPH.md) ✅ **[VERPLAATST]**
+- [V1 Elimination Rollback](./architectuur/V1_ELIMINATION_ROLLBACK.md) ✅ **[VERPLAATST]**
+- [True Modular System Deployment](./architectuur/TRUE_MODULAR_SYSTEM_DEPLOYMENT.md) ✅ **[VERPLAATST]**
 - [Architecture Decision Records](./architectuur/beslissingen/) 📁
   - [ADR-001: Monolithische structuur](./architectuur/beslissingen/ADR-001-monolithische-structuur.md)
   - [ADR-002: Features-first development](./architectuur/beslissingen/ADR-002-features-first-development.md)
@@ -32,18 +40,34 @@
   - [ADR-005: Service architecture evolution](./architectuur/beslissingen/ADR-005-service-architecture-evolution.md)
 
 ### Technische Documentatie
-- [Services Dependency Analysis](./SERVICES_DEPENDENCY_ANALYSIS.md) ✅
 - [Session-State Eliminatie Strategie](./architectuur/SESSION_STATE_ELIMINATION_STRATEGY.md) ✅ (canonical)
-- [Toetsregels Module Guide](./TOETSREGELS_MODULE_GUIDE.md) ✅ (canonical)
+- [Toetsregels Module Guide](./technische-referentie/modules/TOETSREGELS_MODULE_GUIDE.md) ✅ (canonical) **[VERPLAATST]**
 - [Categorie Refactoring Plan](./architectuur/CATEGORY-REFACTORING-PLAN.md) ✅ (canonical)
+- [Technical Analysis Prompt Generation](./technisch/TECHNICAL_ANALYSIS_PROMPT_GENERATION.md) ✅ **[VERPLAATST]**
 - [Technische Referentie](./technisch/) 📁
+- [Technische-Referentie Modules](./technische-referentie/) 📁 **[NIEUW]**
 - [Web Lookup Configuratie](./technisch/web_lookup_config.md) ✅ (canonical)
 - [Module Documentatie](./modules/) 📁
+
+### Prompt Refactoring & Analysis
+- [Prompt Analysis Duplicates & Contradictions](./architectuur/prompt-refactoring/PROMPT_ANALYSIS_DUPLICATES_CONTRADICTIONS.md) ✅ **[VERPLAATST]**
+- [Prompt Refactoring Comparison](./architectuur/prompt-refactoring/PROMPT_REFACTORING_COMPARISON.md) ✅ **[VERPLAATST]**
+- [Prompt Refactoring Implementation](./architectuur/prompt-refactoring/PROMPT_REFACTORING_IMPLEMENTATION.md) ✅ **[VERPLAATST]**
+- [Prompt Refactoring Summary](./architectuur/prompt-refactoring/PROMPT_REFACTORING_SUMMARY.md) ✅ **[VERPLAATST]**
+- [Prompt Generation Fixes](./architectuur/prompt-refactoring/PROMPT_GENERATION_FIXES.md) ✅ **[VERPLAATST]**
+- [Prompt System Runtime Analysis](./architectuur/prompt-refactoring/PROMPT_SYSTEM_RUNTIME_ANALYSIS.md) ✅ **[VERPLAATST]**
+
+### Reviews & Code Analysis
+- [Codex Reviews Executive Summary](./reviews/CODEX_REVIEWS_EXECUTIVE_SUMMARY.md) ✅ **[VERPLAATST]**
+- [Security and Feedback Analysis](./reviews/SECURITY_AND_FEEDBACK_ANALYSIS.md) ✅ **[VERPLAATST]**
+- [Full Code Review 2025-08-28](./reviews/2025-08-28_full_code_review/) 📁
 
 ### Workflows & Handleidingen
 - [Actieve Workflows](./workflows/) 📁
 - [Frontend Guide](./frontend/AI-FRONTEND-PROMPT-NL.md) ✅
 - [Compliance](./compliance/) 📁
+- [Handover Story 2.4](./handover/HANDOVER_STORY_2.4.md) ✅ **[VERPLAATST]**
+- [Handover Web Lookup Epic 3](./handover/HANDOVER_WEB_LOOKUP_EPIC3.md) ✅ **[VERPLAATST]**
 
 ## 📂 Huidige Directory Structuur
 
@@ -140,4 +164,5 @@ Zie ook: `DOCUMENTATION_POLICY.md` voor labels, archivering en reviewregels.
 
 ---
 
-*Laatste update: 2025-01-29 door BMad Orchestrator*
+*Laatste update: 2025-09-03 - Documentatie reorganisatie uitgevoerd*
+*Door: Documentation Standards Guardian*
