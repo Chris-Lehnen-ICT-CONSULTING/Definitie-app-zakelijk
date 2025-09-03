@@ -266,6 +266,24 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 f"ontological_category={sanitized_request.ontologische_categorie})"
             )
 
+            # Debug summary: how many sources vs injected snippets in prompt
+            try:
+                text = prompt_result.text or ""
+                header = "### Contextinformatie uit bronnen:"
+                injected_snippets = 0
+                if header in text:
+                    # Count list items following the header (lines starting with "- ")
+                    tail = text.split(header, 1)[1]
+                    injected_snippets = tail.count("\n- ")
+                logger.info(
+                    "Web lookup summary: sources=%s, injected_snippets=%s",
+                    len(provenance_sources or []),
+                    injected_snippets,
+                )
+            except Exception:
+                # Non-fatal debug
+                pass
+
             # =====================================
             # PHASE 4: AI Generation with Retry Logic
             # =====================================
