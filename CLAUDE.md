@@ -236,6 +236,8 @@ When using specialized agents:
 
 ## Documentation References
 
+> **📍 Voor document locaties:** Zie `docs/CANONICAL_LOCATIONS.md` voor waar elk type document hoort te staan.
+
 ### Key Architecture Documents
 - **Enterprise Architecture**: `docs/architectuur/EA.md`
 - **Solution Architecture**: `docs/architectuur/SA.md`
@@ -250,7 +252,7 @@ When using specialized agents:
 
 ### Project Documentation
 - **Documentation Policy**: `docs/DOCUMENTATION_POLICY.md`
-- **Canonical Locations**: `docs/CANONICAL_LOCATIONS.md`
+- **Canonical Locations**: `docs/CANONICAL_LOCATIONS.md` ← **BELANGRIJK: Check hier voor juiste document locaties**
 - **Documentation Index**: `docs/INDEX.md`
 - **Project Brief**: `docs/brief.md`
 - **Product Requirements**: `docs/prd.md`
