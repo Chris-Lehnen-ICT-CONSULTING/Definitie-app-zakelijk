@@ -54,7 +54,7 @@ Legacy structuur - gebruik nieuwe locaties hierboven
 
 **Voor Operations:**
 - [Deployment Guides](./handleidingen/deployment/)
-- [Configuration Docs](./technische-referentie/configuratie/)
+- [Web Lookup Config](./technisch/web_lookup_config.md)
 
 ## 🎯 Belangrijke Documenten
 
