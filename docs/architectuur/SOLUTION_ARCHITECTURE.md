@@ -9,6 +9,13 @@ owner: architecture
 
 ## Wijzigingshistorie
 
+- 2025-09-03: Toetsregel-Prompt Module Architecture
+  - Toegevoegd: Single Source of Truth voor toetsregels (validatie = generatie)
+  - Toegevoegd: ToetsregelModule interface met validate() en get_prompt_instruction()
+  - Toegevoegd: PromptComposer voor dynamische prompt samenstelling
+  - Toegevoegd: Context-aware regel selectie mechanisme
+  - Update: Token reductie van 7.250 naar ~2.000-3.000 tokens
+
 - 2025-08-28: Modularisatie-update (delta op bestaande SA)
   - Toegevoegd: modulaire grenzen en dependency‑regels (adapters → services → domain; infrastructure implementeert interfaces).
   - Toegevoegd: stabiele contracten voor AI en prompts (AIProviderInterface, PromptBuilderInterface).
@@ -48,6 +55,8 @@ owner: architecture
 4. **Reuse Existing Components**: 65% of code unused but microservice-ready
 5. **Event-Driven Architecture**: Loose coupling for scalability
 6. **Strangler Fig Pattern**: Gradual migration from monolith
+7. **Single Source of Truth**: Toetsregels define both validation AND prompt generation logic
+8. **Dynamic Prompt Composition**: Context-aware selection reduces tokens by 65%
 
 ### Reference to Enterprise Architecture
 - **Business Drivers**: → [EA Section 1: Business Architecture]

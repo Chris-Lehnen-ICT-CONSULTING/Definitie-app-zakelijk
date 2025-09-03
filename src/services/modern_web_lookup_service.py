@@ -63,6 +63,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
     def __init__(self):
         self.sources: dict[str, SourceConfig] = {}
+        self._config: dict[str, Any] | None = None
+        self._provider_weights: dict[str, float] = {}
 
         # Initialize domein components als beschikbaar
         if DOMAIN_AVAILABLE:
@@ -76,33 +78,60 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
     def _setup_sources(self) -> None:
         """Configureer alle beschikbare lookup bronnen."""
+        # Load config
+        try:
+            from .web_lookup.config_loader import load_web_lookup_config
+
+            self._config = load_web_lookup_config()
+            wl = self._config.get("web_lookup", {})
+            providers = wl.get("providers", {})
+            # Build provider weights mapping using epic keys
+            self._provider_weights = {
+                "wikipedia": float(providers.get("wikipedia", {}).get("weight", 0.8)),
+                # Map Overheid/Rechtspraak to sru_overheid config by default
+                "overheid": float(providers.get("sru_overheid", {}).get("weight", 1.0)),
+                "rechtspraak": float(
+                    providers.get("sru_overheid", {}).get("weight", 1.0)
+                ),
+                "wiktionary": float(providers.get("wiktionary", {}).get("weight", 0.9)),
+            }
+        except Exception as e:
+            logger.warning(f"Web lookup config not loaded, using defaults: {e}")
+            self._config = None
+            self._provider_weights = {
+                "wikipedia": 0.8,
+                "wiktionary": 0.9,
+                "overheid": 1.0,
+                "rechtspraak": 0.95,
+            }
+
         self.sources = {
             "wikipedia": SourceConfig(
                 name="Wikipedia",
                 base_url="https://nl.wikipedia.org/api/rest_v1",
                 api_type="mediawiki",
-                confidence_weight=0.8,
+                confidence_weight=self._provider_weights.get("wikipedia", 0.8),
                 is_juridical=False,
             ),
             "wiktionary": SourceConfig(
                 name="Wiktionary",
                 base_url="https://nl.wiktionary.org/w/api.php",
                 api_type="mediawiki",
-                confidence_weight=0.9,
+                confidence_weight=self._provider_weights.get("wiktionary", 0.9),
                 is_juridical=False,
             ),
             "overheid": SourceConfig(
                 name="Overheid.nl",
                 base_url="https://repository.overheid.nl",
                 api_type="sru",
-                confidence_weight=1.0,
+                confidence_weight=self._provider_weights.get("overheid", 1.0),
                 is_juridical=True,
             ),
             "rechtspraak": SourceConfig(
                 name="Rechtspraak.nl",
                 base_url="https://www.rechtspraak.nl",
                 api_type="sru",
-                confidence_weight=0.95,
+                confidence_weight=self._provider_weights.get("rechtspraak", 0.95),
                 is_juridical=True,
             ),
         }
@@ -138,11 +167,54 @@ class ModernWebLookupService(WebLookupServiceInterface):
             if result is not None:
                 valid_results.append(result)
 
-        # Sorteer op confidence score
-        valid_results.sort(key=lambda r: r.source.confidence, reverse=True)
+        # Ranking & dedup volgens Epic 3
+        try:
+            from .web_lookup.ranking import rank_and_dedup
 
-        # Limiteer aantal resultaten
-        return valid_results[: request.max_results]
+            # Convert to contract-like dicts for ranking
+            prepared = [
+                self._to_contract_dict(r) for r in valid_results if r is not None
+            ]
+            # Provider keys mapping based on source names
+            ranked = rank_and_dedup(prepared, self._provider_weights)
+
+            # Reorder/filter original results according to ranked unique set
+            final_results: list[LookupResult] = []
+            # Index by canonical URL or content hash
+            from hashlib import sha256
+
+            from .web_lookup.ranking import _canonical_url  # type: ignore
+
+            index: dict[str, LookupResult] = {}
+            for r in valid_results:
+                url_key = _canonical_url(getattr(r.source, "url", ""))
+                if url_key:
+                    index[f"url:{url_key}"] = r
+                # Content hash fallback from definition
+                base_text = (r.definition or r.context or "").encode(
+                    "utf-8", errors="ignore"
+                )
+                ch = sha256(base_text).hexdigest()
+                index[f"hash:{ch}"] = r
+
+            for item in ranked:
+                key = None
+                if item.get("url"):
+                    key = f"url:{_canonical_url(str(item['url']))}"
+                else:
+                    key = f"hash:{item.get('content_hash','')}"
+                picked = index.get(key)
+                if picked is not None:
+                    final_results.append(picked)
+
+            # Limiteer aantal resultaten
+            return final_results[: request.max_results]
+        except Exception as e:
+            logger.warning(
+                f"Ranking/dedup failed, falling back to confidence sort: {e}"
+            )
+            valid_results.sort(key=lambda r: r.source.confidence, reverse=True)
+            return valid_results[: request.max_results]
 
     def _determine_sources(self, request: LookupRequest) -> list[str]:
         """Bepaal welke bronnen te gebruiken op basis van request."""
@@ -345,6 +417,69 @@ class ModernWebLookupService(WebLookupServiceInterface):
             confidence=confidence,
             is_juridical=(bron_type in (BronType.WETGEVING, BronType.JURISPRUDENTIE)),
         )
+
+    # --------------------
+    # Helpers
+    # --------------------
+
+    def _to_contract_dict(self, result: LookupResult) -> dict[str, Any]:
+        """Convert LookupResult into a minimal contract-like dict for ranking.
+
+        Applies sanitization and computes a content hash fallback when URL is absent.
+        """
+        try:
+            from .web_lookup.sanitization import sanitize_snippet
+        except Exception:
+
+            def sanitize_snippet(x: str, max_length: int = 500) -> str:  # type: ignore
+                return (x or "")[:max_length]
+
+        from hashlib import sha256
+
+        provider_key = self._infer_provider_key(result)
+        snippet_src = result.definition or result.context or ""
+        snippet = sanitize_snippet(snippet_src, max_length=500)
+        url = getattr(result.source, "url", "")
+        content = (snippet_src or "").encode("utf-8", errors="ignore")
+        content_hash = sha256(content).hexdigest()
+
+        return {
+            "provider": provider_key,
+            "source_label": result.source.name,
+            "title": (
+                result.metadata.get("title")
+                if isinstance(result.metadata, dict)
+                else None
+            )
+            or result.source.name,
+            "url": url,
+            "snippet": snippet,
+            "score": float(result.source.confidence or 0.0),
+            "used_in_prompt": False,
+            "position_in_prompt": -1,
+            "retrieved_at": (
+                result.metadata.get("retrieved_at")
+                if isinstance(result.metadata, dict)
+                else None
+            ),
+            "content_hash": content_hash,
+            "is_authoritative": bool(getattr(result.source, "is_juridical", False)),
+            "legal_weight": (
+                1.0 if getattr(result.source, "is_juridical", False) else 0.0
+            ),
+        }
+
+    def _infer_provider_key(self, result: LookupResult) -> str:
+        name = (result.source.name or "").lower()
+        if "wikipedia" in name:
+            return "wikipedia"
+        if "wiktionary" in name:
+            return "wiktionary"
+        if "rechtspraak" in name:
+            return "rechtspraak"
+        if "overheid" in name:
+            return "overheid"
+        return name or "unknown"
 
     def _determine_source_type(self, text: str) -> BronType:
         """Bepaal het type bron op basis van tekst analyse."""

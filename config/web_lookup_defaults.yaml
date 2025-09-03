@@ -1,0 +1,43 @@
+web_lookup:
+  enabled: true
+
+  cache:
+    strategy: "stale-while-revalidate"
+    grace_period: 300
+    default_ttl: 3600
+    max_entries: 1000
+
+  sanitization:
+    strip_tags: [script, style, iframe, object, embed, form]
+    block_protocols: [javascript, data, vbscript]
+    max_snippet_length: 500
+
+  providers:
+    wikipedia:
+      enabled: true
+      weight: 0.7
+      timeout: 5
+      cache_ttl: 7200
+      min_score: 0.3
+
+    sru_overheid:
+      enabled: true
+      weight: 1.0  # Highest for juridisch
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+
+  context_mappings:
+    DJI: ["Pbw", "WvSr"]
+    OM: ["WvSv"]
+    Rechtspraak: ["Rv"]
+
+  prompt_augmentation:
+    enabled: true
+    max_snippets: 3
+    max_tokens_per_snippet: 100
+    total_token_budget: 400
+    prioritize_juridical: true
+    section_header: "### Contextinformatie uit bronnen:"
+    snippet_separator: "\n- "
+    position: "after_context"  # one of: prepend, after_context, before_examples
