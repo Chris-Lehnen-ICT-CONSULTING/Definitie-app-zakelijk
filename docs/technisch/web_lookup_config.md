@@ -44,4 +44,3 @@ Deze applicatie gebruikt één centrale configuratie voor de moderne web lookup 
 
 - Unit/integratie: `pytest -q tests/web_lookup`
 - App (dev): `streamlit run src/main.py` en een definitie genereren; controleer bronnen en promptsectie.
-

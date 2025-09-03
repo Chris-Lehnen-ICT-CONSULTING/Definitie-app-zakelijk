@@ -61,4 +61,3 @@ def test_sru_parse_response_adds_metadata_and_url():
     assert r.source.is_juridical is True
     assert "retrieved_at" in r.metadata
     assert "content_hash" in r.metadata
-
