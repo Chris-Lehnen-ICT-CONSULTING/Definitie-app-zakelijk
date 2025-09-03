@@ -28,6 +28,11 @@ make validation-status
 pytest -q
 ```
 
+### 🌐 Web Lookup Config (Epic 3)
+- De applicatie gebruikt één configbestand: `config/web_lookup_defaults.yaml` (prompt‑augmentatie staat standaard aan).
+- Optioneel kun je een eigen config gebruiken via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
+- Zie ook: [Web Lookup Configuratie](docs/technisch/web_lookup_config.md)
+
 ## 🎯 Overzicht
 
 DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 46 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
