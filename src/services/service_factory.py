@@ -269,6 +269,12 @@ class ServiceAdapter:
                     "processing_time", 0
                 ),
                 "metadata": response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
+                # STORY 3.1 FIX: Add sources field to make them accessible in UI preview
+                "sources": (
+                    response.definition.metadata.get("sources", [])
+                    if response.definition and response.definition.metadata
+                    else []
+                ),
                 "prompt_text": (
                     response.metadata.get("prompt_text", "")
                     if response.metadata

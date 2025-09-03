@@ -275,7 +275,7 @@ class PromptServiceV2:
             tokens_used = 0
             added = 0
 
-            for src in selected:
+            for idx, src in enumerate(selected):
                 if added >= max_snippets:
                     break
                 raw = src.get("snippet") or ""
@@ -284,7 +284,8 @@ class PromptServiceV2:
                 est = approx_tokens(safe)
                 if tokens_used + est > total_budget:
                     break
-                label = src.get("source_label") or src.get("provider") or "bron"
+                # STORY 3.1: Use provider-neutral "Bron X" format
+                label = f"Bron {added + 1}"
                 injected_lines.append(f"- {label}: {safe}")
                 tokens_used += est
                 added += 1
