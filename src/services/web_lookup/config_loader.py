@@ -24,8 +24,13 @@ def load_web_lookup_config(path: str | None = None) -> dict[str, Any]:
         Parsed configuration dictionary.
     """
     if path is None:
-        # Simplified: always use defaults in this dev-only phase
-        path = str(Path("config") / "web_lookup_defaults.yaml")
+        # Highest priority: explicit override via env var
+        override = os.getenv("WEB_LOOKUP_CONFIG")
+        if override:
+            path = override
+        else:
+            # Default application config
+            path = str(Path("config") / "web_lookup_defaults.yaml")
 
     config_path = Path(path)
     if not config_path.exists():
