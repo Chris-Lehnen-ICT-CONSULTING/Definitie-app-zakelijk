@@ -105,3 +105,30 @@ Van 553 regels (~7250 tokens) naar ~150 regels (<2000 tokens).
 ### Resultaat
 Zie `prompt_refactored.txt` voor de nieuwe structuur.
 Token reductie: ~72% (van 7250 naar <2000)
+
+---
+
+## 2025-01-03: Story 3.1 - Metadata Sources Visibility
+
+### Story Context
+Story 3.1 addressed the web lookup sources visibility problem where sources were collected but not visible in UI during preview.
+
+### Root Cause
+Unnecessary LegacyGenerationResult wrapper that broke metadata["sources"] access.
+
+### Applied Fixes
+1. **Quick Fix**: Added sources field to result_dict in service_factory.py
+2. **Provider Neutrality**: Changed prompt augmentation to use "Bron 1/2/3" format
+3. **Juridical Citations**: Added legal metadata extraction for ECLI and article references
+4. **UI Enhancement**: Improved source display with badges and no-source feedback
+
+### TDD Approach
+- RED: Created comprehensive unit and integration tests (10 unit, 6 integration)
+- GREEN: Minimal implementation to pass all tests
+- Tests verify complete flow from web lookup to UI display
+
+### Impact
+- Sources now visible during preview (not just after save)
+- Provider-neutral references in prompts
+- Legal sources show proper juridical citations
+- Better user feedback when no sources found
