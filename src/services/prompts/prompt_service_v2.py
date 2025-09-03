@@ -201,6 +201,7 @@ class PromptServiceV2:
         try:
             aug = self._aug_cfg or {}
             if not aug.get("enabled", False):
+                logger.info("Prompt augmentation disabled by config; skipping")
                 return prompt_text
 
             web_ctx = (
@@ -209,10 +210,12 @@ class PromptServiceV2:
                 else None
             )
             if not web_ctx or not isinstance(web_ctx, dict):
+                logger.info("No web_lookup context found; skipping prompt augmentation")
                 return prompt_text
 
             sources = web_ctx.get("sources") or []
             if not sources:
+                logger.info("No web_lookup sources available; skipping prompt augmentation")
                 return prompt_text
 
             # Select items: used_in_prompt first; stable juridical priority if configured
@@ -237,6 +240,11 @@ class PromptServiceV2:
                         str(s.get("url", "")),
                     ),
                 )
+            logger.info(
+                "Prompt augmentation selection: total_sources=%s, selected_for_consideration=%s",
+                len(sources),
+                len(selected),
+            )
 
             # Token budget & snippet length management
             max_snippets = int(aug.get("max_snippets", 3))
@@ -282,9 +290,20 @@ class PromptServiceV2:
                 added += 1
 
             if added == 0:
+                logger.info(
+                    "Prompt augmentation produced no snippets within budget (total_budget=%s, per_snippet=%s)",
+                    total_budget,
+                    max_tokens_per_snippet,
+                )
                 return prompt_text
 
             block = "\n".join(injected_lines)
+            logger.info(
+                "Prompt augmentation added %s snippet(s), approx_tokens=%s, position=%s",
+                added,
+                tokens_used,
+                position,
+            )
             if position == "prepend":
                 return f"{block}\n\n{prompt_text}"
             # Default append behavior for after_context/before_examples
