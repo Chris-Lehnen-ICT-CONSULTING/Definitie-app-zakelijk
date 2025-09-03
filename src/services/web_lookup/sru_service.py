@@ -304,6 +304,15 @@ class SRUService:
             definition = ". ".join(definition_parts) if definition_parts else title
 
             # Build metadata
+            from datetime import datetime, timezone
+            from hashlib import sha256
+
+            content_hash = sha256(
+                (identifier or title or description or term or "").encode(
+                    "utf-8", errors="ignore"
+                )
+            ).hexdigest()
+
             metadata = {
                 "sru_endpoint": config.name,
                 "dc_title": title,
@@ -312,6 +321,8 @@ class SRUService:
                 "dc_date": date,
                 "dc_identifier": identifier,
                 "record_schema": config.record_schema,
+                "retrieved_at": datetime.now(timezone.utc).isoformat(),
+                "content_hash": content_hash,
             }
 
             return LookupResult(
