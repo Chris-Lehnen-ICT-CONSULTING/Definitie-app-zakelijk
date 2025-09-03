@@ -6,7 +6,6 @@ from __future__ import annotations
 
 import logging
 import os
-from contextlib import suppress
 from pathlib import Path
 from typing import Any
 
@@ -25,14 +24,8 @@ def load_web_lookup_config(path: str | None = None) -> dict[str, Any]:
         Parsed configuration dictionary.
     """
     if path is None:
-        # 1) Explicit env override takes precedence
-        if os.getenv("WEB_LOOKUP_CONFIG"):
-            path = os.getenv("WEB_LOOKUP_CONFIG")
-        else:
-            # 2) Prefer development config when present (we operate in dev-only envs)
-            dev_path = Path("config") / "web_lookup_development.yaml"
-            default_path = Path("config") / "web_lookup_defaults.yaml"
-            path = str(dev_path if dev_path.exists() else default_path)
+        # Simplified: always use defaults in this dev-only phase
+        path = str(Path("config") / "web_lookup_defaults.yaml")
 
     config_path = Path(path)
     if not config_path.exists():
@@ -42,7 +35,9 @@ def load_web_lookup_config(path: str | None = None) -> dict[str, Any]:
     with config_path.open("r", encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
 
-    with suppress(Exception):
+    try:
         logger.info("Web lookup config loaded: %s", config_path)
+    except Exception:
+        pass
 
     return data

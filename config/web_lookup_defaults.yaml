@@ -33,7 +33,7 @@ web_lookup:
     Rechtspraak: ["Rv"]
 
   prompt_augmentation:
-    enabled: false
+    enabled: true
     max_snippets: 3
     max_tokens_per_snippet: 100
     total_token_budget: 400
