@@ -13,6 +13,13 @@
 | **Archief directory** | 125 docs | 🔄 Moet zelf gearchiveerd |
 | **Duplicaten/Overlap** | ~15+ | ❌ Verwarrend |
 
+## 🚀 Active Development
+
+- **[Story 3.1: Metadata First, Prompt Second](./stories/story-3.1-implementation-status.md)** 🔄 **IN PROGRESS**
+  - Status: Implementing legacy wrapper removal
+  - Target: Sources zichtbaar in UI preview
+  - ETA: 4-6 uur
+
 ## 🎯 Quick Links - Essentiële Documenten
 
 ### Product & Requirements
@@ -20,6 +27,12 @@
 - [Project Brief](./brief.md) ✅
 - [Requirements Compleet](./requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅ **[VERPLAATST]**
 - [User Stories](./stories/) 📁
+  - **[Epic 3 User Stories](./stories/epic-3-user-stories.md)** 🆕 ✅ **UAT PRIORITY**
+  - **[Epic 3 Implementation Tracker](./stories/epic-3-implementation-tracker.md)** 🆕 📊 **DAILY UPDATE**
+  - **[Story 3.1 Implementation Status](./stories/story-3.1-implementation-status.md)** 🔄 **ACTIVE**
+  - [Story 3.1 Design](./stories/story-3.1-metadata-first-prompt-second.md) ✅
+  - [Epic 3 Web Lookup](./stories/epic-3-web-lookup-modernization.md) 🔄
+- **[UAT Readiness Assessment 2025](./requirements/uat/UAT_READINESS_ASSESSMENT_2025.md)** 🆕 ✅ (canonical)
 
 ### Architectuur
 - [Huidige Architectuur Overzicht](./architectuur/CURRENT_ARCHITECTURE_OVERVIEW.md) ✅ (canonical) **[VERPLAATST]**
@@ -61,6 +74,7 @@
 - [Codex Reviews Executive Summary](./reviews/CODEX_REVIEWS_EXECUTIVE_SUMMARY.md) ✅ **[VERPLAATST]**
 - [Security and Feedback Analysis](./reviews/SECURITY_AND_FEEDBACK_ANALYSIS.md) ✅ **[VERPLAATST]**
 - [Full Code Review 2025-08-28](./reviews/2025-08-28_full_code_review/) 📁
+- **[Technical Debt Assessment 2025](./code-analyse/quality/TECHNICAL_DEBT_ASSESSMENT_2025.md)** 🆕 ✅ (canonical)
 
 ### Workflows & Handleidingen
 - [Actieve Workflows](./workflows/) 📁

@@ -751,33 +751,69 @@ class DefinitionGeneratorTab:
                 if isinstance(metadata, dict):
                     sources = metadata.get("sources")
 
-            # 2) Val terug op agent_result.metadata (preview vóór opslag)
+            # 2) STORY 3.1: Check direct sources attribute (preview fix)
+            if sources is None and hasattr(agent_result, "sources"):
+                sources = agent_result.sources
+            
+            # 3) Val terug op agent_result.metadata (legacy support)
             if sources is None and isinstance(agent_result, dict):
                 meta = agent_result.get("metadata")
                 if isinstance(meta, dict):
                     sources = meta.get("sources")
+            elif sources is None and hasattr(agent_result, "metadata"):
+                if isinstance(agent_result.metadata, dict):
+                    sources = agent_result.metadata.get("sources")
 
-            if not sources:
-                return  # Niks te tonen
-
+            # STORY 3.1: Always show sources section with feedback
             st.markdown("#### 📚 Gebruikte Bronnen")
+            
+            if not sources:
+                st.info("ℹ️ Geen externe bronnen geraadpleegd. Web lookup is uitgeschakeld of er zijn geen relevante bronnen gevonden.")
+                return
+
             for idx, src in enumerate(sources[:5]):  # Toon max 5
-                # Ondersteun dict-achtige records met verwachte velden
-                provider = src.get("provider") or src.get("name") or "bron"
+                # Use source_label if available (Story 3.1), fallback to provider
+                provider_label = src.get("source_label") or self._get_provider_label(src.get("provider", "bron"))
                 title = src.get("title") or src.get("definition") or "(zonder titel)"
                 url = src.get("url") or src.get("link") or ""
                 score = src.get("score") or src.get("confidence") or 0.0
                 used = src.get("used_in_prompt", False)
                 snippet = src.get("snippet") or src.get("context") or ""
+                is_authoritative = src.get("is_authoritative", False)
+                legal_meta = src.get("legal")
 
-                with st.expander(f"{idx+1}. {provider} — {title}", expanded=(idx == 0)):
-                    if url:
-                        st.markdown(f"🔗 [Open bron]({url})")
-                    st.markdown(f"Score: `{score:.2f}` • In prompt: `{used}`")
+                with st.expander(f"{idx+1}. {provider_label} — {title[:80]}", expanded=(idx == 0)):
+                    # Show badges
+                    col1, col2, col3 = st.columns([1, 1, 2])
+                    with col1:
+                        if is_authoritative:
+                            st.success("✓ Autoritatief")
+                    with col2:
+                        if used:
+                            st.info("→ In prompt")
+                    
+                    # Show juridical citation if available
+                    if legal_meta and legal_meta.get("citation_text"):
+                        st.markdown(f"**Juridische verwijzing**: {legal_meta['citation_text']}")
+                    
+                    # Show score and snippet
+                    st.markdown(f"**Score**: {score:.2f}")
                     if snippet:
-                        st.write(snippet[:500] + ("…" if len(snippet) > 500 else ""))
+                        st.markdown(f"**Fragment**: {snippet[:500]}{'...' if len(snippet) > 500 else ''}")
+                    if url:
+                        st.markdown(f"[🔗 Open bron]({url})")
         except Exception as e:
             logger.debug(f"Kon bronnen sectie niet renderen: {e}")
+    
+    def _get_provider_label(provider: str) -> str:
+        """Get human-friendly label for provider (local helper)."""
+        labels = {
+            "wikipedia": "Wikipedia NL",
+            "overheid": "Overheid.nl",
+            "rechtspraak": "Rechtspraak.nl",
+            "wiktionary": "Wiktionary NL",
+        }
+        return labels.get(provider, provider.replace("_", " ").title())
 
     def _render_validation_results(self, validation_result):
         """Render validation resultaten."""

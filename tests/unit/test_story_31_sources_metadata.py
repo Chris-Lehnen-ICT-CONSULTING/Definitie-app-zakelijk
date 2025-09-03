@@ -16,6 +16,7 @@ src_path = Path(__file__).parent.parent.parent / "src"
 sys.path.insert(0, str(src_path))
 
 from services.service_factory import LegacyGenerationResult, ServiceAdapter
+from services.web_lookup.provenance import build_provenance, _get_provider_label, _extract_legal_metadata
 
 
 class TestLegacyGenerationResultSources:
@@ -46,13 +47,14 @@ class TestLegacyGenerationResultSources:
     def test_service_adapter_adds_sources_to_result(self):
         """Test that ServiceAdapter.generate_definition adds sources to result_dict."""
         # Arrange
-        adapter = ServiceAdapter()
+        container = Mock()
+        adapter = ServiceAdapter(container)
 
         # Mock the orchestrator response
         mock_response = Mock()
         mock_response.success = True
         mock_response.definition = Mock()
-        mock_response.definition.text = "Test definitie"
+        mock_response.definition.definitie = "Test definitie"  # Changed from .text to .definitie
         mock_response.definition.metadata = {
             "sources": [
                 {"provider": "wikipedia", "title": "Test", "score": 0.9},
@@ -62,15 +64,14 @@ class TestLegacyGenerationResultSources:
         }
         mock_response.metadata = {"voorbeelden": {}}
         mock_response.error = None
+        mock_response.validation_result = None
 
-        # Mock container and orchestrator
-        adapter.container = Mock()
-        adapter.container.orchestrator_v2 = Mock()
-        adapter.container.orchestrator_v2.generate_definition = AsyncMock(return_value=mock_response)
+        # Mock the orchestrator
+        adapter.orchestrator = Mock()
+        adapter.orchestrator.create_definition = AsyncMock(return_value=mock_response)
 
         # Act
-        import asyncio
-        result = asyncio.run(adapter._async_generate(begrip="test", context_dict={}))
+        result = adapter.generate_definition(begrip="test", context_dict={})
 
         # Assert - result should have sources field
         assert hasattr(result, 'sources'), "Result should have sources attribute"
@@ -79,23 +80,24 @@ class TestLegacyGenerationResultSources:
     def test_sources_empty_list_when_no_sources(self):
         """Test that sources defaults to empty list when no sources in metadata."""
         # Arrange
-        adapter = ServiceAdapter()
+        container = Mock()
+        adapter = ServiceAdapter(container)
 
         mock_response = Mock()
         mock_response.success = True
         mock_response.definition = Mock()
-        mock_response.definition.text = "Test definitie"
+        mock_response.definition.definitie = "Test definitie"  # Changed from .text to .definitie
         mock_response.definition.metadata = {"processing_time": 1.5}  # No sources
         mock_response.metadata = None
         mock_response.error = None
+        mock_response.validation_result = None
 
-        adapter.container = Mock()
-        adapter.container.orchestrator_v2 = Mock()
-        adapter.container.orchestrator_v2.generate_definition = AsyncMock(return_value=mock_response)
+        # Mock the orchestrator
+        adapter.orchestrator = Mock()
+        adapter.orchestrator.create_definition = AsyncMock(return_value=mock_response)
 
         # Act
-        import asyncio
-        result = asyncio.run(adapter._async_generate(begrip="test", context_dict={}))
+        result = adapter.generate_definition(begrip="test", context_dict={})
 
         # Assert
         assert hasattr(result, 'sources')
@@ -240,7 +242,7 @@ class TestUISourceDisplay:
     def test_ui_handles_missing_sources_gracefully(self):
         """Test UI handles case when no sources are present."""
         # Arrange
-        agent_result = Mock()
+        agent_result = Mock(spec=['metadata'])  # Spec to avoid auto-creating attributes
         agent_result.metadata = {}
         # Intentionally don't set sources attribute
 

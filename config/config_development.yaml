@@ -12,7 +12,7 @@ api:
       cost_per_token: 3.0e-05
       max_tokens: 300
       temperature: 0.0
-  openai_api_key: ${OPENAI_API_KEY}
+  openai_api_key: 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
   request_timeout: 60.0
   retry_backoff_factor: 1.5
 cache:
