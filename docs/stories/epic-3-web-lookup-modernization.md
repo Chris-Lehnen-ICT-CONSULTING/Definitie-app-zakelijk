@@ -1,21 +1,21 @@
-# Epic 3: Web Lookup Modernization & Bronverantwoording
+# Epic 3: Modern Web Lookup (Aangescherpt Plan)
 
-**Epic Goal**: Moderniseer de web lookup service voor context verrijking van definities, met volledige bronverantwoording en provenance tracking voor transparantie en kwaliteitsborging.
+**Epic Goal**: Werkende, deterministische web lookup die LLM-prompt verbetert en gebruikte bronnen transparant toont en bewaart (MVP zonder DB-migratie).
 
 **Business Value**:
 - Betere definitie kwaliteit door verrijkte context voor LLM
 - Transparante bronverantwoording voor gebruikers
 - Juridische compliance door traceerbare bronnen
-- Performance verbetering door caching en parallelle lookups
+- Deterministische ranking en deduplicatie
 
 **Acceptance Criteria**:
-- [ ] Alle 7 legacy lookup bronnen behouden en werkend
-- [ ] Bronnen persistent opgeslagen bij elke definitie
-- [ ] UI toont gebruikte bronnen met titel, URL en snippet
-- [ ] Export bevat gestructureerde bronverwijzingen
-- [ ] Performance: <500ms voor parallelle lookups (gecached)
-- [ ] Deterministische resultaten bij identieke input
-- [ ] Graceful degradation bij externe API failures
+- [ ] Provider adapters returnen uniform WebLookupResult contract
+- [ ] Deterministische ranking met config weights en tiebreakers
+- [ ] Bronnen opgeslagen in metadata.sources (geen DB migratie)
+- [ ] UI toont bronnen uit metadata (geen eigen lookup)
+- [ ] Prompt augmentatie respecteert token budget
+- [ ] Juridische bronnen geprioriteerd indien enabled
+- [ ] Offline tests groen (geen netwerk in CI)
 
 ## Context & Requirements
 
@@ -35,17 +35,16 @@ Web lookup moet:
 
 ### Scope
 - **IN SCOPE**:
-  - Consolidatie van 5 legacy implementaties
-  - Database schema voor bronnen
-  - UI component voor bronweergave
-  - Export met bronverwijzingen
-  - Caching strategie
+  - Adapters → normalisatie → ranking/dedup
+  - Orchestrator-enrichment → prompt-augmentatie
+  - UI-render vanuit metadata → offline E2E tests
+  - Legacy cleanup (na groene E2E)
 
-- **OUT OF SCOPE**:
+- **OUT OF SCOPE (nu)**:
+  - Nieuwe DB-tabel voor bronnen (volgende sprint)
+  - Geavanceerde caching/rate-limiting
   - Nieuwe lookup bronnen toevoegen
   - Real-time updates van bronnen
-  - Gebruiker selectie van bronnen
-  - API authenticatie (blijft public APIs)
 
 ## Technical Design
 
@@ -504,6 +503,88 @@ def build_context_pack(
 ### Estimated Effort: 2 dagen
 
 ---
+
+## Implementation Phases (Aangescherpt)
+
+### Fase 1: Provider Adapters op Contract (1-1.5u)
+- **Wikipedia adapter**: Return uniform WebLookupResult
+  - provider, source_label, title, url, snippet (gesaneerd)
+  - score (genormaliseerd 0-1), is_authoritative=false
+  - retrieved_at, content_hash
+- **SRU adapter**: Idem contract met is_authoritative=true
+- **ModernWebLookupService**:
+  - Gebruik config weights/min_score_threshold
+  - Pas rank_and_dedup toe
+  - Markeer top-K used_in_prompt
+
+### Fase 2: E2E zonder Netwerk (1-1.5u)
+- **Orchestrator integratie** (enable_web_lookup=true):
+  - Mock adapters
+  - Verify metadata.sources gevuld
+  - Top-K marked used_in_prompt=true
+- **Prompt augmentatie** (via config):
+  - Injecteer ≤ K snippets
+  - Respecteer token budget
+  - Geen prompt-corruptie
+- **UI verificatie**:
+  - Render metadata.sources
+  - Geen eigen lookup pad
+
+### Fase 3: Legacy Cleanup (0.5u) - NA GROENE E2E
+- Verwijder lege `src/web_lookup/` directory
+- Remove/guard legacy fallback in ModernWebLookupService
+- Verwijder ongebruikte imports
+
+### Fase 4: Tests & Acceptatie (0.5u)
+- Unit tests (offline): adapters → contract
+- Orchestrator E2E met mocks
+- UI smoke test: bronnen-sectie correct
+
+## Configuratie (Instelbaar)
+
+```yaml
+web_lookup:
+  prompt_augmentation:
+    enabled: false  # Feature flag
+    max_snippets: 3
+    max_tokens_per_snippet: 100
+    total_token_budget: 400
+    position: after_context  # before_examples | after_context | prepend
+    prioritize_juridical: true
+    section_header: "### Contextinformatie uit bronnen:"
+    snippet_separator: "\n- "
+
+orchestrator:
+  enable_web_lookup: true
+  web_lookup_top_k: 3
+
+providers:
+  wikipedia:
+    weight: 0.7
+    min_score: 0.3
+  sru_overheid:
+    weight: 1.0  # Juridisch authoritative
+    min_score: 0.4
+```
+
+## Concrete TODO's (Geprioriteerd)
+
+1. Fix Wikipedia adapter contract compliance
+2. Fix SRU adapter contract compliance
+3. Add sanitization to adapter outputs
+4. Create offline end-to-end test with mocked providers
+5. Test orchestrator web lookup integration
+6. Verify UI shows sources from metadata
+7. Implement token-safe prompt augmentation
+8. Add juridical prioritization for snippets
+9. Remove empty src/web_lookup directory
+10. Remove legacy fallback code from modern service
+
+## Risico's & Mitigatie
+
+- **Token lengte**: Heuristiek 4 chars ≈ 1 token + harde char-cap
+- **Drift**: Orchestrator bepaalt ranking/used_in_prompt; prompt-laag herordent niet
+- **Cleanup**: Pas uitvoeren na groene E2E tests
 
 ## Test Strategy & TDD Suite
 
