@@ -17,6 +17,27 @@
 - [ ] Juridische bronnen geprioriteerd indien enabled
 - [ ] Offline tests groen (geen netwerk in CI)
 
+## Progress Status (2025-01-09)
+
+### ✅ Done
+- Contract & normalisatie‑backbone geïmplementeerd
+- Config‑gedreven weights en scoring
+- Deterministische ranking & deduplicatie
+- Orchestrator‑integratie (fase 2.5)
+- Provenance tracking via `metadata.sources` (top‑K `used_in_prompt`)
+- UI rendert bronnen vanuit `metadata.sources`
+- Unit & integratie (mocked) tests groen
+
+### 🔄 In Progress
+- Prompt‑augmentatie integratie in PromptServiceV2 (config‑gedreven)
+- E2E‑verificatie van zichtbare prompt‑injectie (tokenbudget/prioritering)
+
+### 📋 Next
+- Adapters contract‑compliance afronden (ontbrekende velden zoals `content_hash`, `is_authoritative` toevoegen)
+- Token‑safe prompt‑augmentatie afronden
+- Juridische prioritering toepassen in snippetselectie (deterministisch)
+- Legacy fallback‑resten verwijderen of guarderen in ModernWebLookupService
+
 ## Context & Requirements
 
 ### Huidige Situatie
@@ -569,16 +590,14 @@ providers:
 
 ## Concrete TODO's (Geprioriteerd)
 
-1. Fix Wikipedia adapter contract compliance
-2. Fix SRU adapter contract compliance
-3. Add sanitization to adapter outputs
-4. Create offline end-to-end test with mocked providers
-5. Test orchestrator web lookup integration
-6. Verify UI shows sources from metadata
-7. Implement token-safe prompt augmentation
-8. Add juridical prioritization for snippets
-9. Remove empty src/web_lookup directory
-10. Remove legacy fallback code from modern service
+1. Fix Wikipedia adapter contract compliance (voeg o.a. `content_hash`, `is_authoritative` toe)
+2. Fix SRU adapter contract compliance (idem contractvelden)
+3. Add sanitization to adapter outputs (hard sanitization policy toepassen)
+4. Create offline end-to-end test with mocked providers (deterministisch)
+5. Test orchestrator web lookup integration (metadata.sources/used_in_prompt)
+6. Implement token-safe prompt augmentation (config‑gedreven)
+7. Add juridical prioritization for snippets (stabiele tiebreakers)
+8. Remove legacy fallback code from modern service (geen directory cleanup vereist)
 
 ## Risico's & Mitigatie
 
