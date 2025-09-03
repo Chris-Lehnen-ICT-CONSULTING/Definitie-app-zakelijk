@@ -91,7 +91,7 @@ class WebLookupResult:
     ttl_seconds: int = 3600
 ```
 
-3. Create `config/web_lookup_defaults.yaml`:
+3. Create `config/web_lookup_defaults.yaml` (deze wordt door de app standaard gebruikt; optioneel kun je met `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml` overschrijven):
 
 ```yaml
 web_lookup:
