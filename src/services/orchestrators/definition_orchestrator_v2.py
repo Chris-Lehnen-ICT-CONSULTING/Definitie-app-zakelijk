@@ -231,7 +231,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             }
                         )
 
-                    provenance_sources = build_provenance(prepared)
+                    # STORY 3.1: Extract legal metadata for juridical sources
+                    provenance_sources = build_provenance(prepared, extract_legal=True)
 
                     # Mark top-K as used_in_prompt (we'll include these first in any context pack)
                     top_k = max(0, int(getattr(self.config, "web_lookup_top_k", 3)))

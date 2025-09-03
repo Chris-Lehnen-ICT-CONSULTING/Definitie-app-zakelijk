@@ -1,4 +1,56 @@
-# Refactor Log - Prompt Structuur
+# Refactor Log - DefinitieAgent Project
+
+## 2025-09-03: Technical Debt Assessment - Legacy Code Analysis
+
+### Gedetecteerde Problemen
+
+#### 1. **Monolithische UI Componenten**
+**Bestanden**:
+- `/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/definition_generator_tab.py` (1,490 lines)
+- `/Users/chrislehnen/Projecten/Definitie-app/src/database/definitie_repository.py` (1,462 lines)
+- `/Users/chrislehnen/Projecten/Definitie-app/src/ui/components/management_tab.py` (1,393 lines)
+
+**Code Smell**: God Object pattern
+**Cyclomatic Complexity**:
+- `_render_generation_results`: 64 (EXTREME)
+- `_render_sources_section`: 23 (HIGH)
+
+**Voorgestelde Refactoring**:
+- Extract Method: Break functions >30 lines into focused units
+- Extract Class: Separate rendering logic from business logic
+- Introduce Strategy Pattern for different render modes
+
+#### 2. **Duplicatie in Validation Modules**
+**Locatie**: `/Users/chrislehnen/Projecten/Definitie-app/src/toetsregels/`
+- 100 validator files met identieke structuur
+- 45 duplicate `validate()` methods
+- ~4,500 lines duplicated boilerplate
+
+**Voorgestelde Refactoring**:
+- Extract Superclass: Create BaseValidator
+- Template Method Pattern voor validation flow
+- Composition over inheritance voor rule-specific logic
+
+#### 3. **Performance Bottlenecks**
+**Problemen**:
+- 6x service initialization per request (Streamlit reruns)
+- 45x regel loading zonder caching
+- 7,250 prompt tokens met 83% duplicatie
+
+**Voorgestelde Refactoring**:
+- Singleton Pattern voor services
+- @st.cache_resource decorator voor ServiceContainer
+- Prompt consolidation naar <2,000 tokens
+
+### Toegepaste Refactoring Technieken
+- Extract Method
+- Extract Class
+- Template Method Pattern
+- Singleton Pattern
+- Dependency Injection
+- Cache Implementation
+
+---
 
 ## 2025-09-03: Prompt.txt Refactoring
 
