@@ -686,7 +686,10 @@ def generate_or_retrieve_definition(
             if context:
                 vctx = ValidationContext()
             return await validation_orch.validate_text(
-                begrip="", text=definitie, ontologische_categorie=categorie, context=vctx
+                begrip="",
+                text=definitie,
+                ontologische_categorie=categorie,
+                context=vctx,
             )
         except Exception as e:
             logger.error(f"Integrated validation error: {e!s}")

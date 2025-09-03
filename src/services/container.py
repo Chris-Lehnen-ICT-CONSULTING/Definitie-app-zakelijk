@@ -239,6 +239,8 @@ class ServiceContainer:
                 feedback_engine=None,  # Not implemented yet
                 # Configuration
                 config=v2_config,
+                # Epic 3: inject ModernWebLookupService so enrichment and provenance work
+                web_lookup_service=self.web_lookup(),
             )
             logger.info("DefinitionOrchestratorV2 instance created")
 
