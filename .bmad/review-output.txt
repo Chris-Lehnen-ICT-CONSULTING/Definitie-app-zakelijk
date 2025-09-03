@@ -1,4 +1,0 @@
-2025-09-03 08:53:31,383 - __main__ - INFO - 🚀 Starting AI Code Review Cycle
-2025-09-03 08:53:31,383 - __main__ - INFO -
-📍 Iteration 1/1
-2025-09-03 08:53:31,383 - __main__ - INFO - 🔍 Starting quality checks...
