@@ -17,7 +17,7 @@
 - [ ] Juridische bronnen geprioriteerd indien enabled
 - [ ] Offline tests groen (geen netwerk in CI)
 
-## Progress Status (2025-01-09)
+## Progress Status (2025-09-03)
 
 ### ✅ Done
 - Contract & normalisatie‑backbone geïmplementeerd
@@ -27,16 +27,21 @@
 - Provenance tracking via `metadata.sources` (top‑K `used_in_prompt`)
 - UI rendert bronnen vanuit `metadata.sources`
 - Unit & integratie (mocked) tests groen
-
-### 🔄 In Progress
 - Prompt‑augmentatie integratie in PromptServiceV2 (config‑gedreven)
 - E2E‑verificatie van zichtbare prompt‑injectie (tokenbudget/prioritering)
 
+### 🔄 In Progress - Story 3.1: Metadata First, Prompt Second
+- **Status**: IMPLEMENTING
+- **Focus**: Legacy wrapper removal in service_factory.py
+- **Doel**: Sources zichtbaar maken in UI tijdens preview
+- **Approach**: Optie B - Clean solution (verwijder LegacyGenerationResult)
+
 ### 📋 Next
-- Adapters contract‑compliance afronden (ontbrekende velden zoals `content_hash`, `is_authoritative` toevoegen)
-- Token‑safe prompt‑augmentatie afronden
-- Juridische prioritering toepassen in snippetselectie (deterministisch)
-- Legacy fallback‑resten verwijderen of guarderen in ModernWebLookupService
+- Complete Story 3.1 implementatie (2-4 uur)
+- Provider-neutraliteit in prompt ("Bron 1" i.p.v. "wikipedia")
+- Juridische citatie formatting voor autoritatieve bronnen
+- UI feedback bij geen bronnen
+- Legacy fallback‑resten volledig verwijderen
 
 ## Context & Requirements
 
