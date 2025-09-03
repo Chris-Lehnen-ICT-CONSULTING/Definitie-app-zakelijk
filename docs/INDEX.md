@@ -37,6 +37,7 @@
 - [Toetsregels Module Guide](./TOETSREGELS_MODULE_GUIDE.md) ✅ (canonical)
 - [Categorie Refactoring Plan](./architectuur/CATEGORY-REFACTORING-PLAN.md) ✅ (canonical)
 - [Technische Referentie](./technisch/) 📁
+- [Web Lookup Configuratie](./technisch/web_lookup_config.md) ✅ (canonical)
 - [Module Documentatie](./modules/) 📁
 
 ### Workflows & Handleidingen
