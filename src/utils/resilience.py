@@ -11,7 +11,7 @@ import pickle
 import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -129,7 +129,7 @@ class DeadLetterQueue:
     async def get_retryable_requests(self) -> list[FailedRequest]:
         """Get requests that can be retried."""
         async with self._lock:
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             retryable = []
 
             for req in self.queue[
@@ -198,7 +198,7 @@ class HealthMonitor:
         self.endpoints[name] = HealthMetrics(
             endpoint_name=name,
             status=ServiceHealth.HEALTHY,
-            last_check=datetime.now(timezone.utc),
+            last_check=datetime.now(UTC),
             response_time=0.0,
             success_rate=1.0,
             error_count=0,
@@ -216,7 +216,7 @@ class HealthMonitor:
 
         metrics = self.endpoints[endpoint]
         metrics.total_requests += 1
-        metrics.last_check = datetime.now(timezone.utc)
+        metrics.last_check = datetime.now(UTC)
 
         # Update response time (exponential moving average)
         alpha = 0.1
@@ -268,9 +268,7 @@ class HealthMonitor:
 
         # Record status change
         if old_status != new_status:
-            self.health_history[endpoint].append(
-                (datetime.now(timezone.utc), new_status)
-            )
+            self.health_history[endpoint].append((datetime.now(UTC), new_status))
             logger.warning(
                 f"Health status changed for {endpoint}: {old_status.value} → {new_status.value}"
             )
@@ -282,7 +280,7 @@ class HealthMonitor:
                 # Update availability metrics
                 for endpoint, metrics in self.endpoints.items():
                     # Calculate availability over last hour
-                    now = datetime.now(timezone.utc)
+                    now = datetime.now(UTC)
                     hour_ago = now - timedelta(hours=1)
 
                     recent_history = [
@@ -377,7 +375,7 @@ class ResilienceFramework:
             state = {
                 "dead_letter_queue": self.dead_letter_queue.queue,
                 "fallback_cache": self.fallback_cache,
-                "timestamp": datetime.now(timezone.utc),
+                "timestamp": datetime.now(UTC),
             }
 
             with open(state_file, "wb") as f:
@@ -490,7 +488,7 @@ class ResilienceFramework:
                     args=args,
                     kwargs=kwargs,
                     priority=priority,
-                    timestamp=datetime.now(timezone.utc),
+                    timestamp=datetime.now(UTC),
                     last_error=str(e),
                 )
                 await self.dead_letter_queue.add(failed_request)
@@ -517,7 +515,7 @@ class ResilienceFramework:
             cached_result, timestamp = self.fallback_cache[cache_key]
 
             # Check if cache is still valid
-            age = (datetime.now(timezone.utc) - timestamp).total_seconds()
+            age = (datetime.now(UTC) - timestamp).total_seconds()
             if age < self.config.fallback_cache_duration:
                 return cached_result
             # Remove expired cache entry
@@ -530,7 +528,7 @@ class ResilienceFramework:
     ):
         """Cache successful response for fallback."""
         cache_key = self._generate_cache_key(func, args, kwargs)
-        self.fallback_cache[cache_key] = (result, datetime.now(timezone.utc))
+        self.fallback_cache[cache_key] = (result, datetime.now(UTC))
 
     def _generate_cache_key(self, func: Callable, args: tuple, kwargs: dict) -> str:
         """Generate cache key for function call."""
@@ -589,7 +587,7 @@ class ResilienceFramework:
         """Background task to cleanup expired fallback cache entries."""
         while not self._shutdown:
             try:
-                now = datetime.now(timezone.utc)
+                now = datetime.now(UTC)
                 expired_keys = []
 
                 for key, (_, timestamp) in self.fallback_cache.items():

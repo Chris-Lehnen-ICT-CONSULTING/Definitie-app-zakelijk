@@ -23,6 +23,8 @@ except ImportError:
     tiktoken = None
 
 from openai import APIConnectionError, OpenAIError, RateLimitError
+
+from config.config_manager import get_config_manager
 from services.interfaces import (
     AIBatchRequest,
     AIGenerationResult,
@@ -33,8 +35,6 @@ from services.interfaces import (
 )
 from utils.async_api import AsyncGPTClient, RateLimitConfig
 from utils.cache import cache_gpt_call
-
-from config.config_manager import get_config_manager
 
 logger = logging.getLogger(__name__)
 
@@ -182,7 +182,7 @@ class AIServiceV2(AIServiceInterface):
                 metadata={"tokens_estimated": True} if not TIKTOKEN_AVAILABLE else {},
             )
 
-        except asyncio.TimeoutError as e:
+        except TimeoutError as e:
             timeout_msg = f"AI generation timed out after {timeout_seconds}s"
             raise AITimeoutError(timeout_msg) from e
         except RateLimitError as e:
