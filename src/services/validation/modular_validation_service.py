@@ -454,13 +454,12 @@ class ModularValidationService:
                             ontologische_categorie=item.ontologische_categorie,
                             context=item.context.__dict__ if item.context else None,
                         )
-                    elif isinstance(item, tuple):
+                    if isinstance(item, tuple):
                         begrip, text = item
                         return await self.validate_definition(begrip, text)
-                    else:
-                        return await self.validate_definition(
-                            item.get("begrip", ""), item.get("text", "")
-                        )
+                    return await self.validate_definition(
+                        item.get("begrip", ""), item.get("text", "")
+                    )
 
             # Voer alle validaties parallel uit
             results = await asyncio.gather(

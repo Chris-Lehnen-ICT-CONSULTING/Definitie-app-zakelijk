@@ -215,7 +215,9 @@ class PromptServiceV2:
 
             sources = web_ctx.get("sources") or []
             if not sources:
-                logger.info("No web_lookup sources available; skipping prompt augmentation")
+                logger.info(
+                    "No web_lookup sources available; skipping prompt augmentation"
+                )
                 return prompt_text
 
             # Select items: used_in_prompt first; stable juridical priority if configured

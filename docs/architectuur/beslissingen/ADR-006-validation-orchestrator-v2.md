@@ -1,8 +1,8 @@
 # ADR-006: ValidationOrchestratorV2 Implementation
 
-**Status**: ACCEPTED
+**Status**: DRAFT
 **Date**: 2025-08-29
-**Decision**: Implementeer ValidationOrchestratorV2 als dunne orchestration laag
+**Decision**: Pending
 
 ## Context
 
@@ -14,56 +14,20 @@ De huidige validatie-implementatie is verweven met de definitie-generatie orches
 
 ## Decision
 
-We implementeren een dedicated `ValidationOrchestratorV2` class als een **dunne orchestration laag** die:
+We implementeren een dedicated `ValidationOrchestratorV2` class die:
 1. Volledig async is met clean service interfaces
-2. Hergebruikt bestaande ValidationServiceInterface en CleaningServiceInterface
-3. Uniforme `ValidationResult` contracts gebruikt conform JSON Schema
+2. Een duidelijke scheiding van verantwoordelijkheden handhaaft
+3. Uniforme `ValidationResult` contracts gebruikt
 4. Feature-flag controlled rollout ondersteunt
-5. GEEN business logic bevat - alleen orchestration
-
-### Implementatie Beslissing (Story 2.2)
-
-Na evaluatie van twee aanpakken:
-- **Optie 1**: Uitgebreide orchestrator met eigen validatie logic (300+ regels)
-- **Optie 2**: Dunne orchestration laag bovenop bestaande services (135 regels)
-
-**Gekozen**: Optie 2 - dunne orchestration laag
-
-**Rationale**:
-- Respecteert separation of concerns
-- Geen duplicatie van bestaande business logic
-- Maximale testbaarheid door simpliciteit
-- Makkelijk uit te breiden met parallelisme in Story 2.3
 
 ### Architectuur Keuzes
 
 #### 1. Async-First Design
 ```python
-from typing import Iterable
-
 class ValidationOrchestratorV2:
-    async def validate_text(
-        self,
-        begrip: str,
-        text: str,
-        ontologische_categorie: str | None = None,
-        context: ValidationContext | None = None,
-    ) -> ValidationResult:
-        ...
-
-    async def validate_definition(
-        self,
-        definition: Definition,
-        context: ValidationContext | None = None,
-    ) -> ValidationResult:
-        ...
-
-    async def batch_validate(
-        self,
-        items: Iterable[ValidationRequest],
-        max_concurrency: int = 1,
-    ) -> list[ValidationResult]:
-        ...
+    async def validate_text(self, text: str, context: ValidationContext) -> ValidationResult
+    async def validate_definition(self, definition: Definition) -> ValidationResult
+    async def batch_validate(self, items: List[Validatable]) -> List[ValidationResult]
 ```
 
 #### 2. Contract-Based Interface
@@ -144,45 +108,21 @@ VALIDATION_ORCHESTRATOR_V2 = os.getenv("VALIDATION_ORCHESTRATOR_V2", "false").lo
 
 - [Validation Orchestrator V2 Design](../validation_orchestrator_v2.md)
 - [ValidationResult Contract](../contracts/validation_result_contract.md)
-- [Rollout Runbook](../../workflows/validation_orchestrator_rollout.md)
-- [Original Migration Doc (Archived)](../../archief/validation/validation-orchestrator-migration.md)
-
-## Resulting Context
-
-### Story 2.1 Deliverables (Completed)
-- **ValidationOrchestratorInterface** gedefinieerd met async-first methods
-- **ValidationResult TypedDict** 100% schema-conform
-- **Contract tests** (14 tests) valideren JSON Schema compliance
-- **Privacy-bewuste ValidationContext** zonder PII
-
-### Story 2.2 Deliverables (Completed)
-- **Thin orchestration layer** (135 lines) zonder business logic duplicatie
-- **Mapper module** voor dataclass → schema conversie
-- **Degraded mode policy** met SYS-SVC-001 errors, geen exceptions
-- **Context propagation** voor correlation_id, profile, locale, feature_flags
-- **Feature flag system** met shadow mode en canary support
-- **29 tests totaal** (8 contract, 12 orchestrator, 9 mapper)
-
-### Consequences
-- **Positive**: Clean separation, maximale testbaarheid, hergebruik services
-- **Positive**: Schema enforcement garandeert contract compliance
-- **Positive**: Feature flags enablen zero-downtime rollout
-- **Negative**: Extra mapping layer introduceert minimale latency (~1ms)
-- **Negative**: Twee ValidationResult types vereisen expliciete conversie
+- [Implementation Workflow](../../workflows/VALIDATION_ORCHESTRATOR_V2_IMPLEMENTATION_WORKFLOW.md)
+- [Original Migration Doc (Archived)](../../ARCHIEF/validation/validation-orchestrator-migration.md)
 
 ## Decision
 
-We implementeren ValidationOrchestratorV2 als een dunne orchestration laag die bestaande services hergebruikt met expliciete dataclass-naar-schema mapping.
+_[To be completed after review]_
 
 ## Sign-off
 
-- [x] Tech Lead - Approved (thin layer approach)
-- [x] Product Owner - Approved (feature flag rollout)
-- [ ] Architecture Board - Review pending
-- [x] QA Lead - Approved (test coverage adequate)
+- [ ] Tech Lead
+- [ ] Product Owner
+- [ ] Architecture Board
+- [ ] QA Lead
 
 ---
 
 *Template Version: 1.0*
 *ADR Format: Lightweight ADR*
-*Last Updated: 2025-08-29*

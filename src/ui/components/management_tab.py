@@ -4,15 +4,15 @@ Integreert definitie_manager.py en setup_database.py functionaliteit in de UI.
 """
 
 # Importeer CLI tools voor management functionaliteit
+import asyncio
+import os
 import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
-from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 
 import pandas as pd  # Data manipulatie en analyse framework
 import streamlit as st  # Streamlit web interface framework
-import os
-import asyncio
 
 # Database en core component imports
 from database.definitie_repository import (
@@ -354,7 +354,7 @@ class ManagementTab:
 
                 export_filename = st.text_input(
                     "📁 Bestandsnaam",
-                    value=f"export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json",
+                    value=f"export_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.json",
                     key="export_filename",
                 )
 
@@ -562,7 +562,9 @@ class ManagementTab:
         if st.session_state.get("confirm_reset_db", False):
             try:
                 # Backup current data first
-                backup_path = f"backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
+                backup_path = (
+                    f"backup_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.json"
+                )
                 self.repository.export_to_json(backup_path, {})
 
                 # Reset database

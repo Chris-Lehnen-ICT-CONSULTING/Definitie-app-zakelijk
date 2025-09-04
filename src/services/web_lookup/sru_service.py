@@ -19,6 +19,8 @@ except ImportError:
     AIOHTTP_AVAILABLE = False
     print("Warning: aiohttp niet beschikbaar - SRU service werkt niet volledig")
 
+from datetime import UTC
+
 from ..interfaces import LookupResult, WebSource
 
 logger = logging.getLogger(__name__)
@@ -304,7 +306,7 @@ class SRUService:
             definition = ". ".join(definition_parts) if definition_parts else title
 
             # Build metadata
-            from datetime import datetime, timezone
+            from datetime import datetime
             from hashlib import sha256
 
             content_hash = sha256(
@@ -321,7 +323,7 @@ class SRUService:
                 "dc_date": date,
                 "dc_identifier": identifier,
                 "record_schema": config.record_schema,
-                "retrieved_at": datetime.now(timezone.utc).isoformat(),
+                "retrieved_at": datetime.now(UTC).isoformat(),
                 "content_hash": content_hash,
             }
 

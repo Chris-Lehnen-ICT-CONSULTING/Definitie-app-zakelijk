@@ -8,7 +8,7 @@ Gebruikt DataAggregationService om data te verzamelen zonder directe UI dependen
 import asyncio
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -149,7 +149,7 @@ class ExportService:
     def _export_to_json(self, export_data: DefinitieExportData) -> str:
         """Exporteer naar JSON formaat."""
         # Genereer bestandsnaam
-        tijdstempel = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         begrip_clean = export_data.begrip.replace(" ", "_").lower()
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.json"
         pad = self.export_dir / bestandsnaam
@@ -157,7 +157,7 @@ class ExportService:
         # Bereid data voor
         json_data = {
             "export_info": {
-                "export_timestamp": datetime.now(timezone.utc).isoformat(),
+                "export_timestamp": datetime.now(UTC).isoformat(),
                 "export_version": "2.0",
                 "format": "json",
             },
@@ -220,7 +220,7 @@ class ExportService:
         import csv
 
         # Genereer bestandsnaam
-        tijdstempel = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         begrip_clean = export_data.begrip.replace(" ", "_").lower()
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.csv"
         pad = self.export_dir / bestandsnaam

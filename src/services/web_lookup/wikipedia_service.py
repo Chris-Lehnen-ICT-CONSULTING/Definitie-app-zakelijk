@@ -18,6 +18,8 @@ except ImportError:
     AIOHTTP_AVAILABLE = False
     print("Warning: aiohttp niet beschikbaar - Wikipedia service werkt niet volledig")
 
+from datetime import UTC
+
 from ..interfaces import LookupResult, WebSource
 
 logger = logging.getLogger(__name__)
@@ -193,11 +195,13 @@ class WikipediaService:
                 definition = first_sentence
 
         # Build metadata
-        from datetime import datetime, timezone
+        from datetime import datetime
         from hashlib import sha256
 
-        retrieved_at = datetime.now(timezone.utc).isoformat()
-        content_hash = sha256((definition or "").encode("utf-8", errors="ignore")).hexdigest()
+        retrieved_at = datetime.now(UTC).isoformat()
+        content_hash = sha256(
+            (definition or "").encode("utf-8", errors="ignore")
+        ).hexdigest()
 
         metadata = {
             "wikipedia_page_id": page_details.get("pageid"),
