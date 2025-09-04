@@ -199,7 +199,7 @@ class ABTestingFramework:
                 if results:
                     all_results.extend(results)
 
-            except asyncio.TimeoutError:
+            except TimeoutError:
                 timeouts += 1
                 response_times.append(request.timeout)
             except Exception as e:

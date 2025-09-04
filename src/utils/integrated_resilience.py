@@ -199,7 +199,7 @@ class IntegratedResilienceSystem:
             # Step 2: Check rate limiting
             if not await rate_limiter.acquire(priority, timeout, request_id):
                 msg = f"Rate limit timeout for {endpoint_name}"
-                raise asyncio.TimeoutError(msg)
+                raise TimeoutError(msg)
 
             # Step 2: Execute with retry logic and resilience
             result = await self._execute_with_retry_and_resilience(
