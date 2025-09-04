@@ -81,8 +81,8 @@ logger.error(
     "Validation failed",
     extra={
         "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
-        "error_code": "UPS-001",
-        "error_category": "system"
+        "error_code": "VAL-SVC-001",
+        "error_category": "service_unavailable"
         # GEEN user input of definitie content!
     }
 )

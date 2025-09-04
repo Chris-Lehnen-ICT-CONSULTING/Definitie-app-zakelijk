@@ -1,0 +1,64 @@
+{
+  "timestamp": "2025-09-04T12:41:51.257098",
+  "summary": {
+    "total_checks": 4,
+    "errors": 0,
+    "warnings": 4,
+    "passed": 0,
+    "overall_status": "warning"
+  },
+  "errors": [],
+  "warnings": [
+    {
+      "check": "document_separation",
+      "status": "warning",
+      "message": "EA document has 32.9% technical content (max 30.0%)",
+      "details": [
+        "### Current Snapshot (2025-08-28)",
+        "### 1.1 Business Capability Model",
+        "### 2.1 Enterprise Information Model",
+        "### 2.3 Information Flow",
+        "### 3.3 Integration Landscape",
+        "### 5.2 Enterprise Risk Register",
+        "### 7.1 Strategic Roadmap",
+        "### 7.1.1 Revised Roadmap (Post‑Quinn Review, Aug 2025)",
+        "#### Overall Product Completion",
+        "#### Development Metrics",
+        "### 8.3 Critical Missing Features - Business Impact",
+        "#### Projected Timelines",
+        "### Solution Architecture Documents",
+        "## Cross-References to Solution Architecture"
+      ],
+      "file": null,
+      "line": null
+    },
+    {
+      "check": "missing_cross_references",
+      "status": "warning",
+      "message": "Found 2 potential missing cross-references",
+      "details": [
+        "SA mentions business concepts but lacks EA references",
+        "EA mentions technical concepts but lacks SA references"
+      ],
+      "file": null,
+      "line": null
+    },
+    {
+      "check": "abstraction_level",
+      "status": "warning",
+      "message": "EA contains 7 code blocks (should be minimal for strategic document)",
+      "details": [],
+      "file": null,
+      "line": null
+    },
+    {
+      "check": "abstraction_level",
+      "status": "warning",
+      "message": "SA contains 17 business strategy mentions (should focus on implementation)",
+      "details": [],
+      "file": null,
+      "line": null
+    }
+  ],
+  "passed": []
+}

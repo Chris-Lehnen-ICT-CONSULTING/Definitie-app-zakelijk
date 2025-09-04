@@ -1,8 +1,8 @@
 # Epic 2: ValidationOrchestratorV2 Implementation
 
-**Status**: In Progress (33% Complete)
+**Status**: Ready for Development
 **Priority**: Critical
-**Size**: Large (6 stories, ~34 story points)
+**Size**: Large (6 stories, 36 story points)
 **Dependencies**: Epic 1 (V2 AI Service Migration) ✅ COMPLETED
 
 ## Epic Overview
@@ -26,11 +26,9 @@ Implementatie van een dedicated ValidationOrchestratorV2 die validatie-logica vo
 ### Current State
 - ✅ V1 orchestrator volledig verwijderd (Epic 1, Story 1.3)
 - ✅ AIServiceV2 operationeel met AsyncGPTClient
-- ✅ ValidationOrchestratorInterface gedefinieerd (Story 2.1)
-- ✅ ValidationOrchestratorV2 geïmplementeerd (Story 2.2)
-- ✅ Schema-conforme ValidationResult via mappers
-- ⏳ Container wiring nog niet aangesloten (Story 2.3)
-- ⏳ Feature flags nog niet actief in productie
+- ❌ Validatie nog verweven met definitie-generatie
+- ❌ Geen mogelijkheid voor batch validatie
+- ❌ Legacy sync patterns in validation layer
 
 ### Target State
 - Dedicated ValidationOrchestratorV2 class
@@ -41,43 +39,24 @@ Implementatie van een dedicated ValidationOrchestratorV2 die validatie-logica vo
 
 ## Stories
 
-### Story 2.1: ValidationOrchestratorInterface Definition (3 pts) ✅ COMPLETED
+### Story 2.1: ValidationOrchestratorInterface Definition (3 pts)
 **Owner**: Senior Developer
 **Duration**: 2 days
-**Status**: DONE
 
 Als een **architect**,
 Wil ik **een gedefinieerde ValidationOrchestratorInterface**,
 Zodat **alle validatie implementaties een consistent contract volgen**.
 
-**Delivered**:
-- ✅ `src/services/validation/interfaces.py` - ValidationOrchestratorInterface met async methods
-- ✅ ValidationResult TypedDict - 100% schema-conform
-- ✅ Contract tests - 14 tests in `tests/contracts/test_validation_interface.py`
-- ✅ JSON Schema - `docs/architectuur/contracts/schemas/validation_result.schema.json`
-- ✅ MockValidationOrchestrator voor testing
+**Key Deliverables**:
+- `src/services/interfaces/validation.py`
+- ValidationResult dataclass
+- Contract tests tegen JSON Schema
 
 ---
 
-### Story 2.2: ValidationOrchestratorV2 Core Implementation (8 pts) ✅ COMPLETED
+### Story 2.2: ValidationOrchestratorV2 Core Implementation (8 pts)
 **Owner**: Senior Developer
 **Duration**: 4 days
-**Status**: DONE
-
-Als een **developer**,
-Wil ik **de ValidationOrchestratorV2 implementeren**,
-Zodat **validatie logica geïsoleerd en testbaar is**.
-
-**Delivered**:
-- ✅ `src/services/orchestrators/validation_orchestrator_v2.py` - Thin orchestration layer (135 lines)
-- ✅ `src/services/validation/mappers.py` - Dataclass → TypedDict conversion
-- ✅ `src/services/feature_flags.py` - Feature flag system with shadow/canary support
-- ✅ 12 unit tests in `tests/services/orchestrators/test_validation_orchestrator_v2.py`
-- ✅ 9 mapper tests in `tests/services/validation/test_mappers.py`
-- ✅ **29 tests totaal** (8 contract + 12 orchestrator + 9 mapper)
-- ✅ Context propagation (correlation_id, profile, locale, feature_flags)
-- ✅ Degraded mode support (SYS-SVC-001 errors)
-- ✅ Exception handling zonder leakage
 
 Als een **development team**,
 Wil ik **de core ValidationOrchestratorV2 implementatie**,
@@ -91,19 +70,19 @@ Zodat **we async validatie logic hebben die de moderne validator gebruikt**.
 
 ---
 
-### Story 2.3: ModularValidationService Implementation (5 pts)
-**Owner**: Senior Developer
+### Story 2.3: Container Wiring & Feature Flags (5 pts)
+**Owner**: DevOps + Developer
 **Duration**: 2 days
 
-Als een **architect**,
-Wil ik **een modulaire ValidationService die direct de 45+ toetsregels gebruikt**,
-Zodat **we een SA-conforme, uitbreidbare en testbare validatie architectuur hebben**.
+Als een **DevOps engineer**,
+Wil ik **proper container wiring met feature flag control**,
+Zodat **we veilig kunnen deployen en rollbacken**.
 
 **Key Deliverables**:
-- ModularValidationService implementation
-- Direct integration with ToetsregelManager
-- Configuration-driven weights and thresholds
-- Container wiring (V2-only cutover)
+- Feature flag configuration (`VALIDATION_ORCHESTRATOR_V2`)
+- Container dual registration
+- Environment-based configuration
+- Rollback procedures
 
 ---
 
@@ -175,7 +154,7 @@ Zodat **we risico minimaliseren en snel kunnen reageren op issues**.
 ## Technical Decisions
 
 ### ADR References
-- [ADR-006: ValidationOrchestratorV2 Design](../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
+- [ADR-006: ValidationOrchestratorV2 Design](../architecture/decisions/ADR-006-validation-orchestrator-v2.md)
 
 ### Key Design Choices
 1. **Async-first**: Geen sync wrappers of adapters

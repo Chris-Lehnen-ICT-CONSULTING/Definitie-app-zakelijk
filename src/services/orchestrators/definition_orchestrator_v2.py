@@ -16,7 +16,7 @@ Key improvements:
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Optional
 
 from services.interfaces import (
@@ -436,7 +436,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "has_feedback": bool(feedback_history),
                     "enhanced": was_enhanced,
                     "generation_time": time.time() - start_time,
-                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                    "generated_at": datetime.now(UTC).isoformat(),
                     "orchestrator_version": "v2.0",
                     "ontological_category_used": sanitized_request.ontologische_categorie,
                     # Epic 3: provenance sources (MVP, no DB schema changes)
@@ -590,7 +590,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             validation_violations=validation_result.get("violations", []),
             metadata=generation_metadata,
             created_by=request.actor,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     async def _safe_save_definition(self, definition: Definition) -> int | None:

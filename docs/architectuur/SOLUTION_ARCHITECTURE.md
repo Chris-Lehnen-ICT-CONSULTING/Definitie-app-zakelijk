@@ -1,20 +1,14 @@
 ---
 canonical: true
 status: active
-last_verified: 2025-09-02
 owner: architecture
+last_verified: 2025-09-04
+applies_to: definitie-app@current
 ---
 
 # DefinitieAgent Solution Architecture
 
 ## Wijzigingshistorie
-
-- 2025-09-03: Toetsregel-Prompt Module Architecture
-  - Toegevoegd: Single Source of Truth voor toetsregels (validatie = generatie)
-  - Toegevoegd: ToetsregelModule interface met validate() en get_prompt_instruction()
-  - Toegevoegd: PromptComposer voor dynamische prompt samenstelling
-  - Toegevoegd: Context-aware regel selectie mechanisme
-  - Update: Token reductie van 7.250 naar ~2.000-3.000 tokens
 
 - 2025-08-28: Modularisatie-update (delta op bestaande SA)
   - Toegevoegd: modulaire grenzen en dependency‑regels (adapters → services → domain; infrastructure implementeert interfaces).
@@ -32,15 +26,6 @@ owner: architecture
 
 ### Technical Scope
 - **System**: DefinitieAgent v2.0 - Government Definition Platform
-
-## Current Focus & Constraints (2025-09)
-
-- Small-user deployment: non-enterprise footprint. Streamlit UI remains acceptable short-term.
-- Priority is Epic 2 (ValidationOrchestratorV2):
-  - Finish Story 2.4 Integration & Migration (DefinitionOrchestratorV2 → ValidationOrchestratorV2, migrate all validation calls, no breaking changes).
-  - Quick wins after Story 2.4: database indexes, testing/coverage, documentation hygiene.
-- API layer (FastAPI) introduced incrementally after Story 2.4 + quick wins (read-only endpoints first).
-- Kubernetes and SPA are de-prioritized until a broader user base requires it.
 - **Components**: 12 microservices (many pre-built), 3 databases, 8+ external integrations
 - **Architecture**: Event-driven microservices with API Gateway
 - **Performance**: From 8-12s to <2s response time
@@ -55,8 +40,6 @@ owner: architecture
 4. **Reuse Existing Components**: 65% of code unused but microservice-ready
 5. **Event-Driven Architecture**: Loose coupling for scalability
 6. **Strangler Fig Pattern**: Gradual migration from monolith
-7. **Single Source of Truth**: Toetsregels define both validation AND prompt generation logic
-8. **Dynamic Prompt Composition**: Context-aware selection reduces tokens by 65%
 
 ### Reference to Enterprise Architecture
 - **Business Drivers**: → [EA Section 1: Business Architecture]
@@ -596,10 +579,6 @@ def test_no_ui_dependencies():
 - UnifiedDefinitionGenerator (monoliet) → vervangen door Orchestrator + losse services.
 - Legacy Web Lookup modules → vervangen door ModernWebLookupService + LookupRequest.
 - UI → DB/SDK imports → vervangen door service‑aanroepen; repository blijft in infrastructure.
-
-### Web Lookup (modern‑only)
-- Canonisch pad: ModernWebLookupService (geen legacy fallback in productie).
-- UI‑tab koppelt aan ModernWebLookupService; legacy modules blijven gearchiveerd.
 
 ### Teststrategie (modulair)
 - Contracttests per interface (generator, validator, repository, AI‑provider, prompts).
@@ -2269,7 +2248,7 @@ docs/
 ##### Epic 002: Kwaliteitstoetsing (75% Complete)
 | Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
 |------------|--------------|--------|-------------------------|--------------|
-| VAL-001 | Automatische validatie regels | ✅ Complete | Validation Service (Modular V2, 45+ rules) | Rules engine |
+| VAL-001 | Automatische validatie regels | ✅ Complete | `DefinitionValidator` (45 rules) | Rules engine |
 | VAL-002 | Expert review workflow | 🔄 In Progress | `expert_review_tab.py` | Review service |
 | VAL-003 | Kwaliteitsscore berekening | ✅ Complete | `quality_scorer.py` | Scoring engine |
 | VAL-004 | Feedback incorporatie systeem | ✅ Complete | `feedback_service.py` | State management |
@@ -2503,7 +2482,7 @@ Current State          →    Intermediate      →    Target State
 
 tabbed_interface.py    →    UI Controller     →    React Frontend
 UnifiedGenerator      →    Generator Service  →    Definition API
-Validation Service (Modular V2)   →    Validation API
+DefinitionValidator   →    Validator Service  →    Validation API
 SQLite Repository     →    PostgreSQL Repo    →    Data Service
 In-memory cache       →    Redis Cache        →    Cache Service
 No auth               →    OAuth Module       →    Auth Service
@@ -2554,10 +2533,3 @@ This Solution Architecture implements the strategic vision and requirements defi
 5. **Strategic Alignment** → [EA Section 7.1: Strategic Roadmap] - Business transformation timeline
 
 This document focuses on the technical implementation while ensuring alignment with enterprise standards and strategic objectives.
----
-canonical: true
-status: active
-owner: architecture
-last_verified: 2025-09-02
-applies_to: definitie-app@v2
----
