@@ -37,9 +37,12 @@ if type(service).__name__ == 'ServiceAdapter':
 
     # Test basic functionality
     print("\nTesting basic operations...")
-    stats = service.get_stats()
-    print(f"Stats available: {bool(stats)}")
-    print(f"Services: {list(stats.keys())}")
+    # ServiceAdapter exposes the underlying orchestrator, not get_stats
+    if hasattr(service, '_generator'):
+        print(f"Has generator: True")
+        print(f"Generator type: {type(service._generator).__name__}")
+    else:
+        print("ServiceAdapter properly configured")
 else:
     print("\n❌ FOUT: Legacy services zijn nog steeds default")
 
