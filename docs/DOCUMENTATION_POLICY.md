@@ -29,6 +29,14 @@ Workflow
 2) Nieuwe beslissingen → leg vast als ADR onder `docs/architectuur/beslissingen/` en link vanuit Solution Architecture.
 3) Verouderde/overlappende docs → verplaats naar `status: archived` met een 5‑regelige stub die verwijst naar de canonieke bron.
 
+## 📍 Root Directory Exceptions
+
+De volgende bestanden MOETEN in de root directory staan:
+- **README.md** - Project overzicht
+- **CLAUDE.md** - Claude Code instructies (verplicht in root voor Claude Code)
+- **LICENSE** - Licentie
+- **CONTRIBUTING.md** - Bijdrage richtlijnen (optioneel)
+
 ## 🚫 KRITIEKE REGELS - Document Management
 
 ### 📁 Archivering
