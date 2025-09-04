@@ -10,16 +10,17 @@ applies_to: definitie-app@current
 
 ## Executive Summary
 
-Dit document beschrijft de daadwerkelijke technische implementatie van DefinitieAgent, een single-user desktop applicatie voor juridische definitie generatie. Het systeem gebruikt Python 3.11 met Streamlit UI, SQLite database, en een ServiceContainer architectuur met dependency injection.
+Dit document beschrijft de technische implementatie van DefinitieAgent V2-only architectuur. Het systeem draait volledig op V2 services met gecentraliseerde AI configuratie via ConfigManager, modulaire validatie met 45 toetsregels, en clean dependency injection via ServiceContainer. Alle V1 services en migratie code zijn verwijderd.
 
 ## Context & Scope
 
 ### Huidige Realiteit (2025-09)
 - **Deployment Model**: Developer workstation (single-user MVP)
-- **Architecture Pattern**: ServiceContainer met dependency injection
-- **Service Layer**: ValidationOrchestratorV2, DefinitionOrchestratorV2
-- **Migration Status**: V1→V2 services 60% compleet
-- **Production Path**: Justice chain deployment gepland Q4 2026
+- **Architecture Pattern**: V2-only services met ServiceContainer DI
+- **Service Layer**: DefinitionOrchestratorV2, ValidationOrchestratorV2, ModularValidationService
+- **AI Configuration**: ConfigManager met component-specifieke settings
+- **Migration Status**: 100% V2 - alle V1 code verwijderd
+- **Production Path**: FastAPI/PostgreSQL Q4 2025, Justice chain Q2 2026
 
 ### Toekomstige Scope
 - Multi-tenant architectuur voor OM/DJI/Rechtspraak
@@ -173,14 +174,16 @@ data/
 
 ### Programming Language & Frameworks
 
-| Component | Technology | Version | Rationale |
-|-----------|------------|---------|-----------|
-| Language | Python | 3.11+ | Type hints, async support |
-| UI Framework | Streamlit | 1.28 | Rapid prototyping |
-| Database | SQLite | 3.x | Single-user adequate |
-| AI Integration | OpenAI SDK | 1.x | GPT-4 access |
-| Testing | Pytest | 7.x | Standard Python testing |
-| Code Quality | Ruff + Black | Latest | Fast linting & formatting |
+| Component | Technology | Version | Status |
+|-----------|------------|---------|--------|
+| Language | Python | 3.11+ | Production |
+| UI Framework | Streamlit | 1.28 | Production (single-user) |
+| Database | SQLite | 3.x | Production (migration planned) |
+| AI Integration | OpenAI SDK | 1.x | Production via ConfigManager |
+| Config Management | ConfigManager | Custom | Production (NEW) |
+| Validation Engine | ModularValidationService | V2 | Production (45 rules) |
+| Testing | Pytest | 7.x | ~60% coverage |
+| Code Quality | Ruff + Black | Latest | Active |
 
 ### Dependencies & Libraries
 

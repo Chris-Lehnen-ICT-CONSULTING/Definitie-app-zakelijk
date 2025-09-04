@@ -13,10 +13,18 @@ Laatste update: 2025-09-03
 
 ### 1. Architectuur Documentatie
 - **ADRs (Architecture Decision Records)**: `docs/architectuur/beslissingen/` ✅
+  - ADR-015: Context Flow Refactoring ✅ CRITICAL
+  - ADR-CFR-001: CFR Implementation ✅ CRITICAL
 - **Architectuur Overzichten**: `docs/architectuur/` ✅
   - Enterprise Architecture (EA.md)
   - Solution Architecture (SA.md)
   - Technical Architecture (TA.md)
+- **Context Flow Refactoring (CFR)**: `docs/architectuur/` ✅ CRITICAL
+  - CFR-SOLUTION-OVERVIEW.md (Master document)
+  - EA-CFR.md (Enterprise view)
+  - SA-CFR.md (Solution design)
+  - TA-CFR.md (Technical specs)
+  - CFR-MIGRATION-STRATEGY.md (Rollout plan)
 - **Diagrammen**: `docs/architectuur/diagrammen/`
 - **Prompt Refactoring**: `docs/architectuur/prompt-refactoring/` ✅ NIEUW
 

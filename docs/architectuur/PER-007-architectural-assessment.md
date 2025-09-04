@@ -1,5 +1,5 @@
 ---
-canonical: true
+canonical: false
 status: active
 owner: architecture
 last_verified: 2025-09-04

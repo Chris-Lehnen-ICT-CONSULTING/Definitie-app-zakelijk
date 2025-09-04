@@ -195,7 +195,7 @@ class CategoryPresenter:
 - [ ] Full test coverage
 - [ ] Event-driven updates working
 ---
-canonical: true
+canonical: false
 status: active
 owner: domain
 last_verified: 2025-09-02
