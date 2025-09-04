@@ -22,7 +22,7 @@ This guide provides step-by-step instructions for implementing the PER-007 Conte
 The interface has already been extended with the three new fields:
 ```python
 juridische_context: list[str] | None = None
-wettelijke_basis: list[str] | None = None  
+wettelijke_basis: list[str] | None = None
 organisatorische_context: list[str] | None = None
 ```
 
@@ -44,7 +44,7 @@ ASTRA_ORGANIZATIONS = {
     "KMAR": "Koninklijke Marechaussee",
     "NP": "Nederlandse Politie",
     "Justid": "Justitiële Informatiedienst",
-    
+
     # Secondary organizations
     "IND": "Immigratie- en Naturalisatiedienst",
     "RvdK": "Raad voor de Kinderbescherming",
@@ -52,7 +52,7 @@ ASTRA_ORGANIZATIONS = {
     "NRGD": "Nederlands Register Gerechtelijk Deskundigen",
     "3RO": "Reclasseringsorganisaties",
     "FIOD": "Fiscale Inlichtingen- en Opsporingsdienst",
-    
+
     # Chain contexts
     "ZSM": "ZSM-keten",
     "Strafrechtketen": "Strafrechtketen",
@@ -63,31 +63,31 @@ def validate_organization(org: str) -> tuple[bool, str | None]:
     """Validate organization against ASTRA registry."""
     if org in ASTRA_ORGANIZATIONS:
         return True, None
-    
+
     # Check for full name
     if org in ASTRA_ORGANIZATIONS.values():
         return True, None
-    
+
     # Suggest alternatives
-    suggestions = [k for k in ASTRA_ORGANIZATIONS.keys() 
+    suggestions = [k for k in ASTRA_ORGANIZATIONS.keys()
                   if k.lower().startswith(org[:2].lower())]
-    
+
     if suggestions:
         return False, f"Organization '{org}' not recognized. Did you mean: {', '.join(suggestions)}?"
-    
+
     return False, f"Organization '{org}' not in ASTRA registry"
 
 def validate_organizations(orgs: list[str] | None) -> list[str]:
     """Validate list of organizations, return warnings."""
     if not orgs:
         return []
-    
+
     warnings = []
     for org in orgs:
         valid, warning = validate_organization(org)
         if not valid and warning:
             warnings.append(warning)
-    
+
     return warnings
 ```
 
@@ -109,7 +109,7 @@ def _build_base_context(self, request: GenerationRequest) -> dict[str, list[str]
         "technisch": [],
         "historisch": [],
     }
-    
+
     # PRIORITY 1: Use new structured fields if present
     if request.organisatorische_context:
         context["organisatorisch"] = request.organisatorische_context
@@ -118,26 +118,26 @@ def _build_base_context(self, request: GenerationRequest) -> dict[str, list[str]
         warnings = validate_organizations(request.organisatorische_context)
         for warning in warnings:
             logger.warning(f"ASTRA validation: {warning}")
-    
+
     if request.juridische_context:
         context["juridisch"] = request.juridische_context
-    
+
     if request.wettelijke_basis:
         context["wettelijk"] = request.wettelijke_basis
-    
+
     # PRIORITY 2: Add legacy fields if no overlap
     if request.organisatie and request.organisatie not in context["organisatorisch"]:
         context["organisatorisch"].append(request.organisatie)
-    
+
     if request.domein and request.domein not in context["domein"]:
         context["domein"].append(request.domein)
-    
+
     # PRIORITY 3: Parse generic context string only if new fields are empty
-    if not any([request.organisatorische_context, 
+    if not any([request.organisatorische_context,
                 request.juridische_context,
                 request.wettelijke_basis]) and request.context:
         self._parse_context_string(request.context, context)
-    
+
     return context
 ```
 
@@ -150,22 +150,22 @@ Add metrics to EnrichedContext:
 @dataclass
 class EnrichedContext:
     """Verrijkte context met meerdere bronnen."""
-    
+
     base_context: dict[str, list[str]]
     sources: list[ContextSource]
     expanded_terms: dict[str, str]
     confidence_scores: dict[str, float]
     metadata: dict[str, Any]
-    
+
     # New metrics fields
     context_quality_score: float = 0.0
     categorization_method: str = "unknown"  # "structured" | "parsed" | "hybrid"
-    
+
     def __post_init__(self):
         # Calculate quality score based on context completeness
         filled_categories = sum(1 for v in self.base_context.values() if v)
         self.context_quality_score = filled_categories / len(self.base_context)
-        
+
         # Determine categorization method
         if self.metadata.get("used_structured_fields"):
             self.categorization_method = "structured"
@@ -197,7 +197,7 @@ with col1:
 with col2:
     juridische_context = st.multiselect(
         "Juridische Context",
-        options=["Strafrecht", "Bestuursrecht", "Civiel recht", 
+        options=["Strafrecht", "Bestuursrecht", "Civiel recht",
                 "Staatsrecht", "Europees recht"],
         help="Selecteer juridische domeinen"
     )
@@ -230,9 +230,9 @@ Add visualization of categorized context:
 ```python
 def display_context_categories(enriched_context: EnrichedContext):
     """Display categorized context in the UI."""
-    
+
     st.subheader("📋 Context Categorisatie")
-    
+
     # Show quality score
     quality_color = "green" if enriched_context.context_quality_score > 0.7 else "orange"
     st.metric(
@@ -240,7 +240,7 @@ def display_context_categories(enriched_context: EnrichedContext):
         f"{enriched_context.context_quality_score:.0%}",
         delta=f"via {enriched_context.categorization_method}"
     )
-    
+
     # Display categories
     cols = st.columns(3)
     for i, (cat_name, items) in enumerate(enriched_context.base_context.items()):
@@ -264,7 +264,7 @@ from src.services.validation.astra_validator import validate_organization
 
 class TestPER007ContextFlow:
     """Test suite for PER-007 Context Flow Fix."""
-    
+
     def test_new_fields_take_priority(self):
         """Test that new structured fields take priority over legacy."""
         request = GenerationRequest(
@@ -275,14 +275,14 @@ class TestPER007ContextFlow:
             wettelijke_basis=["Art. 27 Sv"],
             context="some legacy context"  # Should be ignored
         )
-        
+
         manager = HybridContextManager(config)
         context = manager._build_base_context(request)
-        
+
         assert context["organisatorisch"] == ["DJI", "OM"]
         assert context["juridisch"] == ["Strafrecht"]
         assert context["wettelijk"] == ["Art. 27 Sv"]
-    
+
     def test_backward_compatibility(self):
         """Test that legacy context parsing still works."""
         request = GenerationRequest(
@@ -290,19 +290,19 @@ class TestPER007ContextFlow:
             begrip="sanctie",
             context="DJI, Strafrecht, Art. 27 Sv"
         )
-        
+
         manager = HybridContextManager(config)
         context = manager._build_base_context(request)
-        
+
         assert "DJI" in context["organisatorisch"]
         assert "Strafrecht" in context["juridisch"]
         assert "Art. 27 Sv" in context["wettelijk"]
-    
+
     def test_astra_validation(self):
         """Test ASTRA organization validation."""
         valid, _ = validate_organization("DJI")
         assert valid is True
-        
+
         valid, warning = validate_organization("InvalidOrg")
         assert valid is False
         assert "not recognized" in warning
@@ -314,7 +314,7 @@ class TestPER007ContextFlow:
 ```python
 async def test_end_to_end_context_flow():
     """Test complete context flow from UI to prompt."""
-    
+
     # Create request with new fields
     request = GenerationRequest(
         id="test-e2e",
@@ -323,11 +323,11 @@ async def test_end_to_end_context_flow():
         juridische_context=["Penitentiair recht"],
         wettelijke_basis=["Art. 15 Pbw"]
     )
-    
+
     # Process through orchestrator
     orchestrator = container.definition_orchestrator_v2()
     response = await orchestrator.create_definition(request)
-    
+
     # Verify context appears in definition
     assert response.success
     assert "DJI" in response.definition.metadata.get("context_used", "")
@@ -379,16 +379,16 @@ def is_feature_enabled(feature: str, user_id: str = None) -> bool:
     flag = FEATURE_FLAGS.get(feature)
     if not flag:
         return False
-    
+
     if not flag["enabled"]:
         return False
-    
+
     # Gradual rollout logic
     if user_id and flag["rollout_percentage"] < 100:
         import hashlib
         hash_val = int(hashlib.md5(user_id.encode()).hexdigest(), 16)
         return (hash_val % 100) < flag["rollout_percentage"]
-    
+
     return True
 ```
 

@@ -31,7 +31,7 @@ class AIRequest:
     temperature: float | None = None
     max_tokens: int = 300
     system_message: str | None = None
-    
+
     def __post_init__(self):
         """Fill in defaults from central configuration."""
         if self.model is None:

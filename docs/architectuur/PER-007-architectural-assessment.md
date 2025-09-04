@@ -25,7 +25,7 @@ graph LR
         GR --> CM[ContextManager<br/>String parsing]
         CM -->|Guesswork| PC[Prompt Context<br/>Ambiguous categories]
     end
-    
+
     style UI fill:#f9f,stroke:#333,stroke-width:2px
     style GR fill:#faa,stroke:#333,stroke-width:2px
     style CM fill:#faa,stroke:#333,stroke-width:2px
@@ -61,7 +61,7 @@ graph TB
         CM --> EC[EnrichedContext<br/>Structured data]
         EC --> MP[Modular Prompts<br/>Precise context]
     end
-    
+
     style UI fill:#afa,stroke:#333,stroke-width:2px
     style GR fill:#afa,stroke:#333,stroke-width:2px
     style VM fill:#aaf,stroke:#333,stroke-width:2px
@@ -78,7 +78,7 @@ graph TB
 class GenerationRequest:
     # Existing fields maintained
     context: str | None = None  # KEPT for backward compatibility
-    
+
     # NEW structured fields
     organisatorische_context: list[str] | None = None
     juridische_context: list[str] | None = None
@@ -89,21 +89,21 @@ class GenerationRequest:
 ```python
 def _build_base_context(self, request: GenerationRequest):
     context = self._initialize_context_dict()
-    
+
     # PRIORITY 1: Use new structured fields if present
     if request.organisatorische_context:
         context["organisatorisch"] = request.organisatorische_context
-    
+
     if request.juridische_context:
         context["juridisch"] = request.juridische_context
-    
+
     if request.wettelijke_basis:
         context["wettelijk"] = request.wettelijke_basis
-    
+
     # PRIORITY 2: Legacy fallback
     if not any([...]) and request.context:
         self._parse_context_string(request.context, context)
-    
+
     return context
 ```
 
