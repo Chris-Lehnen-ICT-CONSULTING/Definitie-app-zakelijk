@@ -34,7 +34,7 @@ We will implement a three-phase approach to fix the context flow while maintaini
 - Extend `GenerationRequest` with optional fields:
   ```python
   organisatorische_context: list[str] | None = None
-  juridische_context: list[str] | None = None  
+  juridische_context: list[str] | None = None
   wettelijke_basis: list[str] | None = None
   ```
 - Maintain existing `context: str` field for backward compatibility
@@ -101,7 +101,7 @@ We will implement a three-phase approach to fix the context flow while maintaini
 - **Mitigation**: Maintain backward compatibility through dual-path processing
 
 ### Risk 2: Incomplete Context Migration
-- **Probability**: Medium  
+- **Probability**: Medium
 - **Impact**: Low
 - **Mitigation**: Implement feature flag for gradual rollout
 

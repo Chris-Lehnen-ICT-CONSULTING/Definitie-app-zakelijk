@@ -30,7 +30,7 @@ This document defines comprehensive test scenarios for the PER-007 Context Flow 
 {
   "main_domains": [
     "Strafrecht",
-    "Bestuursrecht", 
+    "Bestuursrecht",
     "Civiel recht",
     "Staatsrecht",
     "Europees recht"
