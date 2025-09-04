@@ -409,18 +409,14 @@ services/
 services/
 ├── __init__.py
 ├── ai_service.py           # AI service interface
-├── ai_service_v2.py        # V2 AI implementatie ✅ ACTIVE
-├── async_gpt_client.py     # Async OpenAI client ✅ ACTIVE
+├── ai_service_v2.py        # V2 AI implementatie
+├── async_gpt_client.py     # Async OpenAI client
 ├── cache_service.py        # Caching functionaliteit
 ├── definition_service.py    # Definitie business logic
-├── feature_flags.py        # Feature flag management ✅ NEW (Story 2.2)
 ├── orchestrators/          # Service-specifieke orchestrators
-│   ├── definition_orchestrator_v2.py ✅ ACTIVE
-│   ├── validation_orchestrator_v2.py ✅ NEW (Story 2.2)
+│   ├── definition_orchestrator_v2.py
+│   ├── validation_orchestrator_v2.py
 │   └── prompt_orchestrator.py
-├── validation/             # Validation subsystem ✅ NEW (Story 2.1-2.2)
-│   ├── interfaces.py      # ValidationOrchestratorInterface
-│   └── mappers.py         # Dataclass → Schema conversion
 ├── prompts/               # Prompt management
 │   ├── base_module.py    # Base prompt module
 │   ├── module_registry.py # Module registratie
@@ -429,13 +425,10 @@ services/
 ```
 
 **Key Services**:
-- **AIServiceV2**: ✅ Async AI service met AsyncGPTClient integratie
-- **ValidationOrchestratorV2**: ✅ Thin orchestration layer voor validatie (Story 2.2)
-- **ValidationMappers**: ✅ Dataclass naar TypedDict schema conversie
-- **FeatureFlagManager**: ✅ Shadow mode & canary deployment support
+- **AIService**: Interface voor AI operaties
 - **CacheService**: In-memory caching
 - **DefinitionService**: Definitie CRUD en business logic
-- **AsyncGPTClient**: ✅ Async OpenAI integratie
+- **AsyncGPTClient**: Async OpenAI integratie
 
 #### `services/prompts/modules/` - Prompt Modules
 
@@ -738,10 +731,3 @@ graph TD
 ---
 
 Deze source tree documentatie wordt bijgewerkt wanneer de structuur van de applicatie verandert.
----
-canonical: false
-status: active
-owner: architecture
-last_verified: 2025-09-02
-applies_to: definitie-app@v2
----

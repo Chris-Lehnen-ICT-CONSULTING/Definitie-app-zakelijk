@@ -6,7 +6,7 @@ Deze module handelt de conversie af tussen:
 """
 
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any
 
 from services.interfaces import ValidationResult as DataclassResult
@@ -134,7 +134,7 @@ def dataclass_to_schema_dict(
     if hasattr(result, "timestamp"):
         system["timestamp"] = result.timestamp
     else:
-        system["timestamp"] = datetime.now(timezone.utc).isoformat()
+        system["timestamp"] = datetime.now(UTC).isoformat()
 
     # Add processing time if available
     if hasattr(result, "processing_time_ms"):
@@ -231,7 +231,7 @@ def create_degraded_result(
 
     system: SystemMetadata = {
         "correlation_id": correlation_id,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
         "error": error,
     }
 

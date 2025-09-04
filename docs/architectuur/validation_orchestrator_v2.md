@@ -1,37 +1,9 @@
 # Validation Orchestrator V2 — Architectuur & Migratieplan
 
-**Status: CANONICAL - IMPLEMENTED (Story 2.1 & 2.2)**
+**Status: CANONICAL**
 **Version: 1.0.0**
 **Last Updated: 2025-08-29**
-**Previous Version: [Archived Migration Doc](../archief/validation/validation-orchestrator-migration.md)**
-
-## Implementation Status
-- ✅ **Story 2.1**: ValidationOrchestratorInterface - COMPLETED
-- ✅ **Story 2.2**: Core Implementation - COMPLETED
-- ⏳ **Story 2.3**: Container Wiring - PENDING
-- ⏳ **Story 2.4**: Integration & Migration - PENDING
-- ⏳ **Story 2.5**: Testing & QA - PENDING
-- ⏳ **Story 2.6**: Production Rollout - PENDING
-
-## Implementation Details
-
-### Core Files (Story 2.2)
-- `src/services/orchestrators/validation_orchestrator_v2.py` - Thin orchestration layer (135 lines)
-- `src/services/validation/interfaces.py` - ValidationOrchestratorInterface & TypedDict contracts
-- `src/services/validation/mappers.py` - Dataclass → Schema conversion
-- `src/services/feature_flags.py` - Shadow mode & canary deployment support
-
-### Error Policy
-- **Degraded Mode**: Operationele fouten resulteren in SYS-SVC-001 violations
-- **No Exceptions**: Alle paden retourneren ValidationResult
-- **Correlation Tracking**: UUID propagatie door hele stack
-
-### Context Propagation
-Volledige context wordt doorgegeven:
-- `correlation_id` - Voor distributed tracing
-- `profile` - Voor validatie profiel selectie
-- `locale` - Voor taal-specifieke validatie
-- `feature_flags` - Voor runtime configuratie
+**Previous Version: [Archived Migration Doc](../ARCHIEF/validation/validation-orchestrator-migration.md)**
 
 Dit document beschrijft de rationale, architectuur en migratiestappen om validatie te scheiden in een eigen, moderne V2‑orchestrator, conform de EA/SA‑principes. Het doel is een duidelijke verantwoordelijkheidsscheiding, hergebruikbare validatieflows en beter testbare, async‑vriendelijke modules.
 
@@ -82,21 +54,15 @@ class ValidationOrchestratorInterface(ABC):
         begrip: str,
         text: str,
         ontologische_categorie: str | None = None,
-        context: ValidationContext | None = None,
+        context: dict[str, Any] | None = None,
     ) -> ValidationResult: ...
 
     @abstractmethod
-    async def validate_definition(
-        self,
-        definition: Definition,
-        context: ValidationContext | None = None,
-    ) -> ValidationResult: ...
+    async def validate_definition(self, definition: Definition) -> ValidationResult: ...
 
     @abstractmethod
     async def batch_validate(
-        self,
-        items: Iterable[ValidationRequest],
-        max_concurrency: int = 1,
+        self, items: list[tuple[str, str, str | None]]
     ) -> list[ValidationResult]: ...
 ```
 
@@ -108,7 +74,7 @@ class ValidationOrchestratorInterface(ABC):
 
 ## Configuratie
 - Thresholds en regelcategorieën in een `ValidationConfig` (min_score, enabled_categories).
-- (Optioneel) Toggle pre‑cleaning, performance parameters (batch size, max_concurrency).
+- (Optioneel) Toggle pre‑cleaning, performance parameters (batch size, parallelism).
 
 ## Migratieplan
 Fase 1 — Bugfix & contractzuivering (korte termijn)
@@ -157,7 +123,7 @@ Guardrails (CI/tests)
 
 ## Appendix: Voorbeeld skelet ValidationOrchestratorV2
 ```
-from typing import Any, Iterable
+from typing import Any
 from services.interfaces import (
     Definition,
     ValidationResult,
@@ -199,26 +165,12 @@ class ValidationOrchestratorV2:
         )
 
     async def batch_validate(
-        self,
-        items: Iterable[ValidationRequest],
-        max_concurrency: int = 1,
+        self, items: list[tuple[str, str, str | None]]
     ) -> list[ValidationResult]:
         results: list[ValidationResult] = []
-        for req in items:
+        for begrip, text, cat in items:
             results.append(
-                await self.validate_text(
-                    req.begrip,
-                    req.text,
-                    ontologische_categorie=req.ontologische_categorie,
-                    context=req.context,
-                )
+                await self.validate_text(begrip, text, ontologische_categorie=cat)
             )
         return results
 ```
----
-canonical: false
-status: active
-owner: validation
-last_verified: 2025-09-02
-applies_to: definitie-app@v2
----

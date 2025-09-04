@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/your-org/definitie-app/schemas/validation_result.schema.json",
+  "title": "ValidationResult",
+  "description": "Contract schema for validation results from ValidationOrchestratorV2",
+  "type": "object",
+  "required": [
+    "version",
+    "overall_score",
+    "is_acceptable",
+    "violations",
+    "passed_rules",
+    "detailed_scores"
+  ],
+  "properties": {
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Contract version (SemVer)"
+    },
+    "overall_score": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1,
+      "description": "Overall validation score (0.0-1.0)"
+    },
+    "is_acceptable": {
+      "type": "boolean",
+      "description": "Whether the validation passed minimum requirements"
+    },
+    "violations": {
+      "type": "array",
+      "description": "List of validation violations",
+      "items": {
+        "type": "object",
+        "required": ["code", "severity", "message", "rule_id", "category"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}-[A-Z]{3}-\\d{3}$",
+            "description": "Standardized error code (e.g., VAL-STR-001)"
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["info", "warning", "error"],
+            "description": "Violation severity level"
+          },
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "description": "User-friendly error message (i18n ready)"
+          },
+          "rule_id": {
+            "type": "string",
+            "description": "Specific rule identifier (e.g., ARAI04SUB1)"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["taal", "juridisch", "structuur", "samenhang", "system"],
+            "description": "Violation category"
+          },
+          "location": {
+            "type": "object",
+            "description": "Location of violation in text",
+            "properties": {
+              "text_span": {
+                "type": "object",
+                "properties": {
+                  "start": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "Start character index"
+                  },
+                  "end": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "description": "End character index"
+                  }
+                },
+                "required": ["start", "end"]
+              },
+              "indices": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": 0
+                },
+                "description": "Alternative: list of character positions"
+              },
+              "line": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Line number (1-based)"
+              },
+              "column": {
+                "type": "integer",
+                "minimum": 1,
+                "description": "Column number (1-based)"
+              }
+            }
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Possible fixes for the violation"
+          },
+          "metadata": {
+            "type": "object",
+            "description": "Additional context data"
+          }
+        }
+      }
+    },
+    "passed_rules": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of rule IDs that passed validation"
+    },
+    "detailed_scores": {
+      "type": "object",
+      "description": "Score breakdown by category",
+      "additionalProperties": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1
+      },
+      "properties": {
+        "taal": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "juridisch": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "structuur": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "samenhang": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "improvement_suggestions": {
+      "type": "array",
+      "description": "AI-powered improvement suggestions",
+      "items": {
+        "type": "object",
+        "required": ["type", "description"],
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["rewrite", "addition", "removal", "restructure"],
+            "description": "Type of improvement"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description of the improvement"
+          },
+          "example": {
+            "type": "string",
+            "description": "Example of improved text"
+          },
+          "impact": {
+            "type": "string",
+            "enum": ["low", "medium", "high"],
+            "description": "Expected impact on score"
+          }
+        }
+      }
+    },
+    "system": {
+      "type": "object",
+      "description": "System metadata",
+      "properties": {
+        "correlation_id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "Request correlation ID for tracing"
+        },
+        "engine_version": {
+          "type": "string",
+          "description": "Validation engine version"
+        },
+        "profile_used": {
+          "type": "string",
+          "description": "Validation profile name"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Validation timestamp (ISO 8601)"
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Total processing time in milliseconds"
+        },
+        "timings": {
+          "type": "object",
+          "description": "Detailed timing breakdown",
+          "properties": {
+            "cleaning_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Text cleaning duration"
+            },
+            "validation_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Validation processing duration"
+            },
+            "enhancement_ms": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Enhancement suggestions duration"
+            }
+          }
+        },
+        "error": {
+          "type": "string",
+          "description": "Error message if degraded result"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}

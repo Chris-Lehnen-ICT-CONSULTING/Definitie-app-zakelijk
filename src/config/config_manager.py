@@ -10,7 +10,10 @@ inclusief API keys, cache instellingen en omgeving-specifieke configuraties.
 import logging  # Logging systeem voor foutrapportage en debugging
 import os  # Operating system interface voor omgevingsvariabelen
 from dataclasses import dataclass, field  # Decorators voor gestructureerde data klassen
-from datetime import datetime, timezone  # Datum/tijd functionaliteit voor timestamps
+from datetime import (  # Datum/tijd functionaliteit voor timestamps
+    UTC,
+    datetime,
+)
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
@@ -631,7 +634,7 @@ class ConfigManager:
                 Path(getattr(self.paths, attr)).exists()
                 for attr in ["cache_dir", "exports_dir", "logs_dir", "reports_dir"]
             ),
-            "loaded_at": datetime.now(timezone.utc).isoformat(),
+            "loaded_at": datetime.now(UTC).isoformat(),
         }
 
     def validate_api_key(self) -> bool:
