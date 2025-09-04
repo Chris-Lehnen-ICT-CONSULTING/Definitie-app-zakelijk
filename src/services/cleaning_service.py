@@ -7,7 +7,7 @@ een clean interface voor definitie opschoning met metadata tracking.
 
 import logging
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from opschoning.opschoning_enhanced import opschonen_enhanced
 from services.interfaces import CleaningResult, CleaningServiceInterface, Definition
@@ -160,7 +160,7 @@ class CleaningService(CleaningServiceInterface):
                 applied_rules=applied_rules,
                 improvements=improvements,
                 metadata={
-                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                    "timestamp": datetime.now(UTC).isoformat(),
                     "term": term,
                     "service_version": "1.0",
                 },

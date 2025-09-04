@@ -17,8 +17,8 @@ from dataclasses import (  # Dataklassen voor gestructureerde configuratie
     field,
 )
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
+    UTC,
     datetime,
-    timezone,
 )
 from enum import Enum  # Enumeraties voor prioriteit levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
@@ -202,7 +202,7 @@ class SmartRateLimiter:
             data = {
                 "optimal_rate": self.current_rate,
                 "avg_response_time": self.stats["avg_response_time"],
-                "last_updated": datetime.now(timezone.utc).isoformat(),
+                "last_updated": datetime.now(UTC).isoformat(),
                 "stats": self.stats,
             }
 
@@ -258,7 +258,7 @@ class SmartRateLimiter:
         future = asyncio.Future()
         queued_request = QueuedRequest(
             priority=priority,
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             request_id=request_id,
             future=future,
             timeout=timeout,
@@ -274,7 +274,7 @@ class SmartRateLimiter:
             else:
                 result = await future
             return result
-        except asyncio.TimeoutError:
+        except TimeoutError:
             # Remove from queue if still there
             try:
                 self.priority_queues[priority].remove(queued_request)
@@ -297,7 +297,7 @@ class SmartRateLimiter:
                         # Check if request hasn't timed out
                         if not request.future.done():
                             queue_wait_time = (
-                                datetime.now(timezone.utc) - request.timestamp
+                                datetime.now(UTC) - request.timestamp
                             ).total_seconds()
 
                             # Apply priority weighting to queue time
@@ -347,7 +347,7 @@ class SmartRateLimiter:
     ):
         """Record response metrics for dynamic rate adjustment."""
         metric = ResponseMetrics(
-            timestamp=datetime.now(timezone.utc),
+            timestamp=datetime.now(UTC),
             response_time=response_time,
             success=success,
             priority=priority,
@@ -516,7 +516,7 @@ def with_smart_rate_limit(
             time.time()
             if not await limiter.acquire(priority, timeout, request_id):
                 msg = f"Rate limit timeout for {func.__name__}"
-                raise asyncio.TimeoutError(msg)
+                raise TimeoutError(msg)
 
             try:
                 # Execute function and record metrics
