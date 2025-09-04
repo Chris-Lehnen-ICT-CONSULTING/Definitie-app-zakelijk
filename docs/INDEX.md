@@ -19,9 +19,14 @@
 ### Product & Requirements
 - [Product Requirements (PRD)](./prd.md) ✅
 - [Project Brief](./brief.md) ✅
-- [Requirements Compleet](./REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
+- [Requirements Compleet](./requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
 - **[MASTER EPICS & USER STORIES](./stories/MASTER-EPICS-USER-STORIES.md)** 🆕 **SINGLE SOURCE OF TRUTH**
 - [User Stories](./stories/MASTER-EPICS-USER-STORIES.md) 📁
+
+### Workflows & Agents
+- [TDD to Deployment Workflow](./workflows/TDD_TO_DEPLOYMENT_WORKFLOW.md) 🆕
+- [Agents Documentation](./AGENTS.md) ✅
+- **DevOps Pipeline Orchestrator** 🆕 - CI/CD automation agent
 
 ### Architectuur (Updated 2025-09-04)
 - **Justice Sector Architecture** 🆕
@@ -29,7 +34,7 @@
   - [Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) ✅ Actuele implementatie
   - [Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) ✅ Werkende tech stack
   - [ASTRA Compliance](./architectuur/ASTRA_COMPLIANCE.md) ✅ Justice sector assessment
-- [Huidige Architectuur Overzicht](./CURRENT_ARCHITECTURE_OVERVIEW.md) ✅
+- [Huidige Architectuur Overzicht](./architectuur/CURRENT_ARCHITECTURE_OVERVIEW.md) ✅
 - [Architecture Decision Records](./architectuur/beslissingen/ADR-001-monolithische-structuur.md) 📁
   - [ADR-001: Monolithische structuur](./architectuur/beslissingen/ADR-001-monolithische-structuur.md)
   - [ADR-002: Features-first development](./architectuur/beslissingen/ADR-002-features-first-development.md)
@@ -39,7 +44,7 @@
   - [ADR-006: ValidationOrchestratorV2](./architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
 
 ### Technische Documentatie
-- [Services Dependency Analysis](./SERVICES_DEPENDENCY_ANALYSIS.md) ✅
+- Services Dependency Analysis (verplaatst naar technisch/) ✅
 - [Technische Referentie](./technisch/module-afhankelijkheid-rapport.md) 📁
 - [Module Documentatie - zie technisch](./technisch/module-afhankelijkheid-rapport.md) 📁
 
