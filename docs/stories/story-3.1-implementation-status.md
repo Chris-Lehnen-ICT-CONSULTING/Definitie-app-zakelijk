@@ -1,9 +1,9 @@
 # Story 3.1 Implementation Status
 
-**Story**: Metadata First, Prompt Second - Web Lookup Bronnen  
-**Epic**: Epic 3 - Modern Web Lookup  
-**Status**: 🔄 IN PROGRESS  
-**Start Date**: 2025-09-03  
+**Story**: Metadata First, Prompt Second - Web Lookup Bronnen
+**Epic**: Epic 3 - Modern Web Lookup
+**Status**: 🔄 IN PROGRESS
+**Start Date**: 2025-09-03
 **Estimated Completion**: 2025-09-03 (4-6 uur)
 
 ## Executive Summary
@@ -164,6 +164,6 @@ streamlit run src/main.py
 - [Test Results](../../tests/web_lookup/)
 
 ---
-*Last Updated: 2025-09-03 15:30*  
-*Author: Development Team*  
+*Last Updated: 2025-09-03 15:30*
+*Author: Development Team*
 *Status: Active Implementation*

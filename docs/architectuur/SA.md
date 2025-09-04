@@ -1,539 +1,555 @@
-# SA - Prompt Management Systeem voor Definitie-app
+# Solution Architecture - DefinitieAgent Systeem
 
 ## Executive Summary
 
-Dit document beschrijft de Solution Architecture voor het nieuwe Prompt Management Systeem. Het systeem implementeert een modulaire architectuur waarbij elke validatieregel zijn eigen prompt-instructie beheert, met dynamische compositie op basis van context en configuratie.
+Deze Solution Architecture beschrijft het ontwerp voor drie kritische verbeteringen in het DefinitieAgent systeem:
+1. **Context Flow Fix**: Waarborging dat alle drie contextvelden (organisatorisch, juridisch, wettelijk) volledig in de prompt terechtkomen
+2. **RulePromptMappingService**: Een nieuwe service voor centraal beheer van toetsregel-naar-prompt instructie mappings
+3. **Ontologie Instructie Flow**: Correctie van de ontologische categorie verwerking van vraag naar instructie
 
 ## Context & Scope
 
-Het systeem integreert met de bestaande Definitie-app architectuur en vervangt de huidige hardcoded prompt generatie met een flexibel, testbaar en onderhoudbaar alternatief. De scope omvat alle 45 bestaande validatieregels plus ruimte voor uitbreiding.
+### Huidige Problemen
+- **Context Verlies**: Alleen organisatorische context wordt momenteel correct doorgegeven naar de prompt
+- **Toetsregel Management**: 45-46 toetsregels hebben geen individuele prompt instructies
+- **Ontologie Fout**: Ontologische categorie wordt als vraag in plaats van instructie verwerkt
+
+### Betrokken Componenten
+- UI Layer (context_selector.py)
+- Orchestration Layer (definitie_agent.py, definition_orchestrator_v2.py)
+- Prompt Services (prompt_service_v2.py, modular_prompt_builder.py)
+- Toetsregels Module (/toetsregels/regels/*.json)
 
 ## Architecture Decisions
 
-### SAD1: Rule Module Structure
-
-**Besluit**: Elke regel wordt geïmplementeerd als Python module met gestandaardiseerde interface.
-
-```python
-class RuleModule(Protocol):
-    rule_id: str
-    category: str
-    priority: Priority
-
-    def validate(self, text: str, context: Context) -> ValidationResult
-    def get_prompt_fragment(self, context: Context) -> PromptFragment
-    def get_metadata(self) -> RuleMetadata
-```
-
-**Rationale**: Protocol-based design voor type safety met flexibiliteit
-
-### SAD2: Prompt Fragment Composition
-
-**Besluit**: Gebruik van template-based prompt fragments met variable substitution.
+### AD-1: Context Flow Architectuur
+**Besluit**: Implementeer een ContextFlowService die alle drie contextvelden expliciet beheert en doorgeeft
 
 **Rationale**:
-- Herbruikbare templates
-- Versioneerbaar in Git
-- Makkelijk te reviewen door domein experts
+- Garandeert volledigheid van context informatie
+- Maakt debugging van context verlies mogelijk
+- Sluit aan bij NORA principe van expliciete data flows
 
-### SAD3: Configuration-Driven Activation
-
-**Besluit**: YAML-based configuratie voor regel activatie en parameters.
+### AD-2: RulePromptMappingService Design
+**Besluit**: Centralized service met JSON/YAML configuratie per toetsregel
 
 **Rationale**:
-- Geen code changes voor configuratie wijzigingen
-- Environment-specific overrides mogelijk
-- Audit trail via Git
+- Schaalbaarheid voor 45+ regels
+- Versionering van prompt instructies
+- Compliance met GEMMA configuratie principes
+
+### AD-3: Ontologie als Instructie
+**Besluit**: Transform ontologische categorie naar instructie template in prompt builder
+
+**Rationale**:
+- Voorkomt verwarring in AI model
+- Verhoogt kwaliteit van gegenereerde definities
+- Alignment met ASTRA richtlijnen voor begripsdefiniëring
 
 ## Components/Design
 
-### Component Diagram
+### 1. Context Flow Architecture
+
+```mermaid
+sequenceDiagram
+    participant UI as UI Layer
+    participant CFS as ContextFlowService
+    participant DA as DefinitieAgent
+    participant PS as PromptService
+    participant PB as PromptBuilder
+
+    UI->>CFS: submitContext(org, jur, wet)
+    CFS->>CFS: validateContextFields()
+    CFS->>CFS: createContextPayload()
+    CFS->>DA: processWithContext(payload)
+    DA->>PS: buildPrompt(context)
+    PS->>PB: generateWithAllFields(context)
+    PB->>PB: injectContextFields()
+    PB-->>PS: completePrompt
+```
+
+#### ContextFlowService Interface
+```python
+@dataclass
+class CompleteContext:
+    """Volledig context object met alle drie velden"""
+    organisatorische_context: list[str]
+    juridische_context: list[str]
+    wettelijke_basis: list[str]
+    metadata: dict[str, Any]
+    validation_status: ContextValidationStatus
+
+class ContextFlowService:
+    """Service voor waarborging complete context doorgifte"""
+
+    async def capture_context(
+        self,
+        ui_input: dict[str, Any]
+    ) -> CompleteContext:
+        """Capture en valideer alle context velden"""
+
+    async def inject_into_prompt(
+        self,
+        context: CompleteContext,
+        prompt_template: str
+    ) -> str:
+        """Injecteer alle context velden in prompt"""
+
+    def audit_context_flow(
+        self,
+        context: CompleteContext
+    ) -> ContextAuditReport:
+        """Audit trail voor context doorgifte"""
+```
+
+### 2. RulePromptMappingService
 
 ```mermaid
 graph TB
-    subgraph "Prompt Management Core"
-        RM[RuleModule Interface]
-        RR[RuleRegistry]
-        PC[PromptComposer]
-        TC[TokenCalculator]
+    subgraph Toetsregels Repository
+        TR1[ESS-01.json]
+        TR2[CON-01.json]
+        TR3[ARAI-01.json]
+        TR45[...45 regels]
     end
 
-    subgraph "Rule Modules"
-        ARAI[ARAI Rules<br/>5 modules]
-        CON[CON Rules<br/>8 modules]
-        ESS[ESS Rules<br/>6 modules]
-        STR[STR Rules<br/>9 modules]
-        VER[VER Rules<br/>7 modules]
-        SAM[SAM Rules<br/>10 modules]
+    subgraph Prompt Instructions
+        PI1[ESS-01-prompt.yaml]
+        PI2[CON-01-prompt.yaml]
+        PI3[ARAI-01-prompt.yaml]
+        PI45[...45 instructies]
     end
 
-    subgraph "Integration Layer"
-        VA[ValidationAdapter]
-        PA[PromptAdapter]
-        CA[ConfigAdapter]
+    subgraph RulePromptMappingService
+        RPM[Mapping Engine]
+        Cache[Instruction Cache]
+        Valid[Validation Engine]
     end
 
-    subgraph "External Systems"
-        MVS[ModularValidationService]
-        MPB[ModularPromptBuilder]
-        CFG[ConfigManager]
+    TR1 --> RPM
+    PI1 --> RPM
+    RPM --> Cache
+    RPM --> Valid
+
+    subgraph Output
+        Prompt[Generated Prompt with Rule Instructions]
     end
 
-    subgraph "Storage"
-        YAML[(YAML Config)]
-        CACHE[(Rule Cache)]
-        METRICS[(Metrics Store)]
-    end
-
-    ARAI --> RM
-    CON --> RM
-    ESS --> RM
-    STR --> RM
-    VER --> RM
-    SAM --> RM
-
-    RM --> RR
-    RR --> PC
-    PC --> TC
-
-    RR --> VA
-    PC --> PA
-    CFG --> CA
-
-    VA --> MVS
-    PA --> MPB
-    CA --> RR
-
-    RR --> CACHE
-    TC --> METRICS
-    CA --> YAML
+    Cache --> Prompt
 ```
 
-### Detailed Component Specifications
-
-#### RuleRegistry
-
+#### Service Interface
 ```python
 @dataclass
-class RuleRegistry:
-    """Central registry for all validation rules."""
+class RulePromptInstruction:
+    """Prompt instructie voor een toetsregel"""
+    rule_id: str
+    instruction_text: str
+    examples: list[str]
+    priority: int
+    context_specific: bool
+    version: str
 
-    rules: Dict[str, RuleModule]
-    config: RuleConfiguration
-    cache: RuleCache
+class RulePromptMappingService:
+    """Service voor toetsregel naar prompt instructie mapping"""
 
-    async def load_rules(self, path: Path) -> None:
-        """Dynamically load rule modules from filesystem."""
+    def __init__(self, config_path: str = "/config/prompt-instructions/"):
+        self.instruction_repository = PromptInstructionRepository(config_path)
+        self.cache = InstructionCache()
 
-    def get_rule(self, rule_id: str) -> Optional[RuleModule]:
-        """Get specific rule by ID."""
+    async def get_instructions_for_rules(
+        self,
+        rule_ids: list[str],
+        context: CompleteContext
+    ) -> list[RulePromptInstruction]:
+        """Haal prompt instructies op voor gegeven regels"""
 
-    def get_active_rules(self, context: Context) -> List[RuleModule]:
-        """Get all active rules for given context."""
+    async def generate_rule_section(
+        self,
+        applicable_rules: list[str],
+        context: CompleteContext
+    ) -> str:
+        """Genereer complete regel sectie voor prompt"""
 
-    def register_rule(self, rule: RuleModule) -> None:
-        """Register new rule module."""
+    def update_instruction(
+        self,
+        rule_id: str,
+        new_instruction: RulePromptInstruction
+    ) -> bool:
+        """Update prompt instructie voor regel"""
 ```
 
-#### PromptComposer
+#### Prompt Instruction Configuration (YAML)
+```yaml
+# /config/prompt-instructions/ESS-01-prompt.yaml
+rule_id: ESS-01
+version: "2.0"
+instruction:
+  primary: |
+    Zorg ervoor dat de definitie beschrijft WAT het begrip is,
+    niet WAARVOOR het gebruikt wordt. Vermijd doelgerichte
+    formuleringen zoals "om te", "bedoeld voor" of "met als doel".
 
-```python
-@dataclass
-class PromptComposer:
-    """Composes prompts from rule fragments."""
+  examples:
+    correct:
+      - "sanctie: maatregel die volgt op normovertreding"
+      - "meldpunt: instantie die meldingen registreert"
+    incorrect:
+      - "sanctie: maatregel om gedrag te beïnvloeden"
+      - "meldpunt: instantie om meldingen te verwerken"
 
-    registry: RuleRegistry
-    calculator: TokenCalculator
-    optimizer: PromptOptimizer
-
-    def compose(
-        self,
-        context: Context,
-        token_limit: int = 8000
-    ) -> ComposedPrompt:
-        """Compose optimized prompt for context."""
-
-    def get_fragments(
-        self,
-        rules: List[RuleModule],
-        context: Context
-    ) -> List[PromptFragment]:
-        """Get prompt fragments from rules."""
-
-    def optimize_for_tokens(
-        self,
-        fragments: List[PromptFragment],
-        limit: int
-    ) -> List[PromptFragment]:
-        """Optimize fragments for token limit."""
+  enforcement_level: strict
+  context_overrides:
+    - context: ["DJI", "Strafrecht"]
+      additional: "In DJI context extra aandacht voor uitvoeringsaspecten"
 ```
 
-#### RuleModule Example - ARAI-01
+### 3. Ontologie Instructie Architecture
 
+```mermaid
+graph LR
+    subgraph Input
+        OC[Ontologische Categorie]
+        Begrip[Begrip]
+    end
+
+    subgraph OntologyInstructionTransformer
+        Det[Detect Category]
+        Temp[Select Template]
+        Inst[Generate Instruction]
+    end
+
+    subgraph Output
+        PI[Prompt met Instructie]
+    end
+
+    OC --> Det
+    Det --> Temp
+    Temp --> Inst
+    Begrip --> Inst
+    Inst --> PI
+```
+
+#### OntologyInstructionTransformer
 ```python
-class ARAI01_GeenCirculaireDefinitie(BaseRuleModule):
-    """Regel: Definitie mag niet circulair zijn."""
+class OntologyInstructionTransformer:
+    """Transform ontologische categorie naar instructie"""
 
-    rule_id = "ARAI-01"
-    category = "ARAI"
-    priority = Priority.HIGH
+    CATEGORY_INSTRUCTIONS = {
+        "Object": """
+        INSTRUCTIE: Definieer dit begrip als een OBJECT.
+        Focus op: fysieke of conceptuele eigenschappen, kenmerken,
+        identificeerbare attributen. Het begrip moet een zelfstandig
+        bestaand iets zijn dat je kunt aanwijzen of beschrijven.
+        """,
 
-    def __init__(self):
-        self.prompt_template = """
-## ARAI-01: Vermijd Circulariteit
-- Het begrip '{term}' mag NIET voorkomen in de definitie
-- Gebruik geen synoniemen die naar hetzelfde begrip verwijzen
-- Voorkom indirecte circulariteit via andere begrippen
+        "Proces": """
+        INSTRUCTIE: Definieer dit begrip als een PROCES.
+        Focus op: opeenvolging van activiteiten, transformatie,
+        begin- en eindpunt, stappen of fasen. Beschrijf de dynamiek
+        en verandering over tijd.
+        """,
+
+        "Actor": """
+        INSTRUCTIE: Definieer dit begrip als een ACTOR.
+        Focus op: rol, verantwoordelijkheden, bevoegdheden,
+        handelingsbekwaamheid. Beschrijf wie of wat handelingen
+        kan verrichten binnen het juridische domein.
         """
+    }
 
-    def validate(self, text: str, context: Context) -> ValidationResult:
-        term = context.get("begrip", "")
-        if self._contains_term(text, term):
-            return ValidationResult(
-                passed=False,
-                score=0.0,
-                message=f"Definitie bevat het te definiëren begrip '{term}'"
-            )
-        return ValidationResult(passed=True, score=1.0)
+    async def transform_to_instruction(
+        self,
+        category: str,
+        begrip: str,
+        context: CompleteContext
+    ) -> str:
+        """Transform categorie naar concrete instructie"""
 
-    def get_prompt_fragment(self, context: Context) -> PromptFragment:
-        return PromptFragment(
-            content=self.prompt_template.format(term=context.get("begrip", "")),
-            tokens=self._calculate_tokens(),
-            priority=self.priority
+        base_instruction = self.CATEGORY_INSTRUCTIONS.get(
+            category,
+            self._get_default_instruction()
+        )
+
+        # Context-specific refinement
+        refined = await self._refine_for_context(
+            base_instruction,
+            context
+        )
+
+        # Inject begrip
+        return refined.replace("{BEGRIP}", begrip)
+```
+
+## Integration Points
+
+### 1. UI → ContextFlowService
+- Aanpassing `context_selector.py`:
+```python
+def _render_manual_selector(self):
+    # ... existing code ...
+
+    # NEW: Explicit context collection
+    complete_context = {
+        "organisatorische_context": selected_org,
+        "juridische_context": selected_jur,  # FIX: Now included
+        "wettelijke_basis": selected_wet,     # FIX: Now included
+        "metadata": {
+            "voorsteller": voorsteller,
+            "ketenpartners": ketenpartners
+        }
+    }
+
+    # Validate completeness
+    context_service = ContextFlowService()
+    validated = context_service.validate_context(complete_context)
+
+    return validated
+```
+
+### 2. DefinitieAgent → RulePromptMappingService
+```python
+class DefinitieAgent:
+    def __init__(self):
+        self.rule_mapping_service = RulePromptMappingService()
+
+    async def generate_definition(self, request):
+        # Get applicable rules
+        applicable_rules = await self._determine_rules(request)
+
+        # Get prompt instructions
+        instructions = await self.rule_mapping_service.get_instructions_for_rules(
+            applicable_rules,
+            request.context
+        )
+
+        # Build enhanced prompt
+        prompt = await self._build_prompt_with_instructions(
+            request,
+            instructions
         )
 ```
 
-### Data Flow Diagrams
+### 3. PromptService → OntologyInstructionTransformer
+```python
+class PromptServiceV2:
+    async def build_generation_prompt(self, request):
+        # ... existing code ...
 
-#### Prompt Generation Flow
+        # NEW: Transform ontology to instruction
+        if request.ontologische_categorie:
+            transformer = OntologyInstructionTransformer()
+            ontology_instruction = await transformer.transform_to_instruction(
+                request.ontologische_categorie,
+                request.begrip,
+                enriched_context
+            )
 
+            # Inject as instruction, not question
+            prompt_sections.insert(0, ontology_instruction)  # At beginning
+```
+
+## Data Flow Diagrams
+
+### Complete Context Flow
 ```mermaid
-sequenceDiagram
-    participant Client
-    participant PromptAdapter
-    participant PromptComposer
-    participant RuleRegistry
-    participant RuleModule
-    participant TokenCalculator
+flowchart TD
+    UI[UI Input: 3 Context Fields] --> VAL{Validation}
+    VAL -->|Valid| CTX[CompleteContext Object]
+    VAL -->|Invalid| ERR[Error Feedback]
 
-    Client->>PromptAdapter: generate_prompt(context)
-    PromptAdapter->>PromptComposer: compose(context, token_limit)
+    CTX --> AGENT[DefinitieAgent]
+    AGENT --> ORCH[Orchestrator]
+    ORCH --> PROMPT[PromptBuilder]
 
-    PromptComposer->>RuleRegistry: get_active_rules(context)
-    RuleRegistry-->>PromptComposer: List[RuleModule]
+    PROMPT --> C1[Inject Org Context]
+    PROMPT --> C2[Inject Jur Context]
+    PROMPT --> C3[Inject Wet Context]
 
-    loop For each rule
-        PromptComposer->>RuleModule: get_prompt_fragment(context)
-        RuleModule-->>PromptComposer: PromptFragment
-    end
-
-    PromptComposer->>TokenCalculator: calculate_tokens(fragments)
-    TokenCalculator-->>PromptComposer: token_count
-
-    alt token_count > limit
-        PromptComposer->>PromptComposer: optimize_for_tokens()
-    end
-
-    PromptComposer-->>PromptAdapter: ComposedPrompt
-    PromptAdapter-->>Client: prompt_string
+    C1 --> FINAL[Complete Prompt]
+    C2 --> FINAL
+    C3 --> FINAL
 ```
 
-#### Validation Flow
+## Quality Assurance
 
-```mermaid
-sequenceDiagram
-    participant Client
-    participant ValidationAdapter
-    participant RuleRegistry
-    participant RuleModule
-    participant ResultAggregator
+### Context Flow Testing
+```python
+class ContextFlowTest:
+    """Test complete context doorgifte"""
 
-    Client->>ValidationAdapter: validate(text, context)
-    ValidationAdapter->>RuleRegistry: get_active_rules(context)
-    RuleRegistry-->>ValidationAdapter: List[RuleModule]
+    def test_all_fields_present_in_prompt(self):
+        context = CompleteContext(
+            organisatorische_context=["DJI", "OM"],
+            juridische_context=["Strafrecht"],
+            wettelijke_basis=["WvSv", "WvSr"]
+        )
 
-    loop For each rule
-        ValidationAdapter->>RuleModule: validate(text, context)
-        RuleModule-->>ValidationAdapter: ValidationResult
-    end
+        prompt = service.generate_prompt(context)
 
-    ValidationAdapter->>ResultAggregator: aggregate(results)
-    ResultAggregator-->>ValidationAdapter: AggregatedResult
-    ValidationAdapter-->>Client: ValidationResponse
+        assert "DJI" in prompt
+        assert "OM" in prompt
+        assert "Strafrecht" in prompt
+        assert "WvSv" in prompt
+        assert "WvSr" in prompt
 ```
 
-### API Specifications
+### Rule Mapping Validation
+```python
+def validate_rule_coverage():
+    """Ensure all rules have prompt instructions"""
+    all_rules = load_all_toetsregels()
 
-#### REST API Endpoints
-
-```yaml
-openapi: 3.1.0
-info:
-  title: Prompt Management API
-  version: 1.0.0
-
-paths:
-  /api/v1/prompts/generate:
-    post:
-      summary: Generate optimized prompt
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                context:
-                  $ref: '#/components/schemas/Context'
-                token_limit:
-                  type: integer
-                  default: 8000
-                rules:
-                  type: array
-                  items:
-                    type: string
-                  description: Specific rules to include (optional)
-      responses:
-        '200':
-          description: Generated prompt
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ComposedPrompt'
-
-  /api/v1/rules:
-    get:
-      summary: List all available rules
-      parameters:
-        - name: category
-          in: query
-          schema:
-            type: string
-            enum: [ARAI, CON, ESS, STR, VER, SAM]
-        - name: active
-          in: query
-          schema:
-            type: boolean
-      responses:
-        '200':
-          description: List of rules
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RuleInfo'
-
-  /api/v1/rules/{ruleId}:
-    get:
-      summary: Get specific rule details
-      parameters:
-        - name: ruleId
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Rule details
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RuleDetail'
-
-  /api/v1/validation/execute:
-    post:
-      summary: Execute validation with specific rules
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                text:
-                  type: string
-                context:
-                  $ref: '#/components/schemas/Context'
-                rules:
-                  type: array
-                  items:
-                    type: string
-      responses:
-        '200':
-          description: Validation results
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ValidationResponse'
-
-components:
-  schemas:
-    Context:
-      type: object
-      properties:
-        begrip:
-          type: string
-        ontologische_categorie:
-          type: string
-        domain:
-          type: string
-        profile:
-          type: string
-        locale:
-          type: string
-          default: nl_NL
-
-    ComposedPrompt:
-      type: object
-      properties:
-        prompt:
-          type: string
-        metadata:
-          type: object
-          properties:
-            token_count:
-              type: integer
-            rules_included:
-              type: array
-              items:
-                type: string
-            optimization_applied:
-              type: boolean
-            generation_time_ms:
-              type: integer
-
-    RuleInfo:
-      type: object
-      properties:
-        id:
-          type: string
-        category:
-          type: string
-        name:
-          type: string
-        priority:
-          type: string
-        active:
-          type: boolean
-
-    ValidationResponse:
-      type: object
-      properties:
-        overall_score:
-          type: number
-        is_acceptable:
-          type: boolean
-        violations:
-          type: array
-          items:
-            $ref: '#/components/schemas/Violation'
-        passed_rules:
-          type: array
-          items:
-            type: string
+    for rule in all_rules:
+        instruction = mapping_service.get_instruction(rule.id)
+        assert instruction is not None
+        assert instruction.version is not None
+        assert len(instruction.instruction_text) > 50
 ```
 
-### Configuration Schema
+## Performance Requirements
 
-```yaml
-# config/prompt_management.yaml
-prompt_management:
-  enabled: true
-  version: "1.0.0"
+- Context flow latency: < 50ms
+- Rule mapping lookup: < 10ms per rule
+- Ontology transformation: < 5ms
+- Total prompt generation: < 500ms
+- Cache hit ratio: > 90% for rule instructions
 
-  token_limits:
-    default: 8000
-    maximum: 12000
-    reserve_for_response: 2000
+## Security & Compliance
 
-  rule_categories:
-    ARAI:
-      enabled: true
-      priority_boost: 1.2
-      rules:
-        - id: ARAI-01
-          enabled: true
-          weight: 1.0
-          prompt_variant: "standard"
-        - id: ARAI-02
-          enabled: true
-          weight: 0.9
-          prompt_variant: "detailed"
+### NORA Compliance
+- ✅ Expliciete data flows (context traceability)
+- ✅ Configureerbare business rules (toetsregels)
+- ✅ Audit trail voor context verwerking
 
-    CON:
-      enabled: true
-      priority_boost: 1.0
-      rules:
-        - id: CON-01
-          enabled: true
-          weight: 0.8
+### BIO Requirements
+- Logging van alle context transformaties
+- Encryptie van gevoelige context data
+- Role-based access voor regel configuratie
 
-    ESS:
-      enabled: true
-      priority_boost: 1.1
+### GEMMA Alignment
+- Herbruikbare service componenten
+- Configuratie-gedreven regel management
+- Standaard interfaces voor integratie
 
-    STR:
-      enabled: true
-      priority_boost: 0.9
+## Migration Strategy
 
-  optimization:
-    strategy: "priority_weighted"
-    min_rules_per_category: 2
-    preserve_high_priority: true
+### Phase 1: Context Flow Fix (Week 1)
+1. Implement ContextFlowService
+2. Update UI context collection
+3. Modify DefinitieAgent context handling
+4. Test all three fields propagation
 
-  caching:
-    enabled: true
-    ttl_seconds: 3600
-    max_entries: 1000
+### Phase 2: Rule Mapping Service (Week 2-3)
+1. Create YAML configurations for all 45 rules
+2. Implement RulePromptMappingService
+3. Integrate with existing prompt builder
+4. Validate instruction quality
 
-  monitoring:
-    track_token_usage: true
-    log_optimization_decisions: true
-    alert_on_limit_exceeded: true
-```
-
-## Standards & Compliance
-
-### Code Standards
-
-- **PEP 8**: Python code styling
-- **Type Hints**: Full typing voor type safety
-- **Docstrings**: Google style docstrings
-- **Testing**: Minimum 90% code coverage
-
-### API Standards
-
-- **OpenAPI 3.1**: API specification
-- **JSON:API**: Response format voor complex data
-- **RFC 7807**: Problem Details voor errors
-- **Semantic Versioning**: Voor API versioning
+### Phase 3: Ontology Fix (Week 4)
+1. Implement OntologyInstructionTransformer
+2. Update PromptServiceV2
+3. Test instruction vs question format
+4. Measure definition quality improvement
 
 ## Risks & Mitigations
 
-### Technical Risks
+| Risk | Impact | Probability | Mitigation |
+|------|--------|-------------|------------|
+| Context data loss during migration | High | Medium | Implement parallel running with validation |
+| Rule instruction quality | High | Low | Expert review of all 45 instructions |
+| Performance degradation | Medium | Low | Implement caching layer |
+| Backwards compatibility | High | Medium | Feature flags for gradual rollout |
 
-1. **Module Loading Performance**
-   - Mitigatie: Lazy loading met pre-warming optie
-   - Monitoring: Track module load times
+## Success Criteria
 
-2. **Token Calculation Accuracy**
-   - Mitigatie: Use tiktoken library met caching
-   - Validation: Regular comparison met actual API usage
+1. **Context Completeness**: 100% of context fields present in prompts
+2. **Rule Coverage**: All 45-46 toetsregels have prompt instructions
+3. **Ontology Accuracy**: 95% correct category-based definitions
+4. **Performance**: No degradation vs current system
+5. **Quality**: 20% improvement in definition validation scores
 
-3. **Rule Conflicts**
-   - Mitigatie: Automated conflict detection
-   - Resolution: Priority-based ordering
+## Technical Implementation Details
+
+### Problem Analysis: Context Field Loss
+
+#### Current Data Flow Issues
+Na analyse van de code blijkt het probleem te zitten in de mapping tussen UI en de GenerationRequest:
+
+1. **UI Layer** (`context_selector.py`):
+   - Verzamelt correct alle drie velden: `organisatorische_context`, `juridische_context`, `wettelijke_basis`
+   - Retourneert complete dictionary met alle velden
+
+2. **DefinitieAgent** (`definitie_agent.py`):
+   - Ontvangt `GenerationContext` met alle drie velden
+   - PROBLEEM: Bij conversie naar `GenerationRequest` (regel 106-126):
+     - `juridische_context` wordt gemapped naar `domein` (legacy field)
+     - Nieuwe velden worden toegevoegd maar niet consistent gebruikt
+     - Er is dubbele mapping wat verwarring veroorzaakt
+
+3. **Context Manager** (`definition_generator_context.py`):
+   - `_build_base_context()` gebruikt NIET de nieuwe velden
+   - Parseert alleen `request.context` string (regel 255-256)
+   - Mist expliciete handling van `juridische_context` en `wettelijke_basis`
+
+#### Root Cause
+```python
+# PROBLEEM in definition_generator_context.py regel 237-258:
+def _build_base_context(self, request: GenerationRequest) -> dict[str, list[str]]:
+    context = {
+        "organisatorisch": [],
+        "juridisch": [],  # WORDT NIET GEVULD MET request.juridische_context
+        "wettelijk": [],  # WORDT NIET GEVULD MET request.wettelijke_basis
+    }
+
+    # Alleen deze velden worden gebruikt:
+    if request.organisatie:
+        context["organisatorisch"].append(request.organisatie)
+    if request.domein:
+        context["domein"].append(request.domein)
+```
+
+### Concrete Fix Implementation
+
+#### Fix 1: Update HybridContextManager
+```python
+# definition_generator_context.py - Line 237
+def _build_base_context(self, request: GenerationRequest) -> dict[str, list[str]]:
+    """Bouw basis context dictionary met ALLE context velden."""
+    context = {
+        "organisatorisch": [],
+        "juridisch": [],
+        "wettelijk": [],
+        "domein": [],
+        "technisch": [],
+        "historisch": [],
+    }
+
+    # FIX: Gebruik de nieuwe rijke context velden
+    if hasattr(request, 'organisatorische_context') and request.organisatorische_context:
+        context["organisatorisch"].extend(request.organisatorische_context)
+    elif request.organisatie:
+        context["organisatorisch"].append(request.organisatie)
+
+    if hasattr(request, 'juridische_context') and request.juridische_context:
+        context["juridisch"].extend(request.juridische_context)
+    elif request.domein:
+        context["domein"].append(request.domein)
+
+    if hasattr(request, 'wettelijke_basis') and request.wettelijke_basis:
+        context["wettelijk"].extend(request.wettelijke_basis)
+
+    # Parse aanvullende context string
+    if request.context:
+        self._parse_context_string(request.context, context)
+
+    return context
+```
 
 ## References
 
-- [Python Protocol PEP 544](https://www.python.org/dev/peps/pep-0544/)
-- [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [JSON:API Specification](https://jsonapi.org/)
-- [tiktoken Library](https://github.com/openai/tiktoken)
-
----
-*Versie: 1.0.0*
-*Datum: 2025-09-03*
-*Status: Concept*
+- NORA 3.0 Principes: https://www.noraonline.nl
+- GEMMA Referentiearchitectuur: https://www.gemmaonline.nl
+- ASTRA Definitierichtlijnen: https://www.astraonline.nl
+- BIO Baseline Informatiebeveiliging: https://www.bio-overheid.nl
+- Interne documentatie: /docs/architectuur/SOLUTION_ARCHITECTURE.md

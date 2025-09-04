@@ -10,8 +10,8 @@ priority: high
 
 # Technical Debt Assessment - DefinitieAgent
 
-**Assessment Datum**: 3 september 2025  
-**Project Versie**: 2.3  
+**Assessment Datum**: 3 september 2025
+**Project Versie**: 2.3
 **Codebase Omvang**: 59,783 regels productie code
 
 ---
@@ -209,6 +209,6 @@ Met gerichte aanpak is 30% schuld reductie haalbaar voor UAT, wat voldoende stab
 
 ---
 
-*Assessment uitgevoerd door: Claude Code AI Analysis*  
-*Methodologie: Static analysis, complexity metrics, coverage analysis*  
+*Assessment uitgevoerd door: Claude Code AI Analysis*
+*Methodologie: Static analysis, complexity metrics, coverage analysis*
 *Tools: AST analysis, pytest-cov, ruff metrics*

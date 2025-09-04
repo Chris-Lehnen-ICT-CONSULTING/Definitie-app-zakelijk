@@ -11,8 +11,8 @@ deadline: 2025-09-20
 
 # 🎯 UAT 2025 Action Plan - DefinitieAgent
 
-**Doel**: Single-user UAT succesvol afronden op 20 september 2025  
-**Status**: HAALBAAR met gerichte aanpak  
+**Doel**: Single-user UAT succesvol afronden op 20 september 2025
+**Status**: HAALBAAR met gerichte aanpak
 **Slagingskans**: 85%
 
 ---
@@ -21,7 +21,7 @@ deadline: 2025-09-20
 
 Door het wegvallen van security requirements besparen we **11 dagen werk**:
 - ❌ Geen authentication/authorization nodig
-- ❌ Geen data encryptie vereist  
+- ❌ Geen data encryptie vereist
 - ❌ Geen multi-user support
 - ❌ Geen AVG/GDPR compliance voor test
 
@@ -39,7 +39,7 @@ def get_service_container():
     return ServiceContainer()
 
 # 2. Toetsregels Caching (30 minuten)
-# File: src/services/validation/modular_validation_service.py  
+# File: src/services/validation/modular_validation_service.py
 @st.cache_data
 def load_validation_rules():
     return load_all_rules()
@@ -59,7 +59,7 @@ pytest --collect-only  # Identificeer en fix import errors
 
 ### Week 1 (Dag 1-6): Foundation
 - **Dag 1-2**: Test suite reparatie
-- **Dag 3-4**: Performance optimalisatie  
+- **Dag 3-4**: Performance optimalisatie
 - **Dag 5-6**: Prompt reductie (7,250 → 1,250 tokens)
 
 ### Week 2 (Dag 7-12): Features
@@ -109,16 +109,16 @@ pytest --collect-only  # Identificeer en fix import errors
 
 Alle assessments zijn correct gedocumenteerd volgens project richtlijnen:
 
-✅ **UAT Readiness Assessment**  
+✅ **UAT Readiness Assessment**
 `docs/requirements/uat/UAT_READINESS_ASSESSMENT_2025.md`
 
-✅ **Technical Debt Assessment**  
+✅ **Technical Debt Assessment**
 `docs/code-analyse/quality/TECHNICAL_DEBT_ASSESSMENT_2025.md`
 
-✅ **INDEX.md bijgewerkt**  
+✅ **INDEX.md bijgewerkt**
 Nieuwe documenten toegevoegd aan centrale index
 
-✅ **Frontmatter compliant**  
+✅ **Frontmatter compliant**
 Alle documenten voorzien van correcte metadata
 
 ---
@@ -154,6 +154,6 @@ Alle documenten voorzien van correcte metadata
 
 ---
 
-*Plan opgesteld: 3 september 2025*  
-*Volgende review: 10 september 2025 (halverwege)*  
+*Plan opgesteld: 3 september 2025*
+*Volgende review: 10 september 2025 (halverwege)*
 *Contact: Project Lead*

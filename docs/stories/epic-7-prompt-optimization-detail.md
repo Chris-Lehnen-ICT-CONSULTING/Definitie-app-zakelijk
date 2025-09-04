@@ -5,12 +5,13 @@ owner: development
 last_verified: 2025-09-03
 applies_to: definitie-app@v2.3
 document_type: epic
-epic: epic-4-prompt-optimization
+epic: epic-7-performance-scaling
+parent_doc: epic-7-performance-optimization
 priority: critical
 sprint: UAT-2025-09
 ---
 
-# Epic 4: Prompt Optimization
+# Epic 7: Prompt Optimization - Detailed Breakdown
 
 **Epic Goal**: Reduceer prompt tokens van 7,250 naar 1,250 (83% reductie) voor betere performance en lagere kosten
 **UAT Deadline**: 20 september 2025
@@ -63,8 +64,8 @@ Nieuw: Context-aware compositie (1,250 tokens)
 ## 🎯 User Stories
 
 ### Story PROMPT-4.1: Consolidate Duplicate Rules ⚡
-**Als** systeem  
-**Wil ik** duplicate regels consolideren  
+**Als** systeem
+**Wil ik** duplicate regels consolideren
 **Zodat** de prompt efficiënter wordt
 
 **Acceptance Criteria:**
@@ -89,8 +90,8 @@ def consolidate_rules():
 ---
 
 ### Story PROMPT-4.2: Fix Contradictions
-**Als** AI model  
-**Wil ik** geen tegenstrijdige instructies  
+**Als** AI model
+**Wil ik** geen tegenstrijdige instructies
 **Zodat** ik consistente output genereer
 
 **Acceptance Criteria:**
@@ -111,8 +112,8 @@ def consolidate_rules():
 ---
 
 ### Story PROMPT-4.3: Context-Aware Composition
-**Als** systeem  
-**Wil ik** alleen relevante regels includen  
+**Als** systeem
+**Wil ik** alleen relevante regels includen
 **Zodat** de prompt context-specifiek is
 
 **Acceptance Criteria:**
@@ -129,7 +130,7 @@ class PromptContext:
     organization: str  # OM, DJI, etc
     domain: str       # juridisch, operationeel
     complexity: str   # simpel, complex
-    
+
 def compose_prompt(context: PromptContext) -> str:
     base = load_base_prompt()
     rules = filter_rules_by_context(context)
@@ -143,8 +144,8 @@ def compose_prompt(context: PromptContext) -> str:
 ---
 
 ### Story PROMPT-4.4: Smart Caching Layer
-**Als** systeem  
-**Wil ik** geoptimaliseerde prompts cachen  
+**Als** systeem
+**Wil ik** geoptimaliseerde prompts cachen
 **Zodat** compositie tijd minimaal is
 
 **Acceptance Criteria:**
@@ -172,8 +173,8 @@ def get_optimized_prompt(
 ---
 
 ### Story PROMPT-4.5: Rule Priority System
-**Als** validatie systeem  
-**Wil ik** regel prioriteiten respecteren  
+**Als** validatie systeem
+**Wil ik** regel prioriteiten respecteren
 **Zodat** belangrijke regels voorrang krijgen
 
 **Acceptance Criteria:**
@@ -190,7 +191,7 @@ CRITICAL (always): 300 tokens
 - Genus proximum + differentia
 - Context impliciet
 
-HIGH (if space): 200 tokens  
+HIGH (if space): 200 tokens
 - Specifieke validaties
 - Domein regels
 
@@ -205,8 +206,8 @@ MEDIUM/LOW (optional): 150 tokens
 ---
 
 ### Story PROMPT-4.6: Monitoring & Analytics
-**Als** product owner  
-**Wil ik** prompt efficiency metrics  
+**Als** product owner
+**Wil ik** prompt efficiency metrics
 **Zodat** ik ROI kan meten
 
 **Acceptance Criteria:**
@@ -334,10 +335,10 @@ def get_relevant_rules(context: Dict) -> List[Rule]:
 def optimize_prompt(base: str, rules: List, budget: int = 1250):
     essential = filter_priority(rules, "CRITICAL")
     remaining_budget = budget - count_tokens(base + essential)
-    
+
     if remaining_budget > 200:
         add_rules = filter_priority(rules, "HIGH")[:remaining_budget]
-    
+
     return base + essential + add_rules
 ```
 
@@ -354,6 +355,6 @@ def optimize_prompt(base: str, rules: List, budget: int = 1250):
 
 ---
 
-*Epic created: 3 september 2025*  
-*Owner: Development Team*  
+*Epic created: 3 september 2025*
+*Owner: Development Team*
 *Review: 6 september 2025*
