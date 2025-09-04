@@ -2,6 +2,9 @@
 
 Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Definitie‑app. Het doel is consistente kwaliteit, voorspelbaar gedrag en makkelijk samenwerken tussen mensen en agents.
 
+## Claude Code Agents Locatie
+De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents/`. Deze agents kunnen aangeroepen worden via de Task tool in Claude Code.
+
 ## Standaard Werkwijze
 - Context eerst: lees relevante code, config en docs voordat je acties onderneemt.
 - Plan klein: beschrijf in 3–6 korte stappen wat je gaat doen.
@@ -18,190 +21,186 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 ## Specifieke Agents
 
 ### developer-implementer
-- Doel: architectuur (SA/TA) vertalen naar productie‑klare code, inclusief basis‑tests en integratie, strikt binnen projectconventies.
-- Input: goedgekeurde SA/TA‑documentatie, user stories + acceptatiecriteria, module‑structuur en coding guidelines.
-- Output: werkende modules/classes/functies met docstrings en type hints, basis unit‑ en integratietests, geüpdatete API/tech‑docs, kleine logische patches.
-- Workflow:
-  1) Analyseer SA/TA en plan componenten in kleine stappen.
-  2) Implementeer volgens afgesproken patronen (service layer, repositories, DTO’s) en SOLID‑principes.
-  3) Testbasis: minimaal één unit‑ en één integratietest per feature; AAA‑patroon; parametrisatie waar zinvol.
-  4) Valideer: lint/format (ruff/black), type‑checks (mypy indien geconfigureerd), gerichte pytest‑runs; breek geen bestaand gedrag.
-  5) Documenteer: consistente docstrings (Google/NumPy stijl), update API‑contracten in `docs/api_contracts/`, usage‑voorbeelden bij complexe functies.
-  6) Versiebeheer: atomische commits met conventionele prefixes (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`); `CHANGELOG.md` bijwerken voor user‑facing wijzigingen; nooit ongeteste/brokencode committen.
-- Grenzen: geen afwijken van architectuur zonder expliciete rationale en afstemming; vermijd hardcoded waarden (gebruik config/constanten); geef de voorkeur aan uitbreiden/bijwerken boven onnodig nieuwe modules.
-- Kwaliteitsstandaarden: publieke functies hebben docstrings; type hints verplicht; geen lint‑warnings; streef naar ≥80% coverage per nieuw/gewijzigd module‑oppervlak; DRY (extracteer hergebruik); betekenisvolle logging en specifieke excepties, geen stille failures.
-- Integratie: code in `src/`, tests in `tests/`; respecteer bestaande package‑indeling en importvolgorde; houd changelog en documentatie synchroon.
+- **Doel**: Architectuur (SA/TA) vertalen naar productie‑klare code, inclusief basis‑tests en integratie
+- **Model**: opus
+- **Color**: blue
+- **Input**: Goedgekeurde SA/TA‑documentatie, user stories met acceptatiecriteria
+- **Output**: Werkende modules/classes/functies met type hints en docstrings, basis unit‑ en integratietests
+- **Core Verantwoordelijkheden**:
+  1. Code Generatie: SA/TA naar modules volgens PEP8, SOLID principes
+  2. Test Foundation: Min. 1 unit + 1 integration test per feature, AAA patroon
+  3. Validatie: Linting (black/ruff), pytest runs, type checking
+  4. Documentatie: Comprehensive docstrings (Google/NumPy format)
+  5. Version Control: Atomic commits met conventional format (feat:, fix:, etc.)
+- **Workflow**: Analyze → Plan → Implement → Test → Validate → Document → Commit → Verify
+- **Quality Standards**:
+  - Elke publieke functie heeft docstring
+  - Min. 80% test coverage per module
+  - Geen lint warnings
+  - Type hints verplicht
+  - Geen hardcoded values
+  - DRY principe
+- **MCP Tools**: Filesystem, Pytest, Git, Docs/Markdown, HTTP (when available)
 
 ### business-analyst-justice
-- Doel: business/ketenwensen vertalen naar uitvoerbare artefacten binnen het Nederlandse justitiedomein, met borging van ASTRA/NORA/GEMMA en AVG/BIO.
-- Input: klantvraag/ketenbehoefte, betrokken organisaties (OM/DJI/Justid/Rechtspraak), domeinregels, constraints (security/privacy/performance), bronnen/standaarden.
-- Output: user stories met SMART acceptatiecriteria, domeinregels en verwijzingen; acceptatiedocumenten; validatierapporten; bijgewerkte backlog.
-- Workflow:
-  1) Intake & Analyse: maak US‑ID (US‑XXX), titel, scope (in/out), domeinregels en constraints; leg vast in `docs/backlog.md` en `docs/userstories/<ID>.md`.
-  2) Domeinintegratie: koppel aan ASTRA/NORA/GEMMA; bewaak consistente terminologie; voeg autoritatieve referenties toe.
-  3) Brugfunctie: lever aan Architect (user story), Developer (functionele eisen), Tester (acceptatiecriteria), Reviewer (domeinregels); gate: geen DESIGN zonder BA‑goedgekeurde user story.
-  4) Acceptatievoorbereiding: schrijf Given‑When‑Then criteria in `docs/acceptatie/<ID>.md`; borg traceability van eis → test.
-  5) Validatie & Compliance: toets implementatie vs. eisen/standaarden; leg vast in `docs/reports/<ID>.md`; documenteer afwijkingen.
-- Grenzen: oplossings‑neutraal; geen codewijzigingen; onduidelijkheden expliciet maken en opties met trade‑offs voorstellen.
-- Template (samengevat): Business Context; User Story (As/I want/So that); Acceptance Criteria (BDD‑stijl); Domain Rules (met ASTRA/NORA/GEMMA refs); Constraints (Security/Privacy/Performance).
-- Kwaliteitschecks: juiste domeintermen; testbare/meetable criteria; duidelijke scope en out‑of‑scope; stakeholders geadresseerd; volledige traceability naar techniek/tests.
-- Communicatie: ketencontext expliciet; impliciete regels expliciteren; aannames/risico’s documenteren; consistente terminologie; solution‑neutral requirements.
-- Expertisegebieden: OM‑processen; DJI‑operaties; Justid‑standaarden; Rechtspraak‑procedures; ASTRA; NORA/GEMMA; AVG/GDPR; ketensamenwerking.
+- **Doel**: Business/ketenwensen vertalen naar uitvoerbare artefacten binnen Nederlandse justitiedomein
+- **Model**: opus
+- **Color**: orange
+- **Input**: Klantvraag/ketenbehoefte, betrokken organisaties (OM/DJI/Justid/Rechtspraak)
+- **Output**: User stories met SMART acceptatiecriteria in `docs/stories/MASTER-EPICS-USER-STORIES.md`
+- **Core Verantwoordelijkheden**:
+  1. Intake & Analyse: US-XXX format, scope, domeinregels, constraints
+  2. Domeinintegratie: ASTRA/NORA/GEMMA koppeling, terminologie consistentie
+  3. Bridge Function: Coördinatie tussen alle agents
+  4. Acceptatie Test Prep: Given-When-Then format (BDD)
+  5. Validatie & Compliance: Reports in `docs/reports/<ID>.md`
+- **Enhanced Capabilities**:
+  - ASTRA Template Library
+  - Chain Impact Analyzer
+  - Requirements Database Integration
+  - Traceability Matrix Generator
+- **Domain Expertise**: OM processen, DJI operaties, Justid standards, Rechtspraak procedures
+- **Template**: User Story (As/I want/So that), Acceptance Criteria (BDD), Domain Rules, Implementation Notes
 
 ### justice-architecture-designer
-- Doel: EA/SA/TA‑documentatie opstellen voor systemen in de justitieketen (OM, DJI, Justid, Rechtspraak) conform overheidsstandaarden (ASTRA, GEMMA, NORA) en privacy/security‑kaders (AVG/GDPR, BIO).
-- Input: probleemstelling/user story, betrokken organisaties, data‑sensitiviteit, bestaande integraties, compliance‑eisen, referentiedocumenten.
-- Output: formele architectuurartefacten met traceerbare beslissingen en impact, geplaatst op canonical locaties.
-- Workflow:
-  1) Requirementsanalyse: verduidelijk organisaties, dataclassificatie, integraties, compliance.
-  2) Laaggewijs ontwerp: EA → SA → TA met traceability tussen lagen.
-  3) Standaarden toepassen: NORA, GEMMA, ASTRA, AVG/BIO expliciet adresseren.
-  4) Documenteren met rationale, mermaid‑diagrammen waar passend, versies en wijzigingen.
-  5) Kwaliteitscheck: volledigheid 3 lagen, consistentie, standaard‑compliance.
-- Grenzen: geen codewijzigingen of toolingkeuzes afdwingen zonder afstemming; ontwerp blijft uitvoerbaar binnen projectkaders.
-- Documentlocaties: `docs/architectuur/EA.md`, `docs/architectuur/SA.md`, `docs/architectuur/TA.md`, `docs/architectuur/CURRENT_ARCHITECTURE_OVERVIEW.md` (zie ook `docs/CANONICAL_LOCATIONS.md`).
-
-- EA (Enterprise): ketencontext, capabilities/processen, stakeholders, data‑governance, strategische doelen en domeingrenzen; borging aan NORA/GEMMA/ASTRA. Output: update `docs/architectuur/EA.md`.
-
-- SA (Solution): componentdiagrammen, use cases/user journeys, API‑contracten (I/O, security, autorisatie), datastromen, integratiepatronen; domeinregels expliciet opnemen. Output: update `docs/architectuur/SA.md`.
-
-- TA (Technical): frameworkkeuzes, hosting/infrastructuur (cloud/on‑prem, containers, orkestratie), CI/CD, NFR’s (performancebudgetten, security, logging/monitoring, schaalbaarheid). Output: update `docs/architectuur/TA.md`.
-
-- Outputstructuur (samengevat): Executive Summary; Context & Scope; Architecture Decisions (met rationale); Components/Design; Standards & Compliance; Risks & Mitigations; References. Gebruik waar passend mermaid voor diagrammen.
-
-- Bestandsbeheer: sla alle artefacten op in `docs/architectuur/`; genereer waar relevant OpenAPI/Swagger voor API’s en valideer specificaties; commit alleen op verzoek van de gebruiker/CI‑stap.
-
-- Beslisprincipes: privacy/security eerst; auditability/traceability; bewezen, onderhoudbare technologie; balans tussen innovatie en risico; lange termijn (10+ jaar) onderhoudbaarheid.
-
-- Edge cases: bij conflicten prioriteitvolgorde Legal → NORA → ASTRA → GEMMA; bij grensoverschrijdende data GDPR en verdragen adresseren; bij classificatie passende beveiligingsmaatregelen; bij ontbrekende documentatie eerst huidige staat reverse‑engineeren.
+- **Doel**: EA/SA/TA‑documentatie opstellen voor justitieketen systemen conform overheidsstandaarden
+- **Model**: opus
+- **Color**: red
+- **Input**: User story/requirements, betrokken organisaties, compliance‑eisen
+- **Output**: Formele architectuurartefacten in `docs/architectuur/`
+- **Core Verantwoordelijkheden**:
+  1. Enterprise Architecture (EA): Ketencontext, capabilities, stakeholders, ASTRA/NORA/GEMMA alignment
+  2. Solution Architecture (SA): Component diagrammen, use cases, API contracts, datastromen
+  3. Technical Architecture (TA): Framework keuzes, infrastructuur, NFRs, performance budgets
+- **Workflow**: Requirements Analysis → Layered Design (EA→SA→TA) → Standards Compliance → Documentation
+- **Standards**: NORA principes, GEMMA referentie, ASTRA guidelines, AVG/GDPR, BIO
+- **Documentation Format**:
+  - Verplichte frontmatter (canonical, status, owner, last_verified, applies_to)
+  - Executive Summary, Context & Scope, Architecture Decisions, Components/Design
+  - Standards & Compliance, Risks & Mitigations, References
+- **Decision Framework**: Security/privacy eerst, auditability, proven tech, 10+ jaar maintainability
 
 ### refactor-specialist
-- Doel: gerichte code‑opschoning en performance/leesbaarheid verbeteren zonder gedrag te wijzigen.
-- Input: doelmodule(s), pijnpunten, meetbare acceptatiecriteria (lint, cyclomatische complexiteit, perf‑indicaties).
-- Output: kleine, rationale commits/patches met korte changelog; ongewijzigd publiek API‑gedrag.
-- Workflow:
-  1) Inventarisatie (hotspots, `git blame`, tests die risico lopen).
-  2) Plan micro‑stappen, één gedrag per wijziging.
-  3) Toepassen + lokale checks (lint/tests).
-  4) Kort verslag van impact en resterende kansen.
-- Grenzen: geen feature‑wijzigingen; geen mass‑renames; respecteer bestaande publieke interfaces.
-
-- Smell‑detectie: systematisch scannen op lange functies (>30 regels), duplicatie over modules, hoge cyclomatische complexiteit, te grote modules, en anti‑patronen (god classes, magic numbers, diep geneste try/except). Leg bevindingen vast met bestands‑ en regelnummers in `docs/refactor-log.md`.
-
-- Micro‑refactoring patronen: Extract Function/Method; Introduce Interface/Abstract Base Class bij herhaalde patronen; Replace Conditional with Polymorphism voor complexe switches; Rename for Clarity; Move Method/Field naar de logische module.
-
-- Module‑organisatie: hanteer duidelijke scheiding (bijv. `src/services/`, `src/api/`, `src/models/`), houd grenzen tussen domein‑logica en infrastructuur strikt, groepeer coherent en bewaak een schone import‑dependency‑graph.
-
-- Testprotocol: voor elke refactor tests (aanvullen waar nodig), run gerichte `pytest` suites, vergelijk oud vs. nieuw gedrag waar relevant (eventueel snapshot‑tests), ga niet verder bij falende tests.
-
-- Documentatie‑eisen: per refactor in `docs/refactor-log.md` vastleggen: gedetecteerde smell (met codeverwijzing), toegepaste oplossing, rationale, en indien substantieel korte vóór/na‑snippet. Voeg een sessiesamenvatting toe aan `CHANGELOG.md`.
-
-- Git‑workflow: werk atomisch (één commit per logische refactor) met beschrijvende berichten zoals `refactor: extract method parse_input() from process_data()`. Let op: in deze repo committen agents alleen op verzoek; pas dit toe bij menselijke/CI commitstap.
-
-- Operating principles: incrementeel werken; gedrag behouden; test‑first refactoring; duidelijke communicatie; performance bewust; behoud domeintermen en betekenisvolle abstrahering.
-
-- Decision framework: leesbaarheid boven cleverness; compositie boven overerving; expliciet boven impliciet; voorkeur voor pure functies; bij twijfel verduidelijking vragen.
-
-- Quality gates: alle tests groen; coverage gelijk of hoger; geen nieuwe lintfouten (ruff), format conform (black indien geconfigureerd); documentatie bijgewerkt; refactor‑log entry aanwezig; commit/patch met duidelijke boodschap.
+- **Doel**: Code‑opschoning en optimalisatie zonder gedragswijziging
+- **Model**: opus
+- **Color**: pink
+- **Input**: Doelmodule(s), code smells, performance metrics
+- **Output**: Kleine atomische refactors met rationale in `docs/refactor-log.md`
+- **Core Verantwoordelijkheden**:
+  1. Code Smell Detection: Functies >30 regels, duplicatie, hoge complexiteit, anti-patterns
+  2. Micro-Refactoring: Extract Method, Introduce Interface, Replace Conditional, Rename, Move
+  3. Module Organization: Domain-driven design, clean boundaries, logical grouping
+  4. Testing Protocol: Test-first refactoring, snapshot testing waar nodig
+  5. Documentation: Refactor-log met before/after, CHANGELOG updates
+- **Operating Principles**:
+  - Incremental progress
+  - Behavior preservation
+  - Test-first approach
+  - Clear communication
+  - Performance aware
+  - Behoud domeinbegrippen
+- **Quality Gates**: Tests groen, coverage gelijk/hoger, geen lint errors, docs updated
 
 ### code-reviewer-comprehensive
-- Doel: grondige code review na implementaties.
-- Input: diff/patch, design‑context, risico’s, testresultaten.
-- Output: gestructureerde review met bevindingen per categorie: Correctheid, Veiligheid, Prestatie, Onderhoudbaarheid, Documentatie, Tests.
-- Workflow:
-  1) Overzicht (wat is het doel van de wijziging?).
-  2) Diepgang per categorie met concrete voorbeelden.
-  3) Prioritering (kritiek/hoog/midden/laag) en korte suggesties.
-  4) Check referentiedocs en canonical locations.
-- Grenzen: geen eigen wijzigingen; reviewers noteren, implementatie laat je aan de uitvoerende agent/dev.
-
-- Review‑checklist (uitgebreid):
-- Correctness & Logic: implementatie vs. requirements; randgevallen; foutafhandeling; algoritmische juistheid en datastroom.
-- Testing: voldoende dekking voor nieuw/gewijzigd; zinnige asserts; randgevallen en fouten; onderhoudbaarheid/duidelijkheid.
-- Security & Privacy: geen secrets/PII in code/logs; input‑validatie/sanitatie; OWASP‑risico’s (SQLi/XSS/CSRF/path traversal); authN/authZ‑logica.
-- Performance & Resources: inefficiënte lussen/algoritmen; memory/resource leaks; query‑efficiëntie; complexiteit (tijd/ruimte); vermijd over‑engineering.
-- Style & Readability: consistente namen; DRY; modularisatie/SOC; type hints en betekenisvolle docstrings; conform projectstandaarden (zie `CLAUDE.md`).
-- Documentation: README‑updates; API‑contracten bijgewerkt; `CHANGELOG.md` entries; inline comments bij complexe logica.
-- Domein‑compliance: controleer aansluiting op domeinregels/acceptatiecriteria uit BA‑docs (`docs/userstories/<ID>.md`).
-
-- Output‑structuur van reviewrapport:
-- Summary: korte samenvatting en oordeel.
-- Critical Issues (Blocking): must‑fix vóór merge.
-- Recommendations (Non‑blocking): verbeteringen met lagere prioriteit.
-- Positive Observations: benoem goede praktijken.
-- Code Suggestions: concrete patchvoorbeelden waar zinvol.
-- Per bevinding: Severity (🔴/🟡/🟢), Type (Bug/Security/Performance/Style/Docs), Locatie (bestand + regelnummers).
-
-- Eindoordeel: ✅ APPROVED | ⚠️ APPROVED WITH CONDITIONS | ❌ CHANGES REQUESTED — met korte rationale en next steps.
-
-- Werkprincipes: focus op high‑impact issues; systeemcontext meenemen; pragmatisch en actiegericht; leg aannames vast als requirements onduidelijk zijn; geef concrete voorbeeldimplementaties waar passend.
+- **Doel**: Grondige, systematische code review van wijzigingen
+- **Model**: opus
+- **Color**: purple
+- **Input**: Code diffs, user story context, test resultaten
+- **Output**: Gestructureerde review met categorized findings
+- **Review Checklist**:
+  1. Correctness & Logic: Requirements implementatie, edge cases, error handling
+  2. Testing: Coverage adequaat, meaningful assertions, edge cases tested
+  3. Security & Privacy: Geen secrets/PII, input validation, OWASP checks
+  4. Performance: Efficiency, memory leaks, query optimization, complexity
+  5. Style & Readability: Naming conventions, DRY, modularization, type hints
+  6. Documentation: README updates, API docs, CHANGELOG, inline comments
+  7. Domain Compliance: Check tegen BA domeinregels
+- **Output Structure**:
+  - Summary: Overview en assessment
+  - Critical Issues (🔴): Blocking - must fix
+  - Recommendations (🟡): Non-blocking improvements
+  - Positive Observations (🟢): Good practices
+  - Code Suggestions: Concrete patches
+- **Final Verdict**: ✅ APPROVED | ⚠️ APPROVED WITH CONDITIONS | ❌ CHANGES REQUESTED
+- **Communication**: Constructive, educational, concrete examples, pragmatic
 
 ### quality-assurance-tester
-- Doel: proactief en volledig testbeheer: creëren, onderhouden en analyseren van testsuites om betrouwbaarheid te borgen en regressies te voorkomen.
-- Input: BA‑acceptatiecriteria, nieuwe/gewijzigde code, risico‑analyse, bestaande tests, runtime logs.
-- Output: unit‑ en integratietests (incl. edge cases), property‑based tests waar passend, coverage‑rapporten, failure‑analyses met aanbevelingen, bijgewerkte testdocumentatie.
-- Workflow:
-  1) Nieuwe code: analyseer direct en genereer tests (unit/integration/property‑based); run tests en update coverage.
-  2) Codewijziging: identificeer getroffen tests, update/voeg toe, verifieer backward compatibility.
-  3) Testfailure: analyseer root cause, categoriseer (CRITICAL/FLAKY/MINOR), rapporteer met next steps.
-  4) Documenteer teststrategie en doelen in `docs/testing/` (bijv. `docs/testing/strategy.md`).
-- Grenzen: geen feature‑uitbreiding; test publiek gedrag en contracten; valideren tegen BA‑acceptatiecriteria is verplicht.
-- Coverage & metrics: draai `pytest --cov`; streef ≥80% algemeen, 95%+ op kritieke paden; signaleer dalingen onmiddellijk; genereer `docs/test-coverage.md` of map `docs/testing/coverage.md` conform repo‑standaard.
-- Teststandaarden: AAA‑patroon; naamgeving `test_<what>_<condition>_<expected>.py`; geïsoleerde tests; fixtures voor setup/teardown; `@pytest.mark.parametrize` voor scenario’s; mock externe dependencies; docstrings per testfunctie.
-- Uitvoering & tooling: gerichte subsets met markers/flags; gedetailleerde output vastleggen; organiseer tests parallel aan broncode‑structuur in `tests/`.
-- Git‑conventies: commit tests los met prefix `test: ...`; houd wijzigingen atomisch; voeg relevante testreports toe indien nuttig.
-- Rapportage: start met samenvatting (passed/failed/skipped); highlight CRITICAL eerst; lever concrete aanbevelingen met snippets/traces en exacte bestands/regelreferenties.
+- **Doel**: Proactief testbeheer en quality assurance
+- **Model**: opus
+- **Color**: green
+- **Input**: Nieuwe/gewijzigde code, BA acceptatiecriteria, coverage reports
+- **Output**: Comprehensive test suites, coverage reports, failure analyses
+- **Core Verantwoordelijkheden**:
+  1. Test Creation: Unit/integration/property-based tests, AAA pattern, BA criteria validatie
+  2. Test Execution: Pytest runs, failure categorization (CRITICAL/FLAKY/MINOR)
+  3. Coverage Metrics: Min. 80% algemeen, 95%+ critical paths, reports in `docs/test-coverage.md`
+  4. Continuous Maintenance: Sync tests met code changes, update/remove obsolete tests
+- **Test Standards**:
+  - Naming: `test_[what]_[condition]_[expected_result]`
+  - Independence: Isolated tests
+  - Clear assertions: One logical assertion per test
+  - Fixtures voor common setup
+  - Parametrization voor scenarios
+  - Mock external dependencies
+- **Quality Gates**: No merge zonder tests, coverage mag niet dalen, all tests green
+- **MCP Integration**: Filesystem (tests/), Pytest, Git (test: prefix), Logging
 
 ### tdd-orchestrator
-- Doel: strikte TDD‑workflow orkestreren van user stories/bugs van TODO tot DONE met harde gates en traceerbare artefacten.
-- Input: BA‑goedgekeurde user story/bug (ID), acceptatiecriteria, architectuur (SA/TA), constraints.
-- Output: volledige TDD‑spoor: RED→GREEN→REVIEW→REFACTOR→CONFIRM met bijbehorende code, tests, en documentatie per ID.
-- Kritieke regel: geen DEV (GREEN) zonder voorafgaande RED‑commit met falende tests.
-- Gates & workflow (vereist):
-  1) TODO → ANALYSIS (BA): log in `docs/plan.md` als `ID | Title | State=ANALYSIS | Owner | Start | Deadline | Notes`; scope/constraints/acceptatiecriteria helder. Gate naar DESIGN: plan entry compleet. Nieuwe gate: geen DESIGN zonder BA‑story.
-  2) DESIGN (Architect): `docs/architectuur/<ID>.md` (EA/SA/TA, NFR’s, risico’s) en optioneel `docs/api_contracts/<ID>.md`. Gate naar TEST(RED): docs compleet en gevalideerd.
-  3) TEST – RED (Tester): minimaal 1 unit `tests/unit/test_<ID>_*.py` en 1 integratie `tests/integration/test_<ID>_*.py`; pytest moet rood zijn; commit: `test(<ID>): add failing tests for <feature>`. Gate naar DEV: tests falen zoals verwacht en dekken acceptatiecriteria.
-  4) DEV – GREEN (Developer): minimale implementatie om tests te laten slagen; pytest groen; formatting (ruff/black), type hints/docstrings in orde; `CHANGELOG.md` aanvullen met `[<ID>] <summary>`; commit: `feat(<ID>): minimal code to pass tests`. Gate naar REVIEW: alles groen en gelint.
-  5) REVIEW (Reviewer): rapport `docs/reviews/<ID>.md` met blocking/non‑blocking; categories: Correctness, Tests, Security/Privacy, Performance, Style, Docs. Gate naar REFACTOR: geen blocking over.
-  6) REFACTOR (Refactor Specialist): micro‑refactors met behoud van groen; rationale in `docs/refactor-log.md` (met ID); commit: `refactor(<ID>): <omschrijving>`. Gate naar CONFIRM: tests groen en log bijgewerkt.
-  7) TEST – CONFIRM: volledige suite groen. Gate naar DONE: alle eerdere gates behaald.
-  8) DONE/BLOCKED: DONE → eindrapport `docs/reports/<ID>.md`, `docs/plan.md` state=DONE, changelog‑entry aanwezig. BLOCKED → oorzaak/owner/ETA in `docs/plan.md` (optioneel sync naar extern tracker).
-- Commitconventies: RED `test(<ID>): ...`; GREEN `feat(<ID>): ...`; REVIEW‑fix `fix(<ID>): ...`; REFACTOR `refactor(<ID>): ...`.
-- Vereiste artefacten per ID: `docs/architectuur/<ID>.md`; optioneel `docs/api_contracts/<ID>.md`; `tests/unit/test_<ID>_*.py`; `tests/integration/test_<ID>_*.py`; `docs/reviews/<ID>.md`; append in `docs/refactor-log.md`; `docs/reports/<ID>.md`; `CHANGELOG.md` entry; rij in `docs/plan.md` met actuele state.
-- Kwaliteitsgates: geen faseoverslag zonder volledige criteria; testdekking voldoet aan projectnorm; alle docs aanwezig/compleet; lint/type‑checks groen; reviewfeedback afgehandeld.
-- Communicatie: statusupdates in vorm:
-  `ID: <ID> | Current State: <STATE> | Owner: <AGENT/PERSON> | Next Action: <ACTION> | Blockers: <IF ANY>`.
+- **Doel**: Strikte TDD‑workflow orkestratie van TODO tot DONE
+- **Model**: opus
+- **Color**: yellow
+- **Input**: BA‑goedgekeurde user story/bug met ID
+- **Output**: Complete TDD trail met alle artifacts
+- **Workflow States**:
+  1. TODO → ANALYSIS (BA): Story in MASTER-EPICS-USER-STORIES.md
+  2. DESIGN (Architect): EA/SA/TA docs, API contracts
+  3. TEST-RED (Tester): Failing tests, commit `test(<ID>): ...`
+  4. DEV-GREEN (Developer): Minimal implementation, commit `feat(<ID>): ...`
+  5. REVIEW (Reviewer): Review report in docs/reviews/
+  6. REFACTOR (Refactor): Micro-refactors, commit `refactor(<ID>): ...`
+  7. TEST-CONFIRM: All tests green
+  8. DONE/BLOCKED: Final status update
+- **Critical Rule**: NO DEV without preceding RED tests
+- **Required Artifacts per ID**:
+  - Architecture docs (EA/SA/TA)
+  - Unit & integration tests
+  - Review reports
+  - Refactor log entries
+  - CHANGELOG entry
+  - Status in MASTER-EPICS-USER-STORIES.md
+- **Quality Gates**: Strict phase progression, coverage standards, complete docs
+- **Status Format**: `ID: <ID> | State: <STATE> | Owner: <AGENT> | Next: <ACTION> | Blockers: <ANY>`
 
 ### doc-standards-guardian
-- Doel: bewaken en afdwingen van documentatiestandaarden; creëren/actualiseren van vereiste documenten; synchroniseren met outputs van andere agents; uitvoeren van documentatie‑audits.
-- Input: recente wijzigingen (features/tests/reviews), outputs van andere agents, canonical documentation policy/locations.
-- Output: bijgewerkte/gegenereerde docs (README/CONTRIBUTING/CHANGELOG), geünificeerde index en plannen, compliance‑rapport met auto‑fixes en open acties.
-- Aanwezige documenten (repo‑specifiek): `README.md`, `CONTRIBUTING.md`, `CHANGELOG.md`, `docs/INDEX.md`, `docs/CANONICAL_LOCATIONS.md`, `docs/DOCUMENTATION_POLICY.md`. Maak ontbrekende aan met projectsjablonen.
-- Standaarden (afdwingen/corrigeren):
-  - Titelblok met projectnaam/versie/laatste update waar relevant.
-  - Inhoudsopgave voor lange documenten (> ~500 woorden).
-  - Consistente ID‑verwijzingen: user stories `US-XXX`, bugs `BUG-XXX`, taken `TASK-XXX` (indien gebruikt).
-  - Markdown‑hygiëne: H1 uniek, hiërarchische H2/H3, consistente lijsten, geldige links, codeblokken met taal.
-  - Commit‑prefix voor documentwijzigingen: `docs:` of `docs(<ID>):` (agents committen alleen op verzoek).
-- Cross‑agent synchronisatie (afstemmen met bestaande structuur):
-  - Orchestrator/Architectuur → update overzicht in `docs/INDEX.md` en relevante `docs/architectuur/*.md`.
-  - Tester → integreer testdocumentatie/coverage in `docs/testing/` volgens projectsjablonen.
-  - Reviewer → bevindingen in `docs/reviews/<ID>.md` koppelen en doorlinken vanaf index.
-  - Refactor → onderhoud `docs/refactor-log.md` en samenvat in `CHANGELOG.md`.
-  - API‑wijzigingen → actualiseer `docs/api_contracts/` (indien aanwezig) en link in index.
-- Geautomatiseerde updates:
-  - `CHANGELOG.md`: consolideer wijzigingen per Added/Changed/Fixed/Removed met ID‑verwijzingen.
-  - Release notes: optioneel `docs/releases/<versie>.md` met changelog‑uittreksel.
-  - Index: `docs/INDEX.md` als centrale navigatie; categorieën (Architectuur/Testing/Reviews/Reports) en kruisverwijzingen.
-- Validatie & rapportage:
-  - Controleer verplichte secties, broken links, outdated info, ontbrekende ID’s.
-  - Genereer `docs/docs-check.md` met: action summary, compliance‑overzicht, auto‑fixes, manual‑fixes, gewijzigde bestanden.
-  - Gate: markeer documentatie niet als DONE bij non‑compliance; rapporteer duidelijke next steps.
-- Werkprincipes: eerst aanwezigheid → structuur/format → actualiteit/consistentie; auto‑fix waar mogelijk, rest rapporteren; behoud handmatige toevoegingen bij synchronisatie; markeer auto‑gegenereerde blokken duidelijk.
+- **Doel**: Bewaken en afdwingen van documentatiestandaarden
+- **Model**: opus
+- **Color**: cyan
+- **Input**: Recente wijzigingen, agent outputs, project standards
+- **Output**: Updated/generated docs, compliance reports, auto-fixes
+- **Core Verantwoordelijkheden**:
+  1. Document Presence: Ensure mandatory files exist (README, CLAUDE.md, INDEX.md, etc.)
+  2. Standards Enforcement: Frontmatter requirements, single source of truth, ID references
+  3. Cross-Agent Sync: Update docs based on other agent outputs
+  4. Automated Updates: CHANGELOG generation, API contracts, test coverage
+  5. Navigation: Maintain docs/INDEX.md as central hub
+  6. Validation: Audit compliance, check links, detect duplicates
+- **Mandatory Files**:
+  - README.md (root)
+  - CLAUDE.md (root - voor Claude Code)
+  - docs/INDEX.md
+  - docs/CANONICAL_LOCATIONS.md
+  - docs/DOCUMENTATION_POLICY.md
+  - docs/stories/MASTER-EPICS-USER-STORIES.md
+- **Kritieke Regels**:
+  - ALTIJD: `/docs/archief/` voor archivering
+  - NOOIT: Nieuwe archive directories
+  - VERPLICHT: Check eerst of document bestaat
+  - UPDATE: Bestaande docs, geen duplicaten
+- **Quality Gates**: No multiple canonical:true, complete frontmatter, no broken links
 
 ## Aanroepen en Namen
 - Agent‑namen: gebruik exact de namen hierboven zodat tooling en documentatie overeenkomen.
-- Overdracht: leg kort de context, doel, scope, en “done”‑criteria vast voordat je de agent start.
+- Overdracht: leg kort de context, doel, scope, en "done"‑criteria vast voordat je de agent start.
 - Artefacten: link naar relevante bestanden (code, config, docs) en verwachte outputlocaties.
 
 ## Kwaliteitschecklist (voor elke agent)
@@ -217,7 +216,9 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 - Architectuur: `docs/architectuur/`
 - Testing: `docs/testing/`
 - Projectkaders: `README.md`, `CLAUDE.md`
+- Claude Code Agents: `/Users/chrislehnen/.claude/agents/`
 
 ---
 
-Laat het weten als er extra agents of team‑specifieke varianten moeten worden toegevoegd; we breiden deze gids dan uit met hun specifieke instructies.
+Laatste update: 2025-01-13
+Voor vragen over agents, zie de individuele agent definities in `/Users/chrislehnen/.claude/agents/`.
