@@ -3,7 +3,7 @@
 # Story 2.4: Integration & Migration
 
 ---
-canonical: true
+canonical: false
 status: active
 owner: validation
 last_verified: 2025-09-02

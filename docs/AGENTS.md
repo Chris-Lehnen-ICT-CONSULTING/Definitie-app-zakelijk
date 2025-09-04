@@ -1,3 +1,11 @@
+---
+canonical: true
+status: active
+owner: architecture
+last_verified: 2025-09-04
+applies_to: definitie-app@current
+---
+
 # Agents Richtlijnen
 
 Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Definitie‑app. Het doel is consistente kwaliteit, voorspelbaar gedrag en makkelijk samenwerken tussen mensen en agents.

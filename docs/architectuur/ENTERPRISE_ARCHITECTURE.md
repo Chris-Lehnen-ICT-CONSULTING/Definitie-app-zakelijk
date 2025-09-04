@@ -27,13 +27,14 @@ applies_to: definitie-app@current
 
 ---
 
-### Current Snapshot (2025-08-28)
-- **Kern**: AI-definitiegeneratie en validatie werken; 45/46 toetsregels actief
-- **UI**: 10 Streamlit tabs laden; Web Lookup tab nog niet geïntegreerd
-- **Security**: Geen AuthN/Z, geen DB-encryptie; enkele bare excepts aanwezig
-- **Performance**: Cache memory leaks geïdentificeerd; N+1 query patronen
-- **Tests**: 522 tests; import issues in enkele suites; ~26% test-to-code
-- **Tech debt**: Legacy UnifiedDefinitionService te groot; E402 importfouten
+### Current Snapshot (2025-09-04)
+- **Kern**: V2-only architectuur compleet; 45/45 toetsregels actief in productie
+- **UI**: 10 Streamlit tabs; 3 volledig geïntegreerd (Generator, History, Export)
+- **AI Config**: Gecentraliseerd via ConfigManager; component-specifieke settings
+- **Security**: Geen AuthN/Z, SQLite zonder encryptie; API keys via env vars
+- **Performance**: 8-12s response tijd; token gebruik gehalveerd (3000 ipv 7250)
+- **Tests**: ~60% coverage; alle V1 tests verwijderd; V2 tests stabiel
+- **Tech Stack**: Python 3.11, Streamlit UI, SQLite DB, ServiceContainer DI
 
 ## 1. Business Architecture
 
@@ -482,7 +483,8 @@ Full Product: Week 20
 - **API Specifications**: docs/api/
 - **Security Analysis & Guidance**: docs/SECURITY_AND_FEEDBACK_ANALYSIS.md
 - **Legacy Migration Plan**: docs/LEGACY_CODE_MIGRATION_ROADMAP.md
- - **Voorbeelden Temperature/Refactor Analyse**: temperature_analysis_complete.md
+ - **ConfigManager Implementation**: src/config/config_manager.py
+- **V2 Service Container**: src/services/container.py
 
 ### Governance Documents
 - **Architecture Decision Records (ADR’s)**: docs/architectuur/beslissingen/

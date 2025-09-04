@@ -22,7 +22,7 @@ applies_to: definitie-app@current
 ## Executive Summary
 
 ### Solution Overview
-> DefinitieAgent is evolving from a monolithic Streamlit application to a microservices-based architecture with AI-powered definition generation, multi-layer validation, and extensive integration capabilities. The solution prioritizes quality improvements (90% first-time-right) before architectural transformation.
+> DefinitieAgent draait volledig op V2 architectuur met gecentraliseerde AI configuratie, modulaire validatie services, en clean dependency injection. Het systeem gebruikt ConfigManager voor component-specifieke AI settings en heeft alle V1 services verwijderd. De focus ligt nu op performance optimalisatie en voorbereiding voor multi-user deployment.
 
 ### Technical Scope
 - **System**: DefinitieAgent v2.0 - Government Definition Platform

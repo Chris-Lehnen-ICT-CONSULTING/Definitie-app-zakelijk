@@ -21,6 +21,7 @@
 - [Project Brief](./brief.md) ✅
 - [Requirements Compleet](./requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
 - **[MASTER EPICS & USER STORIES](./stories/MASTER-EPICS-USER-STORIES.md)** 🆕 **SINGLE SOURCE OF TRUTH**
+  - **[Epic CFR: Context Flow Refactoring](./stories/MASTER-EPICS-USER-STORIES.md#epic-cfr-context-flow-refactoring)** 🚨 **CRITICAL**
 - [User Stories](./stories/MASTER-EPICS-USER-STORIES.md) 📁
 
 ### Workflows & Agents
@@ -34,6 +35,15 @@
   - [Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) ✅ Actuele implementatie
   - [Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) ✅ Werkende tech stack
   - [ASTRA Compliance](./architectuur/ASTRA_COMPLIANCE.md) ✅ Justice sector assessment
+
+- **🚨 Context Flow Refactoring (CFR) - CRITICAL** 🆕
+  - **[CFR Solution Overview](./architectuur/CFR-SOLUTION-OVERVIEW.md)** ✅ Complete implementation package
+  - [EA-CFR: Enterprise Architecture](./architectuur/EA-CFR.md) ✅ Justice sector alignment
+  - [SA-CFR: Solution Architecture](./architectuur/SA-CFR.md) ✅ Component design
+  - [TA-CFR: Technical Architecture](./architectuur/TA-CFR.md) ✅ Implementation specs
+  - [CFR Migration Strategy](./architectuur/CFR-MIGRATION-STRATEGY.md) ✅ Phased rollout plan
+  - [CFR Immediate Workarounds](./CFR-IMMEDIATE-WORKAROUNDS.md) ✅ Production stability
+
 - [Huidige Architectuur Overzicht](./architectuur/CURRENT_ARCHITECTURE_OVERVIEW.md) ✅
 - [Architecture Decision Records](./architectuur/beslissingen/ADR-001-monolithische-structuur.md) 📁
   - [ADR-001: Monolithische structuur](./architectuur/beslissingen/ADR-001-monolithische-structuur.md)
@@ -42,6 +52,8 @@
   - [ADR-004: Incrementele migratie](./architectuur/beslissingen/ADR-004-incrementele-migratie-strategie.md)
   - [ADR-005: Service architecture evolution](./architectuur/beslissingen/ADR-005-service-architecture-evolution.md)
   - [ADR-006: ValidationOrchestratorV2](./architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
+  - **[ADR-015: Context Flow Refactoring](./architectuur/beslissingen/ADR-015-context-flow-refactoring.md)** 🆕 Strategic decision
+  - **[ADR-CFR-001: CFR Implementation](./architectuur/beslissingen/ADR-CFR-001-context-flow-refactoring.md)** 🆕 Technical approach
 
 ### Technische Documentatie
 - Services Dependency Analysis (verplaatst naar technisch/) ✅
