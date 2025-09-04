@@ -392,7 +392,7 @@ class ServiceContainer:
         """
         service_map = {
             "generator": self.generator,
-            "validator": self.validator,
+            # Legacy validator verwijderd; geen mapping meer beschikbaar
             "repository": self.repository,
             "orchestrator": self.orchestrator,
             "web_lookup": self.web_lookup,
