@@ -3,6 +3,34 @@
 ## [Unreleased]
 
 ### Added
+- Component-specific AI configuration system via ConfigManager
+- DevOps Pipeline Orchestrator agent for CI/CD automation
+- Comprehensive documentation audit and compliance reporting
+- AI_CONFIGURATION_GUIDE.md for centralized AI configuration documentation
+- Context Flow Refactoring (CFR) architecture documentation suite
+- Justice sector context in Enterprise/Solution/Technical Architecture
+- ASTRA compliance assessment documentation
+
+### Changed
+- **BREAKING**: Complete migration to V2-only architecture - all V1 services removed
+- Centralized all AI model configuration - removed all hardcoded defaults
+- Updated CURRENT_ARCHITECTURE_OVERVIEW.md to reflect V2-only status
+- Major architecture documentation overhaul with justice sector integration
+- Consolidated user stories into single MASTER-EPICS-USER-STORIES.md
+
+### Fixed
+- CRITICAL SECURITY: Removed exposed API key from config
+- Ruff configuration to ignore all archive directories
+- Test compatibility with V2 orchestrator
+
+### Removed
+- All V1 service implementations (ValidationOrchestrator, AIService, PromptService)
+- Legacy migration documentation (now in archive)
+- Duplicate epic/story documents (consolidated to master document)
+
+## [2.4.0] - 2025-09-04
+
+### Added
 - VS Code Run & Debug profiel dat `OPENAI_API_KEY` mapt vanuit `OPENAI_API_KEY_PROD`.
 - Makefile targets: `dev`, `lint`, `test`, `status` voor snelle DX.
 - README cheatsheet met 4 kerncommando's (run app, mapping, status, tests).
