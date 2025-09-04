@@ -234,6 +234,40 @@ When using specialized agents:
 - **quality-assurance-tester**: For test creation and maintenance
 - **tdd-orchestrator**: For story implementation with TDD workflow
 
+## \ud83d\udeab KRITIEKE REGELS VOOR CLAUDE/AI AGENTS
+
+### \ud83d\udcc1 Archivering - GEBRUIK ALLEEN /docs/archief/
+- **ALTIJD:** Gebruik `/docs/archief/` voor archivering
+- **NOOIT:** Maak geen nieuwe directories zoals `archive`, `archief2`, `old`, etc.
+- **CHECK:** Als je twijfelt, check eerst wat er bestaat met `ls docs/`
+
+### \ud83d\udd0d VOORDAT je een document/file maakt
+**VERPLICHTE CHECKS:**
+1. **Search eerst:** `grep -r "onderwerp" docs/` OF `ls docs/**/*term*.md`
+2. **Check master docs:**
+   - `docs/stories/MASTER-EPICS-USER-STORIES.md` voor epics/stories
+   - `docs/INDEX.md` voor overzicht
+   - `docs/CANONICAL_LOCATIONS.md` voor juiste locaties
+3. **Check archief:** `ls docs/archief/` voor oude versies
+4. **Update bestaand:** Als het bestaat, UPDATE dat document, maak GEEN nieuw
+
+### \u26a0\ufe0f Workflow voor nieuwe documenten
+```bash
+# STAP 1: Check of het al bestaat
+grep -r "mijn onderwerp" docs/
+ls docs/**/*relevante-term*.md
+
+# STAP 2: Check master documenten
+cat docs/stories/MASTER-EPICS-USER-STORIES.md | grep "mijn onderwerp"
+cat docs/INDEX.md | grep "mijn onderwerp"
+
+# STAP 3: Als het NIET bestaat, check canonieke locatie
+cat docs/CANONICAL_LOCATIONS.md
+
+# STAP 4: Maak aan op JUISTE locatie met frontmatter
+# STAP 5: Update INDEX.md
+```
+
 ## Documentation References
 
 > **📍 Voor document locaties:** Zie `docs/CANONICAL_LOCATIONS.md` voor waar elk type document hoort te staan.
@@ -257,10 +291,11 @@ When using specialized agents:
 - **Project Brief**: `docs/brief.md`
 - **Product Requirements**: `docs/prd.md`
 
-### Current Work
-- **Epic 3 Web Lookup**: `docs/stories/epic-3-web-lookup-modernization.md`
-- **Story 2.4 Status**: `docs/stories/story-2.4-status-2025-01-10.md`
-- **Refactor Log**: `docs/refactor-log.md`
+### Current Work & Epics
+- **[🔥 MASTER DOCUMENT - ALL EPICS & STORIES](docs/stories/MASTER-EPICS-USER-STORIES.md)** - SINGLE SOURCE OF TRUTH
+  - Contains all 86 user stories with status, implementation details, code fixes
+  - Replaces all individual epic/story documents
+- **Refactor Log**: `docs/refactor-log.md` - Change tracking
 
 ### Reviews & Analysis
 - **Code Reviews**: `docs/reviews/`
@@ -268,3 +303,17 @@ When using specialized agents:
 - **Requirements**: `docs/requirements/`
 
 For a complete overview of all documentation, see `docs/INDEX.md`
+
+## \ud83d\udd34 BELANGRIJK: Voorkom Duplicaten & Rommel
+
+**Deze fouten leiden tot projectrommel:**
+- \u274c Nieuwe epic/story docs maken terwijl MASTER-EPICS-USER-STORIES.md bestaat
+- \u274c Archive/archief2/old directories maken i.p.v. `/docs/archief/` gebruiken
+- \u274c Duplicate documenten met licht verschillende namen
+- \u274c Documenten op verkeerde locaties maken
+
+**Best practices:**
+- \u2705 ALTIJD eerst zoeken voordat je maakt
+- \u2705 ALTIJD master documenten updaten i.p.v. nieuwe maken
+- \u2705 ALTIJD canonieke locaties gebruiken
+- \u2705 ALTIJD frontmatter toevoegen aan nieuwe docs
