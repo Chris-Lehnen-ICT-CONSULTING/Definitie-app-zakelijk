@@ -5,6 +5,12 @@ Laatste update: 2025-09-03
 
 ## 🎯 Officiële Locaties
 
+### 0. Root Directory Documenten (Speciale bestanden)
+- **README.md**: Project overzicht en installatie instructies
+- **CLAUDE.md**: Claude Code AI agent instructies (MOET in root)
+- **LICENSE**: Licentie informatie
+- **CONTRIBUTING.md**: Bijdrage richtlijnen (optioneel)
+
 ### 1. Architectuur Documentatie
 - **ADRs (Architecture Decision Records)**: `docs/architectuur/beslissingen/` ✅
 - **Architectuur Overzichten**: `docs/architectuur/` ✅
