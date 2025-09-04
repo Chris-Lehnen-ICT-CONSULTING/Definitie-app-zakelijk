@@ -6,8 +6,10 @@ met feature flags voor geleidelijke migratie.
 """
 
 import logging
+from typing import Any
 
 import streamlit as st
+
 from services.container import ContainerConfigs, ServiceContainer, get_container
 
 # TYPE_CHECKING import verwijderd - UnifiedDefinitionGenerator niet meer nodig
@@ -15,6 +17,24 @@ from services.container import ContainerConfigs, ServiceContainer, get_container
 #     from services.unified_definition_generator import UnifiedDefinitionGenerator
 
 logger = logging.getLogger(__name__)
+
+
+# Eenvoudige module-level cache om herhaalde zware initialisatie te voorkomen
+_SERVICE_ADAPTER_CACHE: dict[tuple, "ServiceAdapter"] = {}
+
+
+def _freeze_config(value: Any) -> Any:
+    """Maak een hashbare representatie van (mogelijk geneste) configstructuren.
+
+    Ondersteunt dicts, lists/tuples, sets en basistypes.
+    """
+    if isinstance(value, dict):
+        return tuple(sorted((k, _freeze_config(v)) for k, v in value.items()))
+    if isinstance(value, (list | tuple)):
+        return tuple(_freeze_config(v) for v in value)
+    if isinstance(value, set):
+        return tuple(sorted(_freeze_config(v) for v in value))
+    return value
 
 
 class LegacyGenerationResult:
@@ -103,17 +123,22 @@ def get_definition_service(
             # Buiten Streamlit context, gebruik default
             use_new_services = True
 
-    if use_new_services:
-        logger.info("Using new service architecture")
-        # Gebruik nieuwe services via adapter
-        config = use_container_config or _get_environment_config()
-        container = get_container(config)
-        return ServiceAdapter(container)
-    logger.info("Legacy fallback - gebruik moderne DefinitionOrchestrator")
-    # Legacy fallback vervangen door moderne architectuur
+    # Selecteer effectieve config
     config = use_container_config or _get_environment_config()
+
+    # Bepaal cache key op basis van bevroren config
+    key = _freeze_config(config)
+
+    # Module-level cache (werkt in tests en CLI)
+    cached = _SERVICE_ADAPTER_CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    # Maak nieuwe adapter en cache deze
     container = get_container(config)
-    return ServiceAdapter(container)  # Altijd nieuwe services gebruiken
+    adapter = ServiceAdapter(container)
+    _SERVICE_ADAPTER_CACHE[key] = adapter
+    return adapter
 
 
 def _get_environment_config() -> dict:
