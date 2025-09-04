@@ -10,11 +10,12 @@ Definieert het contract voor alle ValidationOrchestrator implementaties met:
 from abc import ABC, abstractmethod
 from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, NotRequired
 from uuid import UUID
 
+from typing_extensions import TypedDict
+
 from services.interfaces import Definition
-from typing_extensions import NotRequired, TypedDict
 
 # Contract version voor schema compliance
 CONTRACT_VERSION = "1.0.0"

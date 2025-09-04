@@ -1,34 +1,29 @@
 # Validation Orchestrator V2 - Document Index
 
 > 🗺️ **Centrale navigatie hub voor alle ValidationOrchestratorV2 documentatie**
-> Laatste update: 2025-08-29
-> **Implementation Status**: Story 2.1 ✅ | Story 2.2 ✅ | Story 2.3 ⏳
+> Laatste update: 2024-12-29
 
 ## 📚 Document Hiërarchie
 
 ### 🎯 Primaire Documenten (Start Hier)
 1. **[Architectuur & Migratie](./validation_orchestrator_v2.md)** ← CANONIEK
-   - Status: `IMPLEMENTED` | Type: `Architecture` | Version: `2.0`
+   - Status: `ACTIVE` | Type: `Architecture` | Version: `2.0`
    - Beschrijft complete architectuur, interfaces en migratiestappen
-   - **Story 2.2 Complete**: Orchestrator + Mapper + Feature Flags
 
 ### 📋 Contracten & Specificaties
 2. **[ValidationResult Contract](./contracts/validation_result_contract.md)**
-   - Status: `ACTIVE` | Type: `Contract` | Version: `1.0`
+   - Status: `DRAFT` | Type: `Contract` | Version: `1.0`
    - Definieert data model, versioning, JSON schema
-   - **Mapper Binding**: `src/services/validation/mappers.py`
    - → Gebruikt door: Rollout Runbook, Golden Dataset
 
 3. **[JSON Schema](./contracts/schemas/validation_result.schema.json)**
-   - Status: `ACTIVE` | Type: `Schema` | Version: `1.0.0`
+   - Status: `DRAFT` | Type: `Schema` | Version: `1.0.0`
    - Machine-readable contract definitie
-   - **Enforced by**: Mapper + Contract Tests
    - → Parent: ValidationResult Contract
 
 4. **[Error Catalog](../technisch/error_catalog_validation.md)**
-   - Status: `ACTIVE` | Type: `Reference` | Version: `1.0`
+   - Status: `DRAFT` | Type: `Reference` | Version: `1.0`
    - Error taxonomie, codes, retry policies
-   - **Implemented**: SYS-SVC-001 degraded mode
    - → Gebruikt door: Contract, Rollout, Monitoring
 
 ### 🚀 Operationeel
@@ -38,21 +33,20 @@
    - → Depends on: Contract, Error Catalog, Golden Dataset
 
 ### 🏛️ Governance
-6. **[ADR-006: ValidationOrchestratorV2](../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)**
-   - Status: `ACCEPTED` | Type: `Decision` | Version: `1.0`
+6. **[ADR-006: Validation Orchestrator Separation](../architectuur/beslissingen/ADR-006-validation-orchestrator-separation.md)**
+   - Status: `PROPOSED` | Type: `Decision` | Version: `Draft`
    - Formele architectuur beslissing
-   - **Decision**: Thin orchestration layer approach
    - → Rationale voor: Alle bovenstaande
 
 ### 🧪 Testing & Quality
 7. **[Golden Dataset](../testing/golden-dataset-validation.md)**
-   - Status: `DRAFT` | Type: `Test Data` | Version: `TBD`
+   - Status: `TODO` | Type: `Test Data` | Version: `TBD`
    - Referentie dataset voor regression testing
    - → Gebruikt: Contract schema voor validatie
 
 8. **[Test Plan](../testing/validation_orchestrator_testplan.md)**
-   - Status: `ACTIVE` | Type: `Test Strategy` | Version: `1.0`
-   - **Achieved**: 14 contract tests, 12 orchestrator tests, 9 mapper tests
+   - Status: `TODO` | Type: `Test Strategy` | Version: `TBD`
+   - Unit, integration, contract, shadow tests
    - → Test coverage voor: Alle componenten
 
 ### 📊 Monitoring & Observability
@@ -63,11 +57,8 @@
 
 ### 🔧 Implementatie
 10. **[Implementation Guide](../development/validation_orchestrator_implementation.md)**
-    - Status: `PARTIAL` | Type: `Developer Guide` | Version: `0.2`
-    - **Implemented Paths**:
-      - `src/services/orchestrators/validation_orchestrator_v2.py`
-      - `src/services/validation/mappers.py`
-      - `src/services/feature_flags.py`
+    - Status: `TODO` | Type: `Developer Guide` | Version: `TBD`
+    - Code examples, integration patterns
     - → Implements: Architecture, Contract, Error handling
 
 ## 🔄 Document Relaties
@@ -105,7 +96,7 @@ graph LR
 - Contract: [JSON Schema](./contracts/schemas/validation_result.schema.json)
 
 ### Voor Architecten
-- Decision: [ADR-006](../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
+- Decision: [ADR-006](../architectuur/beslissingen/ADR-006-validation-orchestrator-separation.md)
 - Design: [Architectuur](./validation_orchestrator_v2.md)
 - Contracts: [All Specs](./contracts/)
 
@@ -122,12 +113,6 @@ graph LR
 ## 🔍 Zoektermen / Tags
 
 `#validation #orchestrator #v2 #async #architecture #migration #contract #rollout #testing`
-
-## 🧩 Schema Versies
-
-- Latest: `contracts/schemas/validation_result.schema.json` — huidige contractversie (SemVer in veld `version`).
-- Pinned: `contracts/schemas/validation_result_v1.0.0.schema.json` — bevroren referentie (afwijkende veldnamen zoals `metadata` i.p.v. `system`).
-- Richtlijn: produceer outputs volgens “Latest”; tests bewaken backward compatibility tegen “Pinned” waar relevant.
 
 ## 📝 Onderhouds Notities
 

@@ -3,6 +3,7 @@ Definition Generator Tab - Main AI definition generation interface.
 """
 
 import logging
+from datetime import UTC
 from typing import Any
 
 import streamlit as st
@@ -1298,7 +1299,7 @@ class DefinitionGeneratorTab:
             progress_bar.progress(100)
 
             # Store new results in session state
-            from datetime import datetime, timezone
+            from datetime import datetime
 
             from ui.session_state import SessionStateManager
 
@@ -1314,7 +1315,7 @@ class DefinitionGeneratorTab:
                     "category_scores": {
                         new_category: 1.0
                     },  # Perfect score for manual selection
-                    "timestamp": datetime.now(timezone.utc),
+                    "timestamp": datetime.now(UTC),
                     "regeneration_used": True,
                     "direct_regeneration": True,
                 },

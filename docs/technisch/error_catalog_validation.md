@@ -222,7 +222,7 @@ const errorMessages = {
 validation_errors_total{code="VAL-STR-001", severity="warning"} 142
 
 # Error rate by category
-validation_errors_total{category="structuur", severity="error"} 23
+validation_errors_total{category="structure", severity="error"} 23
 
 # Retry success rate
 validation_retries_total{code="TMO-001", success="true"} 45
@@ -271,4 +271,3 @@ def sanitize_error_log(error: dict) -> dict:
 
 ---
 *Error codes are immutable once assigned. New codes only, no reuse.*
-Nota bene (contract mapping): In `ValidationResult` wordt `violations[*].category` beperkt tot `["taal", "juridisch", "structuur", "samenhang", "system"]`. Alle TMO/UPS/INT fouten MOETEN onder `category: "system"` gemapt worden.
