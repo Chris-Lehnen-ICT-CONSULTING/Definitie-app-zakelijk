@@ -156,6 +156,7 @@ definitie-app/
 - `scripts/run_app.sh`: start de app en mapt automatisch `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` indien nodig.
 - `scripts/validation/validation-status-updater.py`: draait component-checks en schrijft status naar `reports/status/validation-status.json`.
 - `make validation-status`: kortere alias voor de status-updater.
+- `scripts/ai-agent-wrapper.py`: snelle AI‑kwaliteitsronde (probeert Ruff/Black/Pytest; auto‑fix waar mogelijk).
 ```
 
 ## 📊 Project Status (Updated 2025-09-03)
