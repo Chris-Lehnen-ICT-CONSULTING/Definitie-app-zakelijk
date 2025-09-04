@@ -42,6 +42,11 @@ extend-exclude = [
     "data",
     "cache",
     "docs/archief",
+    "docs/ARCHIEF",
+    "**/archief/**",
+    "**/ARCHIEF/**",
+    "**/archive/**",
+    "**/*archive*/**",
 ]
 
 [tool.ruff.lint]
@@ -94,6 +99,11 @@ unfixable = []
 "src/orchestration/definitie_agent.py" = ["PLR0912", "PLR0915"]
 "src/services/container.py" = ["PLC0415", "PLW0603"]
 "src/services/service_factory.py" = ["PLC0415"]
+# Ignore ALL errors in archief/archive directories
+"**/archief/**/*.py" = ["ALL"]
+"**/ARCHIEF/**/*.py" = ["ALL"]
+"**/archive/**/*.py" = ["ALL"]
+"docs/architectuur/definitie service/archief/**/*.py" = ["ALL"]
 
 [tool.ruff.lint.isort]
 known-first-party = ["src"]
