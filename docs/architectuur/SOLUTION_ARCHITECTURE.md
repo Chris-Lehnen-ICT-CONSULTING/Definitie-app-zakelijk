@@ -1,3 +1,11 @@
+---
+canonical: true
+status: active
+owner: architecture
+last_verified: 2025-09-04
+applies_to: definitie-app@current
+---
+
 # DefinitieAgent Solution Architecture
 
 ## Wijzigingshistorie

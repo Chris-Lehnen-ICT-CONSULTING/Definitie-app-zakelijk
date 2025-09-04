@@ -1,7 +1,8 @@
 # 📚 Definitie-app Documentatie Index
 
-> **Status:** Documentatie Audit Uitgevoerd - 2025-01-29
-> **Doel:** Navigatie en reorganisatie planning voor 274 documenten
+> **Status:** Architectuur Update Compleet - 2025-09-04
+> **Updates:** Justice sector context toegevoegd, actuele implementatie gedocumenteerd
+> **Nieuw:** ASTRA compliance assessment, realistische tech architecture
 > **Actie:** Van chaos naar structuur - 45 essentiële docs identificeren
 
 ## 🚨 Huidige Situatie
@@ -19,26 +20,33 @@
 - [Product Requirements (PRD)](./prd.md) ✅
 - [Project Brief](./brief.md) ✅
 - [Requirements Compleet](./REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
-- [User Stories](./stories/) 📁
+- **[MASTER EPICS & USER STORIES](./stories/MASTER-EPICS-USER-STORIES.md)** 🆕 **SINGLE SOURCE OF TRUTH**
+- [User Stories](./stories/MASTER-EPICS-USER-STORIES.md) 📁
 
-### Architectuur
+### Architectuur (Updated 2025-09-04)
+- **Justice Sector Architecture** 🆕
+  - [Enterprise Architecture](./architectuur/ENTERPRISE_ARCHITECTURE.md) ✅ Justice context toegevoegd
+  - [Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) ✅ Actuele implementatie
+  - [Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) ✅ Werkende tech stack
+  - [ASTRA Compliance](./architectuur/ASTRA_COMPLIANCE.md) ✅ Justice sector assessment
 - [Huidige Architectuur Overzicht](./CURRENT_ARCHITECTURE_OVERVIEW.md) ✅
-- [Architecture Decision Records](./architectuur/beslissingen/) 📁
+- [Architecture Decision Records](./architectuur/beslissingen/ADR-001-monolithische-structuur.md) 📁
   - [ADR-001: Monolithische structuur](./architectuur/beslissingen/ADR-001-monolithische-structuur.md)
   - [ADR-002: Features-first development](./architectuur/beslissingen/ADR-002-features-first-development.md)
   - [ADR-003: Legacy code als specificatie](./architectuur/beslissingen/ADR-003-legacy-code-als-specificatie.md)
   - [ADR-004: Incrementele migratie](./architectuur/beslissingen/ADR-004-incrementele-migratie-strategie.md)
   - [ADR-005: Service architecture evolution](./architectuur/beslissingen/ADR-005-service-architecture-evolution.md)
+  - [ADR-006: ValidationOrchestratorV2](./architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
 
 ### Technische Documentatie
 - [Services Dependency Analysis](./SERVICES_DEPENDENCY_ANALYSIS.md) ✅
-- [Technische Referentie](./technisch/) 📁
-- [Module Documentatie](./modules/) 📁
+- [Technische Referentie](./technisch/module-afhankelijkheid-rapport.md) 📁
+- [Module Documentatie - zie technisch](./technisch/module-afhankelijkheid-rapport.md) 📁
 
 ### Workflows & Handleidingen
-- [Actieve Workflows](./workflows/) 📁
+- [Actieve Workflows](./architectuur/workflows/ea-sa-analyse-workflow.md) 📁
 - [Frontend Guide](./frontend/AI-FRONTEND-PROMPT-NL.md) ✅
-- [Compliance](./compliance/) 📁
+- [ASTRA Compliance](./architectuur/ASTRA_COMPLIANCE.md) 📁
 
 ## 📂 Huidige Directory Structuur
 

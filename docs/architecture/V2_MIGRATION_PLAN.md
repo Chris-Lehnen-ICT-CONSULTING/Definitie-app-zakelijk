@@ -44,7 +44,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
 **Status**: ⚠️ IN DEVELOPMENT (Epic 2)
 **Prioriteit**: KRITISCH (blocks DefinitionOrchestrator V2 migration)
 **Geschatte tijd**: 3 weken (Epic 2: 6 stories, 36 points)
-**Dependencies**: 
+**Dependencies**:
 - ValidationOrchestratorInterface (Story 2.1)
 - Modern validator in src/validation/
 - Feature flag VALIDATION_ORCHESTRATOR_V2
