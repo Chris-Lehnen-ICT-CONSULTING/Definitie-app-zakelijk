@@ -27,8 +27,11 @@
 - [Project Brief](./brief.md) ✅
 - [Requirements Compleet](./requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅ **[VERPLAATST]**
 - [User Stories](./stories/) 📁
-  - **[Epic 3 User Stories](./stories/epic-3-user-stories.md)** 🆕 ✅ **UAT PRIORITY**
+  - **[Epic 3 User Stories](./stories/epic-3-user-stories.md)** 🆕 ✅ **Web Lookup - UAT PRIORITY**
   - **[Epic 3 Implementation Tracker](./stories/epic-3-implementation-tracker.md)** 🆕 📊 **DAILY UPDATE**
+  - **[Epic 7 Performance Optimization](./stories/epic-7-performance-optimization.md)** 🆕 ⚡ **ALLE PERFORMANCE FIXES**
+    - [Prompt Optimization Detail](./stories/epic-7-prompt-optimization-detail.md) 📝 Token Reductie
+    - [Prompt Stories Detail](./stories/epic-7-prompt-stories-detail.md) 📋 Uitgebreide Stories
   - **[Story 3.1 Implementation Status](./stories/story-3.1-implementation-status.md)** 🔄 **ACTIVE**
   - [Story 3.1 Design](./stories/story-3.1-metadata-first-prompt-second.md) ✅
   - [Epic 3 Web Lookup](./stories/epic-3-web-lookup-modernization.md) 🔄

@@ -42,8 +42,8 @@ sprint: UAT-2025-09
 ## 🎯 User Stories Detail
 
 ### Story WEB-3.1: Sources in Preview (In Progress)
-**Als** gebruiker  
-**Wil ik** bronnen zien tijdens preview generatie  
+**Als** gebruiker
+**Wil ik** bronnen zien tijdens preview generatie
 **Zodat** ik weet welke externe informatie gebruikt wordt
 
 **Acceptance Criteria:**
@@ -64,8 +64,8 @@ sprint: UAT-2025-09
 ---
 
 ### Story WEB-3.2: Wikipedia Integration
-**Als** gebruiker  
-**Wil ik** relevante Wikipedia informatie bij mijn definitie  
+**Als** gebruiker
+**Wil ik** relevante Wikipedia informatie bij mijn definitie
 **Zodat** ik encyclopedische context heb
 
 **Acceptance Criteria:**
@@ -89,9 +89,9 @@ class WikipediaProvider(BaseProvider):
 
 ---
 
-### Story WEB-3.3: SRU Overheid Integration  
-**Als** juridisch medewerker  
-**Wil ik** officiële overheidsbronnen bij definities  
+### Story WEB-3.3: SRU Overheid Integration
+**Als** juridisch medewerker
+**Wil ik** officiële overheidsbronnen bij definities
 **Zodat** ik wettelijke context kan valideren
 
 **Acceptance Criteria:**
@@ -113,8 +113,8 @@ class WikipediaProvider(BaseProvider):
 ---
 
 ### Story WEB-3.4: Source Display UI
-**Als** gebruiker  
-**Wil ik** gebruikte bronnen zien in de interface  
+**Als** gebruiker
+**Wil ik** gebruikte bronnen zien in de interface
 **Zodat** ik de herkomst kan verifiëren
 
 **Acceptance Criteria:**
@@ -129,7 +129,7 @@ class WikipediaProvider(BaseProvider):
 ```
 📚 Gebruikte Bronnen (3)
 ├── ✓ Wikipedia NL - "Definitie" (95% relevant)
-├── ✓ Overheid.nl - "Wet op..." (87% relevant)  
+├── ✓ Overheid.nl - "Wet op..." (87% relevant)
 └── ○ Rechtspraak.nl - "Uitspraak..." (72% relevant)
 ```
 
@@ -139,8 +139,8 @@ class WikipediaProvider(BaseProvider):
 ---
 
 ### Story WEB-3.5: Prompt Augmentation (✅ DONE)
-**Als** systeem  
-**Wil ik** relevante context injecteren in prompts  
+**Als** systeem
+**Wil ik** relevante context injecteren in prompts
 **Zodat** de AI betere definities genereert
 
 **Acceptance Criteria:**
@@ -155,8 +155,8 @@ class WikipediaProvider(BaseProvider):
 ---
 
 ### Story WEB-3.6: Caching Layer
-**Als** systeem  
-**Wil ik** lookup resultaten cachen  
+**Als** systeem
+**Wil ik** lookup resultaten cachen
 **Zodat** performance optimaal blijft
 
 **Acceptance Criteria:**
@@ -179,8 +179,8 @@ def cached_lookup(term: str, provider: str) -> List[WebLookupResult]
 ---
 
 ### Story WEB-3.7: Export with Sources
-**Als** gebruiker  
-**Wil ik** bronvermelding in exports  
+**Als** gebruiker
+**Wil ik** bronvermelding in exports
 **Zodat** definities traceerbaar zijn
 
 **Acceptance Criteria:**
@@ -203,8 +203,8 @@ BRONNEN:
 ---
 
 ### Story WEB-3.8: Juridisch Priority (Future)
-**Als** juridisch specialist  
-**Wil ik** juridische bronnen voorrang geven  
+**Als** juridisch specialist
+**Wil ik** juridische bronnen voorrang geven
 **Zodat** wettelijke definities leidend zijn
 
 **Acceptance Criteria:**
@@ -220,8 +220,8 @@ BRONNEN:
 ---
 
 ### Story WEB-3.9: Multi-provider Search (Future)
-**Als** power user  
-**Wil ik** meerdere bronnen parallel doorzoeken  
+**Als** power user
+**Wil ik** meerdere bronnen parallel doorzoeken
 **Zodat** ik comprehensive resultaten krijg
 
 **Acceptance Criteria:**
@@ -237,8 +237,8 @@ BRONNEN:
 ---
 
 ### Story WEB-3.10: Source Quality Scoring (Future)
-**Als** kwaliteitsmanager  
-**Wil ik** bron betrouwbaarheid scoren  
+**Als** kwaliteitsmanager
+**Wil ik** bron betrouwbaarheid scoren
 **Zodat** alleen quality sources gebruikt worden
 
 **Acceptance Criteria:**
@@ -321,7 +321,7 @@ Een story is DONE wanneer:
 
 ---
 
-*Document aangemaakt: 3 september 2025*  
-*Epic Owner: Product Team*  
-*Technical Lead: Development Team*  
+*Document aangemaakt: 3 september 2025*
+*Epic Owner: Product Team*
+*Technical Lead: Development Team*
 *Voor UAT: Focus op WEB-3.1 t/m WEB-3.4*
