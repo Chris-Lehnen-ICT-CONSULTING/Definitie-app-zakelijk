@@ -23,6 +23,7 @@ ALLOWED_LOCATIONS = {
         "LICENSE.md",
         "CODE_OF_CONDUCT.md",
         "SECURITY.md",
+        "CLAUDE.md",  # Claude Code project instructions
     ],
     # Reports
     ".json": [
