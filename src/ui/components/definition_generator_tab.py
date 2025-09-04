@@ -3,9 +3,11 @@ Definition Generator Tab - Main AI definition generation interface.
 """
 
 import logging
+from datetime import UTC
 from typing import Any
 
 import streamlit as st
+
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieStatus,
@@ -275,6 +277,9 @@ class DefinitionGeneratorTab:
                 st.subheader("📝 Definitie")
                 st.info(definitie_to_show)
 
+            # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
+            self._render_sources_section(generation_result, agent_result, saved_record)
+
             # Generation details
             with st.expander("📊 Generatie Details", expanded=False):
                 col1, col2, col3 = st.columns(3)
@@ -337,6 +342,12 @@ class DefinitionGeneratorTab:
                     self._render_validation_results(agent_result["validation_details"])
 
                 # Check for voorbeelden in dict format
+                # Store prompt_text in session state if available
+                if agent_result.get("prompt_text"):
+                    SessionStateManager.set_value(
+                        "prompt_text", agent_result["prompt_text"]
+                    )
+
                 if agent_result.get("voorbeelden"):
                     self._render_voorbeelden_section(agent_result["voorbeelden"])
 
@@ -452,6 +463,12 @@ class DefinitionGeneratorTab:
                     elif "prompt_template" in agent_result:
                         prompt_template = agent_result["prompt_template"]
                         logger.debug("Prompt gevonden direct in agent_result")
+                    elif "prompt_text" in agent_result:
+                        # Support voor nieuwe V2 orchestrator die prompt_text gebruikt
+                        prompt_template = agent_result["prompt_text"]
+                        logger.debug(
+                            "Prompt gevonden als 'prompt_text' in agent_result"
+                        )
                     elif "prompt" in agent_result:
                         prompt_template = agent_result["prompt"]
                         logger.debug("Prompt gevonden als 'prompt' in agent_result")
@@ -723,6 +740,91 @@ class DefinitionGeneratorTab:
             with col3:
                 if st.button("📤 Exporteer"):
                     self._export_definition(saved_record)
+
+    def _render_sources_section(self, generation_result, agent_result, saved_record):
+        """Render sectie met gebruikte bronnen (provenance)."""
+        try:
+            sources = None
+
+            # 1) Probeer uit saved_record.metadata (na opslag)
+            if saved_record and getattr(saved_record, "metadata", None):
+                metadata = saved_record.metadata
+                if isinstance(metadata, dict):
+                    sources = metadata.get("sources")
+
+            # 2) STORY 3.1: Check direct sources attribute (preview fix)
+            if sources is None and hasattr(agent_result, "sources"):
+                sources = agent_result.sources
+
+            # 3) Val terug op agent_result.metadata (legacy support)
+            if sources is None and isinstance(agent_result, dict):
+                meta = agent_result.get("metadata")
+                if isinstance(meta, dict):
+                    sources = meta.get("sources")
+            elif sources is None and hasattr(agent_result, "metadata"):
+                if isinstance(agent_result.metadata, dict):
+                    sources = agent_result.metadata.get("sources")
+
+            # STORY 3.1: Always show sources section with feedback
+            st.markdown("#### 📚 Gebruikte Bronnen")
+
+            if not sources:
+                st.info(
+                    "ℹ️ Geen externe bronnen geraadpleegd. Web lookup is uitgeschakeld of er zijn geen relevante bronnen gevonden."
+                )
+                return
+
+            for idx, src in enumerate(sources[:5]):  # Toon max 5
+                # Use source_label if available (Story 3.1), fallback to provider
+                provider_label = src.get("source_label") or self._get_provider_label(
+                    src.get("provider", "bron")
+                )
+                title = src.get("title") or src.get("definition") or "(zonder titel)"
+                url = src.get("url") or src.get("link") or ""
+                score = src.get("score") or src.get("confidence") or 0.0
+                used = src.get("used_in_prompt", False)
+                snippet = src.get("snippet") or src.get("context") or ""
+                is_authoritative = src.get("is_authoritative", False)
+                legal_meta = src.get("legal")
+
+                with st.expander(
+                    f"{idx+1}. {provider_label} — {title[:80]}", expanded=(idx == 0)
+                ):
+                    # Show badges
+                    col1, col2, col3 = st.columns([1, 1, 2])
+                    with col1:
+                        if is_authoritative:
+                            st.success("✓ Autoritatief")
+                    with col2:
+                        if used:
+                            st.info("→ In prompt")
+
+                    # Show juridical citation if available
+                    if legal_meta and legal_meta.get("citation_text"):
+                        st.markdown(
+                            f"**Juridische verwijzing**: {legal_meta['citation_text']}"
+                        )
+
+                    # Show score and snippet
+                    st.markdown(f"**Score**: {score:.2f}")
+                    if snippet:
+                        st.markdown(
+                            f"**Fragment**: {snippet[:500]}{'...' if len(snippet) > 500 else ''}"
+                        )
+                    if url:
+                        st.markdown(f"[🔗 Open bron]({url})")
+        except Exception as e:
+            logger.debug(f"Kon bronnen sectie niet renderen: {e}")
+
+    def _get_provider_label(provider: str) -> str:
+        """Get human-friendly label for provider (local helper)."""
+        labels = {
+            "wikipedia": "Wikipedia NL",
+            "overheid": "Overheid.nl",
+            "rechtspraak": "Rechtspraak.nl",
+            "wiktionary": "Wiktionary NL",
+        }
+        return labels.get(provider, provider.replace("_", " ").title())
 
     def _render_validation_results(self, validation_result):
         """Render validation resultaten."""
@@ -1197,7 +1299,7 @@ class DefinitionGeneratorTab:
             progress_bar.progress(100)
 
             # Store new results in session state
-            from datetime import datetime, timezone
+            from datetime import datetime
 
             from ui.session_state import SessionStateManager
 
@@ -1213,7 +1315,7 @@ class DefinitionGeneratorTab:
                     "category_scores": {
                         new_category: 1.0
                     },  # Perfect score for manual selection
-                    "timestamp": datetime.now(timezone.utc),
+                    "timestamp": datetime.now(UTC),
                     "regeneration_used": True,
                     "direct_regeneration": True,
                 },

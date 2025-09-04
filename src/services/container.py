@@ -9,16 +9,21 @@ import logging
 import os
 from typing import TYPE_CHECKING, Any
 
+from config.config_manager import (
+    get_component_config,
+    get_default_model,
+    get_default_temperature,
+)
 from services.definition_generator_config import UnifiedGeneratorConfig
 from services.definition_repository import DefinitionRepository
-from services.definition_validator import DefinitionValidator, ValidatorConfig
+
+# Legacy DefinitionValidator removed - using V2 orchestrator for validation
 from services.duplicate_detection_service import DuplicateDetectionService
 from services.interfaces import (
     CleaningServiceInterface,
     DefinitionGeneratorInterface,
     DefinitionOrchestratorInterface,
     DefinitionRepositoryInterface,
-    DefinitionValidatorInterface,
     WebLookupServiceInterface,
 )
 from services.modern_web_lookup_service import ModernWebLookupService
@@ -31,12 +36,6 @@ from services.orchestrators.definition_orchestrator_v2 import (
 # UnifiedDefinitionGenerator vervangen door DefinitionOrchestrator
 # from services.unified_definition_generator import UnifiedDefinitionGenerator
 from services.workflow_service import WorkflowService
-
-from config.config_manager import (
-    get_component_config,
-    get_default_model,
-    get_default_temperature,
-)
 
 if TYPE_CHECKING:
     from services.data_aggregation_service import DataAggregationService
@@ -73,7 +72,8 @@ class ServiceContainer:
         # Basis configuratie
         self.db_path = self.config.get("db_path", "data/definities.db")
         self.openai_api_key = self.config.get(
-            "openai_api_key", os.getenv("OPENAI_API_KEY")
+            "openai_api_key",
+            (os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")),
         )
 
         # Service specifieke configuratie - Use default and override via sub-configs
@@ -110,11 +110,7 @@ class ServiceContainer:
             gpt=gpt_config, quality=quality_config, monitoring=monitoring_config
         )
 
-        self.validator_config = ValidatorConfig(
-            enable_all_rules=self.config.get("enable_all_rules", True),
-            min_score_threshold=self.config.get("min_score_threshold", 0.6),
-            enable_suggestions=self.config.get("enable_suggestions", True),
-        )
+        # Legacy validator config removed - V2 orchestrator handles validation
 
         # Cleaning service configuratie
         from services.cleaning_service import CleaningConfig
@@ -144,17 +140,7 @@ class ServiceContainer:
             logger.info("DefinitionOrchestratorV2 instance aangemaakt als generator")
         return self._instances["generator"]
 
-    def validator(self) -> DefinitionValidatorInterface:
-        """
-        Get of create DefinitionValidator instance.
-
-        Returns:
-            Singleton instance van DefinitionValidator
-        """
-        if "validator" not in self._instances:
-            self._instances["validator"] = DefinitionValidator(self.validator_config)
-            logger.info("DefinitionValidator instance aangemaakt")
-        return self._instances["validator"]
+    # Legacy validator() method removed - validation now handled by V2 orchestrator
 
     def repository(self) -> DefinitionRepositoryInterface:
         """
@@ -200,14 +186,18 @@ class ServiceContainer:
             from services.adapters.cleaning_service_adapter import (
                 CleaningServiceAdapterV1toV2,
             )
-            from services.adapters.validation_service_adapter import (
-                ValidationServiceAdapterV1toV2,
-            )
             from services.ai_service_v2 import AIServiceV2
             from services.interfaces import (
                 OrchestratorConfig as V2OrchestratorConfig,
             )
             from services.prompts.prompt_service_v2 import PromptServiceV2
+            from services.validation.config import ValidationConfig
+
+            # Validation service: cutover to modular V2 implementation
+            from services.validation.modular_validation_service import (
+                ModularValidationService,
+            )
+            from toetsregels.manager import get_toetsregel_manager
 
             v2_config = V2OrchestratorConfig()
 
@@ -217,15 +207,29 @@ class ServiceContainer:
                 default_model=self.generator_config.gpt.model, use_cache=True
             )
 
-            # Create adapters for sync services
-            validation_service = ValidationServiceAdapterV1toV2(self.validator())
+            # Create ModularValidationService (V2)
+            modular_validation_service = ModularValidationService(
+                get_toetsregel_manager(),
+                None,
+                ValidationConfig.from_yaml("src/config/validation_rules.yaml"),
+            )
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
+
+            # Create ValidationOrchestratorV2 wrapping ModularValidationService
+            from services.orchestrators.validation_orchestrator_v2 import (
+                ValidationOrchestratorV2,
+            )
+
+            validation_orchestrator = ValidationOrchestratorV2(
+                validation_service=modular_validation_service,
+                cleaning_service=cleaning_service,
+            )
 
             self._instances["orchestrator"] = DefinitionOrchestratorV2(
                 # Required V2 services
                 prompt_service=prompt_service,
                 ai_service=ai_service,
-                validation_service=validation_service,
+                validation_service=validation_orchestrator,
                 cleaning_service=cleaning_service,
                 repository=self.repository(),
                 # Optional services
@@ -235,6 +239,8 @@ class ServiceContainer:
                 feedback_engine=None,  # Not implemented yet
                 # Configuration
                 config=v2_config,
+                # Epic 3: inject ModernWebLookupService so enrichment and provenance work
+                web_lookup_service=self.web_lookup(),
             )
             logger.info("DefinitionOrchestratorV2 instance created")
 
@@ -334,6 +340,10 @@ class ServiceContainer:
                 repository=repo,
                 data_aggregation_service=data_agg_service,
                 export_dir=export_dir,
+                validation_orchestrator=self.orchestrator(),
+                enable_validation_gate=self.config.get(
+                    "enable_export_validation_gate", False
+                ),
             )
             logger.info("ExportService instance aangemaakt")
         return self._instances["export_service"]
@@ -382,7 +392,7 @@ class ServiceContainer:
         """
         service_map = {
             "generator": self.generator,
-            "validator": self.validator,
+            # Legacy validator verwijderd; geen mapping meer beschikbaar
             "repository": self.repository,
             "orchestrator": self.orchestrator,
             "web_lookup": self.web_lookup,

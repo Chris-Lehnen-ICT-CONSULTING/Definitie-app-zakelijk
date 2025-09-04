@@ -6,8 +6,10 @@ met feature flags voor geleidelijke migratie.
 """
 
 import logging
+from typing import Any
 
 import streamlit as st
+
 from services.container import ContainerConfigs, ServiceContainer, get_container
 
 # TYPE_CHECKING import verwijderd - UnifiedDefinitionGenerator niet meer nodig
@@ -15,6 +17,24 @@ from services.container import ContainerConfigs, ServiceContainer, get_container
 #     from services.unified_definition_generator import UnifiedDefinitionGenerator
 
 logger = logging.getLogger(__name__)
+
+
+# Eenvoudige module-level cache om herhaalde zware initialisatie te voorkomen
+_SERVICE_ADAPTER_CACHE: dict[tuple, "ServiceAdapter"] = {}
+
+
+def _freeze_config(value: Any) -> Any:
+    """Maak een hashbare representatie van (mogelijk geneste) configstructuren.
+
+    Ondersteunt dicts, lists/tuples, sets en basistypes.
+    """
+    if isinstance(value, dict):
+        return tuple(sorted((k, _freeze_config(v)) for k, v in value.items()))
+    if isinstance(value, (list | tuple)):
+        return tuple(_freeze_config(v) for v in value)
+    if isinstance(value, set):
+        return tuple(sorted(_freeze_config(v) for v in value))
+    return value
 
 
 class LegacyGenerationResult:
@@ -103,17 +123,22 @@ def get_definition_service(
             # Buiten Streamlit context, gebruik default
             use_new_services = True
 
-    if use_new_services:
-        logger.info("Using new service architecture")
-        # Gebruik nieuwe services via adapter
-        config = use_container_config or _get_environment_config()
-        container = get_container(config)
-        return ServiceAdapter(container)
-    logger.info("Legacy fallback - gebruik moderne DefinitionOrchestrator")
-    # Legacy fallback vervangen door moderne architectuur
+    # Selecteer effectieve config
     config = use_container_config or _get_environment_config()
+
+    # Bepaal cache key op basis van bevroren config
+    key = _freeze_config(config)
+
+    # Module-level cache (werkt in tests en CLI)
+    cached = _SERVICE_ADAPTER_CACHE.get(key)
+    if cached is not None:
+        return cached
+
+    # Maak nieuwe adapter en cache deze
     container = get_container(config)
-    return ServiceAdapter(container)  # Altijd nieuwe services gebruiken
+    adapter = ServiceAdapter(container)
+    _SERVICE_ADAPTER_CACHE[key] = adapter
+    return adapter
 
 
 def _get_environment_config() -> dict:
@@ -225,14 +250,13 @@ class ServiceAdapter:
                 "final_definitie": response.definition.definitie,  # Voor legacy UI compatibility
                 "marker": response.definition.metadata.get("marker", ""),
                 "toetsresultaten": (
-                    response.validation_result.metadata.get(
-                        "toetsresultaten", response.validation_result.errors
-                    )
+                    response.validation_result.get("violations", [])
                     if response.validation_result
-                    and hasattr(response.validation_result, "metadata")
+                    and isinstance(response.validation_result, dict)
                     else (
                         response.validation_result.errors
                         if response.validation_result
+                        and hasattr(response.validation_result, "errors")
                         else []
                     )
                 ),
@@ -240,25 +264,62 @@ class ServiceAdapter:
                     response.validation_result if response.validation_result else None
                 ),
                 "validation_score": (
-                    response.validation_result.score
+                    response.validation_result.get("overall_score", 0.0)
                     if response.validation_result
-                    else 0.0
+                    and isinstance(response.validation_result, dict)
+                    else (
+                        response.validation_result.score
+                        if response.validation_result
+                        and hasattr(response.validation_result, "score")
+                        else 0.0
+                    )
                 ),
                 "final_score": (
-                    response.validation_result.score
+                    response.validation_result.get("overall_score", 0.0)
                     if response.validation_result
-                    else 0.0
+                    and isinstance(response.validation_result, dict)
+                    else (
+                        response.validation_result.score
+                        if response.validation_result
+                        and hasattr(response.validation_result, "score")
+                        else 0.0
+                    )
                 ),
-                "voorbeelden": response.definition.voorbeelden or [],
+                "voorbeelden": (
+                    response.metadata.get("voorbeelden", {})
+                    if response.metadata
+                    else {}
+                ),
                 "processing_time": response.definition.metadata.get(
                     "processing_time", 0
                 ),
                 "metadata": response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
+                # STORY 3.1 FIX: Add sources field to make them accessible in UI preview
+                "sources": (
+                    response.definition.metadata.get("sources", [])
+                    if response.definition and response.definition.metadata
+                    else []
+                ),
+                "prompt_text": (
+                    response.metadata.get("prompt_text", "")
+                    if response.metadata
+                    else ""
+                ),  # Add prompt text from metadata
+                "prompt_template": (
+                    response.metadata.get(
+                        "prompt_text", ""
+                    )  # Map prompt_text to prompt_template for UI
+                    if response.metadata
+                    else ""
+                ),
             }
 
-            # Voeg prompt_template ook direct toe voor makkelijkere toegang
+            # Voeg prompt_template ook direct toe voor makkelijkere toegang (alleen als nog niet gezet)
             if (
-                response.definition.metadata
+                not result_dict.get(
+                    "prompt_template"
+                )  # Alleen als nog niet gezet via prompt_text
+                and response.definition.metadata
                 and "prompt_template" in response.definition.metadata
             ):
                 result_dict["prompt_template"] = response.definition.metadata[
@@ -276,7 +337,7 @@ class ServiceAdapter:
         """Get statistieken van alle services."""
         return {
             "generator": self.container.generator().get_stats(),
-            "validator": self.container.validator().get_stats(),
+            # Legacy validator removed - validation now handled by V2 orchestrator
             "repository": self.container.repository().get_stats(),
             "orchestrator": self.orchestrator.get_stats(),
         }

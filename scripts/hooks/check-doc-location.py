@@ -23,6 +23,7 @@ ALLOWED_LOCATIONS = {
         "LICENSE.md",
         "CODE_OF_CONDUCT.md",
         "SECURITY.md",
+        "CLAUDE.md",  # Claude Code project instructions
     ],
     # Reports
     ".json": [
@@ -102,6 +103,9 @@ def check_file_location(filepath):
 
     # Special check for root directory files
     if "/" not in str(path):
+        # Allow explicit root exceptions
+        if path.name == "validation-status.json":
+            return True, ""
         # Check if it matches forbidden patterns
         import fnmatch
 

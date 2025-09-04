@@ -11,18 +11,18 @@ repos:
       - id: debug-statements
       - id: mixed-line-ending
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.3.0
+  - repo: local
     hooks:
-      - id: ruff
-        args: [--fix]
-      - id: ruff-format
-
-  - repo: https://github.com/psf/black
-    rev: 24.1.1
-    hooks:
-      - id: black
-        language_version: python3
+      - id: ruff-changed
+        name: ruff (changed files)
+        entry: bash scripts/hooks/run_ruff_changed.sh
+        language: system
+        pass_filenames: false
+      - id: black-changed
+        name: black (changed files)
+        entry: bash scripts/hooks/run_black_changed.sh
+        language: system
+        pass_filenames: false
 
   # Tijdelijk uitgeschakeld voor eerste setup
   # - repo: https://github.com/pre-commit/mirrors-mypy
@@ -51,3 +51,22 @@ repos:
         pass_filenames: true
         files: '\.(md|py|json|html)$'
         exclude: '^(\.git|\.venv|venv|__pycache__|\.pytest_cache|htmlcov)/'
+
+  - repo: local
+    hooks:
+      - id: doc-link-check
+        name: Check internal doc links
+        entry: python scripts/hooks/check-doc-links.py
+        language: system
+        pass_filenames: true
+        files: 'docs/.*\.md$'
+        exclude: 'docs/(archief|archive)/'
+
+  - repo: local
+    hooks:
+      - id: doc-metadata-staleness
+        name: Check doc metadata (staleness)
+        entry: python scripts/hooks/check-doc-metadata.py
+        language: system
+        pass_filenames: true
+        files: 'docs/.*\.md$'

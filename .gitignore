@@ -7,6 +7,10 @@ __pycache__/
 .venv/
 venv/
 env/
+.env
+.env.*
+*.env
+*secrets*.yaml
 
 # 💚 Build / release - NEW STRUCTURE
 build/
@@ -74,7 +78,8 @@ htmlcov/
 build/temp/
 
 # 💚 Test files
-test_*.py
+# Alleen root-level test helpers negeren; laat tests/ intact
+/test_*.py
 
 # 💚 Legacy code
 oude legacy broncode om te controleren/
@@ -104,6 +109,13 @@ backup/
 *_backup_*/
 docs/archief_backup_*/
 
+# 💚 Archives and QA locations (ignored)
+archive/
+archived/
+archief/
+docs/archief/
+qa.qaLocation/
+
 # 💚 Upload folders
 data/uploaded_documents/
 uploads/
@@ -130,3 +142,4 @@ logs/
 
 # Generated reports
 reports/
+.env

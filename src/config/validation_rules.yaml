@@ -1,0 +1,19 @@
+enabled_codes:
+  - VAL-EMP-001
+  - VAL-LEN-001
+  - VAL-LEN-002
+  - ESS-CONT-001
+  - CON-CIRC-001
+  - STR-ORG-001
+  - STR-TERM-001
+weights:
+  VAL-EMP-001: 1.0
+  VAL-LEN-001: 0.9
+  VAL-LEN-002: 0.6
+  ESS-CONT-001: 1.0
+  CON-CIRC-001: 0.8
+  STR-ORG-001: 0.7
+  STR-TERM-001: 0.5
+thresholds:
+  overall_accept: 0.75
+params: {}

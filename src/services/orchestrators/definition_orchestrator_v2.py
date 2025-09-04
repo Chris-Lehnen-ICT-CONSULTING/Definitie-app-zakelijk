@@ -10,12 +10,13 @@ Key improvements:
 - DPIA/AVG compliance with PII redaction
 - Performance optimization with caching
 - Ontological category support (fixes template selection bug)
+- Story 2.4: Uses ValidationOrchestratorInterface for clean separation of concerns
 """
 
 import logging
 import time
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from typing import Any, Optional
 
 from services.interfaces import (
@@ -33,8 +34,8 @@ from services.interfaces import (
     PromptServiceInterface as PromptServiceV2,
     SecurityServiceInterface as SecurityService,
     ValidationResult,
-    ValidationServiceInterface as ValidationServiceV2,
 )
+from services.validation.interfaces import ValidationOrchestratorInterface
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         # Core generation services (required)
         prompt_service: "PromptServiceV2",
         ai_service: "IntelligentAIService",
-        validation_service: "ValidationServiceV2",
+        validation_service: "ValidationOrchestratorInterface",
         cleaning_service: "CleaningServiceInterface",
         repository: "DefinitionRepositoryInterface",
         # Optional services
@@ -67,6 +68,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         feedback_engine: Optional["FeedbackEngine"] = None,
         # Configuration
         config: OrchestratorConfig | None = None,
+        # Web lookup (Epic 3)
+        web_lookup_service: Optional["WebLookupServiceInterface"] = None,
     ):
         """
         Clean dependency injection - no session state access.
@@ -79,7 +82,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         if not ai_service:
             raise ValueError("AIServiceInterface is required")
         if not validation_service:
-            raise ValueError("ValidationServiceInterface is required")
+            raise ValueError("ValidationOrchestratorInterface is required")
         if not cleaning_service:
             raise ValueError("CleaningServiceInterface is required")
         if not repository:
@@ -103,6 +106,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
         # Configuration
         self.config = config or OrchestratorConfig()
+
+        # Epic 3: optional web lookup service
+        self.web_lookup_service = web_lookup_service
 
         logger.info(
             "DefinitionOrchestratorV2 initialized with configuration: "
@@ -179,6 +185,76 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 )
 
             # =====================================
+            # PHASE 2.5: Web Lookup Context Enrichment (Epic 3)
+            # =====================================
+            provenance_sources = []
+            if (
+                getattr(self.config, "enable_web_lookup", True)
+                and self.web_lookup_service
+            ):
+                try:
+                    from services.interfaces import LookupRequest
+                    from services.web_lookup.provenance import build_provenance
+
+                    lookup_request = LookupRequest(
+                        term=sanitized_request.begrip,
+                        sources=None,
+                        max_results=5,
+                        include_examples=False,
+                        timeout=self.config.timeout_seconds,
+                    )
+
+                    web_results = await self.web_lookup_service.lookup(lookup_request)
+
+                    # Build provenance records
+                    # Convert LookupResults to minimal dicts expected by build_provenance
+                    prepared = []
+                    for r in web_results or []:
+                        prepared.append(
+                            {
+                                "provider": r.source.name.lower(),
+                                "title": (
+                                    r.metadata.get("dc_title")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                )
+                                or r.source.name,
+                                "url": r.source.url,
+                                "snippet": r.definition or r.context or "",
+                                "score": float(r.source.confidence or 0.0),
+                                "used_in_prompt": False,
+                                "retrieved_at": (
+                                    r.metadata.get("retrieved_at")
+                                    if isinstance(r.metadata, dict)
+                                    else None
+                                ),
+                            }
+                        )
+
+                    # STORY 3.1: Extract legal metadata for juridical sources
+                    provenance_sources = build_provenance(prepared, extract_legal=True)
+
+                    # Mark top-K as used_in_prompt (we'll include these first in any context pack)
+                    top_k = max(0, int(getattr(self.config, "web_lookup_top_k", 3)))
+                    for i, src in enumerate(provenance_sources):
+                        if i < top_k:
+                            src["used_in_prompt"] = True
+
+                    # Attach to context so prompt service can optionally use it
+                    context = context or {}
+                    context["web_lookup"] = {
+                        "sources": provenance_sources,
+                        "top_k": top_k,
+                    }
+                    logger.info(
+                        f"Generation {generation_id}: Web lookup enriched context with {len(provenance_sources)} sources"
+                    )
+                except Exception as e:
+                    logger.warning(
+                        f"Generation {generation_id}: Web lookup enrichment failed: {e!s}"
+                    )
+
+            # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
             # =====================================
             prompt_result = await self.prompt_service.build_generation_prompt(
@@ -190,6 +266,24 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 f"Generation {generation_id}: V2 Prompt built ({prompt_result.token_count} tokens, "
                 f"ontological_category={sanitized_request.ontologische_categorie})"
             )
+
+            # Debug summary: how many sources vs injected snippets in prompt
+            try:
+                text = prompt_result.text or ""
+                header = "### Contextinformatie uit bronnen:"
+                injected_snippets = 0
+                if header in text:
+                    # Count list items following the header (lines starting with "- ")
+                    tail = text.split(header, 1)[1]
+                    injected_snippets = tail.count("\n- ")
+                logger.info(
+                    "Web lookup summary: sources=%s, injected_snippets=%s",
+                    len(provenance_sources or []),
+                    injected_snippets,
+                )
+            except Exception:
+                # Non-fatal debug
+                pass
 
             # =====================================
             # PHASE 4: AI Generation with Retry Logic
@@ -215,7 +309,50 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             logger.info(f"Generation {generation_id}: AI generation complete")
 
             # =====================================
-            # PHASE 5: Text Cleaning & Normalization
+            # PHASE 5: Generate Voorbeelden (Examples)
+            # =====================================
+            voorbeelden = {}
+            try:
+                from voorbeelden import genereer_alle_voorbeelden
+
+                # Build context_dict for voorbeelden generation
+                voorbeelden_context = {
+                    "organisatorisch": (
+                        [sanitized_request.context] if sanitized_request.context else []
+                    ),
+                    "juridisch": (
+                        context.get("context_dict", {}).get("juridisch", [])
+                        if context
+                        else []
+                    ),
+                    "wettelijk": (
+                        context.get("context_dict", {}).get("wettelijk", [])
+                        if context
+                        else []
+                    ),
+                }
+
+                # Generate voorbeelden using the cleaned text
+                voorbeelden = genereer_alle_voorbeelden(
+                    begrip=sanitized_request.begrip,
+                    definitie=(
+                        generation_result.text
+                        if hasattr(generation_result, "text")
+                        else str(generation_result)
+                    ),
+                    context_dict=voorbeelden_context,
+                )
+                logger.info(
+                    f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
+                )
+            except Exception as e:
+                logger.warning(
+                    f"Generation {generation_id}: Voorbeelden generation failed: {e}"
+                )
+                # Continue without voorbeelden
+
+            # =====================================
+            # PHASE 6: Text Cleaning & Normalization
             # =====================================
             # V2 cleaning service (always available through adapter)
             cleaning_result = await self.cleaning_service.clean_text(
@@ -232,15 +369,22 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 6: Validation
             # =====================================
-            # V2 validation service (always available through adapter)
-            validation_result = await self.validation_service.validate_definition(
-                sanitized_request.begrip,
-                cleaned_text,
+            # Use ValidationOrchestratorInterface.validate_text
+            from services.validation.interfaces import ValidationContext
+
+            validation_context = ValidationContext(
+                correlation_id=uuid.UUID(generation_id),
+                metadata={"generation_id": generation_id},
+            )
+            validation_result = await self.validation_service.validate_text(
+                begrip=sanitized_request.begrip,
+                text=cleaned_text,
                 ontologische_categorie=sanitized_request.ontologische_categorie,
+                context=validation_context,
             )
 
             logger.info(
-                f"Generation {generation_id}: Validation complete (valid: {validation_result.is_valid})"
+                f"Generation {generation_id}: Validation complete (valid: {validation_result.get('is_acceptable', False)})"
             )
 
             # =====================================
@@ -248,21 +392,26 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             was_enhanced = False
             if (
-                not validation_result.is_valid
+                not validation_result.get("is_acceptable", False)
                 and self.config.enable_enhancement
                 and self.enhancement_service
             ):
                 enhanced_text = await self.enhancement_service.enhance_definition(
                     cleaned_text,
-                    validation_result.violations,
+                    validation_result.get("violations", []),
                     context=sanitized_request,
                 )
 
-                # Re-validate enhanced text
-                validation_result = await self.validation_service.validate_definition(
-                    sanitized_request.begrip,
-                    enhanced_text,
+                # Re-validate enhanced text with new context
+                enhanced_context = ValidationContext(
+                    correlation_id=uuid.UUID(generation_id),
+                    metadata={"generation_id": generation_id, "enhanced": True},
+                )
+                validation_result = await self.validation_service.validate_text(
+                    begrip=sanitized_request.begrip,
+                    text=enhanced_text,
                     ontologische_categorie=sanitized_request.ontologische_categorie,
+                    context=enhanced_context,
                 )
 
                 cleaned_text = enhanced_text
@@ -287,9 +436,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "has_feedback": bool(feedback_history),
                     "enhanced": was_enhanced,
                     "generation_time": time.time() - start_time,
-                    "generated_at": datetime.now(timezone.utc).isoformat(),
+                    "generated_at": datetime.now(UTC).isoformat(),
                     "orchestrator_version": "v2.0",
                     "ontological_category_used": sanitized_request.ontologische_categorie,
+                    # Epic 3: provenance sources (MVP, no DB schema changes)
+                    "sources": provenance_sources,
                 },
             )
 
@@ -297,7 +448,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 9: Storage (Conditional on Quality Gate)
             # =====================================
             definition_id = None
-            if validation_result.is_valid:
+            if validation_result.get("is_acceptable", False):
                 definition_id = await self._safe_save_definition(definition)
                 logger.info(
                     f"Generation {generation_id}: Definition saved (ID: {definition_id})"
@@ -314,7 +465,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 10: Feedback Loop Update (GVI Rode Kabel)
             # =====================================
-            if not validation_result.is_valid and self.feedback_engine:
+            if (
+                not validation_result.get("is_acceptable", False)
+                and self.feedback_engine
+            ):
                 await self.feedback_engine.process_validation_feedback(
                     definition_id=generation_id,
                     validation_result=validation_result,
@@ -335,7 +489,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                 await self.monitoring.complete_generation(
                     generation_id=generation_id,
-                    success=validation_result.is_valid,
+                    success=validation_result.get("is_acceptable", False),
                     duration=time.time() - start_time,
                     token_count=token_count,
                     components_used=(
@@ -350,7 +504,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             final_duration = time.time() - start_time
             logger.info(
                 f"Generation {generation_id}: Complete in {final_duration:.2f}s, "
-                f"valid={validation_result.is_valid}"
+                f"valid={validation_result.get('is_acceptable', False)}"
             )
 
             return DefinitionResponseV2(
@@ -365,6 +519,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
                     "enhanced": was_enhanced,
+                    "prompt_text": prompt_result.text,  # Add prompt text for UI display
+                    "voorbeelden": voorbeelden,  # Add generated voorbeelden
                 },
             )
 
@@ -430,11 +586,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             context=request.context,
             domein=request.domein,
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
-            valid=validation_result.is_valid,
-            validation_violations=validation_result.violations,
+            valid=validation_result.get("is_acceptable", False),
+            validation_violations=validation_result.get("violations", []),
             metadata=generation_metadata,
             created_by=request.actor,
-            created_at=datetime.now(timezone.utc),
+            created_at=datetime.now(UTC),
         )
 
     async def _safe_save_definition(self, definition: Definition) -> int | None:

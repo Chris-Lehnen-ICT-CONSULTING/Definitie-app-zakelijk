@@ -2,9 +2,10 @@
 Quality Control Tab - Interface voor kwaliteitscontrole en toetsregels analyse.
 """
 
-from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
 
 import streamlit as st  # Streamlit web interface framework
+
 from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
 )
@@ -83,7 +84,7 @@ class QualityControlTab:
                             "toetsregels_analysis",
                             {
                                 "results": results,
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                                 "analysis_text": analysis_text,
                             },
                         )
@@ -136,7 +137,9 @@ class QualityControlTab:
                 try:
                     import os
 
-                    api_key = os.getenv("OPENAI_API_KEY")
+                    api_key = os.getenv("OPENAI_API_KEY") or os.getenv(
+                        "OPENAI_API_KEY_PROD"
+                    )
                     ai_status = "✅ Geconfigureerd" if api_key else "❌ Ontbreekt"
                     st.metric("🤖 AI Service", ai_status)
                 except Exception:
@@ -189,7 +192,7 @@ class QualityControlTab:
                             "validation_consistency",
                             {
                                 "report": validation_text,
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             },
                         )
 
@@ -326,7 +329,7 @@ class QualityControlTab:
                 analysis_data = SessionStateManager.get_value("toetsregels_analysis")
                 if analysis_data:
                     # Export analysis to file
-                    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+                    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
                     filename = f"toetsregels_analyse_{timestamp}.txt"
 
                     import os
@@ -337,7 +340,7 @@ class QualityControlTab:
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write("TOETSREGELS USAGE ANALYSE RAPPORT\n")
                         f.write("=" * 40 + "\n\n")
-                        f.write(f"Gegenereerd op: {datetime.now(timezone.utc)}\n\n")
+                        f.write(f"Gegenereerd op: {datetime.now(UTC)}\n\n")
                         f.write(
                             analysis_data.get("analysis_text", "Geen data beschikbaar")
                         )
@@ -352,7 +355,7 @@ class QualityControlTab:
                     "validation_consistency"
                 )
                 if validation_data:
-                    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+                    timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
                     filename = f"validatie_consistentie_{timestamp}.txt"
 
                     import os
@@ -363,7 +366,7 @@ class QualityControlTab:
                     with open(filepath, "w", encoding="utf-8") as f:
                         f.write("VALIDATIE CONSISTENTIE RAPPORT\n")
                         f.write("=" * 35 + "\n\n")
-                        f.write(f"Gegenereerd op: {datetime.now(timezone.utc)}\n\n")
+                        f.write(f"Gegenereerd op: {datetime.now(UTC)}\n\n")
                         f.write(validation_data.get("report", "Geen data beschikbaar"))
 
                     st.success(f"✅ Validatie rapport geëxporteerd naar: {filepath}")

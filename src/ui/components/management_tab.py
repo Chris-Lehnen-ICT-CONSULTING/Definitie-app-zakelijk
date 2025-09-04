@@ -4,9 +4,11 @@ Integreert definitie_manager.py en setup_database.py functionaliteit in de UI.
 """
 
 # Importeer CLI tools voor management functionaliteit
+import asyncio
+import os
 import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
-from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 
 import pandas as pd  # Data manipulatie en analyse framework
@@ -352,7 +354,7 @@ class ManagementTab:
 
                 export_filename = st.text_input(
                     "📁 Bestandsnaam",
-                    value=f"export_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json",
+                    value=f"export_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.json",
                     key="export_filename",
                 )
 
@@ -560,7 +562,9 @@ class ManagementTab:
         if st.session_state.get("confirm_reset_db", False):
             try:
                 # Backup current data first
-                backup_path = f"backup_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
+                backup_path = (
+                    f"backup_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.json"
+                )
                 self.repository.export_to_json(backup_path, {})
 
                 # Reset database
@@ -792,14 +796,42 @@ class ManagementTab:
             else:
                 st.warning("⚠️ CLI tools: Not available")
 
-            # Validation system
-            try:
-                from validation.definitie_validator import DefinitieValidator
+            # Validation system (V2) — alleen in DEV_MODE uitvoeren om externe afhankelijkheden te vermijden
+            DEV_MODE = os.getenv("DEV_MODE", "false").lower() in ("1", "true", "yes")
+            if DEV_MODE:
+                try:
+                    from services.container import get_container
 
-                DefinitieValidator()
-                st.success("✅ Validation system: OK")
-            except Exception as e:
-                st.error(f"❌ Validation system: {e!s}")
+                    container = get_container()
+                    orchestrator = container.orchestrator()
+                    validation_orch = getattr(orchestrator, "validation_service", None)
+                    if validation_orch is None:
+                        raise RuntimeError("Validation orchestrator not available")
+                    # Kleine noop‑validatie om de integratie te testen
+                    loop = asyncio.new_event_loop()
+                    asyncio.set_event_loop(loop)
+                    try:
+                        result = loop.run_until_complete(
+                            validation_orch.validate_text(
+                                begrip="",
+                                text="test",
+                                ontologische_categorie=None,
+                                context=None,
+                            )
+                        )
+                        ok = isinstance(result, dict) and "overall_score" in result
+                        if ok:
+                            st.success("✅ Validation system (V2): OK")
+                        else:
+                            st.warning("⚠️ Validation system (V2): unexpected result")
+                    finally:
+                        loop.close()
+                except Exception as e:
+                    st.error(f"❌ Validation system (V2): {e!s}")
+            else:
+                st.info(
+                    "ℹ️ Validation system check overgeslagen (set DEV_MODE=1 om te testen)"
+                )
 
             st.success("🎯 Health check completed!")
 
@@ -1020,6 +1052,14 @@ class ManagementTab:
         """Render validation testing interface."""
         st.markdown("##### ✅ Validation Testing")
 
+        # Check for DEV_MODE to enable V2 validation
+        import os  # noqa: PLC0415
+
+        use_v2 = os.getenv("DEV_MODE", "false").lower() == "true"
+
+        if use_v2:
+            st.info("🚀 Using ValidationOrchestratorV2 (DEV_MODE enabled)")
+
         # Test definitie validatie
         test_definitie = st.text_area(
             "Test definitie voor validatie",
@@ -1037,10 +1077,48 @@ class ManagementTab:
         if st.button("🔍 Valideer Test Definitie", key="dev_validate_btn"):
             if test_definitie:
                 try:
-                    # Test validation
-                    from validation.definitie_validator import validate_definitie
+                    if use_v2:
+                        # Use V2 validation orchestrator via service container (async)
+                        from services.container import get_container
 
-                    result = validate_definitie(test_definitie, test_categorie)
+                        container = get_container()
+                        orchestrator = container.orchestrator()
+                        validation_orch = getattr(
+                            orchestrator, "validation_service", None
+                        )
+                        if validation_orch is None:
+                            raise RuntimeError("Validation orchestrator not available")
+
+                        loop = asyncio.new_event_loop()
+                        asyncio.set_event_loop(loop)
+                        try:
+                            result = loop.run_until_complete(
+                                validation_orch.validate_text(
+                                    begrip="",
+                                    text=test_definitie,
+                                    ontologische_categorie=test_categorie,
+                                    context=None,
+                                )
+                            )
+                        finally:
+                            loop.close()
+
+                        # Map result dict naar object-achtige velden voor weergave
+                        class _R:
+                            def __init__(self, d):
+                                self._d = d
+                                self.overall_score = d.get("overall_score", 0.0)
+                                self.is_acceptable = d.get("is_acceptable", False)
+                                self.violations = d.get("violations", [])
+
+                        result = _R(result)
+                    else:
+                        # Use legacy validation
+                        from validation.definitie_validator import (
+                            validate_definitie,
+                        )
+
+                        result = validate_definitie(test_definitie, test_categorie)
 
                     st.markdown("**Validatie Resultaten:**")
                     st.metric("Overall Score", f"{result.overall_score:.2f}")
@@ -1238,7 +1316,9 @@ class ManagementTab:
                 try:
                     import os
 
-                    openai_key = os.getenv("OPENAI_API_KEY")
+                    openai_key = os.getenv("OPENAI_API_KEY") or os.getenv(
+                        "OPENAI_API_KEY_PROD"
+                    )
 
                     if openai_key:
                         # Mask API key for security

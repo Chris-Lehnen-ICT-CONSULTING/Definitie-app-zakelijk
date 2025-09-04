@@ -10,13 +10,15 @@ inclusief API keys, cache instellingen en omgeving-specifieke configuraties.
 import logging  # Logging systeem voor foutrapportage en debugging
 import os  # Operating system interface voor omgevingsvariabelen
 from dataclasses import dataclass, field  # Decorators voor gestructureerde data klassen
-from datetime import datetime, timezone  # Datum/tijd functionaliteit voor timestamps
+from datetime import (  # Datum/tijd functionaliteit voor timestamps
+    UTC,
+    datetime,
+)
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
 import yaml  # YAML bestand parser voor configuratie bestanden
-from dotenv import load_dotenv  # Laadt .env variabelen in omgeving
 
 logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
@@ -408,8 +410,7 @@ class ConfigManager:
 
     def _load_configuration(self):
         """Load configuration from files and environment variables."""
-        # Load environment variables first
-        load_dotenv()
+        # Geen .env laden; vertrouw op al ingestelde omgeving
 
         # Load from YAML files
         self._load_from_yaml()
@@ -445,7 +446,8 @@ class ConfigManager:
         voor flexibele deployment configuratie.
         """
         # API configuratie uit omgevingsvariabelen
-        if api_key := os.getenv("OPENAI_API_KEY"):
+        api_key = os.getenv("OPENAI_API_KEY") or os.getenv("OPENAI_API_KEY_PROD")
+        if api_key:
             self.api.openai_api_key = api_key
 
         if model := os.getenv("OPENAI_DEFAULT_MODEL"):
@@ -632,7 +634,7 @@ class ConfigManager:
                 Path(getattr(self.paths, attr)).exists()
                 for attr in ["cache_dir", "exports_dir", "logs_dir", "reports_dir"]
             ),
-            "loaded_at": datetime.now(timezone.utc).isoformat(),
+            "loaded_at": datetime.now(UTC).isoformat(),
         }
 
     def validate_api_key(self) -> bool:
@@ -654,7 +656,7 @@ _config_manager: ConfigManager | None = None
 
 def get_config_manager(environment: Environment | None = None) -> ConfigManager:
     """Get or create global configuration manager."""
-    global _config_manager
+    global _config_manager  # noqa: PLW0603
 
     if _config_manager is None:
         # Determine environment
@@ -701,7 +703,7 @@ def fill_ai_defaults(**kwargs) -> dict:
     return kwargs
 
 
-def get_component_config(component: str, sub_component: str = None) -> dict:
+def get_component_config(component: str, sub_component: str | None = None) -> dict:
     """Get AI configuration for a specific component.
 
     Args:

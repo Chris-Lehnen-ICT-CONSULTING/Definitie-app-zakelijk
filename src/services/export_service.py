@@ -5,9 +5,10 @@ Service voor het exporteren van definities naar verschillende formaten.
 Gebruikt DataAggregationService om data te verzamelen zonder directe UI dependencies.
 """
 
+import asyncio
 import json
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -47,6 +48,8 @@ class ExportService:
         repository: DefinitieRepository,
         data_aggregation_service: DataAggregationService | None = None,
         export_dir: str = "exports",
+        validation_orchestrator: Any | None = None,
+        enable_validation_gate: bool = False,
     ):
         """
         Initialiseer export service.
@@ -61,6 +64,8 @@ class ExportService:
             data_aggregation_service or DataAggregationService(repository)
         )
         self.export_dir = Path(export_dir)
+        self.validation_orchestrator = validation_orchestrator
+        self.enable_validation_gate = enable_validation_gate
 
         # Maak export directory indien nodig
         self.export_dir.mkdir(exist_ok=True)
@@ -93,6 +98,29 @@ class ExportService:
             additional_data=additional_data,
         )
 
+        # Optionele validatiegate vóór export
+        if self.enable_validation_gate and self.validation_orchestrator is not None:
+            text_for_validation = (
+                export_data.definitie_aangepast
+                or export_data.definitie_gecorrigeerd
+                or export_data.definitie_origineel
+            )
+            try:
+                result = asyncio.run(
+                    self.validation_orchestrator.validate_text(
+                        begrip=export_data.begrip,
+                        text=text_for_validation,
+                        ontologische_categorie=None,
+                        context=None,
+                    )
+                )
+            except Exception as e:  # pragma: no cover - defensive
+                raise ValueError(f"Validatie mislukt vóór export: {e!s}")
+            if not isinstance(result, dict) or not result.get("is_acceptable", False):
+                raise ValueError(
+                    "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+                )
+
         # Export naar gekozen formaat
         if format == ExportFormat.TXT:
             return self._export_to_txt(export_data)
@@ -121,7 +149,7 @@ class ExportService:
     def _export_to_json(self, export_data: DefinitieExportData) -> str:
         """Exporteer naar JSON formaat."""
         # Genereer bestandsnaam
-        tijdstempel = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         begrip_clean = export_data.begrip.replace(" ", "_").lower()
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.json"
         pad = self.export_dir / bestandsnaam
@@ -129,7 +157,7 @@ class ExportService:
         # Bereid data voor
         json_data = {
             "export_info": {
-                "export_timestamp": datetime.now(timezone.utc).isoformat(),
+                "export_timestamp": datetime.now(UTC).isoformat(),
                 "export_version": "2.0",
                 "format": "json",
             },
@@ -192,7 +220,7 @@ class ExportService:
         import csv
 
         # Genereer bestandsnaam
-        tijdstempel = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+        tijdstempel = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
         begrip_clean = export_data.begrip.replace(" ", "_").lower()
         bestandsnaam = f"definitie_{begrip_clean}_{tijdstempel}.csv"
         pad = self.export_dir / bestandsnaam
