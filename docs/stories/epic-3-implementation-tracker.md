@@ -12,9 +12,9 @@ priority: high
 
 # Epic 3: Web Lookup Implementation Tracker
 
-**Sprint**: UAT Prep (3-20 Sep 2025)  
-**Epic Status**: 30% Complete  
-**Risk Level**: MEDIUM - SRU API issues  
+**Sprint**: UAT Prep (3-20 Sep 2025)
+**Epic Status**: 30% Complete
+**Risk Level**: MEDIUM - SRU API issues
 **Last Update**: 3 september 2025, 15:00
 
 ---
@@ -30,7 +30,7 @@ Implementeer minimaal 2 werkende web lookup providers (Wikipedia + SRU) met bron
 ```
 Story Points Remaining:
 Start (3 Sep): 9 points
-Current:       9 points  
+Current:       9 points
 Target (20 Sep): 0 points
 
 [##########----------] 30% Complete
@@ -161,7 +161,7 @@ API success rate:   67%        >95%
    - Status: Monitoring
 
 2. **Time Constraint**
-   - Impact: MEDIUM  
+   - Impact: MEDIUM
    - Mitigation: Focus on MVP features only
    - Status: On track
 
@@ -233,6 +233,6 @@ Help needed: [Specific assistance required]
 
 ---
 
-*Tracker updated daily at 15:00*  
-*Next update: 4 Sep 2025*  
+*Tracker updated daily at 15:00*
+*Next update: 4 Sep 2025*
 *Contact: Development Team Lead*

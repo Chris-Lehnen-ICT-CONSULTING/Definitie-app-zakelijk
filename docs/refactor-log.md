@@ -1,3 +1,32 @@
+# Refactor Log
+
+## 2025-09-03: Story 3.1 - Metadata Sources Visibility Fix
+
+### Probleem
+Web lookup bronnen werden wel verzameld en in prompts geïnjecteerd, maar waren niet zichtbaar in de UI tijdens preview vanwege een bug in de LegacyGenerationResult wrapper.
+
+### Implementatie (TDD)
+- **Test fase**: 16 tests geschreven (10 unit, 6 integratie)
+- **Implementation**: Quick Fix toegepast - sources veld toegevoegd aan result_dict
+- **Refactoring**: Provider-neutrale referenties, juridische citaties, UI feedback
+
+### Belangrijkste wijzigingen:
+1. `service_factory.py:273-277`: Sources toegevoegd aan LegacyGenerationResult
+2. `prompt_service_v2.py:288`: Provider-neutraal "Bron 1/2/3"
+3. `provenance.py`: Juridische metadata extractie (ECLI, artikelen)
+4. `definition_generator_tab.py:754-816`: Verbeterde bronweergave
+
+### Test resultaten:
+- ✅ Story 3.1 unit tests: 10/10 passed
+- ✅ Story 3.1 integration tests: 6/6 passed
+- ✅ App draait succesvol op http://localhost:8503
+
+### Notes:
+- Implementatie direct op main (geen feature branch gebruikt)
+- Legacy wrapper blijft voorlopig bestaan (technische schuld voor later)
+
+---
+
 # Refactor Log - DefinitieAgent Project
 
 ## 2025-09-03: Technical Debt Assessment - Legacy Code Analysis
