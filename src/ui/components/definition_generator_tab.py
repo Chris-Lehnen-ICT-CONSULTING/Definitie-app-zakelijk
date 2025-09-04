@@ -754,7 +754,7 @@ class DefinitionGeneratorTab:
             # 2) STORY 3.1: Check direct sources attribute (preview fix)
             if sources is None and hasattr(agent_result, "sources"):
                 sources = agent_result.sources
-            
+
             # 3) Val terug op agent_result.metadata (legacy support)
             if sources is None and isinstance(agent_result, dict):
                 meta = agent_result.get("metadata")
@@ -766,14 +766,18 @@ class DefinitionGeneratorTab:
 
             # STORY 3.1: Always show sources section with feedback
             st.markdown("#### 📚 Gebruikte Bronnen")
-            
+
             if not sources:
-                st.info("ℹ️ Geen externe bronnen geraadpleegd. Web lookup is uitgeschakeld of er zijn geen relevante bronnen gevonden.")
+                st.info(
+                    "ℹ️ Geen externe bronnen geraadpleegd. Web lookup is uitgeschakeld of er zijn geen relevante bronnen gevonden."
+                )
                 return
 
             for idx, src in enumerate(sources[:5]):  # Toon max 5
                 # Use source_label if available (Story 3.1), fallback to provider
-                provider_label = src.get("source_label") or self._get_provider_label(src.get("provider", "bron"))
+                provider_label = src.get("source_label") or self._get_provider_label(
+                    src.get("provider", "bron")
+                )
                 title = src.get("title") or src.get("definition") or "(zonder titel)"
                 url = src.get("url") or src.get("link") or ""
                 score = src.get("score") or src.get("confidence") or 0.0
@@ -782,7 +786,9 @@ class DefinitionGeneratorTab:
                 is_authoritative = src.get("is_authoritative", False)
                 legal_meta = src.get("legal")
 
-                with st.expander(f"{idx+1}. {provider_label} — {title[:80]}", expanded=(idx == 0)):
+                with st.expander(
+                    f"{idx+1}. {provider_label} — {title[:80]}", expanded=(idx == 0)
+                ):
                     # Show badges
                     col1, col2, col3 = st.columns([1, 1, 2])
                     with col1:
@@ -791,20 +797,24 @@ class DefinitionGeneratorTab:
                     with col2:
                         if used:
                             st.info("→ In prompt")
-                    
+
                     # Show juridical citation if available
                     if legal_meta and legal_meta.get("citation_text"):
-                        st.markdown(f"**Juridische verwijzing**: {legal_meta['citation_text']}")
-                    
+                        st.markdown(
+                            f"**Juridische verwijzing**: {legal_meta['citation_text']}"
+                        )
+
                     # Show score and snippet
                     st.markdown(f"**Score**: {score:.2f}")
                     if snippet:
-                        st.markdown(f"**Fragment**: {snippet[:500]}{'...' if len(snippet) > 500 else ''}")
+                        st.markdown(
+                            f"**Fragment**: {snippet[:500]}{'...' if len(snippet) > 500 else ''}"
+                        )
                     if url:
                         st.markdown(f"[🔗 Open bron]({url})")
         except Exception as e:
             logger.debug(f"Kon bronnen sectie niet renderen: {e}")
-    
+
     def _get_provider_label(provider: str) -> str:
         """Get human-friendly label for provider (local helper)."""
         labels = {

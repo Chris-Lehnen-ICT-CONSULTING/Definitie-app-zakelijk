@@ -3,13 +3,13 @@
 ## Status: COMPLETED ✅
 
 **Implementation Date**: 2025-01-03
-**Commits**: 
+**Commits**:
 - test(story-3.1): RED phase - failing tests
 - feat(story-3.1): GREEN phase - minimal implementation
 
-**Epic**: Epic 3 - Modern Web Lookup  
-**Priority**: HIGH  
-**Geschatte effort**: 4-6 uur  
+**Epic**: Epic 3 - Modern Web Lookup
+**Priority**: HIGH
+**Geschatte effort**: 4-6 uur
 **Datum**: 2025-09-03
 
 ## Probleem
@@ -63,7 +63,7 @@ result_dict = {
 ```python
 def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
     # ... bestaande request building ...
-    
+
     # Direct V2 response returnen zonder wrapper:
     return response  # GEEN LegacyGenerationResult meer!
 ```
@@ -121,29 +121,29 @@ def _extract_legal_metadata(result: WebLookupResult) -> Optional[dict]:
     """Extract juridische metadata uit SRU resultaten."""
     if result.provider not in ["overheid", "rechtspraak"]:
         return None
-    
+
     legal = {}
     metadata = result.metadata or {}
-    
+
     # Parse ECLI voor rechtspraak
     if "dc_identifier" in metadata:
         ecli_match = re.search(r"ECLI:[A-Z:0-9]+", metadata["dc_identifier"])
         if ecli_match:
             legal["ecli"] = ecli_match.group()
-    
+
     # Parse artikel/wet uit title/subject
     title = metadata.get("dc_title", "")
     if match := re.search(r"artikel\s+(\d+[a-z]?)", title, re.I):
         legal["article"] = match.group(1)
     if match := re.search(r"(Wetboek van \w+|Wv\w+)", title):
         legal["law"] = match.group(1)
-    
+
     # Genereer citation_text
     if legal.get("ecli"):
         legal["citation_text"] = legal["ecli"]
     elif legal.get("article") and legal.get("law"):
         legal["citation_text"] = f"art. {legal['article']} {legal['law']}"
-    
+
     return legal if legal else None
 ```
 
@@ -154,7 +154,7 @@ def _extract_legal_metadata(result: WebLookupResult) -> Optional[dict]:
 def _render_sources_section(self, saved_record=None, agent_result=None):
     """Toon gebruikte bronnen sectie."""
     st.markdown("### 📚 Gebruikte Bronnen")
-    
+
     # Haal sources op
     sources = []
     if saved_record and saved_record.metadata:
@@ -163,12 +163,12 @@ def _render_sources_section(self, saved_record=None, agent_result=None):
         sources = agent_result.metadata.get("sources", [])
     elif agent_result and hasattr(agent_result, "sources"):  # NIEUW: directe sources
         sources = agent_result.sources
-    
+
     if not sources:
         # NIEUW: Altijd feedback geven
         st.info("ℹ️ Geen externe bronnen geraadpleegd. Web lookup is uitgeschakeld of er zijn geen relevante bronnen gevonden.")
         return
-    
+
     # Toon bronnen met rijke metadata
     for i, source in enumerate(sources[:5], 1):
         with st.expander(f"{source.get('source_label', source.get('provider', 'Bron'))} - {source.get('title', 'Geen titel')[:80]}"):
@@ -180,12 +180,12 @@ def _render_sources_section(self, saved_record=None, agent_result=None):
             with col2:
                 if source.get("used_in_prompt"):
                     st.info("→ In prompt")
-            
+
             # Juridische citatie
             if legal := source.get("legal"):
                 if citation := legal.get("citation_text"):
                     st.markdown(f"**Juridische verwijzing**: {citation}")
-            
+
             # Content
             st.markdown(f"**Score**: {source.get('score', 0):.2f}")
             if snippet := source.get("snippet"):
@@ -206,7 +206,7 @@ def _render_sources_section(self, saved_record=None, agent_result=None):
 ## Acceptatiecriteria
 
 - [x] Sources zichtbaar in UI tijdens preview (niet alleen na save)
-- [x] Provider-neutraal in prompt ("Bron 1", niet "wikipedia")  
+- [x] Provider-neutraal in prompt ("Bron 1", niet "wikipedia")
 - [x] Juridische bronnen tonen citatie (art/lid/ECLI)
 - [x] Autoritatieve bronnen krijgen badge
 - [x] Bij geen bronnen: informatieve melding
@@ -230,7 +230,7 @@ def _render_sources_section(self, saved_record=None, agent_result=None):
 ## Metrics
 
 - Sources display rate: 100% (was 0%)
-- Provider neutrality: 100% 
+- Provider neutrality: 100%
 - User satisfaction: verhoogd door transparantie
 - Token usage: ongewijzigd (zelfde snippets)
 

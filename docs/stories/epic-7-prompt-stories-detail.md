@@ -5,12 +5,13 @@ owner: development
 last_verified: 2025-09-03
 applies_to: definitie-app@v2.3
 document_type: user-stories
-epic: epic-4-prompt-optimization
+epic: epic-7-performance-scaling
+parent_doc: epic-7-performance-optimization
 priority: critical
 sprint: UAT-2025-09
 ---
 
-# Epic 4: Prompt Optimization - User Stories Detail
+# Epic 7: Prompt Optimization - User Stories Detail
 
 **Sprint Goal**: Reduceer prompt tokens met 83% voor betere performance en lagere kosten
 **Business Value**: €1,000+/maand besparing + 50% snellere responses
@@ -42,7 +43,7 @@ sprint: UAT-2025-09
 
 **Current Situation:**
 ```text
-Regels 432-473: 42x "Start niet met [woord]"  
+Regels 432-473: 42x "Start niet met [woord]"
 Regels 119-140: 3x containerbegrip uitleg
 Regels 147-160: 2x identieke modale werkwoord regels
 Regels 66-99 + 202-229: 3x ontologie uitleg
@@ -116,7 +117,7 @@ class PromptOptimizer:
         consolidated = self.merge_arai_family(consolidated)
         consolidated = self.merge_ontology(consolidated)
         return consolidated
-    
+
     def verify_consolidation(self, original: str, optimized: str):
         assert count_tokens(optimized) < count_tokens(original) * 0.6
         assert quality_score(optimized) >= quality_score(original)
@@ -170,13 +171,13 @@ class ContradictionResolver:
     def resolve_conflicts(self, rules: List[Rule]) -> List[Rule]:
         # Remove conflicting rules
         rules = self.remove_contradiction_pairs(rules)
-        
+
         # Apply priority hierarchy
         rules = self.apply_priority_order(rules)
-        
+
         # Add conflict resolution notes
         rules = self.add_resolution_context(rules)
-        
+
         return rules
 ```
 
@@ -195,7 +196,7 @@ class DefinitionContext:
     organization: str  # OM, DJI, Rechtspraak
     domain: str       # juridisch, operationeel, administratief
     complexity: str   # simpel, normaal, complex
-    
+
     @property
     def rule_categories(self) -> List[str]:
         if self.domain == "juridisch":
@@ -211,15 +212,15 @@ class ContextAwarePromptBuilder:
     def build_prompt(self, context: DefinitionContext) -> str:
         # Base instructions (always included)
         prompt = self.load_base_instructions()  # 500 tokens
-        
+
         # Context-specific rules
         relevant_rules = self.filter_rules_by_context(context)  # 400 tokens
-        
+
         # Select best examples
         examples = self.select_examples(context, max_examples=2)  # 350 tokens
-        
+
         return self.optimize_token_usage(prompt, relevant_rules, examples)
-    
+
     def filter_rules_by_context(self, context: DefinitionContext):
         rules = []
         for category in context.rule_categories:
@@ -236,7 +237,7 @@ Regels: ARAI-basis, VER-volledig, CON-impliciet
 Voorbeelden: [strafbaar feit, vervolging]
 """
 
-# Operationeel context (DJI)  
+# Operationeel context (DJI)
 prompt_dji = """
 Focus: Operationele duidelijkheid en uitvoerbaarheid
 Regels: ARAI-basis, SAM-integratie, INT-specificatie
@@ -267,7 +268,7 @@ class PromptCache:
     def __init__(self):
         self.cache = {}
         self.ttl = 3600  # 1 hour
-        
+
     def get_cache_key(self, context: DefinitionContext) -> str:
         """Generate deterministic cache key"""
         key_parts = [
@@ -276,15 +277,15 @@ class PromptCache:
             context.complexity
         ]
         return hashlib.md5("_".join(key_parts).encode()).hexdigest()
-    
+
     @st.cache_data(ttl=3600)
     def get_or_build_prompt(self, context: DefinitionContext) -> str:
         cache_key = self.get_cache_key(context)
-        
+
         if cache_key in self.cache:
             self.metrics.cache_hit()
             return self.cache[cache_key]
-        
+
         self.metrics.cache_miss()
         prompt = self.build_prompt(context)
         self.cache[cache_key] = prompt
@@ -318,14 +319,14 @@ class RulePrioritizer:
         "MEDIUM": 150,    # Nice to have
         "LOW": 100        # Optional
     }
-    
+
     def prioritize_within_budget(self, rules: List[Rule], budget: int = 1250):
         prioritized = []
         remaining_budget = budget
-        
+
         for priority in ["CRITICAL", "HIGH", "MEDIUM", "LOW"]:
             priority_rules = [r for r in rules if r.priority == priority]
-            
+
             for rule in priority_rules:
                 rule_tokens = count_tokens(rule.text)
                 if remaining_budget >= rule_tokens:
@@ -333,7 +334,7 @@ class RulePrioritizer:
                     remaining_budget -= rule_tokens
                 else:
                     self.log_excluded_rule(rule, "budget_exceeded")
-        
+
         return prioritized
 ```
 
@@ -348,13 +349,13 @@ Morning (4 hrs):
     [ ] Identify all duplications
     [ ] Create consolidated rules
     [ ] Test quality maintenance
-    
+
 Afternoon (4 hrs):
 [ ] PROMPT-4.2: Fix contradictions
     [ ] Resolve haakjes conflict
     [ ] Resolve context conflict
     [ ] Implement priority hierarchy
-    
+
 Result: 7,250 → 4,000 tokens (45% reduction)
 ```
 
@@ -365,13 +366,13 @@ Morning (4 hrs):
     [ ] Define context types
     [ ] Implement detection logic
     [ ] Map rules to contexts
-    
+
 Afternoon (4 hrs):
 [ ] PROMPT-4.3: Dynamic building
     [ ] Build prompt composer
     [ ] Test different contexts
     [ ] Verify output quality
-    
+
 Result: 4,000 → 2,000 tokens (50% reduction)
 ```
 
@@ -382,13 +383,13 @@ Morning (4 hrs):
     [ ] Implement cache layer
     [ ] Add metrics tracking
     [ ] Test cache efficiency
-    
+
 Afternoon (4 hrs):
 [ ] PROMPT-4.5: Priority system
     [ ] Define priority levels
     [ ] Implement budget allocation
     [ ] Test graceful degradation
-    
+
 Result: 2,000 → 1,250 tokens (37.5% reduction)
 ```
 
@@ -419,12 +420,12 @@ def test_consolidation():
     original = load_original_prompt()
     optimized = optimizer.consolidate_duplicates(original)
     assert count_tokens(optimized) < count_tokens(original) * 0.6
-    
+
 def test_no_contradictions():
     rules = load_optimized_rules()
     conflicts = detector.find_contradictions(rules)
     assert len(conflicts) == 0
-    
+
 def test_context_composition():
     context = DefinitionContext("arrestatie", "OM", "juridisch")
     prompt = builder.build_prompt(context)
@@ -460,6 +461,6 @@ def test_quality_maintained():
 
 ---
 
-*Document created: 3 september 2025*  
-*Epic owner: Development Team*  
+*Document created: 3 september 2025*
+*Epic owner: Development Team*
 *Business sponsor: Product Management*
