@@ -9,10 +9,11 @@ applies_to: definitie-app@v2
 # [ARCHIVED] Story 2.3 Implementation Status - ModularValidationService V2
 
 Deze statusnotitie is gearchiveerd. De actuele specificatie/status staat in:
-- `docs/stories/epic-2-story-2.3-modular-validation-service.md`
+- `docs/stories/MASTER-EPICS-USER-STORIES.md` (Story 2.3 - Completed)
+- Implementatie instructies zijn gearchiveerd: `/docs/archief/2025-01-workflows/story-2.3-implementation-handover.md`
 
 **Datum**: 2025-01-09
-**Branch**: `feat/story-2.3-container-wiring`
+**Branch**: `feat/story-2.3-container-wiring` (verwijderd)
 **Status**: ✅ Core Implementatie Compleet (70%)
 
 ## 📊 Implementation Overview
