@@ -8,8 +8,18 @@
 - Comprehensive documentation audit and compliance reporting
 - AI_CONFIGURATION_GUIDE.md for centralized AI configuration documentation
 - Context Flow Refactoring (CFR) architecture documentation suite
+- **[CFR] Complete agent-based implementation plan (CFR-IMPLEMENTATION-PLAN-AGENTS.md)**
+  - 9 specialized agents with defined tasks and deliverables
+  - 5-week sprint-based timeline with handover moments
+  - Concrete code examples and test specifications
+  - Performance budgets: <50ms aggregation, <10ms validation
+  - CI/CD guards preventing session state regression
 - Justice sector context in Enterprise/Solution/Technical Architecture
 - ASTRA compliance assessment documentation
+- [PER-007] TDD test plan and comprehensive test suite for context flow refactoring
+- [PER-007] RED phase tests validating UI preview separation architecture decision
+- [PER-007] Performance benchmarks and anti-pattern regression tests
+- [PER-007] Automated TDD workflow script for RED-GREEN-REFACTOR cycle
 
 ### Changed
 - **BREAKING**: Complete migration to V2-only architecture - all V1 services removed
