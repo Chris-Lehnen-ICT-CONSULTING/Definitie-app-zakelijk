@@ -2,7 +2,7 @@
 canonical: true
 status: active
 owner: architecture
-last_verified: 2025-09-04
+last_verified: 2025-09-05
 applies_to: definitie-app@current
 ---
 
@@ -11,7 +11,9 @@ applies_to: definitie-app@current
 Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Definitie‑app. Het doel is consistente kwaliteit, voorspelbaar gedrag en makkelijk samenwerken tussen mensen en agents.
 
 ## Claude Code Agents Locatie
-De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents/`. Deze agents kunnen aangeroepen worden via de Task tool in Claude Code.
+- Primaire agent‑prompts: `~/\.claude/agents/` (lokaal bij jou)
+- Router + workflows: `~/\.claude/agents/workflow-router.md` en `~/\.claude/agents/workflows/workflows.yaml`
+- Aanroepen via de Task tool in Claude Code; gebruik exacte agent‑namen.
 
 ## Standaard Werkwijze
 - Context eerst: lees relevante code, config en docs voordat je acties onderneemt.
@@ -22,9 +24,11 @@ De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents
 
 ## Workflow Selectie
 - Gebruik niet standaard de Full TDD workflow voor elke opdracht.
-- Raadpleeg de [Workflow Library](./WORKFLOW_LIBRARY.md) en kies de lichtste passende workflow:
-  - Analyse, Review, Document Cleanup, Refactor Only, Hotfix, of Full TDD.
-- Volg de [Workflow Routing](./WORKFLOW_ROUTING.md) regels of gebruik de `workflow-router` agent (zie `docs/agents/workflow-router.md`).
+- Kies de lichtste passende workflow met de router of handmatig:
+  - Analysis, Review Cycle, Documentation, Debug, Maintenance, Refactor Only, Hotfix, Spike, Full TDD.
+- Documentatie: [Workflow Library](./WORKFLOW_LIBRARY.md) en [Workflow Routing](./WORKFLOW_ROUTING.md)
+- Router (lokaal): `~/\.claude/agents/workflow-router.md` + config `~/\.claude/agents/workflows/workflows.yaml`
+- Router‑commando’s: `ROUTE <beschrijving>`, `START-AS <workflow> <beschrijving>`, `SUGGEST <beschrijving>`
 
 ## Algemene Richtlijnen
 - Veiligheid: geen secrets loggen; respecteer `requirements*.txt` en netwerkbeperkingen.
@@ -33,6 +37,17 @@ De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents
 - Tests: maak/actualiseer tests bij nieuw gedrag; run gerichte suites waar mogelijk.
 
 ## Specifieke Agents
+
+### workflow-router
+- **Doel**: Classificeert opdrachten en kiest de juiste workflow, orkestreert handoffs tussen agents volgens `workflows.yaml`.
+- **Locatie**: `~/\.claude/agents/workflow-router.md`
+- **Input**: Intent/beschrijving, betrokken bestanden/diff, labels/urgentie
+- **Output**: Routeringsbesluit, handoff‑payload (work_unit_id, workflow, phase, gate_conditions, artifacts)
+- **Commando’s**:
+  - `ROUTE <beschrijving>`: automatische workflowselectie
+  - `START-AS <workflow> <beschrijving>`: forceer specifieke workflow
+  - `SUGGEST <beschrijving>`: suggesties met motivatie
+- **Workflows**: Zie overzicht hieronder; bronconfig: `~/\.claude/agents/workflows/workflows.yaml`
 
 ### developer-implementer
 - **Doel**: Architectuur (SA/TA) vertalen naar productie‑klare code, inclusief basis‑tests en integratie
@@ -185,6 +200,20 @@ De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents
 - **Quality Gates**: Strict phase progression, coverage standards, complete docs
 - **Status Format**: `ID: <ID> | State: <STATE> | Owner: <AGENT> | Next: <ACTION> | Blockers: <ANY>`
 
+### devops-pipeline-orchestrator
+- **Doel**: CI/CD orkestreren vanaf branch/commit/PR tot release/deployment
+- **Locatie**: `~/\.claude/agents/devops-pipeline-orchestrator.md`
+- **Kern**: Branch management, semantische commits, PR lifecycle, CI‑validatie, release tagging, staged→prod deployment met rollback
+- **Triggers**: DONE in TDD, handmatig verzoek, GitHub events (PR approval/merge)
+- **Output**: Release tags, changelog/notes, deploymentstatus, post‑deploy checks
+- **Commando’s**: `git`, `gh`, `pytest`, `ruff`, `black`, `make deploy-*`
+
+### prompt-engineer
+- **Doel**: Ondersteunende agent voor prompt‑optimalisatie, outputstructuur en token‑efficiëntie
+- **Locatie**: `~/\.claude/agents/prompt-engineer.md`
+- **Gebruik**: Als support in fases die baat hebben bij betere prompts (Analysis, Test‑Red, Dev‑Green, Review)
+- **Output**: Verbeterde prompts/templates, duidelijkere outputformaten, lagere kans op hallucinaties
+
 ### doc-standards-guardian
 - **Doel**: Bewaken en afdwingen van documentatiestandaarden
 - **Model**: opus
@@ -212,6 +241,29 @@ De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents
   - UPDATE: Bestaande docs, geen duplicaten
 - **Quality Gates**: No multiple canonical:true, complete frontmatter, no broken links
 
+## Workflows Overzicht (Router)
+- Configuratiebron: `~/\.claude/agents/workflows/workflows.yaml`
+- Beschikbare workflows (kies de lichtste passende):
+  - **analysis**: Onderzoek zonder wijzigingen → rapport + aanbevelingen
+  - **review_cycle**: Code review met verdict → optionele refactor‑suggesties
+  - **documentation**: Documentupdates/cleanup → frontmatter/canonical/links + verificatie
+  - **debug**: Reproduce→Diagnose→Fix→Verify voor bugs
+  - **maintenance**: Dependencies/configs/opschoon → validate light
+  - **hotfix**: Versnelde kritieke fix met safety gates en rollback
+  - **refactor_only**: Kwaliteitsverbetering zonder gedrag te wijzigen (tests groen)
+  - **spike**: Technisch onderzoek/POC met bevindingen
+  - **full_tdd**: Volledige TDD→Deployment (alleen bij end‑to‑end levering)
+
+### Routingregels (samenvatting)
+- Intent “review/diff/PR” → review_cycle
+- “analyse/understand/why” → analysis
+- “docs/*.md” only → documentation
+- “refactor/clean/optimize” zonder feature‑scope → refactor_only
+- “hotfix/urgent/incident/p1/p2” → hotfix
+- “research/spike/POC/experiment” → spike
+- “implement/add/feature/build” → full_tdd
+- Anders: default naar full_tdd; overrides toegestaan met `START-AS ...`
+
 ## Aanroepen en Namen
 - Agent‑namen: gebruik exact de namen hierboven zodat tooling en documentatie overeenkomen.
 - Overdracht: leg kort de context, doel, scope, en "done"‑criteria vast voordat je de agent start.
@@ -230,9 +282,9 @@ De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents
 - Architectuur: `docs/architectuur/`
 - Testing: `docs/testing/`
 - Projectkaders: `README.md`, `CLAUDE.md`
-- Claude Code Agents: `/Users/chrislehnen/.claude/agents/`
+- Claude Code Agents: `~/\.claude/agents/` (inclusief `workflow-router.md` en `workflows/workflows.yaml`)
 
 ---
 
-Laatste update: 2025-01-13
+Laatste update: 2025-09-05
 Voor vragen over agents, zie de individuele agent definities in `/Users/chrislehnen/.claude/agents/`.
