@@ -270,10 +270,10 @@ def test_contract_compatibility():
   - Consumers: ondersteun v1 via een lichte adapter die bovenstaande mapping toepast.
 
 ## Related Documents
-- **Parent**: [Validation Orchestrator V2 Architecture](../validation_orchestrator_v2.md)
+- **Parent**: Validation Orchestrator V2 Architecture (see Solution Architecture)
 - **Schema**: [JSON Schema Definition](./schemas/validation_result.schema.json)
 - **Errors**: [Error Catalog](../../technisch/error_catalog_validation.md)
-- **Usage**: [Rollout Runbook](../../workflows/validation_orchestrator_rollout.md)
+- **Usage**: Rollout Runbook (documentation in planning)
 - **Testing**: [Golden Dataset](../../testing/golden-dataset-validation.md)
 
 ## Change Log

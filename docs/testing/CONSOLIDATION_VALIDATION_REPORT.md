@@ -64,13 +64,13 @@ Total archived items: 18 directories/files
 
 ### Broken Links Found ❌
 **In TECHNICAL_ARCHITECTURE.md:**
-- `[Service Container Design](../technisch/service-container.md)` - File not found
-- `[V2 Migration Plan](workflows/v2-migration-workflow.md)` - File not found
-- `[ADR-PER-007](beslissingen/ADR-PER-007-presentation-data-separation.md)` - File archived
-- `[Migration Strategy](V2_AI_SERVICE_MIGRATIE_ANALYSE.md)` - File not found
+- Service Container Design - Integrated into Technical Architecture document
+- V2 Migration Plan - Integrated into Solution Architecture document
+- ADR-PER-007 - Archived at `/docs/archief/2025-09-architectuur-consolidatie/adr-documents/`
+- Migration Strategy - Integrated into Technical Architecture document
 
 **In README.md:**
-- `[CONTRIBUTING.md](../../CONTRIBUTING.md#documentatie-organisatie-alleen-maintainers)` - File not found
+- [CONTRIBUTING.md](../../CONTRIBUTING.md) - Link corrected
 
 ## 6. ASTRA Compliance Check ✅
 

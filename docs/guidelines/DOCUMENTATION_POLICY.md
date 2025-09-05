@@ -78,7 +78,7 @@ All references to work items must use consistent formatting:
 - Include context/explanation for code blocks
 
 #### Links
-- Use relative links for internal docs: `[text](./path/to/doc.md)`
+- Use relative links for internal docs: `[text](./example-doc.md)`
 - Use absolute URLs for external links
 - Verify all links are valid
 
@@ -198,9 +198,9 @@ Exceptions to this policy require:
 ## References
 
 - [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md) - Document placement standards
-- [INDEX.md](./INDEX.md) - Documentation navigation hub
-- [ASTRA_COMPLIANCE.md](./architectuur/ASTRA_COMPLIANCE.md) - Justice standards
-- [MASTER-EPICS-USER-STORIES.md](./stories/MASTER-EPICS-USER-STORIES.md) - Work item tracking
+- [INDEX.md](../INDEX.md) - Documentation navigation hub
+- ASTRA_COMPLIANCE.md - Justice standards (archived in /docs/archief/)
+- [MASTER-EPICS-USER-STORIES.md](../stories/MASTER-EPICS-USER-STORIES.md) - Work item tracking
 
 ---
 
