@@ -180,9 +180,9 @@ except Exception as e:
 
 ## 📚 Referenties
 
-- [Story 2.3 Specificaties](../stories/epic-2-story-2.3-modular-validation-service.md)
+- Story 2.3 Specificaties: zie `docs/stories/MASTER-EPICS-USER-STORIES.md` (Story 2.3 - Completed)
 - [Test Implementation](../testing/story-2.3-test-implementation.md)
-- [Implementation Handover](../workflows/story-2.3-implementation-handover.md)
+- Implementation Handover: `/docs/archief/2025-01-workflows/story-2.3-implementation-handover.md`
 - [Golden Test Cases](../../tests/fixtures/golden_definitions.yaml)
 
 ## 🏁 Conclusie
