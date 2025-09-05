@@ -36,8 +36,11 @@
   - [Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) ✅ Werkende tech stack
   - [ASTRA Compliance](./architectuur/ASTRA_COMPLIANCE.md) ✅ Justice sector assessment
 
-- **🚨 Context Flow Refactoring (CFR) - CRITICAL** 🆕
-  - **[CFR Solution Overview](./architectuur/CFR-SOLUTION-OVERVIEW.md)** ✅ Complete implementation package
+- **🚨 Context Flow Refactoring (PER-007/CFR) - CRITICAL** 🆕
+  - **[CFR Consolidated Refactor Plan](./architectuur/CFR-CONSOLIDATED-REFACTOR-PLAN.md)** ✅ **CANONICAL** - Single implementation plan
+  - **[CFR Implementation Plan - Agent Based](./architectuur/CFR-IMPLEMENTATION-PLAN-AGENTS.md)** 🔥 **READY FOR REVIEW** - Complete 5-week agent workflow
+  - [PER-007 Implementation Guide](./architectuur/PER-007-implementation-guide.md) ✅ Step-by-step implementation
+  - [PER-007 Architectural Assessment](./architectuur/PER-007-architectural-assessment.md) ✅ NORA/ASTRA compliance
   - [EA-CFR: Enterprise Architecture](./architectuur/EA-CFR.md) ✅ Justice sector alignment
   - [SA-CFR: Solution Architecture](./architectuur/SA-CFR.md) ✅ Component design
   - [TA-CFR: Technical Architecture](./architectuur/TA-CFR.md) ✅ Implementation specs
@@ -52,8 +55,17 @@
   - [ADR-004: Incrementele migratie](./architectuur/beslissingen/ADR-004-incrementele-migratie-strategie.md)
   - [ADR-005: Service architecture evolution](./architectuur/beslissingen/ADR-005-service-architecture-evolution.md)
   - [ADR-006: ValidationOrchestratorV2](./architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
-  - **[ADR-015: Context Flow Refactoring](./architectuur/beslissingen/ADR-015-context-flow-refactoring.md)** 🆕 Strategic decision
-  - **[ADR-CFR-001: CFR Implementation](./architectuur/beslissingen/ADR-CFR-001-context-flow-refactoring.md)** 🆕 Technical approach
+  - **[ADR-015: Context Flow Refactoring](./architectuur/beslissingen/ADR-015-context-flow-refactoring.md)** 🆕 Initial strategic decision
+  - **[ADR-016: Consolidated Context Flow](./architectuur/beslissingen/ADR-016-context-flow-consolidated.md)** 🆕 Supersedes ADR-015/CFR-001/PER-007
+  - **[ADR-PER-007: Presentation/Data Separation](./architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md)** ✅ **KEY DECISION** - UI vs Data layer
+  - [ADR-PER-007: Context Flow Fix](./architectuur/beslissingen/ADR-PER-007-context-flow-fix.md) 📄 Initial proposal
+  - [ADR-CFR-001: CFR Implementation](./architectuur/beslissingen/ADR-CFR-001-context-flow-refactoring.md) 📄 Technical approach
+
+### Testing & Validatie
+- **PER-007 Testing** 🆕
+  - [PER-007 TDD Test Plan](./testing/PER-007-tdd-test-plan.md) ✅ RED-GREEN-REFACTOR cycles
+  - [PER-007 Test Scenarios](./testing/PER-007-test-scenarios.md) ✅ Comprehensive test data
+- [Validation Reports](./reports/PER-007-validation-report.md) 📄
 
 ### Technische Documentatie
 - Services Dependency Analysis (verplaatst naar technisch/) ✅
