@@ -225,14 +225,50 @@ ruff check --fix src config
 black src config
 ```
 
-## Agent Guidelines
+## Agent Guidelines & Workflow Selection
 
+### Workflow Types (Right-sized for each task)
+Choose the appropriate workflow based on task type:
+
+**Quick Workflows (15-30 min)**
+- **DOCUMENTATION**: For docs/README updates
+- **MAINTENANCE**: For config/dependency updates
+- **ANALYSIS**: For code investigation without changes
+
+**Medium Workflows (30-90 min)**
+- **REVIEW_CYCLE**: For code reviews only
+- **DEBUG**: For bug investigation and fixes
+- **HOTFIX**: For critical production issues
+
+**Extended Workflows (1-4 hours)**
+- **REFACTOR_ONLY**: For code cleanup without behavior changes
+- **SPIKE**: For technical research and POCs
+- **FULL_TDD**: For complete feature development
+
+### Agent Usage
 When using specialized agents:
 - **justice-architecture-designer**: For EA/SA/TA documentation
 - **refactor-specialist**: For code optimization and cleanup
-- **code-reviewer-comprehensive**: After implementing features
+- **code-reviewer-comprehensive**: For code reviews and PR analysis
 - **quality-assurance-tester**: For test creation and maintenance
-- **tdd-orchestrator**: For story implementation with TDD workflow
+- **business-analyst-justice**: For requirements and user stories
+- **developer-implementer**: For code implementation
+- **doc-standards-guardian**: For documentation compliance
+
+### Workflow Selection Examples
+```bash
+# For documentation updates (15-30 min)
+# Use DOCUMENTATION workflow - no tests needed
+
+# For bug fixes (30-90 min)
+# Use DEBUG workflow - reproduce → diagnose → fix → verify
+
+# For new features (2-4 hours)
+# Use FULL_TDD workflow - complete 8-phase process
+
+# For code review only (30-60 min)
+# Use REVIEW_CYCLE - no implementation phase
+```
 
 ## \ud83d\udeab KRITIEKE REGELS VOOR CLAUDE/AI AGENTS
 
@@ -267,6 +303,19 @@ cat docs/guidelines/CANONICAL_LOCATIONS.md
 # STAP 4: Maak aan op JUISTE locatie met frontmatter
 # STAP 5: Update INDEX.md
 ```
+
+## Claude Agent Configuration
+
+### Available Agents Location
+Claude agents are configured in `~/.claude/agents/`:
+- **Agent prompts**: Individual `.md` files per agent
+- **Workflow definitions**: `workflows/workflows.yaml`
+- **Configuration**: See `~/.claude/agents/README.md`
+
+### Workflow Selection Principle
+> **"Right-size the process for the task at hand"**
+>
+> Not every task needs a heavy 8-phase TDD workflow. Choose the lightest appropriate workflow.
 
 ## Documentation References
 
