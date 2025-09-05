@@ -60,7 +60,8 @@ repos:
         language: system
         pass_filenames: true
         files: 'docs/.*\.md$'
-        exclude: 'docs/(archief|archive)/'
+        # Exclude archived/review dirs case-insensitive
+        exclude: '(?i)docs/(archief|archive|reviews)/'
 
   - repo: local
     hooks:
