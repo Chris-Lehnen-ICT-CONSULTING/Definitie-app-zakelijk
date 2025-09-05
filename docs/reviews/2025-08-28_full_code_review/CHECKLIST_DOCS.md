@@ -89,12 +89,7 @@ Regel: vink een document pas af als het voorstel + acceptatiecriteria in `CODE_R
 - [ ] [docs/architectuur/ARCHITECTURE_GOVERNANCE.md](CODE_REVIEW_REPORT.md#docs-architectuur-architecture_governance-md)
 - [ ] [docs/architectuur/architecture-data.json](CODE_REVIEW_REPORT.md#docs-architectuur-architecture-data-json)
 - [ ] [docs/architectuur/architecture-viewer.html](CODE_REVIEW_REPORT.md#docs-architectuur-architecture-viewer-html)
-- [ ] [docs/architectuur/beslissingen/ADR-001-monolithische-structuur.md](CODE_REVIEW_REPORT.md#docs-architectuur-beslissingen-adr-001-monolithische-structuur-md)
-- [ ] [docs/architectuur/beslissingen/ADR-002-features-first-development.md](CODE_REVIEW_REPORT.md#docs-architectuur-beslissingen-adr-002-features-first-development-md)
-- [ ] [docs/architectuur/beslissingen/ADR-003-legacy-code-als-specificatie.md](CODE_REVIEW_REPORT.md#docs-architectuur-beslissingen-adr-003-legacy-code-als-specificatie-md)
-- [ ] [docs/architectuur/beslissingen/ADR-004-incrementele-migratie-strategie.md](CODE_REVIEW_REPORT.md#docs-architectuur-beslissingen-adr-004-incrementele-migratie-strategie-md)
-- [ ] [docs/architectuur/beslissingen/ADR-005-service-architecture-evolution.md](CODE_REVIEW_REPORT.md#docs-architectuur-beslissingen-adr-005-service-architecture-evolution-md)
-- [ ] [docs/architectuur/beslissingen/README.md](CODE_REVIEW_REPORT.md#docs-architectuur-beslissingen-readme-md)
+<!-- ADR documenten gearchiveerd - beslissingen geïntegreerd in canonical architecture documenten -->
 - [ ] [docs/architectuur/CATEGORY-REFACTORING-PLAN.md](CODE_REVIEW_REPORT.md#docs-architectuur-category-refactoring-plan-md)
 - [ ] [docs/architectuur/cleaning-ui-technical-spec.md](CODE_REVIEW_REPORT.md#docs-architectuur-cleaning-ui-technical-spec-md)
 - [ ] [docs/architectuur/CONFIGURATIE_SYSTEEM_AUDIT.md](CODE_REVIEW_REPORT.md#docs-architectuur-configuratie_systeem_audit-md)

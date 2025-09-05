@@ -1,5 +1,39 @@
 # Refactor Log
 
+## 2025-09-05: Broken References Cleanup - Architecture Consolidatie
+
+### Probleem
+Na de architectuur consolidatie waren er 15+ broken references naar niet-bestaande directories en gearchiveerde bestanden, met name `/docs/architectuur/beslissingen/` die niet meer bestaat.
+
+### Uitgevoerde fixes:
+1. **Canonical Architecture Documenten** (3 files, 5 fixes)
+   - ENTERPRISE_ARCHITECTURE.md: ADR directory reference verwijderd
+   - SOLUTION_ARCHITECTURE.md: ADR directory reference verwijderd
+   - TECHNICAL_ARCHITECTURE.md: 4 broken file links gefixt
+
+2. **Guidelines & Workflows** (5 files, 6 fixes)
+   - CANONICAL_LOCATIONS.md: Status bijgewerkt naar "Gearchiveerd"
+   - DOCUMENT-CREATION-WORKFLOW.md: ADR locatie bijgewerkt
+   - validation_orchestrator_rollout.md: Parent references gefixt
+   - validation_orchestrator_implementation.md: Parent reference gefixt
+
+3. **Review & Log Documenten** (2 files, 4 fixes)
+   - CHECKLIST_DOCS.md: 6 ADR references bulk verwijderd
+   - refactor-log.md: Archivering notities toegevoegd
+
+### Verificatie:
+```bash
+# Geen remaining broken beslissingen/ references
+grep -r "beslissingen/" docs/ --include="*.md" | grep -v "gearchiveerd" | grep -v "#" # Returns: 0 results
+```
+
+### Documentatie:
+- Created: `/docs/REFERENCE_FIXES_LOG.md` met alle 15 fixes gedocumenteerd
+- Totaal geanalyseerde bestanden: 50+
+- Alle fixes voorzien van explanatory comments
+
+---
+
 ## 2025-09-03: Story 3.1 - Metadata Sources Visibility Fix
 
 ### Probleem
@@ -176,8 +210,8 @@ Unnecessary LegacyGenerationResult wrapper that broke metadata["sources"] access
 **Files Involved**:
 - `/docs/architectuur/PER-007-*.md` (4 files)
 - `/docs/architectuur/CFR-*.md` (6 files)
-- `/docs/architectuur/beslissingen/ADR-CFR-001.md`
-- `/docs/architectuur/beslissingen/ADR-PER-007.md`
+- `~/docs/architectuur/beslissingen/ADR-CFR-001.md` (gearchiveerd - geïntegreerd in canonical docs)
+- `~/docs/architectuur/beslissingen/ADR-PER-007.md` (gearchiveerd - geïntegreerd in canonical docs)
 
 **Code Smell**: Documentation duplication and fragmentation
 
@@ -217,7 +251,7 @@ Created `ASTRAValidator` with:
 
 ### Files Created/Modified
 - Created: `/docs/architectuur/CFR-CONSOLIDATED-REFACTOR-PLAN.md`
-- Created: `/docs/architectuur/beslissingen/ADR-016-context-flow-consolidated.md`
+- Created: `~/docs/architectuur/beslissingen/ADR-016-context-flow-consolidated.md` (later gearchiveerd)
 - Created: `/src/ui/components/enhanced_context_selector.py`
 - Created: `/src/services/validation/astra_validator.py`
 - Created: `/docs/architectuur/archive-cfr-docs.sh` (archiving script)

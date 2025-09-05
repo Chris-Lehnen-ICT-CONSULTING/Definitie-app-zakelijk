@@ -5,7 +5,7 @@ document: Validation Orchestrator Rollout Runbook
 version: 1.0
 status: DRAFT
 type: Runbook
-parent: validation_orchestrator_v2.md
+parent: # validation_orchestrator_v2.md (gearchiveerd)
 related:
   - validation_result_contract.md
   - error_catalog_validation.md
@@ -391,7 +391,7 @@ Updates:
 4. **L4**: CTO (>60 min)
 
 ## Related Documents
-- **Parent**: [Validation Orchestrator V2](../architecture/validation_orchestrator_v2.md)
+<!-- Validation Orchestrator V2 document gearchiveerd - functionaliteit gedocumenteerd in TECHNICAL_ARCHITECTURE.md -->
 - **Contract**: [ValidationResult Contract](../architecture/contracts/validation_result_contract.md)
 - **Errors**: [Error Catalog](../technisch/error_catalog_validation.md)
 - **Testing**: [Golden Dataset](../testing/golden-dataset-validation.md)
