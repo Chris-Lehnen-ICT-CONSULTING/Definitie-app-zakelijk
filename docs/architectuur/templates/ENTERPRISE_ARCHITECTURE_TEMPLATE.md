@@ -428,10 +428,10 @@ gantt
 ## 8. References
 
 ### Internal Documentation
-- [Solution Architecture](SOLUTION_ARCHITECTURE.md) - Detailed solution design
-- [Technical Architecture](TECHNICAL_ARCHITECTURE.md) - Implementation details
-- [User Stories](../stories/MASTER-EPICS-USER-STORIES.md) - Functional requirements
-- [Test Strategy](../testing/TEST_STRATEGY.md) - Quality assurance approach
+- [Solution Architecture](../SOLUTION_ARCHITECTURE.md) - Detailed solution design
+- [Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementation details
+- [User Stories](../../stories/MASTER-EPICS-USER-STORIES.md) - Functional requirements
+- Test Strategy - Quality assurance approach (document in planning)
 
 ### External Standards
 - [ASTRA Framework](https://astra.justice.nl) - Justice architecture standards

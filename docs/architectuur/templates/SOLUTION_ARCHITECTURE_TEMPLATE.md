@@ -761,10 +761,10 @@ spec:
 ## 9. References
 
 ### Internal Documentation
-- [Enterprise Architecture](ENTERPRISE_ARCHITECTURE.md) - Business context and capabilities
-- [Technical Architecture](TECHNICAL_ARCHITECTURE.md) - Implementation details
-- [Test Strategy](../testing/TEST_STRATEGY.md) - Testing approach
-- [API Documentation](../technische-referentie/api/) - Detailed API specs
+- [Enterprise Architecture](../ENTERPRISE_ARCHITECTURE.md) - Business context and capabilities
+- [Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementation details
+- Test Strategy - Testing approach (document in planning)
+- API Documentation - Detailed API specs (see /docs/technisch/ for technical docs)
 
 ### Architecture Decisions
 <!-- ADRs zijn geïntegreerd in de canonical architecture documenten -->

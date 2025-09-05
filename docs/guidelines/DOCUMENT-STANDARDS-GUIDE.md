@@ -275,9 +275,9 @@ class ValidationOrchestrator:
 
 ### 4.5 Reference Links
 ```markdown
-Internal: [Component Name](../category/document.md#section)
+Internal: [Component Name](#section) (use relative anchors for internal references)
 External: [ASTRA Guidelines](https://astra.justice.nl)
-Cross-ref: See [SA § 3.2](SOLUTION_ARCHITECTURE.md#32-service-design)
+Cross-ref: See [SA § 3.2](../architectuur/SOLUTION_ARCHITECTURE.md)
 ```
 
 ## 5. Content Standards
@@ -323,10 +323,10 @@ Every canonical document MUST include:
 ```markdown
 ## Related Documentation
 
-- **Enterprise View**: See [EA § 2.1](ENTERPRISE_ARCHITECTURE.md#21-organisational-context)
-- **Implementation**: See [TA § 3.1](TECHNICAL_ARCHITECTURE.md#31-component-model)
-- **Testing**: See [Test Strategy](../testing/TEST_STRATEGY.md)
-- **Requirements**: See [US-001](../stories/MASTER-EPICS-USER-STORIES.md#us-001)
+- **Enterprise View**: See [EA § 2.1](../architectuur/ENTERPRISE_ARCHITECTURE.md)
+- **Implementation**: See [TA § 3.1](../architectuur/TECHNICAL_ARCHITECTURE.md)
+- **Testing**: See Test Strategy (document in planning)
+- **Requirements**: See [US-001](../stories/MASTER-EPICS-USER-STORIES.md)
 ```
 
 ## 6. Validation Rules
@@ -526,8 +526,8 @@ python scripts/migration_report.py
 ## 12. References
 
 ### Internal Documents
-- [DOCUMENTATION_POLICY.md](../DOCUMENTATION_POLICY.md)
-- [CANONICAL_LOCATIONS.md](../CANONICAL_LOCATIONS.md)
+- [DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md)
+- [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md)
 - [INDEX.md](../INDEX.md)
 - [MASTER-EPICS-USER-STORIES.md](../stories/MASTER-EPICS-USER-STORIES.md)
 

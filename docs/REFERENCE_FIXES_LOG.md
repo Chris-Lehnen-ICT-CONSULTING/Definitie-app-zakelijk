@@ -55,15 +55,15 @@ Dit document bevat een gedetailleerd overzicht van alle gefikste broken referenc
 
 #### Fix 1 (Lines 2110-2111):
 - **Oud**:
-  - `[Service Container Design](../technisch/service-container.md)`
-  - `[V2 Migration Plan](./workflows/v2-migration-workflow.md)`
+  - Service Container Design - integrated into Technical Architecture
+  - V2 Migration Plan - integrated into Solution Architecture
 - **Nieuw**: Comments toegevoegd over niet-beschikbare documenten
 - **Reden**: Bestanden bestaan niet op deze locaties
 
 #### Fix 2 (Lines 2702-2703):
 - **Oud**:
-  - `[ADR-PER-007](./beslissingen/ADR-PER-007-presentation-data-separation.md)`
-  - `[Migration Strategy](./V2_AI_SERVICE_MIGRATIE_ANALYSE.md)`
+  - ADR-PER-007 - archived at /docs/archief/2025-09-architectuur-consolidatie/
+  - Migration Strategy - integrated into Technical Architecture
 - **Nieuw**: Comments over archivering toegevoegd
 - **Reden**: ADR geïntegreerd, migration strategy gearchiveerd
 

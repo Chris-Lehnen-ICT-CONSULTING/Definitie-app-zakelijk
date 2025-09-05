@@ -71,9 +71,9 @@ User stories en epics
 
 ## 🎯 Belangrijke Documenten
 
-- [MASTER-TODO.md](../MASTER-TODO.md) - Alle taken en planning
-- [Validation Rules](./reference/validation-rules/validation-rules.md) - 46 toetsregels
-- [6-Stappen Protocol](./reference/ontology/ontologie-6-stappen.md) - Definitie methodologie
+- Master TODO - Taken en planning (integrated in stories)
+- Validation Rules - 46 toetsregels (see config/toetsregels/)
+- 6-Stappen Protocol - Definitie methodologie (archived)
 
 ## ✅ Consolidatie Status (September 2025)
 
