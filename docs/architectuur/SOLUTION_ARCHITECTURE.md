@@ -519,9 +519,294 @@ def test_no_ui_dependencies():
 
 ---
 
-## 2. Technical Design
+## 2. PER-007/CFR Context Flow Refactoring - Single Source of Truth
 
-### 2.1 Technology Stack
+### 2.1 Critical Context Flow Architecture
+
+This section implements the consolidated PER-007 and CFR fixes for context flow management, establishing `DefinitionGeneratorContext` as the canonical Single Source of Truth for all context data flow.
+
+#### 2.1.1 Unified Stateless Architecture
+
+```mermaid
+graph LR
+    subgraph "Stateless Single Path Architecture"
+        UI[UI Components] -->|1. Parameters| FAC[UI Facade]
+        FAC -->|2. Data Object| REQ[GenerationRequest]
+        REQ -->|3. Transform| DGC[DefinitionGeneratorContext]
+        DGC -->|4. Enrich| EC[EnrichedContext]
+        EC -->|5. Build| PROMPT[Modular Prompts]
+        PROMPT -->|6. Generate| AI[AI Service]
+    end
+
+    subgraph "Data Services (No State)"
+        DAS[DataAggregationService]
+        REP[(Repository)]
+        DAS --> REP
+    end
+
+    FAC -.->|Get Previous| DAS
+    DGC -->|Store| DAS
+
+    style DGC fill:#4CAF50,stroke:#2E7D32,stroke-width:3px
+    style EC fill:#4CAF50,stroke:#2E7D32,stroke-width:3px
+    style DAS fill:#2196F3,stroke:#1976D2,stroke-width:2px
+```
+
+#### 2.1.2 Core Data Structures - THE Single Source of Truth
+
+```python
+@dataclass
+class DefinitionGeneratorContext:
+    """Single Source of Truth for context data - NO UI dependencies.
+
+    CRITICAL: This is the ONLY structure allowed to carry context data
+    through the system. UI preview strings are FORBIDDEN as data sources.
+    """
+    organisatorisch: List[str]  # e.g., ["OM", "DJI", "Rechtspraak"]
+    juridisch: List[str]        # e.g., ["Strafrecht", "Bestuursrecht"]
+    wettelijk: List[str]        # e.g., ["Sv", "Sr", "Awb"]
+    custom_entries: Dict[str, List[str]]  # User-defined entries
+    metadata: Dict[str, Any]    # Processing metadata
+
+    def validate(self) -> ValidationResult:
+        """Ensure all three context fields are properly populated."""
+        warnings = []
+        if not self.organisatorisch:
+            warnings.append("Organisatorische context ontbreekt")
+        if not self.juridisch:
+            warnings.append("Juridische context ontbreekt")
+        if not self.wettelijk:
+            warnings.append("Wettelijke basis ontbreekt")
+        return ValidationResult(
+            is_valid=len(warnings) == 0,
+            warnings=warnings
+        )
+
+@dataclass
+class EnrichedContext:
+    """Enriched context after aggregation and validation."""
+    base_context: DefinitionGeneratorContext
+    previous_definitions: List[str]
+    domain_knowledge: Dict[str, Any]
+    validation_warnings: List[str]
+    astra_suggestions: List[str]
+    processing_metadata: Dict[str, Any]
+
+    def to_prompt_context(self) -> Dict[str, Any]:
+        """Convert to prompt-ready format."""
+        return {
+            'organisatorisch': self.base_context.organisatorisch,
+            'juridisch': self.base_context.juridisch,
+            'wettelijk': self.base_context.wettelijk,
+            'previous': self.previous_definitions[:5],
+            'warnings': self.validation_warnings
+        }
+```
+
+#### 2.1.3 DataAggregationService Implementation
+
+```python
+class DataAggregationService:
+    """Centralizes data collection WITHOUT session state.
+
+    MERGE POLICY:
+    1. UI values have priority over DB values
+    2. Order-preserving deduplication (first occurrence wins)
+    3. Canonicalization of known entities (OM, DJI, etc.)
+    4. Max 10 items per context type
+    5. Max 120 chars per item
+
+    FALLBACK STRATEGY:
+    - DB unavailable: Use empty context, log warning
+    - Empty history: Return default empty ContextData
+    - Cache TTL: 5 minutes for performance
+    """
+
+    def __init__(self,
+                 repository: DefinitionRepository,
+                 cache_service: Optional[CacheService] = None):
+        self.repository = repository
+        self.cache = cache_service
+        self.merge_policy = MergePolicy()
+
+    def aggregate_for_generation(
+        self,
+        request: GenerationRequest,
+        previous_context: Optional[ContextData] = None
+    ) -> EnrichedContext:
+        """Aggregate all context data into EnrichedContext.
+
+        CONTRACT:
+        - Input: GenerationRequest from UI
+        - Output: EnrichedContext for prompt building
+        - No side effects, pure transformation
+        """
+        # Create base context from request
+        base_context = DefinitionGeneratorContext(
+            organisatorisch=request.organisatorisch_context or [],
+            juridisch=request.juridisch_context or [],
+            wettelijk=request.wettelijke_basis or [],
+            custom_entries=request.custom_entries or {},
+            metadata={'source': 'user_input', 'timestamp': datetime.now()}
+        )
+
+        # Merge with previous context if available
+        if previous_context:
+            base_context = self.merge_policy.merge(base_context, previous_context)
+
+        # Validate context completeness
+        validation_result = base_context.validate()
+
+        # Enrich with domain knowledge
+        enriched = EnrichedContext(
+            base_context=base_context,
+            previous_definitions=self._get_recent_definitions(request.term),
+            domain_knowledge=self._get_domain_knowledge(base_context),
+            validation_warnings=validation_result.warnings,
+            astra_suggestions=self._get_astra_suggestions(base_context),
+            processing_metadata={
+                'enrichment_timestamp': datetime.now(),
+                'validation_status': validation_result.is_valid
+            }
+        )
+
+        return enriched
+```
+
+#### 2.1.4 PromptServiceV2 - Context Consumer Only
+
+```python
+class PromptServiceV2:
+    """Prompt builder that ONLY consumes EnrichedContext.
+    NO context building or conversion allowed.
+
+    CRITICAL RULES:
+    1. NEVER parse UI preview strings
+    2. NEVER convert GenerationRequest directly
+    3. ALWAYS use EnrichedContext as input
+    4. NO emojis in prompt generation
+    """
+
+    def __init__(self, context_formatter: ContextFormatter):
+        self.formatter = context_formatter
+        # NO data service, NO context builder!
+
+    def build_generation_prompt(
+        self,
+        enriched_context: EnrichedContext,
+        template: str = "default"
+    ) -> str:
+        """Build prompt from EnrichedContext ONLY.
+
+        CONTRACT:
+        - Input: EnrichedContext (never GenerationRequest)
+        - Output: Formatted prompt string
+        - NO context conversion or mapping
+        """
+        # Format context for prompt (no emojis, with limits)
+        context_section = self.formatter.format(
+            enriched_context,
+            style='prompt',
+            options={
+                'max_items': 10,
+                'max_length': 120,
+                'escape_special': True,
+                'include_warnings': False,
+                'no_emojis': True  # CRITICAL: No UI emojis in prompts
+            }
+        )
+
+        # Build prompt from template with ALL THREE context fields
+        prompt_parts = [
+            f"Organisatorische context: {', '.join(enriched_context.base_context.organisatorisch)}",
+            f"Juridische context: {', '.join(enriched_context.base_context.juridisch)}",
+            f"Wettelijke basis: {', '.join(enriched_context.base_context.wettelijk)}",
+            "",
+            self._apply_template(template, context_section)
+        ]
+
+        return "\n".join(prompt_parts)
+```
+
+#### 2.1.5 "Anders..." UI Solution WITHOUT Session State
+
+```python
+class StatelessContextSelector:
+    """Context selector WITHOUT session state dependencies."""
+
+    def render_multiselect_with_custom(
+        self,
+        field_name: str,
+        options: List[str],
+        label: str,
+        current_values: List[str] = None
+    ) -> List[str]:
+        """Render multiselect with "Anders..." option WITHOUT session state.
+
+        Returns the complete list of selected values including custom entries.
+        NO parsing of UI preview strings allowed.
+        """
+        if current_values is None:
+            current_values = []
+
+        # Separate custom entries from standard options
+        custom_entries = [v for v in current_values if v not in options]
+        standard_selections = [v for v in current_values if v in options]
+
+        # Display options include custom entries and "Anders..." trigger
+        display_options = options + custom_entries
+        if "Anders..." not in display_options:
+            display_options.append("Anders...")
+
+        # Render multiselect with current values
+        selected = st.multiselect(
+            label=label,
+            options=display_options,
+            default=standard_selections + custom_entries
+        )
+
+        # Handle "Anders..." selection
+        if "Anders..." in selected:
+            custom_input = st.text_input(
+                f"Voer custom {field_name} in:",
+                key=f"custom_{field_name}_input"
+            )
+            if custom_input and st.button(f"Voeg toe", key=f"add_{field_name}"):
+                selected.remove("Anders...")
+                selected.append(custom_input.strip())
+
+        # Return clean list without "Anders..." marker
+        return [s for s in selected if s != "Anders..."]
+```
+
+#### 2.1.6 Forbidden Patterns and Linting Rules
+
+```python
+# FORBIDDEN patterns (enforced via linting):
+# ruff.toml
+[tool.ruff.lint.flake8-tidy-imports]
+banned-modules = [
+    "services.context_manager",  # Deprecated
+    "services.prompt_context",   # Deprecated
+    "generation.context_builder", # Deprecated
+    "utils.session_state_manager", # ELIMINATED
+    "streamlit.session_state:services.*"  # Banned in services
+]
+
+# Additional CI checks
+[tool.custom.guards]
+forbidden_patterns = [
+    {pattern = "📋|⚖️|📜", files = "src/services/**/*.py", message = "UI emojis in services"},
+    {pattern = "parse.*preview.*string", files = "src/**/*.py", message = "Parsing UI preview strings"},
+    {pattern = "split.*\\|", files = "src/services/**/*.py", message = "Splitting UI formatted strings"}
+]
+```
+
+---
+
+## 3. Technical Design
+
+### 3.1 Technology Stack
 
 #### Core Technologies
 | Layer | Current (AS-IS) | Target (TO-BE) | Migration Effort |
@@ -2496,7 +2781,7 @@ No auth               →    OAuth Module       →    Auth Service
 - **Enterprise Architecture**: → [EA Document](/docs/architectuur/ENTERPRISE_ARCHITECTURE.md)
 - **API Documentation**: https://api.definitieagent.nl/docs
 - **Runbooks**: /docs/runbooks/
-- **ADRs**: /docs/architectuur/beslissingen/
+<!-- ADR directory niet meer beschikbaar na consolidatie - ADRs zijn geïntegreerd in de canonical architecture documenten -->
 
 ### External Resources
 - **FastAPI**: https://fastapi.tiangolo.com/
