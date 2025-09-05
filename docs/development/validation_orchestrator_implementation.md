@@ -5,7 +5,7 @@ document: Validation Orchestrator Implementation Guide
 version: 0.1
 status: DRAFT
 type: Developer Guide
-parent: ../architecture/validation_orchestrator_v2.md
+parent: # ../architecture/validation_orchestrator_v2.md (gearchiveerd)
 related:
   - ../architecture/contracts/validation_result_contract.md
   - ../architecture/contracts/schemas/validation_result.schema.json
