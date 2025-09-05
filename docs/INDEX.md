@@ -21,7 +21,7 @@
 - [Project Brief](./brief.md) ✅
 - [Requirements Compleet](./requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
 - **[MASTER EPICS & USER STORIES](./stories/MASTER-EPICS-USER-STORIES.md)** 🆕 **SINGLE SOURCE OF TRUTH**
-  - **[Epic CFR: Context Flow Refactoring](./stories/MASTER-EPICS-USER-STORIES.md#epic-cfr-context-flow-refactoring)** 🚨 **CRITICAL**
+  - **[Epic CFR: Context Flow Refactoring](./stories/MASTER-EPICS-USER-STORIES.md)** 🚨 **CRITICAL**
 - [User Stories](./stories/MASTER-EPICS-USER-STORIES.md) 📁
 
 ### Guidelines & Standards 📋
@@ -58,7 +58,7 @@
 - [Technical Architecture Template](./architectuur/templates/TECHNICAL_ARCHITECTURE_TEMPLATE.md) - TA template
 
 #### Active Components & Planning
-- [Consolidated Refactor Plan](./architectuur/CFR-CONSOLIDATED-REFACTOR-PLAN.md) ✅ Current refactoring approach
+- Consolidated Refactor Plan ✅ (Integrated into Solution Architecture)
 <!-- ADR-PER-007 is geïntegreerd in SOLUTION_ARCHITECTURE.md sectie 2 (PER-007 Context Flow) -->
 
 ### Testing & Validatie

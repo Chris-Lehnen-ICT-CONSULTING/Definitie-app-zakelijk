@@ -1679,10 +1679,10 @@ disallow_untyped_defs = true
 ## 9. References
 
 ### Internal Documentation
-- [Enterprise Architecture](ENTERPRISE_ARCHITECTURE.md) - Business capabilities and context
-- [Solution Architecture](SOLUTION_ARCHITECTURE.md) - Solution design and integration
-- [API Documentation](../technische-referentie/api/) - Detailed API specifications
-- [Test Strategy](../testing/TEST_STRATEGY.md) - Testing approach and coverage
+- [Enterprise Architecture](../ENTERPRISE_ARCHITECTURE.md) - Business capabilities and context
+- [Solution Architecture](../SOLUTION_ARCHITECTURE.md) - Solution design and integration
+- API Documentation - Detailed API specifications (see /docs/technisch/ for technical docs)
+- Test Strategy - Testing approach and coverage (document in planning)
 
 ### Technical References
 - [Python Documentation](https://docs.python.org/3.11/) - Python 3.11 reference
