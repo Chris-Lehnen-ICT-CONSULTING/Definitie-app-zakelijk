@@ -31,6 +31,8 @@
 - [Document Standards Guide](./guidelines/DOCUMENT-STANDARDS-GUIDE.md) ✅ Documentation guidelines
 - [Agents Documentation](./guidelines/AGENTS.md) ✅ Agent guidelines
 - [TDD to Deployment Workflow](./guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md) ✅ Development workflow
+- [Workflow Library](./guidelines/WORKFLOW_LIBRARY.md) ✅ Multiple targeted workflows
+- [Workflow Routing](./guidelines/WORKFLOW_ROUTING.md) ✅ How to pick the right one
 - [AI Configuration Guide](./guidelines/AI_CONFIGURATION_GUIDE.md) ✅ AI setup guide
 
 ### 🔧 Maintenance & Updates
