@@ -1,0 +1,499 @@
+# TDD to Deployment Workflow
+
+## Version
+- **Version**: 2.0.0
+- **Last Updated**: 2025-01-30
+- **Status**: Active
+- **Owner**: tdd-orchestrator
+
+## Overview
+This document describes the complete workflow from TDD development to production deployment using the orchestrated agent system. It serves as the **single source of truth** for all workflow execution.
+
+## 📦 Work Unit Definition
+
+### What Constitutes a Work Unit
+A **work unit** is a logically complete, self-contained piece of work that delivers value:
+
+#### Valid Work Units ✅
+- **User Story**: Complete feature implementation (e.g., "US-034: Add user registration")
+- **Bug Fix**: Complete issue resolution (e.g., "BUG-001: Fix login timeout")
+- **Feature**: Standalone functionality (e.g., "FEAT-012: Add dark mode")
+- **Refactoring**: Complete code improvement (e.g., "REF-005: Extract payment service")
+
+#### NOT Work Units ❌
+- Single lines of code
+- Incomplete implementations
+- Random code fragments
+- Work in progress
+
+### Work Unit Classification
+
+#### CODE (Requires Full TDD Workflow)
+```yaml
+requires_tdd:
+  - Python files (*.py)
+  - Config files affecting app behavior (*.yaml, *.json)
+  - SQL/Database schemas
+  - API endpoints
+  - Business logic
+  - UI components
+  - Test files
+```
+
+#### DOCUMENTATION (Direct Update Allowed)
+```yaml
+skip_tdd:
+  - Markdown files (*.md)
+  - README updates
+  - Comments/docstrings
+  - Architecture diagrams
+  - User guides
+  - CHANGELOG (unless auto-generated)
+```
+
+## Workflow Diagram
+
+```
+Work Unit Created
+        ↓
+TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR → TEST-CONFIRM → DONE
+                                                                                         ↓
+                                                            DevOps Pipeline Orchestrator
+                                                                                         ↓
+                                                    BRANCH → COMMIT → PR → CI → RELEASE → DEPLOY → MONITOR
+```
+
+## Phase 1: TDD Development (TDD Orchestrator)
+
+### 1.1 TODO → ANALYSIS
+- **Agent**: business-analyst-justice
+- **Trigger**: Work unit created with ID
+- **Tasks**:
+  1. Analyze complete requirement
+  2. Create user story with SMART criteria
+  3. Define acceptance criteria (Given-When-Then)
+  4. Document domain rules and constraints
+- **Output**:
+  - User story in `docs/stories/MASTER-EPICS-USER-STORIES.md`
+  - Format: As a [role], I want [feature], so that [benefit]
+- **Gate Conditions**:
+  - [ ] User story has unique ID
+  - [ ] All SMART criteria defined (Specific, Measurable, Achievable, Relevant, Time-bound)
+  - [ ] Acceptance criteria in BDD format
+  - [ ] Domain rules documented
+- **Duration**: ~15 minutes
+
+### 1.2 ANALYSIS → DESIGN
+- **Agent**: justice-architecture-designer
+- **Prerequisite**: ANALYSIS phase complete
+- **Tasks**:
+  1. Create/update Enterprise Architecture (EA)
+  2. Design Solution Architecture (SA)
+  3. Define Technical Architecture (TA)
+  4. Specify API contracts
+  5. Define component boundaries
+- **Output**:
+  - EA documentation in `docs/architectuur/EA.md#<ID>`
+  - SA documentation in `docs/architectuur/SA.md#<ID>`
+  - TA documentation in `docs/architectuur/TA.md#<ID>`
+- **Gate Conditions**:
+  - [ ] All three architecture layers documented
+  - [ ] API contracts defined (if applicable)
+  - [ ] Component interfaces specified
+  - [ ] Non-functional requirements listed
+  - [ ] ASTRA/NORA compliance checked
+- **Duration**: ~20 minutes
+
+### 1.3 DESIGN → TEST-RED
+- **Agent**: quality-assurance-tester
+- **Prerequisite**: DESIGN phase complete
+- **Critical Rule**: Tests MUST fail initially
+- **Tasks**:
+  1. Write failing unit tests
+  2. Write failing integration tests
+  3. Cover all acceptance criteria
+  4. Include edge cases
+  5. Use AAA pattern (Arrange-Act-Assert)
+- **Output**:
+  - Test files in `tests/unit/test_<ID>_*.py`
+  - Test files in `tests/integration/test_<ID>_*.py`
+- **Commit**: `test(<ID>): add failing tests for <description>`
+- **Gate Conditions**:
+  - [ ] All tests written before implementation
+  - [ ] Tests fail as expected (RED state)
+  - [ ] Coverage for all acceptance criteria
+  - [ ] Edge cases included
+  - [ ] Commit made with correct format
+- **Duration**: ~25 minutes
+
+### 1.4 TEST-RED → DEV-GREEN
+- **Agent**: developer-implementer
+- **Prerequisite**: TEST-RED phase complete, tests failing
+- **Critical Rule**: Complete implementation in ONE session
+- **Tasks**:
+  1. Implement COMPLETE feature/fix
+  2. Write minimal code to pass tests
+  3. Include type hints and docstrings
+  4. No feature creep - only what's needed
+  5. Make ALL tests green
+- **Output**:
+  - Complete working code
+  - All tests passing
+- **Commit**: `feat(<ID>): implement <description>`
+- **Gate Conditions**:
+  - [ ] ALL tests green
+  - [ ] Complete implementation (no TODOs)
+  - [ ] Type hints included
+  - [ ] Docstrings added
+  - [ ] No additional features beyond scope
+  - [ ] Commit made with correct format
+- **Duration**: ~30 minutes
+
+### 1.5 DEV-GREEN → REVIEW
+- **Agent**: code-reviewer-comprehensive
+- **Prerequisite**: DEV-GREEN phase complete, all tests green
+- **Critical Rule**: Review only, NO code changes
+- **Tasks**:
+  1. Review against 7-point checklist:
+     - Correctness & Logic
+     - Test Coverage
+     - Security & Privacy
+     - Performance
+     - Code Style
+     - Documentation
+     - Domain Compliance
+  2. Categorize findings (🔴 Critical, 🟡 Recommendations, 🟢 Good)
+  3. Provide concrete suggestions
+- **Output**:
+  - Review report in `docs/reviews/<ID>-review.md`
+  - Verdict: APPROVED / APPROVED WITH CONDITIONS / CHANGES REQUESTED
+- **Gate Conditions**:
+  - [ ] Complete review report created
+  - [ ] No 🔴 critical blocking issues
+  - [ ] All checklist items evaluated
+  - [ ] Concrete suggestions provided
+  - [ ] Verdict clearly stated
+- **Duration**: ~15 minutes
+
+### 1.6 REVIEW → REFACTOR
+- **Agent**: refactor-specialist
+- **Prerequisite**: REVIEW phase complete, no blocking issues
+- **Tasks**:
+  1. Implement micro-refactors only
+  2. Improve code quality
+  3. Preserve exact behavior
+  4. Update refactor log
+  5. Keep tests green
+- **Output**:
+  - Optimized code (if needed)
+  - Entry in `docs/refactor-log.md`
+- **Commit**: `refactor(<ID>): <specific improvement>` (if changes made)
+- **Gate Conditions**:
+  - [ ] Tests still green
+  - [ ] Behavior unchanged
+  - [ ] Refactor log updated
+  - [ ] Only micro-refactors applied
+  - [ ] Commit made if changes applied
+- **Duration**: ~20 minutes
+
+### 1.7 REFACTOR → TEST-CONFIRM
+- **Agent**: quality-assurance-tester
+- **Prerequisite**: REFACTOR phase complete
+- **Tasks**:
+  1. Run complete test suite
+  2. Validate coverage (target: ≥80%)
+  3. Check for regressions
+  4. Run integration tests
+  5. Update test documentation
+- **Output**:
+  - Test report with coverage metrics
+  - Update `docs/test-coverage.md`
+- **Gate Conditions**:
+  - [ ] All tests green
+  - [ ] Coverage ≥80% (60% minimum)
+  - [ ] No regressions detected
+  - [ ] Integration tests passing
+  - [ ] Performance benchmarks met
+- **Duration**: ~10 minutes
+
+### 1.8 TEST-CONFIRM → DONE
+- **Agent**: tdd-orchestrator
+- **Prerequisite**: All phases complete
+- **Tasks**:
+  1. Update story status in MASTER-EPICS-USER-STORIES.md
+  2. Update CHANGELOG.md
+  3. Verify complete artifact trail
+  4. Trigger DevOps Pipeline (if configured)
+- **Output**:
+  - Status: DONE in tracking
+  - Complete audit trail
+- **Gate Conditions**:
+  - [ ] All 7 previous phases complete
+  - [ ] All artifacts present
+  - [ ] Story status updated
+  - [ ] CHANGELOG entry added
+  - [ ] Ready for deployment
+- **Duration**: ~5 minutes
+- **Trigger**: DevOps Pipeline Orchestrator (automatic if configured)
+
+## Phase 2: Deployment Pipeline (DevOps Pipeline Orchestrator)
+
+### 2.1 BRANCH_MANAGEMENT
+- Create/update feature branch
+- Sync with main branch
+- Resolve conflicts if any
+- **Commands**:
+  ```bash
+  git checkout -b feature/<ID>
+  git rebase main
+  git push --set-upstream origin feature/<ID>
+  ```
+
+### 2.2 COMMIT_ORCHESTRATION
+- Ensure semantic commits
+- Bundle related changes
+- Sign commits if required
+- **Commands**:
+  ```bash
+  git add -A
+  git commit -m "feat(<ID>): description"
+  git push
+  ```
+
+### 2.3 PR_LIFECYCLE
+- Create pull request
+- Add comprehensive description
+- Request reviews
+- Monitor approval status
+- **Commands**:
+  ```bash
+  gh pr create --title "[<ID>] Feature" --body "$(cat PR_TEMPLATE.md)"
+  gh pr status
+  gh pr checks
+  ```
+
+### 2.4 CI_VALIDATION
+- Run complete test suite
+- Check code coverage (≥60%)
+- Run security scans
+- Validate linting
+- **Commands**:
+  ```bash
+  pytest --cov=src --cov-report=html
+  python -m ruff check src
+  python -m black --check src
+  ```
+
+### 2.5 DEPLOYMENT_PREP
+- Generate version number
+- Create changelog
+- Prepare rollback plan
+- Validate environment
+
+### 2.6 RELEASE_MANAGEMENT
+- Create release tag
+- Generate release notes
+- Create GitHub release
+- **Commands**:
+  ```bash
+  git tag -a v<version> -m "Release v<version>"
+  gh release create v<version> --title "Release v<version>"
+  ```
+
+### 2.7 DEPLOYMENT
+- Deploy to staging first
+- Run health checks
+- Deploy to production (with approval)
+- Monitor deployment
+
+### 2.8 POST_DEPLOYMENT
+- Run smoke tests
+- Monitor metrics for 30 minutes
+- Update documentation
+- Notify team
+
+## Workflow Enforcement
+
+### Violation Handling
+
+#### Type 1: Phase Skip Attempt
+```markdown
+Violation: Attempting DEV without TEST-RED
+Response: BLOCK with error
+Fix: Complete TEST-RED first
+Audit: Log violation attempt
+```
+
+#### Type 2: Incomplete Phase
+```markdown
+Violation: Moving to next phase with incomplete work
+Response: REJECT transition
+Fix: Complete current phase
+Audit: Track incomplete items
+```
+
+#### Type 3: Wrong Agent
+```markdown
+Violation: Wrong agent for phase
+Response: REDIRECT to correct agent
+Fix: Use phase-agent mapping
+Audit: Log mismatch
+```
+
+#### Type 4: Missing Work Unit
+```markdown
+Violation: Starting without ID
+Response: CREATE work unit first
+Fix: Assign ID and story
+Audit: Track orphan work
+```
+
+### Emergency Override Protocol
+
+For production hotfixes ONLY:
+```markdown
+Command: OVERRIDE <ID> <justification>
+Approval: Required from team lead
+Audit: Full trail maintained
+Post-fix: Must complete skipped phases
+```
+
+## Agent Coordination
+
+### Phase-to-Agent Mapping
+| Phase | Primary Agent | Supporting Agent |
+|-------|--------------|------------------|
+| TODO | tdd-orchestrator | - |
+| ANALYSIS | business-analyst-justice | prompt-engineer |
+| DESIGN | justice-architecture-designer | - |
+| TEST-RED | quality-assurance-tester | prompt-engineer |
+| DEV-GREEN | developer-implementer | prompt-engineer |
+| REVIEW | code-reviewer-comprehensive | - |
+| REFACTOR | refactor-specialist | - |
+| TEST-CONFIRM | quality-assurance-tester | - |
+| DONE | tdd-orchestrator | doc-standards-guardian |
+
+### Prompt Engineer Integration
+The prompt-engineer agent supports other agents by:
+- Optimizing prompts for each phase
+- Preventing hallucinations
+- Ensuring clear output formats
+- Improving token efficiency
+
+## Quality Standards
+
+### Minimum Requirements per Phase
+- **ANALYSIS**: SMART criteria present
+- **DESIGN**: All 3 architecture layers
+- **TEST-RED**: Tests failing
+- **DEV-GREEN**: Tests passing
+- **REVIEW**: No critical issues
+- **REFACTOR**: Behavior preserved
+- **TEST-CONFIRM**: Coverage ≥80%
+- **DONE**: All artifacts present
+
+### Commit Message Formats
+```
+test(<ID>): <description>      # For TEST-RED phase
+feat(<ID>): <description>       # For DEV-GREEN phase
+refactor(<ID>): <description>   # For REFACTOR phase
+fix(<ID>): <description>        # For bug fixes
+docs(<ID>): <description>       # For documentation
+```
+
+## Metrics & Monitoring
+
+### Key Performance Indicators
+- **Lead Time**: TODO → Production
+- **Cycle Time**: DEV-GREEN → Production
+- **Phase Duration**: Target vs Actual
+- **Violation Rate**: Attempts to skip phases
+- **Coverage Trend**: Must maintain or improve
+- **Deployment Success Rate**: Target >95%
+
+### Tracking Template
+```json
+{
+  "work_unit_id": "FEAT-001",
+  "type": "feature",
+  "created": "2024-01-30T10:00:00Z",
+  "current_phase": "TEST-RED",
+  "phase_durations": {
+    "ANALYSIS": "15m",
+    "DESIGN": "20m",
+    "TEST-RED": "ongoing"
+  },
+  "violations": [],
+  "coverage": null,
+  "status": "IN_PROGRESS"
+}
+```
+
+## Best Practices
+
+1. **Complete Work Units**: Never fragment implementation
+2. **Phase Completeness**: Finish entire phase before handoff
+3. **Atomic Commits**: One logical change per commit
+4. **Test First**: Always RED before GREEN
+5. **Document Everything**: Maintain full audit trail
+6. **Monitor Post-Deploy**: Watch for 30 minutes minimum
+
+## Example Workflow Execution
+
+```bash
+# User initiates work
+> "Implement user authentication feature"
+
+# TDD Orchestrator responds
+> Work Unit Created: FEAT-AUTH-001
+> Starting Phase: TODO → ANALYSIS
+
+# Phase progression
+> ANALYSIS complete (15m) → DESIGN
+> DESIGN complete (20m) → TEST-RED
+> TEST-RED complete (25m) → DEV-GREEN
+> DEV-GREEN complete (30m) → REVIEW
+> REVIEW complete (15m) → REFACTOR
+> REFACTOR complete (20m) → TEST-CONFIRM
+> TEST-CONFIRM complete (10m) → DONE
+
+# Total time: 2h 15m
+> FEAT-AUTH-001 ready for deployment
+
+# DevOps Pipeline triggered
+> Creating PR #456
+> CI validation passed
+> Deployed to production as v1.2.3
+```
+
+## Documentation Updates
+
+After workflow completion, these documents are updated:
+- `docs/stories/MASTER-EPICS-USER-STORIES.md` - Story status
+- `CHANGELOG.md` - Feature/fix entry
+- `docs/reviews/<ID>-review.md` - Review report
+- `docs/refactor-log.md` - Refactor notes
+- `docs/test-coverage.md` - Coverage metrics
+- `docs/deployments/<date>.md` - Deployment record
+
+## Rollback Procedures
+
+Automatic rollback triggers:
+1. Health check failures
+2. Smoke test failures
+3. Error rate >5% above baseline
+4. Manual intervention
+
+Rollback process:
+1. Revert to previous version
+2. Run health checks
+3. Notify team
+4. Create incident report
+5. Schedule post-mortem
+
+## References
+
+- Agent Definitions: `docs/AGENTS.md`
+- Architecture Standards: `docs/architectuur/`
+- Canonical Locations: `docs/CANONICAL_LOCATIONS.md`
+- Project Guidelines: `CLAUDE.md`

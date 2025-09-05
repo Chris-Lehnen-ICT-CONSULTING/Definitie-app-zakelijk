@@ -18,12 +18,7 @@ Zie ook: CONTRIBUTING.md → “Documentatie‑organisatie (alleen maintainers)�
 |----------|------|--------|----------------|
 | **[ENTERPRISE_ARCHITECTURE.md](./ENTERPRISE_ARCHITECTURE.md)** | Strategische business architectuur met product portfolio | ✅ Actief | 2025-08-20 |
 | **[SOLUTION_ARCHITECTURE.md](./SOLUTION_ARCHITECTURE.md)** | Technische implementatie met feature registry | ✅ Actief | 2025-08-20 |
-| **[PRODUCT_DELIVERY_TRACKER.md](./PRODUCT_DELIVERY_TRACKER.md)** | Live sprint tracking en delivery status | 🔄 Weekly | 2025-08-20 |
-| **[ARCHITECTURE_GOVERNANCE.md](./ARCHITECTURE_GOVERNANCE.md)** | Governance processen en richtlijnen | ✅ Actief | 2024-08-19 |
-| **[MIGRATION_ROADMAP.md](./MIGRATION_ROADMAP.md)** | Migratie planning naar microservices | ✅ Actief | 2024-08-19 |
-| **[GVI-implementation-plan.md](./GVI-implementation-plan.md)** | Praktische quality improvement gids ("kabels aansluiten") | ✅ Actief | 2025-08-20 |
-| **[TARGET_ARCHITECTURE.md](./TARGET_ARCHITECTURE.md)** | Doel architectuur definitie | ✅ Actief | 2024-01-18 |
-| **[CURRENT_STATE.md](./CURRENT_STATE.md)** | Huidige situatie analyse | ✅ Actief | 2024-01-18 |
+| **[TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)** | Technische implementatie details | ✅ Actief | 2025-09-04 |
 
 ## 📁 Directory Structuur
 
@@ -33,15 +28,12 @@ Zie ook: CONTRIBUTING.md → “Documentatie‑organisatie (alleen maintainers)�
 - **Solution Architecture** - Technische view met feature implementation details
 - **Product Delivery Tracker** - Sprint voortgang en blockers
 
-### [beslissingen/](./beslissingen/)
+### Architecture Decisions
 
-Architecture Decision Records (ADRs) - Belangrijke architectuur beslissingen
-
-- ADR-001: Monolithische Structuur
-- ADR-002: Features First Development
-- ADR-003: Legacy Code als Specificatie
-- ADR-004: Incrementele Migratie Strategie
-- ADR-005: Service Architecture Evolution
+Belangrijke architectuur beslissingen zijn opgenomen in de hoofddocumenten:
+- Zie ENTERPRISE_ARCHITECTURE.md sectie 5 voor strategische beslissingen
+- Zie SOLUTION_ARCHITECTURE.md sectie 7 voor solution beslissingen
+- Zie TECHNICAL_ARCHITECTURE.md sectie 3 voor technische beslissingen
 
 ### [templates/](./templates/)
 
@@ -51,19 +43,18 @@ Herbruikbare templates en voorbeelden
 - Solution Architecture Template
 - Cross-reference Guide
 
-### [_archive/](./archive/)
+### Gearchiveerde Documentatie
 
-Gearchiveerde documentatie
-
-- 2024-01-* - Eerdere analyses en reviews
-- 2025-08-20-reorganization - Duplicate documenten van reorganisatie
+Gearchiveerde documentatie is te vinden in:
+- `/docs/archief/2025-09-architectuur-consolidatie/` - Architectuur consolidatie september 2025
+- `/docs/archief/` - Oudere gearchiveerde documenten
 
 ## 🚀 Quick Start
 
 1. **Business Stakeholder?** Begin met [ENTERPRISE_ARCHITECTURE.md](./ENTERPRISE_ARCHITECTURE.md)
 2. **Developer?** Start met [SOLUTION_ARCHITECTURE.md](./SOLUTION_ARCHITECTURE.md)
-3. **Product Owner?** Check [PRODUCT_DELIVERY_TRACKER.md](./PRODUCT_DELIVERY_TRACKER.md)
-4. **Architect?** Lees [ARCHITECTURE_GOVERNANCE.md](./ARCHITECTURE_GOVERNANCE.md)
+3. **Technical Lead?** Check [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)
+4. **Architect?** Lees alle drie canonical documenten
 
 ## 📊 Product & Architectuur Status
 
@@ -92,9 +83,9 @@ Epics Status:
 
 ## 🔗 Gerelateerde Documentatie
 
-- [Module Analyses](../technische-referentie/modules/) - Gedetailleerde module documentatie
-- [Development Guide](../handleidingen/) - Implementatie handleidingen
-- [API Documentatie](../../src/services/interfaces.py) - Service interfaces
+- [Technical Documentation](../technisch/) - Technische analyses en rapporten
+- [Development Workflows](../workflows/) - Development workflows
+- [Testing Documentation](../testing/) - Test plannen en scenarios
 
 ## 📝 Conventies
 
@@ -128,9 +119,7 @@ Voor maintainers zijn er hulpscripts beschikbaar om documentatie kwaliteit te wa
 |----------|---------------|---------------|-------|
 | ENTERPRISE_ARCHITECTURE.md | 2025-08-20 | Quarterly | Enterprise Architect |
 | SOLUTION_ARCHITECTURE.md | 2025-08-20 | Sprint | Solution Architect |
-| PRODUCT_DELIVERY_TRACKER.md | 2025-08-20 | Weekly | Product Owner |
-| ARCHITECTURE_GOVERNANCE.md | 2024-08-19 | Quarterly | Architecture Board |
-| MIGRATION_ROADMAP.md | 2024-08-19 | Bi-weekly | Tech Lead |
+| TECHNICAL_ARCHITECTURE.md | 2025-09-04 | Sprint | Technical Lead |
 | ADRs | Various | As needed | Team |
 
 ## 🔄 Recente Updates (2025-08-20)
