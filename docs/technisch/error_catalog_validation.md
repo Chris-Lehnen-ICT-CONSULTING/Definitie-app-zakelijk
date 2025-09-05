@@ -11,7 +11,7 @@ related:
   - validation_orchestrator_rollout.md
   - validation_observability_privacy.md
 see-also:
-  - ../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md
+  - ../architectuur/SOLUTION_ARCHITECTURE.md
 owner: Dev Lead
 created: 2024-12-29
 updated: 2024-12-29

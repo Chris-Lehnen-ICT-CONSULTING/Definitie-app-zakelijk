@@ -12,7 +12,7 @@ related:
   - golden-dataset-validation.md
 see-also:
   - validation_observability_privacy.md
-  - ../architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md
+  - ../architectuur/SOLUTION_ARCHITECTURE.md
 owner: DevOps Lead
 created: 2024-12-29
 updated: 2024-12-29

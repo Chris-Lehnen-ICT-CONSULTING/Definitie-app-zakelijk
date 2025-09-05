@@ -767,9 +767,8 @@ spec:
 - [API Documentation](../technische-referentie/api/) - Detailed API specs
 
 ### Architecture Decisions
-- [ADR-001: Service Container Pattern](../architectuur/beslissingen/ADR-001.md)
-- [ADR-015: Context Flow Refactoring](../architectuur/beslissingen/ADR-015.md)
-- [ADR-CFR-001: Complete Flow Redesign](../architectuur/beslissingen/ADR-CFR-001.md)
+<!-- ADRs zijn geïntegreerd in de canonical architecture documenten -->
+<!-- Zie sectie 7 van het SOLUTION_ARCHITECTURE.md hoofddocument voor solution beslissingen -->
 
 ### External References
 - [ASTRA Framework](https://astra.justice.nl) - Architecture standards
