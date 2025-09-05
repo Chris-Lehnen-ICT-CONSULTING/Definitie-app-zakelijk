@@ -20,6 +20,9 @@
 - [PER-007] RED phase tests validating UI preview separation architecture decision
 - [PER-007] Performance benchmarks and anti-pattern regression tests
 - [PER-007] Automated TDD workflow script for RED-GREEN-REFACTOR cycle
+- Requirements normalisatie: 87 requirements (REQ-001 t/m REQ-087) volledig genormaliseerd en gedocumenteerd
+- Requirements traceability matrix voor volledige epic/story mapping
+- SMART criteria toegevoegd aan alle high-priority requirements
 
 ### Changed
 - **BREAKING**: Complete migration to V2-only architecture - all V1 services removed

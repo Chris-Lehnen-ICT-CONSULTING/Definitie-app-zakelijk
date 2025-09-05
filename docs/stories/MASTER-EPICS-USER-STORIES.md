@@ -37,6 +37,14 @@ This is the SINGLE SOURCE OF TRUTH for all epics and user stories in the Definit
 - Story 1.4: AI Configuration System via ConfigManager ✅ (component-specific config active)
 - Story 1.5: Centralized AI model configuration ✅ (no more hardcoded defaults)
 
+### Related Requirements
+- REQ-018: Core Definition Generation
+- REQ-038: OpenAI GPT-4 Integration
+- REQ-059: Environment-based Configuration
+- REQ-078: Data Model Definition
+- REQ-079: Data Validation and Integrity
+- REQ-082: Data Search and Indexing
+
 ---
 
 ## Epic 2: Kwaliteitstoetsing
@@ -53,6 +61,26 @@ This is the SINGLE SOURCE OF TRUTH for all epics and user stories in the Definit
 - Story 2.6: Production rollout ✅
 - Story 2.7: All 45/45 validation rules active and working ✅
 - Story 2.8: Modular validation service fully operational ✅
+
+### Related Requirements
+- REQ-016: Nederlandse Juridische Terminologie
+- REQ-017: 45 Validatieregels
+- REQ-023: ARAI Validation Rules Implementation
+- REQ-024: CON Validation Rules Implementation
+- REQ-025: ESS Validation Rules Implementation
+- REQ-026: INT Validation Rules Implementation
+- REQ-027: SAM Validation Rules Implementation
+- REQ-028: STR Validation Rules Implementation
+- REQ-029: VER Validation Rules Implementation
+- REQ-030: Rule Priority System
+- REQ-032: Validation Orchestration Flow
+- REQ-033: Rule Conflict Resolution
+- REQ-034: Custom Rule Configuration
+- REQ-068: Unit Test Coverage
+- REQ-069: Integration Testing
+- REQ-072: Test Data Management
+- REQ-074: Test Automation Framework
+- REQ-076: Regression Test Suite
 
 ---
 
@@ -89,6 +117,12 @@ So that definitions have authoritative references and context
 - Privacy: No PII in external lookups
 - Performance: Cache external results for 15 minutes
 
+### Related Requirements
+- REQ-017: 45 Validatieregels
+- REQ-020: Validation Orchestrator V2
+- REQ-039: Wikipedia API Integration
+- REQ-040: SRU (Search/Retrieve via URL) Integration
+
 ---
 
 ## Epic 4: User Interface
@@ -106,6 +140,20 @@ So that definitions have authoritative references and context
 - Story 4.2: UI performance optimization (target < 200ms response) ⏳
 - Story 4.3: Responsive design implementation ⏳
 
+### Related Requirements
+- REQ-021: Web Lookup Integration
+- REQ-048: Responsive Web Design
+- REQ-049: Dark Mode Support
+- REQ-050: Accessibility WCAG 2.1 AA Compliance
+- REQ-051: Multi-language Support
+- REQ-052: Real-time Validation Feedback
+- REQ-053: Progress Indicators
+- REQ-054: Clear Error Messaging
+- REQ-055: Inline Help Documentation
+- REQ-056: Keyboard Navigation Support
+- REQ-057: Mobile Responsive Interface
+- REQ-075: User Acceptance Testing
+
 ---
 
 ## Epic 5: Export & Import
@@ -117,6 +165,13 @@ So that definitions have authoritative references and context
 - Story 5.1: Export formats (JSON, PDF, DOCX)
 - Story 5.2: Import validation
 - Story 5.3: Batch operations
+
+### Related Requirements
+- REQ-022: Export Functionality
+- REQ-042: Export to Multiple Formats
+- REQ-043: Import from External Sources
+- REQ-083: Data Export Formats
+- REQ-084: Data Import Validation
 
 ---
 
@@ -166,6 +221,14 @@ So that configuration errors are caught early and don't cause runtime failures
 **Code References:**
 - Files affected: `src/services/container.py`, `src/services/ai_service_v2.py`
 - Key functions: `ServiceContainer.__init__()`, `AIServiceV2.validate_api_key()`
+
+### Related Requirements
+- REQ-044: Justice SSO Integration
+- REQ-045: Audit Logging System
+- REQ-047: Backup and Restore Functionality
+- REQ-063: Rate Limiting Per User
+- REQ-071: Security Testing
+- REQ-081: Data Archival Strategy
 
 ---
 
@@ -345,6 +408,25 @@ So that I can work efficiently without delays
    When approaching limits
    Then graceful degradation occurs
 
+### Related Requirements
+- REQ-019: Context Flow Integration (PER-007)
+- REQ-031: Validation Result Caching
+- REQ-035: Validation Performance Monitoring
+- REQ-036: Context-Aware Validation
+- REQ-041: Database Connection Management
+- REQ-046: Monitoring and Metrics Collection
+- REQ-058: Logging Configuration System
+- REQ-060: Health Check Endpoints
+- REQ-061: Graceful Degradation
+- REQ-062: Circuit Breaker Pattern
+- REQ-064: Scheduled Maintenance Mode
+- REQ-065: Database Migration System
+- REQ-066: Configuration Hot-reload
+- REQ-067: Service Monitoring Dashboard
+- REQ-070: Performance Testing
+- REQ-073: Continuous Integration Testing
+- REQ-077: Test Reporting and Analytics
+
 ---
 
 ## Epic 8: Web Lookup Module
@@ -365,6 +447,14 @@ So that I can work efficiently without delays
 - Story 9.4: FastAPI REST endpoints 🆕 (for external integrations)
 - Story 9.5: PostgreSQL migration 🆕 (for multi-user support)
 - Story 9.6: Multi-tenant architecture 🆕 (for organizational isolation)
+
+### Related Requirements
+- REQ-034: Custom Rule Configuration
+- REQ-037: Batch Validation Processing
+- REQ-080: Data Versioning System
+- REQ-085: PostgreSQL Migration
+- REQ-086: Multi-tenant Data Isolation
+- REQ-087: Data Analytics and Reporting
 
 ---
 
