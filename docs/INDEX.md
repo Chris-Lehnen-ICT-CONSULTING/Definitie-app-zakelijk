@@ -57,7 +57,7 @@
 
 #### Active Components & Planning
 - [Consolidated Refactor Plan](./architectuur/CFR-CONSOLIDATED-REFACTOR-PLAN.md) ✅ Current refactoring approach
-- **[ADR-PER-007: Presentation/Data Separation](./architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md)** ✅ **KEY DECISION** - UI vs Data layer
+<!-- ADR-PER-007 is geïntegreerd in SOLUTION_ARCHITECTURE.md sectie 2 (PER-007 Context Flow) -->
 
 ### Testing & Validatie
 - **PER-007 Testing** 🆕
@@ -92,7 +92,7 @@ docs/
 │   ├── SOLUTION_ARCHITECTURE.md ✅
 │   ├── TECHNICAL_ARCHITECTURE.md ✅
 │   ├── templates/       Architecture templates
-│   └── beslissingen/    ADRs en beslissingen
+│   └── (ADRs zijn geïntegreerd in EA/SA/TA docs)
 ├── 📁 guidelines/       7 project-wide guidelines ✅
 ├── 📁 stories/          User stories & epics ✅
 ├── 📁 testing/          Test plans & results

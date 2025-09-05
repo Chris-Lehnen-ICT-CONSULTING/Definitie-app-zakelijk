@@ -440,9 +440,8 @@ gantt
 - [GEMMA](https://gemmaonline.nl) - Municipal reference architecture
 
 ### Architecture Decisions
-- [ADR-001: Modular Architecture](../architectuur/beslissingen/ADR-001.md)
-- [ADR-CFR-001: Context Flow Refactoring](../architectuur/beslissingen/ADR-CFR-001.md)
-- [ADR-015: Service Consolidation](../architectuur/beslissingen/ADR-015.md)
+<!-- ADRs zijn geïntegreerd in de canonical architecture documenten -->
+<!-- Zie sectie 5 van het ENTERPRISE_ARCHITECTURE.md hoofddocument voor strategische beslissingen -->
 
 ### Glossary
 | Term | Dutch | Definition |

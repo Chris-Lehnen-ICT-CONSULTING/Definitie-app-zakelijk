@@ -63,7 +63,7 @@ Laatste update: 2025-09-05 (Architectuur Consolidatie Compleet)
   - V1/V2 migratie documenten
 - **Oude Versies**: `docs/archief/`
 - **Referentie Materiaal**: `docs/archief/REFERENTIE/`
-- **Historische Beslissingen**: `docs/archief/beslissingen/`
+- **Historische Beslissingen**: `docs/archief/2025-09-architectuur-consolidatie/beslissingen/`
 
 ## ⚠️ Verouderde Locaties (NIET GEBRUIKEN)
 

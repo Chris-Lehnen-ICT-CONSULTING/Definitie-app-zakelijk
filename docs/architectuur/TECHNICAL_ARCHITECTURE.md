@@ -2109,7 +2109,7 @@ class RBACAuthorizer:
 - [Solution Architecture](./SOLUTION_ARCHITECTURE.md) - Section 2 for PER-007 Context Flow
 <!-- Service Container Design document niet meer beschikbaar - informatie geïntegreerd in TECHNICAL_ARCHITECTURE.md -->
 <!-- V2 Migration workflow document niet meer beschikbaar - migratie voltooid en gedocumenteerd in archief -->
-- [AI Configuration Guide](../technisch/AI_CONFIGURATION_GUIDE.md)
+- [AI Configuration Guide](../guidelines/AI_CONFIGURATION_GUIDE.md)
 
 ### External Standards
 - [ASTRA](https://www.astra-justitie.nl) - Architecture Strafrechtketen
