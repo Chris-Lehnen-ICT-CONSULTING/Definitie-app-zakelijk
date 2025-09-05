@@ -1,0 +1,678 @@
+{
+  "stats": {
+    "total": 87,
+    "by_type": {
+      "nonfunctional": 41,
+      "domain": 5,
+      "functional": 40,
+      "technical": 1
+    },
+    "by_priority": {
+      "high": 51,
+      "medium": 26,
+      "low": 10
+    },
+    "by_status": {
+      "In Progress": 29,
+      "Done": 27,
+      "Backlog": 31
+    }
+  },
+  "missing_files": {
+    "REQ-001": [
+      "src/services/auth_service.py"
+    ],
+    "REQ-004": [
+      "src/ui/tabs/generatie_tab.py"
+    ],
+    "REQ-005": [
+      "src/database/repositories/definition_repository.py"
+    ],
+    "REQ-006": [
+      "src/ui/components/sidebar.py"
+    ],
+    "REQ-009": [
+      "src/ui/tabs/"
+    ],
+    "REQ-013": [
+      "config/toetsregels/regels/"
+    ],
+    "REQ-016": [
+      "config/toetsregels/",
+      "docs/architectuur/DOMAIN_MODEL.md",
+      "src/models/definition_models.py"
+    ],
+    "REQ-017": [
+      "config/toetsregels/regels/"
+    ],
+    "REQ-018": [
+      "src/services/unified_definition_generator.py",
+      "src/services/prompt_service_v2.py"
+    ],
+    "REQ-019": [
+      "docs/architectuur/cfr-implementation-plan.md",
+      "src/services/context/context_aggregation_service.py",
+      "src/prompts/context_flow_prompts.py"
+    ],
+    "REQ-020": [
+      "src/services/validation/validation_orchestrator_v2.py",
+      "docs/architectuur/validation_orchestrator_v2.md"
+    ],
+    "REQ-022": [
+      "src/ui/tabs/export_tab.py"
+    ],
+    "REQ-023": [
+      "config/toetsregels/regels/ARAI-01.json"
+    ],
+    "REQ-024": [
+      "config/toetsregels/regels/CON-01.json"
+    ],
+    "REQ-029": [
+      "config/toetsregels/regels/VER-01.json"
+    ],
+    "REQ-030": [
+      "config/toetsregels.json"
+    ],
+    "REQ-032": [
+      "src/services/validation/validation_orchestrator_v2.py",
+      "docs/architectuur/validation_orchestrator_v2.md"
+    ],
+    "REQ-034": [
+      "config/toetsregels.json"
+    ],
+    "REQ-035": [
+      "src/services/validation/validation_orchestrator_v2.py",
+      "logs/performance_metrics.json"
+    ],
+    "REQ-036": [
+      "src/services/prompt_service_v2.py"
+    ],
+    "REQ-037": [
+      "src/services/validation/validation_orchestrator_v2.py"
+    ],
+    "REQ-042": [
+      "src/ui/tabs/export_tab.py"
+    ],
+    "REQ-043": [
+      "src/services/import_service.py"
+    ],
+    "REQ-045": [
+      "src/utils/logging_config.py",
+      "logs/audit_log.json"
+    ],
+    "REQ-046": [
+      "src/services/monitoring_service.py"
+    ],
+    "REQ-047": [
+      "scripts/backup_restore.py"
+    ],
+    "REQ-048": [
+      "src/ui/main.py"
+    ],
+    "REQ-049": [
+      "src/ui/tabs/settings_tab.py"
+    ],
+    "REQ-050": [
+      "src/ui/components/accessibility.py"
+    ],
+    "REQ-051": [
+      "src/ui/localization/translations.py",
+      "config/locales/nl.json",
+      "config/locales/en.json"
+    ],
+    "REQ-052": [
+      "src/ui/tabs/validatie_tab.py",
+      "src/services/validation/validation_orchestrator_v2.py"
+    ],
+    "REQ-053": [
+      "src/ui/components/progress_indicator.py",
+      "src/ui/tabs/generate_tab.py"
+    ],
+    "REQ-054": [
+      "src/ui/components/error_handler.py",
+      "src/utils/error_messages.py"
+    ],
+    "REQ-055": [
+      "src/ui/components/help_system.py",
+      "docs/user_guide.md"
+    ],
+    "REQ-056": [
+      "src/ui/components/keyboard_handler.py"
+    ],
+    "REQ-057": [
+      "src/ui/styles/mobile.css"
+    ],
+    "REQ-058": [
+      "src/utils/logging_config.py",
+      "config/logging.yaml"
+    ],
+    "REQ-059": [
+      "src/services/config_manager.py"
+    ],
+    "REQ-060": [
+      "src/api/health_check.py"
+    ],
+    "REQ-061": [
+      "src/services/fallback_handler.py"
+    ],
+    "REQ-062": [
+      "src/services/circuit_breaker.py"
+    ],
+    "REQ-063": [
+      "src/middleware/rate_limiter.py"
+    ],
+    "REQ-064": [
+      "src/middleware/maintenance_mode.py"
+    ],
+    "REQ-065": [
+      "scripts/migrate_database.py"
+    ],
+    "REQ-066": [
+      "src/services/config_watcher.py"
+    ],
+    "REQ-067": [
+      "src/monitoring/dashboard.py"
+    ],
+    "REQ-070": [
+      "docs/testing/performance_test_plan.md"
+    ],
+    "REQ-074": [
+      "tests/conftest.py",
+      "tests/base_test.py"
+    ],
+    "REQ-075": [
+      "docs/testing/uat_plan.md",
+      "tests/uat/"
+    ],
+    "REQ-076": [
+      "docs/testing/regression_strategy.md"
+    ],
+    "REQ-077": [
+      "tests/reports/",
+      "docs/testing/reporting_strategy.md"
+    ],
+    "REQ-078": [
+      "src/models/definition.py"
+    ],
+    "REQ-079": [
+      "src/database/constraints.sql"
+    ],
+    "REQ-080": [
+      "src/database/versioning.py"
+    ],
+    "REQ-081": [
+      "scripts/archive_data.py",
+      "docs/data/archival_policy.md"
+    ],
+    "REQ-082": [
+      "src/services/search_service.py",
+      "src/database/indexes.sql"
+    ],
+    "REQ-084": [
+      "src/services/import_service.py"
+    ],
+    "REQ-087": [
+      "src/services/analytics_service.py"
+    ]
+  },
+  "invalid_links": {
+    "REQ-004": {
+      "invalid_stories": [
+        "US-6.5"
+      ]
+    },
+    "REQ-005": {
+      "invalid_stories": [
+        "US-6.6"
+      ]
+    },
+    "REQ-006": {
+      "invalid_stories": [
+        "US-8.1",
+        "US-8.2"
+      ]
+    },
+    "REQ-007": {
+      "invalid_stories": [
+        "US-8.3"
+      ]
+    },
+    "REQ-019": {
+      "invalid_stories": [
+        "US-3.2",
+        "US-3.3"
+      ]
+    },
+    "REQ-020": {
+      "invalid_stories": [
+        "US-4.7"
+      ]
+    },
+    "REQ-023": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-024": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-025": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-026": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-027": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-028": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-029": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-030": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-031": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-032": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-033": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-034": {
+      "invalid_epics": [
+        "EPIC-2",
+        "EPIC-9"
+      ]
+    },
+    "REQ-035": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-036": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-037": {
+      "invalid_epics": [
+        "EPIC-9"
+      ]
+    },
+    "REQ-038": {
+      "invalid_epics": [
+        "EPIC-1"
+      ]
+    },
+    "REQ-039": {
+      "invalid_epics": [
+        "EPIC-3"
+      ]
+    },
+    "REQ-040": {
+      "invalid_epics": [
+        "EPIC-3"
+      ]
+    },
+    "REQ-041": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-042": {
+      "invalid_epics": [
+        "EPIC-5"
+      ]
+    },
+    "REQ-043": {
+      "invalid_epics": [
+        "EPIC-5"
+      ]
+    },
+    "REQ-044": {
+      "invalid_epics": [
+        "EPIC-6"
+      ]
+    },
+    "REQ-045": {
+      "invalid_epics": [
+        "EPIC-6"
+      ]
+    },
+    "REQ-046": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-047": {
+      "invalid_epics": [
+        "EPIC-6"
+      ]
+    },
+    "REQ-048": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-049": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-050": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-051": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-052": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-053": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-054": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-055": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-056": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-057": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-058": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-059": {
+      "invalid_epics": [
+        "EPIC-1"
+      ]
+    },
+    "REQ-060": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-061": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-062": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-063": {
+      "invalid_epics": [
+        "EPIC-6"
+      ]
+    },
+    "REQ-064": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-065": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-066": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-067": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-068": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-069": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-070": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-071": {
+      "invalid_epics": [
+        "EPIC-6"
+      ]
+    },
+    "REQ-072": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-073": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-074": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-075": {
+      "invalid_epics": [
+        "EPIC-4"
+      ]
+    },
+    "REQ-076": {
+      "invalid_epics": [
+        "EPIC-2"
+      ]
+    },
+    "REQ-077": {
+      "invalid_epics": [
+        "EPIC-7"
+      ]
+    },
+    "REQ-078": {
+      "invalid_epics": [
+        "EPIC-1"
+      ]
+    },
+    "REQ-079": {
+      "invalid_epics": [
+        "EPIC-1"
+      ]
+    },
+    "REQ-080": {
+      "invalid_epics": [
+        "EPIC-9"
+      ]
+    },
+    "REQ-081": {
+      "invalid_epics": [
+        "EPIC-6"
+      ]
+    },
+    "REQ-082": {
+      "invalid_epics": [
+        "EPIC-1"
+      ]
+    },
+    "REQ-083": {
+      "invalid_epics": [
+        "EPIC-5"
+      ]
+    },
+    "REQ-084": {
+      "invalid_epics": [
+        "EPIC-5"
+      ]
+    },
+    "REQ-085": {
+      "invalid_epics": [
+        "EPIC-9"
+      ]
+    },
+    "REQ-086": {
+      "invalid_epics": [
+        "EPIC-9"
+      ]
+    },
+    "REQ-087": {
+      "invalid_epics": [
+        "EPIC-9"
+      ]
+    }
+  },
+  "issues": {
+    "missing_criteria": [
+      "REQ-006",
+      "REQ-007",
+      "REQ-016",
+      "REQ-017",
+      "REQ-018",
+      "REQ-019",
+      "REQ-020",
+      "REQ-021",
+      "REQ-022"
+    ],
+    "no_smart_criteria": [
+      "REQ-004",
+      "REQ-005",
+      "REQ-011",
+      "REQ-012",
+      "REQ-013",
+      "REQ-014",
+      "REQ-015",
+      "REQ-030",
+      "REQ-031",
+      "REQ-032",
+      "REQ-034",
+      "REQ-035",
+      "REQ-036",
+      "REQ-037",
+      "REQ-038",
+      "REQ-039",
+      "REQ-040",
+      "REQ-041",
+      "REQ-043",
+      "REQ-044",
+      "REQ-046",
+      "REQ-047",
+      "REQ-048",
+      "REQ-049",
+      "REQ-051",
+      "REQ-052",
+      "REQ-053",
+      "REQ-054",
+      "REQ-055",
+      "REQ-056",
+      "REQ-058",
+      "REQ-059",
+      "REQ-060",
+      "REQ-061",
+      "REQ-062",
+      "REQ-063",
+      "REQ-064",
+      "REQ-065",
+      "REQ-066",
+      "REQ-067",
+      "REQ-068",
+      "REQ-069",
+      "REQ-070",
+      "REQ-071",
+      "REQ-072",
+      "REQ-074",
+      "REQ-075",
+      "REQ-076",
+      "REQ-077",
+      "REQ-078",
+      "REQ-079",
+      "REQ-080",
+      "REQ-083",
+      "REQ-084",
+      "REQ-085",
+      "REQ-086",
+      "REQ-087"
+    ],
+    "duplicates": {
+      "REQ-010,REQ-020,REQ-031,REQ-032,REQ-035": "Similar titles detected"
+    }
+  },
+  "domain_issues": {
+    "missing_dutch_context": [
+      "REQ-013",
+      "REQ-014",
+      "REQ-015",
+      "REQ-016",
+      "REQ-017",
+      "REQ-018",
+      "REQ-019",
+      "REQ-020",
+      "REQ-021",
+      "REQ-022"
+    ],
+    "no_astra_nora_ref": [
+      "REQ-015",
+      "REQ-016",
+      "REQ-017",
+      "REQ-018",
+      "REQ-019",
+      "REQ-020",
+      "REQ-021",
+      "REQ-022"
+    ],
+    "no_justice_ref": []
+  }
+}

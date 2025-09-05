@@ -1,0 +1,124 @@
+version: 1
+owner: architecture
+last_updated: 2025-09-05
+
+# Declaratieve beschrijving van beschikbare workflows en routing hints.
+
+workflows:
+  - id: ANALYSIS
+    name: Analysis Workflow
+    purpose: Prepare user story, acceptance criteria, and architecture.
+    entry_criteria:
+      intents: ["analyse", "architecture", "story", "requirements"]
+      file_globs_any: ["docs/stories/**", "docs/architectuur/**"]
+      risk: low
+    phases:
+      - name: ANALYSIS
+        agent: business-analyst-justice
+        gates: [user_story_complete, smart_criteria_defined, acceptance_criteria_bdd]
+      - name: DESIGN
+        agent: justice-architecture-designer
+        gates: [ea_documented, sa_documented, ta_documented, api_contracts_defined, nfr_listed]
+      - name: DOC-CHECK
+        agent: doc-standards-guardian
+        gates: [frontmatter_ok, canonical_location_ok, index_updated]
+    exit_criteria: [story_ready_for_dev]
+
+  - id: REVIEW
+    name: Review Workflow
+    purpose: Structured review of code or diffs; no implementation.
+    entry_criteria:
+      intents: ["review", "code review", "assessment"]
+      requires: ["diff | patch | PR"]
+      risk: low
+    phases:
+      - name: REVIEW
+        agent: code-reviewer-comprehensive
+        gates: [review_report_created, no_critical_issues, verdict_stated]
+      - name: OPTIONAL-FOLLOWUP
+        agent: refactor-specialist
+        optional: true
+        gates: [tests_still_green, behavior_unchanged]
+    exit_criteria: [review_complete]
+
+  - id: DOC_CLEANUP
+    name: Document Cleanup Workflow
+    purpose: Standardize, deduplicate, and repair documentation.
+    entry_criteria:
+      intents: ["docs", "cleanup", "documentation", "standardize"]
+      file_globs_any: ["docs/**", "README.md", "CHANGELOG.md"]
+      risk: low
+    phases:
+      - name: AUDIT
+        agent: doc-standards-guardian
+        gates: [mandatory_files_present, broken_links_identified, duplicates_detected]
+      - name: FIX
+        agent: doc-standards-guardian
+        support: [prompt-engineer]
+        gates: [frontmatter_added, canonicalized_paths, links_fixed]
+      - name: VERIFY
+        agent: quality-assurance-tester
+        gates: [no_broken_links, indexes_updated]
+    exit_criteria: [docs_clean_and_consistent]
+
+  - id: REFACTOR_ONLY
+    name: Refactor Only Workflow
+    purpose: Improve code quality without behavior change.
+    entry_criteria:
+      intents: ["refactor", "cleanup code", "improve quality"]
+      risk: low
+    phases:
+      - name: PLAN
+        agent: refactor-specialist
+        gates: [scope_defined, micro_refactors_selected]
+      - name: APPLY
+        agent: refactor-specialist
+        gates: [tests_still_green, refactor_log_updated]
+      - name: VERIFY
+        agent: quality-assurance-tester
+        gates: [no_regressions, coverage_not_lower]
+    exit_criteria: [refactor_complete]
+
+  - id: HOTFIX
+    name: Hotfix Workflow
+    purpose: Expedite critical production fixes with safety gates.
+    entry_criteria:
+      intents: ["hotfix", "incident", "p1", "p2"]
+      risk: high
+    phases:
+      - name: TRIAGE
+        agent: tdd-orchestrator
+        gates: [override_approved, impact_assessed]
+      - name: FIX
+        agent: developer-implementer
+        gates: [repro_known_or_test_added, minimal_patch]
+      - name: REVIEW-LIGHT
+        agent: code-reviewer-comprehensive
+        gates: [no_critical_security_issues]
+      - name: DEPLOY
+        agent: devops-pipeline-orchestrator
+        gates: [staging_ok, manual_prod_approval, rollback_ready]
+    exit_criteria: [production_restored, incident_report_created]
+
+  - id: FULL_TDD
+    name: Full TDD to Deployment
+    purpose: Complete feature/fix delivery with strict phases.
+    entry_criteria:
+      intents: ["implement", "feature", "bugfix"]
+      risk: medium
+    reference: docs/guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md
+
+routing:
+  # Simpele router hints voor een meta‑agent of handmatige keuze.
+  rules:
+    - if: description.contains_any(["review", "code review", "diff", "PR"])
+      choose: REVIEW
+    - if: description.contains_any(["analyse", "architectuur", "user story", "acceptatiecriteria"]) OR changed_files.only_docs
+      choose: ANALYSIS
+    - if: changed_files.match_any(["docs/**", "README.md", "CHANGELOG.md"]) AND NOT description.contains_any(["feature", "bug", "implement"])
+      choose: DOC_CLEANUP
+    - if: description.contains_any(["refactor", "herstructureren"]) AND NOT description.contains_any(["nieuwe functionaliteit", "feature"])
+      choose: REFACTOR_ONLY
+    - if: description.contains_any(["hotfix", "incident", "p1", "p2"]) OR labels.contains("incident")
+      choose: HOTFIX
+    - else: FULL_TDD

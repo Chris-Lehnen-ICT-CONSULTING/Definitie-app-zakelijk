@@ -12,9 +12,7 @@ api:
       cost_per_token: 3.0e-05
       max_tokens: 300
       temperature: 0.0
-  # API key should be loaded from environment variable OPENAI_API_KEY
-  # Never commit actual API keys to version control
-  openai_api_key: ${OPENAI_API_KEY}
+  openai_api_key: sk-proj-***REMOVED-DEF-491***
   request_timeout: 60.0
   retry_backoff_factor: 1.5
 cache:
