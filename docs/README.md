@@ -2,6 +2,10 @@
 
 Welkom bij de centrale documentatie hub voor het Definitie-app project.
 
+## 🧭 Navigatie
+
+Start hier: [INDEX.md](./INDEX.md) — centrale overzichtspagina voor alle documentatie.
+
 ## 🗂️ Documentatie Structuur
 
 ### [architectuur/](./architectuur/)
