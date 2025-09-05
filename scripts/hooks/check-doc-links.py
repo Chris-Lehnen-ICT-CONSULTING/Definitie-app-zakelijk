@@ -35,9 +35,16 @@ def check_file(md_path: Path) -> list[str]:
             continue
         # Normalize
         # Support absolute-from-repo links: treat as relative to repo root
-        target_path = (md_path.parent / target).resolve()
-        # Skip archived targets
-        if "/archief/" in str(target_path) or "/archive/" in str(target_path):
+        # Resolve target path
+        if target.startswith("/"):
+            # Treat repo-absolute links (/docs/...) as relative to repo root
+            target_path = (Path.cwd() / target.lstrip("/\\")).resolve()
+        else:
+            target_path = (md_path.parent / target).resolve()
+
+        # Skip archived/review targets (case-insensitive)
+        lower_path = str(target_path).lower()
+        if "/archief/" in lower_path or "/archive/" in lower_path or "/reviews/" in lower_path:
             continue
         if not target_path.exists():
             errors.append(f"Broken link in {md_path}: {target}")
@@ -53,8 +60,9 @@ def main() -> int:
         p = str(f)
         if not p.startswith("docs/"):
             continue
-        # Skip archived docs
-        if "/archief/" in p or "/archive/" in p:
+        # Skip archived/review docs (case-insensitive)
+        pl = p.lower()
+        if "/archief/" in pl or "/archive/" in pl or "/reviews/" in pl:
             continue
         errors.extend(check_file(f))
 
