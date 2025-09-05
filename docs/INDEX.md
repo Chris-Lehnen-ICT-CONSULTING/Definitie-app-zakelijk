@@ -5,14 +5,14 @@
 > **Nieuw:** ASTRA compliance assessment, realistische tech architecture
 > **Actie:** Van chaos naar structuur - 45 essentiële docs identificeren
 
-## 🚨 Huidige Situatie
+## 🎉 Consolidatie Status (September 2025)
 
-| Metric | Waarde | Status |
-|--------|--------|--------|
-| **Totaal documenten** | 274 | ⚠️ Te veel |
-| **Directories** | 17 | ⚠️ Te verspreid |
-| **Archief directory** | 125 docs | 🔄 Moet zelf gearchiveerd |
-| **Duplicaten/Overlap** | ~15+ | ❌ Verwarrend |
+| Metric | Voor | Na | Status |
+|--------|------|-----|--------|
+| **Architecture docs** | 89 | 3 canonical | ✅ Geconsolideerd |
+| **Guidelines** | Verspreid | 7 in /guidelines/ | ✅ Gecentraliseerd |
+| **Templates** | Overal | /architectuur/templates/ | ✅ Georganiseerd |
+| **Archief** | Chaos | /archief/2025-09/ | ✅ Opgeruimd |
 
 ## 🎯 Quick Links - Essentiële Documenten
 
@@ -24,42 +24,40 @@
   - **[Epic CFR: Context Flow Refactoring](./stories/MASTER-EPICS-USER-STORIES.md#epic-cfr-context-flow-refactoring)** 🚨 **CRITICAL**
 - [User Stories](./stories/MASTER-EPICS-USER-STORIES.md) 📁
 
+### Guidelines & Standards 📋
+- [Documentation Policy](./guidelines/DOCUMENTATION_POLICY.md) ✅ Documentation standards
+- [Canonical Locations](./guidelines/CANONICAL_LOCATIONS.md) ✅ Where documents belong
+- [Document Creation Workflow](./guidelines/DOCUMENT-CREATION-WORKFLOW.md) ✅ How to create docs
+- [Document Standards Guide](./guidelines/DOCUMENT-STANDARDS-GUIDE.md) ✅ Documentation guidelines
+- [Agents Documentation](./guidelines/AGENTS.md) ✅ Agent guidelines
+- [TDD to Deployment Workflow](./guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md) ✅ Development workflow
+- [AI Configuration Guide](./guidelines/AI_CONFIGURATION_GUIDE.md) ✅ AI setup guide
+
+### 🔧 Maintenance & Updates
+- **[UPDATE REQUIREMENTS](./UPDATE_REQUIREMENTS.md)** 🆕 Post-consolidation fixes needed
+
 ### Workflows & Agents
-- [TDD to Deployment Workflow](./workflows/TDD_TO_DEPLOYMENT_WORKFLOW.md) 🆕
-- [Agents Documentation](./AGENTS.md) ✅
 - **DevOps Pipeline Orchestrator** 🆕 - CI/CD automation agent
 
-### Architectuur (Updated 2025-09-04)
-- **Justice Sector Architecture** 🆕
-  - [Enterprise Architecture](./architectuur/ENTERPRISE_ARCHITECTURE.md) ✅ Justice context toegevoegd
-  - [Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) ✅ Actuele implementatie
-  - [Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) ✅ Werkende tech stack
-  - [ASTRA Compliance](./architectuur/ASTRA_COMPLIANCE.md) ✅ Justice sector assessment
+### Architectuur (Consolidated September 2025)
 
-- **🚨 Context Flow Refactoring (PER-007/CFR) - CRITICAL** 🆕
-  - **[CFR Consolidated Refactor Plan](./architectuur/CFR-CONSOLIDATED-REFACTOR-PLAN.md)** ✅ **CANONICAL** - Single implementation plan
-  - **[CFR Implementation Plan - Agent Based](./architectuur/CFR-IMPLEMENTATION-PLAN-AGENTS.md)** 🔥 **READY FOR REVIEW** - Complete 5-week agent workflow
-  - [PER-007 Implementation Guide](./architectuur/PER-007-implementation-guide.md) ✅ Step-by-step implementation
-  - [PER-007 Architectural Assessment](./architectuur/PER-007-architectural-assessment.md) ✅ NORA/ASTRA compliance
-  - [EA-CFR: Enterprise Architecture](./architectuur/EA-CFR.md) ✅ Justice sector alignment
-  - [SA-CFR: Solution Architecture](./architectuur/SA-CFR.md) ✅ Component design
-  - [TA-CFR: Technical Architecture](./architectuur/TA-CFR.md) ✅ Implementation specs
-  - [CFR Migration Strategy](./architectuur/CFR-MIGRATION-STRATEGY.md) ✅ Phased rollout plan
-  - [CFR Immediate Workarounds](./CFR-IMMEDIATE-WORKAROUNDS.md) ✅ Production stability
+#### Canonical Architecture Documents (Single Source of Truth)
+- **[Enterprise Architecture](./architectuur/ENTERPRISE_ARCHITECTURE.md)** ✅ Business & strategic view with Justice sector context
+- **[Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md)** ✅ Solution design patterns & component architecture
+- **[Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md)** ✅ Implementation details & tech stack
 
-- [Huidige Architectuur Overzicht](./architectuur/CURRENT_ARCHITECTURE_OVERVIEW.md) ✅
-- [Architecture Decision Records](./architectuur/beslissingen/ADR-001-monolithische-structuur.md) 📁
-  - [ADR-001: Monolithische structuur](./architectuur/beslissingen/ADR-001-monolithische-structuur.md)
-  - [ADR-002: Features-first development](./architectuur/beslissingen/ADR-002-features-first-development.md)
-  - [ADR-003: Legacy code als specificatie](./architectuur/beslissingen/ADR-003-legacy-code-als-specificatie.md)
-  - [ADR-004: Incrementele migratie](./architectuur/beslissingen/ADR-004-incrementele-migratie-strategie.md)
-  - [ADR-005: Service architecture evolution](./architectuur/beslissingen/ADR-005-service-architecture-evolution.md)
-  - [ADR-006: ValidationOrchestratorV2](./architectuur/beslissingen/ADR-006-validation-orchestrator-v2.md)
-  - **[ADR-015: Context Flow Refactoring](./architectuur/beslissingen/ADR-015-context-flow-refactoring.md)** 🆕 Initial strategic decision
-  - **[ADR-016: Consolidated Context Flow](./architectuur/beslissingen/ADR-016-context-flow-consolidated.md)** 🆕 Supersedes ADR-015/CFR-001/PER-007
-  - **[ADR-PER-007: Presentation/Data Separation](./architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md)** ✅ **KEY DECISION** - UI vs Data layer
-  - [ADR-PER-007: Context Flow Fix](./architectuur/beslissingen/ADR-PER-007-context-flow-fix.md) 📄 Initial proposal
-  - [ADR-CFR-001: CFR Implementation](./architectuur/beslissingen/ADR-CFR-001-context-flow-refactoring.md) 📄 Technical approach
+#### Supporting Documents
+- See Guidelines & Standards section above for documentation standards
+
+
+#### Templates
+- [Enterprise Architecture Template](./architectuur/templates/ENTERPRISE_ARCHITECTURE_TEMPLATE.md) - EA template
+- [Solution Architecture Template](./architectuur/templates/SOLUTION_ARCHITECTURE_TEMPLATE.md) - SA template
+- [Technical Architecture Template](./architectuur/templates/TECHNICAL_ARCHITECTURE_TEMPLATE.md) - TA template
+
+#### Active Components & Planning
+- [Consolidated Refactor Plan](./architectuur/CFR-CONSOLIDATED-REFACTOR-PLAN.md) ✅ Current refactoring approach
+- **[ADR-PER-007: Presentation/Data Separation](./architectuur/beslissingen/ADR-PER-007-presentation-data-separation.md)** ✅ **KEY DECISION** - UI vs Data layer
 
 ### Testing & Validatie
 - **PER-007 Testing** 🆕
@@ -73,48 +71,53 @@
 - [Module Documentatie - zie technisch](./technisch/module-afhankelijkheid-rapport.md) 📁
 
 ### Workflows & Handleidingen
-- [Actieve Workflows](./architectuur/workflows/ea-sa-analyse-workflow.md) 📁
 - [Frontend Guide](./frontend/AI-FRONTEND-PROMPT-NL.md) ✅
-- [ASTRA Compliance](./architectuur/ASTRA_COMPLIANCE.md) 📁
+- See Guidelines & Standards section for development workflows
 
 ## 📂 Huidige Directory Structuur
 
 ```
 docs/
-├── 📁 archief/          (125 docs) ⚠️ Ironisch - moet zelf gearchiveerd
-├── 📁 architectuur/     (79 docs)  🔄 90% kan gearchiveerd
-├── 📁 architecture/     (12 docs)  ❓ Duplicaat van architectuur?
-├── 📁 analyse/          (3 docs)   🗄️ Verouderd
-├── 📁 analysis/         (0 docs)   ❓ Waarom leeg?
-├── 📁 api/              (0 docs)   ❓ Waarom leeg?
-├── 📁 compliance/       (1 doc)    ✅ Behouden
-├── 📁 evaluations/      (1 doc)    🗄️ Oud
-├── 📁 frontend/         (1 doc)    ✅ Behouden
-├── 📁 guides/           (0 docs)   ❓ Waarom leeg?
-├── 📁 meeting-notes/    (0 docs)   ❓ Waarom leeg?
-├── 📁 modules/          (9 docs)   🔄 Consolideren
-├── 📁 requirements/     (0 docs)   ❓ Waarom leeg?
-├── 📁 reviews/          (8 docs)   🗄️ Afgerond
-├── 📁 stories/          (1 doc)    ✅ Actief
-├── 📁 technisch/        (4 docs)   ✅ Behouden
-├── 📁 workflows/        (10 docs)  🔄 3 actief, 7 archief
-└── 📄 Root bestanden    (25 docs)  🔄 Mix essentieel/archief
+├── 📁 archief/2025-09-architectuur-consolidatie/
+│   ├── ea-variants/         # Historical EA versions (89 → 1 canonical)
+│   ├── sa-variants/         # Historical SA versions (gearchiveerd)
+│   ├── ta-variants/         # Historical TA versions (gearchiveerd)
+│   ├── cfr-documents/       # Context Flow Refactoring docs
+│   ├── per-007-documents/   # PER-007 implementation docs
+│   ├── migration-documents/ # V1/V2 migration docs
+│   └── misc/               # Other archived docs
+├── 📁 archief/          Archive of all older documents
+├── 📁 architectuur/     3 canonical docs + templates + beslissingen
+│   ├── ENTERPRISE_ARCHITECTURE.md ✅
+│   ├── SOLUTION_ARCHITECTURE.md ✅
+│   ├── TECHNICAL_ARCHITECTURE.md ✅
+│   ├── templates/       Architecture templates
+│   └── beslissingen/    ADRs en beslissingen
+├── 📁 guidelines/       7 project-wide guidelines ✅
+├── 📁 stories/          User stories & epics ✅
+├── 📁 testing/          Test plans & results
+├── 📁 technisch/        Technical documentation ✅
+├── 📁 workflows/        Development workflows
+├── 📁 reviews/          Code reviews
+├── 📁 frontend/         Frontend specific docs
+└── 📄 Root bestanden    Project-level documents
 ```
 
-## 🎯 Voorgestelde Nieuwe Structuur
+## 🎯 Huidige Geconsolideerde Structuur (September 2025)
 
 ```
 docs/
-├── 📌 ESSENTIEEL/           (45 docs totaal)
-│   ├── product/            # PRD, requirements, stories
-│   ├── architectuur/       # ADRs, actuele architectuur
-│   ├── handleidingen/      # Gebruiker & developer docs
-│   └── projectdocs/        # Planning, compliance
+├── 📌 CANONICAL DOCS/
+│   ├── architectuur/       # 3 canonical architecture docs
+│   ├── guidelines/         # 7 project-wide guidelines
+│   ├── stories/           # Master epics & user stories
+│   └── testing/           # Active test documentation
 │
-├── 🗄️ ARCHIEF/             (229 docs)
-│   └── 2025-Q1/           # Huidige archivering
+├── 🗄️ ARCHIEF/
+│   ├── 2025-09-architectuur-consolidatie/  # Sept 2025 consolidatie
+│   └── [oudere archieven]/                 # Legacy documenten
 │
-└── 📋 INDEX.md            # Dit document
+└── 📋 INDEX.md            # Dit document (navigation hub)
 ```
 
 ## 🔍 Gevonden Problemen
