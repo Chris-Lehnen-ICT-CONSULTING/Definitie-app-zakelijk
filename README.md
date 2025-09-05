@@ -106,7 +106,7 @@ applies_to: definitie-app@v2
 
 ### 📂 Waar plaats je documenten?
 
-Zie [CANONICAL_LOCATIONS.md](docs/CANONICAL_LOCATIONS.md) voor de juiste locaties:
+Zie [CANONICAL_LOCATIONS.md](docs/guidelines/CANONICAL_LOCATIONS.md) voor de juiste locaties:
 
 | Type Document | Locatie | Voorbeeld |
 |--------------|---------|----------|
@@ -124,7 +124,7 @@ Zie [CANONICAL_LOCATIONS.md](docs/CANONICAL_LOCATIONS.md) voor de juiste locatie
 3. **Link naar canoniek** - verwijs altijd naar de officiële bron
 4. **Archiveer oude versies** - zet `status: archived` met verwijzing
 
-Zie [DOCUMENTATION_POLICY.md](docs/DOCUMENTATION_POLICY.md) voor complete richtlijnen.
+Zie [DOCUMENTATION_POLICY.md](docs/guidelines/DOCUMENTATION_POLICY.md) voor complete richtlijnen.
 
 ## 📁 Project Structuur
 

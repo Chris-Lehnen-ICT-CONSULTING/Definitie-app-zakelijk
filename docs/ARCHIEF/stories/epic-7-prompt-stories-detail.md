@@ -1,5 +1,5 @@
 ---
-canonical: false
+canonical: true
 status: active
 owner: development
 last_verified: 2025-09-03

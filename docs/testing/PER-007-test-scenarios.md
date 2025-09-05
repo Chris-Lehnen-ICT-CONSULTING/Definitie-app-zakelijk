@@ -1,3 +1,11 @@
+---
+canonical: true
+status: active
+owner: testing
+last_verified: 2025-09-04
+applies_to: definitie-app@v2
+---
+
 # PER-007 Context Flow Fix - Test Scenarios
 **Document ID:** TEST-PER-007
 **Created:** 2025-09-04

@@ -5,56 +5,69 @@ Welkom bij de centrale documentatie hub voor het Definitie-app project.
 ## 🗂️ Documentatie Structuur
 
 ### [architectuur/](./architectuur/)
-Architecture Decision Records (ADRs) en systeem architectuur documentatie
-- Architectuur beslissingen
-- Systeem diagrammen
-- Design patterns
+Canonical architecture documentatie (geconsolideerd September 2025)
+- **[ENTERPRISE_ARCHITECTURE.md](./architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategic view
+- **[SOLUTION_ARCHITECTURE.md](./architectuur/SOLUTION_ARCHITECTURE.md)** - Solution design patterns
+- **[TECHNICAL_ARCHITECTURE.md](./architectuur/TECHNICAL_ARCHITECTURE.md)** - Implementation details
+- [templates/](./architectuur/templates/) - Architecture templates
+- [beslissingen/](./architectuur/beslissingen/) - ADRs en beslissingen
 
-### [technische-referentie/](./technische-referentie/)
+### [technisch/](./technisch/)
 Gedetailleerde technische documentatie
-- Module analyses (18 modules)
+- Module analyses
 - API specificaties
-- Integratie documentatie
 - Configuratie guides
+- Error catalogus
 
-### [code-analyse/](./code-analyse/)
+### [reviews/](./reviews/)
 Code quality en review documentatie
-- Complete code reviews
+- Code reviews
 - Performance analyses
 - Security assessments
-- Protocol reviews
 
-### [handleidingen/](./handleidingen/)
-Praktische guides voor alle gebruikers
-- Developer guides
-- User manuals
-- Deployment instructions
-- Installation guides
+### [workflows/](./workflows/)
+Development workflows en processen
+- TDD to Deployment workflow
+- Validation orchestrator rollout
+- Development guides
+
+### [guidelines/](./guidelines/)
+Project-wide guidelines en standards (7 documenten)
+- Documentation policies en standards
+- Development workflows
+- Agent guidelines
+- AI configuration guides
 
 ### [archief/](./archief/)
 Historische documentatie en referentie materiaal
-- Oude versies
-- Legacy documentatie
-- ADR historie
+- [2025-09-architectuur-consolidatie/](./archief/2025-09-architectuur-consolidatie/) - Sept 2025 consolidatie (89 docs)
+- Oude versies en legacy documentatie
 
-### [active/](./active/) ⚠️ WORDT UITGEFASEERD
-Legacy structuur - gebruik nieuwe locaties hierboven
+### [stories/](./stories/)
+User stories en epics
+- Master epics en user stories document
+- Epic tracking en status
 
 ## 📍 Quick Navigation
 
 **Voor Developers:**
-- [Module Overview](./technische-referentie/modules/)
-- [Latest ADRs](./architectuur/beslissingen/)
-- [Development Guides](./handleidingen/ontwikkelaars/)
+- [Technical Documentation](./technisch/)
+- [Architecture Documents](./architectuur/)
+- [Development Workflows](./workflows/)
 
 **Voor Architecten:**
-- [Architecture Decisions](./architectuur/beslissingen/)
-- [System Diagrams](./architectuur/diagrammen/)
-- [Code Reviews](./code-analyse/reviews/)
+- [Enterprise Architecture](./architectuur/ENTERPRISE_ARCHITECTURE.md) - Business view
+- [Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) - Solution design
+- [Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) - Tech stack
+
+**Voor Product Owners:**
+- [Architecture Decisions](./architectuur/beslissingen/) - ADRs
+- [Master Epics & Stories](./stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth
+- [Code Reviews](./reviews/) - Review documentatie
 
 **Voor Operations:**
-- [Deployment Guides](./handleidingen/deployment/)
-- [Web Lookup Config](./technisch/web_lookup_config.md)
+- [TDD to Deployment Workflow](./guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md) - Complete workflow
+- [Web Lookup Config](./technisch/web_lookup_config.md) - Configuration guide
 
 ## 🎯 Belangrijke Documenten
 
@@ -62,12 +75,13 @@ Legacy structuur - gebruik nieuwe locaties hierboven
 - [Validation Rules](./reference/validation-rules/validation-rules.md) - 46 toetsregels
 - [6-Stappen Protocol](./reference/ontology/ontologie-6-stappen.md) - Definitie methodologie
 
-## 🚧 Reorganisatie Status
+## ✅ Consolidatie Status (September 2025)
 
-We zijn bezig met een documentatie reorganisatie (60% compleet).
-- Zie [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md) voor officiële locaties
-- Check [DEDUPLICATION_REPORT.md](./DEDUPLICATION_REPORT.md) voor cleanup status
-- Raadpleeg [../TEAM_DOC_GUIDE.md](../TEAM_DOC_GUIDE.md) voor team instructies
+Documentatie consolidatie is **compleet**:
+- **89 architecture docs → 3 canonical documents**
+- **Guidelines gecentraliseerd** in [/guidelines/](./guidelines/)
+- **Templates gescheiden** van documentatie
+- Zie [CANONICAL_LOCATIONS.md](./guidelines/CANONICAL_LOCATIONS.md) voor officiële locaties
 
 ## 🔍 Zoeken
 
@@ -75,10 +89,11 @@ Gebruik `grep -r "search term" .` om door alle documentatie te zoeken.
 
 ## 📝 Bijdragen
 
-1. Volg de canonieke locaties in CANONICAL_LOCATIONS.md
-2. Vermijd het creëren van duplicaten
-3. Update deze README bij structuur wijzigingen
+1. Volg de canonieke locaties in [guidelines/CANONICAL_LOCATIONS.md](./guidelines/CANONICAL_LOCATIONS.md)
+2. Check eerst [guidelines/DOCUMENT-CREATION-WORKFLOW.md](./guidelines/DOCUMENT-CREATION-WORKFLOW.md)
+3. Vermijd het creëren van duplicaten - zoek eerst!
+4. Update deze README bij structuur wijzigingen
 
 ## 📅 Laatste Update
 
-18 Augustus 2025 - Documentatie reorganisatie in progress
+5 September 2025 - Architectuur consolidatie compleet, guidelines gecentraliseerd

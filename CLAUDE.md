@@ -247,7 +247,7 @@ When using specialized agents:
 2. **Check master docs:**
    - `docs/stories/MASTER-EPICS-USER-STORIES.md` voor epics/stories
    - `docs/INDEX.md` voor overzicht
-   - `docs/CANONICAL_LOCATIONS.md` voor juiste locaties
+   - `docs/guidelines/CANONICAL_LOCATIONS.md` voor juiste locaties
 3. **Check archief:** `ls docs/archief/` voor oude versies
 4. **Update bestaand:** Als het bestaat, UPDATE dat document, maak GEEN nieuw
 
@@ -262,7 +262,7 @@ cat docs/stories/MASTER-EPICS-USER-STORIES.md | grep "mijn onderwerp"
 cat docs/INDEX.md | grep "mijn onderwerp"
 
 # STAP 3: Als het NIET bestaat, check canonieke locatie
-cat docs/CANONICAL_LOCATIONS.md
+cat docs/guidelines/CANONICAL_LOCATIONS.md
 
 # STAP 4: Maak aan op JUISTE locatie met frontmatter
 # STAP 5: Update INDEX.md
@@ -270,13 +270,12 @@ cat docs/CANONICAL_LOCATIONS.md
 
 ## Documentation References
 
-> **📍 Voor document locaties:** Zie `docs/CANONICAL_LOCATIONS.md` voor waar elk type document hoort te staan.
+> **📍 Voor document locaties:** Zie `docs/guidelines/CANONICAL_LOCATIONS.md` voor waar elk type document hoort te staan.
 
-### Key Architecture Documents
-- **Enterprise Architecture**: `docs/architectuur/EA.md`
-- **Solution Architecture**: `docs/architectuur/SA.md`
-- **Technical Architecture**: `docs/architectuur/TA.md`
-- **Current Architecture Overview**: `docs/architectuur/CURRENT_ARCHITECTURE_OVERVIEW.md`
+### Key Architecture Documents (Canonical)
+- **Enterprise Architecture**: `docs/architectuur/ENTERPRISE_ARCHITECTURE.md`
+- **Solution Architecture**: `docs/architectuur/SOLUTION_ARCHITECTURE.md`
+- **Technical Architecture**: `docs/architectuur/TECHNICAL_ARCHITECTURE.md`
 
 ### Implementation Guides
 - **Validation Orchestrator V2**: `docs/architectuur/validation_orchestrator_v2.md`
@@ -285,8 +284,8 @@ cat docs/CANONICAL_LOCATIONS.md
 - **Module Dependencies**: `docs/technisch/module-afhankelijkheid-rapport.md`
 
 ### Project Documentation
-- **Documentation Policy**: `docs/DOCUMENTATION_POLICY.md`
-- **Canonical Locations**: `docs/CANONICAL_LOCATIONS.md` ← **BELANGRIJK: Check hier voor juiste document locaties**
+- **Documentation Policy**: `docs/guidelines/DOCUMENTATION_POLICY.md`
+- **Canonical Locations**: `docs/guidelines/CANONICAL_LOCATIONS.md` ← **BELANGRIJK: Check hier voor juiste document locaties**
 - **Documentation Index**: `docs/INDEX.md`
 - **Project Brief**: `docs/brief.md`
 - **Product Requirements**: `docs/prd.md`
