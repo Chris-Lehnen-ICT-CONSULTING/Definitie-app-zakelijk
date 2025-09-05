@@ -10,7 +10,7 @@ Canonical architecture documentatie (geconsolideerd September 2025)
 - **[SOLUTION_ARCHITECTURE.md](./architectuur/SOLUTION_ARCHITECTURE.md)** - Solution design patterns
 - **[TECHNICAL_ARCHITECTURE.md](./architectuur/TECHNICAL_ARCHITECTURE.md)** - Implementation details
 - [templates/](./architectuur/templates/) - Architecture templates
-- [beslissingen/](./architectuur/beslissingen/) - ADRs en beslissingen
+<!-- ADRs zijn geïntegreerd in de canonical architecture documenten EA/SA/TA -->
 
 ### [technisch/](./technisch/)
 Gedetailleerde technische documentatie
@@ -61,7 +61,7 @@ User stories en epics
 - [Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) - Tech stack
 
 **Voor Product Owners:**
-- [Architecture Decisions](./architectuur/beslissingen/) - ADRs
+- [Architecture Decisions](./architectuur/) - See EA/SA/TA documents
 - [Master Epics & Stories](./stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth
 - [Code Reviews](./reviews/) - Review documentatie
 
