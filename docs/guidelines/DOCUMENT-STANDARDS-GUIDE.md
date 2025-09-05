@@ -298,7 +298,7 @@ Every canonical document MUST include:
 
 | Standard | Requirement | Status | Evidence | Reference |
 |----------|------------|--------|----------|-----------|
-| ASTRA-01 | Traceability | ✅ COMPLIANT | All decisions tracked in ADRs | [ADR-001](../beslissingen/ADR-001.md) |
+| ASTRA-01 | Traceability | ✅ COMPLIANT | All decisions tracked in canonical docs | See EA/SA/TA documents |
 | NORA-AP03 | Proactief | ✅ COMPLIANT | Validation prevents errors | [SA § 4.3](#43-validation) |
 | BIO-14.2.1 | Logging | ⚠️ PARTIAL | Audit logging implemented | [TA § 7.1](#71-monitoring) |
 | GEMMA-2.0 | Services | ❌ TODO | Service registry pending | [Roadmap](#roadmap) |
