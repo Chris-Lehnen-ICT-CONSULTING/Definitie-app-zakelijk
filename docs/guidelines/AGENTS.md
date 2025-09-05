@@ -20,6 +20,12 @@ De agent definities voor Claude Code staan in `/Users/chrislehnen/.claude/agents
 - Logisch koppelen: verwijs naar bestaande documentatie en respecteer canonical locations.
 - Minimaal ingrijpen: verander alleen wat nodig is, geen brede refactors zonder opdracht.
 
+## Workflow Selectie
+- Gebruik niet standaard de Full TDD workflow voor elke opdracht.
+- Raadpleeg de [Workflow Library](./WORKFLOW_LIBRARY.md) en kies de lichtste passende workflow:
+  - Analyse, Review, Document Cleanup, Refactor Only, Hotfix, of Full TDD.
+- Volg de [Workflow Routing](./WORKFLOW_ROUTING.md) regels of gebruik de `workflow-router` agent (zie `docs/agents/workflow-router.md`).
+
 ## Algemene Richtlijnen
 - Veiligheid: geen secrets loggen; respecteer `requirements*.txt` en netwerkbeperkingen.
 - Stijl: volg bestaande structuur, import‑volgorde, en tooling (ruff/black waar geconfigureerd).
