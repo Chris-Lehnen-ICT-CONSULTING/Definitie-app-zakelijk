@@ -259,8 +259,8 @@ def sanitize_error_log(error: dict) -> dict:
 ```
 
 ## Related Documents
-- **Parent**: [Validation Orchestrator V2](../architecture/validation_orchestrator_v2.md)
-- **Contract**: [ValidationResult Contract](../architecture/contracts/validation_result_contract.md)
+- **Parent**: [Validation Orchestrator V2](../architectuur/TECHNICAL_ARCHITECTURE.md)
+- **Contract**: [ValidationResult Contract](../architectuur/contracts/validation_result_contract.md)
 - **Implementation**: [Rollout Runbook](../workflows/validation_orchestrator_rollout.md)
 - **Monitoring**: [Observability Guide](./validation_observability_privacy.md)
 

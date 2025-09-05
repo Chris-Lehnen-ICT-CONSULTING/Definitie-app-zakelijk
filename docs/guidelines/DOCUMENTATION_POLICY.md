@@ -78,7 +78,7 @@ All references to work items must use consistent formatting:
 - Include context/explanation for code blocks
 
 #### Links
-- Use relative links for internal docs: `[text](./example-doc.md)`
+- Use relative links for internal docs: `[text](./DOCUMENT-STANDARDS-GUIDE.md)`
 - Use absolute URLs for external links
 - Verify all links are valid
 
