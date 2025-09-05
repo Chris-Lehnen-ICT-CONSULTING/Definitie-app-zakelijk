@@ -5,8 +5,8 @@
 [![Version](https://img.shields.io/badge/version-2.3.0-blue.svg)](./CHANGELOG.md)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue.svg)](https://python.org)
 [![pre-commit](https://img.shields.io/badge/pre--commit-enabled-brightgreen?style=flat-square)](https://pre-commit.com/)
-[![Tests](https://img.shields.io/badge/tests-522%20tests-yellow.svg)](./tests/)
-[![Code Quality](https://img.shields.io/badge/ruff-799%20issues-orange.svg)](./docs/architectuur/)
+[![Tests](https://img.shields.io/badge/tests-919%20tests-yellow.svg)](./tests/)
+[![Code Quality](https://img.shields.io/badge/ruff-960%20issues-orange.svg)](./docs/architectuur/)
 [![Security](https://img.shields.io/badge/security-basic%20only-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
@@ -35,12 +35,12 @@ pytest -q
 
 ## 🎯 Overzicht
 
-DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 46 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
+DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 45 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
 
 ### ✨ Kernfuncties
 
 - 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
-- 📋 **45/46 Kwaliteitsregels** voor validatie (INT-05 ontbreekt)
+- 📋 **45 Kwaliteitsregels** voor validatie (Python modules in src/toetsregels/regels/)
 - 🏗️ **Modulaire Architectuur** ValidationOrchestratorV2 + PromptServiceV2
 - 🌐 **Web Lookup Epic 3** Backend werkt, prompt augmentatie geïntegreerd
 - 📄 **Document Upload** voor kennisbasis uitbreiding
@@ -50,8 +50,6 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 - 📦 **Single Source of Truth** (voorstel) voor toetsregels = prompt instructies
 
 ## 🚀 Quick Start
-
-Zie [Quick Start Guide](docs/setup/quick-start.md) voor gedetailleerde installatie instructies.
 
 ```bash
 # Clone repository
@@ -131,25 +129,24 @@ Zie [DOCUMENTATION_POLICY.md](docs/guidelines/DOCUMENTATION_POLICY.md) voor comp
 ```
 definitie-app/
 ├── 📄 README.md              # Dit bestand
-├── 📄 SETUP.md               # Quick start guide
 ├── 📄 CONTRIBUTING.md        # Development guidelines
 ├── 📄 CHANGELOG.md           # Version history
 ├── 📄 CLAUDE.md              # AI coding standards
 ├── 🔧 .env.example           # Environment template
 │
 ├── 📁 src/                   # Source code
-│   ├── services/             # UnifiedDefinitionService
-│   ├── ai_toetsing/          # 46 validators
-│   ├── tabs/                 # 10 UI tabs
+│   ├── services/             # Service layer met DI
+│   ├── toetsregels/          # 45 validatie regels
+│   ├── ui/                   # Streamlit UI componenten
 │   └── main.py               # Main entry
 │
 ├── 📁 docs/                  # Documentatie
-│   ├── README.md             # Docs index
-│   ├── brownfield-architecture.md
-│   ├── requirements/         # Roadmap & backlog
-│   └── analysis/             # Technische analyses
+│   ├── INDEX.md              # Docs index
+│   ├── architectuur/         # EA/SA/TA docs
+│   ├── requirements/         # Requirements
+│   └── stories/              # User stories & epics
 │
-├── 📁 tests/                 # Test suites (87% broken)
+├── 📁 tests/                 # Test suites
 └── 📁 data/                  # Database & uploads
 
 ### 🧰 Handige scripts
@@ -166,7 +163,7 @@ definitie-app/
 - **Database**: Schema, migrations, UTF-8 encoding ✅
 - **Toetsregels**: 45/46 modulaire regels werkend
 - **Architecture**: Basis service layer geïmplementeerd
-- **Codebase**: 59.783 regels productie code, 15.526 regels tests
+- **Codebase**: 68.834 regels productie code, 31.940 regels tests
 - **Code Quality**: F821 undefined name errors (38→0) ✅ NIEUW
 - **Import Hygiene**: I001 unsorted imports (46→0) ✅ NIEUW
 - **Datetime Safety**: DTZ errors grotendeels opgelost ✅ NIEUW
@@ -211,11 +208,10 @@ Week 9-12: **🎯 PRODUCTION READINESS**
 - Complete legacy elimination
 - Enterprise features planning
 
-Zie [docs/requirements/ROADMAP.md](docs/requirements/ROADMAP.md) voor details.
 
 ## 🧪 Testing (Quinn Assessment)
 
-**Status**: 522 tests in 62 bestanden, 26% test-to-code ratio
+**Status**: 919 tests, 46% test-to-code ratio
 
 ### ✅ Werkende Test Modules
 ```bash
@@ -248,11 +244,10 @@ pytest tests/unit/test_config_system.py               # NameError issues
 
 ## 📖 Documentatie
 
-> **📋 TODO**: Documentatie reorganisatie plan uitvoeren - zie [DOCUMENTATIE_REORGANISATIE_PLAN.md](DOCUMENTATIE_REORGANISATIE_PLAN.md)
 
 ### Requirements & Features
 - **[Complete Requirements & Features](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md)** - Alle user stories, epics en feature status
-  - 87 features gedefinieerd
+  - 46 user stories gedefinieerd
   - 9 epics met acceptance criteria
   - Real-time status tracking
 
@@ -260,8 +255,6 @@ pytest tests/unit/test_config_system.py               # NameError issues
 - **[Architectuur Overzicht](docs/architectuur/README.md)** - Index van alle architectuur documentatie
 - **[Enterprise Architecture](docs/architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategie alignment
 - **[Solution Architecture](docs/architectuur/SOLUTION_ARCHITECTURE.md)** - Technische implementatie details
-- **[Product Delivery Tracker](docs/architectuur/PRODUCT_DELIVERY_TRACKER.md)** - Sprint voortgang & metrics
-- **[Legacy Migratie](docs/LEGACY_CODE_MIGRATION_ROADMAP.md)** - 10-weken migratie roadmap
 
 ### Quick Links
 - 🎯 [Wat moet er nog gebeuren?](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#epic-overview) - 60% features nog niet gestart
@@ -269,8 +262,7 @@ pytest tests/unit/test_config_system.py               # NameError issues
 - 🚀 [Roadmap](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#implementation-roadmap) - 4 fasen implementatie plan
 
 ### Overige Documentatie
-- [Roadmap](docs/requirements/ROADMAP.md) - 6-weken development plan
-- [Backlog](docs/BACKLOG.md) - 77+ items met quick wins
+- [User Stories](docs/stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth voor alle epics en stories
 - [Analyses](docs/analysis/) - Technische documentatie
 
 ## 🤝 Contributing (Quinn Reviewed)
@@ -296,10 +288,9 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 - Help tooltips UI enhancement - 3 uur
 
 ### 📖 **Voor Nieuwe Contributors**
-1. **Lees eerst**: Quinn QA review in [MASTER-TODO.md](MASTER-TODO.md)
-2. **Start met**: Critical fixes (immediate impact)
-3. **Test je werk**: `python scripts/ai_code_reviewer.py`
-4. **Ask questions**: Check [docs/development/](docs/development/) guides
+1. **Start met**: Critical fixes (immediate impact)
+2. **Test je werk**: `python scripts/ai_code_reviewer.py`
+3. **Check documentatie**: Zie [docs/INDEX.md](docs/INDEX.md) voor overzicht
 
 ## 🔧 Development (Updated by Quinn QA)
 
@@ -322,7 +313,6 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 - **Import order**: Module-level imports bovenaan (E402 compliance)
 - **Error handling**: Specific exceptions, proper logging
 - **Test coverage**: Minimaal 60% voor nieuwe modules
-- Zie [docs/development/code-review-workflow.md](docs/development/code-review-workflow.md)
 
 ### 🤖 AI Code Review Integration
 - **Automated quality checks** via `scripts/ai_code_reviewer.py`
@@ -368,10 +358,9 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 
 ## 📞 Support
 
-- Check [Setup Guide](SETUP.md) voor installatie
-- Zie [Roadmap](docs/requirements/ROADMAP.md) voor planning
-- Browse [Architecture](docs/architectuur/README.md) voor technische details
-- Review [Backlog](docs/BACKLOG.md) voor open taken
+- Check [Quick Start](#-quick-start) sectie voor installatie
+- Browse [Architecture](docs/architectuur/) voor technische details
+- Zie [User Stories](docs/stories/MASTER-EPICS-USER-STORIES.md) voor features
 
 ## 📜 License
 
