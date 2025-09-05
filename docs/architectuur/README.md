@@ -10,7 +10,7 @@ Deze scripts gaan over documentstructuur en consistentie (niet over applicatieco
 - `scripts/migrate-documents-fase3.sh`: verplaats/hernoem docs volgens structuur. Eerst `--dry-run`, alleen maintainers met `--execute`.
 - `scripts/architecture_validator.py`: valideert EA/SA op scheiding van concerns, overlap, templates.
 - `scripts/architecture_sync.py`: synchroniseert gedeelde secties/metadata (ADR‑referenties, metrics) tussen EA en SA.
-Zie ook: CONTRIBUTING.md → “Documentatie‑organisatie (alleen maintainers)”.
+Zie ook: CONTRIBUTING.md (root) → “Documentatie‑organisatie (alleen maintainers)”.
 
 ## 🎯 Hoofddocumenten
 
@@ -111,7 +111,7 @@ Voor maintainers zijn er hulpscripts beschikbaar om documentatie kwaliteit te wa
 - **EA/SA validatie**: `python scripts/architecture_validator.py` controleert scheiding van concerns
 - **Synchronisatie**: `python scripts/architecture_sync.py` houdt gedeelde secties consistent
 
-⚠️ **Let op**: Document migratie scripts zijn alleen voor maintainers. Zie [CONTRIBUTING.md](../../CONTRIBUTING.md#documentatie-organisatie-alleen-maintainers) voor details.
+⚠️ **Let op**: Document migratie scripts zijn alleen voor maintainers. Zie CONTRIBUTING.md (root) voor details.
 
 ## 🚧 Onderhoud
 

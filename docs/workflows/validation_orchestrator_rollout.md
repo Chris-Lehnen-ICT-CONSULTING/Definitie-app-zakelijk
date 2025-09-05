@@ -392,7 +392,7 @@ Updates:
 
 ## Related Documents
 <!-- Validation Orchestrator V2 document gearchiveerd - functionaliteit gedocumenteerd in TECHNICAL_ARCHITECTURE.md -->
-- **Contract**: [ValidationResult Contract](../architecture/contracts/validation_result_contract.md)
+- **Contract**: [ValidationResult Contract](../architectuur/contracts/validation_result_contract.md)
 - **Errors**: [Error Catalog](../technisch/error_catalog_validation.md)
 - **Testing**: [Golden Dataset](../testing/golden-dataset-validation.md)
 - **Monitoring**: [Observability Guide](../technisch/validation_observability_privacy.md)

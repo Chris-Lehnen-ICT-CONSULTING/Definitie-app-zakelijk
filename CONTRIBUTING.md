@@ -256,6 +256,7 @@ tests/
 - **Geen documenten in root** (behalve README, LICENSE, etc.)
 - **Pre-commit hook** controleert automatisch bestand locaties
 
+<a id="documentatie-organisatie-alleen-maintainers"></a>
 ## Documentatie-organisatie (alleen maintainers)
 
 Deze sectie gaat over het organiseren/valideren van documentatie (EA/SA e.d.), niet over code‑migratie. Als je geen documentatie
