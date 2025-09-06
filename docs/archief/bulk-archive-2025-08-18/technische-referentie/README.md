@@ -10,7 +10,7 @@ Uitgebreide analyses van alle systeem modules
 - Inclusief dependencies, API's, en implementatie details
 - Regelmatig bijgewerkt met code wijzigingen
 
-### [api/](./api/)
+### [api/](../../../api)
 API documentatie en specificaties
 - Endpoint definities
 - Request/response formats

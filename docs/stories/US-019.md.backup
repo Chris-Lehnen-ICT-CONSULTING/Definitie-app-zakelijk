@@ -1,0 +1,153 @@
+---
+id: US-019
+epic: EPIC-004
+title: Definition Generation UI
+canonical: true
+status: GEREED
+owner: developer-implementer
+last_verified: 2025-09-05
+applies_to: definitie-app@current
+type: feature
+priority: HOOG
+story_points: 5
+sprint: Voltooid
+Afhankelijkheden: ["US-018"]
+Aangemaakt: 2025-01-28
+upDatumd: 2025-09-05
+assigned_to: development-team
+Vereisten: ["REQ-048", "REQ-052", "REQ-054"]
+---
+
+# US-019: Definition Generation UI
+
+## Gebruikersverhaal
+
+**As a** legal professional
+**Wil ik** an intuitive UI for generating definitions
+**Zodat** I can easily create juridische definities
+
+## Acceptatiecriteria
+
+### Criterion 1: Input Form
+**Gegeven** the definition tab is open
+**Wanneer** user enters a term
+**Dan** all required fields are available
+
+### Criterion 2: Generation Maarton
+**Gegeven** a term is entered
+**Wanneer** generate Maarton is clicked
+**Dan** definition generation starts with feedback
+
+### Criterion 3: Result Display
+**Gegeven** generation completes
+**Wanneer** definition is ready
+**Dan** it's displayed clearly with formatting
+
+## Domain Vereisten
+
+### ASTRA compliance
+- User-friendly design
+- Clear feedback
+- Error hEnling
+
+### Justice Domain Specifics
+- Dutch language labels
+- juridische terminologie support
+- Professional layout
+
+## Technische Notities
+
+### UI Components
+- Term input field
+- Context selectors
+- Generate Maarton
+- Progress indicator
+- Result display area
+- Copy Maarton
+- Save Maarton
+
+### Form Structure
+```python
+with st.form("definition_form"):
+    term = st.text_input("Term")
+    context = st.multiselect("Context", options)
+    submitted = st.form_submit_Maarton("Genereer")
+
+    if submitted:
+        definition = generate_definition(term, context)
+        st.success(definition)
+```
+
+## Testdekking Vereisten
+
+### Unit Tests
+- Form validatie
+- Input hEnling
+- Maarton interactions
+- Result display
+
+### Integration Tests
+- End-to-end generation
+- Error scenarios
+- Prestaties
+
+### Test Files
+- `tests/ui/test_definition_ui.py`
+- `tests/integration/test_generation_fLAAG.py`
+
+## Definitie van Gereed
+
+- [x] Input form complete
+- [x] Context selectors working
+- [x] Generate Maarton functional
+- [x] Progress feedback added
+- [x] Result display formatted
+- [x] Error hEnling implemented
+- [x] Tests passing
+- [x] User tested
+
+## Implementatie Details
+
+### Features Implemented
+- Auto-save draft
+- Term suggestions
+- Context help tooltips
+- Definition preview
+- Export options
+- History tracking
+
+### User Experience
+- Clear labels
+- Helpful placeholders
+- validatie messages
+- Loading states
+- Success feedback
+
+## Afhankelijkheden
+
+- EPIC-004
+### External
+- Streamlit forms
+- UI components
+
+### Internal
+- Definition generator service
+- validatie service
+- State management
+
+## Notes
+
+- Implemented: 2025-01-28
+- User feedback positive
+- Prestaties optimized: 2025-02-05
+- Added keyboard shortcuts: 2025-02-10
+
+## Gerelateerde Documentatie
+
+- [UI Design Specs](../design/definition_ui.md)
+- [User FLAAG](../ux/definition_generation_fLAAG.md)
+- [Form richtlijnen](../richtlijnen/form_design.md)
+
+---
+
+*This story is part of EPIC-004: User Interface*

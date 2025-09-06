@@ -13,7 +13,7 @@ Welcome to the DefinitieAgent development documentation. This guide helps you na
 - Risk-based prioritization
 - Team collaboration guidelines
 
-### 2. [Quick Reference Card](./code-review-quick-reference.md)
+### 2. [Quick Reference Card](../code-review-quick-reference.md)
 **Purpose**: Fast lookup for common issues during reviews
 **When to use**: Keep open during code reviews for quick checks
 **Key sections**:
@@ -22,7 +22,7 @@ Welcome to the DefinitieAgent development documentation. This guide helps you na
 - Code smell indicators
 - Comment templates
 
-### 3. [Automated Review Setup](./automated-review-setup.md)
+### 3. [Automated Review Setup](../automated-review-setup.md)
 **Purpose**: Configure automated tools to catch issues early
 **When to use**: Initial project setup or tool updates
 **Key sections**:
@@ -48,13 +48,13 @@ Welcome to the DefinitieAgent development documentation. This guide helps you na
 
 ### Day 1: Environment Setup
 1. Clone the repository
-2. Follow [Automated Review Setup](./automated-review-setup.md) to install tools
+2. Follow [Automated Review Setup](../automated-review-setup.md) to install tools
 3. Run `make install` to set up pre-commit hooks
 4. Configure your IDE using provided settings
 
 ### Day 2: Understanding Standards
 1. Read the [Code Review Protocol](../CODE_REVIEW_PROTOCOL.md) overview
-2. Bookmark the [Quick Reference Card](./code-review-quick-reference.md)
+2. Bookmark the [Quick Reference Card](../code-review-quick-reference.md)
 3. Run `make quality` to see our standards in action
 4. Review recent merged PRs to see examples
 

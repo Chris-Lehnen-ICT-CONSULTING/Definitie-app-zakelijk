@@ -1,0 +1,55 @@
+---
+id: REQ-010
+title: validatie Time < 1s
+type: nonfunctional
+priority: HOOG
+status: GEREED
+sources:
+  - path: CLAUDE.md
+    line: Prestaties Targets section
+  - path: src/services/validatie/modular_validation_service.py
+    line: validatie execution logic
+links:
+  epics: [EPIC-002, EPIC-007]
+  stories: [US-2.1, US-7.4]
+  docs: [SOLUTION_ARCHITECTURE.md]
+---
+
+# Requirement REQ-010: validatie Time < 1s
+
+## Beschrijving
+
+Het complete validatie proces met alle 45 toetsregels moet binnen 1 seconde voltooid zijn. Dit omvat regel executie, result aggregatie, en score berekening.
+
+## Rationale
+
+Snelle validatie feedback is cruciaal voor een iteratief definitie ontwikkelingsproces. Gebruikers moeten direct zien welke aspecten verbetering behoeven.
+
+## Acceptatiecriteria (SMART)
+
+- 45 validatie regels executie binnen 1000ms
+- Parallel processing waar mogelijk (non-blocking rules)
+- Incrementele validatie bij tekst wijzigingen
+- Caching van ongewijzigde validatie resultaten
+- Prestaties metrics per regel beschikbaar
+- Automatische disabling van trage regels (> 100ms) met waarschuwing
+
+## Uitwerking / Notities
+
+- Huidige implementatie: ModularValidationService
+- Rule execution in batches per prioriteit (HOOG/GEMIDDELD/LAAG)
+- Async processing voor onafhankelijke regels
+- Memoization van dure text analysis operaties
+- Rule timeout van 100ms per regel
+- Profiling shows: 80% tijd in text parsing, 20% in regel logica
+
+## Conflicten (indien van toepassing)
+
+Geen conflicten geïdentificeerd
+## SMART Criteria
+
+- **Specific**: Implement complete validatie time < 1s Beveiliging control
+- **Measurable**: Zero vulnerabilities in Beveiliging scans, 100% Testdekking
+- **Achievable**: Using established Beveiliging libraries En patterns
+- **Relevant**: KRITIEK for justitiesector gegevensbescherming compliance
+- **Time-bound**: Must be operational before Productie deployment

@@ -163,7 +163,7 @@ Before diving into code:
 - Performance implications
 
 #### 3. Detailed Code Review (using protocol)
-Follow the phases from [Code Review Protocol](../CODE_REVIEW_PROTOCOL.md):
+Follow the phases from [Code Review Protocol](CODE_REVIEW_PROTOCOL.md):
 1. **Phase 1-2**: Structure & Dependencies (5-15 min)
 2. **Phase 3-4**: Functionality & Integration (20-35 min)
 3. **Phase 5-7**: Tests, Security, Quality (10-35 min)
@@ -331,7 +331,7 @@ git checkout -b hotfix/critical-issue main
 
 ## 📚 Additional Resources
 
-- [Code Review Protocol](../CODE_REVIEW_PROTOCOL.md) - Detailed review phases
+- [Code Review Protocol](CODE_REVIEW_PROTOCOL.md) - Detailed review phases
 - [Quick Reference Card](./code-review-quick-reference.md) - Common issues
 - [Automated Review Setup](./automated-review-setup.md) - Tool configuration
 - [Google's Code Review Guide](https://google.github.io/eng-practices/review/)

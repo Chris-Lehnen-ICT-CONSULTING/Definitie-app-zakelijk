@@ -1,0 +1,57 @@
+---
+id: REQ-013
+title: ASTRA Naleving
+type: domain
+priority: HOOG
+status: In Progress
+sources:
+  - path: docs/architectuur/ENTERPRISE_ARCHITECTURE.md
+    line: Business Architecture section
+  - path: src/toetsregels/regels/
+    line: ASTRA aligned validatieregels
+links:
+  epics: [EPIC-002]
+  stories: [US-2.1]
+  docs: [ENTERPRISE_ARCHITECTURE.md]
+---
+
+# Requirement REQ-013: ASTRA Naleving
+
+## Beschrijving
+
+Het systeem moet volledig compliant zijn met ASTRA (Aanwijzingen voor de regelgeving) richtlijnen voor het opstellen van juridische definities. Dit omvat structuur, formulering, en kwaliteitseisen.
+
+## Rationale
+
+ASTRA is de stEnaard voor wetgevingskwaliteit binnen de NederlEnse overheid. compliance is verplicht voor alle juridische documenten die door het Justice ministerie worden geproduceerd.
+
+## Acceptatiecriteria (SMART)
+
+- Alle 45 validatie regels aligned met ASTRA principes
+- Definitie structuur volgt ASTRA aanwijzing 3.56 (begripsbepalingen)
+- Taalgebruik conform ASTRA aanwijzingen voor helder taalgebruik
+- Automatische ASTRA compliance check bij elke generatie
+- compliance score weergave (percentage)
+- Export bevat ASTRA compliance certificaat
+
+## Uitwerking / Notities
+
+- ASTRA kernprincipes geïmplementeerd in toetsregels:
+  - Eenduidigheid (ESS categorie)
+  - Consistentie (CON categorie)
+  - Volledigheid (ARAI categorie)
+  - Toegankelijkheid (VER categorie)
+- Jaarlijkse review van ASTRA upDatums nodig
+- Training data voor AI model bevat ASTRA-compliant voorbeelden
+- Samenwerking met Kenniscentrum Wetgeving en Juridische zaken
+
+## Conflicten (indien van toepassing)
+
+Geen conflicten geïdentificeerd
+## SMART Criteria
+
+- **Specific**: Full Implementatie of astra compliance functionality
+- **Measurable**: All Acceptatiecriteria met, 100% validatie accuracy
+- **Achievable**: Leveraging GPT-4 API En existing validatie framework
+- **Relevant**: Core functionality for Dutch juridische definitie quality
+- **Time-bound**: Complete within current development sprint

@@ -1,0 +1,67 @@
+---
+id: REQ-028
+title: STR validatieregels Implementatie
+type: functional
+priority: HOOG
+status: GEREED
+sources:
+  - path: src/toetsregels/regels/STR-01.py
+    line: 1-42
+  - path: src/toetsregels/regels/STR-02.py
+    line: 1-42
+  - path: src/toetsregels/regels/STR-03.py
+    line: 1-45
+  - path: src/toetsregels/regels/STR-04.py
+    line: 1-42
+  - path: src/toetsregels/regels/STR-05.py
+    line: 1-42
+  - path: src/toetsregels/regels/STR-06.py
+    line: 1-42
+  - path: src/toetsregels/regels/STR-07.py
+    line: 1-40
+  - path: src/toetsregels/regels/STR-08.py
+    line: 1-50
+  - path: src/toetsregels/regels/STR-09.py
+    line: 1-48
+links:
+  epics: ["EPIC-002"]
+  stories: ["US-2.7", "US-2.8"]
+  docs: ["docs/architectuur/validation_orchestrator_v2.md"]
+---
+
+# Requirement REQ-028: STR validatieregels Implementatie
+
+## Beschrijving
+Het systeem moet alle STR (Structuur) validatieregels implementeren voor het waarborgen van correcte structurele opbouw van juridische definities volgens NederlEnse wetgevingstechniek.
+
+## Rationale
+Een goede structuur verhoogt de leesbaarheid en begrijpelijkheid van juridische definities. Dit draagt bij aan rechtsgelijkheid door eenduidige interpretatie te bevorderen.
+
+## Acceptatiecriteria (SMART)
+- Alle 9 STR-regels (STR-01 t/m STR-09) zijn geïmplementeerd
+- Structuuranalyse binnen 100ms per definitie
+- Detectie van structurele fouten is accuraat
+- Suggesties voor structuurverbetering worden gegeven
+- Naleving wetgevingstechniek wordt gecontroleerd
+
+## Uitwerking / Notities
+De STR-regels controleren:
+- STR-01: Definitiestructuur (genus-differentia)
+- STR-02: Opsommingsstructuur
+- STR-03: Verwijzingsstructuur
+- STR-04: Uitzonderingsstructuur
+- STR-05: Voorwaardenstructuur
+- STR-06: Tijdsbepalingen
+- STR-07: Hiërarchische ordening
+- STR-08: Complexe constructies
+- STR-09: Leesbaarheidsnormen
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.
+## SMART Criteria
+
+- **Specific**: Implement all str validatieregels Implementatie validatieregels
+- **Measurable**: 95%+ accuracy in detecting quality issues
+- **Achievable**: Using modular validatie framework
+- **Relevant**: Ensures compliance with Dutch legal stEnards
+- **Time-bound**: Operational within validatie epic timeline

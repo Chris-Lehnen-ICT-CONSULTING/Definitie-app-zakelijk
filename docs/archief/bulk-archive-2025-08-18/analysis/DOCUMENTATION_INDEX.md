@@ -33,73 +33,73 @@ Deze index biedt een overzicht van alle documentatie in de DefinitieApp codebase
 ### **Hoofdmodules (Individuele Analyses)**
 
 #### **Core Business Logic**
-- **[AI_TOETSER_MODULE_ANALYSIS.md](src/ai_toetser/AI_TOETSER_MODULE_ANALYSIS.md)**
+- **[AI_TOETSER_MODULE_ANALYSIS.md](../technische-referentie/modules/AI_TOETSER_MODULE_ANALYSIS.md)**
   - Monolithische validator (1984 lijnen)
   - 50+ toetsregels implementatie
   - Performance bottlenecks
 
-- **[SERVICES_MODULE_ANALYSIS.md](src/services/SERVICES_MODULE_ANALYSIS.md)**
+- **[SERVICES_MODULE_ANALYSIS.md](../technische-referentie/modules/SERVICES_MODULE_ANALYSIS.md)**
   - Service consolidatie (3→1)
   - Unified architecture
   - Async support
 
-- **[GENERATION_MODULE_ANALYSIS.md](src/generation/GENERATION_MODULE_ANALYSIS.md)**
+- **[GENERATION_MODULE_ANALYSIS.md](../technische-referentie/modules/GENERATION_MODULE_ANALYSIS.md)**
   - AI-powered definitie generatie
   - GPT-4 integratie
   - Prompt engineering
 
 #### **Data & Persistence**
-- **[DATABASE_MODULE_ANALYSIS.md](src/database/DATABASE_MODULE_ANALYSIS.md)**
+- **[DATABASE_MODULE_ANALYSIS.md](../technische-referentie/modules/DATABASE_MODULE_ANALYSIS.md)**
   - Repository pattern
   - SQLite implementatie
   - Connection management
 
-- **[WEB_LOOKUP_MODULE_ANALYSIS.md](src/web_lookup/WEB_LOOKUP_MODULE_ANALYSIS.md)**
+- **[WEB_LOOKUP_MODULE_ANALYSIS.md](../technische-referentie/modules/WEB_LOOKUP_MODULE_ANALYSIS.md)**
   - 8 Nederlandse definitiebronnen
   - Web scraping implementatie
   - Rate limiting
 
 #### **User Interface**
-- **[UI_MODULE_ANALYSIS.md](src/ui/UI_MODULE_ANALYSIS.md)**
+- **[UI_MODULE_ANALYSIS.md](../technische-referentie/modules/UI_MODULE_ANALYSIS.md)**
   - Streamlit componenten
   - Session state management
   - Tabbed interface
 
 #### **Configuration & Utils**
-- **[CONFIG_MODULE_ANALYSIS.md](src/config/CONFIG_MODULE_ANALYSIS.md)**
+- **[CONFIG_MODULE_ANALYSIS.md](../technische-referentie/modules/CONFIG_MODULE_ANALYSIS.md)**
   - Centralized configuration
   - Toetsregels management
   - Environment variables
 
-- **[UTILS_MODULE_ANALYSIS.md](src/utils/UTILS_MODULE_ANALYSIS.md)**
+- **[UTILS_MODULE_ANALYSIS.md](../technische-referentie/modules/UTILS_MODULE_ANALYSIS.md)**
   - Utility functions
   - Resilience patterns
   - Performance monitoring
 
 #### **Processing & Validation**
-- **[VALIDATION_MODULE_ANALYSIS.md](src/validation/VALIDATION_MODULE_ANALYSIS.md)**
+- **[VALIDATION_MODULE_ANALYSIS.md](../technische-referentie/modules/VALIDATION_MODULE_ANALYSIS.md)**
   - Rule-based validation
   - Quality assurance
   - Error handling
 
-- **[VOORBEELDEN_MODULE_ANALYSIS.md](src/voorbeelden/VOORBEELDEN_MODULE_ANALYSIS.md)**
+- **[VOORBEELDEN_MODULE_ANALYSIS.md](../technische-referentie/modules/VOORBEELDEN_MODULE_ANALYSIS.md)**
   - Example generation
   - Unified implementation
   - Caching strategies
 
-- **[ORCHESTRATION_MODULE_ANALYSIS.md](src/orchestration/ORCHESTRATION_MODULE_ANALYSIS.md)**
+- **[ORCHESTRATION_MODULE_ANALYSIS.md](../technische-referentie/modules/ORCHESTRATION_MODULE_ANALYSIS.md)**
   - Workflow management
   - Process coordination
   - State transitions
 
 ### **Application Entry Points**
-- **[SRC_ROOT_ANALYSIS.md](src/SRC_ROOT_ANALYSIS.md)**
+- **[SRC_ROOT_ANALYSIS.md](../technische-referentie/modules/SRC_ROOT_ANALYSIS.md)**
   - Legacy vs Modern architectuur
   - centrale_module_definitie_kwaliteit.py (1089 lijnen)
   - main.py (moderne entry point)
 
 ### **Supporting Modules**
-- **[SMALLER_MODULES_ANALYSIS.md](src/SMALLER_MODULES_ANALYSIS.md)**
+- **[SMALLER_MODULES_ANALYSIS.md](../technische-referentie/modules/SMALLER_MODULES_ANALYSIS.md)**
   - 17 kleinere modules
   - Export, Cache, Security, Tools
   - Technical debt overview

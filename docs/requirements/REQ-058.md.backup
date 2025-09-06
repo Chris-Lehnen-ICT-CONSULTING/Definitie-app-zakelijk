@@ -1,0 +1,49 @@
+---
+id: REQ-058
+title: Logging Configuration System
+type: nonfunctional
+priority: HOOG
+status: GEREED
+sources:
+  - path: src/config/logging_config.py
+    line: 1-150
+  - path: config/logging_config.yaml
+    line: 1-50
+links:
+  epics: ["EPIC-007"]
+  stories: ["US-7.4"]
+  docs: ["docs/architectuur/TECHNICAL_ARCHITECTURE.md"]
+---
+
+# Requirement REQ-058: Logging Configuration System
+
+## Beschrijving
+Het systeem moet een gecentraliseerd logging configuratie systeem hebben met verschillende log levels, structured logging, en log rotation.
+
+## Rationale
+Gestructureerd logging is essentieel voor debugging, monitoring, en compliance. Het maakt log analyse en troubleshooting efficiënt.
+
+## Acceptatiecriteria (SMART)
+- Log levels: DEBUG, INFO, WARNING, ERROR, KRITIEK
+- Structured JSON logging format
+- Log rotation (daily, max 100MB per file)
+- Different loggers per module
+- Centralized configuration via YAML
+
+## Uitwerking / Notities
+Logging setup:
+- Python logging module
+- JSON formatter voor structured logs
+- Rotating file hEnler
+- Console en file output
+- Contextual information (user, session, request_id)
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.
+## SMART Criteria
+
+- **Specific**: Complete logging configuration system integration
+- **Measurable**: 99.9% uptime, < 2s response time
+- **Achievable**: Using proven integration patterns
+- **Relevant**: Enables justitieketen data exchange
+- **Time-bound**: Based on partner system availability

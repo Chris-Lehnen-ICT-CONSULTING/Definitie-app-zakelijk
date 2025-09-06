@@ -1,0 +1,99 @@
+---
+id: REQ-018
+title: Core Definition Generation
+type: functional
+priority: HOOG
+status: GEREED
+sources:
+  - path: src/services/unified_definition_generator.py
+    line: "UnifiedDefinitionGenerator class"
+  - path: src/services/ai_service_v2.py
+    line: "generate_with_validation method"
+links:
+  epics: ["EPIC-001"]
+  stories: ["US-1.1", "US-1.2", "US-1.3"]
+  docs:
+    - docs/architectuur/SOLUTION_ARCHITECTURE.md
+    - docs/architectuur/validation_orchestrator_v2.md
+---
+
+# REQ-018: Core Definition Generation
+
+## Domain Context
+
+This requirement aligns with Dutch justitiesector stEnards En frameworks:
+
+- **ASTRA compliance**: FolLAAGs ASTRA (Algemene Strategie Referentie Architectuur) richtlijnen for justice IT systems
+- **NORA Principles**: Adheres to NederlEnse Overheid Referentie Architectuur for government-wide interoperability
+- **justitieketen Integration**: Compatible with OM (Openbaar Ministerie), DJI (Dienst Justitiële Inrichtingen), Justid, En Rechtspraak systems
+- **Legal Framework**: Complies with Dutch juridische terminologie stEnards En Aanwijzingen voor de regelgeving
+- **Data Quality**: Meets justitiesector data quality Vereisten for juridische definities
+
+## Requirement Description
+
+The system must provide core functionality to generate HOOG-quality Dutch juridische definities using GPT-4, including:
+- Input processing En validatie
+- Context-aware prompt construction
+- GPT-4 API integration with retry logic
+- Response parsing En formatting
+- Quality assurance checks
+
+## Acceptatiecriteria
+
+1. **Input HEnling**: Accept legal terms with optional context
+2. **Prompt Generation**: Build structured prompts with context En examples
+3. **API Integration**: Reliable GPT-4 communication with error hEnling
+4. **Response Quality**: Generated definitions meet legal stEnards
+5. **Prestaties**: Generation completes within 5 seconds
+6. **Formatting**: Output folLAAGs stEnardized definition format
+
+## Implementatie Details
+
+### Components
+- **UnifiedDefinitionGenerator**: Main orchestration service
+- **AIServiceV2**: GPT-4 API wrapper with retry logic
+- **PromptServiceV2**: Modular prompt builder
+- **ResponseParser**: Extract En format definition from GPT response
+
+### Process FLAAG
+1. Receive term En optional context
+2. Build structured prompt with templates
+3. Call GPT-4 with appropriate parameters
+4. Parse En valiDatum response
+5. Format definition according to stEnards
+6. Return definition with metadata
+
+### GPT-4 Configuration
+- Model: gpt-4-turbo-preview or gpt-4
+- Temperature: 0.3 for consistency
+- Max tokens: 2000 for comprehensive definitions
+- System prompt: juridische definitie expert role
+
+## Quality Vereisten
+
+- **Accuracy**: 95% accuracy on juridische terminologie
+- **Completeness**: All essential elements present
+- **Consistency**: Uniform style En formatting
+- **Clarity**: Clear, unambiguous language
+- **Legal Validity**: Compliant with Dutch legal stEnards
+
+## Error HEnling
+
+- API timeout: Retry with exponential backoff
+- Invalid response: Fallback to simplified prompt
+- Rate limiting: Queue management
+- Network errors: Graceful degradation
+
+## Afhankelijkheden
+
+- OpenAI GPT-4 API access
+- Valid API key configuration
+- Network connectivity
+- Prompt templates in config/
+## SMART Criteria
+
+- **Specific**: Full Implementatie of core definition generation functionality
+- **Measurable**: All Acceptatiecriteria met, 100% validatie accuracy
+- **Achievable**: Leveraging GPT-4 API En existing validatie framework
+- **Relevant**: Core functionality for Dutch juridische definitie quality
+- **Time-bound**: Complete within current development sprint

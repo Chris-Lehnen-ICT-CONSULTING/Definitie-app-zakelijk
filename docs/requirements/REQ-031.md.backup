@@ -1,0 +1,47 @@
+---
+id: REQ-031
+title: validatie Result Caching
+type: nonfunctional
+priority: HOOG
+status: In Progress
+sources:
+  - path: docs/stories/MASTER-EPICS-USER-STORIES.md
+    line: 258-291
+  - path: src/services/validatie/modular_validation_service.py
+    line: 300-350
+links:
+  epics: ["EPIC-007"]
+  stories: ["US-7.3"]
+  docs: ["docs/architectuur/SOLUTION_ARCHITECTURE.md"]
+---
+
+# Requirement REQ-031: validatie Result Caching
+
+## Beschrijving
+Het systeem moet validatieresultaten cachen om herhaalde validatie van dezelfde content te voorkomen, met een TTL (Time To Live) mechanisme voor cache invalidatie.
+
+## Rationale
+Validatie is een kostbare operatie (45 regels per definitie). Caching vermindert de met minimaal 30% belasting op het systeem en verbetert response met minimaal 50% tijden significant, vooral bij herhaalde validaties van dezelfde content.
+
+## Acceptatiecriteria (SMART)
+- Cache hit ratio > 70% bij normale gebruik
+- Cache access tijd < 10ms
+- TTL configureerbaar (default 15 minuten)
+- Cache size limit van 100MB
+- Automatische cache invalidatie bij regel upDatums
+
+## Uitwerking / Notities
+Gebruik van Streamlit's @st.cache_data decorator met:
+- Hash-based cache keys (definitie content)
+- LRU eviction beleid
+- Memory-based caching (geen persistentie nodig)
+
+## Conflicten (indien van toepassing)
+Potentieel conflict met REQ-033 (validatie Prestaties monitoring) - cache hits moeten apart gemonitord worden.
+## SMART Criteria
+
+- **Specific**: Implement all validatie result caching validatieregels
+- **Measurable**: 95%+ accuracy in detecting quality issues
+- **Achievable**: Using modular validatie framework
+- **Relevant**: Ensures compliance with Dutch legal stEnards
+- **Time-bound**: Operational within validatie epic timeline

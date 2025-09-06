@@ -152,16 +152,16 @@ pytest --cov=src tests/
 - **[🧹 Cleanup Status](CODEBASE_CLEANUP_STATUS.md)** - Huidige opruimingsvoortgang
 
 ### 🏗️ **Module Analyses**
-- **[🤖 AI Toetser](src/ai_toetser/AI_TOETSER_MODULE_ANALYSIS.md)** - Monolithische validator
-- **[⚙️ Services](src/services/SERVICES_MODULE_ANALYSIS.md)** - Geconsolideerde services (87% compleet)
+- **[🤖 AI Toetser](../technische-referentie/modules/AI_TOETSER_MODULE_ANALYSIS.md)** - Monolithische validator
+- **[⚙️ Services](../technische-referentie/modules/SERVICES_MODULE_ANALYSIS.md)** - Geconsolideerde services (87% compleet)
 - **[🔍 Web Lookup](WEB_LOOKUP_CONSOLIDATION_ANALYSIS.md)** - ✅ VOLTOOID - Geconsolideerd naar WebLookupService
-- **[🖥️ UI](src/ui/UI_MODULE_ANALYSIS.md)** - Gebruikersinterface
-- **[📊 Database](src/database/DATABASE_MODULE_ANALYSIS.md)** - Repository pattern
-- **[🔧 Utils](src/utils/UTILS_MODULE_ANALYSIS.md)** - Utility functies
-- **[📝 Voorbeelden](src/voorbeelden/VOORBEELDEN_MODULE_ANALYSIS.md)** - Voorbeeldgeneratie
-- **[⚙️ Config](src/config/CONFIG_MODULE_ANALYSIS.md)** - Configuratie management
-- **[📋 Kleinere Modules](src/SMALLER_MODULES_ANALYSIS.md)** - 17 support modules
-- **[🏠 Root Files](src/SRC_ROOT_ANALYSIS.md)** - Legacy vs moderne architectuur
+- **[🖥️ UI](../technische-referentie/modules/UI_MODULE_ANALYSIS.md)** - Gebruikersinterface
+- **[📊 Database](../technische-referentie/modules/DATABASE_MODULE_ANALYSIS.md)** - Repository pattern
+- **[🔧 Utils](../technische-referentie/modules/UTILS_MODULE_ANALYSIS.md)** - Utility functies
+- **[📝 Voorbeelden](../technische-referentie/modules/VOORBEELDEN_MODULE_ANALYSIS.md)** - Voorbeeldgeneratie
+- **[⚙️ Config](../technische-referentie/modules/CONFIG_MODULE_ANALYSIS.md)** - Configuratie management
+- **[📋 Kleinere Modules](../technische-referentie/modules/SMALLER_MODULES_ANALYSIS.md)** - 17 support modules
+- **[🏠 Root Files](../technische-referentie/modules/SRC_ROOT_ANALYSIS.md)** - Legacy vs moderne architectuur
 
 ## 🔧 Development
 

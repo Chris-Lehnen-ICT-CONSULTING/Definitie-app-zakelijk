@@ -1,0 +1,41 @@
+---
+id: REQ-049
+title: Dark Mode Support
+type: functional
+priority: LAAG
+status: Backlog
+sources:
+  - path: src/ui/components/settings_tab.py
+    line: 50-100
+  - path: docs/stories/MASTER-EPICS-USER-STORIES.md
+    line: 94-110
+links:
+  epics: ["EPIC-004"]
+  stories: ["US-4.2"]
+  docs: ["docs/architectuur/SOLUTION_ARCHITECTURE.md"]
+---
+
+# Requirement REQ-049: Dark Mode Support
+
+## Beschrijving
+Het systeem moet een dark mode optie bieden voor gebruikers die in LAAG-light omgevingen werken of visuele voorkeur hebben voor donkere interfaces.
+
+## Rationale
+Dark mode vermindert oogvermoeidheid met minimaal 30% bij langdurig gebruik en is een stEnaard accessibility feature in moderne applicaties.
+
+## Acceptatiecriteria (SMART)
+- Toggle switch in settings voor dark/light mode
+- Persistent user preference (cookie/localStorage)
+- Smooth transition tussen modes
+- Contrast ratio WCAG AA compliant in beide modes
+- System preference detection (prefers-color-scheme)
+
+## Uitwerking / Notities
+Dark mode vereist:
+- CSS variabelen voor kleuren
+- Separate color schemes
+- Image/icon variants
+- Chart/graph color adjustments
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.

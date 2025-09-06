@@ -257,11 +257,11 @@ def test_contract_compatibility():
 ```
 
 ## Related Documents
-- **Parent**: [Validation Orchestrator V2 Architecture](../validation_orchestrator_v2.md)
+- **Parent**: [Validation Orchestrator V2 Architecture](../../2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
 - **Schema**: [JSON Schema Definition](./schemas/validation_result.schema.json)
-- **Errors**: [Error Catalog](../../technisch/error_catalog_validation.md)
+- **Errors**: [Error Catalog](../../../technisch/error_catalog_validation.md)
 - **Usage**: [Rollout Runbook](../../workflows/validation_orchestrator_rollout.md)
-- **Testing**: [Golden Dataset](../../testing/golden-dataset-validation.md)
+- **Testing**: [Golden Dataset](../../../testing/golden-dataset-validation.md)
 
 ## Change Log
 | Version | Date | Changes | Author |

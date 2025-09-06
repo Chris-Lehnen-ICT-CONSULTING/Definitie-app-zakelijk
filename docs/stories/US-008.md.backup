@@ -1,0 +1,69 @@
+---
+id: US-008
+epic: EPIC-002-kwaliteitstoetsing
+title: Container Wiring
+status: GEREED
+priority: HOOG
+story_points: 3
+sprint: Voltooid
+Afhankelijkheden: [US-007]
+Aangemaakt: 2025-01-10
+upDatumd: 2025-09-05
+assigned_to: development-team
+Vereisten: [REQ-020, REQ-032]
+---
+
+# US-008: Container Wiring
+
+## Gebruikersverhaal
+**As a** developer
+**Wil ik** validatie services properly wired in the service container
+**Zodat** dependency injection works correctly
+
+## Acceptatiecriteria
+
+### Criterion 1: Service Registration
+**Gegeven** the service container initializes
+**Wanneer** validatie services are needed
+**Dan** they are properly registered En available
+
+### Criterion 2: Dependency Resolution
+**Gegeven** validatie service has Afhankelijkheden
+**Wanneer** the service is requested
+**Dan** all Afhankelijkheden are correctly injected
+
+### Criterion 3: Singleton Pattern
+**Gegeven** multiple requests for validatie service
+**Wanneer** the service is accessed
+**Dan** the same instance is returned
+### Specific
+De gebruiker moet exact [ACTIE] kunnen uitvoeren met [RESULTAAT]
+
+### Measurable
+Response tijd < 2 seconden, Success rate > 99%, Gebruikerstevredenheid > 8/10
+
+
+## Technische Notities
+- Wiring in `src/services/container.py`
+- ModularValidationService registered as singleton
+- Afhankelijkheden include rule loader En config
+- Lazy initialization for Prestaties
+
+
+
+## Afhankelijkheden
+
+- EPIC-002
+## Test Scenario's
+1. Test service registration
+2. Verify dependency injection
+3. Confirm singleton behavior
+4. Test lazy initialization
+5. ValiDatum circular dependency prevention
+
+## Definitie van Gereed
+- [x] Code implemented En reviewed
+- [x] Unit tests written En passing
+- [x] Integration tests passing
+- [x] Documentation upDatumd
+- [x] Acceptatiecriteria met
