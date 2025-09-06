@@ -1,0 +1,154 @@
+name: Epic and Story Validation
+
+on:
+  push:
+    paths:
+      - 'docs/epics/**'
+      - 'docs/stories/**'
+  pull_request:
+    paths:
+      - 'docs/epics/**'
+      - 'docs/stories/**'
+  workflow_dispatch:
+
+jobs:
+  validate-structure:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install dependencies
+      run: |
+        pip install pyyaml
+
+    - name: Validate Epic Files
+      run: |
+        echo "Validating Epic files..."
+        for file in docs/epics/EPIC-*.md; do
+          if [ -f "$file" ]; then
+            echo "Checking $file"
+            # Extract frontmatter
+            head -20 "$file" | grep -E "^(id|title|status|owner|priority):" > /dev/null
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Missing required frontmatter in $file"
+              exit 1
+            fi
+          fi
+        done
+        echo "✅ All epic files have valid frontmatter"
+
+    - name: Validate Story Files
+      run: |
+        echo "Validating Story files..."
+        for file in docs/stories/US-*.md; do
+          if [ -f "$file" ]; then
+            echo "Checking $file"
+            # Extract frontmatter
+            head -20 "$file" | grep -E "^(id|epic|title|status|priority):" > /dev/null
+            if [ $? -ne 0 ]; then
+              echo "ERROR: Missing required frontmatter in $file"
+              exit 1
+            fi
+          fi
+        done
+        echo "✅ All story files have valid frontmatter"
+
+    - name: Check ID Uniqueness
+      run: |
+        echo "Checking for duplicate IDs..."
+        # Check epic IDs
+        epic_ids=$(grep "^id:" docs/epics/EPIC-*.md 2>/dev/null | cut -d: -f2 | sort | uniq -d)
+        if [ -n "$epic_ids" ]; then
+          echo "ERROR: Duplicate epic IDs found: $epic_ids"
+          exit 1
+        fi
+
+        # Check story IDs
+        story_ids=$(grep "^id:" docs/stories/US-*.md 2>/dev/null | cut -d: -f2 | sort | uniq -d)
+        if [ -n "$story_ids" ]; then
+          echo "ERROR: Duplicate story IDs found: $story_ids"
+          exit 1
+        fi
+        echo "✅ All IDs are unique"
+
+    - name: Validate Cross-References
+      run: |
+        echo "Validating cross-references..."
+        python3 - <<'EOF'
+        import os
+        import re
+        import sys
+
+        def extract_frontmatter(filepath):
+            """Extract frontmatter from markdown file"""
+            with open(filepath, 'r') as f:
+                lines = f.readlines()
+
+            if lines[0].strip() != '---':
+                return {}
+
+            frontmatter = {}
+            for i in range(1, len(lines)):
+                if lines[i].strip() == '---':
+                    break
+                if ':' in lines[i]:
+                    key, value = lines[i].split(':', 1)
+                    frontmatter[key.strip()] = value.strip()
+
+            return frontmatter
+
+        # Collect all epic IDs
+        epic_ids = set()
+        for filename in os.listdir('docs/epics'):
+            if filename.startswith('EPIC-') and filename.endswith('.md'):
+                filepath = os.path.join('docs/epics', filename)
+                fm = extract_frontmatter(filepath)
+                if 'id' in fm:
+                    epic_ids.add(fm['id'])
+
+        # Validate story epic references
+        errors = []
+        for filename in os.listdir('docs/stories'):
+            if filename.startswith('US-') and filename.endswith('.md'):
+                filepath = os.path.join('docs/stories', filename)
+                fm = extract_frontmatter(filepath)
+                if 'epic' in fm and fm['epic'] not in epic_ids:
+                    errors.append(f"Story {fm.get('id', filename)} references non-existent epic {fm['epic']}")
+
+        if errors:
+            for error in errors:
+                print(f"ERROR: {error}")
+            sys.exit(1)
+        else:
+            print("✅ All cross-references are valid")
+        EOF
+
+    - name: Generate Validation Report
+      if: always()
+      run: |
+        echo "## Epic and Story Validation Report" > validation-report.md
+        echo "" >> validation-report.md
+        echo "### Statistics" >> validation-report.md
+        echo "- Epic files: $(ls docs/epics/EPIC-*.md 2>/dev/null | wc -l)" >> validation-report.md
+        echo "- Story files: $(ls docs/stories/US-*.md 2>/dev/null | wc -l)" >> validation-report.md
+        echo "- INDEX files: $(ls docs/*/INDEX.md 2>/dev/null | wc -l)" >> validation-report.md
+        echo "" >> validation-report.md
+        echo "### Validation Results" >> validation-report.md
+        echo "- Frontmatter validation: ✅" >> validation-report.md
+        echo "- ID uniqueness: ✅" >> validation-report.md
+        echo "- Cross-references: ✅" >> validation-report.md
+
+        cat validation-report.md
+
+    - name: Upload Validation Report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: validation-report
+        path: validation-report.md

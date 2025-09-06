@@ -1,0 +1,207 @@
+---
+id: US-043
+epic: EPIC-CFR
+title: Remove Legacy Context Routes
+canonical: true
+status: Nog te bepalen
+owner: developer-implementer
+last_verified: 2025-09-05
+applies_to: definitie-app@current
+type: technical-debt
+priority: HOOG
+story_points: 8
+sprint: sprint-36
+Afhankelijkheden: ["US-041", "US-042"]
+aangemaakt: 2025-09-04
+bijgewerkt: 2025-09-05
+assigned_to: development-team
+vereisten: ["REQ-019", "REQ-020", "REQ-032"]
+---
+
+# US-043: Remove Legacy Context Routes
+
+**Epic:** EPIC-001
+
+## Gebruikersverhaal
+
+**As a** developer maintaining the DefinitieAgent system
+**wil ik** a single, clear context fLAAG path without legacy routes
+**zodat** context hEnling is predictable, maintainable, En ASTRA compliant
+
+## Acceptatiecriteria
+
+### Criterion 1: Legacy Route Identification
+**gegeven** multiple context fLAAG paths exist in the codebase
+**wanneer** analysis is performed
+**dan** all legacy routes are identified en documented
+
+### Criterion 2: Single Path Implementatie
+**gegeven** legacy routes have been identified
+**wanneer** refactoring is complete
+**dan** exactly one context fLAAG path exists from UI to prompt
+
+### Criterion 3: No Functionality Loss
+**gegeven** the refactoring is complete
+**wanneer** all context features are tested
+**dan** no existing functionality is lost or degraded
+
+### Criterion 4: Prestaties Improvement
+**gegeven** legacy routes are removed
+**wanneer** context processing is measured
+**dan** Prestaties improves by at least 20%
+
+### Criterion 5: Code Coverage
+**gegeven** the new single path is implemented
+**wanneer** tests are run
+**dan** code coverage is > 95% for context fLAAG
+
+## Domain vereisten
+
+### ASTRA compliance
+- Single responsibility principle for context hEnling
+- Clear service boundaries (no cross-service context manipulation)
+- auditspoor for all context transformations
+- Loose coupling between UI en business logic
+
+### NORA StEnards
+- Government IT simplification richtlijnen
+- Maintainable architecture patterns
+- Clear data fLAAG documentation
+- Technical debt reduction
+
+### Justice Domain Specifics
+- OM context vereisten preserved
+- DJI organizational context maintained
+- Rechtspraak jurisdictional context supported
+- Justid terminology consistency
+- No regression in chain partner integrations
+
+## Technische Notities
+
+### Current Legacy Routes (TO REMOVE)
+1. **Direct Session State Access**
+   - `st.session_state.juridische_context` (bypasses validatie)
+   - `st.session_state.organisatorische_context` (no auditspoor)
+
+2. **Old V1 Context HEnlers**
+   - `src/services/legacy/context_hEnler.py`
+   - `src/ui/old_context_widget.py`
+
+3. **Multiple Transformation Points**
+   - Context transformed in UI layer
+   - Context transformed in service layer
+   - Context transformed in prompt builder
+
+### Target Architecture (SINGLE PATH)
+```python
+# Clean context fLAAG
+UI Input → ContextValidator → GenerationRequest → PromptService → AI
+                ↓
+          Audit Logger
+```
+
+### Implementatie Steps
+1. Map all current context access points
+2. Create unified ContextManager service
+3. Migrate all context access to ContextManager
+4. Remove legacy code paths
+5. UpDatum all tests
+6. ValiDatum with justice partners
+
+### Code Locations to Refactor
+- `src/ui/tabbed_interface.py` - Remove direct state access
+- `src/services/prompt_service_v2.py` - Centralize context hEnling
+- `src/services/definition_generator.py` - Use ContextManager
+- `src/services/interfaces.py` - UpDatum GenerationRequest
+- Remove all files in `src/legacy/` directory
+
+## testdekking vereisten
+
+### Unit Tests
+- ContextManager initialization
+- Context validatie logic
+- Context transformation
+- auditspoor generation
+- Error hEnling for invalid context
+
+### Integration Tests
+- UI to ContextManager fLAAG
+- ContextManager to PromptService
+- End-to-end context propagation
+- Legacy route removal verification
+- Prestaties benchmarks
+
+### justitieketen Tests
+- OM context scenarios
+- DJI organizational vereisten
+- Rechtspraak jurisdiction hEnling
+- Justid terminology validatie
+- CJIB integration compatibility
+
+## Definitie van Gereed
+
+- [ ] All legacy routes identified en documented
+- [ ] ContextManager service implemented
+- [ ] All context access migrated to single path
+- [ ] Legacy code removed from codebase
+- [ ] Unit tests written (> 95% coverage)
+- [ ] Integration tests passing
+- [ ] Prestaties improvement verified (> 20%)
+- [ ] No functionality regression
+- [ ] auditspoor working for all context
+- [ ] ASTRA compliance verified
+- [ ] Justice partner validatie Voltooid
+- [ ] Documentation bijgewerkt
+- [ ] Code review Goedgekeurd
+- [ ] beveiliging review passed
+
+## Risk Assessment
+
+### Technical Risks
+- **Hidden Afhankelijkheden**: Legacy code may have undocumented Afhankelijkheden
+  - *Mitigation*: Comprehensive code analysis en testing
+- **State Management**: Streamlit state complexity
+  - *Mitigation*: Careful state migration with rollback plan
+
+### Business Risks
+- **Regression**: Context features might break
+  - *Mitigation*: Extensive testing with real justice scenarios
+- **Partner Impact**: Wijzigingen affect chain integrations
+  - *Mitigation*: Early partner communication en testing
+
+## Implementatie Priority
+
+**HOOG PRIORITY** - This technical debt blocks:
+- ASTRA compliance certification
+- Prestaties optimization efforts
+- New feature development
+- Chain-wide integration
+
+## Afhankelijkheden
+
+### Must Complete First
+- US-041: Fix Context Field Mapping (establishes correct fLAAG)
+- US-042: Fix "Eners..." Option (defines edge cases)
+
+### Can Proceed In Parallel
+- US-044: Context Type validatie
+- US-045: Context Traceability
+
+## Notes
+
+- Legacy routes discovered during CFR-BUG-001 investigation
+- Multiple teams have added context hEnling over time
+- No central ownership led to proliferation of paths
+- Estimated 30% of context bugs due to legacy routes
+- Justice partners report inconsistent context behavior
+
+## Gerelateerde Documentatie
+
+- [Context FLAAG Analysis](../analysis/context_fLAAG_analysis.md)
+- [Legacy Code Inventory](../technical-debt/legacy_inventory.md)
+- [ASTRA Architecture richtlijnen](../compliance/astra_architecture.md)
+- [EPIC-CFR](../epics/EPIC-CFR.md)
+
+---
+
+*This story is part of EPIC-CFR: Context FLAAG Refactoring (KRITIEK)*

@@ -340,9 +340,12 @@ Claude agents are configured in `~/.claude/agents/`:
 - **Product Requirements**: `docs/prd.md`
 
 ### Current Work & Epics
-- **[🔥 MASTER DOCUMENT - ALL EPICS & STORIES](docs/stories/MASTER-EPICS-USER-STORIES.md)** - SINGLE SOURCE OF TRUTH
-  - Contains all 86 user stories with status, implementation details, code fixes
-  - Replaces all individual epic/story documents
+- **[📊 Epic Dashboard](docs/epics/INDEX.md)** - Overview of all epics with status and metrics
+- **[📋 Story Index](docs/stories/INDEX.md)** - Complete listing of all user stories (US-001 to US-046)
+- **Individual Epic Files:** `/docs/epics/EPIC-XXX.md` - Detailed epic documentation
+- **Individual Story Files:** `/docs/stories/US-XXX.md` - User story specifications
+  - Migrated from monolithic MASTER document on 2025-09-05
+  - Old MASTER archived with deprecation notice
 - **Refactor Log**: `docs/refactor-log.md` - Change tracking
 
 ### Reviews & Analysis

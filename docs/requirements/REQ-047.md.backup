@@ -1,0 +1,48 @@
+---
+id: REQ-047
+title: Backup En Restore Functionality
+type: nonfunctional
+priority: HOOG
+status: Backlog
+sources:
+  - path: docs/architectuur/TECHNICAL_ARCHITECTURE.md
+    line: 500-550
+  - path: Nog te bepalen - Backup/restore script planned
+    line: 1-100
+links:
+  epics: ["EPIC-006"]
+  stories: ["US-6.4"]
+  docs: ["docs/architectuur/TECHNICAL_ARCHITECTURE.md"]
+---
+
+# Requirement REQ-047: Backup En Restore Functionality
+
+## Beschrijving
+Het systeem moet automated backup en restore functionaliteit bieden voor database, configuratie, en user-generated content met point-in-time recovery mogelijkheden.
+
+## Rationale
+Data loss prevention is kritiek voor een overheidssysteem. Backup/restore procedures zijn nodig voor disaster recovery en compliance met data retention policies.
+
+## Acceptatiecriteria (SMART)
+- Dagelijkse automated backups
+- Retention: 30 dagen dagelijks, 12 maEnen maEnelijks
+- Restore test maEnelijks uitgevoerd
+- RTO (Recovery Time Objective): < 4 uur
+- RPO (Recovery Point Objective): < 24 uur
+
+## Uitwerking / Notities
+Backup strategie:
+- Database: Full + incremental backups
+- Files: Versieed object storage
+- Configuration: Git-based Versieing
+- Encrypted off-site storage
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.
+## SMART Criteria
+
+- **Specific**: Develop backup En restore functionality interface component
+- **Measurable**: < 200ms response time, WCAG AA compliance
+- **Achievable**: Using Streamlit framework capabilities
+- **Relevant**: Improves user experience En productivity
+- **Time-bound**: Aligned with UI epic completion milestone

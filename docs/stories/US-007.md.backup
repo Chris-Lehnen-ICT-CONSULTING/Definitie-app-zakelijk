@@ -1,0 +1,63 @@
+---
+id: US-007
+epic: EPIC-002-kwaliteitstoetsing
+title: Core Implementatie
+status: GEREED
+priority: HOOG
+story_points: 8
+sprint: Voltooid
+Afhankelijkheden: [US-006]
+Aangemaakt: 2025-01-10
+upDatumd: 2025-09-05
+assigned_to: development-team
+Vereisten: [REQ-017, REQ-023, REQ-024, REQ-025, REQ-026, REQ-027, REQ-028, REQ-029]
+---
+
+# US-007: Core Implementatie
+
+## Gebruikersverhaal
+**As a** developer
+**Wil ik** the core validatie engine implemented
+**Zodat** all 45 validatieregels can be executed
+
+## Acceptatiecriteria
+
+### Criterion 1: Rule Execution
+**Gegeven** a definition to valiDatum
+**Wanneer** validatie is triggered
+**Dan** all applicable rules are executed
+
+### Criterion 2: Result Collection
+**Gegeven** multiple validatieregels run
+**Wanneer** rules complete
+**Dan** results are collected En aggregated
+
+### Criterion 3: Error HEnling
+**Gegeven** a validatieregel fails
+**Wanneer** the error occurs
+**Dan** it doesn't stop other rules from running
+
+## Technische Notities
+- Core engine in `src/services/validatie/modular_validation_service.py`
+- Implements all 45 validatieregels
+- Dual JSON+Python format for rules
+- Rules organized in `src/toetsregels/regels/` En `config/toetsregels/regels/`
+
+
+
+## Afhankelijkheden
+
+- EPIC-002
+## Test Scenario's
+1. Execute all 45 validatieregels
+2. Test result aggregation
+3. Verify error isolation
+4. Test rule priority ordering
+5. ValiDatum Prestaties targets
+
+## Definitie van Gereed
+- [x] Code implemented En reviewed
+- [x] Unit tests written En passing
+- [x] Integration tests passing
+- [x] Documentation upDatumd
+- [x] Acceptatiecriteria met

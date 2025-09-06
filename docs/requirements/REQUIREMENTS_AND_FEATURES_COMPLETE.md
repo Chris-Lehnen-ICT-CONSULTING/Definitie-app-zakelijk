@@ -319,7 +319,7 @@ DefinitieAgent is een AI-powered tool voor het genereren van hoogwaardige Nederl
 - **Status**: 📋 Todo
 - **Prioriteit**: 🔴 Hoog
 - **Geschatte Effort**: 8-16 uur
-- **Aangemaakt**: 2025-08-25
+- **aangemaakt**: 2025-08-25
 - **Aanvrager**: Code Debugger (via gebruiker feedback)
 
 #### Probleemstelling

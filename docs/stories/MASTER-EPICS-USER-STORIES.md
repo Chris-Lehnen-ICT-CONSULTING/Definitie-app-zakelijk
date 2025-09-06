@@ -1,15 +1,53 @@
 # MASTER EPICS AND USER STORIES
 
+> ⚠️ **DEPRECATED DOCUMENT** ⚠️
+>
+> **Status:** DEPRECATED as of 2025-09-05
+> **Reason:** Migrated to modern file-per-epic/story structure
+>
+> ## New Structure
+>
+> This document has been replaced by individual epic and story files:
+>
+> - **Epics:** See `/docs/epics/` directory
+>   - Dashboard: [/docs/epics/INDEX.md](../epics/INDEX.md)
+>   - Files: EPIC-001.md through EPIC-CFR.md
+>
+> - **Stories:** See `/docs/stories/` directory
+>   - Index: [/docs/stories/INDEX.md](INDEX.md)
+>   - Files: US-001.md through US-046.md
+>
+> ## Benefits of New Structure
+> - Individual files with complete frontmatter
+> - Better version control and tracking
+> - Scalable for large projects
+> - Enables CI/CD validation
+> - Supports parallel editing
+>
+> ## Migration Details
+> - Migration Date: 2025-09-05
+> - Migrated By: Business Analyst Agent
+> - Archive Location: `/docs/archief/2025-09-epic-migration/`
+> - Original preserved at: `MASTER-EPICS-USER-STORIES-20250905.md`
+>
+> ---
+>
+> ⬇️ **Original content preserved below for reference** ⬇️
+
+---
+
+# MASTER EPICS AND USER STORIES (ARCHIVED)
+
 **Document Type:** Master Story Registry
 **Version:** 1.0.0
-**Status:** ACTIVE
+**Status:** DEPRECATED
 **Owner:** Business Analyst
 **Last Updated:** 2025-09-04
-**Applies To:** All development work
+**Applies To:** Historical reference only
 
 ## Document Purpose
 
-This is the SINGLE SOURCE OF TRUTH for all epics and user stories in the DefinitieAgent project. All development work must reference stories from this document.
+This WAS the SINGLE SOURCE OF TRUTH for all epics and user stories in the DefinitieAgent project. It has been replaced by the new structure described above.
 
 ## Quick Navigation
 

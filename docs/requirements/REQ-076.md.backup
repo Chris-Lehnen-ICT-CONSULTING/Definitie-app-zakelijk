@@ -1,0 +1,50 @@
+---
+id: REQ-076
+title: Regression Test Suite
+type: nonfunctional
+priority: HOOG
+status: In Progress
+sources:
+  - path: tests/regression/
+    line: all
+  - path: docs/testing/regression_strategy.md
+    line: 1-150
+links:
+  epics: ["EPIC-002"]
+  stories: ["US-2.5"]
+  docs: ["docs/testing/test_strategy.md"]
+---
+
+# Requirement REQ-076: Regression Test Suite
+
+## Beschrijving
+Het systeem moet een comprehensive regression test suite hebben die automatisch critieke functionaliteit valideert na elke change.
+
+## Rationale
+Regression testing voorkomt dat nieuwe Wijzigingen bestaEne functionaliteit breken, essentieel voor systeem stabiliteit.
+
+## Acceptatiecriteria (SMART)
+- Automated regression suite
+- Coverage van alle KRITIEK paths
+- Execution tijd < 15 minuten
+- Run bij elke deployment
+- Historical test results tracking
+
+## Uitwerking / Notities
+Regression coverage:
+- Core definition generation
+- All 45 validatieregels
+- Import/export functionality
+- User auDanticatie fLAAGs
+- Database operations
+- API endpoints
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.
+## SMART Criteria
+
+- **Specific**: Optimize regression test suite Prestaties
+- **Measurable**: Meet defined SLA targets
+- **Achievable**: Through caching En optimization
+- **Relevant**: Ensures production readiness
+- **Time-bound**: Before production go-live
