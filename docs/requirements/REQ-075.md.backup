@@ -1,0 +1,42 @@
+---
+id: REQ-075
+title: User Acceptance Testing
+type: nonfunctional
+priority: GEMIDDELD
+status: Backlog
+sources:
+  - path: docs/testing/uat_plan.md
+    line: 1-200
+  - path: tests/acceptance/ (UAT tests)
+    line: all
+links:
+  epics: ["EPIC-004"]
+  stories: ["US-4.1"]
+  docs: ["docs/testing/uat_scenarios.md"]
+---
+
+# Requirement REQ-075: User Acceptance Testing
+
+## Beschrijving
+Het systeem moet faciliteiten hebben voor User Acceptance Testing (UAT) met Test Scenario's, test data sets, en feedback collection mechanismen.
+
+## Rationale
+UAT valideert dat het systeem voldoet aan business Vereisten en gebruikersverwachtingen voordat het in productie gaat.
+
+## Acceptatiecriteria (SMART)
+- UAT Test Scenario's documentatie
+- Dedicated UAT environment
+- Test user accounts met verschillende rollen
+- Feedback formulieren in applicatie
+- UAT sign-off workfLAAG
+
+## Uitwerking / Notities
+UAT faciliteiten:
+- Test scenario templates
+- Screen recording tools
+- Issue reporting integration
+- Test progress dashboard
+- Rollback capability na UAT
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.

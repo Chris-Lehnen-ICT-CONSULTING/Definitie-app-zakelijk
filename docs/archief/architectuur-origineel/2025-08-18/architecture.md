@@ -323,5 +323,5 @@ streamlit run src/app.py
 - Database change: Update models in `src/models/`
 
 ---
-*For detailed implementation status and roadmap, see [roadmap.md](roadmap.md)*
-*For all work items, see [backlog.md](backlog.md)*
+*For detailed implementation status and roadmap, see [roadmap.md](../../bulk-archive-2025-08-18/archive/2025-01-12/root/roadmap.md)*
+*For all work items, see [backlog.md](../../requirements/backlog.md)*

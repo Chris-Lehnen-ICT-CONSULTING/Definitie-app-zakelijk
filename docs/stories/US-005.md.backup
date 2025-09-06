@@ -1,0 +1,69 @@
+---
+id: US-005
+epic: EPIC-001-basis-definitie-generatie
+title: Centralized AI Model Configuration
+status: GEREED
+priority: GEMIDDELD
+story_points: 3
+sprint: Voltooid
+Afhankelijkheden: [US-004]
+Aangemaakt: 2025-01-10
+upDatumd: 2025-09-05
+assigned_to: development-team
+Vereisten: [REQ-038, REQ-059]
+---
+
+# US-005: Centralized AI Model Configuration
+
+## Gebruikersverhaal
+**As a** developer
+**Wil ik** all AI model settings in one place
+**Zodat** there are no hardcoded defaults scattered in the code
+
+## Acceptatiecriteria
+
+### Criterion 1: No Hardcoded Models
+**Gegeven** the codebase is scanned
+**Wanneer** looking for model references
+**Dan** no hardcoded model names like "gpt-4" are found in code
+
+### Criterion 2: Single Configuration Source
+**Gegeven** AI model configuration is needed
+**Wanneer** any service requests model settings
+**Dan** they are retrieved from the central configuration
+
+### Criterion 3: Easy Model UpDatums
+**Gegeven** a new AI model Versie is available
+**Wanneer** updating the configuration
+**Dan** all services use the new model without code Wijzigingen
+### Specific
+De gebruiker moet exact [ACTIE] kunnen uitvoeren met [RESULTAAT]
+
+### Measurable
+Response tijd < 2 seconden, Success rate > 99%, Gebruikerstevredenheid > 8/10
+
+
+## Technische Notities
+- All model configs in `config/ai/models.yaml`
+- No hardcoded "gpt-4" strings in source code
+- Model selection via configuration only
+- Supports model Versieing En fallbacks
+
+
+
+## Afhankelijkheden
+
+- EPIC-001
+## Test Scenario's
+1. Verify no hardcoded model names in code
+2. Test model configuration loading
+3. ValiDatum model fallback mechanisms
+4. Test model Versie switching
+5. Ensure all services use central config
+
+## Definitie van Gereed
+- [x] Code implemented En reviewed
+- [x] Unit tests written En passing
+- [x] Integration tests passing
+- [x] Documentation upDatumd
+- [x] Acceptatiecriteria met

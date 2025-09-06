@@ -1,0 +1,42 @@
+---
+id: REQ-083
+title: Data Export Formats
+type: functional
+priority: GEMIDDELD
+status: Backlog
+sources:
+  - path: src/services/export_service.py
+    line: 1-150
+  - path: docs/stories/MASTER-EPICS-USER-STORIES.md
+    line: 111-120
+links:
+  epics: ["EPIC-005"]
+  stories: ["US-5.1"]
+  docs: ["docs/architectuur/SOLUTION_ARCHITECTURE.md"]
+---
+
+# Requirement REQ-083: Data Export Formats
+
+## Beschrijving
+Het systeem moet data export ondersteunen in multiple formats voor verschillende use cases en stakeholders.
+
+## Rationale
+Verschillende stakeholders hebben verschillende format Vereisten. Export capabilities maken data portability en integratie mogelijk.
+
+## Acceptatiecriteria (SMART)
+- JSON export met volledige metadata
+- CSV export voor Excel analyse
+- Word/PDF voor documentatie
+- XML voor systeem integratie
+- Bulk export capability
+
+## Uitwerking / Notities
+Export options:
+- Single definition export
+- Batch export met filters
+- Scheduled exports
+- Template-based formatting
+- Include/exclude validatie results
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.

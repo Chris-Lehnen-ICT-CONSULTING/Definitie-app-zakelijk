@@ -1,0 +1,158 @@
+---
+id: US-022
+epic: EPIC-005
+title: Import validatie
+canonical: true
+status: Nog te bepalen
+owner: developer-implementer
+last_verified: 2025-09-05
+applies_to: definitie-app@current
+type: feature
+priority: HOOG
+story_points: 5
+sprint: backlog
+Afhankelijkheden: [US-021]
+Aangemaakt: 2025-09-05
+upDatumd: 2025-09-05
+assigned_to: unassigned
+---
+
+# US-022: Import validatie
+
+## Gebruikersverhaal
+
+**As a** legal analyst
+**Wil ik to** import previously exported definitions with full validatie
+**Zodat** I can reuse definitions across cases En ensure imported content meets quality stEnards
+
+## Acceptatiecriteria
+
+### AC1: File Format Detection
+**Gegeven** a file is selected for import
+**Wanneer** the import process begins
+**Dan** the system automatically detects the format (JSON/DOCX) En applies appropriate parser
+
+### AC2: Schema validatie
+**Gegeven** a JSON file is imported
+**Wanneer** the file is parsed
+**Dan** the system valiDatums:
+- Required fields presence
+- Data type correctness
+- Versie compatibility
+- Checksum verification if present
+
+### AC3: Content validatie
+**Gegeven** definition content is extracted from import
+**Wanneer** validatie is triggered
+**Dan** the system:
+- Runs all 45 validatieregels
+- Compares with original validatie scores if available
+- Flags any degradation in quality
+- Provides detailed validatie report
+
+### AC4: Duplicate Detection
+**Gegeven** an imported definition
+**Wanneer** checking against existing definitions
+**Dan** the system:
+- Detects exact duplicates
+- Identifies similar definitions (>80% similarity)
+- Offers merge/replace/skip options
+- Maintains Versie history
+
+### AC5: Error HEnling
+**Gegeven** an import fails validatie
+**Wanneer** errors are detected
+**Dan** the system:
+- Provides clear error messages
+- HOOGlights specific issues in content
+- Offers correction suggestions
+- AlLAAGs partial import where possible
+
+## Domain Vereisten
+
+### ASTRA compliance
+- ValiDatum against ASTRA definition stEnards
+- Check mEnatory metadata fields
+- Ensure justice domain terminology compliance
+- Verify context classification
+
+### Data Integrity
+- Maintain auditspoor for imported definitions
+- Preserve original authorship information
+- Track import source En timestamp
+- Enable rollback capability
+
+### Chain Integration
+- ValiDatum Justid identifiers if present
+- Check cross-references to other systems
+- Maintain relationship mappings
+- Preserve chain-specific metadata
+
+## Technische Notities
+
+### Implementatie Components
+- `ImportValidationService` in `src/services/import/`
+- Format-specific parsers (JSON, DOCX)
+- Schema validators using `jsonschema`
+- Duplicate detection using similarity algorithms
+
+### validatie Pipeline
+1. File format detection En parsing
+2. Structural validatie (schema)
+3. Content extraction
+4. Business rule validatie (45 rules)
+5. Duplicate/similarity checking
+6. Import decision En execution
+
+### Error Recovery
+- Implement transactional imports
+- Support partial imports with warnings
+- Provide detailed error logs
+- Enable retry with corrections
+
+
+
+## Afhankelijkheden
+
+- EPIC-005
+## Test Vereisten
+
+### Unit Tests
+- Parser functionality for each format
+- Schema validatieregels
+- Duplicate detection algorithms
+- Error hEnling paths
+
+### Integration Tests
+- Import-validatie-storage pipeline
+- Cross-format import scenarios
+- Large file hEnling
+- Concurrent import operations
+
+### Edge Cases
+- Corrupted files
+- Incomplete exports
+- Versie mismatches
+- Encoding issues
+- Circular references
+
+## Definitie van Gereed
+
+- [ ] Import validatie service implemented
+- [ ] Format parsers for JSON En DOCX complete
+- [ ] All validatieregels applied to imports
+- [ ] Duplicate detection operational
+- [ ] Error hEnling comprehensive
+- [ ] Unit tests >85% coverage
+- [ ] Integration tests passing
+- [ ] Prestaties targets met (< 5s for validatie)
+- [ ] Beveiliging review Voltooid
+- [ ] User documentation upDatumd
+- [ ] ASTRA compliance verified
+
+## Links
+
+- Related Vereisten: [REQ-073](../Vereisten/REQ-073.md), [REQ-074](../Vereisten/REQ-074.md)
+- Epic: [EPIC-005-export-import](../../EPIC-005-export-import.md)
+- Depends on: [US-021](US-021.md)
+- Technical Spec: `docs/technisch/import-validatie-spec.md`
