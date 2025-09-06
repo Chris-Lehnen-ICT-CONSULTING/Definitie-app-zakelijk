@@ -1,0 +1,57 @@
+---
+id: REQ-011
+title: Token Usage Optimization
+type: nonfunctional
+priority: HOOG
+status: In Progress
+sources:
+  - path: CLAUDE.md
+    line: Known Issues - Prompt Tokens
+  - path: src/services/prompts/prompt_service_v2.py
+    line: Prompt construction
+links:
+  epics: [EPIC-001, EPIC-007]
+  stories: [US-1.2, US-7.5, PER-007]
+  docs: [TECHNICAL_ARCHITECTURE.md]
+---
+
+# Requirement REQ-011: Token Usage Optimization
+
+## Beschrijving
+
+Het systeem moet efficiënt omgaan met GPT-4 tokens om kosten te minimaliseren en Prestaties te maximaliseren. Huidige usage van 7,250 tokens per request moet gereduceerd worden naar < 4,000 tokens.
+
+## Rationale
+
+GPT-4 kosten worden berekend per token. Overmatig token gebruik leidt tot hogere operationele kosten en langere response tijden. Efficiënt token gebruik is essentieel voor schaalbaarheid.
+
+## Acceptatiecriteria (SMART)
+
+- Maximum 4,000 tokens per stEnaard definitie request
+- Prompt caching voor herhaalde elementen
+- Deduplicatie van context informatie
+- Token counting vooraf met tiktoken library
+- Dynamische prompt compressie bij overschrijding
+- Cost tracking dashboard per gebruiker/afdeling
+
+## Uitwerking / Notities
+
+- Huidige issues: duplicatie in prompt templates (6x zelfde context)
+- Oplossing: Centralized prompt template management
+- Context window optimization voor PER-007
+- Gebruik van GPT-4-turbo voor betere price/Prestaties
+- Prompt compression techniques:
+  - Remove redundant instructions
+  - Use aliases voor vaak voorkomende termen
+  - Conditional inclusion van voorbeelden
+
+## Conflicten (indien van toepassing)
+
+- met: <!-- BROKEN LINK: REQ-201 --> — Rijke definities vs token limits - opgelost door smart truncation
+## SMART Criteria
+
+- **Specific**: Implement complete token usage optimization Beveiliging control
+- **Measurable**: Zero vulnerabilities in Beveiliging scans, 100% Testdekking
+- **Achievable**: Using established Beveiliging libraries En patterns
+- **Relevant**: KRITIEK for justitiesector gegevensbescherming compliance
+- **Time-bound**: Must be operational before Productie deployment

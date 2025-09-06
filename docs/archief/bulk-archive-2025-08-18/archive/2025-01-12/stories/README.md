@@ -10,13 +10,13 @@ Het project is georganiseerd in 7 epics, elk met 2-7 user stories van 1-5 story 
 
 | Epic | Focus | Stories | Points | Sprint |
 |------|-------|---------|--------|--------|
-| [EPIC-001](EPIC-001-database-infrastructure.md) | Database & Infrastructure | 3 | 7 | 1 |
-| [EPIC-002](EPIC-002-web-lookup-module.md) | Web Lookup Module | 3 | 10 | 1-2 |
-| [EPIC-003](EPIC-003-ui-quick-wins.md) | UI Quick Wins | 4 | 8 | 2 |
-| [EPIC-004](EPIC-004-content-enrichment.md) | Content Enrichment | 4 | 11 | 2-3 |
-| [EPIC-005](EPIC-005-tab-activation.md) | Tab Activation | 7 | 21 | 3-4 |
-| [EPIC-006](EPIC-006-prompt-optimization.md) | Prompt Optimization | 3 | 10 | 4 |
-| [EPIC-007](EPIC-007-test-suite-restoration.md) | Test Suite | 5 | 18 | 5-6 |
+| [EPIC-001](../../../../requirements/EPIC-001-database-infrastructure.md) | Database & Infrastructure | 3 | 7 | 1 |
+| [EPIC-002](../../../../requirements/EPIC-002-web-lookup-module.md) | Web Lookup Module | 3 | 10 | 1-2 |
+| [EPIC-003](../../../../requirements/EPIC-003-ui-quick-wins.md) | UI Quick Wins | 4 | 8 | 2 |
+| [EPIC-004](../../../../requirements/EPIC-004-content-enrichment.md) | Content Enrichment | 4 | 11 | 2-3 |
+| [EPIC-005](../../../../requirements/EPIC-005-tab-activation.md) | Tab Activation | 7 | 21 | 3-4 |
+| [EPIC-006](../../../../requirements/EPIC-006-prompt-optimization.md) | Prompt Optimization | 3 | 10 | 4 |
+| [EPIC-007](../../../../requirements/EPIC-007-test-suite-restoration.md) | Test Suite | 5 | 18 | 5-6 |
 
 ## Story Format
 
@@ -94,8 +94,8 @@ Voor nieuwe stories binnen epics:
 ## Navigatie
 
 - [Terug naar PRD](../prd.md)
-- [Epic Restructure Proposal](../epic-restructure-proposal.md)
-- [Project Backlog](../backlog.md)
+- [Epic Restructure Proposal](../../../../requirements/epic-restructure-proposal.md)
+- [Project Backlog](../../../../requirements/backlog.md)
 
 ---
 *Laatste update: 2025-01-18*

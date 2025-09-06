@@ -6,7 +6,7 @@
 ## 📚 Document Hiërarchie
 
 ### 🎯 Primaire Documenten (Start Hier)
-1. **[Architectuur & Migratie](./validation_orchestrator_v2.md)** ← CANONIEK
+1. **[Architectuur & Migratie](../2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)** ← CANONIEK
    - Status: `ACTIVE` | Type: `Architecture` | Version: `2.0`
    - Beschrijft complete architectuur, interfaces en migratiestappen
 
@@ -21,7 +21,7 @@
    - Machine-readable contract definitie
    - → Parent: ValidationResult Contract
 
-4. **[Error Catalog](../technisch/error_catalog_validation.md)**
+4. **[Error Catalog](../../technisch/error_catalog_validation.md)**
    - Status: `DRAFT` | Type: `Reference` | Version: `1.0`
    - Error taxonomie, codes, retry policies
    - → Gebruikt door: Contract, Rollout, Monitoring
@@ -39,24 +39,24 @@
    - → Rationale voor: Alle bovenstaande
 
 ### 🧪 Testing & Quality
-7. **[Golden Dataset](../testing/golden-dataset-validation.md)**
+7. **[Golden Dataset](../../testing/golden-dataset-validation.md)**
    - Status: `TODO` | Type: `Test Data` | Version: `TBD`
    - Referentie dataset voor regression testing
    - → Gebruikt: Contract schema voor validatie
 
-8. **[Test Plan](../testing/validation_orchestrator_testplan.md)**
+8. **[Test Plan](../../testing/validation_orchestrator_testplan.md)**
    - Status: `TODO` | Type: `Test Strategy` | Version: `TBD`
    - Unit, integration, contract, shadow tests
    - → Test coverage voor: Alle componenten
 
 ### 📊 Monitoring & Observability
-9. **[Observability Guide](../technisch/validation_observability_privacy.md)**
+9. **[Observability Guide](../../technisch/validation_observability_privacy.md)**
    - Status: `TODO` | Type: `Operations` | Version: `TBD`
    - Metrics, logging, tracing, privacy
    - → Implementeert: Error Catalog telemetry
 
 ### 🔧 Implementatie
-10. **[Implementation Guide](../development/validation_orchestrator_implementation.md)**
+10. **[Implementation Guide](../../development/validation_orchestrator_implementation.md)**
     - Status: `TODO` | Type: `Developer Guide` | Version: `TBD`
     - Code examples, integration patterns
     - → Implements: Architecture, Contract, Error handling
@@ -80,24 +80,24 @@ graph LR
 ## 📌 Quick Links per Use Case
 
 ### Voor Developers
-- Start: [Architectuur](./validation_orchestrator_v2.md)
+- Start: [Architectuur](../2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
 - Contract: [ValidationResult](./contracts/validation_result_contract.md)
-- Errors: [Catalog](../technisch/error_catalog_validation.md)
-- Guide: [Implementation](../development/validation_orchestrator_implementation.md)
+- Errors: [Catalog](../../technisch/error_catalog_validation.md)
+- Guide: [Implementation](../../development/validation_orchestrator_implementation.md)
 
 ### Voor DevOps
 - Deployment: [Rollout Runbook](../workflows/validation_orchestrator_rollout.md)
-- Monitoring: [Observability](../technisch/validation_observability_privacy.md)
-- Errors: [Error Catalog](../technisch/error_catalog_validation.md)
+- Monitoring: [Observability](../../technisch/validation_observability_privacy.md)
+- Errors: [Error Catalog](../../technisch/error_catalog_validation.md)
 
 ### Voor QA
-- Test Data: [Golden Dataset](../testing/golden-dataset-validation.md)
-- Test Plan: [Strategy](../testing/validation_orchestrator_testplan.md)
+- Test Data: [Golden Dataset](../../testing/golden-dataset-validation.md)
+- Test Plan: [Strategy](../../testing/validation_orchestrator_testplan.md)
 - Contract: [JSON Schema](./contracts/schemas/validation_result.schema.json)
 
 ### Voor Architecten
 - Decision: [ADR-006](../architectuur/beslissingen/ADR-006-validation-orchestrator-separation.md)
-- Design: [Architectuur](./validation_orchestrator_v2.md)
+- Design: [Architectuur](../2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
 - Contracts: [All Specs](./contracts/)
 
 ## 🏷️ Document Metadata

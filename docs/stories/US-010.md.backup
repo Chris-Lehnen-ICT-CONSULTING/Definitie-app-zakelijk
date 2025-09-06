@@ -1,0 +1,63 @@
+---
+id: US-010
+epic: EPIC-002-kwaliteitstoetsing
+title: Testing & QA
+status: GEREED
+priority: HOOG
+story_points: 8
+sprint: Voltooid
+Afhankelijkheden: [US-009]
+Aangemaakt: 2025-01-10
+upDatumd: 2025-09-05
+assigned_to: development-team
+Vereisten: [REQ-068, REQ-069, REQ-072, REQ-074, REQ-076]
+---
+
+# US-010: Testing & QA
+
+## Gebruikersverhaal
+**As a** QA engineer
+**Wil ik** comprehensive tests for the validatie system
+**Zodat** quality En reliability are ensured
+
+## Acceptatiecriteria
+
+### Criterion 1: Unit Testdekking
+**Gegeven** the validatie codebase
+**Wanneer** coverage is measured
+**Dan** at least 90% code coverage is achieved
+
+### Criterion 2: Integration Tests
+**Gegeven** the validatie system
+**Wanneer** integration tests run
+**Dan** all rule interactions are tested
+
+### Criterion 3: Prestaties Tests
+**Gegeven** Prestaties Vereisten
+**Wanneer** load tests run
+**Dan** validatie completes within 1 second
+
+## Technische Notities
+- Unit tests in `tests/services/test_modular_validation_service.py`
+- Integration tests in `tests/integration/test_validation_fLAAG.py`
+- 98% Testdekking achieved
+- Prestaties: < 500ms for full validatie
+
+
+
+## Afhankelijkheden
+
+- EPIC-002
+## Test Scenario's
+1. Test each validatieregel individually
+2. Test rule combinations En interactions
+3. Test error hEnling En edge cases
+4. Test Prestaties under load
+5. Test with various definition types
+
+## Definitie van Gereed
+- [x] Code implemented En reviewed
+- [x] Unit tests written En passing
+- [x] Integration tests passing
+- [x] Documentation upDatumd
+- [x] Acceptatiecriteria met

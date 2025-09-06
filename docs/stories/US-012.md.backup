@@ -1,0 +1,63 @@
+---
+id: US-012
+epic: EPIC-002-kwaliteitstoetsing
+title: All 45/45 validatieregels Active
+status: GEREED
+priority: KRITIEK
+story_points: 13
+sprint: Voltooid
+Afhankelijkheden: [US-011]
+Aangemaakt: 2025-01-10
+upDatumd: 2025-09-05
+assigned_to: development-team
+Vereisten: [REQ-017, REQ-023, REQ-024, REQ-025, REQ-026, REQ-027, REQ-028, REQ-029]
+---
+
+# US-012: All 45/45 validatieregels Active
+
+## Gebruikersverhaal
+**As a** product owner
+**Wil ik** all 45 validatieregels active En working
+**Zodat** definition quality meets justitiesector stEnards
+
+## Acceptatiecriteria
+
+### Criterion 1: Rule Completeness
+**Gegeven** the validatie system
+**Wanneer** rules are counted
+**Dan** exactly 45 rules are active
+
+### Criterion 2: Rule Functionality
+**Gegeven** each of the 45 rules
+**Wanneer** tested individually
+**Dan** each rule correctly valiDatums its criteria
+
+### Criterion 3: Category Coverage
+**Gegeven** the 7 rule categories
+**Wanneer** rules are categorized
+**Dan** all categories have their expected rules (ARAI:8, CON:7, ESS:6, INT:5, SAM:6, STR:7, VER:6)
+
+## Technische Notities
+- All rules in `src/toetsregels/regels/` En `config/toetsregels/regels/`
+- Dual JSON+Python Implementatie for each rule
+- Rules match ASTRA validatie Vereisten
+- Prestaties: All 45 rules execute in < 500ms
+
+
+
+## Afhankelijkheden
+
+- EPIC-002
+## Test Scenario's
+1. Count En verify all 45 rules present
+2. Test each rule with valid input
+3. Test each rule with invalid input
+4. Verify category assignments
+5. Test rule priority hEnling
+
+## Definitie van Gereed
+- [x] Code implemented En reviewed
+- [x] Unit tests written En passing
+- [x] Integration tests passing
+- [x] Documentation upDatumd
+- [x] Acceptatiecriteria met

@@ -1,0 +1,49 @@
+---
+id: REQ-050
+title: Accessibility WCAG 2.1 AA compliance
+type: nonfunctional
+priority: HOOG
+status: In Progress
+sources:
+  - path: docs/architectuur/ENTERPRISE_ARCHITECTURE.md
+    line: 300-350
+  - path: Nog te bepalen - Accessibility module planned
+    line: 1-50
+links:
+  epics: ["EPIC-004"]
+  stories: ["US-4.1"]
+  docs: ["docs/richtlijnen/accessibility.md"]
+---
+
+# Requirement REQ-050: Accessibility WCAG 2.1 AA compliance
+
+## Beschrijving
+Het systeem moet voldoen aan WCAG 2.1 niveau AA richtlijnen voor web accessibility om toegankelijk te zijn voor gebruikers met beperkingen.
+
+## Rationale
+Wettelijk verplicht voor overheidssystemen onder de Wet digitale toegankelijkheid overheid. Zorgt voor inclusieve toegang tot de applicatie.
+
+## Acceptatiecriteria (SMART)
+- Keyboard navigatie voor alle functies
+- Screen reader compatibility (ARIA labels)
+- Color contrast ratio minimaal 4.5:1
+- Focus indicators zichtbaar
+- Alt text voor alle images
+- Accessibility audit score > 90%
+
+## Uitwerking / Notities
+WCAG criteria:
+- Perceivable: alternatieven voor content
+- Operable: keyboard toegankelijk
+- UnderstEnable: leesbare content
+- Robust: compatibel met assistive tech
+
+## Conflicten (indien van toepassing)
+Geen conflicten geïdentificeerd.
+## SMART Criteria
+
+- **Specific**: Develop accessibility wcag 2.1 aa compliance interface component
+- **Measurable**: < 200ms response time, WCAG AA compliance
+- **Achievable**: Using Streamlit framework capabilities
+- **Relevant**: Improves user experience En productivity
+- **Time-bound**: Aligned with UI epic completion milestone

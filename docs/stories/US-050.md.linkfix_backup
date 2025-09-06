@@ -1,0 +1,349 @@
+---
+id: US-050
+epic: EPIC-CFR
+title: Create End-to-End Context FLAAG Tests
+canonical: true
+status: Nog te bepalen
+owner: quality-assurance-tester
+last_verified: 2025-09-05
+applies_to: definitie-app@current
+type: testing
+priority: HOOG
+story_points: 5
+sprint: sprint-37
+Afhankelijkheden: ["US-041", "US-042", "US-043", "US-048", "US-049"]
+aangemaakt: 2025-09-05
+bijgewerkt: 2025-09-05
+assigned_to: qa-team
+vereisten: ["REQ-068", "REQ-069", "REQ-076"]
+---
+
+# US-050: Create End-to-End Context FLAAG Tests
+
+**Epic:** EPIC-001
+
+## Gebruikersverhaal
+
+**As a** QA engineer for the justitieketen
+**wil ik** comprehensive end-to-end tests for the entire context fLAAG
+**zodat** we can prevent regressions en ensure justice compliance
+
+## Acceptatiecriteria
+
+### Criterion 1: Happy Path Testing
+**gegeven** valid context in all three fields
+**wanneer** a definition is generated
+**dan** context appears correctly in the AI prompt en auditspoor
+
+### Criterion 2: Edge Case Coverage
+**gegeven** various edge cases (empty, special chars, max length)
+**wanneer** each scenario is tested
+**dan** the system hEnles them gracefully without crashes
+
+### Criterion 3: Error Path Testing
+**gegeven** invalid context inputs
+**wanneer** validatie fails
+**dan** appropriate Dutch error messages are shown en logged
+
+### Criterion 4: Prestaties Testing
+**gegeven** the complete context fLAAG
+**wanneer** measured under load
+**dan** response time stays under 5 seconds for 95th percentile
+
+### Criterion 5: Justice Scenario Testing
+**gegeven** real-world justitieketen scenarios
+**wanneer** executed end-to-end
+**dan** all OM, DJI, En Rechtspraak use cases pass
+
+## Domain vereisten
+
+### ASTRA Testing StEnards
+- testdekking for all service boundaries
+- Integration testing across components
+- Chain partner scenario validatie
+- Prestaties benchmarks per service
+- beveiliging testing for context data
+
+### NORA Testing richtlijnen
+- Government test methodology (TMap NEXT)
+- Risk-based test approach
+- Accessibility testing (WCAG 2.1)
+- Multi-browser compatibility
+- Load testing stEnards
+
+### Justice Domain Test Scenario's
+- **OM Scenarios**: openbaar ministerie context workfLAAGs
+- **DJI Scenarios**: detentie management contexts
+- **Rechtspraak Scenarios**: rechtbank proceeding contexts
+- **Justid Scenarios**: Terminology validatie
+- **Cross-Chain**: Inter-organization workfLAAGs
+
+## Technische Notities
+
+### Test Framework Architecture
+```python
+class ContextFLAAGE2ETests(TestCase):
+    """End-to-end tests for context fLAAG"""
+
+    @classmethod
+    def setUpClass(cls):
+        """Set up test environment"""
+        cls.app = create_test_app()
+        cls.db = setup_test_database()
+        cls.audit = MockAuditService()
+        cls.ai = MockGPTService()
+
+    def test_om_openbaar ministerie_context_fLAAG(self):
+        """Test OM-specific context fLAAG"""
+        # Arrange
+        context_data = {
+            'juridische_context': ['Strafrecht', 'Strafvordering'],
+            'organisatorische_context': ['OM - Openbaar Ministerie'],
+            'wettelijke_basis': ['Art. 67 Sv', 'Art. 359a Sv']
+        }
+
+        # Act
+        response = self.submit_definition_request(
+            term="voorlopige hechtenis",
+            context=context_data
+        )
+
+        # Assert
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("Strafrecht", response.prompt)
+        self.assertIn("OM", response.prompt)
+
+        # Verify auditspoor
+        audit_records = self.audit.get_records(response.request_id)
+        self.assertEqual(len(audit_records), 5)  # Input, validatie, transform, prompt, output
+
+        # Verify context in generated definition
+        self.assertIn("openbaar ministerie", response.definition.LAAGer())
+
+    def test_dji_detentie_context_fLAAG(self):
+        """Test DJI detentie management context"""
+        # Implementatie...
+
+    def test_rechtspraak_rechtbank_context_fLAAG(self):
+        """Test Rechtspraak jurisdictional context"""
+        # Implementatie...
+```
+
+### Prestaties Test Suite
+```python
+class ContextFLAAGPrestatiesTests(LoadTestCase):
+    """Prestaties tests for context fLAAG"""
+
+    def test_concurrent_context_requests(self):
+        """Test system under concurrent load"""
+        # Arrange
+        users = 100
+        requests_per_user = 10
+
+        # Act
+        results = self.run_concurrent_test(
+            users=users,
+            requests=requests_per_user,
+            scenario=self.context_submission_scenario
+        )
+
+        # Assert
+        self.assertLess(results.p95_response_time, 5.0)  # < 5s for 95th percentile
+        self.assertLess(results.p99_response_time, 10.0)  # < 10s for 99th percentile
+        self.assertEqual(results.error_rate, 0.0)  # 0% errors
+        self.assertGreater(results.throughput, 50)  # > 50 req/s
+```
+
+### Edge Case Test Matrix
+```yaml
+# test_cases.yaml
+edge_cases:
+  empty_context:
+    - description: "All context fields empty"
+      input:
+        juridische_context: []
+        organisatorische_context: []
+        wettelijke_basis: []
+      expected: "Default context applied"
+
+  special_characters:
+    - description: "Special chars in custom context"
+      input:
+        juridische_context: ["Test@#$%", "Test&*()", "Test<>"]
+      expected: "Sanitized en valiDatumd"
+
+  max_length:
+    - description: "Maximum length context"
+      input:
+        juridische_context: ["A" * 500]
+      expected: "Truncated to max length"
+
+  mixed_valid_invalid:
+    - description: "Mix of valid en invalid items"
+      input:
+        juridische_context: ["Strafrecht", "INVALID", "Bestuursrecht"]
+      expected: "Invalid items filtered, valid processed"
+
+  Eners_option:
+    - description: "Custom 'Eners...' option"
+      input:
+        organisatorische_context: ["Eners...", "Custom Organization"]
+      expected: "Custom text valiDatumd en accepted"
+```
+
+### Regression Test Suite
+```python
+def test_cfr_bug_001_regression():
+    """Ensure CFR-BUG-001 doesn't reoccur"""
+    # This was the original bug: context not passed to prompts
+
+    # Arrange
+    context = {
+        'juridische_context': ['Strafrecht'],
+        'organisatorische_context': ['DJI'],
+        'wettelijke_basis': ['Art. 1 Sr']
+    }
+
+    # Act
+    prompt = generate_prompt_with_context("test", context)
+
+    # Assert - Context MUST appear in prompt
+    self.assertIn("Juridische context: Strafrecht", prompt)
+    self.assertIn("Organisatorische context: DJI", prompt)
+    self.assertIn("Wettelijke basis: Art. 1 Sr", prompt)
+```
+
+### Test Data Management
+```python
+class JusticeTestDataFactory:
+    """Factory for justice-specific test data"""
+
+    @staticmethod
+    def create_om_context():
+        """Create OM openbaar ministerie context"""
+        return {
+            'juridische_context': ['Strafrecht', 'Strafvordering'],
+            'organisatorische_context': ['OM - Openbaar Ministerie'],
+            'wettelijke_basis': ['Art. 67 Sv', 'Art. 167 Sv']
+        }
+
+    @staticmethod
+    def create_dji_context():
+        """Create DJI detentie context"""
+        return {
+            'juridische_context': ['Penitentiair recht'],
+            'organisatorische_context': ['DJI - Dienst Justitiële Inrichtingen'],
+            'wettelijke_basis': ['Pbw', 'Bjj']
+        }
+
+    @staticmethod
+    def create_rechtspraak_context():
+        """Create rechtbank context"""
+        return {
+            'juridische_context': ['Civiel recht', 'Procesrecht'],
+            'organisatorische_context': ['Rechtspraak'],
+            'wettelijke_basis': ['Art. 1 Rv', 'Art. 230 Rv']
+        }
+```
+
+## testdekking vereisten
+
+### Unit testdekking
+- Context validatie functions: > 95%
+- Context transformation logic: > 95%
+- Prompt building with context: > 95%
+- auditspoor generation: > 90%
+- Error hEnling paths: 100%
+
+### Integration testdekking
+- UI to backend fLAAG: 100%
+- Service interactions: > 90%
+- Database operations: > 90%
+- External API mocking: 100%
+- auditspoor correlation: > 85%
+
+### E2E testdekking
+- Happy paths: 100%
+- Error scenarios: > 90%
+- Edge cases: > 85%
+- Prestaties scenarios: Core workfLAAGs
+- Justice partner scenarios: All KRITIEK paths
+
+## Definitie van Gereed
+
+- [ ] Test framework setup complete
+- [ ] All happy path tests implemented
+- [ ] Edge case matrix fully covered
+- [ ] Error scenarios tested
+- [ ] Prestaties tests passing
+- [ ] Justice scenario tests complete
+- [ ] Regression tests for known bugs
+- [ ] Test data factory operational
+- [ ] Mock services configured
+- [ ] CI/CD pipeline integration
+- [ ] Test reports automated
+- [ ] Coverage targets met
+- [ ] Prestaties benchmarks achieved
+- [ ] beveiliging tests passing
+- [ ] Accessibility tests passing
+- [ ] Documentatie compleet
+- [ ] Test review by justice partners
+- [ ] Sign-off from QA lead
+
+## Risk Assessment
+
+### Testing Risks
+- **Test Environment**: May not match production
+  - *Mitigation*: Use production-like config
+- **Test Data**: May not cover all scenarios
+  - *Mitigation*: Collaborate with justice partners
+- **Prestaties Tests**: May not predict real load
+  - *Mitigation*: Use actual usage patterns
+
+### Quality Risks
+- **Incomplete Coverage**: Missing edge cases
+  - *Mitigation*: Risk-based test approach
+- **False Positives**: Tests passing incorrectly
+  - *Mitigation*: Regular test review en validatie
+
+## Implementatie Priority
+
+**HOOG** - Required for:
+- productie deployment confidence
+- Regression prevention
+- ASTRA compliance verification
+- Justice partner acceptance
+
+## Afhankelijkheden
+
+### Test Afhankelijkheden
+- All context fLAAG stories Voltooid (US-041 through US-049)
+- Test environment provisioned
+- Mock services available
+- Test data prepared
+- CI/CD pipeline ready
+
+### External Afhankelijkheden
+- Justice partner Test Scenario's
+- Prestaties baseline metrics
+- beveiliging testing tools
+- Accessibility testing tools
+
+## Notes
+
+- Use TMap NEXT methodology (government stEnard)
+- Coordinate with justice partners for real scenarios
+- Consider chaos engineering for resilience testing
+- Implement continuous testing in CI/CD
+- Monitor test execution time (< 30 minutes for full suite)
+
+## Gerelateerde Documentatie
+
+- [Test Strategy](../testing/test_strategy.md)
+- [Justice Test Scenario's](../testing/justice_scenarios.md)
+- [Prestaties Baselines](../testing/Prestaties_baselines.md)
+- [EPIC-CFR](../epics/EPIC-CFR.md)
+
+---
+
+*This story is part of EPIC-CFR: Context FLAAG Refactoring (KRITIEK)*

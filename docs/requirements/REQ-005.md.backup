@@ -1,0 +1,55 @@
+---
+id: REQ-005
+title: SQL Injection Prevention
+type: nonfunctional
+priority: HOOG
+status: GEREED
+sources:
+  - path: src/services/definition_repository.py
+    line: Database query methods
+  - path: src/database/schema.sql
+    line: Database schema definition
+links:
+  epics: [EPIC-001, EPIC-006]
+  stories: [US-1.1]
+  docs: [TECHNICAL_ARCHITECTURE.md]
+---
+
+# Requirement REQ-005: SQL Injection Prevention
+
+## Beschrijving
+
+Alle database queries moeten beschermd zijn tegen SQL injection aanvallen door gebruik van parameterized queries en stored procedures. Directe string concatenatie voor SQL queries is ten strengste verboden.
+
+## Rationale
+
+SQL injection is een van de meest voorkomende en gevaarlijke web application vulnerabilities. Het kan leiden tot complete database compromise, data verlies, en ongeautoriseerde toegang.
+
+## Acceptatiecriteria (SMART)
+
+- 100% van database queries gebruikt parameterized statements
+- Geen string concatenatie of f-strings voor SQL query constructie
+- Database gebruiker heeft minimale benodigde privileges (principle of least privilege)
+- Prepared statements voor alle CRUD operaties
+- Input sanitization voordat data de database laag bereikt
+- Automated SQL injection testing in CI/CD
+
+## Uitwerking / Notities
+
+- SQLite3 met ? placeholders voor alle parameters
+- DefinitionRepository gebruikt uitsluitend safe query patterns
+- Database connection in read-only mode waar mogelijk
+- Separate database users voor read vs write operations (toekomstig)
+- Query logging voor forensische analyse
+- SQLMap testing tijdens Beveiliging audits
+
+## Conflicten (indien van toepassing)
+
+Geen conflicten geïdentificeerd
+## SMART Criteria
+
+- **Specific**: Implement complete sql injection prevention Beveiliging control
+- **Measurable**: Zero vulnerabilities in Beveiliging scans, 100% Testdekking
+- **Achievable**: Using established Beveiliging libraries En patterns
+- **Relevant**: KRITIEK for justitiesector gegevensbescherming compliance
+- **Time-bound**: Must be operational before Productie deployment

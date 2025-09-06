@@ -4,7 +4,7 @@ Code quality, performance, en security analyses.
 
 ## 📁 Directory Structuur
 
-### [reviews/](./reviews/)
+### [reviews/](../../reviews)
 Gedetailleerde code reviews
 - Complete systeem reviews
 - Service-specifieke analyses

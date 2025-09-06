@@ -151,4 +151,4 @@ class DefinitionOrchestrator:
 Deze beslissing wordt geëvalueerd na implementatie van Fase 2 (ongeveer 3 weken).
 
 ---
-*Voor de oorspronkelijke incrementele migratie strategie, zie [ADR-004](ADR-004-incrementele-migratie-strategie.md)*
+*Voor de oorspronkelijke incrementele migratie strategie, zie [ADR-004](../ADR-004-incrementele-migratie-strategie.md)*

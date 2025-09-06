@@ -108,7 +108,7 @@ chmod 755 data/
 ## 📚 Volgende Stappen
 
 1. Lees de [Project README](README.md) voor features overzicht
-2. Check de [Roadmap](docs/requirements/ROADMAP.md) voor geplande features
+2. Check de [Roadmap](../../archive/2025-01-12/root/ROADMAP.md) voor geplande features
 3. Zie [Contributing](CONTRIBUTING.md) voor development guidelines
 4. Browse de [Architectuur docs](docs/brownfield-architecture.md)
 

@@ -95,7 +95,7 @@ pytest --collect-only  # Identificeer en fix import errors
 
 ## 🔧 Kritieke Fixes Prioriteit
 
-| Fix | Impact | Effort | Wanneer |
+| Fix | Impact | Effort | wanneer |
 |-----|--------|--------|---------|
 | Test imports | Unblock development | 1 uur | Vandaag |
 | Service caching | 6x → 1x init | 30 min | Vandaag |

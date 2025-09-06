@@ -1,0 +1,63 @@
+---
+id: US-009
+epic: EPIC-002-kwaliteitstoetsing
+title: Integration Migration
+status: GEREED
+priority: HOOG
+story_points: 5
+sprint: Voltooid
+Afhankelijkheden: [US-008]
+Aangemaakt: 2025-01-10
+upDatumd: 2025-09-05
+assigned_to: development-team
+Vereisten: [REQ-020, REQ-032, REQ-069]
+---
+
+# US-009: Integration Migration
+
+## Gebruikersverhaal
+**As a** Technisch Lead
+**Wil ik** all components migrated to use the new validatie service
+**Zodat** the old validatie code can be removed
+
+## Acceptatiecriteria
+
+### Criterion 1: Component Migration
+**Gegeven** components using old validatie
+**Wanneer** migration is complete
+**Dan** all components use ModularValidationService
+
+### Criterion 2: Backward Compatibility
+**Gegeven** existing functionality
+**Wanneer** migration is GEREED
+**Dan** all features continue working as before
+
+### Criterion 3: Prestaties Maintained
+**Gegeven** Prestaties baselines
+**Wanneer** migration is complete
+**Dan** validatie Prestaties is same or better
+
+## Technische Notities
+- Migrated from old validatie in `src/validatie/`
+- UpDatumd all UI components to use new service
+- Removed old validatie imports
+- Prestaties improved by 30% after migration
+
+
+
+## Afhankelijkheden
+
+- EPIC-002
+## Test Scenario's
+1. Test all UI components with new validatie
+2. Verify no old validatie imports remain
+3. Compare Prestaties before/after
+4. Test edge cases En error hEnling
+5. ValiDatum all 45 rules still work
+
+## Definitie van Gereed
+- [x] Code implemented En reviewed
+- [x] Unit tests written En passing
+- [x] Integration tests passing
+- [x] Documentation upDatumd
+- [x] Acceptatiecriteria met
