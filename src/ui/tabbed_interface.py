@@ -583,6 +583,15 @@ class TabbedInterface:
             if custom_jur.strip():
                 final_jur.append(custom_jur.strip())
 
+            # Update centralized context as well
+            try:
+                from services.context.context_adapter import get_context_adapter
+
+                get_context_adapter().update_field(
+                    "juridische_context", final_jur, actor="ui"
+                )
+            except Exception:
+                pass
             SessionStateManager.set_value("jur_context", final_jur)
 
         with col3:
@@ -618,7 +627,26 @@ class TabbedInterface:
             if custom_wet.strip():
                 final_wet.append(custom_wet.strip())
 
+            # Update centralized context as well
+            try:
+                from services.context.context_adapter import get_context_adapter
+
+                get_context_adapter().update_field(
+                    "wettelijke_basis", final_wet, actor="ui"
+                )
+            except Exception:
+                pass
             SessionStateManager.set_value("wet_basis", final_wet)
+
+        # Ensure organisatorische context is propagated centrally too
+        try:
+            from services.context.context_adapter import get_context_adapter
+
+            get_context_adapter().update_field(
+                "organisatorische_context", final_org, actor="ui"
+            )
+        except Exception:
+            pass
 
         return {
             "organisatorische_context": final_org,

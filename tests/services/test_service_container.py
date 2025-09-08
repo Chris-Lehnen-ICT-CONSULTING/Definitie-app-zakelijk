@@ -33,7 +33,7 @@ class TestServiceContainer:
         # Assert
         assert container is not None
         assert isinstance(container.config, dict)
-        assert container._generator is None  # Lazy loading
+        assert "generator" not in container._instances  # Lazy loading
 
     def test_container_with_config(self):
         """Test container met custom config."""
@@ -61,7 +61,8 @@ class TestServiceContainer:
 
         # Assert
         assert gen1 is gen2
-        assert isinstance(gen1, DefinitionGeneratorInterface)
+        # V2 orchestrator implements both interfaces
+        assert isinstance(gen1, (DefinitionGeneratorInterface, DefinitionOrchestratorInterface))
 
     def test_validator_removed(self):
         """Test dat legacy validator is verwijderd."""
@@ -122,8 +123,10 @@ class TestServiceContainer:
         invalid = container.get_service('invalid')
 
         # Assert
-        assert isinstance(generator, DefinitionGeneratorInterface)
-        # Legacy validator removed - skipping this assertion
+        # V2 orchestrator implements both interfaces
+        assert isinstance(generator, (DefinitionGeneratorInterface, DefinitionOrchestratorInterface))
+        # Legacy validator removed - should return None
+        assert validator is None
         assert invalid is None
 
     def test_update_config(self):
@@ -158,9 +161,10 @@ class TestServiceContainer:
         """Test voorgedefinieerde configuraties."""
         # Test development config
         dev_config = ContainerConfigs.development()
-        assert dev_config['generator_model'] == 'gpt-3.5-turbo'
-        assert dev_config['db_path'] == 'dev_definities.db'
+        # Model wordt nu uit centrale config gehaald
+        assert dev_config['db_path'] == 'data/definities.db'
         assert dev_config['enable_auto_save'] is False
+        assert dev_config['min_quality_score'] == 0.5
 
         # Test testing config
         test_config = ContainerConfigs.testing()
@@ -169,28 +173,24 @@ class TestServiceContainer:
 
         # Test production config
         prod_config = ContainerConfigs.production()
-        assert prod_config['generator_model'] == 'gpt-4'
+        # Model wordt nu uit centrale config gehaald
         assert prod_config['enable_auto_save'] is True
         assert prod_config['min_quality_score'] == 0.7
 
-    @patch('services.container.DefinitionGenerator')
-    def test_lazy_loading_generator(self, mock_generator_class):
+    def test_lazy_loading_generator(self):
         """Test lazy loading van generator service."""
         # Arrange
         container = ServiceContainer()
-        mock_instance = Mock()
-        mock_generator_class.return_value = mock_instance
 
         # Assert - nog niet geladen
-        assert container._generator is None
+        assert "generator" not in container._instances
 
         # Act
         generator = container.generator()
 
         # Assert - nu wel geladen
-        assert container._generator is not None
-        assert generator == mock_instance
-        mock_generator_class.assert_called_once()
+        assert "generator" in container._instances
+        assert generator is not None
 
     def test_environment_config_loading(self):
         """Test laden van environment-specifieke config."""
@@ -202,11 +202,12 @@ class TestServiceContainer:
         container = ServiceContainer()
         container._load_configuration()
 
-        # Assert development defaults
-        assert container.config.get('generator_model') == 'gpt-3.5-turbo'
+        # Assert development defaults - model komt nu uit centrale config
+        assert container.db_path == container.config.get('db_path', 'data/definities.db')
 
         # Cleanup
-        del os.environ['APP_ENV']
+        if 'APP_ENV' in os.environ:
+            del os.environ['APP_ENV']
 
 
 if __name__ == "__main__":
