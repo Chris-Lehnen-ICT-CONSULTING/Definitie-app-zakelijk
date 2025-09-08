@@ -49,36 +49,36 @@
 ### 3.1 Kritieke Vereisten (P1)
 
 #### REQ-001: Authenticatie & Autorisatie
-- **Episch Verhaal:** [EPIC-006](../epics/EPIC-006-security-auth.md) (Beveiliging & Authenticatie)
+- **Episch Verhaal:** [EPIC-006](./backlog/epics/EPIC-006-security-auth.md) (Beveiliging & Authenticatie)
 - **Stories:**
-  - [US-026](../stories/US-026.md): OAuth2/OIDC Implementatie
-  - [US-027](../stories/US-027.md): Rolgebaseerde Toegangscontrole (RBAC)
-  - [US-028](../stories/US-028.md): Sessiebeheer
-  - [US-029](../stories/US-029.md): Audit Logging
+  - [US-026](./backlog/stories/US-026.md): OAuth2/OIDC Implementatie
+  - [US-027](./backlog/stories/US-027.md): Rolgebaseerde Toegangscontrole (RBAC)
+  - [US-028](./backlog/stories/US-028.md): Sessiebeheer
+  - [US-029](./backlog/stories/US-029.md): Audit Logging
 - **Justitie Context:** Koppeling met Justid voor identiteitsverificatie
 - **ASTRA Compliance:** AR-6.1 (Identiteitsbeheer), AR-6.2 (Autorisatie)
 - **NORA Compliance:** BP-5.1 (Beveiliging by Design)
 
 #### REQ-018: Kern Definitie Generatie
-- **Episch Verhaal:** [EPIC-001](../epics/EPIC-001-basis-definitie-generatie.md) (Basis Definitie Generatie)
+- **Episch Verhaal:** [EPIC-001](./backlog/epics/EPIC-001-basis-definitie-generatie.md) (Basis Definitie Generatie)
 - **Stories:**
-  - [US-001](../stories/US-001.md): GPT-4 Definitie Generatie
-  - [US-002](../stories/US-002.md): Prompt Sjabloon Systeem
-  - [US-003](../stories/US-003.md): V1 Orchestrator Verwijdering
-  - [US-004](../stories/US-004.md): AI Configuratie Systeem
-  - [US-005](../stories/US-005.md): Gecentraliseerde AI Model Configuratie
+  - [US-001](./backlog/stories/US-001.md): GPT-4 Definitie Generatie
+  - [US-002](./backlog/stories/US-002.md): Prompt Sjabloon Systeem
+  - [US-003](./backlog/stories/US-003.md): V1 Orchestrator Verwijdering
+  - [US-004](./backlog/stories/US-004.md): AI Configuratie Systeem
+  - [US-005](./backlog/stories/US-005.md): Gecentraliseerde AI Model Configuratie
 - **Justitie Context:** OM/DJI terminologie standaarden conform Juridisch Woordenboek
 - **ASTRA Compliance:** AR-3.1 (Gegevensdefinities), AR-3.2 (Begrippenkader)
 - **NORA Compliance:** BP-2.1 (Standaardisatie)
 
 #### REQ-020: Validatie Orchestrator V2
-- **Episch Verhaal:** [EPIC-002](../epics/EPIC-002-kwaliteitstoetsing.md) (Kwaliteitstoetsing)
+- **Episch Verhaal:** [EPIC-002](./backlog/epics/EPIC-002-kwaliteitstoetsing.md) (Kwaliteitstoetsing)
 - **Stories:**
-  - [US-006](../stories/US-006.md): Validatie Regel Engine
-  - [US-007](../stories/US-007.md): ARAI Regels Implementatie
-  - [US-008](../stories/US-008.md): CON Regels Implementatie
-  - [US-009](../stories/US-009.md): ESS Regels Implementatie
-  - [US-010](../stories/US-010.md): Regel Prioriteit Systeem
+  - [US-006](./backlog/stories/US-006.md): Validatie Regel Engine
+  - [US-007](./backlog/stories/US-007.md): ARAI Regels Implementatie
+  - [US-008](./backlog/stories/US-008.md): CON Regels Implementatie
+  - [US-009](./backlog/stories/US-009.md): ESS Regels Implementatie
+  - [US-010](./backlog/stories/US-010.md): Regel Prioriteit Systeem
 - **Justitie Context:** ASTRA kwaliteitsnormen voor juridische teksten
 - **ASTRA Compliance:** AR-4.1 (Kwaliteitsborging), AR-4.3 (Validatie)
 - **NORA Compliance:** BP-4.1 (Kwaliteitsmanagement)

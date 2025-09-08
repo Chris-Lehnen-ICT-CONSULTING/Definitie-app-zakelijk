@@ -281,7 +281,7 @@ When using specialized agents:
 **VERPLICHTE CHECKS:**
 1. **Search eerst:** `grep -r "onderwerp" docs/` OF `ls docs/**/*term*.md`
 2. **Check master docs:**
-   - `docs/stories/MASTER-EPICS-USER-STORIES.md` voor epics/stories
+   - `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` voor epics/stories
    - `docs/INDEX.md` voor overzicht
    - `docs/guidelines/CANONICAL_LOCATIONS.md` voor juiste locaties
 3. **Check archief:** `ls docs/archief/` voor oude versies
@@ -294,7 +294,7 @@ grep -r "mijn onderwerp" docs/
 ls docs/**/*relevante-term*.md
 
 # STAP 2: Check master documenten
-cat docs/stories/MASTER-EPICS-USER-STORIES.md | grep "mijn onderwerp"
+cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md | grep "mijn onderwerp"
 cat docs/INDEX.md | grep "mijn onderwerp"
 
 # STAP 3: Als het NIET bestaat, check canonieke locatie
@@ -340,10 +340,10 @@ Claude agents are configured in `~/.claude/agents/`:
 - **Product Requirements**: `docs/prd.md`
 
 ### Current Work & Epics
-- **[📊 Epic Dashboard](docs/epics/INDEX.md)** - Overview of all epics with status and metrics
-- **[📋 Story Index](docs/stories/INDEX.md)** - Complete listing of all user stories (US-001 to US-046)
-- **Individual Epic Files:** `/docs/epics/EPIC-XXX.md` - Detailed epic documentation
-- **Individual Story Files:** `/docs/stories/US-XXX.md` - User story specifications
+- **[📊 Epic Dashboard](docs/backlog/epics/INDEX.md)** - Overview of all epics with status and metrics
+- **[📋 Story Index](docs/backlog/stories/INDEX.md)** - Complete listing of all user stories (US-001 to US-046)
+- **Individual Epic Files:** `/docs/backlog/epics/EPIC-XXX.md` - Detailed epic documentation
+- **Individual Story Files:** `/docs/backlog/stories/US-XXX.md` - User story specifications
   - Migrated from monolithic MASTER document on 2025-09-05
   - Old MASTER archived with deprecation notice
 - **Refactor Log**: `docs/refactor-log.md` - Change tracking
@@ -351,7 +351,7 @@ Claude agents are configured in `~/.claude/agents/`:
 ### Reviews & Analysis
 - **Code Reviews**: `docs/reviews/`
 - **Prompt Refactoring**: `docs/architectuur/prompt-refactoring/`
-- **Requirements**: `docs/requirements/`
+- **Requirements**: `docs/backlog/requirements/`
 
 For a complete overview of all documentation, see `docs/INDEX.md`
 
