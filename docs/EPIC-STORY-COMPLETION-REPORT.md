@@ -34,9 +34,9 @@ Comprehensive analysis and completion of all epic and story documentation for th
 
 #### Stories Enhanced (50 total, 3 new created)
 - **US-001 to US-047**: Existing stories reviewed and enhanced where needed
-- **US-048**: NEW - Implement Context Type Validation (EPIC-CFR)
-- **US-049**: NEW - Add Context Traceability for ASTRA Compliance (EPIC-CFR)
-- **US-050**: NEW - Create End-to-End Context Flow Tests (EPIC-CFR)
+- **US-048**: NEW - Implement Context Type Validation (EPIC-010)
+- **US-049**: NEW - Add Context Traceability for ASTRA Compliance (EPIC-010)
+- **US-050**: NEW - Create End-to-End Context Flow Tests (EPIC-010)
 
 #### Story Enhancements
 1. **Justice Context**: Added OM/DJI/Rechtspraak specific vereistes

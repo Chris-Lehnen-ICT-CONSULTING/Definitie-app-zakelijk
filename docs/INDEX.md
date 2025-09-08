@@ -64,7 +64,7 @@
 - **[🧭 Requirements Dashboard](./backlog/dashboard/index.html)** 🆕 - Zoeken, sorteren, doorklikken
 - **[▸ Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** 🆕 - In-/uitklapbare blokken per epic
 - **[↗︎ Grafisch Overzicht](./backlog/dashboard/graph.html)** 🆕 - REQ ↔ EPIC bipartite graph (offline)
-- **[🚨 EPIC-CFR: Context Flow](./backlog/epics/EPIC-010-context-flow-refactoring.md)** **KRITIEK** - Urgent context bug fixes
+- **[🚨 EPIC-010: Context Flow](./backlog/epics/EPIC-010-context-flow-refactoring.md)** **KRITIEK** - Urgent context bug fixes
 - Individual Requirements: `/docs/backlog/requirements/REQ-XXX.md` (92 requirements)
 - Individual Epische Verhalen: `/docs/backlog/epics/EPIC-XXX.md` (11 epics)
 - Individual Stories: `/docs/backlog/stories/US-XXX.md` (55 stories)
