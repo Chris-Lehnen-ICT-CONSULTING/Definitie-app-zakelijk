@@ -419,6 +419,22 @@ class TabbedInterface:
             logger.warning(f"Failed to calculate category scores: {e}")
             return {"proces": 0, "type": 0, "resultaat": 0, "exemplaar": 0}
 
+    def _dbg(self, label: str) -> None:
+        """Render a small debug marker if enabled via sidebar toggle."""
+        try:
+            if st.session_state.get("ui_debug_markers", False):
+                st.markdown(
+                    f"""
+                    <div style="padding:6px; margin:10px 0; border-left: 4px solid #ffcc00;
+                                background:#fff7cc; color:#333; font-size: 12px;">
+                        DEBUG: {label}
+                    </div>
+                    """,
+                    unsafe_allow_html=True,
+                )
+        except Exception:
+            pass
+
     def _render_header(self):
         """Render applicatie header."""
 
@@ -428,6 +444,16 @@ class TabbedInterface:
 
             # Feature flag toggle voor nieuwe services
             render_feature_flag_toggle()
+
+            # UI debug markers toggle
+            try:
+                st.checkbox(
+                    "UI debug markers",
+                    key="ui_debug_markers",
+                    help="Toon debug-markers per sectie op de pagina",
+                )
+            except Exception:
+                pass
 
             st.markdown("---")
 
@@ -457,6 +483,7 @@ class TabbedInterface:
         # Status indicator
         with col3:
             self._render_status_indicator()
+        self._dbg("Header")
 
     def _render_status_indicator(self):
         """Render systeem status indicator."""
@@ -473,6 +500,7 @@ class TabbedInterface:
 
     def _render_global_context(self):
         """Render globale context selector."""
+        self._dbg("Global Context - Begin")
         # Begrip invoer als eerste
         st.markdown("### 📝 Definitie Aanvraag")
         begrip = st.text_input(
@@ -499,11 +527,13 @@ class TabbedInterface:
             self._render_context_summary(context_data)
 
         # Metadata velden (legacy restoration)
+        self._dbg("Metadata")
         st.markdown("### 📝 Metadata")
         self._render_metadata_fields()
 
         # Genereer definitie knop direct na context
         st.markdown("---")
+        self._dbg("Quick Actions (Generate/Check/Clear)")
         self._render_quick_generate_button(begrip, context_data)
 
     def _render_simplified_context_selector(self) -> dict[str, Any]:
@@ -512,7 +542,7 @@ class TabbedInterface:
 
         with col1:
             # Organisatorische context
-            org_options = [
+            base_org_options = [
                 "OM",
                 "ZM",
                 "Reclassering",
@@ -528,10 +558,22 @@ class TabbedInterface:
                 "Anders...",
             ]
 
+            # Voeg eerder toegevoegde custom entries toe aan opties
+            from ui.session_state import SessionStateManager as _SM
+
+            org_custom_entries = _SM.get_value("org_custom_entries", []) or []
+            # Toon "Anders..." alleen visueel; echte opties zijn base + custom
+            org_all_options = base_org_options[:-1] + org_custom_entries
+
+            # Filter defaults naar geldige opties (crashes voorkomen)
+            org_defaults = [
+                x for x in _SM.get_value("org_context", []) if x in org_all_options
+            ]
+
             selected_org = st.multiselect(
                 "📋 Organisatorische context",
-                options=org_options,
-                default=SessionStateManager.get_value("org_context", []),
+                options=org_all_options + ["Anders..."],
+                default=org_defaults,
                 help="Selecteer één of meerdere organisaties",
             )
 
@@ -547,13 +589,18 @@ class TabbedInterface:
             # Combineer contexts
             final_org = [opt for opt in selected_org if opt != "Anders..."]
             if custom_org.strip():
-                final_org.append(custom_org.strip())
+                value = custom_org.strip()
+                if value not in org_custom_entries:
+                    org_custom_entries.append(value)
+                if value not in final_org:
+                    final_org.append(value)
 
             SessionStateManager.set_value("org_context", final_org)
+            SessionStateManager.set_value("org_custom_entries", org_custom_entries)
 
         with col2:
             # Juridische context
-            jur_options = [
+            base_jur_options = [
                 "Strafrecht",
                 "Civiel recht",
                 "Bestuursrecht",
@@ -563,10 +610,16 @@ class TabbedInterface:
                 "Anders...",
             ]
 
+            jur_custom_entries = _SM.get_value("jur_custom_entries", []) or []
+            jur_all_options = base_jur_options[:-1] + jur_custom_entries
+            jur_defaults = [
+                x for x in _SM.get_value("jur_context", []) if x in jur_all_options
+            ]
+
             selected_jur = st.multiselect(
                 "⚖️ Juridische context",
-                options=jur_options,
-                default=SessionStateManager.get_value("jur_context", []),
+                options=jur_all_options + ["Anders..."],
+                default=jur_defaults,
                 help="Selecteer juridische gebieden",
             )
 
@@ -582,7 +635,11 @@ class TabbedInterface:
             # Combineer juridische context
             final_jur = [opt for opt in selected_jur if opt != "Anders..."]
             if custom_jur.strip():
-                final_jur.append(custom_jur.strip())
+                value = custom_jur.strip()
+                if value not in jur_custom_entries:
+                    jur_custom_entries.append(value)
+                if value not in final_jur:
+                    final_jur.append(value)
 
             # Update centralized context as well
             try:
@@ -594,10 +651,11 @@ class TabbedInterface:
             except Exception:
                 pass
             SessionStateManager.set_value("jur_context", final_jur)
+            SessionStateManager.set_value("jur_custom_entries", jur_custom_entries)
 
         with col3:
             # Wettelijke basis
-            wet_options = [
+            base_wet_options = [
                 "Wetboek van Strafvordering (huidige versie)",
                 "Wetboek van strafvordering (nieuwe versie)",
                 "Wet op de Identificatieplicht",
@@ -607,10 +665,16 @@ class TabbedInterface:
                 "Anders...",
             ]
 
+            wet_custom_entries = _SM.get_value("wet_custom_entries", []) or []
+            wet_all_options = base_wet_options[:-1] + wet_custom_entries
+            wet_defaults = [
+                x for x in _SM.get_value("wet_basis", []) if x in wet_all_options
+            ]
+
             selected_wet = st.multiselect(
                 "📜 Wettelijke basis",
-                options=wet_options,
-                default=SessionStateManager.get_value("wet_basis", []),
+                options=wet_all_options + ["Anders..."],
+                default=wet_defaults,
                 help="Selecteer relevante wetgeving",
             )
 
@@ -626,7 +690,11 @@ class TabbedInterface:
             # Combineer wettelijke basis
             final_wet = [opt for opt in selected_wet if opt != "Anders..."]
             if custom_wet.strip():
-                final_wet.append(custom_wet.strip())
+                value = custom_wet.strip()
+                if value not in wet_custom_entries:
+                    wet_custom_entries.append(value)
+                if value not in final_wet:
+                    final_wet.append(value)
 
             # Update centralized context as well
             try:
@@ -638,6 +706,7 @@ class TabbedInterface:
             except Exception:
                 pass
             SessionStateManager.set_value("wet_basis", final_wet)
+            SessionStateManager.set_value("wet_custom_entries", wet_custom_entries)
 
         # Ensure organisatorische context is propagated centrally too
         try:
@@ -1225,6 +1294,7 @@ class TabbedInterface:
 
     def _render_main_tabs(self):
         """Render de hoofdtabbladen."""
+        self._dbg("Main Tabs - Begin")
         # Create tabs
         tab_keys = list(self.tab_config.keys())
         tab_titles = [self.tab_config[key]["title"] for key in tab_keys]
@@ -1300,6 +1370,7 @@ class TabbedInterface:
 
     def _render_footer(self):
         """Render applicatie footer."""
+        self._dbg("Footer")
         st.markdown("---")
 
         col1, col2, col3 = st.columns([1, 2, 1])
