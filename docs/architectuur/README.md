@@ -16,9 +16,9 @@ Zie ook: CONTRIBUTING.md (root) → “Documentatie‑organisatie (alleen mainta
 
 | Document | Doel | Status | Laatste Update |
 |----------|------|--------|----------------|
-| **[ENTERPRISE_ARCHITECTURE.md](./ENTERPRISE_ARCHITECTURE.md)** | Strategische business architectuur met product portfolio | ✅ Actief | 2025-08-20 |
-| **[SOLUTION_ARCHITECTURE.md](./SOLUTION_ARCHITECTURE.md)** | Technische implementatie met feature registry | ✅ Actief | 2025-08-20 |
-| **[TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)** | Technische implementatie details | ✅ Actief | 2025-09-04 |
+| **[ENTERPRISE_ARCHITECTURE.md](./ENTERPRISE_ARCHITECTURE.md)** | Strategische business architectuur met product portfolio | ✅ Actief | 20-08-2025 |
+| **[SOLUTION_ARCHITECTURE.md](./SOLUTION_ARCHITECTURE.md)** | Technische implementatie met feature registry | ✅ Actief | 20-08-2025 |
+| **[TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)** | Technische implementatie details | ✅ Actief | 04-09-2025 |
 
 ## 📁 Directory Structuur
 
@@ -62,12 +62,12 @@ Gearchiveerde documentatie is te vinden in:
 
 ```text
 Features: 23/87 complete (26%)
-Epics Status:
+Epische Verhalen Status:
 ├─ Basis Definitie: ████████░░ 80% ✅
 ├─ Kwaliteit:       ███████░░░ 75% ✅
 ├─ UI:              ██░░░░░░░░ 20% 🔴
-├─ Security:        ░░░░░░░░░░  0% 🔴
-├─ Performance:     ██░░░░░░░░ 20% 🟠
+├─ Beveiliging:        ░░░░░░░░░░  0% 🔴
+├─ Prestaties:     ██░░░░░░░░ 20% 🟠
 ├─ Export/Import:   █░░░░░░░░░ 14% 🟠
 ├─ Web Lookup:      ░░░░░░░░░░  0% 🔴
 ├─ Monitoring:      ████░░░░░░ 40% 🟡
@@ -79,13 +79,13 @@ Epics Status:
 - 🔴 No Authentication (cannot deploy)
 - 🔴 Single-user database (SQLite locks)
 - 🔴 Missing Web Lookup (core feature)
-- 🟠 Performance 8-12s (target <5s)
+- 🟠 Prestaties 8-12s (target <5s)
 
 ## 🔗 Gerelateerde Documentatie
 
 - [Technical Documentation](../technisch/) - Technische analyses en rapporten
 - [Development Workflows](../workflows/) - Development workflows
-- [Testing Documentation](../testing/) - Test plannen en scenarios
+- [Testen Documentation](../testing/) - Test plannen en scenarios
 
 ## 📝 Conventies
 
@@ -105,7 +105,7 @@ Epics Status:
 
 ### Document Validatie Tools
 
-Voor maintainers zijn er hulpscripts beschikbaar om documentatie kwaliteit te waarborgen:
+Voor maintainers zijn er hulpscripts beschikbaar OM documentatie kwaliteit te waarborgen:
 
 - **Locatie check**: De pre-commit hook controleert automatisch of documenten in de juiste directories staan
 - **EA/SA validatie**: `python scripts/architecture_validator.py` controleert scheiding van concerns
@@ -115,14 +115,14 @@ Voor maintainers zijn er hulpscripts beschikbaar om documentatie kwaliteit te wa
 
 ## 🚧 Onderhoud
 
-| Document | Laatste Update | Review Cyclus | Owner |
+| Document | Laatste Update | Review Cyclus | Eigenaar |
 |----------|---------------|---------------|-------|
-| ENTERPRISE_ARCHITECTURE.md | 2025-08-20 | Quarterly | Enterprise Architect |
-| SOLUTION_ARCHITECTURE.md | 2025-08-20 | Sprint | Solution Architect |
-| TECHNICAL_ARCHITECTURE.md | 2025-09-04 | Sprint | Technical Lead |
+| ENTERPRISE_ARCHITECTURE.md | 20-08-2025 | Quarterly | Enterprise Architect |
+| SOLUTION_ARCHITECTURE.md | 20-08-2025 | Sprint | Solution Architect |
+| TECHNICAL_ARCHITECTURE.md | 04-09-2025 | Sprint | Technical Lead |
 | ADRs | Various | As needed | Team |
 
-## 🔄 Recente Updates (2025-08-20)
+## 🔄 Recente Updates (20-08-2025)
 
 ### Architectuur Reorganisatie Voltooid
 

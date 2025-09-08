@@ -1,11 +1,15 @@
 ---
-canonical: true
-status: active
-owner: documentation
-last_verified: 2025-09-05
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2
-priority: immediate
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 05-09-2025
+owner: documentation
+prioriteit: immediate
+status: active
 ---
+
+
 
 # UPDATE REQUIREMENTS - Post-Consolidation Documentation Fixes
 
@@ -13,7 +17,7 @@ priority: immediate
 
 Na de grote architectuur consolidatie (September 2025) zijn er nog verschillende documenten met verouderde references. Dit document inventariseert alle noodzakelijke updates en prioriteert deze volgens impact.
 
-## 🔴 CRITICAL - Immediate Action Required
+## 🔴 KRITIEK - Immediate Action Required
 
 ### 1. Non-Existent Directory References
 **Problem**: Meerdere documenten verwijzen naar `/docs/architectuur/beslissingen/` die niet meer bestaat.
@@ -47,7 +51,7 @@ Na de grote architectuur consolidatie (September 2025) zijn er nog verschillende
 
 **Fix**: Update to point to relevant sections in consolidated architecture documents.
 
-## 🟡 HIGH - Should Fix Soon
+## 🟡 HOOG - Should Fix Soon
 
 ### 3. Outdated Cross-References
 **Problem**: Architecture documents still have old naming in cross-references.
@@ -67,14 +71,14 @@ Na de grote architectuur consolidatie (September 2025) zijn er nog verschillende
 - Update to clarify ADRs are now embedded in main documents
 - Add note about consolidated architecture
 
-## 🟢 MEDIUM - General Cleanup
+## 🟢 GEMIDDELD - General Cleanup
 
-### 5. Testing Documents
+### 5. Testen Documents
 **Files to check**:
 - `/docs/testing/CONSOLIDATION_VALIDATION_REPORT.md` - Has broken links
 - `/docs/testing/PER-007-test-scenarios.md` - Check for outdated refs
 
-### 6. Workflow Documents
+### 6. Werkstroom Documents
 **Files to update**:
 - `/docs/workflows/TDD_TO_DEPLOYMENT_WORKFLOW.md`
 - `/docs/workflows/validation_orchestrator_rollout.md`
@@ -84,7 +88,7 @@ Na de grote architectuur consolidatie (September 2025) zijn er nog verschillende
 - `/docs/reviews/2025-08-28_full_code_review/CHECKLIST_DOCS.md`
 - Contains references to old ADR files in beslissingen/
 
-## 🔵 LOW - Documentation Polish
+## 🔵 LAAG - Documentation Polish
 
 ### 8. CHANGELOG.md
 - Contains CFR/PER-007 references that could be clarified
@@ -94,7 +98,7 @@ Na de grote architectuur consolidatie (September 2025) zijn er nog verschillende
 - Various files reference archived documents
 - Consider adding "(archived)" suffix to make clear
 
-## Implementation Plan
+## Implementatie Plan
 
 ### Phase 1: Critical Fixes (Immediate)
 **Time Estimate**: 1-2 hours
@@ -102,19 +106,19 @@ Na de grote architectuur consolidatie (September 2025) zijn er nog verschillende
 2. Fix broken file paths in TECHNICAL_ARCHITECTURE.md
 3. Update validation_orchestrator_v2.md references
 
-### Phase 2: High Priority (Today)
+### Phase 2: High Prioriteit (Today)
 **Time Estimate**: 1 hour
 1. Update CANONICAL_LOCATIONS.md
 2. Fix cross-references between architecture documents
 3. Update prd.md references
 
-### Phase 3: Medium Priority (This Week)
+### Phase 3: Medium Prioriteit (This Week)
 **Time Estimate**: 2 hours
 1. Review and update all testing documents
 2. Update workflow documents
 3. Clean up review documents
 
-### Phase 4: Low Priority (As Time Permits)
+### Phase 4: Low Prioriteit (As Time Permits)
 **Time Estimate**: 30 minutes
 1. Polish CHANGELOG.md
 2. Add archive indicators where helpful
@@ -154,5 +158,20 @@ grep -r "CFR-" docs --include="*.md" | grep -v archief
 - Archive structure is goed, alleen actieve documenten need fixes
 
 ---
-Generated: 2025-09-05
+Generated: 05-09-2025
 Next Review: After Phase 2 completion
+
+
+### Compliance Referenties
+
+- **ASTRA Controls:**
+  - ASTRA-QUA-001: Kwaliteitsborging
+  - ASTRA-SEC-002: Beveiliging by Design
+- **NORA Principes:**
+  - NORA-BP-07: Herbruikbaarheid
+  - NORA-BP-12: Betrouwbaarheid
+- **GEMMA Referenties:**
+  - GEMMA-ARC-03: Architectuur patterns
+- **Justice Sector:**
+  - DJI/OM integratie vereisten
+  - Rechtspraak compatibiliteit

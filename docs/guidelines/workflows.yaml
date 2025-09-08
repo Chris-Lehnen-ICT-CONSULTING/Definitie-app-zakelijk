@@ -10,7 +10,7 @@ workflows:
     purpose: Prepare user story, acceptance criteria, and architecture.
     entry_criteria:
       intents: ["analyse", "architecture", "story", "requirements"]
-      file_globs_any: ["docs/stories/**", "docs/architectuur/**"]
+      file_globs_any: ["docs/backlog/stories/**", "docs/architectuur/**"]
       risk: low
     phases:
       - name: ANALYSIS

@@ -176,7 +176,7 @@ errors = [v for v in violations if v["severity"] == "error"]
 warnings = [v for v in violations if v["severity"] == "warning"]
 ```
 
-## Testing Your Migration
+## Testen Your Migration
 
 ### Unit Test Updates
 
@@ -231,6 +231,6 @@ If you encounter issues during migration:
 
 1. **JSON Serializable**: Direct database storage without custom serializers
 2. **Type Safety**: TypedDict provides better IDE support
-3. **Performance**: No object instantiation overhead
+3. **Prestaties**: No object instantiation overhead
 4. **Consistency**: Same format across all services
 5. **Schema Validation**: Can validate against JSON Schema

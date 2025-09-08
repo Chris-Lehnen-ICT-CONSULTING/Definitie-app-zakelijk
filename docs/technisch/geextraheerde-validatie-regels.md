@@ -6,7 +6,7 @@
 - **ID**: ESS_02
 - **Naam**: Ontologische categorie expliciteren (type / particulier / proces / resultaat)
 - **Uitleg**: Indien een begrip meerdere ontologische categorieën kan aanduiden, moet uit de definitie ondubbelzinnig blijken welke van deze vier bedoeld wordt: soort (type), exemplaar (particulier), proces (activiteit) of resultaat (uitkomst).
-- **Toelichting**: Begrippen kunnen polysemisch zijn. Om verwarring te voorkomen, moet de definitie expliciet aangeven om welke categorie het gaat, bijvoorbeeld door 'is een categorie', 'is een exemplaar', 'is een activiteit' of 'is het resultaat van'.
+- **Toelichting**: Begrippen kunnen polysemisch zijn. OM verwarring te voorkomen, moet de definitie expliciet aangeven OM welke categorie het gaat, bijvoorbeeld door 'is een categorie', 'is een exemplaar', 'is een activiteit' of 'is het resultaat van'.
 - **Toetsvraag**: Geeft de definitie ondubbelzinnig aan of het begrip een type, een particular, een proces of een resultaat is?
 
 ### Goede Voorbeelden
@@ -28,13 +28,13 @@
 ### Foute Voorbeelden
 
 #### Type voorbeelden:
-❌ Werkomgeving waarnemen als middel om requirements aan het licht te brengen.
+❌ Werkomgeving waarnemen als middel OM vereistes aan het licht te brengen.
 
 #### Particulier/Exemplaar voorbeelden:
-❌ Exemplaar van observatie: observatie als middel om gegevens te verzamelen.
+❌ Exemplaar van observatie: observatie als middel OM gegevens te verzamelen.
 
 #### Proces voorbeelden:
-❌ Observatie is een manier om gegevens te verzamelen.
+❌ Observatie is een manier OM gegevens te verzamelen.
 
 #### Resultaat voorbeelden:
 ❌ Rapportage: het documenteren van inzichten als middel.
@@ -58,8 +58,8 @@
 - `\b(uitkomst|effect|product|bevinding)\b`
 - `\b(resulteert in|leidt tot)\b`
 
-### Implementation in Legacy Prompt
-From the legacy prompt builder, the ESS-02 rule is implemented with this instruction:
+### Implementatie in Legacy Prompt
+From the legacy prompt builder, the ESS-02 rule is geïmplementeerd with this instruction:
 
 ```
 ### 📐 Let op betekenislaag (ESS-02 - Ontologische categorie):
@@ -83,7 +83,7 @@ Gebruik formuleringen zoals:
 - **Toetsvraag**: Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?
 
 ### Goede Voorbeelden
-✅ Toezicht is het systematisch volgen van handelingen om te beoordelen of ze voldoen aan vastgestelde normen.
+✅ Toezicht is het systematisch volgen van handelingen OM te beoordelen of ze voldoen aan vastgestelde normen.
 ✅ Registratie is het formeel vastleggen van gegevens in een geautoriseerd systeem.
 ✅ Een maatregel is een opgelegde beperking of correctie bij vastgestelde overtredingen.
 
@@ -98,7 +98,7 @@ Gebruik formuleringen zoals:
 - **ID**: ESS_01
 - **Naam**: Essentie, niet doel
 - **Uitleg**: Een definitie beschrijft wat iets is, niet wat het doel of de bedoeling ervan is.
-- **Toelichting**: Definities moeten focussen op de aard en kenmerken van een begrip, niet op de reden waarom het bestaat of waarvoor het gebruikt wordt. Formuleringen als 'om te', 'met als doel', of 'zodat' wijzen vaak op een doel in plaats van op een definitie.
+- **Toelichting**: Definities moeten focussen op de aard en kenmerken van een begrip, niet op de reden waarom het bestaat of waarvoor het gebruikt wordt. Formuleringen als 'OM te', 'met als doel', of 'zodat' wijzen vaak op een doel in plaats van op een definitie.
 - **Toetsvraag**: Bevat de definitie uitsluitend de essentie van het begrip, zonder doel- of gebruiksgericht taalgebruik?
 
 ### Goede Voorbeelden
@@ -106,7 +106,7 @@ Gebruik formuleringen zoals:
 ✅ sanctie: maatregel die volgt op normovertreding
 
 ### Foute Voorbeelden
-❌ meldpunt: instantie om meldingen te kunnen verwerken
+❌ meldpunt: instantie OM meldingen te kunnen verwerken
 ❌ sanctie: maatregel met als doel naleving te bevorderen
 
 ## STR-01 - Definitie start met zelfstandig naamwoord
@@ -136,10 +136,10 @@ Gebruik formuleringen zoals:
 - **Toetsvraag**: Is de definitie geformuleerd als één enkele, begrijpelijke zin?
 
 ### Goede Voorbeelden
-✅ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken.
+✅ transitie-eis: eis die een organisatie moet ondersteunen OM migratie van de huidige naar de toekomstige situatie mogelijk te maken.
 
 ### Foute Voorbeelden
-❌ transitie-eis: eis die een organisatie moet ondersteunen om migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
+❌ transitie-eis: eis die een organisatie moet ondersteunen OM migratie van de huidige naar de toekomstige situatie mogelijk te maken. In tegenstelling tot andere eisen vertegenwoordigen transitie-eisen tijdelijke behoeften, in plaats van meer permanente.
 
 ## Complete Legacy Prompt Structure
 

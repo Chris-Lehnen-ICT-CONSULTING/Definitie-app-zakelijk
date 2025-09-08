@@ -1,6 +1,6 @@
 # Executive Summary: Codex Analyses Reviews
 
-**Datum:** 2025-09-03
+**Datum:** 03-09-2025
 **Betreft:** Consolidatie van drie onafhankelijke reviews op Codex performance analyses
 **Status:** Definitief
 
@@ -43,7 +43,7 @@ Alle drie reviews bevestigen:
 2. **Toetsregels** worden excessief geladen (45x)
 3. **Quick wins** zijn direct implementeerbaar
 4. **Incrementele aanpak** is de juiste strategie
-5. Performance verbetering van **minstens 70-80%** is haalbaar
+5. Prestaties verbetering van **minstens 70-80%** is haalbaar
 
 ## Verschillen in Aanpak
 
@@ -102,7 +102,7 @@ Op basis van de drie reviews adviseren wij een **gefaseerde incrementele aanpak*
 
 De consensus is helder: de applicatie heeft structurele problemen maar deze zijn **oplosbaar binnen 2 weken** met de juiste aanpak. De combinatie van quick wins (70% verbetering) en structurele refactoring (extra 10-15%) maakt een totale performance verbetering van **80-85%** haalbaar.
 
-**Advies:** Start direct met Fase 1 quick wins om momentum te creëren en teamvertrouwen te winnen.
+**Advies:** Start direct met Fase 1 quick wins OM momentum te creëren en teamvertrouwen te winnen.
 
 ---
 

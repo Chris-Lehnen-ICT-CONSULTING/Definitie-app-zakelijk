@@ -1,4 +1,4 @@
-# Web Lookup Configuratie (Epic 3)
+# Web Lookup Configuratie (Episch Verhaal 3)
 
 Deze applicatie gebruikt één centrale configuratie voor de moderne web lookup en prompt‑augmentatie.
 
@@ -13,7 +13,7 @@ Deze applicatie gebruikt één centrale configuratie voor de moderne web lookup 
   - `weight`: relatieve weging voor ranking
   - `timeout`: timeouts in seconden
   - `cache_ttl`: cache TTL in seconden (voor toekomstige caching)
-  - `min_score`: minimum score om mee te nemen
+  - `min_score`: minimum score OM mee te nemen
 - `web_lookup.cache` (voor toekomstige caching): strategy, ttl, max_entries
 - `web_lookup.sanitization`: beleid voor het veilig opschonen van snippets
 - `web_lookup.context_mappings`: optionele, domeinspecifieke hints

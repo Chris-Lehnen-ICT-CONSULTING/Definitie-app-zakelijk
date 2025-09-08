@@ -1,15 +1,15 @@
-# Golden Dataset voor Validation Testing
+# Golden Dataset voor Validation Testen
 
-**Status**: ACTIVE
-**Version**: 1.0.0
-**Last Updated**: 2025-08-29
-**Owner**: QA Team
+**Status**: ACTIEF
+**Versie**: 1.0.0
+**Laatst Bijgewerkt**: 29-08-2025
+**Eigenaar**: QA Team
 
 ## Overzicht
 
 Dit document beschrijft het golden dataset voor ValidationOrchestratorV2 testing. Het golden dataset bevat referentie-definities met bekende validation scores en wordt gebruikt voor:
 - Regressie testing
-- Performance benchmarking
+- Prestaties benchmarking
 - Contract compliance verificatie
 - Drift detectie tussen versies
 
@@ -96,12 +96,12 @@ data/testing/golden-dataset/
 - MINOR: Nieuwe test cases toegevoegd
 - PATCH: Fixes in bestaande cases
 
-### Update Workflow
+### Update Werkstroom
 1. **Propose Change**: Via PR met rationale
 2. **Review**: Door QA Lead + Tech Lead
 3. **Impact Analysis**: Check op downstream tests
 4. **Approval**: Minimum 2 reviewers
-5. **Version Bump**: Update metadata.json
+5. **Versie Bump**: Update metadata.json
 6. **Snapshot**: Maak backup van oude versie
 
 ### Change Log Format
@@ -123,7 +123,7 @@ data/testing/golden-dataset/
 | Score Drift | > 3% | > 5% | Block deployment |
 | New Violations | > 2 | > 5 | Investigation required |
 | Missing Violations | > 1 | > 3 | Contract review |
-| Performance | > 10% slower | > 20% slower | Performance analysis |
+| Prestaties | > 10% slower | > 20% slower | Prestaties analysis |
 
 ### Monitoring Script
 ```python
@@ -143,7 +143,7 @@ def check_drift(current_results, golden_results):
                 "expected": golden.score,
                 "actual": current.score,
                 "drift": score_drift,
-                "severity": "CRITICAL" if score_drift > 0.05 else "WARNING"
+                "severity": "KRITIEK" if score_drift > 0.05 else "WARNING"
             })
 
     return drift_report
@@ -157,7 +157,7 @@ def check_drift(current_results, golden_results):
 ./scripts/snapshot-golden-dataset.sh create "Pre-v1.1.0 update"
 
 # Restore snapshot if needed
-./scripts/snapshot-golden-dataset.sh restore "2025-08-29-v1.0.0"
+./scripts/snapshot-golden-dataset.sh restore "29-08-2025-v1.0.0"
 ```
 
 ### Retention Policy
@@ -167,7 +167,7 @@ def check_drift(current_results, golden_results):
 
 ## Integration met CI/CD
 
-### Pre-Deployment Check
+### Pre-Uitrol Check
 ```yaml
 # .github/workflows/golden-dataset-check.yml
 - name: Golden Dataset Validation
@@ -209,14 +209,14 @@ def test_golden_dataset_regression():
 
 ### Quarterly Audit
 - Full dataset review
-- Performance baseline update
+- Prestaties baseline update
 - Contract alignment check
 
 ## Contacten
 
-- **Dataset Owner**: QA Team Lead
+- **Dataset Eigenaar**: QA Team Lead
 - **Technical Contact**: Senior Developer
-- **Approval Board**: QA Lead, Tech Lead, Product Owner
+- **Approval Board**: QA Lead, Tech Lead, Product Eigenaar
 
 ---
 

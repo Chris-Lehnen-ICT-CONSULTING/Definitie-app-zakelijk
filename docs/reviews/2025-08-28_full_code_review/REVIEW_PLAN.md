@@ -3,7 +3,7 @@
 ## Doel & Scope
 - Doel: Volledige review van code, configuraties, JSON/YAML en documentatie met per bestand een concreet voorstel en acceptatiecriteria.
 - Scope: `src/`, `tests/`, `scripts/`, `config/`, `docs/` (incl. relevante JSON/YAML/SQL).
-- Uitsluitingen: Security-audit valt buiten scope (alleen informatief noteren, geen beoordeling).
+- Uitsluitingen: Beveiliging-audit valt buiten scope (alleen informatief noteren, geen beoordeling).
 
 ## Werkwijze
 1. Inventarisatie: Checklists genereren en actueel houden.
@@ -20,7 +20,7 @@
 6) Documentatie: `docs/architectuur`, `docs/workflows`, overige docs
 
 ## Statuslabels
-- PENDING: Nog niet bekeken
+- WACHTEND: Nog niet bekeken
 - TRIAGED: Snel gescand, diepte-review gepland
 - REVIEWED: Inhoudelijk beoordeeld, bevindingen genoteerd
 - PROPOSED: Voorstel in rapport opgenomen (wacht op akkoord)
@@ -54,4 +54,4 @@ Een bestand mag in de checklist afgevinkt worden als in `CODE_REVIEW_REPORT.md` 
 
 ## Versie & Datum
 - Planversie: v1.0
-- Datum: 2025-08-28
+- Datum: 28-08-2025

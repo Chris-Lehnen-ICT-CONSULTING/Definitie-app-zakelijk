@@ -1,16 +1,21 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: 2025-09-04
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@current
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 04-09-2025
+owner: architecture
+prioriteit: medium
+status: active
 ---
+
+
 
 # Documentation Policy - DefinitieAgent
 
 ## Purpose
 
-This policy establishes standards for documentation within the DefinitieAgent project to ensure consistency, maintainability, and compliance with government documentation requirements.
+This policy establishes standards for documentation within the DefinitieAgent project to ensure consistency, maintainability, and compliance with government documentation vereistes.
 
 ## Scope
 
@@ -18,7 +23,7 @@ This policy applies to all documentation in the `/docs` directory and inline cod
 
 ## Documentation Standards
 
-### 1. Frontmatter Requirements
+### 1. Frontmatter Vereisten
 
 Every markdown document MUST include frontmatter with these fields:
 
@@ -42,7 +47,7 @@ applies_to: definitie-app@version # Scope/version applicability
 
 #### Naming Conventions
 - Use UPPERCASE for policy/architecture docs (e.g., `ENTERPRISE_ARCHITECTURE.md`)
-- Use lowercase-with-hyphens for technical docs (e.g., `module-dependencies.md`)
+- Use lowercase-with-hyphens for technical docs (e.g., `module-afhankelijkheden.md`)
 - Use descriptive names that indicate content
 
 #### Required Sections
@@ -55,10 +60,10 @@ applies_to: definitie-app@version # Scope/version applicability
 
 All references to work items must use consistent formatting:
 
-- User Stories: `US-XXX` (e.g., US-001)
+- Gebruikersverhalen: `US-XXX` (e.g., US-001)
 - Bugs: `BUG-XXX` (e.g., BUG-042)
 - Tasks: `TASK-XXX` (e.g., TASK-123)
-- Epics: `EPIC-X` (e.g., EPIC-7)
+- Epische Verhalen: `EPIC-X` (e.g., EPIC-007)
 
 ### 5. Markdown Standards
 
@@ -89,7 +94,7 @@ All references to work items must use consistent formatting:
 - **User-facing documentation**: Dutch (Nederlands)
 - **Code comments**: English for technical, Dutch for domain logic
 
-### 7. Version Control
+### 7. Versie Control
 
 #### Commit Messages
 Documentation changes must use these prefixes:
@@ -109,7 +114,7 @@ See `CANONICAL_LOCATIONS.md` for authoritative placement of document types.
 
 ### Core Locations
 - `/docs/architectuur/` - Architecture documents
-- `/docs/stories/` - User stories and epics
+- `/docs/backlog/stories/` - User stories and epics
 - `/docs/technisch/` - Technical specifications
 - `/docs/archief/` - Archived documents (ONLY archive location)
 
@@ -141,7 +146,7 @@ The Document Standards Guardian agent performs:
 
 ## Archive Policy
 
-### When to Archive
+### Wanneer to Archive
 - Document superseded by newer version
 - Content no longer relevant
 - Status changed to `archived`
@@ -175,7 +180,7 @@ The Document Standards Guardian agent performs:
 - Link check results in CI/CD pipeline
 - Coverage metrics for documentation
 
-## Justice Domain Requirements
+## Justice Domain Vereisten
 
 ### ASTRA Compliance
 - Documents must reference ASTRA standards where applicable
@@ -200,10 +205,10 @@ Exceptions to this policy require:
 - [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md) - Document placement standards
 - [INDEX.md](../INDEX.md) - Documentation navigation hub
 - ASTRA_COMPLIANCE.md - Justice standards (archived in /docs/archief/)
-- [MASTER-EPICS-USER-STORIES.md](../stories/MASTER-EPICS-USER-STORIES.md) - Work item tracking
+- [MASTER-EPICS-USER-STORIES.md](../backlog/stories/MASTER-EPICS-USER-STORIES.md) - Work item tracking
 
 ---
 
-*Policy Version: 1.0*
-*Effective Date: 2025-09-04*
-*Next Review: 2025-12-04*
+*Policy Versie: 1.0*
+*Effective Date: 04-09-2025*
+*Next Review: 04-12-2025*

@@ -3,7 +3,7 @@
 ---
 document: Validation Orchestrator Rollout Runbook
 version: 1.0
-status: DRAFT
+status: CONCEPT
 type: Runbook
 parent: # validation_orchestrator_v2.md (gearchiveerd)
 related:
@@ -14,8 +14,8 @@ see-also:
   - validation_observability_privacy.md
   - ../architectuur/SOLUTION_ARCHITECTURE.md
 owner: DevOps Lead
-created: 2024-12-29
-updated: 2024-12-29
+created: 29-12-2024
+updated: 29-12-2024
 tags: [validation, rollout, deployment, feature-flag, shadow-mode]
 ---
 
@@ -25,7 +25,7 @@ Dit runbook beschrijft de veilige, gefaseerde rollout van ValidationOrchestrator
 
 ## Prerequisites
 
-### Technical Requirements
+### Technical Vereisten
 - [ ] Feature flag `VALIDATION_ORCHESTRATOR_V2` geconfigureerd
 - [ ] Monitoring dashboards live (Grafana/Datadog)
 - [ ] Alerting rules actief
@@ -34,7 +34,7 @@ Dit runbook beschrijft de veilige, gefaseerde rollout van ValidationOrchestrator
 - [ ] Re-entrancy verificatie compleet
 - [ ] Rollback scripts getest
 
-### Organizational Requirements
+### Organizational Vereisten
 - [ ] Change Advisory Board (CAB) approval
 - [ ] Stakeholder communication sent
 - [ ] On-call schedule confirmed
@@ -99,7 +99,7 @@ async def shadow_compare(request: ValidationRequest) -> ShadowResult:
     return old_result
 ```
 
-### Phase 1: Canary Deployment (10%)
+### Phase 1: Canary Uitrol (10%)
 
 **Duration**: 24-48 hours
 **Traffic**: 10% new path, 90% old path
@@ -339,7 +339,7 @@ def mask_validation_logs(log_entry: dict) -> dict:
 | Environment | Retention | Purpose |
 |-------------|-----------|---------|
 | Development | 30 days | Debugging |
-| Staging | 60 days | Testing |
+| Staging | 60 days | Testen |
 | Production | 90 days | Compliance (AVG/BIO) |
 | Archives | 1 year | Audit trail |
 
@@ -347,7 +347,7 @@ def mask_validation_logs(log_entry: dict) -> dict:
 
 ### Stakeholder Matrix
 
-| Stakeholder | When | Channel | Message |
+| Stakeholder | Wanneer | Channel | Message |
 |-------------|------|---------|---------|
 | Dev Team | T-1 week | Slack | Rollout schedule |
 | Product | T-3 days | Email | Feature flag timeline |
@@ -361,7 +361,7 @@ def mask_validation_logs(log_entry: dict) -> dict:
 ## Validation Service Upgrade
 **Status**: In Progress
 **Impact**: None expected
-**Started**: 2024-12-29 10:00 CET
+**Started**: 29-12-2024 10:00 CET
 
 We're upgrading our validation service to improve performance
 and accuracy. No user impact expected.
@@ -394,7 +394,7 @@ Updates:
 <!-- Validation Orchestrator V2 document gearchiveerd - functionaliteit gedocumenteerd in TECHNICAL_ARCHITECTURE.md -->
 - **Contract**: [ValidationResult Contract](../architectuur/contracts/validation_result_contract.md)
 - **Errors**: [Error Catalog](../technisch/error_catalog_validation.md)
-- **Testing**: [Golden Dataset](../testing/golden-dataset-validation.md)
+- **Testen**: [Golden Dataset](../testing/golden-dataset-validation.md)
 - **Monitoring**: [Observability Guide](../technisch/validation_observability_privacy.md)
 
 ## Appendix: Scripts
@@ -420,9 +420,9 @@ echo "Metrics OK - Error: $ERROR_RATE, P95: $LATENCY_P95"
 ```
 
 ## Change Log
-| Version | Date | Changes | Author |
+| Versie | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0 | 2024-12-29 | Initial runbook | DevOps Lead |
+| 1.0 | 29-12-2024 | Initial runbook | DevOps Lead |
 
 ---
 *This runbook must be reviewed before each rollout and updated based on lessons learned.*

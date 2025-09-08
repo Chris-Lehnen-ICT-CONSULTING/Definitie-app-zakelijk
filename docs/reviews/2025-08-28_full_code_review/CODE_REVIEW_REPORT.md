@@ -11,7 +11,7 @@ Dit rapport bevat per bestand de reviewbevindingen en concrete voorstellen. Een 
 
 ### [pad/naar/bestand.ext]
 - Status: REVIEWED | PROPOSED | DONE | BLOCKED
-- Datum/Reviewer: 2025-08-28 / Codex
+- Datum/Reviewer: 28-08-2025 / Codex
 
 #### Kernsamenvatting
 Korte samenvatting van de belangrijkste punten (1–2 zinnen).
@@ -36,16 +36,29 @@ Korte samenvatting van de belangrijkste punten (1–2 zinnen).
 
 ---
 
+
+### SMART Acceptatiecriteria
+
+- **Specifiek:** [Exact gedrag dat moet worden gerealiseerd]
+- **Meetbaar:**
+  - Response tijd: < 200ms voor UI acties
+  - Processing tijd: < 5 seconden voor generatie
+  - Success rate: > 95% voor validaties
+- **Acceptabel:** Haalbaar binnen huidige architectuur
+- **Relevant:** Direct gerelateerd aan gebruikersbehoefte
+- **Tijdgebonden:** Gerealiseerd binnen huidige sprint
+
+
 ## Startpunten (worden tijdens de review ingevuld)
 
 ### [src/main.py]
-- Status: PENDING
-- Datum/Reviewer: 2025-08-28 / Codex
+- Status: WACHTEND
+- Datum/Reviewer: 28-08-2025 / Codex
 
 ### [src/services/definition_orchestrator.py]
-- Status: PENDING
-- Datum/Reviewer: 2025-08-28 / Codex
+- Status: WACHTEND
+- Datum/Reviewer: 28-08-2025 / Codex
 
 ### [src/services/prompts/modular_prompt_builder.py]
-- Status: PENDING
-- Datum/Reviewer: 2025-08-28 / Codex
+- Status: WACHTEND
+- Datum/Reviewer: 28-08-2025 / Codex
