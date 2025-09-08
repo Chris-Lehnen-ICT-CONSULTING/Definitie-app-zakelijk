@@ -10,6 +10,7 @@ from typing import Any
 
 import streamlit as st
 
+from services.context.context_adapter import get_context_adapter
 from services.service_factory import get_definition_service
 from ui.session_state import SessionStateManager
 
@@ -98,12 +99,21 @@ class UIComponentsAdapter:
             "voorkeursterm": SessionStateManager.get_value("voorkeursterm", ""),
         }
 
-        # Context
-        ui_data["context_dict"] = {
-            "organisatorisch": SessionStateManager.get_value("context", []),
-            "juridisch": SessionStateManager.get_value("juridische_context", []),
-            "wettelijk": SessionStateManager.get_value("wet_basis", []),
-        }
+        # Context: prefer centralized ContextManager via adapter; fallback to SessionStateManager
+        try:
+            adapter = get_context_adapter()
+            cm = adapter.to_generation_request()
+            ui_data["context_dict"] = {
+                "organisatorisch": cm.get("organisatorische_context", []),
+                "juridisch": cm.get("juridische_context", []),
+                "wettelijk": cm.get("wettelijke_basis", []),
+            }
+        except Exception:
+            ui_data["context_dict"] = {
+                "organisatorisch": SessionStateManager.get_value("context", []),
+                "juridisch": SessionStateManager.get_value("juridische_context", []),
+                "wettelijk": SessionStateManager.get_value("wet_basis", []),
+            }
 
         # Metadata
         ui_data["metadata"] = {
