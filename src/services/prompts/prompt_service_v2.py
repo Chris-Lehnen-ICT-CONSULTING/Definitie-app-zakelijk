@@ -246,7 +246,7 @@ class PromptServiceV2:
     # ==============================
     # Epic 3: Prompt Augmentation
     # ==============================
-    def _maybe_augment_with_web_context(
+    def _maybe_augment_with_web_context(  # noqa: PLR0911, PLR0915
         self, prompt_text: str, enriched_context: EnrichedContext
     ) -> str:
         try:
@@ -320,7 +320,6 @@ class PromptServiceV2:
                 return cut
 
             header = aug.get("section_header", "### Contextinformatie uit bronnen:")
-            sep = aug.get("snippet_separator", "\n- ")
             position = aug.get("position", "after_context")
 
             injected_lines = []
@@ -328,7 +327,7 @@ class PromptServiceV2:
             tokens_used = 0
             added = 0
 
-            for idx, src in enumerate(selected):
+            for _idx, src in enumerate(selected):
                 if added >= max_snippets:
                     break
                 raw = src.get("snippet") or ""
