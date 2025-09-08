@@ -1,5 +1,5 @@
 """
-# ruff: noqa: PLR0912, PLR0915
+# ruff: noqa: PLR0912, PLR0915, N814, RUF005, SIM105
 Tabbed Interface voor DefinitieAgent - Nieuwe UI architectuur.
 Implementeert de requirements uit Project Requirements Document.
 
@@ -517,7 +517,18 @@ class TabbedInterface:
         self._render_document_upload_section()
 
         # Context selector zonder presets - direct handmatige selectie
-        context_data = self._render_simplified_context_selector()
+        try:
+            context_data = self._render_simplified_context_selector()
+            self._dbg("Global Context - Selector OK")
+        except Exception as e:
+            logger.error(f"Context selector crashed: {e}", exc_info=True)
+            st.error(f"❌ Context selector fout: {type(e).__name__}: {e!s}")
+            self._dbg("Global Context - Selector FAILED, continuing")
+            context_data = {
+                "organisatorische_context": [],
+                "juridische_context": [],
+                "wettelijke_basis": [],
+            }
 
         # Store in session state voor gebruik in tabs
         SessionStateManager.set_value("global_context", context_data)
@@ -570,12 +581,18 @@ class TabbedInterface:
                 x for x in _SM.get_value("org_context", []) if x in org_all_options
             ]
 
-            selected_org = st.multiselect(
+            try:
+                selected_org = st.multiselect(
                 "📋 Organisatorische context",
                 options=org_all_options + ["Anders..."],
                 default=org_defaults,
                 help="Selecteer één of meerdere organisaties",
-            )
+                )
+            except Exception as e:
+                logger.error(f"Org multiselect error: {e}")
+                st.error(f"Organisatorische context fout: {e!s}")
+                selected_org = org_defaults
+            self._dbg("Context col1 - org done")
 
             # Custom org context
             custom_org = ""
@@ -616,12 +633,18 @@ class TabbedInterface:
                 x for x in _SM.get_value("jur_context", []) if x in jur_all_options
             ]
 
-            selected_jur = st.multiselect(
+            try:
+                selected_jur = st.multiselect(
                 "⚖️ Juridische context",
                 options=jur_all_options + ["Anders..."],
                 default=jur_defaults,
                 help="Selecteer juridische gebieden",
-            )
+                )
+            except Exception as e:
+                logger.error(f"Juridische multiselect error: {e}")
+                st.error(f"Juridische context fout: {e!s}")
+                selected_jur = jur_defaults
+            self._dbg("Context col2 - jur done")
 
             # Custom juridical context
             custom_jur = ""
@@ -671,12 +694,18 @@ class TabbedInterface:
                 x for x in _SM.get_value("wet_basis", []) if x in wet_all_options
             ]
 
-            selected_wet = st.multiselect(
+            try:
+                selected_wet = st.multiselect(
                 "📜 Wettelijke basis",
                 options=wet_all_options + ["Anders..."],
                 default=wet_defaults,
                 help="Selecteer relevante wetgeving",
-            )
+                )
+            except Exception as e:
+                logger.error(f"Wettelijke basis multiselect error: {e}")
+                st.error(f"Wettelijke basis fout: {e!s}")
+                selected_wet = wet_defaults
+            self._dbg("Context col3 - wet done")
 
             # Custom legal basis
             custom_wet = ""
@@ -718,11 +747,13 @@ class TabbedInterface:
         except Exception:
             pass
 
-        return {
+        data = {
             "organisatorische_context": final_org,
             "juridische_context": final_jur,
             "wettelijke_basis": final_wet,
         }
+        self._dbg("Global Context - Selector return")
+        return data
 
     def _render_metadata_fields(self):
         """Render metadata velden voor definitie voorstel."""
