@@ -9,6 +9,11 @@ from dataclasses import dataclass
 
 import streamlit as st
 
+from config.context_options import (
+    COMMON_LAWS,
+    LEGAL_DOMAINS,
+    ORGANIZATIONS as ASTRA_ORGANIZATIONS,
+)
 from services.context.context_adapter import get_context_adapter
 
 
@@ -54,39 +59,7 @@ class EnhancedContextSelector:
     - ASTRA validation with warnings (not errors)
     """
 
-    # Standard options for each context type
-    ASTRA_ORGANIZATIONS = [
-        "Openbaar Ministerie",
-        "Rechtspraak",
-        "Reclassering Nederland",
-        "DJI",
-        "Nationale Politie",
-        "IND",
-        "CJIB",
-        "Justid",
-        "NFI",
-        "Raad voor de Kinderbescherming",
-    ]
-
-    LEGAL_DOMAINS = [
-        "Strafrecht",
-        "Bestuursrecht",
-        "Civiel recht",
-        "Jeugdrecht",
-        "Vreemdelingenrecht",
-        "Sanctierecht",
-        "Penitentiair recht",
-    ]
-
-    COMMON_LAWS = [
-        "Wetboek van Strafrecht (Sr)",
-        "Wetboek van Strafvordering (Sv)",
-        "Algemene wet bestuursrecht (Awb)",
-        "Burgerlijk Wetboek (BW)",
-        "Wet justitiële en strafvorderlijke gegevens (Wjsg)",
-        "Penitentiaire beginselenwet (Pbw)",
-        "Beginselenwet justitiële jeugdinrichtingen (Bjj)",
-    ]
+    # Options are sourced from centralized config (business knowledge)
 
     def __init__(self):
         """Initialize context selector with session state and adapter."""
@@ -125,21 +98,21 @@ class EnhancedContextSelector:
         # Render each context type
         org_context = self.render_multiselect_with_custom(
             field_name="organisatorisch",
-            options=self.ASTRA_ORGANIZATIONS,
+            options=ASTRA_ORGANIZATIONS,
             label="Organisatorische Context",
             help_text="Selecteer betrokken organisaties",
         )
 
         jur_context = self.render_multiselect_with_custom(
             field_name="juridisch",
-            options=self.LEGAL_DOMAINS,
+            options=LEGAL_DOMAINS,
             label="Juridische Context",
             help_text="Selecteer relevante rechtsgebieden",
         )
 
         wet_basis = self.render_multiselect_with_custom(
             field_name="wettelijk",
-            options=self.COMMON_LAWS,
+            options=COMMON_LAWS,
             label="Wettelijke Basis",
             help_text="Selecteer toepasselijke wetten",
         )
@@ -212,11 +185,10 @@ class EnhancedContextSelector:
             "wettelijk": "wettelijke_basis",
         }
         canonical = field_map.get(field_name, field_name)
-        try:
+        from contextlib import suppress
+
+        with suppress(Exception):
             self.adapter.update_field(canonical, selected, actor="ui")  # type: ignore[arg-type]
-        except Exception:
-            # Non-blocking: keep UI responsive even if adapter fails
-            pass
 
         # Apply deduplication while preserving order
         return self._deduplicate_preserving_order(selected)
@@ -399,8 +371,8 @@ class EnhancedContextSelector:
             "validation_results": {},
         }
         # Clear centralized context as well
-        try:
+        from contextlib import suppress
+
+        with suppress(Exception):
             self.adapter.clear(actor="ui")
-        except Exception:
-            pass
         st.success("Context gewist")

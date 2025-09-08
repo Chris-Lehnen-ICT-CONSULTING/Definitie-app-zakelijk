@@ -92,26 +92,26 @@ def pytest_ignore_collect(path, config):
 def benchmark_timer():
     """Simple benchmark timer for performance testing."""
     import time
-    
+
     class Timer:
         def __init__(self):
             self.start_time = None
             self.elapsed = None
-        
+
         def start(self):
             self.start_time = time.perf_counter()
-        
+
         def stop(self):
             if self.start_time:
                 self.elapsed = time.perf_counter() - self.start_time
                 return self.elapsed
             return None
-        
+
         def assert_under(self, seconds: float):
             """Assert that elapsed time is under specified seconds."""
             assert self.elapsed is not None, "Timer not stopped"
             assert self.elapsed < seconds, f"Took {self.elapsed:.2f}s, expected under {seconds}s"
-    
+
     return Timer()
 
 
