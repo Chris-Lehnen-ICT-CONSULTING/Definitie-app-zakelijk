@@ -9,7 +9,10 @@ from dataclasses import (  # Dataklassen voor gestructureerde document data
     asdict,
     dataclass,
 )
-from datetime import datetime, timezone  # Datum en tijd functionaliteit voor timestamps
+from datetime import (  # Datum en tijd functionaliteit voor timestamps
+    UTC,
+    datetime,
+)
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import Any  # Type hints voor betere code documentatie
 
@@ -110,7 +113,7 @@ class DocumentProcessor:
                     filename=filename,
                     mime_type=file_info["mime_type"] or "unknown",
                     size=len(file_content),
-                    uploaded_at=datetime.now(timezone.utc),
+                    uploaded_at=datetime.now(UTC),
                     extracted_text="",
                     text_length=0,
                     keywords=[],
@@ -134,7 +137,7 @@ class DocumentProcessor:
                     filename=filename,
                     mime_type=file_info["mime_type"] or "unknown",
                     size=len(file_content),
-                    uploaded_at=datetime.now(timezone.utc),
+                    uploaded_at=datetime.now(UTC),
                     extracted_text=extracted_text,
                     text_length=len(extracted_text),
                     keywords=keywords,
@@ -161,7 +164,7 @@ class DocumentProcessor:
                 filename=filename,
                 mime_type=mime_type or "unknown",
                 size=len(file_content),
-                uploaded_at=datetime.now(timezone.utc),
+                uploaded_at=datetime.now(UTC),
                 extracted_text="",
                 text_length=0,
                 keywords=[],
@@ -469,7 +472,7 @@ class DocumentProcessor:
         try:
             data = {
                 "documents": [doc.to_dict() for doc in self._documents_cache.values()],
-                "last_updated": datetime.now(timezone.utc).isoformat(),
+                "last_updated": datetime.now(UTC).isoformat(),
             }
 
             with open(self.metadata_file, "w", encoding="utf-8") as f:

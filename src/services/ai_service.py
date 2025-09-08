@@ -72,9 +72,8 @@ class AIService:
         try:
             api_key = os.getenv("OPENAI_API_KEY")
             if not api_key:
-                raise ValueError(
-                    "OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets."
-                )
+                msg = "OPENAI_API_KEY ontbreekt. Zet deze in .env of je CI-secrets."
+                raise ValueError(msg)
 
             self._client = OpenAI(api_key=api_key)
             logger.info("AIService geïnitialiseerd met OpenAI client")
@@ -180,10 +179,12 @@ class AIService:
 
         except OpenAIError as e:
             logger.error(f"OpenAI API fout: {e}")
-            raise AIServiceError(f"AI service call mislukt: {e}") from e
+            msg = f"AI service call mislukt: {e}"
+            raise AIServiceError(msg) from e
         except Exception as e:
             logger.error(f"Onverwachte fout in AI service: {e}")
-            raise AIServiceError(f"AI service interne fout: {e}") from e
+            msg = f"AI service interne fout: {e}"
+            raise AIServiceError(msg) from e
 
     def generate_definition(
         self,

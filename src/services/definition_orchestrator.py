@@ -642,7 +642,7 @@ class DefinitionOrchestrator(
             # Return error message that can be processed by caller
             return f"AI generatie fout: {e!s}"
 
-    async def _enrich_with_ai(self, context: ProcessingContext) -> None:  # noqa: ARG002
+    async def _enrich_with_ai(self, context: ProcessingContext) -> None:
         """Verrijk met AI enhancement."""
         try:
             # TODO: Implement AI enhancement logic

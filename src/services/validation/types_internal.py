@@ -39,7 +39,7 @@ class ReadOnlySequence:
     def __eq__(self, other: Any) -> bool:
         if isinstance(other, ReadOnlySequence):
             return self._data == other._data
-        if isinstance(other, (list, tuple)):
+        if isinstance(other, list | tuple):
             return list(self._data) == list(other)
         return NotImplemented
 
@@ -133,7 +133,7 @@ class RuleResult:
                 },
             )
 
-        if isinstance(output, (list, tuple)):
+        if isinstance(output, list | tuple):
             score = float(output[0]) if output else 0.0
             violations = list(output[1]) if len(output) > 1 else []
             return cls(rule_code=rule_code, score=score, violations=violations)

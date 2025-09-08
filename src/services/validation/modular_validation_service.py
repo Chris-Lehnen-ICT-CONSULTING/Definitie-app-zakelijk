@@ -8,6 +8,7 @@ dit uitgebreid worden om ToetsregelManager en Python-regelmodules te gebruiken.
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import re
 import uuid
@@ -109,14 +110,12 @@ class ModularValidationService:
         # Acceptatiedrempel (overschrijfbaar via config.thresholds.overall_accept)
         self._overall_threshold: float = 0.75
         if getattr(self.config, "thresholds", None):
-            try:
+            with contextlib.suppress(Exception):
                 self._overall_threshold = float(
                     self.config.thresholds.get(
                         "overall_accept", self._overall_threshold
                     )
                 )
-            except Exception:
-                pass
 
     # Optioneel: exposeer regelvolgorde voor determinismetest
     def _load_rules_from_manager(self) -> None:
@@ -392,7 +391,7 @@ class ModularValidationService:
             return "structuur"
         if code.startswith("CON-"):
             return "samenhang"
-        if code.startswith("ESS-") or code.startswith("VAL-"):
+        if code.startswith(("ESS-", "VAL-")):
             return "juridisch"
         return "system"
 

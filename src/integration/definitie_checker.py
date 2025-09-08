@@ -680,7 +680,8 @@ def generate_or_retrieve_definition(
             orchestrator = container.orchestrator()
             validation_orch = getattr(orchestrator, "validation_service", None)
             if validation_orch is None:
-                raise RuntimeError("Validation orchestrator not available")
+                msg = "Validation orchestrator not available"
+                raise RuntimeError(msg)
 
             vctx = None
             if context:
