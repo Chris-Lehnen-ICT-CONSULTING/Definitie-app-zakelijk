@@ -81,8 +81,26 @@ class DefinitionTaskModule(BasePromptModule):
             word_type = context.get_shared("word_type", "onbekend")
             ontological_category = context.get_shared("ontological_category")
             org_contexts = context.get_shared("organization_contexts", [])
+            # Derive juridical and legal-basis contexts from enriched base_context
+            try:
+                base_ctx = (
+                    context.enriched_context.base_context
+                    if context and context.enriched_context
+                    else {}
+                )
+            except Exception:
+                base_ctx = {}
+            jur_contexts = (
+                base_ctx.get("juridische_context") or base_ctx.get("juridisch") or []
+            )
+            wet_basis = (
+                base_ctx.get("wettelijke_basis") or base_ctx.get("wettelijk") or []
+            )
             has_context = bool(
-                org_contexts or context.get_shared("domain_contexts", [])
+                org_contexts
+                or jur_contexts
+                or wet_basis
+                or context.get_shared("domain_contexts", [])
             )
 
             # Bouw secties
@@ -115,7 +133,9 @@ class DefinitionTaskModule(BasePromptModule):
 
             # Prompt metadata
             sections.append(
-                self._build_prompt_metadata(begrip, word_type, org_contexts)
+                self._build_prompt_metadata(
+                    begrip, word_type, org_contexts, jur_contexts, wet_basis
+                )
             )
 
             # Combineer secties
@@ -237,7 +257,12 @@ Stel jezelf deze vragen:
         return f"✏️ Geef nu de definitie van het begrip **{begrip}** in één enkele zin, zonder toelichting."
 
     def _build_prompt_metadata(
-        self, begrip: str, word_type: str, org_contexts: list[str]
+        self,
+        begrip: str,
+        word_type: str,
+        org_contexts: list[str],
+        jur_contexts: list[str],
+        wet_basis: list[str],
     ) -> str:
         """
         Bouw prompt metadata sectie.
@@ -257,8 +282,18 @@ Stel jezelf deze vragen:
         ]
 
         if org_contexts:
-            lines.append(f"- Organisatorische context(en): {', '.join(org_contexts)}")
+            lines.append(f"- Organisatorische context: {', '.join(org_contexts)}")
         else:
-            lines.append("- Organisatorische context(en): geen")
+            lines.append("- Organisatorische context: geen")
+
+        if jur_contexts:
+            lines.append(f"- Juridische context: {', '.join(jur_contexts)}")
+        else:
+            lines.append("- Juridische context: geen")
+
+        if wet_basis:
+            lines.append(f"- Wettelijke basis: {', '.join(wet_basis)}")
+        else:
+            lines.append("- Wettelijke basis: geen")
 
         return "\n".join(lines)
