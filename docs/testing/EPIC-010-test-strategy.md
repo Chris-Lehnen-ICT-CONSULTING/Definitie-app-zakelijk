@@ -294,7 +294,7 @@ jobs:
 ### Primary Documents
 - **Epic**: [EPIC-010: Context Flow Refactoring](../backlog/epics/EPIC-010-context-flow-refactoring.md)
 - **Implementation Plan**: [EPIC-010 Implementation Plan](../implementation/EPIC-010-implementation-plan.md)
-- **Test Suite Summary**: [250+ Test Cases](../../tests/EPIC_010_TEST_SUITE_SUMMARY.md)
+- **Test Suite Summary**: [250+ Test Cases](./EPIC_010_TEST_SUITE_SUMMARY.md)
 
 ### User Stories
 - **US-041**: [Fix Context Field Mapping](../backlog/stories/US-041.md)

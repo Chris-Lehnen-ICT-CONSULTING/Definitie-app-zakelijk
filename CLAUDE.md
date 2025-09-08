@@ -25,7 +25,7 @@ if (trigger_detected && !workflow_router_used):
 ```python
 TRIGGER_PATTERNS = [
     r'\banalyse[er|ren|seer]?\b',
-    r'\banalyz[e|ing]\b', 
+    r'\banalyz[e|ing]\b',
     r'\bgebruik.*(agent|workflow|juiste)\b',
     r'\broute[r]?\b',
     r'\b(epic|user.?story|requirement|US-\d+|EPIC-\d+)\b',
@@ -47,12 +47,12 @@ TRIGGER_PATTERNS = [
 if any(pattern.match(user_message) for pattern in TRIGGER_PATTERNS):
     # STAP 2: ONMIDDELLIJKE STOP
     # VERBODEN: TodoWrite(), Read(), Grep(), Bash(), of ENIGE andere tool
-    
+
     # STAP 3: VERPLICHTE RESPONSE
     print("🔴 TRIGGER GEDETECTEERD - WORKFLOW-ROUTER PROTOCOL GEACTIVEERD")
     print(f"Trigger: {matched_pattern}")
     print(f"Originele prompt: {user_message}")
-    
+
     # STAP 4: EERST PROMPT-ENGINEER AANROEPEN (VERPLICHT!)
     print("Stap 1/2: Optimaliseren van prompt via prompt-engineer...")
     optimized_result = Task(
@@ -60,7 +60,7 @@ if any(pattern.match(user_message) for pattern in TRIGGER_PATTERNS):
         prompt=user_message,
         description="Optimize prompt"
     )
-    
+
     # STAP 5: TOON VOLLEDIGE GEOPTIMALISEERDE PROMPT
     print("## 📝 GEOPTIMALISEERDE PROMPT")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -71,10 +71,10 @@ if any(pattern.match(user_message) for pattern in TRIGGER_PATTERNS):
     print("1. **Accept** → Gebruik deze prompt met workflow-router")
     print("2. **Modify** → Pas aan en optimaliseer opnieuw")
     print("3. **Cancel** → Stop het proces")
-    
+
     # STAP 6: WACHT OP USER KEUZE
     user_choice = wait_for_user_input()
-    
+
     # STAP 7: HANDEL KEUZE AF
     if user_choice == "Accept" or user_choice == "1":
         print("Stap 2/2: Routeren naar juiste workflow...")
@@ -156,7 +156,7 @@ Wat is je keuze?
 
 **VERBODEN VARIATIES:**
 - ❌ "Ik ga eerst even kijken naar..."
-- ❌ "Laat me de epic analyseren..."  
+- ❌ "Laat me de epic analyseren..."
 - ❌ "Ik zal een todo lijst maken..."
 - ❌ "Om dit goed te doen moet ik..."
 

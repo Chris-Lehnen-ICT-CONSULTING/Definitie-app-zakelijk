@@ -101,16 +101,16 @@ context_schema = {
 ```python
 def test_context_field_mapping():
     """Verify context fields reach prompt"""
-    
+
 def test_anders_option_handling():
     """Test custom context without crashes"""
-    
+
 def test_context_type_validation():
     """Ensure all contexts are List[str]"""
 ```
 
 #### Test Files to Execute
-- **Unit Tests**: 
+- **Unit Tests**:
   - `tests/unit/test_us041_context_field_mapping.py`
   - `tests/unit/test_us042_anders_option_fix.py`
   - `tests/unit/test_us043_remove_legacy_routes.py`
@@ -456,7 +456,7 @@ pytest tests/integration/test_context_flow_epic_cfr.py::test_audit_trail -v
 
 ### Test Documentation
 - **Test Strategy**: [EPIC-010 Test Strategy](../testing/EPIC-010-test-strategy.md)
-- **Test Suite Summary**: [250+ Test Cases](../../tests/EPIC_010_TEST_SUITE_SUMMARY.md)
+- **Test Suite Summary**: [250+ Test Cases](../testing/EPIC_010_TEST_SUITE_SUMMARY.md)
 
 ### Test Files Referenced in This Plan
 - **Unit Tests**:
