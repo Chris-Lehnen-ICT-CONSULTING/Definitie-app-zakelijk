@@ -65,7 +65,7 @@ if grep -r "_convert_request_to_context" src/ --include="*.py" | \
 fi
 
 # Pattern 4: Direct session state context manipulation (should go through ContextManager)
-# Exclude string literals in comments/documentation  
+# Exclude string literals in comments/documentation
 if grep -r "st\.session_state\[.*context.*\]\s*=\s*[^\"']" src/ --include="*.py" | \
    grep -v "context_manager.py" | \
    grep -v "context_selector.py" | \

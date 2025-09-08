@@ -107,7 +107,7 @@ class TestSchemaValidation:
         payload = {
             "begrip": "voorlopige hechtenis"
         }
-        
+
         # Should validate without error
         validator.validate(payload)
 
@@ -126,7 +126,7 @@ class TestSchemaValidation:
                 "source": "web"
             }
         }
-        
+
         # Should validate without error
         validator.validate(payload)
 
@@ -136,10 +136,10 @@ class TestSchemaValidation:
             "organisatorische_context": ["DJI"]
             # Missing required 'begrip'
         }
-        
+
         with pytest.raises(ValidationError) as exc_info:
             validator.validate(payload)
-        
+
         assert "'begrip' is a required property" in str(exc_info.value)
 
     def test_additional_properties_rejected(self, validator):
@@ -148,10 +148,10 @@ class TestSchemaValidation:
             "begrip": "test",
             "unknown_field": "should fail"
         }
-        
+
         with pytest.raises(ValidationError) as exc_info:
             validator.validate(payload)
-        
+
         assert "Additional properties are not allowed" in str(exc_info.value)
 
 
@@ -170,7 +170,7 @@ class TestFieldTypeValidation:
             "begrip": "Valid string term"
         }
         validator.validate(payload)
-        
+
         # Invalid - number instead of string
         payload = {
             "begrip": 12345
@@ -188,7 +188,7 @@ class TestFieldTypeValidation:
             "wettelijke_basis": ["Test wet"]
         }
         validator.validate(payload)
-        
+
         # Invalid - string instead of array
         payload = {
             "begrip": "test",
@@ -208,7 +208,7 @@ class TestFieldTypeValidation:
             }
         }
         validator.validate(payload)
-        
+
         # Invalid metadata source
         payload = {
             "begrip": "test",
@@ -234,12 +234,12 @@ class TestFieldConstraints:
         payload = {"begrip": ""}  # Empty string
         with pytest.raises(ValidationError):
             validator.validate(payload)
-        
+
         # Too long begrip
         payload = {"begrip": "x" * 501}  # Exceeds maxLength
         with pytest.raises(ValidationError):
             validator.validate(payload)
-        
+
         # Valid length
         payload = {"begrip": "x" * 500}  # At maxLength
         validator.validate(payload)
@@ -252,7 +252,7 @@ class TestFieldConstraints:
             "organisatorische_context": ["DJI", "OM", "Rechtspraak"]
         }
         validator.validate(payload)
-        
+
         # Invalid organization
         payload = {
             "begrip": "test",
@@ -279,7 +279,7 @@ class TestFieldConstraints:
             "api_version": "1.0.0"
         }
         validator.validate(payload)
-        
+
         # Invalid version pattern
         payload = {
             "begrip": "test",
@@ -298,7 +298,7 @@ class TestFieldConstraints:
             }
         }
         validator.validate(payload)
-        
+
         # Invalid datetime
         payload = {
             "begrip": "test",
@@ -318,24 +318,24 @@ class TestCrossFieldDependencies:
         """When 'Anders...' is selected, custom text should be provided."""
         # This is application logic, not schema validation
         # But we can define custom validators
-        
+
         def validate_anders_option(payload):
             """Custom validator for Anders option."""
             org_context = payload.get('organisatorische_context', [])
-            
+
             if 'Anders...' in org_context:
                 # Should have custom_organisatorische_context field
                 if 'custom_organisatorische_context' not in payload:
                     raise ValidationError("Anders... requires custom_organisatorische_context")
-            
+
             return True
-        
+
         # Test with Anders but no custom text
         payload = {
             "begrip": "test",
             "organisatorische_context": ["DJI", "Anders..."]
         }
-        
+
         with pytest.raises(ValidationError):
             validate_anders_option(payload)
 
@@ -363,16 +363,16 @@ class TestCrossFieldDependencies:
                 }
             ]
         }
-        
+
         validator = Draft7Validator(conditional_schema)
-        
+
         # Strafrecht without wettelijke_basis should fail
         payload = {
             "begrip": "test",
             "juridische_context": ["Strafrecht"],
             "wettelijke_basis": []
         }
-        
+
         # This would fail with the conditional schema
 
 
@@ -387,7 +387,7 @@ class TestSchemaEvolution:
             "begrip": "test",
             "organisatorische_context": ["DJI"]
         }
-        
+
         # V2 schema (with new optional fields)
         v2_schema = {
             **CONTEXT_PAYLOAD_SCHEMA_V1,
@@ -399,9 +399,9 @@ class TestSchemaEvolution:
                 }
             }
         }
-        
+
         v2_validator = Draft7Validator(v2_schema)
-        
+
         # V1 payload should still validate in V2
         v2_validator.validate(v1_payload)
 
@@ -413,7 +413,7 @@ class TestSchemaEvolution:
             "context": "DJI",  # String instead of array
             "domain": "Strafrecht"  # Old field name
         }
-        
+
         # Migration function
         def migrate_payload(old):
             return {
@@ -421,10 +421,10 @@ class TestSchemaEvolution:
                 "organisatorische_context": [old.get("context")] if old.get("context") else [],
                 "juridische_context": [old.get("domain")] if old.get("domain") else []
             }
-        
+
         # Migrate
         new_payload = migrate_payload(old_payload)
-        
+
         # Validate migrated payload
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
         validator.validate(new_payload)
@@ -442,22 +442,22 @@ class TestDataclassIntegration:
             organisatorische_context: List[str] = None
             juridische_context: List[str] = None
             wettelijke_basis: List[str] = None
-            
+
             def to_dict(self):
                 data = asdict(self)
                 # Remove None values
                 return {k: v for k, v in data.items() if v is not None}
-        
+
         # Create instance
         payload = ContextPayload(
             begrip="test",
             organisatorische_context=["DJI"],
             juridische_context=["Strafrecht"]
         )
-        
+
         # Convert to dict
         payload_dict = payload.to_dict()
-        
+
         # Validate
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
         validator.validate(payload_dict)
@@ -470,7 +470,7 @@ class TestDataclassIntegration:
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Wetboek van Strafvordering"]
         )
-        
+
         # Convert to dict (simulated)
         request_dict = {
             "begrip": request.begrip,
@@ -478,7 +478,7 @@ class TestDataclassIntegration:
             "juridische_context": request.juridische_context,
             "wettelijke_basis": request.wettelijke_basis
         }
-        
+
         # Validate
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
         validator.validate(request_dict)
@@ -500,12 +500,12 @@ class TestErrorHandling:
             "juridische_context": ["Valid", "Valid", "Valid"],  # Duplicates
             "api_version": "invalid",  # Wrong pattern
         }
-        
+
         errors = list(validator.iter_errors(payload))
-        
+
         # Should have multiple errors
         assert len(errors) > 0
-        
+
         # Errors should have paths
         for error in errors:
             assert error.path is not None or error.schema_path is not None
@@ -515,7 +515,7 @@ class TestErrorHandling:
         def validate_with_suggestions(payload):
             validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
             errors = list(validator.iter_errors(payload))
-            
+
             suggestions = []
             for error in errors:
                 if "enum" in error.schema:
@@ -524,14 +524,14 @@ class TestErrorHandling:
                     suggestions.append(f"Minimum length: {error.schema['minLength']}")
                 elif "type" in error.schema:
                     suggestions.append(f"Expected type: {error.schema['type']}")
-            
+
             return suggestions
-        
+
         payload = {
             "begrip": "",
             "organisatorische_context": ["InvalidOrg"]
         }
-        
+
         suggestions = validate_with_suggestions(payload)
         assert len(suggestions) > 0
 
@@ -543,24 +543,24 @@ class TestPerformanceOptimization:
     def test_validation_speed(self):
         """Schema validation should be fast."""
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
-        
+
         payload = {
             "begrip": "test",
             "organisatorische_context": ["DJI", "OM"],
             "juridische_context": ["Strafrecht"],
             "wettelijke_basis": ["Test wet"]
         }
-        
+
         import time
         iterations = 10000
-        
+
         start = time.perf_counter()
         for _ in range(iterations):
             validator.validate(payload)
         elapsed = time.perf_counter() - start
-        
+
         avg_time_ms = (elapsed / iterations) * 1000
-        
+
         # Should be very fast
         assert avg_time_ms < 0.1, f"Validation too slow: {avg_time_ms:.3f}ms"
 
@@ -569,22 +569,22 @@ class TestPerformanceOptimization:
         # Compile validator
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
         validate_fn = validator.validate
-        
+
         payload = {
             "begrip": "test",
             "organisatorische_context": ["DJI"]
         }
-        
+
         import time
         iterations = 10000
-        
+
         start = time.perf_counter()
         for _ in range(iterations):
             validate_fn(payload)
         elapsed = time.perf_counter() - start
-        
+
         avg_time_ms = (elapsed / iterations) * 1000
-        
+
         # Compiled should be even faster
         assert avg_time_ms < 0.05, f"Compiled validation too slow: {avg_time_ms:.3f}ms"
 
@@ -599,15 +599,15 @@ class TestSchemaDocumentation:
             if "properties" in schema:
                 for prop, prop_schema in schema["properties"].items():
                     current_path = f"{path}.{prop}" if path else prop
-                    
+
                     # Should have description
                     assert "description" in prop_schema or "title" in prop_schema, \
                            f"Field {current_path} lacks description"
-                    
+
                     # Recurse for nested objects
                     if prop_schema.get("type") == "object":
                         check_descriptions(prop_schema, current_path)
-        
+
         check_descriptions(CONTEXT_PAYLOAD_SCHEMA_V1)
 
     def test_schema_examples(self):
@@ -630,9 +630,9 @@ class TestSchemaDocumentation:
                 "wettelijke_basis": ["Penitentiaire beginselenwet"]
             }
         ]
-        
+
         validator = Draft7Validator(CONTEXT_PAYLOAD_SCHEMA_V1)
-        
+
         for example in examples:
             validator.validate(example)
 

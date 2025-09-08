@@ -1,7 +1,7 @@
 """
 Unit tests for US-041: Fix Context Field Mapping to Prompts.
 
-These tests verify that context fields (organisatorische_context, juridische_context, 
+These tests verify that context fields (organisatorische_context, juridische_context,
 wettelijke_basis) are correctly propagated from UI through services to AI prompts.
 
 Related Documentation:
@@ -41,7 +41,7 @@ class TestContextFieldTypes:
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Wetboek van Strafrecht"]
         )
-        
+
         assert isinstance(request.organisatorische_context, list)
         assert isinstance(request.juridische_context, list)
         assert isinstance(request.wettelijke_basis, list)
@@ -55,7 +55,7 @@ class TestContextFieldTypes:
             juridische_context=[],
             wettelijke_basis=[]
         )
-        
+
         assert request.organisatorische_context == []
         assert request.juridische_context == []
         assert request.wettelijke_basis == []
@@ -69,7 +69,7 @@ class TestContextFieldTypes:
             juridische_context=None,
             wettelijke_basis=None
         )
-        
+
         # After normalization in service
         assert request.organisatorische_context is None or request.organisatorische_context == []
         assert request.juridische_context is None or request.juridische_context == []
@@ -91,14 +91,14 @@ class TestPromptServiceV2Integration:
             begrip="voorlopige hechtenis",
             organisatorische_context=["DJI", "OM", "Rechtspraak"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # All organizations should appear
         assert "DJI" in prompt
         assert "OM" in prompt
         assert "Rechtspraak" in prompt
-        
+
         # Section header should exist
         assert any(header in prompt.lower() for header in [
             "organisatorische context:",
@@ -114,14 +114,14 @@ class TestPromptServiceV2Integration:
             begrip="dwangmiddel",
             juridische_context=["Strafrecht", "Bestuursrecht", "Civiel recht"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # All legal contexts should appear
         assert "Strafrecht" in prompt
         assert "Bestuursrecht" in prompt
         assert "Civiel recht" in prompt
-        
+
         # Section header should exist
         assert any(header in prompt.lower() for header in [
             "juridische context:",
@@ -141,14 +141,14 @@ class TestPromptServiceV2Integration:
                 "Algemene wet bestuursrecht"
             ]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # All legal bases should appear
         assert "Wet op de Identificatieplicht" in prompt
         assert "Wetboek van Strafvordering" in prompt
         assert "Algemene wet bestuursrecht" in prompt
-        
+
         # Section header should exist
         assert any(header in prompt.lower() for header in [
             "wettelijke basis:",
@@ -166,9 +166,9 @@ class TestPromptServiceV2Integration:
             juridische_context=["Strafrecht", "Penitentiair recht"],
             wettelijke_basis=["Penitentiaire beginselenwet", "Wetboek van Strafrecht"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # Verify all context elements present
         assert all(org in prompt for org in ["DJI", "OM"])
         assert all(jur in prompt for jur in ["Strafrecht", "Penitentiair recht"])
@@ -185,9 +185,9 @@ class TestPromptServiceV2Integration:
                 "Wet bijzondere opnemingen in psychiatrische ziekenhuizen (Wet Bopz)"
             ]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # Special characters should be preserved
         assert "2016/680" in prompt
         assert "Art. 5 EVRM" in prompt
@@ -213,9 +213,9 @@ class TestContextPropagationFlow:
         mock_result.success = True
         mock_result.definition = "Test definitie"
         mock_result.debug_info = {}
-        
+
         service_container._orchestrator.generate_definition = Mock(return_value=mock_result)
-        
+
         # Create request with full context
         request = GenerationRequest(
             id="test-009",
@@ -224,10 +224,10 @@ class TestContextPropagationFlow:
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Test wet"]
         )
-        
+
         # Call orchestrator
         service_container._orchestrator.generate_definition(request)
-        
+
         # Verify request passed with context intact
         call_args = service_container._orchestrator.generate_definition.call_args[0][0]
         assert call_args.organisatorische_context == ["DJI"]
@@ -251,9 +251,9 @@ class TestJusticeDomainSpecificScenarios:
             juridische_context=["Penitentiair recht"],
             wettelijke_basis=["Penitentiaire beginselenwet", "Verlofregeling TBS"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # DJI context should trigger penitentiary-specific instructions
         assert "DJI" in prompt
         assert any(term in prompt.lower() for term in ["detentie", "gevangenis", "penitentiair"])
@@ -267,9 +267,9 @@ class TestJusticeDomainSpecificScenarios:
             juridische_context=["Strafprocesrecht"],
             wettelijke_basis=["Wetboek van Strafvordering"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # OM context should trigger prosecution-specific instructions
         assert "OM" in prompt
         assert any(term in prompt.lower() for term in ["vervolging", "openbaar ministerie", "officier"])
@@ -283,9 +283,9 @@ class TestJusticeDomainSpecificScenarios:
             juridische_context=["Procesrecht"],
             wettelijke_basis=["Wetboek van Strafvordering", "Wet RO"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # Rechtspraak context should trigger judiciary-specific instructions
         assert "Rechtspraak" in prompt
         # Note: Specific terms like "rechter" may not always appear in base prompts
@@ -300,9 +300,9 @@ class TestJusticeDomainSpecificScenarios:
             juridische_context=["Strafrecht", "Bestuursrecht"],
             wettelijke_basis=["Wetboek van Strafrecht", "Wetboek van Strafvordering"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # All organizations should be represented
         assert all(org in prompt for org in ["OM", "Rechtspraak", "CJIB"])
         # Note: Cross-organizational terms may not always appear explicitly
@@ -322,10 +322,10 @@ class TestContextAuditCompliance:
                 juridische_context=["Strafrecht"],
                 wettelijke_basis=["Test wet"]
             )
-            
+
             prompt_service = PromptServiceV2()
             prompt_service.build_prompt(request)
-            
+
             # Verify logging occurred
             # Note: This depends on implementation having audit logging
             # If not implemented, this test documents the requirement
@@ -339,7 +339,7 @@ class TestContextAuditCompliance:
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Test wet"]
         )
-        
+
         # This test documents requirement for metadata inclusion
         # Implementation should store context in result.metadata
 
@@ -347,11 +347,11 @@ class TestContextAuditCompliance:
         """Context values should be validated against allowed values."""
         # Valid organizations
         valid_orgs = ["DJI", "OM", "Rechtspraak", "KMAR", "CJIB", "RvdK", "NFI"]
-        
+
         # Valid legal contexts
-        valid_juridisch = ["Strafrecht", "Bestuursrecht", "Civiel recht", 
+        valid_juridisch = ["Strafrecht", "Bestuursrecht", "Civiel recht",
                           "Penitentiair recht", "Jeugdrecht", "Vreemdelingenrecht"]
-        
+
         # This test documents the requirement for validation
         # Implementation should validate against these lists
 
@@ -372,7 +372,7 @@ class TestEdgeCases:
             juridische_context=[],
             wettelijke_basis=[]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
         assert prompt is not None
         assert "test" in prompt.lower()
@@ -386,7 +386,7 @@ class TestEdgeCases:
             juridische_context=["Context" + str(i) for i in range(15)],
             wettelijke_basis=["Wet" + str(i) for i in range(30)]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
         assert prompt is not None
         # Should handle without truncation or error
@@ -400,14 +400,14 @@ class TestEdgeCases:
             juridische_context=["Strafrecht", "Strafrecht"],
             wettelijke_basis=["Wet A", "Wet B", "Wet A"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
-        
+
         # Duplicates should be deduplicated in our context mapping
         # But may appear multiple times in different prompt sections
         # The deduplication test is that the input duplicates don't cause errors
         assert "DJI" in prompt  # Verify it appears
-        assert "OM" in prompt  # Verify it appears  
+        assert "OM" in prompt  # Verify it appears
         assert "Strafrecht" in prompt  # Verify it appears
         # Deduplication is working if prompt generation succeeds without errors
 
@@ -420,7 +420,7 @@ class TestEdgeCases:
             juridische_context=None,
             wettelijke_basis=["Test wet"]
         )
-        
+
         prompt = prompt_service.build_prompt(request)
         assert "DJI" in prompt
         assert "Test wet" in prompt

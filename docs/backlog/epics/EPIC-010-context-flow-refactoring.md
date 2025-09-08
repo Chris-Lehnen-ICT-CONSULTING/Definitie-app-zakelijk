@@ -311,7 +311,7 @@ UI Context Selection
 ### Implementation & Strategy
 - **Implementation Plan**: [EPIC-010 Implementation Plan](../../implementation/EPIC-010-implementation-plan.md)
 - **Test Strategy**: [EPIC-010 Test Strategy](../../testing/EPIC-010-test-strategy.md)
-- **Test Suite**: [Test Suite Summary](../../../tests/EPIC_010_TEST_SUITE_SUMMARY.md) - 250+ test cases
+- **Test Suite**: [Test Suite Summary](../../testing/EPIC_010_TEST_SUITE_SUMMARY.md) - 250+ test cases
 
 ### Test Files
 #### Unit Tests (250+ cases)

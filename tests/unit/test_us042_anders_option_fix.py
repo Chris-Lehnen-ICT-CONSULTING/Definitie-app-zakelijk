@@ -39,13 +39,13 @@ class TestAndersOptionBasicFunctionality:
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input, \
              patch('streamlit.columns') as mock_columns:
-            
+
             # Setup column mocks
             col1, col2 = Mock(), Mock()
             mock_columns.return_value = [col1, col2]
             col1.multiselect = mock_multiselect
             col2.text_input = mock_text_input
-            
+
             yield {
                 'multiselect': mock_multiselect,
                 'text_input': mock_text_input,
@@ -59,13 +59,13 @@ class TestAndersOptionBasicFunctionality:
         # Simulate selecting Anders...
         mock_streamlit['multiselect'].return_value = ["DJI", "Anders..."]
         mock_streamlit['text_input'].return_value = "Custom Organization"
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Text input should have been called
         mock_streamlit['text_input'].assert_called()
-        
+
         # Result should contain custom value, not "Anders..."
         assert "Custom Organization" in result.get("organisatorische_context", [])
         assert "Anders..." not in result.get("organisatorische_context", [])
@@ -74,10 +74,10 @@ class TestAndersOptionBasicFunctionality:
         """Anders... without custom text should be filtered out."""
         mock_streamlit['multiselect'].return_value = ["DJI", "Anders..."]
         mock_streamlit['text_input'].return_value = ""  # Empty custom text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Anders... should not appear in result
         assert "Anders..." not in result.get("organisatorische_context", [])
         # But DJI should still be there
@@ -94,7 +94,7 @@ class TestAndersOptionBasicFunctionality:
             elif "Wettelijke" in label:
                 return ["Wetboek van Strafrecht", "Anders..."]
             return []
-        
+
         def text_input_side_effect(label, *args, **kwargs):
             if "organisatorische" in label.lower():
                 return "Custom Org"
@@ -103,13 +103,13 @@ class TestAndersOptionBasicFunctionality:
             elif "wettelijke" in label.lower():
                 return "Custom Wet"
             return ""
-        
+
         mock_streamlit['multiselect'].side_effect = multiselect_side_effect
         mock_streamlit['text_input'].side_effect = text_input_side_effect
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # All custom values should be present
         assert "Custom Org" in result.get("organisatorische_context", [])
         assert "Custom Juridisch" in result.get("juridische_context", [])
@@ -144,10 +144,10 @@ class TestAndersSpecialCharacters:
         """Test that special characters in custom text are handled correctly."""
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = custom_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # Custom text should be preserved exactly
         assert custom_text in result.get("wettelijke_basis", [])
 
@@ -156,37 +156,37 @@ class TestAndersSpecialCharacters:
         long_text = "Verdrag tot bescherming van de rechten van de mens en de fundamentele vrijheden, " \
                    "zoals gewijzigd door de Protocollen nrs. 11 en 14, vergezeld van het Aanvullend " \
                    "Protocol en de Protocollen nrs. 4, 6, 7, 12, 13 en 16"
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = long_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         assert long_text in result.get("wettelijke_basis", [])
 
     def test_unicode_characters(self, mock_streamlit):
         """Test Unicode characters in custom text."""
         unicode_text = "Verdrag inzake de rechten van het kind (VN) 🇺🇳 • § € ™"
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = unicode_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         assert unicode_text in result.get("juridische_context", [])
 
     def test_html_injection_prevention(self, mock_streamlit):
         """Test that HTML/script injection is prevented."""
         malicious_text = "<script>alert('XSS')</script>Normale tekst"
-        
+
         mock_streamlit['multiselect'].return_value = ["Anders..."]
         mock_streamlit['text_input'].return_value = malicious_text
-        
+
         selector = ContextSelector()
         result = selector.render()
-        
+
         # The text should be stored as-is (sanitization happens at display)
         assert malicious_text in result.get("organisatorische_context", [])
 
@@ -206,19 +206,19 @@ class TestAndersStatePersistence:
         """Custom Anders values should persist in session state."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = ["Anders..."]
             mock_text_input.return_value = "Persistent Custom Value"
-            
+
             selector = ContextSelector()
-            
+
             # First render
             result1 = selector.render()
             assert "Persistent Custom Value" in result1.get("organisatorische_context", [])
-            
+
             # Simulate state persistence
             mock_session_state.organisatorische_context_anders = "Persistent Custom Value"
-            
+
             # Second render should maintain the value
             result2 = selector.render()
             # Value should still be available
@@ -227,15 +227,15 @@ class TestAndersStatePersistence:
         """When Anders... is deselected, custom value should be cleared."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             selector = ContextSelector()
-            
+
             # First: select Anders with custom text
             mock_multiselect.return_value = ["DJI", "Anders..."]
             mock_text_input.return_value = "Custom Value"
             result1 = selector.render()
             assert "Custom Value" in result1.get("organisatorische_context", [])
-            
+
             # Then: deselect Anders
             mock_multiselect.return_value = ["DJI"]  # No Anders...
             result2 = selector.render()
@@ -250,13 +250,13 @@ class TestAndersUIBehavior:
         """Text input should have clear label when Anders is selected."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = ["Anders..."]
             mock_text_input.return_value = "Test"
-            
+
             selector = ContextSelector()
             selector.render()
-            
+
             # Verify text_input was called with appropriate label
             calls = mock_text_input.call_args_list
             assert any("organisatorische context" in str(call).lower() for call in calls)
@@ -265,12 +265,12 @@ class TestAndersUIBehavior:
         """Text input should have helpful placeholder text."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = ["Anders..."]
-            
+
             selector = ContextSelector()
             selector.render()
-            
+
             # Check that placeholder gives guidance
             call_kwargs = mock_text_input.call_args[1] if mock_text_input.call_args else {}
             placeholder = call_kwargs.get('placeholder', '')
@@ -279,12 +279,12 @@ class TestAndersUIBehavior:
     def test_anders_option_always_last(self):
         """Anders... option should always appear last in dropdown."""
         selector = ContextSelector()
-        
+
         # Get the options that would be shown
         org_options = selector._get_organisatorische_options()
         jur_options = selector._get_juridische_options()
         wet_options = selector._get_wettelijke_options()
-        
+
         # Anders... should be last if present
         if "Anders..." in org_options:
             assert org_options[-1] == "Anders..."
@@ -301,13 +301,13 @@ class TestAndersErrorPrevention:
         """Empty selection should not cause crash."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = []
             mock_text_input.return_value = ""
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             assert result is not None
             assert isinstance(result, dict)
 
@@ -315,13 +315,13 @@ class TestAndersErrorPrevention:
         """Selecting only Anders without text should not crash."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = ["Anders..."]
             mock_text_input.return_value = ""
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             assert result is not None
             # Anders... should be filtered out
             assert "Anders..." not in result.get("organisatorische_context", [])
@@ -330,13 +330,13 @@ class TestAndersErrorPrevention:
         """Whitespace-only custom text should be treated as empty."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = ["Anders..."]
             mock_text_input.return_value = "   \t\n   "  # Only whitespace
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             # Whitespace-only should be filtered out
             assert "   \t\n   " not in result.get("organisatorische_context", [])
             assert "Anders..." not in result.get("organisatorische_context", [])
@@ -345,13 +345,13 @@ class TestAndersErrorPrevention:
         """Custom text should be trimmed of leading/trailing whitespace."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = ["Anders..."]
             mock_text_input.return_value = "  Custom Value  "
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             # Should be trimmed
             assert "Custom Value" in result.get("organisatorische_context", [])
             assert "  Custom Value  " not in result.get("organisatorische_context", [])
@@ -369,17 +369,17 @@ class TestAndersIntegrationScenarios:
             "Immigratie- en Naturalisatiedienst",
             "Koninklijke Marechaussee - Afdeling Vreemdelingenzaken"
         ]
-        
+
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             for custom_org in custom_orgs:
                 mock_multiselect.return_value = ["Anders..."]
                 mock_text_input.return_value = custom_org
-                
+
                 selector = ContextSelector()
                 result = selector.render()
-                
+
                 assert custom_org in result.get("organisatorische_context", [])
 
     def test_european_law_custom_context(self):
@@ -390,33 +390,33 @@ class TestAndersIntegrationScenarios:
             "Kaderbesluit 2002/584/JBZ Europees aanhoudingsbevel",
             "Richtlijn 2012/29/EU Slachtofferrechten"
         ]
-        
+
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             for eu_context in eu_contexts:
                 mock_multiselect.return_value = ["Anders..."]
                 mock_text_input.return_value = eu_context
-                
+
                 selector = ContextSelector()
                 result = selector.render()
-                
+
                 assert eu_context in result.get("wettelijke_basis", [])
 
     def test_mixed_standard_and_custom_values(self):
         """Test mixing standard selections with custom Anders values."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             # Mix standard and custom
             mock_multiselect.return_value = ["DJI", "OM", "Rechtspraak", "Anders..."]
             mock_text_input.return_value = "Slachtofferhulp Nederland"
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             # All values should be present
-            assert all(org in result.get("organisatorische_context", []) 
+            assert all(org in result.get("organisatorische_context", [])
                       for org in ["DJI", "OM", "Rechtspraak", "Slachtofferhulp Nederland"])
             assert "Anders..." not in result.get("organisatorische_context", [])
 
@@ -428,20 +428,20 @@ class TestAndersPerformance:
         """Anders option should not cause unnecessary UI rerenders."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             mock_multiselect.return_value = ["DJI"]
             mock_text_input.return_value = ""
-            
+
             selector = ContextSelector()
-            
+
             # First render
             selector.render()
             initial_multiselect_calls = mock_multiselect.call_count
             initial_text_input_calls = mock_text_input.call_count
-            
+
             # Second render without changes
             selector.render()
-            
+
             # Should not have excessive additional calls
             assert mock_multiselect.call_count <= initial_multiselect_calls * 2
             assert mock_text_input.call_count <= initial_text_input_calls * 2
@@ -450,15 +450,15 @@ class TestAndersPerformance:
         """Anders filtering should be efficient."""
         with patch('streamlit.multiselect') as mock_multiselect, \
              patch('streamlit.text_input') as mock_text_input:
-            
+
             # Large selection with Anders
             large_selection = ["Option" + str(i) for i in range(50)] + ["Anders..."]
             mock_multiselect.return_value = large_selection
             mock_text_input.return_value = "Custom"
-            
+
             selector = ContextSelector()
             result = selector.render()
-            
+
             # Should handle large lists efficiently
             assert len(result.get("organisatorische_context", [])) == 51  # 50 options + 1 custom
             assert "Anders..." not in result.get("organisatorische_context", [])
