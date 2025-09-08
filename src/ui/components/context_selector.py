@@ -352,7 +352,10 @@ class ContextSelector:
         }
 
     def save_as_preset(
-        self, name: str, context_data: dict[str, Any], description: str = ""
+        self,
+        name: str,
+        context_data: dict[str, Any],
+        description: str = "",  # noqa: ARG002
     ):
         """Sla huidige context op als preset."""
         # TODO: Implement preset saving to database or config file
