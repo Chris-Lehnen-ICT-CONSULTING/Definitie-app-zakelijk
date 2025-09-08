@@ -129,12 +129,12 @@ EPIC-001 (Generation) → EPIC-002 (Validation)
 ## Resource Allocation
 
 ### Current Sprint (36)
-- 2 developers on EPIC-CFR (critical fixes)
+- 2 developers on EPIC-010 (critical fixes)
 - 1 developer on EPIC-007 (performance)
 - 1 tester on validation coverage
 
 ### Recommended Allocation
-- **Immediate**: All hands on EPIC-CFR
+- **Immediate**: All hands on EPIC-010
 - **Next Sprint**: Focus on EPIC-007 performance
 - **Future**: EPIC-003 web lookup, EPIC-004 UI
 
@@ -142,7 +142,7 @@ EPIC-001 (Generation) → EPIC-002 (Validation)
 
 | Episch Verhaal | Risk Level | Impact | Mitigation |
 |------|------------|--------|------------|
-| EPIC-CFR | 🔴 KRITIEK | Legal compliance failure | Immediate hotfix |
+| EPIC-010 | 🔴 KRITIEK | Legal compliance failure | Immediate hotfix |
 | EPIC-006 | 🟠 HOOG | Beveiliging vulnerabilities | API key validation |
 | EPIC-007 | 🟠 HOOG | Cost overruns ($5k/month) | Token optimization |
 | EPIC-003 | 🟡 GEMIDDELD | Missing enrichment | Phased rollout |

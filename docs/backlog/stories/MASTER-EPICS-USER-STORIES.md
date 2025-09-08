@@ -11,7 +11,7 @@
 >
 > - **Epics:** Zie `/docs/backlog/epics/` directory
 >   - Dashboard: [/docs/backlog/epics/INDEX.md](../epics/INDEX.md)
->   - Files: EPIC-001.md through EPIC-CFR.md
+>   - Files: EPIC-001.md through EPIC-010.md
 >
 > - **Stories:** Zie `/docs/backlog/stories/` directory
 >   - Index: [/docs/backlog/stories/INDEX.md](INDEX.md)
