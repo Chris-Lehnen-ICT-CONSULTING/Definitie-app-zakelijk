@@ -1,4 +1,5 @@
 """
+# ruff: noqa: PLR0912, PLR0915
 Tabbed Interface voor DefinitieAgent - Nieuwe UI architectuur.
 Implementeert de requirements uit Project Requirements Document.
 
@@ -803,7 +804,7 @@ class TabbedInterface:
                     self.definition_service, "get_service_info"
                 ):
                     # Gebruik de V2 service voor generatie - nu sync interface
-                    service_result = self.definition_service.generate_definition(
+                    service_result = self.definition_service.generate_definition_sync(
                         begrip=begrip,
                         context_dict={
                             "organisatorisch": org_context,

@@ -1,4 +1,5 @@
 """
+# ruff: noqa: PLR0912, PLR0915, SIM102, RUF001, PLC0206
 Definition Generator Tab - Main AI definition generation interface.
 """
 
@@ -1286,7 +1287,7 @@ class DefinitionGeneratorTab:
 
             from domain.ontological_categories import OntologischeCategorie
 
-            service_result = definition_service.generate_definition(
+            service_result = definition_service.generate_definition_sync(
                 begrip=begrip,
                 context_dict=context_dict,
                 organisatie=generation_result.get("organisatie", ""),

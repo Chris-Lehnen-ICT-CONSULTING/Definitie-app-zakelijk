@@ -95,50 +95,7 @@ class LegacyGenerationResult:
         return hasattr(self, key)
 
 
-def get_definition_service(
-    use_container_config: dict | None = None,
-) -> "ServiceAdapter":
-    """
-    Get de juiste service op basis van feature flag.
-
-    Deze functie bepaalt of we de nieuwe clean architecture gebruiken
-    of terugvallen op de legacy UnifiedDefinitionGenerator.
-
-    Args:
-        use_container_config: Optionele container configuratie
-
-    Returns:
-        Service instance (legacy of nieuw via adapter)
-    """
-    # Check feature flag - environment variable heeft prioriteit voor tests/deployment
-    import os
-
-    use_new_services = os.getenv("USE_NEW_SERVICES", "").lower() == "true"
-
-    # Als geen env var, check Streamlit session state
-    if not use_new_services and not os.getenv("USE_NEW_SERVICES"):
-        try:
-            use_new_services = st.session_state.get("use_new_services", True)
-        except (ImportError, AttributeError):
-            # Buiten Streamlit context, gebruik default
-            use_new_services = True
-
-    # Selecteer effectieve config
-    config = use_container_config or _get_environment_config()
-
-    # Bepaal cache key op basis van bevroren config
-    key = _freeze_config(config)
-
-    # Module-level cache (werkt in tests en CLI)
-    cached = _SERVICE_ADAPTER_CACHE.get(key)
-    if cached is not None:
-        return cached
-
-    # Maak nieuwe adapter en cache deze
-    container = get_container(config)
-    adapter = ServiceAdapter(container)
-    _SERVICE_ADAPTER_CACHE[key] = adapter
-    return adapter
+## NOTE: get_definition_service is defined later in this file with legacy fallback support.
 
 
 def _get_environment_config() -> dict:
@@ -328,6 +285,31 @@ class ServiceAdapter:
             error_message=(getattr(response, "message", None) or "Generatie mislukt"),
             final_definitie="Generatie mislukt",
         )
+
+    def generate_definition_sync(self, begrip: str, context_dict: dict, **kwargs):
+        """
+        Synchronous wrapper for UI callers.
+
+        Runs the async generate_definition in the current or a new event loop,
+        returning the Legacy-compatible result object.
+        """
+        import asyncio
+
+        try:
+            loop = asyncio.get_running_loop()
+            fut = asyncio.run_coroutine_threadsafe(
+                self.generate_definition(
+                    begrip=begrip, context_dict=context_dict, **kwargs
+                ),
+                loop,
+            )
+            return fut.result()
+        except RuntimeError:
+            return asyncio.run(
+                self.generate_definition(
+                    begrip=begrip, context_dict=context_dict, **kwargs
+                )
+            )
 
     def get_stats(self) -> dict:
         """Get statistieken van alle services."""
@@ -545,9 +527,9 @@ def get_definition_service(
             from importlib import import_module
 
             legacy_mod = import_module("services.unified_definition_service_v2")
-            Unified = getattr(legacy_mod, "UnifiedDefinitionService", None)
-            if Unified is not None:
-                return Unified.get_instance()  # type: ignore[attr-defined]
+            legacy_cls = getattr(legacy_mod, "UnifiedDefinitionService", None)
+            if legacy_cls is not None:
+                return legacy_cls.get_instance()  # type: ignore[attr-defined]
         except Exception:
             # If legacy path not available, fall through to new services
             logger.warning(
