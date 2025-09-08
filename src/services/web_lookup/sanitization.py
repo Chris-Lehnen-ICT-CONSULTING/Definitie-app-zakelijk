@@ -37,5 +37,4 @@ def sanitize_snippet(text: str, max_length: int = 500) -> str:
     if max_length and len(cleaned) > max_length:
         cleaned = cleaned[:max_length]
     # Escape entities for UI safety
-    cleaned = html.escape(cleaned, quote=False)
-    return cleaned
+    return html.escape(cleaned, quote=False)

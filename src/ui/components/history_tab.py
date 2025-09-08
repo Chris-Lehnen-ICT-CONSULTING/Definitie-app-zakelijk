@@ -2,11 +2,12 @@
 History Tab - Interface voor definitie geschiedenis en audit trail.
 """
 
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 
 import pandas as pd
 import streamlit as st
+
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
@@ -431,7 +432,7 @@ class HistoryTab:
 
     def _get_date_range(self, range_name: str) -> tuple:
         """Convert range name naar start en end date."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         today = now.date()
 
         if range_name == "Laatste week":

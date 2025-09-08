@@ -16,9 +16,9 @@ from dataclasses import (  # Dataklassen voor gestructureerde monitoring data
     dataclass,
 )
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
+    UTC,
     datetime,
     timedelta,
-    timezone,
 )
 from enum import Enum  # Enumeraties voor monitoring types en severity levels
 from pathlib import Path  # Object-georiënteerde pad manipulatie
@@ -219,7 +219,7 @@ class MetricsCollector:
 
             data = {
                 "recent_calls": recent_calls,
-                "last_updated": datetime.now(timezone.utc).isoformat(),
+                "last_updated": datetime.now(UTC).isoformat(),
             }
 
             with open(history_file, "w") as f:
@@ -233,7 +233,7 @@ class MetricsCollector:
             self.api_calls.append(api_call)
 
             # Clean up old data
-            cutoff = datetime.now(timezone.utc) - timedelta(hours=self.retention_hours)
+            cutoff = datetime.now(UTC) - timedelta(hours=self.retention_hours)
             while self.api_calls and self.api_calls[0].timestamp < cutoff:
                 self.api_calls.popleft()
 
@@ -245,7 +245,7 @@ class MetricsCollector:
 
     async def _generate_snapshot(self, endpoint: str):
         """Generate metrics snapshot for an endpoint."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         recent_calls = [
             call
             for call in self.api_calls
@@ -323,7 +323,7 @@ class MetricsCollector:
 
     async def _check_alerts(self):
         """Check alert conditions."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
 
         for alert in self.alerts:
             if not alert.enabled:
@@ -386,15 +386,11 @@ class MetricsCollector:
             return len(errors) / len(recent_calls)
 
         if metric_type == MetricType.THROUGHPUT:
-            window_minutes = (
-                datetime.now(timezone.utc) - window_start
-            ).total_seconds() / 60
+            window_minutes = (datetime.now(UTC) - window_start).total_seconds() / 60
             return len(recent_calls) / window_minutes if window_minutes > 0 else 0.0
 
         if metric_type == MetricType.COST:
-            window_hours = (
-                datetime.now(timezone.utc) - window_start
-            ).total_seconds() / 3600
+            window_hours = (datetime.now(UTC) - window_start).total_seconds() / 3600
             total_cost = sum(call.cost for call in recent_calls)
             return total_cost / window_hours if window_hours > 0 else 0.0
 
@@ -406,7 +402,7 @@ class MetricsCollector:
 
     def get_realtime_metrics(self, endpoint: str | None = None) -> dict[str, Any]:
         """Get real-time metrics dashboard data."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         recent_cutoff = now - timedelta(minutes=5)
 
         if endpoint:
@@ -491,7 +487,7 @@ class MetricsCollector:
 
     def generate_cost_optimization_report(self) -> dict[str, Any]:
         """Generate cost optimization recommendations."""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         day_ago = now - timedelta(days=1)
 
         recent_calls = [call for call in self.api_calls if call.timestamp >= day_ago]
@@ -559,7 +555,7 @@ class MetricsCollector:
     def export_metrics_csv(self, filename: str | None = None) -> str:
         """Export metrics to CSV file."""
         if filename is None:
-            filename = f"api_metrics_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.csv"
+            filename = f"api_metrics_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.csv"
 
         filepath = Path("exports") / filename
         filepath.parent.mkdir(exist_ok=True)
@@ -625,7 +621,7 @@ async def record_api_call(
         cost = CostCalculator.calculate_cost(model, input_tokens, output_tokens)
 
     api_call = APICall(
-        timestamp=datetime.now(timezone.utc),
+        timestamp=datetime.now(UTC),
         endpoint=endpoint,
         function_name=function_name,
         request_id=f"{function_name}_{int(time.time() * 1000)}",

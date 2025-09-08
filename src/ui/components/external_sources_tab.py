@@ -3,10 +3,11 @@ External Sources Tab - Interface voor externe definitie bronnen.
 """
 
 import json  # JSON data verwerking voor configuraties
-from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Bestandspad manipulatie
 
 import streamlit as st  # Streamlit web interface framework
+
 from database.definitie_repository import (  # Database toegang voor definities
     DefinitieRepository,
     DefinitieStatus,
@@ -243,7 +244,7 @@ class ExternalSourcesTab:
                         "external_search_results",
                         {
                             "results": results,
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                             "search_params": search_params,
                         },
                     )
@@ -513,7 +514,7 @@ class ExternalSourcesTab:
                     import_history = SessionStateManager.get_value("import_history", [])
                     import_history.append(
                         {
-                            "timestamp": datetime.now(timezone.utc).isoformat(),
+                            "timestamp": datetime.now(UTC).isoformat(),
                             "source_id": source_id,
                             "begrip": ext_def.begrip,
                             "imported_count": 1,
@@ -597,7 +598,7 @@ class ExternalSourcesTab:
                 import_history = SessionStateManager.get_value("import_history", [])
                 import_history.append(
                     {
-                        "timestamp": datetime.now(timezone.utc).isoformat(),
+                        "timestamp": datetime.now(UTC).isoformat(),
                         "source_id": source_id,
                         "imported_count": imported_count,
                         "total_attempted": len(ext_definitions),
@@ -664,12 +665,12 @@ class ExternalSourcesTab:
             source_info = manager.get_source_info()
 
             config_data = {
-                "export_timestamp": datetime.now(timezone.utc).isoformat(),
+                "export_timestamp": datetime.now(UTC).isoformat(),
                 "sources": source_info,
             }
 
             # Save to file
-            timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+            timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
             filename = f"external_sources_config_{timestamp}.json"
 
             import os

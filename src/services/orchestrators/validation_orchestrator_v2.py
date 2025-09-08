@@ -49,7 +49,8 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
         cleaning_service: CleaningServiceInterface | None = None,
     ) -> None:
         if validation_service is None:
-            raise ValueError("validation_service is vereist")
+            msg = "validation_service is vereist"
+            raise ValueError(msg)
         self.validation_service = validation_service
         self.cleaning_service = cleaning_service
 

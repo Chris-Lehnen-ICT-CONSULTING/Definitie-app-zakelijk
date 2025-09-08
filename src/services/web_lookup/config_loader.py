@@ -4,6 +4,7 @@ Config loader for Web Lookup defaults (Epic 3).
 
 from __future__ import annotations
 
+import contextlib
 import logging
 import os
 from pathlib import Path
@@ -40,9 +41,7 @@ def load_web_lookup_config(path: str | None = None) -> dict[str, Any]:
     with config_path.open("r", encoding="utf-8") as f:
         data = yaml.safe_load(f) or {}
 
-    try:
+    with contextlib.suppress(Exception):
         logger.info("Web lookup config loaded: %s", config_path)
-    except Exception:
-        pass
 
     return data

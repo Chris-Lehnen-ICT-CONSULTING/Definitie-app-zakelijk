@@ -9,14 +9,14 @@ from typing import Any
 
 import pandas as pd
 import streamlit as st
-from ui.session_state import SessionStateManager
-from utils.exceptions import log_and_display_error
 
 from config.verboden_woorden import (
     laad_verboden_woorden,
     log_test_verboden_woord,
     sla_verboden_woorden_op,
 )
+from ui.session_state import SessionStateManager
+from utils.exceptions import log_and_display_error
 
 
 class UIComponents:

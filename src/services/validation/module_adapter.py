@@ -77,7 +77,6 @@ class ValidationModuleAdapter:
                 if params is None
                 else validate_fn(context, **params)
             )
-            rr = RuleResult.from_rule_output(rule_code, result)
-            return rr
+            return RuleResult.from_rule_output(rule_code, result)
         except Exception as e:
             return RuleResult.errored(rule_code, e)

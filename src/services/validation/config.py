@@ -19,7 +19,8 @@ def _safe_import_yaml():
 
         return yaml
     except Exception as e:  # pragma: no cover - import guard
-        raise RuntimeError(f"PyYAML is required for loading validation config: {e!s}")
+        msg = f"PyYAML is required for loading validation config: {e!s}"
+        raise RuntimeError(msg)
 
 
 @dataclass

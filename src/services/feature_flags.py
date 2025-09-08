@@ -171,7 +171,8 @@ class FeatureFlagManager:
             percentage: Percentage of users (0-100)
         """
         if not 0 <= percentage <= 100:
-            raise ValueError("Percentage must be between 0 and 100")
+            msg = "Percentage must be between 0 and 100"
+            raise ValueError(msg)
 
         canary_flag = f"{flag.value}_canary"
         self._canary_percentages[canary_flag] = percentage / 100

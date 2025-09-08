@@ -115,11 +115,11 @@ class ExportService:
                     )
                 )
             except Exception as e:  # pragma: no cover - defensive
-                raise ValueError(f"Validatie mislukt vóór export: {e!s}")
+                msg = f"Validatie mislukt vóór export: {e!s}"
+                raise ValueError(msg)
             if not isinstance(result, dict) or not result.get("is_acceptable", False):
-                raise ValueError(
-                    "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
-                )
+                msg = "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+                raise ValueError(msg)
 
         # Export naar gekozen formaat
         if format == ExportFormat.TXT:

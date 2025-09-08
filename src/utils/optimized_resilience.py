@@ -171,7 +171,7 @@ class OptimizedResilienceSystem:
         priority: RequestPriority = RequestPriority.NORMAL,
         timeout: float | None = None,
         mode: ResilienceMode = ResilienceMode.FULL,
-        model: str = None,
+        model: str | None = None,
         expected_tokens: int = 0,
         **kwargs,
     ) -> Any:
@@ -676,7 +676,7 @@ def with_full_resilience(
     endpoint_name: str = "",
     priority: RequestPriority = RequestPriority.NORMAL,
     timeout: float | None = None,
-    model: str = None,
+    model: str | None = None,
     expected_tokens: int = 0,
 ):
     """Decorator for full resilience with all features."""

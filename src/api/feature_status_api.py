@@ -3,7 +3,7 @@ Feature Status API voor real-time dashboard updates
 """
 
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
@@ -32,7 +32,7 @@ async def get_feature_status():
 
     # Check cache
     if _feature_cache and _cache_timestamp:
-        cache_age = (datetime.now(timezone.utc) - _cache_timestamp).seconds
+        cache_age = (datetime.now(UTC) - _cache_timestamp).seconds
         if cache_age < CACHE_DURATION:
             return _feature_cache
 
@@ -49,7 +49,7 @@ async def get_feature_status():
 
         # Update cache
         _feature_cache = data
-        _cache_timestamp = datetime.now(timezone.utc)
+        _cache_timestamp = datetime.now(UTC)
 
         return data
     except Exception as e:

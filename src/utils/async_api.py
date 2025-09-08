@@ -304,7 +304,7 @@ _async_client: AsyncGPTClient | None = None
 
 async def get_async_client() -> AsyncGPTClient:
     """Get or create global async GPT client."""
-    global _async_client  # noqa: PLW0603
+    global _async_client
     if _async_client is None:
         _async_client = AsyncGPTClient()
     return _async_client
@@ -411,7 +411,7 @@ def async_cached(ttl: int = 3600):
 
 async def cleanup_async_resources():
     """Clean up async resources on shutdown."""
-    global _async_client  # noqa: PLW0603
+    global _async_client
     if _async_client:
         await _async_client.close()
         _async_client = None
