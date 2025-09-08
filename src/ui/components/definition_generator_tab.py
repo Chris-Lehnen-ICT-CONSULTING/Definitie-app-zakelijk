@@ -816,7 +816,7 @@ class DefinitionGeneratorTab:
         except Exception as e:
             logger.debug(f"Kon bronnen sectie niet renderen: {e}")
 
-    def _get_provider_label(provider: str) -> str:
+    def _get_provider_label(self: str) -> str:
         """Get human-friendly label for provider (local helper)."""
         labels = {
             "wikipedia": "Wikipedia NL",
@@ -824,7 +824,7 @@ class DefinitionGeneratorTab:
             "rechtspraak": "Rechtspraak.nl",
             "wiktionary": "Wiktionary NL",
         }
-        return labels.get(provider, provider.replace("_", " ").title())
+        return labels.get(self, self.replace("_", " ").title())
 
     def _render_validation_results(self, validation_result):
         """Render validation resultaten."""

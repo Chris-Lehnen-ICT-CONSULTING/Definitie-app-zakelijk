@@ -806,7 +806,8 @@ class ManagementTab:
                     orchestrator = container.orchestrator()
                     validation_orch = getattr(orchestrator, "validation_service", None)
                     if validation_orch is None:
-                        raise RuntimeError("Validation orchestrator not available")
+                        msg = "Validation orchestrator not available"
+                        raise RuntimeError(msg)
                     # Kleine noop‑validatie om de integratie te testen
                     loop = asyncio.new_event_loop()
                     asyncio.set_event_loop(loop)
@@ -1053,7 +1054,7 @@ class ManagementTab:
         st.markdown("##### ✅ Validation Testing")
 
         # Check for DEV_MODE to enable V2 validation
-        import os  # noqa: PLC0415
+        import os
 
         use_v2 = os.getenv("DEV_MODE", "false").lower() == "true"
 
@@ -1087,7 +1088,8 @@ class ManagementTab:
                             orchestrator, "validation_service", None
                         )
                         if validation_orch is None:
-                            raise RuntimeError("Validation orchestrator not available")
+                            msg = "Validation orchestrator not available"
+                            raise RuntimeError(msg)
 
                         loop = asyncio.new_event_loop()
                         asyncio.set_event_loop(loop)

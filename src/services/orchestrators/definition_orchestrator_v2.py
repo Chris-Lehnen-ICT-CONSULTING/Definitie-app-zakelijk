@@ -78,15 +78,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         """
         # V2 Services (required)
         if not prompt_service:
-            raise ValueError("PromptServiceV2 is required")
+            msg = "PromptServiceV2 is required"
+            raise ValueError(msg)
         if not ai_service:
-            raise ValueError("AIServiceInterface is required")
+            msg = "AIServiceInterface is required"
+            raise ValueError(msg)
         if not validation_service:
-            raise ValueError("ValidationOrchestratorInterface is required")
+            msg = "ValidationOrchestratorInterface is required"
+            raise ValueError(msg)
         if not cleaning_service:
-            raise ValueError("CleaningServiceInterface is required")
+            msg = "CleaningServiceInterface is required"
+            raise ValueError(msg)
         if not repository:
-            raise ValueError("DefinitionRepositoryInterface is required")
+            msg = "DefinitionRepositoryInterface is required"
+            raise ValueError(msg)
 
         self.prompt_service = prompt_service
         self.ai_service = ai_service

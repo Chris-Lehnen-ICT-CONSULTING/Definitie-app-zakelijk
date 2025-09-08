@@ -253,7 +253,7 @@ def cached(ttl: int | None = None, cache_key_func: Callable | None = None):
     return decorator
 
 
-def cache_gpt_call(prompt: str, model: str = None, **kwargs) -> str:
+def cache_gpt_call(prompt: str, model: str | None = None, **kwargs) -> str:
     """
     Generate cache key for GPT API calls.
 

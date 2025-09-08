@@ -4,10 +4,11 @@ Web Lookup Tab - Interface voor bron en definitie lookup functionaliteit.
 
 import asyncio
 import re
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import pandas as pd
 import streamlit as st
+
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 
@@ -145,7 +146,7 @@ class WebLookupTab:
                             "definitie_zoek_resultaat",
                             {
                                 "resultaat": resultaat,
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             },
                         )
 
@@ -295,7 +296,7 @@ class WebLookupTab:
                                 "bron_zoek_resultaat",
                                 {
                                     "resultaat": resultaat,
-                                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                                    "timestamp": datetime.now(UTC).isoformat(),
                                 },
                             )
 
@@ -339,7 +340,7 @@ class WebLookupTab:
                                 {
                                     "bronnen": gevonden_bronnen,
                                     "validatie": validatie_resultaat,
-                                    "timestamp": datetime.now(timezone.utc).isoformat(),
+                                    "timestamp": datetime.now(UTC).isoformat(),
                                 },
                             )
 
@@ -512,7 +513,7 @@ class WebLookupTab:
                             {
                                 "resultaten": resultaten,
                                 "tekst": tekst_input,
-                                "timestamp": datetime.now(timezone.utc).isoformat(),
+                                "timestamp": datetime.now(UTC).isoformat(),
                             },
                         )
 

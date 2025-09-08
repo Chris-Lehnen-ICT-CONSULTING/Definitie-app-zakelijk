@@ -200,7 +200,8 @@ class ModularPromptAdapter:
             ValueError: Als essentiële componenten ontbreken
         """
         if not self._initialized:
-            raise RuntimeError("Adapter niet geïnitialiseerd")
+            msg = "Adapter niet geïnitialiseerd"
+            raise RuntimeError(msg)
 
         # Valideer input (compatibel met oude gedrag)
         if not begrip or not begrip.strip():
