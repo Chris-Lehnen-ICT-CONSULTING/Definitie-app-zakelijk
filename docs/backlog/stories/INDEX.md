@@ -30,8 +30,8 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 ### Current Sprint (36) Stories
 | ID | Story | Episch Verhaal | Prioriteit | Status | Points |
 |----|-------|------|----------|--------|--------|
-| [US-041](US-041.md) | Fix Context Field Mapping | EPIC-CFR | KRITIEK | TODO | 8 |
-| US-042 | Fix "Anders..." Custom Context | EPIC-CFR | KRITIEK | TODO | 5 |
+| [US-041](US-041.md) | Fix Context Field Mapping | EPIC-010 | KRITIEK | TODO | 8 |
+| US-042 | Fix "Anders..." Custom Context | EPIC-010 | KRITIEK | TODO | 5 |
 | US-028 | Service Initialization Caching | EPIC-007 | HOOG | TODO | 5 |
 | US-029 | Prompt Token Optimization | EPIC-007 | HOOG | TODO | 8 |
 | US-030 | Validation Rules Caching | EPIC-007 | HOOG | TODO | 5 |
@@ -110,7 +110,7 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-039 | PostgreSQL Migration | ⏳ TODO | HOOG | 13 |
 | US-040 | Multi-tenant Architecture | ⏳ TODO | GEMIDDELD | 21 |
 
-### EPIC-CFR: Context Flow Refactoring (6 stories - 0% complete) 🚨
+### EPIC-010: Context Flow Refactoring (6 stories - 0% complete) 🚨
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | [US-041](US-041.md) | Fix Context Field Mapping to Prompts | ⏳ TODO | KRITIEK | 8 |
@@ -129,8 +129,8 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 - **LAAG**: 4 stories (8%)
 
 ### Critical Stories Pending
-1. US-041: Fix Context Field Mapping (EPIC-CFR)
-2. US-042: Fix "Anders..." Option (EPIC-CFR)
+1. US-041: Fix Context Field Mapping (EPIC-010)
+2. US-042: Fix "Anders..." Option (EPIC-010)
 
 ## Story Point Analysis
 
@@ -145,7 +145,7 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | EPIC-006 | 16 | 13 | 3 |
 | EPIC-007 | 52 | 21 | 31 |
 | EPIC-009 | 76 | 0 | 76 |
-| EPIC-CFR | 37 | 0 | 37 |
+| EPIC-010 | 37 | 0 | 37 |
 | **TOTAL** | **336** | **134** | **202** |
 
 ### Velocity Metrics
