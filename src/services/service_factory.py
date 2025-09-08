@@ -226,13 +226,20 @@ class ServiceAdapter:
         request = GenerationRequest(
             id=str(uuid.uuid4()),  # Generate unique ID for tracking
             begrip=begrip,
-            context=", ".join(context_dict.get("organisatorisch", [])),
+            # CRITICAL FIX: Use the new list fields for V2 context mapping
+            organisatorische_context=context_dict.get("organisatorisch", []),
+            juridische_context=context_dict.get("juridisch", []),
+            wettelijke_basis=context_dict.get("wettelijk", []),
+            # Keep domein as concatenated string for compatibility
             domein=", ".join(context_dict.get("domein", [])),
+            # Standard fields
             organisatie=kwargs.get("organisatie", ""),
             extra_instructies=extra_instructions,
             ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
             actor="legacy_ui",  # Track that this comes from legacy UI
             legal_basis="legitimate_interest",  # Default legal basis for DPIA compliance
+            # NOTE: context field left empty - using list fields instead
+            context=None,
         )
 
         # Handle V2 orchestrator async call properly
