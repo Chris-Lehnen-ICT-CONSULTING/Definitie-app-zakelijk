@@ -135,7 +135,10 @@ class PromptServiceV2:
     def _convert_request_to_context(
         self, request: GenerationRequest, extra_context: dict[str, Any] | None = None
     ) -> EnrichedContext:
-        """Convert V2 GenerationRequest to EnrichedContext for existing prompt system."""
+        """Convert V2 GenerationRequest to EnrichedContext for existing prompt system.
+
+        EPIC-CFR FIX: Properly map context fields from UI to prompts
+        """
 
         # Build base context from request (PER-007: volledige mapping met dedupe)
         base_context: dict[str, list[str]] = {
@@ -143,6 +146,10 @@ class PromptServiceV2:
             "juridisch": [],
             "wettelijk": [],
             "domein": [],
+            # US-041 FIX: Also maintain original field names for compatibility
+            "organisatorische_context": [],
+            "juridische_context": [],
+            "wettelijke_basis": [],
         }
 
         def extend_unique(values: list[str] | None, into: list[str]) -> None:
@@ -154,10 +161,27 @@ class PromptServiceV2:
                     into.append(v)
                     seen.add(v)
 
-        # Expliciete UI-velden
-        extend_unique(getattr(request, "organisatorische_context", None), base_context["organisatorisch"])
-        extend_unique(getattr(request, "juridische_context", None), base_context["juridisch"])
-        extend_unique(getattr(request, "wettelijke_basis", None), base_context["wettelijk"])
+        # Expliciete UI-velden - US-041 FIX: Map to BOTH shortened and full names
+        organisatorische = getattr(request, "organisatorische_context", None)
+        juridische = getattr(request, "juridische_context", None)
+        wettelijke = getattr(request, "wettelijke_basis", None)
+
+        # Map to shortened keys (for existing modules)
+        extend_unique(organisatorische, base_context["organisatorisch"])
+        extend_unique(juridische, base_context["juridisch"])
+        extend_unique(wettelijke, base_context["wettelijk"])
+
+        # US-041 FIX: Also map to full keys (for new modules and debugging)
+        extend_unique(organisatorische, base_context["organisatorische_context"])
+        extend_unique(juridische, base_context["juridische_context"])
+        extend_unique(wettelijke, base_context["wettelijke_basis"])
+
+        # Log the mapping for debugging
+        if organisatorische or juridische or wettelijke:
+            logger.info(
+                f"US-041 Context Mapping - Organisatorisch: {organisatorische}, "
+                f"Juridisch: {juridische}, Wettelijk: {wettelijke}"
+            )
 
         # Legacy velden
         if request.domein:

@@ -1,9 +1,9 @@
-# Validation Orchestrator V2 — Implementation Guide
+# Validation Orchestrator V2 — Implementatie Guide
 
 ---
-document: Validation Orchestrator Implementation Guide
+document: Validation Orchestrator Implementatie Guide
 version: 0.1
-status: DRAFT
+status: CONCEPT
 type: Developer Guide
 parent: # ../architecture/validation_orchestrator_v2.md (gearchiveerd)
 related:
@@ -11,8 +11,8 @@ related:
   - ../architecture/contracts/schemas/validation_result.schema.json
   - ../workflows/validation_orchestrator_rollout.md
 owner: Dev Lead
-created: 2025-08-29
-updated: 2025-08-29
+created: 29-08-2025
+updated: 29-08-2025
 tags: [validation, orchestrator, implementation, async, schema]
 ---
 

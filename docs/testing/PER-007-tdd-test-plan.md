@@ -1,19 +1,23 @@
 ---
-canonical: false
-status: active
-owner: testing
-last_verified: 2025-09-04
+aangemaakt: 04-09-2025
 applies_to: definitie-app@v2
-created: 2025-09-04
+bijgewerkt: '08-09-2025'
+canonical: false
+last_verified: 04-09-2025
+owner: testing
+prioriteit: medium
+status: active
 story_id: PER-007
 test_phase: RED
 ---
+
+
 
 # PER-007 TDD Test Plan: Context Flow Refactoring
 
 ## Executive Summary
 
-This test plan validates the critical architecture decision: **UI preview strings are presentation layer only and must NEVER be used as data source**. We follow strict TDD methodology with RED-GREEN-REFACTOR cycles to ensure the implementation meets all requirements.
+This test plan validates the critical architecture decision: **UI preview strings are presentation layer only and must NEVER be used as data source**. We follow strict TDD methodology with RED-GREEN-REFACTOR cycles to ensure the implementation meets all vereistes.
 
 ## Critical Architecture Decisions to Validate
 
@@ -163,7 +167,7 @@ class TestAndersOption:
         st.session_state.custom_organisations = [custom_org]
 
         # THEN: Should persist across requests
-        # This will fail - session preservation not implemented
+        # This will fail - session preservation not geïmplementeerd
         assert custom_org in st.session_state.get('preserved_custom_orgs', [])
 
 ### Test Suite 4: ASTRA Compliance Tests
@@ -190,12 +194,12 @@ class TestASTRACompliance:
             mock_warn.assert_called_with(
                 "ASTRA validation: Organization 'InvalidOrg' not in ASTRA registry"
             )
-            # But still process the request
+            # Maar still process the request
             assert "InvalidOrg" in context["organisatorisch"]  # Still included
             assert "OM" in context["organisatorisch"]
 
     def test_fuzzy_matching_suggestions(self):
-        """MUST FAIL: No fuzzy matching implemented"""
+        """MUST FAIL: No fuzzy matching geïmplementeerd"""
         # GIVEN: Misspelled organization
         request = GenerationRequest(
             begrip="test",
@@ -211,7 +215,7 @@ class TestASTRACompliance:
         assert "Did you mean: DJI" in suggestion
 
     def test_telemetry_tracks_custom_entries(self):
-        """MUST FAIL: Telemetry not implemented"""
+        """MUST FAIL: Telemetry not geïmplementeerd"""
         # GIVEN: Custom organization entry
         request = GenerationRequest(
             begrip="test",
@@ -228,10 +232,10 @@ class TestASTRACompliance:
 
 ## TDD Phase 2: GREEN Tests (Make Tests Pass)
 
-### Implementation Checklist for GREEN Phase
+### Implementatie Checklist for GREEN Phase
 
 ```python
-# Implementation required to make RED tests pass:
+# Implementatie required to make RED tests pass:
 
 1. Create ContextFormatter class:
    - format_ui_preview(context: EnrichedContext) -> str
@@ -256,7 +260,7 @@ class TestASTRACompliance:
 
 ## TDD Phase 3: REFACTOR Tests
 
-### Test Suite 5: Performance Benchmarks
+### Test Suite 5: Prestaties Benchmarks
 
 ```python
 # tests/test_per007_performance.py
@@ -265,7 +269,7 @@ import pytest
 from services.definition_generator_context import HybridContextManager
 
 class TestPerformance:
-    """Performance benchmarks - run after GREEN phase"""
+    """Prestaties benchmarks - run after GREEN phase"""
 
     @pytest.mark.benchmark
     def test_context_processing_under_100ms(self, benchmark):
@@ -326,7 +330,7 @@ class TestPerformance:
         # Benchmark UI string generation
         result = benchmark(formatter.format_ui_preview, context)
 
-        # Performance assertion
+        # Prestaties assertion
         assert benchmark.stats['mean'] < 0.001  # 1ms
         assert "📋 Org:" in result
         assert "⚖️ Juridisch:" in result
@@ -442,7 +446,7 @@ class TestAcceptanceCriteria:
         assert "InvalidOrg" in str(logs)
         assert "FakeOrg" in str(logs)
 
-        # But ALL organizations still in context
+        # Maar ALL organizations still in context
         assert set(context["organisatorisch"]) == {"OM", "InvalidOrg", "DJI", "FakeOrg"}
 ```
 
@@ -502,7 +506,7 @@ class TestAntiPatterns:
         assert context["organisatorisch"] == ["OM"]
 ```
 
-## Performance Benchmark Targets
+## Prestaties Benchmark Targets
 
 | Metric | Target | Current | Status |
 |--------|--------|---------|--------|
@@ -519,7 +523,7 @@ class TestAntiPatterns:
 2. Document failure reasons
 3. Create implementation tasks
 
-### Phase 2: GREEN (Implementation)
+### Phase 2: GREEN (Implementatie)
 1. Implement ContextFormatter
 2. Update HybridContextManager
 3. Create ASTRA Validator
@@ -538,12 +542,12 @@ class TestAntiPatterns:
 3. Check code coverage > 95%
 4. Validate architecture compliance
 
-## Test Coverage Requirements
+## Test Coverage Vereisten
 
 - **Unit Tests**: 95% coverage of new code
 - **Integration Tests**: All context flow paths
-- **E2E Tests**: User scenarios from Epic CFR
-- **Performance Tests**: All critical paths benchmarked
+- **E2E Tests**: User scenarios from Episch Verhaal CFR
+- **Prestaties Tests**: All critical paths benchmarked
 - **Regression Tests**: Anti-patterns permanently blocked
 
 ## Continuous Validation
@@ -573,7 +577,7 @@ jobs:
         run: |
           pytest tests/test_per007_*.py -v --tb=short
 
-      - name: Performance benchmarks
+      - name: Prestaties benchmarks
         run: |
           pytest tests/test_per007_performance.py --benchmark-only
 ```
@@ -586,15 +590,15 @@ jobs:
 - [ ] Anders option tests fail (crashes on custom values)
 - [ ] ASTRA tests fail (blocks instead of warns)
 
-✅ **Implementation makes all tests GREEN**
-- [ ] ContextFormatter implemented
+✅ **Implementatie makes all tests GREEN**
+- [ ] ContextFormatter geïmplementeerd
 - [ ] HybridContextManager updated
 - [ ] ASTRA Validator created
 - [ ] Legacy paths blocked
 - [ ] All tests passing
 
 ✅ **REFACTOR improves code quality**
-- [ ] Performance targets met
+- [ ] Prestaties targets met
 - [ ] No code duplication
 - [ ] Clear separation of concerns
 - [ ] Comprehensive error messages
@@ -614,7 +618,7 @@ jobs:
 | Multiple context paths | High | Code analysis, deprecation | test_only_one_context_processing_path_exists |
 | Anders crashes | High | Null checks, validation | test_anders_with_empty_custom_value |
 | ASTRA blocks | Medium | Warning-only mode | test_invalid_org_gives_warning_not_error |
-| Performance degradation | Medium | Benchmarks, caching | test_context_processing_under_100ms |
+| Prestaties degradation | Medium | Benchmarks, caching | test_context_processing_under_100ms |
 
 ## Appendix: Test Data Fixtures
 

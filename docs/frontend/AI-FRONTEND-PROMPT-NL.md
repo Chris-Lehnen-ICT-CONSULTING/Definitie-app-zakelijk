@@ -275,7 +275,7 @@ export const UI_TEKST = {
 
 **Test Aanpak:**
 - Unit tests voor utilities en hooks
-- Component tests met React Testing Library
+- Component tests met React Testen Library
 - E2E tests voor kritieke gebruikersflows
 - Toegankelijkheidstests met axe-core
 
@@ -309,7 +309,7 @@ export const UI_TEKST = {
 
 Bij het gebruik van deze prompt met een AI frontend tool:
 
-1. **Verstrek deze volledige prompt** om context vast te stellen
+1. **Verstrek deze volledige prompt** OM context vast te stellen
 2. **Begin met het genereren van de projectstructuur** en core layout
 3. **Focus op één tab tegelijk**, beginnend met Definitie Generatie
 4. **Test elk component** voordat je naar de volgende gaat

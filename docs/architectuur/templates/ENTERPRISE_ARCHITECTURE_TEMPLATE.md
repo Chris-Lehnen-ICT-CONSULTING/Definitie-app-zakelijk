@@ -1,36 +1,41 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: YYYY-MM-DD
+aangemaakt: '08-09-2025'
+afhankelijkheden:
+- ../../vereisten/REQUIREMENTS_AND_FEATURES_COMPLETE.md
+- ../../backlog/stories/MASTER-EPICS-USER-STORIES.md
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
 compliance:
-  astra: true
-  nora: true
+  ASTRA: true
   bio: false
-  gemma: true
-version_history:
-  current: "2.0.0"
-  previous: "1.x.x"
-  migration_date: "2025-09-XX"
+  GEMMA: true
+  NORA: true
 cross_references:
-  ea: "../ENTERPRISE_ARCHITECTURE.md"
-  sa: "../SOLUTION_ARCHITECTURE.md"
-  ta: "../TECHNICAL_ARCHITECTURE.md"
-review_cycle: quarterly
+  ea: ../ENTERPRISE_ARCHITECTURE.md
+  sa: ../SOLUTION_ARCHITECTURE.md
+  ta: ../TECHNICAL_ARCHITECTURE.md
+last_verified: YYYY-MM-DD
 next_review: YYYY-MM-DD
+owner: architecture
+prioriteit: medium
+review_cycle: quarterly
 stakeholders:
-  - role: owner
-    contact: architecture-team@justice.nl
-  - role: business_owner
-    contact: product-owner@justice.nl
-dependencies:
-  - "../../requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md"
-  - "../../stories/MASTER-EPICS-USER-STORIES.md"
+- contact: architecture-team@justice.nl
+  role: owner
+- contact: product-owner@justice.nl
+  role: business_owner
+status: active
 supersedes:
-  - "../../archief/2025-09-architectuur-consolidatie/ea-variants/EA.md"
-  - "../../archief/2025-09-architectuur-consolidatie/ea-variants/prompt-management-ea.md"
+- ../../archief/2025-09-architectuur-consolidatie/ea-variants/EA.md
+- ../../archief/2025-09-architectuur-consolidatie/ea-variants/prompt-management-ea.md
+version_history:
+  current: 2.0.0
+  migration_date: 2025-09-XX
+  previous: 1.x.x
 ---
+
+
 
 # ENTERPRISE ARCHITECTURE - DEFINITIEAPP
 
@@ -40,7 +45,7 @@ supersedes:
 
 **[TEMPLATE GUIDANCE: Provide Dutch executive summary for management]**
 
-De DefinitieApp is een AI-gedreven systeem voor het genereren en valideren van juridische definities binnen de Nederlandse justitieketen. Dit document beschrijft de enterprise architectuur, inclusief business capabilities, stakeholder belangen, en compliance requirements.
+De DefinitieApp is een AI-gedreven systeem voor het genereren en valideren van juridische definities binnen de Nederlandse justitieketen. Dit document beschrijft de enterprise architectuur, inclusief business capabilities, stakeholder belangen, en compliance vereistes.
 
 **Kernpunten:**
 - [Business value proposition]
@@ -86,8 +91,8 @@ De DefinitieApp opereert binnen de Nederlandse justitieketen onder verantwoordel
 
 ```mermaid
 graph TD
-    DA[DefinitieApp] --> OM[Openbaar Ministerie]
-    DA --> DJI[Dienst Justitiële Inrichtingen]
+    DA[DefinitieApp] --> OM[Openbaar Ministerie (OM)]
+    DA --> DJI[Dienst Justitiële Inrichtingen (DJI)]
     DA --> RS[Rechtspraak]
     DA --> JID[Justid]
 
@@ -104,9 +109,9 @@ graph TD
 | Stakeholder Group | Primary Concerns | Influence | Engagement Strategy |
 |-------------------|------------------|-----------|-------------------|
 | Legal Professionals | Accuracy, Compliance | High | Regular feedback sessions |
-| IT Department | Maintainability, Security | High | Technical reviews |
+| IT Department | Maintainability, Beveiliging | High | Technical reviews |
 | Management | Cost, Efficiency | High | Quarterly reports |
-| End Users | Usability, Performance | Medium | User groups |
+| End Users | Usability, Prestaties | Medium | User groups |
 | [Stakeholder] | [Concerns] | [Level] | [Strategy] |
 
 ### 2.3 Business Capabilities
@@ -130,7 +135,7 @@ graph TD
     end
 
     subgraph "Generic Capabilities"
-        BC7[Security Services]
+        BC7[Beveiliging Services]
         BC8[Data Management]
         BC9[Monitoring & Analytics]
     end
@@ -140,7 +145,7 @@ graph TD
 
 **Definitie Generatie**
 - **Description**: AI-powered generation of legal definitions
-- **Business Value**: [Value statement]
+- **Bedrijfswaarde**: [Value statement]
 - **Maturity Level**: [Initial|Developing|Defined|Managed|Optimizing]
 
 **[TEMPLATE: Repeat for each capability]**
@@ -151,24 +156,24 @@ graph TD
 
 **[TEMPLATE GUIDANCE: Map to ASTRA architectural principles]**
 
-| ASTRA Principle | Implementation | Evidence | Compliance |
+| ASTRA Principle | Implementatie | Evidence | Compliance |
 |-----------------|----------------|----------|------------|
 | ASTRA-01: Traceability | All decisions tracked in ADRs | [ADR references] | ✅ Compliant |
 | ASTRA-02: Interoperability | Standard APIs, OpenAPI specs | [API docs] | ✅ Compliant |
-| ASTRA-03: Security by Design | Security architecture embedded | [Security docs] | ✅ Compliant |
-| [Principle] | [Implementation] | [Evidence] | [Status] |
+| ASTRA-03: Beveiliging by Design | Beveiliging architecture embedded | [Beveiliging docs] | ✅ Compliant |
+| [Principle] | [Implementatie] | [Evidence] | [Status] |
 
-### 3.2 NORA Requirements
+### 3.2 NORA Vereisten
 
 **[TEMPLATE GUIDANCE: Address NORA principles]**
 
 #### Proactive Service Delivery (AP03)
-- **Implementation**: [How the system is proactive]
+- **Implementatie**: [How the system is proactive]
 - **Examples**: [Specific examples]
 - **Metrics**: [Measurement approach]
 
 #### Transparency (AP04)
-- **Implementation**: [Transparency measures]
+- **Implementatie**: [Transparency measures]
 - **Documentation**: [Public documentation]
 - **Audit Trail**: [Audit capabilities]
 
@@ -222,7 +227,7 @@ classDiagram
     class Validatieregel {
         +String id
         +String category
-        +Priority priority
+        +Prioriteit priority
         +ValidationLogic logic
     }
 
@@ -255,12 +260,12 @@ classDiagram
 
 **[TEMPLATE GUIDANCE: Data ownership, quality, privacy]**
 
-| Data Category | Owner | Classification | Retention | Privacy Impact |
+| Data Category | Eigenaar | Classification | Retention | Privacy Impact |
 |---------------|-------|----------------|-----------|----------------|
 | Legal Definitions | Business | Public | 7 years | Low |
-| User Data | IT Security | Confidential | 2 years | High |
+| User Data | IT Beveiliging | Confidential | 2 years | High |
 | Audit Logs | Compliance | Internal | 10 years | Medium |
-| [Category] | [Owner] | [Class] | [Retention] | [Impact] |
+| [Category] | [Eigenaar] | [Class] | [Retention] | [Impact] |
 
 ## 5. Application Architecture
 
@@ -300,12 +305,12 @@ graph TB
 
 **[TEMPLATE GUIDANCE: External system integrations]**
 
-| External System | Purpose | Integration Pattern | SLA | Owner |
+| External System | Purpose | Integration Pattern | SLA | Eigenaar |
 |-----------------|---------|-------------------|-----|--------|
 | OpenAI GPT-4 | AI Generation | REST API | 99.9% | External |
 | Wikipedia | Content Enrichment | REST API | 95% | External |
 | SRU | Legal References | SOAP/REST | 99% | Justice |
-| [System] | [Purpose] | [Pattern] | [SLA] | [Owner] |
+| [System] | [Purpose] | [Pattern] | [SLA] | [Eigenaar] |
 
 ### 5.3 Service Portfolio
 
@@ -342,7 +347,7 @@ graph TB
 |----------|------------|--------|----------|-----------|---------|
 | ASTRA-01 | Traceability | ✅ COMPLIANT | ADR log maintained | [ADR-001] | None |
 | NORA-AP03 | Proactief | ✅ COMPLIANT | Validation prevents errors | [SA § 4.3] | None |
-| BIO-14.2.1 | Logging | ⚠️ PARTIAL | Basic logging implemented | [TA § 7.1] | Enhance by Q3 |
+| BIO-14.2.1 | Logging | ⚠️ PARTIAL | Basic logging geïmplementeerd | [TA § 7.1] | Enhance by Q3 |
 | GEMMA-2.0 | Services | ❌ TODO | Service registry missing | [Roadmap] | Implement Q4 |
 | [Standard] | [Requirement] | [Status] | [Evidence] | [Ref] | [Action] |
 
@@ -350,11 +355,11 @@ graph TB
 
 **[TEMPLATE GUIDANCE: Architectural risks and mitigations]**
 
-| Risk | Impact | Probability | Mitigation | Owner | Status |
+| Risk | Impact | Probability | Mitigation | Eigenaar | Status |
 |------|---------|------------|------------|--------|---------|
 | AI Model Unavailability | High | Low | Fallback to cached responses | Tech Lead | Mitigated |
-| Data Privacy Breach | Critical | Low | Encryption, access controls | Security | Monitoring |
-| [Risk] | [Impact] | [Probability] | [Mitigation] | [Owner] | [Status] |
+| Data Privacy Breach | Critical | Low | Encryption, access controls | Beveiliging | Monitoring |
+| [Risk] | [Impact] | [Probability] | [Mitigation] | [Eigenaar] | [Status] |
 
 ## 7. Roadmap & Evolution
 
@@ -370,10 +375,10 @@ graph TB
 - ❌ Advanced analytics
 
 #### 7.1.2 Technical Debt
-| Item | Impact | Priority | Target Resolution |
+| Item | Impact | Prioriteit | Target Resolution |
 |------|---------|----------|-------------------|
 | V1 Orchestrator removal | Medium | High | Q3 2025 |
-| [Debt item] | [Impact] | [Priority] | [When] |
+| [Debt item] | [Impact] | [Prioriteit] | [Wanneer] |
 
 ### 7.2 Future State
 
@@ -394,16 +399,16 @@ gantt
     dateFormat YYYY-MM-DD
 
     section Foundation
-    Current State Assessment :done, 2025-01-01, 30d
+    Current State Assessment :done, 01-01-2025, 30d
     V2 Migration :done, 30d
 
     section Enhancement
-    Performance Optimization :active, 2025-03-01, 60d
-    Security Hardening :2025-05-01, 45d
+    Prestaties Optimization :active, 01-03-2025, 60d
+    Beveiliging Hardening :01-05-2025, 45d
 
     section Innovation
-    AI Model Upgrade :2025-07-01, 30d
-    Analytics Platform :2025-08-01, 60d
+    AI Model Upgrade :01-07-2025, 30d
+    Analytics Platform :01-08-2025, 60d
 ```
 
 ### 7.3 Migration Strategy
@@ -413,10 +418,10 @@ gantt
 #### Phase 1: Foundation (Q1-Q2 2025)
 - [x] Complete V2 migration
 - [x] Establish monitoring
-- [ ] Security audit
+- [ ] Beveiliging audit
 
 #### Phase 2: Enhancement (Q3-Q4 2025)
-- [ ] Performance optimization
+- [ ] Prestaties optimization
 - [ ] User experience improvements
 - [ ] Integration expansion
 
@@ -429,12 +434,12 @@ gantt
 
 ### Internal Documentation
 - [Solution Architecture](../SOLUTION_ARCHITECTURE.md) - Detailed solution design
-- [Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementation details
-- [User Stories](../../stories/MASTER-EPICS-USER-STORIES.md) - Functional requirements
+- [Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementatie details
+- [Gebruikersverhalen](../../backlog/stories/MASTER-EPICS-USER-STORIES.md) - Functional vereistes
 - Test Strategy - Quality assurance approach (document in planning)
 
 ### External Standards
-- [ASTRA Framework](https://astra.justice.nl) - Justice architecture standards
+- [ASTRA Framework](https://ASTRA.justice.nl) - Justice architecture standards
 - [NORA Principles](https://www.noraonline.nl) - Dutch government architecture
 - [BIO Standards](https://bio-overheid.nl) - Government information security
 - [GEMMA](https://gemmaonline.nl) - Municipal reference architecture
@@ -457,18 +462,18 @@ gantt
 **Last Review**: [Date]
 **Next Review**: [Date]
 **Change Log**:
-| Date | Version | Change | Author |
+| Date | Versie | Change | Author |
 |------|---------|--------|---------|
 | 2025-09-XX | 2.0.0 | Initial consolidated version | Architecture Team |
-| [Date] | [Version] | [Change] | [Author] |
+| [Date] | [Versie] | [Change] | [Author] |
 
 ## Approval
 
 | Role | Name | Signature | Date |
 |------|------|-----------|------|
 | Chief Architect | [Name] | [Digital signature] | [Date] |
-| Product Owner | [Name] | [Digital signature] | [Date] |
-| Security Officer | [Name] | [Digital signature] | [Date] |
+| Product Eigenaar | [Name] | [Digital signature] | [Date] |
+| Beveiliging Officer | [Name] | [Digital signature] | [Date] |
 
 ---
 

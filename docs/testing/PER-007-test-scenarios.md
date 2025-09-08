@@ -1,16 +1,21 @@
 ---
-canonical: true
-status: active
-owner: testing
-last_verified: 2025-09-04
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 04-09-2025
+owner: testing
+prioriteit: medium
+status: active
 ---
+
+
 
 # PER-007 Context Flow Fix - Test Scenarios
 **Document ID:** TEST-PER-007
-**Created:** 2025-09-04
-**Owner:** Business Analyst / Test Team
-**Applies To:** PER-007 Implementation
+**Created:** 04-09-2025
+**Eigenaar:** Business Analyst / Test Team
+**Van Toepassing Op:** PER-007 Implementatie
 
 ## Test Strategy
 
@@ -76,208 +81,208 @@ This document defines comprehensive test scenarios for the PER-007 Context Flow 
 
 ### Scenario 1: Basic Context Mapping
 ```gherkin
-Given the user provides organizational context "DJI"
-And juridical context "Strafrecht"
-And legal basis "Art. 27 Sv"
-When a definition is generated for "verdachte"
-Then the organizational context appears in "organisatorisch" category
-And the juridical context appears in "juridisch" category
-And the legal basis appears in "wettelijk" category
+Gegeven the user provides organizational context "DJI"
+En juridical context "Strafrecht"
+En legal basis "Art. 27 Sv"
+Wanneer a definition is generated for "verdachte"
+Dan the organizational context appears in "organisatorisch" category
+En the juridical context appears in "juridisch" category
+En the legal basis appears in "wettelijk" category
 ```
 
 ### Scenario 2: Multiple Organizations
 ```gherkin
-Given the user provides organizational context ["DJI", "OM", "Rechtspraak"]
-When a definition is generated
-Then all three organizations appear in "organisatorisch" category
-And the context indicates cross-organizational relevance
+Gegeven the user provides organizational context ["DJI", "OM", "Rechtspraak"]
+Wanneer a definition is generated
+Dan all three organizations appear in "organisatorisch" category
+En the context indicates cross-organizational relevance
 ```
 
 ### Scenario 3: Complex Legal Basis
 ```gherkin
-Given the user provides legal basis ["Art. 27 Sv", "Art. 67 lid 1 Sv", "Art. 5 EVRM"]
-When a definition is generated
-Then all legal references appear in "wettelijk" category
-And both national and European law are recognized
+Gegeven the user provides legal basis ["Art. 27 Sv", "Art. 67 lid 1 Sv", "Art. 5 EVRM"]
+Wanneer a definition is generated
+Dan all legal references appear in "wettelijk" category
+En both national and European law are recognized
 ```
 
 ### Scenario 4: Empty Context Fields
 ```gherkin
-Given the user provides only the term "sanctie"
-And no context fields are filled
-When a definition is generated
-Then the system uses default context inference
-And no null pointer errors occur
+Gegeven the user provides only the term "sanctie"
+En no context fields are filled
+Wanneer a definition is generated
+Dan the system uses default context inference
+En no null pointer errors occur
 ```
 
 ### Scenario 5: Legacy Field Compatibility
 ```gherkin
-Given an old integration sends only the "context" field with "DJI Strafrecht"
-When a definition is generated
-Then the context is parsed and categorized correctly
-And the response maintains backward compatibility
+Gegeven an old integration sends only the "context" field with "DJI Strafrecht"
+Wanneer a definition is generated
+Dan the context is parsed and categorized correctly
+En the response maintains backward compatibility
 ```
 
 ## Validation Test Scenarios
 
 ### Scenario 6: Invalid Organization
 ```gherkin
-Given the user provides organizational context "InvalidOrg"
-When validation is performed
-Then a warning is generated: "Organization not recognized in ASTRA registry"
-And suggestions are provided: ["OM", "DJI", "CJIB"]
+Gegeven the user provides organizational context "InvalidOrg"
+Wanneer validation is performed
+Dan a warning is generated: "Organization not recognized in ASTRA registry"
+En suggestions are provided: ["OM", "DJI", "CJIB"]
 ```
 
 ### Scenario 7: Malformed Legal Citation
 ```gherkin
-Given the user provides legal basis "Article 27 Criminal Code"
-When validation is performed
-Then a warning is generated: "Use Dutch legal citation format"
-And the suggested format is shown: "Art. 27 Sr"
+Gegeven the user provides legal basis "Article 27 Criminal Code"
+Wanneer validation is performed
+Dan a warning is generated: "Use Dutch legal citation format"
+En the suggested format is shown: "Art. 27 Sr"
 ```
 
 ### Scenario 8: Conflicting Contexts
 ```gherkin
-Given the user provides juridical context "Civiel recht"
-And legal basis "Art. 310 Sr" (criminal law)
-When validation is performed
-Then a warning is generated: "Legal basis doesn't match juridical context"
+Gegeven the user provides juridical context "Civiel recht"
+En legal basis "Art. 310 Sr" (criminal law)
+Wanneer validation is performed
+Dan a warning is generated: "Legal basis doesn't match juridical context"
 ```
 
 ## Integration Test Scenarios
 
 ### Scenario 9: End-to-End Flow
 ```gherkin
-Given a UI form with all three context fields
-When the user fills:
+Gegeven a UI form with all three context fields
+Wanneer the user fills:
   - Organizational: ["OM", "Rechtspraak"]
   - Juridical: ["Strafrecht"]
   - Legal basis: ["Art. 27 Sv"]
-And submits the form
-Then the GenerationRequest contains all three fields
-And the definition_generator_context maps them correctly
-And the generated definition reflects all contexts
+En submits the form
+Dan the GenerationRequest contains all three fields
+En the definition_generator_context maps them correctly
+En the generated definition reflects all contexts
 ```
 
 ### Scenario 10: Database Persistence
 ```gherkin
-Given a definition with full context is generated
-When it is saved to the database
-Then all context fields are persisted
-And can be retrieved with original structure
-And appear in export formats correctly
+Gegeven a definition with full context is generated
+Wanneer it is saved to the database
+Dan all context fields are persisted
+En can be retrieved with original structure
+En appear in export formats correctly
 ```
 
-## Performance Test Scenarios
+## Prestaties Test Scenarios
 
 ### Scenario 11: Context Processing Speed
 ```gherkin
-Given a request with maximum context complexity
-When context building is measured
-Then processing time is less than 100ms
-And memory usage remains stable
+Gegeven a request with maximum context complexity
+Wanneer context building is measured
+Dan processing time is less than 100ms
+En memory usage remains stable
 ```
 
 ### Scenario 12: Bulk Context Validation
 ```gherkin
-Given 1000 definitions with various contexts
-When bulk validation is performed
-Then all complete within 10 seconds
-And validation results are accurate
+Gegeven 1000 definitions with various contexts
+Wanneer bulk validation is performed
+Dan all complete within 10 seconds
+En validation results are accurate
 ```
 
-## Security Test Scenarios
+## Beveiliging Test Scenarios
 
 ### Scenario 13: SQL Injection Prevention
 ```gherkin
-Given malicious input in context field: "'; DROP TABLE definitions;--"
-When the request is processed
-Then the input is properly escaped
-And no database damage occurs
+Gegeven malicious input in context field: "'; DROP TABLE definitions;--"
+Wanneer the request is processed
+Dan the input is properly escaped
+En no database damage occurs
 ```
 
 ### Scenario 14: XSS Prevention
 ```gherkin
-Given context contains: "<script>alert('XSS')</script>"
-When the definition is displayed
-Then the script is not executed
-And HTML is properly escaped
+Gegeven context contains: "<script>alert('XSS')</script>"
+Wanneer the definition is displayed
+Dan the script is not executed
+En HTML is properly escaped
 ```
 
 ## Compliance Test Scenarios
 
 ### Scenario 15: AVG/GDPR Compliance
 ```gherkin
-Given context contains personal case references
-When the definition is stored
-Then personal data is properly marked
-And retention policies are enforced
-And audit trail is maintained
+Gegeven context contains personal case references
+Wanneer the definition is stored
+Dan personal data is properly marked
+En retention policies are enforced
+En audit trail is maintained
 ```
 
 ### Scenario 16: ASTRA Architecture Compliance
 ```gherkin
-Given all supported organizations
-When validation is performed
-Then each maps to official ASTRA identifiers
-And chain relationships are recognized
+Gegeven all supported organizations
+Wanneer validation is performed
+Dan each maps to official ASTRA identifiers
+En chain relationships are recognized
 ```
 
 ## Edge Case Scenarios
 
 ### Scenario 17: Unicode and Special Characters
 ```gherkin
-Given context contains "Ministerie van Justitie en Veiligheid (MinJ&V)"
-When processed
-Then special characters are handled correctly
-And no encoding errors occur
+Gegeven context contains "Ministerie van Justitie en Veiligheid (MinJ&V)"
+Wanneer processed
+Dan special characters are handled correctly
+En no encoding errors occur
 ```
 
 ### Scenario 18: Very Long Context Lists
 ```gherkin
-Given 50 legal basis references
-When the definition is generated
-Then all are processed
-But output is summarized for readability
+Gegeven 50 legal basis references
+Wanneer the definition is generated
+Dan all are processed
+Maar output is summarized for readability
 ```
 
 ## Regression Test Scenarios
 
 ### Scenario 19: Existing Functionality
 ```gherkin
-Given the new context fields are implemented
-When existing tests are run
-Then all legacy tests still pass
-And existing integrations work unchanged
+Gegeven the new context fields are geïmplementeerd
+Wanneer existing tests are run
+Dan all legacy tests still pass
+En existing integrations work unchanged
 ```
 
-### Scenario 20: Context Priority
+### Scenario 20: Context Prioriteit
 ```gherkin
-Given both old "context" field and new specific fields are provided
-When processed
-Then new specific fields take precedence
-But old field is used as fallback
+Gegeven both old "context" field and new specific fields are provided
+Wanneer processed
+Dan new specific fields take precedence
+Maar old field is used as fallback
 ```
 
 ## Test Execution Matrix
 
-| Scenario | Type | Priority | Automated | Frequency |
+| Scenario | Type | Prioriteit | Automated | Frequency |
 |----------|------|----------|-----------|-----------|
-| 1-5 | Functional | HIGH | Yes | Every build |
-| 6-8 | Validation | HIGH | Yes | Every build |
-| 9-10 | Integration | HIGH | Yes | Daily |
-| 11-12 | Performance | MEDIUM | Yes | Weekly |
-| 13-14 | Security | HIGH | Yes | Every build |
-| 15-16 | Compliance | HIGH | Partial | Release |
-| 17-18 | Edge Case | LOW | Yes | Weekly |
-| 19-20 | Regression | HIGH | Yes | Every build |
+| 1-5 | Functional | HOOG | Yes | Every build |
+| 6-8 | Validation | HOOG | Yes | Every build |
+| 9-10 | Integration | HOOG | Yes | Daily |
+| 11-12 | Prestaties | GEMIDDELD | Yes | Weekly |
+| 13-14 | Beveiliging | HOOG | Yes | Every build |
+| 15-16 | Compliance | HOOG | Partial | Release |
+| 17-18 | Edge Case | LAAG | Yes | Weekly |
+| 19-20 | Regression | HOOG | Yes | Every build |
 
 ## Success Criteria
 
 All tests must pass with the following metrics:
 - Functional coverage: 100%
 - Code coverage: >80%
-- Performance: <100ms context processing
+- Prestaties: <100ms context processing
 - Zero security vulnerabilities
 - Full ASTRA compliance
 - No regression in existing features
@@ -290,4 +295,4 @@ All tests must pass with the following metrics:
 - Regular test data refresh procedures
 
 ---
-*These test scenarios ensure comprehensive validation of the PER-007 Context Flow Fix implementation in compliance with Dutch justice sector requirements.*
+*These test scenarios ensure comprehensive validation of the PER-007 Context Flow Fix implementation in compliance with Dutch justice sector vereistes.*

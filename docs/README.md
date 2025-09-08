@@ -12,7 +12,7 @@ Start hier: [INDEX.md](./INDEX.md) — centrale overzichtspagina voor alle docum
 Canonical architecture documentatie (geconsolideerd September 2025)
 - **[ENTERPRISE_ARCHITECTURE.md](./architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategic view
 - **[SOLUTION_ARCHITECTURE.md](./architectuur/SOLUTION_ARCHITECTURE.md)** - Solution design patterns
-- **[TECHNICAL_ARCHITECTURE.md](./architectuur/TECHNICAL_ARCHITECTURE.md)** - Implementation details
+- **[TECHNICAL_ARCHITECTURE.md](./architectuur/TECHNICAL_ARCHITECTURE.md)** - Implementatie details
 - [templates/](./architectuur/templates/) - Architecture templates
 <!-- ADRs zijn geïntegreerd in de canonical architecture documenten EA/SA/TA -->
 
@@ -26,12 +26,12 @@ Gedetailleerde technische documentatie
 ### [reviews/](./reviews/)
 Code quality en review documentatie
 - Code reviews
-- Performance analyses
-- Security assessments
+- Prestaties analyses
+- Beveiliging assessments
 
 ### [workflows/](./workflows/)
 Development workflows en processen
-- TDD to Deployment workflow
+- TDD to Uitrol workflow
 - Validation orchestrator rollout
 - Development guides
 
@@ -47,12 +47,12 @@ Historische documentatie en referentie materiaal
 - [2025-09-architectuur-consolidatie/](./archief/2025-09-architectuur-consolidatie/) - Sept 2025 consolidatie (89 docs)
 - Oude versies en legacy documentatie
 
-### [stories/](./stories/)
+### [stories/](./backlog/stories/)
 User stories en epics
 - Master epics en user stories document
-- Epic tracking en status
+- Episch Verhaal tracking en status
 
-## 📍 Quick Navigation
+## 📍 Snelle Navigatie
 
 **Voor Developers:**
 - [Technical Documentation](./technisch/)
@@ -66,11 +66,11 @@ User stories en epics
 
 **Voor Product Owners:**
 - [Architecture Decisions](./architectuur/) - See EA/SA/TA documents
-- [Master Epics & Stories](./stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth
+- [Master Epische Verhalen & Stories](./backlog/stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth
 - [Code Reviews](./reviews/) - Review documentatie
 
 **Voor Operations:**
-- [TDD to Deployment Workflow](./guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md) - Complete workflow
+- [TDD to Uitrol Werkstroom](./guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md) - Complete workflow
 - [Web Lookup Config](./technisch/web_lookup_config.md) - Configuration guide
 
 ## 🎯 Belangrijke Documenten
@@ -89,7 +89,7 @@ Documentatie consolidatie is **compleet**:
 
 ## 🔍 Zoeken
 
-Gebruik `grep -r "search term" .` om door alle documentatie te zoeken.
+Gebruik `grep -r "search term" .` OM door alle documentatie te zoeken.
 
 ## 📝 Bijdragen
 

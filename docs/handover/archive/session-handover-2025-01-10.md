@@ -1,4 +1,4 @@
-# Session Handover - 10 Januari 2025
+# Session Overdracht - 10 Januari 2025
 
 ## 🎯 Sessie Overzicht
 
@@ -94,7 +94,7 @@ UI (get_context_dict)
 
 ## 💡 Tips voor Morgen
 
-1. **Test First:** Begin met UI test om te verifiëren dat fixes werken
+1. **Test First:** Begin met UI test OM te verifiëren dat fixes werken
 2. **Check Logs:** Kijk naar debug logs voor context_dict flow
 3. **Voorbeelden Check:** Controleer of alle 6 types worden gegenereerd:
    - sentence (voorbeeldzinnen)
@@ -127,6 +127,6 @@ python -c "from src.services.prompts.prompt_service_v2 import PromptServiceV2; p
 - Pre-commit hooks zijn actief (gebruik --no-verify indien nodig)
 
 ---
-*Generated: 2025-01-10*
+*Generated: 10-01-2025*
 *Session Duration: ~2 hours*
 *Focus: Regression fixes voor Story 2.3/2.4 migration*

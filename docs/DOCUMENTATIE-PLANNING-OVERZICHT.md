@@ -10,7 +10,7 @@ Complete Agile planning opgeleverd voor het adresseren van 5 ontbrekende documen
 
 ## 🎯 OPGELEVERDE PLANNING ARTIFACTS
 
-### Requirements (REQ-088 t/m REQ-092)
+### Vereisten (REQ-088 t/m REQ-092)
 
 | ID | Titel | Prioriteit | Story |
 |----|-------|------------|-------|
@@ -20,15 +20,15 @@ Complete Agile planning opgeleverd voor het adresseren van 5 ontbrekende documen
 | **REQ-091** | Provider Integration Guide | GEMIDDELD | US-054 |
 | **REQ-092** | External Sources Governance Policy | HOOG | US-055 |
 
-### Epic (EPIC-011)
+### Episch Verhaal (EPIC-011)
 
 **EPIC-011: Documentatie Completering & Kwaliteitsverbetering**
 - **Doel**: Adresseer 5 kritieke documentatie gaps
-- **Business Value**: 50% reductie onboarding tijd, WCAG compliance, governance
+- **Bedrijfswaarde**: 50% reductie onboarding tijd, WCAG compliance, governance
 - **Timeline**: 4 weken (Sprint 23-24)
-- **Total Story Points**: 26
+- **Total Verhaalpunten**: 26
 
-### User Stories (US-051 t/m US-055)
+### Gebruikersverhalen (US-051 t/m US-055)
 
 | ID | Titel | Persona | Points | Sprint |
 |----|-------|---------|--------|--------|
@@ -36,12 +36,12 @@ Complete Agile planning opgeleverd voor het adresseren van 5 ontbrekende documen
 | **US-052** | Result Display Pattern Library | Developer | 8 | Sprint 24 |
 | **US-053** | WCAG 2.1 AA Accessibility Richtlijnen | Compliance Officer | 5 | Sprint 23 |
 | **US-054** | Provider Integration Guide | Backend Developer | 3 | Sprint 24 |
-| **US-055** | External Sources Governance Policy | Security Officer | 5 | Sprint 24 |
+| **US-055** | External Sources Governance Policy | Beveiliging Officer | 5 | Sprint 24 |
 
 ## 📊 TRACEABILITY MATRIX
 
 ```
-Requirements ←→ Epic ←→ User Stories
+Vereisten ←→ Episch Verhaal ←→ Gebruikersverhalen
 ───────────────────────────────────
 REQ-088 ←→ EPIC-011 ←→ US-051
 REQ-089 ←→ EPIC-011 ←→ US-052
@@ -62,7 +62,7 @@ Deze documenten moeten nog daadwerkelijk aangemaakt worden:
 2. **`docs/patterns/result_display.md`**
    - 15+ herbruikbare display patterns
    - Code voorbeelden per pattern
-   - Performance optimalisatie tips
+   - Prestaties optimalisatie tips
 
 3. **`docs/richtlijnen/accessibility.md`**
    - WCAG 2.1 AA compliance guide
@@ -101,10 +101,10 @@ Deze documenten moeten nog daadwerkelijk aangemaakt worden:
 - [ ] Peer review door 2 teamleden
 - [ ] Geïntegreerd in docs/INDEX.md
 
-### Epic Level
+### Episch Verhaal Level
 - [ ] Alle 5 documenten opgeleverd
 - [ ] Review door stakeholders compleet
-- [ ] Links vanuit stories/requirements werkend
+- [ ] Links vanuit stories/vereistes werkend
 - [ ] Documentatie structuur consistent
 - [ ] Management sign-off
 
@@ -112,7 +112,7 @@ Deze documenten moeten nog daadwerkelijk aangemaakt worden:
 
 1. **Prioriteit 1**: Start met US-053 (WCAG) - wettelijk verplicht
 2. **Prioriteit 2**: US-051 (UI Guide) - directe developer impact
-3. **Prioriteit 3**: US-055 (Governance) - security requirement
+3. **Prioriteit 3**: US-055 (Governance) - security vereiste
 4. **Prioriteit 4**: US-052 (Patterns) - productivity boost
 5. **Prioriteit 5**: US-054 (Provider) - uitbreidbaarheid
 
@@ -121,18 +121,18 @@ Deze documenten moeten nog daadwerkelijk aangemaakt worden:
 - **Onboarding tijd**: Van 2 weken naar 1 week
 - **WCAG compliance**: 100% AA criteria
 - **Developer satisfaction**: >8/10 score
-- **Security incidents**: 0 door externe bronnen
+- **Beveiliging incidents**: 0 door externe bronnen
 - **Time to add provider**: <4 uur
 
 ## 🔗 GERELATEERDE DOCUMENTEN
 
 - [Link Verificatie Rapport](./LINK-VERIFICATIE-RAPPORT.md)
-- [Epic Dashboard](./docs/epics/INDEX.md)
-- [Stories Index](./docs/stories/INDEX.md)
-- [Requirements Overview](./docs/requirements/requirements-overview.md)
+- [Episch Verhaal Dashboard](./docs/backlog/epics/INDEX.md)
+- [Stories Index](./docs/backlog/stories/INDEX.md)
+- [Vereisten Overview](./docs/vereistes/vereistes-overview.md)
 
 ---
 
 *Planning gecreëerd met geoptimaliseerde prompt via business-analyst-justice agent*
 *Alle artifacts voldoen aan SMART criteria en MoSCoW prioritering*
-*Volledige traceability tussen requirements ↔ epic ↔ stories*
+*Volledige traceability tussen vereistes ↔ epic ↔ stories*

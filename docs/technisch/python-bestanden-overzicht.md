@@ -4,7 +4,7 @@
 - **Totaal Python bestanden**: 337 bestanden
 - **Totaal regels code**: 85,476 LOC
 - **Hoofdfunctie**: AI-gedreven juridische definitie generator
-- **Architectuur**: Service-oriented met dependency injection
+- **Architectuur**: Service-oriented met afhankelijkheid injection
 - **Entry point**: `src/main.py`
 
 ---
@@ -26,7 +26,7 @@
 | `definition_generator_config.py` | 347 | ✅ **ACTIEF** | Configuratie voor AI model parameters |
 | `definition_generator_context.py` | 456 | ✅ **ACTIEF** | Context management voor definitie generatie |
 | `definition_generator_enhancement.py` | 560 | ✅ **ACTIEF** | Enhancement pipeline voor AI output |
-| `definition_generator_monitoring.py` | 414 | ✅ **ACTIEF** | Performance monitoring van AI systeem |
+| `definition_generator_monitoring.py` | 414 | ✅ **ACTIEF** | Prestaties monitoring van AI systeem |
 | `definition_generator_prompts.py` | 657 | ✅ **ACTIEF** | AI prompt management en templates |
 
 ### 💾 DATA & REPOSITORY LAYER
@@ -84,7 +84,7 @@
 | `history_tab.py` | ✅ **ACTIEF** | Definitie geschiedenis en versioning |
 | `management_tab.py` | ✅ **ACTIEF** | Systeembeheer interface |
 | `monitoring_tab.py` | ✅ **ACTIEF** | System monitoring dashboard |
-| `orchestration_tab.py` | ✅ **ACTIEF** | Workflow orchestration interface |
+| `orchestration_tab.py` | ✅ **ACTIEF** | Werkstroom orchestration interface |
 | `quality_control_tab.py` | ✅ **ACTIEF** | Kwaliteitscontrole dashboard |
 | `web_lookup_tab.py` | ❌ **PROBLEEM** | Web lookup interface - toont geen resultaten |
 | `context_selector.py` | ✅ **ACTIEF** | Context selectie component |
@@ -143,8 +143,8 @@
 | `INT-04` | ✅ regels/ | ✅ validators/ | ✅ **ACTIEF** - API compliance |
 | `INT-05` | ❌ **ONTBREEKT** | ❌ **ONTBREEKT** | 🚨 **MISSING** - Integration completeness |
 | `INT-06` | ✅ regels/ | ✅ validators/ | ✅ **ACTIEF** - Error handling |
-| `INT-07` | ✅ regels/ | ✅ validators/ | ✅ **ACTIEF** - Performance validation |
-| `INT-08` | ✅ regels/ | ✅ validators/ | ✅ **ACTIEF** - Security compliance |
+| `INT-07` | ✅ regels/ | ✅ validators/ | ✅ **ACTIEF** - Prestaties validation |
+| `INT-08` | ✅ regels/ | ✅ validators/ | ✅ **ACTIEF** - Beveiliging compliance |
 | `INT-09` | ✅ regels/ | ✅ validators/ | ✅ **ACTIEF** - Scalability validation |
 
 #### **SAM - Semantic Accuracy & Meaning (8 regels)**
@@ -217,7 +217,7 @@
 ### 📊 MONITORING & PERFORMANCE
 | Bestand | LOC | Status | Functionaliteit |
 |---------|-----|---------|----------------|
-| `performance_monitor.py` | - | ✅ **ACTIEF** | Performance monitoring en metrics |
+| `performance_monitor.py` | - | ✅ **ACTIEF** | Prestaties monitoring en metrics |
 | `async_api.py` | - | ✅ **ACTIEF** | Asynchrone API utilities |
 | `cache.py` | - | ✅ **ACTIEF** | Cache management systeem |
 
@@ -276,9 +276,9 @@
 | **Integration Tests** | 10 bestanden | ✅ **ACTIEF** | Integratie testing tussen services |
 | **Services Tests** | 14 bestanden | ✅ **ACTIEF** | Service layer testing |
 | **Functionality Tests** | 5 bestanden | ✅ **ACTIEF** | End-to-end functionaliteit testing |
-| **Security Tests** | 2 bestanden | ✅ **ACTIEF** | Security validatie testing |
+| **Beveiliging Tests** | 2 bestanden | ✅ **ACTIEF** | Beveiliging validatie testing |
 | **Rate Limiting Tests** | 9 bestanden | ✅ **ACTIEF** | Rate limiting systeem testing |
-| **Performance Tests** | 2 bestanden | ✅ **ACTIEF** | Performance benchmark testing |
+| **Prestaties Tests** | 2 bestanden | ✅ **ACTIEF** | Prestaties benchmark testing |
 | **UI Tests** | 1 bestand | ✅ **ACTIEF** | User interface testing |
 
 ### 🛠️ MANUAL TESTING
@@ -301,7 +301,7 @@
 ### 🚀 PERFORMANCE & BENCHMARKS
 | Directory/Bestand | Status | Functionaliteit |
 |-------------------|---------|----------------|
-| `benchmarks/` | ✅ **ACTIEF** | Performance benchmarking scripts |
+| `benchmarks/` | ✅ **ACTIEF** | Prestaties benchmarking scripts |
 | `update_feature_status.py` | ✅ **ACTIEF** | Feature status tracking automation |
 
 ---
@@ -319,10 +319,10 @@
 
 | Bestand | LOC | Status | Functionaliteit |
 |---------|-----|---------|----------------|
-| `analyze_dependencies.py` | 139 | ✅ **ACTIEF** | Service dependency analysis tool |
-| `dependency_analysis.py` | 141 | ✅ **ACTIEF** | Circulaire dependency detectie |
+| `analyze_dependencies.py` | 139 | ✅ **ACTIEF** | Service afhankelijkheid analysis tool |
+| `afhankelijkheid_analysis.py` | 141 | ✅ **ACTIEF** | Circulaire afhankelijkheid detectie |
 | `code_review_tool.py` | 164 | ✅ **ACTIEF** | Code review automation tool |
-| `security_review.py` | 76 | ✅ **ACTIEF** | Security review utilities |
+| `security_review.py` | 76 | ✅ **ACTIEF** | Beveiliging review utilities |
 | `trace_prompt_decision.py` | 74 | ✅ **ACTIEF** | Debug tool voor AI prompt beslissingen |
 | `test_categorie_complete_flow.py` | 143 | ✅ **ACTIEF** | Complete flow test voor categorieën |
 | `test_legacy_activation.py` | 62 | ✅ **ACTIEF** | Legacy system activation tests |
@@ -332,7 +332,7 @@
 
 ## 📈 USAGE & STATUS ANALYSE
 
-### ✅ INTENSIEF GEBRUIKTE MODERNE CODE (HIGH PRIORITY)
+### ✅ INTENSIEF GEBRUIKTE MODERNE CODE (HOOG PRIORITY)
 1. **`src/services/`** - Kernarchitectuur, volledig actief
 2. **`src/ui/tabbed_interface.py`** - Hoofd UI controller
 3. **`src/toetsregels/`** - Volledig validatiesysteem (37/38 regels)
@@ -340,7 +340,7 @@
 5. **`src/utils/`** - Hergebruikte utilities
 6. **`tests/`** - Uitgebreid testsysteem
 
-### ⚠️ LEGACY/TRANSITIONAL CODE (MEDIUM PRIORITY)
+### ⚠️ LEGACY/TRANSITIONAL CODE (GEMIDDELD PRIORITY)
 1. **`src/ui/components.py`** - Wordt vervangen door components/
 2. **`src/voorbeelden/voorbeelden.py`** - Legacy voorbeelden systeem
 3. **`src/config/`** - Mix van legacy en moderne configuratie
@@ -357,7 +357,7 @@
 4. **Import Errors** - E402 import errors in legacy modules
 
 ### 💡 ARCHITECTUUR KWALITEIT
-- **Sterke service-oriented architecture** met clean dependency injection
+- **Sterke service-oriented architecture** met clean afhankelijkheid injection
 - **Uitgebreid validatiesysteem** met 37/38 geïmplementeerde regels
 - **Moderne testing approach** met 21K+ LOC aan tests
 - **Good separation of concerns** tussen UI, services, en domain logic
@@ -378,7 +378,7 @@
 
 ### 3. **ARCHITECTUUR VERBETERING**
 - Continue service architecture migration
-- Improve dependency injection patterns
+- Improve afhankelijkheid injection patterns
 - Enhance error handling consistency
 
 Dit overzicht toont een **professionele, uitgebreide codebase** met sterke architecturale fundamenten maar met enkele legacy elementen die consolidatie behoeven.

@@ -12,7 +12,7 @@ Doel: traceerbaarheid tussen wettelijke/enterprise eisen (BIO, NORA, GDPR/AVG, W
 
 | Standaard | Requirement | Control ID | Maatregel | Implementatie | Bewijs | Eigenaar | Status | Risico | Deadline |
 |---|---|---|---|---|---|---|---|---|---|
-| BIO | Toegangsbeveiliging (AC) | AC-1 | OIDC AuthN + RBAC AuthZ | API Gateway + Service Guard | Configs, testverslagen | Security Lead | Open | Hoog | W2 |
+| BIO | Toegangsbeveiliging (AC) | AC-1 | OIDC AuthN + RBAC AuthZ | API Gateway + Service Guard | Configs, testverslagen | Beveiliging Lead | Open | Hoog | W2 |
 | BIO | Cryptografie (SC) | SC-2 | Encryptie at rest | SQLCipher of beheerde DB | Key mgmt doc | Infra Lead | Open | Hoog | W2 |
 | BIO | Logging & Monitoring (AU) | AU-1 | Structured logging + audit trail | Central logging + immutability | Log samples, retention policy | Platform Eng | Open | Middel | W4 |
 | NORA | Interoperabiliteit | INT-1 | OpenAPI 3, API-first | Spec templates + gateway | OpenAPI repos | Arch Lead | In voorbereiding | Middel | W6 |
@@ -25,7 +25,7 @@ Legenda status: Open, In voorbereiding, Lopend, Afgerond.
 
 ## RASCI
 
-- R: Security Lead (BIO), DPO (AVG), UX Lead (WCAG), Arch Lead (NORA/ISO)
+- R: Beveiliging Lead (BIO), DPO (AVG), UX Lead (WCAG), Arch Lead (NORA/ISO)
 - A: CIO/CTO
 - S: Platform Engineering, Backend, UI/UX
 - C: Legal/Privacy, Business owners
@@ -33,7 +33,7 @@ Legenda status: Open, In voorbereiding, Lopend, Afgerond.
 
 ## Evidence Register (te vullen)
 
-- Policies: Security policy, Key management, Logging retention
+- Policies: Beveiliging policy, Key management, Logging retention
 - Procedures: Incident response, Change management, Data subject requests
 - Artefacts: OpenAPI specs, testverslagen, audit logs, pentest rapport
 

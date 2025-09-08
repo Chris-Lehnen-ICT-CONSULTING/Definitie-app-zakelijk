@@ -219,7 +219,7 @@ rate_limiting:
   tokens_per_second: 1.0
 ```
 
-## Security Best Practices
+## Beveiliging Best Practices
 
 1. **Nooit API keys in code**
    - Gebruik altijd environment variabelen
@@ -228,7 +228,7 @@ rate_limiting:
 2. **Environment-specifieke configs**
    - Development: Lagere rate limits
    - Production: Stricte security settings
-   - Testing: Mock configuraties
+   - Testen: Mock configuraties
 
 3. **API Key Validatie**
    ```python
@@ -369,4 +369,4 @@ voorbeelden:
 - [ ] A/B testing met verschillende model configuraties
 - [ ] Automatische fallback naar goedkopere modellen bij errors
 - [ ] Cost-based model selectie
-- [ ] Performance-based temperature tuning
+- [ ] Prestaties-based temperature tuning

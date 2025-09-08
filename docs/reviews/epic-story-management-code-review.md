@@ -1,7 +1,7 @@
-# Code Review: Epic/Story Management System Proposal
+# Code Review: Episch Verhaal/Story Management System Proposal
 
 ## Summary
-Review of the proposed file-based epic/story management system with Product Owner agent, focusing on implementation feasibility, performance, security, and integration with the existing DefinitieAgent codebase.
+Review of the proposed file-based epic/story management system with Product Eigenaar agent, focusing on implementation feasibility, performance, security, and integration with the existing DefinitieAgent codebase.
 
 ## Review Findings
 
@@ -9,13 +9,13 @@ Review of the proposed file-based epic/story management system with Product Owne
 
 #### 1. **Race Conditions in File-Based System**
 - **Issue**: Multiple agents/processes writing to meta.json files without locking
-- **Location**: Proposed `docs/epics/EPIC-XXX/US-YYY/meta.json`
+- **Location**: Proposed `docs/backlog/epics/EPIC-XXX/US-YYY/meta.json`
 - **Impact**: Data corruption, lost updates
 - **Code Example of Problem**:
 ```python
 # PROBLEMATIC: No locking mechanism
 def update_story_status(epic_id, story_id, new_status):
-    path = f"docs/epics/EPIC-{epic_id:03d}/US-{story_id:03d}/meta.json"
+    path = f"docs/backlog/epics/EPIC-{epic_id:03d}/US-{story_id:03d}/meta.json"
     with open(path, 'r') as f:
         meta = json.load(f)  # Another process might write here
     meta['status'] = new_status
@@ -74,16 +74,16 @@ class StoryMetadataManager:
 
 #### 2. **Missing State Machine for Story Lifecycle**
 - **Issue**: No formal state transitions defined, allowing invalid state changes
-- **Location**: Product Owner agent implementation
+- **Location**: Product Eigenaar agent implementation
 - **Impact**: Stories can transition from "Done" back to "Todo" without audit trail
-- **Suggested Implementation**:
+- **Suggested Implementatie**:
 ```python
 from enum import Enum
 from typing import Optional, List, Set
 
 class StoryState(Enum):
     BACKLOG = "backlog"
-    READY = "ready"
+    KLAAR = "ready"
     IN_PROGRESS = "in_progress"
     IN_REVIEW = "in_review"
     TESTING = "testing"
@@ -95,13 +95,13 @@ class StoryStateMachine:
     """Enforces valid story state transitions."""
 
     TRANSITIONS = {
-        StoryState.BACKLOG: {StoryState.READY, StoryState.CANCELLED},
-        StoryState.READY: {StoryState.IN_PROGRESS, StoryState.BACKLOG},
-        StoryState.IN_PROGRESS: {StoryState.IN_REVIEW, StoryState.BLOCKED, StoryState.READY},
+        StoryState.BACKLOG: {StoryState.KLAAR, StoryState.CANCELLED},
+        StoryState.KLAAR: {StoryState.IN_PROGRESS, StoryState.BACKLOG},
+        StoryState.IN_PROGRESS: {StoryState.IN_REVIEW, StoryState.BLOCKED, StoryState.KLAAR},
         StoryState.IN_REVIEW: {StoryState.TESTING, StoryState.IN_PROGRESS},
         StoryState.TESTING: {StoryState.DONE, StoryState.IN_PROGRESS},
         StoryState.DONE: set(),  # Terminal state
-        StoryState.BLOCKED: {StoryState.IN_PROGRESS, StoryState.READY},
+        StoryState.BLOCKED: {StoryState.IN_PROGRESS, StoryState.KLAAR},
         StoryState.CANCELLED: set(),  # Terminal state
     }
 
@@ -143,7 +143,7 @@ class StoryStateMachine:
 
 ### 🟡 Recommendations (Non-blocking)
 
-#### 1. **Performance Optimization for File System Operations**
+#### 1. **Prestaties Optimization for File System Operations**
 - **Issue**: Scanning 1000+ story files becomes slow
 - **Location**: Roadmap generation
 - **Current Approach**: Reading all meta.json files sequentially
@@ -194,16 +194,16 @@ class OptimizedStoryReader:
         return self._format_roadmap(stories)
 ```
 
-#### 2. **Product Owner Agent Architecture**
+#### 2. **Product Eigenaar Agent Architecture**
 - **Issue**: No clear interface design for agent
-- **Suggested Implementation**:
+- **Suggested Implementatie**:
 ```python
 from abc import ABC, abstractmethod
 from typing import Protocol, runtime_checkable
 
 @runtime_checkable
 class ProductOwnerAgent(Protocol):
-    """Interface for Product Owner agent operations."""
+    """Interface for Product Eigenaar agent operations."""
 
     async def prioritize_backlog(self) -> List[Dict]:
         """Prioritize stories based on business value."""
@@ -214,7 +214,7 @@ class ProductOwnerAgent(Protocol):
         ...
 
     async def generate_acceptance_criteria(self, story: Dict) -> List[str]:
-        """Generate acceptance criteria for story."""
+        """Generate acceptatiecriteria for story."""
         ...
 
 class ProductOwnerAgentImpl:
@@ -271,7 +271,7 @@ class ProductOwnerAgentImpl:
         return (business_value + time_criticality + risk_reduction) / effort
 ```
 
-#### 3. **Testing Strategy for Agent and File System**
+#### 3. **Testen Strategy for Agent and File System**
 - **Issue**: No testing approach defined
 - **Suggested Test Suite**:
 ```python
@@ -282,7 +282,7 @@ import tempfile
 import shutil
 
 class TestProductOwnerAgent:
-    """Comprehensive test suite for Product Owner agent."""
+    """Comprehensive test suite for Product Eigenaar agent."""
 
     @pytest.fixture
     def temp_epic_dir(self):
@@ -362,7 +362,7 @@ class TestStoryStateMachine:
         story = {'state': 'backlog'}
 
         # Valid transition
-        updated = machine.transition(story, StoryState.READY, "test_user")
+        updated = machine.transition(story, StoryState.KLAAR, "test_user")
         assert updated['state'] == 'ready'
         assert len(updated['state_history']) == 1
 
@@ -376,7 +376,7 @@ class TestStoryStateMachine:
             machine.transition(story, StoryState.BACKLOG, "test_user")
 
     @pytest.mark.parametrize("from_state,to_state,expected", [
-        (StoryState.BACKLOG, StoryState.READY, True),
+        (StoryState.BACKLOG, StoryState.KLAAR, True),
         (StoryState.DONE, StoryState.BACKLOG, False),
         (StoryState.IN_PROGRESS, StoryState.BLOCKED, True),
     ])
@@ -386,9 +386,9 @@ class TestStoryStateMachine:
         assert machine.can_transition(from_state, to_state) == expected
 ```
 
-#### 4. **Security Hardening**
+#### 4. **Beveiliging Hardening**
 - **Issue**: Input validation and access control not defined
-- **Suggested Security Layer**:
+- **Suggested Beveiliging Layer**:
 ```python
 from typing import Optional
 import re
@@ -396,13 +396,13 @@ from dataclasses import dataclass
 
 @dataclass
 class SecurityContext:
-    """Security context for operations."""
+    """Beveiliging context for operations."""
     user_id: str
     roles: List[str]
     permissions: Set[str]
 
 class StorySecurityManager:
-    """Security manager for story operations."""
+    """Beveiliging manager for story operations."""
 
     ROLE_PERMISSIONS = {
         'product_owner': {
@@ -489,10 +489,10 @@ class StorySecurityManager:
 ```python
 # Extend src/services/container.py
 class ServiceContainer:
-    """Extended container with Product Owner agent support."""
+    """Extended container with Product Eigenaar agent support."""
 
     def get_product_owner_agent(self) -> ProductOwnerAgent:
-        """Get or create Product Owner agent instance."""
+        """Get or create Product Eigenaar agent instance."""
         if 'product_owner_agent' not in self._instances:
             story_manager = StoryMetadataManager()
 
@@ -513,8 +513,8 @@ name: Story Structure Validation
 on:
   pull_request:
     paths:
-      - 'docs/epics/**'
-      - 'docs/stories/**'
+      - 'docs/backlog/epics/**'
+      - 'docs/backlog/stories/**'
 
 jobs:
   lint-stories:
@@ -563,7 +563,7 @@ class MCPConnector(Protocol):
         ...
 
 class ProductOwnerMCPAdapter:
-    """Adapter for MCP communication with Product Owner agent."""
+    """Adapter for MCP communication with Product Eigenaar agent."""
 
     def __init__(self, agent: ProductOwnerAgent, connector: MCPConnector):
         self.agent = agent
@@ -597,7 +597,7 @@ class ProductOwnerMCPAdapter:
 
 The proposed epic/story management system has merit but requires significant hardening before production deployment:
 
-### Must Address Before Implementation:
+### Must Address Before Implementatie:
 1. ✅ Implement file locking mechanism for concurrent access
 2. ✅ Add state machine for story lifecycle management
 3. ✅ Create comprehensive test suite (unit + integration)
@@ -611,13 +611,13 @@ The proposed epic/story management system has merit but requires significant har
 4. Create rollback mechanism for failed updates
 5. Add webhook/event system for real-time updates
 
-### Performance Considerations:
+### Prestaties Considerations:
 - File system approach works for < 1000 stories
 - Beyond that, consider database migration
 - Implement pagination for roadmap generation
 - Use async I/O for parallel file operations
 
-### Security Recommendations:
+### Beveiliging Recommendations:
 - Implement proper access control
 - Add audit logging for all state changes
 - Sanitize all user inputs

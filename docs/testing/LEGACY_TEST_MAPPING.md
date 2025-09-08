@@ -1,10 +1,15 @@
 ---
-canonical: true
-status: active
-owner: validation
-last_verified: 2025-09-02
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 02-09-2025
+owner: validation
+prioriteit: medium
+status: active
 ---
+
+
 
 # Legacy Test Mapping → BUSINESS_RULES & Golden Dataset
 
