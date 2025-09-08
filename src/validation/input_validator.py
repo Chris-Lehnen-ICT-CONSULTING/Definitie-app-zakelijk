@@ -8,7 +8,7 @@ import logging
 import re
 from collections.abc import Callable
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -409,7 +409,7 @@ class InputValidator:
 
         # Track validation attempt
         validation_attempt = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
+            "timestamp": datetime.now(UTC).isoformat(),
             "schema_name": schema_name,
             "data_keys": list(data.keys()) if isinstance(data, dict) else [],
             "validation_count": len(schema.rules),
@@ -611,13 +611,15 @@ class InputValidator:
     def export_validation_report(self, filename: str | None = None) -> str:
         """Export validation report to file."""
         if filename is None:
-            filename = f"validation_report_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
+            filename = (
+                f"validation_report_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.json"
+            )
 
         filepath = Path("reports") / filename
         filepath.parent.mkdir(exist_ok=True)
 
         report = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "statistics": self.get_validation_stats(),
             "schemas": {
                 name: len(schema.rules) for name, schema in self.schemas.items()

@@ -32,30 +32,30 @@ from .template_module import TemplateModule
 from .ver_rules_module import VerRulesModule
 
 __all__ = [
+    # Rule modules
+    "AraiRulesModule",
     # Base classes
     "BasePromptModule",
     "CompositeModule",
+    "ConRulesModule",
     "ContextAwarenessModule",
     "DefinitionTaskModule",
     "ErrorPreventionModule",
+    "EssRulesModule",
     # Core modules
     "ExpertiseModule",
     "GrammarModule",
+    "IntegrityRulesModule",
     "MetricsModule",
     "ModuleContext",
     "ModuleOutput",
     "OutputSpecificationModule",
-    # Rule modules
-    "AraiRulesModule",
-    "ConRulesModule",
-    "EssRulesModule",
-    "IntegrityRulesModule",
-    "SamRulesModule",
-    "StructureRulesModule",
-    "VerRulesModule",
-    # Other modules
-    "SemanticCategorisationModule",
-    "TemplateModule",
     # Orchestrator
     "PromptOrchestrator",
+    "SamRulesModule",
+    # Other modules
+    "SemanticCategorisationModule",
+    "StructureRulesModule",
+    "TemplateModule",
+    "VerRulesModule",
 ]

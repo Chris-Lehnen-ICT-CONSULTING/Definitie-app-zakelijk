@@ -6,8 +6,8 @@ Combineert web lookup met document processing voor optimale definitie generatie.
 import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import dataclass  # Dataklassen voor gestructureerde context data
 from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezone
+    UTC,
     datetime,
-    timezone,
 )
 from typing import Any  # Type hints voor betere code documentatie
 
@@ -144,7 +144,7 @@ class HybridContextEngine:
                 context_quality=fusion_result["quality_assessment"],
                 primary_sources=fusion_result["primary_sources"],
                 supporting_sources=fusion_result["supporting_sources"],
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
             logger.info(
@@ -296,7 +296,7 @@ class HybridContextEngine:
                 context_quality="basic",
                 primary_sources=list(web_results.keys())[:3] if web_results else [],
                 supporting_sources=[],
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
         except Exception as e:
             logger.error(f"Zelfs fallback context faalde: {e}")
@@ -314,7 +314,7 @@ class HybridContextEngine:
                 context_quality="minimal",
                 primary_sources=[],
                 supporting_sources=[],
-                created_at=datetime.now(timezone.utc),
+                created_at=datetime.now(UTC),
             )
 
     def get_context_summary(self, hybrid_context: HybridContext) -> dict[str, Any]:

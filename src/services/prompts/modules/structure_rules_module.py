@@ -58,7 +58,7 @@ class StructureRulesModule(BasePromptModule):
         """
         return True, None
 
-    def execute(self, context: ModuleContext) -> ModuleOutput:  # noqa: ARG002
+    def execute(self, context: ModuleContext) -> ModuleOutput:
         """
         Genereer STR validatieregels.
 

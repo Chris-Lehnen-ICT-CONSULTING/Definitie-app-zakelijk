@@ -7,10 +7,11 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
-from datetime import datetime, timezone  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
+
 from database.definitie_repository import (  # Database toegang factory
     get_definitie_repository,
 )
@@ -636,7 +637,7 @@ class TabbedInterface:
             datum_voorstel = st.date_input(
                 "📅 Datum voorstel",
                 value=SessionStateManager.get_value(
-                    "datum_voorstel", datetime.now(timezone.utc).date()
+                    "datum_voorstel", datetime.now(UTC).date()
                 ),
                 help="Datum waarop deze definitie wordt voorgesteld",
             )
@@ -845,7 +846,7 @@ class TabbedInterface:
                         "category_scores": category_scores,
                         "document_context": document_context,
                         "voorbeelden_prompts": voorbeelden_prompts,
-                        "timestamp": datetime.now(timezone.utc),
+                        "timestamp": datetime.now(UTC),
                         "regeneration_used": regeneration_context is not None,
                     },
                 )
@@ -1283,7 +1284,7 @@ class TabbedInterface:
                 """
                 <div style="text-align: center; color: #666; font-size: 12px;">
                     DefinitieAgent 2.0 | Laatste update: """
-                + datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M")
+                + datetime.now(UTC).strftime("%Y-%m-%d %H:%M")
                 + """
                 </div>
             """,

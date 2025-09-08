@@ -13,7 +13,10 @@ from dataclasses import (  # Dataclass decorators voor gestructureerde data
     asdict,
     dataclass,
 )
-from datetime import datetime, timezone  # Datum en tijd functionaliteit voor timestamps
+from datetime import (  # Datum en tijd functionaliteit voor timestamps
+    UTC,
+    datetime,
+)
 from enum import Enum  # Enumeratie types voor constante waarden
 from pathlib import Path  # Object-georiënteerde pad manipulatie
 from typing import (  # Type hints voor betere code documentatie
@@ -419,7 +422,7 @@ class DefinitieRepository:
                 raise ValueError(msg)
 
             # Set timestamps
-            now = datetime.now(timezone.utc)
+            now = datetime.now(UTC)
             record.created_at = now
             record.updated_at = now
 
@@ -725,7 +728,7 @@ class DefinitieRepository:
 
             # Add metadata
             set_clauses.append("updated_at = ?")
-            params.append(datetime.now(timezone.utc))
+            params.append(datetime.now(UTC))
 
             if updated_by:
                 set_clauses.append("updated_by = ?")
@@ -775,7 +778,7 @@ class DefinitieRepository:
             updates.update(
                 {
                     "approved_by": changed_by,
-                    "approved_at": datetime.now(timezone.utc),
+                    "approved_at": datetime.now(UTC),
                     "approval_notes": notes,
                 }
             )
@@ -925,7 +928,7 @@ class DefinitieRepository:
         # Convert to dict format
         export_data = {
             "export_info": {
-                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "timestamp": datetime.now(UTC).isoformat(),
                 "total_count": len(records),
                 "filters_applied": serializable_filters,
             },
@@ -1099,7 +1102,7 @@ class DefinitieRepository:
                     succesvol,
                     gefaald,
                     bestand_pad,
-                    datetime.now(timezone.utc),
+                    datetime.now(UTC),
                 ),
             )
 
@@ -1129,7 +1132,7 @@ class DefinitieRepository:
         self,
         definitie_id: int,
         voorbeelden_dict: dict[str, list[str]],
-        generation_model: str = None,
+        generation_model: str | None = None,
         generation_params: dict[str, Any] | None = None,
         gegenereerd_door: str = "system",
     ) -> list[int]:

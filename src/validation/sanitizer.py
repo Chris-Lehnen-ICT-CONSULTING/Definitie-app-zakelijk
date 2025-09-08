@@ -8,7 +8,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from enum import Enum
 from pathlib import Path
 from typing import Any
@@ -296,7 +296,7 @@ class ContentSanitizer:
             # Record sanitization attempt
             self.sanitization_history.append(
                 {
-                    "timestamp": str(datetime.now(timezone.utc)),
+                    "timestamp": str(datetime.now(UTC)),
                     "content_type": content_type.value,
                     "level": level.value,
                     "changes_made": len(changes_made),
@@ -451,13 +451,15 @@ class ContentSanitizer:
     def export_sanitization_log(self, filename: str | None = None) -> str:
         """Export sanitization log to file."""
         if filename is None:
-            filename = f"sanitization_log_{datetime.now(timezone.utc).strftime('%Y%m%d_%H%M%S')}.json"
+            filename = (
+                f"sanitization_log_{datetime.now(UTC).strftime('%Y%m%d_%H%M%S')}.json"
+            )
 
         filepath = Path("logs") / filename
         filepath.parent.mkdir(exist_ok=True)
 
         log_data = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": datetime.now(UTC).isoformat(),
             "statistics": self.get_sanitization_stats(),
             "rules_count": sum(len(rules) for rules in self.rules.values()),
             "recent_sanitizations": (

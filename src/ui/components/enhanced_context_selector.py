@@ -179,7 +179,7 @@ class EnhancedContextSelector:
 
         # Combine standard options with custom entries
         all_options = options + custom_entries
-        display_options = all_options + ["Anders..."]
+        display_options = [*all_options, "Anders..."]
 
         # Filter current state to only include valid options
         valid_defaults = [x for x in current_state if x in all_options]
@@ -203,9 +203,7 @@ class EnhancedContextSelector:
         st.session_state.context_state[field_name] = selected
 
         # Apply deduplication while preserving order
-        deduplicated = self._deduplicate_preserving_order(selected)
-
-        return deduplicated
+        return self._deduplicate_preserving_order(selected)
 
     def _handle_custom_entry(self, field_name: str, label: str):
         """

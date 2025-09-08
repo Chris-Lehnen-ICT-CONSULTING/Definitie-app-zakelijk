@@ -4,10 +4,11 @@ Export Tab - Interface voor definitie export en beheer functionaliteit.
 
 import io
 import json
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import pandas as pd
 import streamlit as st
+
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieRepository,
@@ -466,9 +467,7 @@ class ExportTab:
                         # Voor bulk export, verzamel content
                         # Voor nu tonen we download voor eerste definitie als voorbeeld
                         if def_rec == filtered_data[0]:
-                            timestamp = datetime.now(timezone.utc).strftime(
-                                "%Y%m%d_%H%M%S"
-                            )
+                            timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
                             filename = f"definitie_{def_rec.begrip}_{timestamp}.{format_type.lower()}"
 
                             st.download_button(
@@ -520,11 +519,11 @@ class ExportTab:
         # Apply date filter
         if date_range != "Alle":
             if date_range == "Laatste week":
-                cutoff_date = datetime.now(timezone.utc) - timedelta(days=7)
+                cutoff_date = datetime.now(UTC) - timedelta(days=7)
             elif date_range == "Laatste maand":
-                cutoff_date = datetime.now(timezone.utc) - timedelta(days=30)
+                cutoff_date = datetime.now(UTC) - timedelta(days=30)
             elif date_range == "Laatste 3 maanden":
-                cutoff_date = datetime.now(timezone.utc) - timedelta(days=90)
+                cutoff_date = datetime.now(UTC) - timedelta(days=90)
             elif start_date and end_date:
                 return [
                     d

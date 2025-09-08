@@ -844,7 +844,7 @@ class DefinitieAgent:
     def _build_feedback_context(
         self,
         validation_result: ValidationResult,
-        generation_context: GenerationContext,  # noqa: ARG002
+        generation_context: GenerationContext,
     ) -> FeedbackContext:
         """Bouw context voor feedback generatie."""
         # Collect score history

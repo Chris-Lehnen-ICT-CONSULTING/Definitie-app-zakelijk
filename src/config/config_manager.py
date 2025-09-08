@@ -656,7 +656,7 @@ _config_manager: ConfigManager | None = None
 
 def get_config_manager(environment: Environment | None = None) -> ConfigManager:
     """Get or create global configuration manager."""
-    global _config_manager  # noqa: PLW0603
+    global _config_manager
 
     if _config_manager is None:
         # Determine environment

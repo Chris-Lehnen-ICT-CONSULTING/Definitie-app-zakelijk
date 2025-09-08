@@ -233,9 +233,7 @@ class ASTRAValidator:
         all_orgs = list(self.ASTRA_REGISTRY.values())
 
         # Try fuzzy matching
-        suggestions = get_close_matches(org, all_orgs, n=3, cutoff=0.6)
-
-        return suggestions
+        return get_close_matches(org, all_orgs, n=3, cutoff=0.6)
 
     def _is_valid_legal_format(self, ref: str) -> bool:
         """Check if legal reference follows standard format."""
