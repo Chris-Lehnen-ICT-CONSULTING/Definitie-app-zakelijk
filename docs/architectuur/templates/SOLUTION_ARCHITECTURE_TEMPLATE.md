@@ -1,36 +1,41 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: YYYY-MM-DD
+aangemaakt: '08-09-2025'
+afhankelijkheden:
+- ../../vereisten/REQUIREMENTS_AND_FEATURES_COMPLETE.md
+- ../../testing/
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
 compliance:
-  astra: true
-  nora: true
+  ASTRA: true
   bio: true
-  gemma: true
-version_history:
-  current: "2.0.0"
-  previous: "1.x.x"
-  migration_date: "2025-09-XX"
+  GEMMA: true
+  NORA: true
 cross_references:
-  ea: "../ENTERPRISE_ARCHITECTURE.md"
-  sa: "../SOLUTION_ARCHITECTURE.md"
-  ta: "../TECHNICAL_ARCHITECTURE.md"
-review_cycle: quarterly
+  ea: ../ENTERPRISE_ARCHITECTURE.md
+  sa: ../SOLUTION_ARCHITECTURE.md
+  ta: ../TECHNICAL_ARCHITECTURE.md
+last_verified: YYYY-MM-DD
 next_review: YYYY-MM-DD
+owner: architecture
+prioriteit: medium
+review_cycle: quarterly
 stakeholders:
-  - role: owner
-    contact: solution-architects@justice.nl
-  - role: tech_lead
-    contact: tech-lead@justice.nl
-dependencies:
-  - "../../requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md"
-  - "../../testing/"  # Test strategies in testing directory
+- contact: solution-architects@justice.nl
+  role: owner
+- contact: tech-lead@justice.nl
+  role: tech_lead
+status: active
 supersedes:
-  - "../../archief/2025-09-architectuur-consolidatie/sa-variants/SA.md"
-  - "../../archief/2025-09-architectuur-consolidatie/cfr-documents/SA-CFR.md"
+- ../../archief/2025-09-architectuur-consolidatie/sa-variants/SA.md
+- ../../archief/2025-09-architectuur-consolidatie/cfr-documents/SA-CFR.md
+version_history:
+  current: 2.0.0
+  migration_date: 2025-09-XX
+  previous: 1.x.x
 ---
+
+
 
 # SOLUTION ARCHITECTURE - DEFINITIEAPP
 
@@ -40,10 +45,10 @@ supersedes:
 
 **[TEMPLATE GUIDANCE: Technical solution summary for architects and developers]**
 
-The DefinitieApp is a microservices-based solution leveraging AI for automated legal definition generation and validation. The architecture implements a service-oriented design with clear separation of concerns, enabling scalability, maintainability, and compliance with justice chain requirements.
+The DefinitieApp is a microservices-based solution leveraging AI for automated legal definition generation and validation. The architecture implements a service-oriented design with clear separation of concerns, enabling scalability, maintainability, and compliance with justice chain vereistes.
 
 **Key Architectural Characteristics:**
-- Service-oriented architecture with dependency injection
+- Service-oriented architecture with afhankelijkheid injection
 - Event-driven validation orchestration
 - Context-aware prompt management
 - Modular validation rule system (45+ rules)
@@ -56,7 +61,7 @@ The DefinitieApp is a microservices-based solution leveraging AI for automated l
 | Decision | Pattern/Technology | Rationale | Trade-offs |
 |----------|-------------------|-----------|------------|
 | Service Container Pattern | Dependency Injection | Testability, loose coupling | Initial complexity |
-| Async Processing | Python AsyncIO | Performance, scalability | Debugging complexity |
+| Async Processing | Python AsyncIO | Prestaties, scalability | Debugging complexity |
 | Modular Validation | Plugin Architecture | Extensibility, maintainability | More files to manage |
 | Context Flow Service | Mediator Pattern | Complete context preservation | Additional layer |
 | [Decision] | [Pattern] | [Rationale] | [Trade-offs] |
@@ -96,7 +101,7 @@ graph LR
 - **Token Inefficiency**: All 45 validation rules hardcoded in prompts (7,250 tokens)
 - **Context Loss**: Only organizational context correctly passed to prompts
 - **Service Duplication**: V1 and V2 orchestrators running simultaneously
-- **Performance Issues**: 6x service initialization on Streamlit reruns
+- **Prestaties Issues**: 6x service initialization on Streamlit reruns
 
 #### 2.1.2 Solution Approach
 - Implement context-aware prompt composition
@@ -130,9 +135,9 @@ graph LR
 | Type | Constraint | Impact | Mitigation |
 |------|------------|---------|------------|
 | Technical | Python 3.11+ required | Limits deployment options | Container-based deployment |
-| Performance | < 5s response time | Architecture decisions | Caching, async processing |
-| Security | No data persistence of PII | Storage design | Tokenization, encryption |
-| Integration | OpenAI API dependency | Availability risk | Fallback mechanisms |
+| Prestaties | < 5s response time | Architecture decisions | Caching, async processing |
+| Beveiliging | No data persistence of PII | Storage design | Tokenization, encryption |
+| Integration | OpenAI API afhankelijkheid | Availability risk | Fallback mechanisms |
 
 #### Assumptions
 - Stable internet connectivity for API calls
@@ -163,7 +168,7 @@ graph TD
     subgraph "Cross-Cutting"
         F7[Logging/Monitoring]
         F8[Error Handling]
-        F9[Security]
+        F9[Beveiliging]
     end
 
     F1 --> F5
@@ -178,7 +183,7 @@ graph TD
 - **Purpose**: Generate legal definitions using AI
 - **Inputs**: Term, context, parameters
 - **Outputs**: Generated definition text
-- **Dependencies**: AI Service, Prompt Service
+- **Afhankelijkheden**: AI Service, Prompt Service
 
 **[TEMPLATE: Continue for each function]**
 
@@ -336,7 +341,7 @@ graph LR
 
 #### 4.3.1 Validation Rules Categories
 
-| Category | Code | Rules | Priority | Description |
+| Category | Code | Rules | Prioriteit | Description |
 |----------|------|-------|----------|-------------|
 | Essential | ESS | 8 | Critical | Must-have quality checks |
 | Structural | STR | 7 | High | Format and structure |
@@ -363,7 +368,7 @@ class DataQualityMetrics:
 
 **[TEMPLATE GUIDANCE: How systems integrate]**
 
-| Pattern | Use Case | Implementation | Example |
+| Pattern | Use Case | Implementatie | Example |
 |---------|----------|----------------|---------|
 | Request-Response | Synchronous operations | REST API | Definition generation |
 | Publish-Subscribe | Event notifications | Redis PubSub | Validation complete |
@@ -455,11 +460,11 @@ graph LR
     EB -->|subscribe| MS[MonitoringService]
 ```
 
-## 6. Security Architecture
+## 6. Beveiliging Architecture
 
-### 6.1 Security Zones
+### 6.1 Beveiliging Zones
 
-**[TEMPLATE GUIDANCE: Security boundaries and zones]**
+**[TEMPLATE GUIDANCE: Beveiliging boundaries and zones]**
 
 ```mermaid
 graph TB
@@ -547,11 +552,11 @@ sequenceDiagram
 
 ## 7. Quality Attributes
 
-### 7.1 Performance Requirements
+### 7.1 Prestaties Vereisten
 
-**[TEMPLATE GUIDANCE: Performance targets and design]**
+**[TEMPLATE GUIDANCE: Prestaties targets and design]**
 
-#### 7.1.1 Performance Targets
+#### 7.1.1 Prestaties Targets
 
 | Operation | Target | Current | Design Approach |
 |-----------|---------|---------|-----------------|
@@ -561,7 +566,7 @@ sequenceDiagram
 | Export Generation | < 2s | 1.5s | Background processing |
 | API Response | < 500ms | 450ms | Connection pooling |
 
-#### 7.1.2 Performance Design Patterns
+#### 7.1.2 Prestaties Design Patterns
 
 ```python
 # Caching Strategy
@@ -635,7 +640,7 @@ graph TB
 
 #### 7.3.1 Reliability Measures
 
-| Pattern | Implementation | Recovery Time | Data Loss |
+| Pattern | Implementatie | Recovery Time | Data Loss |
 |---------|----------------|---------------|-----------|
 | Circuit Breaker | External API calls | < 30s | None |
 | Retry Logic | Transient failures | < 5s | None |
@@ -657,9 +662,9 @@ class ResilientAIService:
             return await self.cache.get_similar(prompt)
 ```
 
-## 8. Deployment Architecture
+## 8. Uitrol Architecture
 
-### 8.1 Deployment Model
+### 8.1 Uitrol Model
 
 **[TEMPLATE GUIDANCE: How solution is deployed]**
 
@@ -706,14 +711,14 @@ graph TB
 
 ### 8.3 Release Management
 
-**[TEMPLATE GUIDANCE: Deployment and release process]**
+**[TEMPLATE GUIDANCE: Uitrol and release process]**
 
 #### 8.3.1 Release Pipeline
 
 ```mermaid
 graph LR
     CODE[Code Commit] --> BUILD[Build & Test]
-    BUILD --> SCAN[Security Scan]
+    BUILD --> SCAN[Beveiliging Scan]
     SCAN --> PACKAGE[Container Build]
     PACKAGE --> DEPLOY_TEST[Deploy to Test]
     DEPLOY_TEST --> TEST[Run Tests]
@@ -723,12 +728,12 @@ graph LR
     DEPLOY_PROD --> VERIFY[Smoke Tests]
 ```
 
-#### 8.3.2 Deployment Configuration
+#### 8.3.2 Uitrol Configuration
 
 ```yaml
-# Kubernetes Deployment Spec
+# Kubernetes Uitrol Spec
 apiVersion: apps/v1
-kind: Deployment
+kind: Uitrol
 metadata:
   name: definitie-app
 spec:
@@ -762,8 +767,8 @@ spec:
 
 ### Internal Documentation
 - [Enterprise Architecture](../ENTERPRISE_ARCHITECTURE.md) - Business context and capabilities
-- [Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementation details
-- Test Strategy - Testing approach (document in planning)
+- [Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementatie details
+- Test Strategy - Testen approach (document in planning)
 - API Documentation - Detailed API specs (see /docs/technisch/ for technical docs)
 
 ### Architecture Decisions
@@ -771,14 +776,14 @@ spec:
 <!-- Zie sectie 7 van het SOLUTION_ARCHITECTURE.md hoofddocument voor solution beslissingen -->
 
 ### External References
-- [ASTRA Framework](https://astra.justice.nl) - Architecture standards
+- [ASTRA Framework](https://ASTRA.justice.nl) - Architecture standards
 - [OpenAPI Specification](https://swagger.io/specification/) - API standards
 - [Kubernetes Documentation](https://kubernetes.io/docs/) - Container orchestration
 - [Python AsyncIO](https://docs.python.org/3/library/asyncio.html) - Async programming
 
 ### Technical Standards
 - [ISO/IEC 25010](https://iso25000.com/index.php/en/iso-25000-standards/iso-25010) - Quality attributes
-- [OWASP Top 10](https://owasp.org/www-project-top-ten/) - Security guidelines
+- [OWASP Top 10](https://owasp.org/www-project-top-ten/) - Beveiliging guidelines
 - [REST API Guidelines](https://restfulapi.net/) - API best practices
 
 ---
@@ -788,10 +793,10 @@ spec:
 **Last Review**: [Date]
 **Next Review**: [Date]
 **Change Log**:
-| Date | Version | Change | Author |
+| Date | Versie | Change | Author |
 |------|---------|--------|---------|
 | 2025-09-XX | 2.0.0 | Initial consolidated version | Architecture Team |
-| [Date] | [Version] | [Change] | [Author] |
+| [Date] | [Versie] | [Change] | [Author] |
 
 ## Approval
 
@@ -799,7 +804,7 @@ spec:
 |------|------|-----------|------|
 | Solution Architect | [Name] | [Digital signature] | [Date] |
 | Technical Lead | [Name] | [Digital signature] | [Date] |
-| Security Architect | [Name] | [Digital signature] | [Date] |
+| Beveiliging Architect | [Name] | [Digital signature] | [Date] |
 
 ---
 

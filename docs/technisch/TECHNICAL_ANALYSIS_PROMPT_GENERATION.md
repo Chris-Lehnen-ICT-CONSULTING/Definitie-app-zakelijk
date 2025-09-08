@@ -1,4 +1,4 @@
-# Technical Analysis: Prompt Generation Implementation Issues
+# Technical Analysis: Prompt Generation Implementatie Issues
 
 ## Executive Summary
 
@@ -9,7 +9,7 @@ The prompt generation implementation has several critical technical issues preve
 3. **Toetsregels integration missing**: No connection to prompt generation
 4. **Enriched context features unused**: Advanced features bypassed
 
-## 1. Exact Technical Flow When Generating Definition with Category "proces"
+## 1. Exact Technical Flow Wanneer Generating Definition with Category "proces"
 
 ### Flow Trace:
 
@@ -59,7 +59,7 @@ base_context = {
 ### What Happens:
 
 1. `base_context` is a dict that expects lists as values
-2. When `EnrichedContext` processes this, it may iterate over the string "proces"
+2. Wanneer `EnrichedContext` processes this, it may iterate over the string "proces"
 3. This creates `['p', 'r', 'o', 'c', 'e', 's']` - a character list!
 
 ### The Fix:
@@ -281,7 +281,7 @@ prompt = templates["ontologie_proces"].format(
 )
 ```
 
-## Performance Impact
+## Prestaties Impact
 
 Current implementation bypasses ~80% of available features:
 - Legacy prompt builder: <5% usage due to threshold

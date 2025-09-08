@@ -1,6 +1,6 @@
-# 📊 Epic/Story Migratie - Eindstatus Rapport
+# 📊 Episch Verhaal/Story Migratie - Eindstatus Rapport
 
-**Datum:** 2025-09-05
+**Datum:** 05-09-2025
 **Project:** DefinitieAgent voor Nederlandse Justitieketen
 
 ## 🎯 Oorspronkelijke Doelstellingen
@@ -14,18 +14,18 @@
 ## 📁 Huidige Status
 
 ### Structuur ✅
-- **9 Epic bestanden**: EPIC-001 t/m EPIC-010 met onderwerp in bestandsnaam
+- **9 Episch Verhaal bestanden**: EPIC-001 t/m EPIC-010 met onderwerp in bestandsnaam
 - **50 Story bestanden**: US-001 t/m US-050
 - **88 Requirement bestanden**: REQ-000 t/m REQ-087
 - **Totaal**: 147 gestructureerde bestanden
 
 ### Naamconventies ✅
 ```
-✅ docs/epics/EPIC-001-basis-definitie-generatie.md
-✅ docs/epics/EPIC-002-kwaliteitstoetsing.md
-✅ docs/epics/EPIC-007-performance-scaling.md
-✅ docs/epics/EPIC-010-context-flow-refactoring.md
-✅ docs/stories/US-029.md (volledig verrijkt als voorbeeld)
+✅ docs/backlog/epics/EPIC-001-basis-definitie-generatie.md
+✅ docs/backlog/epics/EPIC-002-kwaliteitstoetsing.md
+✅ docs/backlog/epics/EPIC-007-performance-scaling.md
+✅ docs/backlog/epics/EPIC-010-context-flow-refactoring.md
+✅ docs/backlog/stories/US-029.md (volledig verrijkt als voorbeeld)
 ```
 
 ### Inhoudelijke Volledigheid ⚠️
@@ -41,7 +41,7 @@
 
 #### Wat NIET compleet is:
 - **49 andere stories**: Hebben nog generieke content zoals:
-  - "Implementation details to be added during development"
+  - "Implementatie details to be added during development"
   - "Works as expected"
   - Geen specifieke metrieken
   - Geen concrete test cases
@@ -66,7 +66,7 @@
 ### 1. Complete Nederlandse Vertaling (8-10 uur)
 - [ ] Alle 9 epics volledig naar Nederlands
 - [ ] Alle 50 stories volledig naar Nederlands
-- [ ] Alle 88 requirements naar Nederlands
+- [ ] Alle 88 vereistes naar Nederlands
 - [ ] Consistente terminologie toepassen
 
 ### 2. Inhoudelijke Verrijking (15-20 uur)
@@ -104,7 +104,7 @@ Focus eerst op de EPIC-010 (Context Flow) stories:
 
 Deze blokkeren ASTRA compliance en productie deployment.
 
-### Prioriteit 2: Performance Stories (Sprint 37)
+### Prioriteit 2: Prestaties Stories (Sprint 37)
 - US-028: Service Initialization Caching
 - US-029: Token Optimization (✅ al gedaan als voorbeeld)
 - US-030: Validation Rules Caching
@@ -114,11 +114,11 @@ Batch-gewijs verrijken met business-analyst-justice agent.
 
 ## 💡 Conclusie
 
-De **structurele migratie is succesvol**, maar de **inhoudelijke verrijking en vertaling hebben meer tijd nodig** om volledig bruikbaar te zijn voor het development team.
+De **structurele migratie is succesvol**, maar de **inhoudelijke verrijking en vertaling hebben meer tijd nodig** OM volledig bruikbaar te zijn voor het development team.
 
 **Huidige bruikbaarheid**:
 - ✅ Navigatie en overzicht mogelijk
 - ⚠️ Ontwikkelaars missen concrete implementatie details
 - ⚠️ Nederlandse stakeholders kunnen niet alles lezen
 
-**Volgende stap**: Gebruik de workflow-router met business-analyst-justice agent om systematisch alle documentatie te verrijken en vertalen volgens de STORY-ENRICHMENT-TEMPLATE.md.
+**Volgende stap**: Gebruik de workflow-router met business-analyst-justice agent OM systematisch alle documentatie te verrijken en vertalen volgens de STORY-ENRICHMENT-TEMPLATE.md.

@@ -1,21 +1,26 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: 2025-09-04
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@current
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 04-09-2025
+owner: architecture
+prioriteit: medium
+status: active
 ---
+
+
 
 # Technical Architecture - DefinitieAgent
 
 ## Executive Summary
 
-Dit document beschrijft de technische implementatie van DefinitieAgent V2-only architectuur. Het systeem draait volledig op V2 services met gecentraliseerde AI configuratie via ConfigManager, modulaire validatie met 45 toetsregels, en clean dependency injection via ServiceContainer. Alle V1 services en migratie code zijn verwijderd.
+Dit document beschrijft de technische implementatie van DefinitieAgent V2-only architectuur. Het systeem draait volledig op V2 services met gecentraliseerde AI configuratie via ConfigManager, modulaire validatie met 45 toetsregels, en clean afhankelijkheid injection via ServiceContainer. Alle V1 services en migratie code zijn verwijderd.
 
 ## Context & Scope
 
 ### Huidige Realiteit (2025-09)
-- **Deployment Model**: Developer workstation (single-user MVP)
+- **Uitrol Model**: Developer workstation (single-user MVP)
 - **Architecture Pattern**: V2-only services met ServiceContainer DI
 - **Service Layer**: DefinitionOrchestratorV2, ValidationOrchestratorV2, ModularValidationService
 - **AI Configuration**: ConfigManager met component-specifieke settings
@@ -65,11 +70,11 @@ Dit document beschrijft de technische implementatie van DefinitieAgent V2-only a
 
 **Rationale**:
 - Clean architecture principles
-- Testbaarheid zonder UI dependencies
+- Testbaarheid zonder UI afhankelijkheden
 - Flexibele service configuratie
 - Voorbereid op microservices
 
-**Implementation**:
+**Implementatie**:
 ```python
 # src/services/container.py
 class ServiceContainer:
@@ -174,7 +179,7 @@ data/
 
 ### Programming Language & Frameworks
 
-| Component | Technology | Version | Status |
+| Component | Technology | Versie | Status |
 |-----------|------------|---------|--------|
 | Language | Python | 3.11+ | Production |
 | UI Framework | Streamlit | 1.28 | Production (single-user) |
@@ -182,14 +187,14 @@ data/
 | AI Integration | OpenAI SDK | 1.x | Production via ConfigManager |
 | Config Management | ConfigManager | Custom | Production (NEW) |
 | Validation Engine | ModularValidationService | V2 | Production (45 rules) |
-| Testing | Pytest | 7.x | ~60% coverage |
+| Testen | Pytest | 7.x | ~60% coverage |
 | Code Quality | Ruff + Black | Latest | Active |
 
-### Dependencies & Libraries
+### Afhankelijkheden & Libraries
 
 ```toml
-# pyproject.toml key dependencies
-[tool.poetry.dependencies]
+# pyproject.toml key afhankelijkheden
+[tool.poetry.afhankelijkheden]
 python = "^3.11"
 streamlit = "^1.28.0"
 openai = "^1.0.0"
@@ -209,18 +214,18 @@ black = "^23.0.0"
 | Make | Task automation | Makefile |
 | Docker | Containerization | Dockerfile (future) |
 
-## Performance Characteristics
+## Prestaties Characteristics
 
-### Current Performance Metrics
+### Current Prestaties Metrics
 
 | Metric | Current | Target | Bottleneck |
 |--------|---------|--------|------------|
 | Response Time | 8-12s | <5s | OpenAI API calls |
 | Memory Usage | 500MB | <1GB | Adequate |
 | Database Queries | N+1 issues | Optimized | Query optimization needed |
-| Cache Hit Rate | 0% | 80% | No caching implemented |
+| Cache Hit Rate | 0% | 80% | No caching geïmplementeerd |
 
-### Performance Optimizations Needed
+### Prestaties Optimizations Needed
 
 1. **API Response Caching**
    - Semantic similarity voor duplicate requests
@@ -234,9 +239,9 @@ black = "^23.0.0"
    - Reduce tokens from 7,250 to ~3,000
    - Dynamic prompt composition
 
-## Security Implementation
+## Beveiliging Implementatie
 
-### Current Security Status
+### Current Beveiliging Status
 
 | Aspect | Status | Risk Level | Mitigation |
 |--------|--------|------------|------------|
@@ -246,7 +251,7 @@ black = "^23.0.0"
 | API Key Management | ✅ Env vars | Low | Adequate for MVP |
 | Input Validation | ✅ Pydantic | Low | Type validation active |
 
-### Justice Sector Security Requirements (Future)
+### Justice Sector Beveiliging Vereisten (Future)
 
 ```yaml
 BIO Compliance (Required for Production):
@@ -256,21 +261,21 @@ BIO Compliance (Required for Production):
   - Audit Logging: Onweerlegbaar trail
   - Data Classification: Vertrouwelijk support
 
-ASTRA Requirements:
+ASTRA Vereisten:
   - Service Bus: Justice message format
   - Identity Federation: Cross-organization SSO
   - Zero Trust: Network segmentation
 ```
 
-## Infrastructure & Deployment
+## Infrastructure & Uitrol
 
-### Current Deployment (MVP)
+### Current Uitrol (MVP)
 
 ```bash
 # Local development deployment
 git clone <repository>
 cd definitie-app
-pip install -r requirements.txt
+pip install -r vereistes.txt
 streamlit run src/main.py
 
 # Environment configuration
@@ -278,7 +283,7 @@ OPENAI_API_KEY=sk-...
 APP_ENV=development
 ```
 
-### Future Production Deployment
+### Future Production Uitrol
 
 ```mermaid
 graph LR
@@ -384,7 +389,7 @@ Key Metrics:
 | OpenAI API | €500-1000 | Production usage |
 | Cloud Hosting | €200-400 | VMs + Database |
 | Monitoring | €100-200 | APM tools |
-| Security | €200-300 | WAF + Certificates |
+| Beveiliging | €200-300 | WAF + Certificates |
 | **Total** | **€1000-1900** | |
 
 ## Standards & Compliance
@@ -393,7 +398,7 @@ Key Metrics:
 - ✅ Python PEP-8 (via Black/Ruff)
 - ✅ Type hints (partial coverage)
 - ❌ WCAG 2.1 (Streamlit limitations)
-- ❌ BIO/NORA (not implemented)
+- ❌ BIO/NORA (not geïmplementeerd)
 
 ### Required for Justice Production
 ```yaml
@@ -418,8 +423,8 @@ Technical Standards:
 | SQLite concurrency | High | Certain (when scaling) | PostgreSQL migration planned |
 | No authentication | Critical | Certain (production) | OIDC implementation Q2 2026 |
 | Streamlit limitations | Medium | High | FastAPI + React planned |
-| OpenAI dependency | High | Low | Alternative LLM options researched |
-| Performance bottlenecks | Medium | High | Caching layer planned |
+| OpenAI afhankelijkheid | High | Low | Alternative LLM options researched |
+| Prestaties bottlenecks | Medium | High | Caching layer planned |
 
 ## Recommendations
 
@@ -449,12 +454,12 @@ Technical Standards:
 
 ## Kubernetes Architecture
 
-### Production Deployment Configuration
+### Production Uitrol Configuration
 
 ```yaml
 # k8s/deployment.yaml
 apiVersion: apps/v1
-kind: Deployment
+kind: Uitrol
 metadata:
   name: definitieagent
   namespace: definitieagent-prod
@@ -584,7 +589,7 @@ metadata:
 spec:
   scaleTargetRef:
     apiVersion: apps/v1
-    kind: Deployment
+    kind: Uitrol
     name: definitieagent
   minReplicas: 2
   maxReplicas: 10
@@ -844,7 +849,7 @@ module "elasticache" {
 }
 ```
 
-### Security Groups
+### Beveiliging Groups
 
 ```hcl
 # terraform/aws/security.tf
@@ -1128,7 +1133,7 @@ CREATE TABLE audit_log (
     metadata JSON
 );
 
--- Performance metrics table
+-- Prestaties metrics table
 CREATE TABLE performance_metrics (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     operation TEXT NOT NULL,
@@ -1194,7 +1199,7 @@ class DatabaseMigrator:
 
 ## CI/CD Pipeline
 
-### GitHub Actions Workflow
+### GitHub Actions Werkstroom
 
 ```yaml
 # .github/workflows/ci-cd.yml
@@ -1221,17 +1226,17 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Cache dependencies
+    - name: Cache afhankelijkheden
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/vereistes.txt') }}
 
-    - name: Install dependencies
+    - name: Install afhankelijkheden
       run: |
         python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
+        pip install -r vereistes.txt
+        pip install -r vereistes-dev.txt
 
     - name: Run linting
       run: |
@@ -1309,29 +1314,29 @@ FROM python:3.11-slim as builder
 
 WORKDIR /app
 
-# Install build dependencies
+# Install build afhankelijkheden
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements.txt .
+# Copy vereistes
+COPY vereistes.txt .
 
-# Install Python dependencies
-RUN pip install --user --no-cache-dir -r requirements.txt
+# Install Python afhankelijkheden
+RUN pip install --user --no-cache-dir -r vereistes.txt
 
 # Production stage
 FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install runtime dependencies
+# Install runtime afhankelijkheden
 RUN apt-get update && apt-get install -y \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python dependencies from builder
+# Copy Python afhankelijkheden from builder
 COPY --from=builder /root/.local /root/.local
 
 # Copy application code
@@ -1760,7 +1765,7 @@ async def retry_async(
 
 ## Caching Strategy
 
-### Redis Cache Implementation
+### Redis Cache Implementatie
 
 ```python
 # src/cache/redis_cache.py
@@ -1949,7 +1954,7 @@ class TokenBucket:
         return 0.0
 ```
 
-## Security Implementation Details
+## Beveiliging Implementatie Details
 
 ### Input Validation
 
@@ -2112,14 +2117,14 @@ class RBACAuthorizer:
 - [AI Configuration Guide](../guidelines/AI_CONFIGURATION_GUIDE.md)
 
 ### External Standards
-- [ASTRA](https://www.astra-justitie.nl) - Architecture Strafrechtketen
+- [ASTRA](https://www.ASTRA-justitie.nl) - Architecture Strafrechtketen
 - [BIO](https://www.bio-overheid.nl) - Baseline Informatiebeveiliging Overheid
 - [NORA](https://www.noraonline.nl) - Nederlandse Overheid Referentie Architectuur
 - [Python PEP-8](https://pep8.org) - Python Style Guide
 - [OpenAPI 3.0](https://swagger.io/specification/) - API Specification
 - [OAuth 2.0](https://oauth.net/2/) - Authorization Framework
 
-## Performance Optimization Techniques
+## Prestaties Optimization Techniques
 
 ### Query Optimization
 
@@ -2256,9 +2261,9 @@ class BatchProcessor:
             )
 ```
 
-## Deployment Procedures
+## Uitrol Procedures
 
-### Blue-Green Deployment
+### Blue-Green Uitrol
 
 ```bash
 #!/bin/bash
@@ -2310,10 +2315,10 @@ kubectl set image deployment/${APP_NAME}-blue \
     ${APP_NAME}=registry.justitie.nl/${APP_NAME}:${NEW_VERSION} \
     -n ${NAMESPACE}
 
-echo "✅ Deployment complete!"
+echo "✅ Uitrol complete!"
 ```
 
-### Canary Deployment
+### Canary Uitrol
 
 ```yaml
 # k8s/canary-deployment.yaml
@@ -2325,7 +2330,7 @@ metadata:
 spec:
   targetRef:
     apiVersion: apps/v1
-    kind: Deployment
+    kind: Uitrol
     name: definitieagent
   service:
     port: 80
@@ -2428,7 +2433,7 @@ class DeploymentRollback:
 
     def _health_check(self) -> bool:
         """Perform health check after rollback."""
-        # Implementation depends on your health check endpoint
+        # Implementatie depends on your health check endpoint
         import requests
 
         try:
@@ -2452,9 +2457,9 @@ if __name__ == "__main__":
         rollback.rollback_to_revision()
 ```
 
-## Testing Infrastructure
+## Testen Infrastructure
 
-### Load Testing Configuration
+### Load Testen Configuration
 
 ```python
 # tests/load/locustfile.py
@@ -2648,29 +2653,29 @@ class TestEndToEndFlow:
 
 ### ASTRA Compliance Matrix
 
-| Requirement | Status | Implementation | Evidence |
+| Requirement | Status | Implementatie | Evidence |
 |------------|--------|---------------|----------|
 | Service Bus Integration | ✅ Planned | Message queue ready | `src/infrastructure/message_queue.py` |
 | Identity Federation | ✅ Planned | OAuth2/OIDC configured | `src/security/auth.py` |
 | Audit Logging | ✅ Implemented | Structured logging active | `src/utils/logging_config.py` |
-| Data Classification | ✅ Partial | Metadata tags implemented | Database schema |
+| Data Classification | ✅ Partial | Metadata tags geïmplementeerd | Database schema |
 | Encryption at Rest | ✅ Configured | AWS KMS enabled | Terraform config |
 | Encryption in Transit | ✅ Implemented | TLS 1.3 enforced | Ingress configuration |
 
-### BIO Security Assessment
+### BIO Beveiliging Assessment
 
-| Control | Status | Implementation Details |
+| Control | Status | Implementatie Details |
 |---------|--------|----------------------|
 | Access Control | ✅ Implemented | RBAC with JWT tokens |
 | Input Validation | ✅ Implemented | Sanitization layer active |
-| Security Monitoring | ✅ Configured | Prometheus + AlertManager |
+| Beveiliging Monitoring | ✅ Configured | Prometheus + AlertManager |
 | Incident Response | ✅ Documented | Runbooks in place |
 | Vulnerability Management | ⚠️ Partial | Dependency scanning active |
-| Penetration Testing | ❌ Pending | Scheduled Q3 2026 |
+| Penetration Testen | ❌ Pending | Scheduled Q3 2026 |
 
 ### NORA Principles Coverage
 
-| Principle | Implementation | Reference |
+| Principle | Implementatie | Reference |
 |-----------|--------------|-----------|
 | Proactief | Automated monitoring and alerting | Monitoring stack |
 | Vindbaar | OpenAPI documentation | `/api/docs` |
@@ -2681,19 +2686,19 @@ class TestEndToEndFlow:
 
 ## Document Control
 
-- **Version**: 2.0
+- **Versie**: 2.0
 - **Status**: Active
-- **Owner**: Technical Architecture Team
-- **Last Updated**: 2025-09-05
-- **Next Review**: 2025-10-01
-- **Distribution**: Development Team, Architecture Board, Security Team, Operations
+- **Eigenaar**: Technical Architecture Team
+- **Laatst Bijgewerkt**: 05-09-2025
+- **Next Review**: 01-10-2025
+- **Distribution**: Development Team, Architecture Board, Beveiliging Team, Operations
 
 ### Change History
 
-| Version | Date | Author | Changes |
+| Versie | Date | Author | Changes |
 |---------|------|--------|---------|
-| 1.0 | 2025-09-04 | Architecture Team | Initial version |
-| 2.0 | 2025-09-05 | Architecture Team | Added PER-007/CFR fixes, Kubernetes/Terraform configs, expanded monitoring, security implementation |
+| 1.0 | 04-09-2025 | Architecture Team | Initial version |
+| 2.0 | 05-09-2025 | Architecture Team | Added PER-007/CFR fixes, Kubernetes/Terraform configs, expanded monitoring, security implementation |
 
 ### Related Documents
 

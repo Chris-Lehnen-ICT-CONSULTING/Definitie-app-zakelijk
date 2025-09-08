@@ -74,17 +74,17 @@ class DefinitionValidatorInterface(ABC):
 | ValidatorConfig | - | Nobody | ✅ Already removed |
 | DefinitionValidator | ValidatorConfig | Nobody | ✅ Already removed |
 
-## 🎯 Removal Priority
+## 🎯 Removal Prioriteit
 
-### High Priority (Direct verwijderen)
-1. **DefinitionValidatorInterface** - Geen dependencies meer
+### High Prioriteit (Direct verwijderen)
+1. **DefinitionValidatorInterface** - Geen afhankelijkheden meer
 2. **Test file updates** - Update tests die oude interface verwachten
 
-### Medium Priority (Analyse nodig)
+### Medium Prioriteit (Analyse nodig)
 1. **src/validation/definitie_validator.py** - Andere validator, check gebruik
 2. **Legacy imports** - Scan alle files voor oude imports
 
-### Low Priority (Nice to have)
+### Low Prioriteit (Nice to have)
 1. **Dead code** - Ongebruikte classes/functions
 2. **Comment cleanup** - Oude TODO's en DEPRECATED comments
 
@@ -118,15 +118,15 @@ Deze kunnen direct verwijderd worden zonder risico:
 
 1. **src/validation/definitie_validator.py** - Mogelijk in gebruik door UI
 2. **Health checks** - Management tab gebruikt mogelijk validators
-3. **Hidden dependencies** - Dynamische imports niet gevonden door grep
+3. **Hidden afhankelijkheden** - Dynamische imports niet gevonden door grep
 
 ## 📝 Recommended Approach
 
 1. **Fase 1**: Verwijder obvious dead code (interfaces, comments)
-2. **Fase 2**: Update alle tests om legacy niet meer te verwachten
+2. **Fase 2**: Update alle tests OM legacy niet meer te verwachten
 3. **Fase 3**: Analyseer src/validation/ directory voor consolidatie
 4. **Fase 4**: Final cleanup van imports en comments
 
 ---
-*Inventory gemaakt op: 2025-01-09*
+*Inventory gemaakt op: 09-01-2025*
 *Status: Analyse compleet, wacht op goedkeuring voor removal*

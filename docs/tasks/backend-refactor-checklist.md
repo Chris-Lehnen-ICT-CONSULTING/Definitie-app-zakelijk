@@ -1,10 +1,15 @@
 ---
-canonical: false
-status: active
-owner: architecture
-last_verified: 2025-09-02
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: false
+last_verified: 02-09-2025
+owner: architecture
+prioriteit: medium
+status: active
 ---
+
+
 
 # Backend Refactor Checklist (Q1 2025)
 

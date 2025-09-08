@@ -1,8 +1,8 @@
 # Validation Observability & Privacy Guide
 
-**Status**: ACTIVE
-**Version**: 1.0.0
-**Last Updated**: 2025-08-29
+**Status**: ACTIEF
+**Versie**: 1.0.0
+**Laatst Bijgewerkt**: 29-08-2025
 **Compliance**: AVG/GDPR Compliant
 
 ## Overzicht
@@ -63,7 +63,7 @@ logger.info(
 )
 ```
 
-#### WARNING (Degraded Performance)
+#### WARNING (Degraded Prestaties)
 ```python
 logger.warning(
     "Validation slow",
@@ -98,7 +98,7 @@ logger.error(
 | Correlation IDs | INTERNAL | ✅ Yes | ✅ Yes | 30 days |
 | Scores (exact) | SENSITIVE | ❌ No | ✅ Aggregated | 90 days |
 | Error messages | INTERNAL | ✅ Sanitized | ✅ Count only | 30 days |
-| Performance data | OPERATIONAL | ✅ Yes | ✅ Yes | 90 days |
+| Prestaties data | OPERATIONAL | ✅ Yes | ✅ Yes | 90 days |
 
 ### PII Masking Rules
 
@@ -180,7 +180,7 @@ TRACE_HEADERS = {
 
 ## Dashboard Definitions
 
-### Validation Performance Dashboard
+### Validation Prestaties Dashboard
 ```yaml
 panels:
   - title: "Request Rate"
@@ -213,7 +213,7 @@ alerts:
     severity: "critical"
 ```
 
-## Monitoring Implementation
+## Monitoring Implementatie
 
 ### Metrics Collection
 ```python
@@ -267,7 +267,7 @@ async def health_check():
         return JSONResponse(checks, status_code=503)
 ```
 
-## Security Considerations
+## Beveiliging Considerations
 
 ### Log Injection Prevention
 ```python
@@ -302,7 +302,7 @@ metrics.labels(
 - [ ] Right to erasure implementatie mogelijk
 - [ ] Privacy impact assessment uitgevoerd
 
-### Security Compliance
+### Beveiliging Compliance
 - [ ] Logs encrypted at rest
 - [ ] Metrics encrypted in transit
 - [ ] Access control op dashboards
@@ -318,7 +318,7 @@ metrics.labels(
 4. Review health check status
 5. Check upstream/downstream services
 
-### Performance Troubleshooting
+### Prestaties Troubleshooting
 1. Check P95 latency trends
 2. Review cache hit ratios
 3. Check batch size distributions
@@ -344,4 +344,4 @@ POST /debug/trace    # Enable trace logging
 
 ---
 
-*Voor vragen over observability of privacy, contact het Security Team of Platform Team.*
+*Voor vragen over observability of privacy, contact het Beveiliging Team of Platform Team.*

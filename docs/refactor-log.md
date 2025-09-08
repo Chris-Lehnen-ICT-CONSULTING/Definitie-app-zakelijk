@@ -1,6 +1,15 @@
+---
+canonical: true
+status: active
+owner: development
+last_verified: 2025-09-08
+applies_to: definitie-app@current
+type: log
+---
+
 # Refactor Log
 
-## 2025-09-05: Broken References Cleanup - Architecture Consolidatie
+## 05-09-2025: Broken References Cleanup - Architecture Consolidatie
 
 ### Probleem
 Na de architectuur consolidatie waren er 15+ broken references naar niet-bestaande directories en gearchiveerde bestanden, met name `/docs/architectuur/beslissingen/` die niet meer bestaat.
@@ -34,14 +43,14 @@ grep -r "beslissingen/" docs/ --include="*.md" | grep -v "gearchiveerd" | grep -
 
 ---
 
-## 2025-09-03: Story 3.1 - Metadata Sources Visibility Fix
+## 03-09-2025: Story 3.1 - Metadata Sources Visibility Fix
 
 ### Probleem
 Web lookup bronnen werden wel verzameld en in prompts geïnjecteerd, maar waren niet zichtbaar in de UI tijdens preview vanwege een bug in de LegacyGenerationResult wrapper.
 
 ### Implementatie (TDD)
 - **Test fase**: 16 tests geschreven (10 unit, 6 integratie)
-- **Implementation**: Quick Fix toegepast - sources veld toegevoegd aan result_dict
+- **Implementatie**: Quick Fix toegepast - sources veld toegevoegd aan result_dict
 - **Refactoring**: Provider-neutrale referenties, juridische citaties, UI feedback
 
 ### Belangrijkste wijzigingen:
@@ -63,7 +72,7 @@ Web lookup bronnen werden wel verzameld en in prompts geïnjecteerd, maar waren 
 
 # Refactor Log - DefinitieAgent Project
 
-## 2025-09-03: Technical Debt Assessment - Legacy Code Analysis
+## 03-09-2025: Technical Debt Assessment - Legacy Code Analysis
 
 ### Gedetecteerde Problemen
 
@@ -76,7 +85,7 @@ Web lookup bronnen werden wel verzameld en in prompts geïnjecteerd, maar waren 
 **Code Smell**: God Object pattern
 **Cyclomatic Complexity**:
 - `_render_generation_results`: 64 (EXTREME)
-- `_render_sources_section`: 23 (HIGH)
+- `_render_sources_section`: 23 (HOOG)
 
 **Voorgestelde Refactoring**:
 - Extract Method: Break functions >30 lines into focused units
@@ -94,7 +103,7 @@ Web lookup bronnen werden wel verzameld en in prompts geïnjecteerd, maar waren 
 - Template Method Pattern voor validation flow
 - Composition over inheritance voor rule-specific logic
 
-#### 3. **Performance Bottlenecks**
+#### 3. **Prestaties Bottlenecks**
 **Problemen**:
 - 6x service initialization per request (Streamlit reruns)
 - 45x regel loading zonder caching
@@ -111,11 +120,11 @@ Web lookup bronnen werden wel verzameld en in prompts geïnjecteerd, maar waren 
 - Template Method Pattern
 - Singleton Pattern
 - Dependency Injection
-- Cache Implementation
+- Cache Implementatie
 
 ---
 
-## 2025-09-03: Prompt.txt Refactoring
+## 03-09-2025: Prompt.txt Refactoring
 
 ### Gedetecteerde Problemen
 
@@ -171,7 +180,7 @@ Token reductie: ~72% (van 7250 naar <2000)
 
 ---
 
-## 2025-01-03: Story 3.1 - Metadata Sources Visibility
+## 03-01-2025: Story 3.1 - Metadata Sources Visibility
 
 ### Story Context
 Story 3.1 addressed the web lookup sources visibility problem where sources were collected but not visible in UI during preview.
@@ -198,7 +207,7 @@ Unnecessary LegacyGenerationResult wrapper that broke metadata["sources"] access
 
 ---
 
-## 2025-09-04: CFR/PER-007 Documentation Consolidation
+## 04-09-2025: CFR/PER-007 Documentation Consolidation
 
 ### Detected Problem
 **Documentation Overlap and Confusion**
@@ -260,11 +269,11 @@ Created `ASTRAValidator` with:
 - **Clarity**: Single implementation path instead of multiple competing approaches
 - **Maintainability**: No more document synchronization issues
 - **User Experience**: Stable UI with helpful feedback
-- **Compliance**: Realistic approach to ASTRA requirements
+- **Compliance**: Realistic approach to ASTRA vereistes
 - **Developer Experience**: Clear guidance on what to implement
 
 ### Metrics
 - Documentation reduction: 14 files → 2 files (86% reduction)
-- Implementation clarity: 1 clear path vs 3 competing approaches
+- Implementatie clarity: 1 clear path vs 3 competing approaches
 - Code duplication: 0% (single source of truth enforced)
 - Validation approach: 100% non-blocking with warnings

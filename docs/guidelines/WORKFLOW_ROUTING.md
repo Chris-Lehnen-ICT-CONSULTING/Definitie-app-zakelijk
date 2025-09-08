@@ -1,12 +1,17 @@
 ---
-canonical: false
-status: active
-owner: architecture
-last_verified: 2025-09-05
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@current
+bijgewerkt: '08-09-2025'
+canonical: false
+last_verified: 05-09-2025
+owner: architecture
+prioriteit: medium
+status: active
 ---
 
-# Workflow Routing
+
+
+# Werkstroom Routing
 
 Doel: eenduidige keuze van de juiste workflow per opdracht, met consistente handoffs tussen agents. Dit document beschrijft hoe we de routing bepalen en hoe Claude Code agents worden aangestuurd.
 

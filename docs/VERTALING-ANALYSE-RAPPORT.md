@@ -1,10 +1,20 @@
+---
+canonical: false
+status: active
+owner: business-analyst
+last_verified: 2025-09-05
+applies_to: definitie-app@current
+type: analyse
+generated: 2025-09-05
+---
+
 # VERTALING-ANALYSE-RAPPORT
 ## Definitie-app Documentatie Taalstatus en Compliance
 
 ---
-**Datum:** 2025-09-05
+**Datum:** 05-09-2025
 **Analist:** Business Analyst Justice Domain
-**Scope:** Requirements, Epics, User Stories
+**Scope:** Vereisten, Epische Verhalen, Gebruikersverhalen
 **Doel:** Volledige Nederlandse documentatie conform ASTRA/NORA/GEMMA standaarden
 
 ---
@@ -12,7 +22,7 @@
 ## 1. EXECUTIVE SUMMARY
 
 ### Huidige Situatie
-- **188 documenten** geanalyseerd (88 Requirements, 9 Epics, 50 User Stories)
+- **188 documenten** geanalyseerd (88 Vereisten, 9 Epische Verhalen, 50 Gebruikersverhalen)
 - **83% bevat Engels of gemengde taal** - kritieke compliance gap
 - **SMART criteria compliance: 45%** - significant verbeterpotentieel
 - **Justice domein terminologie: inconsistent** - risico voor ketenintegratie
@@ -27,37 +37,37 @@
 - **OM**: Risico op miscommunicatie bij integratie met strafrechtketen
 - **DJI**: Compliance issues bij audit door Inspectie JenV
 - **Rechtspraak**: Onvoldoende aansluiting bij KEI-standaarden
-- **Justid**: Security clearance vertraging door onduidelijke requirements
+- **Justid**: Beveiliging clearance vertraging door onduidelijke vereistes
 
 ---
 
 ## 2. INVENTARISATIE OVERZICHT
 
-### 2.1 Requirements (REQ-000 t/m REQ-087)
+### 2.1 Vereisten (REQ-000 t/m REQ-087)
 | Status | Aantal | Percentage | Prioriteit voor Vertaling |
 |--------|--------|------------|---------------------------|
 | **Nederlands** | 5 | 5.7% | ✅ Gereed |
 | **Engels** | 10 | 11.4% | 🔴 P1 - Urgent |
 | **Mixed** | 73 | 82.9% | 🟠 P1 - Urgent |
 
-### 2.2 Epics (EPIC-001 t/m EPIC-010)
-| Epic ID | Titel | Taalstatus | SMART Score | Business Priority |
+### 2.2 Epische Verhalen (EPIC-001 t/m EPIC-010)
+| Episch Verhaal ID | Titel | Taalstatus | SMART Score | Business Prioriteit |
 |---------|-------|------------|-------------|-------------------|
 | EPIC-001 | Basis Definitie Generatie | Mixed | 75% | 🔴 Kritiek |
 | EPIC-002 | Kwaliteitstoetsing | Mixed | 60% | 🔴 Kritiek |
 | EPIC-003 | Content Verrijking Web Lookup | Mixed | 50% | 🟠 Hoog |
 | EPIC-004 | User Interface | Mixed | 65% | 🟠 Hoog |
 | EPIC-005 | Export Import | Nederlands | 80% | 🟡 Gemiddeld |
-| EPIC-006 | Security Auth | Mixed | 70% | 🔴 Kritiek |
-| EPIC-007 | Performance Scaling | Engels | 40% | 🟡 Gemiddeld |
+| EPIC-006 | Beveiliging Auth | Mixed | 70% | 🔴 Kritiek |
+| EPIC-007 | Prestaties Scaling | Engels | 40% | 🟡 Gemiddeld |
 | EPIC-009 | Advanced Features | Engels | 45% | 🟢 Laag |
 | EPIC-010 | Context Flow Refactoring | Mixed | 55% | 🟠 Hoog |
 
-### 2.3 User Stories (US-001 t/m US-050)
+### 2.3 Gebruikersverhalen (US-001 t/m US-050)
 | Categorie | Aantal | Taalstatus | Compliance Issues |
 |-----------|--------|------------|-------------------|
 | Basis Features (US-001-010) | 10 | Mixed | "As a" format i.p.v. "Als een" |
-| Validatie (US-011-020) | 10 | Mixed | Engelse acceptance criteria |
+| Validatie (US-011-020) | 10 | Mixed | Engelse acceptatiecriteria |
 | Web Lookup (US-021-030) | 10 | Engels | Volledig Engels, geen NL context |
 | UI/UX (US-031-040) | 10 | Mixed | Nederlandse persona's ontbreken |
 | Advanced (US-041-050) | 10 | Engels | Geen Justice context |
@@ -70,7 +80,7 @@
 | Requirement | Status | Gap | Actie |
 |------------|--------|-----|-------|
 | Nederlandse documentatie | ❌ Niet compliant | 83% niet-Nederlands | Volledige vertaling vereist |
-| Traceerbare requirements | ⚠️ Deels compliant | Inconsistente linking | Traceability matrix bouwen |
+| Traceerbare vereistes | ⚠️ Deels compliant | Inconsistente linking | Traceability matrix bouwen |
 | Business value koppeling | ❌ Niet compliant | Ontbreekt in 60% | Value statements toevoegen |
 | Stakeholder mapping | ❌ Niet compliant | Geen expliciete mapping | Stakeholder matrix maken |
 
@@ -85,14 +95,14 @@
 | Component | Status | Actie |
 |-----------|--------|-------|
 | Zaakgericht werken | Niet geïmplementeerd | Zaak-begrippen toevoegen |
-| DigiD/eHerkenning refs | Ontbreekt | Security stories updaten |
+| DigiD/eHerkenning refs | Ontbreekt | Beveiliging stories updaten |
 | Basisregistraties | Niet genoemd | Koppelvlakken definiëren |
 
 ---
 
 ## 4. SMART CRITERIA ASSESSMENT
 
-### Requirements SMART Scoring
+### Vereisten SMART Scoring
 | Score | Aantal | Percentage | Voorbeelden |
 |-------|--------|------------|-------------|
 | S-M-A-R-T (100%) | 8 | 9.1% | REQ-010, REQ-020, REQ-055 |
@@ -113,14 +123,14 @@
 ### P1 - KRITIEK (Week 1-2)
 Documenten die direct business impact hebben en compliance risico's vormen:
 
-| Document | Reden | Effort | Business Value |
+| Document | Reden | Effort | Bedrijfswaarde |
 |----------|-------|--------|----------------|
-| REQ-001 (Auth) | Security kritiek | 2 uur | Zeer Hoog |
+| REQ-001 (Auth) | Beveiliging kritiek | 2 uur | Zeer Hoog |
 | REQ-018 (Core Gen) | Hoofdfunctionaliteit | 3 uur | Zeer Hoog |
 | REQ-020 (Orchestrator) | Architectuur basis | 2 uur | Zeer Hoog |
 | EPIC-001 (Basis Gen) | Kern epic | 4 uur | Zeer Hoog |
 | EPIC-002 (Kwaliteit) | Compliance basis | 4 uur | Zeer Hoog |
-| EPIC-006 (Security) | AVG/Security | 3 uur | Zeer Hoog |
+| EPIC-006 (Beveiliging) | AVG/Beveiliging | 3 uur | Zeer Hoog |
 | US-001 t/m US-005 | Core features | 5 uur | Zeer Hoog |
 
 **Totaal P1 Effort: 23 uur**
@@ -141,7 +151,7 @@ Optimalisaties en advanced features:
 
 | Categorie | Documenten | Effort | Impact |
 |-----------|------------|--------|--------|
-| Performance | REQ-060-065, EPIC-007 | 6 uur | Gemiddeld |
+| Prestaties | REQ-060-065, EPIC-007 | 6 uur | Gemiddeld |
 | Advanced | REQ-070-087, EPIC-009 | 8 uur | Laag |
 | Remaining Stories | US-041-050 | 5 uur | Laag |
 
@@ -165,11 +175,11 @@ Optimalisaties en advanced features:
 Toe te voegen in relevante documenten:
 - **Awb** (Algemene wet bestuursrecht) - REQ-001, REQ-018
 - **Sv** (Wetboek van Strafvordering) - EPIC-001, US-001-010
-- **AVG/GDPR** - REQ-001, EPIC-006, US-Security
+- **AVG/GDPR** - REQ-001, EPIC-006, US-Beveiliging
 - **Archiefwet** - REQ-055, REQ-082
 - **Wet politiegegevens** - REQ-040 (SRU integratie)
 
-### 6.3 Ketenpartner Specifieke Requirements
+### 6.3 Ketenpartner Specifieke Vereisten
 | Partner | Focus Areas | Documenten | Prioriteit |
 |---------|-------------|------------|------------|
 | **OM** | Strafrechtketen, ZSM | REQ-018, EPIC-001 | P1 |
@@ -188,15 +198,15 @@ gantt
     title Vertaal Roadmap Q1 2025
     dateFormat YYYY-MM-DD
     section P1 Kritiek
-    Security & Auth docs    :2025-01-06, 3d
-    Core Functionality     :2025-01-08, 4d
-    Basis Epics           :2025-01-10, 3d
+    Beveiliging & Auth docs    :06-01-2025, 3d
+    Core Functionality     :08-01-2025, 4d
+    Basis Epische Verhalen           :10-01-2025, 3d
     section P2 Belangrijk
-    Ketenintegratie       :2025-01-13, 5d
-    UI/UX Documentatie    :2025-01-16, 4d
+    Ketenintegratie       :13-01-2025, 5d
+    UI/UX Documentatie    :16-01-2025, 4d
     section P3 Optimalisatie
-    Performance docs      :2025-01-20, 3d
-    Advanced features     :2025-01-22, 3d
+    Prestaties docs      :20-01-2025, 3d
+    Advanced features     :22-01-2025, 3d
 ```
 
 ### 7.2 Kwaliteitsborging
@@ -222,17 +232,17 @@ gantt
 - [ ] P1 documenten volledig Nederlands
 - [ ] SMART criteria 100% voor P1 docs
 - [ ] Justice terminologie glossarium v1.0
-- [ ] Traceability matrix Requirements ↔ Epics
+- [ ] Traceability matrix Vereisten ↔ Epische Verhalen
 
 ### Week 3-4 (20-31 Jan 2025)
 - [ ] P2 documenten vertaald
 - [ ] Stakeholder persona's gedefinieerd
-- [ ] Ketenintegratie requirements compleet
+- [ ] Ketenintegratie vereistes compleet
 - [ ] ASTRA compliance rapport
 
 ### Week 5-6 (3-14 Feb 2025)
 - [ ] P3 documenten vertaald
-- [ ] Volledige traceability Req ↔ Epic ↔ Story
+- [ ] Volledige traceability Req ↔ Episch Verhaal ↔ Story
 - [ ] NORA/GEMMA compliance certificering
 - [ ] Documentatie audit trail compleet
 
@@ -264,7 +274,7 @@ gantt
 4. **Stakeholder Portal**: Directe feedback loop
 
 ### Governance
-1. **Documentation Owner**: Aanwijzen per epic/component
+1. **Documentation Eigenaar**: Aanwijzen per epic/component
 2. **Review Board**: OM/DJI/Rechtspraak vertegenwoordiging
 3. **Compliance Officer**: ASTRA/NORA toetsing
 4. **Change Control**: Documentatie wijzigingen tracken
@@ -278,13 +288,13 @@ gantt
 find docs -name "*.md" -exec grep -l "As a\|I want\|So that" {} \;
 
 # SMART check
-python scripts/validate_smart_criteria.py docs/requirements/
+python scripts/validate_smart_criteria.py docs/vereistes/
 
 # Terminology scan
 grep -r "court\|prosecution\|legal" docs/ --include="*.md"
 
 # Completeness check
-for file in docs/requirements/REQ-*.md; do
+for file in docs/vereistes/REQ-*.md; do
   echo "$file: $(grep -c "Acceptatiecriteria" $file)"
 done
 ```
@@ -294,12 +304,12 @@ done
 **P1 - KRITIEK**:
 - Blokkeert go-live
 - Compliance vereist
-- Security gerelateerd
+- Beveiliging gerelateerd
 
 **P2 - BELANGRIJK**:
 - Ketenintegratie
 - Gebruikerswaarde
-- Performance
+- Prestaties
 
 **P3 - NICE-TO-HAVE**:
 - Optimalisaties
@@ -310,4 +320,4 @@ done
 
 **Document Status:** FINAL
 **Versie:** 1.0
-**Goedkeuring Vereist:** Business Owner, Compliance Officer, Technical Lead
+**Goedkeuring Vereist:** Business Eigenaar, Compliance Officer, Technical Lead

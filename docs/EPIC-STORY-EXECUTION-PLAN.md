@@ -1,7 +1,7 @@
 # 🚀 EPIC-STORY MIGRATIE - UITVOERINGSPLAN
 
 **Type:** Stap-voor-stap Executie Plan
-**Status:** READY TO EXECUTE
+**Status:** KLAAR TO EXECUTE
 **Geschatte Tijd:** 8-12 uur werk
 **Prioriteit:** KRITIEK
 
@@ -29,20 +29,20 @@
 ### Wat gaan we doen:
 Alle epics uit verschillende bronnen samenvoegen naar één waarheid.
 
-### Epic Reconciliatie Tabel:
+### Episch Verhaal Reconciliatie Tabel:
 
-| Master Epic | Archief EPIC-XXX | COMPLETE-EPIC Status | BESLUIT | Nieuwe ID |
+| Master Episch Verhaal | Archief EPIC-XXX | COMPLETE-EPIC Status | BESLUIT | Nieuwe ID |
 |-------------|------------------|---------------------|---------|-----------|
-| Epic 1: Basis Definitie | - | ✅ 90% | BEHOUDEN | EPIC-001 |
-| Epic 2: Kwaliteitstoetsing | - | ✅ 85% | BEHOUDEN | EPIC-002 |
-| Epic 3: Content/Web Lookup | EPIC-004 (overlap) | 🔄 30% | MERGE | EPIC-003 |
-| Epic 4: User Interface | EPIC-005 (overlap) | ❌ 30% | MERGE | EPIC-004 |
-| Epic 5: Export & Import | - | ❌ 10% | BEHOUDEN | EPIC-005 |
-| Epic 6: Security & Auth | - | 🚨 0% | BEHOUDEN | EPIC-006 |
-| Epic 7: Performance | - | 🔄 20% | BEHOUDEN | EPIC-007 |
-| Epic 8: (merged → Epic 3) | EPIC-002 | Merged | SKIP | - |
-| Epic 9: Advanced Features | - | ❌ 5% | BEHOUDEN | EPIC-009 |
-| Epic CFR: Context Flow | - | - | BEHOUDEN | EPIC-010 |
+| Episch Verhaal 1: Basis Definitie | - | ✅ 90% | BEHOUDEN | EPIC-001 |
+| Episch Verhaal 2: Kwaliteitstoetsing | - | ✅ 85% | BEHOUDEN | EPIC-002 |
+| Episch Verhaal 3: Content/Web Lookup | EPIC-004 (overlap) | 🔄 30% | MERGE | EPIC-003 |
+| Episch Verhaal 4: User Interface | EPIC-005 (overlap) | ❌ 30% | MERGE | EPIC-004 |
+| Episch Verhaal 5: Export & Import | - | ❌ 10% | BEHOUDEN | EPIC-005 |
+| Episch Verhaal 6: Beveiliging & Auth | - | 🚨 0% | BEHOUDEN | EPIC-006 |
+| Episch Verhaal 7: Prestaties | - | 🔄 20% | BEHOUDEN | EPIC-007 |
+| Episch Verhaal 8: (merged → Episch Verhaal 3) | EPIC-002 | Merged | SKIP | - |
+| Episch Verhaal 9: Advanced Features | - | ❌ 5% | BEHOUDEN | EPIC-009 |
+| Episch Verhaal CFR: Context Flow | - | - | BEHOUDEN | EPIC-010 |
 | - | EPIC-001: Database | - | TOEVOEGEN | EPIC-011 |
 | - | EPIC-003: UI Quick | - | MERGE → 4 | - |
 | - | EPIC-006: Prompt Opt | - | TOEVOEGEN | EPIC-012 |
@@ -53,7 +53,7 @@ Alle epics uit verschillende bronnen samenvoegen naar één waarheid.
 ### Commando's:
 ```bash
 # Maak reconciliatie rapport
-echo "# Epic Reconciliatie Rapport - $(date)" > reconciliation.md
+echo "# Episch Verhaal Reconciliatie Rapport - $(date)" > reconciliation.md
 echo "Van 10+7+9 bronnen naar 13 definitieve epics" >> reconciliation.md
 ```
 
@@ -93,24 +93,24 @@ Voor elk van de 13 epics een individueel bestand maken.
 ```bash
 # Script: extract_epic.py
 python scripts/extract_epic.py \
-  --source docs/stories/MASTER-EPICS-USER-STORIES.md \
-  --epic-id "Epic 1" \
-  --output docs/epics/EPIC-001.md
+  --source docs/backlog/stories/MASTER-EPICS-USER-STORIES.md \
+  --epic-id "Episch Verhaal 1" \
+  --output docs/backlog/epics/EPIC-001.md
 ```
 
-#### B. Epic Template:
+#### B. Episch Verhaal Template:
 ```markdown
 ---
 id: EPIC-001
 title: Basis Definitie Generatie
-status: DONE
-priority: HIGH
+status: GEREED
+priority: HOOG
 owner: development
-created: 2025-01-01
-updated: 2025-09-05
+created: 01-01-2025
+updated: 05-09-2025
 completion: 100%
 stories: [US-001, US-002, US-003, US-004, US-005]
-requirements: [REQ-001, REQ-002, REQ-003]
+vereistes: [REQ-001, REQ-002, REQ-003]
 astra_compliance: true
 ---
 
@@ -119,16 +119,16 @@ astra_compliance: true
 ## Beschrijving
 [Kopieer uit MASTER]
 
-## Business Value
+## Bedrijfswaarde
 [Kopieer uit MASTER]
 
-## Acceptance Criteria
+## Acceptatiecriteria
 [Kopieer uit MASTER]
 
 ## Stories
 [Link naar story files]
 
-## Dependencies
+## Afhankelijkheden
 [Uit analysis]
 
 ## Status Updates
@@ -139,9 +139,9 @@ astra_compliance: true
 ```bash
 # Voor epics met archief equivalent
 python scripts/merge_epic_content.py \
-  --primary docs/epics/EPIC-003.md \
-  --archive docs/archief/requirements/EPIC-004-content-enrichment.md \
-  --output docs/epics/EPIC-003.md
+  --primary docs/backlog/epics/EPIC-003.md \
+  --archive docs/archief/vereistes/EPIC-004-content-enrichment.md \
+  --output docs/backlog/epics/EPIC-003.md
 ```
 
 ---
@@ -154,22 +154,22 @@ python scripts/merge_epic_content.py \
 ### Story Nummering Conversie:
 | Oud Format | Nieuw Format | File |
 |------------|--------------|------|
-| Story 1.1 | US-001 | docs/stories/US-001.md |
-| Story 1.2 | US-002 | docs/stories/US-002.md |
-| Story 2.1 | US-006 | docs/stories/US-006.md |
+| Story 1.1 | US-001 | docs/backlog/stories/US-001.md |
+| Story 1.2 | US-002 | docs/backlog/stories/US-002.md |
+| Story 2.1 | US-006 | docs/backlog/stories/US-006.md |
 | ... | ... | ... |
 
 ### Script Executie:
 ```bash
 # Extract alle stories
 python scripts/extract_all_stories.py \
-  --source docs/stories/MASTER-EPICS-USER-STORIES.md \
-  --output-dir docs/stories/ \
+  --source docs/backlog/stories/MASTER-EPICS-USER-STORIES.md \
+  --output-dir docs/backlog/stories/ \
   --format US-XXX
 
 # Output:
-# Created: docs/stories/US-001.md (Epic 1, Story 1.1)
-# Created: docs/stories/US-002.md (Epic 1, Story 1.2)
+# Created: docs/backlog/stories/US-001.md (Episch Verhaal 1, Story 1.1)
+# Created: docs/backlog/stories/US-002.md (Episch Verhaal 1, Story 1.2)
 # ...
 ```
 
@@ -183,10 +183,10 @@ Alle oude/duplicate files naar archief verplaatsen.
 ### Commando's:
 ```bash
 # 1. Verplaats duplicate epic files
-mv docs/stories/epic-*.md docs/archief/2025-09-epic-migration/
+mv docs/backlog/stories/epic-*.md docs/archief/2025-09-epic-migration/
 
 # 2. Verplaats oude story files
-mv docs/stories/story-*.md docs/archief/2025-09-epic-migration/
+mv docs/backlog/stories/story-*.md docs/archief/2025-09-epic-migration/
 
 # 3. Document wat gearchiveerd is
 ls docs/archief/2025-09-epic-migration/ > archived-files.txt
@@ -199,18 +199,18 @@ ls docs/archief/2025-09-epic-migration/ > archived-files.txt
 ### Wat gaan we doen:
 Automatische INDEX.md files genereren voor overzicht.
 
-### Epic INDEX (`docs/epics/INDEX.md`):
+### Episch Verhaal INDEX (`docs/backlog/epics/INDEX.md`):
 ```bash
 python scripts/generate_epic_index.py \
-  --input-dir docs/epics/ \
-  --output docs/epics/INDEX.md
+  --input-dir docs/backlog/epics/ \
+  --output docs/backlog/epics/INDEX.md
 ```
 
-### Story INDEX (`docs/stories/INDEX.md`):
+### Story INDEX (`docs/backlog/stories/INDEX.md`):
 ```bash
 python scripts/generate_story_index.py \
-  --input-dir docs/stories/ \
-  --output docs/stories/INDEX.md
+  --input-dir docs/backlog/stories/ \
+  --output docs/backlog/stories/INDEX.md
 ```
 
 ---
@@ -223,18 +223,18 @@ Controleren dat niets verloren is gegaan.
 ### Validatie Checks:
 ```bash
 # 1. Tel epics
-echo "Epics in nieuwe structuur:"
-ls docs/epics/EPIC-*.md | wc -l  # Moet 13 zijn
+echo "Epische Verhalen in nieuwe structuur:"
+ls docs/backlog/epics/EPIC-*.md | wc -l  # Moet 13 zijn
 
 # 2. Tel stories
 echo "Stories in nieuwe structuur:"
-ls docs/stories/US-*.md | wc -l  # Moet 47+ zijn
+ls docs/backlog/stories/US-*.md | wc -l  # Moet 47+ zijn
 
 # 3. Check links
-python scripts/validate_links.py docs/epics/ docs/stories/
+python scripts/validate_links.py docs/backlog/epics/ docs/backlog/stories/
 
 # 4. Check frontmatter
-python scripts/validate_frontmatter.py docs/epics/ docs/stories/
+python scripts/validate_frontmatter.py docs/backlog/epics/ docs/backlog/stories/
 
 # 5. Genereer rapport
 python scripts/migration_report.py > migration-report.md
@@ -250,25 +250,25 @@ MASTER document archiveren (niet verwijderen!).
 ### Commando's:
 ```bash
 # 1. Kopieer naar archief met datum
-cp docs/stories/MASTER-EPICS-USER-STORIES.md \
+cp docs/backlog/stories/MASTER-EPICS-USER-STORIES.md \
    docs/archief/2025-09-epic-migration/MASTER-EPICS-USER-STORIES-$(date +%Y%m%d).md
 
 # 2. Update MASTER met verwijzing
-cat > docs/stories/MASTER-EPICS-USER-STORIES.md << 'EOF'
+cat > docs/backlog/stories/MASTER-EPICS-USER-STORIES.md << 'EOF'
 # MASTER EPICS & USER STORIES
 
 ⚠️ **DEPRECATED**: Dit document is gemigreerd naar individuele bestanden.
 
 ## Nieuwe Locaties:
-- **Epics**: `/docs/epics/EPIC-XXX.md`
-- **Stories**: `/docs/stories/US-XXX.md`
-- **Dashboard**: `/docs/epics/INDEX.md`
+- **Epische Verhalen**: `/docs/backlog/epics/EPIC-XXX.md`
+- **Stories**: `/docs/backlog/stories/US-XXX.md`
+- **Dashboard**: `/docs/backlog/epics/INDEX.md`
 
 ## Archief:
 Originele versie: `/docs/archief/2025-09-epic-migration/MASTER-EPICS-USER-STORIES-20250905.md`
 
 ---
-*Gemigreerd op: 2025-09-05*
+*Gemigreerd op: 05-09-2025*
 EOF
 ```
 
@@ -282,19 +282,19 @@ Team informeren over nieuwe structuur.
 ### Acties:
 1. **Stuur announcement**:
 ```markdown
-Subject: Epic/Story Documentatie Gemigreerd
+Subject: Episch Verhaal/Story Documentatie Gemigreerd
 
 Team,
 
 De epic/story documentatie is gemigreerd naar een nieuwe structuur:
 
 OUDE locatie:
-- docs/stories/MASTER-EPICS-USER-STORIES.md (monoliet)
+- docs/backlog/stories/MASTER-EPICS-USER-STORIES.md (monoliet)
 
 NIEUWE locaties:
-- docs/epics/EPIC-XXX.md (13 epic files)
-- docs/stories/US-XXX.md (47 story files)
-- docs/epics/INDEX.md (dashboard)
+- docs/backlog/epics/EPIC-XXX.md (13 epic files)
+- docs/backlog/stories/US-XXX.md (47 story files)
+- docs/backlog/epics/INDEX.md (dashboard)
 
 Voordelen:
 ✅ Geen merge conflicts meer
@@ -320,13 +320,13 @@ Automation toevoegen voor kwaliteit.
 ### GitHub Actions:
 ```yaml
 # .github/workflows/epic-validation.yml
-name: Epic/Story Validation
+name: Episch Verhaal/Story Validation
 
 on:
   pull_request:
     paths:
-      - 'docs/epics/*.md'
-      - 'docs/stories/*.md'
+      - 'docs/backlog/epics/*.md'
+      - 'docs/backlog/stories/*.md'
 
 jobs:
   validate:
@@ -352,8 +352,8 @@ jobs:
 
 Na voltooiing moet je hebben:
 
-✅ **13 epic files** in `/docs/epics/EPIC-XXX.md`
-✅ **47+ story files** in `/docs/stories/US-XXX.md`
+✅ **13 epic files** in `/docs/backlog/epics/EPIC-XXX.md`
+✅ **47+ story files** in `/docs/backlog/stories/US-XXX.md`
 ✅ **2 INDEX files** voor dashboards
 ✅ **0 duplicaten** in actieve directories
 ✅ **100% frontmatter** compliance
@@ -391,7 +391,7 @@ echo "Migration rolled back due to: [REASON]"
 |------|------|--------|
 | Stap 1: Reconciliatie | 30 min | ⏳ |
 | Stap 2: Backup & Setup | 15 min | ⏳ |
-| Stap 3: Epic Extractie | 2 uur | ⏳ |
+| Stap 3: Episch Verhaal Extractie | 2 uur | ⏳ |
 | Stap 4: Story Migratie | 3 uur | ⏳ |
 | Stap 5: Archivering | 1 uur | ⏳ |
 | Stap 6: INDEX Generatie | 30 min | ⏳ |

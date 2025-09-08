@@ -1,8 +1,8 @@
-# 📋 Handover Document - Story 2.4 ValidationOrchestratorV2 Integration
+# 📋 Overdracht Document - Story 2.4 ValidationOrchestratorV2 Integration
 
 ## 🎯 Current Status
 
-### ✅ Completed Today (2025-09-02)
+### ✅ Completed Today (02-09-2025)
 
 #### Documentation Cleanup (PRs #15, #16)
 - **PR #15**: Canonicalization + content corrections (MERGED)
@@ -17,7 +17,7 @@
 
 ## 🚀 Next Steps - Story 2.4 Completion
 
-### Phase 1: Core Integration (Priority: HIGH)
+### Phase 1: Core Integration (Prioriteit: HOOG)
 **Estimated: 2-3 dagen**
 
 #### 1.1 DefinitionOrchestratorV2 Integration
@@ -45,7 +45,7 @@
 - `src/ui/components/review_tab.py` - review validatie flows
 - `src/api/endpoints/validation.py` - API endpoint routing
 
-### Phase 2: Legacy Cleanup (Priority: MEDIUM)
+### Phase 2: Legacy Cleanup (Prioriteit: GEMIDDELD)
 **Estimated: 1 dag**
 
 #### 2.1 Remove V1 Adapter Code
@@ -64,15 +64,15 @@
 - Remove dual-path test coverage
 ```
 
-### Phase 3: Validation & Rollout (Priority: HIGH)
+### Phase 3: Validation & Rollout (Prioriteit: HOOG)
 **Estimated: 1 dag**
 
-#### 3.1 Comprehensive Testing
+#### 3.1 Comprehensive Testen
 ```bash
 # Run full test suite
 pytest tests/services/validation/ -v
 
-# Performance benchmarks
+# Prestaties benchmarks
 python scripts/benchmark_validation.py
 
 # Smoke tests (already created)
@@ -143,13 +143,13 @@ pytest tests/ -k validation -v
 
 ## ⚠️ Risk Areas & Mitigations
 
-### Risk 1: Performance Regression
+### Risk 1: Prestaties Regression
 - **Mitigation**: Benchmark before/after, keep DEV_MODE guard until verified
 - **Monitoring**: Add timing logs for validation calls
 
 ### Risk 2: Async Context Issues
 - **Mitigation**: Proper event loop management in UI components
-- **Testing**: Concurrent request testing
+- **Testen**: Concurrent request testing
 
 ### Risk 3: Missing Validation Rules
 - **Mitigation**: Compare V1 vs V2 rule coverage
@@ -157,11 +157,11 @@ pytest tests/ -k validation -v
 
 ## 📝 Definition of Done
 
-### Story 2.4 Complete When:
+### Story 2.4 Complete Wanneer:
 - [ ] All validation calls use ValidationOrchestratorV2
 - [ ] Zero references to V1 adapter in production code
 - [ ] All tests pass (unit, integration, smoke)
-- [ ] Performance metrics equal or better than V1
+- [ ] Prestaties metrics equal or better than V1
 - [ ] Documentation updated (architecture diagrams, API docs)
 - [ ] DEV_MODE guard removed after successful testing
 
@@ -176,8 +176,8 @@ pytest tests/ -k validation -v
 ## 📞 Contact & Resources
 
 ### Key Files
-- Story definition: `docs/stories/epic-2-story-2.4-integration-migration.md`
-- V2 Implementation: `src/services/validation/validation_orchestrator_v2.py`
+- Story definition: `docs/backlog/stories/epic-2-story-2.4-integration-migration.md`
+- V2 Implementatie: `src/services/validation/orchestrator_v2.py`
 - Container: `src/services/container.py`
 - Smoke tests: `tests/smoke/test_validation_v2_smoke.py`
 
@@ -192,6 +192,6 @@ pytest tests/ -k validation -v
 
 ---
 
-*Generated: 2025-09-02*
-*Story Owner: Senior Developer*
+*Generated: 02-09-2025*
+*Story Eigenaar: Senior Developer*
 *Status: In Progress - Initial patch complete*

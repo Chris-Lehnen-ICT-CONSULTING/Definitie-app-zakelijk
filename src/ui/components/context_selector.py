@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any
 
 import streamlit as st
+
 from ui.session_state import SessionStateManager
 
 
@@ -125,11 +126,20 @@ class ContextSelector:
                 "Anders...",
             ]
 
+            # US-042 FIX: Ensure default values are valid for multiselect
+            # Filter out any custom values that aren't in the original options
+            safe_default_org = (
+                [d for d in (default_org or []) if d in org_options]
+                if default_org
+                else []
+            )
+
             selected_org = st.multiselect(
                 "📋 Organisatorische context",
                 options=org_options,
-                default=default_org or [],
+                default=safe_default_org,
                 help="Selecteer één of meerdere organisaties",
+                key="org_context_multiselect",  # US-042: Add key for state management
             )
 
             # Custom org context
@@ -138,14 +148,16 @@ class ContextSelector:
                 custom_org = st.text_input(
                     "Aangepaste organisatorische context",
                     placeholder="Voer andere organisatie in...",
+                    key="custom_org_input",  # US-042: Add key for state management
                 )
 
-            # Combineer contexts
+            # Combineer contexts - US-042 FIX: Process without modifying widget state
             final_org = [opt for opt in selected_org if opt != "Anders..."]
             if custom_org.strip():
                 final_org.append(custom_org.strip())
 
-            # Update selected_org with final list
+            # US-042 FIX: Don't update the widget variable, use final_org directly
+            # This prevents the multiselect crash when custom values are added
             selected_org = final_org
 
             # Wettelijke basis

@@ -7,15 +7,15 @@ Dit is de centrale locatie voor alle project guidelines, policies, standards en 
 Deze directory consolideert alle algemene richtlijnen en standaarden die projectbreed van toepassing zijn. Dit zorgt voor:
 - **Consistentie**: Alle ontwikkelaars volgen dezelfde standaarden
 - **Vindbaarheid**: Één plek voor alle guidelines
-- **Onderhoud**: Makkelijker om guidelines up-to-date te houden
+- **Onderhoud**: Makkelijker OM guidelines up-to-date te houden
 - **Onboarding**: Nieuwe teamleden vinden snel alle relevante richtlijnen
 
 ## 📚 Overzicht Guidelines
 
 ### Core Documentation Standards
-- **[DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md)** - Documentatie standaarden en frontmatter requirements
+- **[DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md)** - Documentatie standaarden en frontmatter vereistes
 - **[CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md)** - Waar elk type document thuishoort
-- **[DOCUMENT-CREATION-WORKFLOW.md](./DOCUMENT-CREATION-WORKFLOW.md)** - Workflow voor het creëren van nieuwe documenten
+- **[DOCUMENT-CREATION-WORKFLOW.md](./DOCUMENT-CREATION-WORKFLOW.md)** - Werkstroom voor het creëren van nieuwe documenten
 - **[DOCUMENT-STANDARDS-GUIDE.md](./DOCUMENT-STANDARDS-GUIDE.md)** - Complete gids voor documentatie standaarden
 
 ### Development Guidelines
@@ -54,11 +54,12 @@ Deze guidelines worden actief onderhouden. Bij twijfel of suggesties:
 
 Voor project-specifieke documentatie (niet algemene guidelines), zie:
 - `/docs/architectuur/` - Architectuur documentatie
-- `/docs/stories/` - User stories en epics
+- `/docs/backlog/` - Requirements, epics en user stories (geconsolideerd)
+- `/docs/backlog/dashboard/` - Requirements dashboards (tabel, per‑epic, graph)
 - `/docs/testing/` - Test plannen en resultaten
 - `/docs/technisch/` - Technische referentie documentatie
 
 ---
 
-*Laatste update: 2025-09-05*
+*Laatste update: 05-09-2025*
 *Status: Actief*

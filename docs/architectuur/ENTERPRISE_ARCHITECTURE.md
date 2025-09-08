@@ -1,38 +1,43 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: 2025-09-05
+aangemaakt: '08-09-2025'
+afhankelijkheden:
+- docs/vereisten/REQUIREMENTS.md
+- docs/backlog/stories/MASTER-EPICS-USER-STORIES.md
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
 compliance:
-  astra: true
-  nora: true
+  ASTRA: true
   bio: false
-  gemma: true
-version_history:
-  current: "2.0.0"
-  previous: "1.0.0"
-  migration_date: "2025-09-05"
+  GEMMA: true
+  NORA: true
 cross_references:
-  ea: "ENTERPRISE_ARCHITECTURE.md"
-  sa: "SOLUTION_ARCHITECTURE.md"
-  ta: "TECHNICAL_ARCHITECTURE.md"
+  ea: ENTERPRISE_ARCHITECTURE.md
+  sa: SOLUTION_ARCHITECTURE.md
+  ta: TECHNICAL_ARCHITECTURE.md
+last_verified: 05-09-2025
+next_review: 31-12-2025
+owner: architecture
+prioriteit: medium
 review_cycle: quarterly
-next_review: 2025-12-31
 stakeholders:
-  - role: owner
-    contact: architecture-team@justice.nl
-  - role: business_owner
-    contact: product-owner@justice.nl
-dependencies:
-  - "docs/requirements/REQUIREMENTS.md"
-  - "docs/stories/MASTER-EPICS-USER-STORIES.md"
+- contact: architecture-team@justice.nl
+  role: owner
+- contact: product-owner@justice.nl
+  role: business_owner
+status: active
 supersedes:
-  - "docs/archief/2025-09-architectuur-consolidatie/EA.md"
-  - "docs/archief/2025-09-architectuur-consolidatie/EA-CFR.md"
-  - "docs/archief/2025-09-architectuur-consolidatie/ASTRA_COMPLIANCE.md"
-  - "docs/archief/2025-09-architectuur-consolidatie/CAPABILITY_MAP.md"
+- docs/archief/2025-09-architectuur-consolidatie/EA.md
+- docs/archief/2025-09-architectuur-consolidatie/EA-CFR.md
+- docs/archief/2025-09-architectuur-consolidatie/ASTRA_COMPLIANCE.md
+- docs/archief/2025-09-architectuur-consolidatie/CAPABILITY_MAP.md
+version_history:
+  current: 2.0.0
+  migration_date: '05-09-2025'
+  previous: 1.0.0
 ---
+
+
 
 # ENTERPRISE ARCHITECTURE - DEFINITIEAPP
 
@@ -68,13 +73,13 @@ De DefinitieApp is een AI-gedreven systeem voor het genereren en valideren van j
 
 ---
 
-### 1.5 Current Snapshot (2025-09-05)
+### 1.5 Current Snapshot (05-09-2025)
 - **Kern**: V2-only architectuur compleet; 45/45 toetsregels actief in productie
 - **UI**: 10 Streamlit tabs; volledig geïntegreerd met stateless services
 - **AI Config**: Gecentraliseerd via ConfigManager; component-specifieke settings
 - **Context Flow**: PER-007/CFR fixes geïmplementeerd - alle drie contextvelden correct
-- **Security**: Pre-productie fase - AuthN/Z en encryptie in Q4 2025 roadmap
-- **Performance**: 5-8s response tijd; token gebruik geoptimaliseerd (3000 tokens)
+- **Beveiliging**: Pre-productie fase - AuthN/Z en encryptie in Q4 2025 roadmap
+- **Prestaties**: 5-8s response tijd; token gebruik geoptimaliseerd (3000 tokens)
 - **Tests**: 60% coverage; V2 tests stabiel; TDD workflow actief
 - **Tech Stack**: Python 3.11, Streamlit UI, SQLite DB, ServiceContainer DI
 - **Compliance**: ASTRA-ready architectuur, NORA principes geïmplementeerd
@@ -116,7 +121,7 @@ graph TD
     subgraph "Supporting Capabilities"
         BC6[Externe Bron Integratie<br/>Wikipedia/SRU]
         BC7[Document Verwerking]
-        BC8[Expert Review Workflow]
+        BC8[Expert Review Werkstroom]
         BC9[Export & Publicatie]
         BC10[Usage Analytics]
     end
@@ -156,12 +161,12 @@ graph TD
 | Multi-level Validatie | ⭐⭐⭐⭐⭐ Optimized | ⭐⭐⭐⭐⭐ Optimized | Complete |
 | Context Management | ⭐⭐⭐⭐ Managed | ⭐⭐⭐⭐ Managed | PER-007 fixed |
 | External Integration | ⭐⭐⭐ Defined | ⭐⭐⭐⭐ Managed | UI integration pending |
-| IAM & Security | ⭐⭐ Developing | ⭐⭐⭐⭐ Managed | Q4 2025 implementation |
+| IAM & Beveiliging | ⭐⭐ Developing | ⭐⭐⭐⭐ Managed | Q4 2025 implementation |
 | Monitoring | ⭐⭐ Developing | ⭐⭐⭐⭐ Managed | Structured logging needed |
 
 ### 2.2 Value Streams
 
-| Value Stream | Description | Key Processes | Business Value | KPIs |
+| Value Stream | Description | Key Processes | Bedrijfswaarde | KPIs |
 |--------------|-------------|---------------|----------------|------|
 | **Definitie Creatie** | End-to-end juridische definitie generatie | Context → Generate → Validate → Store | 90% tijdsbesparing | < 10 min per definitie |
 | **Kwaliteitsborging** | 45+ validatieregels systeem | Auto-check → Feedback → Approve | 95% first-time-right | < 1% fouten |
@@ -174,25 +179,25 @@ graph TD
 #### Clean Architecture Compliance
 **Principle**: Services MUST be independent of UI frameworks and session state
 - **Rationale**: Enable testing, reusability, and framework independence
-- **Implementation**: Stateless services met Data Aggregation pattern
+- **Implementatie**: Stateless services met Data Aggregation pattern
 - **Success Criteria**: 100% business services testable zonder UI mocks
 
 #### Single Source of Truth
 **Principle**: Elke validatieregel heeft exact één definitie voor validatie én prompt-generatie
 - **Rationale**: Voorkomt inconsistenties en vereenvoudigt onderhoud
-- **Implementation**: Centrale regel repository met modulaire architectuur
+- **Implementatie**: Centrale regel repository met modulaire architectuur
 - **Success Criteria**: Zero duplicatie, 100% rule coverage
 
 #### Context-Driven Processing
 **Principle**: Alle drie contextvelden (org/jur/wet) worden volledig doorgegeven
 - **Rationale**: Waarborgt juridische correctheid en ASTRA compliance
-- **Implementation**: DefinitionGeneratorContext als canonical data structure
+- **Implementatie**: DefinitionGeneratorContext als canonical data structure
 - **Success Criteria**: 3/3 context velden actief in elke generatie
 
 #### Privacy by Design
 **Principle**: Minimale data opslag, maximale beveiliging
 - **Rationale**: AVG/GDPR compliance vanaf ontwerp
-- **Implementation**: 90-dagen retentie, audit logging, encryptie at-rest (Q4)
+- **Implementatie**: 90-dagen retentie, audit logging, encryptie at-rest (Q4)
 - **Success Criteria**: Zero PII lekkage, volledig audit trail
 
 ### 2.4 Business Services Portfolio
@@ -233,8 +238,8 @@ De DefinitieApp opereert binnen de Nederlandse justitieketen onder gezamenlijke 
 graph TD
     subgraph "Justitie Keten"
         MJV[Ministerie JenV]
-        OM[Openbaar Ministerie]
-        DJI[DJI - Dienst Justitiële Inrichtingen]
+        OM[Openbaar Ministerie (OM)]
+        DJI[DJI - Dienst Justitiële Inrichtingen (DJI)]
         RS[Rechtspraak]
         JID[Justid]
     end
@@ -262,11 +267,11 @@ graph TD
 | Stakeholder Group | Primary Concerns | Influence | Engagement Strategy | Contact |
 |-------------------|------------------|-----------|--------------------|---------|
 | **Juridische Professionals** | Accuraatheid, Compliance, Snelheid | High | Wekelijkse feedback, Training | legal@justice.nl |
-| **IT Departments** | Onderhoudbaarheid, Security, Integratie | High | Technical reviews, ADRs | it@justice.nl |
+| **IT Departments** | Onderhoudbaarheid, Beveiliging, Integratie | High | Technical reviews, ADRs | it@justice.nl |
 | **Management JenV** | Kosten, Efficiency, Risico's | High | Kwartaal rapportages | management@justice.nl |
-| **Eindgebruikers** | Usability, Performance, Features | Medium | User groups, Surveys | users@justice.nl |
+| **Eindgebruikers** | Usability, Prestaties, Features | Medium | User groups, Surveys | users@justice.nl |
 | **Compliance Officers** | ASTRA/NORA, AVG, Audit trails | High | Compliance reviews | compliance@justice.nl |
-| **Security Officers** | BIO compliance, Data protection | High | Security audits | security@justice.nl |
+| **Beveiliging Officers** | BIO compliance, Data protection | High | Beveiliging audits | security@justice.nl |
 | **Externe Auditors** | Traceability, Documentatie | Medium | Audit support | audit@justice.nl |
 
 ### 3.3 Justice Chain Integration Points
@@ -303,7 +308,7 @@ classDiagram
     class Validatieregel {
         +String id
         +String category
-        +Priority priority
+        +Prioriteit priority
         +String description
         +ValidationLogic logic
         +execute()
@@ -344,13 +349,13 @@ classDiagram
 
 ### 4.2 Data Governance
 
-| Data Category | Owner | Classification | Retention | Privacy Impact | Encryption |
+| Data Category | Eigenaar | Classification | Retention | Privacy Impact | Encryption |
 |---------------|-------|----------------|-----------|----------------|------------|
 | **Juridische Definities** | Business | Public | 7 years | Low | At-rest (Q4) |
-| **User Data** | IT Security | Confidential | 2 years | High | Required |
+| **User Data** | IT Beveiliging | Confidential | 2 years | High | Required |
 | **Audit Logs** | Compliance | Internal | 10 years | Medium | Required |
 | **Context Data** | Business | Internal | 90 days | Low | Optional |
-| **API Keys** | Security | Secret | Rotation | Critical | Always |
+| **API Keys** | Beveiliging | Secret | Rotation | Critical | Always |
 | **Validation Results** | QA Team | Internal | 1 year | Low | Optional |
 
 ### 4.3 Information Flows
@@ -457,7 +462,7 @@ Integration Categories:
 
   Internal Systems:
     - Document Management: SharePoint/OpenText
-    - Workflow: ServiceNow/Pegasystems
+    - Werkstroom: ServiceNow/Pegasystems
     - Analytics: PowerBI/Tableau
 
   External Services:
@@ -470,7 +475,7 @@ Integration Categories:
 
 ## 4. Technology Architecture
 
-### 4.0 Current Technical Snapshot (2025-08-28)
+### 4.0 Current Technical Snapshot (28-08-2025)
 - **Taal/Runtime**: Python 3.11; Streamlit UI
 - **Data**: SQLite (unencrypted) met migraties; export naar TXT/JSON
 - **Services**: Modulair (generatie, validatie, lookup, repo, monitoring)
@@ -481,20 +486,20 @@ Integration Categories:
 ### 4.1 Technology Standards
 
 #### Government-Wide Standards
-| Category | Standard | Version/Spec | Mandate |
+| Category | Standard | Versie/Spec | Mandate |
 |----------|----------|-------------|----------|
 | Identity | DigiD/eHerkenning | Latest | Required |
 | Accessibility | WCAG | 2.1 AA | Required |
 | API | RESTful | OpenAPI 3.0 | Required |
-| Security | NCSC Guidelines | Current | Required |
+| Beveiliging | NCSC Guidelines | Current | Required |
 | Cloud | Government Cloud | Azure/AWS Gov | Preferred |
 | Data Exchange | StUF/NLGOV | 3.0+ | Where applicable |
 
 #### Technology Principles
 1. **Cloud-First Strategy**: Prefer SaaS > PaaS > IaaS > On-premise
-2. **Zero Trust Security**: Never trust, always verify
+2. **Zero Trust Beveiliging**: Never trust, always verify
 3. **API Economy**: Services communicate via APIs only
-4. **Open Source Preference**: When TCO is comparable
+4. **Open Source Preference**: Wanneer TCO is comparable
 5. **Mobile-First Design**: Primary interface on mobile devices
 
 ### 4.2 Platform Strategy
@@ -514,13 +519,13 @@ Integration Categories:
 
 ---
 
-## 5. Security & Risk Architecture
+## 5. Beveiliging & Risk Architecture
 
-### 5.1 Security Framework
+### 5.1 Beveiliging Framework
 - **Framework**: Zero Trust Architecture aligned with BIO
 - **Compliance**: ISO 27001, BIO, GDPR/AVG, NEN 7510
 - **Risk Appetite**:
-  - Data Security: Very Low
+  - Data Beveiliging: Very Low
   - Service Availability: Low
   - Innovation: Medium
 
@@ -534,14 +539,14 @@ Integration Categories:
 | Compliance Violation | High | Low | Automated compliance checks |
 | Vendor Lock-in | Medium | Medium | Open standards, portability |
 
-### 5.4 Open Issues (2025-08-28)
+### 5.4 Open Issues (28-08-2025)
 - 🔴 Geen authenticatie/autorisatie (BIO/NORA blocker)
 - 🔴 Geen encryptie at rest (SQLite) en in transit buiten dev
 - 🟠 8 bare excepts en E402 importfouten riskeren stabiliteit
 - 🟠 Rate limiting/resilience niet uniform toegepast
 - 🟡 Logging/monitoring niet gestandaardiseerd; auditability beperkt
 
-### 5.3 Security Principles
+### 5.3 Beveiliging Principles
 1. **Privacy by Design**: Built-in from the start
 2. **Least Privilege Access**: Minimal necessary permissions
 3. **Defense in Depth**: Multiple security layers
@@ -577,7 +582,7 @@ Integration Categories:
 ### 6.3 Standards & Guidelines
 - **Enterprise Standards**: BIO, NORA, GDPR/AVG
 - **Technical Standards**: → [Link to SA Section 2.1]
-- **Security Standards**: NCSC guidelines, ISO 27001/2
+- **Beveiliging Standards**: NCSC guidelines, ISO 27001/2
 - **Quality Standards**: ISO 9001, Government quality framework
 
 ---
@@ -629,7 +634,7 @@ Week 9–12: PRODUCTION READINESS
 ```
 
 ### 7.2 Investment Portfolio
-| Initiative | Business Value | Investment | ROI | Priority |
+| Initiative | Bedrijfswaarde | Investment | ROI | Prioriteit |
 |------------|---------------|------------|-----|----------|
 | Core Platform | €3M savings/year | €800k | 275% | Critical |
 | AI Enhancement | 50% quality gain | €200k | 200% | High |
@@ -657,7 +662,7 @@ Week 9–12: PRODUCTION READINESS
 ## 8. Product Portfolio Status
 
 ### 8.1 Feature Portfolio Overview
-**Last Updated**: 2025-08-20
+**Laatst Bijgewerkt**: 20-08-2025
 
 #### Overall Product Completion
 ```
@@ -677,15 +682,15 @@ Total Features: 87
 - **Response Time**: 8-12 seconds (target: <5s)
 - **Development Velocity**: ~3 features per sprint
 
-### 8.2 Epic Status Dashboard
+### 8.2 Episch Verhaal Status Dashboard
 
-| Epic | Features | Complete | In Progress | Not Started | % Complete | Business Priority | Risk |
+| Episch Verhaal | Features | Complete | In Progress | Not Started | % Complete | Business Prioriteit | Risk |
 |------|----------|----------|-------------|-------------|------------|-------------------|------|
 | **Basis Definitie Generatie** | 5 | 4 | 0 | 1 | 80% | P0 - Critical | ✅ Low |
 | **Kwaliteitstoetsing** | 4 | 3 | 1 | 0 | 75% | P0 - Critical | ✅ Low |
 | **User Interface** | 15 | 3 | 3 | 9 | 20% | P1 - High | 🔴 High |
-| **Security & Authentication** | 5 | 0 | 0 | 5 | 0% | P0 - Critical | 🔴 Critical |
-| **Performance** | 5 | 1 | 1 | 3 | 20% | P1 - High | 🟠 Medium |
+| **Beveiliging & Authentication** | 5 | 0 | 0 | 5 | 0% | P0 - Critical | 🔴 Critical |
+| **Prestaties** | 5 | 1 | 1 | 3 | 20% | P1 - High | 🟠 Medium |
 | **Export/Import** | 7 | 1 | 1 | 5 | 14% | P1 - High | 🟠 Medium |
 | **Web Lookup & Integration** | 5 | 0 | 0 | 5 | 0% | P0 - Critical | 🔴 Critical |
 | **Monitoring & Analytics** | 5 | 2 | 1 | 2 | 40% | P2 - Medium | 🟡 Low |
@@ -693,12 +698,12 @@ Total Features: 87
 
 ### 8.3 Critical Missing Features - Business Impact
 
-| Priority | Feature | Business Impact | Risk Level | Investment Required |
+| Prioriteit | Feature | Business Impact | Risk Level | Investment Required |
 |----------|---------|-----------------|------------|---------------------|
 | 🔴 **P0** | Authentication System | No enterprise deployment possible | Critical | 2 weeks |
 | 🔴 **P0** | Web Lookup Integration | Core value proposition missing | Critical | 2 weeks |
 | 🔴 **P0** | Bulk Import/Export | No scalability for departments | Critical | 1 week |
-| 🟠 **P1** | Performance < 5s | Poor user adoption | High | 2 weeks |
+| 🟠 **P1** | Prestaties < 5s | Poor user adoption | High | 2 weeks |
 | 🟠 **P1** | 7 Missing UI Tabs | Incomplete user journey | High | 3 weeks |
 | 🟡 **P2** | Export Formats | Limited integration options | Medium | 1 week |
 | 🟡 **P2** | Monitoring Dashboard | No operational insights | Medium | 1 week |
@@ -717,8 +722,8 @@ Critical Features (P0): Week 12 (4 weeks)
 ├── Web Lookup: 2 weeks
 └── Bulk Operations: 1 week
 
-High Priority (P1): Week 16 (8 weeks)
-├── Performance: 2 weeks
+High Prioriteit (P1): Week 16 (8 weeks)
+├── Prestaties: 2 weeks
 └── UI Completion: 3 weeks
 
 MVP Ready: Week 14
@@ -736,7 +741,7 @@ Full Product: Week 20
 #### ROI Tracking
 | Metric | Target | Current | Gap |
 |--------|--------|---------|-----|
-| Performance | <5s response | 8-12s | -60% |
+| Prestaties | <5s response | 8-12s | -60% |
 | User Capacity | 10+ concurrent | 1 | -90% |
 | Quality Score | 95% first-time-right | ~70% | -25% |
 | Cost per Definition | €0.30 | €1.00 | -70% |
@@ -744,12 +749,12 @@ Full Product: Week 20
 ### 8.6 Business Risk Assessment
 
 #### Updated Risk Matrix
-| Risk | Business Impact | Technical Impact | Mitigation Priority | Status |
+| Risk | Business Impact | Technical Impact | Mitigation Prioriteit | Status |
 |------|-----------------|------------------|---------------------|---------|
-| **No Authentication** | Cannot deploy to government | Security breach risk | 🔴 Critical - Week 1 | ❌ Open |
+| **No Authentication** | Cannot deploy to government | Beveiliging breach risk | 🔴 Critical - Week 1 | ❌ Open |
 | **Single User Only** | No departmental rollout | Database locks | 🔴 Critical - Week 2 | ❌ Open |
 | **Missing Web Lookup** | Limited value proposition | Feature gap | 🔴 Critical - Week 3 | ❌ Open |
-| **Poor Performance** | User rejection | Resource waste | 🟠 High - Week 4 | 🔄 In Progress |
+| **Poor Prestaties** | User rejection | Resource waste | 🟠 High - Week 4 | 🔄 In Progress |
 | **Incomplete UI** | Confusing UX | Low adoption | 🟠 High - Week 5 | 🔄 In Progress |
 
 ---
@@ -759,14 +764,14 @@ Full Product: Week 20
 ### Solution Architecture Documents
 - **DefinitieAgent Solution Architecture**: docs/architectuur/SOLUTION_ARCHITECTURE.md
 - **API Specifications**: docs/api/
-- **Security Analysis & Guidance**: docs/SECURITY_AND_FEEDBACK_ANALYSIS.md
+- **Beveiliging Analysis & Guidance**: docs/SECURITY_AND_FEEDBACK_ANALYSIS.md
 - **Legacy Migration Plan**: docs/LEGACY_CODE_MIGRATION_ROADMAP.md
- - **ConfigManager Implementation**: src/config/config_manager.py
+ - **ConfigManager Implementatie**: src/config/config_manager.py
 - **V2 Service Container**: src/services/container.py
 
 ### Governance Documents
 <!-- ADR directory niet meer beschikbaar na consolidatie - ADRs zijn geïntegreerd in de canonical architecture documenten -->
-- **Product Requirements (PRD)**: docs/prd.md
+- **Product Vereisten (PRD)**: docs/prd.md
 - **Architecture Viewer**: docs/architectuur/architecture-viewer.html
 - **Compliance (BIO/NORA/WCAG) – status & acties**: docs/SECURITY_AND_FEEDBACK_ANALYSIS.md
  - **Compliance Matrix (Skeleton)**: docs/compliance/COMPLIANCE_MATRIX.md
@@ -791,12 +796,12 @@ Full Product: Week 20
 | Citizens | End Users | Clarity, accessibility | Low | Via research |
 | EU Partners | External | Interoperability | Medium | Quarterly |
 
-### B. Compliance Requirements
-| Requirement | Source | Impact | Implementation |
+### B. Compliance Vereisten
+| Requirement | Source | Impact | Implementatie |
 |-------------|--------|--------|----------------|
 | WCAG 2.1 AA | EU/NL Law | All UI | Built-in accessibility |
 | GDPR/AVG | EU Law | Data handling | Privacy by design |
-| BIO | NL Standard | Security | Security controls |
+| BIO | NL Standard | Beveiliging | Beveiliging controls |
 | DigiD/eHerkenning | NL Gov | Authentication | Identity integration |
 | Language Level B1 | NL Policy | Content | Validation rules |
 
@@ -821,11 +826,11 @@ Full Product: Week 20
 - €3M+ annual savings
 
 ### D. Document Control
-- **Version**: 1.1
+- **Versie**: 1.1
 - **Status**: Draft for Review (updated AS‑IS, roadmap, links)
-- **Owner**: Enterprise Architecture Office
-- **Last Updated**: 2025-08-28
-- **Next Review**: 2025-09-30
+- **Eigenaar**: Enterprise Architecture Office
+- **Laatst Bijgewerkt**: 28-08-2025
+- **Next Review**: 30-09-2025
 - **Distribution**: CIO Council, Architecture Board, CDO Network
 
 ---
@@ -836,7 +841,7 @@ The following sections in this Enterprise Architecture document have correspondi
 
 1. **Business Capabilities** (Section 1.1) → [SA Section 1: System Architecture]
 2. **Technology Standards** (Section 4.1) → [SA Section 2: Technical Design]
-3. **Security Framework** (Section 5.1) → [SA Section 4: Security Implementation]
+3. **Beveiliging Framework** (Section 5.1) → [SA Section 4: Beveiliging Implementatie]
 4. **Strategic Roadmap** (Section 7.1) → [SA Section 7: Migration Strategy]
 5. **Investment Portfolio** (Section 7.2) → [SA Section 9: Cost Optimization]
 

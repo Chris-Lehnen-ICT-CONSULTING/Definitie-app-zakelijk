@@ -1,5 +1,5 @@
 # 🔍 V2 Migration Status - Geverifieerde Stand van Zaken
-**Datum**: 2025-01-09
+**Datum**: 09-01-2025
 **Verificatie uitgevoerd**: 15:30 CET
 **Status**: ~65% Compleet (niet 40% zoals gedocumenteerd, niet 85% zoals geclaimd)
 
@@ -94,7 +94,7 @@ pytest tests/services/orchestrators/test_validation_orchestrator_v2.py -v
 
 ### Hoog (Deze Week)
 1. **API Endpoints** toevoegen voor externe toegang
-2. **Performance tests** voor batch processing
+2. **Prestaties tests** voor batch processing
 3. **Documentatie** bijwerken met juiste status
 
 ### Medium (Volgende Sprint)
@@ -102,13 +102,13 @@ pytest tests/services/orchestrators/test_validation_orchestrator_v2.py -v
 2. **Monitoring service** activeren
 3. **Feature flags** volledig implementeren
 
-## 📈 Metrics & Performance
+## 📈 Metrics & Prestaties
 
 ### Test Coverage
 - Unit tests: 87% coverage
 - Integration tests: 12/12 passing
 - Contract tests: 3/3 passing
-- Performance tests: Niet uitgevoerd
+- Prestaties tests: Niet uitgevoerd
 
 ### Code Quality
 - Type hints: ~90% coverage
@@ -159,4 +159,4 @@ De V2 migration is **substantieel verder** dan gedocumenteerd (~65% vs 40%), maa
 **Geschatte tijd tot completion**: 1-2 dagen gefocust werk
 
 ---
-*Dit document is geverifieerd met werkende tests en code inspectie op 2025-01-09 15:30 CET*
+*Dit document is geverifieerd met werkende tests en code inspectie op 09-01-2025 15:30 CET*

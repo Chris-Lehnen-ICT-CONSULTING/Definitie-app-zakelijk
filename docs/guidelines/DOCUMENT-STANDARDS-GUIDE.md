@@ -1,10 +1,15 @@
 ---
-canonical: true
-status: active
-owner: doc-standards-guardian
-last_verified: 2025-09-05
+aangemaakt: '08-09-2025'
 applies_to: architecture-consolidation@v1
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 05-09-2025
+owner: doc-standards-guardian
+prioriteit: medium
+status: active
 ---
+
+
 
 # Document Standards Guide for Architecture Consolidation
 
@@ -20,7 +25,7 @@ This guide defines the authoritative standards for the DefinitieApp architecture
 docs/architectuur/
 ├── ENTERPRISE_ARCHITECTURE.md (EA - Business/Organisational View)
 ├── SOLUTION_ARCHITECTURE.md   (SA - Solution Design & Integration)
-└── TECHNICAL_ARCHITECTURE.md   (TA - Technical Implementation)
+└── TECHNICAL_ARCHITECTURE.md   (TA - Technical Implementatie)
 ```
 
 ### 1.2 Maximum Document Size
@@ -43,12 +48,12 @@ SOLUTION_ARCHITECTURE.md:
   max_technical_depth: Design patterns and contracts
 
 TECHNICAL_ARCHITECTURE.md:
-  focus: Implementation details, code structure, deployment
+  focus: Implementatie details, code structure, deployment
   audience: Developers, DevOps Engineers, SREs
   max_technical_depth: Full implementation details
 ```
 
-## 2. Frontmatter Requirements
+## 2. Frontmatter Vereisten
 
 ### 2.1 Mandatory Frontmatter Fields
 
@@ -62,10 +67,10 @@ owner: architecture                       # Responsible team
 last_verified: YYYY-MM-DD                # Last content verification
 applies_to: definitie-app@v2             # Application version
 compliance:
-  astra: true|false                      # ASTRA compliance
-  nora: true|false                       # NORA compliance
+  ASTRA: true|false                      # ASTRA compliance
+  NORA: true|false                       # NORA compliance
   bio: true|false                        # BIO compliance
-  gemma: true|false                      # GEMMA compliance
+  GEMMA: true|false                      # GEMMA compliance
 version_history:
   current: "2.0.0"                       # Document version
   previous: "1.x.x"                      # Previous version
@@ -88,8 +93,8 @@ stakeholders:
     contact: team-email@justice.nl
   - role: reviewer
     contact: architect@justice.nl
-dependencies:
-  - "docs/requirements/REQUIREMENTS.md"
+afhankelijkheden:
+  - "docs/vereistes/REQUIREMENTS.md"
   - "docs/testing/TEST_STRATEGY.md"
 supersedes:
   - "docs/archief/OLD_EA.md"
@@ -116,7 +121,7 @@ supersedes:
 
 ## 3. Strategic Alignment
 ### 3.1 ASTRA Principles
-### 3.2 NORA Requirements
+### 3.2 NORA Vereisten
 ### 3.3 Justice Chain Integration
 
 ## 4. Information Architecture
@@ -172,18 +177,18 @@ supersedes:
 ### 5.2 API Contracts
 ### 5.3 Event Architecture
 
-## 6. Security Architecture
-### 6.1 Security Zones
+## 6. Beveiliging Architecture
+### 6.1 Beveiliging Zones
 ### 6.2 Authentication & Authorization
 ### 6.3 Data Protection
 
 ## 7. Quality Attributes
-### 7.1 Performance Requirements
+### 7.1 Prestaties Vereisten
 ### 7.2 Scalability Design
 ### 7.3 Reliability Patterns
 
-## 8. Deployment Architecture
-### 8.1 Deployment Model
+## 8. Uitrol Architecture
+### 8.1 Uitrol Model
 ### 8.2 Environment Strategy
 ### 8.3 Release Management
 
@@ -198,19 +203,19 @@ supersedes:
 ## 1. Executive Summary
 ### 1.1 Technical Overview
 ### 1.2 Technology Stack
-### 1.3 Implementation Approach
+### 1.3 Implementatie Approach
 
 ## 2. Technical Context
-### 2.1 Technical Requirements
+### 2.1 Technical Vereisten
 ### 2.2 Technical Constraints
 ### 2.3 Technology Decisions
 
 ## 3. Component Architecture
 ### 3.1 Component Model
-### 3.2 Service Implementation
+### 3.2 Service Implementatie
 ### 3.3 Module Structure
 
-## 4. Data Implementation
+## 4. Data Implementatie
 ### 4.1 Database Design
 ### 4.2 Data Access Layer
 ### 4.3 Caching Strategy
@@ -223,14 +228,14 @@ supersedes:
 ## 6. Development Architecture
 ### 6.1 Development Standards
 ### 6.2 Build & CI/CD
-### 6.3 Testing Strategy
+### 6.3 Testen Strategy
 
 ## 7. Operations Architecture
 ### 7.1 Monitoring & Logging
 ### 7.2 Backup & Recovery
 ### 7.3 Maintenance Procedures
 
-## 8. Implementation Guidelines
+## 8. Implementatie Guidelines
 ### 8.1 Coding Standards
 ### 8.2 Configuration Management
 ### 8.3 Dependency Management
@@ -244,7 +249,7 @@ supersedes:
 - **Canonical documents**: `UPPERCASE_WITH_UNDERSCORES.md`
 - **Supporting documents**: `lowercase-with-hyphens.md`
 - **Archive documents**: `YYYY-MM-DD-original-name.md`
-- **Version suffix**: Never use version numbers in filenames (use frontmatter)
+- **Versie suffix**: Never use version numbers in filenames (use frontmatter)
 
 ### 4.2 Section Headers
 ```markdown
@@ -276,7 +281,7 @@ class ValidationOrchestrator:
 ### 4.5 Reference Links
 ```markdown
 Internal: [Component Name](#section) (use relative anchors for internal references)
-External: [ASTRA Guidelines](https://astra.justice.nl)
+External: [ASTRA Guidelines](https://ASTRA.justice.nl)
 Cross-ref: See [SA § 3.2](../architectuur/SOLUTION_ARCHITECTURE.md)
 ```
 
@@ -300,16 +305,16 @@ Every canonical document MUST include:
 |----------|------------|--------|----------|-----------|
 | ASTRA-01 | Traceability | ✅ COMPLIANT | All decisions tracked in canonical docs | See EA/SA/TA documents |
 | NORA-AP03 | Proactief | ✅ COMPLIANT | Validation prevents errors | [SA § 4.3](#43-validation) |
-| BIO-14.2.1 | Logging | ⚠️ PARTIAL | Audit logging implemented | [TA § 7.1](#71-monitoring) |
+| BIO-14.2.1 | Logging | ⚠️ PARTIAL | Audit logging geïmplementeerd | [TA § 7.1](#71-monitoring) |
 | GEMMA-2.0 | Services | ❌ TODO | Service registry pending | [Roadmap](#roadmap) |
 ```
 
-### 5.3 Version Control in Content
+### 5.3 Versie Control in Content
 
 ```markdown
-## Version-Specific Information
+## Versie-Specific Information
 
-> **Version 2.0.0 Changes**
+> **Versie 2.0.0 Changes**
 > - Consolidated from 47 documents
 > - Added PER-007 context flow fixes
 > - Removed V1 orchestrator references
@@ -324,9 +329,9 @@ Every canonical document MUST include:
 ## Related Documentation
 
 - **Enterprise View**: See [EA § 2.1](../architectuur/ENTERPRISE_ARCHITECTURE.md)
-- **Implementation**: See [TA § 3.1](../architectuur/TECHNICAL_ARCHITECTURE.md)
-- **Testing**: See Test Strategy (document in planning)
-- **Requirements**: See [US-001](../stories/MASTER-EPICS-USER-STORIES.md)
+- **Implementatie**: See [TA § 3.1](../architectuur/TECHNICAL_ARCHITECTURE.md)
+- **Testen**: See Test Strategy (document in planning)
+- **Vereisten**: See [US-001](../backlog/stories/MASTER-EPICS-USER-STORIES.md)
 ```
 
 ## 6. Validation Rules
@@ -339,14 +344,14 @@ Every canonical document MUST include:
 - [ ] No broken internal links
 - [ ] Compliance matrix included
 - [ ] Cross-references to other canonical docs
-- [ ] Version history documented
-- [ ] Owner and review date current
+- [ ] Versie history documented
+- [ ] Eigenaar and review date current
 - [ ] No duplicate content across EA/SA/TA
 - [ ] All code blocks have language specified
 
 ### 6.2 Content Quality Checks
 
-- [ ] No conflicting requirements
+- [ ] No conflicting vereistes
 - [ ] Consistent terminology usage
 - [ ] All acronyms defined on first use
 - [ ] Domain terms include Dutch original
@@ -354,8 +359,8 @@ Every canonical document MUST include:
 - [ ] Examples provided for complex concepts
 - [ ] Diagrams have source files referenced
 - [ ] External links verified active
-- [ ] Security-sensitive info redacted
-- [ ] Performance metrics quantified
+- [ ] Beveiliging-sensitive info redacted
+- [ ] Prestaties metrics quantified
 
 ## 7. Archive Structure
 
@@ -367,9 +372,9 @@ docs/archief/
 │   ├── README.md (Migration summary)
 │   ├── mapping.json (Old → New document mapping)
 │   ├── original/ (Original 47 documents)
-│   │   ├── 2025-09-05-EA.md
-│   │   ├── 2025-09-05-SA.md
-│   │   └── 2025-09-05-TA.md
+│   │   ├── 05-09-2025-EA.md
+│   │   ├── 05-09-2025-SA.md
+│   │   └── 05-09-2025-TA.md
 │   └── migration-log.md (Detailed changes)
 ├── decisions/ (Superseded ADRs)
 └── versions/ (Major version archives)
@@ -379,7 +384,7 @@ docs/archief/
 
 ```
 Format: YYYY-MM-DD-original-name.md
-Example: 2025-09-05-enterprise-architecture-v1.md
+Example: 05-09-2025-enterprise-architecture-v1.md
 ```
 
 ### 7.3 Archive README Template
@@ -391,7 +396,7 @@ Example: 2025-09-05-enterprise-architecture-v1.md
 This archive contains the 47 original architecture documents consolidated into 3 canonical documents.
 
 ## Migration Summary
-- **Date**: 2025-09-05
+- **Date**: 05-09-2025
 - **Documents Consolidated**: 47
 - **New Canonical Documents**: 3
 - **Information Loss**: 0% (all content preserved)
@@ -422,10 +427,10 @@ For current architecture, see: `/docs/architectuur/`
 
 ### 8.2 Conflict Resolution
 
-When content conflicts exist:
+Wanneer content conflicts exist:
 1. Use most recent `last_verified` date
-2. Prefer implemented over planned features
-3. Choose more restrictive security requirements
+2. Prefer geïmplementeerd over planned features
+3. Choose more restrictive security vereistes
 4. Select higher performance targets
 5. Document conflict in migration log
 
@@ -437,14 +442,14 @@ When content conflicts exist:
 - **Obsolete**: Archive with deprecation note
 - **Redundant**: Remove, note in migration log
 
-## 9. Compliance Requirements
+## 9. Compliance Vereisten
 
 ### 9.1 ASTRA Compliance
 
 Every canonical document must address:
 - Traceability (decisions → implementation)
 - Interoperability (integration standards)
-- Security by Design (security sections)
+- Beveiliging by Design (security sections)
 - Data Protection (privacy measures)
 
 ### 9.2 NORA Principles
@@ -455,10 +460,10 @@ Documents must demonstrate:
 - Reusability of components
 - Vendor independence
 
-### 9.3 BIO Security
+### 9.3 BIO Beveiliging
 
 Technical documents must include:
-- Security zones definition
+- Beveiliging zones definition
 - Access control matrices
 - Audit logging specifications
 - Incident response procedures
@@ -529,10 +534,10 @@ python scripts/migration_report.py
 - [DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md)
 - [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md)
 - [INDEX.md](../INDEX.md)
-- [MASTER-EPICS-USER-STORIES.md](../stories/MASTER-EPICS-USER-STORIES.md)
+- [MASTER-EPICS-USER-STORIES.md](../backlog/stories/MASTER-EPICS-USER-STORIES.md)
 
 ### External Standards
-- [ASTRA Framework](https://astra.justice.nl)
+- [ASTRA Framework](https://ASTRA.justice.nl)
 - [NORA Principles](https://www.noraonline.nl)
 - [BIO Standards](https://bio-overheid.nl)
 - [GEMMA Architecture](https://gemmaonline.nl)

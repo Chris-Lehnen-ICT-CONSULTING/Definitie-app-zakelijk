@@ -1,0 +1,298 @@
+---
+aangemaakt: '2025-09-08'
+applies_to: definitie-app@v2
+bijgewerkt: '2025-09-08'
+canonical: true
+last_verified: 2025-09-04
+owner: testing
+prioriteit: medium
+status: active
+---
+
+
+
+# PER-007 Context Flow Fix - Test Scenarios
+**Document ID:** TEST-PER-007
+**Created:** 2025-09-04
+**Owner:** Business Analyst / Test Team
+**Applies To:** PER-007 Implementation
+
+## Test Strategy
+
+This document defines comprehensive test scenarios for the PER-007 Context Flow Fix, ensuring proper handling of organizational, juridical, and legal basis context in the Dutch justice domain.
+
+## Test Data Sets
+
+### Valid Justice Organizations (ASTRA-compliant)
+```json
+{
+  "primary_organizations": [
+    "OM", "DJI", "Rechtspraak", "CJIB", "KMAR", "NP", "Justid"
+  ],
+  "secondary_organizations": [
+    "IND", "RvdK", "SRN", "NRGD", "3RO", "FIOD"
+  ],
+  "chain_contexts": [
+    "ZSM-keten", "Strafrechtketen", "Jeugdketen"
+  ]
+}
+```
+
+### Valid Juridical Contexts
+```json
+{
+  "main_domains": [
+    "Strafrecht",
+    "Bestuursrecht",
+    "Civiel recht",
+    "Staatsrecht",
+    "Europees recht"
+  ],
+  "sub_domains": [
+    "Strafprocesrecht",
+    "Materieel strafrecht",
+    "Penitentiair recht",
+    "Jeugdrecht",
+    "Vreemdelingenrecht"
+  ]
+}
+```
+
+### Valid Legal Basis Formats
+```json
+{
+  "criminal_law": [
+    "Art. 27 Sv",
+    "Art. 67 lid 1 Sv",
+    "Art. 310 Sr"
+  ],
+  "civil_law": [
+    "Art. 6:162 BW",
+    "Art. 3:4 lid 2 Awb"
+  ],
+  "european_law": [
+    "Art. 5 EVRM",
+    "Art. 16 AVG"
+  ]
+}
+```
+
+## Functional Test Scenarios
+
+### Scenario 1: Basic Context Mapping
+```gherkin
+Given the user provides organizational context "DJI"
+And juridical context "Strafrecht"
+And legal basis "Art. 27 Sv"
+When a definition is generated for "verdachte"
+Then the organizational context appears in "organisatorisch" category
+And the juridical context appears in "juridisch" category
+And the legal basis appears in "wettelijk" category
+```
+
+### Scenario 2: Multiple Organizations
+```gherkin
+Given the user provides organizational context ["DJI", "OM", "Rechtspraak"]
+When a definition is generated
+Then all three organizations appear in "organisatorisch" category
+And the context indicates cross-organizational relevance
+```
+
+### Scenario 3: Complex Legal Basis
+```gherkin
+Given the user provides legal basis ["Art. 27 Sv", "Art. 67 lid 1 Sv", "Art. 5 EVRM"]
+When a definition is generated
+Then all legal references appear in "wettelijk" category
+And both national and European law are recognized
+```
+
+### Scenario 4: Empty Context Fields
+```gherkin
+Given the user provides only the term "sanctie"
+And no context fields are filled
+When a definition is generated
+Then the system uses default context inference
+And no null pointer errors occur
+```
+
+### Scenario 5: Legacy Field Compatibility
+```gherkin
+Given an old integration sends only the "context" field with "DJI Strafrecht"
+When a definition is generated
+Then the context is parsed and categorized correctly
+And the response maintains backward compatibility
+```
+
+## Validation Test Scenarios
+
+### Scenario 6: Invalid Organization
+```gherkin
+Given the user provides organizational context "InvalidOrg"
+When validation is performed
+Then a warning is generated: "Organization not recognized in ASTRA registry"
+And suggestions are provided: ["OM", "DJI", "CJIB"]
+```
+
+### Scenario 7: Malformed Legal Citation
+```gherkin
+Given the user provides legal basis "Article 27 Criminal Code"
+When validation is performed
+Then a warning is generated: "Use Dutch legal citation format"
+And the suggested format is shown: "Art. 27 Sr"
+```
+
+### Scenario 8: Conflicting Contexts
+```gherkin
+Given the user provides juridical context "Civiel recht"
+And legal basis "Art. 310 Sr" (criminal law)
+When validation is performed
+Then a warning is generated: "Legal basis doesn't match juridical context"
+```
+
+## Integration Test Scenarios
+
+### Scenario 9: End-to-End Flow
+```gherkin
+Given a UI form with all three context fields
+When the user fills:
+  - Organizational: ["OM", "Rechtspraak"]
+  - Juridical: ["Strafrecht"]
+  - Legal basis: ["Art. 27 Sv"]
+And submits the form
+Then the GenerationRequest contains all three fields
+And the definition_generator_context maps them correctly
+And the generated definition reflects all contexts
+```
+
+### Scenario 10: Database Persistence
+```gherkin
+Given a definition with full context is generated
+When it is saved to the database
+Then all context fields are persisted
+And can be retrieved with original structure
+And appear in export formats correctly
+```
+
+## Performance Test Scenarios
+
+### Scenario 11: Context Processing Speed
+```gherkin
+Given a request with maximum context complexity
+When context building is measured
+Then processing time is less than 100ms
+And memory usage remains stable
+```
+
+### Scenario 12: Bulk Context Validation
+```gherkin
+Given 1000 definitions with various contexts
+When bulk validation is performed
+Then all complete within 10 seconds
+And validation results are accurate
+```
+
+## Security Test Scenarios
+
+### Scenario 13: SQL Injection Prevention
+```gherkin
+Given malicious input in context field: "'; DROP TABLE definitions;--"
+When the request is processed
+Then the input is properly escaped
+And no database damage occurs
+```
+
+### Scenario 14: XSS Prevention
+```gherkin
+Given context contains: "<script>alert('XSS')</script>"
+When the definition is displayed
+Then the script is not executed
+And HTML is properly escaped
+```
+
+## Compliance Test Scenarios
+
+### Scenario 15: AVG/GDPR Compliance
+```gherkin
+Given context contains personal case references
+When the definition is stored
+Then personal data is properly marked
+And retention policies are enforced
+And audit trail is maintained
+```
+
+### Scenario 16: ASTRA Architecture Compliance
+```gherkin
+Given all supported organizations
+When validation is performed
+Then each maps to official ASTRA identifiers
+And chain relationships are recognized
+```
+
+## Edge Case Scenarios
+
+### Scenario 17: Unicode and Special Characters
+```gherkin
+Given context contains "Ministerie van Justitie en Veiligheid (MinJ&V)"
+When processed
+Then special characters are handled correctly
+And no encoding errors occur
+```
+
+### Scenario 18: Very Long Context Lists
+```gherkin
+Given 50 legal basis references
+When the definition is generated
+Then all are processed
+But output is summarized for readability
+```
+
+## Regression Test Scenarios
+
+### Scenario 19: Existing Functionality
+```gherkin
+Given the new context fields are geïmplementeerd
+When existing tests are run
+Then all legacy tests still pass
+And existing integrations work unchanged
+```
+
+### Scenario 20: Context Priority
+```gherkin
+Given both old "context" field and new specific fields are provided
+When processed
+Then new specific fields take precedence
+But old field is used as fallback
+```
+
+## Test Execution Matrix
+
+| Scenario | Type | Priority | Automated | Frequency |
+|----------|------|----------|-----------|-----------|
+| 1-5 | Functional | HIGH | Yes | Every build |
+| 6-8 | Validation | HIGH | Yes | Every build |
+| 9-10 | Integration | HIGH | Yes | Daily |
+| 11-12 | Performance | MEDIUM | Yes | Weekly |
+| 13-14 | Security | HIGH | Yes | Every build |
+| 15-16 | Compliance | HIGH | Partial | Release |
+| 17-18 | Edge Case | LOW | Yes | Weekly |
+| 19-20 | Regression | HIGH | Yes | Every build |
+
+## Success Criteria
+
+All tests must pass with the following metrics:
+- Functional coverage: 100%
+- Code coverage: >80%
+- Performance: <100ms context processing
+- Zero security vulnerabilities
+- Full ASTRA compliance
+- No regression in existing features
+
+## Test Data Management
+
+- Test data is version controlled
+- Separate test databases for each environment
+- Anonymized production-like data for acceptance testing
+- Regular test data refresh procedures
+
+---
+*These test scenarios ensure comprehensive validation of the PER-007 Context Flow Fix implementation in compliance with Dutch justice sector vereistes.*

@@ -3,7 +3,7 @@
 ---
 document: Error Catalog Validation
 version: 1.0
-status: DRAFT
+status: CONCEPT
 type: Reference
 parent: validation_orchestrator_v2.md
 related:
@@ -13,8 +13,8 @@ related:
 see-also:
   - ../architectuur/SOLUTION_ARCHITECTURE.md
 owner: Dev Lead
-created: 2024-12-29
-updated: 2024-12-29
+created: 29-12-2024
+updated: 29-12-2024
 tags: [validation, errors, taxonomy, retry, monitoring]
 ---
 
@@ -238,7 +238,7 @@ validation_retries_total{code="TMO-001", success="false"} 5
 | Retry failure | >20% | >50% | Check upstream services |
 | 5xx errors | >0.1% | >1% | Page on-call engineer |
 
-## Privacy & Security
+## Privacy & Beveiliging
 
 ### PII Prevention
 - GEEN persoonsgegevens in error messages
@@ -261,13 +261,13 @@ def sanitize_error_log(error: dict) -> dict:
 ## Related Documents
 - **Parent**: [Validation Orchestrator V2](../architectuur/TECHNICAL_ARCHITECTURE.md)
 - **Contract**: [ValidationResult Contract](../architectuur/contracts/validation_result_contract.md)
-- **Implementation**: [Rollout Runbook](../workflows/validation_orchestrator_rollout.md)
+- **Implementatie**: [Rollout Runbook](../workflows/validation_orchestrator_rollout.md)
 - **Monitoring**: [Observability Guide](./validation_observability_privacy.md)
 
 ## Change Log
-| Version | Date | Changes | Author |
+| Versie | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0 | 2024-12-29 | Initial error catalog | Dev Lead |
+| 1.0 | 29-12-2024 | Initial error catalog | Dev Lead |
 
 ---
 *Error codes are immutable once assigned. New codes only, no reuse.*

@@ -1,17 +1,22 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: 2025-09-04
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@current
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 04-09-2025
+owner: architecture
+prioriteit: medium
+status: active
 ---
+
+
 
 # DefinitieAgent Solution Architecture
 
 ## Wijzigingshistorie
 
-- 2025-08-28: Modularisatie-update (delta op bestaande SA)
-  - Toegevoegd: modulaire grenzen en dependency‑regels (adapters → services → domain; infrastructure implementeert interfaces).
+- 28-08-2025: Modularisatie-update (delta op bestaande SA)
+  - Toegevoegd: modulaire grenzen en afhankelijkheid‑regels (adapters → services → domain; infrastructure implementeert interfaces).
   - Toegevoegd: stabiele contracten voor AI en prompts (AIProviderInterface, PromptBuilderInterface).
   - Aangescherpt: Orchestrator‑first; UI gebruikt uitsluitend services via factory/container (geen directe DB/SDK‑imports).
   - Toegevoegd: feature flags voor gefaseerde uitfasering (FEATURE_ORCHESTRATOR_ONLY, FEATURE_MODERN_LOOKUP, FEATURE_DISABLE_LEGACY_AFTER).
@@ -22,16 +27,16 @@ applies_to: definitie-app@current
 ## Executive Summary
 
 ### Solution Overview
-> DefinitieAgent draait volledig op V2 architectuur met gecentraliseerde AI configuratie, modulaire validatie services, en clean dependency injection. Het systeem gebruikt ConfigManager voor component-specifieke AI settings en heeft alle V1 services verwijderd. De focus ligt nu op performance optimalisatie en voorbereiding voor multi-user deployment.
+> DefinitieAgent draait volledig op V2 architectuur met gecentraliseerde AI configuratie, modulaire validatie services, en clean afhankelijkheid injection. Het systeem gebruikt ConfigManager voor component-specifieke AI settings en heeft alle V1 services verwijderd. De focus ligt nu op performance optimalisatie en voorbereiding voor multi-user deployment.
 
 ### Technical Scope
 - **System**: DefinitieAgent v2.0 - Government Definition Platform
 - **Components**: 12 microservices (many pre-built), 3 databases, 8+ external integrations
 - **Architecture**: Event-driven microservices with API Gateway
-- **Performance**: From 8-12s to <2s response time
+- **Prestaties**: From 8-12s to <2s response time
 - **Scale**: From single-user to 100+ concurrent users
 
-> Herijking 2025-08-28: Eerstvolgende stap is een modulaire monoliet met API‑first backend. De microservices‑doelarchitectuur blijft richtinggevend voor de langere termijn na stabilisatie van interfaces en NFR’s.
+> Herijking 28-08-2025: Eerstvolgende stap is een modulaire monoliet met API‑first backend. De microservices‑doelarchitectuur blijft richtinggevend voor de langere termijn na stabilisatie van interfaces en NFR’s.
 
 ### Key Design Decisions
 1. **Quality-First Migration**: Achieve 90% quality in monolith before splitting
@@ -43,7 +48,7 @@ applies_to: definitie-app@current
 
 ### Reference to Enterprise Architecture
 - **Business Drivers**: → [EA Section 1: Business Architecture]
-- **Compliance Requirements**: → [EA Section 5: Security & Risk]
+- **Compliance Vereisten**: → [EA Section 5: Beveiliging & Risk]
 - **Technology Standards**: → [EA Section 4.1: Technology Standards]
 - **Investment Approval**: → [EA Section 7.2: Investment Portfolio]
 
@@ -117,12 +122,12 @@ graph TB
     ES --> S3
 ```
 
-> Herijking 2025-08-28: Onderstaande microservices‑doelarchitectuur blijft richtinggevend, maar de kort‑middellange termijn focus ligt op modulair snijden binnen de bestaande codebase. Zie sectie “Modulaire Opzet en Legacy‑Uitfasering (2025‑08‑28)” voor de concrete delta.
+> Herijking 28-08-2025: Onderstaande microservices‑doelarchitectuur blijft richtinggevend, maar de kort‑middellange termijn focus ligt op modulair snijden binnen de bestaande codebase. Zie sectie “Modulaire Opzet en Legacy‑Uitfasering (2025‑08‑28)” voor de concrete delta.
 
 #### Discovered Microservice-Ready Components
 ```yaml
 # Already built but unused (from analyze_unused_files.py)
-Security Pipeline:
+Beveiliging Pipeline:
   - auth_middleware.py: Complete OAuth implementation
   - rbac_service.py: Role-based access control
   - api_key_manager.py: API key management
@@ -188,7 +193,7 @@ class Context:
 
 ### 1.4 Detailed Component Architecture
 
-#### 1.4.1 High-Level Component Dependencies
+#### 1.4.1 High-Level Component Afhankelijkheden
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                          main.py                                 │
@@ -373,10 +378,10 @@ User Request → UI Tab → Service Layer → External API/DB → Response
 └─────────────────────────────────────────────────────────────────┘
 ```
 
-### 1.5 Clean Architecture Services Implementation ✅ COMPLETED
+### 1.5 Clean Architecture Services Implementatie ✅ VOLTOOID
 
 #### Session State Elimination Strategy
-**Status**: **IMPLEMENTED** (2025-08-25)
+**Status**: **IMPLEMENTED** (25-08-2025)
 **Architecture Pattern**: Data Aggregation + Service Facade + Adapter Pattern
 
 #### 1.5.1 Problem Analysis
@@ -411,7 +416,7 @@ User Request → UI Tab → Service Layer → External API/DB → Response
 │ ┌─────────────────────┐ ┌─────────────────────────┐ │
 │ │DataAggregationSvc   │ │ExportService            │ │
 │ │- aggregate_data()   │ │- export_to_format()     │ │
-│ │- NO UI dependencies │ │- Multiple formats       │ │
+│ │- NO UI afhankelijkheden │ │- Multiple formats       │ │
 │ └─────────────────────┘ └─────────────────────────┘ │
 └─────────────────────────┬───────────────────────────┘
                           │
@@ -427,7 +432,7 @@ User Request → UI Tab → Service Layer → External API/DB → Response
 
 #### 1.5.3 Implemented Components
 ```python
-# 1. Data Aggregation Service (NO UI dependencies)
+# 1. Data Aggregation Service (NO UI afhankelijkheden)
 class DataAggregationService:
     def aggregate_definitie_for_export(
         self,
@@ -447,7 +452,7 @@ class ExportService:
         format: ExportFormat
     ) -> str:
         # Pure business logic, supports TXT/JSON/CSV
-        # NO UI dependencies
+        # NO UI afhankelijkheden
 
 # 3. UI Facade Service (UI-friendly interface)
 class DefinitionUIService:
@@ -474,7 +479,7 @@ class UIComponentsAdapter:
 ```python
 class ServiceContainer:
     def data_aggregation_service(self):
-        # Dependency injection, no UI dependencies
+        # Dependency injection, no UI afhankelijkheden
 
     def export_service(self):
         # Uses data_aggregation_service + repository
@@ -487,9 +492,9 @@ class ServiceContainer:
 ```
 
 #### 1.5.5 Migration Strategy
-**Phase 1**: Create clean services ✅ **COMPLETED**
-**Phase 2**: Add to service container ✅ **COMPLETED**
-**Phase 3**: Create UI adapters ✅ **COMPLETED**
+**Phase 1**: Create clean services ✅ **VOLTOOID**
+**Phase 2**: Add to service container ✅ **VOLTOOID**
+**Phase 3**: Create UI adapters ✅ **VOLTOOID**
 **Phase 4**: UI components migration (gradual, backward compatible)
 
 #### 1.5.6 Success Metrics ✅ ACHIEVED
@@ -498,7 +503,7 @@ class ServiceContainer:
 - ✅ **Backward compatibility** maintained via adapters
 - ✅ **3 export formats** supported (TXT/JSON/CSV)
 
-#### 1.5.7 Testing Strategy
+#### 1.5.7 Testen Strategy
 ```python
 # Services can be tested with pure data
 def test_data_aggregation_without_session_state():
@@ -557,9 +562,9 @@ graph LR
 ```python
 @dataclass
 class DefinitionGeneratorContext:
-    """Single Source of Truth for context data - NO UI dependencies.
+    """Single Source of Truth for context data - NO UI afhankelijkheden.
 
-    CRITICAL: This is the ONLY structure allowed to carry context data
+    KRITIEK: This is the ONLY structure allowed to carry context data
     through the system. UI preview strings are FORBIDDEN as data sources.
     """
     organisatorisch: List[str]  # e.g., ["OM", "DJI", "Rechtspraak"]
@@ -603,7 +608,7 @@ class EnrichedContext:
         }
 ```
 
-#### 2.1.3 DataAggregationService Implementation
+#### 2.1.3 DataAggregationService Implementatie
 
 ```python
 class DataAggregationService:
@@ -680,7 +685,7 @@ class PromptServiceV2:
     """Prompt builder that ONLY consumes EnrichedContext.
     NO context building or conversion allowed.
 
-    CRITICAL RULES:
+    KRITIEK RULES:
     1. NEVER parse UI preview strings
     2. NEVER convert GenerationRequest directly
     3. ALWAYS use EnrichedContext as input
@@ -712,7 +717,7 @@ class PromptServiceV2:
                 'max_length': 120,
                 'escape_special': True,
                 'include_warnings': False,
-                'no_emojis': True  # CRITICAL: No UI emojis in prompts
+                'no_emojis': True  # KRITIEK: No UI emojis in prompts
             }
         )
 
@@ -732,7 +737,7 @@ class PromptServiceV2:
 
 ```python
 class StatelessContextSelector:
-    """Context selector WITHOUT session state dependencies."""
+    """Context selector WITHOUT session state afhankelijkheden."""
 
     def render_multiselect_with_custom(
         self,
@@ -822,22 +827,22 @@ forbidden_patterns = [
 - **Language**: Python 3.11+ with type hints
 - **Framework**: FastAPI for all services
 - **API Spec**: OpenAPI 3.0
-- **Testing**: Pytest with 80% coverage
+- **Testen**: Pytest with 80% coverage
 - **Code Style**: Black + Ruff
 - **Documentation**: Sphinx + Markdown
 
-## NFR Updates (Security & Observability) – 2025-08-28
-- Security: OAuth2/JWT + RBAC (adapters), input‑sanitization, rate limiting, secrets management, encryptie at rest (SQLCipher/PostgreSQL TDE), TLS everywhere.
+## NFR Updates (Beveiliging & Observability) – 28-08-2025
+- Beveiliging: OAuth2/JWT + RBAC (adapters), input‑sanitization, rate limiting, secrets management, encryptie at rest (SQLCipher/PostgreSQL TDE), TLS everywhere.
 - Observability: Structured JSON logging (request_id, user_id, latency_ms, tokens_used), Prometheus metrics (cache hit‑ratio, GPT tokens, validation failures), tracing (OpenTelemetry) met 10–20% sampling.
-- Performance: Non‑GPT p95 < 250ms; GPT acties met duidelijke feedback/timeout (30s); retries met jitter; queue waar nodig.
+- Prestaties: Non‑GPT p95 < 250ms; GPT acties met duidelijke feedback/timeout (30s); retries met jitter; queue waar nodig.
 - Testbaarheid: Contracttests voor interfaces; golden tests voor prompts; mocks voor AI/lookup providers.
 - Kosten: Dagelijkse AI‑kostenrapportage; alerts bij overschrijding.
 
 ---
 
-## Modulaire Opzet en Legacy‑Uitfasering (Update 2025-08-28)
+## Modulaire Opzet en Legacy‑Uitfasering (Update 28-08-2025)
 
-### Module‑grenzen en dependency‑regels
+### Module‑grenzen en afhankelijkheid‑regels
 - Lagen: adapters → services → domain; infrastructure implementeert service‑interfaces.
 - Regels:
   - Adapters (UI/API/CLI) gebruiken uitsluitend services/factory; geen directe DB/SDK (OpenAI/SQLite) imports.
@@ -879,7 +884,20 @@ forbidden_patterns = [
 
 ---
 
-## Knowledge Preservation Plan (Nieuw – 2025-08-28)
+
+### SMART Acceptatiecriteria
+
+- **Specifiek:** [Exact gedrag dat moet worden gerealiseerd]
+- **Meetbaar:**
+  - Response tijd: < 200ms voor UI acties
+  - Processing tijd: < 5 seconden voor generatie
+  - Success rate: > 95% voor validaties
+- **Acceptabel:** Haalbaar binnen huidige architectuur
+- **Relevant:** Direct gerelateerd aan gebruikersbehoefte
+- **Tijdgebonden:** Gerealiseerd binnen huidige sprint
+
+
+## Knowledge Preservation Plan (Nieuw – 28-08-2025)
 
 - Inventarisatie: volledige lijst van legacy functies, regels, prompts en gebruikshotspots (rapport per module).
 - Mappingtabel: legacy → nieuwe modules (1:1 of 1:n), inclusief uitzonderingen en rationale.
@@ -899,7 +917,7 @@ Acceptatiecriteria (kennisbehoud)
 
 ## Appendix A: Reference Interfaces (niet‑bindend)
 
-Doel: illustratieve contracten om modularisatie te sturen; implementatie volgt na governance‑go/no‑go. Dit documenteert intentie zonder code te wijzigen.
+Doel: illustratieve contracten OM modularisatie te sturen; implementatie volgt na governance‑go/no‑go. Dit documenteert intentie zonder code te wijzigen.
 
 - AIProviderInterface: uniforme chat/completion API (OpenAI/Azure/lokaal)
   - `chat(messages: list[Message], model: str, temperature: float, max_tokens: int) -> (content: str, tokens_used: int)`
@@ -921,7 +939,7 @@ Goals:
   - Implement component library
   - Improve performance with caching
 
-Implementation:
+Implementatie:
   - Streamlit Components for complex UI
   - REST API endpoints for data
   - Session state optimization
@@ -935,7 +953,7 @@ Goals:
   - Shared state management
   - Gradual feature migration
 
-Implementation:
+Implementatie:
   - React components via IFrame/Web Components
   - Redux state bridge
   - API-first architecture
@@ -957,19 +975,19 @@ Tech Stack:
   - Playwright for E2E testing
 ```
 
-#### Component Migration Priority
+#### Component Migration Prioriteit
 ```typescript
-// High Priority (Core Features)
+// High Prioriteit (Core Features)
 1. DefinitionGenerator     // Week 1-2
 2. ValidationResults       // Week 3-4
 3. HistoryView            // Week 5-6
 
-// Medium Priority (Enhanced UX)
+// Medium Prioriteit (Enhanced UX)
 4. ExportInterface        // Week 7-8
 5. SearchInterface        // Week 9-10
 6. ContextSelector        // Week 11-12
 
-// Low Priority (Nice to Have)
+// Low Prioriteit (Nice to Have)
 7. MonitoringDashboard    // Week 13-14
 8. AdminInterface         // Week 15-16
 ```
@@ -1003,7 +1021,7 @@ API Gateway Routes:
     POST: Create custom context
 ```
 
-#### FastAPI Implementation (Existing)
+#### FastAPI Implementatie (Existing)
 ```python
 # From src/api/async_api.py (currently unused)
 @app.post("/api/v1/definitions", response_model=DefinitionResponse)
@@ -1012,7 +1030,7 @@ async def create_definition(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-    # GVI Pattern Implementation
+    # GVI Pattern Implementatie
     definition = await generation_service.generate(request)
     validation_result = await validation_service.validate(definition)
 
@@ -1104,7 +1122,7 @@ class CacheManager:
 
 ---
 
-## 3. Performance Engineering & AI Optimization
+## 3. Prestaties Engineering & AI Optimization
 
 ### 3.1 AI Cost Optimization Strategy
 
@@ -1192,7 +1210,7 @@ class PromptTemplate:
         return compressed_prompt
 ```
 
-### 3.2 Performance Optimization Strategies
+### 3.2 Prestaties Optimization Strategies
 
 #### Response Time Optimization
 ```yaml
@@ -1308,7 +1326,7 @@ sequenceDiagram
 | DeepL | Translation | REST | API Key | 3 failures/min |
 | Elasticsearch | Search | REST | Basic Auth | 5 failures/min |
 
-#### Circuit Breaker Implementation
+#### Circuit Breaker Implementatie
 ```python
 from circuit_breaker import CircuitBreaker
 
@@ -1336,14 +1354,14 @@ class ExternalServiceClient:
 
 ---
 
-## 4. Security Implementation
+## 4. Beveiliging Implementatie
 
 ### 4.1 Authentication & Authorization
 
-#### OAuth 2.0 Implementation (Existing)
+#### OAuth 2.0 Implementatie (Existing)
 ```python
 # From src/security/auth_middleware.py (currently unused)
-from fastapi import Security, HTTPException
+from fastapi import Beveiliging, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 
@@ -1357,7 +1375,7 @@ class AuthMiddleware:
 
     async def get_current_user(
         self,
-        token: str = Security(oauth2_scheme)
+        token: str = Beveiliging(oauth2_scheme)
     ) -> User:
         try:
             payload = jwt.decode(
@@ -1410,9 +1428,9 @@ Department-based Access:
   - Admins have organization-wide access
 ```
 
-### 4.2 Security Controls
+### 4.2 Beveiliging Controls
 
-#### API Security
+#### API Beveiliging
 ```python
 # Rate limiting implementation
 from slowapi import Limiter
@@ -1452,7 +1470,7 @@ class DefinitionRequest(BaseModel):
 | Definitions | AES-256-GCM | TLS 1.3 | Managed Keys |
 | Audit Logs | AES-256-GCM | TLS 1.3 | Immutable |
 
-### 4.3 Security Pipeline (Pre-built)
+### 4.3 Beveiliging Pipeline (Pre-built)
 
 ```python
 # From unused security components
@@ -1474,9 +1492,9 @@ class SecurityPipeline:
 
 ---
 
-## 5. Performance Engineering
+## 5. Prestaties Engineering
 
-### 5.1 Performance Requirements
+### 5.1 Prestaties Vereisten
 
 | Operation | Current | Target | Strategy |
 |-----------|---------|---------|----------|
@@ -1485,7 +1503,7 @@ class SecurityPipeline:
 | Search | 2-3s | <100ms | Elasticsearch |
 | Page Load | 5-7s | <1s | CDN + Lazy loading |
 
-### 5.2 Performance Optimizations
+### 5.2 Prestaties Optimizations
 
 #### GVI Pattern Optimization
 ```python
@@ -1570,7 +1588,7 @@ Cache Layers:
 
 ---
 
-## 6. Deployment & Operations
+## 6. Uitrol & Operations
 
 ### 6.1 Container Strategy
 
@@ -1579,20 +1597,20 @@ Cache Layers:
 # Base image for all services
 FROM python:3.11-slim AS base
 
-# Install system dependencies
+# Install system afhankelijkheden
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Python dependencies
-FROM base AS dependencies
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Python afhankelijkheden
+FROM base AS afhankelijkheden
+COPY vereistes.txt .
+RUN pip install --no-cache-dir -r vereistes.txt
 
 # Application
-FROM dependencies AS app
+FROM afhankelijkheden AS app
 WORKDIR /app
 COPY src/ ./src/
 COPY config/ ./config/
@@ -1604,10 +1622,10 @@ USER appuser
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
-#### Kubernetes Deployment
+#### Kubernetes Uitrol
 ```yaml
 apiVersion: apps/v1
-kind: Deployment
+kind: Uitrol
 metadata:
   name: definition-service
   namespace: definitieagent
@@ -1660,7 +1678,7 @@ spec:
 
 ### 6.2 CI/CD Pipeline
 
-#### GitHub Actions Workflow
+#### GitHub Actions Werkstroom
 ```yaml
 name: Build and Deploy
 
@@ -1681,10 +1699,10 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Install dependencies
+    - name: Install afhankelijkheden
       run: |
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
+        pip install -r vereistes.txt
+        pip install -r vereistes-dev.txt
 
     - name: Run tests
       run: |
@@ -1749,7 +1767,7 @@ active_users = Gauge(
     'Currently active users'
 )
 
-# Performance metrics
+# Prestaties metrics
 request_duration = Histogram(
     'http_request_duration_seconds',
     'HTTP request latency',
@@ -1838,9 +1856,9 @@ Pragmatic Choices:
   - SQLite WAL mode before PostgreSQL migration
 ```
 
-#### Phase 0: Quality First Implementation - IN PROGRESS
+#### Phase 0: Quality First Implementatie - IN UITVOERING
 ```python
-# GVI Implementation fixes
+# GVI Implementatie fixes
 class ImprovedDefinitionGenerator:
     def __init__(self):
         self.validator = ValidationOrchestrator()
@@ -1875,7 +1893,7 @@ Extraction Order:
      - Just needs deployment
 
   2. Validation Service:
-     - 78 rules already implemented
+     - 78 rules already geïmplementeerd
      - Extract from monolith
 
   3. Definition Service:
@@ -1893,7 +1911,7 @@ gantt
     title Migration Timeline
     dateFormat  YYYY-MM-DD
     section Phase 0
-    Quality Improvements :done, p0, 2024-08-19, 14d
+    Quality Improvements :done, p0, 19-08-2024, 14d
 
     section Phase 1
     Extract Auth Service :p1a, after p0, 7d
@@ -1907,7 +1925,7 @@ gantt
     Cutover :p2c, after p2b, 3d
 ```
 
-### 7.2 Strangler Fig Implementation
+### 7.2 Strangler Fig Implementatie
 
 ```python
 # Migration router to gradually move traffic
@@ -1999,19 +2017,19 @@ Data Rollback:
 
 ---
 
-## 8. Testing Strategy
+## 8. Testen Strategy
 
-### 8.1 Test Coverage Requirements
+### 8.1 Test Coverage Vereisten
 
 | Test Type | Current | Target | Tools |
 |-----------|---------|--------|-------|
 | Unit Tests | 11% | 80% | pytest, pytest-cov |
 | Integration Tests | 5% | 70% | pytest, testcontainers |
 | E2E Tests | 0% | Critical paths | Playwright |
-| Performance Tests | 0% | All APIs | Locust |
-| Security Tests | 0% | OWASP Top 10 | OWASP ZAP |
+| Prestaties Tests | 0% | All APIs | Locust |
+| Beveiliging Tests | 0% | OWASP Top 10 | OWASP ZAP |
 
-### 8.2 Testing Implementation
+### 8.2 Testen Implementatie
 
 ```python
 # Unit test example
@@ -2053,7 +2071,7 @@ class TestDefinitionFlow:
         # Create
         response = await test_app.post("/api/v1/definitions", json={
             "term": "Integration Test",
-            "context": "Testing"
+            "context": "Testen"
         })
         assert response.status_code == 201
         definition_id = response.json()["id"]
@@ -2075,7 +2093,7 @@ class TestDefinitionFlow:
         assert any(e["event_type"] == "DefinitionValidated" for e in events)
 ```
 
-### 8.3 Performance Testing
+### 8.3 Prestaties Testen
 
 ```python
 # Locust performance test
@@ -2107,7 +2125,7 @@ class DefinitionUser(HttpUser):
     def create_definition(self):
         self.client.post("/api/v1/definitions", json={
             "term": f"Test Term {random.randint(1, 1000)}",
-            "context": "Performance Test"
+            "context": "Prestaties Test"
         })
 ```
 
@@ -2234,7 +2252,7 @@ ROI Timeline:
 - **Decision**: PostgreSQL with JSONB for flexibility
 - **Consequences**: Proven reliability, good JSON support
 
-### ADR-005: GVI Pattern Implementation
+### ADR-005: GVI Pattern Implementatie
 - **Status**: Accepted
 - **Context**: Current quality issues with AI generation
 - **Decision**: Implement Generation-Validation-Integration pattern
@@ -2244,7 +2262,7 @@ ROI Timeline:
 
 ## 11. Operational Runbooks
 
-### 11.1 Deployment Checklist
+### 11.1 Uitrol Checklist
 
 ```bash
 #!/bin/bash
@@ -2278,7 +2296,7 @@ kubectl rollout status deployment -n definitieagent
 echo "🧪 Running smoke tests..."
 pytest tests/smoke/ -v
 
-echo "✨ Deployment complete!"
+echo "✨ Uitrol complete!"
 ```
 
 ### 11.2 Incident Response Playbook
@@ -2337,7 +2355,7 @@ Post-Incident:
   - Create prevention tickets
 ```
 
-#### P2 - Performance Degradation Playbook
+#### P2 - Prestaties Degradation Playbook
 ```yaml
 Detection:
   - Response time > 5s alerts
@@ -2345,7 +2363,7 @@ Detection:
   - Error rate > 5%
 
 Response (< 15 min):
-  1. Performance Diagnostics:
+  1. Prestaties Diagnostics:
      # Check resource usage
      kubectl top pods -n definitieagent
      kubectl top nodes
@@ -2361,7 +2379,7 @@ Response (< 15 min):
      Open Jaeger UI → Filter by service → Sort by duration
 
      # APM metrics
-     Open Grafana → Performance Dashboard → Identify spike
+     Open Grafana → Prestaties Dashboard → Identify spike
 
   3. Quick Mitigations:
      # Increase cache TTL
@@ -2403,7 +2421,7 @@ cd definitieagent
 # What setup-dev.sh does:
 # 1. Check prerequisites (Python 3.11+, Docker, Node.js)
 # 2. Create virtual environment
-# 3. Install dependencies with poetry
+# 3. Install afhankelijkheden with poetry
 # 4. Start local services with docker-compose
 # 5. Run database migrations
 # 6. Seed test data
@@ -2428,7 +2446,7 @@ Pre-commit Hooks:
   - Ruff linting
   - Type checking (mypy)
   - Test coverage check
-  - Security scan (bandit)
+  - Beveiliging scan (bandit)
   - Dockerfile linting
 
 Feature Flags:
@@ -2449,7 +2467,7 @@ if settings.DEBUG:
         trace_exceptions=True
     )
 
-# Performance profiling decorator
+# Prestaties profiling decorator
 from pyinstrument import Profiler
 
 @profile_endpoint
@@ -2471,7 +2489,7 @@ async def process_definition(definition: Definition):
 ```bash
 # Feature Development Flow
 git checkout -b feature/DEF-123-new-validation
-poetry install  # Auto-installs new dependencies
+poetry install  # Auto-installs new afhankelijkheden
 make test-watch  # Continuous test running
 make lint-fix   # Auto-fix code issues
 
@@ -2514,15 +2532,15 @@ docs/
 
 ---
 
-## 12. Feature Implementation Status
+## 12. Feature Implementatie Status
 
 ### 12.1 Complete Feature Registry
 
-#### Feature Overview by Epic
-**Last Updated**: 2025-08-20
+#### Feature Overview by Episch Verhaal
+**Laatst Bijgewerkt**: 20-08-2025
 
-##### Epic 001: Basis Definitie Generatie (80% Complete)
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 001: Basis Definitie Generatie (80% Complete)
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | DEF-001 | AI-gestuurde definitie generator | ✅ Complete | `UnifiedDefinitionGenerator` | OpenAI API |
 | DEF-002 | Context-bewuste generatie | ✅ Complete | `HybridContextManager` | Context DB |
@@ -2530,16 +2548,16 @@ docs/
 | DEF-004 | Bulk generatie mogelijkheden | ❌ Not Started | - | Async processing |
 | DEF-005 | Multi-taal ondersteuning | ✅ Complete | `language_service.py` | Translation API |
 
-##### Epic 002: Kwaliteitstoetsing (75% Complete)
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 002: Kwaliteitstoetsing (75% Complete)
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | VAL-001 | Automatische validatie regels | ✅ Complete | `DefinitionValidator` (45 rules) | Rules engine |
 | VAL-002 | Expert review workflow | 🔄 In Progress | `expert_review_tab.py` | Review service |
 | VAL-003 | Kwaliteitsscore berekening | ✅ Complete | `quality_scorer.py` | Scoring engine |
 | VAL-004 | Feedback incorporatie systeem | ✅ Complete | `feedback_service.py` | State management |
 
-##### Epic 003: User Interface (20% Complete) 🔴
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 003: User Interface (20% Complete) 🔴
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | UI-001 | Definition Generator Tab | ✅ Complete | `definition_generator_tab.py` | Active |
 | UI-002 | Expert Review Tab | 🔄 In Progress | `expert_review_tab.py` | Partial |
@@ -2557,8 +2575,8 @@ docs/
 | UI-014 | Accessibility features | 🔄 In Progress | Partial WCAG | Screen reader |
 | UI-015 | Multi-language UI | ❌ Not Started | - | i18n framework |
 
-##### Epic 004: Security & Authentication (0% Complete) 🔴
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 004: Beveiliging & Authentication (0% Complete) 🔴
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | SEC-001 | User authentication system | ❌ Not Started | `auth/` folder exists unused | OAuth provider |
 | SEC-002 | Role-based access control | ❌ Not Started | RBAC models exist | Policy engine |
@@ -2566,17 +2584,17 @@ docs/
 | SEC-004 | Data encryption at rest | ❌ Not Started | - | Crypto library |
 | SEC-005 | Audit logging | ❌ Not Started | Basic logging only | Log aggregator |
 
-##### Epic 005: Performance (20% Complete)
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 005: Prestaties (20% Complete)
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | PERF-001 | Response time optimization | ❌ Not Started | Current: 8-12s | Caching layer |
 | PERF-002 | Database query optimization | 🔄 In Progress | Some indexes added | Query analyzer |
 | PERF-003 | Caching implementation | ❌ Not Started | `cache_manager.py` unused | Redis setup |
 | PERF-004 | Load balancing | ❌ Not Started | - | LB configuration |
-| PERF-005 | Performance monitoring | ✅ Complete | Basic metrics only | APM tool |
+| PERF-005 | Prestaties monitoring | ✅ Complete | Basic metrics only | APM tool |
 
-##### Epic 006: Export/Import (14% Complete)
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 006: Export/Import (14% Complete)
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | EXP-001 | JSON export | ✅ Complete | `export_service.py` | JSON library |
 | EXP-002 | Excel export | 🔄 In Progress | Partial implementation | OpenPyXL |
@@ -2586,8 +2604,8 @@ docs/
 | EXP-006 | Bulk import | ❌ Not Started | - | Async processor |
 | EXP-007 | API integration | ❌ Not Started | - | API gateway |
 
-##### Epic 007: Web Lookup & Integration (0% Complete) 🔴
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 007: Web Lookup & Integration (0% Complete) 🔴
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | WEB-001 | Web search integration | ❌ Not Started | `web_lookup_service.py` unused | Search API |
 | WEB-002 | Wikipedia integration | ❌ Not Started | Code exists unused | Wiki API |
@@ -2595,19 +2613,19 @@ docs/
 | WEB-004 | External source validation | ❌ Not Started | - | Validator |
 | WEB-005 | Source attribution | ❌ Not Started | - | Citation engine |
 
-##### Epic 008: Monitoring & Analytics (40% Complete)
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 008: Monitoring & Analytics (40% Complete)
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
 | MON-001 | Usage analytics | 🔄 In Progress | Basic tracking | Analytics DB |
 | MON-002 | Error tracking | ✅ Complete | Error handler active | Sentry |
-| MON-003 | Performance metrics | ❌ Not Started | - | Prometheus |
+| MON-003 | Prestaties metrics | ❌ Not Started | - | Prometheus |
 | MON-004 | User behavior tracking | ✅ Complete | Session tracking | Analytics |
 | MON-005 | System health dashboard | ❌ Not Started | - | Grafana |
 
-##### Epic 009: Content Management (67% Complete)
-| Feature ID | Feature Name | Status | Technical Implementation | Dependencies |
+##### Episch Verhaal 009: Content Management (67% Complete)
+| Feature ID | Feature Name | Status | Technical Implementatie | Afhankelijkheden |
 |------------|--------------|--------|-------------------------|--------------|
-| CMS-001 | Version control | ✅ Complete | `version_service.py` | Git integration |
+| CMS-001 | Versie control | ✅ Complete | `version_service.py` | Git integration |
 | CMS-002 | Definition categorization | ✅ Complete | Category taxonomy | Tag service |
 | CMS-003 | Tag management | 🔄 In Progress | Basic tagging | Tag DB |
 | CMS-004 | Search functionality | ✅ Complete | Full-text search | Search index |
@@ -2616,7 +2634,7 @@ docs/
 
 ### 12.2 UI Tab Activation Status
 
-| Tab Name | File Location | Status | Activation Dependencies | Priority |
+| Tab Name | File Location | Status | Activation Afhankelijkheden | Prioriteit |
 |----------|---------------|--------|------------------------|----------|
 | Definition Generator | `definition_generator_tab.py` | ✅ Active | None | - |
 | History | `history_tab.py` | ✅ Active | Database connection | - |
@@ -2626,26 +2644,26 @@ docs/
 | Quality Control | `quality_control_tab.py` | ❌ Inactive | Validation orchestrator | P1 |
 | External Sources | `external_sources_tab.py` | ❌ Inactive | Source connectors | P2 |
 | Monitoring | `monitoring_tab.py` | ❌ Inactive | Metrics collection | P2 |
-| Orchestration | `orchestration_tab.py` | ❌ Inactive | Workflow engine | P2 |
+| Orchestration | `orchestration_tab.py` | ❌ Inactive | Werkstroom engine | P2 |
 | Context Selector | `context_selector.py` | ❌ Inactive | Context service | P1 |
 
-### 12.3 Feature Dependencies Matrix
+### 12.3 Feature Afhankelijkheden Matrix
 
-#### Critical Path Dependencies
+#### Critical Path Afhankelijkheden
 ```
 Authentication (SEC-001) ──┬──► Multi-user DB (PERF-004)
                           └──► API Gateway (EXP-007)
                                     │
 Web Lookup (WEB-001) ──────────────┼──► External Sources Tab
                                    │
-Performance (<5s) ─────────────────┴──► User Adoption
+Prestaties (<5s) ─────────────────┴──► User Adoption
 ```
 
-#### Service Dependencies
+#### Service Afhankelijkheden
 | Service | Required For | Current State | Blockers |
 |---------|--------------|---------------|----------|
-| Redis Cache | Performance | Not configured | Infrastructure |
-| OAuth Provider | Authentication | Not integrated | Security approval |
+| Redis Cache | Prestaties | Not configured | Infrastructure |
+| OAuth Provider | Authentication | Not integrated | Beveiliging approval |
 | Message Queue | Async processing | Not setup | Architecture decision |
 | API Gateway | External access | Not deployed | Authentication first |
 
@@ -2654,7 +2672,7 @@ Performance (<5s) ─────────────────┴──�
 ## 13. Technical Debt Analysis
 
 ### 13.1 Codebase Overview
-**Last Updated**: 2025-08-20
+**Laatst Bijgewerkt**: 20-08-2025
 
 #### File Distribution
 ```
@@ -2677,7 +2695,7 @@ Code Quality:
 | Component | Files | Location | Purpose | Activation Effort |
 |-----------|-------|----------|---------|-------------------|
 | Validation Rules | 78 | `toetsregels/validators/` | 45 validation rules | 1 week |
-| Security Gateway | 12 | `auth/` | Complete OAuth impl | 2 weeks |
+| Beveiliging Gateway | 12 | `auth/` | Complete OAuth impl | 2 weeks |
 | Cache Manager | 8 | `cache/` | Redis integration | 3 days |
 | Web Lookup | 15 | `services/web_lookup/` | External search | 1 week |
 | Async Engine | 10 | `async/` | Background jobs | 1 week |
@@ -2687,7 +2705,7 @@ Code Quality:
 |-----------|-------|----------|--------|------|
 | Old Validators | 50+ | `toetsregels/old/` | Superseded | None |
 | Example Code | 30+ | `voorbeelden/async_*.py` | Not production | None |
-| Test Stubs | 20+ | Various `_test.py` | Never implemented | None |
+| Test Stubs | 20+ | Various `_test.py` | Never geïmplementeerd | None |
 | POC Code | 25+ | `experiments/` | Proof of concepts | None |
 
 ### 13.3 Architecture Cleanup Plan
@@ -2798,21 +2816,21 @@ No auth               →    OAuth Module       →    Auth Service
 
 ## Document Control
 
-- **Version**: 2.0
+- **Versie**: 2.0
 - **Status**: Updated for Quality-First Approach
-- **Owner**: Solution Architecture Team
-- **Last Updated**: 2024-08-19
-- **Next Review**: 2024-09-19
+- **Eigenaar**: Solution Architecture Team
+- **Laatst Bijgewerkt**: 19-08-2024
+- **Next Review**: 19-09-2024
 - **Distribution**: Development Team, Architecture Board, DevOps Team
 
 ---
 
 ## Cross-References to Enterprise Architecture
 
-This Solution Architecture implements the strategic vision and requirements defined in the Enterprise Architecture:
+This Solution Architecture implements the strategic vision and vereistes defined in the Enterprise Architecture:
 
 1. **Business Context** → [EA Section 1: Business Architecture] - Strategic drivers and capabilities
-2. **Compliance Requirements** → [EA Section 5: Security & Risk] - Security framework and compliance mandates
+2. **Compliance Vereisten** → [EA Section 5: Beveiliging & Risk] - Beveiliging framework and compliance mandates
 3. **Technology Standards** → [EA Section 4.1: Technology Standards] - Approved technologies and principles
 4. **Investment Justification** → [EA Section 7.2: Investment Portfolio] - Business case and ROI targets
 5. **Strategic Alignment** → [EA Section 7.1: Strategic Roadmap] - Business transformation timeline

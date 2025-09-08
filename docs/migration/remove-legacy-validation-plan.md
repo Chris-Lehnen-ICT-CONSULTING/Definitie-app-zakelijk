@@ -17,7 +17,7 @@ Volledig verwijderen van legacy DefinitionValidator en overstappen naar V2 modul
    - Gebruikt door: management_tab.py voor health checks
    - Dit kan blijven of apart gemigreerd worden
 
-### Dependencies op Legacy DefinitionValidator
+### Afhankelijkheden op Legacy DefinitionValidator
 
 #### Productie Code
 1. **ServiceContainer.validator()** (line 147-157)
@@ -123,7 +123,7 @@ def get_stats(self) -> dict:
     if hasattr(validator, 'get_stats'):
         stats["validator"] = validator.get_stats()
     else:
-        stats["validator"] = {"message": "V2 validator - stats not implemented"}
+        stats["validator"] = {"message": "V2 validator - stats not geïmplementeerd"}
 
     return stats
 ```
@@ -172,10 +172,10 @@ rm tests/services/test_definition_validator.py
 
 | Risico | Impact | Mitigatie |
 |--------|--------|-----------|
-| Stats format verschilt | LOW | Map oude stats naar nieuwe format |
-| Async vs Sync | MEDIUM | Gebruik asyncio.run() wrapper waar nodig |
-| Test failures | LOW | Update tests incrementeel |
-| Onbekende dependencies | LOW | Gebruik grep voor final check |
+| Stats format verschilt | LAAG | Map oude stats naar nieuwe format |
+| Async vs Sync | GEMIDDELD | Gebruik asyncio.run() wrapper waar nodig |
+| Test failures | LAAG | Update tests incrementeel |
+| Onbekende afhankelijkheden | LAAG | Gebruik grep voor final check |
 
 ## 🎯 Eindresultaat
 

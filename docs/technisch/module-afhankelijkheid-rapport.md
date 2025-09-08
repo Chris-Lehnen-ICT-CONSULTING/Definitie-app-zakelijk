@@ -4,58 +4,58 @@
 
 Total modules analyzed: 7
 
-## Module Dependencies
+## Module Afhankelijkheden
 
 ### context_awareness
-- **Direct Dependencies**: None
+- **Direct Afhankelijkheden**: None
 - **Shared Data Set**: ['domain_contexts', 'organization_contexts']
 - **Shared Data Get**: None
 
 ### definition_task
-- **Direct Dependencies**: ['semantic_categorisation']
+- **Direct Afhankelijkheden**: ['semantic_categorisation']
 - **Shared Data Set**: None
 - **Shared Data Get**: ['word_type', 'ontological_category', 'domain_contexts', 'organization_contexts']
 
 ### error_prevention
-- **Direct Dependencies**: ['context_awareness']
+- **Direct Afhankelijkheden**: ['context_awareness']
 - **Shared Data Set**: None
 - **Shared Data Get**: ['domain_contexts', 'organization_contexts']
 
 ### expertise
-- **Direct Dependencies**: None
+- **Direct Afhankelijkheden**: None
 - **Shared Data Set**: ['word_type']
 - **Shared Data Get**: None
 
 ### output_specification
-- **Direct Dependencies**: None
+- **Direct Afhankelijkheden**: None
 - **Shared Data Set**: ['character_limit_warning']
 - **Shared Data Get**: None
 
 ### quality_rules
-- **Direct Dependencies**: None
+- **Direct Afhankelijkheden**: None
 - **Shared Data Set**: None
 - **Shared Data Get**: None
 
 ### semantic_categorisation
-- **Direct Dependencies**: None
+- **Direct Afhankelijkheden**: None
 - **Shared Data Set**: ['ontological_category']
 - **Shared Data Get**: None
 
 ## Coupling Analysis
 
 ### Independent Modules
-Modules with no direct dependencies:
+Modules with no direct afhankelijkheden:
 - context_awareness
 - expertise
 - output_specification
 - quality_rules
 - semantic_categorisation
 
-### Direct Dependencies
+### Direct Afhankelijkheden
 - **definition_task** depends on: semantic_categorisation
 - **error_prevention** depends on: context_awareness
 
-### Data Flow Dependencies
+### Data Flow Afhankelijkheden
 - **definition_task**
   - Needs: word_type, ontological_category, domain_contexts, organization_contexts
   - Provides: None

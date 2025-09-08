@@ -1,0 +1,64 @@
+# 📋 Guidelines & Standards Directory
+
+Dit is de centrale locatie voor alle project guidelines, policies, standards en best practices voor het Definitie-app project.
+
+## Waarom deze directory?
+
+Deze directory consolideert alle algemene richtlijnen en standaarden die projectbreed van toepassing zijn. Dit zorgt voor:
+- **Consistentie**: Alle ontwikkelaars volgen dezelfde standaarden
+- **Vindbaarheid**: Één plek voor alle guidelines
+- **Onderhoud**: Makkelijker om guidelines up-to-date te houden
+- **Onboarding**: Nieuwe teamleden vinden snel alle relevante richtlijnen
+
+## 📚 Overzicht Guidelines
+
+### Core Documentation Standards
+- **[DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md)** - Documentatie standaarden en frontmatter vereistes
+- **[CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md)** - Waar elk type document thuishoort
+- **[DOCUMENT-CREATION-WORKFLOW.md](./DOCUMENT-CREATION-WORKFLOW.md)** - Workflow voor het creëren van nieuwe documenten
+- **[DOCUMENT-STANDARDS-GUIDE.md](./DOCUMENT-STANDARDS-GUIDE.md)** - Complete gids voor documentatie standaarden
+
+### Development Guidelines
+- **[TDD_TO_DEPLOYMENT_WORKFLOW.md](./TDD_TO_DEPLOYMENT_WORKFLOW.md)** - Test-Driven Development naar deployment workflow
+- **[AI_CONFIGURATION_GUIDE.md](./AI_CONFIGURATION_GUIDE.md)** - Guide voor AI model configuratie en setup
+- **[AGENTS.md](./AGENTS.md)** - Richtlijnen voor het gebruik van AI agents in development
+
+## 🎯 Wanneer welke guideline gebruiken?
+
+| Situatie | Gebruik deze guideline |
+|----------|----------------------|
+| Nieuw document maken | [DOCUMENT-CREATION-WORKFLOW.md](./DOCUMENT-CREATION-WORKFLOW.md) |
+| Weten waar document hoort | [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md) |
+| Documentatie standaarden checken | [DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md) |
+| User story implementeren | [TDD_TO_DEPLOYMENT_WORKFLOW.md](./TDD_TO_DEPLOYMENT_WORKFLOW.md) |
+| AI model configureren | [AI_CONFIGURATION_GUIDE.md](./AI_CONFIGURATION_GUIDE.md) |
+| Werken met AI agents | [AGENTS.md](./AGENTS.md) |
+| Complete doc standards | [DOCUMENT-STANDARDS-GUIDE.md](./DOCUMENT-STANDARDS-GUIDE.md) |
+
+## ✅ Quick Checklist voor Developers
+
+Voordat je begint met development:
+1. ✓ Check [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md) voor juiste locaties
+2. ✓ Volg [TDD_TO_DEPLOYMENT_WORKFLOW.md](./TDD_TO_DEPLOYMENT_WORKFLOW.md) voor story implementatie
+3. ✓ Gebruik [AGENTS.md](./AGENTS.md) voor AI agent best practices
+4. ✓ Documenteer volgens [DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md)
+
+## 🔄 Updates en Onderhoud
+
+Deze guidelines worden actief onderhouden. Bij twijfel of suggesties:
+- Check de `last_verified` datum in de frontmatter van elk document
+- Maak een issue aan voor verbetervoorstellen
+- Volg de update workflow in [DOCUMENT-CREATION-WORKFLOW.md](./DOCUMENT-CREATION-WORKFLOW.md)
+
+## 📁 Project-Specifieke Documentatie
+
+Voor project-specifieke documentatie (niet algemene guidelines), zie:
+- `/docs/architectuur/` - Architectuur documentatie
+- `/docs/stories/` - User stories en epics
+- `/docs/testing/` - Test plannen en resultaten
+- `/docs/technisch/` - Technische referentie documentatie
+
+---
+
+*Laatste update: 2025-09-05*
+*Status: Actief*

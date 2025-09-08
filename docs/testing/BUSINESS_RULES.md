@@ -1,16 +1,21 @@
 ---
-canonical: true
-status: active
-owner: validation
-last_verified: 2025-09-02
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
+last_verified: 02-09-2025
+owner: validation
+prioriteit: medium
+status: active
 ---
+
+
 
 # Business Validation Rules — DefinitieAgent (V2)
 
 Doel: enkel de zakelijke (business) regels en acceptatiecriteria vastleggen, met verwijzingen naar canonieke bronnen en testartefacten.
 
-## Core Acceptance Criteria
+## Core Acceptatiecriteria
 
 - Overall score moet ≥ 0.75 voor acceptatie.
 - Lege definities zijn altijd onacceptabel.
@@ -61,7 +66,7 @@ NB: berichtteksten zijn implementatie‑details; drempels en codes borgen het be
 - Borderline: 0.60–0.75
 - Unacceptable: < 0.75
 
-## Domain Rules (NL overheid)
+## Domeinregels (NL overheid)
 
 - Gebruik overheidsterminologie; geen mixed‑language in NL definities.
 - Goedgekeurde definities (established) zijn immutable; wijzigingen via nieuwe versieflow.
