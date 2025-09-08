@@ -16,7 +16,7 @@ Current test coverage stands at **20%** after fixing critical test infrastructur
 
 ### Working Test Modules (100% Pass Rate)
 - ✅ `tests/services/test_definition_repository.py` - 39 tests passing
-- ✅ `tests/services/test_service_container.py` - 13 tests passing  
+- ✅ `tests/services/test_service_container.py` - 13 tests passing
 - ✅ `tests/services/test_export_service.py` - 8 tests passing
 - ✅ `tests/integration/test_validate_definition_path.py` - 1 test passing (after fix)
 - ✅ `tests/smoke/test_validation_v2_smoke.py` - Tests passing
@@ -43,7 +43,7 @@ Current test coverage stands at **20%** after fixing critical test infrastructur
 
 ### High Coverage Modules
 - `src/services/interfaces.py` - 96% coverage
-- `src/services/definition_repository.py` - 91% coverage  
+- `src/services/definition_repository.py` - 91% coverage
 - `src/services/export_service.py` - 82% coverage
 - `src/services/container.py` - 78% coverage
 

