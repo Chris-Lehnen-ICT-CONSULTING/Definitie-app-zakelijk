@@ -111,7 +111,7 @@ Zie [CANONICAL_LOCATIONS.md](docs/guidelines/CANONICAL_LOCATIONS.md) voor de jui
 | **Architectuur** | `docs/architectuur/` | EA.md, SA.md |
 | **Beslissingen** | `docs/architectuur/beslissingen/` | ADR-XXX-*.md |
 | **Requirements** | `docs/` | REQUIREMENTS_AND_FEATURES_COMPLETE.md |
-| **User Stories** | `docs/stories/` | epic-X-story-Y.md |
+| **User Stories** | `docs/backlog/stories/` | epic-X-story-Y.md |
 | **Technisch** | `docs/technisch/` | web_lookup_config.md |
 | **Archief** | `docs/archief/` | Verouderde docs |
 
@@ -129,7 +129,7 @@ Zie [DOCUMENTATION_POLICY.md](docs/guidelines/DOCUMENTATION_POLICY.md) voor comp
 ```
 definitie-app/
 ├── 📄 README.md              # Dit bestand
-├── 📄 CONTRIBUTING.md        # Development guidelines
+├── 📄 CLAUDE.md              # AI Assistant guidelines
 ├── 📄 CHANGELOG.md           # Version history
 ├── 📄 CLAUDE.md              # AI coding standards
 ├── 🔧 .env.example           # Environment template
@@ -246,7 +246,7 @@ pytest tests/unit/test_config_system.py               # NameError issues
 
 
 ### Requirements & Features
-- **[Complete Requirements & Features](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md)** - Alle user stories, epics en feature status
+- **[Complete Requirements & Features](docs/backlog/requirements/)** - Alle user stories, epics en feature status
   - 46 user stories gedefinieerd
   - 9 epics met acceptance criteria
   - Real-time status tracking
@@ -257,17 +257,17 @@ pytest tests/unit/test_config_system.py               # NameError issues
 - **[Solution Architecture](docs/architectuur/SOLUTION_ARCHITECTURE.md)** - Technische implementatie details
 
 ### Quick Links
-- 🎯 [Wat moet er nog gebeuren?](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#epic-overview) - 60% features nog niet gestart
-- 🔒 [Security Requirements](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#epic-6-security--auth) - KRITIEK: 0% geïmplementeerd
-- 🚀 [Roadmap](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#implementation-roadmap) - 4 fasen implementatie plan
+- 🎯 [Wat moet er nog gebeuren?](docs/backlog/epics/INDEX.md) - 60% features nog niet gestart
+- 🔒 [Security Requirements](docs/backlog/epics/EPIC-006-security-auth.md) - KRITIEK: 0% geïmplementeerd
+- 🚀 [Roadmap](docs/backlog/epics/INDEX.md) - 4 fasen implementatie plan
 
 ### Overige Documentatie
-- [User Stories](docs/stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth voor alle epics en stories
-- [Analyses](docs/analysis/) - Technische documentatie
+- [User Stories](docs/backlog/stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth voor alle epics en stories
+- [Analyses](docs/architectuur/) - Technische documentatie
 
 ## 🤝 Contributing (Quinn Reviewed)
 
-Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
+Zie de documentatie in `docs/guidelines/` voor development guidelines.
 
 ### 🚨 **CRITICAL FIXES - Immediate Impact**
 - **Bare except clauses** elimineren (security) - 2 uur
@@ -360,7 +360,7 @@ Zie [CONTRIBUTING.md](CONTRIBUTING.md) voor development guidelines.
 
 - Check [Quick Start](#-quick-start) sectie voor installatie
 - Browse [Architecture](docs/architectuur/) voor technische details
-- Zie [User Stories](docs/stories/MASTER-EPICS-USER-STORIES.md) voor features
+- Zie [User Stories](docs/backlog/stories/MASTER-EPICS-USER-STORIES.md) voor features
 
 ## 📜 License
 

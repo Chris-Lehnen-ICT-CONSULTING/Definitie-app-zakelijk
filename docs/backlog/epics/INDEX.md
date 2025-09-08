@@ -27,16 +27,16 @@ Dit dashboard biedt een volledig overzicht van alle epics in het DefinitieAgent 
 
 | ID | Episch Verhaal | Status | Prioriteit | Completion | Target Release | Stories |
 |----|------|--------|----------|------------|----------------|---------|
-| [EPIC-001](EPIC-001.md) | Basis Definitie Generatie | ✅ Completed | HOOG | 100% | v1.0 | 5/5 |
-| [EPIC-002](EPIC-002.md) | Kwaliteitstoetsing | ✅ Completed | HOOG | 100% | v1.0 | 8/8 |
-| [EPIC-003](EPIC-003.md) | Content Verrijking / Web Lookup | 🔄 In Progress | HOOG | 30% | v1.1 | 1/1 |
-| [EPIC-004](EPIC-004.md) | User Interface | 🔄 In Progress | GEMIDDELD | 30% | v1.2 | 3/6 |
-| [EPIC-005](EPIC-005.md) | Export & Import | ⏳ TODO | LAAG | 10% | v1.3 | 0/3 |
-| [EPIC-006](EPIC-006.md) | Beveiliging & Auth | 🔄 In Progress | KRITIEK | 40% | v1.0 | 3/4 |
-| [EPIC-007](EPIC-007.md) | Prestaties & Scaling | 🔄 In Progress | HOOG | 35% | v1.1 | 2/7 |
+| [EPIC-001](EPIC-001-basis-definitie-generatie.md) | Basis Definitie Generatie | ✅ Completed | HOOG | 100% | v1.0 | 5/5 |
+| [EPIC-002](EPIC-002-kwaliteitstoetsing.md) | Kwaliteitstoetsing | ✅ Completed | HOOG | 100% | v1.0 | 8/8 |
+| [EPIC-003](EPIC-003-content-verrijking-web-lookup.md) | Content Verrijking / Web Lookup | 🔄 In Progress | HOOG | 30% | v1.1 | 1/1 |
+| [EPIC-004](EPIC-004-user-interface.md) | User Interface | 🔄 In Progress | GEMIDDELD | 30% | v1.2 | 3/6 |
+| [EPIC-005](EPIC-005-export-import.md) | Export & Import | ⏳ TODO | LAAG | 10% | v1.3 | 0/3 |
+| [EPIC-006](EPIC-006-security-auth.md) | Beveiliging & Auth | 🔄 In Progress | KRITIEK | 40% | v1.0 | 3/4 |
+| [EPIC-007](EPIC-007-performance-scaling.md) | Prestaties & Scaling | 🔄 In Progress | HOOG | 35% | v1.1 | 2/7 |
 | EPIC-008 | Web Lookup Module | 🔀 Merged | - | - | - | → EPIC-003 |
 | [EPIC-009](EPIC-009-advanced-features.md) | Advanced Features | ⏳ TODO | LAAG | 5% | v2.0 | 0/6 |
-| [EPIC-CFR](EPIC-CFR.md) | Context Flow Refactoring | 🚨 KRITIEK | KRITIEK | 0% | v1.0.1 | 0/6 |
+| [EPIC-010](EPIC-010-context-flow-refactoring.md) | Context Flow Refactoring | 🚨 KRITIEK | KRITIEK | 0% | v1.0.1 | 0/6 |
 
 ## Progress Metrics
 
@@ -46,7 +46,7 @@ Completed: ████████████░░░░░░░░ 40%
 ```
 
 ### By Prioriteit
-- **KRITIEK**: 1 epic (EPIC-CFR) - 0% complete 🚨
+- **KRITIEK**: 1 epic (EPIC-010) - 0% complete 🚨
 - **HOOG**: 4 epics - Average 66% complete
 - **GEMIDDELD**: 1 epic - 30% complete
 - **LAAG**: 2 epics - 7.5% complete
@@ -71,12 +71,12 @@ Completed: ████████████░░░░░░░░ 40%
 | EPIC-006 | 4 | 3 | 0 | 1 | 0 |
 | EPIC-007 | 7 | 2 | 0 | 5 | 0 |
 | EPIC-009 | 6 | 0 | 0 | 6 | 0 |
-| EPIC-CFR | 6 | 0 | 0 | 6 | 0 |
+| EPIC-010 | 6 | 0 | 0 | 6 | 0 |
 | **TOTAL** | **46** | **21** | **0** | **25** | **0** |
 
 ## Critical Items Requiring Attention
 
-### 🚨 EPIC-CFR: Context Flow Refactoring
+### 🚨 EPIC-010: Context Flow Refactoring
 - **Status**: KRITIEK - 0% complete
 - **Issue**: Context fields NOT being passed to AI prompts
 - **Impact**: Non-compliant legal definitions
@@ -106,12 +106,12 @@ Completed: ████████████░░░░░░░░ 40%
 | EPIC-006 | ✅ Yes | Beveiliging guidelines |
 | EPIC-007 | ✅ Yes | Prestaties patterns |
 | EPIC-009 | ⏳ Planned | Enterprise patterns |
-| EPIC-CFR | ❌ **Blocked** | Cannot comply without context fix |
+| EPIC-010 | ❌ **Blocked** | Cannot comply without context fix |
 
 ## Afhankelijkheden & Blockers
 
 ### Critical Afhankelijkheden
-- **EPIC-CFR** blocks ASTRA compliance certification
+- **EPIC-010** blocks ASTRA compliance certification
 - **EPIC-006** (Beveiliging) blocks production deployment
 - **EPIC-007** (Prestaties) blocks scale testing
 
@@ -162,21 +162,21 @@ EPIC-001 (Generation) → EPIC-002 (Validation)
 
 ### Quick Links
 - [All Stories](../stories/INDEX.md)
-- [Current Sprint](../sprints/sprint-36.md)
-- [Product Backlog](../backlog/product-backlog.md)
-- [Architecture Docs](../architectuur/)
-- [Testen Plans](../testing/)
+- [Current Sprint](#sprint-36)
+- [Product Backlog](#product-backlog)
+- [Architecture Docs](../../architectuur/)
+- [Testen Plans](../../testing/)
 
 ### Episch Verhaal Details
-- [EPIC-001: Basis Definitie Generatie](EPIC-001.md)
-- [EPIC-002: Kwaliteitstoetsing](EPIC-002.md)
-- [EPIC-003: Content Verrijking](EPIC-003.md)
-- [EPIC-004: User Interface](EPIC-004.md)
-- [EPIC-005: Export & Import](EPIC-005.md)
-- [EPIC-006: Beveiliging & Auth](EPIC-006.md)
-- [EPIC-007: Prestaties & Scaling](EPIC-007.md)
+- [EPIC-001: Basis Definitie Generatie](EPIC-001-basis-definitie-generatie.md)
+- [EPIC-002: Kwaliteitstoetsing](EPIC-002-kwaliteitstoetsing.md)
+- [EPIC-003: Content Verrijking](EPIC-003-content-verrijking-web-lookup.md)
+- [EPIC-004: User Interface](EPIC-004-user-interface.md)
+- [EPIC-005: Export & Import](EPIC-005-export-import.md)
+- [EPIC-006: Beveiliging & Auth](EPIC-006-security-auth.md)
+- [EPIC-007: Prestaties & Scaling](EPIC-007-performance-scaling.md)
 - [EPIC-009: Advanced Features](EPIC-009-advanced-features.md)
-- [EPIC-CFR: Context Flow Refactoring](EPIC-CFR.md)
+- [EPIC-010: Context Flow Refactoring](EPIC-010-context-flow-refactoring.md)
 
 ## Update History
 
