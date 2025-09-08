@@ -2,12 +2,20 @@
 Context Selector Component - Enhanced multi-select context management.
 """
 
+import logging
 from dataclasses import dataclass
 from typing import Any
 
 import streamlit as st
 
 from ui.session_state import SessionStateManager
+from validation.sanitizer import (
+    ContentType,
+    SanitizationLevel,
+    get_sanitizer,
+)
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -28,6 +36,8 @@ class ContextSelector:
         """Initialiseer context selector."""
         self.presets = self._load_context_presets()
         self.validation_rules = self._load_validation_rules()
+        self.sanitizer = get_sanitizer()
+        self.max_custom_length = 200  # US-042: Maximum length for custom input
 
     def render(self) -> dict[str, Any]:
         """
@@ -149,12 +159,20 @@ class ContextSelector:
                     "Aangepaste organisatorische context",
                     placeholder="Voer andere organisatie in...",
                     key="custom_org_input",  # US-042: Add key for state management
+                    max_chars=self.max_custom_length,  # US-042: Enforce max length
+                    help=f"Maximaal {self.max_custom_length} karakters",
                 )
 
             # Combineer contexts - US-042 FIX: Process without modifying widget state
             final_org = [opt for opt in selected_org if opt != "Anders..."]
-            if custom_org.strip():
-                final_org.append(custom_org.strip())
+            if custom_org and custom_org.strip():  # US-042: Check for None and empty
+                # US-042: Sanitize and validate custom input
+                sanitized_org = self._sanitize_custom_input(custom_org.strip())
+                if sanitized_org:
+                    final_org.append(sanitized_org)
+                else:
+                    # Show warning if input was rejected
+                    st.warning("⚠️ Ongeldige invoer voor organisatorische context")
 
             # US-042 FIX: Don't update the widget variable, use final_org directly
             # This prevents the multiselect crash when custom values are added
@@ -184,12 +202,20 @@ class ContextSelector:
                 custom_wet = st.text_input(
                     "Aangepaste wettelijke basis",
                     placeholder="Voer andere wetgeving in...",
+                    key="custom_wet_input",  # US-042: Add key for state management
+                    max_chars=self.max_custom_length,  # US-042: Enforce max length
+                    help=f"Maximaal {self.max_custom_length} karakters",
                 )
 
             # Combineer wettelijke basis
             final_wet = [opt for opt in selected_wet if opt != "Anders..."]
-            if custom_wet.strip():
-                final_wet.append(custom_wet.strip())
+            if custom_wet and custom_wet.strip():  # US-042: Check for None and empty
+                # US-042: Sanitize and validate custom input
+                sanitized_wet = self._sanitize_custom_input(custom_wet.strip())
+                if sanitized_wet:
+                    final_wet.append(sanitized_wet)
+                else:
+                    st.warning("⚠️ Ongeldige invoer voor wettelijke basis")
 
             # Update selected_wet with final list
             selected_wet = final_wet
@@ -219,12 +245,20 @@ class ContextSelector:
                 custom_jur = st.text_input(
                     "Aangepaste juridische context",
                     placeholder="Voer ander rechtsgebied in...",
+                    key="custom_jur_input",  # US-042: Add key for state management
+                    max_chars=self.max_custom_length,  # US-042: Enforce max length
+                    help=f"Maximaal {self.max_custom_length} karakters",
                 )
 
             # Combineer juridische context
             final_jur = [opt for opt in selected_jur if opt != "Anders..."]
-            if custom_jur.strip():
-                final_jur.append(custom_jur.strip())
+            if custom_jur and custom_jur.strip():  # US-042: Check for None and empty
+                # US-042: Sanitize and validate custom input
+                sanitized_jur = self._sanitize_custom_input(custom_jur.strip())
+                if sanitized_jur:
+                    final_jur.append(sanitized_jur)
+                else:
+                    st.warning("⚠️ Ongeldige invoer voor juridische context")
 
             # Update selected_jur with final list
             selected_jur = final_jur
@@ -350,6 +384,111 @@ class ContextSelector:
                 "OM": {"juridische_context": ["Strafrecht"]},
             },
         }
+
+    def _sanitize_custom_input(self, text: str) -> str | None:
+        """
+        Sanitize and validate custom input text.
+
+        US-042: Prevent crashes from malicious or invalid input.
+
+        Args:
+            text: Raw input text from user
+
+        Returns:
+            Sanitized text or None if input is invalid
+        """
+        try:
+            # Remove leading/trailing whitespace
+            text = text.strip()
+
+            # Check if empty after stripping
+            if not text:
+                return None
+
+            # Check length
+            if len(text) > self.max_custom_length:
+                text = text[: self.max_custom_length]
+                logger.warning(
+                    f"Custom input truncated to {self.max_custom_length} chars"
+                )
+
+            # Remove control characters that could cause issues
+            # Keep standard punctuation and Dutch characters
+            import re
+
+            # Remove control characters but keep regular spaces, tabs, newlines
+            text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
+
+            # Normalize excessive whitespace
+            text = re.sub(r"\s+", " ", text).strip()
+
+            # Use sanitizer for XSS prevention with STRICT level
+            result = self.sanitizer.sanitize(
+                text,
+                ContentType.DUTCH_TEXT,
+                SanitizationLevel.STRICT,  # US-042: Use STRICT for XSS prevention
+            )
+
+            sanitized_text = result.sanitized_value
+
+            # Log any threats detected
+            if result.warnings:
+                logger.warning(
+                    f"Sanitization warnings for custom input: {result.warnings}"
+                )
+
+            # Final validation - ensure we still have meaningful text
+            if not sanitized_text or len(sanitized_text.strip()) < 2:
+                return None
+
+            return sanitized_text
+
+        except Exception as e:
+            # US-042: Never crash on input sanitization
+            logger.error(f"Error sanitizing custom input: {e}")
+            return None
+
+    def _get_organisatorische_options(self) -> list[str]:
+        """Get organisational context options."""
+        return [
+            "OM",
+            "ZM",
+            "Reclassering",
+            "DJI",
+            "NP",
+            "Justid",
+            "KMAR",
+            "FIOD",
+            "CJIB",
+            "Strafrechtketen",
+            "Migratieketen",
+            "Justitie en Veiligheid",
+            "Anders...",
+        ]
+
+    def _get_juridische_options(self) -> list[str]:
+        """Get juridical context options."""
+        return [
+            "Strafrecht",
+            "Civiel recht",
+            "Bestuursrecht",
+            "Internationaal recht",
+            "Europees recht",
+            "Migratierecht",
+            "Anders...",
+        ]
+
+    def _get_wettelijke_options(self) -> list[str]:
+        """Get legal basis options."""
+        return [
+            "Wetboek van Strafvordering (huidige versie)",
+            "Wetboek van strafvordering (nieuwe versie)",
+            "Wet op de Identificatieplicht",
+            "Wet op de politiegegevens",
+            "Wetboek van Strafrecht",
+            "Algemene verordening gegevensbescherming",
+            "Anders...",
+        ]
 
     def save_as_preset(
         self,
