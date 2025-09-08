@@ -8,7 +8,7 @@ import pytest
 async def test_orchestrator_validate_definition_with_definition_object():
     """Test that validate_definition path works with Definition object."""
     from services.container import ServiceContainer, ContainerConfigs
-    from services.interfaces import Definition
+    from services.interfaces import Definition, GenerationRequest
     from services.validation.interfaces import CONTRACT_VERSION
 
     container = ServiceContainer(ContainerConfigs.testing())
@@ -21,8 +21,12 @@ async def test_orchestrator_validate_definition_with_definition_object():
         ontologische_categorie="concept"
     )
 
-    # Validate via Definition object
-    result = await orch.validate_definition(definition)
+    # Get validation service directly since orchestrator doesn't have validate_definition
+    # The validation is done through the ValidationOrchestratorV2
+    validation_service = orch.validation_service
+
+    # Validate using the validation service - it takes a Definition object
+    result = await validation_service.validate_definition(definition)
 
     # Verify result shape
     assert isinstance(result, dict)

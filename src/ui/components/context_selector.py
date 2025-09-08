@@ -1,5 +1,6 @@
 """
 Context Selector Component - Enhanced multi-select context management.
+REFACTORED: Now uses centralized ContextManager via adapter (US-043).
 """
 
 import logging
@@ -8,6 +9,10 @@ from typing import Any
 
 import streamlit as st
 
+from services.context.context_adapter import (
+    ContextSource,
+    get_context_adapter,
+)
 from ui.session_state import SessionStateManager
 from validation.sanitizer import (
     ContentType,
@@ -38,6 +43,8 @@ class ContextSelector:
         self.validation_rules = self._load_validation_rules()
         self.sanitizer = get_sanitizer()
         self.max_custom_length = 200  # US-042: Maximum length for custom input
+        # US-043: Use centralized context manager
+        self.context_adapter = get_context_adapter()
 
     def render(self) -> dict[str, Any]:
         """
@@ -46,6 +53,9 @@ class ContextSelector:
         Returns:
             Dictionary met geselecteerde context data
         """
+        # US-043: Get existing context from ContextManager
+        existing_context = self.context_adapter.get_from_session_state()
+
         # Preset selector
         selected_preset = self._render_preset_selector()
 
@@ -53,8 +63,17 @@ class ContextSelector:
             # Load preset values
             context_data = self._apply_preset(selected_preset)
         else:
-            # Manual selection
-            context_data = self._render_manual_selector()
+            # Manual selection with existing values as defaults
+            context_data = self._render_manual_selector(
+                default_org=existing_context.get("organisatorische_context"),
+                default_jur=existing_context.get("juridische_context"),
+                default_wet=existing_context.get("wettelijke_basis"),
+            )
+
+        # US-043: Store context via ContextManager
+        self.context_adapter.set_in_session_state(
+            context_data, source=ContextSource.UI, actor="user"
+        )
 
         # Validation en feedback
         self._render_context_validation(context_data)
@@ -291,12 +310,16 @@ class ContextSelector:
 
     def _render_context_validation(self, context_data: dict[str, Any]):
         """Render context validation en feedback."""
-        issues = []
+        # US-043: Use centralized validation
+        is_valid, error_messages = self.context_adapter.validate()
+
+        issues = error_messages.copy()
         suggestions = []
 
-        # Check voor verplichte velden
+        # Additional UI-specific validation
         if not context_data.get("organisatorische_context"):
-            issues.append("❌ Organisatorische context is verplicht")
+            if "Organisatorische context is verplicht" not in issues:
+                issues.append("❌ Organisatorische context is verplicht")
 
         # Check voor context combinaties
         org_contexts = context_data.get("organisatorische_context", [])

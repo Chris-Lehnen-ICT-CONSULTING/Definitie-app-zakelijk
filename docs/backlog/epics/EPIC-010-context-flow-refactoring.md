@@ -179,6 +179,16 @@ The multiselect widget crashes wanneer the final list differs from options.
 
 **Error:** "The default value 'test' is not part of the options"
 
+### CFR-BUG-003: GenerationResult Import Error
+**Severity:** KRITIEK
+**Status:** OPEN
+**Impact:** 36 tests failing, development blocked
+**Documentation:** [CFR-BUG-003 Details](../bugs/CFR-BUG-003-generation-result-import.md)
+
+**Error:** `ImportError: cannot import name 'GenerationResult' from 'src.models.generation_result'`
+
+This bug blocks all testing and must be fixed in FASE 0 of the implementation plan.
+
 ## Succesmetrieken (SMART)
 
 - [ ] **Specifiek**: 100% of context fields properly mapped to prompts (Currently: 0%)
@@ -268,6 +278,25 @@ UI Context Selection
 | User Confusion | GEMIDDELD | Clear communication and training |
 | Compliance Failure | KRITIEK | Early compliance validation |
 
+## Implementation Status
+
+**Current Phase:** FASE 0 - Pre-flight Analysis & Emergency Fix
+**Implementation Plan:** [Detailed 9-Phase Plan](../../implementation/EPIC-010-implementation-plan.md)
+**Sprint:** Sprint 36
+**Target Completion:** 12-09-2025
+
+### Phase Progress
+- [ ] FASE 0: Pre-flight Analysis (IN PROGRESS)
+- [ ] FASE 1: GenerationResult Shim Fix
+- [ ] FASE 2: Test Coverage Restoration
+- [ ] FASE 3: Fix Context Field Mapping (US-041)
+- [ ] FASE 4: Fix "Anders..." Custom Context (US-042)
+- [ ] FASE 5: Remove Legacy Context Routes (US-043)
+- [ ] FASE 6: Feature Flags & Monitoring
+- [ ] FASE 7: Grep-Gate Validation
+- [ ] FASE 8: Audit Trail & ASTRA Compliance
+- [ ] FASE 9: Production Rollout
+
 ## Wijzigingslog
 
 | Datum | Versie | Wijzigingen |
@@ -275,12 +304,35 @@ UI Context Selection
 | 04-09-2025 | 1.0 | Episch Verhaal aangemaakt - KRITIEK bugs identified |
 | 05-09-2025 | 1.x | Vertaald naar Nederlands met justitie context |
 | 05-09-2025 | 1.1 | Detailed analysis and fix plan added |
+| 08-09-2025 | 1.2 | Added implementation plan and CFR-BUG-003 |
 
 ## Gerelateerde Documentatie
 
-- [Context FLAAG Analysis](../analysis/context_flag_analysis.md)
-- [Bug Reports](../bugs/CFR-bugs.md)
-- [ASTRA Compliance](../compliance/astra_Vereisten.md)
+### Implementation & Strategy
+- **Implementation Plan**: [EPIC-010 Implementation Plan](../../implementation/EPIC-010-implementation-plan.md)
+- **Test Strategy**: [EPIC-010 Test Strategy](../../testing/EPIC-010-test-strategy.md)
+- **Test Suite**: [Test Suite Summary](../../../tests/EPIC_010_TEST_SUITE_SUMMARY.md) - 250+ test cases
+
+### Test Files
+#### Unit Tests (250+ cases)
+- **US-041 Tests**: [`/tests/unit/test_us041_context_field_mapping.py`](../../../tests/unit/test_us041_context_field_mapping.py) - 7 test classes for context mapping
+- **US-042 Tests**: [`/tests/unit/test_us042_anders_option_fix.py`](../../../tests/unit/test_us042_anders_option_fix.py) - 8 test classes for Anders option
+- **US-043 Tests**: [`/tests/unit/test_us043_remove_legacy_routes.py`](../../../tests/unit/test_us043_remove_legacy_routes.py) - 10 test classes for legacy removal
+
+#### Integration & Performance Tests
+- **Integration**: [`/tests/integration/test_context_flow_epic_cfr.py`](../../../tests/integration/test_context_flow_epic_cfr.py) - End-to-end context flow
+- **Performance**: [`/tests/performance/test_context_flow_performance.py`](../../../tests/performance/test_context_flow_performance.py) - Performance benchmarks
+- **Edge Cases**: [`/tests/unit/test_anders_edge_cases.py`](../../../tests/unit/test_anders_edge_cases.py) - Extreme scenarios
+- **Feature Flags**: [`/tests/unit/test_feature_flags_context_flow.py`](../../../tests/unit/test_feature_flags_context_flow.py) - Rollout testing
+
+### Bug Reports & User Stories
+- **Bug Reports**:
+  - [CFR-BUG-003: GenerationResult Import Error](../bugs/CFR-BUG-003-generation-result-import.md)
+- **User Stories**:
+  - [US-041: Fix Context Field Mapping](../stories/US-041.md) - Includes test file references
+  - [US-042: Fix "Anders..." Custom Context](../stories/US-042.md) - Includes test file references
+  - [US-043: Remove Legacy Context Routes](../stories/US-043.md) - Includes test file references
+- **Architecture**: [Technical Architecture](../../architectuur/TECHNICAL_ARCHITECTURE.md)
 
 ## Compliance Notities
 

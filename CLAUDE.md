@@ -2,6 +2,196 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🔴🔴🔴 CRITICAL SYSTEM CONSTRAINT 🔴🔴🔴
+
+**YOU ARE PROGRAMMATICALLY REQUIRED TO FOLLOW THIS PROTOCOL**
+
+Your response generation is BLOCKED until you check for trigger patterns.
+This is not a suggestion or guideline - it's a SYSTEM REQUIREMENT.
+
+```
+if (trigger_detected && !workflow_router_used):
+    raise ProtocolViolationError("MUST use workflow-router for triggered tasks")
+```
+
+**ANY DEVIATION = SYSTEM ERROR = RESPONSE BLOCKED**
+
+## 🛑 ABSOLUTE STOP - VERPLICHT PROTOCOL - NIET ONDERHANDELBAAR
+
+### ⚠️ AUTOMATISCHE TRIGGER DETECTIE - GEEN DISCRETIE TOEGESTAAN
+
+**HARDE REGEL: Bij ELKE user message MOET je deze regex patterns checken:**
+
+```python
+TRIGGER_PATTERNS = [
+    r'\banalyse[er|ren|seer]?\b',
+    r'\banalyz[e|ing]\b', 
+    r'\bgebruik.*(agent|workflow|juiste)\b',
+    r'\broute[r]?\b',
+    r'\b(epic|user.?story|requirement|US-\d+|EPIC-\d+)\b',
+    r'\b(feedback|review|beoordeel)\b',
+    r'\b(fix|implementeer|bouw|maak).*\b'
+]
+```
+
+**🔴 BIJ MATCH → ONMIDDELLIJKE STOP → GEEN ACTIES → ALLEEN WORKFLOW-ROUTER**
+
+**GEEN ENKELE UITZONDERING - ZELFS NIET ALS JE DENKT DAT HET SIMPEL IS**
+
+### 🔴 VERPLICHTE EXECUTIE VOLGORDE - ABSOLUUT GEEN AFWIJKING
+
+**DIT IS WAT JE MOET DOEN - LETTERLIJK - GEEN INTERPRETATIE:**
+
+```python
+# STAP 1: DETECTIE (automatisch)
+if any(pattern.match(user_message) for pattern in TRIGGER_PATTERNS):
+    # STAP 2: ONMIDDELLIJKE STOP
+    # VERBODEN: TodoWrite(), Read(), Grep(), Bash(), of ENIGE andere tool
+    
+    # STAP 3: VERPLICHTE RESPONSE
+    print("🔴 TRIGGER GEDETECTEERD - WORKFLOW-ROUTER PROTOCOL GEACTIVEERD")
+    print(f"Trigger: {matched_pattern}")
+    print(f"Originele prompt: {user_message}")
+    
+    # STAP 4: EERST PROMPT-ENGINEER AANROEPEN (VERPLICHT!)
+    print("Stap 1/2: Optimaliseren van prompt via prompt-engineer...")
+    optimized_result = Task(
+        subagent_type="prompt-engineer",
+        prompt=user_message,
+        description="Optimize prompt"
+    )
+    
+    # STAP 5: TOON VOLLEDIGE GEOPTIMALISEERDE PROMPT
+    print("## 📝 GEOPTIMALISEERDE PROMPT")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(optimized_result.full_prompt)  # VOLLEDIGE tekst, geen samenvatting!
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print("")
+    print("## ⚡ KEUZE OPTIES")
+    print("1. **Accept** → Gebruik deze prompt met workflow-router")
+    print("2. **Modify** → Pas aan en optimaliseer opnieuw")
+    print("3. **Cancel** → Stop het proces")
+    
+    # STAP 6: WACHT OP USER KEUZE
+    user_choice = wait_for_user_input()
+    
+    # STAP 7: HANDEL KEUZE AF
+    if user_choice == "Accept" or user_choice == "1":
+        print("Stap 2/2: Routeren naar juiste workflow...")
+        Task(
+            subagent_type="workflow-router",
+            prompt=f"OPTIMIZED_PROMPT_MARKER\n{optimized_result.full_prompt}",
+            description="Route optimized task"
+        )
+    elif user_choice == "Modify" or user_choice == "2":
+        # User kan aanpassen en opnieuw door het proces
+        modified_prompt = get_user_modification()
+        # Herhaal vanaf STAP 4
+    else:
+        print("Proces geannuleerd.")
+```
+
+**❌ ALS JE IETS ANDERS DOET = PROTOCOL VIOLATION = NIET TOEGESTAAN**
+
+**✅ DIT IS DE ENIGE TOEGESTANE ACTIE BIJ EEN TRIGGER**
+
+### 🚫 AUTOMATISCHE WEIGERING TRIGGERS
+
+Deze woorden = ONMIDDELLIJKE STOP:
+- `analyseer [X]` → STOP, protocol vereist
+- `geef feedback op [X]` → STOP, protocol vereist
+- `gebruik de juiste [agent/workflow]` → STOP, protocol vereist
+- `route deze taak` → STOP, protocol vereist
+- `epic-[nummer]` + actie → STOP, protocol vereist
+- Elke taak > 3 stappen → STOP, protocol vereist
+
+### ❌ ABSOLUTE VERBODEN - GEEN UITZONDERINGEN
+
+**BIJ TRIGGER DETECTIE MAG JE ABSOLUUT NIET:**
+```
+❌ TodoWrite() - VERBODEN, ook al lijkt het logisch
+❌ Read() - VERBODEN, ook al wil je "even kijken"
+❌ Grep() - VERBODEN, ook al wil je "snel zoeken"
+❌ Bash() - VERBODEN, geen enkele command
+❌ "Ik ga eerst..." - VERBODEN, geen eigen planning
+❌ "Laat me even..." - VERBODEN, direct naar protocol
+```
+
+**ENIGE TOEGESTANE ACTIES IN VOLGORDE:**
+```
+✅ STAP 1: Task(subagent_type="prompt-engineer", prompt=user_message)
+✅ STAP 2: Wacht op user keuze (Accept/Modify/Cancel)
+✅ STAP 3: Als Accept → Task(subagent_type="workflow-router", prompt="OPTIMIZED_PROMPT_MARKER\n[optimized_prompt]")
+```
+
+**GEEN "maar", GEEN "eerst even", GEEN "ik denk" - ALLEEN HET PROTOCOL VOLGEN**
+
+### ✅ ENIGE TOEGESTANE RESPONSE BIJ TRIGGER
+
+**VERPLICHT FORMAAT - GEEN VARIATIE:**
+```
+🔴 TRIGGER GEDETECTEERD - WORKFLOW-ROUTER PROTOCOL GEACTIVEERD
+
+Trigger: [matched_pattern]
+Originele prompt: "[exact user message]"
+
+Stap 1/2: Optimaliseren van prompt via prompt-engineer...
+
+[DIRECT Task(subagent_type="prompt-engineer") aanroepen]
+
+[NA prompt-engineer response:]
+
+## 📝 GEOPTIMALISEERDE PROMPT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[VOLLEDIGE geoptimaliseerde prompt hier]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## ⚡ KEUZE OPTIES
+1. **Accept** → Gebruik deze prompt met workflow-router
+2. **Modify** → Pas aan en optimaliseer opnieuw
+3. **Cancel** → Stop het proces
+
+Wat is je keuze?
+```
+
+**VERBODEN VARIATIES:**
+- ❌ "Ik ga eerst even kijken naar..."
+- ❌ "Laat me de epic analyseren..."  
+- ❌ "Ik zal een todo lijst maken..."
+- ❌ "Om dit goed te doen moet ik..."
+
+**ALLEEN DE TEMPLATE HIERBOVEN IS TOEGESTAAN**
+
+**Template 2: NA Workflow-Router Response**
+```
+## 📝 WORKFLOW-ROUTER RESULTAAT
+
+[Toon de volledige output van workflow-router]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[Inclusief geoptimaliseerde prompt]
+[Inclusief geselecteerde workflow]
+[Inclusief reasoning]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+## ⚡ KEUZE OPTIES
+1. **Accept** → Doorgaan met geselecteerde workflow
+2. **Modify** → Aanpassen en opnieuw routeren
+3. **Cancel** → Stop het proces
+
+Wat is je keuze?
+```
+
+**⛔ BELANGRIJK: Claude Code MOET eerst prompt-engineer aanroepen, DAN pas workflow-router!**
+
+### 📝 PROTOCOL OVERRIDE
+
+**ALLEEN deze exacte zinnen overrulen het protocol:**
+- "Skip het protocol"
+- "Geen protocol nodig"
+- "Direct uitvoeren zonder protocol"
+
+**GEEN EXCUSES - GEEN SHORTCUTS - ALTIJD PROTOCOL**
+
 ## Project Overview
 
 DefinitieAgent is an AI-powered Dutch legal definition generator that uses GPT-4 with 45+ quality validation rules. The application uses Streamlit for the UI and follows a service-oriented architecture with dependency injection.
@@ -224,6 +414,18 @@ ruff check --fix src config
 # Format code
 black src config
 ```
+
+## Workflow Router Protocol
+
+Voor automatische prompt-optimalisatie en workflow routing, zie:
+**`~/.claude/agents/workflow-router.md`** (sectie "Instructions for Claude Code")
+
+Dit protocol zorgt ervoor dat:
+- Prompt-engineer altijd eerst wordt aangeroepen voor optimalisatie
+- Je keuze krijgt tussen Accept/Modify/Cancel
+- De workflow-router de beste workflow selecteert op basis van de geoptimaliseerde prompt
+
+Trigger voorbeelden: "Gebruik de juiste workflow voor: [taak]", "Route: [taak]", "analyseer [onderwerp]"
 
 ## Agent Guidelines & Workflow Selection
 

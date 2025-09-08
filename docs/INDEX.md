@@ -65,9 +65,12 @@
 - **[▸ Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** 🆕 - In-/uitklapbare blokken per epic
 - **[↗︎ Grafisch Overzicht](./backlog/dashboard/graph.html)** 🆕 - REQ ↔ EPIC bipartite graph (offline)
 - **[🚨 EPIC-010: Context Flow](./backlog/epics/EPIC-010-context-flow-refactoring.md)** **KRITIEK** - Urgent context bug fixes
+  - **[📍 Implementation Plan](./implementation/EPIC-010-implementation-plan.md)** **NEW** - 9-phase detailed implementation
+  - **[🐛 CFR-BUG-003](./backlog/bugs/CFR-BUG-003-generation-result-import.md)** **KRITIEK** - GenerationResult import blocking 36 tests
 - Individual Requirements: `/docs/backlog/requirements/REQ-XXX.md` (92 requirements)
 - Individual Epische Verhalen: `/docs/backlog/epics/EPIC-XXX.md` (11 epics)
 - Individual Stories: `/docs/backlog/stories/US-XXX.md` (55 stories)
+- Bug Reports: `/docs/backlog/bugs/CFR-BUG-XXX.md` (context flow bugs)
 - [Deprecated MASTER](./backlog/stories/MASTER-EPICS-USER-STORIES.md) 📁 (archived with redirect)
 
 ### Guidelines & Standards 📋
@@ -113,6 +116,9 @@
 <!-- ADR-PER-007 is geïntegreerd in SOLUTION_ARCHITECTURE.md sectie 2 (PER-007 Context Flow) -->
 
 ### Testen & Validatie
+- **EPIC-010 Context Flow Testing** 🚨 **KRITIEK**
+  - [EPIC-010 Test Strategy](./testing/EPIC-010-test-strategy.md) ✅ Complete test strategy with TDD approach
+  - [Test Suite Summary](../tests/EPIC_010_TEST_SUITE_SUMMARY.md) ✅ 250+ test cases across 10 files
 - **PER-007 Testen** 🆕
   - [PER-007 TDD Test Plan](./testing/PER-007-tdd-test-plan.md) ✅ RED-GREEN-REFACTOR cycles
   - [PER-007 Test Scenarios](./testing/PER-007-test-scenarios.md) ✅ Comprehensive test data
@@ -147,10 +153,13 @@ docs/
 │   ├── templates/       Architecture templates
 │   └── (ADRs zijn geïntegreerd in EA/SA/TA docs)
 ├── 📁 guidelines/       7 project-wide guidelines ✅
-├── 📁 backlog/          Requirements, epics & user stories ✅
-│   ├── requirements/    92 requirements
-│   ├── epics/          11 epics
-│   └── stories/        55 user stories
+├── 📁 backlog/          Requirements, epics, stories & bugs ✅
+│   ├── requirements/    92 requirements (REQ-001 to REQ-092)
+│   ├── epics/          11 epics (EPIC-001 to EPIC-011)
+│   ├── stories/        55 user stories (US-001 to US-055)
+│   ├── bugs/           Bug reports (CFR-BUG-XXX)
+│   └── dashboard/      HTML dashboards & visualizations
+├── 📁 implementation/   Implementation plans & status tracking ✅
 ├── 📁 testing/          Test plans & results
 ├── 📁 technisch/        Technical documentation ✅
 ├── 📁 workflows/        Development workflows

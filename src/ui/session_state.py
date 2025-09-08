@@ -9,6 +9,8 @@ from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
 
+from services.context.context_adapter import get_context_adapter
+
 
 class SessionStateManager:
     """Beheert Streamlit sessie status voor DefinitieAgent.
@@ -180,16 +182,22 @@ class SessionStateManager:
         Returns:
             Woordenboek met organisatorische, juridische en wettelijke contexten
         """
-        # Bouw context woordenboek op basis van sessie status waarden
-        return {
-            "organisatorisch": st.session_state.get(
-                "context", []
-            ),  # Organisatorische context
-            "juridisch": st.session_state.get(
-                "juridische_context", []
-            ),  # Juridische context
-            "wettelijk": st.session_state.get("wet_basis", []),  # Wettelijke basis
-        }
+        # Probeer eerst de gecentraliseerde ContextManager via adapter
+        try:
+            adapter = get_context_adapter()
+            cm = adapter.to_generation_request()
+            return {
+                "organisatorisch": cm.get("organisatorische_context", []),
+                "juridisch": cm.get("juridische_context", []),
+                "wettelijk": cm.get("wettelijke_basis", []),
+            }
+        except Exception:
+            # Fallback op legacy sessiestate waarden
+            return {
+                "organisatorisch": st.session_state.get("context", []),
+                "juridisch": st.session_state.get("juridische_context", []),
+                "wettelijk": st.session_state.get("wet_basis", []),
+            }
 
     @staticmethod
     def get_export_data() -> dict[str, Any]:

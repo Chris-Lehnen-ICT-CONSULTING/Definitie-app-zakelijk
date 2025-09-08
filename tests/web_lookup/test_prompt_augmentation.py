@@ -20,6 +20,14 @@ class _Req:
         self.domein = None
         self.actor = "test"
         self.legal_basis = None
+        # US-043: Add required fields for HybridContextManager
+        self.organisatie = None
+        self.organisatorische_context = None
+        self.juridische_context = None
+        self.wettelijke_basis = None
+        self.document_context = None
+        self.extra_instructies = None
+        self.options = {}
 
 
 @pytest.mark.asyncio
@@ -67,8 +75,9 @@ async def test_prompt_augmentation_injects_top_k(monkeypatch):
 
     # Should prepend header and two items (max_snippets=2)
     assert text.startswith("### Contextinformatie uit bronnen:")
-    assert text.count("- Wikipedia NL:") == 1
-    assert text.count("- Overheid.nl:") == 1
+    # STORY 3.1: Use provider-neutral "Bron X" format
+    assert text.count("- Bron 1:") == 1
+    assert text.count("- Bron 2:") == 1
     assert "PROMPT_BODY" in text
 
 

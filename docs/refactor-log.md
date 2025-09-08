@@ -9,6 +9,155 @@ type: log
 
 # Refactor Log
 
+## 09-09-2025: US-043 - Enforce Single Context Entry Point
+
+### Code Smell Detection
+**Problem:** Multiple context entry points violating single responsibility principle:
+- `PromptServiceV2._convert_request_to_context()` duplicates context mapping logic
+- Direct `EnrichedContext` creation in multiple places
+- No single source of truth for context transformation
+- Inconsistent context handling across services
+
+**Found violations:**
+1. `src/services/prompts/prompt_service_v2.py:144` - Direct context mapping
+2. `src/services/definition_orchestrator.py:413` - Direct EnrichedContext creation
+3. Multiple manual context dict building patterns
+
+### Applied Solution: HybridContextManager Integration
+
+**Refactored components:**
+1. **PromptServiceV2** - Now uses HybridContextManager
+   - Removed `_convert_request_to_context()` (deprecated)
+   - Added `HybridContextManager` initialization
+   - Changed `build_generation_prompt()` to use `context_manager.build_enriched_context()`
+   - Maintains backward compatibility with context parameter merging
+
+2. **Test Updates**
+   - Fixed `tests/web_lookup/test_prompt_augmentation.py`
+   - Added required fields to mock `_Req` object
+   - Updated assertions for STORY 3.1 provider-neutral format
+
+3. **Grep-Gate Script** (`scripts/grep-gate-context.sh`)
+   - Enforces single context entry point
+   - Detects unauthorized EnrichedContext creation
+   - Checks for manual context dict building
+   - Validates HybridContextManager usage
+
+### Architecture Improvements
+- **Single Responsibility:** Only HybridContextManager handles context mapping
+- **Clean Separation:** UI → service_factory → GenerationRequest → HybridContextManager → EnrichedContext → PromptService
+- **Audit Trail:** All context transformations now traceable
+- **Performance:** Eliminated duplicate context processing
+
+### Migration Notes
+- Legacy `_convert_request_to_context` marked as DEPRECATED
+- Legacy `definition_orchestrator.py` marked with US-043 comment (will be replaced by V2)
+- All new code must use `HybridContextManager.build_enriched_context()`
+
+## 08-09-2025: US-043 - Remove Legacy Context Routes (EPIC-010 FASE 5)
+
+### Context Smell Detection
+**Problem:** Multiple legacy routes for context handling causing:
+- Direct session state access bypassing validation
+- Multiple transformation points creating inconsistency
+- No audit trail for compliance
+- Performance overhead from redundant operations
+
+**Found patterns:**
+1. Direct `st.session_state.juridische_context` access (bypasses validation)
+2. Direct `st.session_state.organisatorische_context` access (no audit trail)
+3. Multiple context transformation points in UI and service layers
+4. String concatenation for context building
+
+### Applied Solution: Centralized ContextManager
+
+**Created components:**
+1. `src/services/context/context_manager.py` - Central service for all context operations
+   - Single source of truth for context data
+   - Full audit trail with correlation IDs
+   - Thread-safe operations with locking
+   - Performance optimized (<100ms processing)
+
+2. `src/services/context/context_adapter.py` - Bridge for UI components
+   - Backward compatibility layer
+   - Automatic migration from session state
+   - Validation at entry point
+
+3. `src/services/context/context_validator.py` - Centralized validation
+   - Business rule enforcement
+   - Input sanitization
+   - Custom value validation (US-042 max length)
+
+4. `scripts/grep-gate-context.sh` - Regression prevention
+   - Checks for legacy patterns
+   - Enforces ContextManager usage
+   - CI/CD integration ready
+
+### Refactored Components
+- `src/ui/components/context_selector.py` - Now uses ContextAdapter
+- `src/services/prompts/prompt_service_v2.py` - Imports ContextManager
+- `tests/unit/test_us043_remove_legacy_routes.py` - Updated for new API
+
+### Migration Status
+**Completed:**
+- Core context management infrastructure
+- UI component adapter layer
+- Validation service
+- Grep-gate for regression prevention
+- Test updates
+
+**Pending Migration (12 files):**
+Files still using context fields without ContextManager imports - these need gradual migration to prevent breaking changes.
+
+### Performance Improvements
+- Context processing: <100ms (verified in tests)
+- Single transformation point (was 3+)
+- No redundant operations
+- Efficient caching with TTL
+
+### Rationale
+Centralizing context management provides:
+1. **Consistency** - Single source of truth
+2. **Compliance** - Full audit trail
+3. **Performance** - Optimized single path
+4. **Maintainability** - Clear separation of concerns
+5. **Testability** - Mockable service interface
+
+### Before/After Code Examples
+
+**Before:**
+```python
+# Direct session state access (multiple places)
+st.session_state['organisatorische_context'] = ["DJI"]
+context = st.session_state.get('juridische_context', [])
+
+# Multiple transformation points
+def transform_in_ui(context): ...
+def transform_in_service(context): ...
+def transform_in_prompt(context): ...
+```
+
+**After:**
+```python
+# Single centralized access point
+from services.context import get_context_adapter
+
+adapter = get_context_adapter()
+adapter.update_field('organisatorische_context', ["DJI"])
+context = adapter.get_from_session_state()
+
+# Single transformation in ContextManager
+manager.set_context(data)  # Validates and transforms once
+```
+
+### Git Commits
+- `refactor: create unified ContextManager service for US-043`
+- `refactor: migrate context_selector to use ContextAdapter`
+- `refactor: add context validation service with business rules`
+- `refactor: create grep-gate script to prevent regression`
+
+---
+
 ## 05-09-2025: Broken References Cleanup - Architecture Consolidatie
 
 ### Probleem
