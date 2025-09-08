@@ -11,8 +11,8 @@ Regel: vink een item pas af als het voorstel + acceptatiecriteria in `CODE_REVIE
 - [ ] [PROMPT_SYSTEM_ANALYSIS.md](CODE_REVIEW_REPORT.md#prompt_system_analysis-md)
 - [ ] [pyproject.toml](CODE_REVIEW_REPORT.md#pyproject-toml)
 - [ ] [README.md](CODE_REVIEW_REPORT.md#readme-md)
-- [ ] [requirements-dev.txt](CODE_REVIEW_REPORT.md#requirements-dev-txt)
-- [ ] [requirements.txt](CODE_REVIEW_REPORT.md#requirements-txt)
+- [ ] [vereistes-dev.txt](CODE_REVIEW_REPORT.md#vereistes-dev-txt)
+- [ ] [vereistes.txt](CODE_REVIEW_REPORT.md#vereistes-txt)
 - [ ] [temperature_analysis_complete.md](CODE_REVIEW_REPORT.md#temperature_analysis_complete-md)
 - [ ] [temperature_analysis.md](CODE_REVIEW_REPORT.md#temperature_analysis-md)
 

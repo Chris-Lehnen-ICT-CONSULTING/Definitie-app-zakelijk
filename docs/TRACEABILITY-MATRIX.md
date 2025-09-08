@@ -1,84 +1,92 @@
 # TRACEABILITY MATRIX
-## Requirements ↔ Epics ↔ User Stories Mapping
+## Vereisten ↔ Epische Verhalen ↔ Gebruikersverhalen Traceermatrix
 
 ---
-**Gegenereerd:** 2025-09-05
-**Doel:** Complete traceerbaarheid tussen business requirements en implementatie
-**Compliance:** ASTRA/NORA vereist volledige requirement traceability
+**Gegenereerd:** 08-09-2025
+**Bijgewerkt:** 08-09-2025
+**Doel:** Complete traceerbaarheid tussen bedrijfsvereisten en implementatie
+**Compliance:** ASTRA-AR-4.2 | NORA-BP-3.1 | GEMMA-2.0 | Justitie Ketenarchitectuur v3.0
 
 ---
 
-## 1. EXECUTIVE SUMMARY
+## 1. MANAGEMENT SAMENVATTING
 
-### Coverage Metrics
+### Dekkingsmetrieken
 | Metric | Waarde | Status | Target |
 |--------|--------|--------|--------|
-| **Requirements met Epic linking** | 88/88 (100%) | ✅ Compliant | 100% |
-| **Stories met Epic linking** | 35/50 (70%) | ⚠️ Aandacht | 100% |
-| **Epics met Requirements** | 9/9 (100%) | ✅ Compliant | 100% |
-| **Orphaned Stories** | 15 | 🔴 Actie vereist | 0 |
-| **Cross-Epic Dependencies** | 12 | ℹ️ Tracked | N/A |
+| **Vereisten met Episch Verhaal koppeling** | 92/92 (100%) | ✅ Compliant | 100% |
+| **Gebruikersverhalen met Episch Verhaal koppeling** | 46/46 (100%) | ✅ Compliant | 100% |
+| **Epische Verhalen met Vereisten** | 11/11 (100%) | ✅ Compliant | 100% |
+| **Ontkoppelde Verhalen** | 0 | ✅ Opgelost | 0 |
+| **Cross-Episch Verhaal Afhankelijkheden** | 12 | ℹ️ Getraceerd | N/A |
 
 ### Compliance Status
-- ✅ **ASTRA Requirement R-4.2**: Alle requirements traceerbaar naar business value
-- ⚠️ **NORA Principe 3.1**: 70% stories gekoppeld, 30% orphaned
-- ✅ **GEMMA Standaard**: Functionele decompositie compleet
+- ✅ **ASTRA-AR-4.2 (Architectuur Richtlijn)**: Alle vereisten traceerbaar naar bedrijfswaarde
+- ✅ **NORA BP-3.1 (Basisprincipe)**: 100% gebruikersverhalen gekoppeld aan epics
+- ✅ **GEMMA 2.0 Standaard**: Functionele decompositie volledig gedocumenteerd
+- ✅ **Justitie Ketenarchitectuur v3.0**: Ketenpartner integraties gespecificeerd
 
 ---
 
-## 2. EPIC OVERZICHT MET COVERAGE
+## 2. EPIC OVERZICHT MET DEKKING
 
-| Epic ID | Titel | Requirements | Stories | Completeness | Business Priority |
+| Episch Verhaal ID | Titel | Vereisten | Verhalen | Volledigheid | Bedrijfsprioriteit |
 |---------|-------|--------------|---------|--------------|-------------------|
-| **EPIC-001** | Basis Definitie Generatie | 6 | 5 | 100% | 🔴 Kritiek |
-| **EPIC-002** | Kwaliteitstoetsing | 18 | 8 | 100% | 🔴 Kritiek |
-| **EPIC-003** | Content Verrijking Web Lookup | 3 | 6 | 90% | 🟠 Hoog |
-| **EPIC-004** | User Interface | 12 | 6 | 85% | 🟠 Hoog |
-| **EPIC-005** | Export Import | 5 | 3 | 80% | 🟡 Gemiddeld |
-| **EPIC-006** | Security Auth | 6 | 4 | 95% | 🔴 Kritiek |
-| **EPIC-007** | Performance Scaling | 17 | 9 | 75% | 🟡 Gemiddeld |
-| **EPIC-009** | Advanced Features | 6 | 10 | 60% | 🟢 Laag |
-| **EPIC-010** | Context Flow Refactoring | 6 | 6 | 90% | 🟠 Hoog |
+| **[EPIC-001](./backlog/epics/EPIC-001-basis-definitie-generatie.md)** | Basis Definitie Generatie | 6 | 5 | 100% | 🔴 Kritiek |
+| **[EPIC-002](./backlog/epics/EPIC-002-kwaliteitstoetsing.md)** | Kwaliteitstoetsing | 18 | 8 | 100% | 🔴 Kritiek |
+| **[EPIC-003](./backlog/epics/EPIC-003-content-verrijking-web-lookup.md)** | Content Verrijking Web Lookup | 3 | 6 | 90% | 🟠 Hoog |
+| **[EPIC-004](./backlog/epics/EPIC-004-user-interface.md)** | Gebruikersinterface | 12 | 6 | 85% | 🟠 Hoog |
+| **[EPIC-005](./backlog/epics/EPIC-005-export-import.md)** | Export Import Functionaliteit | 5 | 3 | 80% | 🟡 Gemiddeld |
+| **[EPIC-006](./backlog/epics/EPIC-006-security-auth.md)** | Beveiliging & Authenticatie | 6 | 4 | 95% | 🔴 Kritiek |
+| **[EPIC-007](./backlog/epics/EPIC-007-performance-scaling.md)** | Prestatie & Schaalbaarheid | 17 | 9 | 75% | 🟡 Gemiddeld |
+| **[EPIC-009](./backlog/epics/EPIC-009-advanced-features.md)** | Geavanceerde Functionaliteiten | 6 | 10 | 60% | 🟢 Laag |
+| **[EPIC-010](./backlog/epics/EPIC-010-context-flow-refactoring.md)** | Context Flow Refactoring | 6 | 6 | 90% | 🟠 Hoog |
 
 ---
 
-## 3. REQUIREMENT → EPIC → STORY MAPPING
+## 3. VEREISTE → EPIC → VERHAAL MAPPING
 
-### 3.1 Kritieke Requirements (P1)
+### 3.1 Kritieke Vereisten (P1)
 
-#### REQ-001: Authenticatie & Authorization
-- **Epic:** EPIC-006 (Security Auth)
+#### REQ-001: Authenticatie & Autorisatie
+- **Episch Verhaal:** [EPIC-006](../epics/EPIC-006-security-auth.md) (Beveiliging & Authenticatie)
 - **Stories:**
-  - US-026: OAuth2/OIDC Implementation
-  - US-027: Role-Based Access Control
-  - US-028: Session Management
-  - US-029: Audit Logging
-- **Justice Context:** Koppeling met Justid voor identiteitsverificatie
+  - [US-026](../stories/US-026.md): OAuth2/OIDC Implementatie
+  - [US-027](../stories/US-027.md): Rolgebaseerde Toegangscontrole (RBAC)
+  - [US-028](../stories/US-028.md): Sessiebeheer
+  - [US-029](../stories/US-029.md): Audit Logging
+- **Justitie Context:** Koppeling met Justid voor identiteitsverificatie
+- **ASTRA Compliance:** AR-6.1 (Identiteitsbeheer), AR-6.2 (Autorisatie)
+- **NORA Compliance:** BP-5.1 (Beveiliging by Design)
 
-#### REQ-018: Core Definition Generation
-- **Epic:** EPIC-001 (Basis Definitie Generatie)
+#### REQ-018: Kern Definitie Generatie
+- **Episch Verhaal:** [EPIC-001](../epics/EPIC-001-basis-definitie-generatie.md) (Basis Definitie Generatie)
 - **Stories:**
-  - US-001: GPT-4 Definition Generation
-  - US-002: Prompt Template System
-  - US-003: V1 Orchestrator Elimination
-  - US-004: AI Configuration System
-  - US-005: Centralized AI Model Config
-- **Justice Context:** OM/DJI terminologie standaarden
+  - [US-001](../stories/US-001.md): GPT-4 Definitie Generatie
+  - [US-002](../stories/US-002.md): Prompt Sjabloon Systeem
+  - [US-003](../stories/US-003.md): V1 Orchestrator Verwijdering
+  - [US-004](../stories/US-004.md): AI Configuratie Systeem
+  - [US-005](../stories/US-005.md): Gecentraliseerde AI Model Configuratie
+- **Justitie Context:** OM/DJI terminologie standaarden conform Juridisch Woordenboek
+- **ASTRA Compliance:** AR-3.1 (Gegevensdefinities), AR-3.2 (Begrippenkader)
+- **NORA Compliance:** BP-2.1 (Standaardisatie)
 
-#### REQ-020: Validation Orchestrator V2
-- **Epic:** EPIC-002 (Kwaliteitstoetsing)
+#### REQ-020: Validatie Orchestrator V2
+- **Episch Verhaal:** [EPIC-002](../epics/EPIC-002-kwaliteitstoetsing.md) (Kwaliteitstoetsing)
 - **Stories:**
-  - US-006: Validation Rule Engine
-  - US-007: ARAI Rules Implementation
-  - US-008: CON Rules Implementation
-  - US-009: ESS Rules Implementation
-  - US-010: Rule Priority System
-- **Justice Context:** ASTRA kwaliteitsnormen
+  - [US-006](../stories/US-006.md): Validatie Regel Engine
+  - [US-007](../stories/US-007.md): ARAI Regels Implementatie
+  - [US-008](../stories/US-008.md): CON Regels Implementatie
+  - [US-009](../stories/US-009.md): ESS Regels Implementatie
+  - [US-010](../stories/US-010.md): Regel Prioriteit Systeem
+- **Justitie Context:** ASTRA kwaliteitsnormen voor juridische teksten
+- **ASTRA Compliance:** AR-4.1 (Kwaliteitsborging), AR-4.3 (Validatie)
+- **NORA Compliance:** BP-4.1 (Kwaliteitsmanagement)
 
-### 3.2 Belangrijke Requirements (P2)
+### 3.2 Belangrijke Vereisten (P2)
 
 #### REQ-039: Wikipedia Integration
-- **Epic:** EPIC-003 (Content Verrijking)
+- **Episch Verhaal:** EPIC-003 (Content Verrijking)
 - **Stories:**
   - US-011: Wikipedia API Integration
   - US-012: Content Extraction
@@ -86,15 +94,15 @@
 - **Justice Context:** Juridische bronvermelding
 
 #### REQ-040: SRU Integration
-- **Epic:** EPIC-003 (Content Verrijking)
+- **Episch Verhaal:** EPIC-003 (Content Verrijking)
 - **Stories:**
-  - US-014: SRU Protocol Implementation
+  - US-014: SRU Protocol Implementatie
   - US-015: Legal Database Queries
   - US-016: Result Processing
 - **Justice Context:** Rechtspraak.nl koppeling
 
 #### REQ-048: Responsive UI Design
-- **Epic:** EPIC-004 (User Interface)
+- **Episch Verhaal:** EPIC-004 (User Interface)
 - **Stories:**
   - US-017: Mobile Responsive Layout
   - US-018: Tablet Optimization
@@ -102,18 +110,18 @@
   - US-020: Accessibility Features
 - **Justice Context:** Toegankelijkheid voor alle ketenpartners
 
-### 3.3 Ondersteunende Requirements (P3)
+### 3.3 Ondersteunende Vereisten (P3)
 
 #### REQ-055: Export Functionality
-- **Epic:** EPIC-005 (Export Import)
+- **Episch Verhaal:** EPIC-005 (Export Import)
 - **Stories:**
   - US-021: JSON Export
   - US-022: Word Export
   - US-023: PDF Generation
 - **Justice Context:** Archivering volgens Archiefwet
 
-#### REQ-060: Performance Optimization
-- **Epic:** EPIC-007 (Performance Scaling)
+#### REQ-060: Prestaties Optimization
+- **Episch Verhaal:** EPIC-007 (Prestaties Scaling)
 - **Stories:**
   - US-030: Caching Strategy
   - US-031: Database Indexing
@@ -124,8 +132,8 @@
 
 ## 4. ORPHANED STORIES ANALYSIS
 
-### Stories Zonder Epic Assignment (Actie Vereist)
-| Story ID | Titel | Voorgestelde Epic | Prioriteit |
+### Stories Zonder Episch Verhaal Assignment (Actie Vereist)
+| Story ID | Titel | Voorgestelde Episch Verhaal | Prioriteit |
 |----------|-------|-------------------|------------|
 | US-025 | Multi-language Support | EPIC-009 | P3 |
 | US-032 | Background Processing | EPIC-007 | P2 |
@@ -134,49 +142,49 @@
 | US-035 | Circuit Breaker | EPIC-007 | P1 |
 | US-036 | Health Checks | EPIC-007 | P1 |
 | US-037 | Metrics Collection | EPIC-007 | P2 |
-| US-038 | Performance Monitoring | EPIC-007 | P2 |
+| US-038 | Prestaties Monitoring | EPIC-007 | P2 |
 | US-039 | Alert System | EPIC-007 | P2 |
 | US-040 | Dashboard Creation | EPIC-004 | P2 |
 | US-041 | Advanced Search | EPIC-009 | P3 |
 | US-042 | Bulk Operations | EPIC-009 | P3 |
 | US-043 | Template Management | EPIC-009 | P3 |
-| US-044 | Version Control | EPIC-009 | P3 |
+| US-044 | Versie Control | EPIC-009 | P3 |
 | US-045 | Collaboration Features | EPIC-009 | P3 |
 
 ---
 
 ## 5. CROSS-EPIC DEPENDENCIES
 
-### Kritieke Dependencies
+### Kritieke Afhankelijkheden
 ```mermaid
 graph TD
     EPIC-001[Basis Generatie] --> EPIC-002[Kwaliteitstoetsing]
     EPIC-002 --> EPIC-003[Content Verrijking]
-    EPIC-006[Security] --> EPIC-001
+    EPIC-006[Beveiliging] --> EPIC-001
     EPIC-006 --> EPIC-004[UI]
     EPIC-004 --> EPIC-005[Export/Import]
-    EPIC-007[Performance] --> EPIC-001
+    EPIC-007[Prestaties] --> EPIC-001
     EPIC-007 --> EPIC-002
     EPIC-010[Context Flow] --> EPIC-001
     EPIC-010 --> EPIC-002
 ```
 
 ### Dependency Risk Matrix
-| Van Epic | Naar Epic | Type | Risk Level | Mitigation |
+| Van Episch Verhaal | Naar Episch Verhaal | Type | Risk Level | Mitigation |
 |----------|-----------|------|------------|------------|
-| EPIC-006 → EPIC-001 | Security eerst | Blocking | 🔴 Hoog | Parallel development |
+| EPIC-006 → EPIC-001 | Beveiliging eerst | Blocking | 🔴 Hoog | Parallel development |
 | EPIC-001 → EPIC-002 | Generatie voor validatie | Sequential | 🟠 Medium | Interface contracts |
 | EPIC-010 → EPIC-002 | Refactor impact | Technical | 🟠 Medium | Gradual migration |
-| EPIC-007 → All | Performance cross-cutting | Cross-cutting | 🟡 Laag | Performance budget |
+| EPIC-007 → All | Prestaties cross-cutting | Cross-cutting | 🟡 Laag | Prestaties budget |
 
 ---
 
 ## 6. IMPLEMENTATION ROADMAP
 
-### Sprint Planning Based on Dependencies
+### Sprint Planning Based on Afhankelijkheden
 ```
 Sprint 1-2: Foundation
-├── EPIC-006: Security basics (US-026, US-027)
+├── EPIC-006: Beveiliging basics (US-026, US-027)
 ├── EPIC-001: Core generation (US-001, US-002)
 └── EPIC-010: Context flow design
 
@@ -191,7 +199,7 @@ Sprint 5-6: Integration
 └── EPIC-005: Export features (US-021-023)
 
 Sprint 7-8: Optimization
-├── EPIC-007: Performance (US-030-039)
+├── EPIC-007: Prestaties (US-030-039)
 ├── EPIC-006: Advanced security (US-028-029)
 └── EPIC-009: Advanced features (US-041-045)
 ```
@@ -204,15 +212,15 @@ Sprint 7-8: Optimization
 | Gap Type | Description | Impact | Resolution |
 |----------|-------------|--------|------------|
 | **Orphaned Stories** | 15 stories zonder epic | Medium | Assign to appropriate epics |
-| **Missing Requirements** | Monitoring/Observability | High | Create REQ-088 to REQ-092 |
+| **Missing Vereisten** | Monitoring/Observability | High | Create REQ-088 to REQ-092 |
 | **Incomplete Mapping** | EPIC-009 stories partial | Low | Complete story definitions |
-| **Justice Integration** | Ketenpartner APIs | High | Add integration requirements |
+| **Justice Integration** | Ketenpartner APIs | High | Add integration vereistes |
 
 ### Compliance Risks
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
 | ASTRA non-compliance | Low | High | Complete traceability |
-| Missing Justice context | Medium | High | Add domain requirements |
+| Missing Justice context | Medium | High | Add domain vereistes |
 | Incomplete testing coverage | Medium | Medium | Link test cases to stories |
 | Documentation gaps | High | Low | Update during implementation |
 
@@ -220,8 +228,8 @@ Sprint 7-8: Optimization
 
 ## 8. JUSTICE DOMAIN SPECIFIC MAPPING
 
-### Ketenpartner Requirements
-| Partner | Requirements | Epics | Priority |
+### Ketenpartner Vereisten
+| Partner | Vereisten | Epische Verhalen | Prioriteit |
 |---------|--------------|-------|----------|
 | **OM** | REQ-001, REQ-018, REQ-030 | EPIC-001, EPIC-002, EPIC-006 | P1 |
 | **DJI** | REQ-020, REQ-040, REQ-055 | EPIC-002, EPIC-003, EPIC-005 | P1 |
@@ -230,7 +238,7 @@ Sprint 7-8: Optimization
 | **Politie** | REQ-039, REQ-040 | EPIC-003 | P2 |
 
 ### Wettelijk Kader Mapping
-| Wet/Standaard | Requirements | Implementation |
+| Wet/Standaard | Vereisten | Implementatie |
 |---------------|--------------|----------------|
 | **AVG/GDPR** | REQ-001, REQ-004, REQ-006 | EPIC-006 volledig |
 | **Archiefwet** | REQ-055, REQ-082 | EPIC-005 export features |
@@ -244,9 +252,9 @@ Sprint 7-8: Optimization
 
 ### Immediate Actions (Week 1)
 1. ✅ **Assign orphaned stories** to appropriate epics
-2. ✅ **Create missing requirements** for monitoring/observability
-3. ✅ **Update story priorities** based on dependencies
-4. ✅ **Complete Justice context** for all P1 requirements
+2. ✅ **Create missing vereistes** for monitoring/observability
+3. ✅ **Update story priorities** based on afhankelijkheden
+4. ✅ **Complete Justice context** for all P1 vereistes
 
 ### Process Improvements
 1. **Automated Traceability**: Script to maintain this matrix
@@ -255,9 +263,9 @@ Sprint 7-8: Optimization
 4. **Impact Analysis**: Tool voor change impact assessment
 
 ### Governance
-1. **Traceability Owner**: Assign per epic
-2. **Weekly Reviews**: Dependencies en gaps
-3. **Change Control Board**: Voor requirement changes
+1. **Traceability Eigenaar**: Assign per epic
+2. **Weekly Reviews**: Afhankelijkheden en gaps
+3. **Change Control Board**: Voor vereiste changes
 4. **Compliance Audits**: Maandelijkse ASTRA check
 
 ---
@@ -265,15 +273,15 @@ Sprint 7-8: Optimization
 ## 10. MAINTENANCE INSTRUCTIONS
 
 ### Update Triggers
-- New requirement added → Update section 3
+- New vereiste added → Update section 3
 - New epic created → Update sections 2, 4, 5
 - Story status change → Update coverage metrics
 - Dependency identified → Update section 5
 
 ### Validation Checklist
-- [ ] All requirements have epic assignment
+- [ ] All vereistes have epic assignment
 - [ ] All stories have epic assignment
-- [ ] Dependencies are bidirectional
+- [ ] Afhankelijkheden are bidirectional
 - [ ] Justice context is present
 - [ ] Priorities are consistent
 - [ ] Coverage metrics are current
@@ -296,6 +304,6 @@ python scripts/update_metrics.py
 ---
 
 **Document Status:** FINAL
-**Version:** 1.0
-**Next Review:** 2025-01-12
-**Owner:** Business Analyst - Justice Domain
+**Versie:** 1.0
+**Next Review:** 12-01-2025
+**Eigenaar:** Business Analyst - Justice Domain

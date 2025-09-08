@@ -1,6 +1,6 @@
-# Handover Document - Story 2.4: Integration & Migration
+# Overdracht Document - Story 2.4: Integration & Migration
 
-**Datum**: 2025-01-09
+**Datum**: 09-01-2025
 **Van**: Story 2.3 (ModularValidationService)
 **Naar**: Story 2.4 (Integration & Migration)
 **Branch**: `feat/story-2.3-container-wiring` → `feat/story-2.4-integration`
@@ -21,10 +21,10 @@
 
 ## 🎯 STORY 2.4: INTEGRATION & MIGRATION
 
-### User Story
+### Gebruikersverhaal
 Als **integrator** wil ik **DefinitionOrchestratorV2 volledig geïntegreerd met ValidationOrchestratorV2**, zodat **alle validation flows via de nieuwe orchestrator lopen**.
 
-### Business Value
+### Bedrijfswaarde
 - Clean separation of concerns tussen definitie-generatie en validatie
 - Schaalbare architectuur voor validation services
 - Foundation voor advanced validation workflows
@@ -59,7 +59,7 @@ Container
 
 **Acties**:
 1. Verify ValidationOrchestratorV2 class bestaat
-2. Update constructor om ModularValidationService te accepteren
+2. Update constructor OM ModularValidationService te accepteren
 3. Implementeer `validate_text()` methode die delegeert naar ModularValidationService
 4. Zorg voor proper error handling en response mapping
 
@@ -108,10 +108,10 @@ modular_validation_service = ModularValidationService(
 validation_orchestrator = ValidationOrchestratorV2(
     validation_service=modular_validation_service,
     cleaning_service=cleaning_service,
-    # andere dependencies...
+    # andere afhankelijkheden...
 )
 
-# Update DefinitionOrchestratorV2 om orchestrator te gebruiken
+# Update DefinitionOrchestratorV2 OM orchestrator te gebruiken
 self._instances["orchestrator"] = DefinitionOrchestratorV2(
     validation_service=validation_orchestrator,  # Was: validation_service
     # rest blijft gelijk...
@@ -125,7 +125,7 @@ self._instances["orchestrator"] = DefinitionOrchestratorV2(
 **Acties**:
 1. Update constructor type hints: `validation_service: ValidationOrchestratorInterface`
 2. Verwijder directe validation logic
-3. Update alle validation calls om interface te gebruiken
+3. Update alle validation calls OM interface te gebruiken
 4. Maintain backward compatibility
 
 **Validation call updates**:
@@ -176,9 +176,9 @@ class DefinitionValidatorV2(DefinitionValidator):
 2. `/api/definitions/create` - validation via orchestrator
 3. `/api/validation/batch` - gebruik orchestrator.batch_validate()
 
-### Task 6: Testing & Validation (3 uur)
+### Task 6: Testen & Validation (3 uur)
 
-**Test files om te updaten**:
+**Test files OM te updaten**:
 - `tests/integration/test_definition_orchestrator_v2.py`
 - `tests/integration/test_validation_flow.py`
 - `tests/api/test_validation_endpoints.py`
@@ -187,24 +187,24 @@ class DefinitionValidatorV2(DefinitionValidator):
 
 ## 🔍 VERIFICATIE CHECKLIST
 
-### Pre-Implementation
+### Pre-Implementatie
 - [ ] Story 2.3 branch is up-to-date
 - [ ] ValidationOrchestratorV2 class bestaat
 - [ ] ValidationOrchestratorInterface is compleet
 - [ ] ModularValidationService werkt (12/14 tests)
 
-### During Implementation
+### During Implementatie
 - [ ] Container wiring updated
 - [ ] DefinitionOrchestratorV2 gebruikt interface
 - [ ] DefinitionValidator adapter gemaakt
 - [ ] API endpoints gemigreerd
 - [ ] Geen breaking changes in API contracts
 
-### Post-Implementation
+### Post-Implementatie
 - [ ] Alle unit tests slagen
 - [ ] Integration tests slagen
 - [ ] Golden tests valideren business logic
-- [ ] Performance vergelijkbaar met directe calls
+- [ ] Prestaties vergelijkbaar met directe calls
 - [ ] Backward compatibility verified
 
 ## 🚀 QUICK START COMMANDO'S
@@ -243,7 +243,7 @@ code src/services/orchestrators/validation_orchestrator_v2.py
    - Orchestrator moet dit behouden
    - Geen exceptions naar API layer
 
-4. **Performance**
+4. **Prestaties**
    - Extra orchestrator layer mag geen significante overhead toevoegen
    - Monitor response times tijdens testing
 
@@ -255,7 +255,7 @@ Story 2.4 is compleet wanneer:
 - [ ] Alle directe validation calls gemigreerd
 - [ ] API endpoints gebruiken nieuwe orchestrator
 - [ ] Alle tests groen (unit, integration, golden)
-- [ ] Performance binnen 5% van baseline
+- [ ] Prestaties binnen 5% van baseline
 - [ ] Backward compatibility maintained
 - [ ] Code review completed
 - [ ] Documentation updated
@@ -264,7 +264,7 @@ Story 2.4 is compleet wanneer:
 
 - **Dag 1**: Tasks 1-3 (Orchestrator setup & integration)
 - **Dag 2**: Tasks 4-5 (Adapters & API migration)
-- **Dag 3**: Task 6 (Testing & validation)
+- **Dag 3**: Task 6 (Testen & validation)
 
 **Totaal**: 3 dagen (13 story points)
 
@@ -274,7 +274,7 @@ Story 2.4 is compleet wanneer:
 2. **Test incrementeel** - Na elke task, run relevante tests
 3. **Maintain backward compatibility** - Geen breaking changes!
 4. **Document wijzigingen** - Update docstrings en comments
-5. **Performance monitoring** - Benchmark voor en na
+5. **Prestaties monitoring** - Benchmark voor en na
 
 ## 📞 CONTACT & SUPPORT
 

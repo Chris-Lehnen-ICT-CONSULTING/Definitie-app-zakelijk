@@ -154,7 +154,7 @@ def validate(self, definitie: str, begrip: str, context: Optional[Dict] = None):
 
 ### V2 Service (ModularValidationService)
 - Laadt JSON‑regels via de ToetsregelManager.
-- Kan uitgebreid worden om Python validators via een module‑adapter te evalueren.
+- Kan uitgebreid worden OM Python validators via een module‑adapter te evalueren.
 - Geeft schema‑conforme resultaten terug (overall_score, violations, enz.).
 
 ### Unit Test Template (validators)
@@ -225,6 +225,6 @@ print(f"{melding} (score: {score})")
 canonical: true
 status: active
 owner: validation
-last_verified: 2025-09-02
+last_verified: 02-09-2025
 applies_to: definitie-app@v2
 ---

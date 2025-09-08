@@ -1,36 +1,41 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: YYYY-MM-DD
+aangemaakt: '08-09-2025'
+afhankelijkheden:
+- ../../testing/
+- ../../technisch/
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
 compliance:
-  astra: true
-  nora: true
+  ASTRA: true
   bio: true
-  gemma: false
-version_history:
-  current: "2.0.0"
-  previous: "1.x.x"
-  migration_date: "2025-09-XX"
+  GEMMA: false
+  NORA: true
 cross_references:
-  ea: "../ENTERPRISE_ARCHITECTURE.md"
-  sa: "../SOLUTION_ARCHITECTURE.md"
-  ta: "../TECHNICAL_ARCHITECTURE.md"
-review_cycle: monthly
+  ea: ../ENTERPRISE_ARCHITECTURE.md
+  sa: ../SOLUTION_ARCHITECTURE.md
+  ta: ../TECHNICAL_ARCHITECTURE.md
+last_verified: YYYY-MM-DD
 next_review: YYYY-MM-DD
+owner: architecture
+prioriteit: medium
+review_cycle: monthly
 stakeholders:
-  - role: owner
-    contact: tech-lead@justice.nl
-  - role: devops
-    contact: devops-team@justice.nl
-dependencies:
-  - "../../testing/"  # Test strategies in testing directory
-  - "../../technisch/"  # Technical documentation
+- contact: tech-lead@justice.nl
+  role: owner
+- contact: devops-team@justice.nl
+  role: devops
+status: active
 supersedes:
-  - "../../archief/2025-09-architectuur-consolidatie/ta-variants/TA.md"
-  - "../../archief/2025-09-architectuur-consolidatie/cfr-documents/TA-CFR.md"
+- ../../archief/2025-09-architectuur-consolidatie/ta-variants/TA.md
+- ../../archief/2025-09-architectuur-consolidatie/cfr-documents/TA-CFR.md
+version_history:
+  current: 2.0.0
+  migration_date: 2025-09-XX
+  previous: 1.x.x
 ---
+
+
 
 # TECHNICAL ARCHITECTURE - DEFINITIEAPP
 
@@ -40,7 +45,7 @@ supersedes:
 
 **[TEMPLATE GUIDANCE: Technical implementation summary]**
 
-DefinitieApp is built on Python 3.11+ with Streamlit UI, implementing a service-oriented architecture with dependency injection. The system leverages async processing, modular validation rules, and AI integration through OpenAI GPT-4.
+DefinitieApp is built on Python 3.11+ with Streamlit UI, implementing a service-oriented architecture with afhankelijkheid injection. The system leverages async processing, modular validation rules, and AI integration through OpenAI GPT-4.
 
 **Technical Stack Highlights:**
 - **Language**: Python 3.11+ with type hints
@@ -48,35 +53,35 @@ DefinitieApp is built on Python 3.11+ with Streamlit UI, implementing a service-
 - **AI Integration**: OpenAI GPT-4 API
 - **Database**: SQLite with UTF-8 support
 - **Cache**: Redis/In-memory caching
-- **Testing**: Pytest with 90%+ coverage target
+- **Testen**: Pytest with 90%+ coverage target
 - **CI/CD**: GitHub Actions with automated testing
 
 ### 1.2 Technology Stack
 
 **[TEMPLATE GUIDANCE: Complete technology inventory]**
 
-| Layer | Technology | Version | Purpose | License |
+| Layer | Technology | Versie | Purpose | License |
 |-------|-----------|---------|---------|---------|
 | Language | Python | 3.11+ | Core runtime | PSF |
 | UI | Streamlit | 1.28+ | Web interface | Apache 2.0 |
 | API | FastAPI | 0.109+ | REST endpoints | MIT |
 | Database | SQLite | 3.40+ | Data persistence | Public Domain |
-| Cache | Redis | 7.0+ | Performance cache | BSD |
+| Cache | Redis | 7.0+ | Prestaties cache | BSD |
 | AI | OpenAI API | v1 | Definition generation | Proprietary |
-| Testing | Pytest | 7.4+ | Test framework | MIT |
+| Testen | Pytest | 7.4+ | Test framework | MIT |
 | Linting | Ruff | 0.1.0+ | Code quality | MIT |
 | Formatting | Black | 23.0+ | Code formatting | MIT |
 
-### 1.3 Implementation Approach
+### 1.3 Implementatie Approach
 
 **[TEMPLATE GUIDANCE: High-level implementation strategy]**
 
 ```mermaid
 graph TB
     subgraph "Development Flow"
-        DEV[Local Development] --> TEST[Automated Testing]
+        DEV[Local Development] --> TEST[Automated Testen]
         TEST --> BUILD[Container Build]
-        BUILD --> DEPLOY[Deployment]
+        BUILD --> DEPLOY[Uitrol]
     end
 
     subgraph "Technical Patterns"
@@ -89,20 +94,20 @@ graph TB
     subgraph "Quality Gates"
         LINT[Code Quality]
         COV[Test Coverage >90%]
-        SEC[Security Scan]
-        PERF[Performance Test]
+        SEC[Beveiliging Scan]
+        PERF[Prestaties Test]
     end
 ```
 
 ## 2. Technical Context
 
-### 2.1 Technical Requirements
+### 2.1 Technical Vereisten
 
-**[TEMPLATE GUIDANCE: Detailed technical requirements]**
+**[TEMPLATE GUIDANCE: Detailed technical vereistes]**
 
-#### 2.1.1 Performance Requirements
+#### 2.1.1 Prestaties Vereisten
 
-| Metric | Target | Current | Implementation |
+| Metric | Target | Current | Implementatie |
 |--------|--------|---------|----------------|
 | Response Time | < 5s | 4.2s | Async processing, caching |
 | Concurrent Users | 100 | 100 | Connection pooling |
@@ -110,9 +115,9 @@ graph TB
 | CPU Usage | < 80% | 65% | Optimized algorithms |
 | Cache Hit Rate | > 70% | 75% | Strategic caching |
 
-#### 2.1.2 Reliability Requirements
+#### 2.1.2 Reliability Vereisten
 
-| Aspect | Requirement | Implementation |
+| Aspect | Requirement | Implementatie |
 |--------|------------|----------------|
 | Availability | 99.5% | Health checks, auto-restart |
 | Error Rate | < 0.5% | Comprehensive error handling |
@@ -125,7 +130,7 @@ graph TB
 
 | Constraint | Description | Impact | Mitigation |
 |-----------|-------------|---------|------------|
-| Python GIL | Single-threaded execution | Performance limits | Async I/O, multiprocessing |
+| Python GIL | Single-threaded execution | Prestaties limits | Async I/O, multiprocessing |
 | SQLite Concurrency | Write locks | Throughput limits | Write batching, read replicas |
 | API Rate Limits | OpenAI: 10K req/min | Generation capacity | Request queuing, caching |
 | Memory Limits | 1GB container limit | Scale constraints | Efficient memory use |
@@ -140,7 +145,7 @@ graph TB
 | UI Framework | Streamlit | Rapid development, Python native | Flask, Django, FastAPI UI |
 | Database | SQLite | Simplicity, portability | PostgreSQL, MySQL |
 | AI Provider | OpenAI | Best quality, API stability | Local LLMs, Claude, Gemini |
-| Testing | Pytest | Python standard, good fixtures | Unittest, Nose |
+| Testen | Pytest | Python standard, good fixtures | Unittest, Nose |
 | Container | Docker | Industry standard | Podman, Buildah |
 
 ## 3. Component Architecture
@@ -191,7 +196,7 @@ classDiagram
     ValidationOrchestratorV2 --> ModularValidationService
 ```
 
-### 3.2 Service Implementation
+### 3.2 Service Implementatie
 
 **[TEMPLATE GUIDANCE: Service implementation details]**
 
@@ -201,7 +206,7 @@ classDiagram
 # src/services/container.py
 class ServiceContainer:
     """
-    Centralized service container with dependency injection.
+    Centralized service container with afhankelijkheid injection.
     Singleton pattern with lazy initialization.
     """
 
@@ -223,7 +228,7 @@ class ServiceContainer:
             self.initialized = True
 
     def _initialize_services(self):
-        """Initialize all services with dependencies."""
+        """Initialize all services with afhankelijkheden."""
         # Core services
         self.register('ai_service', AIServiceV2(self.config))
         self.register('prompt_service', PromptServiceV2())
@@ -244,7 +249,7 @@ class ServiceContainer:
         return self.services[name]
 ```
 
-#### 3.2.2 Validation Rule Implementation
+#### 3.2.2 Validation Rule Implementatie
 
 ```python
 # src/toetsregels/regels/base_rule.py
@@ -368,11 +373,11 @@ src/
 └── utils/
     ├── __init__.py
     ├── logger.py               # Logging utilities
-    ├── metrics.py              # Performance metrics
+    ├── metrics.py              # Prestaties metrics
     └── validators.py           # Input validators
 ```
 
-## 4. Data Implementation
+## 4. Data Implementatie
 
 ### 4.1 Database Design
 
@@ -753,7 +758,7 @@ graph TB
 | Storage Type | Purpose | Technology | Size | Backup | Retention |
 |--------------|---------|-----------|------|--------|-----------|
 | Application Data | Definitions | SQLite | 1GB | Daily | 7 years |
-| Cache | Performance | Redis | 512MB | None | Session |
+| Cache | Prestaties | Redis | 512MB | None | Session |
 | Exports | Generated files | File system | 10GB | Weekly | 90 days |
 | Logs | Audit trail | File system | 5GB | Daily | 1 year |
 | Backups | Disaster recovery | Object storage | 50GB | N/A | 10 years |
@@ -876,16 +881,16 @@ FROM python:3.11-slim
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Install system afhankelijkheden
 RUN apt-get update && apt-get install -y \
     gcc \
     g++ \
     curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy vereistes
+COPY vereistes.txt .
+RUN pip install --no-cache-dir -r vereistes.txt
 
 # Copy application
 COPY src/ ./src/
@@ -932,16 +937,16 @@ jobs:
       with:
         python-version: '3.11'
 
-    - name: Cache dependencies
+    - name: Cache afhankelijkheden
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip
-        key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+        key: ${{ runner.os }}-pip-${{ hashFiles('vereistes.txt') }}
 
-    - name: Install dependencies
+    - name: Install afhankelijkheden
       run: |
-        pip install -r requirements.txt
-        pip install -r requirements-dev.txt
+        pip install -r vereistes.txt
+        pip install -r vereistes-dev.txt
 
     - name: Run linting
       run: |
@@ -964,7 +969,7 @@ jobs:
       with:
         file: ./coverage.xml
 
-    - name: Security scan
+    - name: Beveiliging scan
       run: |
         pip install bandit
         bandit -r src -f json -o bandit-report.json
@@ -980,9 +985,9 @@ jobs:
         docker stop test-app
 ```
 
-### 6.3 Testing Strategy
+### 6.3 Testen Strategy
 
-**[TEMPLATE GUIDANCE: Testing approach and tools]**
+**[TEMPLATE GUIDANCE: Testen approach and tools]**
 
 #### 6.3.1 Test Structure
 
@@ -1002,7 +1007,7 @@ tests/
 │   └── test_database.py
 ├── e2e/                    # End-to-end tests
 │   └── test_user_journeys.py
-└── performance/            # Performance tests
+└── performance/            # Prestaties tests
     └── test_load.py
 ```
 
@@ -1309,9 +1314,9 @@ if __name__ == "__main__":
 | Database vacuum | Weekly | vacuum_db.sh | Low | 5 min |
 | Cache clear | Daily | clear_cache.py | None | 1 min |
 | Log rotation | Daily | Automatic | None | < 1 min |
-| Security updates | Monthly | update_deps.sh | Restart | 15 min |
+| Beveiliging updates | Monthly | update_deps.sh | Restart | 15 min |
 | Backup verification | Weekly | verify_backup.py | None | 10 min |
-| Performance analysis | Monthly | analyze_perf.py | None | 30 min |
+| Prestaties analysis | Monthly | analyze_perf.py | None | 30 min |
 
 #### 7.3.2 Health Checks
 
@@ -1381,7 +1386,7 @@ class HealthChecker:
             }
 ```
 
-## 8. Implementation Guidelines
+## 8. Implementatie Guidelines
 
 ### 8.1 Coding Standards
 
@@ -1406,7 +1411,7 @@ DEFAULT_TIMEOUT = 30
 # Type definitions
 ContextType = Dict[str, List[str]]
 
-# Protocol for dependency injection
+# Protocol for afhankelijkheid injection
 class RepositoryProtocol(Protocol):
     """Protocol defining repository interface."""
     def save(self, data: Dict) -> str: ...
@@ -1477,7 +1482,7 @@ class DefinitionProcessor:
         if not term:
             raise ValidationError("Term cannot be empty")
 
-        # Implementation...
+        # Implementatie...
         pass
 ```
 
@@ -1605,7 +1610,7 @@ class ConfigManager:
 
 ### 8.3 Dependency Management
 
-**[TEMPLATE GUIDANCE: Managing dependencies]**
+**[TEMPLATE GUIDANCE: Managing afhankelijkheden]**
 
 ```toml
 # pyproject.toml
@@ -1615,7 +1620,7 @@ version = "2.0.0"
 description = "AI-powered legal definition generator"
 authors = ["Justice Tech Team <tech@justice.nl>"]
 
-[tool.poetry.dependencies]
+[tool.poetry.afhankelijkheden]
 python = "^3.11"
 streamlit = "^1.28.0"
 openai = "^1.0.0"
@@ -1625,7 +1630,7 @@ redis = "^5.0.0"
 fastapi = {version = "^0.109.0", optional = true}
 uvicorn = {version = "^0.27.0", optional = true}
 
-[tool.poetry.group.dev.dependencies]
+[tool.poetry.group.dev.afhankelijkheden]
 pytest = "^7.4.0"
 pytest-cov = "^4.1.0"
 pytest-asyncio = "^0.21.0"
@@ -1682,7 +1687,7 @@ disallow_untyped_defs = true
 - [Enterprise Architecture](../ENTERPRISE_ARCHITECTURE.md) - Business capabilities and context
 - [Solution Architecture](../SOLUTION_ARCHITECTURE.md) - Solution design and integration
 - API Documentation - Detailed API specifications (see /docs/technisch/ for technical docs)
-- Test Strategy - Testing approach and coverage (document in planning)
+- Test Strategy - Testen approach and coverage (document in planning)
 
 ### Technical References
 - [Python Documentation](https://docs.python.org/3.11/) - Python 3.11 reference
@@ -1694,7 +1699,7 @@ disallow_untyped_defs = true
 - [PEP 8](https://pep8.org/) - Python style guide
 - [PEP 484](https://www.python.org/dev/peps/pep-0484/) - Type hints
 - [12 Factor App](https://12factor.net/) - Application design principles
-- [OWASP Guidelines](https://owasp.org/) - Security best practices
+- [OWASP Guidelines](https://owasp.org/) - Beveiliging best practices
 
 ### Architecture Patterns
 - [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)
@@ -1709,10 +1714,10 @@ disallow_untyped_defs = true
 **Last Review**: [Date]
 **Next Review**: [Date]
 **Change Log**:
-| Date | Version | Change | Author |
+| Date | Versie | Change | Author |
 |------|---------|--------|---------|
 | 2025-09-XX | 2.0.0 | Initial consolidated version | Tech Team |
-| [Date] | [Version] | [Change] | [Author] |
+| [Date] | [Versie] | [Change] | [Author] |
 
 ## Approval
 
@@ -1720,7 +1725,7 @@ disallow_untyped_defs = true
 |------|------|-----------|------|
 | Technical Lead | [Name] | [Digital signature] | [Date] |
 | DevOps Lead | [Name] | [Digital signature] | [Date] |
-| Security Officer | [Name] | [Digital signature] | [Date] |
+| Beveiliging Officer | [Name] | [Digital signature] | [Date] |
 
 ---
 

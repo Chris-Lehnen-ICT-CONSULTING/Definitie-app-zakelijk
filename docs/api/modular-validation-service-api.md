@@ -137,7 +137,7 @@ results = await service.batch_validate(simple_items)
 
 ### Default Rules
 
-When no `ToetsregelManager` is provided, the service uses these default rules:
+Wanneer no `ToetsregelManager` is provided, the service uses these default rules:
 
 | Rule Code | Description | Weight | Category |
 |-----------|-------------|--------|----------|
@@ -151,7 +151,7 @@ When no `ToetsregelManager` is provided, the service uses these default rules:
 
 ### Dynamic Rule Loading
 
-When a `ToetsregelManager` is provided, rules are loaded dynamically:
+Wanneer a `ToetsregelManager` is provided, rules are loaded dynamically:
 
 ```python
 from toetsregels.manager import ToetsregelManager
@@ -200,7 +200,7 @@ The service uses degraded error handling - validation always returns a result:
 - If ToetsregelManager fails, default rules are used
 - System errors are captured in the `system.error` field
 
-## Performance Considerations
+## Prestaties Considerations
 
 - **Sequential validation** (`max_concurrency=1`): Predictable, lower resource usage
 - **Parallel validation** (`max_concurrency>1`): Faster for large batches, higher memory usage

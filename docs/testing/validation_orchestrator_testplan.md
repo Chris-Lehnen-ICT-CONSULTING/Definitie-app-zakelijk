@@ -1,8 +1,8 @@
 # Validation Orchestrator V2 — Testplan (Contract & Interface)
 
-Status: DRAFT
-Owner: QA Lead
-Last Updated: 2025-08-29
+Status: CONCEPT
+Eigenaar: QA Lead
+Laatst Bijgewerkt: 29-08-2025
 
 ## Doel
 Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volledig conform het JSON Schema contract functioneren, inclusief degraded‑paden en batchgedrag. Het sluit aan op Story 2.1 (interface) en het `ValidationResult` contract.
@@ -53,7 +53,7 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - Verifieer `violations[*].code` matcht `^[A-Z]{3}-[A-Z]{3}-\d{3}$`.
 
 ## Niet‑functioneel (indicatief)
-- Performance: single call P95 < 1s (met mocks), batch 100 items binnen acceptabele tijd.
+- Prestaties: single call P95 < 1s (met mocks), batch 100 items binnen acceptabele tijd.
 - Memory: geen lek bij 1.000 calls (smoke).
 
 ## CI Integratie
@@ -65,5 +65,5 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - Contract: `docs/architectuur/contracts/validation_result_contract.md`
 - Schema: `docs/architectuur/contracts/schemas/validation_result.schema.json`
 - Error catalogus: `docs/technisch/error_catalog_validation.md`
-- Story 2.1: `docs/stories/epic-2-story-2.1-validation-interface.md`
+- Story 2.1: `docs/backlog/stories/epic-2-story-2.1-validation-interface.md`
 - Story 2.3 Tests: `docs/testing/story-2.3-test-implementation.md`

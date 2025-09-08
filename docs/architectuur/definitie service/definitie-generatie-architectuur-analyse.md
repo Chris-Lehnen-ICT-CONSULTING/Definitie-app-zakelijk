@@ -1,12 +1,17 @@
 ---
-canonical: false
-status: archived
-owner: architecture
-last_verified: 2025-09-02
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: false
+last_verified: 02-09-2025
+owner: architecture
+prioriteit: medium
+status: archived
 ---
 
-# [ARCHIVED] Definition Generation Architecture Analysis
+
+
+# [GEARCHIVEERD] Definition Generation Architecture Analysis
 
 Gearchiveerd ten gunste van de actuele Solution Architecture.
 Zie: `docs/architectuur/SOLUTION_ARCHITECTURE.md`.
@@ -62,7 +67,7 @@ User Input → DefinitieChecker → DefinitieAgent (legacy adapter) → ServiceC
 
 #### A. Multiple Generation Approaches
 1. **Legacy Approach**: `prompt_builder/prompt_builder.py` - Still in use
-2. **Services Approach**: `services/definition_generator_*` - Partially implemented
+2. **Services Approach**: `services/definition_generator_*` - Partially geïmplementeerd
 3. **Unified Approach**: `UnifiedDefinitionGenerator` - Started but abandoned
 4. **Orchestrator Approach**: `DefinitionOrchestrator` - Current but uses legacy internally
 
@@ -119,7 +124,7 @@ GenerationRequest → EnrichedContext → UnifiedPromptBuilder → GPT → Enhan
 
 ### 5. Architectural Debt
 
-#### Circular Dependencies
+#### Circular Afhankelijkheden
 - Services import from prompt_builder (legacy)
 - Prompt builder imports from services
 - Hybrid context tries to import from services creating circular refs
@@ -127,7 +132,7 @@ GenerationRequest → EnrichedContext → UnifiedPromptBuilder → GPT → Enhan
 #### Multiple Truth Sources
 - Configuration in multiple places
 - Template selection logic duplicated
-- Context parsing implemented 3 different ways
+- Context parsing geïmplementeerd 3 different ways
 
 #### Dead Code Paths
 ```python
@@ -153,7 +158,7 @@ async def _call_hybrid_engine(self, request):
 - Eliminate adapter layers
 - Consolidate configuration
 
-### 3. Code Cleanup Priority
+### 3. Code Cleanup Prioriteit
 1. `services/definition_generator_enhancement.py` - Delete entirely
 2. `services/definition_generator_prompts.py` - Keep only legacy builder
 3. `hybrid_context/*` - Either implement properly or remove
@@ -166,7 +171,7 @@ async def _call_hybrid_engine(self, request):
 
 ## Impact Analysis
 
-### Performance Impact
+### Prestaties Impact
 - Multiple abstraction layers add latency
 - Unused imports slow startup
 - Complex object creation for simple operations
@@ -174,13 +179,13 @@ async def _call_hybrid_engine(self, request):
 ### Maintenance Impact
 - Developers confused by multiple approaches
 - Bug fixes needed in multiple places
-- Testing complexity increased
+- Testen complexity increased
 
 ### Technical Debt Metrics
 - **Unused Code**: ~3,000+ lines
 - **Duplicate Logic**: 5+ implementations of same features
 - **Dead Imports**: 20+ unused imports
-- **Circular Dependencies**: 3 identified cycles
+- **Circular Afhankelijkheden**: 3 identified cycles
 
 ## Conclusion
 

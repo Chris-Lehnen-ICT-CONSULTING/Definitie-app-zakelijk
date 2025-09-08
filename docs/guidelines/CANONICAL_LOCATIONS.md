@@ -1,7 +1,7 @@
 # Canonieke Documentatie Locaties
 
 Dit document definieert de officiële locaties voor alle documentatie types.
-Laatste update: 2025-09-05 (Architectuur Consolidatie Compleet)
+Laatste update: 05-09-2025 (Architectuur Consolidatie Compleet)
 
 ## 🎯 Officiële Locaties
 
@@ -41,19 +41,23 @@ Laatste update: 2025-09-05 (Architectuur Consolidatie Compleet)
 ### 4. Handleidingen
 - **Ontwikkelaars Handleidingen**: `docs/handleidingen/ontwikkelaars/`
 - **Gebruikers Handleidingen**: `docs/handleidingen/gebruikers/`
-- **Deployment Guides**: `docs/handleidingen/deployment/`
+- **Uitrol Guides**: `docs/handleidingen/deployment/`
 
 ### 5. Code Analyse & Reviews
-- **Performance Analyses**: `docs/code-analyse/performance/`
-- **Security Reviews**: `docs/reviews/` ✅ ACTIEF
+- **Prestaties Analyses**: `docs/code-analyse/performance/`
+- **Beveiliging Reviews**: `docs/reviews/` ✅ ACTIEF
 - **Code Quality Reports**: `docs/code-analyse/quality/`
 - **Executive Summaries**: `docs/reviews/` ✅ ACTIEF
 
-### 6. Project Documentatie
-- **Requirements**: `docs/requirements/` ✅ ACTIEF
-- **Handover Documents**: `docs/handover/` ✅ ACTIEF
-- **User Stories**: `docs/stories/` ✅ ACTIEF
-- **Epics**: `docs/epics/` ✅ ACTIEF
+### 6. Backlog Management (Centralized)
+- **Requirements**: `/docs/backlog/requirements/` ✅ ACTIEF (92 requirements)
+- **Epics**: `/docs/backlog/epics/` ✅ ACTIEF (11 epics)
+- **User Stories**: `/docs/backlog/stories/` ✅ ACTIEF (55 stories)
+- **Dashboards (REQ/Epic overzicht)**: `/docs/backlog/dashboard/` ✅ ACTIEF
+  - `index.html` (requirements tabel, zoeken + sorteren)
+  - `per-epic.html` (inklappende blokken per epic)
+  - `graph.html` (offline REQ ↔ EPIC graph)
+- **Overdracht Documents**: `docs/handover/` ✅ ACTIEF
 
 ### 7. Archief
 - **Architectuur Consolidatie (Sept 2025)**: `docs/archief/2025-09-architectuur-consolidatie/`
@@ -67,6 +71,12 @@ Laatste update: 2025-09-05 (Architectuur Consolidatie Compleet)
 
 ## ⚠️ Verouderde Locaties (NIET GEBRUIKEN)
 
+⚠️ **BELANGRIJK**: Vanaf 8 september 2025:
+- `docs/requirements/` → Gebruik `/docs/backlog/requirements/`
+- `docs/epics/` → Gebruik `/docs/backlog/epics/`
+- `docs/stories/` → Gebruik `/docs/backlog/stories/`
+- `docs/dashboard/` → Gebruik `/docs/backlog/dashboard/`
+
 Deze directories bevatten duplicaten en worden gefaseerd verwijderd:
 - `docs/active/` - Migreer naar specifieke subdirectories
 - `docs/modules/` - Gebruik `docs/technische-referentie/modules/` ✅ Verwijderd
@@ -76,11 +86,11 @@ Deze directories bevatten duplicaten en worden gefaseerd verwijderd:
 
 ## 📋 Migratie Status
 
-- ✅ Backup gemaakt: 2025-08-18
-- ✅ Reorganisatie uitgevoerd: 2025-09-03
+- ✅ Backup gemaakt: 18-08-2025
+- ✅ Reorganisatie uitgevoerd: 03-09-2025
 - ✅ Documenten verplaatst naar canonieke locaties
 - ✅ INDEX.md bijgewerkt met nieuwe structuur
-- ✅ **Architectuur Consolidatie Compleet: 2025-09-05**
+- ✅ **Architectuur Consolidatie Compleet: 05-09-2025**
   - Van 47 documenten → 3 canonical documenten
   - Alle PER-007/CFR fixes geïntegreerd
   - Obsolete documenten gearchiveerd

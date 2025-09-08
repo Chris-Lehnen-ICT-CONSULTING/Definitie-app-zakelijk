@@ -1,13 +1,18 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: 2025-09-04
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2
+bijgewerkt: '08-09-2025'
+canonical: true
 document_type: workflow
+last_verified: 04-09-2025
+owner: architecture
+prioriteit: medium
+status: active
 ---
 
-# 📝 Document Creation & Management Workflow
+
+
+# 📝 Document Creation & Management Werkstroom
 
 Dit document beschrijft de **verplichte workflow** voor het maken, updaten en archiveren van documenten in het DefinitieAgent project.
 
@@ -19,7 +24,7 @@ Dit document beschrijft de **verplichte workflow** voor het maken, updaten en ar
 
 ---
 
-## 📋 Document Creation Workflow
+## 📋 Document Creation Werkstroom
 
 ### STAP 1: 🔍 Search for Existing Content
 ```bash
@@ -30,14 +35,14 @@ grep -r "jouw onderwerp" docs/
 ls docs/**/*relevante-term*.md
 
 # Check specifieke directories
-ls docs/stories/*.md
+ls docs/backlog/stories/*.md
 ls docs/architectuur/*.md
 ```
 
 ### STAP 2: 📚 Check Master Documents
 ```bash
 # Check het MASTER epics document
-cat docs/stories/MASTER-EPICS-USER-STORIES.md | grep "jouw onderwerp"
+cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md | grep "jouw onderwerp"
 
 # Check de documentatie index
 cat docs/INDEX.md | grep "jouw onderwerp"
@@ -75,12 +80,12 @@ Document gevonden?
 
 | Type Document | Locatie |
 |--------------|---------|
-| Epics & Stories | `docs/stories/MASTER-EPICS-USER-STORIES.md` (UPDATE ONLY) |
+| Epische Verhalen & Stories | `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` (UPDATE ONLY) |
 | Architecture (EA/SA/TA) | `docs/architectuur/` |
 | ADRs | `Geïntegreerd in EA/SA/TA docs` |
 | Module docs | `docs/technische-referentie/modules/` |
 | Reviews | `docs/reviews/` |
-| Requirements | `docs/requirements/` |
+| Vereisten | `docs/vereistes/` |
 | Test docs | `docs/testing/` |
 
 ### STAP 6: ✍️ Add Required Frontmatter
@@ -90,7 +95,7 @@ Document gevonden?
 canonical: true           # Is dit DE bron voor dit onderwerp?
 status: active           # active/draft/archived
 owner: development       # architecture/validation/platform/product/domain
-last_verified: 2025-09-04  # YYYY-MM-DD
+last_verified: 04-09-2025  # YYYY-MM-DD
 applies_to: definitie-app@v2  # Scope/versie
 document_type: guide     # epic/story/adr/guide/analysis/etc.
 ---
@@ -105,13 +110,13 @@ document_type: guide     # epic/story/adr/guide/analysis/etc.
 
 ---
 
-## 📦 Archiving Workflow
+## 📦 Archiving Werkstroom
 
 ### GEBRUIK ALLEEN `/docs/archief/`
 
 ```bash
 # GOED ✅
-mv docs/stories/old-story.md docs/archief/stories/
+mv docs/backlog/stories/old-story.md docs/archief/stories/
 
 # FOUT ❌
 mkdir docs/archive  # NOOIT!
@@ -124,7 +129,7 @@ mkdir docs/archief2 # NOOIT!
 docs/archief/
 ├── stories/        # Oude epics en stories
 ├── architecture/   # Oude architectuur docs
-├── requirements/   # Oude requirements
+├── vereistes/   # Oude vereistes
 ├── REFERENTIE/    # Referentie materiaal
 └── HISTORISCH/    # Historische docs
 ```
@@ -136,8 +141,8 @@ docs/archief/
 ### ❌ DEZE FOUTEN MAKEN ROMMEL:
 
 1. **Nieuwe epic/story document maken**
-   - FOUT: `docs/stories/epic-8-new-feature.md`
-   - GOED: Update `docs/stories/MASTER-EPICS-USER-STORIES.md`
+   - FOUT: `docs/backlog/stories/epic-8-new-feature.md`
+   - GOED: Update `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md`
 
 2. **Archive map maken**
    - FOUT: `mkdir docs/archive` of `docs/old`
@@ -172,7 +177,7 @@ docs/archief/
 ```bash
 # Deze commands ALTIJD uitvoeren voor document creatie:
 grep -r "onderwerp" docs/
-cat docs/stories/MASTER-EPICS-USER-STORIES.md | grep "onderwerp"
+cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md | grep "onderwerp"
 cat docs/INDEX.md | grep "onderwerp"
 cat docs/CANONICAL_LOCATIONS.md
 ls docs/archief/
@@ -186,7 +191,7 @@ ls docs/archief/
 |-------|---------|
 | Search content | `grep -r "term" docs/` |
 | Search filenames | `ls docs/**/*term*.md` |
-| Check master | `cat docs/stories/MASTER-EPICS-USER-STORIES.md` |
+| Check master | `cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` |
 | Check index | `cat docs/INDEX.md` |
 | Check locations | `cat docs/CANONICAL_LOCATIONS.md` |
 | Archive properly | `mv file.md docs/archief/category/` |

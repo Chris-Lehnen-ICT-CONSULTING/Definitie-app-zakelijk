@@ -1,0 +1,329 @@
+
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-CFR - EPIC-010-context-flow-refactoring</title>
+  <link rel="stylesheet" href="../assets/style.css" />
+</head>
+<body>
+  <div class="container">
+    <div class="breadcrumbs"><a href="../index.html">Requirements</a> / <span>EPIC-CFR</span></div>
+    <h1>EPIC-CFR: EPIC-010-context-flow-refactoring</h1>
+    <div><h1>EPIC-CFR: Context FLAAG Refactoring</h1>
+
+<h2>🚨 KRITIEK ISSUE</h2>
+
+<p>**The current system has KRITIEK bugs in context field handling that prevent legal professionals from creating compliant definitions. Context fields (juridische_context, wettelijke_basis, organisatorische_context) are collected in the UI but NOT properly passed through to the AI prompts.**</p>
+
+<h2>Managementsamenvatting</h2>
+
+<p>KRITIEK bug fixes and refactoring for context field handling in the DefinitieAgent system. This epic addresses the complete failure of context propagation from UI to AI prompts, which is causing non-compliant juridische definities.</p>
+
+<p>**Business Case:** The Dutch justitieketen operates under strict legal frameworks that require precise contextual grounding for all juridische definities. OM officier van justities need definitions that reference specific legal frameworks, DJI officials require organizational context for detentie-related terms, and Rechtspraak judges demand clear jurisdictional context. The current system's failure to propagate context from UI to AI means definitions lack essential legal grounding, making them unusable for official justitieketen documentation. This creates legal risk, operational inefficiency, and potential liability issues across all justice organizations.</p>
+
+<h2>Business Impact</h2>
+
+<ul>
+<li>**Legal Risk**: Definitions lack required juridical context for justitiesector use</li>
+<li>**User Frustration**: System crashes wanneer using custom context options</li>
+<li>**Compliance Failure**: Cannot demonstrate ASTRA/NORA compliance without context traceability</li>
+<li>**Quality Issues**: Generated definitions miss KRITIEK organizational and legal frameworks</li>
+<li>**Chain Integration Risk**: Definitions not accepted by partner organizations</li>
+<li>**Audit Failure**: No traceability for context decisions in legal proceedings</li>
+<li>**Measurable Impact**:</li>
+<li>100% of definitions missing required context</li>
+<li>0% ASTRA compliance for context traceability</li>
+<li>5+ user complaints per day about context issues</li>
+<li>€50K potential liability per non-compliant definition</li>
+</ul>
+
+<h2>KRITIEK Issues Identified</h2>
+
+<p>1. **Context Field Mapping Failure**: UI collects context but it's not passed to prompts</p>
+<p>2. **"Anders..." Option Crashes**: Custom context entry causes validation errors</p>
+<p>3. **Multiple Legacy Routes**: Inconsistent data flag paths cause unpredictable behavior</p>
+<p>4. **Type Confusion**: String vs List handling throughout the system</p>
+<p>5. **Missing ASTRA Compliance**: No traceability for context usage</p>
+
+<h2>Gebruikersverhalen Overzicht</h2>
+
+<h3>US-041: Fix Context Field Mapping to Prompts</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** KRITIEK</p>
+<p>**Verhaalpunten:** 8</p>
+<p>**Assigned:** Development Team</p>
+
+<p>**Problem:**</p>
+<p>Context fields are collected in UI but never reach the AI prompt, resulting in generic definitions without legal context.</p>
+
+<p>**Root Cause:**</p>
+<p>The <code>_convert_request_to_context</code> method creates <code>base_context</code> but doesn't properly map UI fields.</p>
+
+<p>**Fix Location:**</p>
+<ul>
+<li>`src/services/prompts/prompt_service_v2.py` lines 158-176</li>
+<li>`src/ui/tabbed_interface.py` context collection</li>
+<li>`src/services/definition_generator_context.py`</li>
+</ul>
+
+<h3>US-042: Fix "Anders..." Custom Context Option</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** KRITIEK</p>
+<p>**Verhaalpunten:** 5</p>
+<p>**Assigned:** Development Team</p>
+
+<p>**Problem:**</p>
+<p>Selecting "Anders..." and entering custom text causes: "The default value 'test' is not part of the options"</p>
+
+<p>**Root Cause:**</p>
+<p>The multiselect widget crashes wanneer the final list differs from options.</p>
+
+<p>**Fix Location:**</p>
+<ul>
+<li>`src/ui/components/context_selector.py` lines 137-183</li>
+<li>Context list processing logic</li>
+</ul>
+
+<h3>US-043: Remove Legacy Context Routes</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 8</p>
+<p>**Assigned:** Architecture Team</p>
+<p>**Afhankelijkheden:** US-041, US-042</p>
+
+<p>**Legacy Routes to Remove:**</p>
+<p>1. Direct <code>context</code> field (string) - DEPRECATED</p>
+<p>2. <code>domein</code> field separate from context - DEPRECATED</p>
+<p>3. V1 orchestrator context passing - REMOVED</p>
+<p>4. Session state context storage - REFACTOR</p>
+<p>5. Multiple context_dict creation points - CONSOLIDatum</p>
+
+<h3>US-044: Implement Context Type Validation</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 3</p>
+<p>**Afhankelijkheden:** US-041</p>
+
+<p>**vereisten:**</p>
+<ul>
+<li>All context fields MUST be lists of strings</li>
+<li>Empty lists are valid (no context selected)</li>
+<li>Null/undefined converts to empty list</li>
+<li>Type validation before prompt building</li>
+</ul>
+
+<h3>US-045: Add Context Traceability for ASTRA Compliance</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 5</p>
+<p>**Afhankelijkheden:** US-041, US-043</p>
+
+<p>**ASTRA vereisten:**</p>
+<ul>
+<li>Full context attribution in audit logs</li>
+<li>Context linked to authoritative sources</li>
+<li>Immutable audit trail</li>
+<li>7-year retention period</li>
+</ul>
+
+<h3>US-046: Create End-to-End Context FLAAG Tests</h3>
+<p>**Status:** Nog te bepalen</p>
+<p>**Prioriteit:** HOOG</p>
+<p>**Verhaalpunten:** 8</p>
+<p>**Afhankelijkheden:** US-041, US-042, US-044</p>
+
+<p>**testdekking Required:**</p>
+<ul>
+<li>All three context types selected</li>
+<li>"Anders..." in each context type</li>
+<li>Mixed predefined and custom values</li>
+<li>Context with special characters</li>
+<li>Type mismatch handling</li>
+</ul>
+
+<h2>Bug Reports</h2>
+
+<h3>CFR-BUG-001: Context Fields Not Passed to Prompts</h3>
+<p>**Severity:** KRITIEK</p>
+<p>**Status:** OPEN</p>
+<p>**Impact:** Definitions lack legal authority references</p>
+
+<p>**Steps to Reproduce:**</p>
+<p>1. Enter a term</p>
+<p>2. Select context values</p>
+<p>3. Generate definition</p>
+<p>4. Check debug prompt - context missing</p>
+
+<h3>CFR-BUG-002: "Anders..." Option Crashes</h3>
+<p>**Severity:** KRITIEK</p>
+<p>**Status:** OPEN</p>
+<p>**Impact:** Cannot use custom context values</p>
+
+<p>**Error:** "The default value 'test' is not part of the options"</p>
+
+<h2>Succesmetrieken (SMART)</h2>
+
+<ul>
+<li>[ ] **Specifiek**: 100% of context fields properly mapped to prompts (Currently: 0%)</li>
+<li>[ ] **Meetbaar**: Zero context-related errors in production logs (Currently: ~15/day)</li>
+<li>[ ] **Haalbaar**: Context visible in all debug prompts within 1 sprint</li>
+<li>[ ] **Relevant**: Full ASTRA compliance for context traceability (Currently: 0%)</li>
+<li>[ ] **Tijdgebonden**: Complete fix deployment by end of Sprint 36</li>
+<li>[ ] **Justice-specific**: Context terminology matches Justid standards 100%</li>
+<li>[ ] **User Satisfaction**: >90% satisfaction score (Currently: ~40%)</li>
+</ul>
+
+<h2>Technical Analysis</h2>
+
+<h3>Current Data FLAAG (BROKEN)</h3>
+<pre class=code><code>
+UI Context Selection
+        ↓
+    Session State ← LOST HERE
+        ↓
+    GenerationRequest
+        ↓
+    PromptServiceV2 ← NOT MAPPED
+        ↓
+    Empty Context in Prompt
+</code></pre>
+
+<h3>Target Data FLAAG (FIXED)</h3>
+<pre class=code><code>
+UI Context Selection
+        ↓
+    ValiDatumd Context Lists
+        ↓
+    GenerationRequest with Context
+        ↓
+    PromptServiceV2 Maps Context
+        ↓
+    Complete Context in Prompt
+        ↓
+    Audit Log Entry
+</code></pre>
+
+<h2>Implementatie Prioriteit</h2>
+
+<h3>Week 1: KRITIEK Fixes</h3>
+<ul>
+<li>US-041: Fix context field mapping</li>
+<li>US-042: Fix "Anders..." crashes</li>
+<li>Emergency hotfix deployment</li>
+</ul>
+
+<h3>Week 2: Stabilization</h3>
+<ul>
+<li>US-044: Type validation</li>
+<li>US-046: E2E tests</li>
+<li>Prestaties optimization</li>
+</ul>
+
+<h3>Week 3: Cleanup & Compliance</h3>
+<ul>
+<li>US-043: Remove legacy routes</li>
+<li>US-045: Add traceability</li>
+<li>Full compliance validation</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<p>✅ **Code Complete**</p>
+<ul>
+<li>[ ] All context fields properly mapped from UI to prompts</li>
+<li>[ ] "Anders..." option works without errors</li>
+<li>[ ] Legacy routes removed or deprecated</li>
+<li>[ ] Type validation geïmplementeerd</li>
+<li>[ ] Context traceability added</li>
+</ul>
+
+<p>✅ **Testen Complete**</p>
+<ul>
+<li>[ ] Unit tests written and passing (>90% coverage)</li>
+<li>[ ] Integration tests cover all context flags</li>
+<li>[ ] E2E tests validatie user scenarios</li>
+<li>[ ] Prestaties tests confirm SLA compliance</li>
+<li>[ ] Regression tests prevent bug reintroduction</li>
+</ul>
+
+<p>✅ **Compliance Verified**</p>
+<ul>
+<li>[ ] ASTRA vereisten checklist Voltooid</li>
+<li>[ ] NORA standards validatied</li>
+<li>[ ] Justice domain expert approval received</li>
+<li>[ ] Privacy impact assessment Voltooid</li>
+<li>[ ] Audit trail tested and verified</li>
+</ul>
+
+<h2>Risk Mitigation</h2>
+
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| Breaking Integrations | HOOG | Feature flags for gradual rollout |</p>
+<p>| Prestaties Impact | GEMIDDELD | Prestaties tests in each phase |</p>
+<p>| User Confusion | GEMIDDELD | Clear communication and training |</p>
+<p>| Compliance Failure | KRITIEK | Early compliance validation |</p>
+
+<h2>Wijzigingslog</h2>
+
+<p>| Datum | Versie | Wijzigingen |</p>
+<p>|------|---------|---------|</p>
+<p>| 04-09-2025 | 1.0 | Episch Verhaal aangemaakt - KRITIEK bugs identified |</p>
+<p>| 05-09-2025 | 1.x | Vertaald naar Nederlands met justitie context |</p>
+<p>| 05-09-2025 | 1.1 | Detailed analysis and fix plan added |</p>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>[Context FLAAG Analysis](../analysis/context_flag_analysis.md)</li>
+<li>[Bug Reports](../bugs/CFR-bugs.md)</li>
+<li>[ASTRA Compliance](../compliance/astra_Vereisten.md)</li>
+</ul>
+
+<h2>Compliance Notities</h2>
+
+<h3>ASTRA Compliance (Currently GEBLOKKEERD)</h3>
+<ul>
+<li>❌ Context traceability not geïmplementeerd</li>
+<li>❌ Audit trail missing for context decisions</li>
+<li>❌ No integration with justitieketen context standards</li>
+<li>⏳ Service registry upDatum needed</li>
+<li>⏳ Chain authenticatie for context sources</li>
+</ul>
+
+<h3>NORA Standards (Currently GEBLOKKEERD)</h3>
+<ul>
+<li>❌ Government data standards not folLAAGed for context</li>
+<li>❌ No metadata for context decisions</li>
+<li>⏳ Accessibility for context explanations needed</li>
+<li>⏳ Open standards compliance for context exchange</li>
+</ul>
+
+<h3>AVG/GDPR Compliance</h3>
+<ul>
+<li>⏳ Ensure no PII in context fields</li>
+<li>⏳ Context retention policies needed</li>
+<li>⏳ Right to explanation for context use</li>
+</ul>
+
+<h2>Stakeholder Goedkeuring</h2>
+
+<ul>
+<li>Business Eigenaar (Justid): 🚨 **GEBLOKKEERD - Awaiting fix**</li>
+<li>Technisch Lead: 🚨 **KRITIEK - In progress**</li>
+<li>beveiliging Officer (BIR): 🚨 **GEBLOKKEERD - No traceability**</li>
+<li>Compliance Officer: 🚨 **GEBLOKKEERD - ASTRA non-compliant**</li>
+<li>OM Representative: ❌ Not Goedgekeurd</li>
+<li>DJI Representative: ❌ Not Goedgekeurd</li>
+<li>Rechtspraak Architect: ❌ Not Goedgekeurd</li>
+<li>CJIB Integration: ❌ Not Goedgekeurd</li>
+</ul>
+
+
+<p>*⚠️ KRITIEK EPIC: This epic blocks production use and MUST be resolved before any new features. Non-compliance creates legal liability for the justitieketen.*</p></div>
+    <p class="muted">Bron: <a href="../../backlog/epics/EPIC-010-context-flow-refactoring.md">docs/backlog/epics/EPIC-010-context-flow-refactoring.md</a></p>
+  </div>
+</body>
+</html>

@@ -1,12 +1,16 @@
 ---
-canonical: true
-status: active
-owner: architecture
-last_verified: 2025-09-03
+aangemaakt: '08-09-2025'
 applies_to: definitie-app@v2.3
+bijgewerkt: '08-09-2025'
+canonical: true
 document_type: assessment
-priority: high
+last_verified: 03-09-2025
+owner: architecture
+prioriteit: high
+status: active
 ---
+
+
 
 # Technical Debt Assessment - DefinitieAgent
 
@@ -31,9 +35,9 @@ Het DefinitieAgent project heeft significante technische schuld (68% debt ratio)
 
 ## 🔴 Kritieke Technical Debt Issues
 
-### 1. Performance Bottlenecks
+### 1. Prestaties Bottlenecks
 
-**Service Initialization (SEVERITY: HIGH)**
+**Service Initialization (SEVERITY: HOOG)**
 - **Probleem**: Services worden 6x geïnitialiseerd per Streamlit rerun
 - **Impact**: 20 seconden startup tijd
 - **Oorzaak**: Geen caching op ServiceContainer
@@ -41,7 +45,7 @@ Het DefinitieAgent project heeft significante technische schuld (68% debt ratio)
 - **Effort**: 2 uur
 - **Code locatie**: `src/services/container.py`
 
-**Validation Rules Loading (SEVERITY: HIGH)**
+**Validation Rules Loading (SEVERITY: HOOG)**
 - **Probleem**: 45x herladen van toetsregels per sessie
 - **Impact**: Memory overhead, trage responses
 - **Oorzaak**: Geen caching mechanisme
@@ -49,7 +53,7 @@ Het DefinitieAgent project heeft significante technische schuld (68% debt ratio)
 - **Effort**: 2 uur
 - **Code locatie**: `src/services/validation/modular_validation_service.py`
 
-**Prompt Token Inefficiency (SEVERITY: MEDIUM)**
+**Prompt Token Inefficiency (SEVERITY: GEMIDDELD)**
 - **Probleem**: 7,250 tokens met 83% duplicatie
 - **Impact**: Hoge API kosten, trage responses
 - **Oorzaak**: Naive prompt concatenatie
@@ -59,7 +63,7 @@ Het DefinitieAgent project heeft significante technische schuld (68% debt ratio)
 
 ### 2. Code Quality Issues
 
-**Monolithic UI Components (SEVERITY: MEDIUM)**
+**Monolithic UI Components (SEVERITY: GEMIDDELD)**
 ```
 File                                Lines  Complexity
 src/ui/tabs/definition_generator_tab.py  1,437    64
@@ -67,7 +71,7 @@ src/ui/tabs/quality_control_tab.py       1,211    58
 src/ui/tabs/management_tab.py            1,089    52
 ```
 
-**Massive Code Duplication (SEVERITY: HIGH)**
+**Massive Code Duplication (SEVERITY: HOOG)**
 - 100 validator files met identieke structuur
 - ~4,500 lijnen gedupliceerde validatie logica
 - Onderhoud nightmare bij regel updates
@@ -107,8 +111,8 @@ src/ui/tabs/management_tab.py            1,089    52
 
 ## 🔧 Refactoring Prioriteiten
 
-### Priority 1: Quick Wins (1-2 dagen)
-1. **Performance Caching** - 2 uur
+### Prioriteit 1: Quick Wins (1-2 dagen)
+1. **Prestaties Caching** - 2 uur
    - ServiceContainer caching
    - Validation rules caching
    - Prompt template caching
@@ -118,7 +122,7 @@ src/ui/tabs/management_tab.py            1,089    52
    - Fixture reparatie
    - Basic smoke tests
 
-### Priority 2: Structural (3-5 dagen)
+### Prioriteit 2: Structural (3-5 dagen)
 1. **UI Component Splitting** - 3 dagen
    - Extract sub-components
    - Reduce complexity <20
@@ -129,10 +133,10 @@ src/ui/tabs/management_tab.py            1,089    52
    - JSON-driven validation
    - Reduce 100 files naar 10
 
-### Priority 3: Strategic (5+ dagen)
+### Prioriteit 3: Strategic (5+ dagen)
 1. **Complete V2 Migration** - 5 dagen
 2. **Database Layer Refactor** - 3 dagen
-3. **Comprehensive Testing** - 5 dagen
+3. **Comprehensive Testen** - 5 dagen
 
 ---
 
@@ -147,7 +151,7 @@ src/ui/tabs/management_tab.py            1,089    52
 ### Risk Assessment
 | Risk | Probability | Impact | Mitigation |
 |------|------------|--------|------------|
-| Performance degradatie | High | High | Immediate caching |
+| Prestaties degradatie | High | High | Immediate caching |
 | Test suite failure | High | Medium | Fix imports first |
 | Feature regression | Medium | High | Increase coverage |
 | Memory leaks | Low | High | Monitor closely |
@@ -179,7 +183,7 @@ src/ui/tabs/management_tab.py            1,089    52
 
 ```
 Week 1: Quick Wins
-├── Performance fixes (2 dagen)
+├── Prestaties fixes (2 dagen)
 ├── Test repairs (1 dag)
 └── Documentation (1 dag)
 

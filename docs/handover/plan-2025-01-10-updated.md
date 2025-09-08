@@ -18,18 +18,18 @@ Aangezien de UI test is gedaan, kunnen we Story 2.4 als "DONE" markeren als:
 **Acties**:
 ```bash
 # Update story status
-echo "Story 2.4: COMPLETE" >> docs/stories/story-2.4-status.md
+echo "Story 2.4: COMPLETE" >> docs/backlog/stories/story-2.4-status.md
 
 # Tag de huidige versie
 git tag -a "story-2.4-complete" -m "Story 2.4: Interface Migration Complete"
 git push origin --tags
 ```
 
-### Prioriteit 2: Story 2.5 - Testing & QA (3-4 uur)
+### Prioriteit 2: Story 2.5 - Testen & QA (3-4 uur)
 
 Nu kunnen we vol gas op Story 2.5:
 
-#### A. Performance Testing Suite
+#### A. Prestaties Testen Suite
 ```python
 # tests/performance/test_v2_performance.py
 import time
@@ -60,7 +60,7 @@ def test_complete_definition_generation_flow():
 
 #### C. Regression Test Suite
 ```bash
-# Run alle tests om te checken dat niets gebroken is
+# Run alle tests OM te checken dat niets gebroken is
 pytest --tb=short -q
 
 # Run met coverage
@@ -109,7 +109,7 @@ async def validate_text(self, ...):
 ### Migration from V1
 ...
 
-### Performance Considerations
+### Prestaties Considerations
 ...
 ```
 
@@ -131,7 +131,7 @@ Aangezien UI test al gedaan is:
 - Regression tests groen
 
 🎯 **Should Have**:
-- Performance baseline documented
+- Prestaties baseline documented
 - Memory profiling gedaan
 - Story 2.4 officieel afgesloten
 

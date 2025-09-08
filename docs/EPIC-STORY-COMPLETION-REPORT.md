@@ -1,27 +1,27 @@
-# Epic and Story Documentation Completion Report
+# Episch Verhaal and Story Documentation Completion Report
 
-**Date:** 2025-09-05
+**Date:** 05-09-2025
 **Analyst:** Business Analyst (Justice Domain Expert)
 **Project:** DefinitieAgent
 
 ## Executive Summary
 
-Comprehensive analysis and completion of all epic and story documentation for the DefinitieAgent project has been performed, with a focus on Dutch justice domain requirements, ASTRA/NORA compliance, and stakeholder alignment across OM, DJI, Rechtspraak, Justid, and CJIB.
+Comprehensive analysis and completion of all epic and story documentation for the DefinitieAgent project has been performed, with a focus on Dutch justice domain vereistes, ASTRA/NORA compliance, and stakeholder alignment across OM, DJI, Rechtspraak, Justid, and CJIB.
 
 ## Work Completed
 
-### 1. Epic Analysis and Enhancement
+### 1. Episch Verhaal Analysis and Enhancement
 
-#### Epics Analyzed (9 total)
+#### Epische Verhalen Analyzed (9 total)
 - ✅ EPIC-001: Basis Definitie Generatie (100% complete)
 - ✅ EPIC-002: Kwaliteitstoetsing (100% complete)
 - ✅ EPIC-003: Content Verrijking / Web Lookup (30% complete - enhanced)
 - ✅ EPIC-004: User Interface (30% complete)
 - ✅ EPIC-005: Export & Import (10% complete)
-- ✅ EPIC-006: Security & Auth (40% complete)
-- ✅ EPIC-007: Performance & Scaling (35% complete - enhanced)
+- ✅ EPIC-006: Beveiliging & Auth (40% complete)
+- ✅ EPIC-007: Prestaties & Scaling (35% complete - enhanced)
 - ✅ EPIC-009: Advanced Features (5% complete)
-- ✅ EPIC-010 (CFR): Context Flow Refactoring (0% complete - CRITICAL - enhanced)
+- ✅ EPIC-010 (CFR): Context Flow Refactoring (0% complete - KRITIEK - enhanced)
 
 #### Key Enhancements Made
 1. **Added Justice Domain Context**: All epics now include specific business cases for OM, DJI, Rechtspraak
@@ -39,16 +39,16 @@ Comprehensive analysis and completion of all epic and story documentation for th
 - **US-050**: NEW - Create End-to-End Context Flow Tests (EPIC-CFR)
 
 #### Story Enhancements
-1. **Justice Context**: Added OM/DJI/Rechtspraak specific requirements
-2. **Acceptance Criteria**: Expanded with Given/When/Then format
+1. **Justice Context**: Added OM/DJI/Rechtspraak specific vereistes
+2. **Acceptatiecriteria**: Expanded with Gegeven/Wanneer/Dan format
 3. **Technical Details**: Added code examples and implementation notes
-4. **Test Coverage**: Specified unit, integration, and E2E test requirements
+4. **Test Coverage**: Specified unit, integration, and E2E test vereistes
 5. **Definition of Done**: Complete checklists for each story
 
 ### 3. Critical Issues Addressed
 
 #### EPIC-010 (CFR) - Context Flow Refactoring
-**Status:** CRITICAL - Blocking production use
+**Status:** KRITIEK - Blocking production use
 
 **Issues Identified:**
 - Context fields (juridische_context, wettelijke_basis, organisatorische_context) NOT passed to AI prompts
@@ -80,16 +80,16 @@ Comprehensive analysis and completion of all epic and story documentation for th
 ### 5. ASTRA/NORA Compliance Documentation
 
 #### Compliance Areas Addressed
-- **Traceability**: Full audit trail requirements documented
+- **Traceability**: Full audit trail vereistes documented
 - **Service Architecture**: Loose coupling and service boundaries
-- **Security**: BIR 2012 audit standards integration
+- **Beveiliging**: BIR 2012 audit standards integration
 - **Privacy**: AVG/GDPR compliance for all data handling
 - **Interoperability**: Justice chain integration standards
-- **Accessibility**: WCAG 2.1 AA requirements
+- **Accessibility**: WCAG 2.1 AA vereistes
 
 ### 6. Justice Domain Integration
 
-#### Stakeholder-Specific Requirements Documented
+#### Stakeholder-Specific Vereisten Documented
 - **OM (Openbaar Ministerie)**: Prosecution context, case management
 - **DJI (Dienst Justitiële Inrichtingen)**: Detention management, security
 - **Rechtspraak**: Court proceedings, ECLI integration
@@ -100,7 +100,7 @@ Comprehensive analysis and completion of all epic and story documentation for th
 
 ### Immediate Actions Required
 
-1. **CRITICAL - Fix Context Flow (EPIC-010)**
+1. **KRITIEK - Fix Context Flow (EPIC-010)**
    - Sprint 36: US-041, US-042, US-043 (Week 1)
    - Sprint 37: US-048, US-049, US-050 (Week 2-3)
    - This blocks production deployment and ASTRA compliance
@@ -116,14 +116,14 @@ Comprehensive analysis and completion of all epic and story documentation for th
 
 ### Process Improvements
 
-1. **Establish Epic/Story Review Cadence**
+1. **Establish Episch Verhaal/Story Review Cadence**
    - Weekly epic status reviews
    - Bi-weekly story refinement sessions
    - Monthly justice partner validation
 
 2. **Implement Automated Compliance Checks**
    - ASTRA compliance validation in CI/CD
-   - Automated requirement traceability
+   - Automated vereiste traceability
    - Justice terminology validation
 
 3. **Create Justice Test Scenarios**
@@ -134,25 +134,25 @@ Comprehensive analysis and completion of all epic and story documentation for th
 ## Success Metrics Achieved
 
 - ✅ All 9 epics have complete metadata and documentation
-- ✅ 50 stories documented with acceptance criteria
-- ✅ Bidirectional requirement traceability established
+- ✅ 50 stories documented with acceptatiecriteria
+- ✅ Bidirectional vereiste traceability established
 - ✅ ASTRA/NORA compliance documented throughout
 - ✅ Justice domain context integrated in all artifacts
 - ✅ Critical bugs identified and remediation planned
 
 ## Files Modified/Created
 
-### Epics Enhanced
-- `/docs/epics/EPIC-003-content-verrijking-web-lookup.md`
-- `/docs/epics/EPIC-007-performance-scaling.md`
-- `/docs/epics/EPIC-010-context-flow-refactoring.md`
+### Epische Verhalen Enhanced
+- `/docs/backlog/epics/EPIC-003-content-verrijking-web-lookup.md`
+- `/docs/backlog/epics/EPIC-007-performance-scaling.md`
+- `/docs/backlog/epics/EPIC-010-context-flow-refactoring.md`
 
 ### Stories Enhanced/Created
-- `/docs/stories/US-015.md` (enhanced)
-- `/docs/stories/US-043.md` (rewritten)
-- `/docs/stories/US-048.md` (new)
-- `/docs/stories/US-049.md` (new)
-- `/docs/stories/US-050.md` (new)
+- `/docs/backlog/stories/US-015.md` (enhanced)
+- `/docs/backlog/stories/US-043.md` (rewritten)
+- `/docs/backlog/stories/US-048.md` (new)
+- `/docs/backlog/stories/US-049.md` (new)
+- `/docs/backlog/stories/US-050.md` (new)
 
 ## Next Steps
 
@@ -174,17 +174,17 @@ Comprehensive analysis and completion of all epic and story documentation for th
 ---
 
 **Report Prepared By:** Business Analyst (Justice Domain Expert)
-**Review Required By:** Product Owner, Technical Lead, Justice Chain Representatives
+**Review Required By:** Product Eigenaar, Technical Lead, Justice Chain Representatives
 **Action Required:** IMMEDIATE - Critical context flow issues block production
 
 ## Appendix: Justice Terminology
 
-- **OM**: Openbaar Ministerie (Public Prosecution Service)
-- **DJI**: Dienst Justitiële Inrichtingen (Custodial Institutions Agency)
+- **OM**: Openbaar Ministerie (OM) (Public Prosecution Service)
+- **DJI**: Dienst Justitiële Inrichtingen (DJI) (Custodial Institutions Agency)
 - **Rechtspraak**: The Judiciary
 - **Justid**: Justitiële Informatiedienst (Judicial Information Service)
 - **CJIB**: Centraal Justitieel Incassobureau (Central Fine Collection Agency)
 - **ASTRA**: Algemene Strategie Referentie Architectuur (General Strategy Reference Architecture)
 - **NORA**: Nederlandse Overheid Referentie Architectuur (Dutch Government Reference Architecture)
-- **BIR**: Baseline Informatiebeveiliging Rijksdienst (Government Information Security Baseline)
+- **BIR**: Baseline Informatiebeveiliging Rijksdienst (Government Information Beveiliging Baseline)
 - **AVG**: Algemene Verordening Gegevensbescherming (GDPR)

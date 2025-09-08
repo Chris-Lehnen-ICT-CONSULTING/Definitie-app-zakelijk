@@ -1,18 +1,18 @@
-# 📋 Handover Document - Epic 3: Web Lookup Modernization
+# 📋 Overdracht Document - Episch Verhaal 3: Web Lookup Modernization
 
 ## 🎯 Executive Summary
 
-Dit document bevat alle informatie voor het implementeren van Epic 3: Web Lookup Modernization. Het doel is om de web lookup service te moderniseren voor betere definitie-generatie via LLM context verrijking, met volledige bronverantwoording en provenance tracking.
+Dit document bevat alle informatie voor het implementeren van Episch Verhaal 3: Web Lookup Modernization. Het doel is OM de web lookup service te moderniseren voor betere definitie-generatie via LLM context verrijking, met volledige bronverantwoording en provenance tracking.
 
 **Geschatte doorlooptijd:** 4-7 dagen totaal (MVP in 2 dagen)
 **Status:** Ready for implementation
-**Document datum:** 2025-01-09
+**Document datum:** 09-01-2025
 
 ## 📊 Current Situation
 
 ### Wat We Hebben
 - **5 legacy implementaties** verspreid over meerdere files (633+ regels code)
-- **ModernWebLookupService** partially implemented (alleen Wikipedia/SRU)
+- **ModernWebLookupService** partially geïmplementeerd (alleen Wikipedia/SRU)
 - **HybridContextEngine** kan web context gebruiken
 - **Geen bronverantwoording** in UI of database
 - **Encoding problemen** in legacy code (UTF-8 issues)
@@ -31,11 +31,11 @@ src/web_lookup/
 ### Probleem Statement
 1. **Geen unified contract** - Elke provider eigen format
 2. **Geen provenance tracking** - Bronnen worden niet opgeslagen
-3. **Performance issues** - Geen caching, sequentiële calls
+3. **Prestaties issues** - Geen caching, sequentiële calls
 4. **UI geeft geen bronnen weer** - Gebruiker ziet niet wat gebruikt is
 5. **Export mist bronnen** - Geen bronverantwoording in exports
 
-## 🚀 Implementation Roadmap
+## 🚀 Implementatie Roadmap
 
 ### Fase 0: Contract & Specification (0.5 dag) ⭐ START HIER
 
@@ -134,7 +134,7 @@ web_lookup:
 - [ ] No ambiguities in specification
 - [ ] Config file created and validated
 
-### Fase 1: Core Service Implementation (1-2 dagen)
+### Fase 1: Core Service Implementatie (1-2 dagen)
 
 **Dag 1: Wikipedia Adapter**
 
@@ -264,7 +264,7 @@ for definition in all_definitions:
             insert_into_definitie_bronnen(definition.id, source)
 ```
 
-### Fase 3: Full Implementation (1-2 dagen)
+### Fase 3: Full Implementatie (1-2 dagen)
 
 Add remaining 5 providers:
 - Wiktionary
@@ -273,11 +273,11 @@ Add remaining 5 providers:
 - Strafrechtketen.nl
 - Kamerstukken.nl
 
-### Fase 4: Testing & Quality (0.5-1 dag)
+### Fase 4: Testen & Quality (0.5-1 dag)
 
 Create offline tests with mocked responses.
 
-## 🔧 Technical Implementation Details
+## 🔧 Technical Implementatie Details
 
 ### Ranking Algorithm
 ```python
@@ -352,12 +352,12 @@ def build_context_pack(
     return "\n\n".join(context_parts), used_results
 ```
 
-## ⚠️ Critical Implementation Notes
+## ⚠️ Critical Implementatie Notities
 
 ### 1. Start Small
 - **Begin with Wikipedia only**
 - Get full flow working end-to-end
-- Then add SRU/Overheid.nl
+- Dan add SRU/Overheid.nl
 - Other providers last
 
 ### 2. No Breaking Changes
@@ -365,7 +365,7 @@ def build_context_pack(
 - ModernWebLookupService should still work
 - Don't modify existing database schema (use metadata)
 
-### 3. Testing Strategy
+### 3. Testen Strategy
 ```python
 # Use mocked responses for all tests
 @patch('httpx.AsyncClient.get')
@@ -435,7 +435,7 @@ except asyncio.TimeoutError:
 - `src/services/modern_web_lookup_service.py` - Current implementation
 - `src/web_lookup/lookup.py` - Legacy with 7 providers
 - `src/hybrid_context/hybrid_context_engine.py` - How context is used
-- `docs/stories/epic-3-web-lookup-modernization.md` - Full epic
+- `docs/backlog/stories/epic-3-web-lookup-modernization.md` - Full epic
 
 ### Test Commands
 ```bash
@@ -484,7 +484,7 @@ sqlite3 data/definities.db "SELECT metadata FROM definities WHERE id=X"
 
 Morning:
 - [ ] Read this document completely
-- [ ] Review Epic 3 document
+- [ ] Review Episch Verhaal 3 document
 - [ ] Check out feature branch
 - [ ] Create contract file
 - [ ] Get contract reviewed
@@ -504,9 +504,9 @@ End of Day:
 
 ---
 
-*Generated: 2025-01-09*
+*Generated: 09-01-2025*
 *For: Next Developer*
 *By: Development Team*
-*Questions: Check Epic 3 document or ask in team chat*
+*Questions: Check Episch Verhaal 3 document or ask in team chat*
 
 **Remember: MVP in 2 dagen is achievable if you follow this plan!** 🚀

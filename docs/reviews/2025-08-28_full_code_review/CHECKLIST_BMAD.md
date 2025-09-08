@@ -91,7 +91,7 @@ Regel: vink een item pas af als het voorstel + acceptatiecriteria in `CODE_REVIE
 - [ ] [.bmad-core/tasks/risk-profile.md](CODE_REVIEW_REPORT.md#-bmad-core-tasks-risk-profile-md)
 - [ ] [.bmad-core/tasks/shard-doc.md](CODE_REVIEW_REPORT.md#-bmad-core-tasks-shard-doc-md)
 - [ ] [.bmad-core/tasks/test-design.md](CODE_REVIEW_REPORT.md#-bmad-core-tasks-test-design-md)
-- [ ] [.bmad-core/tasks/trace-requirements.md](CODE_REVIEW_REPORT.md#-bmad-core-tasks-trace-requirements-md)
+- [ ] [.bmad-core/tasks/trace-vereistes.md](CODE_REVIEW_REPORT.md#-bmad-core-tasks-trace-vereistes-md)
 - [ ] [.bmad-core/tasks/validate-next-story.md](CODE_REVIEW_REPORT.md#-bmad-core-tasks-validate-next-story-md)
 
 ### templates/

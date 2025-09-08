@@ -1,10 +1,10 @@
-# TDD to Deployment Workflow
+# TDD to Uitrol Werkstroom
 
-## Version
-- **Version**: 2.0.0
-- **Last Updated**: 2025-01-30
+## Versie
+- **Versie**: 2.0.0
+- **Laatst Bijgewerkt**: 30-01-2025
 - **Status**: Active
-- **Owner**: tdd-orchestrator
+- **Eigenaar**: tdd-orchestrator
 
 ## Overview
 This document describes the complete workflow from TDD development to production deployment using the orchestrated agent system. It serves as the **single source of truth** for all workflow execution.
@@ -15,7 +15,7 @@ This document describes the complete workflow from TDD development to production
 A **work unit** is a logically complete, self-contained piece of work that delivers value:
 
 #### Valid Work Units ✅
-- **User Story**: Complete feature implementation (e.g., "US-034: Add user registration")
+- **Gebruikersverhaal**: Complete feature implementation (e.g., "US-034: Add user registration")
 - **Bug Fix**: Complete issue resolution (e.g., "BUG-001: Fix login timeout")
 - **Feature**: Standalone functionality (e.g., "FEAT-012: Add dark mode")
 - **Refactoring**: Complete code improvement (e.g., "REF-005: Extract payment service")
@@ -28,7 +28,7 @@ A **work unit** is a logically complete, self-contained piece of work that deliv
 
 ### Work Unit Classification
 
-#### CODE (Requires Full TDD Workflow)
+#### CODE (Requires Full TDD Werkstroom)
 ```yaml
 requires_tdd:
   - Python files (*.py)
@@ -51,7 +51,7 @@ skip_tdd:
   - CHANGELOG (unless auto-generated)
 ```
 
-## Workflow Diagram
+## Werkstroom Diagram
 
 ```
 Work Unit Created
@@ -69,12 +69,12 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
 - **Agent**: business-analyst-justice
 - **Trigger**: Work unit created with ID
 - **Tasks**:
-  1. Analyze complete requirement
+  1. Analyze complete vereiste
   2. Create user story with SMART criteria
-  3. Define acceptance criteria (Given-When-Then)
+  3. Define acceptatiecriteria (Gegeven-Wanneer-Dan)
   4. Document domain rules and constraints
 - **Output**:
-  - User story in `docs/stories/MASTER-EPICS-USER-STORIES.md`
+  - User story in `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md`
   - Format: As a [role], I want [feature], so that [benefit]
 - **Gate Conditions**:
   - [ ] User story has unique ID
@@ -100,7 +100,7 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
   - [ ] All three architecture layers documented
   - [ ] API contracts defined (if applicable)
   - [ ] Component interfaces specified
-  - [ ] Non-functional requirements listed
+  - [ ] Non-functional vereistes listed
   - [ ] ASTRA/NORA compliance checked
 - **Duration**: ~20 minutes
 
@@ -111,7 +111,7 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
 - **Tasks**:
   1. Write failing unit tests
   2. Write failing integration tests
-  3. Cover all acceptance criteria
+  3. Cover all acceptatiecriteria
   4. Include edge cases
   5. Use AAA pattern (Arrange-Act-Assert)
 - **Output**:
@@ -121,7 +121,7 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
 - **Gate Conditions**:
   - [ ] All tests written before implementation
   - [ ] Tests fail as expected (RED state)
-  - [ ] Coverage for all acceptance criteria
+  - [ ] Coverage for all acceptatiecriteria
   - [ ] Edge cases included
   - [ ] Commit made with correct format
 - **Duration**: ~25 minutes
@@ -157,8 +157,8 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
   1. Review against 7-point checklist:
      - Correctness & Logic
      - Test Coverage
-     - Security & Privacy
-     - Performance
+     - Beveiliging & Privacy
+     - Prestaties
      - Code Style
      - Documentation
      - Domain Compliance
@@ -213,7 +213,7 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
   - [ ] Coverage ≥80% (60% minimum)
   - [ ] No regressions detected
   - [ ] Integration tests passing
-  - [ ] Performance benchmarks met
+  - [ ] Prestaties benchmarks met
 - **Duration**: ~10 minutes
 
 ### 1.8 TEST-CONFIRM → DONE
@@ -236,7 +236,7 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
 - **Duration**: ~5 minutes
 - **Trigger**: DevOps Pipeline Orchestrator (automatic if configured)
 
-## Phase 2: Deployment Pipeline (DevOps Pipeline Orchestrator)
+## Phase 2: Uitrol Pipeline (DevOps Pipeline Orchestrator)
 
 ### 2.1 BRANCH_MANAGEMENT
 - Create/update feature branch
@@ -312,7 +312,7 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
 - Update documentation
 - Notify team
 
-## Workflow Enforcement
+## Werkstroom Enforcement
 
 ### Violation Handling
 
@@ -382,7 +382,7 @@ The prompt-engineer agent supports other agents by:
 
 ## Quality Standards
 
-### Minimum Requirements per Phase
+### Minimum Vereisten per Phase
 - **ANALYSIS**: SMART criteria present
 - **DESIGN**: All 3 architecture layers
 - **TEST-RED**: Tests failing
@@ -403,13 +403,13 @@ docs(<ID>): <description>       # For documentation
 
 ## Metrics & Monitoring
 
-### Key Performance Indicators
+### Key Prestaties Indicators
 - **Lead Time**: TODO → Production
 - **Cycle Time**: DEV-GREEN → Production
 - **Phase Duration**: Target vs Actual
 - **Violation Rate**: Attempts to skip phases
 - **Coverage Trend**: Must maintain or improve
-- **Deployment Success Rate**: Target >95%
+- **Uitrol Success Rate**: Target >95%
 
 ### Tracking Template
 ```json
@@ -438,7 +438,7 @@ docs(<ID>): <description>       # For documentation
 5. **Document Everything**: Maintain full audit trail
 6. **Monitor Post-Deploy**: Watch for 30 minutes minimum
 
-## Example Workflow Execution
+## Example Werkstroom Execution
 
 ```bash
 # User initiates work
@@ -469,12 +469,12 @@ docs(<ID>): <description>       # For documentation
 ## Documentation Updates
 
 After workflow completion, these documents are updated:
-- `docs/stories/MASTER-EPICS-USER-STORIES.md` - Story status
+- `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` - Story status
 - `CHANGELOG.md` - Feature/fix entry
 - `docs/reviews/<ID>-review.md` - Review report
 - `docs/refactor-log.md` - Refactor notes
 - `docs/test-coverage.md` - Coverage metrics
-- `docs/deployments/<date>.md` - Deployment record
+- `docs/deployments/<date>.md` - Uitrol record
 
 ## Rollback Procedures
 

@@ -3,7 +3,7 @@
 ---
 document: ValidationResult Contract
 version: 1.0
-status: DRAFT
+status: CONCEPT
 type: Contract
 parent: validation_orchestrator_v2.md
 related:
@@ -14,8 +14,8 @@ see-also:
   - golden-dataset-validation.md
   - ADR-006-validation-orchestrator-v2.md
 owner: Dev Lead
-created: 2024-12-29
-updated: 2024-12-29
+created: 29-12-2024
+updated: 29-12-2024
 tags: [validation, contract, v2, async, schema]
 ---
 
@@ -238,7 +238,7 @@ except Exception as e:
 }
 ```
 
-## Compatibility Testing
+## Compatibility Testen
 
 ### Golden Snapshots
 - Maintain bij: `tests/fixtures/golden/validation_results/`
@@ -274,12 +274,12 @@ def test_contract_compatibility():
 - **Schema**: [JSON Schema Definition](./schemas/validation_result.schema.json)
 - **Errors**: [Error Catalog](../../technisch/error_catalog_validation.md)
 - **Usage**: Rollout Runbook (documentation in planning)
-- **Testing**: [Golden Dataset](../../testing/golden-dataset-validation.md)
+- **Testen**: [Golden Dataset](../../testing/golden-dataset-validation.md)
 
 ## Change Log
-| Version | Date | Changes | Author |
+| Versie | Date | Changes | Author |
 |---------|------|---------|--------|
-| 1.0.0 | 2024-12-29 | Initial contract definition | Dev Lead |
+| 1.0.0 | 29-12-2024 | Initial contract definition | Dev Lead |
 
 ---
 *Contract governance: Changes require approval from Dev Lead + Architect*

@@ -1,6 +1,6 @@
 # 📝 Vertaalrapport Nederlandse Justitieketen Documentatie
 
-**Datum:** 2025-09-05
+**Datum:** 05-09-2025
 **Uitgevoerd door:** Business Analyst voor Nederlandse Justitieketen
 **Project:** DefinitieAgent - Juridische Definitie Generator voor OM, DJI, Rechtspraak, Justid en CJIB
 
@@ -10,7 +10,7 @@ Alle documentatie is succesvol vertaald en verrijkt naar het Nederlands met spec
 
 ## ✅ Voltooide Taken
 
-### 1. Epic Documentatie (9 bestanden)
+### 1. Episch Verhaal Documentatie (9 bestanden)
 - ✅ EPIC-001: Basis Definitie Generatie
 - ✅ EPIC-002: Kwaliteitstoetsing
 - ✅ EPIC-003: Content Verrijking / Web Lookup
@@ -23,7 +23,7 @@ Alle documentatie is succesvol vertaald en verrijkt naar het Nederlands met spec
 
 **Status:** 100% voltooid
 
-### 2. User Stories (50 bestanden)
+### 2. Gebruikersverhalen (50 bestanden)
 - ✅ US-001 t/m US-050: Alle gebruikersverhalen vertaald
 - Verrijkt met Nederlandse justitie context
 - SMART criteria toegevoegd waar ontbrekend
@@ -31,7 +31,7 @@ Alle documentatie is succesvol vertaald en verrijkt naar het Nederlands met spec
 
 **Status:** 100% voltooid (49/50 vertaald, 1 was al Nederlands)
 
-### 3. Requirements (88 bestanden)
+### 3. Vereisten (88 bestanden)
 - ✅ REQ-000 t/m REQ-087: Alle vereisten vertaald
 - ASTRA/NORA/BIR compliance toegevoegd
 - AVG (niet GDPR) terminologie gebruikt
@@ -40,9 +40,9 @@ Alle documentatie is succesvol vertaald en verrijkt naar het Nederlands met spec
 **Status:** 100% voltooid
 
 ### 4. INDEX Bestanden
-- ✅ Epic Dashboard bijgewerkt met Nederlandse context
+- ✅ Episch Verhaal Dashboard bijgewerkt met Nederlandse context
 - Story Index aangevuld met Nederlandse beschrijvingen
-- Requirements overzicht in het Nederlands
+- Vereisten overzicht in het Nederlands
 
 **Status:** In uitvoering
 
@@ -50,8 +50,8 @@ Alle documentatie is succesvol vertaald en verrijkt naar het Nederlands met spec
 
 ### Organisaties
 Alle documentatie bevat nu expliciete verwijzingen naar:
-- **OM** - Openbaar Ministerie (strafvervolging)
-- **DJI** - Dienst Justitiële Inrichtingen (detentie)
+- **OM** - Openbaar Ministerie (OM) (strafvervolging)
+- **DJI** - Dienst Justitiële Inrichtingen (DJI) (detentie)
 - **Rechtspraak** - De Nederlandse rechtbanken
 - **Justid** - Justitiële Informatiedienst (terminologie autoriteit)
 - **CJIB** - Centraal Justitieel Incassobureau (boetes/maatregelen)
@@ -93,13 +93,13 @@ Alle documenten voldoen aan:
 ### Terminologie Mapping
 | Engels | Nederlands |
 |--------|------------|
-| User Story | Gebruikersverhaal |
-| Acceptance Criteria | Acceptatiecriteria |
+| Gebruikersverhaal | Gebruikersverhaal |
+| Acceptatiecriteria | Acceptatiecriteria |
 | Definition of Done | Definitie van Gereed |
-| Dependencies | Afhankelijkheden |
-| Requirements | Vereisten |
-| Performance | Prestaties |
-| Security | Beveiliging |
+| Afhankelijkheden | Afhankelijkheden |
+| Vereisten | Vereisten |
+| Prestaties | Prestaties |
+| Beveiliging | Beveiliging |
 | Stakeholder | Belanghebbende |
 
 ### Behouden Engels (Technisch)
@@ -167,7 +167,7 @@ Alle documenten voldoen aan:
 
 ## 🎯 Conclusie
 
-De vertaling en verrijking van de DefinitieAgent documentatie naar het Nederlands is succesvol voltooid. Alle 147 documenten (9 epics, 50 stories, 88 requirements) zijn:
+De vertaling en verrijking van de DefinitieAgent documentatie naar het Nederlands is succesvol voltooid. Alle 147 documenten (9 epics, 50 stories, 88 vereistes) zijn:
 
 1. **Volledig vertaald** naar professioneel Nederlands
 2. **Verrijkt** met concrete metrieken en succescriteria
