@@ -14,6 +14,34 @@ from datetime import datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
 from typing import Any  # Type hints voor flexibele type definities
 
+# GenerationResult compatibility class for tests (EPIC-010 FASE 1 shim)
+# This avoids circular imports and maintains backward compatibility
+
+
+@dataclass
+class GenerationResult:
+    """
+    Compatibility wrapper for legacy interface.
+    This is a temporary shim for EPIC-010 FASE 1 to fix test imports.
+    The actual implementation is in src/orchestration/definitie_agent.py
+    """
+
+    definitie: str
+    metadata: dict[str, Any] | None = None
+    context: dict[str, Any] | None = None
+    voorbeelden: dict[str, Any] | None = None
+    voorbeelden_gegenereerd: bool = False
+    voorbeelden_error: str | None = None
+
+    @property
+    def prompt_template(self):
+        """Get prompt template from metadata for debug section"""
+        return (
+            self.metadata.get("prompt_template", "Geen prompt beschikbaar")
+            if self.metadata
+            else "Geen prompt beschikbaar"
+        )
+
 
 # Enumeraties voor status en severity tracking
 class DefinitionStatus(Enum):
@@ -42,7 +70,8 @@ class GenerationRequest:
 
     id: str  # Unieke identifier voor tracking en logging
     begrip: str  # Het begrip waarvoor een definitie gegenereerd wordt
-    context: str | None = None  # Contextuele informatie voor betere definitie
+    # DEPRECATED (EPIC-010): use list-based fields; kept for legacy callers until full removal
+    context: str | None = None  # Contextuele informatie (legacy)
     domein: str | None = None  # Juridisch domein (bijv. "Belasting", "Milieu")
     organisatie: str | None = None  # Verantwoordelijke organisatie
     extra_instructies: str | None = None  # Specifieke instructies van gebruiker
@@ -75,7 +104,8 @@ class Definition:
     definitie: str = ""  # De eigenlijke definitie tekst
     toelichting: str | None = None  # Uitgebreidere uitleg of context
     bron: str | None = None  # Juridische bron (wet, artikel, jurisprudentie)
-    context: str | None = None  # Specifieke context waar definitie geldt
+    # DEPRECATED (EPIC-010): maintain for UI compatibility only; prefer list-based context fields in requests
+    context: str | None = None  # Specifieke context (legacy)
     domein: str | None = None  # Juridisch domein (bijv. belastingrecht)
     synoniemen: list[str] | None = None  # Alternatieve benamingen voor hetzelfde begrip
     gerelateerde_begrippen: list[str] | None = (
