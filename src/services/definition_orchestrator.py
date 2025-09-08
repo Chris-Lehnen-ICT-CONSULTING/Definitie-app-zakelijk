@@ -410,6 +410,8 @@ class DefinitionOrchestrator(
                 # ontologische_categorie verwijderd uit base_context om string->char array bug te fixen
             }
 
+            # US-043: Legacy code - will be replaced by V2 orchestrator
+            # This direct EnrichedContext creation is allowed only in legacy code
             enriched_context = EnrichedContext(
                 base_context=base_context,
                 sources=[],  # Geen externe bronnen voor nu

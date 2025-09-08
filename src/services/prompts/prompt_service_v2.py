@@ -3,21 +3,29 @@ PromptServiceV2 - Category-aware prompt generation service.
 
 Connects existing advanced prompt systems to V2 orchestrator.
 Fixes ontological category template selection bug.
+REFACTORED: Now uses centralized ContextManager (US-043).
 """
 
 import logging
+import os
 import time
+import uuid
 from dataclasses import dataclass
 from typing import Any
 
-from services.definition_generator_config import UnifiedGeneratorConfig
-from services.definition_generator_context import EnrichedContext
+from services.definition_generator_config import ContextConfig, UnifiedGeneratorConfig
+from services.definition_generator_context import EnrichedContext, HybridContextManager
 from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import GenerationRequest
 from services.web_lookup.config_loader import load_web_lookup_config
 from services.web_lookup.sanitization import sanitize_snippet
 
 logger = logging.getLogger(__name__)
+
+# US-041: Feature flag for context v2 mapping
+CONTEXT_V2_ENABLED = os.getenv("CONTEXT_V2_ENABLED", "false").lower() == "true"
+# US-043: Use centralized context manager
+USE_CONTEXT_MANAGER = os.getenv("USE_CONTEXT_MANAGER", "true").lower() == "true"
 
 
 @dataclass
@@ -56,6 +64,15 @@ class PromptServiceV2:
         self.config = config or PromptServiceConfig()
         unified_config = UnifiedGeneratorConfig()
         self.prompt_generator = UnifiedPromptBuilder(unified_config)
+
+        # US-043: Initialize HybridContextManager for single context entry point
+        context_config = ContextConfig(
+            enable_web_lookup=True,
+            enable_rule_interpretation=False,  # Can be enabled later
+            context_abbreviations={},
+        )
+        self.context_manager = HybridContextManager(context_config)
+
         # Load prompt augmentation config (Epic 3)
         try:
             wl_cfg = load_web_lookup_config().get("web_lookup", {})
@@ -77,8 +94,21 @@ class PromptServiceV2:
         start_time = time.time()
 
         try:
-            # Convert V2 request to enriched context for existing prompt generator
-            enriched_context = self._convert_request_to_context(request, context)
+            # US-043: Use HybridContextManager as single context entry point
+            # Build enriched context through the unified manager
+            enriched_context = await self.context_manager.build_enriched_context(
+                request
+            )
+
+            # Merge any additional context from orchestrator (e.g., web_lookup)
+            if context:
+                # Add web_lookup data to metadata if present
+                if "web_lookup" in context:
+                    enriched_context.metadata["web_lookup"] = context["web_lookup"]
+                # Add any other context fields to metadata
+                for key, value in context.items():
+                    if key not in enriched_context.metadata:
+                        enriched_context.metadata[key] = value
 
             # Generate prompt using existing advanced system with category support
             prompt_text = self.prompt_generator.build_prompt(
@@ -132,13 +162,26 @@ class PromptServiceV2:
             )
             raise
 
-    def _convert_request_to_context(
+    def _DEPRECATED_convert_request_to_context(
         self, request: GenerationRequest, extra_context: dict[str, Any] | None = None
     ) -> EnrichedContext:
-        """Convert V2 GenerationRequest to EnrichedContext for existing prompt system.
+        """DEPRECATED: Use HybridContextManager.build_enriched_context() instead.
 
-        EPIC-CFR FIX: Properly map context fields from UI to prompts
+        This method is deprecated as of US-043. It violates the single context
+        entry point principle. All context mapping should go through
+        HybridContextManager.
+
+        Legacy method for converting V2 GenerationRequest to EnrichedContext.
         """
+        import warnings
+
+        warnings.warn(
+            "_convert_request_to_context is deprecated. Use HybridContextManager.build_enriched_context() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        # Generate correlation ID for audit trail (ASTRA compliance)
+        correlation_id = str(uuid.uuid4())
 
         # Build base context from request (PER-007: volledige mapping met dedupe)
         base_context: dict[str, list[str]] = {
@@ -166,6 +209,34 @@ class PromptServiceV2:
         juridische = getattr(request, "juridische_context", None)
         wettelijke = getattr(request, "wettelijke_basis", None)
 
+        # Feature flag check for enhanced mapping
+        if CONTEXT_V2_ENABLED:
+            logger.info(
+                f"[AUDIT] Context V2 mapping ENABLED | "
+                f"correlation_id={correlation_id} | "
+                f"begrip={request.begrip} | "
+                f"request_id={request.id}"
+            )
+
+            # Enhanced mapping with validation
+            if organisatorische and not isinstance(organisatorische, list):
+                organisatorische = [organisatorische] if organisatorische else []
+                logger.warning(
+                    f"[AUDIT] Converted non-list organisatorische_context to list | correlation_id={correlation_id}"
+                )
+
+            if juridische and not isinstance(juridische, list):
+                juridische = [juridische] if juridische else []
+                logger.warning(
+                    f"[AUDIT] Converted non-list juridische_context to list | correlation_id={correlation_id}"
+                )
+
+            if wettelijke and not isinstance(wettelijke, list):
+                wettelijke = [wettelijke] if wettelijke else []
+                logger.warning(
+                    f"[AUDIT] Converted non-list wettelijke_basis to list | correlation_id={correlation_id}"
+                )
+
         # Map to shortened keys (for existing modules)
         extend_unique(organisatorische, base_context["organisatorisch"])
         extend_unique(juridische, base_context["juridisch"])
@@ -176,28 +247,23 @@ class PromptServiceV2:
         extend_unique(juridische, base_context["juridische_context"])
         extend_unique(wettelijke, base_context["wettelijke_basis"])
 
-        # Log the mapping for debugging
+        # Audit logging for ASTRA compliance (no PII)
         if organisatorische or juridische or wettelijke:
             logger.info(
-                f"US-041 Context Mapping - Organisatorisch: {organisatorische}, "
-                f"Juridisch: {juridische}, Wettelijk: {wettelijke}"
+                f"[AUDIT] Context mapping completed | "
+                f"correlation_id={correlation_id} | "
+                f"org_count={len(organisatorische) if organisatorische else 0} | "
+                f"jur_count={len(juridische) if juridische else 0} | "
+                f"wet_count={len(wettelijke) if wettelijke else 0} | "
+                f"feature_flag={CONTEXT_V2_ENABLED}"
             )
 
         # Legacy velden
         if request.domein:
             extend_unique([request.domein], base_context["domein"])
         # Gebruik legacy vrije context enkel als de nieuwe velden leeg zijn
-        if (
-            not any(
-                [
-                    getattr(request, "organisatorische_context", None),
-                    getattr(request, "juridische_context", None),
-                    getattr(request, "wettelijke_basis", None),
-                ]
-            )
-            and request.context
-        ):
-            extend_unique([request.context], base_context["organisatorisch"])
+        # EPIC-010: Do not fallback to legacy string request.context
+        # All context must be provided via the list fields above.
 
         # 🚨 CRITICAL FIX: Preserve context_dict from extra_context
         # This fixes the voorbeelden dictionary regression
@@ -223,6 +289,8 @@ class PromptServiceV2:
             "request_id": request.id,
             "actor": request.actor,
             "legal_basis": request.legal_basis,
+            "correlation_id": correlation_id,  # US-041: ASTRA audit trail
+            "context_v2_enabled": CONTEXT_V2_ENABLED,  # US-041: Feature flag status
         }
 
         if extra_context:
@@ -246,6 +314,36 @@ class PromptServiceV2:
     # ==============================
     # Epic 3: Prompt Augmentation
     # ==============================
+    def build_prompt(self, request: GenerationRequest) -> str:
+        """
+        Synchronous wrapper for build_generation_prompt.
+
+        Used for compatibility with sync test code and legacy interfaces.
+
+        US-043: Now uses HybridContextManager through async build_generation_prompt.
+
+        Args:
+            request: GenerationRequest with begrip and context
+
+        Returns:
+            Generated prompt text
+        """
+        import asyncio
+
+        # Create async wrapper
+        async def _async_build():
+            result = await self.build_generation_prompt(request)
+            return result.text
+
+        # Run in new event loop if needed
+        try:
+            loop = asyncio.get_running_loop()
+            # Already in async context
+            return asyncio.run_coroutine_threadsafe(_async_build(), loop).result()
+        except RuntimeError:
+            # No async context, create one
+            return asyncio.run(_async_build())
+
     def _maybe_augment_with_web_context(  # noqa: PLR0911, PLR0915
         self, prompt_text: str, enriched_context: EnrichedContext
     ) -> str:
