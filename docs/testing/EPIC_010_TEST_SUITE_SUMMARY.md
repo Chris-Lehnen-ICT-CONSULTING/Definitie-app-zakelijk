@@ -4,15 +4,15 @@
 Comprehensive test suite created for EPIC-010 (Context Flow Refactoring) covering all three user stories and ensuring robust validation of the new context flow implementation.
 
 ## Related Documentation
-- **Epic**: [EPIC-010: Context Flow Refactoring](../docs/backlog/epics/EPIC-010-context-flow-refactoring.md)
-- **Implementation Plan**: [EPIC-010 Implementation Plan](../docs/implementation/EPIC-010-implementation-plan.md)
-- **Test Strategy**: [EPIC-010 Test Strategy](../docs/testing/EPIC-010-test-strategy.md)
+- **Epic**: [EPIC-010: Context Flow Refactoring](../backlog/epics/EPIC-010-context-flow-refactoring.md)
+- **Implementation Plan**: [EPIC-010 Implementation Plan](../implementation/EPIC-010-implementation-plan.md)
+- **Test Strategy**: [EPIC-010 Test Strategy](./EPIC-010-test-strategy.md)
 - **User Stories**:
-  - [US-041: Fix Context Field Mapping](../docs/backlog/stories/US-041.md)
-  - [US-042: Fix "Anders..." Custom Context](../docs/backlog/stories/US-042.md)
-  - [US-043: Remove Legacy Context Routes](../docs/backlog/stories/US-043.md)
+  - [US-041: Fix Context Field Mapping](../backlog/stories/US-041.md)
+  - [US-042: Fix "Anders..." Custom Context](../backlog/stories/US-042.md)
+  - [US-043: Remove Legacy Context Routes](../backlog/stories/US-043.md)
 - **Bug Reports**:
-  - [CFR-BUG-003: GenerationResult Import Error](../docs/backlog/bugs/CFR-BUG-003-generation-result-import.md)
+  - [CFR-BUG-003: GenerationResult Import Error](../backlog/bugs/CFR-BUG-003-generation-result-import.md)
 
 ## Test Coverage Summary
 
