@@ -25,6 +25,12 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
           if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
+      - name: Run Grep Gate (enforced for services)
+        env:
+          ENFORCE_GREP_GATE: "true"
+        run: |
+          bash scripts/grep_gate.sh
+
       - name: Run smoke test with coverage
         env:
           # Avoid external calls; smoke test is offline

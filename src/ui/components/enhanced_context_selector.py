@@ -9,6 +9,8 @@ from dataclasses import dataclass
 
 import streamlit as st
 
+from services.context.context_adapter import get_context_adapter
+
 
 @dataclass
 class ValidationResult:
@@ -87,7 +89,8 @@ class EnhancedContextSelector:
     ]
 
     def __init__(self):
-        """Initialize context selector with session state."""
+        """Initialize context selector with session state and adapter."""
+        self.adapter = get_context_adapter()
         self._initialize_session_state()
 
     def _initialize_session_state(self):
@@ -199,8 +202,21 @@ class EnhancedContextSelector:
             # Remove "Anders..." from selection as it's not a real value
             selected = [x for x in selected if x != "Anders..."]
 
-        # Update session state with current selection
+        # Update session state with current selection (UI local state)
         st.session_state.context_state[field_name] = selected
+
+        # Also propagate to centralized ContextManager via adapter
+        field_map = {
+            "organisatorisch": "organisatorische_context",
+            "juridisch": "juridische_context",
+            "wettelijk": "wettelijke_basis",
+        }
+        canonical = field_map.get(field_name, field_name)
+        try:
+            self.adapter.update_field(canonical, selected, actor="ui")  # type: ignore[arg-type]
+        except Exception:
+            # Non-blocking: keep UI responsive even if adapter fails
+            pass
 
         # Apply deduplication while preserving order
         return self._deduplicate_preserving_order(selected)
@@ -264,6 +280,19 @@ class EnhancedContextSelector:
                             )
 
                         st.success(f"'{cleaned_value}' toegevoegd aan {label}")
+
+                        # Propagate to adapter (central context)
+                        try:
+                            field_map = {
+                                "organisatorisch": "organisatorische_context",
+                                "juridisch": "juridische_context",
+                                "wettelijk": "wettelijke_basis",
+                            }
+                            canonical = field_map.get(field_name, field_name)
+                            current = st.session_state.context_state.get(field_name, [])
+                            self.adapter.update_field(canonical, current, actor="ui")  # type: ignore[arg-type]
+                        except Exception:
+                            pass
                         st.rerun()
                     else:
                         st.warning(f"'{cleaned_value}' bestaat al in {label}")
@@ -333,7 +362,16 @@ class EnhancedContextSelector:
         Returns:
             Formatted string with context summary
         """
-        state = st.session_state.context_state
+        # Prefer centralized context when available
+        try:
+            cm_state = self.adapter.to_generation_request()
+            state = {
+                "organisatorisch": cm_state.get("organisatorische_context", []),
+                "juridisch": cm_state.get("juridische_context", []),
+                "wettelijk": cm_state.get("wettelijke_basis", []),
+            }
+        except Exception:
+            state = st.session_state.context_state
         summary_parts = []
 
         if state.get("organisatorisch"):
@@ -351,6 +389,7 @@ class EnhancedContextSelector:
 
     def clear_context(self):
         """Clear all context selections."""
+        # Reset UI local state
         st.session_state.context_state = {
             "organisatorisch": [],
             "juridisch": [],
@@ -359,4 +398,9 @@ class EnhancedContextSelector:
             "selection_order": {},
             "validation_results": {},
         }
+        # Clear centralized context as well
+        try:
+            self.adapter.clear(actor="ui")
+        except Exception:
+            pass
         st.success("Context gewist")

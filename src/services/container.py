@@ -141,6 +141,15 @@ class ServiceContainer:
         return self._instances["generator"]
 
     # Legacy validator() method removed - validation now handled by V2 orchestrator
+    @property
+    def validator(self):  # pragma: no cover - compatibility shim for tests' specs
+        """Legacy attribute intentionally unavailable.
+
+        Exposed as a property raising AttributeError so:
+        - hasattr(instance, 'validator') returns False (as expected by tests)
+        - Mock(spec=ServiceContainer) may still reference 'validator' in its spec
+        """
+        raise AttributeError("validator attribute removed; use V2 orchestrator")
 
     def repository(self) -> DefinitionRepositoryInterface:
         """

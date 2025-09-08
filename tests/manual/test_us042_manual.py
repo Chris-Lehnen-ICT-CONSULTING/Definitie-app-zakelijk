@@ -31,17 +31,17 @@ def main():
     st.markdown(
         """
     ### Test Instructions
-    
+
     1. Select "Anders..." from any dropdown
     2. Enter custom text in the input field that appears
     3. Try various edge cases:
        - Empty input
-       - Special characters: & ' " ( ) € § 
+       - Special characters: & ' " ( ) € §
        - Very long text (>200 characters)
        - XSS attempts: `<script>alert('test')</script>`
        - SQL injection: `'; DROP TABLE users; --`
        - Unicode: 🇳🇱 • § € ™
-    
+
     The component should:
     - ✅ Never crash
     - ✅ Sanitize dangerous input
