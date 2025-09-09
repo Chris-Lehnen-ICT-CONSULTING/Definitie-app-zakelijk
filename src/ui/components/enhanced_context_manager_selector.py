@@ -185,7 +185,7 @@ class EnhancedContextManagerSelector:
 
         # Build complete options list - ensure no duplicates
         all_options = base_options + list(set(custom_values))
-        full_options = all_options + ["Anders..."]
+        full_options = [*all_options, "Anders..."]
 
         # Filter defaults to only include values that exist in options
         default_values = [v for v in current_values if v in full_options]

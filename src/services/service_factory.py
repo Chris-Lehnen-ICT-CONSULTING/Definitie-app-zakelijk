@@ -210,7 +210,7 @@ class ServiceAdapter:
 
         # Converteer response naar legacy format met object-achtige interface
         if response.success and response.definition:
-            # Zorg dat prompt_template zichtbaar is op het juiste niveau
+            # V2-only result shape for UI (dict)
             result_dict = {
                 "success": True,
                 "definitie_origineel": (
@@ -295,12 +295,14 @@ class ServiceAdapter:
 
             # Geen extra fallback meer voor prompt_template; UI leest 'prompt_text'
 
-            return LegacyGenerationResult(**result_dict)
-        return LegacyGenerationResult(
-            success=False,
-            error_message=(getattr(response, "message", None) or "Generatie mislukt"),
-            final_definitie="Generatie mislukt",
-        )
+            return result_dict
+        return {
+            "success": False,
+            "error_message": (getattr(response, "message", None) or "Generatie mislukt"),
+            "definitie_gecorrigeerd": "Generatie mislukt",
+            "voorbeelden": {},
+            "metadata": getattr(response, "definition", None) and getattr(response.definition, "metadata", {}) or {},
+        }
 
     def generate_definition_sync(self, begrip: str, context_dict: dict, **kwargs):
         """

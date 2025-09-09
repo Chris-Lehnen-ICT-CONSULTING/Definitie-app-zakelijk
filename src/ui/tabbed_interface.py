@@ -728,7 +728,7 @@ class TabbedInterface:
                 self._clear_all_fields()
                 st.rerun()
 
-    def _handle_definition_generation(self, begrip: str, context_data: dict[str, Any]):
+    def _handle_definition_generation(self, begrip: str, context_data: dict[str, Any]):  # noqa: PLR0912, PLR0915
         """Handle definitie generatie vanaf hoofdniveau met hybrid context ondersteuning."""
         try:
             with st.spinner("🔄 Genereren van definitie met hybride context..."):
@@ -833,7 +833,9 @@ class TabbedInterface:
 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
-                if agent_result and agent_result.final_definitie:
+                if isinstance(agent_result, dict) and (
+                    agent_result.get("definitie_gecorrigeerd") or agent_result.get("definitie")
+                ):
                     try:
                         from ui.components.prompt_debug_section import (
                             capture_voorbeelden_prompts,
@@ -846,9 +848,13 @@ class TabbedInterface:
                             "wettelijk": context_data.get("wettelijke_basis", []),
                         }
 
+                        definitie_for_prompts = (
+                            agent_result.get("definitie_gecorrigeerd")
+                            or agent_result.get("definitie", "")
+                        )
                         voorbeelden_prompts = capture_voorbeelden_prompts(
                             begrip=begrip,
-                            definitie=agent_result.final_definitie,
+                            definitie=definitie_for_prompts,
                             context_dict=context_dict,
                         )
                     except Exception as e:
@@ -886,10 +892,7 @@ class TabbedInterface:
 
                 # Store detailed validation results for display
                 # Check for both legacy (best_iteration) and new service (dict) formats
-                if agent_result and (
-                    hasattr(agent_result, "best_iteration")
-                    or isinstance(agent_result, dict)
-                ):
+                if isinstance(agent_result, dict):
                     logger.info(
                         f"Attempting to run toets_definitie. agent_result type: {type(agent_result)}"
                     )
@@ -916,26 +919,13 @@ class TabbedInterface:
                         "wettelijk": context_data.get("wettelijke_basis", []),
                     }
 
-                    # Get definition from either legacy or new service format
-                    if isinstance(agent_result, dict):
-                        # New service format
-                        definitie_text = agent_result.get("definitie_gecorrigeerd", "")
-                        logger.info(
-                            f"Using new service format. Keys in agent_result: {list(agent_result.keys())}"
-                        )
-                        logger.info(
-                            f"definitie_text from dict: '{definitie_text[:50]}...'"
-                        )
-                    else:
-                        # Legacy format with best_iteration
-                        definitie_text = (
-                            agent_result.final_definitie
-                            if hasattr(agent_result, "final_definitie")
-                            else ""
-                        )
-                        logger.info(
-                            f"Using legacy format. definitie_text: '{definitie_text[:50]}...'"
-                        )
+                    definitie_text = agent_result.get("definitie_gecorrigeerd", "")
+                    logger.info(
+                        f"Using V2 dict format. Keys in agent_result: {list(agent_result.keys())}"
+                    )
+                    logger.info(
+                        f"definitie_text: '{definitie_text[:50]}...'"
+                    )
 
                     detailed_results = toets_definitie(
                         definitie=definitie_text,
@@ -1120,7 +1110,7 @@ class TabbedInterface:
             # Update session state
             SessionStateManager.set_value("documents_updated", True)
 
-    def _render_uploaded_documents_list(self):
+    def _render_uploaded_documents_list(self):  # noqa: PLR0912, PLR0915
         """Render lijst van geüploade documenten."""
         processor = get_document_processor()
         documents = processor.get_processed_documents()

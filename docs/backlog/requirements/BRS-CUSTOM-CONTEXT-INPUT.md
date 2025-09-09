@@ -355,7 +355,7 @@ erDiagram
         string created_by
         int usage_count
     }
-    
+
     CONTEXT_USAGE {
         UUID id PK
         UUID context_id FK
@@ -363,7 +363,7 @@ erDiagram
         timestamp used_at
         string used_by
     }
-    
+
     CONTEXT_SUGGESTION {
         UUID id PK
         string original_value
@@ -371,7 +371,7 @@ erDiagram
         string suggestion_type
         float confidence_score
     }
-    
+
     CUSTOM_CONTEXT ||--o{ CONTEXT_USAGE : used_in
     CUSTOM_CONTEXT ||--o{ CONTEXT_SUGGESTION : has_suggestions
 ```
