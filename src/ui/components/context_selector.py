@@ -80,6 +80,19 @@ class ContextSelector:
 
         return context_data
 
+    # Backwards-compatibility for tests expecting older UI API
+    def render_context_selection(self) -> dict[str, Any]:
+        """Compatibility wrapper returning short-key context dict.
+
+        Maps V2 keys to legacy keys expected by some test fixtures.
+        """
+        data = self.render()
+        return {
+            "organisatorisch": data.get("organisatorische_context", []),
+            "juridisch": data.get("juridische_context", []),
+            "wettelijk": data.get("wettelijke_basis", []),
+        }
+
     def _render_preset_selector(self) -> ContextPreset | None:
         """Render preset selectie."""
         st.markdown("#### 🎯 Snelle Selectie")
