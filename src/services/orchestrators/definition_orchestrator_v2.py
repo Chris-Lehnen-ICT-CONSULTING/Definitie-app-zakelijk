@@ -1,4 +1,5 @@
 """
+rug: noqa: PLR0912, PLR0915
 DefinitionOrchestratorV2 - Next-generation stateless orchestrator.
 
 This orchestrator replaces the monolithic _generate_definition() method with
@@ -129,7 +130,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             f"caching={self.config.enable_caching}"
         )
 
-    async def create_definition(
+    async def create_definition(  # noqa: PLR0912, PLR0915
         self, request: GenerationRequest, context: dict[str, Any] | None = None
     ) -> DefinitionResponseV2:
         """

@@ -56,7 +56,7 @@ if "org_context_values" in st.session_state:
     current = st.session_state.org_context_values
     if isinstance(current, list):
         # Hardcoded cleanup for specific test values
-        cleaned = [v for v in current if v in valid_org or 
+        cleaned = [v for v in current if v in valid_org or
                   (v and not v in ["test", "testen", "rest", "auto", "cargo", "inbraak"])]
         st.session_state.org_context_values = cleaned
 ```
@@ -80,7 +80,7 @@ sequenceDiagram
     participant SystemA as Legacy System (tabbed_interface)
     participant SystemB as Modern System (enhanced_selector)
     participant SessionState
-    
+
     User->>UI: Selects "Anders..."
     UI->>SystemA: Trigger render
     SystemA->>SessionState: Write org_context_values
@@ -199,12 +199,12 @@ Component Failures:
     - Widget state corruption: CRITICAL
     - Render loop potential: HIGH
     - Data loss on crash: CRITICAL
-  
+
   State Management:
     - Session state conflicts: CRITICAL
     - ContextManager bypass: HIGH
     - Audit trail gaps: CRITICAL (ASTRA violation)
-  
+
   Business Logic:
     - Context not propagated: CRITICAL
     - Validation bypassed: HIGH
@@ -239,7 +239,7 @@ Component Failures:
 
 ### Log Evidence
 ```log
-2025-09-08 14:23:45 WARNING: Enhanced selector failed, using fallback: 
+2025-09-08 14:23:45 WARNING: Enhanced selector failed, using fallback:
   The default value 'test' is not part of the options
 2025-09-08 14:23:45 DEBUG: Cleaned up session state key: org_context_values
 2025-09-08 14:23:46 ERROR: StreamlitAPIException: Widget key already exists
@@ -282,16 +282,16 @@ Component Failures:
 ```python
 def test_anders_option_no_crash():
     """Verify "Anders..." option doesn't crash application"""
-    
+
 def test_custom_value_persistence():
     """Ensure custom values persist correctly"""
-    
+
 def test_no_test_data_contamination():
     """Verify no hardcoded test values appear"""
-    
+
 def test_single_state_system():
     """Confirm only one state system active"""
-    
+
 def test_audit_trail_completeness():
     """Verify all context changes logged for ASTRA"""
 ```
