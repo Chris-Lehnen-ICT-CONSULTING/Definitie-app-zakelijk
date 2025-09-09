@@ -40,6 +40,7 @@ from services.regeneration_service import RegenerationService
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.context_selector import ContextSelector  # Context selectie component
+from ui.components.context_state_cleaner import init_context_cleaner
 from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie generatie
     DefinitionGeneratorTab,
 )
@@ -200,6 +201,9 @@ class TabbedInterface:
 
     def render(self):
         """Render de volledige tabbed interface."""
+        # Clean session state on initialization - FORCE CLEAN voor problematische waardes
+        init_context_cleaner(force_clean=True)
+
         # App header
         self._render_header()
 
@@ -652,7 +656,7 @@ class TabbedInterface:
             custom_org_values = [
                 v
                 for v in st.session_state.org_context_values
-                if v not in base_org_options
+                if v not in base_org_options and v != "Anders..."
             ]
 
             # Combineer base opties met ALLE custom waardes uit session state
@@ -660,18 +664,36 @@ class TabbedInterface:
             org_all_options = base_org_options[:-1] + list(set(custom_org_values))
 
             try:
+                # Maak de volledige options lijst
+                full_org_options = org_all_options + ["Anders..."]
+
+                # Filter defaults to only include values that are in the options
+                valid_org_defaults = [
+                    v
+                    for v in st.session_state.org_context_values
+                    if v in full_org_options
+                ]
+
+                # Debug logging voor troubleshooting
+                if st.session_state.org_context_values and not valid_org_defaults:
+                    logger.warning(
+                        f"Organisatorische context defaults gefilterd - "
+                        f"Origineel: {st.session_state.org_context_values}, "
+                        f"Opties: {full_org_options[:5]}..."
+                    )
+
                 selected_org = st.multiselect(
                     "📋 Organisatorische context",
-                    options=org_all_options + ["Anders..."],
-                    default=st.session_state.org_context_values,
+                    options=full_org_options,
+                    default=valid_org_defaults,  # Gebruik gefilterde defaults
                     help="Selecteer één of meerdere organisaties",
                     key="org_multiselect_global",
                 )
             except Exception as e:
                 logger.error(f"Org multiselect error: {e}", exc_info=True)
                 st.error(f"Organisatorische context fout: {type(e).__name__}: {e!s}")
-                # Fallback to selectbox if multiselect fails
-                st.warning("Multiselect failed, using selectbox as fallback")
+                # Fallback: reset de session state bij een error
+                st.session_state.org_context_values = []
                 selected_org = []
             self._dbg("Context col1 - org done")
 
@@ -718,7 +740,7 @@ class TabbedInterface:
             custom_jur_values = [
                 v
                 for v in st.session_state.jur_context_values
-                if v not in base_jur_options
+                if v not in base_jur_options and v != "Anders..."
             ]
 
             # Combineer base opties met ALLE custom waardes uit session state
@@ -726,16 +748,37 @@ class TabbedInterface:
             jur_all_options = base_jur_options[:-1] + list(set(custom_jur_values))
 
             try:
+                # Maak de volledige options lijst
+                full_jur_options = jur_all_options + ["Anders..."]
+
+                # Filter defaults to only include values that are in the options
+                # Dit voorkomt "default not in options" errors
+                valid_jur_defaults = [
+                    v
+                    for v in st.session_state.jur_context_values
+                    if v in full_jur_options
+                ]
+
+                # Debug logging voor troubleshooting
+                if st.session_state.jur_context_values and not valid_jur_defaults:
+                    logger.warning(
+                        f"Juridische context defaults gefilterd - "
+                        f"Origineel: {st.session_state.jur_context_values}, "
+                        f"Opties: {full_jur_options[:5]}..."
+                    )
+
                 selected_jur = st.multiselect(
                     "⚖️ Juridische context",
-                    options=jur_all_options + ["Anders..."],
-                    default=st.session_state.jur_context_values,
+                    options=full_jur_options,
+                    default=valid_jur_defaults,  # Gebruik gefilterde defaults
                     help="Selecteer juridische gebieden",
                     key="jur_multiselect_global",
                 )
             except Exception as e:
                 logger.error(f"Juridische multiselect error: {e}")
                 st.error(f"Juridische context fout: {e!s}")
+                # Fallback: reset de session state bij een error
+                st.session_state.jur_context_values = []
                 selected_jur = []
             self._dbg("Context col2 - jur done")
 
@@ -789,10 +832,11 @@ class TabbedInterface:
 
             # Haal ALLE waardes uit session state die niet in base options staan
             # Dit zorgt ervoor dat alle eerder ingevoerde custom waardes beschikbaar blijven
+            # Inclusief waardes zonder "Anders..." marker
             custom_wet_values = [
                 v
                 for v in st.session_state.wet_basis_values
-                if v not in base_wet_options
+                if v not in base_wet_options and v != "Anders..."
             ]
 
             # Combineer base opties met ALLE custom waardes uit session state
@@ -800,16 +844,50 @@ class TabbedInterface:
             wet_all_options = base_wet_options[:-1] + list(set(custom_wet_values))
 
             try:
+                # Maak de volledige options lijst
+                full_wet_options = wet_all_options + ["Anders..."]
+
+                # Debug: log de situatie voor troubleshooting
+                if st.session_state.wet_basis_values:
+                    logger.debug(
+                        f"Wettelijke basis - Session values: {st.session_state.wet_basis_values}, "
+                        f"Custom values: {custom_wet_values}, "
+                        f"Full options: {full_wet_options}"
+                    )
+
+                # Filter defaults to only include values that are in the options
+                # Dit is cruciaal om crashes te voorkomen
+                valid_wet_defaults = [
+                    v
+                    for v in st.session_state.wet_basis_values
+                    if v in full_wet_options
+                ]
+
+                # Extra check: als er defaults zijn die niet in options zitten, log een warning
+                invalid_defaults = [
+                    v
+                    for v in st.session_state.wet_basis_values
+                    if v not in full_wet_options
+                ]
+                if invalid_defaults:
+                    logger.warning(
+                        f"Wettelijke basis - Ongeldige defaults gevonden en gefilterd: {invalid_defaults}"
+                    )
+                    # Verwijder ongeldige waardes uit session state
+                    st.session_state.wet_basis_values = valid_wet_defaults
+
                 selected_wet = st.multiselect(
                     "📜 Wettelijke basis",
-                    options=wet_all_options + ["Anders..."],
-                    default=st.session_state.wet_basis_values,
+                    options=full_wet_options,
+                    default=valid_wet_defaults,  # Gebruik gefilterde defaults
                     help="Selecteer relevante wetgeving",
                     key="wet_multiselect_global",
                 )
             except Exception as e:
                 logger.error(f"Wettelijke basis multiselect error: {e}")
                 st.error(f"Wettelijke basis fout: {e!s}")
+                # Fallback: reset de session state bij een error
+                st.session_state.wet_basis_values = []
                 selected_wet = []
             self._dbg("Context col3 - wet done")
 
@@ -831,6 +909,9 @@ class TabbedInterface:
                 # Voeg toe aan finale selectie
                 if value not in final_wet:
                     final_wet.append(value)
+                    # Force een rerun om de nieuwe waarde direct beschikbaar te maken
+                    st.session_state.wet_basis_values = final_wet
+                    st.rerun()
 
             # Update Streamlit's session state direct
             st.session_state.wet_basis_values = final_wet
