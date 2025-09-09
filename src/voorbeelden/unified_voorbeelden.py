@@ -661,7 +661,7 @@ def genereer_synoniemen(
         context_dict=context_dict,
         example_type=ExampleType.SYNONIEMEN,
         generation_mode=mode,
-        max_examples=3,  # Expliciet 3 synoniemen
+        max_examples=5,  # Expliciet 5 synoniemen
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -681,7 +681,7 @@ def genereer_antoniemen(
         context_dict=context_dict,
         example_type=ExampleType.ANTONIEMEN,
         generation_mode=mode,
-        max_examples=3,  # Expliciet 3 antoniemen
+        max_examples=5,  # Expliciet 5 antoniemen
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -728,8 +728,8 @@ def genereer_alle_voorbeelden(
         ExampleType.VOORBEELDZINNEN: 3,
         ExampleType.PRAKTIJKVOORBEELDEN: 3,
         ExampleType.TEGENVOORBEELDEN: 3,
-        ExampleType.SYNONIEMEN: 3,
-        ExampleType.ANTONIEMEN: 3,
+        ExampleType.SYNONIEMEN: 5,
+        ExampleType.ANTONIEMEN: 5,
         ExampleType.TOELICHTING: 1,
     }
 
