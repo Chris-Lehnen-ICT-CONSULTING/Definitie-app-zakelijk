@@ -42,4 +42,3 @@ Acceptatiecriteria
 Referenties
 - `src/ui/components/definition_generator_tab.py` (rendering van voorbeelden)
 - `src/services/unified_definition_service_v2.py` (of service die `agent_result` vormgeeft)
-

@@ -38,4 +38,3 @@ Acceptatiecriteria
 Referenties
 - `src/ui/components/definition_generator_tab.py` (`_render_validation_results`)
 - `src/ui/tabbed_interface.py` (plaatsen waar validatie wordt uitgevoerd en in state gezet)
-
