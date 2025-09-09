@@ -18,8 +18,8 @@ import time
 import uuid
 from datetime import UTC, datetime
 
-UTC = UTC  # Python 3.10 compatibility
-from typing import Any, Optional
+UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
+from typing import TYPE_CHECKING, Any, Optional
 
 from services.interfaces import (
     AIServiceInterface as IntelligentAIService,
@@ -40,6 +40,11 @@ from services.interfaces import (
 from services.validation.interfaces import ValidationOrchestratorInterface
 
 logger = logging.getLogger(__name__)
+
+
+if TYPE_CHECKING:
+    # Forward-declared interfaces for type checking without import errors
+    from services.interfaces import PromptResult, WebLookupServiceInterface
 
 
 class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
