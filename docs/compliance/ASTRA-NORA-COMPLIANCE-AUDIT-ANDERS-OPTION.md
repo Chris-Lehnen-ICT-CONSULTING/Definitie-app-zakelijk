@@ -44,11 +44,11 @@ De huidige implementatie van context management en de "Anders..." optie function
 # File: src/ui/tabbed_interface.py:641-662
 if "org_context_values" in st.session_state:
     # Business rule validation in UI layer
-    cleaned = [v for v in current if v in valid_org or 
+    cleaned = [v for v in current if v in valid_org or
               (v and not v in ["test", "testen", "rest", "auto", "cargo", "inbraak"])]
 ```
 
-**Impact:** 
+**Impact:**
 - Architectuur principe overtreding
 - Geen herbruikbaarheid van business logic
 - Moeilijk testbaar

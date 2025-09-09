@@ -111,25 +111,25 @@ graph TD
         UI[UI Components]
         VIEW[View Models]
     end
-    
+
     subgraph "Application Layer"
         CTRL[Context Controller]
         VAL[Validation Service]
         MAP[Context Mapper]
     end
-    
+
     subgraph "Domain Layer"
         CM[ContextManager]
         AUDIT[Audit Service]
         RULES[Business Rules]
     end
-    
+
     subgraph "Infrastructure Layer"
         DB[(Database)]
         CACHE[(Cache)]
         LOG[(Audit Log)]
     end
-    
+
     UI --> VIEW
     VIEW --> CTRL
     CTRL --> CM
@@ -139,7 +139,7 @@ graph TD
     AUDIT --> LOG
     CM --> DB
     CM --> CACHE
-    
+
     style CM fill:#9f9,stroke:#333,stroke-width:4px
 ```
 
@@ -152,21 +152,21 @@ class ContextController:
     def __init__(self, context_manager: ContextManager):
         self._manager = context_manager
         self._validator = ContextValidator()
-        
+
     def set_custom_context(
-        self, 
-        context_type: str, 
-        value: str, 
+        self,
+        context_type: str,
+        value: str,
         user: str
     ) -> Result:
         # Validate input
         validation = self._validator.validate(value, context_type)
         if not validation.is_valid:
             return Result.failure(validation.errors)
-        
+
         # Apply business rules
         normalized = self._apply_business_rules(value, context_type)
-        
+
         # Store with audit trail
         return self._manager.add_custom_value(
             context_type=context_type,
@@ -179,7 +179,7 @@ class ContextView:
     """Presentation layer view"""
     def __init__(self, controller: ContextController):
         self._controller = controller
-        
+
     def render(self):
         # Pure presentation logic
         # No business rules
@@ -325,7 +325,7 @@ This decision provides the best balance of:
 def get_context(use_new: bool = None) -> ContextData:
     if use_new is None:
         use_new = feature_flags.is_enabled("new_context_system")
-    
+
     if use_new:
         return context_controller.get_context()
     else:
@@ -386,7 +386,7 @@ metrics:
     - response_time_p95: < 200ms
     - state_conflicts: 0
     - audit_completeness: 100%
-  
+
   business:
     - anders_option_success: 100%
     - user_satisfaction: > 90%
