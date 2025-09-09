@@ -41,4 +41,3 @@ Referenties
 - `src/ui/components/definition_generator_tab.py` (prompt debug integratie)
 - `src/ui/components/prompt_debug_section.py`
 - `src/ui/tabbed_interface.py` (V2 pad en opslag van metadata)
-

@@ -1,13 +1,14 @@
 ---
 id: CFR-BUG-003
 canonical: true
-status: active
+status: resolved
 owner: development
-last_verified: 2025-09-08
-applies_to: definitie-app@current
+last_verified: 2025-09-09
+applies_to: definitie-app@historical
 severity: KRITIEK
 impact: 36 tests failing
 epic: EPIC-010
+superseded_by: CFR-BUG-013
 related_stories:
 - US-041
 - US-042
@@ -19,10 +20,11 @@ created: 2025-09-08
 
 ## KRITIEK ISSUE
 
-**Status:** OPEN
-**Severity:** KRITIEK - Blocks all testing and development
-**Impact:** 36 tests cannot run, development blocked
+**Status:** RESOLVED (in current branch)
+**Severity:** KRITIEK (historical) – not reproducible in current codebase
+**Impact:** Previously blocked 36 tests; no longer applicable in current branch
 **Epic:** EPIC-010 (Context Flow Refactoring)
+**Superseded by:** CFR-BUG-013 (contract consolidation)
 
 ## Error Description
 
@@ -92,7 +94,7 @@ The `GenerationResult` class has been removed from the codebase, but 36 test fil
 
 ## Immediate Fix Required
 
-### Option 1: Create Shim (RECOMMENDED - Phase 1 Fix)
+### Option 1: Create Shim (RECOMMENDED - Phase 1 Fix, historical)
 Create an alias to make `GenerationResult` point to `LegacyGenerationResult`:
 
 ```python
@@ -104,7 +106,7 @@ class LegacyGenerationResult:
 GenerationResult = LegacyGenerationResult
 ```
 
-### Option 2: Update All Imports (Phase 2 - After Tests Pass)
+### Option 2: Update All Imports (Phase 2 - After Tests Pass, historical)
 Update all 36 test files to use `LegacyGenerationResult`:
 
 ```python
@@ -115,13 +117,11 @@ from src.models.generation_result import GenerationResult
 from src.models.generation_result import LegacyGenerationResult as GenerationResult
 ```
 
-## Implementation Priority
+## Current Status and Resolution
 
-1. **IMMEDIATE (Phase 0)**: Apply shim fix to restore test capability
-2. **Phase 1**: Fix context field mapping (US-041)
-3. **Phase 2**: Fix "Anders..." crashes (US-042)
-4. **Phase 3**: Remove legacy routes (US-043)
-5. **Phase 4**: Update imports to use proper class names
+- In the current codebase, no references remain to `from src.models.generation_result import GenerationResult`.
+- A compatibility `GenerationResult` is available via `services.interfaces` and consumers have migrated to V2 paths.
+- This import error is therefore resolved in this branch. Follow-up consolidation is tracked under CFR-BUG-013.
 
 ## Verification Steps
 
@@ -158,13 +158,12 @@ After applying the shim fix, these test files will be able to run:
 | Development Blocked | HOOG | Apply fix in Phase 0 |
 | Hidden Bugs | GEMIDDELD | Restore test coverage ASAP |
 
-## Definition of Done
+## Definition of Done (historical / documentation)
 
-- [ ] Shim fix applied to `src/models/generation_result.py`
-- [ ] All 36 tests can be collected without import errors
-- [ ] Test suite can run (failures OK, import errors NOT OK)
-- [ ] CI/CD pipeline unblocked
-- [ ] Documentation updated with fix details
+- [x] Verified no active imports from `src.models.generation_result` in current branch
+- [x] Marked as resolved; added superseded_by CFR-BUG-013
+- [ ] If older branches exist, migrate imports to `services.interfaces`
+- [ ] Add CI grep-gate to prevent reintroduction of the old import path
 
 ## Wijzigingslog
 

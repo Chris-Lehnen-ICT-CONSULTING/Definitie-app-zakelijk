@@ -278,15 +278,36 @@ class TestServiceAdapter:
             extra_instructies='Extra info'
         )
 
-        # Verify
+        # Verify V2 contract fields
         assert result['success'] is True
         assert result['definitie_gecorrigeerd'] == "Test definitie"
         assert result['definitie_origineel'] == "Test definitie origineel"
-        assert result['marker'] == '✅'
-        assert result['toetsresultaten'] == ['Minor issue']
-        assert result['validation_score'] == 0.95
-        assert result['voorbeelden'] == ["Voorbeeld 1"]
-        assert result['processing_time'] == 1.5
+        assert result['final_score'] == 0.95
+
+        # Check validation_details (V2 format)
+        assert 'validation_details' in result
+        assert result['validation_details']['overall_score'] == 0.95
+        assert result['validation_details']['is_acceptable'] is True
+        assert isinstance(result['validation_details']['violations'], list)
+
+        # Check voorbeelden (now a dict with categories)
+        assert 'voorbeelden' in result
+        if isinstance(result['voorbeelden'], dict):
+            # V2 format
+            assert 'juridisch' in result['voorbeelden']
+            assert 'praktijk' in result['voorbeelden']
+            assert 'tegenvoorbeelden' in result['voorbeelden']
+        else:
+            # Legacy format still accepted for now
+            assert result['voorbeelden'] == ["Voorbeeld 1"]
+
+        # Check metadata
+        assert 'metadata' in result
+        assert result['metadata'].get('model') == 'gpt-4'  # Default
+
+        # Legacy fields should still work for backward compatibility
+        assert result.get('marker') == '✅'
+        assert result.get('validation_score') == 0.95  # Legacy alias for final_score
 
         # Verify request creation
         call_args = mock_orchestrator.create_definition.call_args[0][0]

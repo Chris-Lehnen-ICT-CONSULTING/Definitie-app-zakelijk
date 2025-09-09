@@ -33,4 +33,3 @@ Acceptatiecriteria
 Referenties
 - `src/ui/components/definition_generator_tab.py` (sectie-rendering)
 - `src/ui/tabbed_interface.py` (tab error handling)
-
