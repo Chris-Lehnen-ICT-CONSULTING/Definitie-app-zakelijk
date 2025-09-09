@@ -23,7 +23,7 @@
 
 ### Huidige Situatie
 ✅ Prompts worden correct gegenereerd en getoond
-✅ Definitie wordt gegenereerd 
+✅ Definitie wordt gegenereerd
 ✅ Metadata bevat voorbeelden dictionary
 ❌ **PROBLEEM: Daadwerkelijke voorbeelden content wordt NIET getoond in UI**
 
@@ -32,7 +32,7 @@
 ### Symptomen
 1. In debug sectie zie je de prompts voor:
    - 📄 Voorbeeldzinnen
-   - 💼 Praktijkvoorbeelden  
+   - 💼 Praktijkvoorbeelden
    - ❌ Tegenvoorbeelden
    - 🔄 Synoniemen
    - ↔️ Antoniemen
@@ -52,7 +52,7 @@ De voorbeelden worden WEL gegenereerd (API calls naar GPT gebeuren), maar:
 # Hoofdcomponent voor definitie generatie UI
 src/ui/components/definition_generator_tab.py
 ```
-- Kijk naar `_handle_voorbeelden_generation()` 
+- Kijk naar `_handle_voorbeelden_generation()`
 - Check hoe voorbeelden uit response worden gehaald
 - Verifieer SessionStateManager.set_value() calls
 
@@ -109,7 +109,7 @@ st.write("DEBUG voorbeelden:", voorbeelden)  # Tijdelijk voor debugging
 3. Genereer definitie
 4. Check:
    - Worden API calls gemaakt? (check logs)
-   - Staat voorbeelden data in session state? 
+   - Staat voorbeelden data in session state?
    - Wordt VoorbeeldenDisplay.render() aangeroepen?
 
 ## Verwachte Fix
@@ -174,7 +174,7 @@ grep -r "VoorbeeldenDisplay" src/ui/
 ## Git Status
 ```
 Branch: main
-Modified: 
+Modified:
 - data/definities.db
 - docs/backlog/bugs/CFR-BUG-003-generation-result-import.md
 ```

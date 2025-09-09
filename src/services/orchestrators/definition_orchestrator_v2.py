@@ -205,6 +205,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 getattr(self.config, "enable_web_lookup", True)
                 and self.web_lookup_service
             ):
+                logger.info(
+                    f"Generation {generation_id}: Starting web lookup for term: {sanitized_request.begrip}"
+                )
                 try:
                     from services.interfaces import LookupRequest
                     from services.web_lookup.provenance import build_provenance
@@ -218,6 +221,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     )
 
                     web_results = await self.web_lookup_service.lookup(lookup_request)
+                    logger.info(
+                        f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
+                    )
 
                     # Build provenance records
                     # Convert LookupResults to minimal dicts expected by build_provenance
@@ -526,7 +532,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "ontological_category": sanitized_request.ontologische_categorie,
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
-                    "enhanced": was_enhanced
+                    "enhanced": was_enhanced,
                 },
             )
 

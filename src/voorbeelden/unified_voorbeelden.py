@@ -64,7 +64,7 @@ class ExampleRequest:
     context_dict: dict[str, list[str]]
     example_type: ExampleType
     generation_mode: GenerationMode = GenerationMode.RESILIENT
-    max_examples: int = 5  # Default naar 5 voor synoniemen/antoniemen
+    max_examples: int = 3  # Default naar 3 voor alle voorbeelden
     temperature: float | None = None  # None betekent: gebruik centrale config
     model: str | None = None
 
@@ -448,57 +448,113 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
             return []
 
         # Voor synoniemen/antoniemen: split op newlines voor individuele items
-        if any(word in response.lower() for word in ['synoniem', 'antoniem']):
-            lines = response.strip().split('\n')
+        if any(word in response.lower() for word in ["synoniem", "antoniem"]):
+            lines = response.strip().split("\n")
             examples = []
             for line in lines:
                 # Verwijder bullets, nummers, streepjes etc.
-                cleaned = re.sub(r'^\s*[-—•*\d\.]+\s*', '', line).strip()
+                cleaned = re.sub(r"^\s*[-—•*\d\.]+\s*", "", line).strip()
                 # Filter lege regels en headers
-                if (cleaned and 
-                    len(cleaned) > 1 and 
-                    not any(skip in cleaned.lower() for skip in ['synoniem', 'antoniem', 'hier zijn', 'bijvoorbeeld'])):
-                    examples.append(cleaned)
+                if (
+                    cleaned
+                    and len(cleaned) > 1
+                    and not any(
+                        skip in cleaned.lower()
+                        for skip in [
+                            "synoniem",
+                            "antoniem",
+                            "hier zijn",
+                            "bijvoorbeeld",
+                        ]
+                    )
+                ):
+                    # Check of de regel komma-gescheiden items bevat
+                    if "," in cleaned and not any(
+                        c in cleaned for c in [".", ":", ";"]
+                    ):
+                        # Split op komma's voor meerdere items op één regel
+                        items = [item.strip() for item in cleaned.split(",")]
+                        examples.extend(
+                            [item for item in items if item and len(item) > 1]
+                        )
+                    else:
+                        examples.append(cleaned)
             return examples if examples else []
-        
+
         # Voor complexe voorbeelden met uitleg (praktijk/tegenvoorbeelden)
         # Split op dubbele newlines of genummerde patronen
         text = response.strip()
-        
+
         # Probeer eerst op "1." "2." etc met sterke scheiding
-        numbered_pattern = r'\n+(?=\d+[\.\)]\s*[A-Z\*])'
+        numbered_pattern = r"\n+(?=\d+[\.\)]\s*[A-Z\*])"
         parts = re.split(numbered_pattern, text)
-        
+
         if len(parts) > 1:
             examples = []
             for part in parts:
-                # Verwijder nummer en clean up
-                cleaned = re.sub(r'^\d+[\.\)]\s*\**\s*', '', part).strip()
-                # Filter intro tekst
-                if cleaned and not any(skip in cleaned[:50].lower() for skip in ['hier zijn', 'voorbeelden', 'bijvoorbeeld']):
-                    # Verwijder trailing "—" of lege regels aan het einde
-                    cleaned = re.sub(r'[\s—]+$', '', cleaned)
-                    examples.append(cleaned)
+                # Parse de titel en inhoud voor praktijkvoorbeelden
+                # Zoek naar patroon: nummer. Titel** of nummer. **Titel**
+                title_match = re.match(
+                    r"^\d+[\.\)]\s*\*{0,2}([^*\n]+?)\*{0,2}[\n:](.+)", part, re.DOTALL
+                )
+
+                if title_match:
+                    title = title_match.group(1).strip()
+                    content = title_match.group(2).strip()
+
+                    # Check voor "Toelichting:" patroon
+                    if "toelichting:" in content.lower():
+                        # Split op toelichting
+                        parts = re.split(r"\n*[Tt]oelichting:\s*", content, maxsplit=1)
+                        if len(parts) == 2:
+                            main_content = parts[0].strip()
+                            explanation = parts[1].strip()
+                            # Combineer alles als één entry met titel, inhoud en toelichting
+                            formatted = f"{title}: {main_content}"
+                            if explanation:
+                                formatted += f"\n\nToelichting: {explanation}"
+                            examples.append(formatted)
+                        else:
+                            # Geen toelichting gevonden, gebruik normale formatting
+                            examples.append(f"{title}: {content}")
+                    else:
+                        # Geen toelichting, format als "Titel: inhoud"
+                        examples.append(f"{title}: {content}")
+                else:
+                    # Fallback naar oude methode als het patroon niet matcht
+                    cleaned = re.sub(r"^\d+[\.\)]\s*\**\s*", "", part).strip()
+                    if cleaned and not any(
+                        skip in cleaned[:50].lower()
+                        for skip in ["hier zijn", "voorbeelden", "bijvoorbeeld"]
+                    ):
+                        cleaned = re.sub(r"[\s—]+$", "", cleaned)
+                        examples.append(cleaned)
+
             return examples if examples else [text]
-        
+
         # Voor eenvoudige voorbeeldzinnen zonder nummering
         # Split op enkele newlines maar filter agressief
-        lines = text.split('\n')
+        lines = text.split("\n")
         if len(lines) > 1:
             examples = []
             for line in lines:
                 # Verwijder bullets en streepjes
-                cleaned = re.sub(r'^\s*[-—•*]+\s*', '', line).strip()
+                cleaned = re.sub(r"^\s*[-—•*]+\s*", "", line).strip()
                 # Filter lege regels, te korte regels, en headers
-                if (cleaned and 
-                    len(cleaned) > 10 and 
-                    not any(skip in cleaned.lower() for skip in ['voorbeelden:', 'hier zijn', 'bijvoorbeeld:'])):
+                if (
+                    cleaned
+                    and len(cleaned) > 10
+                    and not any(
+                        skip in cleaned.lower()
+                        for skip in ["voorbeelden:", "hier zijn", "bijvoorbeeld:"]
+                    )
+                ):
                     examples.append(cleaned)
-            
+
             # Als we minstens één goed voorbeeld hebben
             if examples:
                 return examples
-        
+
         # Fallback: return hele response als één voorbeeld (maar alleen als substantieel)
         if len(text) > 20:
             return [text]
@@ -605,7 +661,7 @@ def genereer_synoniemen(
         context_dict=context_dict,
         example_type=ExampleType.SYNONIEMEN,
         generation_mode=mode,
-        max_examples=5,  # Expliciet 5 synoniemen
+        max_examples=3,  # Expliciet 3 synoniemen
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -625,7 +681,7 @@ def genereer_antoniemen(
         context_dict=context_dict,
         example_type=ExampleType.ANTONIEMEN,
         generation_mode=mode,
-        max_examples=5,  # Expliciet 5 antoniemen
+        max_examples=3,  # Expliciet 3 antoniemen
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -672,8 +728,8 @@ def genereer_alle_voorbeelden(
         ExampleType.VOORBEELDZINNEN: 3,
         ExampleType.PRAKTIJKVOORBEELDEN: 3,
         ExampleType.TEGENVOORBEELDEN: 3,
-        ExampleType.SYNONIEMEN: 5,
-        ExampleType.ANTONIEMEN: 5,
+        ExampleType.SYNONIEMEN: 3,
+        ExampleType.ANTONIEMEN: 3,
         ExampleType.TOELICHTING: 1,
     }
 
@@ -695,7 +751,9 @@ def genereer_alle_voorbeelden(
         if response.success:
             # Voor toelichting: gebruik de eerste (en enige) item als string
             if example_type == ExampleType.TOELICHTING:
-                results[example_type.value] = response.examples[0] if response.examples else ""
+                results[example_type.value] = (
+                    response.examples[0] if response.examples else ""
+                )
             else:
                 results[example_type.value] = response.examples
         else:

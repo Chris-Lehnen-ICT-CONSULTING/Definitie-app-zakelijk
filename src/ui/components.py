@@ -97,8 +97,8 @@ class UIComponents:
         wetopties = st.multiselect(
             "Wettelijke basis (meerdere mogelijk)",
             [
-                "Wetboek van Strafvordering (huidige versie)",
-                "Wetboek van strafvordering (nieuwe versie)",
+                "Wetboek van Strafvordering (huidig)",
+                "Wetboek van Strafvordering (toekomstig)",
                 "Wet op de Identificatieplicht",
                 "Wet op de politiegegevens",
                 "Wetboek van Strafrecht",
