@@ -212,8 +212,8 @@ class ContextSelector:
 
             # Wettelijke basis
             wet_options = [
-                "Wetboek van Strafvordering (huidige versie)",
-                "Wetboek van strafvordering (nieuwe versie)",
+                "Wetboek van Strafvordering (huidig)",
+                "Wetboek van Strafvordering (toekomstig)",
                 "Wet op de Identificatieplicht",
                 "Wet op de politiegegevens",
                 "Wetboek van Strafrecht",
@@ -370,7 +370,7 @@ class ContextSelector:
                 organisatorische_context=["DJI"],
                 juridische_context=["Strafrecht"],
                 wettelijke_basis=[
-                    "Wetboek van Strafvordering (huidige versie)",
+                    "Wetboek van Strafvordering (huidig)",
                     "Wetboek van Strafrecht",
                 ],
                 description="Standaard context voor DJI strafrecht definities",
@@ -379,7 +379,7 @@ class ContextSelector:
                 name="OM Vervolging",
                 organisatorische_context=["OM"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Wetboek van Strafvordering (huidige versie)"],
+                wettelijke_basis=["Wetboek van Strafvordering (huidig)"],
                 description="Context voor OM vervolgingsdefinities",
             ),
             ContextPreset(
@@ -396,7 +396,7 @@ class ContextSelector:
                 name="Ketenbreed Strafrecht",
                 organisatorische_context=["OM", "DJI", "KMAR", "CJIB"],
                 juridische_context=["Strafrecht"],
-                wettelijke_basis=["Wetboek van Strafvordering (huidige versie)"],
+                wettelijke_basis=["Wetboek van Strafvordering (huidig)"],
                 description="Brede ketencontext voor strafrecht definities",
             ),
             ContextPreset(
@@ -518,8 +518,8 @@ class ContextSelector:
     def _get_wettelijke_options(self) -> list[str]:
         """Get legal basis options."""
         return [
-            "Wetboek van Strafvordering (huidige versie)",
-            "Wetboek van strafvordering (nieuwe versie)",
+            "Wetboek van Strafvordering (huidig)",
+            "Wetboek van Strafvordering (toekomstig)",
             "Wet op de Identificatieplicht",
             "Wet op de politiegegevens",
             "Wetboek van Strafrecht",

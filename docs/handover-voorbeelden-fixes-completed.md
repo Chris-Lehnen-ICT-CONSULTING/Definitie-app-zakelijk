@@ -7,7 +7,7 @@ Fix het probleem waarbij voorbeelden niet of incorrect werden getoond in de UI.
 
 ## 📋 Wat is er gedaan?
 
-### 1. **Indentatie Probleem Opgelost** 
+### 1. **Indentatie Probleem Opgelost**
 **File:** `src/ui/components/definition_generator_tab.py`
 - **Probleem:** Code om voorbeelden te verwerken stond binnen het `except` blok
 - **Oplossing:** Code verplaatst naar correcte scope - voorbeelden worden nu direct uit `agent_result` gehaald
@@ -55,7 +55,7 @@ Fix het probleem waarbij voorbeelden niet of incorrect werden getoond in de UI.
 ### 7. **Geavanceerde Parser Filtering** (NIEUW)
 **File:** `src/voorbeelden/unified_voorbeelden.py` - `_parse_response` functie
 - **Probleem:** Lege regels, streepjes en irrelevante content in voorbeelden
-- **Oplossing:** 
+- **Oplossing:**
   - Agressieve filtering van lege regels (len > 1 voor synoniemen, > 10 voor voorbeelden)
   - Verwijdering van "—" streepjes en bullets
   - Headers en intro tekst worden gefilterd
@@ -68,7 +68,7 @@ Fix het probleem waarbij voorbeelden niet of incorrect werden getoond in de UI.
 ```
 1. voorbeelden/unified_voorbeelden.py
    ↓ genereert voorbeelden met Nederlandse keys
-2. services/orchestrators/definition_orchestrator_v2.py  
+2. services/orchestrators/definition_orchestrator_v2.py
    ↓ voegt voorbeelden toe aan metadata
 3. services/service_factory.py
    ↓ geeft voorbeelden direct door (geen mapping meer)
@@ -165,7 +165,7 @@ OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 ```
 7374189 - fix: verbeterde parsing en verhoogde token limiet voor voorbeelden
 4256f80 - fix: verbeter voorbeelden parsing en verhoog token limiet
-e00ff37 - fix: voorbeelden formatting en parsing verbeteringen  
+e00ff37 - fix: voorbeelden formatting en parsing verbeteringen
 34f100a - fix: verwijder hardcoded voorbeelden keys mapping
 e5848ed - fix: verhoog max_tokens voor voorbeelden
 13b4668 - fix(UI): voorbeelden worden nu correct getoond
