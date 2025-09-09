@@ -18,7 +18,9 @@ except ImportError:
     AIOHTTP_AVAILABLE = False
     print("Warning: aiohttp niet beschikbaar - Wikipedia service werkt niet volledig")
 
-from datetime import UTC
+from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 
 from ..interfaces import LookupResult, WebSource
 
@@ -195,7 +197,6 @@ class WikipediaService:
                 definition = first_sentence
 
         # Build metadata
-        from datetime import datetime
         from hashlib import sha256
 
         retrieved_at = datetime.now(UTC).isoformat()

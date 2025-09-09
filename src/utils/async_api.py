@@ -9,6 +9,8 @@ import os
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+
+UTC = UTC  # Python 3.10 compatibility
 from functools import wraps
 from typing import Any
 

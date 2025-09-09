@@ -15,6 +15,8 @@ import time
 from collections import defaultdict, deque
 from dataclasses import dataclass, field
 from datetime import UTC, datetime, timedelta
+
+UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from typing import Any
 
