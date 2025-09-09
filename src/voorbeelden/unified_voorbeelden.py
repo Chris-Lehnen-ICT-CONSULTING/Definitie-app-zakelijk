@@ -202,7 +202,7 @@ class UnifiedExamplesGenerator:
                     prompt=prompt,
                     model=request.model,
                     temperature=request.temperature,
-                    max_tokens=800,
+                    max_tokens=1200,
                 )
             )
             return self._parse_response(response.text)
@@ -463,18 +463,36 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
         if not response:
             return []
 
-        # Split on lines and clean up
-        lines = response.strip().split("\n")
-        examples = []
-
-        for line in lines:
-            # Remove numbering and bullets
-            cleaned = re.sub(r"^\s*(?:\d+\.|-|\*)\s*", "", line).strip()
-            if cleaned and not cleaned.startswith("Voorbeelden:"):
-                examples.append(cleaned)
-
-        # Fallback: return whole response if no lines found
-        return examples if examples else [response.strip()]
+        # Voor complexe voorbeelden met uitleg, split op dubbele newlines of nummer patronen
+        # Dit voorkomt dat multi-line voorbeelden worden opgesplitst
+        
+        # Probeer eerst te splitsen op genummerde items (1., 2., etc.)
+        numbered_pattern = r'\n(?=\d+\.[\s\*])'
+        parts = re.split(numbered_pattern, response.strip())
+        
+        if len(parts) > 1:
+            # Er zijn genummerde items gevonden
+            examples = []
+            for part in parts:
+                # Verwijder het nummer aan het begin en clean up
+                cleaned = re.sub(r'^\d+\.[\s\*]*', '', part).strip()
+                if cleaned and not cleaned.startswith("Voorbeelden:"):
+                    # Behoud de volledige tekst inclusief uitleg
+                    examples.append(cleaned)
+            return examples if examples else [response.strip()]
+        
+        # Als geen nummering, probeer op "—" of "---" te splitsen
+        if "—" in response or "---" in response:
+            parts = re.split(r'—+', response.strip())
+            examples = []
+            for part in parts:
+                cleaned = part.strip()
+                if cleaned and not cleaned.startswith("Voorbeelden:"):
+                    examples.append(cleaned)
+            return examples if examples else [response.strip()]
+        
+        # Fallback: return hele response als één voorbeeld
+        return [response.strip()]
 
     def get_statistics(self) -> dict[str, Any]:
         """Get generation statistics."""
@@ -665,9 +683,17 @@ def genereer_alle_voorbeelden(
         response = generator.generate_examples(request)
 
         if response.success:
-            results[example_type.value] = response.examples
+            # Voor toelichting: gebruik de eerste (en enige) item als string
+            if example_type == ExampleType.TOELICHTING:
+                results[example_type.value] = response.examples[0] if response.examples else ""
+            else:
+                results[example_type.value] = response.examples
         else:
-            results[example_type.value] = []
+            # Voor toelichting een lege string, voor andere een lege lijst
+            if example_type == ExampleType.TOELICHTING:
+                results[example_type.value] = ""
+            else:
+                results[example_type.value] = []
             logger.warning(
                 f"Failed to generate {example_type.value}: {response.error_message}"
             )
@@ -700,10 +726,18 @@ async def genereer_alle_voorbeelden_async(
     for example_type, task in tasks:
         try:
             examples = await task
-            results[example_type.value] = examples
+            # Voor toelichting: gebruik de eerste (en enige) item als string
+            if example_type == ExampleType.TOELICHTING:
+                results[example_type.value] = examples[0] if examples else ""
+            else:
+                results[example_type.value] = examples
         except Exception as e:
             logger.error(f"Failed to generate {example_type.value}: {e}")
-            results[example_type.value] = []
+            # Voor toelichting een lege string, voor andere een lege lijst
+            if example_type == ExampleType.TOELICHTING:
+                results[example_type.value] = ""
+            else:
+                results[example_type.value] = []
 
     return results
 
