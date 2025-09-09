@@ -34,6 +34,16 @@ from utils.smart_rate_limiter import (  # Smart rate limiting voor API calls
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
 
+# Centrale configuratie voor aantallen voorbeelden
+DEFAULT_EXAMPLE_COUNTS = {
+    "voorbeeldzinnen": 3,
+    "praktijkvoorbeelden": 3,
+    "tegenvoorbeelden": 3,
+    "synoniemen": 5,
+    "antoniemen": 5,
+    "toelichting": 1,
+}
+
 
 class ExampleType(Enum):
     """Types van voorbeelden die gegenereerd kunnen worden."""
@@ -601,7 +611,7 @@ def genereer_voorbeeld_zinnen(
         context_dict=context_dict,
         example_type=ExampleType.VOORBEELDZINNEN,
         generation_mode=mode,
-        max_examples=3,  # Expliciet 3 voorbeeldzinnen
+        max_examples=DEFAULT_EXAMPLE_COUNTS[ExampleType.VOORBEELDZINNEN.value],
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -621,7 +631,7 @@ def genereer_praktijkvoorbeelden(
         context_dict=context_dict,
         example_type=ExampleType.PRAKTIJKVOORBEELDEN,
         generation_mode=mode,
-        max_examples=3,  # Expliciet 3 praktijkvoorbeelden
+        max_examples=DEFAULT_EXAMPLE_COUNTS[ExampleType.PRAKTIJKVOORBEELDEN.value],
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -641,7 +651,7 @@ def genereer_tegenvoorbeelden(
         context_dict=context_dict,
         example_type=ExampleType.TEGENVOORBEELDEN,
         generation_mode=mode,
-        max_examples=3,  # Expliciet 3 tegenvoorbeelden
+        max_examples=DEFAULT_EXAMPLE_COUNTS[ExampleType.TEGENVOORBEELDEN.value],
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -661,7 +671,7 @@ def genereer_synoniemen(
         context_dict=context_dict,
         example_type=ExampleType.SYNONIEMEN,
         generation_mode=mode,
-        max_examples=5,  # Expliciet 5 synoniemen
+        max_examples=DEFAULT_EXAMPLE_COUNTS[ExampleType.SYNONIEMEN.value],
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -681,7 +691,7 @@ def genereer_antoniemen(
         context_dict=context_dict,
         example_type=ExampleType.ANTONIEMEN,
         generation_mode=mode,
-        max_examples=5,  # Expliciet 5 antoniemen
+        max_examples=DEFAULT_EXAMPLE_COUNTS[ExampleType.ANTONIEMEN.value],
     )
     response = generator.generate_examples(request)
     return response.examples if response.success else []
@@ -723,14 +733,14 @@ def genereer_alle_voorbeelden(
 
     results = {}
 
-    # Define max_examples per type
+    # Use central configuration for max_examples per type
     max_examples_per_type = {
-        ExampleType.VOORBEELDZINNEN: 3,
-        ExampleType.PRAKTIJKVOORBEELDEN: 3,
-        ExampleType.TEGENVOORBEELDEN: 3,
-        ExampleType.SYNONIEMEN: 5,
-        ExampleType.ANTONIEMEN: 5,
-        ExampleType.TOELICHTING: 1,
+        ExampleType.VOORBEELDZINNEN: DEFAULT_EXAMPLE_COUNTS["voorbeeldzinnen"],
+        ExampleType.PRAKTIJKVOORBEELDEN: DEFAULT_EXAMPLE_COUNTS["praktijkvoorbeelden"],
+        ExampleType.TEGENVOORBEELDEN: DEFAULT_EXAMPLE_COUNTS["tegenvoorbeelden"],
+        ExampleType.SYNONIEMEN: DEFAULT_EXAMPLE_COUNTS["synoniemen"],
+        ExampleType.ANTONIEMEN: DEFAULT_EXAMPLE_COUNTS["antoniemen"],
+        ExampleType.TOELICHTING: DEFAULT_EXAMPLE_COUNTS["toelichting"],
     }
 
     # Generate all example types
