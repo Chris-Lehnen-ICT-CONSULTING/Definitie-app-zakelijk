@@ -38,12 +38,12 @@ logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelde
 class ExampleType(Enum):
     """Types van voorbeelden die gegenereerd kunnen worden."""
 
-    SENTENCE = "sentence"  # Voorbeeldzinnen met het begrip
-    PRACTICAL = "practical"  # Praktische gebruiksvoorbeelden
-    COUNTER = "counter"  # Tegenvoorbeelden ter verduidelijking
-    SYNONYMS = "synonyms"  # Synoniemen van het begrip
-    ANTONYMS = "antonyms"  # Antoniemen van het begrip
-    EXPLANATION = "explanation"  # Uitgebreide toelichting
+    VOORBEELDZINNEN = "voorbeeldzinnen"  # Voorbeeldzinnen met het begrip
+    PRAKTIJKVOORBEELDEN = "praktijkvoorbeelden"  # Praktische gebruiksvoorbeelden
+    TEGENVOORBEELDEN = "tegenvoorbeelden"  # Tegenvoorbeelden ter verduidelijking
+    SYNONIEMEN = "synoniemen"  # Synoniemen van het begrip
+    ANTONIEMEN = "antoniemen"  # Antoniemen van het begrip
+    TOELICHTING = "toelichting"  # Uitgebreide toelichting
 
 
 class GenerationMode(Enum):
@@ -98,31 +98,33 @@ class UnifiedExamplesGenerator:
     def _get_config_for_type(self, example_type: ExampleType) -> dict:
         """Get configuration for a specific example type from central config."""
         # Map ExampleType enum to config keys
+        # Gebruik Nederlandse keys overal
         type_mapping = {
-            ExampleType.SENTENCE: "sentence",
-            ExampleType.PRACTICAL: "practical",
-            ExampleType.COUNTER: "counter",
-            ExampleType.SYNONYMS: "synonyms",
-            ExampleType.ANTONYMS: "antonyms",
-            ExampleType.EXPLANATION: "explanation",
+            ExampleType.VOORBEELDZINNEN: "voorbeeldzinnen",
+            ExampleType.PRAKTIJKVOORBEELDEN: "praktijkvoorbeelden",
+            ExampleType.TEGENVOORBEELDEN: "tegenvoorbeelden",
+            ExampleType.SYNONIEMEN: "synoniemen",
+            ExampleType.ANTONIEMEN: "antoniemen",
+            ExampleType.TOELICHTING: "toelichting",
         }
 
-        config_key = type_mapping.get(example_type, "sentence")
+        config_key = type_mapping.get(example_type, "voorbeeldzinnen")
         return get_component_config("voorbeelden", config_key)
 
     def _get_config_for_type(self, example_type: ExampleType) -> dict:
         """Get configuration for a specific example type from central config."""
         # Map ExampleType enum to config keys
+        # Gebruik Nederlandse keys overal
         type_mapping = {
-            ExampleType.SENTENCE: "sentence",
-            ExampleType.PRACTICAL: "practical",
-            ExampleType.COUNTER: "counter",
-            ExampleType.SYNONYMS: "synonyms",
-            ExampleType.ANTONYMS: "antonyms",
-            ExampleType.EXPLANATION: "explanation",
+            ExampleType.VOORBEELDZINNEN: "voorbeeldzinnen",
+            ExampleType.PRAKTIJKVOORBEELDEN: "praktijkvoorbeelden",
+            ExampleType.TEGENVOORBEELDEN: "tegenvoorbeelden",
+            ExampleType.SYNONIEMEN: "synoniemen",
+            ExampleType.ANTONIEMEN: "antoniemen",
+            ExampleType.TOELICHTING: "toelichting",
         }
 
-        config_key = type_mapping.get(example_type, "sentence")
+        config_key = type_mapping.get(example_type, "voorbeeldzinnen")
         return get_component_config("voorbeelden", config_key)
 
     def _run_async_safe(self, coro):
@@ -234,17 +236,17 @@ class UnifiedExamplesGenerator:
     async def _generate_resilient(self, request: ExampleRequest) -> list[str]:
         """Resilient example generation with retry logic and rate limiting."""
         # Route to specific resilient method based on example type
-        if request.example_type == ExampleType.SENTENCE:
+        if request.example_type == ExampleType.VOORBEELDZINNEN:
             return await self._generate_resilient_sentence(request)
-        if request.example_type == ExampleType.PRACTICAL:
+        if request.example_type == ExampleType.PRAKTIJKVOORBEELDEN:
             return await self._generate_resilient_practical(request)
-        if request.example_type == ExampleType.COUNTER:
+        if request.example_type == ExampleType.TEGENVOORBEELDEN:
             return await self._generate_resilient_counter(request)
-        if request.example_type == ExampleType.SYNONYMS:
+        if request.example_type == ExampleType.SYNONIEMEN:
             return await self._generate_resilient_synonyms(request)
-        if request.example_type == ExampleType.ANTONYMS:
+        if request.example_type == ExampleType.ANTONIEMEN:
             return await self._generate_resilient_antonyms(request)
-        if request.example_type == ExampleType.EXPLANATION:
+        if request.example_type == ExampleType.TOELICHTING:
             return await self._generate_resilient_explanation(request)
         msg = f"Unknown example type: {request.example_type}"
         raise ValueError(msg)
@@ -356,7 +358,7 @@ class UnifiedExamplesGenerator:
         context_text = self._format_context(context_dict)
 
         # Type-specific prompts
-        if request.example_type == ExampleType.SENTENCE:
+        if request.example_type == ExampleType.VOORBEELDZINNEN:
             return f"""
 Geef {request.max_examples} korte voorbeeldzinnen waarin het begrip '{begrip}'
 op een duidelijke manier wordt gebruikt. De zinnen moeten passen binnen de gegeven context.
@@ -370,7 +372,7 @@ Integreer de context natuurlijk in de voorbeeldzinnen. Als er een organisatie of
 is opgegeven, gebruik deze in de zinnen. Geef alleen de voorbeeldzinnen, elk op een nieuwe regel.
 """
 
-        if request.example_type == ExampleType.PRACTICAL:
+        if request.example_type == ExampleType.PRAKTIJKVOORBEELDEN:
             return f"""
 Geef {request.max_examples} praktische voorbeelden waarbij het begrip '{begrip}'
 van toepassing is in de praktijk binnen de gegeven context.
@@ -384,7 +386,7 @@ Geef concrete, herkenbare situaties uit de opgegeven organisatie/domein waarin d
 gebruikt wordt. Maak de voorbeelden specifiek voor de context.
 """
 
-        if request.example_type == ExampleType.COUNTER:
+        if request.example_type == ExampleType.TEGENVOORBEELDEN:
             return f"""
 Geef {request.max_examples} tegenvoorbeelden die NIET onder het begrip '{begrip}' vallen,
 maar wel relevant zijn voor de gegeven context.
@@ -398,7 +400,7 @@ Geef voorbeelden uit dezelfde organisatie/domein die lijken op '{begrip}' maar e
 onder vallen. Leg kort uit waarom deze voorbeelden niet onder de definitie vallen.
 """
 
-        if request.example_type == ExampleType.SYNONYMS:
+        if request.example_type == ExampleType.SYNONIEMEN:
             return f"""
 Geef {request.max_examples} synoniemen of verwante termen voor '{begrip}' die gebruikt
 worden binnen de gegeven context.
@@ -412,7 +414,7 @@ Geef synoniemen die specifiek in deze organisatie/domein gebruikt worden.
 Geef alleen de synoniemen, elk op een nieuwe regel.
 """
 
-        if request.example_type == ExampleType.ANTONYMS:
+        if request.example_type == ExampleType.ANTONIEMEN:
             return f"""
 Geef {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}'
 die relevant zijn binnen de gegeven context.
@@ -426,7 +428,7 @@ Geef antoniemen die in deze organisatie/domein gebruikt worden.
 Geef alleen de antoniemen, elk op een nieuwe regel.
 """
 
-        if request.example_type == ExampleType.EXPLANATION:
+        if request.example_type == ExampleType.TOELICHTING:
             return f"""
 Geef een korte, heldere toelichting bij het begrip '{begrip}' specifiek voor de gegeven context.
 
@@ -513,7 +515,7 @@ def genereer_voorbeeld_zinnen(
         begrip=begrip,
         definitie=definitie,
         context_dict=context_dict,
-        example_type=ExampleType.SENTENCE,
+        example_type=ExampleType.VOORBEELDZINNEN,
         generation_mode=mode,
         max_examples=3,  # Expliciet 3 voorbeeldzinnen
     )
@@ -533,7 +535,7 @@ def genereer_praktijkvoorbeelden(
         begrip=begrip,
         definitie=definitie,
         context_dict=context_dict,
-        example_type=ExampleType.PRACTICAL,
+        example_type=ExampleType.PRAKTIJKVOORBEELDEN,
         generation_mode=mode,
         max_examples=3,  # Expliciet 3 praktijkvoorbeelden
     )
@@ -553,7 +555,7 @@ def genereer_tegenvoorbeelden(
         begrip=begrip,
         definitie=definitie,
         context_dict=context_dict,
-        example_type=ExampleType.COUNTER,
+        example_type=ExampleType.TEGENVOORBEELDEN,
         generation_mode=mode,
         max_examples=3,  # Expliciet 3 tegenvoorbeelden
     )
@@ -573,7 +575,7 @@ def genereer_synoniemen(
         begrip=begrip,
         definitie=definitie,
         context_dict=context_dict,
-        example_type=ExampleType.SYNONYMS,
+        example_type=ExampleType.SYNONIEMEN,
         generation_mode=mode,
         max_examples=5,  # Expliciet 5 synoniemen
     )
@@ -593,7 +595,7 @@ def genereer_antoniemen(
         begrip=begrip,
         definitie=definitie,
         context_dict=context_dict,
-        example_type=ExampleType.ANTONYMS,
+        example_type=ExampleType.ANTONIEMEN,
         generation_mode=mode,
         max_examples=5,  # Expliciet 5 antoniemen
     )
@@ -613,7 +615,7 @@ def genereer_toelichting(
         begrip=begrip,
         definitie=definitie,
         context_dict=context_dict,
-        example_type=ExampleType.EXPLANATION,
+        example_type=ExampleType.TOELICHTING,
         generation_mode=mode,
         max_examples=1,
     )
@@ -639,12 +641,12 @@ def genereer_alle_voorbeelden(
 
     # Define max_examples per type
     max_examples_per_type = {
-        ExampleType.SENTENCE: 3,
-        ExampleType.PRACTICAL: 3,
-        ExampleType.COUNTER: 3,
-        ExampleType.SYNONYMS: 5,
-        ExampleType.ANTONYMS: 5,
-        ExampleType.EXPLANATION: 1,
+        ExampleType.VOORBEELDZINNEN: 3,
+        ExampleType.PRAKTIJKVOORBEELDEN: 3,
+        ExampleType.TEGENVOORBEELDEN: 3,
+        ExampleType.SYNONIEMEN: 5,
+        ExampleType.ANTONIEMEN: 5,
+        ExampleType.TOELICHTING: 1,
     }
 
     # Generate all example types
