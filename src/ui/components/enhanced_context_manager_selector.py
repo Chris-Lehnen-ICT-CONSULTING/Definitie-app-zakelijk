@@ -48,12 +48,16 @@ class EnhancedContextManagerSelector:
 
     WET_OPTIONS: ClassVar[list[str]] = [
         "Wetboek van Strafrecht",
-        "Wetboek van Strafvordering",
+        "Wetboek van Strafvordering (huidig)",
+        "Wetboek van Strafvordering (toekomstig)",
         "Wet op de rechterlijke organisatie",
         "Algemene wet bestuursrecht",
         "Burgerlijk Wetboek",
         "Wetboek van Burgerlijke Rechtsvordering",
         "Vreemdelingenwet",
+        "Wet op de Identificatieplicht",
+        "Wet op de politiegegevens",
+        "Algemene verordening gegevensbescherming",
         "Uitvoeringswet EU-richtlijnen",
         "Europees Verdrag voor de Rechten van de Mens",
     ]
