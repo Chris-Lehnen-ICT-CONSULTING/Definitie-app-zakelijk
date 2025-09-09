@@ -9,6 +9,8 @@ import re
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from pathlib import Path
 from typing import Any

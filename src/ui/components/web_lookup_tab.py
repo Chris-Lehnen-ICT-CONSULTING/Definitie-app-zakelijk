@@ -6,6 +6,8 @@ import asyncio
 import re
 from datetime import UTC, datetime
 
+UTC = UTC  # Python 3.10 compatibility
+
 import pandas as pd
 import streamlit as st
 

@@ -5,6 +5,8 @@ Orchestration Tab - Interface voor geavanceerde definitie orchestratie en iterat
 import asyncio
 import time
 from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 from typing import Any
 
 import pandas as pd

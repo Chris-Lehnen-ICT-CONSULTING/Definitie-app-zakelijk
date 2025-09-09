@@ -3,7 +3,9 @@ External Sources Tab - Interface voor externe definitie bronnen.
 """
 
 import json  # JSON data verwerking voor configuraties
-from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility# Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Bestandspad manipulatie
 
 import streamlit as st  # Streamlit web interface framework

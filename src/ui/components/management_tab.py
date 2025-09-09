@@ -8,7 +8,9 @@ import asyncio
 import os
 import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
-from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility# Datum en tijd functionaliteit, timezone
 from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 
 import pandas as pd  # Data manipulatie en analyse framework

@@ -4,6 +4,8 @@ import os
 import re
 from datetime import UTC, datetime
 
+UTC = UTC  # Python 3.10 compatibility
+
 import streamlit as st
 
 # Gebruik standaard logging

@@ -8,6 +8,8 @@ zonder enige database dependencies.
 import logging
 from dataclasses import dataclass
 from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from typing import Any
 

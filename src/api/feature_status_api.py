@@ -4,6 +4,8 @@ Feature Status API voor real-time dashboard updates
 
 import json
 from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException

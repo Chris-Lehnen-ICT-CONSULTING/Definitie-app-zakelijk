@@ -21,6 +21,8 @@ except ImportError:
 
 from datetime import UTC
 
+UTC = UTC  # Python 3.10 compatibility
+
 from ..interfaces import LookupResult, WebSource
 
 logger = logging.getLogger(__name__)

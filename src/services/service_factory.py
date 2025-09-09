@@ -222,33 +222,38 @@ class ServiceAdapter:
                 "final_definitie": response.definition.definitie,  # Voor legacy UI compatibility
                 "marker": response.definition.metadata.get("marker", ""),
                 "toetsresultaten": (
-                    response.validation.get("violations", [])
-                    if response.validation and isinstance(response.validation, dict)
+                    response.validation_result.get("violations", [])
+                    if response.validation_result
+                    and isinstance(response.validation_result, dict)
                     else (
-                        response.validation.errors
-                        if response.validation
-                        and hasattr(response.validation, "errors")
+                        response.validation_result.errors
+                        if response.validation_result
+                        and hasattr(response.validation_result, "errors")
                         else []
                     )
                 ),
                 "validation_details": (
-                    response.validation if response.validation else None
+                    response.validation_result if response.validation_result else None
                 ),
                 "validation_score": (
-                    response.validation.get("overall_score", 0.0)
-                    if response.validation and isinstance(response.validation, dict)
+                    response.validation_result.get("overall_score", 0.0)
+                    if response.validation_result
+                    and isinstance(response.validation_result, dict)
                     else (
-                        response.validation.score
-                        if response.validation and hasattr(response.validation, "score")
+                        response.validation_result.score
+                        if response.validation_result
+                        and hasattr(response.validation_result, "score")
                         else 0.0
                     )
                 ),
                 "final_score": (
-                    response.validation.get("overall_score", 0.0)
-                    if response.validation and isinstance(response.validation, dict)
+                    response.validation_result.get("overall_score", 0.0)
+                    if response.validation_result
+                    and isinstance(response.validation_result, dict)
                     else (
-                        response.validation.score
-                        if response.validation and hasattr(response.validation, "score")
+                        response.validation_result.score
+                        if response.validation_result
+                        and hasattr(response.validation_result, "score")
                         else 0.0
                     )
                 ),
