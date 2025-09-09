@@ -23,7 +23,19 @@ class ExportTab:
     def __init__(self, repository: DefinitieRepository):
         """Initialiseer export tab."""
         self.repository = repository
-        self.service = get_definition_service()
+        try:
+            self.service = get_definition_service()
+        except Exception:
+            # In testomgevingen zonder API key: gebruik dummy service
+            class _DummyService:
+                def get_service_info(self) -> dict:
+                    return {
+                        "service_mode": "dummy",
+                        "architecture": "none",
+                        "version": "test",
+                    }
+
+            self.service = _DummyService()
 
     def render(self):
         """Render export tab."""
