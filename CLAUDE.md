@@ -67,6 +67,13 @@ if any(pattern.match(user_message) for pattern in TRIGGER_PATTERNS):
     print(optimized_result.full_prompt)  # VOLLEDIGE tekst, geen samenvatting!
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
     print("")
+    print("## ⚡ WORKFLOW ROUTER INFO")
+    print("De workflow-router zal:")
+    print("1. Een workflow selecteren (bijv. ANALYSIS, DEBUG, DOCUMENTATION)")
+    print("2. Meerdere gespecialiseerde agents aanroepen via Task()")
+    print("3. Het werk delegeren aan deze agents")
+    print("4. De resultaten consolideren")
+    print("")
     print("## ⚡ KEUZE OPTIES")
     print("1. **Accept** → Gebruik deze prompt met workflow-router")
     print("2. **Modify** → Pas aan en optimaliseer opnieuw")
