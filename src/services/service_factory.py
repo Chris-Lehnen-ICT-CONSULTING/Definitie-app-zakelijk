@@ -60,27 +60,14 @@ class LegacyGenerationResult:
         if not hasattr(self, "reason"):
             self.reason = getattr(self, "error_message", "")
 
-        # Legacy UI compatibiliteit - voor iterative generation workflow
+        # Legacy UI compatibiliteit - minimaal voor oude tests
         if not hasattr(self, "iteration_count"):
             self.iteration_count = 1
         if not hasattr(self, "total_processing_time"):
             self.total_processing_time = getattr(self, "processing_time", 0.0)
         if not hasattr(self, "iterations"):
             self.iterations = []
-        if not hasattr(self, "best_iteration"):
-            # Maak een fake best_iteration voor UI compatibility
-            class FakeIteration:
-                def __init__(self, parent):
-                    self.iteration_number = 1
-                    self.validation_result = FakeValidationResult(parent)
-                    self.generation_result = parent
-
-            class FakeValidationResult:
-                def __init__(self, parent):
-                    self.overall_score = parent.final_score
-                    self.violations = []
-
-            self.best_iteration = FakeIteration(self) if self.success else None
+        # NO MORE best_iteration - V2 doesn't use iterations
 
     def __getitem__(self, key):
         """Dict-like access voor backward compatibility."""
@@ -138,6 +125,166 @@ class ServiceAdapter:
             "service_mode": "container_v2",
             "architecture": "microservices",
             "version": "2.0",
+        }
+
+    def normalize_validation(self, result: Any) -> dict:
+        """Normalize any validation format to canonical V2 dict.
+
+        Maps various validation formats to the canonical ValidationDetailsDict:
+        - ModularValidationService dict format
+        - Legacy ValidationResult objects
+        - Ensures severity mapping (error->high, warning->medium, other->low)
+        """
+
+        if result is None:
+            return {
+                "overall_score": 0.0,
+                "is_acceptable": False,
+                "violations": [],
+                "passed_rules": [],
+            }
+
+        # If already a dict from ModularValidationService
+        if isinstance(result, dict):
+            # Map violations to canonical format
+            violations = []
+            for v in result.get("violations", []):
+                severity = v.get("severity", "low")
+                # Map internal severities to canonical
+                if severity in ["error", "critical"]:
+                    severity = "high"
+                elif severity == "warning":
+                    severity = "medium"
+                else:
+                    severity = "low"
+
+                violations.append(
+                    {
+                        "rule_id": v.get("rule_id", v.get("code", "unknown")),
+                        "severity": severity,
+                        "description": v.get("description", v.get("message", "")),
+                        "suggestion": v.get("suggestion"),
+                    }
+                )
+
+            return {
+                "overall_score": float(result.get("overall_score", 0.0)),
+                "is_acceptable": result.get("is_acceptable", False),
+                "violations": violations,
+                "passed_rules": result.get("passed_rules", []),
+            }
+
+        # Legacy object format (shouldn't happen with V2, but be defensive)
+        violations = []
+        if hasattr(result, "violations") and result.violations:
+            for v in result.violations:
+                severity = "low"
+                if hasattr(v, "severity"):
+                    sev_val = (
+                        v.severity.value
+                        if hasattr(v.severity, "value")
+                        else str(v.severity)
+                    )
+                    if sev_val in ["high", "critical", "error"]:
+                        severity = "high"
+                    elif sev_val in ["medium", "warning"]:
+                        severity = "medium"
+
+                violations.append(
+                    {
+                        "rule_id": getattr(v, "rule_id", "unknown"),
+                        "severity": severity,
+                        "description": getattr(v, "description", ""),
+                        "suggestion": getattr(v, "suggestion", None),
+                    }
+                )
+
+        # Use is_acceptable if available, otherwise check is_valid, otherwise use score threshold
+        is_acceptable = False
+        if hasattr(result, "is_acceptable"):
+            is_acceptable = result.is_acceptable
+        elif hasattr(result, "is_valid"):
+            is_acceptable = result.is_valid
+        elif hasattr(result, "overall_score"):
+            is_acceptable = result.overall_score >= 0.5
+        elif hasattr(result, "score"):
+            is_acceptable = result.score >= 0.5
+
+        overall_score = 0.0
+        if hasattr(result, "overall_score"):
+            overall_score = float(result.overall_score)
+        elif hasattr(result, "score"):
+            overall_score = float(result.score)
+
+        return {
+            "overall_score": overall_score,
+            "is_acceptable": is_acceptable,
+            "violations": violations,
+            "passed_rules": getattr(result, "passed_rules", []),
+        }
+
+    def to_ui_response(self, response, agent_result: dict) -> dict:
+        """Convert orchestrator response to canonical UI format.
+
+        Creates a UIResponseDict with all required fields populated.
+        No best_iteration, no is_valid, only the canonical V2 format.
+        """
+
+        # Extract definition text
+        definitie_text = ""
+        definitie_origineel = ""
+        if response.success and response.definition:
+            definitie_text = response.definition.definitie
+            definitie_origineel = (
+                response.definition.metadata.get("definitie_origineel")
+                or response.definition.metadata.get("origineel")
+                or definitie_text
+            )
+
+        # Normalize validation (handle both validation_result and validation)
+        validation_data = getattr(response, "validation_result", None) or getattr(
+            response, "validation", None
+        )
+        validation_details = self.normalize_validation(validation_data)
+
+        # Extract voorbeelden from metadata
+        voorbeelden = {"juridisch": [], "praktijk": [], "tegenvoorbeelden": []}
+        if response.definition and response.definition.metadata:
+            meta_voorbeelden = response.definition.metadata.get("voorbeelden", {})
+            if isinstance(meta_voorbeelden, dict):
+                voorbeelden["juridisch"] = meta_voorbeelden.get("juridisch", [])
+                voorbeelden["praktijk"] = meta_voorbeelden.get("praktijk", [])
+                voorbeelden["tegenvoorbeelden"] = meta_voorbeelden.get(
+                    "tegenvoorbeelden", []
+                )
+
+        # Build metadata
+        metadata = {}
+        if response.definition and response.definition.metadata:
+            metadata = {
+                "prompt_template": response.definition.metadata.get("prompt_template"),
+                "prompt_text": response.definition.metadata.get("prompt_text"),
+                "context": response.definition.metadata.get("context", {}),
+                "generation_id": response.definition.metadata.get("generation_id", ""),
+                "duration": response.definition.metadata.get("processing_time", 0.0),
+                "model": response.definition.metadata.get("model", "gpt-4"),
+            }
+
+        # Extract sources
+        sources = []
+        if response.definition and response.definition.metadata:
+            sources = response.definition.metadata.get("sources", [])
+
+        # Build canonical UI response
+        return {
+            "success": response.success,
+            "definitie_origineel": definitie_origineel,
+            "definitie_gecorrigeerd": definitie_text,
+            "final_score": validation_details["overall_score"],
+            "validation_details": validation_details,
+            "voorbeelden": voorbeelden,
+            "metadata": metadata,
+            "sources": sources,
         }
 
     async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
@@ -208,100 +355,40 @@ class ServiceAdapter:
         # Handle V2 orchestrator async call properly
         response = await self.orchestrator.create_definition(request)
 
-        # Converteer response naar legacy format met object-achtige interface
+        # Convert to canonical UI format using normalization
         if response.success and response.definition:
-            # V2-only result shape for UI (dict)
+            # Use the new canonical conversion
+            ui_response = self.to_ui_response(response, {})
+
+            # Add only minimal legacy compatibility fields
+            # Most consumers should use the V2 fields directly
             result_dict = {
+                **ui_response,
                 "success": True,
-                "definitie_origineel": (
-                    response.definition.metadata.get("definitie_origineel")
-                    or response.definition.metadata.get("origineel")
-                    or response.definition.definitie
-                ),
-                "definitie_gecorrigeerd": response.definition.definitie,
-                "final_definitie": response.definition.definitie,  # Voor legacy UI compatibility
+                "final_definitie": ui_response[
+                    "definitie_gecorrigeerd"
+                ],  # Legacy alias
                 "marker": response.definition.metadata.get("marker", ""),
-                "toetsresultaten": (
-                    response.validation_result.get("violations", [])
-                    if response.validation_result
-                    and isinstance(response.validation_result, dict)
-                    else (
-                        response.validation_result.errors
-                        if response.validation_result
-                        and hasattr(response.validation_result, "errors")
-                        else []
-                    )
-                ),
-                "validation_details": (
-                    response.validation_result if response.validation_result else None
-                ),
-                "validation_score": (
-                    response.validation_result.get("overall_score", 0.0)
-                    if response.validation_result
-                    and isinstance(response.validation_result, dict)
-                    else (
-                        response.validation_result.score
-                        if response.validation_result
-                        and hasattr(response.validation_result, "score")
-                        else 0.0
-                    )
-                ),
-                "final_score": (
-                    response.validation_result.get("overall_score", 0.0)
-                    if response.validation_result
-                    and isinstance(response.validation_result, dict)
-                    else (
-                        response.validation_result.score
-                        if response.validation_result
-                        and hasattr(response.validation_result, "score")
-                        else 0.0
-                    )
-                ),
-                # Voorbeelden uitsluitend uit V2-metadata (geen legacy fallback)
-                "voorbeelden": (
-                    response.definition.metadata.get("voorbeelden", {})
-                    if response.definition and response.definition.metadata
-                    else {}
-                ),
-                "processing_time": response.definition.metadata.get(
-                    "processing_time", 0
-                ),
-                "metadata": response.definition.metadata,  # Voeg metadata toe inclusief prompt_template
-                # STORY 3.1 FIX: Add sources field to make them accessible in UI preview
-                "sources": (
-                    response.definition.metadata.get("sources", [])
-                    if response.definition and response.definition.metadata
-                    else []
-                ),
-                # Populate prompt fields for debug UI
-                "prompt_text": (
-                    response.definition.metadata.get("prompt_text", "")
-                    if response.definition and response.definition.metadata
-                    else ""
-                ),
-                # For legacy UI compatibility, expose prompt_template too
-                "prompt_template": (
-                    response.definition.metadata.get("prompt_template")
-                    if response.definition
-                    and response.definition.metadata
-                    and "prompt_template" in response.definition.metadata
-                    else (
-                        response.definition.metadata.get("prompt_text", "")
-                        if response.definition and response.definition.metadata
-                        else ""
-                    )
-                ),
+                "validation_score": ui_response["final_score"],  # Legacy alias
+                # Ensure prompt fields are available for debug
+                "prompt_text": ui_response["metadata"].get("prompt_text", ""),
+                "prompt_template": ui_response["metadata"].get("prompt_template", ""),
             }
 
             # Geen extra fallback meer voor prompt_template; UI leest 'prompt_text'
-
             return result_dict
         return {
             "success": False,
-            "error_message": (getattr(response, "message", None) or "Generatie mislukt"),
+            "error_message": (
+                getattr(response, "message", None) or "Generatie mislukt"
+            ),
             "definitie_gecorrigeerd": "Generatie mislukt",
             "voorbeelden": {},
-            "metadata": getattr(response, "definition", None) and getattr(response.definition, "metadata", {}) or {},
+            "metadata": (
+                getattr(response, "definition", None)
+                and getattr(response.definition, "metadata", {})
+            )
+            or {},
         }
 
     def generate_definition_sync(self, begrip: str, context_dict: dict, **kwargs):

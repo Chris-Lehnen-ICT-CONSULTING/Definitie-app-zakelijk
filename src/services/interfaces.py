@@ -12,7 +12,66 @@ from dataclasses import (  # Dataclass decorators voor gestructureerde data
 )
 from datetime import datetime  # Datum/tijd functionaliteit voor timestamps
 from enum import Enum  # Enumeratie types voor constante waarden
-from typing import Any  # Type hints voor flexibele type definities
+from typing import Any, TypedDict  # Type hints voor flexibele type definities
+
+# =====================================
+# V2 CANONICAL CONTRACTS (EPIC-010)
+# =====================================
+
+
+class ViolationDict(TypedDict):
+    """Canonical violation format for V2 contract."""
+
+    rule_id: str
+    severity: str  # "high" | "medium" | "low"
+    description: str
+    suggestion: str | None
+
+
+class ValidationDetailsDict(TypedDict):
+    """Canonical validation details for V2 contract."""
+
+    overall_score: float  # 0.0-1.0
+    is_acceptable: bool
+    violations: list[ViolationDict]
+    passed_rules: list[str]
+
+
+class VoorbeeldenDict(TypedDict):
+    """Canonical examples format for V2 contract."""
+
+    juridisch: list[str]
+    praktijk: list[str]
+    tegenvoorbeelden: list[str]
+
+
+class MetadataDict(TypedDict, total=False):
+    """Canonical metadata for V2 contract."""
+
+    prompt_template: str | None
+    prompt_text: str | None
+    context: dict[str, Any]
+    generation_id: str
+    duration: float
+    model: str
+
+
+class UIResponseDict(TypedDict):
+    """Canonical UI response format for V2 contract.
+
+    This is the ONLY format the UI should receive.
+    No best_iteration, no is_valid, no object forms.
+    """
+
+    success: bool
+    definitie_origineel: str  # Voor diff-weergave
+    definitie_gecorrigeerd: str
+    final_score: float
+    validation_details: ValidationDetailsDict
+    voorbeelden: VoorbeeldenDict
+    metadata: MetadataDict
+    sources: list[dict[str, Any]]
+
 
 # GenerationResult compatibility class for tests (EPIC-010 FASE 1 shim)
 # This avoids circular imports and maintains backward compatibility
@@ -758,7 +817,7 @@ class AITimeoutError(AIServiceError):
 # ==========================================
 
 
-# (Verplaatst naar Appendix in SA document – geen codewijzigingen nu)
+# (Verplaatst naar Appendix in SA document - geen codewijzigingen nu)
 
 
 @dataclass

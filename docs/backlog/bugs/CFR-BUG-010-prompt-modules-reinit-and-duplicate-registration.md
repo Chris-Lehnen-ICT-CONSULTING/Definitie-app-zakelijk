@@ -36,4 +36,3 @@ Referenties
 - `src/ui/tabbed_interface.py` (RegenerationService init)
 - `src/ui/components/definition_generator_tab.py` (RegenerationService init)
 - `src/services/prompts/*`, `src/services/prompts/modules/*`
-

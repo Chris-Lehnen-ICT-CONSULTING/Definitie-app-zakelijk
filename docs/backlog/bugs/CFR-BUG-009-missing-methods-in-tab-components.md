@@ -33,4 +33,3 @@ Acceptatiecriteria
 Referenties
 - `src/ui/tabbed_interface.py` (`_render_tab_content` error handling)
 - `src/ui/components/*_tab.py`
-

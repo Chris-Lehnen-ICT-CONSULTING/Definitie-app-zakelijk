@@ -47,4 +47,3 @@ Referenties
 - CFR-BUG-007 (Validation AttributeError dict vs object)
 - EPIC-010 context: ADR‑005 Unified State Management en V2 service‑architectuur
 - Files: `src/services/interfaces.py`, `src/orchestration/definitie_agent.py`, `src/ui/components/definition_generator_tab.py`
-
