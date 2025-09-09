@@ -202,7 +202,7 @@ class UnifiedExamplesGenerator:
                     prompt=prompt,
                     model=request.model,
                     temperature=request.temperature,
-                    max_tokens=300,
+                    max_tokens=800,
                 )
             )
             return self._parse_response(response.text)
