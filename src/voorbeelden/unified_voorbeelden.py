@@ -502,8 +502,27 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
         if len(parts) > 1:
             examples = []
             for part in parts:
-                # Parse de titel en inhoud voor praktijkvoorbeelden
-                # Zoek naar patroon: nummer. Titel** of nummer. **Titel**
+                # Parse praktijkvoorbeelden met verschillende formaten
+                # Patroon 1: nummer. Titel\nSituatie:**\n[inhoud]\nToepassing:**\n[inhoud]
+                # Patroon 2: nummer. Titel**\n[inhoud]
+                # Patroon 3: nummer. Titel: [inhoud]
+                
+                # Probeer eerst het Situatie/Toepassing patroon
+                situatie_match = re.match(
+                    r"^\d+[\.\)]\s*([^*\n]+?)\n+Situatie:\*{0,2}\s*\n+(.+?)\n+Toepassing[^:]*:\*{0,2}\s*\n+(.+)",
+                    part, re.DOTALL | re.IGNORECASE
+                )
+                
+                if situatie_match:
+                    title = situatie_match.group(1).strip()
+                    situatie = situatie_match.group(2).strip()
+                    toepassing = situatie_match.group(3).strip()
+                    # Format als "Titel: Situatie... Toepassing..."
+                    formatted = f"{title}: {situatie}\n\n{toepassing}"
+                    examples.append(formatted)
+                    continue
+                
+                # Probeer het standaard patroon
                 title_match = re.match(
                     r"^\d+[\.\)]\s*\*{0,2}([^*\n]+?)\*{0,2}[\n:](.+)", part, re.DOTALL
                 )
