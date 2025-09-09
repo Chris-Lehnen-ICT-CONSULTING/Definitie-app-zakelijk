@@ -299,17 +299,34 @@ class DefinitionGeneratorTab:
                         violations = len(agent_result["toetsresultaten"])
                         st.metric("Violations", violations)
 
-            # Validation results
-            # V2-only validation and voorbeelden handling
-            if agent_result.get("validation_details"):
-                self._render_validation_results(agent_result["validation_details"])
+            # Validation results (dict or object) with section isolation
+            try:
+                validation_details = agent_result.get("validation_details")
+                if validation_details is not None:
+                    self._render_validation_results(validation_details)
+                else:
+                    st.markdown("#### ✅ Kwaliteitstoetsing")
+                    st.info("ℹ️ Geen validatiedetails beschikbaar.")
+            except Exception as e:
+                st.markdown("#### ✅ Kwaliteitstoetsing")
+                st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
+                logger.exception("Validation section rendering failed")
 
             # Store prompt_text in session state if available
             if agent_result.get("prompt_text"):
                 SessionStateManager.set_value("prompt_text", agent_result["prompt_text"])
 
-            if agent_result.get("voorbeelden"):
-                self._render_voorbeelden_section(agent_result["voorbeelden"])
+            # Voorbeelden sectie (toon placeholder wanneer leeg)
+            try:
+                if agent_result.get("voorbeelden"):
+                    self._render_voorbeelden_section(agent_result["voorbeelden"])
+                else:
+                    st.markdown("#### 📚 Gegenereerde Content")
+                    st.info("ℹ️ Geen voorbeelden beschikbaar voor deze generatie.")
+            except Exception as e:
+                st.markdown("#### 📚 Gegenereerde Content")
+                st.error(f"Voorbeeldensectie kon niet worden gerenderd: {e!s}")
+                logger.exception("Examples section rendering failed")
 
                 # Store voorbeelden in session state for export
                 voorbeelden = agent_result["voorbeelden"]
@@ -397,39 +414,48 @@ class DefinitionGeneratorTab:
                     else None
                 )
 
-                # Render de debug sectie
-                if prompt_template:
-                    prompt_container = PromptContainer(prompt_template)
-                    PromptDebugSection.render(prompt_container, voorbeelden_prompts)
-                else:
-                    # Als er nog steeds geen prompt is, toon de debug sectie met lege prompt
+                # Render de debug sectie (altijd tonen; met fallback)
+                try:
+                    if prompt_template:
+                        prompt_container = PromptContainer(prompt_template)
+                        PromptDebugSection.render(
+                            prompt_container, voorbeelden_prompts
+                        )
+                    else:
+                        # Als er nog steeds geen prompt is, toon de debug sectie met lege prompt
+                        with st.expander(
+                            "🔍 Debug: Gebruikte Prompts", expanded=False
+                        ):
+                            st.info(
+                                "Geen prompt informatie beschikbaar voor deze generatie."
+                            )
+                            st.caption(
+                                "Dit kan gebeuren bij oudere generaties of wanneer de prompt niet is opgeslagen."
+                            )
+
+                            # Als er wel voorbeelden prompts zijn, toon die alsnog
+                            if voorbeelden_prompts:
+                                st.markdown("#### 🎯 Voorbeelden Generatie Prompts")
+                                tabs = st.tabs(list(voorbeelden_prompts.keys()))
+
+                                for i, (example_type, prompt) in enumerate(
+                                    voorbeelden_prompts.items()
+                                ):
+                                    with tabs[i]:
+                                        st.code(prompt, language="text")
+
+                                        # Download knop per type
+                                        st.download_button(
+                                            label=f"⬇️ Download {example_type} Prompt",
+                                            data=prompt,
+                                            file_name=f"{example_type}_prompt.txt",
+                                            mime="text/plain",
+                                            key=f"download_{example_type}_prompt_fallback",
+                                        )
+                except Exception as e:
                     with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
-                        st.info(
-                            "Geen prompt informatie beschikbaar voor deze generatie."
-                        )
-                        st.caption(
-                            "Dit kan gebeuren bij oudere generaties of wanneer de prompt niet is opgeslagen."
-                        )
-
-                        # Als er wel voorbeelden prompts zijn, toon die alsnog
-                        if voorbeelden_prompts:
-                            st.markdown("#### 🎯 Voorbeelden Generatie Prompts")
-                            tabs = st.tabs(list(voorbeelden_prompts.keys()))
-
-                            for i, (example_type, prompt) in enumerate(
-                                voorbeelden_prompts.items()
-                            ):
-                                with tabs[i]:
-                                    st.code(prompt, language="text")
-
-                                    # Download knop per type
-                                    st.download_button(
-                                        label=f"⬇️ Download {example_type} Prompt",
-                                        data=prompt,
-                                        file_name=f"{example_type}_prompt.txt",
-                                        mime="text/plain",
-                                        key=f"download_{example_type}_prompt_fallback",
-                                    )
+                        st.error(f"Prompt Debug kon niet worden gerenderd: {e!s}")
+                    logger.exception("Prompt debug section rendering failed")
             else:
                 # Legacy format
                 iteration_result = (
@@ -762,17 +788,25 @@ class DefinitionGeneratorTab:
         return labels.get(self, self.replace("_", " ").title())
 
     def _render_validation_results(self, validation_result):
-        """Render validation resultaten."""
+        """Render validation resultaten (dict of object)."""
         st.markdown("#### ✅ Kwaliteitstoetsing")
 
+        # Extract normalized fields from dict or object
+        try:
+            if isinstance(validation_result, dict):
+                overall_score = float(validation_result.get("overall_score", 0.0) or 0.0)
+                violations = validation_result.get("violations", []) or []
+            else:
+                overall_score = float(getattr(validation_result, "overall_score", 0.0) or 0.0)
+                violations = getattr(validation_result, "violations", []) or []
+        except Exception:
+            overall_score = 0.0
+            violations = []
+
         # Overall score
-        score_color = (
-            "green"
-            if validation_result.overall_score > 0.8
-            else "orange" if validation_result.overall_score > 0.6 else "red"
-        )
+        score_color = "green" if overall_score > 0.8 else ("orange" if overall_score > 0.6 else "red")
         st.markdown(
-            f"**Overall Score:** <span style='color: {score_color}'>{validation_result.overall_score:.2f}</span>",
+            f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
             unsafe_allow_html=True,
         )
 
@@ -804,17 +838,30 @@ class DefinitionGeneratorTab:
                 st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
 
         # Show only violations summary when collapsed
-        if validation_result.violations:
+        if violations:
             st.markdown("**Gevonden Issues (samenvatting):**")
-            for violation in validation_result.violations[:5]:  # Toon max 5
+            for violation in violations[:5]:  # Toon max 5
+                # Normalize violation shape (dict or object)
+                if isinstance(violation, dict):
+                    sev_raw = violation.get("severity") or violation.get("level") or "info"
+                    severity = str(sev_raw).lower()
+                    rule_id = violation.get("rule_id") or violation.get("id") or "onbekend"
+                    description = violation.get("description") or violation.get("message") or ""
+                else:
+                    sev_obj = getattr(violation, "severity", None)
+                    severity = getattr(sev_obj, "value", str(sev_obj or "info")).lower()
+                    rule_id = getattr(violation, "rule_id", "onbekend")
+                    description = getattr(violation, "description", "")
+
                 severity_emoji = {
                     "critical": "🚨",
                     "high": "⚠️",
                     "medium": "🔶",
                     "low": "i️",
+                    "info": "📋",
                 }
-                emoji = severity_emoji.get(violation.severity.value, "📋")
-                st.write(f"{emoji} {violation.rule_id}: {violation.description}")
+                emoji = severity_emoji.get(severity, "📋")
+                st.write(f"{emoji} {rule_id}: {description}")
         else:
             st.success("🎉 Geen kwaliteitsissues gevonden!")
 
