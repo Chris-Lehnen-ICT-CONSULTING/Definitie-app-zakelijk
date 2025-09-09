@@ -247,16 +247,13 @@ class ServiceAdapter:
         )
         validation_details = self.normalize_validation(validation_data)
 
-        # Extract voorbeelden from metadata
-        voorbeelden = {"juridisch": [], "praktijk": [], "tegenvoorbeelden": []}
+        # Extract voorbeelden from metadata - gebruik de keys zoals ze van de generator komen
+        voorbeelden = {}
         if response.definition and response.definition.metadata:
             meta_voorbeelden = response.definition.metadata.get("voorbeelden", {})
             if isinstance(meta_voorbeelden, dict):
-                voorbeelden["juridisch"] = meta_voorbeelden.get("juridisch", [])
-                voorbeelden["praktijk"] = meta_voorbeelden.get("praktijk", [])
-                voorbeelden["tegenvoorbeelden"] = meta_voorbeelden.get(
-                    "tegenvoorbeelden", []
-                )
+                # Geef de voorbeelden dictionary direct door zonder mapping
+                voorbeelden = meta_voorbeelden
 
         # Build metadata
         metadata = {}
