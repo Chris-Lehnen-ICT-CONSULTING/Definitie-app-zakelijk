@@ -444,6 +444,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "ontological_category_used": sanitized_request.ontologische_categorie,
                     # Epic 3: provenance sources (MVP, no DB schema changes)
                     "sources": provenance_sources,
+                    # Add voorbeelden to metadata so UI can display them
+                    "voorbeelden": voorbeelden if voorbeelden else {},
+                    # Store the prompt text for debug UI
+                    "prompt_text": prompt_result.text if prompt_result else "",
+                    "prompt_template": prompt_result.text if prompt_result else "",
                 },
             )
 
@@ -521,9 +526,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "ontological_category": sanitized_request.ontologische_categorie,
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
-                    "enhanced": was_enhanced,
-                    "prompt_text": prompt_result.text,  # Add prompt text for UI display
-                    "voorbeelden": voorbeelden,  # Add generated voorbeelden
+                    "enhanced": was_enhanced
                 },
             )
 
