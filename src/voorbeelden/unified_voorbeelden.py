@@ -202,7 +202,7 @@ class UnifiedExamplesGenerator:
                     prompt=prompt,
                     model=request.model,
                     temperature=request.temperature,
-                    max_tokens=1200,
+                    max_tokens=1500,
                 )
             )
             return self._parse_response(response.text)
@@ -463,11 +463,20 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
         if not response:
             return []
 
-        # Voor complexe voorbeelden met uitleg, split op dubbele newlines of nummer patronen
-        # Dit voorkomt dat multi-line voorbeelden worden opgesplitst
+        # Voor synoniemen/antoniemen: split op newlines voor individuele items
+        if any(word in response.lower() for word in ['synoniem', 'antoniem']):
+            lines = response.strip().split('\n')
+            examples = []
+            for line in lines:
+                # Verwijder bullets, nummers, etc.
+                cleaned = re.sub(r'^\s*[-•*\d\.]+\s*', '', line).strip()
+                if cleaned and not any(skip in cleaned.lower() for skip in ['synoniem', 'antoniem', 'hier zijn']):
+                    examples.append(cleaned)
+            return examples if examples else [response.strip()]
         
-        # Probeer eerst te splitsen op genummerde items (1., 2., etc.)
-        numbered_pattern = r'\n(?=\d+\.[\s\*])'
+        # Voor complexe voorbeelden met uitleg, gebruik genummerde patronen
+        # Zoek naar "1." of "1)" patterns met newline ervoor
+        numbered_pattern = r'\n(?=\d+[\.\)]\s)'
         parts = re.split(numbered_pattern, response.strip())
         
         if len(parts) > 1:
@@ -475,19 +484,20 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
             examples = []
             for part in parts:
                 # Verwijder het nummer aan het begin en clean up
-                cleaned = re.sub(r'^\d+\.[\s\*]*', '', part).strip()
+                cleaned = re.sub(r'^\d+[\.\)]\s*', '', part).strip()
                 if cleaned and not cleaned.startswith("Voorbeelden:"):
                     # Behoud de volledige tekst inclusief uitleg
                     examples.append(cleaned)
             return examples if examples else [response.strip()]
         
-        # Als geen nummering, probeer op "—" of "---" te splitsen
-        if "—" in response or "---" in response:
-            parts = re.split(r'—+', response.strip())
+        # Voor eenvoudige voorbeeldzinnen zonder nummering, split op newlines
+        lines = response.strip().split('\n')
+        if len(lines) > 1:
             examples = []
-            for part in parts:
-                cleaned = part.strip()
-                if cleaned and not cleaned.startswith("Voorbeelden:"):
+            for line in lines:
+                # Verwijder bullets maar behoud de tekst
+                cleaned = re.sub(r'^\s*[-•*]\s*', '', line).strip()
+                if cleaned and not any(skip in cleaned for skip in ['Voorbeelden:', 'Hier zijn']):
                     examples.append(cleaned)
             return examples if examples else [response.strip()]
         
