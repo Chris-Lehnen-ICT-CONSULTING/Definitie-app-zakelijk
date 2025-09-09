@@ -111,22 +111,6 @@ class UnifiedExamplesGenerator:
         config_key = type_mapping.get(example_type, "voorbeeldzinnen")
         return get_component_config("voorbeelden", config_key)
 
-    def _get_config_for_type(self, example_type: ExampleType) -> dict:
-        """Get configuration for a specific example type from central config."""
-        # Map ExampleType enum to config keys
-        # Gebruik Nederlandse keys overal
-        type_mapping = {
-            ExampleType.VOORBEELDZINNEN: "voorbeeldzinnen",
-            ExampleType.PRAKTIJKVOORBEELDEN: "praktijkvoorbeelden",
-            ExampleType.TEGENVOORBEELDEN: "tegenvoorbeelden",
-            ExampleType.SYNONIEMEN: "synoniemen",
-            ExampleType.ANTONIEMEN: "antoniemen",
-            ExampleType.TOELICHTING: "toelichting",
-        }
-
-        config_key = type_mapping.get(example_type, "voorbeeldzinnen")
-        return get_component_config("voorbeelden", config_key)
-
     def _run_async_safe(self, coro):
         """Run async coroutine safely, detecting existing event loop."""
         try:
@@ -202,7 +186,7 @@ class UnifiedExamplesGenerator:
                     prompt=prompt,
                     model=request.model,
                     temperature=request.temperature,
-                    max_tokens=1500,
+                    max_tokens=2000,
                 )
             )
             return self._parse_response(response.text)
@@ -468,41 +452,57 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
             lines = response.strip().split('\n')
             examples = []
             for line in lines:
-                # Verwijder bullets, nummers, etc.
-                cleaned = re.sub(r'^\s*[-•*\d\.]+\s*', '', line).strip()
-                if cleaned and not any(skip in cleaned.lower() for skip in ['synoniem', 'antoniem', 'hier zijn']):
+                # Verwijder bullets, nummers, streepjes etc.
+                cleaned = re.sub(r'^\s*[-—•*\d\.]+\s*', '', line).strip()
+                # Filter lege regels en headers
+                if (cleaned and 
+                    len(cleaned) > 1 and 
+                    not any(skip in cleaned.lower() for skip in ['synoniem', 'antoniem', 'hier zijn', 'bijvoorbeeld'])):
                     examples.append(cleaned)
-            return examples if examples else [response.strip()]
+            return examples if examples else []
         
-        # Voor complexe voorbeelden met uitleg, gebruik genummerde patronen
-        # Zoek naar "1." of "1)" patterns met newline ervoor
-        numbered_pattern = r'\n(?=\d+[\.\)]\s)'
-        parts = re.split(numbered_pattern, response.strip())
+        # Voor complexe voorbeelden met uitleg (praktijk/tegenvoorbeelden)
+        # Split op dubbele newlines of genummerde patronen
+        text = response.strip()
+        
+        # Probeer eerst op "1." "2." etc met sterke scheiding
+        numbered_pattern = r'\n+(?=\d+[\.\)]\s*[A-Z\*])'
+        parts = re.split(numbered_pattern, text)
         
         if len(parts) > 1:
-            # Er zijn genummerde items gevonden
             examples = []
             for part in parts:
-                # Verwijder het nummer aan het begin en clean up
-                cleaned = re.sub(r'^\d+[\.\)]\s*', '', part).strip()
-                if cleaned and not cleaned.startswith("Voorbeelden:"):
-                    # Behoud de volledige tekst inclusief uitleg
+                # Verwijder nummer en clean up
+                cleaned = re.sub(r'^\d+[\.\)]\s*\**\s*', '', part).strip()
+                # Filter intro tekst
+                if cleaned and not any(skip in cleaned[:50].lower() for skip in ['hier zijn', 'voorbeelden', 'bijvoorbeeld']):
+                    # Verwijder trailing "—" of lege regels aan het einde
+                    cleaned = re.sub(r'[\s—]+$', '', cleaned)
                     examples.append(cleaned)
-            return examples if examples else [response.strip()]
+            return examples if examples else [text]
         
-        # Voor eenvoudige voorbeeldzinnen zonder nummering, split op newlines
-        lines = response.strip().split('\n')
+        # Voor eenvoudige voorbeeldzinnen zonder nummering
+        # Split op enkele newlines maar filter agressief
+        lines = text.split('\n')
         if len(lines) > 1:
             examples = []
             for line in lines:
-                # Verwijder bullets maar behoud de tekst
-                cleaned = re.sub(r'^\s*[-•*]\s*', '', line).strip()
-                if cleaned and not any(skip in cleaned for skip in ['Voorbeelden:', 'Hier zijn']):
+                # Verwijder bullets en streepjes
+                cleaned = re.sub(r'^\s*[-—•*]+\s*', '', line).strip()
+                # Filter lege regels, te korte regels, en headers
+                if (cleaned and 
+                    len(cleaned) > 10 and 
+                    not any(skip in cleaned.lower() for skip in ['voorbeelden:', 'hier zijn', 'bijvoorbeeld:'])):
                     examples.append(cleaned)
-            return examples if examples else [response.strip()]
+            
+            # Als we minstens één goed voorbeeld hebben
+            if examples:
+                return examples
         
-        # Fallback: return hele response als één voorbeeld
-        return [response.strip()]
+        # Fallback: return hele response als één voorbeeld (maar alleen als substantieel)
+        if len(text) > 20:
+            return [text]
+        return []
 
     def get_statistics(self) -> dict[str, Any]:
         """Get generation statistics."""
