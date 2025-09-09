@@ -262,7 +262,7 @@ class AsyncDefinitionUI:
                             st.write(result.additional_content["antoniemen"])
 
                         if result.additional_content.get("toelichting"):
-                            st.subheader("Explanation")
+                            st.subheader("Toelichting")
                             st.write(result.additional_content["toelichting"])
 
             else:
