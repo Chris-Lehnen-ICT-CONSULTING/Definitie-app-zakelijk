@@ -100,4 +100,3 @@ Commit/patch referenties:
 | Datum       | Versie | Wijziging |
 |-------------|--------|-----------|
 | 09-09-2025  | 1.0    | Bug aangemaakt, mitigaties beschreven, DoD gedefinieerd |
-

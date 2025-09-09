@@ -4,7 +4,7 @@ Properly handles custom "Anders..." options and ensures they're passed to prompt
 """
 
 import logging
-from typing import Any
+from typing import Any, ClassVar
 
 import streamlit as st
 
@@ -22,7 +22,7 @@ class EnhancedContextManagerSelector:
     """Context selector that uses ContextManager for all state management."""
 
     # Base options for each context type
-    ORG_OPTIONS = [
+    ORG_OPTIONS: ClassVar[list[str]] = [
         "OM",
         "ZM",
         "Reclassering",
@@ -37,7 +37,7 @@ class EnhancedContextManagerSelector:
         "Justitie en Veiligheid",
     ]
 
-    JUR_OPTIONS = [
+    JUR_OPTIONS: ClassVar[list[str]] = [
         "Strafrecht",
         "Civiel recht",
         "Bestuursrecht",
@@ -46,7 +46,7 @@ class EnhancedContextManagerSelector:
         "Migratierecht",
     ]
 
-    WET_OPTIONS = [
+    WET_OPTIONS: ClassVar[list[str]] = [
         "Wetboek van Strafrecht",
         "Wetboek van Strafvordering",
         "Wet op de rechterlijke organisatie",
@@ -224,16 +224,13 @@ class EnhancedContextManagerSelector:
             if custom_input and custom_input.strip():
                 # Sanitize the custom input
                 sanitized = self._sanitize_custom_input(custom_input.strip())
-                if sanitized:
+                if sanitized and sanitized not in selected:
                     # Add to selected values if not already present
-                    if sanitized not in selected:
-                        selected = [v for v in selected if v != "Anders..."]
-                        selected.append(sanitized)
+                    selected = [v for v in selected if v != "Anders..."]
+                    selected.append(sanitized)
 
         # Remove "Anders..." from final list
-        final_values = [v for v in selected if v != "Anders..."]
-
-        return final_values
+        return [v for v in selected if v != "Anders..."]
 
     def _sanitize_custom_input(self, value: str) -> str | None:
         """
