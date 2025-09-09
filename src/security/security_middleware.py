@@ -9,6 +9,8 @@ import logging
 import re
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
+
+UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from pathlib import Path
 from typing import Any

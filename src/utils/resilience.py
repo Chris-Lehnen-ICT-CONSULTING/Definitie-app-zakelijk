@@ -12,6 +12,8 @@ import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from datetime import UTC, datetime, timedelta
+
+UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from pathlib import Path
 from typing import Any

@@ -4,7 +4,9 @@ Export Tab - Interface voor definitie export en beheer functionaliteit.
 
 import io
 import json
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime
+
+UTC = UTC  # Voor Python 3.10 compatibility, timedelta
 
 import pandas as pd
 import streamlit as st

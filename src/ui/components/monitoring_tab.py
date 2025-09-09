@@ -5,6 +5,8 @@ Monitoring Tab - Interface voor API monitoring en performance tracking.
 import asyncio
 from datetime import UTC, datetime, timedelta
 
+UTC = UTC  # Python 3.10 compatibility
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go

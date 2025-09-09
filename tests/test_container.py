@@ -88,7 +88,7 @@ async def test_service_integration():
         print(f"✅ Integration test: {response.success}")
         if response.definition:
             print(f"   Begrip: {response.definition.begrip}")
-            print(f"   Score: {response.validation.score if response.validation else 'N/A'}")
+            print(f"   Score: {response.validation_result.score if response.validation_result else 'N/A'}")
     except Exception as e:
         print(f"❌ Integration test mislukt: {e}")
 

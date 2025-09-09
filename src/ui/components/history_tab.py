@@ -3,6 +3,8 @@ History Tab - Interface voor definitie geschiedenis en audit trail.
 """
 
 from datetime import UTC, datetime, timedelta
+
+UTC = UTC  # Python 3.10 compatibility
 from typing import Any
 
 import pandas as pd

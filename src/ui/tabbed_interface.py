@@ -8,7 +8,12 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
-from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
+from datetime import (
+    UTC,
+    datetime,  # Datum en tijd functionaliteit
+)
+
+UTC = UTC  # Voor Python 3.10 compatibility
 from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
@@ -568,19 +573,25 @@ class TabbedInterface:
         # Document upload sectie
         self._render_document_upload_section()
 
-        # Context selector zonder presets - direct handmatige selectie
+        # Context selector - gebruik de officiële ContextSelector component
         try:
-            context_data = self._render_simplified_context_selector()
+            context_data = self.context_selector.render()
             self._dbg("Global Context - Selector OK")
+            st.success("✅ Context selector succesvol geladen")
         except Exception as e:
             logger.error(f"Context selector crashed: {e}", exc_info=True)
             st.error(f"❌ Context selector fout: {type(e).__name__}: {e!s}")
-            self._dbg("Global Context - Selector FAILED, continuing")
-            context_data = {
-                "organisatorische_context": [],
-                "juridische_context": [],
-                "wettelijke_basis": [],
-            }
+            self._dbg("Global Context - Selector FAILED, trying simplified version")
+            # Fallback naar simplified versie
+            try:
+                context_data = self._render_simplified_context_selector()
+            except Exception as e2:
+                logger.error(f"Simplified selector also failed: {e2}", exc_info=True)
+                context_data = {
+                    "organisatorische_context": [],
+                    "juridische_context": [],
+                    "wettelijke_basis": [],
+                }
 
         # Store in session state voor gebruik in tabs
         SessionStateManager.set_value("global_context", context_data)
@@ -592,12 +603,22 @@ class TabbedInterface:
         # Metadata velden (legacy restoration)
         self._dbg("Metadata")
         st.markdown("### 📝 Metadata")
-        self._render_metadata_fields()
+        try:
+            self._render_metadata_fields()
+            st.success("✅ Metadata velden succesvol geladen")
+        except Exception as e:
+            logger.error(f"Metadata fields crashed: {e}", exc_info=True)
+            st.error(f"❌ Metadata velden fout: {type(e).__name__}: {e!s}")
 
         # Genereer definitie knop direct na context
         st.markdown("---")
         self._dbg("Quick Actions (Generate/Check/Clear)")
-        self._render_quick_generate_button(begrip, context_data)
+        try:
+            self._render_quick_generate_button(begrip, context_data)
+            st.success("✅ Quick generate button succesvol geladen")
+        except Exception as e:
+            logger.error(f"Quick generate button crashed: {e}", exc_info=True)
+            st.error(f"❌ Quick generate button fout: {type(e).__name__}: {e!s}")
 
     def _render_simplified_context_selector(self) -> dict[str, Any]:
         """Render vereenvoudigde context selector zonder presets."""
@@ -621,31 +642,36 @@ class TabbedInterface:
                 "Anders...",
             ]
 
-            # Voeg eerder toegevoegde custom entries toe aan opties
-            from ui.session_state import SessionStateManager as _SM
+            # Gebruik Streamlit's eigen session_state direct voor persistentie
+            # Dit is de Streamlit-native manier zonder wrapper
+            if "org_context_values" not in st.session_state:
+                st.session_state.org_context_values = []
 
-            org_custom_entries = _SM.get_value("org_custom_entries", []) or []
-            # Combineer base opties met custom entries (zonder "Anders...")
-            org_all_options = base_org_options[:-1] + org_custom_entries
+            # Haal ALLE waardes uit session state die niet in base options staan
+            # Dit zorgt ervoor dat alle eerder ingevoerde custom waardes beschikbaar blijven
+            custom_org_values = [
+                v
+                for v in st.session_state.org_context_values
+                if v not in base_org_options
+            ]
 
-            # Haal huidige context op uit session state
-            current_org_context = _SM.get_value("org_context", []) or []
-
-            # Filter defaults: alleen waardes die in de volledige optielijst staan
-            # BELANGRIJK: Inclusief custom entries die al in org_all_options zitten
-            valid_options_set = set(org_all_options + ["Anders..."])
-            org_defaults = [x for x in current_org_context if x in valid_options_set]
+            # Combineer base opties met ALLE custom waardes uit session state
+            # Dit voorkomt "default not in options" errors
+            org_all_options = base_org_options[:-1] + list(set(custom_org_values))
 
             try:
                 selected_org = st.multiselect(
                     "📋 Organisatorische context",
                     options=org_all_options + ["Anders..."],
-                    default=org_defaults,
+                    default=st.session_state.org_context_values,
                     help="Selecteer één of meerdere organisaties",
+                    key="org_multiselect_global",
                 )
             except Exception as e:
-                logger.error(f"Org multiselect error: {e}")
-                st.error(f"Organisatorische context fout: {e!s}")
+                logger.error(f"Org multiselect error: {e}", exc_info=True)
+                st.error(f"Organisatorische context fout: {type(e).__name__}: {e!s}")
+                # Fallback to selectbox if multiselect fails
+                st.warning("Multiselect failed, using selectbox as fallback")
                 selected_org = []
             self._dbg("Context col1 - org done")
 
@@ -664,15 +690,12 @@ class TabbedInterface:
             # Voeg nieuwe custom waarde toe indien aanwezig
             if custom_org.strip():
                 value = custom_org.strip()
-                # Voeg toe aan custom entries lijst voor persistentie
-                if value not in org_custom_entries:
-                    org_custom_entries.append(value)
                 # Voeg toe aan finale selectie
                 if value not in final_org:
                     final_org.append(value)
 
-            SessionStateManager.set_value("org_context", final_org)
-            SessionStateManager.set_value("org_custom_entries", org_custom_entries)
+            # Update Streamlit's session state direct
+            st.session_state.org_context_values = final_org
 
         with col2:
             # Juridische context
@@ -686,24 +709,29 @@ class TabbedInterface:
                 "Anders...",
             ]
 
-            jur_custom_entries = _SM.get_value("jur_custom_entries", []) or []
-            jur_all_options = base_jur_options[:-1] + jur_custom_entries
+            # Gebruik Streamlit's eigen session_state
+            if "jur_context_values" not in st.session_state:
+                st.session_state.jur_context_values = []
 
-            # Haal huidige context op uit session state
-            current_jur_context = _SM.get_value("jur_context", []) or []
-
-            # Filter defaults: alleen waardes die in de volledige optielijst staan
-            valid_jur_options_set = set(jur_all_options + ["Anders..."])
-            jur_defaults = [
-                x for x in current_jur_context if x in valid_jur_options_set
+            # Haal ALLE waardes uit session state die niet in base options staan
+            # Dit zorgt ervoor dat alle eerder ingevoerde custom waardes beschikbaar blijven
+            custom_jur_values = [
+                v
+                for v in st.session_state.jur_context_values
+                if v not in base_jur_options
             ]
+
+            # Combineer base opties met ALLE custom waardes uit session state
+            # Dit voorkomt "default not in options" errors
+            jur_all_options = base_jur_options[:-1] + list(set(custom_jur_values))
 
             try:
                 selected_jur = st.multiselect(
                     "⚖️ Juridische context",
                     options=jur_all_options + ["Anders..."],
-                    default=jur_defaults,
+                    default=st.session_state.jur_context_values,
                     help="Selecteer juridische gebieden",
+                    key="jur_multiselect_global",
                 )
             except Exception as e:
                 logger.error(f"Juridische multiselect error: {e}")
@@ -726,12 +754,12 @@ class TabbedInterface:
             # Voeg nieuwe custom waarde toe indien aanwezig
             if custom_jur.strip():
                 value = custom_jur.strip()
-                # Voeg toe aan custom entries lijst voor persistentie
-                if value not in jur_custom_entries:
-                    jur_custom_entries.append(value)
                 # Voeg toe aan finale selectie
                 if value not in final_jur:
                     final_jur.append(value)
+
+            # Update Streamlit's session state direct
+            st.session_state.jur_context_values = final_jur
 
             # Update centralized context as well
             try:
@@ -742,8 +770,6 @@ class TabbedInterface:
                 )
             except Exception:
                 pass
-            SessionStateManager.set_value("jur_context", final_jur)
-            SessionStateManager.set_value("jur_custom_entries", jur_custom_entries)
 
         with col3:
             # Wettelijke basis
@@ -757,22 +783,29 @@ class TabbedInterface:
                 "Anders...",
             ]
 
-            wet_custom_entries = _SM.get_value("wet_custom_entries", []) or []
-            wet_all_options = base_wet_options[:-1] + wet_custom_entries
+            # Gebruik Streamlit's eigen session_state
+            if "wet_basis_values" not in st.session_state:
+                st.session_state.wet_basis_values = []
 
-            # Haal huidige basis op uit session state
-            current_wet_basis = _SM.get_value("wet_basis", []) or []
+            # Haal ALLE waardes uit session state die niet in base options staan
+            # Dit zorgt ervoor dat alle eerder ingevoerde custom waardes beschikbaar blijven
+            custom_wet_values = [
+                v
+                for v in st.session_state.wet_basis_values
+                if v not in base_wet_options
+            ]
 
-            # Filter defaults: alleen waardes die in de volledige optielijst staan
-            valid_wet_options_set = set(wet_all_options + ["Anders..."])
-            wet_defaults = [x for x in current_wet_basis if x in valid_wet_options_set]
+            # Combineer base opties met ALLE custom waardes uit session state
+            # Dit voorkomt "default not in options" errors
+            wet_all_options = base_wet_options[:-1] + list(set(custom_wet_values))
 
             try:
                 selected_wet = st.multiselect(
                     "📜 Wettelijke basis",
                     options=wet_all_options + ["Anders..."],
-                    default=wet_defaults,
+                    default=st.session_state.wet_basis_values,
                     help="Selecteer relevante wetgeving",
+                    key="wet_multiselect_global",
                 )
             except Exception as e:
                 logger.error(f"Wettelijke basis multiselect error: {e}")
@@ -795,12 +828,12 @@ class TabbedInterface:
             # Voeg nieuwe custom waarde toe indien aanwezig
             if custom_wet.strip():
                 value = custom_wet.strip()
-                # Voeg toe aan custom entries lijst voor persistentie
-                if value not in wet_custom_entries:
-                    wet_custom_entries.append(value)
                 # Voeg toe aan finale selectie
                 if value not in final_wet:
                     final_wet.append(value)
+
+            # Update Streamlit's session state direct
+            st.session_state.wet_basis_values = final_wet
 
             # Update centralized context as well
             try:
@@ -811,8 +844,6 @@ class TabbedInterface:
                 )
             except Exception:
                 pass
-            SessionStateManager.set_value("wet_basis", final_wet)
-            SessionStateManager.set_value("wet_custom_entries", wet_custom_entries)
 
         # Ensure organisatorische context is propagated centrally too
         try:
@@ -1403,16 +1434,32 @@ class TabbedInterface:
     def _render_main_tabs(self):
         """Render de hoofdtabbladen."""
         self._dbg("Main Tabs - Begin")
+        st.info(
+            f"🔍 DEBUG: Creating tabs... Available tabs: {list(self.tab_config.keys())}"
+        )
+
         # Create tabs
         tab_keys = list(self.tab_config.keys())
         tab_titles = [self.tab_config[key]["title"] for key in tab_keys]
 
-        tabs = st.tabs(tab_titles)
+        st.info(f"🔍 DEBUG: Tab titles: {tab_titles}")
+
+        try:
+            tabs = st.tabs(tab_titles)
+            st.success(f"✅ Created {len(tabs)} tabs")
+        except Exception as e:
+            st.error(f"❌ Failed to create tabs: {e}")
+            return
 
         # Render each tab
         for _i, (tab_key, tab) in enumerate(zip(tab_keys, tabs, strict=False)):
             with tab:
-                self._render_tab_content(tab_key)
+                st.info(f"🔍 DEBUG: Rendering tab: {tab_key}")
+                try:
+                    self._render_tab_content(tab_key)
+                    st.success(f"✅ Tab {tab_key} rendered")
+                except Exception as e:
+                    st.error(f"❌ Tab {tab_key} failed: {e}")
 
     def _render_tab_content(self, tab_key: str):
         """Render inhoud van specifiek tabblad."""

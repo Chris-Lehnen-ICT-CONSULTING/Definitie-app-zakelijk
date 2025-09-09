@@ -7,6 +7,8 @@ Deze module handelt de conversie af tussen:
 
 import uuid
 from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 from typing import Any
 
 from services.interfaces import ValidationResult as DataclassResult

@@ -17,6 +17,8 @@ import logging
 import time
 import uuid
 from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 from typing import Any, Optional
 
 from services.interfaces import (
