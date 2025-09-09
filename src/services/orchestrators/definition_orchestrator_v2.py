@@ -322,21 +322,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             try:
                 from voorbeelden import genereer_alle_voorbeelden
 
-                # Build context_dict for voorbeelden generation
+                # Build context_dict for voorbeelden generation (V2-only fields)
                 voorbeelden_context = {
-                    "organisatorisch": (
-                        [sanitized_request.context] if sanitized_request.context else []
-                    ),
-                    "juridisch": (
-                        context.get("context_dict", {}).get("juridisch", [])
-                        if context
-                        else []
-                    ),
-                    "wettelijk": (
-                        context.get("context_dict", {}).get("wettelijk", [])
-                        if context
-                        else []
-                    ),
+                    "organisatorisch": sanitized_request.organisatorische_context or [],
+                    "juridisch": sanitized_request.juridische_context or [],
+                    "wettelijk": sanitized_request.wettelijke_basis or [],
                 }
 
                 # Generate voorbeelden using the cleaned text

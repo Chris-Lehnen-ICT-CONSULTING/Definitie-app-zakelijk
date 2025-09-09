@@ -257,7 +257,12 @@ class ServiceAdapter:
                         else 0.0
                     )
                 ),
-                "voorbeelden": (response.definition.voorbeelden or []),
+                # Voorbeelden uitsluitend uit V2-metadata (geen legacy fallback)
+                "voorbeelden": (
+                    response.definition.metadata.get("voorbeelden", {})
+                    if response.definition and response.definition.metadata
+                    else {}
+                ),
                 "processing_time": response.definition.metadata.get(
                     "processing_time", 0
                 ),
@@ -268,21 +273,27 @@ class ServiceAdapter:
                     if response.definition and response.definition.metadata
                     else []
                 ),
-                "prompt_text": "",
-                "prompt_template": "",
+                # Populate prompt fields for debug UI
+                "prompt_text": (
+                    response.definition.metadata.get("prompt_text", "")
+                    if response.definition and response.definition.metadata
+                    else ""
+                ),
+                # For legacy UI compatibility, expose prompt_template too
+                "prompt_template": (
+                    response.definition.metadata.get("prompt_template")
+                    if response.definition
+                    and response.definition.metadata
+                    and "prompt_template" in response.definition.metadata
+                    else (
+                        response.definition.metadata.get("prompt_text", "")
+                        if response.definition and response.definition.metadata
+                        else ""
+                    )
+                ),
             }
 
-            # Voeg prompt_template ook direct toe voor makkelijkere toegang (alleen als nog niet gezet)
-            if (
-                not result_dict.get(
-                    "prompt_template"
-                )  # Alleen als nog niet gezet via prompt_text
-                and response.definition.metadata
-                and "prompt_template" in response.definition.metadata
-            ):
-                result_dict["prompt_template"] = response.definition.metadata[
-                    "prompt_template"
-                ]
+            # Geen extra fallback meer voor prompt_template; UI leest 'prompt_text'
 
             return LegacyGenerationResult(**result_dict)
         return LegacyGenerationResult(
