@@ -331,14 +331,15 @@ class DefinitionGeneratorTab:
                 # Store voorbeelden in session state for export
                 voorbeelden = agent_result["voorbeelden"]
                 if isinstance(voorbeelden, dict):
+                    # Support both English (legacy) and Dutch (V2) keys
                     SessionStateManager.set_value(
-                        "voorbeeld_zinnen", voorbeelden.get("sentence", [])
+                        "voorbeeld_zinnen", voorbeelden.get("juridisch", voorbeelden.get("sentence", []))
                     )
                     SessionStateManager.set_value(
-                        "praktijkvoorbeelden", voorbeelden.get("practical", [])
+                        "praktijkvoorbeelden", voorbeelden.get("praktijk", voorbeelden.get("practical", []))
                     )
                     SessionStateManager.set_value(
-                        "tegenvoorbeelden", voorbeelden.get("counter", [])
+                        "tegenvoorbeelden", voorbeelden.get("tegenvoorbeelden", voorbeelden.get("counter", []))
                     )
                     SessionStateManager.set_value(
                         "synoniemen", "\n".join(voorbeelden.get("synonyms", []))
@@ -962,22 +963,25 @@ class DefinitionGeneratorTab:
         """Render sectie met gegenereerde voorbeelden."""
         st.markdown("#### 📚 Gegenereerde Content")
 
-        # Voorbeeldzinnen
-        if voorbeelden.get("sentence"):
-            with st.expander("🔤 Voorbeeldzinnen", expanded=True):
-                for voorbeeld in voorbeelden["sentence"]:
+        # Voorbeeldzinnen (support both Dutch V2 and English legacy keys)
+        juridisch = voorbeelden.get("juridisch", voorbeelden.get("sentence", []))
+        if juridisch:
+            with st.expander("🔤 Juridische Voorbeelden", expanded=True):
+                for voorbeeld in juridisch:
                     st.write(f"• {voorbeeld}")
 
         # Praktijkvoorbeelden
-        if voorbeelden.get("practical"):
+        praktijk = voorbeelden.get("praktijk", voorbeelden.get("practical", []))
+        if praktijk:
             with st.expander("💼 Praktijkvoorbeelden", expanded=True):
-                for voorbeeld in voorbeelden["practical"]:
+                for voorbeeld in praktijk:
                     st.info(voorbeeld)
 
         # Tegenvoorbeelden
-        if voorbeelden.get("counter"):
+        tegen = voorbeelden.get("tegenvoorbeelden", voorbeelden.get("counter", []))
+        if tegen:
             with st.expander("❌ Tegenvoorbeelden (wat het NIET is)", expanded=False):
-                for voorbeeld in voorbeelden["counter"]:
+                for voorbeeld in tegen:
                     st.warning(voorbeeld)
 
         # Synoniemen met voorkeursterm selectie
