@@ -9,6 +9,8 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from typing import Any
 

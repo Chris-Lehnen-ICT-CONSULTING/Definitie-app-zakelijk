@@ -118,7 +118,7 @@ class TestNewServicesFunctionality:
             # Verify workflow
             assert response.success is True
             assert response.definition == mock_definition
-            assert response.validation == mock_validation
+            assert response.validation_result == mock_validation
 
             # Verify calls
             mock_gen.assert_called_once()

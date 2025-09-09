@@ -2,7 +2,9 @@
 Quality Control Tab - Interface voor kwaliteitscontrole en toetsregels analyse.
 """
 
-from datetime import UTC, datetime  # Datum en tijd functionaliteit, timezone
+from datetime import UTC, datetime
+
+UTC = UTC  # Python 3.10 compatibility# Datum en tijd functionaliteit, timezone
 
 import streamlit as st  # Streamlit web interface framework
 

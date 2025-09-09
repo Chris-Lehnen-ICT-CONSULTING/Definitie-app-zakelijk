@@ -330,9 +330,10 @@ class ContextSelector:
         suggestions = []
 
         # Additional UI-specific validation
-        if not context_data.get("organisatorische_context"):
-            if "Organisatorische context is verplicht" not in issues:
-                issues.append("❌ Organisatorische context is verplicht")
+        # Organisatorische context is nu optioneel
+        # if not context_data.get("organisatorische_context"):
+        #     if "Organisatorische context is verplicht" not in issues:
+        #         issues.append("❌ Organisatorische context is verplicht")
 
         # Check voor context combinaties
         org_contexts = context_data.get("organisatorische_context", [])

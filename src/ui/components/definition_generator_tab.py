@@ -5,6 +5,8 @@ Definition Generator Tab - Main AI definition generation interface.
 
 import logging
 from datetime import UTC
+
+UTC = UTC  # Python 3.10 compatibility
 from typing import Any
 
 import streamlit as st
