@@ -314,12 +314,15 @@ class DefinitionGeneratorTab:
 
             # Store prompt_text in session state if available
             if agent_result.get("prompt_text"):
-                SessionStateManager.set_value("prompt_text", agent_result["prompt_text"])
+                SessionStateManager.set_value(
+                    "prompt_text", agent_result["prompt_text"]
+                )
 
-            # Voorbeelden sectie (toon placeholder wanneer leeg)
+            # Voorbeelden sectie - direct vanuit agent_result tonen, GEEN session state!
             try:
-                if agent_result.get("voorbeelden"):
-                    self._render_voorbeelden_section(agent_result["voorbeelden"])
+                voorbeelden = agent_result.get("voorbeelden", {})
+                if voorbeelden:
+                    self._render_voorbeelden_section(voorbeelden)
                 else:
                     st.markdown("#### 📚 Gegenereerde Content")
                     st.info("ℹ️ Geen voorbeelden beschikbaar voor deze generatie.")
@@ -327,43 +330,13 @@ class DefinitionGeneratorTab:
                 st.markdown("#### 📚 Gegenereerde Content")
                 st.error(f"Voorbeeldensectie kon niet worden gerenderd: {e!s}")
                 logger.exception("Examples section rendering failed")
-
-                # Store voorbeelden in session state for export
-                voorbeelden = agent_result["voorbeelden"]
-                if isinstance(voorbeelden, dict):
-                    # Support both English (legacy) and Dutch (V2) keys
-                    SessionStateManager.set_value(
-                        "voorbeeld_zinnen", voorbeelden.get("juridisch", voorbeelden.get("sentence", []))
-                    )
-                    SessionStateManager.set_value(
-                        "praktijkvoorbeelden", voorbeelden.get("praktijk", voorbeelden.get("practical", []))
-                    )
-                    SessionStateManager.set_value(
-                        "tegenvoorbeelden", voorbeelden.get("tegenvoorbeelden", voorbeelden.get("counter", []))
-                    )
-                    SessionStateManager.set_value(
-                        "synoniemen", "\n".join(voorbeelden.get("synonyms", []))
-                    )
-                    SessionStateManager.set_value(
-                        "antoniemen", "\n".join(voorbeelden.get("antonyms", []))
-                    )
-                    SessionStateManager.set_value(
-                        "toelichting",
-                        (
-                            voorbeelden.get("explanation", [""])[0]
-                            if voorbeelden.get("explanation")
-                            else ""
-                        ),
-                    )
-                # Debug: toon waarom voorbeelden niet worden gerenderd
-                elif not hasattr(
-                    agent_result.best_iteration.generation_result, "voorbeelden"
-                ):
-                    st.warning(
-                        "⚠️ Geen 'voorbeelden' attribuut gevonden in generation_result"
-                    )
-                elif not agent_result.best_iteration.generation_result.voorbeelden:
-                    st.warning("⚠️ Voorbeelden dictionary is leeg")
+                # Debug info om te zien wat er mis gaat
+                st.code(
+                    f"Debug: voorbeelden type = {type(agent_result.get('voorbeelden'))}"
+                )
+                st.code(
+                    f"Debug: voorbeelden content = {agent_result.get('voorbeelden')}"
+                )
 
             # Render prompt debug section
             from ui.components.prompt_debug_section import PromptDebugSection
@@ -419,14 +392,10 @@ class DefinitionGeneratorTab:
                 try:
                     if prompt_template:
                         prompt_container = PromptContainer(prompt_template)
-                        PromptDebugSection.render(
-                            prompt_container, voorbeelden_prompts
-                        )
+                        PromptDebugSection.render(prompt_container, voorbeelden_prompts)
                     else:
                         # Als er nog steeds geen prompt is, toon de debug sectie met lege prompt
-                        with st.expander(
-                            "🔍 Debug: Gebruikte Prompts", expanded=False
-                        ):
+                        with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
                             st.info(
                                 "Geen prompt informatie beschikbaar voor deze generatie."
                             )
@@ -472,20 +441,33 @@ class DefinitionGeneratorTab:
 
                 # Ensure prompt is visible even if only prompt_text is available
                 prompt_source = None
-                if iteration_result and getattr(iteration_result, "prompt_template", None):
+                if iteration_result and getattr(
+                    iteration_result, "prompt_template", None
+                ):
                     prompt_source = iteration_result.prompt_template
-                elif iteration_result and getattr(iteration_result, "prompt_text", None):
+                elif iteration_result and getattr(
+                    iteration_result, "prompt_text", None
+                ):
                     prompt_source = iteration_result.prompt_text
                 elif saved_record and getattr(saved_record, "metadata", None):
-                    meta = saved_record.metadata if isinstance(saved_record.metadata, dict) else {}
-                    prompt_source = meta.get("prompt_text") or meta.get("prompt_template")
+                    meta = (
+                        saved_record.metadata
+                        if isinstance(saved_record.metadata, dict)
+                        else {}
+                    )
+                    prompt_source = meta.get("prompt_text") or meta.get(
+                        "prompt_template"
+                    )
 
                 if prompt_source:
+
                     class _PromptContainer:
                         def __init__(self, text: str):
                             self.prompt_template = text
 
-                    PromptDebugSection.render(_PromptContainer(prompt_source), voorbeelden_prompts)
+                    PromptDebugSection.render(
+                        _PromptContainer(prompt_source), voorbeelden_prompts
+                    )
                 else:
                     PromptDebugSection.render(iteration_result, voorbeelden_prompts)
 
@@ -795,17 +777,25 @@ class DefinitionGeneratorTab:
         # Extract normalized fields from dict or object
         try:
             if isinstance(validation_result, dict):
-                overall_score = float(validation_result.get("overall_score", 0.0) or 0.0)
+                overall_score = float(
+                    validation_result.get("overall_score", 0.0) or 0.0
+                )
                 violations = validation_result.get("violations", []) or []
             else:
-                overall_score = float(getattr(validation_result, "overall_score", 0.0) or 0.0)
+                overall_score = float(
+                    getattr(validation_result, "overall_score", 0.0) or 0.0
+                )
                 violations = getattr(validation_result, "violations", []) or []
         except Exception:
             overall_score = 0.0
             violations = []
 
         # Overall score
-        score_color = "green" if overall_score > 0.8 else ("orange" if overall_score > 0.6 else "red")
+        score_color = (
+            "green"
+            if overall_score > 0.8
+            else ("orange" if overall_score > 0.6 else "red")
+        )
         st.markdown(
             f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
             unsafe_allow_html=True,
@@ -844,10 +834,16 @@ class DefinitionGeneratorTab:
             for violation in violations[:5]:  # Toon max 5
                 # Normalize violation shape (dict or object)
                 if isinstance(violation, dict):
-                    sev_raw = violation.get("severity") or violation.get("level") or "info"
+                    sev_raw = (
+                        violation.get("severity") or violation.get("level") or "info"
+                    )
                     severity = str(sev_raw).lower()
-                    rule_id = violation.get("rule_id") or violation.get("id") or "onbekend"
-                    description = violation.get("description") or violation.get("message") or ""
+                    rule_id = (
+                        violation.get("rule_id") or violation.get("id") or "onbekend"
+                    )
+                    description = (
+                        violation.get("description") or violation.get("message") or ""
+                    )
                 else:
                     sev_obj = getattr(violation, "severity", None)
                     severity = getattr(sev_obj, "value", str(sev_obj or "info")).lower()
@@ -963,31 +959,35 @@ class DefinitionGeneratorTab:
         """Render sectie met gegenereerde voorbeelden."""
         st.markdown("#### 📚 Gegenereerde Content")
 
-        # Voorbeeldzinnen (support both Dutch V2 and English legacy keys)
-        juridisch = voorbeelden.get("juridisch", voorbeelden.get("sentence", []))
-        if juridisch:
-            with st.expander("🔤 Juridische Voorbeelden", expanded=True):
-                for voorbeeld in juridisch:
+        # Debug: toon wat er exact in voorbeelden zit
+        with st.expander("🔍 Debug: Voorbeelden Content", expanded=False):
+            st.json(voorbeelden)
+
+        # Voorbeeldzinnen
+        voorbeeldzinnen = voorbeelden.get("voorbeeldzinnen", [])
+        if voorbeeldzinnen:
+            with st.expander("📄 Voorbeeldzinnen", expanded=True):
+                for voorbeeld in voorbeeldzinnen:
                     st.write(f"• {voorbeeld}")
 
         # Praktijkvoorbeelden
-        praktijk = voorbeelden.get("praktijk", voorbeelden.get("practical", []))
-        if praktijk:
+        praktijkvoorbeelden = voorbeelden.get("praktijkvoorbeelden", [])
+        if praktijkvoorbeelden:
             with st.expander("💼 Praktijkvoorbeelden", expanded=True):
-                for voorbeeld in praktijk:
+                for voorbeeld in praktijkvoorbeelden:
                     st.info(voorbeeld)
 
         # Tegenvoorbeelden
-        tegen = voorbeelden.get("tegenvoorbeelden", voorbeelden.get("counter", []))
-        if tegen:
-            with st.expander("❌ Tegenvoorbeelden (wat het NIET is)", expanded=False):
-                for voorbeeld in tegen:
+        tegenvoorbeelden = voorbeelden.get("tegenvoorbeelden", [])
+        if tegenvoorbeelden:
+            with st.expander("❌ Tegenvoorbeelden", expanded=False):
+                for voorbeeld in tegenvoorbeelden:
                     st.warning(voorbeeld)
 
         # Synoniemen met voorkeursterm selectie
-        if voorbeelden.get("synonyms"):
+        if voorbeelden.get("synoniemen"):
             with st.expander("🔄 Synoniemen", expanded=False):
-                synoniemen_lijst = voorbeelden["synonyms"]
+                synoniemen_lijst = voorbeelden["synoniemen"]
 
                 # Toon synoniemen verticaal
                 for syn in synoniemen_lijst:
@@ -1020,20 +1020,16 @@ class DefinitionGeneratorTab:
                         st.info(f"✅ Voorkeursterm: **{voorkeursterm}**")
 
         # Antoniemen
-        if voorbeelden.get("antonyms"):
+        if voorbeelden.get("antoniemen"):
             with st.expander("↔️ Antoniemen", expanded=False):
                 # Toon antoniemen verticaal
-                for ant in voorbeelden["antonyms"]:
+                for ant in voorbeelden["antoniemen"]:
                     st.write(f"• {ant}")
 
         # Toelichting
-        if voorbeelden.get("explanation"):
+        if voorbeelden.get("toelichting"):
             with st.expander("💡 Toelichting", expanded=True):
-                st.write(
-                    voorbeelden["explanation"][0]
-                    if isinstance(voorbeelden["explanation"], list)
-                    else voorbeelden["explanation"]
-                )
+                st.write(voorbeelden["toelichting"])
 
     def _trigger_regeneration_with_category(
         self,

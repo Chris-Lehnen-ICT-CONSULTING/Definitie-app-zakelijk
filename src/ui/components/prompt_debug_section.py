@@ -48,17 +48,17 @@ class PromptDebugSection:
                 for example_type, prompt in voorbeelden_prompts.items():
                     # Maak mooiere tab namen
                     tab_name = example_type
-                    if example_type == "sentence":
+                    if example_type == "voorbeeldzinnen":
                         tab_name = "📄 Voorbeeldzinnen"
-                    elif example_type == "practical":
+                    elif example_type == "praktijkvoorbeelden":
                         tab_name = "💼 Praktijkvoorbeelden"
-                    elif example_type == "counter":
+                    elif example_type == "tegenvoorbeelden":
                         tab_name = "❌ Tegenvoorbeelden"
-                    elif example_type == "synonyms":
+                    elif example_type == "synoniemen":
                         tab_name = "🔄 Synoniemen"
-                    elif example_type == "antonyms":
+                    elif example_type == "antoniemen":
                         tab_name = "↔️ Antoniemen"
-                    elif example_type == "clarifications":
+                    elif example_type == "toelichting" or example_type == "toelichting":
                         tab_name = "💡 Toelichting"
                     else:
                         tab_name = f"📌 {example_type.title()}"
