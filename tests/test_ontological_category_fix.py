@@ -37,7 +37,6 @@ class TestOntologicalCategoryFix:
                 begrip=begrip,
                 ontologische_categorie=category,
                 context="Test context",
-                domein="Test domein",
                 actor="test_user",
                 legal_basis="legitimate_interest"
             )
@@ -105,7 +104,6 @@ class TestOntologicalCategoryFix:
             begrip="authenticatie",
             ontologische_categorie="proces",
             context="Beveiligingscontext",
-            domein="IT",
             actor="test_user",
             legal_basis="legitimate_interest"
         )
@@ -129,7 +127,6 @@ class TestOntologicalCategoryFix:
             begrip="toezicht",
             ontologische_categorie="proces",
             context="Juridische context, Compliance",
-            domein="Rechtspraak",
             actor="legal_user",
             legal_basis="legal_obligation"
         )
@@ -156,7 +153,7 @@ class TestOntologicalCategoryFix:
             "id": "test-004",
             "begrip": "test_begrip",
             "context": "Test context",
-            "domein": "Test domein",
+            # "domein": "Test domein"  # removed per US-043,
             "actor": "test_user",
             "legal_basis": "legitimate_interest"
         }
@@ -193,7 +190,6 @@ class TestOntologicalCategoryFix:
             begrip="algemeen_begrip",
             ontologische_categorie=None,  # Geen category
             context="Test context",
-            domein="Algemeen",
             actor="test_user",
             legal_basis="legitimate_interest"
         )

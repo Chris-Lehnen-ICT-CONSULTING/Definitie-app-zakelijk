@@ -21,9 +21,15 @@ def get_definition_service(*args, **kwargs):
 
 
 def render_feature_flag_toggle(*args, **kwargs):
-    from services.service_factory import render_feature_flag_toggle as _render_toggle
+    # Moved to UI layer - services should not have UI dependencies
+    # This stub is kept for backward compatibility but does nothing
+    import logging
 
-    return _render_toggle(*args, **kwargs)
+    logger = logging.getLogger(__name__)
+    logger.warning(
+        "render_feature_flag_toggle called from services - import from ui.helpers.feature_toggle instead"
+    )
+    return True
 
 
 # Export alle belangrijke classes

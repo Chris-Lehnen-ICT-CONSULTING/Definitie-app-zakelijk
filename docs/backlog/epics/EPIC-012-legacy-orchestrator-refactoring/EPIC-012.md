@@ -57,19 +57,25 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 
 | ID | Titel | Priority | Points | Status |
 |----|-------|----------|--------|--------|
-| US-061 | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | TODO |
-| US-062 | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
-| US-063 | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
-| US-064 | Consolideer orchestration logica | HIGH | 8 | TODO |
-| US-065 | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
-| **Nieuwe Stories (2025-01-10):** | | | | |
+| [US-061](./US-061/US-061.md) | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | TODO |
+| [US-062](./US-062/US-062.md) | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
+| [US-063](./US-063/US-063.md) | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
+| [US-064](./US-064/US-064.md) | Consolideer orchestration logica | HIGH | 8 | TODO |
+| [US-065](./US-065/US-065.md) | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
 | [US-066](./US-066/US-066.md) | Verwijder Legacy DefinitieAgent uit Integratie/UI | HIGH | 5 | TODO |
 | [US-067](./US-067/US-067.md) | ServiceFactory Stateless Maken | HIGH | 3 | TODO |
 | [US-068](./US-068/US-068.md) | Verwijder Domein Restanten | MEDIUM | 3 | TODO |
 | [US-069](./US-069/US-069.md) | Archiveer V1 Orchestrator | MEDIUM | 8 | TODO |
 | [US-070](./US-070/US-070.md) | Refactor Category State Manager | MEDIUM | 3 | TODO |
+| [US-071](./US-071/US-071.md) | Resilience-consolidatie naar één module | MEDIUM | 5 | TODO |
+| [US-072](./US-072/US-072.md) | Export-consolidatie en mappen-opschoning | MEDIUM | 3 | TODO |
+| [US-073](./US-073/US-073.md) | Config-harmonisatie, verwijderen dotenv | HIGH | 3 | TODO |
+| [US-074](./US-074/US-074.md) | Import-hygiëne, geen sys.path-hacks | HIGH | 5 | TODO |
+| [US-075](./US-075/US-075.md) | Centraliseer async/sync-bridging | HIGH | 5 | TODO |
+| [US-076](./US-076/US-076.md) | Validators JSON-first + basisklasse | MEDIUM | 8 | TODO |
+| [US-078](./US-078/US-078.md) | Test-hygiëne, scheiding bron/test | LOW | 2 | TODO |
 
-**Totaal Story Points**: 51 (was 29)
+**Totaal Story Points**: 51 (was 29) + 31 (US-071..US-076, US-078) = 82
 
 ## Dependencies
 - Geen externe dependencies

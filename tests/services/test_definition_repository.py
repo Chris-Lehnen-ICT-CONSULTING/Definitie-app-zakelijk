@@ -40,7 +40,7 @@ def sample_definition():
         begrip="Identiteitsbewijs",
         definitie="Een officieel document uitgegeven door de overheid.",
         context="Overheidsadministratie",
-        domein="Publieke sector",
+        # domein removed per US-043
         categorie="type",
         toelichting="Dit wordt gebruikt voor identificatie.",
         bron="AI-gegenereerd",

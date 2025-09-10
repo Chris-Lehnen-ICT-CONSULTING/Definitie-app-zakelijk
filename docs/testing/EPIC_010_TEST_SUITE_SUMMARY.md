@@ -1,7 +1,7 @@
-# EPIC-010 Context Flow Refactoring - Test Suite Summary
+# EPIC-010 Context Flow Refactoring - Test Suite Summary (Update 2025-09-10)
 
 ## Overview
-Comprehensive test suite created for EPIC-010 (Context Flow Refactoring) covering all three user stories and ensuring robust validation of the new context flow implementation.
+De testsuite dekt US-041/042 volledig; US-043 (legacy routes) is gepland en deels als TDD aanwezig maar (nog) uitgesloten. Dit document geeft de beoogde suite weer; waar relevant is de actuele status toegevoegd.
 
 ## Related Documentation
 - **Epic**: [EPIC-010: Context Flow Refactoring](../backlog/epics/EPIC-010-context-flow-refactoring.md)
@@ -17,7 +17,7 @@ Comprehensive test suite created for EPIC-010 (Context Flow Refactoring) coverin
 ## Test Coverage Summary
 
 ### 1. Unit Tests
-Total unit tests created: **250+** test cases across 5 files
+Actuele status: US‑041/042 unit/integration tests actief; US‑043 unit TDD-specs bestaan maar zijn gedeactiveerd tot implementatie.
 
 #### `/tests/unit/test_us041_context_field_mapping.py`
 - **Purpose**: Validate context field mapping from UI to prompts
@@ -41,7 +41,7 @@ Total unit tests created: **250+** test cases across 5 files
   - Error prevention
   - Integration scenarios
 
-#### `/tests/unit/test_us043_remove_legacy_routes.py`
+#### `/tests/unit/test_us043_remove_legacy_routes.py` (TDD – pending)
 - **Purpose**: Verify legacy context routes are removed
 - **Test Classes**: 10
 - **Key Coverage**:
@@ -86,7 +86,7 @@ Total unit tests created: **250+** test cases across 5 files
   - Error handling
 
 ### 2. Integration Tests
-#### `/tests/integration/test_context_flow_epic_cfr.py` (Fixed)
+#### `/tests/integration/test_context_flow_epic_cfr.py` (actief)
 - **Purpose**: End-to-end context flow testing
 - **Test Classes**: 5
 - **Key Coverage**:
@@ -95,8 +95,8 @@ Total unit tests created: **250+** test cases across 5 files
   - Context audit trail
   - Context-specific validation rules
 
-### 3. Performance Tests
-#### `/tests/performance/test_context_flow_performance.py`
+### 3. Performance Tests (gepland)
+#### `/tests/performance/test_context_flow_performance.py` (in planning)
 - **Purpose**: Validate performance improvements
 - **Test Classes**: 8
 - **Key Coverage**:
@@ -108,8 +108,8 @@ Total unit tests created: **250+** test cases across 5 files
   - Cache effectiveness (>20% improvement)
   - Resource utilization (<80% CPU)
 
-### 4. Compliance Tests
-#### `/tests/compliance/test_astra_nora_context_compliance.py`
+### 4. Compliance Tests (gepland)
+#### `/tests/compliance/test_astra_nora_context_compliance.py` (in planning)
 - **Purpose**: Ensure ASTRA/NORA compliance
 - **Test Classes**: 9
 - **Key Coverage**:
@@ -130,7 +130,7 @@ Run these tests BEFORE implementing features:
 # Unit tests for expected behavior
 pytest tests/unit/test_us041_context_field_mapping.py -v
 pytest tests/unit/test_us042_anders_option_fix.py -v
-pytest tests/unit/test_us043_remove_legacy_routes.py -v
+pytest tests/unit/test_us043_remove_legacy_routes.py -v  # uitgeschakeld totdat US‑043 wordt geïmplementeerd
 ```
 
 ### Phase 2: During Implementation
@@ -153,7 +153,7 @@ pytest tests/integration/test_context_flow_epic_cfr.py -v
 pytest tests/unit/test_anders_edge_cases.py -v
 ```
 
-### Phase 4: Performance Validation
+### Phase 4: Performance Validation (na implementatie)
 After functionality is complete:
 ```bash
 # Performance benchmarks
@@ -163,7 +163,7 @@ pytest tests/performance/test_context_flow_performance.py -v -s
 pytest tests/performance/ -k "concurrent" -v
 ```
 
-### Phase 5: Compliance Verification
+### Phase 5: Compliance Verification (na implementatie)
 Final validation:
 ```bash
 # ASTRA/NORA compliance
@@ -176,22 +176,22 @@ pytest tests/unit/test_context_payload_schema.py -v
 ## Success Criteria
 
 ### Functional Requirements
-- [x] All context fields propagate correctly to prompts
-- [x] "Anders..." option works without crashes
-- [x] Legacy routes removed, single path established
-- [x] Feature flags enable gradual rollout
+- [x] All context fields propagate correctly to prompts (US‑041)
+- [x] "Anders..." option works without crashes (US‑042)
+- [ ] Legacy routes removed, single path established (US‑043 – pending)
+- [ ] Feature flags enable gradual rollout (gepland voor rolloutstrategie)
 
-### Performance Requirements
-- [x] >20% performance improvement over legacy
-- [x] P95 latency <100ms for context processing
-- [x] Support 100+ requests/second
-- [x] Memory usage stable under load
+### Performance Requirements (gepland)
+- [ ] >20% performance improvement over legacy
+- [ ] P95 latency <100ms for context processing
+- [ ] Support 100+ requests/second
+- [ ] Memory usage stable under load
 
-### Quality Requirements
-- [x] 100% test coverage for critical paths
-- [x] All edge cases handled gracefully
-- [x] ASTRA/NORA compliance verified
-- [x] Schema validation enforced
+### Quality Requirements (gepland/ gedeeltelijk)
+- [ ] 100% test coverage for critical paths (deels actief)
+- [ ] All edge cases handled gracefully
+- [ ] ASTRA/NORA compliance verified
+- [ ] Schema validation enforced
 
 ## Test Metrics
 
