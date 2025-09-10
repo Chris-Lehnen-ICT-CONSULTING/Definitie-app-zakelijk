@@ -214,7 +214,7 @@ class UnifiedExamplesGenerator:
                 prompt=prompt,
                 model=request.model,
                 temperature=request.temperature,
-                max_tokens=300,
+                max_tokens=1500,
             )
             return self._parse_response(response.text)
         except Exception as e:
@@ -318,7 +318,7 @@ class UnifiedExamplesGenerator:
                 prompt=prompt,
                 model=request.model,
                 temperature=request.temperature,
-                max_tokens=300,
+                max_tokens=1500,
             )
             # Voor explanation, return de hele response als één item
             return [response.text.strip()] if response.text.strip() else []
@@ -335,7 +335,7 @@ class UnifiedExamplesGenerator:
                 prompt=prompt,
                 model=request.model,
                 temperature=request.temperature,
-                max_tokens=300,
+                max_tokens=1500,
             )
             return self._parse_response(response.text)
         except Exception as e:
@@ -452,7 +452,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
 
         return "\n".join(context_lines)
 
-    def _parse_response(self, response: str) -> list[str]:
+    def _parse_response(self, response: str) -> list[str]:  # noqa: PLR0912, PLR0915
         """Parse GPT response into list of examples."""
         if not response:
             return []
@@ -496,7 +496,8 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
         text = response.strip()
 
         # Probeer eerst op "1." "2." etc met sterke scheiding
-        numbered_pattern = r"\n+(?=\d+[\.\)]\s*[A-Z\*])"
+        # Ook ondersteuning voor markdown headers zoals "### 1." of "## 1."
+        numbered_pattern = r"\n+(?=(?:#{1,3}\s*)?\d+[\.\)]\s*[A-Z\*#])"
         parts = re.split(numbered_pattern, text)
 
         if len(parts) > 1:
@@ -507,9 +508,9 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
                 # Patroon 2: nummer. Titel**\n[inhoud]
                 # Patroon 3: nummer. Titel: [inhoud]
 
-                # Probeer eerst het Situatie/Toepassing patroon
+                # Probeer eerst het Situatie/Toepassing patroon (inclusief markdown headers)
                 situatie_match = re.match(
-                    r"^\d+[\.\)]\s*([^*\n]+?)\n+Situatie:\*{0,2}\s*\n+(.+?)\n+Toepassing[^:]*:\*{0,2}\s*\n+(.+)",
+                    r"^(?:#{1,3}\s*)?\d+[\.\)]\s*([^*\n]+?)\n+Situatie:\*{0,2}\s*\n+(.+?)\n+Toepassing[^:]*:\*{0,2}\s*\n+(.+)",
                     part,
                     re.DOTALL | re.IGNORECASE,
                 )
@@ -523,9 +524,12 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
                     examples.append(formatted)
                     continue
 
-                # Probeer het standaard patroon
+                # Probeer het standaard patroon (inclusief markdown headers)
+                # Ondersteunt: "1. Titel", "### 1. Titel", "1) Titel", etc.
                 title_match = re.match(
-                    r"^\d+[\.\)]\s*\*{0,2}([^*\n]+?)\*{0,2}[\n:](.+)", part, re.DOTALL
+                    r"^(?:#{1,3}\s*)?\d+[\.\)]\s*\*{0,2}([^*\n]+?)\*{0,2}[\n:](.+)",
+                    part,
+                    re.DOTALL,
                 )
 
                 if title_match:
@@ -552,7 +556,10 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
                         examples.append(f"{title}: {content}")
                 else:
                     # Fallback naar oude methode als het patroon niet matcht
-                    cleaned = re.sub(r"^\d+[\.\)]\s*\**\s*", "", part).strip()
+                    # Verwijder ook markdown headers
+                    cleaned = re.sub(
+                        r"^(?:#{1,3}\s*)?\d+[\.\)]\s*\**\s*", "", part
+                    ).strip()
                     if cleaned and not any(
                         skip in cleaned[:50].lower()
                         for skip in ["hier zijn", "voorbeelden", "bijvoorbeeld"]

@@ -21,10 +21,10 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 ## Story Status Summary
 
 ### Overall Statistics
-- **Total Stories**: 46
-- **Completed**: 21 (46%)
+- **Total Stories**: 65 (incl. US-061 t/m US-065 from EPIC-012)
+- **Completed**: 21 (32%)
 - **In Progress**: 0 (0%)
-- **TODO**: 25 (54%)
+- **TODO**: 44 (68%)
 - **Blocked**: 0 (0%)
 
 ### Current Sprint (36) Stories
@@ -111,6 +111,16 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-040 | Multi-tenant Architecture | ⏳ TODO | GEMIDDELD | 21 |
 
 ### EPIC-010: Context Flow Refactoring (6 stories - 0% complete) 🚨
+**Note:** Related legacy cleanup stories US-043 and US-056 are now part of [EPIC-012](../epics/EPIC-012-legacy-orchestrator-refactoring.md).
+
+### EPIC-012: Legacy Orchestrator Refactoring (5 stories - 0% complete)
+| ID | Story | Status | Prioriteit | Points |
+|----|-------|--------|----------|--------|
+| US-061 | Extract Business Kennis uit Legacy | ⏳ TODO | KRITIEK | 5 |
+| US-062 | Refactor FeedbackBuilder naar V2 | ⏳ TODO | KRITIEK | 8 |
+| US-063 | Integreer Config en Context in V2 | ⏳ TODO | HOOG | 5 |
+| US-064 | Consolideer Orchestration Logica | ⏳ TODO | HOOG | 8 |
+| US-065 | Moderniseer UI Dependencies | ⏳ TODO | GEMIDDELD | 3 |
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | [US-041](US-041.md) | Fix Context Field Mapping to Prompts | ⏳ TODO | KRITIEK | 8 |
