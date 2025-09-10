@@ -247,13 +247,12 @@ class ServiceAdapter:
         )
         validation_details = self.normalize_validation(validation_data)
 
-        # Extract voorbeelden from metadata - gebruik de keys zoals ze van de generator komen
+        # Extract voorbeelden from metadata - direct pass-through van canonieke keys
+        # REFACTORED: Geen mapping meer nodig, producers leveren al canonieke keys
         voorbeelden = {}
         if response.definition and response.definition.metadata:
-            meta_voorbeelden = response.definition.metadata.get("voorbeelden", {})
-            if isinstance(meta_voorbeelden, dict):
-                # Geef de voorbeelden dictionary direct door zonder mapping
-                voorbeelden = meta_voorbeelden
+            voorbeelden = response.definition.metadata.get("voorbeelden", {})
+            # Direct pass-through - orchestrator heeft al canonieke voorbeelden
 
         # Build metadata
         metadata = {}

@@ -248,7 +248,15 @@ class TestServiceAdapter:
             metadata={
                 'origineel': 'Test definitie origineel',
                 'marker': '✅',
-                'processing_time': 1.5
+                'processing_time': 1.5,
+                'voorbeelden': {
+                    'voorbeeldzinnen': ['Voorbeeld zin 1'],
+                    'praktijkvoorbeelden': ['Praktijk 1'],
+                    'tegenvoorbeelden': ['Tegen 1'],
+                    'synoniemen': [],
+                    'antoniemen': [],
+                    'toelichting': ''
+                }
             }
         )
 
@@ -293,10 +301,13 @@ class TestServiceAdapter:
         # Check voorbeelden (now a dict with categories)
         assert 'voorbeelden' in result
         if isinstance(result['voorbeelden'], dict):
-            # V2 format
-            assert 'juridisch' in result['voorbeelden']
-            assert 'praktijk' in result['voorbeelden']
+            # V2 format - REFACTORED: canonieke keys
+            assert 'voorbeeldzinnen' in result['voorbeelden']
+            assert 'praktijkvoorbeelden' in result['voorbeelden']
             assert 'tegenvoorbeelden' in result['voorbeelden']
+            # Geen legacy keys meer
+            assert 'juridisch' not in result['voorbeelden']
+            assert 'praktijk' not in result['voorbeelden']
         else:
             # Legacy format still accepted for now
             assert result['voorbeelden'] == ["Voorbeeld 1"]
@@ -314,7 +325,7 @@ class TestServiceAdapter:
         assert isinstance(call_args, GenerationRequest)
         assert call_args.begrip == "Test"
         assert call_args.context == "Org context"
-        assert call_args.domein == "Test domein"
+        # EPIC-010: domein field verwijderd
         assert call_args.organisatie == "Test Org"
         assert call_args.extra_instructies == "Extra info"
 
