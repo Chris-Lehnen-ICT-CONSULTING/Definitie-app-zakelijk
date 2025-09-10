@@ -3,8 +3,8 @@
 ## Overzicht
 Verfijnd actieplan op basis van review feedback.
 
-**Datum**: 2025-01-10  
-**Status**: READY FOR IMPLEMENTATION  
+**Datum**: 2025-01-10
+**Status**: READY FOR IMPLEMENTATION
 **Geschatte doorlooptijd**: 2-3 dagen
 
 ---
@@ -29,7 +29,7 @@ if os.getenv('DEBUG_EXAMPLES'):
         generation_id,
         sanitized_request.begrip,
         list(voorbeelden.keys()) if isinstance(voorbeelden, dict) else "NOT_DICT",
-        {k: len(v) if isinstance(v, (list, str)) else "INVALID" 
+        {k: len(v) if isinstance(v, (list, str)) else "INVALID"
          for k, v in (voorbeelden or {}).items()}
     )
 
@@ -48,7 +48,7 @@ if os.getenv('DEBUG_EXAMPLES'):
         "[EXAMPLES-C] Pre-store | gen_id=%s | voorbeelden=%s | counts=%s",
         agent_result.get('metadata', {}).get('generation_id'),
         "present" if agent_result.get("voorbeelden") else "missing",
-        {k: len(v) if isinstance(v, (list, str)) else "INVALID" 
+        {k: len(v) if isinstance(v, (list, str)) else "INVALID"
          for k, v in (agent_result.get("voorbeelden") or {}).items()}
     )
 
@@ -67,7 +67,7 @@ if os.getenv('DEBUG_EXAMPLES'):
         "[EXAMPLES-D] UI-render | gen_id=%s | voorbeelden=%s | counts=%s",
         agent_result.get('metadata', {}).get('generation_id'),
         "present" if voorbeelden else "missing",
-        {k: len(v) if isinstance(v, (list, str)) else "INVALID" 
+        {k: len(v) if isinstance(v, (list, str)) else "INVALID"
          for k, v in (voorbeelden or {}).items()}
     )
 ```
@@ -96,7 +96,7 @@ if os.getenv('DEBUG_EXAMPLES'):
 ```python
 def _generate_cache_key(self, *args, **kwargs) -> str:
     """Generate robust cache key with versioning."""
-    
+
     # Extract key components
     if args and hasattr(args[0], 'example_type'):
         request = args[0]
@@ -117,7 +117,7 @@ def _generate_cache_key(self, *args, **kwargs) -> str:
             hashlib.md5(str(args).encode()).hexdigest()[:16],
             hashlib.md5(json.dumps(kwargs, sort_keys=True, default=str).encode()).hexdigest()[:16]
         ]
-    
+
     return "|".join(key_parts)
 ```
 
@@ -153,7 +153,7 @@ class CacheMetrics:
 
 ### Concrete Fix
 
-**File**: `src/ui/tabbed_interface.py`  
+**File**: `src/ui/tabbed_interface.py`
 **Regels**: 919-921
 
 ```python
@@ -202,11 +202,11 @@ def generate_definition(self, ...):
 # src/ui/components/orchestration_tab.py
 def render(self):
     st.warning("⚠️ Legacy Orchestration Tab - Gebruik Definition Generator tab voor V2")
-    
+
     if not os.getenv('ENABLE_LEGACY_TAB', 'false').lower() == 'true':
         st.info("Tab uitgeschakeld. Set ENABLE_LEGACY_TAB=true om te activeren.")
         return
-    
+
     # Legacy rendering...
 ```
 

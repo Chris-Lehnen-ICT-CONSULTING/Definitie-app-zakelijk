@@ -21,10 +21,10 @@ Voeg tijdelijke debug logging toe op 4 kritieke punten:
 # 1. src/services/orchestrators/definition_orchestrator_v2.py:439
 # Na voorbeelden generatie, voor metadata assignment
 logger.info(
-    "V2: voorbeelden generated for %s: keys=%s sizes=%s", 
+    "V2: voorbeelden generated for %s: keys=%s sizes=%s",
     sanitized_request.begrip,
     list(voorbeelden.keys()) if isinstance(voorbeelden, dict) else type(voorbeelden),
-    {k: (len(v) if isinstance(v, list) else len(v) if isinstance(v, str) else type(v).__name__) 
+    {k: (len(v) if isinstance(v, list) else len(v) if isinstance(v, str) else type(v).__name__)
      for k, v in (voorbeelden or {}).items()}
 )
 
@@ -43,7 +43,7 @@ logger.debug(
     "UI: voorbeelden present=%s keys=%s sizes=%s",
     bool(voorbeelden),
     list((voorbeelden or {}).keys()) if isinstance(voorbeelden, dict) else type(voorbeelden),
-    {k: (len(v) if isinstance(v, list) else len(v) if isinstance(v, str) else type(v).__name__) 
+    {k: (len(v) if isinstance(v, list) else len(v) if isinstance(v, str) else type(v).__name__)
      for k, v in (voorbeelden or {}).items()}
 )
 
@@ -51,7 +51,7 @@ logger.debug(
 logger.debug(
     "UI-store: voorbeelden keys=%s sizes=%s",
     list((agent_result.get("voorbeelden") or {}).keys()) if isinstance(agent_result.get("voorbeelden"), dict) else type(agent_result.get("voorbeelden")),
-    {k: (len(v) if isinstance(v, list) else len(v) if isinstance(v, str) else type(v).__name__) 
+    {k: (len(v) if isinstance(v, list) else len(v) if isinstance(v, str) else type(v).__name__)
      for k, v in (agent_result.get("voorbeelden") or {}).items()}
 )
 ```
@@ -96,14 +96,14 @@ def _generate_cache_key(self, *args, **kwargs) -> str:
         example_type = args[0].example_type.value if hasattr(args[0].example_type, 'value') else str(args[0].example_type)
     elif 'example_type' in kwargs:
         example_type = kwargs['example_type']
-    
+
     # Build key components
     key_parts = {
         "args": args,
         "kwargs": sorted(kwargs.items()),
         "example_type": example_type  # Explicitly include
     }
-    
+
     content = json.dumps(key_parts, sort_keys=True, default=str)
     return hashlib.md5(content.encode()).hexdigest()
 ```
@@ -116,7 +116,7 @@ Voeg toe na regel 45:
 # Cache TTL configuratie per example type
 CACHE_TTL_BY_TYPE = {
     ExampleType.SYNONIEMEN: 7200,      # 2 uur - verandert zelden
-    ExampleType.ANTONIEMEN: 7200,      # 2 uur - verandert zelden  
+    ExampleType.ANTONIEMEN: 7200,      # 2 uur - verandert zelden
     ExampleType.VOORBEELDZINNEN: 3600, # 1 uur - kan variëren
     ExampleType.PRAKTIJKVOORBEELDEN: 1800, # 30 min - context-afhankelijk
     ExampleType.TEGENVOORBEELDEN: 1800,    # 30 min - context-afhankelijk
@@ -228,7 +228,7 @@ Maak notitie in code:
 - [ ] Implementeer fix voor voorbeelden (1-2 uur)
 - [ ] Test voorbeelden fix
 
-### Dag 2  
+### Dag 2
 - [ ] Implementeer cache key fix (30 min)
 - [ ] Implementeer TTL per type (20 min)
 - [ ] Re-enable caching (10 min)
