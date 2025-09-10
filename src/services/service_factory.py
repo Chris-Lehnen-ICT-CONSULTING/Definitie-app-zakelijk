@@ -401,31 +401,6 @@ class ServiceAdapter:
             or {},
         }
 
-    def generate_definition_sync(self, begrip: str, context_dict: dict, **kwargs):
-        """
-        DEPRECATED: Synchronous wrapper for backward compatibility.
-
-        TODO: Remove after all UI code migrated to ui.helpers.async_bridge
-        This method will be removed in next phase.
-        """
-        import asyncio
-
-        try:
-            loop = asyncio.get_running_loop()
-            fut = asyncio.run_coroutine_threadsafe(
-                self.generate_definition(
-                    begrip=begrip, context_dict=context_dict, **kwargs
-                ),
-                loop,
-            )
-            return fut.result()
-        except RuntimeError:
-            return asyncio.run(
-                self.generate_definition(
-                    begrip=begrip, context_dict=context_dict, **kwargs
-                )
-            )
-
     def get_stats(self) -> dict:
         """Get statistieken van alle services."""
         stats = {
@@ -443,33 +418,6 @@ class ServiceAdapter:
         except Exception:
             pass
         return stats
-
-    def search_web_sources(self, term: str, sources: list | None = None) -> dict:
-        """
-        DEPRECATED: Legacy compatible web lookup (SYNC for legacy UI).
-
-        TODO: Remove after all UI code migrated to ui.helpers.async_bridge
-        This method will be removed in next phase.
-        """
-        import asyncio
-
-        from services.interfaces import LookupRequest
-
-        request = LookupRequest(term=term, sources=sources, max_results=5)
-        results = asyncio.run(self.web_lookup.lookup(request))
-
-        # Converteer naar legacy format
-        legacy_results = {}
-        for result in results:
-            legacy_results[result.source.name] = {
-                "definitie": result.definition,
-                "context": result.context,
-                "voorbeelden": result.examples,
-                "verwijzingen": result.references,
-                "betrouwbaarheid": result.source.confidence,
-            }
-
-        return legacy_results
 
     def validate_source(self, text: str) -> dict:
         """Legacy compatible bron validatie."""
