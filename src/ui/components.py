@@ -214,7 +214,14 @@ class UIComponents:
         synoniemen = SessionStateManager.get_value("synoniemen")
         if synoniemen:
             st.markdown("### 🔁 Synoniemen")
-            synoniemen_lijst = [s.strip() for s in synoniemen.split("\n") if s.strip()]
+            # Synoniemen is altijd een lijst van de voorbeelden generator
+            if isinstance(synoniemen, list):
+                synoniemen_lijst = synoniemen
+            else:
+                # Fallback voor het geval het toch een string is
+                synoniemen_lijst = [
+                    s.strip() for s in str(synoniemen).split("\n") if s.strip()
+                ]
             st.success(", ".join(synoniemen_lijst))
 
             # Preferred term selection
@@ -238,7 +245,12 @@ class UIComponents:
         antoniemen = SessionStateManager.get_value("antoniemen")
         if antoniemen:
             st.markdown("### 🔄 Antoniemen")
-            st.warning(antoniemen)
+            # Antoniemen is altijd een lijst van de voorbeelden generator
+            if isinstance(antoniemen, list):
+                st.warning(", ".join(antoniemen))
+            else:
+                # Fallback voor het geval het toch een string is
+                st.warning(str(antoniemen))
 
     @staticmethod
     def _render_sources():
