@@ -9,8 +9,8 @@ from typing import Any
 
 import streamlit as st
 
-from services.context.context_adapter import (
-    ContextSource,
+from services.context.context_manager import ContextSource
+from ui.helpers.context_adapter import (
     get_context_adapter,
 )
 from ui.session_state import SessionStateManager

@@ -31,9 +31,9 @@ async def test_ontology():
         # Test 1: Proces begrip
         print("\n📋 Test 1: Proces begrip")
         request = GenerationRequest(
-            begrip="verificatie",
-            context="Identiteitscontrole bij DJI",
-            domein="Strafrecht"
+        id="test-id",
+        begrip="verificatie",
+            context="Identiteitscontrole bij DJI"
         )
 
         definition = await generator.generate(request)
@@ -48,9 +48,9 @@ async def test_ontology():
         # Test 2: Type begrip
         print("\n📋 Test 2: Type begrip")
         request2 = GenerationRequest(
-            begrip="authenticatiemiddel",
-            context="Digitale toegangscontrole",
-            domein="Informatiebeveiliging"
+        id="test-id",
+        begrip="authenticatiemiddel",
+            context="Digitale toegangscontrole"
         )
 
         definition2 = await generator.generate(request2)
@@ -63,7 +63,8 @@ async def test_ontology():
         generator.config.enable_ontology = False
 
         request3 = GenerationRequest(
-            begrip="rapportage",
+        id="test-id",
+        begrip="rapportage",
             context="Maandelijkse overzichten"
         )
 

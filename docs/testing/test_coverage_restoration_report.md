@@ -31,8 +31,8 @@ Current test coverage stands at **20%** after fixing critical test infrastructur
 - Various orchestrator tests timing out due to missing mocks
 
 #### 2. TDD Tests for Unimplemented Features (Expected to Fail)
-- All US-041/042/043 tests (75 tests) - Context flow features not implemented
-- These should be EXCLUDED from coverage calculation until FASE 3-5
+- US-043 tests (legacy context routes removal) — nog niet geïmplementeerd
+- Deze tests worden uitgesloten van coverage tot implementatie (FASE 3-5)
 
 #### 3. Tests with Minor Issues (Quick Fixes Needed)
 - `test_duplicate_detection_service.py` - Assertion values need updating

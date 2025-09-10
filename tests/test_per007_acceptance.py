@@ -19,7 +19,8 @@ class TestAcceptanceCriteria:
         """AC1: UI preview is display only, never data source"""
         # GIVEN: Complete context flow
         request = GenerationRequest(
-            begrip="verdachte",
+        id="test-id",
+        begrip="verdachte",
             organisatorische_context=["OM", "DJI"],
             juridische_context=["Strafrecht"],
             wettelijke_basis=["Art. 27 Sv"]
@@ -131,7 +132,9 @@ class TestAcceptanceCriteria:
 
         for field_name, field_value, context_key in test_cases:
             # GIVEN: Request with Anders option
-            request = GenerationRequest(begrip="test")
+            request = GenerationRequest(
+        id="test-id",
+        begrip="test")
             setattr(request, field_name, field_value)
 
             # WHEN: Processing
@@ -157,7 +160,8 @@ class TestAcceptanceCriteria:
         """AC4: ASTRA validation gives warnings, never blocks"""
         # GIVEN: Mix of valid and invalid organizations
         request = GenerationRequest(
-            begrip="test",
+        id="test-id",
+        begrip="test",
             organisatorische_context=["OM", "InvalidOrg", "DJI", "FakeOrg"]
         )
 
@@ -206,14 +210,14 @@ class TestAcceptanceCriteria:
         """AC5: Complete integration test of context flow"""
         # GIVEN: A complex request with all features
         request = GenerationRequest(
-            begrip="verdachte",
+        id="test-id",
+        begrip="verdachte",
             organisatorische_context=["OM", "Anders...", "NieuweOrganisatie", "DJI"],
             juridische_context=["Strafrecht", "Anders...", "NieuwRechtsgebied"],
             wettelijke_basis=["Art. 27 Sv", "Anders...", "Nieuwe Wet 2025", "Art. 67 Sv"],
             # Legacy fields that should be handled gracefully
             context="This is legacy context that should be ignored",
             organisatie="LegacyOrg",  # Should be added if not duplicate
-            domein="LegacyDomain"
         )
 
         # WHEN: Processing through the complete pipeline
@@ -302,7 +306,8 @@ class TestAcceptanceCriteria:
 
         # Try to process UI string as context (should fail or be ignored)
         request = GenerationRequest(
-            begrip="test",
+        id="test-id",
+        begrip="test",
             context=ui_preview  # Try to pass UI string as context
         )
 

@@ -19,7 +19,8 @@ except Exception as e:
     print(f"❌ TabbedInterface import fout: {e}")
 
 try:
-    from services import get_definition_service, render_feature_flag_toggle
+    from services import get_definition_service
+    from ui.helpers.feature_toggle import render_feature_flag_toggle
     print("✅ Service factory imports OK")
 except Exception as e:
     print(f"❌ Service factory import fout: {e}")

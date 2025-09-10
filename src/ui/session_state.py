@@ -9,7 +9,7 @@ from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
 
-from services.context.context_adapter import get_context_adapter
+from ui.helpers.context_adapter import get_context_adapter
 
 
 class SessionStateManager:

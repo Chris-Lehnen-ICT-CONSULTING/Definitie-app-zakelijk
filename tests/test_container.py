@@ -78,9 +78,9 @@ async def test_service_integration():
 
     # Test request
     request = GenerationRequest(
+        id="test-id",
         begrip="container test",
-        context="Test van dependency injection",
-        domein="Software Engineering"
+        context="Test van dependency injection"
     )
 
     try:

@@ -15,6 +15,7 @@ Key improvements:
 """
 
 import logging
+import os
 import time
 import uuid
 from datetime import UTC, datetime
@@ -389,6 +390,23 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         },
                     )
                     debugger.log_session_state(debug_gen_id, "C2")
+
+                # Debug logging point A - After voorbeelden generation in V2
+                if os.getenv("DEBUG_EXAMPLES"):
+                    logger.info(
+                        "[EXAMPLES-A] V2 generated | gen_id=%s | begrip=%s | keys=%s | counts=%s",
+                        generation_id,
+                        sanitized_request.begrip,
+                        (
+                            list(voorbeelden.keys())
+                            if isinstance(voorbeelden, dict)
+                            else "NOT_DICT"
+                        ),
+                        {
+                            k: len(v) if isinstance(v, (list, str)) else "INVALID"
+                            for k, v in (voorbeelden or {}).items()
+                        },
+                    )
 
                 logger.info(
                     f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
