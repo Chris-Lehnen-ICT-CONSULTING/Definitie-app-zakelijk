@@ -1006,6 +1006,19 @@ class DefinitionGeneratorTab:
             with st.expander("🔄 Synoniemen", expanded=False):
                 synoniemen_lijst = voorbeelden["synoniemen"]
 
+                # Handle case where synoniemen might be a single comma-separated string
+                all_synoniemen = []
+                for syn in synoniemen_lijst:
+                    if isinstance(syn, str) and "," in syn:
+                        # Split comma-separated items
+                        items = [item.strip() for item in syn.split(",")]
+                        all_synoniemen.extend(items)
+                    else:
+                        all_synoniemen.append(syn)
+
+                # Update the list for display and selection
+                synoniemen_lijst = all_synoniemen
+
                 # Toon synoniemen verticaal
                 for syn in synoniemen_lijst:
                     st.write(f"• {syn}")
@@ -1039,8 +1052,20 @@ class DefinitionGeneratorTab:
         # Antoniemen
         if voorbeelden.get("antoniemen"):
             with st.expander("↔️ Antoniemen", expanded=False):
+                antoniemen_lijst = voorbeelden["antoniemen"]
+
+                # Handle case where antoniemen might be a single comma-separated string
+                all_antoniemen = []
+                for ant in antoniemen_lijst:
+                    if isinstance(ant, str) and "," in ant:
+                        # Split comma-separated items
+                        items = [item.strip() for item in ant.split(",")]
+                        all_antoniemen.extend(items)
+                    else:
+                        all_antoniemen.append(ant)
+
                 # Toon antoniemen verticaal
-                for ant in voorbeelden["antoniemen"]:
+                for ant in all_antoniemen:
                     st.write(f"• {ant}")
 
         # Toelichting
