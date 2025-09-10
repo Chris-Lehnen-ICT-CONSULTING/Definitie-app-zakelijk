@@ -864,6 +864,7 @@ def genereer_alle_voorbeelden(
     results = {}
 
     # Use central configuration for max_examples per type
+    # Map ExampleType enum to string keys for DEFAULT_EXAMPLE_COUNTS lookup
     max_examples_per_type = {
         ExampleType.VOORBEELDZINNEN: DEFAULT_EXAMPLE_COUNTS["voorbeeldzinnen"],
         ExampleType.PRAKTIJKVOORBEELDEN: DEFAULT_EXAMPLE_COUNTS["praktijkvoorbeelden"],

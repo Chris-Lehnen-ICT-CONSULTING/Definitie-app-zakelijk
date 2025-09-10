@@ -371,6 +371,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     context_dict=voorbeelden_context,
                 )
 
+                # Debug: Log antoniemen count
+                if "antoniemen" in voorbeelden:
+                    logger.info(
+                        f"Orchestrator generated {len(voorbeelden['antoniemen'])} antoniemen for {sanitized_request.begrip}"
+                    )
+
                 # Debug logging point C2 - After voorbeelden generation
                 if DEBUG_ENABLED:
                     debugger.log_point(
