@@ -546,36 +546,50 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
             logger.info(f"Parsing {example_type} response (length: {len(response)})")
             logger.debug(f"Raw response: {response[:500]}")
 
-            lines = response.strip().split("\n")
-            examples = []
-            for line in lines:
-                # Verwijder bullets, nummers, streepjes etc.
-                cleaned = re.sub(r"^\s*[-—•*\d\.]+\s*", "", line).strip()
-                # Filter lege regels en headers
-                if (
-                    cleaned
-                    and len(cleaned) > 1
-                    and not any(
-                        skip in cleaned.lower()
-                        for skip in [
-                            "synoniem",
-                            "antoniem",
-                            "hier zijn",
-                            "bijvoorbeeld",
-                        ]
-                    )
-                ):
-                    # Check of de regel komma-gescheiden items bevat
-                    if "," in cleaned and not any(
-                        c in cleaned for c in [".", ":", ";"]
-                    ):
-                        # Split op komma's voor meerdere items op één regel
-                        items = [item.strip() for item in cleaned.split(",")]
-                        examples.extend(
-                            [item for item in items if item and len(item) > 1]
-                        )
-                    else:
+            # First try to split the entire response on commas if it looks like a simple list
+            if "," in response and response.count("\n") <= 2:
+                # This looks like a comma-separated list
+                items = [item.strip() for item in response.split(",")]
+                examples = []
+                for item in items:
+                    # Clean each item
+                    cleaned = re.sub(r"^\s*[-—•*\d\.]+\s*", "", item).strip()
+                    cleaned = cleaned.strip('"').strip("'")  # Remove quotes
+                    if cleaned and len(cleaned) > 1:
                         examples.append(cleaned)
+            else:
+                # Process line by line
+                lines = response.strip().split("\n")
+                examples = []
+                for line in lines:
+                    # Verwijder bullets, nummers, streepjes etc.
+                    cleaned = re.sub(r"^\s*[-—•*\d\.]+\s*", "", line).strip()
+                    # Filter lege regels en headers
+                    if (
+                        cleaned
+                        and len(cleaned) > 1
+                        and not any(
+                            skip in cleaned.lower()
+                            for skip in [
+                                "synoniem",
+                                "antoniem",
+                                "hier zijn",
+                                "bijvoorbeeld",
+                            ]
+                        )
+                    ):
+                        # Check of de regel komma-gescheiden items bevat
+                        if "," in cleaned:
+                            # Split op komma's voor meerdere items op één regel
+                            items = [
+                                item.strip().strip('"').strip("'")
+                                for item in cleaned.split(",")
+                            ]
+                            examples.extend(
+                                [item for item in items if item and len(item) > 1]
+                            )
+                        else:
+                            examples.append(cleaned)
 
             logger.info(f"Parsed {len(examples)} {example_type} items: {examples}")
             return examples if examples else []
