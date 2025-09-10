@@ -396,7 +396,7 @@ onder vallen. Leg kort uit waarom deze voorbeelden niet onder de definitie valle
 
         if request.example_type == ExampleType.SYNONIEMEN:
             return f"""
-Geef {request.max_examples} synoniemen of verwante termen voor '{begrip}' die gebruikt
+Geef EXACT {request.max_examples} synoniemen of verwante termen voor '{begrip}' die gebruikt
 worden binnen de gegeven context.
 
 Definitie: {definitie}
@@ -405,12 +405,13 @@ Context:
 {context_text}
 
 Geef synoniemen die specifiek in deze organisatie/domein gebruikt worden.
-Geef alleen de synoniemen, elk op een nieuwe regel.
+BELANGRIJK: Geef PRECIES {request.max_examples} synoniemen, niet meer en niet minder.
+Geef alleen de synoniemen, elk op een nieuwe regel, zonder nummering of bullets.
 """
 
         if request.example_type == ExampleType.ANTONIEMEN:
             return f"""
-Geef {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}'
+Geef EXACT {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}'
 die relevant zijn binnen de gegeven context.
 
 Definitie: {definitie}
@@ -419,7 +420,8 @@ Context:
 {context_text}
 
 Geef antoniemen die in deze organisatie/domein gebruikt worden.
-Geef alleen de antoniemen, elk op een nieuwe regel.
+BELANGRIJK: Geef PRECIES {request.max_examples} antoniemen, niet meer en niet minder.
+Geef alleen de antoniemen, elk op een nieuwe regel, zonder nummering of bullets.
 """
 
         if request.example_type == ExampleType.TOELICHTING:
