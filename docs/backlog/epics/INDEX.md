@@ -37,6 +37,8 @@ Dit dashboard biedt een volledig overzicht van alle epics in het DefinitieAgent 
 | EPIC-008 | Web Lookup Module | 🔀 Merged | - | - | - | → EPIC-003 |
 | [EPIC-009](EPIC-009-advanced-features.md) | Advanced Features | ⏳ TODO | LAAG | 5% | v2.0 | 0/6 |
 | [EPIC-010](EPIC-010-context-flow-refactoring.md) | Context Flow Refactoring | 🚨 KRITIEK | KRITIEK | 0% | v1.0.1 | 0/6 |
+| EPIC-011 | Documentatie Completering | ⏳ TODO | GEMIDDELD | 0% | v1.2 | 0/3 |
+| [EPIC-012](EPIC-012-legacy-orchestrator-refactoring.md) | Legacy Orchestrator Refactoring | ⏳ TODO | HOOG | 0% | v1.1 | 0/5 |
 
 ## Progress Metrics
 
@@ -47,8 +49,8 @@ Completed: ████████████░░░░░░░░ 40%
 
 ### By Prioriteit
 - **KRITIEK**: 1 epic (EPIC-010) - 0% complete 🚨
-- **HOOG**: 4 epics - Average 66% complete
-- **GEMIDDELD**: 1 epic - 30% complete
+- **HOOG**: 5 epics - Average 53% complete (incl. EPIC-012)
+- **GEMIDDELD**: 2 epics - 15% complete (incl. EPIC-011)
 - **LAAG**: 2 epics - 7.5% complete
 
 ### By Release
@@ -72,7 +74,9 @@ Completed: ████████████░░░░░░░░ 40%
 | EPIC-007 | 7 | 2 | 0 | 5 | 0 |
 | EPIC-009 | 6 | 0 | 0 | 6 | 0 |
 | EPIC-010 | 6 | 0 | 0 | 6 | 0 |
-| **TOTAL** | **46** | **21** | **0** | **25** | **0** |
+| EPIC-011 | 3 | 0 | 0 | 3 | 0 |
+| EPIC-012 | 5 | 0 | 0 | 5 | 0 |
+| **TOTAL** | **60** | **21** | **0** | **39** | **0** |
 
 ## Critical Items Requiring Attention
 

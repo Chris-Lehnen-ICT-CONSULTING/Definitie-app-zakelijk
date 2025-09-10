@@ -3,7 +3,9 @@ Title: Consolidate GenerationResult contract and eliminate legacy paths/assumpti
 Status: Open
 Severity: High
 Epic: EPIC-010 (Context Flow Refactoring)
+Related Epic: EPIC-012 (Legacy Orchestrator Refactoring)
 Owners: Architecture, Services, UI
+Resolution: Will be addressed by EPIC-012/US-062
 
 Beschrijving
 - Er bestaan meerdere definities en aanroepen rondom `GenerationResult`:
@@ -46,4 +48,6 @@ Acceptatiecriteria
 Referenties
 - CFR-BUG-007 (Validation AttributeError dict vs object)
 - EPIC-010 context: ADR‑005 Unified State Management en V2 service‑architectuur
+- EPIC-012: Legacy Orchestrator Refactoring - zal definitie_agent.py volledig refactoren
+- US-062: Refactor FeedbackBuilder - zal GenerationResult contract consolideren
 - Files: `src/services/interfaces.py`, `src/orchestration/definitie_agent.py`, `src/ui/components/definition_generator_tab.py`
