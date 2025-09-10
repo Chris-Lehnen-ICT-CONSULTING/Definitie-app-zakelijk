@@ -14,6 +14,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
+from config.feature_flags import FeatureFlags, show_legacy_warning
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 
@@ -28,6 +29,12 @@ class OrchestrationTab:
 
     def _init_orchestration_agent(self):
         """Initialiseer orchestration agent."""
+        # Check if legacy agent is enabled
+        if not FeatureFlags.ENABLE_LEGACY_AGENT.is_enabled():
+            self.DefinitieAgent = None
+            self.agent = None
+            return
+
         try:
             import sys
             from pathlib import Path
@@ -53,9 +60,20 @@ class OrchestrationTab:
 
     def render(self):
         """Render orchestration tab."""
+        # Check if legacy agent is enabled
+        if not FeatureFlags.ENABLE_LEGACY_AGENT.is_enabled():
+            st.info(
+                "ℹ️ The legacy orchestration tab is disabled. "
+                "Please use the main generation tab with V2 orchestrator."
+            )
+            return
+
         if not self.DefinitieAgent:
             st.error("❌ Orchestration Agent niet beschikbaar")
             return
+
+        # Show deprecation warning
+        show_legacy_warning("Orchestration Tab (Legacy DefinitieAgent)")
 
         st.markdown("### 🤖 Intelligente Definitie Orchestratie")
 

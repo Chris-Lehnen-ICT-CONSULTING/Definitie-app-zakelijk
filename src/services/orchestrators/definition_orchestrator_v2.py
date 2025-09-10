@@ -332,6 +332,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             voorbeelden = {}
             try:
+                from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
                 from voorbeelden import genereer_alle_voorbeelden
 
                 # Build context_dict for voorbeelden generation (V2-only fields)
@@ -340,6 +341,24 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "juridisch": sanitized_request.juridische_context or [],
                     "wettelijk": sanitized_request.wettelijke_basis or [],
                 }
+
+                # Debug logging point C - Before voorbeelden generation
+                if DEBUG_ENABLED:
+                    debug_gen_id = debugger.start_generation(
+                        begrip=sanitized_request.begrip,
+                        definitie=(
+                            generation_result.text
+                            if hasattr(generation_result, "text")
+                            else str(generation_result)
+                        ),
+                    )
+                    debugger.log_point(
+                        "C",
+                        debug_gen_id,
+                        context_keys=list(voorbeelden_context.keys()),
+                        orchestrator="V2",
+                    )
+                    debugger.log_session_state(debug_gen_id, "C")
 
                 # Generate voorbeelden using the cleaned text
                 voorbeelden = genereer_alle_voorbeelden(
@@ -351,6 +370,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     ),
                     context_dict=voorbeelden_context,
                 )
+
+                # Debug logging point C2 - After voorbeelden generation
+                if DEBUG_ENABLED:
+                    debugger.log_point(
+                        "C2",
+                        debug_gen_id,
+                        voorbeelden_types=list(voorbeelden.keys()),
+                        voorbeelden_counts={
+                            k: len(v) if isinstance(v, list) else 1
+                            for k, v in voorbeelden.items()
+                        },
+                    )
+                    debugger.log_session_state(debug_gen_id, "C2")
+
                 logger.info(
                     f"Generation {generation_id}: Voorbeelden generated ({len(voorbeelden)} types)"
                 )
@@ -358,6 +391,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 logger.warning(
                     f"Generation {generation_id}: Voorbeelden generation failed: {e}"
                 )
+                if DEBUG_ENABLED and "debug_gen_id" in locals():
+                    debugger.log_error(debug_gen_id, "C", e)
                 # Continue without voorbeelden
 
             # =====================================

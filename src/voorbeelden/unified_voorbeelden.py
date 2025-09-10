@@ -8,6 +8,7 @@ in één uniform interface voor alle typen voorbeelden.
 import asyncio  # Asynchrone programmering voor parallelle voorbeeld generatie
 import logging  # Logging faciliteiten voor debug en monitoring
 import re  # Reguliere expressies voor tekst processing
+import uuid
 from dataclasses import (  # Dataklassen voor gestructureerde request/response data
     dataclass,
 )
@@ -22,7 +23,6 @@ from config.config_manager import (
     get_component_config,  # Centrale component configuratie
 )
 from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
-from utils.cache import cached  # Caching decorator voor performance optimalisatie
 
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
 from utils.integrated_resilience import (  # Volledig resilience systeem
@@ -31,6 +31,14 @@ from utils.integrated_resilience import (  # Volledig resilience systeem
 from utils.smart_rate_limiter import (  # Smart rate limiting voor API calls
     RequestPriority,
 )
+from utils.voorbeelden_debug import (  # Debug logging voor voorbeelden flow
+    DEBUG_ENABLED,
+    debug_flow_point,
+    debugger,
+)
+from voorbeelden.robust_cache import (
+    get_robust_cache,
+)  # Robuuste cache voor voorbeelden
 
 logger = logging.getLogger(__name__)  # Logger instantie voor unified voorbeelden module
 
@@ -147,9 +155,24 @@ class UnifiedExamplesGenerator:
             # No event loop running, safe to use asyncio.run()
             return asyncio.run(coro)
 
+    @debug_flow_point("A")
     def generate_examples(self, request: ExampleRequest) -> ExampleResponse:
         """Generate examples based on request configuration."""
         start_time = datetime.now(UTC)
+
+        # Start debug tracking if enabled
+        generation_id = ""
+        if DEBUG_ENABLED:
+            generation_id = debugger.start_generation(
+                begrip=request.begrip, definitie=request.definitie
+            )
+            debugger.log_point(
+                "A",
+                generation_id,
+                example_type=request.example_type.value,
+                generation_mode=request.generation_mode.value,
+                max_examples=request.max_examples,
+            )
 
         # Get configuration for this example type if not specified
         config = self._get_config_for_type(request.example_type)
@@ -175,6 +198,20 @@ class UnifiedExamplesGenerator:
             self.generation_count += 1
             generation_time = (datetime.now(UTC) - start_time).total_seconds()
 
+            # Log successful generation
+            if DEBUG_ENABLED and generation_id:
+                debugger.log_point(
+                    "B",
+                    generation_id,
+                    examples_count=len(examples),
+                    generation_time=generation_time,
+                )
+                debugger.end_generation(
+                    generation_id,
+                    success=True,
+                    results={request.example_type.value: examples},
+                )
+
             return ExampleResponse(
                 examples=examples, success=True, generation_time=generation_time
             )
@@ -183,15 +220,29 @@ class UnifiedExamplesGenerator:
             self.error_count += 1
             logger.error(f"Example generation failed: {e}")
 
+            # Log error in debug
+            if DEBUG_ENABLED and generation_id:
+                debugger.log_error(generation_id, "A", e)
+                debugger.end_generation(generation_id, success=False)
+
             return ExampleResponse(examples=[], success=False, error_message=str(e))
 
     def _generate_sync(self, request: ExampleRequest) -> list[str]:
         """Synchronous example generation."""
         prompt = self._build_prompt(request)
-        
+
+        # Enhanced debug logging
+        if DEBUG_ENABLED:
+            generation_id = getattr(request, "generation_id", str(uuid.uuid4())[:8])
+            debugger.log_point(
+                "B", generation_id, method="sync", prompt_length=len(prompt)
+            )
+
         # Debug logging voor synoniemen/antoniemen
         if request.example_type in [ExampleType.SYNONIEMEN, ExampleType.ANTONIEMEN]:
-            logger.info(f"Generating {request.example_type} with prompt: {prompt[:200]}...")
+            logger.info(
+                f"Generating {request.example_type} with prompt: {prompt[:200]}..."
+            )
 
         try:
             # Run async method synchronously
@@ -203,11 +254,13 @@ class UnifiedExamplesGenerator:
                     max_tokens=2000,
                 )
             )
-            
+
             # Debug logging voor synoniemen/antoniemen response
             if request.example_type in [ExampleType.SYNONIEMEN, ExampleType.ANTONIEMEN]:
-                logger.info(f"Received {request.example_type} response: {response.text[:300]}...")
-            
+                logger.info(
+                    f"Received {request.example_type} response: {response.text[:300]}..."
+                )
+
             return self._parse_response(response.text, request.example_type)
         except Exception as e:
             msg = f"Synchronous generation failed: {e}"
@@ -230,11 +283,36 @@ class UnifiedExamplesGenerator:
             msg = f"Asynchronous generation failed: {e}"
             raise RuntimeError(msg) from e
 
-    # @cached(ttl=3600)  # TEMPORARY DISABLED - Cache issues with synoniemen/antoniemen
     def _generate_cached(self, request: ExampleRequest) -> list[str]:
-        """Cached example generation."""
-        # self.cache_hits += 1
-        return self._generate_sync(request)
+        """Cached example generation with robust cache keys."""
+        cache = get_robust_cache()
+
+        # Generate robust cache key
+        cache_key = cache.generate_robust_key(
+            example_type=request.example_type.value,
+            begrip=request.begrip,
+            definitie=request.definitie,
+            context_dict=request.context_dict,
+            max_examples=request.max_examples,
+            model=request.model,
+            temperature=request.temperature,
+        )
+
+        # Try to get from cache
+        cached_value = cache.get(cache_key)
+        if cached_value is not None:
+            self.cache_hits += 1
+            if DEBUG_ENABLED:
+                logger.debug(f"Cache hit for {request.example_type.value}")
+            return cached_value
+
+        # Generate new value
+        result = self._generate_sync(request)
+
+        # Store in cache (will use type-specific TTL)
+        cache.set(cache_key, result)
+
+        return result
 
     async def _generate_resilient(self, request: ExampleRequest) -> list[str]:
         """Resilient example generation with retry logic and rate limiting."""
@@ -467,7 +545,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
             # Debug logging
             logger.info(f"Parsing {example_type} response (length: {len(response)})")
             logger.debug(f"Raw response: {response[:500]}")
-            
+
             lines = response.strip().split("\n")
             examples = []
             for line in lines:
@@ -498,7 +576,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
                         )
                     else:
                         examples.append(cleaned)
-            
+
             logger.info(f"Parsed {len(examples)} {example_type} items: {examples}")
             return examples if examples else []
 

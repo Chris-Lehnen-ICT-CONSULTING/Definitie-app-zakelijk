@@ -936,11 +936,49 @@ class DefinitionGeneratorTab:
 
     def _render_voorbeelden_section(self, voorbeelden: dict[str, list[str]]):
         """Render sectie met gegenereerde voorbeelden."""
+        # Debug logging point D - Rendering voorbeelden in UI
+        try:
+            import uuid
+
+            from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
+
+            if DEBUG_ENABLED:
+                render_gen_id = str(uuid.uuid4())[:8]
+                debugger.log_point(
+                    "D",
+                    render_gen_id,
+                    location="definition_generator_tab._render_voorbeelden_section",
+                    voorbeelden_keys=list(voorbeelden.keys()) if voorbeelden else [],
+                    voorbeelden_counts=(
+                        {
+                            k: len(v) if isinstance(v, list) else 1
+                            for k, v in voorbeelden.items()
+                        }
+                        if voorbeelden
+                        else {}
+                    ),
+                )
+                debugger.log_session_state(render_gen_id, "D")
+        except ImportError:
+            # Debug module not available, continue without logging
+            pass
+
         st.markdown("#### 📚 Gegenereerde Content")
 
         # Debug: toon wat er exact in voorbeelden zit
         with st.expander("🔍 Debug: Voorbeelden Content", expanded=False):
             st.json(voorbeelden)
+
+            # Show debug status if enabled
+            try:
+                from utils.voorbeelden_debug import DEBUG_ENABLED
+
+                if DEBUG_ENABLED:
+                    st.info("📊 Debug logging enabled (DEBUG_EXAMPLES=true)")
+                    if "render_gen_id" in locals():
+                        st.caption(f"Generation ID: {render_gen_id}")
+            except ImportError:
+                pass
 
         # Voorbeeldzinnen
         voorbeeldzinnen = voorbeelden.get("voorbeeldzinnen", [])
