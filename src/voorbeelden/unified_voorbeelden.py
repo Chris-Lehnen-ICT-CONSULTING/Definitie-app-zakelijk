@@ -188,6 +188,10 @@ class UnifiedExamplesGenerator:
     def _generate_sync(self, request: ExampleRequest) -> list[str]:
         """Synchronous example generation."""
         prompt = self._build_prompt(request)
+        
+        # Debug logging voor synoniemen/antoniemen
+        if request.example_type in [ExampleType.SYNONIEMEN, ExampleType.ANTONIEMEN]:
+            logger.info(f"Generating {request.example_type} with prompt: {prompt[:200]}...")
 
         try:
             # Run async method synchronously
@@ -199,7 +203,12 @@ class UnifiedExamplesGenerator:
                     max_tokens=2000,
                 )
             )
-            return self._parse_response(response.text)
+            
+            # Debug logging voor synoniemen/antoniemen response
+            if request.example_type in [ExampleType.SYNONIEMEN, ExampleType.ANTONIEMEN]:
+                logger.info(f"Received {request.example_type} response: {response.text[:300]}...")
+            
+            return self._parse_response(response.text, request.example_type)
         except Exception as e:
             msg = f"Synchronous generation failed: {e}"
             raise RuntimeError(msg) from e
@@ -216,15 +225,15 @@ class UnifiedExamplesGenerator:
                 temperature=request.temperature,
                 max_tokens=1500,
             )
-            return self._parse_response(response.text)
+            return self._parse_response(response.text, request.example_type)
         except Exception as e:
             msg = f"Asynchronous generation failed: {e}"
             raise RuntimeError(msg) from e
 
-    @cached(ttl=3600)  # Cache for 1 hour
+    # @cached(ttl=3600)  # TEMPORARY DISABLED - Cache issues with synoniemen/antoniemen
     def _generate_cached(self, request: ExampleRequest) -> list[str]:
         """Cached example generation."""
-        self.cache_hits += 1
+        # self.cache_hits += 1
         return self._generate_sync(request)
 
     async def _generate_resilient(self, request: ExampleRequest) -> list[str]:
@@ -455,6 +464,10 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
             )
 
         if is_synonym_or_antonym:
+            # Debug logging
+            logger.info(f"Parsing {example_type} response (length: {len(response)})")
+            logger.debug(f"Raw response: {response[:500]}")
+            
             lines = response.strip().split("\n")
             examples = []
             for line in lines:
@@ -485,6 +498,8 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
                         )
                     else:
                         examples.append(cleaned)
+            
+            logger.info(f"Parsed {len(examples)} {example_type} items: {examples}")
             return examples if examples else []
 
         # Voor complexe voorbeelden met uitleg (praktijk/tegenvoorbeelden)
