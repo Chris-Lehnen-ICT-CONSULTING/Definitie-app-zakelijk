@@ -17,7 +17,7 @@ class PromptDebugSection:
     """Component voor het tonen en analyseren van AI prompts."""
 
     @staticmethod
-    def render(
+    def render(  # noqa: PLR0912, PLR0915
         generation_result: Any | None = None,
         voorbeelden_prompts: dict[str, str] | None = None,
     ):
@@ -58,7 +58,7 @@ class PromptDebugSection:
                         tab_name = "🔄 Synoniemen"
                     elif example_type == "antoniemen":
                         tab_name = "↔️ Antoniemen"
-                    elif example_type == "toelichting" or example_type == "toelichting":
+                    elif example_type == "toelichting":
                         tab_name = "💡 Toelichting"
                     else:
                         tab_name = f"📌 {example_type.title()}"
@@ -103,23 +103,24 @@ class PromptDebugSection:
                         )
 
                         # Context metadata alleen voor definitie generatie
-                        if "Definitie Generatie" in tab_name and generation_result:
-                            if (
-                                hasattr(generation_result, "context")
-                                and generation_result.context
-                            ):
-                                st.markdown("##### 📊 Context Metadata")
-                                context_dict = {
-                                    "begrip": generation_result.context.begrip,
-                                    "organisatorische_context": generation_result.context.organisatorische_context,
-                                    "juridische_context": generation_result.context.juridische_context,
-                                    "categorie": (
-                                        generation_result.context.categorie.value
-                                        if generation_result.context.categorie
-                                        else None
-                                    ),
-                                }
-                                st.json(context_dict)
+                        if (
+                            "Definitie Generatie" in tab_name
+                            and generation_result
+                            and hasattr(generation_result, "context")
+                            and generation_result.context
+                        ):
+                            st.markdown("##### 📊 Context Metadata")
+                            context_dict = {
+                                "begrip": generation_result.context.begrip,
+                                "organisatorische_context": generation_result.context.organisatorische_context,
+                                "juridische_context": generation_result.context.juridische_context,
+                                "categorie": (
+                                    generation_result.context.categorie.value
+                                    if generation_result.context.categorie
+                                    else None
+                                ),
+                            }
+                            st.json(context_dict)
             else:
                 st.info("Geen prompt informatie beschikbaar voor deze generatie.")
 
@@ -188,6 +189,7 @@ def capture_voorbeelden_prompts(
         Dictionary met prompts per voorbeeld type
     """
     from voorbeelden.unified_voorbeelden import (
+        DEFAULT_EXAMPLE_COUNTS,
         ExampleRequest,
         ExampleType,
         UnifiedExamplesGenerator,
@@ -196,13 +198,14 @@ def capture_voorbeelden_prompts(
     generator = UnifiedExamplesGenerator()
     prompts = {}
 
-    # Capture prompts voor elk type
+    # Capture prompts voor elk type met de juiste aantallen
     for example_type in ExampleType:
         request = ExampleRequest(
             begrip=begrip,
             definitie=definitie,
             context_dict=context_dict,
             example_type=example_type,
+            max_examples=DEFAULT_EXAMPLE_COUNTS[example_type.value],
         )
 
         # Build prompt zonder het daadwerkelijk uit te voeren
