@@ -1,0 +1,14 @@
+
+Geef 3 tegenvoorbeelden die NIET onder het begrip 'prompttesting' vallen,
+maar wel relevant zijn voor de gegeven context.
+
+Definitie: - Ontologische categorie: proces
+Evaluatieproces waarbij een tekstinstructie systematisch wordt getest op consistentie, reproduceerbaarheid en functionaliteit door gestructureerde invoer en analyse van de gegenereerde uitvoer.
+
+Context:
+Organisatorisch: OM, een prompt
+Juridisch: Strafrecht, met context
+Wettelijk: Wetboek van Strafvordering (huidig), werkt wel
+
+Geef voorbeelden uit dezelfde organisatie/domein die lijken op 'prompttesting' maar er niet
+onder vallen. Leg kort uit waarom deze voorbeelden niet onder de definitie vallen.

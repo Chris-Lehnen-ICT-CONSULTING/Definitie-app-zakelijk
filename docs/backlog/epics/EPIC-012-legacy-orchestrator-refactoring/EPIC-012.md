@@ -62,13 +62,28 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 | US-063 | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
 | US-064 | Consolideer orchestration logica | HIGH | 8 | TODO |
 | US-065 | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
+| **Nieuwe Stories (2025-01-10):** | | | | |
+| [US-066](./US-066/US-066.md) | Verwijder Legacy DefinitieAgent uit Integratie/UI | HIGH | 5 | TODO |
+| [US-067](./US-067/US-067.md) | ServiceFactory Stateless Maken | HIGH | 3 | TODO |
+| [US-068](./US-068/US-068.md) | Verwijder Domein Restanten | MEDIUM | 3 | TODO |
+| [US-069](./US-069/US-069.md) | Archiveer V1 Orchestrator | MEDIUM | 8 | TODO |
+| [US-070](./US-070/US-070.md) | Refactor Category State Manager | MEDIUM | 3 | TODO |
 
-**Totaal Story Points**: 29
+**Totaal Story Points**: 51 (was 29)
 
 ## Dependencies
 - Geen externe dependencies
 - V2 orchestrator moet volledig functioneel zijn (✅ compleet)
 - Alle tests moeten groen zijn voor start
+- EPIC-010 fixes moeten eerst geïmplementeerd zijn voor consistente context flow
+
+## Relatie met EPIC-010
+De nieuwe user stories (US-066 t/m US-070) zijn geïdentificeerd tijdens de EPIC-010 analyse:
+- **US-066**: Lost inconsistente context/voorbeelden flow op door DefinitieAgent te verwijderen
+- **US-067**: Garandeert stateless services principe van EPIC-010
+- **US-068**: Verwijdert verwarring rond context model (domein vs moderne velden)
+- **US-069**: Consolideert orchestration naar V2-only
+- **US-070**: Scheidt UI concerns van service layer
 
 ## Risks & Mitigations
 
