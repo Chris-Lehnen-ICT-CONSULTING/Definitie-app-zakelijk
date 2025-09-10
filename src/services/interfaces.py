@@ -38,11 +38,26 @@ class ValidationDetailsDict(TypedDict):
 
 
 class VoorbeeldenDict(TypedDict):
-    """Canonical examples format for V2 contract."""
+    """Canonical examples format for V2 contract.
 
-    juridisch: list[str]
-    praktijk: list[str]
+    REFACTORED: Semantisch correcte namen voor voorbeelden types.
+    - voorbeeldzinnen: was "juridisch" - algemene voorbeeldzinnen
+    - praktijkvoorbeelden: was "praktijk" - concrete praktijksituaties
+    - tegenvoorbeelden: wat het NIET is
+    - synoniemen: alternatieve termen (kan leeg zijn)
+    - antoniemen: tegengestelde termen (kan leeg zijn)
+    - toelichting: uitgebreide uitleg (kan leeg zijn)
+
+    BUSINESSLOGICA: Alle velden worden ALTIJD gegenereerd door unified_voorbeelden.py
+    maar kunnen lege waarden bevatten als er geen relevante content is.
+    """
+
+    voorbeeldzinnen: list[str]  # Was "juridisch"
+    praktijkvoorbeelden: list[str]  # Was "praktijk"
     tegenvoorbeelden: list[str]
+    synoniemen: list[str]  # Altijd aanwezig, kan leeg zijn
+    antoniemen: list[str]  # Altijd aanwezig, kan leeg zijn
+    toelichting: str  # Altijd aanwezig, kan leeg zijn
 
 
 class MetadataDict(TypedDict, total=False):
