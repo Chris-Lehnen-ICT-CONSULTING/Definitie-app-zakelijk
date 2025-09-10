@@ -19,10 +19,10 @@ from datetime import (  # Datum en tijd functionaliteit voor timestamps, timezon
 from enum import Enum  # Enumeraties voor voorbeeld types en modi
 from typing import Any  # Type hints voor betere code documentatie
 
-from config.config_manager import (
+from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
+from src.config.config_manager import (
     get_component_config,  # Centrale component configuratie
 )
-from services.ai_service_v2 import AIServiceV2  # V2 AI service interface
 
 # Importeer resilience en caching systemen voor robuuste voorbeeld generatie
 from utils.integrated_resilience import (  # Volledig resilience systeem
@@ -251,7 +251,7 @@ class UnifiedExamplesGenerator:
                     prompt=prompt,
                     model=request.model,
                     temperature=request.temperature,
-                    max_tokens=2000,
+                    max_tokens=2000,  # Consistent across sync and async
                 )
             )
 
@@ -268,20 +268,74 @@ class UnifiedExamplesGenerator:
 
     async def _generate_async(self, request: ExampleRequest) -> list[str]:
         """Asynchronous example generation."""
-        prompt = self._build_prompt(request)
+        # Voor synoniemen/antoniemen: gebruik retry logic
+        if request.example_type in [ExampleType.SYNONIEMEN, ExampleType.ANTONIEMEN]:
+            return await self._generate_with_retry(request)
 
+        # Voor andere types: normale generatie
+        prompt = self._build_prompt(request)
         try:
-            # Direct async call to V2 service
             response = await self.ai_service.generate_definition(
                 prompt=prompt,
                 model=request.model,
                 temperature=request.temperature,
-                max_tokens=1500,
+                max_tokens=2000,  # Consistent met sync versie
             )
             return self._parse_response(response.text, request.example_type)
         except Exception as e:
             msg = f"Asynchronous generation failed: {e}"
             raise RuntimeError(msg) from e
+
+    async def _generate_with_retry(
+        self, request: ExampleRequest, max_retries: int = 1
+    ) -> list[str]:
+        """Generate met retry logic voor synoniemen/antoniemen."""
+        for attempt in range(max_retries + 1):
+            prompt = self._build_prompt(request)
+
+            # Voeg extra instructie toe bij retry
+            if attempt > 0 and hasattr(request, "extra_instruction"):
+                prompt += f"\n\n{request.extra_instruction}"
+
+            try:
+                response = await self.ai_service.generate_definition(
+                    prompt=prompt,
+                    model=request.model,
+                    temperature=request.temperature,
+                    max_tokens=2000,
+                )
+                result = self._parse_response(response.text, request.example_type)
+
+                expected = request.max_examples
+
+                # Trim excess items
+                if len(result) > expected:
+                    logger.info(f"Trimming {len(result)} items to {expected}")
+                    return result[:expected]
+
+                # Accept on last attempt or if we have enough
+                if len(result) >= expected or attempt == max_retries:
+                    if len(result) < expected:
+                        logger.warning(
+                            f"Accepting {len(result)}/{expected} {request.example_type} "
+                            f"after {attempt + 1} attempts"
+                        )
+                    return result
+
+                # Prepare for retry
+                request.extra_instruction = (
+                    f"Je gaf {len(result)} items, maar er zijn EXACT {expected} nodig. "
+                    f"Geef PRECIES {expected} items."
+                )
+                logger.info(f"Retry {attempt + 1}: Got {len(result)}/{expected} items")
+
+            except Exception as e:
+                if attempt == max_retries:
+                    msg = f"Generation failed after {max_retries + 1} attempts: {e}"
+                    raise RuntimeError(msg) from e
+                logger.warning(f"Attempt {attempt + 1} failed: {e}")
+
+        return []  # Should never reach here
 
     def _generate_cached(self, request: ExampleRequest) -> list[str]:
         """Cached example generation with robust cache keys."""
@@ -482,14 +536,30 @@ onder vallen. Leg kort uit waarom deze voorbeelden niet onder de definitie valle
 """
 
         if request.example_type == ExampleType.SYNONIEMEN:
-            return f"""Geef EXACT {request.max_examples} synoniemen of verwante termen voor '{begrip}'
-BELANGRIJK: Geef PRECIES {request.max_examples} synoniemen, niet meer en niet minder.
-Geef alleen de synoniemen, elk op een nieuwe regel, zonder nummering of bullets."""
+            return f"""Voor het begrip '{begrip}' met de volgende definitie:
+{definitie}
+
+Context: {context_text if context_text else 'Algemeen juridisch'}
+
+Geef EXACT {request.max_examples} synoniemen of verwante termen.
+BELANGRIJK:
+- PRECIES {request.max_examples} items, niet meer en niet minder
+- Één synoniem per regel
+- GEEN nummering, bullets, streepjes of andere formatting
+- Als er geen {request.max_examples} perfecte synoniemen zijn, gebruik verwante termen"""
 
         if request.example_type == ExampleType.ANTONIEMEN:
-            return f"""Geef EXACT {request.max_examples} antoniemen of tegengestelde termen voor '{begrip}'
-BELANGRIJK: Geef PRECIES {request.max_examples} antoniemen, niet meer en niet minder.
-Geef alleen de antoniemen, elk op een nieuwe regel, zonder nummering of bullets."""
+            return f"""Voor het begrip '{begrip}' met de volgende definitie:
+{definitie}
+
+Context: {context_text if context_text else 'Algemeen juridisch'}
+
+Geef EXACT {request.max_examples} antoniemen of tegengestelde termen.
+BELANGRIJK:
+- PRECIES {request.max_examples} items, niet meer en niet minder
+- Één antoniem per regel
+- GEEN nummering, bullets, streepjes of andere formatting
+- Als er geen {request.max_examples} perfecte antoniemen zijn, gebruik contrasterende termen"""
 
         if request.example_type == ExampleType.TOELICHTING:
             return f"""
