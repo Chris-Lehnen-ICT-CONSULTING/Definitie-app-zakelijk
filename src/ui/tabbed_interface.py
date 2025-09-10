@@ -808,9 +808,11 @@ class TabbedInterface:
                 if hasattr(self, "definition_service") and hasattr(
                     self.definition_service, "get_service_info"
                 ):
-                    # Gebruik de V2 service voor generatie - TIJDELIJK via service method
-                    # TODO: Migreer naar ui.helpers.async_bridge in volgende fase
-                    service_result = self.definition_service.generate_definition_sync(
+                    # Gebruik async_bridge voor sync-to-async conversie
+                    from ui.helpers.async_bridge import generate_definition_sync
+
+                    service_result = generate_definition_sync(
+                        self.definition_service,
                         begrip=begrip,
                         context_dict={
                             "organisatorisch": org_context,

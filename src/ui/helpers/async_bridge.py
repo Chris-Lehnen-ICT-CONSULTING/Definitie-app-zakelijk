@@ -131,15 +131,15 @@ def create_async_callback(coro_func):
 
 # Service-specific wrappers for UI usage
 def generate_definition_sync(
-    service_factory, begrip: str, context_dict: dict, **kwargs
+    service_adapter, begrip: str, context_dict: dict, **kwargs
 ):
     """Sync wrapper for generating definitions from UI.
 
-    This wraps the async generate_definition method from ServiceFactory
+    This wraps the async generate_definition method from ServiceAdapter
     for use in synchronous UI code.
 
     Args:
-        service_factory: The ServiceFactory instance
+        service_adapter: The ServiceAdapter instance (from get_definition_service)
         begrip: Term to define
         context_dict: Context dictionary
         **kwargs: Additional arguments
@@ -147,9 +147,16 @@ def generate_definition_sync(
     Returns:
         Definition response dictionary
     """
+    from config.rate_limit_config import get_endpoint_timeout
+
+    # Gebruik endpoint-specifieke timeout uit rate_limit_config
+    timeout = get_endpoint_timeout("definition_generation")
+    logger.debug(f"Using timeout of {timeout}s for definition generation")
+
+    # ServiceAdapter.generate_definition is async, dus we gebruiken run_async
     return run_async(
-        service_factory.generate_definition(begrip, context_dict, **kwargs),
-        timeout=30,  # 30 second timeout for definition generation
+        service_adapter.generate_definition(begrip, context_dict, **kwargs),
+        timeout=timeout,
     )
 
 
