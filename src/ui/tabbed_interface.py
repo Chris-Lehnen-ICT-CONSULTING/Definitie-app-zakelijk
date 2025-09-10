@@ -19,6 +19,7 @@ from typing import Any  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit web interface framework
 
+from config.feature_flags import FeatureFlags  # Feature flags voor legacy routes
 from database.definitie_repository import (  # Database toegang factory
     get_definitie_repository,
 )
@@ -143,8 +144,15 @@ class TabbedInterface:
         self.external_tab = ExternalSourcesTab(self.repository)
         self.monitoring_tab = MonitoringTab(self.repository)
         self.web_lookup_tab = WebLookupTab(self.repository)
-        # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
-        # self.orchestration_tab = OrchestrationTab(self.repository)
+        # Legacy OrchestrationTab - alleen laden als feature flag aan staat
+        self.orchestration_tab = None
+        if FeatureFlags.ENABLE_LEGACY_TAB.is_enabled():
+            try:
+                from ui.components.orchestration_tab import OrchestrationTab
+
+                self.orchestration_tab = OrchestrationTab(self.repository)
+            except ImportError:
+                st.warning("OrchestrationTab module not available")
         self.management_tab = ManagementTab(self.repository)
 
         # Tab configuration
@@ -918,7 +926,7 @@ class TabbedInterface:
                     contexten = {
                         "organisatorisch": org_context,
                         "juridisch": jur_context,
-                        "wettelijk": context_data.get("wettelijke_basis", []),
+                        "wettelijk": wet_context,  # Use harmonized wet_context variable
                     }
 
                     definitie_text = agent_result.get("definitie_gecorrigeerd", "")
@@ -1212,8 +1220,23 @@ class TabbedInterface:
             f"🔍 DEBUG: Creating tabs... Available tabs: {list(self.tab_config.keys())}"
         )
 
-        # Create tabs
+        # Create tabs - dynamically add legacy tabs based on feature flags
         tab_keys = list(self.tab_config.keys())
+
+        # Add legacy orchestration tab if enabled
+        if FeatureFlags.ENABLE_LEGACY_TAB.is_enabled() and self.orchestration_tab:
+            # Find position after export tab
+            export_index = (
+                tab_keys.index("export") if "export" in tab_keys else len(tab_keys)
+            )
+            tab_keys.insert(export_index + 1, "orchestration")
+            # Add temporary config for orchestration tab
+            self.tab_config["orchestration"] = {
+                "title": "🎭 Orchestration (Legacy)",
+                "icon": "🎭",
+                "description": "Legacy orchestratie - deprecated",
+            }
+
         tab_titles = [self.tab_config[key]["title"] for key in tab_keys]
 
         st.info(f"🔍 DEBUG: Tab titles: {tab_titles}")
@@ -1274,9 +1297,12 @@ class TabbedInterface:
                 self.monitoring_tab.render()
             elif tab_key == "web_lookup":
                 self.web_lookup_tab.render()
-            # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
-            # elif tab_key == "orchestration":
-            #     self.orchestration_tab.render()
+            elif tab_key == "orchestration":
+                # Legacy orchestration tab - only if enabled and loaded
+                if self.orchestration_tab:
+                    self.orchestration_tab.render()
+                else:
+                    st.info("Legacy orchestration tab is not available.")
             elif tab_key == "management":
                 self.management_tab.render()
         except Exception as e:
