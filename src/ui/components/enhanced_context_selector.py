@@ -14,7 +14,7 @@ from config.context_options import (
     LEGAL_DOMAINS,
     ORGANIZATIONS as ASTRA_ORGANIZATIONS,
 )
-from services.context.context_adapter import get_context_adapter
+from ui.helpers.context_adapter import get_context_adapter
 
 
 @dataclass

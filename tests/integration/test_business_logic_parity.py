@@ -78,8 +78,7 @@ class TestBusinessLogicParity:
             request = GenerationRequest(
                 id=str(uuid.uuid4()),
                 begrip=test_case['begrip'],
-                context="Test",
-                domein="Test"
+                context="Test"
             )
             legacy_result = legacy_service.generate_definition(
                 begrip=test_case['begrip'],
@@ -390,7 +389,7 @@ class TestDataFormatCompatibility:
             'begrip': 'test',
             'definitie': 'Test definitie',
             'context': 'Test context',
-            'domein': 'Test domein',
+            # 'domein': 'Test domein'  # removed per US-043,
             'synoniemen': ['syn1', 'syn2'],
             'voorbeelden': ['vb1', 'vb2']
         }
@@ -401,7 +400,6 @@ class TestDataFormatCompatibility:
             begrip='test',
             definitie='Test definitie',
             context='Test context',
-            domein='Test domein',
             synoniemen=['syn1', 'syn2'],
             voorbeelden=['vb1', 'vb2']
         )

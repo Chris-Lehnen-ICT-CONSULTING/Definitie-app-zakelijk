@@ -39,7 +39,7 @@ status: Partially Complete
 - **/tests/conftest.py** - Global pytest configuration
   - Auto-import of V2 mocks
   - Test markers (unit, integration, smoke, etc.)
-  - Auto-exclusion of US-041/042/043 tests
+  - Auto-exclusion of US-043 tests (US-041/042 actief)
   - Performance benchmarking fixtures
   - Environment mocking
 
@@ -64,8 +64,8 @@ status: Partially Complete
 **Total: ~64+ tests passing**
 
 ### Excluded Tests (TDD for future features)
-- ❌ 75 tests for US-041/042/043 (Context flow - not implemented)
-- These are properly excluded via conftest.py
+- ❌ US-043 (Legacy context routes) — context cleanup nog niet geïmplementeerd
+- Deze zijn uitgesloten via conftest.py; US-041/042 tests zijn actief
 
 ### Tests Needing Fixes
 - ⚠️ Orchestrator tests (timeout issues)

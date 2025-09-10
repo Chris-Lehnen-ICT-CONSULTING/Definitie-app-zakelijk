@@ -10,8 +10,8 @@ from typing import Any
 
 import streamlit as st
 
-from services.context.context_adapter import get_context_adapter
 from services.service_factory import get_definition_service
+from ui.helpers.context_adapter import get_context_adapter
 from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)

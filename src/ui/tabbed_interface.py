@@ -8,6 +8,7 @@ met ondersteuning voor meerdere tabs en complete workflow beheer.
 """
 
 import asyncio  # Asynchrone programmering voor ontologische analyse
+import os
 from datetime import (
     UTC,
     datetime,  # Datum en tijd functionaliteit
@@ -37,7 +38,7 @@ from integration.definitie_checker import (  # Definitie integratie controle
 )
 
 # Nieuwe services imports
-from services import get_definition_service, render_feature_flag_toggle
+from services import get_definition_service
 from services.regeneration_service import RegenerationService
 from ui.components.context_state_cleaner import init_context_cleaner
 from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie generatie
@@ -479,6 +480,8 @@ class TabbedInterface:
             st.markdown("### ⚙️ Instellingen")
 
             # Feature flag toggle voor nieuwe services
+            from ui.helpers.feature_toggle import render_feature_flag_toggle
+
             render_feature_flag_toggle()
 
             # UI debug markers toggle
@@ -805,7 +808,8 @@ class TabbedInterface:
                 if hasattr(self, "definition_service") and hasattr(
                     self.definition_service, "get_service_info"
                 ):
-                    # Gebruik de V2 service voor generatie - nu sync interface
+                    # Gebruik de V2 service voor generatie - TIJDELIJK via service method
+                    # TODO: Migreer naar ui.helpers.async_bridge in volgende fase
                     service_result = self.definition_service.generate_definition_sync(
                         begrip=begrip,
                         context_dict={
@@ -870,6 +874,31 @@ class TabbedInterface:
                     except Exception as e:
                         logger.warning(f"Could not capture example prompts: {e}")
 
+                # Debug logging point C - Pre-store
+                if os.getenv("DEBUG_EXAMPLES"):
+                    logger.info(
+                        "[EXAMPLES-C] Pre-store | gen_id=%s | voorbeelden=%s | counts=%s",
+                        (
+                            agent_result.get("metadata", {}).get("generation_id")
+                            if isinstance(agent_result, dict)
+                            else "NO_ID"
+                        ),
+                        (
+                            "present"
+                            if isinstance(agent_result, dict)
+                            and agent_result.get("voorbeelden")
+                            else "missing"
+                        ),
+                        {
+                            k: len(v) if isinstance(v, (list, str)) else "INVALID"
+                            for k, v in (
+                                agent_result.get("voorbeelden", {})
+                                if isinstance(agent_result, dict)
+                                else {}
+                            ).items()
+                        },
+                    )
+
                 # Store results voor display in tabs
                 SessionStateManager.set_value(
                     "last_generation_result",
@@ -887,6 +916,25 @@ class TabbedInterface:
                         "regeneration_used": regeneration_context is not None,
                     },
                 )
+
+                # Debug logging point C2 - Post-store
+                if os.getenv("DEBUG_EXAMPLES"):
+                    stored = SessionStateManager.get_value("last_generation_result", {})
+                    stored_agent_result = stored.get("agent_result", {})
+                    logger.info(
+                        "[EXAMPLES-C2] Post-store | gen_id=%s | stored.voorbeelden=%s",
+                        (
+                            stored_agent_result.get("metadata", {}).get("generation_id")
+                            if isinstance(stored_agent_result, dict)
+                            else "NO_ID"
+                        ),
+                        (
+                            "present"
+                            if isinstance(stored_agent_result, dict)
+                            and stored_agent_result.get("voorbeelden")
+                            else "missing"
+                        ),
+                    )
 
                 # Clear regeneration context after successful generation (GVI cleanup)
                 if regeneration_context:

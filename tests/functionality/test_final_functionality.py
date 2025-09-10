@@ -19,8 +19,7 @@ load_dotenv()
 if not os.getenv("OPENAI_API_KEY"):
     pytest.skip(
         "OPENAI_API_KEY not set; skipping final functionality tests requiring external API",
-        allow_module_level=True,
-    )
+        allow_module_level=True)
 
 from voorbeelden.unified_voorbeelden import (
     genereer_synoniemen, genereer_antoniemen, genereer_alle_voorbeelden,
@@ -158,7 +157,6 @@ async def test_definition_generation():
         id=str(uuid.uuid4()),
         begrip="recidive",
         context="Reclassering Nederland",
-        domein="Strafrecht",
         ontologische_categorie="PROCES"
     )
 

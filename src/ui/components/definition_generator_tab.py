@@ -4,6 +4,7 @@ Definition Generator Tab - Main AI definition generation interface.
 """
 
 import logging
+import os
 from datetime import UTC
 
 UTC = UTC  # Python 3.10 compatibility
@@ -321,6 +322,23 @@ class DefinitionGeneratorTab:
             # Voorbeelden sectie - direct vanuit agent_result tonen, GEEN session state!
             try:
                 voorbeelden = agent_result.get("voorbeelden", {})
+
+                # Debug logging point D - UI render
+                if os.getenv("DEBUG_EXAMPLES"):
+                    logger.info(
+                        "[EXAMPLES-D] UI-render | gen_id=%s | voorbeelden=%s | counts=%s",
+                        (
+                            agent_result.get("metadata", {}).get("generation_id")
+                            if isinstance(agent_result, dict)
+                            else "NO_ID"
+                        ),
+                        "present" if voorbeelden else "missing",
+                        {
+                            k: len(v) if isinstance(v, (list, str)) else "INVALID"
+                            for k, v in (voorbeelden or {}).items()
+                        },
+                    )
+
                 if voorbeelden:
                     self._render_voorbeelden_section(voorbeelden)
                 else:
@@ -1310,6 +1328,7 @@ class DefinitionGeneratorTab:
 
             from domain.ontological_categories import OntologischeCategorie
 
+            # TODO: Migreer naar ui.helpers.async_bridge in volgende fase
             service_result = definition_service.generate_definition_sync(
                 begrip=begrip,
                 context_dict=context_dict,
