@@ -6,8 +6,6 @@ Definition Generator Tab - Main AI definition generation interface.
 import logging
 import os
 from datetime import UTC
-
-UTC = UTC  # Python 3.10 compatibility
 from typing import Any
 
 import streamlit as st
@@ -1328,8 +1326,11 @@ class DefinitionGeneratorTab:
 
             from domain.ontological_categories import OntologischeCategorie
 
-            # TODO: Migreer naar ui.helpers.async_bridge in volgende fase
-            service_result = definition_service.generate_definition_sync(
+            # Gebruik async_bridge voor sync-to-async conversie
+            from ui.helpers.async_bridge import generate_definition_sync
+
+            service_result = generate_definition_sync(
+                definition_service,
                 begrip=begrip,
                 context_dict=context_dict,
                 organisatie=generation_result.get("organisatie", ""),
