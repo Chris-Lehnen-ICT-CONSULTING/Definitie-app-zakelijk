@@ -367,22 +367,31 @@ class ContextAwarenessModule(BasePromptModule):
 
     def _share_traditional_context(self, context: ModuleContext) -> None:
         """
-        Deel traditionele org/domain context voor andere modules (backwards compatibility).
+        Deel alle actieve context types voor andere modules.
+
+        EPIC-010: Harmonisatie van context handling
+        - Verwijderd: legacy 'domein' field (gebruik juridische_context)
+        - Toegevoegd: juridical_contexts en legal_basis_contexts sharing
 
         Args:
             context: Module context
         """
         base_context = context.enriched_context.base_context
 
-        # Extract traditionele contexten
+        # Extract alle ACTIEVE contexten (domein is legacy en wordt niet meer gebruikt)
         org_contexts = self._extract_contexts(base_context.get("organisatorisch"))
-        domain_contexts = self._extract_contexts(base_context.get("domein"))
+        jur_contexts = self._extract_contexts(base_context.get("juridisch"))
+        wet_contexts = self._extract_contexts(base_context.get("wettelijk"))
 
-        # Deel voor andere modules (zoals ErrorPreventionModule)
+        # Deel alle actieve contexten voor andere modules
         if org_contexts:
             context.set_shared("organization_contexts", org_contexts)
-        if domain_contexts:
-            context.set_shared("domain_contexts", domain_contexts)
+        if jur_contexts:
+            context.set_shared("juridical_contexts", jur_contexts)
+        if wet_contexts:
+            context.set_shared("legal_basis_contexts", wet_contexts)
+
+        # Legacy domein wordt NIET meer gedeeld (EPIC-010)
 
     def _extract_contexts(self, context_value: Any) -> list[str]:
         """

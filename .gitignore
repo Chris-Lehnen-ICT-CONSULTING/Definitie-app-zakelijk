@@ -123,6 +123,7 @@ uploads/
 # 💚 Database duplicates
 /definities.db
 /test.db
+data/definities.db
 *.db-shm
 *.db-wal
 

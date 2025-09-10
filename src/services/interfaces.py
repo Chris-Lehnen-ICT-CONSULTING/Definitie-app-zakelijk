@@ -131,7 +131,7 @@ class GenerationRequest:
     begrip: str  # Het begrip waarvoor een definitie gegenereerd wordt
     # DEPRECATED (EPIC-010): use list-based fields; kept for legacy callers until full removal
     context: str | None = None  # Contextuele informatie (legacy)
-    domein: str | None = None  # Juridisch domein (bijv. "Belasting", "Milieu")
+    # REMOVED (EPIC-010): domein field removed - use juridische_context instead
     organisatie: str | None = None  # Verantwoordelijke organisatie
     extra_instructies: str | None = None  # Specifieke instructies van gebruiker
     ontologische_categorie: str | None = (
@@ -165,7 +165,7 @@ class Definition:
     bron: str | None = None  # Juridische bron (wet, artikel, jurisprudentie)
     # DEPRECATED (EPIC-010): maintain for UI compatibility only; prefer list-based context fields in requests
     context: str | None = None  # Specifieke context (legacy)
-    domein: str | None = None  # Juridisch domein (bijv. belastingrecht)
+    # REMOVED (EPIC-010): domein field removed - use juridische_context from request
     synoniemen: list[str] | None = None  # Alternatieve benamingen voor hetzelfde begrip
     gerelateerde_begrippen: list[str] | None = (
         None  # Begrippen die inhoudelijk gerelateerd zijn

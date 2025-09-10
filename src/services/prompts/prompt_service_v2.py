@@ -259,8 +259,7 @@ class PromptServiceV2:
             )
 
         # Legacy velden
-        if request.domein:
-            extend_unique([request.domein], base_context["domein"])
+        # EPIC-010: domein field verwijderd - gebruik juridische_context
         # Gebruik legacy vrije context enkel als de nieuwe velden leeg zijn
         # EPIC-010: Do not fallback to legacy string request.context
         # All context must be provided via the list fields above.

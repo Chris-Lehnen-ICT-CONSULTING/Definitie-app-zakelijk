@@ -73,8 +73,10 @@ class ErrorPreventionModule(BasePromptModule):
         """
         try:
             # Haal context informatie op van ContextAwarenessModule
+            # EPIC-010: Gebruik alle 3 actieve context types (domein is legacy)
             org_contexts = context.get_shared("organization_contexts", [])
-            domain_contexts = context.get_shared("domain_contexts", [])
+            jur_contexts = context.get_shared("juridical_contexts", [])
+            wet_contexts = context.get_shared("legal_basis_contexts", [])
 
             # Bouw secties
             sections = []
@@ -91,7 +93,7 @@ class ErrorPreventionModule(BasePromptModule):
 
             # Context-specifieke verboden
             context_forbidden = self._build_context_forbidden(
-                org_contexts, domain_contexts
+                org_contexts, jur_contexts, wet_contexts
             )
             if context_forbidden:
                 sections.append("\n### 🚨 CONTEXT-SPECIFIEKE VERBODEN:")
@@ -112,7 +114,9 @@ class ErrorPreventionModule(BasePromptModule):
             return ModuleOutput(
                 content=content,
                 metadata={
-                    "context_forbidden_count": len(org_contexts) + len(domain_contexts),
+                    "context_forbidden_count": len(org_contexts)
+                    + len(jur_contexts)
+                    + len(wet_contexts),
                     "include_matrix": self.include_validation_matrix,
                     "extended_list": self.extended_forbidden_list,
                 },
@@ -190,14 +194,15 @@ class ErrorPreventionModule(BasePromptModule):
         return [f"- ❌ Start niet met '{starter}'" for starter in forbidden_starters]
 
     def _build_context_forbidden(
-        self, org_contexts: list[str], domain_contexts: list[str]
+        self, org_contexts: list[str], jur_contexts: list[str], wet_contexts: list[str]
     ) -> list[str]:
         """
         Bouw context-specifieke verboden.
 
         Args:
             org_contexts: Organisatorische contexten
-            domain_contexts: Domein contexten
+            jur_contexts: Juridische contexten
+            wet_contexts: Wettelijke basis contexten
 
         Returns:
             Lijst met context-specifieke verboden
@@ -228,10 +233,16 @@ class ErrorPreventionModule(BasePromptModule):
                     f"- Gebruik de term '{org_mappings[org]}' of een variant daarvan niet letterlijk in de definitie."
                 )
 
-        # Domein context verboden
-        for domein in domain_contexts:
+        # Juridische context verboden
+        for jur in jur_contexts:
             forbidden.append(
-                f"- Vermijd expliciete vermelding van domein '{domein}' in de definitie."
+                f"- Vermijd expliciete vermelding van juridisch context '{jur}' in de definitie."
+            )
+
+        # Wettelijke basis verboden
+        for wet in wet_contexts:
+            forbidden.append(
+                f"- Vermijd expliciete vermelding van wetboek '{wet}' in de definitie."
             )
 
         return forbidden

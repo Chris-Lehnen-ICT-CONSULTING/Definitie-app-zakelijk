@@ -106,7 +106,7 @@ class DefinitieGenerator:
             request = GenerationRequest(
                 begrip=generation_context.begrip,
                 context=generation_context.organisatorische_context,  # Legacy fallback
-                domein=generation_context.juridische_context,  # Legacy fallback
+                # EPIC-010: domein field verwijderd - gebruik juridische_context
                 organisatie=generation_context.organisatorische_context,
                 extra_instructies=self._format_feedback_history(
                     generation_context.feedback_history
