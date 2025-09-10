@@ -49,6 +49,10 @@ vereisten:
 
 KRITIEK bug fixes and refactoring for context field handling in the DefinitieAgent system. This epic addresses the complete failure of context propagation from UI to AI prompts, which is causing non-compliant juridische definities.
 
+## Related Work
+
+**Legacy Orchestrator Refactoring:** See [EPIC-012](EPIC-012-legacy-orchestrator-refactoring.md) for comprehensive refactoring of legacy orchestrators and generator modules. US-043 and US-056 from this epic are related to the broader legacy cleanup effort in EPIC-012.
+
 **Business Case:** The Dutch justitieketen operates under strict legal frameworks that require precise contextual grounding for all juridische definities. OM officier van justities need definitions that reference specific legal frameworks, DJI officials require organizational context for detentie-related terms, and Rechtspraak judges demand clear jurisdictional context. The current system's failure to propagate context from UI to AI means definitions lack essential legal grounding, making them unusable for official justitieketen documentation. This creates legal risk, operational inefficiency, and potential liability issues across all justice organizations.
 
 ## Business Impact

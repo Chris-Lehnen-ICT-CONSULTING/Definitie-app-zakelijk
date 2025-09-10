@@ -8,6 +8,17 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
 
+### ⚠️ REFACTOREN, GEEN BACKWARDS COMPATIBILITY!
+
+- **🔴 GEEN BACKWARDS COMPATIBILITY CODE**
+- **Dit is een single-user applicatie, NIET in productie**
+- **REFACTOR code met behoud van businesskennis en logica**
+- **Analyseer eerst wat code doet voordat je vervangt**
+- **Extraheer businessregels en validaties tijdens refactoring**
+- **Geen feature flags, migratiepaden of deprecation warnings**
+- **Focus op: code verbeteren, NIET op compatibiliteit**
+- **Business logica documenteren tijdens refactoring proces**
+
 ### Belangrijke Instructie Herinneringen
 
 - **Doe wat gevraagd is; niets meer, niets minder**

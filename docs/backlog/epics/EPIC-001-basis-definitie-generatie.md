@@ -35,6 +35,8 @@ vereisten:
 
 Kernfunctionaliteit voor het genereren van juridische definities met GPT-4. Deze epic dekt de basis van het DefinitieAgent systeem, waarmee geautomatiseerde generatie van Nederlandse juridische definities met AI-ondersteuning mogelijk wordt.
 
+**⚠️ DEPRECATION NOTICE:** De UnifiedDefinitionGenerator wordt vervangen door moderne V2 orchestrators. Zie [EPIC-012](EPIC-012-legacy-orchestrator-refactoring.md) voor de refactoring van alle legacy generator modules naar de nieuwe architectuur.
+
 ## Bedrijfswaarde
 
 - **Primaire Waarde**: Geautomatiseerde generatie van hoogwaardige juridische definities
@@ -66,7 +68,7 @@ Kernfunctionaliteit voor het genereren van juridische definities met GPT-4. Deze
 
 | Gebruikersverhaal | Component | Module | Test Coverage |
 |------------|-----------|--------|---------------|
-| US-001 | UnifiedDefinitionGenerator | src/services/definition_generator.py | 99% |
+| US-001 | UnifiedDefinitionGenerator (DEPRECATED - zie EPIC-012) | src/services/definition_generator.py | 99% |
 | US-002 | ServiceContainer | src/services/container.py | 95% |
 | US-003 | PromptServiceV2 | src/services/prompt_service_v2.py | 92% |
 | US-004 | Prestaties optimalisatie | Multiple modules | 88% |
