@@ -255,15 +255,19 @@ class HybridContextManager:
                     seen.add(v)
 
         # Map expliciete UI-velden naar context (organisatorisch/juridisch/wettelijk)
-        extend_unique(getattr(request, "organisatorische_context", None), context["organisatorisch"])
-        extend_unique(getattr(request, "juridische_context", None), context["juridisch"])
+        extend_unique(
+            getattr(request, "organisatorische_context", None),
+            context["organisatorisch"],
+        )
+        extend_unique(
+            getattr(request, "juridische_context", None), context["juridisch"]
+        )
         extend_unique(getattr(request, "wettelijke_basis", None), context["wettelijk"])
 
         # Basis velden (legacy enkelvoudige velden)
         if request.organisatie:
             extend_unique([request.organisatie], context["organisatorisch"])
-        if request.domein:
-            extend_unique([request.domein], context["domein"])
+        # EPIC-010: domein field verwijderd - gebruik juridische_context
 
         # Parse legacy context string alleen als de nieuwe velden ontbreken
         if (
@@ -293,8 +297,8 @@ class HybridContextManager:
         """Parse context string naar verschillende categorieën."""
         context_parts = context_string.split(",")
 
-        for part in context_parts:
-            part = part.strip()
+        for raw_part in context_parts:
+            part = raw_part.strip()
             if not part:
                 continue
 
@@ -432,11 +436,8 @@ class HybridContextManager:
         if any(word in begrip_lower for word in ["proces", "procedure", "methode"]):
             creative_hints.append("Focus op stappen en flow in de definitie")
 
-        # Domeint hints
-        if request.domein and "juridisch" in request.domein.lower():
-            creative_hints.append(
-                "Gebruik juridische terminologie en refereer naar wettelijke kaders"
-            )
+        # EPIC-010: domein hints verwijderd - gebruik juridische_context
+        # Legacy domein field is verwijderd
 
         # Context hints
         if request.context and (
