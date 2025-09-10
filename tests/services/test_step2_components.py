@@ -30,9 +30,9 @@ class TestHybridContextManager:
     async def test_build_enriched_context_basic(self):
         """Test basis context building."""
         request = GenerationRequest(
-            begrip="testbegrip",
+        id="test-id",
+        begrip="testbegrip",
             context="juridisch, OM, Openbaar Ministerie",
-            domein="strafrecht",
             organisatie="OM"
         )
 
@@ -48,7 +48,8 @@ class TestHybridContextManager:
     async def test_abbreviation_expansion(self):
         """Test afkortingen uitbreiding."""
         request = GenerationRequest(
-            begrip="testbegrip",
+        id="test-id",
+        begrip="testbegrip",
             context="OM, FIOD, AVG",
             organisatie="OM"
         )
@@ -88,9 +89,9 @@ class TestUnifiedPromptBuilder:
 
     def test_initialization(self):
         """Test correcte initialisatie."""
-        assert len(self.prompt_builder.get_available_strategies()) >= 2
-        assert "basic" in self.prompt_builder.get_available_strategies()
-        assert "context_aware" in self.prompt_builder.get_available_strategies()
+        # Per EPIC-010: alleen modular strategy beschikbaar na refactoring
+        assert len(self.prompt_builder.get_available_strategies()) >= 1
+        assert "modular" in self.prompt_builder.get_available_strategies()
 
     def test_build_prompt_basic(self):
         """Test basis prompt building."""
@@ -144,7 +145,7 @@ class TestGenerationMonitor:
     def test_start_and_finish_generation(self):
         """Test generatie monitoring lifecycle."""
         # Start monitoring
-        generation_id = self.monitor.start_generation("testbegrip", {"domein": "test"})
+        generation_id = self.monitor.start_generation("testbegrip", {})  # domein removed per US-043
 
         assert generation_id != ""
         assert generation_id in self.monitor.active_generations
@@ -222,7 +223,6 @@ class TestDefinitionEnhancer:
             begrip="testbegrip",
             definitie="Een kort begrip.",  # Very short definition should trigger clarity enhancement
             context="juridisch",
-            domein="recht",
             categorie="proces",
             bron="test",
             metadata={}
@@ -244,7 +244,6 @@ class TestDefinitionEnhancer:
             begrip="testbegrip",
             definitie="Een zeer korte definitie die mogelijk verbetering nodig heeft.",
             context="juridisch",
-            domein="recht",
             categorie="proces",
             bron="test",
             metadata={}
@@ -274,9 +273,9 @@ class TestIntegration:
 
         # Create test request
         request = GenerationRequest(
-            begrip="testbegrip",
+        id="test-id",
+        begrip="testbegrip",
             context="juridisch, OM",
-            domein="strafrecht",
             organisatie="OM"
         )
 
@@ -300,8 +299,7 @@ class TestIntegration:
         mock_definition = Definition(
             begrip=request.begrip,
             definitie="Een test definitie die mogelijk verbetering nodig heeft.",
-            context=request.context,
-            domein=request.domein,
+            context=request.context,  # context is al een string
             categorie="proces",
             bron="test",
             metadata={}

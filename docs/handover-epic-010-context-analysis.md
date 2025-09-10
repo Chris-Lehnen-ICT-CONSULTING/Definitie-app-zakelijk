@@ -4,15 +4,15 @@
 ## 👤 Analyst: Claude Code
 ## 🎯 Doel: Context flow harmonisatie en legacy domein veld verwijdering
 
-## 📊 Status Epic-010: Context Flow Refactoring
+## 📊 Status Epic-010: Context Flow Refactoring (2025-09-10)
 
 ### User Stories Status
-- **US-041**: Fix Context Field Mapping to Prompts - **✅ WERKT** (maar inconsistent)
-- **US-042**: Fix "Anders..." Custom Context Option - **✅ OPGELOST** vandaag
-- **US-043**: Remove Legacy Context Routes - **🟡 NOG TE DOEN**
-- **US-048**: Context Type Validation - **🟡 NOG TE DOEN**
-- **US-049**: Context Traceability for ASTRA - **🟡 NOG TE DOEN**
-- **US-050**: End-to-End Context Tests - **🟡 NOG TE DOEN**
+- **US-041**: Fix Context Field Mapping to Prompts - **✅ GEREED**
+- **US-042**: Fix "Anders..." Custom Context Option - **✅ GEREED**
+- **US-043**: Remove Legacy Context Routes - **🟡 OPEN**
+- **US-048**: Context Type Validation - **🟡 OPEN**
+- **US-049**: Context Traceability for ASTRA - **🟡 OPEN**
+- **US-050**: End-to-End Context Tests - **🟡 OPEN**
 
 ## 🔍 Analyse Resultaten
 
@@ -149,7 +149,7 @@ context_dict={
 
 ## 🎯 Conclusie
 
-**US-041 is NIET helemaal opgelost** - Er is een inconsistentie in hoe wettelijke basis wordt verwerkt vergeleken met andere context velden. Dit moet worden geharmoniseerd voor consistente werking.
+US-041 is afgerond: mapping is aanwezig in PromptServiceV2 en V2‑contracten; UI‑keys zijn geverifieerd. Inconsistente verwerking van wettelijke basis is verholpen in de huidige UI‑flow.
 
 De context flow werkt technisch, maar heeft verbetering nodig in:
 1. Consistente data handling
@@ -159,7 +159,7 @@ De context flow werkt technisch, maar heeft verbetering nodig in:
 
 ---
 
-## ✅ HARMONISATIE UITGEVOERD (2025-09-10)
+## 🧭 Actieplan afronding EPIC‑010
 
 ### Uitgevoerde Wijzigingen
 
@@ -209,4 +209,9 @@ UI Input → 3 Context Types → Consistente Variabelen → Service Layer
 org_context  jur_context      wet_context           Alle modules
 ```
 
-**Status: EPIC-010 Context Harmonisatie COMPLEET** ✅
+1) US‑043: Legacy context routes verwijderen (zie EPIC‑010 epic voor uitgewerkt plan)
+2) US‑048: Type validatie afdwingen (alle context velden lijst van strings)
+3) US‑049: ASTRA traceability uitbreiden (audit trail van context in metadata/logs)
+4) US‑050: E2E context tests uitbreiden en stabiliseren
+
+Status: EPIC‑010 is deels afgerond (US‑041/042 gereed); resterende stories staan open.

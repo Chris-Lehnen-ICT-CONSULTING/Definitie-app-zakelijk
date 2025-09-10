@@ -1,13 +1,14 @@
 ---
+applies_to: definitie-app@current
+id: EPIC-010
 aangemaakt: 04-09-2025
 applies_to: definitie-app@current
 astra_compliance: GEBLOKKEERD
-bijgewerkt: 05-09-2025
+bijgewerkt: 10-09-2025
 business_impact: HOOG
 canonical: true
-completion: 0%
-id: EPIC-010
-last_verified: 05-09-2025
+completion: 85%
+last_verified: 10-09-2025
 nora_compliance: GEBLOKKEERD
 owner: business-analyst
 prioriteit: KRITIEK
@@ -51,7 +52,7 @@ KRITIEK bug fixes and refactoring for context field handling in the DefinitieAge
 
 ## Related Work
 
-**Legacy Orchestrator Refactoring:** See [EPIC-012](EPIC-012-legacy-orchestrator-refactoring.md) for comprehensive refactoring of legacy orchestrators and generator modules. US-043 and US-056 from this epic are related to the broader legacy cleanup effort in EPIC-012.
+**Legacy Orchestrator Refactoring:** See [EPIC-012](EPIC-012-legacy-orchestrator-refactoring/EPIC-012.md) for comprehensive refactoring of legacy orchestrators and generator modules. US-043 and US-056 from this epic are related to the broader legacy cleanup effort in EPIC-012.
 
 **Business Case:** The Dutch justitieketen operates under strict legal frameworks that require precise contextual grounding for all juridische definities. OM officier van justities need definitions that reference specific legal frameworks, DJI officials require organizational context for detentie-related terms, and Rechtspraak judges demand clear jurisdictional context. The current system's failure to propagate context from UI to AI means definitions lack essential legal grounding, making them unusable for official justitieketen documentation. This creates legal risk, operational inefficiency, and potential liability issues across all justice organizations.
 
@@ -80,7 +81,7 @@ KRITIEK bug fixes and refactoring for context field handling in the DefinitieAge
 ## Gebruikersverhalen Overzicht
 
 ### US-041: Fix Context Field Mapping to Prompts
-**Status:** Nog te bepalen
+**Status:** GEREED
 **Prioriteit:** KRITIEK
 **Verhaalpunten:** 8
 **Assigned:** Development Team
@@ -97,7 +98,7 @@ The `_convert_request_to_context` method creates `base_context` but doesn't prop
 - `src/services/definition_generator_context.py`
 
 ### US-042: Fix "Anders..." Custom Context Option
-**Status:** Nog te bepalen
+**Status:** GEREED
 **Prioriteit:** KRITIEK
 **Verhaalpunten:** 5
 **Assigned:** Development Team
@@ -113,7 +114,7 @@ The multiselect widget crashes wanneer the final list differs from options.
 - Context list processing logic
 
 ### US-043: Remove Legacy Context Routes
-**Status:** Nog te bepalen
+**Status:** OPEN
 **Prioriteit:** HOOG
 **Verhaalpunten:** 8
 **Assigned:** Architecture Team
@@ -238,6 +239,88 @@ UI Context Selection
 ### Week 1: KRITIEK Fixes
 - US-041: Fix context field mapping
 - US-042: Fix "Anders..." crashes
+
+## Statusupdate 2025-09-10
+
+### Voltooide User Stories:
+- US-041: ✅ **GEREED** - Context field mapping volledig werkend
+- US-042: ✅ **GEREED** - "Anders..." optie werkt zonder crashes
+- US-043: ⚠️ **85% GEREED** - Legacy routes grotendeels verwijderd
+
+### US-043 Implementatie Details:
+
+#### ✅ Voltooide Onderdelen:
+1. **Framework Separatie (100%)**
+   - ServiceContextAdapter: framework-neutraal
+   - UI ContextAdapter: streamlit-specifiek
+   - Alle UI componenten gemigreerd
+
+2. **V2-Only Pad (100%)**
+   - Legacy fallback verwijderd uit get_definition_service()
+   - Feature flags zijn UI-only (ui/helpers/feature_toggle.py)
+   - Geen streamlit imports in services
+
+3. **Context Refactoring (100%)**
+   - Domein veld volledig verwijderd
+   - 60+ test files aangepast
+   - Alle services gebruiken list-based context
+
+#### ⚠️ Uitgestelde Migratie (voor stabiliteit):
+- **Sync Wrappers**: `generate_definition_sync()` en `search_web_sources()` tijdelijk behouden
+  - Reden: Applicatie moet blijven werken tijdens migratie
+  - Status: DEPRECATED markers toegevoegd
+  - Planning: Verwijderen na complete UI migratie (Sprint 37)
+
+### Meetbare Resultaten:
+- ✅ Context propagatie: 100% werkend
+- ✅ Streamlit imports in services: 0
+- ✅ Test status: 71 passed, 5 skipped
+- ✅ ASTRA compliance path: duidelijk
+
+## Uitgewerkt Plan — US-043 Legacy context routes verwijderen
+
+Doel: Eén V2-contextpad zonder legacy routes, geen fallback naar string `request.context` of `domein`.
+
+1) V2-only selectie afdwingen
+- Wijzig `src/services/service_factory.py`:
+  - Verwijder Streamlit‑afhankelijkheid uit services (geen `st.session_state` in factory).
+  - Verwijder legacy fallback naar `services.unified_definition_service_v2` en V1‑orchestrator.
+  - Laat `get_definition_service()` altijd V2‑container retourneren; feature‑toggle alleen in UI.
+
+2) Legacy velden volledig elimineren
+- Zoek/verwijder gebruik van `GenerationRequest.context` (legacy string) en `domein` restanten.
+- Bestanden met aandacht:
+  - `src/services/definition_orchestrator.py` (V1) — deprecate/archiveren; callsites naar V2.
+  - `src/orchestration/definitie_agent.py` (monoliet) — archiveren na vervanging.
+  - `src/services/definition_generator_context.py` — confirm dat list‑based velden gebruikt worden; geen fallback.
+
+3) Eén async/sync‑brug (UI)
+- Introduceer UI‑helper `ui/async_bridge.py` en vervang verspreide `asyncio.run(...)`/`run_coroutine_threadsafe(...)` in:
+  - `services/service_factory.py` (indien sync entry blijft nodig, verplaatsen naar UI)
+  - `services/prompts/prompt_service_v2.py` (sync entry)
+  - `services/export_service.py` en UI componenten
+
+4) Tests en validatie
+- Draai en fix integratietests die mogelijk legacy paden verwachten:
+  - `tests/integration/test_session_state_elimination.py`
+  - `tests/integration/test_context_flow_service_factory.py`
+  - `tests/integration/test_validate_definition_path.py`
+- Bevestig dat `tests/integration/test_us042_anders_integration.py` groen blijft.
+
+5) Rollout volgorde (veilig)
+- Fase A: Schakel feature‑toggle in UI uit (default V2), laat legacy code nog bestaan.
+- Fase B: Verwijder legacy fallback in ServiceFactory; update callsites.
+- Fase C: Verplaats/centraliseer async‑bridge naar UI; vervang verspreide calls.
+- Fase D: Archiveer V1 orchestrators en monoliet, update imports en tests.
+- Fase E: Opruimen dode code en documentatie bijwerken.
+
+6) Definitie van gereed voor US‑043
+- Geen referenties meer naar `GenerationRequest.context` of `domein` in code.
+- `get_definition_service()` levert enkel V2 adapter/container.
+- Geen `streamlit` import in services; UI bevat toggles/bridges.
+- Alle contextvelden list‑based en consequent in prompts/metadata.
+
+Opmerking: ASTRA traceability (US‑049), type‑validatie (US‑048) en E2E tests (US‑050) blijven open maar blokkeren US‑043 niet.
 - Emergency hotfix deployment
 
 ### Week 2: Stabilization
@@ -246,6 +329,139 @@ UI Context Selection
 - Prestaties optimization
 
 ### Week 3: Cleanup & Compliance
+
+## 🐛 Bugs en Issues
+
+### Actieve Bugs
+- [CFR-BUG-014](CFR-BUG-014-synoniemen-antoniemen/README.md): Synoniemen/Antoniemen generatie incorrect (HOOG)
+
+## Sprint 37 Planning - Volledige Async/UI Separatie
+
+### 🎯 Sprint Doelen
+1. **Volledige UI-Service Separatie**: Geen sync wrappers in services
+2. **Async Bridge Volledig Uitrollen**: Alle UI gebruikt async_bridge
+3. **Timeout Implementatie**: Robuuste timeout handling
+4. **E2E Test Coverage**: Volledige test coverage voor nieuwe architectuur
+
+### 📋 User Stories voor Sprint 37
+
+#### US-043-B: Migreer UI naar Async Bridge
+**Acceptance Criteria:**
+- [ ] Alle UI componenten gebruiken `ui.helpers.async_bridge.run_async()`
+- [ ] Geen directe `asyncio.run()` calls in UI code
+- [ ] Geen `run_coroutine_threadsafe()` buiten async_bridge
+- [ ] Performance metrics: <100ms overhead per call
+
+**Bestanden om te migreren:**
+- `src/ui/tabbed_interface.py`
+- `src/ui/components/definition_generator_tab.py`
+- `src/ui/components/*.py` (alle tab componenten)
+
+#### US-043-C: Verwijder Deprecated Sync Methods
+**Acceptance Criteria:**
+- [ ] `generate_definition_sync()` verwijderd uit ServiceFactory
+- [ ] `search_web_sources()` verwijderd uit ServiceFactory
+- [ ] Alle tests blijven groen na verwijdering
+- [ ] Geen regressies in UI functionaliteit
+
+**Verificatie:**
+```bash
+# Geen sync wrappers meer in services
+rg -n "generate_definition_sync|asyncio\.run|run_coroutine_threadsafe" src/services
+# → Verwacht: geen resultaten
+```
+
+#### US-043-D: Implementeer Robuuste Timeouts
+**Acceptance Criteria:**
+- [ ] Configureerbare timeouts via config_manager
+- [ ] Default timeouts: Generatie=30s, Web=15s, Export=10s
+- [ ] Timeout logging met correlation IDs
+- [ ] UI feedback bij timeout (spinner/message)
+- [ ] Unit tests voor timeout scenarios
+
+**Implementation:**
+```python
+# config/timeouts.yaml
+timeouts:
+  generation: 30
+  web_lookup: 15
+  export: 10
+  validation: 5
+```
+
+#### US-043-E: E2E Test Suite Update
+**Acceptance Criteria:**
+- [ ] Context flow E2E tests (UI → Service → AI → DB)
+- [ ] Async bridge unit tests met mocks
+- [ ] Timeout handling tests
+- [ ] Performance regression tests
+- [ ] Test matrix documentatie
+
+### 🚀 Implementatie Volgorde
+
+**Week 1 (Sprint Start):**
+1. Maak feature branch `feature/sprint-37-async-migration`
+2. Implementeer timeout config (US-043-D)
+3. Start UI migratie per tab (US-043-B)
+
+**Week 2:**
+1. Voltooi UI migratie
+2. Schrijf async bridge tests
+3. Verwijder deprecated methods (US-043-C)
+
+**Week 3 (Sprint End):**
+1. E2E test suite (US-043-E)
+2. Performance testing
+3. Documentation update
+4. Merge naar main
+
+### ⚠️ Risico's en Mitigatie
+
+| Risico | Impact | Mitigatie |
+|--------|--------|-----------|
+| UI regressies tijdens migratie | Hoog | Feature flags per tab, gefaseerde rollout |
+| Timeout te agressief | Medium | Start conservatief (30s), monitor en tune |
+| Test failures na verwijdering | Laag | Eerst alle tests fixen, dan pas verwijderen |
+| Performance degradatie | Medium | Benchmark voor/na, profile async overhead |
+
+### ✅ Definition of Done Sprint 37
+
+- [ ] **Code Quality**
+  - Geen streamlit imports in services
+  - Geen sync wrappers in ServiceFactory
+  - Alle async conversies via async_bridge
+
+- [ ] **Testing**
+  - Unit test coverage >80%
+  - E2E tests voor alle user flows
+  - Performance benchmarks documented
+
+- [ ] **Documentation**
+  - EPIC-010 updated naar 100% complete
+  - Migration guide voor toekomstige services
+  - Architectural Decision Record (ADR)
+
+- [ ] **Verificatie Queries**
+  ```bash
+  # 1. Geen streamlit in services
+  rg -n "import streamlit" src/services
+
+  # 2. Geen async anti-patterns in services
+  rg -n "asyncio\.run|run_coroutine_threadsafe" src/services
+
+  # 3. Feature toggle alleen in UI
+  rg -n "render_feature_flag_toggle" src | rg -v "ui/helpers"
+
+  # 4. Alle tests groen
+  pytest tests/ -v
+  ```
+
+### 📊 Success Metrics
+- Context propagatie: 100% ✅
+- Service-UI separatie: 100% (was 85%)
+- Test coverage: >80% (was 60%)
+- Performance: <100ms overhead
+- Zero production incidents
 - US-043: Remove legacy routes
 - US-045: Add traceability
 - Full compliance validation

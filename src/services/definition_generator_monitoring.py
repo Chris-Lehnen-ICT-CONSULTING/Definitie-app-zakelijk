@@ -257,7 +257,7 @@ class GenerationMonitor:
         self._record_metric(
             MetricType.DEFINITION_LENGTH,
             definition_length,
-            {"begrip": definition.begrip, "domein": definition.domein},
+            {"begrip": definition.begrip},  # domein removed per EPIC-010/US-043
         )
 
         # Enhancement check

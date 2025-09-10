@@ -45,7 +45,6 @@ async def test_v2_orchestrator():
             id=str(uuid.uuid4()),
             begrip="verificatie",
             context="DJI",
-            domein="detentie",
             ontologische_categorie="proces",
             actor="test_script",
             legal_basis="testing"
@@ -79,7 +78,6 @@ async def test_v2_orchestrator():
             id=str(uuid.uuid4()),
             begrip="identiteitsbewijs",
             context="DJI",
-            domein="identificatie",
             ontologische_categorie="type",
             actor="test_script",
             legal_basis="testing"

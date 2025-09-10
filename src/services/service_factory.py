@@ -6,9 +6,8 @@ met feature flags voor geleidelijke migratie.
 """
 
 import logging
+import os
 from typing import Any
-
-import streamlit as st
 
 from services.container import ContainerConfigs, ServiceContainer, get_container
 
@@ -254,6 +253,23 @@ class ServiceAdapter:
             voorbeelden = response.definition.metadata.get("voorbeelden", {})
             # Direct pass-through - orchestrator heeft al canonieke voorbeelden
 
+            # Debug logging point B - ServiceFactory adapter
+            if os.getenv("DEBUG_EXAMPLES"):
+                logger.info(
+                    "[EXAMPLES-B] Adapter | gen_id=%s | metadata.voorbeelden=%s | ui_keys=%s",
+                    response.definition.metadata.get("generation_id"),
+                    (
+                        "present"
+                        if response.definition.metadata.get("voorbeelden")
+                        else "missing"
+                    ),
+                    (
+                        list((voorbeelden or {}).keys())
+                        if isinstance(voorbeelden, dict)
+                        else "NOT_DICT"
+                    ),
+                )
+
         # Build metadata
         metadata = {}
         if response.definition and response.definition.metadata:
@@ -387,10 +403,10 @@ class ServiceAdapter:
 
     def generate_definition_sync(self, begrip: str, context_dict: dict, **kwargs):
         """
-        Synchronous wrapper for UI callers.
+        DEPRECATED: Synchronous wrapper for backward compatibility.
 
-        Runs the async generate_definition in the current or a new event loop,
-        returning the Legacy-compatible result object.
+        TODO: Remove after all UI code migrated to ui.helpers.async_bridge
+        This method will be removed in next phase.
         """
         import asyncio
 
@@ -430,21 +446,16 @@ class ServiceAdapter:
 
     def search_web_sources(self, term: str, sources: list | None = None) -> dict:
         """
-        Legacy compatible web lookup (SYNC for legacy UI).
+        DEPRECATED: Legacy compatible web lookup (SYNC for legacy UI).
 
-        Args:
-            term: Zoekterm
-            sources: Lijst van bronnen om te doorzoeken
-
-        Returns:
-            Legacy format resultaat dict
+        TODO: Remove after all UI code migrated to ui.helpers.async_bridge
+        This method will be removed in next phase.
         """
         import asyncio
 
         from services.interfaces import LookupRequest
 
         request = LookupRequest(term=term, sources=sources, max_results=5)
-
         results = asyncio.run(self.web_lookup.lookup(request))
 
         # Converteer naar legacy format
@@ -507,37 +518,7 @@ class ServiceAdapter:
 
 
 # Feature flag UI component
-def render_feature_flag_toggle():
-    """
-    Render een toggle voor de nieuwe services in de Streamlit sidebar.
-
-    Dit maakt het makkelijk om te switchen tussen oude en nieuwe services.
-    """
-    with st.sidebar:
-        st.markdown("---")
-        st.markdown("### 🧪 Experimental")
-
-        new_services = st.checkbox(
-            "Gebruik nieuwe services",
-            value=st.session_state.get("use_new_services", True),
-            key="use_new_services",
-            help="Schakel over naar de nieuwe clean service architectuur (DEFAULT)",
-        )
-
-        if new_services:
-            st.info("🚀 Nieuwe services actief!")
-
-            # Toon extra opties
-            env = st.selectbox(
-                "Environment",
-                ["production", "development", "testing"],
-                help="Selecteer environment configuratie",
-            )
-
-            if env != "production":
-                st.warning(f"⚠️ {env.title()} mode actief")
-
-        return new_services
+# UI feature toggle moved to UI layer - services should not depend on Streamlit
 
 
 # --- Legacy compatibility shim ---
@@ -603,39 +584,12 @@ def get_definition_service(
     use_container_config: dict | None = None,
 ):
     """
-    Get de juiste service op basis van feature flag.
+    Get the V2 service (always returns V2 container).
 
-    Deze functie bepaalt of we de nieuwe clean architecture gebruiken
-    of terugvallen op de legacy UnifiedDefinitionService (indien beschikbaar).
+    Legacy routes removed per US-043. V2 is now the only path.
+    Feature toggles should be handled in UI layer only.
     """
-    import os
-
-    use_new_services = os.getenv("USE_NEW_SERVICES", "").lower() == "true"
-
-    # Als geen env var, check Streamlit session state
-    if not use_new_services and not os.getenv("USE_NEW_SERVICES"):
-        try:
-            use_new_services = st.session_state.get("use_new_services", True)
-        except (ImportError, AttributeError):
-            use_new_services = True
-
-    # Legacy fallback path when explicitly disabled
-    if not use_new_services:
-        try:
-            # Resolve dynamically so tests can patch the symbol
-            from importlib import import_module
-
-            legacy_mod = import_module("services.unified_definition_service_v2")
-            legacy_cls = getattr(legacy_mod, "UnifiedDefinitionService", None)
-            if legacy_cls is not None:
-                return legacy_cls.get_instance()  # type: ignore[attr-defined]
-        except Exception:
-            # If legacy path not available, fall through to new services
-            logger.warning(
-                "Legacy UnifiedDefinitionService unavailable; using new services instead"
-            )
-
-    # Selecteer effectieve config
+    # V2 only - no legacy fallback
     config = use_container_config or _get_environment_config()
 
     # Bepaal cache key op basis van bevroren config (disabled under pytest)

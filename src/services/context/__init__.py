@@ -22,8 +22,8 @@ Usage:
 """
 
 from services.context.context_adapter import (
-    ContextAdapter,
-    get_context_adapter,
+    ServiceContextAdapter,
+    get_service_context_adapter,
 )
 from services.context.context_manager import (
     ContextAuditEntry,
@@ -40,7 +40,7 @@ __all__ = [
     "ContextData",
     "ContextSource",
     "ContextAuditEntry",
-    # Adapter
-    "ContextAdapter",
-    "get_context_adapter",
+    # Service Adapter (framework-neutral)
+    "ServiceContextAdapter",
+    "get_service_context_adapter",
 ]

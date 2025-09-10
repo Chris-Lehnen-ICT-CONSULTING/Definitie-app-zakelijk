@@ -107,9 +107,9 @@ class TestNewServicesFunctionality:
 
             # Create request
             request = GenerationRequest(
-                begrip="test",
-                context="Test context",
-                domein="Test domein"
+        id="test-id",
+        begrip="test",
+                context="Test context"
             )
 
             # Execute
@@ -135,7 +135,8 @@ class TestNewServicesFunctionality:
 
             # Direct call
             request = GenerationRequest(
-                begrip="isolated_test",
+        id="test-id",
+        begrip="isolated_test",
                 context="Isolation context"
             )
 

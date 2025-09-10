@@ -24,8 +24,7 @@ load_dotenv()
 if not os.getenv("OPENAI_API_KEY"):
     pytest.skip(
         "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
-        allow_module_level=True,
-    )
+        allow_module_level=True)
 
 # Add src to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
@@ -47,8 +46,7 @@ load_dotenv()
 if not os.getenv("OPENAI_API_KEY"):
     pytest.skip(
         "OPENAI_API_KEY not set; skipping deep functionality tests requiring external API",
-        allow_module_level=True,
-    )
+        allow_module_level=True)
 
 
 async def test_synoniemen_antoniemen():
@@ -224,7 +222,6 @@ async def test_orchestrator_v2():
         id=str(uuid.uuid4()),
         begrip="hoger beroep",
         context="Gerechtshof",
-        domein="Strafrecht",
         ontologische_categorie="PROCES"
     )
 
