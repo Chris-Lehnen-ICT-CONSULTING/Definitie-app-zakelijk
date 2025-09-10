@@ -454,13 +454,27 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
 
         return "\n".join(context_lines)
 
-    def _parse_response(self, response: str) -> list[str]:  # noqa: PLR0912, PLR0915
+    def _parse_response(  # noqa: PLR0912, PLR0915
+        self, response: str, example_type: ExampleType | None = None
+    ) -> list[str]:
         """Parse GPT response into list of examples."""
         if not response:
             return []
 
-        # Voor synoniemen/antoniemen: split op newlines voor individuele items
-        if any(word in response.lower() for word in ["synoniem", "antoniem"]):
+        # Voor synoniemen/antoniemen: gebruik example_type als beschikbaar, anders check response
+        is_synonym_or_antonym = False
+        if example_type:
+            is_synonym_or_antonym = example_type in [
+                ExampleType.SYNONIEMEN,
+                ExampleType.ANTONIEMEN,
+            ]
+        else:
+            # Fallback: check of het woord in de response staat
+            is_synonym_or_antonym = any(
+                word in response.lower() for word in ["synoniem", "antoniem"]
+            )
+
+        if is_synonym_or_antonym:
             lines = response.strip().split("\n")
             examples = []
             for line in lines:
@@ -824,6 +838,7 @@ async def genereer_alle_voorbeelden_async(
             context_dict=context_dict,
             example_type=example_type,
             generation_mode=GenerationMode.ASYNC,
+            max_examples=DEFAULT_EXAMPLE_COUNTS[example_type.value],
         )
         task = asyncio.create_task(generator._generate_async(request))
         tasks.append((example_type, task))
