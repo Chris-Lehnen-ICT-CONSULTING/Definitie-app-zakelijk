@@ -771,24 +771,16 @@ class DefinitionGeneratorTab:
         return labels.get(self, self.replace("_", " ").title())
 
     def _render_validation_results(self, validation_result):
-        """Render validation resultaten (dict of object)."""
+        """Render validation resultaten - DICT ONLY.
+
+        REFACTORED: Geen object fallbacks meer, alleen dict access.
+        V2 contract garandeert dict format.
+        """
         st.markdown("#### ✅ Kwaliteitstoetsing")
 
-        # Extract normalized fields from dict or object
-        try:
-            if isinstance(validation_result, dict):
-                overall_score = float(
-                    validation_result.get("overall_score", 0.0) or 0.0
-                )
-                violations = validation_result.get("violations", []) or []
-            else:
-                overall_score = float(
-                    getattr(validation_result, "overall_score", 0.0) or 0.0
-                )
-                violations = getattr(validation_result, "violations", []) or []
-        except Exception:
-            overall_score = 0.0
-            violations = []
+        # Direct dict access - V2 contract garandeert deze structuur
+        overall_score = float(validation_result.get("overall_score", 0.0))
+        violations = validation_result.get("violations", [])
 
         # Overall score
         score_color = (
@@ -832,23 +824,10 @@ class DefinitionGeneratorTab:
         if violations:
             st.markdown("**Gevonden Issues (samenvatting):**")
             for violation in violations[:5]:  # Toon max 5
-                # Normalize violation shape (dict or object)
-                if isinstance(violation, dict):
-                    sev_raw = (
-                        violation.get("severity") or violation.get("level") or "info"
-                    )
-                    severity = str(sev_raw).lower()
-                    rule_id = (
-                        violation.get("rule_id") or violation.get("id") or "onbekend"
-                    )
-                    description = (
-                        violation.get("description") or violation.get("message") or ""
-                    )
-                else:
-                    sev_obj = getattr(violation, "severity", None)
-                    severity = getattr(sev_obj, "value", str(sev_obj or "info")).lower()
-                    rule_id = getattr(violation, "rule_id", "onbekend")
-                    description = getattr(violation, "description", "")
+                # Direct dict access - V2 contract garandeert dict format
+                severity = violation.get("severity", "info").lower()
+                rule_id = violation.get("rule_id", "onbekend")
+                description = violation.get("description", "")
 
                 severity_emoji = {
                     "critical": "🚨",
