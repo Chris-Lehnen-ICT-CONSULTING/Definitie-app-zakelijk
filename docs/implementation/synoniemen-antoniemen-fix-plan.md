@@ -11,7 +11,7 @@ Dit document beschrijft het plan voor het oplossen van drie samenhangende proble
 
 **Werkende oplossingen:**
 - Vereenvoudigde prompts zonder overbodige context
-- UI kan zowel lijsten als strings verwerken  
+- UI kan zowel lijsten als strings verwerken
 - Parser krijgt correct example_type mee
 - Cache tijdelijk uitgeschakeld
 
@@ -21,7 +21,7 @@ EPIC-010 context flow probleem lijkt dus niet te bestaan of al opgelost te zijn.
 ## 1. Betere Cache Strategie Implementeren
 
 ### Probleem
-De huidige cache gebruikt alleen functie argumenten als key, maar mist het `example_type`. 
+De huidige cache gebruikt alleen functie argumenten als key, maar mist het `example_type`.
 Dit zorgt ervoor dat verschillende types (synoniemen vs antoniemen) dezelfde cache entry gebruiken.
 
 ### Oplossing
@@ -46,7 +46,7 @@ def _generate_cache_key(self, func_name: str, request: ExampleRequest) -> str:
 ```python
 CACHE_TTL_BY_TYPE = {
     ExampleType.SYNONIEMEN: 7200,      # 2 uur - verandert zelden
-    ExampleType.ANTONIEMEN: 7200,      # 2 uur - verandert zelden  
+    ExampleType.ANTONIEMEN: 7200,      # 2 uur - verandert zelden
     ExampleType.VOORBEELDZINNEN: 3600, # 1 uur - kan variëren
     ExampleType.PRAKTIJKVOORBEELDEN: 1800, # 30 min - context-afhankelijk
     ExampleType.TEGENVOORBEELDEN: 1800,    # 30 min - context-afhankelijk
@@ -71,7 +71,7 @@ def _generate_cached(self, request: ExampleRequest) -> list[str]:
 ## 2. Context Flow Issues uit EPIC-010
 
 ### Analyse van het Probleem
-Volgens EPIC-010 worden context velden (juridische_context, wettelijke_basis, organisatorische_context) 
+Volgens EPIC-010 worden context velden (juridische_context, wettelijke_basis, organisatorische_context)
 wel verzameld in de UI maar NIET doorgegeven aan de AI prompts.
 
 ### User Stories te Implementeren
@@ -124,11 +124,11 @@ def handle_custom_context(selected_values: list, custom_text: str) -> list:
 #### US-043: Remove Legacy Context Routes (HOOG)
 **Legacy routes te verwijderen:**
 1. Direct `context` field (string) - DEPRECATED
-2. `domein` field separate from context - DEPRECATED  
+2. `domein` field separate from context - DEPRECATED
 3. V1 orchestrator context passing - REMOVED
 4. Session state context storage - REFACTOR
 
-**Implementatie:** 
+**Implementatie:**
 - Identificeer alle legacy paths
 - Create migration functions
 - Update alle references
@@ -246,6 +246,6 @@ if is_synonym_or_antonym:
 ## Geschatte Tijdsinvestering
 - **Totaal:** 7-10 uur
 - **Cache Fix:** 1-2 uur
-- **Context Flow:** 3-4 uur  
+- **Context Flow:** 3-4 uur
 - **Testing:** 2-3 uur
 - **Documentation:** 1 uur
