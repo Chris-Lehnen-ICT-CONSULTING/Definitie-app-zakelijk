@@ -9,7 +9,7 @@ Deze module is verantwoordelijk voor:
 """
 
 import logging
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
@@ -100,7 +100,7 @@ class DefinitionTaskModule(BasePromptModule):
                 org_contexts
                 or jur_contexts
                 or wet_basis
-                or context.get_shared("domain_contexts", [])
+                # EPIC-010: domain_contexts verwijderd - is legacy
             )
 
             # Bouw secties
@@ -237,7 +237,7 @@ Stel jezelf deze vragen:
         Returns:
             Metadata sectie
         """
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now(UTC).strftime("%Y-%m-%d %H:%M:%S")
 
         return f"""#### 📊 METADATA voor traceerbaarheid:
 - Begrip: {begrip}

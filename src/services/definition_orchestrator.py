@@ -9,8 +9,6 @@ import asyncio
 import logging
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-
-UTC = UTC  # Python 3.10 compatibility
 from enum import Enum
 from typing import Any
 
@@ -376,7 +374,7 @@ class DefinitionOrchestrator(
             begrip=request.begrip,
             definitie=f"Fout bij generatie: {response.message}",
             context=request.context,
-            domein=request.domein,
+            # EPIC-010: domein field verwijderd
         )
 
     async def enhance(self, definition: Definition) -> Definition:
@@ -407,7 +405,7 @@ class DefinitionOrchestrator(
                 "organisatorisch": (
                     [context.request.context] if context.request.context else []
                 ),
-                "juridisch": [context.request.domein] if context.request.domein else [],
+                "juridisch": [],  # EPIC-010: domein field verwijderd - gebruik juridische_context
                 "wettelijk": [],
                 # ontologische_categorie verwijderd uit base_context om string->char array bug te fixen
             }
@@ -446,7 +444,7 @@ class DefinitionOrchestrator(
                 begrip=context.request.begrip,
                 definitie=gpt_response.strip(),
                 context=context.request.context,
-                domein=context.request.domein,
+                # EPIC-010: domein field verwijderd
             )
 
             logger.info(f"GPT definitie gegenereerd: {gpt_response[:50]}...")
@@ -458,7 +456,7 @@ class DefinitionOrchestrator(
                 begrip=context.request.begrip,
                 definitie=f"Fout bij GPT generatie: {e!s}",
                 context=context.request.context,
-                domein=context.request.domein,
+                # EPIC-010: domein field verwijderd
             )
 
         # Voeg request metadata toe (buiten try/except block)
@@ -561,7 +559,7 @@ class DefinitionOrchestrator(
                 None,
                 zoek_bronnen_voor_begrip,
                 context.definition.begrip,
-                {"domein": [context.request.domein] if context.request.domein else []},
+                {},  # EPIC-010: domein field verwijderd
             )
 
             if bronnen:
@@ -579,7 +577,7 @@ class DefinitionOrchestrator(
             voorbeelden = await genereer_alle_voorbeelden_async(
                 context.definition.begrip,
                 context.definition.definitie,
-                {"domein": [context.request.domein] if context.request.domein else []},
+                {},  # EPIC-010: domein field verwijderd
             )
 
             if voorbeelden:
@@ -616,15 +614,9 @@ class DefinitionOrchestrator(
 
             # Use central config for defaults
             if model is None:
-                model = get_default_model()
+                model = "gpt-4o"  # Default model
             if temperature is None:
-                temperature = get_default_temperature()
-
-            # Use central config for defaults
-            if model is None:
-                model = get_default_model()
-            if temperature is None:
-                temperature = get_default_temperature()
+                temperature = 0.7  # Default temperature
 
             logger.debug(
                 f"AI service call: model={model}, temp={temperature}, max_tokens={max_tokens}"

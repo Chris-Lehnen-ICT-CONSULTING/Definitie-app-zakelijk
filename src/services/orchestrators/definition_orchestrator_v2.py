@@ -596,7 +596,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             begrip=request.begrip,
             definitie=text,
             context=request.context,
-            domein=request.domein,
+            # EPIC-010: domein field verwijderd
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
             valid=validation_result.get("is_acceptable", False),
             validation_violations=validation_result.get("violations", []),
@@ -642,7 +642,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         return f"""Genereer een Nederlandse definitie voor het begrip: {request.begrip}
 
 Context: {request.context or 'Geen specifieke context gegeven'}
-Domein: {request.domein or 'Algemeen'}
+# EPIC-010: domein field verwijderd - gebruik juridische_context
 {ontological_hint}
 
 Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitseisen voor juridisch gebruik."""

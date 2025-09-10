@@ -408,8 +408,9 @@ class DefinitionGeneratorCache:
         if self.config.include_context_in_key:
             if request.context:
                 key_parts.append(f"ctx:{request.context}")
-            if request.domein:
-                key_parts.append(f"dom:{request.domein}")
+            # EPIC-010: domein field verwijderd - gebruik juridische_context
+            # if request.domein:
+            #     key_parts.append(f"dom:{request.domein}")
             if request.organisatie:
                 key_parts.append(f"org:{request.organisatie}")
 

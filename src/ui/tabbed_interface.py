@@ -728,12 +728,14 @@ class TabbedInterface:
                 self._clear_all_fields()
                 st.rerun()
 
-    def _handle_definition_generation(self, begrip: str, context_data: dict[str, Any]):  # noqa: PLR0912, PLR0915
+    def _handle_definition_generation(self, begrip: str, context_data: dict[str, Any]):
         """Handle definitie generatie vanaf hoofdniveau met hybrid context ondersteuning."""
         try:
             with st.spinner("🔄 Genereren van definitie met hybride context..."):
+                # EPIC-010: Consistente context variabelen voor alle 3 types
                 org_context = context_data.get("organisatorische_context", [])
                 jur_context = context_data.get("juridische_context", [])
+                wet_context = context_data.get("wettelijke_basis", [])
 
                 # Bepaal automatisch de ontologische categorie
                 primary_org = org_context[0] if org_context else ""
@@ -801,7 +803,7 @@ class TabbedInterface:
                         context_dict={
                             "organisatorisch": org_context,
                             "juridisch": jur_context,
-                            "wettelijk": context_data.get("wettelijke_basis", []),
+                            "wettelijk": wet_context,  # EPIC-010: Gebruik consistente variabele
                         },
                         organisatie=primary_org,
                         categorie=auto_categorie,
@@ -834,7 +836,8 @@ class TabbedInterface:
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
                 if isinstance(agent_result, dict) and (
-                    agent_result.get("definitie_gecorrigeerd") or agent_result.get("definitie")
+                    agent_result.get("definitie_gecorrigeerd")
+                    or agent_result.get("definitie")
                 ):
                     try:
                         from ui.components.prompt_debug_section import (
@@ -845,13 +848,12 @@ class TabbedInterface:
                         context_dict = {
                             "organisatorisch": org_context,
                             "juridisch": jur_context,
-                            "wettelijk": context_data.get("wettelijke_basis", []),
+                            "wettelijk": wet_context,  # EPIC-010: Gebruik consistente variabele
                         }
 
-                        definitie_for_prompts = (
-                            agent_result.get("definitie_gecorrigeerd")
-                            or agent_result.get("definitie", "")
-                        )
+                        definitie_for_prompts = agent_result.get(
+                            "definitie_gecorrigeerd"
+                        ) or agent_result.get("definitie", "")
                         voorbeelden_prompts = capture_voorbeelden_prompts(
                             begrip=begrip,
                             definitie=definitie_for_prompts,
@@ -923,9 +925,7 @@ class TabbedInterface:
                     logger.info(
                         f"Using V2 dict format. Keys in agent_result: {list(agent_result.keys())}"
                     )
-                    logger.info(
-                        f"definitie_text: '{definitie_text[:50]}...'"
-                    )
+                    logger.info(f"definitie_text: '{definitie_text[:50]}...'")
 
                     detailed_results = toets_definitie(
                         definitie=definitie_text,

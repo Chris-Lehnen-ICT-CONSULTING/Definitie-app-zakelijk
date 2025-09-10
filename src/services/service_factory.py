@@ -328,7 +328,7 @@ class ServiceAdapter:
         context_text = (
             ", ".join(org_list) if isinstance(org_list, list) else str(org_list or "")
         )
-        domein_text = ", ".join(context_dict.get("domein", []) or [])
+        # EPIC-010: domein field verwijderd - gebruik juridische_context
 
         request = GenerationRequest(
             id=str(uuid.uuid4()),  # Generate unique ID for tracking
@@ -337,8 +337,6 @@ class ServiceAdapter:
             organisatorische_context=org_list,
             juridische_context=context_dict.get("juridisch", []),
             wettelijke_basis=context_dict.get("wettelijk", []),
-            # Keep domein as concatenated string for compatibility
-            domein=domein_text,
             # Standard fields
             organisatie=kwargs.get("organisatie", ""),
             extra_instructies=extra_instructions,
