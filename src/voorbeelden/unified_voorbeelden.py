@@ -202,7 +202,7 @@ class UnifiedExamplesGenerator:
             return self._parse_response(response.text)
         except Exception as e:
             msg = f"Synchronous generation failed: {e}"
-            raise RuntimeError(msg)
+            raise RuntimeError(msg) from e
 
     async def _generate_async(self, request: ExampleRequest) -> list[str]:
         """Asynchronous example generation."""
@@ -219,7 +219,7 @@ class UnifiedExamplesGenerator:
             return self._parse_response(response.text)
         except Exception as e:
             msg = f"Asynchronous generation failed: {e}"
-            raise RuntimeError(msg)
+            raise RuntimeError(msg) from e
 
     @cached(ttl=3600)  # Cache for 1 hour
     def _generate_cached(self, request: ExampleRequest) -> list[str]:
@@ -324,7 +324,7 @@ class UnifiedExamplesGenerator:
             return [response.text.strip()] if response.text.strip() else []
         except Exception as e:
             msg = f"Resilient generation failed: {e}"
-            raise RuntimeError(msg)
+            raise RuntimeError(msg) from e
 
     async def _generate_resilient_common(self, request: ExampleRequest) -> list[str]:
         """Common resilient generation logic."""
@@ -340,7 +340,7 @@ class UnifiedExamplesGenerator:
             return self._parse_response(response.text)
         except Exception as e:
             msg = f"Resilient generation failed: {e}"
-            raise RuntimeError(msg)
+            raise RuntimeError(msg) from e
 
     def _build_prompt(self, request: ExampleRequest) -> str:
         """Build appropriate prompt based on example type."""
@@ -506,13 +506,14 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
                 # Patroon 1: nummer. Titel\nSituatie:**\n[inhoud]\nToepassing:**\n[inhoud]
                 # Patroon 2: nummer. Titel**\n[inhoud]
                 # Patroon 3: nummer. Titel: [inhoud]
-                
+
                 # Probeer eerst het Situatie/Toepassing patroon
                 situatie_match = re.match(
                     r"^\d+[\.\)]\s*([^*\n]+?)\n+Situatie:\*{0,2}\s*\n+(.+?)\n+Toepassing[^:]*:\*{0,2}\s*\n+(.+)",
-                    part, re.DOTALL | re.IGNORECASE
+                    part,
+                    re.DOTALL | re.IGNORECASE,
                 )
-                
+
                 if situatie_match:
                     title = situatie_match.group(1).strip()
                     situatie = situatie_match.group(2).strip()
@@ -521,7 +522,7 @@ GEEF ALLEEN ÉÉN ENKELE ALINEA ALS ANTWOORD, GEEN OPSOMMINGEN OF MEERDERE PARAG
                     formatted = f"{title}: {situatie}\n\n{toepassing}"
                     examples.append(formatted)
                     continue
-                
+
                 # Probeer het standaard patroon
                 title_match = re.match(
                     r"^\d+[\.\)]\s*\*{0,2}([^*\n]+?)\*{0,2}[\n:](.+)", part, re.DOTALL
