@@ -16,6 +16,8 @@
   const viewTabs = document.getElementById('viewTabs');
 
   const docs = (data.documents||[]).slice();
+  const idMap = {};
+  docs.forEach(d=>{ if(d && d.id) idMap[String(d.id)] = d; });
 
   function getView(){
     const h=(location.hash||'').toLowerCase();
@@ -133,8 +135,27 @@
         const meta=document.createElement('div'); meta.className='meta';
         const rel = d.target_release?`rel:${d.target_release}`:null;
         meta.textContent=[d.status,d.owner,d.prioriteit,rel,d.canonical?'canonical':null].filter(Boolean).join(' • ');
+        const rels=document.createElement('div'); rels.className='rels';
+        // linked epics
+        if(Array.isArray(d.linked_epics) && d.linked_epics.length){
+          const lbl=document.createElement('span'); lbl.className='rels-label'; lbl.textContent='EPIC:'; rels.appendChild(lbl);
+          d.linked_epics.forEach(eid=>{
+            const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=eid;
+            const target=idMap[eid]; if(target && target.url) a.href=target.url; a.target='_blank';
+            rels.appendChild(a);
+          });
+        }
+        // linked stories
+        if(Array.isArray(d.linked_stories) && d.linked_stories.length){
+          const lbl=document.createElement('span'); lbl.className='rels-label'; lbl.textContent='US:'; rels.appendChild(lbl);
+          d.linked_stories.forEach(uid=>{
+            const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=uid;
+            const target=idMap[uid]; if(target && target.url) a.href=target.url; a.target='_blank';
+            rels.appendChild(a);
+          });
+        }
         const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open'; link.target='_blank';
-        li.append(type,title,meta,link); list.appendChild(li);
+        li.append(type,title,meta,rels,link); list.appendChild(li);
       });
     } else {
       // default: all documents flat list
