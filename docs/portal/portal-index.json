@@ -5857,6 +5857,30 @@
       "parent_us": "US-061.md"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Business Knowledge Extraction Document",
+      "path": "docs/backlog/EPIC-012/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
+      "url": "docs/backlog/EPIC-012/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-061"
+    },
+    {
       "id": "EPIC-013",
       "type": "DOC",
       "title": "Centrale Documentatie‑Portal (Interactief & Auto‑sync)",
@@ -16779,7 +16803,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 499,
+      "DOC": 500,
       "report": 1,
       "log": 1,
       "analyse": 1,
@@ -16817,7 +16841,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-11T19:26:25Z"
+    "generated_at": "2025-09-11T19:30:55Z"
   },
   "sources": [
     "docs"
