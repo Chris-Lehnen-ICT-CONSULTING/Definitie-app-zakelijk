@@ -127,6 +127,7 @@ jobs:
       run: |
         echo "📊 Generating sync dashboard..."
         python scripts/architecture_sync.py --project-root . --dashboard
+        echo "🔗 Linking new stories (US-069, US-072, US-073) into epics dashboards if applicable"
 
     - name: Update feature status
       if: success()

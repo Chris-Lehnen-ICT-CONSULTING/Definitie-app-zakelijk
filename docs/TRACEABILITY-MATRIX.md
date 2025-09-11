@@ -97,16 +97,16 @@
 - **Episch Verhaal:** EPIC-003 (Content Verrijking)
 - **Stories:**
   - US-014: SRU Protocol Implementatie
-  - US-015: Legal Database Queries
-  - US-016: Result Processing
+  - US-015: Wikipedia API Integration
+  - US-016: SRU Legal Database Integration
 - **Justice Context:** Rechtspraak.nl koppeling
 
 #### REQ-048: Responsive UI Design
 - **Episch Verhaal:** EPIC-004 (User Interface)
 - **Stories:**
-  - US-017: Mobile Responsive Layout
-  - US-018: Tablet Optimization
-  - US-019: Desktop Power Features
+  - US-021: Tab Activation
+  - US-022: UI Performance Optimization
+  - US-023: Responsive Design Implementation
   - US-020: Accessibility Features
 - **Justice Context:** Toegankelijkheid voor alle ketenpartners
 
@@ -115,9 +115,9 @@
 #### REQ-055: Export Functionality
 - **Episch Verhaal:** EPIC-005 (Export Import)
 - **Stories:**
-  - US-021: JSON Export
-  - US-022: Word Export
-  - US-023: PDF Generation
+  - US-026: JSON Export
+  - US-027: Word Export
+  - US-028: PDF Generation
 - **Justice Context:** Archivering volgens Archiefwet
 
 #### REQ-060: Prestaties Optimization
@@ -191,12 +191,12 @@ Sprint 1-2: Foundation
 Sprint 3-4: Core Features
 ├── EPIC-002: Validation implementation (US-006-010)
 ├── EPIC-003: Web lookup basics (US-011-013)
-└── EPIC-004: UI foundation (US-017-018)
+└── EPIC-004: UI foundation (US-021-022)
 
 Sprint 5-6: Integration
 ├── EPIC-003: SRU integration (US-014-016)
-├── EPIC-004: UI completion (US-019-020)
-└── EPIC-005: Export features (US-021-023)
+├── EPIC-004: UI completion (US-023-025)
+└── EPIC-005: Export features (US-026-028)
 
 Sprint 7-8: Optimization
 ├── EPIC-007: Prestaties (US-030-039)
