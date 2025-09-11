@@ -534,7 +534,7 @@ class ContextSelector:
         description: str = "",
     ):
         """Sla huidige context op als preset."""
-        # TODO: Implement preset saving to database or config file
+        # Preset opslag volgt (US-043)
         st.success(f"Context preset '{name}' opgeslagen!")
 
 

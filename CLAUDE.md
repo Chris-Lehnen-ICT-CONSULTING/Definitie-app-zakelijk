@@ -14,15 +14,12 @@ De backlog heeft een **vaste hiërarchische structuur** die ALTIJD gevolgd moet 
 docs/backlog/
 ├── EPIC-001/                      # Elke EPIC in eigen directory
 │   ├── EPIC-001.md                # Epic documentatie
-│   └── User Stories/              # Alle user stories van deze epic
-│       ├── US-001/                # Elke user story in eigen directory
-│       │   ├── US-001.md          # User story documentatie
-│       │   └── bugs/              # Bugs gerelateerd aan deze story
-│       │       └── BUG-XXX/       # Elke bug in eigen directory
-│       │           └── BUG-XXX.md # Bug documentatie
-│       └── US-002/
-│           ├── US-002.md
-│           └── bugs/
+│   ├── US-001/                    # User stories direct onder EPIC
+│   │   └── US-001.md              # User story documentatie
+│   ├── US-002/
+│   │   └── US-002.md
+│   └── bugs/                      # Bugs op EPIC niveau
+│       └── BUG-XXX.md             # Bug documentatie
 └── EPIC-002/
     └── ...
 ```
@@ -30,8 +27,10 @@ docs/backlog/
 **BELANGRIJKE REGELS:**
 - **NOOIT** stories direct in `/docs/backlog/stories/` plaatsen
 - **NOOIT** epics in `/docs/backlog/epics/` plaatsen
-- **ALTIJD** de hiërarchie volgen: EPIC → User Stories → US-XXX → bugs
-- **ALTIJD** elke entiteit in eigen directory met dezelfde naam als het bestand
+- **GEEN** "User Stories" subdirectory - stories direct onder EPIC
+- **BUGS** altijd in bugs/ directory op EPIC niveau
+- **ALTIJD** de hiërarchie volgen: EPIC → US-XXX (direct) + bugs/
+- **ALTIJD** elke user story in eigen directory met dezelfde naam
 
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
 
@@ -65,7 +64,7 @@ docs/backlog/
 
 1. **Zoek eerst:** `grep -r "onderwerp" docs/` OF `ls docs/**/*term*.md`
 2. **Check master documenten:**
-   - `docs/backlog/*/` voor epics (elke EPIC heeft eigen map)
+   - `docs/backlog/EPIC-*/` voor epics (elke EPIC heeft eigen map)
    - `docs/INDEX.md` voor overzicht
    - `docs/guidelines/CANONICAL_LOCATIONS.md` voor juiste locaties
 3. **Check archief:** `ls docs/archief/` voor oude versies
@@ -79,7 +78,7 @@ grep -r "mijn onderwerp" docs/
 ls docs/**/*relevante-term*.md
 
 # STAP 2: Check master documenten
-find docs/backlog/EPIC-*/User\ Stories -name "*.md" | xargs grep "mijn onderwerp"
+find docs/backlog/EPIC-*/US-* -name "*.md" | xargs grep "mijn onderwerp"
 cat docs/INDEX.md | grep "mijn onderwerp"
 
 # STAP 3: Als het NIET bestaat, check canonieke locatie
@@ -368,8 +367,8 @@ black src config
 
 - **Backlog Structuur:** `/docs/backlog/EPIC-XXX/` - Elke epic heeft eigen directory
   - **Epic Documentatie:** `/docs/backlog/EPIC-XXX/EPIC-XXX.md`
-  - **User Stories:** `/docs/backlog/EPIC-XXX/User Stories/US-XXX/US-XXX.md`
-  - **Bugs:** `/docs/backlog/EPIC-XXX/User Stories/US-XXX/bugs/BUG-XXX/BUG-XXX.md`
+  - **User Stories:** `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
+  - **Bugs:** `/docs/backlog/EPIC-XXX/bugs/BUG-XXX.md`
 - **Refactor Log**: `docs/refactor-log.md` - Wijzigingen tracking
 
 ### Reviews & Analyses

@@ -24,7 +24,6 @@ import logging
 
 from src.services.interfaces import GenerationRequest
 from src.services.container import ServiceContainer
-# TODO: Uncomment when context module is implemented (US-041/042/043)
 # from src.services.context.context_manager import ContextManager
 
 

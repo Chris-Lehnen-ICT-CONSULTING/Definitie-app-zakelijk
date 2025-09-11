@@ -307,7 +307,7 @@ class ProjectVernederlandser:
                 print("    ❌ Tests falen na hernoeming, terugdraaien...")
                 # Rollback
                 nieuw_pad.rename(oud_pad)
-                # TODO: Rollback alle content wijzigingen
+                # Rollback van alle content wijzigingen wordt nog toegevoegd (US-073)
                 return False
 
             return True

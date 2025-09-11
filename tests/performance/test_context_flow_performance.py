@@ -29,7 +29,6 @@ import numpy as np
 from src.services.interfaces import GenerationRequest
 from src.services.prompts.prompt_service_v2 import PromptServiceV2
 from src.services.container import ServiceContainer
-# TODO: Uncomment when context module is implemented (US-041/042/043)
 # from src.services.context.context_manager import ContextManager
 
 
