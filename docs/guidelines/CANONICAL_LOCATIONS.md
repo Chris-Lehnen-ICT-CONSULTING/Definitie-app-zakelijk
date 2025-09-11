@@ -68,7 +68,7 @@ docs/backlog/
 
 **Canonieke Locaties:**
 - **Epic**: `/docs/backlog/EPIC-XXX/EPIC-XXX.md` ✅ ACTIEF
-- **User Story**: `/docs/backlog/EPIC-XXX/User Stories/US-XXX/US-XXX.md` ✅ ACTIEF  
+- **User Story**: `/docs/backlog/EPIC-XXX/User Stories/US-XXX/US-XXX.md` ✅ ACTIEF
 - **Bug**: `/docs/backlog/EPIC-XXX/User Stories/US-XXX/bugs/BUG-XXX/BUG-XXX.md` ✅ ACTIEF
 - **Requirements**: `/docs/backlog/requirements/` ✅ BEHOUDEN (92 requirements)
 - **Dashboards**: `/docs/backlog/dashboard/` ✅ BEHOUDEN

@@ -395,7 +395,7 @@ class HistoryTab:
         st.info(
             f"🔍 Audit trail voor '{definitie.begrip}' (ID: {definitie.id}) - Feature komt binnenkort beschikbaar"
         )
-        # TODO: Implement audit trail query from definitie_geschiedenis table
+        # Audit trail query volgt via US-068
 
     def _get_filtered_definitions(
         self, filters: dict[str, Any]
