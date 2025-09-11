@@ -71,7 +71,8 @@
   - **[📍 Implementatieplan](./implementation/EPIC-010-implementation-plan.md)** - 9‑fasen implementatie (voltooid)
   - **[🛡️ CI Gates](../.github/workflows/epic-010-gates.yml)** **NIEUW** - Legacy pattern detection geïmplementeerd
   - **[🔍 Check Script](../scripts/check-legacy-patterns.sh)** **NIEUW** - Lokale verificatie voor developers
- - **[🧭 EPIC-013: Documentatie‑Portal](./backlog/EPIC-013/EPIC-013.md)** **HOOG** - Eén centrale, interactieve portal (auto‑sync, herbruikbaar)
+- **[🧭 EPIC-013: Documentatie‑Portal](./backlog/EPIC-013/EPIC-013.md)** **HOOG** - Eén centrale, interactieve portal (auto‑sync, herbruikbaar)
+- **[🎯 EPIC-014: Business Logic Refactoring](./backlog/EPIC-014/EPIC-014.md)** **NIEUW** - Implementatie van geëxtraheerde business logic (15 stories)
 - Individuele vereisten: `/docs/backlog/requirements/REQ-XXX.md`
 - Individuele epics: `/docs/backlog/EPIC-XXX/EPIC-XXX.md`
 - Individuele stories: `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
