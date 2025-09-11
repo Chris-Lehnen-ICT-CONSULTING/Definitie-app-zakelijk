@@ -212,14 +212,6 @@ class ContextIntegrationEnhancer(EnhancementStrategy):
 
         return results
 
-    def _integrate_domain(self, text: str, domein: str) -> str:
-        """Integreer domein informatie."""
-        if not text.endswith("."):
-            text += "."
-
-        domain_hint = f" Dit begrip wordt gebruikt binnen het {domein.lower()}."
-        return text + domain_hint
-
     def _integrate_context(self, text: str, context: str) -> str:
         """Integreer context informatie."""
         if not text.endswith("."):

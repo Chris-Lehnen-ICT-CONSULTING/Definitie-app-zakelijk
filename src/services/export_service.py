@@ -108,6 +108,21 @@ class ExportService:
                 or export_data.definitie_origineel
             )
             try:
+                # Check if we're already in an async context
+                loop = asyncio.get_running_loop()
+                # In async context: run coroutine thread-safely
+                fut = asyncio.run_coroutine_threadsafe(
+                    self.validation_orchestrator.validate_text(
+                        begrip=export_data.begrip,
+                        text=text_for_validation,
+                        ontologische_categorie=None,
+                        context=None,
+                    ),
+                    loop,
+                )
+                result = fut.result()
+            except RuntimeError:
+                # No running loop: safe to run
                 result = asyncio.run(
                     self.validation_orchestrator.validate_text(
                         begrip=export_data.begrip,
@@ -235,7 +250,7 @@ class ExportService:
             "definitie_aangepast",
             "status",
             "categorie",
-            "domein",
+            "juridische_context",
             "voorkeursterm",
             "synoniemen",
             "antoniemen",
@@ -257,7 +272,7 @@ class ExportService:
                 "definitie_aangepast": export_data.definitie_aangepast or "",
                 "status": export_data.metadata.get("status", ""),
                 "categorie": export_data.metadata.get("categorie", ""),
-                "domein": export_data.metadata.get("domein", ""),
+                "juridische_context": export_data.metadata.get("juridische_context", ""),
                 "voorkeursterm": export_data.voorkeursterm,
                 "synoniemen": export_data.synoniemen,
                 "antoniemen": export_data.antoniemen,

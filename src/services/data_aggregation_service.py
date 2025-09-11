@@ -140,7 +140,7 @@ class DataAggregationService:
                 "status": definitie_record.status,
                 "versie": definitie_record.versie,
                 "categorie": definitie_record.categorie,
-                "domein": definitie_record.domein,
+                "juridische_context": definitie_record.juridische_context,
                 "datum_voorstel": definitie_record.created_at,
                 "voorsteller": definitie_record.created_by or "Systeem",
             }
