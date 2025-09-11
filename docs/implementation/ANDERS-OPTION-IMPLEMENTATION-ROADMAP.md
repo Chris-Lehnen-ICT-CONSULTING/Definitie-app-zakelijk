@@ -643,10 +643,10 @@ Infrastructure:
 - [Compliance Audit](../compliance/ASTRA-NORA-COMPLIANCE-AUDIT-ANDERS-OPTION.md)
 
 ### B. User Stories
-- [US-056: Remove Legacy State](../backlog/stories/US-056.md)
-- [US-057: Fix Anders Option](../backlog/stories/US-057.md)
-- [US-058: Implement Audit Trail](../backlog/stories/US-058.md)
-- [US-059: Data Integrity](../backlog/stories/US-059.md)
+- [US-056: Remove Legacy State](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-056/US-056.md)
+- [US-057: Fix Anders Option](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-057/US-057.md)
+- [US-058: Implement Audit Trail](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-058/US-058.md)
+- [US-059: Data Integrity](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-059/US-059.md)
 
 ### C. Test Artifacts
 - Test plan documents

@@ -2796,7 +2796,7 @@ No auth               →    OAuth Module       →    Auth Service
 ## 14. References
 
 ### Internal Documentation
-- **Enterprise Architecture**: → [EA Document](/docs/architectuur/ENTERPRISE_ARCHITECTURE.md)
+- **Enterprise Architecture**: → [EA Document](docs/architectuur/ENTERPRISE_ARCHITECTURE.md)
 - **API Documentation**: https://api.definitieagent.nl/docs
 - **Runbooks**: /docs/runbooks/
 <!-- ADR directory niet meer beschikbaar na consolidatie - ADRs zijn geïntegreerd in de canonical architecture documenten -->
