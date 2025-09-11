@@ -8,14 +8,14 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 
 ## 📁 BACKLOG STRUCTUUR - STRIKT VOLGEN!
 
-De backlog heeft een **vaste hiërarchische structuur** die ALTIJD gevolgd moet worden:
+De backlog heeft een vaste hiërarchische structuur die ALTIJD gevolgd moet worden:
 
 ```
 docs/backlog/
 ├── EPIC-001/                      # Elke EPIC in eigen directory
 │   ├── EPIC-001.md                # Epic documentatie
 │   ├── US-001/                    # User stories direct onder EPIC
-│   │   ├── US-001.md              # User story documentatie
+│   │   ├── US-001.md              # Story documentatie
 │   │   └── BUG-XXX/               # Bugs binnen US directory
 │   │       └── BUG-XXX.md         # Bug documentatie
 │   └── US-002/
@@ -24,17 +24,17 @@ docs/backlog/
     └── ...
 ```
 
-**BELANGRIJKE REGELS:**
-- **NOOIT** stories direct in `/docs/backlog/stories/` plaatsen
-- **NOOIT** epics in `/docs/backlog/epics/` plaatsen
-- **GEEN** "User Stories" subdirectory - stories direct onder EPIC
-- **BUGS** altijd binnen de relevante US-XXX directory
-- **ALTIJD** de hiërarchie volgen: EPIC → US-XXX → BUG-XXX
-- **ALTIJD** elke user story in eigen directory met dezelfde naam
+BELANGRIJKE REGELS:
+- NOOIT stories direct in `/docs/backlog/stories/` plaatsen
+- NOOIT epics in `/docs/backlog/epics/` plaatsen
+- GEEN "User Stories" subdirectory – stories direct onder EPIC
+- BUGS altijd binnen de relevante `US-XXX` directory
+- ALTIJD de hiërarchie volgen: EPIC → US-XXX → BUG-XXX
+- ALTIJD elke user story in eigen directory met dezelfde naam
 
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
 
-### ⚠️ REFACTOREN, GEEN BACKWARDS COMPATIBILITY!
+### ⚠️ REFACTOREN, GEEN BACKWARDS COMPATIBILITY
 
 - **🔴 GEEN BACKWARDS COMPATIBILITY CODE**
 - **Dit is een single-user applicatie, NIET in productie**
@@ -63,9 +63,9 @@ docs/backlog/
 **VERPLICHTE CHECKS:**
 
 1. **Zoek eerst:** `grep -r "onderwerp" docs/` OF `ls docs/**/*term*.md`
-2. **Check master documenten:**
-   - `docs/backlog/EPIC-*/` voor epics (elke EPIC heeft eigen map)
-   - `docs/INDEX.md` voor overzicht
+2. **Check overzichtsbronnen:**
+   - `docs/portal/index.html` voor EPIC/US/REQ overzicht en filters
+   - `docs/INDEX.md` voor algemeen overzicht
    - `docs/guidelines/CANONICAL_LOCATIONS.md` voor juiste locaties
 3. **Check archief:** `ls docs/archief/` voor oude versies
 4. **Update bestaand:** Als het bestaat, UPDATE dat document, maak GEEN nieuw
@@ -77,11 +77,11 @@ docs/backlog/
 grep -r "mijn onderwerp" docs/
 ls docs/**/*relevante-term*.md
 
-# STAP 2: Check master documenten
-find docs/backlog/EPIC-*/US-* -name "*.md" | xargs grep "mijn onderwerp"
-cat docs/INDEX.md | grep "mijn onderwerp"
+# STAP 2: Check overzicht (Portal/Index)
+# Open docs/portal/index.html en gebruik zoek/filter
+grep -i "mijn onderwerp" docs/INDEX.md || true
 
-# STAP 3: Als het NIET bestaat, check canonieke locatie
+# STAP 3: Als het NIET bestaat, check canonieke locatie (EPIC → US → BUG)
 cat docs/guidelines/CANONICAL_LOCATIONS.md
 
 # STAP 4: Maak aan op JUISTE locatie met frontmatter
@@ -92,7 +92,7 @@ cat docs/guidelines/CANONICAL_LOCATIONS.md
 
 **Deze fouten leiden tot projectrommel:**
 
-- ❌ Nieuwe epic/story docs maken terwijl MASTER-EPICS-USER-STORIES.md bestaat
+- ❌ Nieuwe epic/story docs maken buiten de canonieke EPIC-XXX structuur/Portal om
 - ❌ Archive/archief2/old directories maken i.p.v. `/docs/archief/` gebruiken
 - ❌ Duplicate documenten met licht verschillende namen
 - ❌ Documenten op verkeerde locaties maken
@@ -303,12 +303,11 @@ SKIP_PRE_COMMIT        # Sla pre-commit hooks over (alleen noodgevallen)
 
 ## Werken met Legacy Code
 
-De codebase migreert van V1 naar V2 services:
+Refactor, geen backwards compatibility:
 
-- V1 services worden uitgefaseerd (gemarkeerd met deprecation waarschuwingen)
-- V2 services gebruiken het moderne orchestrator patroon
-- Gebruik feature flags voor A/B testing tijdens migratie
-- Beide versies moeten werken tijdens transitie
+- Geen feature flags of parallelle V1/V2 paden
+- Verwijder verouderde paden zodra het nieuwe pad klaar is
+- Behoud en documenteer businesslogica tijdens refactor
 
 ## CI/CD Pipeline
 
@@ -365,11 +364,11 @@ black src config
 
 ### Huidig Werk & Epics
 
-- **Backlog Structuur:** `/docs/backlog/EPIC-XXX/` - Elke epic heeft eigen directory
-  - **Epic Documentatie:** `/docs/backlog/EPIC-XXX/EPIC-XXX.md`
-  - **User Stories:** `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
-  - **Bugs:** `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md`
-- **Refactor Log**: `docs/refactor-log.md` - Wijzigingen tracking
+- Centrale Portal: `docs/portal/index.html` (zoek, filter, planning, requirements)
+- Individuele Epic: `docs/backlog/EPIC-XXX/EPIC-XXX.md`
+- Individuele Story: `docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
+- Bugs per Story: `docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md`
+- Refactor Log: `docs/refactor-log.md`
 
 ### Reviews & Analyses
 
