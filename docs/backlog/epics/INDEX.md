@@ -38,7 +38,7 @@ Dit dashboard biedt een volledig overzicht van alle epics in het DefinitieAgent 
 | [EPIC-009](EPIC-009-advanced-features.md) | Advanced Features | ⏳ TODO | LAAG | 5% | v2.0 | 0/6 |
 | [EPIC-010](EPIC-010-context-flow-refactoring.md) | Context Flow Refactoring | 🚨 KRITIEK | KRITIEK | 0% | v1.0.1 | 0/6 |
 | EPIC-011 | Documentatie Completering | ⏳ TODO | GEMIDDELD | 0% | v1.2 | 0/3 |
-| [EPIC-012](EPIC-012-legacy-orchestrator-refactoring.md) | Legacy Orchestrator Refactoring | ⏳ TODO | HOOG | 0% | v1.1 | 0/5 |
+| [EPIC-012](EPIC-012-legacy-orchestrator-refactoring/EPIC-012.md) | Legacy Orchestrator Refactoring | ⏳ TODO | HOOG | 0% | v1.1 | 0/5 |
 
 ## Progress Metrics
 

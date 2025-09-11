@@ -302,9 +302,9 @@ Request → Cached Services (1x)
 
 ## Gerelateerde Documentatie
 
-- [Prestaties Testen Plan](../testing/Prestaties_testing.md)
-- [Caching Strategy](../architectuur/caching_strategy.md)
-- [Cost Optimization Guide](../guides/cost_optimization.md)
+- Performance Testing Plan: See testing directory (`tests/` for existing benchmarks)
+- Caching Strategy: Redis implementation in service container (`src/services/container.py`)
+- Cost Optimization Guide: See performance metrics and requirements sections above
 
 ## Stakeholder Goedkeuring
 

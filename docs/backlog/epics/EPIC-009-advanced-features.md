@@ -280,9 +280,9 @@ FastAPI Application
 
 ## Gerelateerde Documentatie
 
-- [Enterprise Architecture](../architectuur/enterprise_architecture.md)
-- [API Specification](../api/openapi_spec.yaml)
-- [Multi-tenant Design](../architectuur/multi_tenant.md)
+- [Enterprise Architecture](../../architectuur/ENTERPRISE_ARCHITECTURE.md)
+- API Specification: Future API design (not yet implemented)
+- Multi-tenant Design: Single-user application currently (future enhancement)
 
 ## Stakeholder Goedkeuring
 

@@ -382,9 +382,9 @@ Definition Input → Validation Request
 
 ## Related Documentation
 
-- [Validation Rules Documentation](../toetsregels/README.md)
+- Validation Rules Documentation: `src/toetsregels/` (implemented validation rules)
 - [Modular Validation Service](../archief/2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
-- [Rule Configuration Guide](../config/toetsregels/README.md)
+- Rule Configuration Guide: `config/toetsregels/` (JSON configuration files)
 
 ## Stakeholder Sign-off
 

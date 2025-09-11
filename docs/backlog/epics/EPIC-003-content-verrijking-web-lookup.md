@@ -295,9 +295,9 @@ User Request → Web Lookup Service
 
 ## Gerelateerde Documentatie
 
-- [Web Lookup Config](../technisch/web_lookup_config.md)
-- [Modern Web Lookup Service](../services/web_lookup_service.md)
-- [Privacy Guidelines](../guidelines/privacy_guidelines.md)
+- [Web Lookup Config](../../technisch/web_lookup_config.md)
+- Modern Web Lookup Service: `src/services/modern_web_lookup_service.py` (implementation)
+- Privacy Guidelines: See ASTRA/NORA compliance sections above
 
 ## Stakeholder Goedkeuring
 
