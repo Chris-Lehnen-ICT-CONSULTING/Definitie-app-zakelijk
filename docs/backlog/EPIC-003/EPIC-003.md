@@ -24,7 +24,7 @@ stories:
 - US-017
 - US-018
 - US-019
-- US-061
+- US-062
 target_release: v1.1
 titel: Content Verrijking / Web Lookup
 vereisten:
