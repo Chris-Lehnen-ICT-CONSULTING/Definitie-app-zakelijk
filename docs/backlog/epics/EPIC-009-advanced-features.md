@@ -21,6 +21,7 @@ stories:
 - US-044
 - US-045
 - US-046
+- US-060
 target_release: v2.0
 titel: Advanced Features
 vereisten:

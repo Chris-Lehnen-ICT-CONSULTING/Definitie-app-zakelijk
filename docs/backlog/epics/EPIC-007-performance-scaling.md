@@ -27,6 +27,7 @@ stories:
 - US-034
 - US-035
 - US-047
+- US-063
 target_release: v1.1
 titel: Prestaties & Scaling
 vereisten:
