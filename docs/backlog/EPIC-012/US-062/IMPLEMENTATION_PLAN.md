@@ -118,7 +118,7 @@ UI Display (beide outputs beschikbaar)
 
 ### Integratie Opties
 
-#### Optie A: Decorator Pattern (AANBEVOLEN ⭐)
+#### Optie A: Decorator Pattern (algemeen)
 ```python
 class ValidationOrchestratorV2:
     def validate_definition(self, definition: str) -> ValidationResult:
@@ -144,6 +144,38 @@ class ValidationOrchestratorV2:
 - Feedback is opt-in
 - Single result object
 - Clean separation of concerns
+
+#### Optie A.1: Decorator in DefinitionOrchestratorV2 (AANBEVOLEN ⭐)
+```python
+# Schematisch, async V2 voorbeeld (post-validatie)
+class DefinitionOrchestratorV2:
+    async def create_definition(self, request, context=None):
+        # ... PHASE 5: Cleaning
+        # ... PHASE 6: Validation
+        validation_result = await self.validation_service.validate_text(
+            begrip=request.begrip,
+            text=cleaned_text,
+            ontologische_categorie=request.ontologische_categorie,
+            context=validation_context,
+        )
+
+        # NIEUW: feedbackverrijking na validatie (opt-in via config/feature flag)
+        if getattr(self.config, "enable_feedback_loop", True) and self.feedback_engine:
+            suggestions = await self.feedback_engine.process_validation_feedback(
+                definition_id=generation_id,
+                validation_result=validation_result,
+                original_request=request,
+            )
+            validation_result["improvement_suggestions"] = suggestions
+
+        # ... PHASE 8..11 blijven ongewijzigd
+        return definition_response
+```
+
+**Voordelen extra:**
+- Validator blijft dun (geen businesslogica)
+- Sluit aan op bestaand `improvement_suggestions` veld
+- Eenvoudige feature‑flagged rollout
 
 #### Optie B: Pipeline Pattern
 ```python
@@ -200,7 +232,7 @@ class FeedbackContext:
     iteration: int
     previous_score: float
     current_score: float
-    violations: list[ValidationViolation]
+    violations: list[RuleViolation]
     history: list[FeedbackItem]
 
 class FeedbackServiceV2:
@@ -267,7 +299,7 @@ class FeedbackServiceV2:
 - [ ] Creëer FeedbackServiceV2 skeleton
 - [ ] Implementeer 45 violation-to-feedback mappings
 - [ ] Simpele prioritering (Critical → High → Medium → Low)
-- [ ] Integreer met ValidationOrchestratorV2
+- [ ] Integreer met DefinitionOrchestratorV2 (post‑validatie hook)
 
 ### FASE 3: US-062 Advanced (Week 3 - Dag 2-3)
 **Doel:** Intelligente features toevoegen
@@ -282,6 +314,8 @@ class FeedbackServiceV2:
 - [ ] Performance optimalisatie
 - [ ] A/B testing tegen legacy
 - [ ] Gebruikersacceptatie tests
+ - [ ] Single Import flow: endpoint/CLI voor “validate_imported_definition” (validatie + top‑5 feedback)
+ - [ ] Bulk Import: batch API/CLI, CSV/Excel exporter (per item score + top‑3), aggregatierapport (acceptatie‑ratio, top violations, p95 duur)
 
 ---
 
@@ -306,6 +340,8 @@ tests/services/feedback/
 2. **Max Items:** Nooit meer dan 5 feedback items
 3. **Stagnatie:** Detectie bij <0.05 verbetering
 4. **Iteratie Aware:** Verschillende feedback per iteratie
+5. **Legacy parity:** Nieuwe output matcht legacy via adapter op vaste fixtures
+6. **Bulk export:** CSV/Excel inhoud en aggregaties kloppen en zijn deterministisch
 5. **History:** FIFO met max 10 items
 
 ---
@@ -359,11 +395,17 @@ tests/services/feedback/
 
 ### Stap 1: Parallel Running
 ```python
-# In ValidationOrchestratorV2
-if settings.USE_NEW_FEEDBACK_SERVICE:
-    feedback = self.feedback_service_v2.generate_feedback(context)
-else:
-    feedback = self._legacy_feedback_builder(violations)
+# In DefinitionOrchestratorV2 (post-validatie)
+from services.feature_flags import FEEDBACK_SERVICE_V2
+
+validation_result = await self.validation_service.validate_text(...)
+if getattr(self.config, "enable_feedback_loop", True) and FEEDBACK_SERVICE_V2 and self.feedback_engine:
+    suggestions = await self.feedback_engine.process_validation_feedback(
+        definition_id=generation_id,
+        validation_result=validation_result,
+        original_request=request,
+    )
+    validation_result["improvement_suggestions"] = suggestions
 ```
 
 ### Stap 2: Gradual Rollout
@@ -404,8 +446,8 @@ else:
 
 ### Code Dependencies
 - `src/services/validation/modular_validation_service.py` - Voor violations input
-- `src/services/orchestration/validation_orchestrator_v2.py` - Voor integratie
-- `src/models/validation_models.py` - Voor data types
+- `src/services/orchestrators/validation_orchestrator_v2.py` - Voor validatie orchestratie
+- `src/services/validation/interfaces.py` - Voor data types (RuleViolation, ValidationResult)
 - `src/services/container.py` - Voor service registration
 
 ### Knowledge Dependencies
@@ -418,7 +460,7 @@ else:
 |---------|------------|--------|---------------------------|
 | Definition Edit | US-064 | Open (HIGH) | Enables iterative feedback during editing |
 | Import Validation | US-027 | Nog te bepalen | Feedback voor imported definitions |
-| Bulk Import | US-062 | Open (HIGH) | Batch feedback generation |
+| Bulk Import | US-062 | Open (HIGH) | Batch feedback + CSV/Excel export + aggregatie |
 | Batch Operations | US-028 | Nog te bepalen | Performance optimalisaties nodig |
 
 ### Critical Dependency
@@ -464,6 +506,24 @@ Na implementatie updaten:
 - [ ] Documentation updated
 - [ ] No regression in functionality
 - [ ] Legacy code archived (niet verwijderd)
+
+---
+
+## 📦 Bulk Rapportage (Specificatie)
+
+### Exportformaat
+- CSV/Excel met kolommen:
+  - `id`, `bron`, `begrip`, `score`, `is_acceptable`, `violations_count`, `duration_ms`, `top1_feedback`, `top2_feedback`, `top3_feedback`
+
+### Aggregaties
+- Acceptatie‑ratio (aantal acceptabel / totaal)
+- Top 5 meest voorkomende violations (rule_id + count)
+- Tijdsverdeling: p50/p95 `duration_ms`
+
+### Criteria
+- Deterministisch bij gelijke input
+- Geen duplicaten in top‑3 per item
+- Uitvoer < 100ms per item (excl. validatie)
 
 ---
 
