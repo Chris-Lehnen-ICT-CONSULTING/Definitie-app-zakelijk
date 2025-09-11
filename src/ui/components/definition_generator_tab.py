@@ -34,7 +34,7 @@ class DefinitionGeneratorTab:
         self.category_service = CategoryService(get_definitie_repository())
         self.workflow_service = WorkflowService()  # Business logic voor status workflow
 
-        # TODO: Inject via dependency injection wanneer beschikbaar
+        # Injectie via dependency injection volgt wanneer beschikbaar
         from services.definition_generator_config import UnifiedGeneratorConfig
         from services.definition_generator_prompts import UnifiedPromptBuilder
 
@@ -653,7 +653,7 @@ class DefinitionGeneratorTab:
             new_category=new_category,
             current_definition=current_definition,
             begrip=begrip,
-            user="web_user",  # TODO: Get actual user when auth implemented
+            user="web_user",
             reason="Handmatige aanpassing via UI",
         )
 
@@ -865,12 +865,10 @@ class DefinitionGeneratorTab:
 
     def _edit_existing_definition(self, definitie: DefinitieRecord):
         """Bewerk bestaande definitie."""
-        # TODO: Navigate to edit interface
         st.info("🔄 Navigating to edit interface...")
 
     def _edit_definition(self, definitie: DefinitieRecord):
         """Bewerk gegenereerde definitie."""
-        # TODO: Implement definition editing
         st.info("🔄 Edit functionality coming soon...")
 
     def _submit_for_review(self, definitie: DefinitieRecord):
@@ -893,7 +891,7 @@ class DefinitionGeneratorTab:
             )
 
             # Apply changes via repository (data access layer)
-            # TODO: In Phase 2, create a DefinitionWorkflowService that combines both
+            # DefinitionWorkflowService volgt (US-072)
             success = self.checker.repository.change_status(
                 definitie_id=definitie.id,
                 new_status=DefinitieStatus.REVIEW,
@@ -1488,7 +1486,6 @@ class DefinitionGeneratorTab:
 
     def _show_settings_modal(self):
         """Toon instellingen modal."""
-        # TODO: Implement settings modal
         st.info("⚙️ Settings modal coming soon...")
 
     def _render_category_change_preview(

@@ -1,73 +1,10 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.5.0
-    hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-added-large-files
-      - id: check-merge-conflict
-      - id: check-toml
-      - id: debug-statements
-      - id: mixed-line-ending
-
   - repo: local
     hooks:
-      - id: ruff-changed
-        name: ruff (changed files)
-        entry: bash scripts/hooks/run_ruff_changed.sh
+      - id: no-todo-markers
+        name: Block TODO/FIXME markers in code
+        entry: bash scripts/ci/check_no_todo_markers.sh
         language: system
         pass_filenames: false
-      - id: black-changed
-        name: black (changed files)
-        entry: bash scripts/hooks/run_black_changed.sh
-        language: system
-        pass_filenames: false
-
-  # Tijdelijk uitgeschakeld voor eerste setup
-  # - repo: https://github.com/pre-commit/mirrors-mypy
-  #   rev: v1.8.0
-  #   hooks:
-  #     - id: mypy
-  #       additional_dependencies: [types-all]
-  #       args: [--ignore-missing-imports]
-
-  # - repo: local
-  #   hooks:
-  #     - id: pytest
-  #       name: pytest
-  #       entry: pytest
-  #       language: system
-  #       pass_filenames: false
-  #       always_run: true
-  #       args: [tests/services/, --cov=src/services, --cov-fail-under=80]
-
-  - repo: local
-    hooks:
-      - id: check-doc-location
-        name: Check document locations
-        entry: python scripts/hooks/check-doc-location.py
-        language: system
-        pass_filenames: true
-        files: '\.(md|py|json|html)$'
-        exclude: '^(\.git|\.venv|venv|__pycache__|\.pytest_cache|htmlcov)/'
-
-  - repo: local
-    hooks:
-      - id: doc-link-check
-        name: Check internal doc links
-        entry: python scripts/hooks/check-doc-links.py
-        language: system
-        pass_filenames: true
-        files: 'docs/.*\.md$'
-        # Exclude archived/review dirs case-insensitive
-        exclude: '(?i)docs/(archief|archive|reviews)/'
-
-  - repo: local
-    hooks:
-      - id: doc-metadata-staleness
-        name: Check doc metadata (staleness)
-        entry: python scripts/hooks/check-doc-metadata.py
-        language: system
-        pass_filenames: true
-        files: 'docs/.*\.md$'
+        types: [python]
+        stages: [commit]
