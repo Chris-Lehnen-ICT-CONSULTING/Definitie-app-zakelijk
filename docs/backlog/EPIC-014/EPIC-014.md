@@ -18,7 +18,7 @@ Op basis van de geëxtraheerde business kennis uit US-061, implementeren we alle
 - **Testbare business rules** met duidelijke ownership
 
 ## Context
-Dit EPIC is gebaseerd op de business kennis extractie uit [US-061](../EPIC-012/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md). Sommige geëxtraheerde patterns zijn mogelijk achterhaald door EPIC-010 improvements.
+Dit EPIC is gebaseerd op de business kennis extractie uit [US-061 – Extract en documenteer business kennis](../EPIC-012/US-061/US-061.md) en het bijbehorende [Business Knowledge Extraction document](../EPIC-012/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md). Sommige geëxtraheerde patterns zijn mogelijk achterhaald door EPIC-010 improvements.
 
 ## Scope
 ### In Scope
