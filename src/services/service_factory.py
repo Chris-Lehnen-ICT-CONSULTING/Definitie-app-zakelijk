@@ -204,16 +204,18 @@ class ServiceAdapter:
             is_acceptable = result.is_acceptable
         elif hasattr(result, "is_valid"):
             is_acceptable = result.is_valid
-        elif hasattr(result, "overall_score"):
-            is_acceptable = result.overall_score >= 0.5
         elif hasattr(result, "score"):
             is_acceptable = result.score >= 0.5
+        elif hasattr(result, "overall_score"):
+            # Deprecated: overall_score is replaced by score
+            is_acceptable = getattr(result, "overall_score", 0.0) >= 0.5
 
         overall_score = 0.0
-        if hasattr(result, "overall_score"):
-            overall_score = float(result.overall_score)
-        elif hasattr(result, "score"):
+        if hasattr(result, "score"):
             overall_score = float(result.score)
+        elif hasattr(result, "overall_score"):
+            # Deprecated: overall_score is replaced by score
+            overall_score = float(getattr(result, "overall_score", 0.0))
 
         return {
             "overall_score": overall_score,

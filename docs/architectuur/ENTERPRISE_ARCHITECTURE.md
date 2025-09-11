@@ -51,7 +51,7 @@ De DefinitieApp is een AI-gedreven systeem voor het genereren en valideren van j
 - **Waardepropositie**: 90% tijdsbesparing bij definitiecreatie met verhoogde kwaliteit en consistentie
 - **Strategische afstemming**: Volledig geïntegreerd met justitieketen architectuur (ASTRA/NORA compliant)
 - **Kritieke beslissingen**: V2-only architectuur met stateless services en Single Source of Truth principe
-- **Compliance status**: ASTRA 100%, NORA 95%, BIO 70%, GEMMA 100%
+- **Compliance status**: conform [COMPLIANCE-DASHBOARD.md](../COMPLIANCE-DASHBOARD.md). Let op: EPIC-010 (Context Flow) blokkeert volledige ASTRA/NORA‑afronding tot voltooiing.
 - **PER-007/CFR fixes**: Context flow volledig hersteld, alle drie contextvelden worden correct doorgegeven
 
 ### 1.2 Vision Statement
@@ -98,8 +98,8 @@ De DefinitieApp is een AI-gedreven systeem voor het genereren en valideren van j
 
 | Framework | Compliance Level | Certification | Next Audit | Actions |
 |-----------|-----------------|---------------|------------|---------|
-| ASTRA | ✅ 100% | Valid | Q1 2026 | Maintain |
-| NORA | ✅ 95% | In Progress | Q2 2026 | Complete AP04 |
+| ASTRA | Zie Compliance Dashboard | In uitvoering | Q1 2026 | Context flow afronden |
+| NORA | Zie Compliance Dashboard | In uitvoering | Q2 2026 | Afhankelijk van EPIC‑010 |
 | BIO | ⚠️ 70% | Required | Q3 2025 | Implement security controls |
 | GEMMA | ✅ 100% | Valid | Q4 2025 | Maintain |
 | AVG/GDPR | ✅ 85% | Assessment done | Q1 2026 | Privacy by Design |

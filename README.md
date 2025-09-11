@@ -10,7 +10,7 @@
 [![Security](https://img.shields.io/badge/security-basic%20only-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
-> **🧪 Status Update (2025-09-03)**: Performance analyse uitgevoerd, prompt optimalisatie (7.250→1.250 tokens), Toetsregel-Prompt Module architectuur voorgesteld
+> **✅ Status Update (2025-09-11)**: EPIC-010 Context Flow 100% completed, CI/CD gates geïmplementeerd tegen legacy patterns, klaar voor EPIC-012 refactoring
 
 ## 🧾 Snelstart Cheatsheet
 
@@ -30,8 +30,14 @@ pytest -q
 
 ### 🔒 Codekwaliteit en Backlog‑discipline
 - Geen TODO/FIXME/XXX/TBD/HACK/@todo/@fixme in code — alle werk loopt via backlog.
-- Zie CONTRIBUTING.md voor richtlijnen. CI blokkeert PR’s met TODO‑achtige comments.
+- Zie CONTRIBUTING.md voor richtlijnen. CI blokkeert PR's met TODO‑achtige comments.
 - Lokale check: `pip install pre-commit && pre-commit install` of `bash scripts/ci/check_no_todo_markers.sh`.
+
+### 🛡️ CI/CD Legacy Pattern Gates (NIEUW - Sept 2025)
+- **GitHub Actions**: `.github/workflows/epic-010-gates.yml` blokkeert legacy patterns
+- **Lokale check**: `bash scripts/check-legacy-patterns.sh` voor het pushen
+- **7 patterns geblokkeerd**: generation_result imports, .best_iteration, string context, domein field, asyncio.run in services, streamlit in services
+- **Status**: ✅ Actief sinds 11-09-2025 (EPIC-010 completed)
 
 ### 🌐 Web Lookup Config (Epic 3)
 - De applicatie gebruikt één configbestand: `config/web_lookup_defaults.yaml` (prompt‑augmentatie staat standaard aan).

@@ -15,16 +15,16 @@ status: active
 
 ## Executive Summary
 
-Dit document beschrijft de technische implementatie van DefinitieAgent V2-only architectuur. Het systeem draait volledig op V2 services met gecentraliseerde AI configuratie via ConfigManager, modulaire validatie met 45 toetsregels, en clean afhankelijkheid injection via ServiceContainer. Alle V1 services en migratie code zijn verwijderd.
+Dit document beschrijft de technische implementatie van DefinitieAgent met een V2‑gerichte architectuur. Het systeem draait op V2‑services met gecentraliseerde AI‑configuratie via ConfigManager, modulaire validatie met 45 toetsregels, en clean afhankelijkheidsinjectie via ServiceContainer. Enkele legacy‑compatibiliteitsstubs en fallback‑mechanismen zijn nog aanwezig en worden gefaseerd uitgefaseerd.
 
 ## Context & Scope
 
 ### Huidige Realiteit (2025-09)
 - **Uitrol Model**: Developer workstation (single-user MVP)
-- **Architecture Pattern**: V2-only services met ServiceContainer DI
+- **Architecture Pattern**: V2‑services met ServiceContainer DI (modulaire monoliet als huidige situatie)
 - **Service Layer**: DefinitionOrchestratorV2, ValidationOrchestratorV2, ModularValidationService
 - **AI Configuration**: ConfigManager met component-specifieke settings
-- **Migration Status**: 100% V2 - alle V1 code verwijderd
+- **Migration Status**: V2‑dominant; resterende compatibiliteitsstubs/fallbacks worden uitgefaseerd
 - **Production Path**: FastAPI/PostgreSQL Q4 2025, Justice chain Q2 2026
 
 ### Toekomstige Scope

@@ -148,11 +148,11 @@ Comprehensive analysis and completion of all epic and story documentation for th
 - `/docs/backlog/EPIC-010/EPIC-010.md`
 
 ### Stories Enhanced/Created
-- `/docs/backlog/stories/US-015.md` (enhanced)
-- `/docs/backlog/stories/US-043.md` (rewritten)
-- `/docs/backlog/stories/US-048.md` (new)
-- `/docs/backlog/stories/US-049.md` (new)
-- `/docs/backlog/stories/US-050.md` (new)
+- `/docs/backlog/EPIC-004/US-015/US-015.md` (enhanced)
+- `/docs/backlog/EPIC-009/US-043/US-043.md` (rewritten)
+- `/docs/backlog/EPIC-009/US-048/US-048.md` (new)
+- `/docs/backlog/EPIC-009/US-049/US-049.md` (new)
+- `/docs/backlog/EPIC-009/US-050/US-050.md` (new)
 
 ## Next Steps
 
