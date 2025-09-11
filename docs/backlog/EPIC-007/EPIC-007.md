@@ -302,9 +302,9 @@ Request → Cached Services (1x)
 
 ## Gerelateerde Documentatie
 
-- [Prestaties Testen Plan](../testing/Prestaties_testing.md)
-- [Caching Strategy](../architectuur/caching_strategy.md)
-- [Cost Optimization Guide](../guides/cost_optimization.md)
+- Prestaties Testen Plan
+- Caching Strategy
+- Cost Optimization Guide
 
 ## Stakeholder Goedkeuring
 

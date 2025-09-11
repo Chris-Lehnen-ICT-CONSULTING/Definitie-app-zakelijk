@@ -1006,11 +1006,11 @@ kubectl rollout status deployment/$DEPLOYMENT -n $NAMESPACE
 
 ### B. Reference Links
 
-- [API Documentation](./api/openapi.yaml)
-- [Database Migrations](./migrations/)
-- [Security Policies](./security/policies.md)
-- [Runbooks](./runbooks/)
-- [Architecture Decision Records](./beslissingen/)
+- API Documentation
+- Database Migrations
+- Security Policies
+- Runbooks
+- Architecture Decision Records
 
 ---
 

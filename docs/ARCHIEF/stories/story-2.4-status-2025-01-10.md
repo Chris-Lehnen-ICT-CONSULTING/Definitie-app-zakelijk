@@ -133,7 +133,7 @@ d9881df docs: update dashboard and handover with verified refactoring status
 4. Document completion
 
 ## Links
-- Related: [Modernization Plan 2025](../MODERNIZATION_PLAN_2025.md)
+- Related: Modernization Plan 2025
 - Story Definition: `docs/stories/story-2.4-interface-migration.md`
 - Test Results: `src/tests/story_2_4/`
 - Dashboard: `http://localhost:8501/`

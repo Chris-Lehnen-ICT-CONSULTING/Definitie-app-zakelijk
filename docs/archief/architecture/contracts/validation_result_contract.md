@@ -260,7 +260,7 @@ def test_contract_compatibility():
 - **Parent**: [Validation Orchestrator V2 Architecture](../../2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
 - **Schema**: [JSON Schema Definition](./schemas/validation_result.schema.json)
 - **Errors**: [Error Catalog](../../../technisch/error_catalog_validation.md)
-- **Usage**: [Rollout Runbook](../../workflows/validation_orchestrator_rollout.md)
+- **Usage**: Rollout Runbook
 - **Testing**: [Golden Dataset](../../../testing/golden-dataset-validation.md)
 
 ## Change Log

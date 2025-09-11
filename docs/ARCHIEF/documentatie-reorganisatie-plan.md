@@ -50,7 +50,7 @@ Update hoofdstukken in README.md:
 ## 📚 Documentatie
 
 ### Requirements & Features
-- **[Complete Requirements & Features](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md)** - Alle user stories, epics en feature status
+- **Complete Requirements & Features** - Alle user stories, epics en feature status
   - 87 features gedefinieerd
   - 9 epics met acceptance criteria
   - Real-time status tracking
@@ -59,12 +59,12 @@ Update hoofdstukken in README.md:
 - **[Architectuur Overzicht](docs/architectuur/README.md)** - Index van alle architectuur documentatie
 - **[Enterprise Architecture](docs/architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategie
 - **[Solution Architecture](docs/architectuur/SOLUTION_ARCHITECTURE.md)** - Technische implementatie
-- **[Legacy Migratie](docs/LEGACY_CODE_MIGRATION_ROADMAP.md)** - 10-weken migratie roadmap
+- **Legacy Migratie** - 10-weken migratie roadmap
 
 ### Quick Links
-- 🎯 [Wat moet er nog gebeuren?](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#epic-overview) - 60% features nog niet gestart
-- 🔒 [Security Requirements](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#epic-6-security--auth) - KRITIEK: 0% geïmplementeerd
-- 🚀 [Roadmap](docs/REQUIREMENTS_AND_FEATURES_COMPLETE.md#implementation-roadmap) - 4 fasen implementatie plan
+- 🎯 Wat moet er nog gebeuren? - 60% features nog niet gestart
+- 🔒 Security Requirements - KRITIEK: 0% geïmplementeerd
+- 🚀 Roadmap - 4 fasen implementatie plan
 ```
 
 ### Stap 5: Andere Referentie Updates

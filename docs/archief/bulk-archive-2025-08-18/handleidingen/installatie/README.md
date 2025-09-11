@@ -5,24 +5,24 @@ Welcome to the DefinitieAgent documentation. This folder contains all essential 
 ## 📋 Core Documents
 
 ### Project Planning
-- **[prd.md](prd.md)** - Product Requirements Document with complete feature specifications
+- **prd.md** - Product Requirements Document with complete feature specifications
 - **[roadmap.md](../../archive/2025-01-12/root/roadmap.md)** - 6-week implementation roadmap (Features First approach)
 - **[backlog.md](../../../requirements/backlog.md)** - All 77+ work items, prioritized with quick wins
 
 ### Technical Documentation
 - **[architecture.md](../../../architectuur-origineel/2025-08-18/architecture.md)** - System architecture, tech stack, and patterns
 - **[architecture-interactive.html](../../archive/2025-01-12/root/architecture-interactive.html)** - 🆕 Interactief architectuur document met diagrammen
-- **[ontologie-6-stappen.md](ontologie-6-stappen.md)** - Core business logic for definition quality
+- **ontologie-6-stappen.md** - Core business logic for definition quality
 
 ### Reference Folders
-- **[architecture/](architecture/)** - Architecture decisions (ADRs)
-- **[development/](development/)** - Development guidelines and AI instructions
+- **architecture/** - Architecture decisions (ADRs)
+- **development/** - Development guidelines and AI instructions
 - **[domain/](../../archive/2025-01-12/old-structure/domain)** - Business domain knowledge and terminology
-- **[migration/](migration/)** - Legacy code reference and migration guides
+- **migration/** - Legacy code reference and migration guides
 - **[project-management/](../../archive/2025-01-12/old-structure/project-management)** - BMAD methodology and workflows
 - **[samples/](../../archive/2025-01-12/old-structure/samples)** - Example documents for testing
-- **[setup/](setup/)** - Development setup and quick start guides
-- **[technical/](technical/)** - API references and technical specs
+- **setup/** - Development setup and quick start guides
+- **technical/** - API references and technical specs
 
 ## 🚀 Quick Navigation
 
@@ -33,14 +33,14 @@ Welcome to the DefinitieAgent documentation. This folder contains all essential 
 4. See main [README.md](../README.md) for setup instructions
 
 **For Product Owners:**
-1. Review [prd.md](prd.md) for requirements
+1. Review prd.md for requirements
 2. Track progress in [roadmap.md](../../archive/2025-01-12/root/roadmap.md)
 3. Prioritize items in [backlog.md](../../../requirements/backlog.md)
 
 **For AI Agents:**
 1. Use [architecture.md](../../../architectuur-origineel/2025-08-18/architecture.md) for codebase navigation
-2. Reference [prd.md](prd.md) for feature specifications
-3. Follow patterns in main [CLAUDE.md](../CLAUDE.md)
+2. Reference prd.md for feature specifications
+3. Follow patterns in main CLAUDE.md
 
 ## 📊 Document Status
 
@@ -75,5 +75,5 @@ This documentation is actively maintained. Updates should be made to:
 - **architecture.md** - When system changes occur
 
 ---
-*For project setup, see [SETUP.md](../SETUP.md)*
-*For contributing, see [CONTRIBUTING.md](../CONTRIBUTING.md)*
+*For project setup, see SETUP.md*
+*For contributing, see CONTRIBUTING.md*

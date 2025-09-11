@@ -261,9 +261,9 @@ Roles
 
 ## Gerelateerde Documentatie
 
-- [beveiliging Architecture](../architectuur/beveiliging_architecture.md)
-- [Audit Logging Design](../technisch/audit_logging.md)
-- [Justice SSO Integration](../integration/justice_sso.md)
+- beveiliging Architecture
+- Audit Logging Design
+- Justice SSO Integration
 
 ## Stakeholder Goedkeuring
 
