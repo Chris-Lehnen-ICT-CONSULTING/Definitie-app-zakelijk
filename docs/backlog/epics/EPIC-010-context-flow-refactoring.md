@@ -4,10 +4,10 @@ id: EPIC-010
 aangemaakt: 04-09-2025
 applies_to: definitie-app@current
 astra_compliance: GEBLOKKEERD
-bijgewerkt: 10-09-2025
+bijgewerkt: 11-09-2025
 business_impact: HOOG
 canonical: true
-completion: 85%
+completion: 95%
 last_verified: 10-09-2025
 nora_compliance: GEBLOKKEERD
 owner: business-analyst
@@ -27,6 +27,9 @@ stories:
 - US-048
 - US-049
 - US-050
+- US-051
+- US-052
+- US-053
 target_release: v1.0.1
 titel: Context FLAAG Refactoring
 vereisten:
@@ -164,6 +167,41 @@ The multiselect widget crashes wanneer the final list differs from options.
 - Context with special characters
 - Type mismatch handling
 
+### US-051: Fix CFR-BUG-014 Synoniemen/Antoniemen Generatie
+**Status:** VOLTOOID ✅
+**Prioriteit:** KRITIEK
+**Verhaalpunten:** 5
+**Completed:** 2025-09-11
+
+**Wat is gefixt:**
+- Synoniemen/antoniemen genereren nu correct 5 items (was 1)
+- `_parse_response` krijgt nu correct `example_type` parameter
+- Prompts bevatten definitie + context voor betere resultaten
+- Parser ondersteunt meerdere formaten
+
+### US-052: Orchestrator Async Voorbeelden Migration
+**Status:** VOLTOOID ✅
+**Prioriteit:** HOOG
+**Verhaalpunten:** 3
+**Completed:** 2025-09-11
+
+**Wat is geïmplementeerd:**
+- Orchestrator gebruikt nu `genereer_alle_voorbeelden_async()`
+- Alle voorbeelden worden parallel gegenereerd
+- Geen sync bridging meer in service laag
+- Performance: 0.04s met caching (dramatische verbetering)
+
+### US-053: CI Gates Implementation
+**Status:** OPEN
+**Prioriteit:** MEDIUM
+**Verhaalpunten:** 5
+**Afhankelijkheden:** US-043
+
+**Requirements:**
+- Pre-commit hooks voor context validation
+- Automated testing voor context flow
+- Performance benchmarks
+
 ## Bug Reports
 
 ### CFR-BUG-001: Context Fields Not Passed to Prompts
@@ -240,10 +278,12 @@ UI Context Selection
 - US-041: Fix context field mapping
 - US-042: Fix "Anders..." crashes
 
-## Statusupdate 2025-09-10
+## Statusupdate 2025-09-11
 
 ### Voltooide User Stories:
 - US-041: ✅ **GEREED** - Context field mapping volledig werkend
+- US-051: ✅ **VOLTOOID** - CFR-BUG-014 Synoniemen/Antoniemen Fix (5 items nu correct gegenereerd)
+- US-052: ✅ **VOLTOOID** - Orchestrator Async Migration (voorbeelden performance dramatisch verbeterd)
 - US-042: ✅ **GEREED** - "Anders..." optie werkt zonder crashes
 - US-043: ⚠️ **85% GEREED** - Legacy routes grotendeels verwijderd
 
