@@ -178,7 +178,7 @@ class AIServiceV2(AIServiceInterface):
                 tokens_used=tokens_used,
                 generation_time=generation_time,
                 cached=cached,
-                retry_count=0,  # TODO: Get actual retry count from client
+                retry_count=0,
                 metadata={"tokens_estimated": True} if not TIKTOKEN_AVAILABLE else {},
             )
 

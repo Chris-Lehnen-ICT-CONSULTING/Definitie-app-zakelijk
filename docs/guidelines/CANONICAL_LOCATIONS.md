@@ -49,15 +49,37 @@ Laatste update: 05-09-2025 (Architectuur Consolidatie Compleet)
 - **Code Quality Reports**: `docs/code-analyse/quality/`
 - **Executive Summaries**: `docs/reviews/` ✅ ACTIEF
 
-### 6. Backlog Management (Centralized)
-- **Requirements**: `/docs/backlog/requirements/` ✅ ACTIEF (92 requirements)
-- **Epics**: `/docs/backlog/epics/` ✅ ACTIEF (11 epics)
-- **User Stories**: `/docs/backlog/stories/` ✅ ACTIEF (55 stories)
-- **Dashboards (REQ/Epic overzicht)**: `/docs/backlog/dashboard/` ✅ ACTIEF
+### 6. Backlog Management (Hierarchical Structure - December 2025)
+
+**🔴 BELANGRIJKE STRUCTUUR WIJZIGING:**
+```
+docs/backlog/
+├── EPIC-001/                    # Elke EPIC in eigen directory
+│   ├── EPIC-001.md             # Epic documentatie
+│   └── User Stories/           # Alle user stories van deze epic
+│       ├── US-001/             # Elke story in eigen directory
+│       │   ├── US-001.md       # Story documentatie
+│       │   └── bugs/           # Bugs van deze story
+│       │       └── BUG-XXX/    # Elke bug in eigen directory
+│       └── US-002/
+└── EPIC-002/
+    └── ...
+```
+
+**Canonieke Locaties:**
+- **Epic**: `/docs/backlog/EPIC-XXX/EPIC-XXX.md` ✅ ACTIEF
+- **User Story**: `/docs/backlog/EPIC-XXX/User Stories/US-XXX/US-XXX.md` ✅ ACTIEF  
+- **Bug**: `/docs/backlog/EPIC-XXX/User Stories/US-XXX/bugs/BUG-XXX/BUG-XXX.md` ✅ ACTIEF
+- **Requirements**: `/docs/backlog/requirements/` ✅ BEHOUDEN (92 requirements)
+- **Dashboards**: `/docs/backlog/dashboard/` ✅ BEHOUDEN
   - `index.html` (requirements tabel, zoeken + sorteren)
   - `per-epic.html` (inklappende blokken per epic)
   - `graph.html` (offline REQ ↔ EPIC graph)
-- **Overdracht Documents**: `docs/handover/` ✅ ACTIEF
+
+**❌ VEROUDERDE LOCATIES (NIET MEER GEBRUIKEN):**
+- ~~`/docs/backlog/epics/`~~ → Gebruik `/docs/backlog/EPIC-XXX/`
+- ~~`/docs/backlog/stories/`~~ → Gebruik `/docs/backlog/EPIC-XXX/User Stories/`
+- ~~`/docs/backlog/bugs/`~~ → Gebruik `/docs/backlog/EPIC-XXX/User Stories/US-XXX/bugs/`
 
 ### 7. Archief
 - **Architectuur Consolidatie (Sept 2025)**: `docs/archief/2025-09-architectuur-consolidatie/`

@@ -143,9 +143,9 @@ Comprehensive analysis and completion of all epic and story documentation for th
 ## Files Modified/Created
 
 ### Epische Verhalen Enhanced
-- `/docs/backlog/epics/EPIC-003-content-verrijking-web-lookup.md`
-- `/docs/backlog/epics/EPIC-007-performance-scaling.md`
-- `/docs/backlog/epics/EPIC-010-context-flow-refactoring.md`
+- `/docs/backlog/EPIC-003/EPIC-003.md`
+- `/docs/backlog/EPIC-007/EPIC-007.md`
+- `/docs/backlog/EPIC-010/EPIC-010.md`
 
 ### Stories Enhanced/Created
 - `/docs/backlog/stories/US-015.md` (enhanced)

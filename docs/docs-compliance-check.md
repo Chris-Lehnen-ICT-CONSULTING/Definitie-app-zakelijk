@@ -45,7 +45,7 @@ Generated: 2025-09-08 10:17
 
 ### TRACEABILITY-MATRIX.md
 - ❌ Missing frontmatter
-- ❌ Broken links: EPIC-001 -> ../epics/EPIC-001-basis-definitie-generatie.md, EPIC-002 -> ../epics/EPIC-002-kwaliteitstoetsing.md, EPIC-003 -> ../epics/EPIC-003-content-verrijking-web-lookup.md
+- ❌ Broken links: EPIC-001 -> ../EPIC-001/EPIC-001.md, EPIC-002 -> ../EPIC-002/EPIC-002.md, EPIC-003 -> ../EPIC-003/EPIC-003.md
 
 ### PR_BODY_CFR.md
 - ❌ Missing frontmatter
@@ -442,7 +442,7 @@ Generated: 2025-09-08 10:17
 - ❌ Missing frontmatter
 
 ### dashboard/README.md
-- ❌ Broken links: REQ-001 -> ../docs/vereisten/REQ-001.md, EPIC-006 -> ../epics/EPIC-006.md, REQ-002 -> ../docs/vereisten/REQ-002.md
+- ❌ Broken links: REQ-001 -> ../docs/vereisten/REQ-001.md, EPIC-006 -> ../EPIC-006/EPIC-006.md, REQ-002 -> ../docs/vereisten/REQ-002.md
 
 ### testing/validation_orchestrator_testplan.md
 - ❌ Missing frontmatter

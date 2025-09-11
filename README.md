@@ -258,7 +258,7 @@ pytest tests/unit/test_config_system.py               # NameError issues
 
 ### Quick Links
 - 🎯 [Wat moet er nog gebeuren?](docs/backlog/epics/INDEX.md) - 60% features nog niet gestart
-- 🔒 [Security Requirements](docs/backlog/epics/EPIC-006-security-auth.md) - KRITIEK: 0% geïmplementeerd
+- 🔒 [Security Requirements](docs/backlog/EPIC-006/EPIC-006.md) - KRITIEK: 0% geïmplementeerd
 - 🚀 [Roadmap](docs/backlog/epics/INDEX.md) - 4 fasen implementatie plan
 
 ### Overige Documentatie
