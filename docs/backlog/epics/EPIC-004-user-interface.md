@@ -242,9 +242,9 @@ Main Application
 
 ## Gerelateerde Documentatie
 
-- [UI Design Guidelines](../guidelines/ui_design.md)
-- [Accessibility Standards](../guidelines/accessibility.md)
-- [Streamlit Components](../technisch/streamlit_components.md)
+- UI Design Guidelines: See Design System section above
+- Accessibility Standards: See WCAG 2.1 compliance requirements above
+- Streamlit Components: `src/ui/tabs/` (implementation directory)
 
 ## Stakeholder Goedkeuring
 

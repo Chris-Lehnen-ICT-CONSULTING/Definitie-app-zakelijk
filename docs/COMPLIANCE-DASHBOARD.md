@@ -190,7 +190,7 @@ Prestaties:   ███████░░░ 75% ⚠️
 
 - [CLEANUP-REPORT.md](./CLEANUP-REPORT.md) - Detailed cleanup results
 - [TRACEABILITY-MATRIX-UPDATED.json](./TRACEABILITY-MATRIX-UPDATED.json) - Full requirement mapping
-- [vereisten/VERIFICATION_REPORT.md](./vereisten/VERIFICATION_REPORT.md) - Verification details
+- [backlog/requirements/VERIFICATION_REPORT.md](./backlog/requirements/VERIFICATION_REPORT.md) - Verification details
 - [DOCUMENTATION_COMPLIANCE_REPORT.md](./DOCUMENTATION_COMPLIANCE_REPORT.md) - Doc compliance
 - [INDEX.md](./INDEX.md) - Central navigation
 
