@@ -137,12 +137,15 @@
   "EPIC-004": {
     "title": "EPIC-004: User Interface",
     "stories": [
-      "US-015",
-      "US-016",
-      "US-017",
-      "US-018",
-      "US-019",
-      "US-020"
+      "US-020",
+      "US-021",
+      "US-022",
+      "US-023",
+      "US-024",
+      "US-025",
+      "US-064",
+      "US-067",
+      "US-068"
     ],
     "requirements": [
       "REQ-004",
@@ -162,9 +165,9 @@
     ],
     "dependencies": [],
     "referenced_by": [
-      "US-017",
+      "US-023",
       "REQ-004",
-      "US-019",
+      "US-025",
       "REQ-050",
       "REQ-054",
       "REQ-052",
@@ -174,23 +177,25 @@
       "REQ-057",
       "REQ-048",
       "REQ-053",
-      "US-018",
+      "US-024",
       "REQ-056",
       "REQ-049",
-      "US-015",
+      "US-021",
       "REQ-009",
       "REQ-075",
       "REQ-055",
-      "US-016",
+      "US-022",
       "EPIC-004"
     ]
   },
   "EPIC-005": {
     "title": "EPIC-005: Export & Import",
     "stories": [
-      "US-021",
-      "US-022",
-      "US-023"
+      "US-026",
+      "US-027",
+      "US-028",
+      "US-062",
+      "US-065"
     ],
     "requirements": [
       "REQ-022",

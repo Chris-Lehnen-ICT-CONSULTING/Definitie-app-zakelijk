@@ -11,9 +11,9 @@ owner: business-analyst
 prioriteit: LAAG
 status: Nog te bepalen
 stories:
-- US-021
-- US-022
-- US-023
+- US-026
+- US-027
+- US-028
 - US-062
 - US-065
 target_release: v1.3
@@ -51,7 +51,7 @@ Data portability and integration capabilities for the DefinitieAgent system. Thi
 
 ## Gebruikersverhalen Overzicht
 
-### US-021: Export Formats
+### US-026: Export Formats
 **Status:** Nog te bepalen
 **Prioriteit:** GEMIDDELD
 **Verhaalpunten:** 8
@@ -75,7 +75,7 @@ zodat I can use them in different systems and documents
 3. Batch export capability for multiple definitions
 4. Export includes validation results optionally
 
-### US-022: Import Validation
+### US-027: Import Validation
 **Status:** Nog te bepalen
 **Prioriteit:** HOOG
 **Verhaalpunten:** 5
@@ -92,7 +92,7 @@ zodat only quality definitions enter the system
 4. Selective import based on validation scores
 5. Duplicate detection and handling
 
-### US-023: Batch Operations
+### US-028: Batch Operations
 **Status:** Nog te bepalen
 **Prioriteit:** LAAG
 **Verhaalpunten:** 8
