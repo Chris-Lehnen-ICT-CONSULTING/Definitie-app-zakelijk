@@ -6,6 +6,33 @@ Dit bestand biedt richtlijnen aan Claude Code bij het werken met code in deze re
 
 DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die GPT-4 gebruikt met 45+ kwaliteitsvalidatieregels. De applicatie gebruikt Streamlit voor de UI en volgt een service-georiënteerde architectuur met dependency injection.
 
+## 📁 BACKLOG STRUCTUUR - STRIKT VOLGEN!
+
+De backlog heeft een **vaste hiërarchische structuur** die ALTIJD gevolgd moet worden:
+
+```
+docs/backlog/
+├── EPIC-001/                      # Elke EPIC in eigen directory
+│   ├── EPIC-001.md                # Epic documentatie
+│   └── User Stories/              # Alle user stories van deze epic
+│       ├── US-001/                # Elke user story in eigen directory
+│       │   ├── US-001.md          # User story documentatie
+│       │   └── bugs/              # Bugs gerelateerd aan deze story
+│       │       └── BUG-XXX/       # Elke bug in eigen directory
+│       │           └── BUG-XXX.md # Bug documentatie
+│       └── US-002/
+│           ├── US-002.md
+│           └── bugs/
+└── EPIC-002/
+    └── ...
+```
+
+**BELANGRIJKE REGELS:**
+- **NOOIT** stories direct in `/docs/backlog/stories/` plaatsen
+- **NOOIT** epics in `/docs/backlog/epics/` plaatsen  
+- **ALTIJD** de hiërarchie volgen: EPIC → User Stories → US-XXX → bugs
+- **ALTIJD** elke entiteit in eigen directory met dezelfde naam als het bestand
+
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
 
 ### ⚠️ REFACTOREN, GEEN BACKWARDS COMPATIBILITY!
@@ -38,7 +65,7 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 
 1. **Zoek eerst:** `grep -r "onderwerp" docs/` OF `ls docs/**/*term*.md`
 2. **Check master documenten:**
-   - `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` voor epics/stories
+   - `docs/backlog/*/` voor epics (elke EPIC heeft eigen map)
    - `docs/INDEX.md` voor overzicht
    - `docs/guidelines/CANONICAL_LOCATIONS.md` voor juiste locaties
 3. **Check archief:** `ls docs/archief/` voor oude versies
@@ -52,7 +79,7 @@ grep -r "mijn onderwerp" docs/
 ls docs/**/*relevante-term*.md
 
 # STAP 2: Check master documenten
-cat docs/backlog/stories/MASTER-EPICS-USER-STORIES.md | grep "mijn onderwerp"
+find docs/backlog/EPIC-*/User\ Stories -name "*.md" | xargs grep "mijn onderwerp"
 cat docs/INDEX.md | grep "mijn onderwerp"
 
 # STAP 3: Als het NIET bestaat, check canonieke locatie
@@ -339,10 +366,10 @@ black src config
 
 ### Huidig Werk & Epics
 
-- **[📊 Epic Dashboard](docs/backlog/epics/INDEX.md)** - Overzicht van alle epics met status en metrics
-- **[📋 Story Index](docs/backlog/stories/INDEX.md)** - Complete lijst van alle user stories (US-001 tot US-046)
-- **Individuele Epic Bestanden:** `/docs/backlog/epics/EPIC-XXX.md` - Gedetailleerde epic documentatie
-- **Individuele Story Bestanden:** `/docs/backlog/stories/US-XXX.md` - User story specificaties
+- **Backlog Structuur:** `/docs/backlog/EPIC-XXX/` - Elke epic heeft eigen directory
+  - **Epic Documentatie:** `/docs/backlog/EPIC-XXX/EPIC-XXX.md`
+  - **User Stories:** `/docs/backlog/EPIC-XXX/User Stories/US-XXX/US-XXX.md`
+  - **Bugs:** `/docs/backlog/EPIC-XXX/User Stories/US-XXX/bugs/BUG-XXX/BUG-XXX.md`
 - **Refactor Log**: `docs/refactor-log.md` - Wijzigingen tracking
 
 ### Reviews & Analyses

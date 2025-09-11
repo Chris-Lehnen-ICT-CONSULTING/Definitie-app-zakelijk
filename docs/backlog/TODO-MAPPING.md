@@ -62,42 +62,56 @@ Dit document toont waar alle TODO's uit de codebase zijn ondergebracht in user s
 - `src/ui/components/web_lookup_tab.py:58` - Moderne service integration
 - `src/services/modern_web_lookup_service.py:276` - Veilige scraping implementatie
 
-### US-066: Implement AI Enhancement for Definitions (Status: Open) [NIEUW]
+### US-066: Implement AI Enhancement for Definitions (Status: Open)
 **AI Enhancement TODO's:**
 - `src/services/definition_orchestrator.py:424` - Implement enhancement logic
 - `src/services/definition_orchestrator.py:445` - Implement AI enhancement logic
 
-### US-067: Expert Review Draft and Revalidation (Status: Open) [NIEUW]
+### US-067: Expert Review Draft and Revalidation (Status: Open)
 **Expert Review TODO's:**
 - `src/ui/components/expert_review_tab.py:577` - Draft saving
 - `src/ui/components/expert_review_tab.py:583` - Re-validation
 
-### US-068: Implement Audit Trail Query (Status: Open) [NIEUW]
+### US-068: Implement Audit Trail Query (Status: Open)
+
+## 🆕 Nieuwe Stories toegevoegd voor orphaned TODO's
+
+### US-069: Prompt Builder Compaction Logic (EPIC-001)
+- `src/services/prompts/modular_prompt_builder.py.backup:884` – Implementeer compactie logica
+
+### US-072: DefinitionWorkflowService – combineer Workflow en Repository (EPIC-012)
+- `src/ui/components/definition_generator_tab.py:896` – Phase 2: create DefinitionWorkflowService
+
+### US-073: Rollback mechanisme voor hernoemscript (EPIC-007)
+- `scripts/analyse/hernoem-naar-nederlands.py:310` – Rollback alle content wijzigingen
 **Audit Trail TODO's:**
 - `src/ui/components/history_tab.py:72` - Audit trail query from definitie_geschiedenis table
 
 ## 📊 Samenvatting
 
-- **Totaal TODO's gevonden:** 24
-- **Toegevoegd aan bestaande open stories:** 18
-- **Nieuwe stories aangemaakt:** 6 (US-060 t/m US-065) + 3 (US-066 t/m US-068)
+- **Totaal TODO's gevonden:** 27
+- **Toegevoegd aan bestaande open stories:** 24
+- **Nieuwe stories aangemaakt:** 3 (US-069, US-072, US-073)
 - **ALLE TODO's zijn nu toegewezen!** ✅
 
 ## Status Overzicht
 
 ### Bestaande Stories met TODO's:
-- US-043: Remove Legacy Context Routes (85% klaar) - 3 TODO's
-- US-014: Modern Web Lookup (Open) - 2 TODO's
-- US-028: Service Caching (Open) - 2 TODO's
-- US-060: Event Bus (Open) - 2 TODO's
-- US-062: Bulk Import (Open) - 1 TODO
-- US-064: Edit Interface (Open) - 3 TODO's
-- US-065: Email Export (Open) - 2 TODO's
+- US-043: Remove Legacy Context Routes – 3 TODO's
+- US-014: Modern Web Lookup – 2 TODO's
+- US-028: Service Caching – 2 TODO's
+- US-060: Event Bus – 2 TODO's
+- US-062: Bulk Import – 1 TODO
+- US-064: Edit Interface – 3 TODO's
+- US-065: Email Export – 2 TODO's
+- US-066: AI Enhancement – 2 TODO's
+- US-067: Expert Review Features – 2 TODO's
+- US-068: Audit Trail – 1 TODO
 
 ### Nieuwe Stories voor TODO's:
-- US-066: AI Enhancement - 2 TODO's
-- US-067: Expert Review Features - 2 TODO's
-- US-068: Audit Trail - 1 TODO
+- US-069: Prompt Compaction – 1 TODO
+- US-072: DefinitionWorkflowService – 1 TODO
+- US-073: Script Rollback – 1 TODO
 
 ## ✅ Conclusie
 

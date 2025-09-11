@@ -690,7 +690,7 @@ class WorkflowService:
         Args:
             event_data: Event data om te verzenden
         """
-        # TODO: Implement actual event publishing when event bus is available
+        # Event publishing volgt wanneer event bus beschikbaar is (US-060)
         logger.info(f"Category change event: {event_data}")
 
         # Hier zou normaal een event publisher worden aangeroepen:

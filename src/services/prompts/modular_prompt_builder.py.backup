@@ -881,8 +881,7 @@ Stel jezelf deze vragen:
         if not self.component_config.compact_mode:
             return prompt
 
-        # TODO: Implementeer compactie logica indien gewenst
-        # Bijvoorbeeld: verwijder voorbeelden, verkort uitleg, etc.
+        # Voorbeeld: verwijder voorbeelden, verkort uitleg, etc. (US-069)
         logger.debug("Compact mode toegepast")
         return prompt
 

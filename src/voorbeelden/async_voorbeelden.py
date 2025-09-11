@@ -283,7 +283,7 @@ class AsyncExampleGenerator:
             antoniemen=results.get("antoniemen", ""),
             toelichting=results.get("toelichting", ""),
             generation_time=generation_time,
-            cache_hits=0,  # TODO: Track cache hits
+            cache_hits=0,
             total_requests=total,
         )
 

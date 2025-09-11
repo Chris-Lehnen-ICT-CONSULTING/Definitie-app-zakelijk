@@ -21,10 +21,10 @@
 
 ### Naamconventies ✅
 ```
-✅ docs/backlog/epics/EPIC-001-basis-definitie-generatie.md
-✅ docs/backlog/epics/EPIC-002-kwaliteitstoetsing.md
-✅ docs/backlog/epics/EPIC-007-performance-scaling.md
-✅ docs/backlog/epics/EPIC-010-context-flow-refactoring.md
+✅ docs/backlog/EPIC-001/EPIC-001.md
+✅ docs/backlog/EPIC-002/EPIC-002.md
+✅ docs/backlog/EPIC-007/EPIC-007.md
+✅ docs/backlog/EPIC-010/EPIC-010.md
 ✅ docs/backlog/stories/US-029.md (volledig verrijkt als voorbeeld)
 ```
 
