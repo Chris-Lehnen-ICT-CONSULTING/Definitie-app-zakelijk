@@ -55,7 +55,7 @@ KRITIEK bug fixes and refactoring for context field handling in the DefinitieAge
 
 ## Related Work
 
-**Legacy Orchestrator Refactoring:** See [EPIC-012](EPIC-012-legacy-orchestrator-refactoring/EPIC-012.md) for comprehensive refactoring of legacy orchestrators and generator modules. US-043 and US-056 from this epic are related to the broader legacy cleanup effort in EPIC-012.
+**Legacy Orchestrator Refactoring:** See EPIC-012 for comprehensive refactoring of legacy orchestrators and generator modules. US-043 and US-056 from this epic are related to the broader legacy cleanup effort in EPIC-012.
 
 **Business Case:** The Dutch justitieketen operates under strict legal frameworks that require precise contextual grounding for all juridische definities. OM officier van justities need definitions that reference specific legal frameworks, DJI officials require organizational context for detentie-related terms, and Rechtspraak judges demand clear jurisdictional context. The current system's failure to propagate context from UI to AI means definitions lack essential legal grounding, making them unusable for official justitieketen documentation. This creates legal risk, operational inefficiency, and potential liability issues across all justice organizations.
 
@@ -227,7 +227,7 @@ The multiselect widget crashes wanneer the final list differs from options.
 **Severity:** KRITIEK
 **Status:** OPEN
 **Impact:** 36 tests failing, development blocked
-**Documentation:** [CFR-BUG-003 Details](../US-041/CFR-BUG-003/CFR-BUG-003.md)
+**Documentation:** CFR-BUG-003 Details
 
 **Error:** `ImportError: cannot import name 'GenerationResult' from 'src.models.generation_result'`
 
@@ -374,7 +374,7 @@ Opmerking: ASTRA traceability (US‑049), type‑validatie (US‑048) en E2E tes
 ## 🐛 Bugs en Issues
 
 ### Actieve Bugs
-- [CFR-BUG-014](../US-051/CFR-BUG-014/README.md): Synoniemen/Antoniemen generatie incorrect (HOOG)
+- CFR-BUG-014: Synoniemen/Antoniemen generatie incorrect (HOOG)
 
 ## Sprint 37 Planning - Volledige Async/UI Separatie
 
@@ -589,11 +589,11 @@ timeouts:
 
 ### Bug Reports & User Stories
 - **Bug Reports**:
-  - [CFR-BUG-003: GenerationResult Import Error](../bugs/CFR-BUG-003-generation-result-import.md)
+  - CFR-BUG-003: GenerationResult Import Error
 - **User Stories**:
-  - [US-041: Fix Context Field Mapping](../stories/US-041.md) - Includes test file references
-  - [US-042: Fix "Anders..." Custom Context](../stories/US-042.md) - Includes test file references
-  - [US-043: Remove Legacy Context Routes](../stories/US-043.md) - Includes test file references
+  - US-041: Fix Context Field Mapping - Includes test file references
+  - US-042: Fix "Anders..." Custom Context - Includes test file references
+  - US-043: Remove Legacy Context Routes - Includes test file references
 - **Architecture**: [Technical Architecture](../../architectuur/TECHNICAL_ARCHITECTURE.md)
 
 ## Compliance Notities

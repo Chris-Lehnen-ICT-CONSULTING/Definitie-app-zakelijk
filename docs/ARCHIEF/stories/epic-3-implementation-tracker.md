@@ -216,9 +216,9 @@ Help needed: [Specific assistance required]
 ## 🔗 Quick Links
 
 - [Epic 3 User Stories](./epic-3-user-stories.md)
-- [Web Lookup Contract](../technisch/web-lookup-contract-v1.0.md)
-- [UAT Readiness Assessment](../requirements/uat/UAT_READINESS_ASSESSMENT_2025.md)
-- [Technical Debt Assessment](../code-analyse/quality/TECHNICAL_DEBT_ASSESSMENT_2025.md)
+- Web Lookup Contract
+- UAT Readiness Assessment
+- Technical Debt Assessment
 
 ---
 

@@ -11,7 +11,7 @@
 
 | ID      | Titel                 | Type       | Status  | Link                                         |
 | ------- | --------------------- | ---------- | ------- | -------------------------------------------- |
-| REQ-001 | Voorbeeld vereiste | functional | ✅ Done | [REQ-001-voorbeeld.md](REQ-001-voorbeeld.md) |
+| REQ-001 | Voorbeeld vereiste | functional | ✅ Done | REQ-001-voorbeeld.md |
 
 ## Per Type
 

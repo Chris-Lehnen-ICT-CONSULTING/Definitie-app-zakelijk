@@ -31,7 +31,7 @@ Welcome to the DefinitieAgent development documentation. This guide helps you na
 - Security scanning setup
 - CI/CD integration
 
-### 4. [AI Agent Integration](./ai-agent-code-review-integration.md)
+### 4. AI Agent Integration
 **Purpose**: Automated review for AI-generated code with fix loop
 **When to use**: When using AI tools to generate code
 **Key sections**:
@@ -135,10 +135,10 @@ make quality      # Run all checks
 ## 🔗 Related Resources
 
 ### Internal Documentation
-- [Project Architecture](../architecture/README.md)
-- [API Documentation](../api/README.md)
-- [Testing Guide](../testing/README.md)
-- [Deployment Guide](../deployment/README.md)
+- Project Architecture
+- API Documentation
+- Testing Guide
+- Deployment Guide
 
 ### External Resources
 - [Python Best Practices](https://docs.python-guide.org/)

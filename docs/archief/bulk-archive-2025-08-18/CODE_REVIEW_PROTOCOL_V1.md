@@ -347,4 +347,4 @@ Dit protocol geeft een systematische aanpak voor het reviewen van elke component
 - Architectural fitness tests
 - Monitoring & observability requirements
 
-Voor nieuwe reviews: gebruik [CODE_REVIEW_PROTOCOL_V2.md](./CODE_REVIEW_PROTOCOL_V2.md)
+Voor nieuwe reviews: gebruik CODE_REVIEW_PROTOCOL_V2.md

@@ -191,7 +191,7 @@ def _render_sources_section(self, saved_record=None, agent_result=None):
             if snippet := source.get("snippet"):
                 st.markdown(f"**Fragment**: {snippet[:500]}...")
             if url := source.get("url"):
-                st.markdown(f"[🔗 Open bron]({url})")
+                st.markdown(f"🔗 Open bron")
 ```
 
 ### Fase 5: Testing & Verificatie (1 uur)

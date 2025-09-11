@@ -31,7 +31,7 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 - Gebruik niet standaard de Full TDD workflow voor elke opdracht.
 - Kies de lichtste passende workflow met de router of handmatig:
   - Analysis, Review Cycle, Documentation, Debug, Maintenance, Refactor Only, Hotfix, Spike, Full TDD.
-- Documentatie: [Werkstroom Library](./WORKFLOW_LIBRARY.md) en [Werkstroom Routing](./WORKFLOW_ROUTING.md)
+- Documentatie: [Werkstroom Library](./WORKFLOW_LIBRARY.md) en Werkstroom Routing
 - Router (lokaal): `~/\.claude/agents/workflow-router.md` + config `~/\.claude/agents/workflows/workflows.yaml`
 - Router‑commando’s: `ROUTE <beschrijving>`, `START-AS <workflow> <beschrijving>`, `SUGGEST <beschrijving>`
 

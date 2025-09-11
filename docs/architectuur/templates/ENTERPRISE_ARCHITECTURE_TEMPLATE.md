@@ -435,7 +435,7 @@ gantt
 ### Internal Documentation
 - [Solution Architecture](../SOLUTION_ARCHITECTURE.md) - Detailed solution design
 - [Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementatie details
-- [Gebruikersverhalen](../../backlog/stories/MASTER-EPICS-USER-STORIES.md) - Functional vereistes
+- Gebruikersverhalen - Functional vereistes
 - Test Strategy - Quality assurance approach (document in planning)
 
 ### External Standards

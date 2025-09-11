@@ -10,13 +10,13 @@ Gedetailleerde code reviews
 - Service-specifieke analyses
 - Protocol implementatie reviews
 
-### [problemen/](./problemen/)
+### problemen/
 Geïdentificeerde issues en oplossingen
 - Bug analyses
 - Performance bottlenecks
 - Security concerns
 
-### [protocollen/](./protocollen/)
+### protocollen/
 Protocol implementatie documentatie
 - Validatie protocollen
 - Communicatie protocollen
@@ -24,9 +24,9 @@ Protocol implementatie documentatie
 
 ## 📋 Belangrijkste Reviews
 
-- [COMPLETE_CODE_REVIEW.md](./reviews/COMPLETE_CODE_REVIEW.md) - Volledige systeem analyse
-- [SERVICE_ARCHITECTURE_CODE_REVIEW.md](./reviews/SERVICE_ARCHITECTURE_CODE_REVIEW.md) - Service architectuur
-- [DEFINITION_VALIDATOR_PROTOCOL_REVIEW.md](./reviews/DEFINITION_VALIDATOR_PROTOCOL_REVIEW.md) - Validatie protocol
+- COMPLETE_CODE_REVIEW.md - Volledige systeem analyse
+- SERVICE_ARCHITECTURE_CODE_REVIEW.md - Service architectuur
+- DEFINITION_VALIDATOR_PROTOCOL_REVIEW.md - Validatie protocol
 
 ## 🔍 Analyse Types
 
@@ -37,7 +37,7 @@ Protocol implementatie documentatie
 
 ## 🚨 Actie Items
 
-Check [problemen/](./problemen/) voor open issues die aandacht nodig hebben.
+Check problemen/ voor open issues die aandacht nodig hebben.
 
 ## 📅 Review Schedule
 

@@ -295,9 +295,9 @@ WHERE doc_status = 'MISSING';
 
 - [COMPLIANCE-DASHBOARD.md](./COMPLIANCE-DASHBOARD.md)
 - [CLEANUP-REPORT.md](./CLEANUP-REPORT.md)
-- [vereisten/](./vereisten/) - All requirement files
-- [epics/](./backlog/epics/) - All epic documentation
-- [stories/](./backlog/stories/) - All user stories
+- vereisten/ - All requirement files
+- epics/ - All epic documentation
+- stories/ - All user stories
 
 ---
 

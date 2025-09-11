@@ -160,8 +160,8 @@ streamlit run src/main.py
 
 - [Story 3.1 Design Doc](./story-3.1-metadata-first-prompt-second.md)
 - [Epic 3 Overview](./epic-3-web-lookup-modernization.md)
-- [Architecture Docs](../architectuur/)
-- [Test Results](../../tests/web_lookup/)
+- Architecture Docs
+- Test Results
 
 ---
 *Last Updated: 2025-09-03 15:30*

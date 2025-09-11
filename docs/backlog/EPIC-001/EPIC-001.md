@@ -241,7 +241,7 @@ User Input → UI Layer → Generation Request
 
 - [Solution Architecture](../../architectuur/SOLUTION_ARCHITECTURE.md)
 - [Technische Architectuur](../../architectuur/TECHNICAL_ARCHITECTURE.md)
-- [Validation Orchestrator V2](../archief/2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
+- Validation Orchestrator V2
 
 ## Stakeholder Goedkeuring
 

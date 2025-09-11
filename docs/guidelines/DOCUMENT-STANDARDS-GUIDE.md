@@ -331,7 +331,7 @@ Every canonical document MUST include:
 - **Enterprise View**: See [EA § 2.1](../architectuur/ENTERPRISE_ARCHITECTURE.md)
 - **Implementatie**: See [TA § 3.1](../architectuur/TECHNICAL_ARCHITECTURE.md)
 - **Testen**: See Test Strategy (document in planning)
-- **Vereisten**: See [US-001](../backlog/stories/MASTER-EPICS-USER-STORIES.md)
+- **Vereisten**: See US-001
 ```
 
 ## 6. Validation Rules
@@ -534,7 +534,7 @@ python scripts/migration_report.py
 - [DOCUMENTATION_POLICY.md](./DOCUMENTATION_POLICY.md)
 - [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md)
 - [INDEX.md](../INDEX.md)
-- [MASTER-EPICS-USER-STORIES.md](../backlog/stories/MASTER-EPICS-USER-STORIES.md)
+- MASTER-EPICS-USER-STORIES.md
 
 ### External Standards
 - [ASTRA Framework](https://ASTRA.justice.nl)

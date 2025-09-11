@@ -93,7 +93,7 @@ Voor nieuwe stories binnen epics:
 
 ## Navigatie
 
-- [Terug naar PRD](../prd.md)
+- Terug naar PRD
 - [Epic Restructure Proposal](../../../../requirements/epic-restructure-proposal.md)
 - [Project Backlog](../../../../requirements/backlog.md)
 

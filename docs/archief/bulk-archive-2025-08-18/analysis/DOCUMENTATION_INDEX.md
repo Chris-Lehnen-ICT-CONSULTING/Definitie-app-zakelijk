@@ -15,13 +15,13 @@ Deze index biedt een overzicht van alle documentatie in de DefinitieApp codebase
   - Implementatie strategie en risico's
 
 ### 2. **Projectstatus**
-- **[CODEBASE_CLEANUP_STATUS.md](CODEBASE_CLEANUP_STATUS.md)**
+- **CODEBASE_CLEANUP_STATUS.md**
   - Huidige staat van opruimingsproces
   - Voortgang per module
   - Openstaande taken
 
 ### 3. **Legacy Code Analyse**
-- **[LEGACY_VOORBEELDEN_ANALYSIS.md](LEGACY_VOORBEELDEN_ANALYSIS.md)**
+- **LEGACY_VOORBEELDEN_ANALYSIS.md**
   - Analyse van oude voorbeelden module
   - Migratie naar unified systeem
   - Lessons learned
@@ -109,7 +109,7 @@ Deze index biedt een overzicht van alle documentatie in de DefinitieApp codebase
 ## 🔧 **Technische Documentatie**
 
 ### **Development Process**
-- **[SERVICES_CONSOLIDATION_LOG.md](SERVICES_CONSOLIDATION_LOG.md)**
+- **SERVICES_CONSOLIDATION_LOG.md**
   - Service layer refactoring proces
   - Lessons learned
   - Best practices
