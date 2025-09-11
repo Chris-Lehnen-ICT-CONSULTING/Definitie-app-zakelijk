@@ -15,6 +15,8 @@
   const sprintSel = document.getElementById('sprintFilter');
   const viewTabs = document.getElementById('viewTabs');
   const ownerInput = document.getElementById('ownerInput');
+  const workStatus = document.getElementById('workStatus');
+  const workPriority = document.getElementById('workPriority');
 
   const docs = (data.documents||[]).slice();
   const idMap = {};
@@ -80,6 +82,11 @@
       const wrap = ownerInput.parentElement; if(wrap) wrap.style.display = showWork ? 'flex' : 'none';
       if(showWork && !ownerInput.value){
         ownerInput.value = getHashParam('owner') || localStorage.getItem('portalOwner') || 'developer';
+      }
+      // hydrate selects from hash for deeplinks
+      if(showWork){
+        const hs = getHashParam('wstatus'); if(workStatus && typeof hs==='string') workStatus.value = hs;
+        const hp = getHashParam('wprio'); if(workPriority && typeof hp==='string') workPriority.value = hp;
       }
     }
 
@@ -169,13 +176,21 @@
       const owner = (ownerInput && ownerInput.value.trim()) || getHashParam('owner') || localStorage.getItem('portalOwner') || '';
       if(owner){ localStorage.setItem('portalOwner', owner); setHashParam('owner', owner); }
       const wanted = owner.toLowerCase();
+      const wantStatus = (workStatus && workStatus.value) || getHashParam('wstatus') || '';
+      const wantPrio = (workPriority && workPriority.value) || getHashParam('wprio') || '';
+      if(workStatus){ setHashParam('wstatus', wantStatus); }
+      if(workPriority){ setHashParam('wprio', wantPrio); }
       const v = docs.filter(d=>{
         const t=String(d.type).toUpperCase();
         if(!(t==='US' || t==='BUG')) return false;
         const st=String(d.status||'').toUpperCase();
         if(['GEREED','VOLTOOID','RESOLVED'].includes(st)) return false;
+        if(wantStatus && st !== String(wantStatus).toUpperCase()) return false;
         const ow=String(d.owner||'').toLowerCase();
-        return !wanted || ow.includes(wanted);
+        if(wanted && !ow.includes(wanted)) return false;
+        const pr = String(d.prioriteit||'').toUpperCase();
+        if(wantPrio && pr !== String(wantPrio).toUpperCase()) return false;
+        return true;
       }).sort(cmpPlanning);
       const h = document.createElement('h3'); h.className='group'; h.textContent=`Mijn Werk (${owner||'alle owners'}) – ${v.length} items`;
       list.appendChild(h);
@@ -302,6 +317,8 @@
   if(sortSel) sortSel.addEventListener('change',render);
   if(sprintSel) sprintSel.addEventListener('change',render);
   if(ownerInput) ownerInput.addEventListener('change', render);
+  if(workStatus) workStatus.addEventListener('change', render);
+  if(workPriority) workPriority.addEventListener('change', render);
   window.addEventListener('hashchange', render);
   render();
 })();
