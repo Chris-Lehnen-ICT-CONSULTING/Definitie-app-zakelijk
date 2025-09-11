@@ -445,11 +445,11 @@ pytest tests/integration/test_context_flow_epic_cfr.py::test_audit_trail -v
 ## Related Documents
 
 ### Epic & Stories
-- **Epic**: [EPIC-010: Context Flow Refactoring](../backlog/epics/EPIC-010-context-flow-refactoring.md)
+- **Epic**: [EPIC-010: Context Flow Refactoring](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/EPIC-010.md)
 - **User Stories**:
-  - [US-041: Fix Context Field Mapping](../backlog/stories/US-041.md)
-  - [US-042: Fix "Anders..." Custom Context](../backlog/stories/US-042.md)
-  - [US-043: Remove Legacy Context Routes](../backlog/stories/US-043.md)
+  - [US-041: Fix Context Field Mapping](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-041/US-041.md)
+  - [US-042: Fix "Anders..." Custom Context](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-042/US-042.md)
+  - [US-043: Remove Legacy Context Routes](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-043/US-043.md)
 
 ### Bug Reports
 - **CFR-BUG-003**: [GenerationResult Import Error](../backlog/bugs/CFR-BUG-003-generation-result-import.md)

@@ -63,23 +63,23 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 
 | ID | Titel | Priority | Points | Status |
 |----|-------|----------|--------|--------|
-| [US-061](./US-061/US-061.md) | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | **COMPLETED** ✅ |
-| [US-062](./US-062/US-062.md) | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
-| [US-063](./US-063/US-063.md) | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
-| [US-064](./US-064/US-064.md) | Consolideer orchestration logica | HIGH | 8 | TODO |
-| [US-065](./US-065/US-065.md) | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
-| [US-066](./US-066/US-066.md) | Verwijder Legacy DefinitieAgent uit Integratie/UI | HIGH | 5 | TODO |
-| [US-067](./US-067/US-067.md) | ServiceFactory Stateless Maken | HIGH | 3 | TODO |
-| [US-068](./US-068/US-068.md) | Verwijder Domein Restanten | MEDIUM | 3 | TODO |
-| [US-069](./US-069/US-069.md) | Archiveer V1 Orchestrator | MEDIUM | 8 | TODO |
-| [US-070](./US-070/US-070.md) | Refactor Category State Manager | MEDIUM | 3 | TODO |
-| [US-071](./US-071/US-071.md) | Resilience-consolidatie naar één module | MEDIUM | 5 | TODO |
-| [US-072](./US-072/US-072.md) | Export-consolidatie en mappen-opschoning | MEDIUM | 3 | TODO |
-| [US-073](./US-073/US-073.md) | Config-harmonisatie, verwijderen dotenv | HIGH | 3 | TODO |
-| [US-074](./US-074/US-074.md) | Import-hygiëne, geen sys.path-hacks | HIGH | 5 | TODO |
-| [US-075](./US-075/US-075.md) | Centraliseer async/sync-bridging | HIGH | 5 | TODO |
-| [US-076](./US-076/US-076.md) | Validators JSON-first + basisklasse | MEDIUM | 8 | TODO |
-| [US-078](./US-078/US-078.md) | Test-hygiëne, scheiding bron/test | LOW | 2 | TODO |
+| US-061 | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | **COMPLETED** ✅ |
+| US-062 | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
+| US-063 | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
+| US-064 | Consolideer orchestration logica | HIGH | 8 | TODO |
+| US-065 | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
+| US-066 | Verwijder Legacy DefinitieAgent uit Integratie/UI | HIGH | 5 | TODO |
+| US-067 | ServiceFactory Stateless Maken | HIGH | 3 | TODO |
+| US-068 | Verwijder Domein Restanten | MEDIUM | 3 | TODO |
+| US-069 | Archiveer V1 Orchestrator | MEDIUM | 8 | TODO |
+| US-070 | Refactor Category State Manager | MEDIUM | 3 | TODO |
+| US-071 | Resilience-consolidatie naar één module | MEDIUM | 5 | TODO |
+| US-072 | Export-consolidatie en mappen-opschoning | MEDIUM | 3 | TODO |
+| US-073 | Config-harmonisatie, verwijderen dotenv | HIGH | 3 | TODO |
+| US-074 | Import-hygiëne, geen sys.path-hacks | HIGH | 5 | TODO |
+| US-075 | Centraliseer async/sync-bridging | HIGH | 5 | TODO |
+| US-076 | Validators JSON-first + basisklasse | MEDIUM | 8 | TODO |
+| US-078 | Test-hygiëne, scheiding bron/test | LOW | 2 | TODO |
 
 **Totaal Story Points**: 51 (was 29) + 31 (US-071..US-076, US-078) = 82
 
@@ -167,7 +167,7 @@ De nieuwe user stories (US-066 t/m US-070) zijn geïdentificeerd tijdens de EPIC
 ## Related Documentation
 - [Code Audit](./code-audit.md)
 - [EPIC-010](../EPIC-010-context-flow-refactoring.md) - Related context flow refactoring
-- [US-043](../../stories/US-043.md) - Related legacy context routes removal
-- [US-056](../../stories/US-056.md) - Related legacy session state removal
+- US-043 - Related legacy context routes removal
+- US-056 - Related legacy session state removal
 - [V2 Architecture](../../../architectuur/SOLUTION_ARCHITECTURE.md)
 - [Migration Guidelines](../../../migration/legacy-code-inventory.md)
