@@ -29,7 +29,7 @@ class WebLookupTab:
         # Deze tab is tijdelijk gedeactiveerd tijdens de migratie
 
         try:
-            # TODO: Implementeer moderne service integration
+            # Moderne service integratie volgt (US-014)
             # from services.modern_web_lookup_service import ModernWebLookupService
             # self.modern_service = ModernWebLookupService()
 

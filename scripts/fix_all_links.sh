@@ -11,7 +11,7 @@ declare -A US_TO_EPIC
 for epic_dir in docs/backlog/EPIC-*/; do
   if [ -d "$epic_dir" ]; then
     epic_name=$(basename "$epic_dir")
-    
+
     # Loop door alle user stories in deze EPIC
     for us_dir in "$epic_dir"/User\ Stories/US-*/; do
       if [ -d "$us_dir" ]; then
@@ -29,35 +29,35 @@ echo "📝 Updating links in all markdown files..."
 fix_links_in_file() {
   local file="$1"
   local temp_file="${file}.tmp"
-  
+
   cp "$file" "$temp_file"
-  
+
   # Fix EPIC links (from ../epics/EPIC-XXX.md to ../EPIC-XXX/EPIC-XXX.md)
   sed -i '' 's|\.\./epics/\(EPIC-[0-9]*\)[-a-z]*\.md|../\1/\1.md|g' "$temp_file"
   sed -i '' 's|\.\./\.\./epics/\(EPIC-[0-9]*\)[-a-z]*\.md|../../\1/\1.md|g' "$temp_file"
   sed -i '' 's|docs/backlog/epics/\(EPIC-[0-9]*\)[-a-z]*\.md|docs/backlog/\1/\1.md|g' "$temp_file"
-  
+
   # Fix Story links - we need to know which EPIC each story belongs to
   # This is more complex and needs the mapping
-  
+
   # For each US in our mapping, replace the old path with new path
   for us_name in "${!US_TO_EPIC[@]}"; do
     epic_name="${US_TO_EPIC[$us_name]}"
-    
+
     # Various patterns to match
     # Pattern: ../stories/US-XXX.md -> ../EPIC-XXX/User Stories/US-XXX/US-XXX.md
     sed -i '' "s|\.\./stories/${us_name}\.md|../${epic_name}/User Stories/${us_name}/${us_name}.md|g" "$temp_file"
-    
+
     # Pattern: ../../stories/US-XXX.md -> ../../EPIC-XXX/User Stories/US-XXX/US-XXX.md
     sed -i '' "s|\.\./\.\./stories/${us_name}\.md|../../${epic_name}/User Stories/${us_name}/${us_name}.md|g" "$temp_file"
-    
+
     # Pattern: docs/backlog/stories/US-XXX.md -> docs/backlog/EPIC-XXX/User Stories/US-XXX/US-XXX.md
     sed -i '' "s|docs/backlog/stories/${us_name}\.md|docs/backlog/${epic_name}/User Stories/${us_name}/${us_name}.md|g" "$temp_file"
-    
+
     # Pattern: (US-XXX.md) in same directory references
     sed -i '' "s|(${us_name}\.md)|(../${epic_name}/User Stories/${us_name}/${us_name}.md)|g" "$temp_file"
   done
-  
+
   # Only replace if changes were made
   if ! cmp -s "$file" "$temp_file"; then
     mv "$temp_file" "$file"
@@ -73,7 +73,7 @@ find . -name "*.md" -type f | while read -r file; do
   if [[ "$file" == *"node_modules"* ]] || [[ "$file" == *".git"* ]] || [[ "$file" == *"backlog_old"* ]]; then
     continue
   fi
-  
+
   fix_links_in_file "$file"
 done
 
