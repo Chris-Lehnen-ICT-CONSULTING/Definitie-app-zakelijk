@@ -396,5 +396,14 @@
       "US-061"
     ],
     "referenced_by": []
+  },
+  "EPIC-014": {
+    "title": "EPIC-014: Business Logic Refactoring Implementation",
+    "stories": [],
+    "requirements": [],
+    "dependencies": [
+      "US-061"
+    ],
+    "referenced_by": []
   }
 }
