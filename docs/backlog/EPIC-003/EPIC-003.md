@@ -295,9 +295,9 @@ User Request → Web Lookup Service
 
 ## Gerelateerde Documentatie
 
-- [Web Lookup Config](../technisch/web_lookup_config.md)
-- [Modern Web Lookup Service](../services/web_lookup_service.md)
-- [Privacy Guidelines](../guidelines/privacy_guidelines.md)
+- Web Lookup Config
+- Modern Web Lookup Service
+- Privacy Guidelines
 
 ## Stakeholder Goedkeuring
 

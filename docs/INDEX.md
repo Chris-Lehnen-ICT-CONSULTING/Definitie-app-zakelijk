@@ -61,8 +61,8 @@
 
 ### 📦 Backlog Management (Centralized - September 2025)
 - **[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle geregistreerde vereisten (REQ-001 t/m REQ-092)
-- **[📊 Episch Verhaal Dashboard](./backlog/README.md)** 🆕 **PRIMARY VIEW** - All epics with status & metrics
-- **[📋 Story Index](./backlog/README.md)** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX)
+- **📊 Episch Verhaal Dashboard** 🆕 **PRIMARY VIEW** - All epics with status & metrics
+- **📋 Story Index** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX)
 - **[🌀 Centrale Portal](./portal/index.html)** 🔥 **PRIMAIR** – Eén ingang voor backlog + documentatie (zoek/filter/sort)
 - (Gearchiveerd) **[Requirements Dashboard](./backlog/dashboard/index.html)** – zie Portal als vervanging
 - (Gearchiveerd) **[Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** – zie Portal als vervanging
@@ -77,7 +77,7 @@
 - Individuele epics: `/docs/backlog/EPIC-XXX/EPIC-XXX.md`
 - Individuele stories: `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
 - Bugreports: `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md` (per user story)
-- [Deprecated MASTER](./backlog/stories/MASTER-EPICS-USER-STORIES.md) 📁 (archived with redirect)
+- Deprecated MASTER 📁 (archived with redirect)
 
 ### Guidelines & Standards 📋
 - [Documentation Policy](./guidelines/DOCUMENTATION_POLICY.md) ✅ Documentation standards

@@ -131,7 +131,7 @@ def test_synoniemen_with_rare_word():
 
 ## 🔗 Gerelateerde Issues
 
-- [EPIC-010](../../EPIC-010-context-flow-refactoring.md): Context Flow Refactoring (parent epic)
+- EPIC-010: Context Flow Refactoring (parent epic)
 - US-041: Fix Context Field Mapping (mogelijk gerelateerd)
 - Previous synoniemen/antoniemen fixes in commit history
 

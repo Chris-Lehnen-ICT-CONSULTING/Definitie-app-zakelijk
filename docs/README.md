@@ -47,7 +47,7 @@ Historische documentatie en referentie materiaal
 - [2025-09-architectuur-consolidatie/](./archief/2025-09-architectuur-consolidatie/) - Sept 2025 consolidatie (89 docs)
 - Oude versies en legacy documentatie
 
-### [stories/](./backlog/stories/)
+### stories/
 User stories en epics
 - Master epics en user stories document
 - Episch Verhaal tracking en status
@@ -66,7 +66,7 @@ User stories en epics
 
 **Voor Product Owners:**
 - [Architecture Decisions](./architectuur/) - See EA/SA/TA documents
-- [Master Epische Verhalen & Stories](./backlog/stories/MASTER-EPICS-USER-STORIES.md) - Single source of truth
+- Master Epische Verhalen & Stories - Single source of truth
 - [Code Reviews](./reviews/) - Review documentatie
 
 **Voor Operations:**

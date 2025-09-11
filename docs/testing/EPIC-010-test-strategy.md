@@ -302,7 +302,7 @@ jobs:
 - **US-043**: [Remove Legacy Context Routes](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-043/US-043.md)
 
 ### Bug Reports
-- **CFR-BUG-003**: [GenerationResult Import Error](../backlog/bugs/CFR-BUG-003-generation-result-import.md)
+- **CFR-BUG-003**: GenerationResult Import Error
 
 ### Test Files Created for This Strategy
 #### Unit Tests

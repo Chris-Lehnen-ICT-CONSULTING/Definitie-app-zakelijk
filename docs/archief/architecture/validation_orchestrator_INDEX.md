@@ -27,13 +27,13 @@
    - → Gebruikt door: Contract, Rollout, Monitoring
 
 ### 🚀 Operationeel
-5. **[Rollout Runbook](../workflows/validation_orchestrator_rollout.md)**
+5. **Rollout Runbook**
    - Status: `DRAFT` | Type: `Runbook` | Version: `1.0`
    - Shadow mode, feature flags, metrics, rollback
    - → Depends on: Contract, Error Catalog, Golden Dataset
 
 ### 🏛️ Governance
-6. **[ADR-006: Validation Orchestrator Separation](../architectuur/beslissingen/ADR-006-validation-orchestrator-separation.md)**
+6. **ADR-006: Validation Orchestrator Separation**
    - Status: `PROPOSED` | Type: `Decision` | Version: `Draft`
    - Formele architectuur beslissing
    - → Rationale voor: Alle bovenstaande
@@ -86,7 +86,7 @@ graph LR
 - Guide: [Implementation](../../development/validation_orchestrator_implementation.md)
 
 ### Voor DevOps
-- Deployment: [Rollout Runbook](../workflows/validation_orchestrator_rollout.md)
+- Deployment: Rollout Runbook
 - Monitoring: [Observability](../../technisch/validation_observability_privacy.md)
 - Errors: [Error Catalog](../../technisch/error_catalog_validation.md)
 
@@ -96,7 +96,7 @@ graph LR
 - Contract: [JSON Schema](./contracts/schemas/validation_result.schema.json)
 
 ### Voor Architecten
-- Decision: [ADR-006](../architectuur/beslissingen/ADR-006-validation-orchestrator-separation.md)
+- Decision: ADR-006
 - Design: [Architectuur](../2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
 - Contracts: [All Specs](./contracts/)
 

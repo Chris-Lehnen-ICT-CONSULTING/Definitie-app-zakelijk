@@ -4,20 +4,20 @@ Praktische guides voor ontwikkelaars, gebruikers, en operations.
 
 ## 📁 Directory Structuur
 
-### [ontwikkelaars/](./ontwikkelaars/)
+### ontwikkelaars/
 Development guides en best practices
 - Setup instructies
 - Development workflow
 - Debugging tips
 - Testing strategies
 
-### [gebruikers/](./gebruikers/)
+### gebruikers/
 Eindgebruiker documentatie
 - Feature guides
 - UI/UX walkthroughs
 - FAQ's
 
-### [deployment/](./deployment/)
+### deployment/
 Deployment en operations guides
 - Infrastructure setup
 - CI/CD configuratie
@@ -34,12 +34,12 @@ Installatie en setup guides
 
 **Voor nieuwe developers:**
 1. Start met [installatie/quick-start.md](./installatie/quick-start.md)
-2. Lees [ontwikkelaars/development-workflow.md](./ontwikkelaars/development-workflow.md)
-3. Check [ontwikkelaars/best-practices.md](./ontwikkelaars/best-practices.md)
+2. Lees ontwikkelaars/development-workflow.md
+3. Check ontwikkelaars/best-practices.md
 
 **Voor deployment:**
-- [deployment/production-setup.md](./deployment/production-setup.md)
-- [deployment/monitoring.md](./deployment/monitoring.md)
+- deployment/production-setup.md
+- deployment/monitoring.md
 
 ## 📝 Bijdragen
 

@@ -452,7 +452,7 @@ pytest tests/integration/test_context_flow_epic_cfr.py::test_audit_trail -v
   - [US-043: Remove Legacy Context Routes](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-043/US-043.md)
 
 ### Bug Reports
-- **CFR-BUG-003**: [GenerationResult Import Error](../backlog/bugs/CFR-BUG-003-generation-result-import.md)
+- **CFR-BUG-003**: GenerationResult Import Error
 
 ### Test Documentation
 - **Test Strategy**: [EPIC-010 Test Strategy](../testing/EPIC-010-test-strategy.md)

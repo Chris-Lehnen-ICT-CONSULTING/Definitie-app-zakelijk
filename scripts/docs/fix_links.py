@@ -60,7 +60,15 @@ def replace_in_text(text: str, base: Path, us_lookup: dict[str, Path]) -> str:
         href = m.group('href')
         new_href = fix_href(href, base, us_lookup)
         if new_href is None:
-            # leave original
+            # If target still doesn't exist, drop link but keep label
+            core = normalize_href(href)
+            if core.startswith(("http://", "https://", "mailto:", "#")):
+                return m.group(0)
+            target = (base / core)
+            if core.startswith('docs/'):
+                target = ROOT / core
+            if not target.exists():
+                return label
             return m.group(0)
         if new_href == "__REMOVE_LINK_KEEP_TEXT__":
             return label
@@ -138,6 +146,10 @@ def fix_href(href: str, base: Path, us_lookup: dict[str, Path]) -> str | None:
     if ("EPIC-012" in str(base)) and US_ID.search(core):
         return "__REMOVE_LINK_KEEP_TEXT__"
 
+    # Fix common relative errors from dashboard README (one-level too many)
+    if str(base).endswith("docs/backlog/dashboard") and core.startswith("../../EPIC-"):
+        return core[3:]
+
     # If nothing matched but it started with /docs, return without leading slash
     if href.startswith("/docs/"):
         return h
@@ -164,4 +176,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
