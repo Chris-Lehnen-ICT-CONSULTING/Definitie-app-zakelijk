@@ -17,6 +17,7 @@
   const ownerInput = document.getElementById('ownerInput');
   const workStatus = document.getElementById('workStatus');
   const workPriority = document.getElementById('workPriority');
+  const workOnlyUs = document.getElementById('workOnlyUs');
 
   const docs = (data.documents||[]).slice();
   const idMap = {};
@@ -87,6 +88,7 @@
       if(showWork){
         const hs = getHashParam('wstatus'); if(workStatus && typeof hs==='string') workStatus.value = hs;
         const hp = getHashParam('wprio'); if(workPriority && typeof hp==='string') workPriority.value = hp;
+        const ho = getHashParam('wonlyus'); if(workOnlyUs) workOnlyUs.checked = (ho==='1');
       }
     }
 
@@ -178,11 +180,14 @@
       const wanted = owner.toLowerCase();
       const wantStatus = (workStatus && workStatus.value) || getHashParam('wstatus') || '';
       const wantPrio = (workPriority && workPriority.value) || getHashParam('wprio') || '';
+      const onlyUS = workOnlyUs ? !!workOnlyUs.checked : (getHashParam('wonlyus')==='1');
       if(workStatus){ setHashParam('wstatus', wantStatus); }
       if(workPriority){ setHashParam('wprio', wantPrio); }
+      setHashParam('wonlyus', onlyUS ? '1' : '');
       const v = docs.filter(d=>{
         const t=String(d.type).toUpperCase();
         if(!(t==='US' || t==='BUG')) return false;
+        if(onlyUS && t!=='US') return false;
         const st=String(d.status||'').toUpperCase();
         if(['GEREED','VOLTOOID','RESOLVED'].includes(st)) return false;
         if(wantStatus && st !== String(wantStatus).toUpperCase()) return false;
@@ -319,6 +324,7 @@
   if(ownerInput) ownerInput.addEventListener('change', render);
   if(workStatus) workStatus.addEventListener('change', render);
   if(workPriority) workPriority.addEventListener('change', render);
+  if(workOnlyUs) workOnlyUs.addEventListener('change', render);
   window.addEventListener('hashchange', render);
   render();
 })();
