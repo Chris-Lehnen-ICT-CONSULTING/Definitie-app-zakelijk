@@ -1201,6 +1201,30 @@
       "parent_us": "US-061.md"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Business Knowledge Extraction Document",
+      "path": "docs/backlog/EPIC-003/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
+      "url": "docs/backlog/EPIC-003/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-061"
+    },
+    {
       "id": "US-014",
       "type": "feature",
       "title": "Modern Web Lookup Implementatie",
@@ -5809,6 +5833,30 @@
       "parent_us": "US-072.md"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-061: Extract en documenteer business kennis uit legacy",
+      "path": "docs/backlog/EPIC-012/US-061/US-061.md",
+      "url": "docs/backlog/EPIC-012/US-061/US-061.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-061.md"
+    },
+    {
       "id": "EPIC-013",
       "type": "DOC",
       "title": "Centrale Documentatie‑Portal (Interactief & Auto‑sync)",
@@ -5975,30 +6023,6 @@
       },
       "parent_epic": "EPIC-013",
       "parent_us": "US-092.md"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Business Knowledge Extraction Document",
-      "path": "docs/backlog/EPIC-013/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
-      "url": "docs/backlog/EPIC-013/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-013",
-      "parent_us": "US-061"
     },
     {
       "id": "US-095",
@@ -6363,6 +6387,126 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "US-113: Implementeer Clarity Enhancement Service",
+      "path": "docs/backlog/EPIC-014/US-113/US-113.md",
+      "url": "docs/backlog/EPIC-014/US-113/US-113.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-113.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-114: Implementeer Context Integration Handler",
+      "path": "docs/backlog/EPIC-014/US-114/US-114.md",
+      "url": "docs/backlog/EPIC-014/US-114/US-114.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-114.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-115: Implementeer Completeness Analyzer",
+      "path": "docs/backlog/EPIC-014/US-115/US-115.md",
+      "url": "docs/backlog/EPIC-014/US-115/US-115.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-115.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-112: Implementeer Voorbeelden Caching Strategy",
+      "path": "docs/backlog/EPIC-014/US-112/US-112.md",
+      "url": "docs/backlog/EPIC-014/US-112/US-112.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-112.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-119: Implementeer Feedback History Manager",
+      "path": "docs/backlog/EPIC-014/US-119/US-119.md",
+      "url": "docs/backlog/EPIC-014/US-119/US-119.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-119.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "US-121: Implementeer Stagnation Detector",
       "path": "docs/backlog/EPIC-014/US-121/US-121.md",
       "url": "docs/backlog/EPIC-014/US-121/US-121.md",
@@ -6455,6 +6599,78 @@
       },
       "parent_epic": "EPIC-014",
       "parent_us": "US-111.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-116: Implementeer Linguistic Enhancer",
+      "path": "docs/backlog/EPIC-014/US-116/US-116.md",
+      "url": "docs/backlog/EPIC-014/US-116/US-116.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-116.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-120: Implementeer Best Iteration Tracker",
+      "path": "docs/backlog/EPIC-014/US-120/US-120.md",
+      "url": "docs/backlog/EPIC-014/US-120/US-120.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-120.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-118: Implementeer Structure Checkers",
+      "path": "docs/backlog/EPIC-014/US-118/US-118.md",
+      "url": "docs/backlog/EPIC-014/US-118/US-118.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-118.md"
     },
     {
       "id": null,
@@ -16563,7 +16779,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 490,
+      "DOC": 499,
       "report": 1,
       "log": 1,
       "analyse": 1,
@@ -16601,7 +16817,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-11T19:09:36Z"
+    "generated_at": "2025-09-11T19:26:25Z"
   },
   "sources": [
     "docs"

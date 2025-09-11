@@ -7,6 +7,8 @@
 **Priority**: HIGH - NEXT UP
 **Created**: 2025-01-10
 **Updated**: 2025-09-11
+**Progress**: US-061 COMPLETED - Business kennis geëxtraheerd en gedocumenteerd
+**Follow-up**: Zie [EPIC-014](../EPIC-014/EPIC-014.md) voor implementatie van geëxtraheerde business logic
 **Owner**: Development Team
 **Sprint Planning**: Week 2 September 2025 (Na EPIC-010 completion)
 
@@ -61,7 +63,7 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 
 | ID | Titel | Priority | Points | Status |
 |----|-------|----------|--------|--------|
-| [US-061](./US-061/US-061.md) | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | TODO |
+| [US-061](./US-061/US-061.md) | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | **COMPLETED** ✅ |
 | [US-062](./US-062/US-062.md) | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
 | [US-063](./US-063/US-063.md) | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
 | [US-064](./US-064/US-064.md) | Consolideer orchestration logica | HIGH | 8 | TODO |
