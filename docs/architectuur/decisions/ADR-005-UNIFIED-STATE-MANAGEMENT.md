@@ -442,7 +442,7 @@ metrics:
 - [Root Cause Analysis](../../technisch/ANDERS-OPTION-ROOT-CAUSE-ANALYSIS.md)
 - [Business Requirements](../../backlog/requirements/BRS-CUSTOM-CONTEXT-INPUT.md)
 - [Compliance Audit](../../compliance/ASTRA-NORA-COMPLIANCE-AUDIT-ANDERS-OPTION.md)
-- [EPIC-010](../../backlog/epics/EPIC-010-context-flow-refactoring.md)
+- [EPIC-010](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/EPIC-010.md)
 
 ### External Standards
 - ASTRA 3.0 Architecture Framework

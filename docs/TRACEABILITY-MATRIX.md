@@ -51,10 +51,10 @@
 #### REQ-001: Authenticatie & Autorisatie
 - **Episch Verhaal:** [EPIC-006](./backlog/EPIC-006/EPIC-006.md) (Beveiliging & Authenticatie)
 - **Stories:**
-  - [US-026](./backlog/stories/US-026.md): OAuth2/OIDC Implementatie
-  - [US-027](./backlog/stories/US-027.md): Rolgebaseerde Toegangscontrole (RBAC)
-  - [US-028](./backlog/stories/US-028.md): Sessiebeheer
-  - [US-029](./backlog/stories/US-029.md): Audit Logging
+  - [US-026](backlog/EPIC-006/US-026/US-026.md): OAuth2/OIDC Implementatie
+  - [US-027](backlog/EPIC-006/US-027/US-027.md): Rolgebaseerde Toegangscontrole (RBAC)
+  - [US-028](backlog/EPIC-007/US-028/US-028.md): Sessiebeheer
+  - [US-029](backlog/EPIC-007/US-029/US-029.md): Audit Logging
 - **Justitie Context:** Koppeling met Justid voor identiteitsverificatie
 - **ASTRA Compliance:** AR-6.1 (Identiteitsbeheer), AR-6.2 (Autorisatie)
 - **NORA Compliance:** BP-5.1 (Beveiliging by Design)
@@ -62,11 +62,11 @@
 #### REQ-018: Kern Definitie Generatie
 - **Episch Verhaal:** [EPIC-001](./backlog/EPIC-001/EPIC-001.md) (Basis Definitie Generatie)
 - **Stories:**
-  - [US-001](./backlog/stories/US-001.md): GPT-4 Definitie Generatie
-  - [US-002](./backlog/stories/US-002.md): Prompt Sjabloon Systeem
-  - [US-003](./backlog/stories/US-003.md): V1 Orchestrator Verwijdering
-  - [US-004](./backlog/stories/US-004.md): AI Configuratie Systeem
-  - [US-005](./backlog/stories/US-005.md): Gecentraliseerde AI Model Configuratie
+  - [US-001](backlog/EPIC-001/US-001/US-001.md): GPT-4 Definitie Generatie
+  - [US-002](backlog/EPIC-001/US-002/US-002.md): Prompt Sjabloon Systeem
+  - [US-003](backlog/EPIC-001/US-003/US-003.md): V1 Orchestrator Verwijdering
+  - [US-004](backlog/EPIC-001/US-004/US-004.md): AI Configuratie Systeem
+  - [US-005](backlog/EPIC-001/US-005/US-005.md): Gecentraliseerde AI Model Configuratie
 - **Justitie Context:** OM/DJI terminologie standaarden conform Juridisch Woordenboek
 - **ASTRA Compliance:** AR-3.1 (Gegevensdefinities), AR-3.2 (Begrippenkader)
 - **NORA Compliance:** BP-2.1 (Standaardisatie)
@@ -74,11 +74,11 @@
 #### REQ-020: Validatie Orchestrator V2
 - **Episch Verhaal:** [EPIC-002](./backlog/EPIC-002/EPIC-002.md) (Kwaliteitstoetsing)
 - **Stories:**
-  - [US-006](./backlog/stories/US-006.md): Validatie Regel Engine
-  - [US-007](./backlog/stories/US-007.md): ARAI Regels Implementatie
-  - [US-008](./backlog/stories/US-008.md): CON Regels Implementatie
-  - [US-009](./backlog/stories/US-009.md): ESS Regels Implementatie
-  - [US-010](./backlog/stories/US-010.md): Regel Prioriteit Systeem
+  - [US-006](backlog/EPIC-002/US-006/US-006.md): Validatie Regel Engine
+  - [US-007](backlog/EPIC-002/US-007/US-007.md): ARAI Regels Implementatie
+  - [US-008](backlog/EPIC-002/US-008/US-008.md): CON Regels Implementatie
+  - [US-009](backlog/EPIC-002/US-009/US-009.md): ESS Regels Implementatie
+  - [US-010](backlog/EPIC-002/US-010/US-010.md): Regel Prioriteit Systeem
 - **Justitie Context:** ASTRA kwaliteitsnormen voor juridische teksten
 - **ASTRA Compliance:** AR-4.1 (Kwaliteitsborging), AR-4.3 (Validatie)
 - **NORA Compliance:** BP-4.1 (Kwaliteitsmanagement)
