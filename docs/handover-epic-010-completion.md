@@ -195,7 +195,7 @@ pytest tests/ui/ -v
 
 EPIC-010 is volledig afgerond wanneer:
 1. ✅ Context propagatie 100% werkend
-2. ✅ Geen streamlit imports in services  
+2. ✅ Geen streamlit imports in services
 3. ⬜ Geen sync wrappers in ServiceFactory
 4. ⬜ Alle UI gebruikt async_bridge
 5. ⬜ Timeouts geconfigureerd en getest

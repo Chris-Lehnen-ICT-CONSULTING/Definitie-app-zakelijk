@@ -14,7 +14,7 @@ Dit document analyseert of alle review punten uit het v2 plan gedekt zijn door u
 
 ### 1. UI Migratie + Wrapper Removal
 **Review punt:** UI migratie en wrapper removal op dezelfde dag
-**Gedekt door:** 
+**Gedekt door:**
 - ✅ US-043-B: Migreer UI naar Async Bridge
 - ✅ US-043-C: Verwijder Deprecated Sync Methods
 **Status:** Volledig gedekt, inclusief acceptance criteria
@@ -42,7 +42,7 @@ Dit document analyseert of alle review punten uit het v2 plan gedekt zijn door u
 ## ❌ Ontbrekende User Stories
 
 ### 1. CFR-BUG-014 Fix Implementation
-**Review punt:** 
+**Review punt:**
 - Prompts met definitie + context toevoegen
 - Retry logic (max 1 retry, accepteer <N op laatste)
 - UI display zonder bullets
@@ -53,7 +53,7 @@ Dit document analyseert of alle review punten uit het v2 plan gedekt zijn door u
 
 ### 2. Timeout Config via rate_limit_config
 **Review punt:** Gebruik bestaande rate_limit_config.py ipv nieuwe timeouts.yaml
-**Gedekt door:** 
+**Gedekt door:**
 - ⚠️ US-043-D spreekt over timeouts.yaml (incorrect)
 **Status:** User story bestaat maar moet aangepast worden
 **Actie:** Update US-043-D om rate_limit_config.py te gebruiken
