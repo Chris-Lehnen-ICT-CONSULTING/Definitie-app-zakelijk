@@ -334,7 +334,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             voorbeelden = {}
             try:
                 from utils.voorbeelden_debug import DEBUG_ENABLED, debugger
-                from voorbeelden import genereer_alle_voorbeelden
+                from voorbeelden.unified_voorbeelden import (
+                    genereer_alle_voorbeelden_async,
+                )
 
                 # Build context_dict for voorbeelden generation (V2-only fields)
                 voorbeelden_context = {
@@ -361,8 +363,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     )
                     debugger.log_session_state(debug_gen_id, "C")
 
-                # Generate voorbeelden using the cleaned text
-                voorbeelden = genereer_alle_voorbeelden(
+                # Generate voorbeelden using async for better performance (US-052)
+                voorbeelden = await genereer_alle_voorbeelden_async(
                     begrip=sanitized_request.begrip,
                     definitie=(
                         generation_result.text
@@ -403,7 +405,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             else "NOT_DICT"
                         ),
                         {
-                            k: len(v) if isinstance(v, (list, str)) else "INVALID"
+                            k: len(v) if isinstance(v, list | str) else "INVALID"
                             for k, v in (voorbeelden or {}).items()
                         },
                     )

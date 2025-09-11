@@ -478,7 +478,7 @@ class UnifiedExamplesGenerator:
                 temperature=request.temperature,
                 max_tokens=1500,
             )
-            return self._parse_response(response.text)
+            return self._parse_response(response.text, request.example_type)
         except Exception as e:
             msg = f"Resilient generation failed: {e}"
             raise RuntimeError(msg) from e
