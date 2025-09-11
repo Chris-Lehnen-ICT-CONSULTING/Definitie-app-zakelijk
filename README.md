@@ -28,6 +28,11 @@ make validation-status
 pytest -q
 ```
 
+### 🔒 Codekwaliteit en Backlog‑discipline
+- Geen TODO/FIXME/XXX/TBD/HACK/@todo/@fixme in code — alle werk loopt via backlog.
+- Zie CONTRIBUTING.md voor richtlijnen. CI blokkeert PR’s met TODO‑achtige comments.
+- Lokale check: `pip install pre-commit && pre-commit install` of `bash scripts/ci/check_no_todo_markers.sh`.
+
 ### 🌐 Web Lookup Config (Epic 3)
 - De applicatie gebruikt één configbestand: `config/web_lookup_defaults.yaml` (prompt‑augmentatie staat standaard aan).
 - Optioneel kun je een eigen config gebruiken via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
