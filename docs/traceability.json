@@ -387,5 +387,14 @@
     "referenced_by": [
       "US-042"
     ]
+  },
+  "EPIC-013": {
+    "title": "EPIC-013: Centrale Documentatie‑Portal (Interactief & Auto‑sync)",
+    "stories": [],
+    "requirements": [],
+    "dependencies": [
+      "US-061"
+    ],
+    "referenced_by": []
   }
 }
