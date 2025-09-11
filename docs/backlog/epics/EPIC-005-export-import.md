@@ -14,6 +14,8 @@ stories:
 - US-021
 - US-022
 - US-023
+- US-062
+- US-065
 target_release: v1.3
 titel: Export & Import
 vereisten:

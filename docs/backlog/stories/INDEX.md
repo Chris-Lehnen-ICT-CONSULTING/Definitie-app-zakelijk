@@ -59,12 +59,13 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-012 | All 45/45 Validation Rules Active | ✅ DONE | KRITIEK | 13 |
 | US-013 | Modular Validation Service Operational | ✅ DONE | HOOG | 8 |
 
-### EPIC-003: Content Verrijking / Web Lookup (1 story - 0% complete)
+### EPIC-003: Content Verrijking / Web Lookup (2 stories - 0% complete)
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | US-014 | Modern Web Lookup Implementatie | ⏳ TODO | HOOG | 13 |
+| US-061 | Implement Wiktionary Integration | ⏳ TODO | LAAG | 5 |
 
-### EPIC-004: User Interface (6 stories - 50% complete)
+### EPIC-004: User Interface (7 stories - 43% complete)
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | US-015 | Tab Activation (7/10 tabs needed) | 🔄 IN_PROGRESS | GEMIDDELD | 8 |
@@ -73,13 +74,16 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-018 | Basic Tab Structure | ✅ DONE | HOOG | 3 |
 | US-019 | Definition Generation UI | ✅ DONE | HOOG | 5 |
 | US-020 | Validation Results Display | ✅ DONE | HOOG | 5 |
+| US-064 | Implement Definition Edit Interface | ⏳ TODO | HOOG | 8 |
 
-### EPIC-005: Export & Import (3 stories - 0% complete)
+### EPIC-005: Export & Import (5 stories - 0% complete)
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | US-021 | Export Formats (JSON, PDF, DOCX) | ⏳ TODO | GEMIDDELD | 8 |
 | US-022 | Import Validation | ⏳ TODO | HOOG | 5 |
 | US-023 | Batch Operations | ⏳ TODO | LAAG | 8 |
+| US-062 | Implement Bulk Import Functionality | ⏳ TODO | HOOG | 8 |
+| US-065 | Implement Email Export and Scheduled Exports | ⏳ TODO | LAAG | 5 |
 
 ### EPIC-006: Beveiliging & Auth (4 stories - 75% complete)
 | ID | Story | Status | Prioriteit | Points |
@@ -89,7 +93,7 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-026 | Environment Variable Configuration | ✅ DONE | HOOG | 3 |
 | US-027 | Component-specific AI Configuration Beveiliging | ✅ DONE | GEMIDDELD | 5 |
 
-### EPIC-007: Prestaties & Scaling (7 stories - 29% complete)
+### EPIC-007: Prestaties & Scaling (8 stories - 25% complete)
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | US-028 | Service Initialization Caching | ⏳ TODO | HOOG | 5 |
@@ -99,8 +103,9 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-032 | Context Window Optimization | ⏳ TODO | GEMIDDELD | 5 |
 | US-033 | V1 to V2 Migration | ✅ DONE | HOOG | 13 |
 | US-034 | Service Container Optimization | ✅ DONE | HOOG | 8 |
+| US-063 | Implement Database Maintenance Tools | ⏳ TODO | HOOG | 13 |
 
-### EPIC-009: Advanced Features (6 stories - 0% complete)
+### EPIC-009: Advanced Features (7 stories - 0% complete)
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | US-035 | Multi-definition Batch Processing | ⏳ TODO | GEMIDDELD | 13 |
@@ -109,26 +114,20 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-038 | FastAPI REST Endpoints | ⏳ TODO | HOOG | 8 |
 | US-039 | PostgreSQL Migration | ⏳ TODO | HOOG | 13 |
 | US-040 | Multi-tenant Architecture | ⏳ TODO | GEMIDDELD | 21 |
+| US-060 | Implement Event Bus Architecture | ⏳ TODO | GEMIDDELD | 8 |
 
-### EPIC-010: Context Flow Refactoring (6 stories - 0% complete) 🚨
-**Note:** Related legacy cleanup stories US-043 and US-056 are now part of [EPIC-012](../epics/EPIC-012-legacy-orchestrator-refactoring.md).
-
-### EPIC-012: Legacy Orchestrator Refactoring (5 stories - 0% complete)
+### EPIC-010: Context Flow Refactoring (9 stories - 33% complete) 🚨
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
-| US-061 | Extract Business Kennis uit Legacy | ⏳ TODO | KRITIEK | 5 |
-| US-062 | Refactor FeedbackBuilder naar V2 | ⏳ TODO | KRITIEK | 8 |
-| US-063 | Integreer Config en Context in V2 | ⏳ TODO | HOOG | 5 |
-| US-064 | Consolideer Orchestration Logica | ⏳ TODO | HOOG | 8 |
-| US-065 | Moderniseer UI Dependencies | ⏳ TODO | GEMIDDELD | 3 |
-| ID | Story | Status | Prioriteit | Points |
-|----|-------|--------|----------|--------|
-| [US-041](US-041.md) | Fix Context Field Mapping to Prompts | ⏳ TODO | KRITIEK | 8 |
-| US-042 | Fix "Anders..." Custom Context Option | ⏳ TODO | KRITIEK | 5 |
-| US-043 | Remove Legacy Context Routes | ⏳ TODO | HOOG | 8 |
+| [US-041](US-041.md) | Fix Context Field Mapping to Prompts | ✅ DONE | KRITIEK | 8 |
+| US-042 | Fix "Anders..." Custom Context Option | ✅ DONE | KRITIEK | 5 |
+| US-043 | Remove Legacy Context Routes | 🔄 IN_PROGRESS | HOOG | 8 |
 | US-044 | Implement Context Type Validation | ⏳ TODO | HOOG | 3 |
 | US-045 | Add Context Traceability for ASTRA | ⏳ TODO | HOOG | 5 |
 | US-046 | Create End-to-End Context Flow Tests | ⏳ TODO | HOOG | 8 |
+| US-051 | Fix CFR-BUG-014 Synoniemen/Antoniemen | ✅ DONE | KRITIEK | 5 |
+| US-052 | Orchestrator Async Voorbeelden Migration | ✅ DONE | HOOG | 3 |
+| US-053 | Implement CI Gates tegen Legacy Patterns | ⏳ TODO | GEMIDDELD | 2 |
 
 ## Prioriteit Distribution
 
