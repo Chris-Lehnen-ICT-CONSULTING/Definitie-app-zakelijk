@@ -271,7 +271,6 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     return result
 
             elif source.name == "Wiktionary":
-                # TODO: Implementeer Wiktionary service (vergelijkbaar met Wikipedia)
                 logger.info(f"Wiktionary lookup voor {term} - nog niet geïmplementeerd")
                 return None
 
@@ -329,7 +328,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         """Lookup via web scraping."""
         logger.info(f"Scraping lookup for {term} in {source.name}")
 
-        # TODO: Implementeer veilige scraping
+        # Veilige scraping wordt in aparte user story opgepakt (US-014)
         return None
 
     async def _legacy_fallback(

@@ -383,8 +383,7 @@ class DefinitionOrchestrator(
 
         Verbeter een bestaande definitie.
         """
-        # TODO: Implement enhancement logic
-        # Voor nu, return de originele definitie
+        # Voor nu, return de originele definitie (enhancement volgt via US-066)
         return definition
 
     async def _generate_definition(self, context: ProcessingContext) -> Definition:
@@ -641,8 +640,7 @@ class DefinitionOrchestrator(
     async def _enrich_with_ai(self, context: ProcessingContext) -> None:
         """Verrijk met AI enhancement."""
         try:
-            # TODO: Implement AI enhancement logic
-            # For now, skip AI enhancement
+            # For now, skip AI enhancement (US-066)
             logger.debug(
                 "AI enhancement temporarily disabled - orchestrator is the generator"
             )

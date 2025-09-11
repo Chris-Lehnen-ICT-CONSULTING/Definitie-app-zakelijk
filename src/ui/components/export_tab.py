@@ -749,8 +749,7 @@ class ExportTab:
                     "message": "Geen definities in database",
                 }
 
-            # Check for orphaned records
-            # TODO: Implement orphan detection
+            # Check for orphaned records (implementatie volgt via US-063)
             health_status["Orphaned Records"] = {
                 "status": "ok",
                 "message": "Geen wees-records gevonden",
@@ -811,30 +810,30 @@ class ExportTab:
         self, uploaded_file, import_mode: str, duplicate_handling: str
     ):
         """Voer bulk import uit."""
-        # TODO: Implement bulk import functionality
+        # Bulk import functionaliteit volgt via US-062
         st.info("📥 Bulk import functionaliteit komt binnenkort beschikbaar")
 
     def _cleanup_duplicates(self):
         """Cleanup duplicate definities."""
-        # TODO: Implement duplicate cleanup
+        # Duplicate cleanup volgt via US-063
         st.info("🗑️ Duplicate cleanup functionaliteit komt binnenkort beschikbaar")
 
     def _rebuild_indexes(self):
         """Herbouw database indexes."""
-        # TODO: Implement index rebuilding
+        # Index rebuild volgt via US-063
         st.info("🔄 Index rebuild functionaliteit komt binnenkort beschikbaar")
 
     def _analyze_database(self):
         """Analyseer database prestaties."""
-        # TODO: Implement database analysis
+        # Database analyse volgt via US-063
         st.info("📊 Database analyse functionaliteit komt binnenkort beschikbaar")
 
     def _email_export(self):
         """Verstuur export via email."""
-        # TODO: Implement email export
+        # Email export volgt via US-065
         st.info("📧 Email export functionaliteit komt binnenkort beschikbaar")
 
     def _schedule_export(self):
         """Plan automatische exports."""
-        # TODO: Implement scheduled exports
+        # Geplande exports volgen via US-065
         st.info("⏰ Geplande export functionaliteit komt binnenkort beschikbaar")

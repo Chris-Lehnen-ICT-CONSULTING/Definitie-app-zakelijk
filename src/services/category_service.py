@@ -98,7 +98,7 @@ class CategoryService:
                     f"{old_category} -> {new_category} door {user}"
                 )
 
-                # TODO: Publish event hier wanneer event bus beschikbaar is
+                # Event publishing volgt bij introductie van Event Bus (US-060)
 
                 return CategoryChangeResult(
                     success=True,

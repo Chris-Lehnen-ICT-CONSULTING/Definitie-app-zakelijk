@@ -95,7 +95,7 @@ Voor elk van de 13 epics een individueel bestand maken.
 python scripts/extract_epic.py \
   --source docs/backlog/stories/MASTER-EPICS-USER-STORIES.md \
   --epic-id "Episch Verhaal 1" \
-  --output docs/backlog/epics/EPIC-001.md
+  --output docs/backlog/EPIC-001/EPIC-001.md
 ```
 
 #### B. Episch Verhaal Template:
@@ -139,9 +139,9 @@ astra_compliance: true
 ```bash
 # Voor epics met archief equivalent
 python scripts/merge_epic_content.py \
-  --primary docs/backlog/epics/EPIC-003.md \
+  --primary docs/backlog/EPIC-003/EPIC-003.md \
   --archive docs/archief/vereistes/EPIC-004-content-enrichment.md \
-  --output docs/backlog/epics/EPIC-003.md
+  --output docs/backlog/EPIC-003/EPIC-003.md
 ```
 
 ---
