@@ -22,6 +22,16 @@ stories:
 - US-094
 - US-095
 - US-096
+- US-097
+- US-098
+- US-099
+- US-100
+- US-101
+- US-102
+- US-103
+- US-104
+- US-105
+- US-106
 target_release: v1.5
 titel: Centrale Documentatie‑Portal (Interactief & Auto‑sync)
 vereisten:
@@ -68,4 +78,3 @@ Eén centrale, interactieve portalpagina (browser) voor de héle backlog én rel
 - Richtlijnen: `docs/guidelines/CANONICAL_LOCATIONS.md`, `DOCUMENTATION_POLICY.md`
 - Architectuur: `docs/architectuur/*ARCHITECTURE.md`
 - Traceability: `docs/traceability.json`, `docs/backlog/requirements/REQ-REGISTRY.json`
-

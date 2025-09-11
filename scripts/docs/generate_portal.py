@@ -86,6 +86,39 @@ def scan_docs() -> list[dict]:
         fm = parse_frontmatter(text)
         title = fm.get("titel") or fm.get("title") or first_heading(text) or md.stem
         doc_type = fm.get("type") or classify(md)
+
+        # Planning gerelateerde velden
+        sprint = fm.get("sprint") or ""
+        story_points = fm.get("story_points") or fm.get("storypoints") or ""
+        prioriteit = fm.get("prioriteit") or ""
+        completion = fm.get("completion") or fm.get("progress") or ""
+        target_release = fm.get("target_release") or ""
+
+        # derive numeric sprint if mogelijk
+        sprint_number = None
+        if isinstance(sprint, str):
+            mnum = re.search(r"(\d+)", sprint)
+            if mnum:
+                try:
+                    sprint_number = int(mnum.group(1))
+                except Exception:
+                    sprint_number = None
+
+        # prioriteit/type ranking
+        pr_rank = {"KRITIEK": 1, "HOOG": 2, "GEMIDDELD": 3, "LAAG": 4}
+        type_rank = {"EPIC": 1, "US": 2, "BUG": 3, "REQ": 4}
+        priority_rank = pr_rank.get(str(prioriteit).upper(), 5)
+        tr = type_rank.get(str(doc_type).upper(), 9)
+
+        # parent ids uit pad
+        parent_epic = None
+        parent_us = None
+        for ppart in md.parts:
+            if re.match(r"EPIC-\d+", ppart):
+                parent_epic = ppart
+            if re.match(r"US-\d+", ppart):
+                parent_us = ppart
+
         item = {
             "id": fm.get("id") or None,
             "type": str(doc_type),
@@ -93,11 +126,22 @@ def scan_docs() -> list[dict]:
             "path": rel_url(md.relative_to(ROOT)),
             "url": rel_url(md.relative_to(ROOT)),
             "status": fm.get("status") or None,
-            "prioriteit": fm.get("prioriteit") or None,
+            "prioriteit": prioriteit or None,
             "owner": fm.get("owner") or None,
             "canonical": True if str(fm.get("canonical")).lower() == "true" else False,
             "last_verified": fm.get("last_verified") or None,
             "applies_to": fm.get("applies_to") or None,
+            "sprint": sprint or None,
+            "story_points": story_points or None,
+            "completion": completion or None,
+            "target_release": target_release or None,
+            "planning": {
+                "sprint_number": sprint_number,
+                "priority_rank": priority_rank,
+                "type_rank": tr,
+            },
+            "parent_epic": parent_epic,
+            "parent_us": parent_us,
         }
         items.append(item)
     return items
@@ -154,4 +198,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

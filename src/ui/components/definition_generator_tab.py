@@ -872,44 +872,32 @@ class DefinitionGeneratorTab:
         st.info("🔄 Edit functionality coming soon...")
 
     def _submit_for_review(self, definitie: DefinitieRecord):
-        """Submit definitie voor expert review via WorkflowService."""
+        """Submit definitie voor expert review via DefinitionWorkflowService."""
         try:
-            # First, validate the transition via WorkflowService (business logic)
-            if not self.workflow_service.can_change_status(
-                current_status=definitie.status, new_status=DefinitieStatus.REVIEW.value
-            ):
-                st.error(
-                    "❌ Deze definitie kan niet voor review worden ingediend vanuit de huidige status"
-                )
-                return
-
-            # Get the prepared status changes from service
-            status_changes = self.workflow_service.submit_for_review(
+            # US-072: Use DefinitionWorkflowService for combined workflow and repository actions
+            if hasattr(st.session_state, 'service_container'):
+                workflow_service = st.session_state.service_container.definition_workflow_service()
+            else:
+                # Fallback to container method
+                from services.container import get_container
+                container = get_container()
+                workflow_service = container.definition_workflow_service()
+            
+            # Submit for review using the new consolidated service
+            result = workflow_service.submit_for_review(
                 definition_id=definitie.id,
                 user="web_user",
                 notes="Submitted via web interface",
             )
-
-            # Apply changes via repository (data access layer)
-            # DefinitionWorkflowService volgt (US-072)
-            success = self.checker.repository.change_status(
-                definitie_id=definitie.id,
-                new_status=DefinitieStatus.REVIEW,
-                changed_by=status_changes["updated_by"],
-                notes="Submitted via web interface",
-            )
-
-            if success:
+            
+            if result.success:
                 st.success("✅ Definitie ingediend voor review")
                 # Log the workflow change for audit purposes
                 logger.info(
-                    f"Definition {definitie.id} submitted for review by {status_changes['updated_by']}"
+                    f"Definition {definitie.id} submitted for review by {result.updated_by}"
                 )
             else:
-                st.error("❌ Kon status niet wijzigen")
-        except ValueError as e:
-            # WorkflowService throws ValueError for invalid transitions
-            st.error(f"❌ Workflow fout: {e!s}")
+                st.error(f"❌ {result.error_message or 'Kon status niet wijzigen'}")
         except Exception as e:
             st.error(f"❌ Onverwachte fout: {e!s}")
             logger.exception("Error submitting definition for review")

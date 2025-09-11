@@ -1,0 +1,85 @@
+name: Portal Generator
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'docs/**/*.md'
+      - '!docs/portal/**'
+      - 'scripts/docs/generate_portal.py'
+      - '.github/workflows/portal.yml'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'docs/**/*.md'
+      - '!docs/portal/**'
+      - 'scripts/docs/generate_portal.py'
+      - '.github/workflows/portal.yml'
+  workflow_dispatch: {}
+
+jobs:
+  generate-portal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Generate portal
+        run: |
+          python3 scripts/docs/generate_portal.py
+
+      - name: Upload portal artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-output
+          path: |
+            docs/portal/index.html
+            docs/portal/portal-index.json
+
+      - name: Detect changes
+        id: changes
+        run: |
+          git add docs/portal/
+          if git diff --staged --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Commit generated portal
+        if: steps.changes.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "chore(portal): regenerate portal index
+
+          🤖 Auto-generated from docs changes"
+
+      - name: Push changes
+        if: steps.changes.outputs.has_changes == 'true' && github.event_name != 'pull_request'
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create PR with portal changes (for PR events)
+        if: steps.changes.outputs.has_changes == 'true' && github.event_name == 'pull_request'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: |
+            chore(portal): regenerate portal index
+
+            🤖 Auto-generated from docs changes
+          title: 'Portal: Regenerated from docs updates'
+          body: |
+            This PR contains updated portal artifacts based on changed documentation files.
+          branch: portal-update-${{ github.run_number }}
+          delete-branch: true

@@ -63,9 +63,10 @@
 - **[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle geregistreerde vereisten (REQ-001 t/m REQ-092)
 - **[📊 Episch Verhaal Dashboard](./backlog/README.md)** 🆕 **PRIMARY VIEW** - All epics with status & metrics
 - **[📋 Story Index](./backlog/README.md)** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX)
-- **[🧭 Requirements Dashboard](./backlog/dashboard/index.html)** 🆕 - Zoeken, sorteren, doorklikken
-- **[▸ Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** 🆕 - In-/uitklapbare blokken per epic
-- **[↗︎ Grafisch Overzicht](./backlog/dashboard/graph.html)** 🆕 - REQ ↔ EPIC bipartite graph (offline)
+- **[🌀 Centrale Portal](./portal/index.html)** 🔥 **PRIMAIR** – Eén ingang voor backlog + documentatie (zoek/filter/sort)
+- (Gearchiveerd) **[Requirements Dashboard](./backlog/dashboard/index.html)** – zie Portal als vervanging
+- (Gearchiveerd) **[Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** – zie Portal als vervanging
+- (Gearchiveerd) **[Grafisch Overzicht](./backlog/dashboard/graph.html)** – toekomstige subview in Portal
 - **[✅ EPIC-010: Context Flow](./backlog/EPIC-010/EPIC-010.md)** **COMPLETED** - Context flow volledig gefixt (11-09-2025)
   - **[📍 Implementatieplan](./implementation/EPIC-010-implementation-plan.md)** - 9‑fasen implementatie (voltooid)
   - **[🛡️ CI Gates](../.github/workflows/epic-010-gates.yml)** **NIEUW** - Legacy pattern detection geïmplementeerd
