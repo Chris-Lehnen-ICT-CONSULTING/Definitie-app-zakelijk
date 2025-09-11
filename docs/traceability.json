@@ -392,18 +392,66 @@
       "US-042"
     ]
   },
+  "EPIC-011": {
+    "title": "EPIC-011: Documentatie Completering & Kwaliteitsverbetering",
+    "stories": [],
+    "requirements": [],
+    "dependencies": [],
+    "referenced_by": []
+  },
+  "EPIC-012": {
+    "title": "EPIC-012: Legacy Orchestrator Refactoring",
+    "stories": [
+      "US-061",
+      "US-062",
+      "US-063",
+      "US-064",
+      "US-065",
+      "US-066",
+      "US-067",
+      "US-068",
+      "US-069",
+      "US-070",
+      "US-071",
+      "US-072",
+      "US-073",
+      "US-074",
+      "US-075",
+      "US-076",
+      "US-078"
+    ],
+    "requirements": [],
+    "dependencies": [],
+    "referenced_by": [
+      "EPIC-014"
+    ]
+  },
   "EPIC-013": {
     "title": "EPIC-013: Centrale Documentatie‑Portal (Interactief & Auto‑sync)",
     "stories": [],
     "requirements": [],
-    "dependencies": [
-      "US-061"
-    ],
+    "dependencies": [],
     "referenced_by": []
   },
   "EPIC-014": {
     "title": "EPIC-014: Business Logic Refactoring Implementation",
-    "stories": [],
+    "stories": [
+      "US-107",
+      "US-108",
+      "US-109",
+      "US-110",
+      "US-111",
+      "US-112",
+      "US-113",
+      "US-114",
+      "US-115",
+      "US-116",
+      "US-117",
+      "US-118",
+      "US-119",
+      "US-120",
+      "US-121"
+    ],
     "requirements": [],
     "dependencies": [
       "US-061"
