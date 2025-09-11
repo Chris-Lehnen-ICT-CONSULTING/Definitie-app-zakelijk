@@ -8,6 +8,7 @@
 **Created**: 2025-01-10
 **Updated**: 2025-09-11
 **Progress**: US-061 COMPLETED - Business kennis geëxtraheerd en gedocumenteerd
+**Decision (2025-09-11)**: Start met US-064 vóór US-062 voor maximale waarde
 **Follow-up**: Zie [EPIC-014](../EPIC-014/EPIC-014.md) voor implementatie van geëxtraheerde business logic
 **Owner**: Development Team
 **Sprint Planning**: Week 2 September 2025 (Na EPIC-010 completion)
@@ -64,9 +65,9 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 | ID | Titel | Priority | Points | Status |
 |----|-------|----------|--------|--------|
 | US-061 | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | **COMPLETED** ✅ |
+| US-064 | Consolideer orchestration logica | HIGH | 8 | TODO | NEXT |
 | US-062 | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
 | US-063 | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
-| US-064 | Consolideer orchestration logica | HIGH | 8 | TODO |
 | US-065 | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
 | US-066 | Verwijder Legacy DefinitieAgent uit Integratie/UI | HIGH | 5 | TODO |
 | US-067 | ServiceFactory Stateless Maken | HIGH | 3 | TODO |
@@ -132,12 +133,18 @@ De nieuwe user stories (US-066 t/m US-070) zijn geïdentificeerd tijdens de EPIC
 - Document iterative improvement logica
 - Identificeer alle performance optimalisaties
 
-### Phase 2: FeedbackBuilder Refactoring (US-062)
-**Week 1-2** - Kritieke service eerst
-- Creëer FeedbackServiceV2 met alle mappings
-- Integreer violation feedback (11 regels)
-- Implementeer pattern suggestions
-- Test feedback prioritering
+### Phase 2: Orchestration Consolidation (US-064)
+**Week 1-2** - Verenig orchestration logica (PRIORITY FIRST)
+- Integreer iterative improvement haakjes in V2
+- Implementeer update_definition flow (edit → re‑validate)
+- Consolideer stats tracking
+
+### Phase 3: FeedbackBuilder Refactoring (US-062)
+**Week 2-3** - Kritieke service ná US‑064
+- Creëer FeedbackServiceV2 met 11 mappings (Fase 1)
+- Integreer violation feedback (post‑validatie hook in DefinitionOrchestratorV2)
+- Implementeer pattern suggestions en prioritering
+- A/B test vs legacy en uitbreiden via mapping‑config
 
 ### Phase 3: Config & Context Integration (US-063)
 **Week 2** - Consolideer configuratie
@@ -145,11 +152,11 @@ De nieuwe user stories (US-066 t/m US-070) zijn geïdentificeerd tijdens de EPIC
 - Refactor EnrichedContext naar ContextServiceV2
 - Behoud alle business parameters
 
-### Phase 4: Orchestration Consolidation (US-064)
-**Week 2-3** - Verenig orchestration logica
-- Integreer iterative improvement in V2
-- Implementeer update_definition flow
-- Consolideer stats tracking
+### Phase 4: Config & Context Integration (US-063)
+**Week 3** - Consolideer configuratie
+- Merge UnifiedGeneratorConfig naar V2
+- Refactor EnrichedContext naar ContextServiceV2
+- Behoud alle business parameters
 
 ### Phase 5: UI Modernization (US-065)
 **Week 3** - Update dependencies
