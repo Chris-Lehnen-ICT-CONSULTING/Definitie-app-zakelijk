@@ -13,9 +13,9 @@
 ## 📄 Description
 <!-- Provide a brief description of the changes -->
 
-## 🔗 Related Issue
-<!-- Link to the related issue if applicable -->
-Fixes #(issue number)
+## 🔗 Backlog Link
+<!-- Link naar US/CFR-BUG/Epic; verplicht -->
+Ref: US-___ / CFR-BUG-___ / EPIC-___
 
 ## 🎯 Changes Made
 <!-- List the main changes -->
@@ -63,6 +63,7 @@ Fixes #(issue number)
 - [ ] Any dependent changes have been merged and published
 - [ ] Contract schema validation uitgevoerd (if applicable)
 - [ ] ValidationResult contract compliance verified (if applicable)
+- [ ] No TODO/FIXME/XXX/TBD/HACK markers in code (CI will enforce)
 
 ## 🚀 Deployment Notes
 <!-- Any special deployment considerations -->
