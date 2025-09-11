@@ -1177,54 +1177,6 @@
       "parent_us": null
     },
     {
-      "id": "US-061",
-      "type": "feature",
-      "title": "Implement Wiktionary Integration",
-      "path": "docs/backlog/EPIC-003/US-061/US-061.md",
-      "url": "docs/backlog/EPIC-003/US-061/US-061.md",
-      "status": "Open",
-      "prioriteit": "LOW",
-      "owner": "developer",
-      "canonical": true,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "sprint": "backlog",
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-003",
-      "parent_us": "US-061.md"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Business Knowledge Extraction Document",
-      "path": "docs/backlog/EPIC-003/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
-      "url": "docs/backlog/EPIC-003/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-003",
-      "parent_us": "US-061"
-    },
-    {
       "id": "US-014",
       "type": "feature",
       "title": "Modern Web Lookup Implementatie",
@@ -1295,6 +1247,30 @@
       },
       "parent_epic": "EPIC-003",
       "parent_us": "US-014"
+    },
+    {
+      "id": "US-062",
+      "type": "feature",
+      "title": "Implement Wiktionary Integration",
+      "path": "docs/backlog/EPIC-003/US-062/US-062.md",
+      "url": "docs/backlog/EPIC-003/US-062/US-062.md",
+      "status": "Open",
+      "prioriteit": "LOW",
+      "owner": "developer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-062.md"
     },
     {
       "id": "EPIC-004",
@@ -16803,7 +16779,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 500,
+      "DOC": 499,
       "report": 1,
       "log": 1,
       "analyse": 1,
@@ -16841,7 +16817,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-11T19:32:59Z"
+    "generated_at": "2025-09-11T19:35:04Z"
   },
   "sources": [
     "docs"
