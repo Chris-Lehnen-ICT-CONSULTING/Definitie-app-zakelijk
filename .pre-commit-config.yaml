@@ -7,4 +7,11 @@ repos:
         language: system
         pass_filenames: false
         types: [python]
-        stages: [commit]
+        stages: [pre-commit]
+      - id: generate-portal-on-docs-change
+        name: Generate portal (docs → portal)
+        entry: bash scripts/docs/run_portal_generator.sh
+        language: system
+        pass_filenames: false
+        files: ^docs/(?!portal/).+\.md$
+        stages: [pre-commit]

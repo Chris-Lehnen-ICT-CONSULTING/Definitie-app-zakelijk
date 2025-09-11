@@ -297,6 +297,36 @@ class ServiceContainer:
             self._instances["workflow"] = WorkflowService()
             logger.info("WorkflowService instance aangemaakt")
         return self._instances["workflow"]
+    
+    def definition_workflow_service(self):
+        """
+        Get of create DefinitionWorkflowService instance.
+        
+        US-072: Deze service combineert workflow en repository acties
+        zodat UI geen losse services hoeft te coördineren.
+        
+        Returns:
+            Singleton instance van DefinitionWorkflowService
+        """
+        if "definition_workflow_service" not in self._instances:
+            from services.definition_workflow_service import DefinitionWorkflowService
+            
+            # Use existing services
+            workflow_service = self.workflow()
+            repository = self.repository()
+            
+            # Optional services (None for now, can be added later)
+            event_bus = None  # Pending: integrate Event Bus when US-060 is delivered
+            audit_logger = None  # Pending: integrate Audit Trail when US-068 is delivered
+            
+            self._instances["definition_workflow_service"] = DefinitionWorkflowService(
+                workflow_service=workflow_service,
+                repository=repository,
+                event_bus=event_bus,
+                audit_logger=audit_logger,
+            )
+            logger.info("DefinitionWorkflowService instance aangemaakt (US-072)")
+        return self._instances["definition_workflow_service"]
 
     def cleaning_service(self) -> CleaningServiceInterface:
         """

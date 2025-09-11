@@ -188,7 +188,6 @@ class PromptServiceV2:
             "organisatorisch": [],
             "juridisch": [],
             "wettelijk": [],
-            "domein": [],
             # US-041 FIX: Also maintain original field names for compatibility
             "organisatorische_context": [],
             "juridische_context": [],
