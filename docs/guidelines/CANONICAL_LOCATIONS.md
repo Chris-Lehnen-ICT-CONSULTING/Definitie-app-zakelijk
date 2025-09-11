@@ -57,11 +57,11 @@ docs/backlog/
 ├── EPIC-001/                    # Elke EPIC in eigen directory
 │   ├── EPIC-001.md             # Epic documentatie
 │   ├── US-001/                 # User stories direct onder EPIC
-│   │   └── US-001.md           # Story documentatie
-│   ├── US-002/
-│   │   └── US-002.md
-│   └── bugs/                   # Bugs op EPIC niveau
-│       └── BUG-XXX.md          # Bug documentatie
+│   │   ├── US-001.md           # Story documentatie
+│   │   └── BUG-XXX/            # Bugs binnen US directory
+│   │       └── BUG-XXX.md      # Bug documentatie
+│   └── US-002/
+│       └── US-002.md
 └── EPIC-002/
     └── ...
 ```
@@ -69,7 +69,7 @@ docs/backlog/
 **Canonieke Locaties:**
 - **Epic**: `/docs/backlog/EPIC-XXX/EPIC-XXX.md` ✅ ACTIEF
 - **User Story**: `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md` ✅ ACTIEF
-- **Bug**: `/docs/backlog/EPIC-XXX/bugs/BUG-XXX.md` ✅ ACTIEF
+- **Bug**: `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md` ✅ ACTIEF
 - **Requirements**: `/docs/backlog/requirements/` ✅ BEHOUDEN (92 requirements)
 - **Dashboards**: `/docs/backlog/dashboard/` ✅ BEHOUDEN
   - `index.html` (requirements tabel, zoeken + sorteren)
@@ -79,7 +79,8 @@ docs/backlog/
 **❌ VEROUDERDE LOCATIES (NIET MEER GEBRUIKEN):**
 - ~~`/docs/backlog/epics/`~~ → Gebruik `/docs/backlog/EPIC-XXX/`
 - ~~`/docs/backlog/stories/`~~ → Gebruik `/docs/backlog/EPIC-XXX/US-XXX/`
-- ~~`/docs/backlog/bugs/`~~ → Gebruik `/docs/backlog/EPIC-XXX/bugs/`
+- ~~`/docs/backlog/bugs/`~~ → Gebruik `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/`
+- ~~`/docs/backlog/EPIC-XXX/bugs/`~~ → Bugs binnen US directories
 - ~~`/docs/backlog/EPIC-XXX/User Stories/`~~ → Stories direct onder EPIC
 
 ### 7. Archief

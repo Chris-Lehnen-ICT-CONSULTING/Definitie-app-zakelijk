@@ -11,13 +11,15 @@ owner: business-analyst
 prioriteit: GEMIDDELD
 status: IN_UITVOERING
 stories:
-- US-015
-- US-016
-- US-017
-- US-018
-- US-019
 - US-020
+- US-021
+- US-022
+- US-023
+- US-024
+- US-025
 - US-064
+- US-067
+- US-068
 target_release: v1.2
 titel: User Interface
 vereisten:
@@ -60,7 +62,7 @@ User experience and productivity improvements through modern UI/UX design. This 
 
 ## Gebruikersverhalen Overzicht
 
-### US-015: Tab Activation
+### US-021: Tab Activation
 **Status:** IN_UITVOERING
 **Prioriteit:** GEMIDDELD
 **Verhaalpunten:** 8
@@ -83,7 +85,7 @@ zodat I can access all system features
 - ❌ Settings tab
 - ❌ Help tab
 
-### US-016: UI Prestaties Optimization
+### US-022: UI Prestaties Optimization
 **Status:** Nog te bepalen
 **Prioriteit:** HOOG
 **Verhaalpunten:** 5
@@ -99,7 +101,7 @@ zodat I can work efficiently
 - Form submission: < 200ms
 - Validation feedback: < 500ms
 
-### US-017: Responsive Design Implementatie
+### US-023: Responsive Design Implementatie
 **Status:** Nog te bepalen
 **Prioriteit:** GEMIDDELD
 **Verhaalpunten:** 8
@@ -115,7 +117,7 @@ zodat I can work flexibly
 - Desktop (1024px+)
 - Touch-friendly controls
 
-### US-018: Basic Tab Structure ✅
+### US-024: Basic Tab Structure ✅
 **Status:** GEREED
 **Prioriteit:** HOOG
 **Verhaalpunten:** 3
@@ -125,7 +127,7 @@ zodat I can work flexibly
 - Navigation structure
 - Session state management
 
-### US-019: Definition Generation UI ✅
+### US-025: Definition Generation UI ✅
 **Status:** GEREED
 **Prioriteit:** HOOG
 **Verhaalpunten:** 5

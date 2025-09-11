@@ -15,11 +15,11 @@ docs/backlog/
 ├── EPIC-001/                      # Elke EPIC in eigen directory
 │   ├── EPIC-001.md                # Epic documentatie
 │   ├── US-001/                    # User stories direct onder EPIC
-│   │   └── US-001.md              # User story documentatie
-│   ├── US-002/
-│   │   └── US-002.md
-│   └── bugs/                      # Bugs op EPIC niveau
-│       └── BUG-XXX.md             # Bug documentatie
+│   │   ├── US-001.md              # User story documentatie
+│   │   └── BUG-XXX/               # Bugs binnen US directory
+│   │       └── BUG-XXX.md         # Bug documentatie
+│   └── US-002/
+│       └── US-002.md
 └── EPIC-002/
     └── ...
 ```
@@ -28,8 +28,8 @@ docs/backlog/
 - **NOOIT** stories direct in `/docs/backlog/stories/` plaatsen
 - **NOOIT** epics in `/docs/backlog/epics/` plaatsen
 - **GEEN** "User Stories" subdirectory - stories direct onder EPIC
-- **BUGS** altijd in bugs/ directory op EPIC niveau
-- **ALTIJD** de hiërarchie volgen: EPIC → US-XXX (direct) + bugs/
+- **BUGS** altijd binnen de relevante US-XXX directory
+- **ALTIJD** de hiërarchie volgen: EPIC → US-XXX → BUG-XXX
 - **ALTIJD** elke user story in eigen directory met dezelfde naam
 
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
@@ -368,7 +368,7 @@ black src config
 - **Backlog Structuur:** `/docs/backlog/EPIC-XXX/` - Elke epic heeft eigen directory
   - **Epic Documentatie:** `/docs/backlog/EPIC-XXX/EPIC-XXX.md`
   - **User Stories:** `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
-  - **Bugs:** `/docs/backlog/EPIC-XXX/bugs/BUG-XXX.md`
+  - **Bugs:** `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md`
 - **Refactor Log**: `docs/refactor-log.md` - Wijzigingen tracking
 
 ### Reviews & Analyses
