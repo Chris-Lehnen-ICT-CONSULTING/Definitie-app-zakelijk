@@ -100,21 +100,75 @@
       // apply optional sprint filter
       const sfv = sprintSel ? sprintSel.value : '';
       if(sfv) v = v.filter(d=>String(d.sprint||'')===sfv);
-      v.sort(cmpPlanning);
       // group by sprint label
       const groups = {};
-      v.forEach(d=>{
-        const key = d.sprint || 'backlog';
-        (groups[key] ||= []).push(d);
-      });
-      Object.keys(groups).sort((a,b)=>{
+      v.forEach(d=>{ const key = d.sprint || 'backlog'; (groups[key] ||= []).push(d); });
+      const sprintKeys = Object.keys(groups).sort((a,b)=>{
         const na=(d=>{const m=String(d).match(/(\d+)/);return m?parseInt(m[1],10):9999})(a);
         const nb=(d=>{const m=String(d).match(/(\d+)/);return m?parseInt(m[1],10):9999})(b);
         return na-nb || String(a).localeCompare(String(b));
-      }).forEach(groupKey=>{
-        const h = document.createElement('h3'); h.className='group'; h.textContent = `Sprint: ${groupKey}`;
+      });
+      sprintKeys.forEach(groupKey=>{
+        const items = groups[groupKey].slice().sort(cmpPlanning);
+        const h = document.createElement('h3'); h.className='group';
+        const count = items.length;
+        h.textContent = `Sprint: ${groupKey} (${count})`;
         list.appendChild(h);
-        groups[groupKey].forEach(d=>{
+        // Build EPIC -> US -> BUG structure
+        const epics = {};
+        const orphans = [];
+        items.forEach(d=>{
+          const t=String(d.type).toUpperCase();
+          if(t==='EPIC'){
+            epics[d.id||d.parent_epic||''] ||= { epic:d, us:{}};
+          } else if(t==='US'){
+            const pe = d.parent_epic||''; epics[pe] ||= { epic: idMap[pe], us:{} };
+            epics[pe].us[d.id||''] ||= { us:d, bugs:[] };
+          } else if(t==='BUG'){
+            const pu = d.parent_us||'';
+            // find its epic via parent_us if possible
+            const usDoc = idMap[pu];
+            const pe = (usDoc && usDoc.parent_epic) || d.parent_epic || '';
+            if(!pe || !pu){ orphans.push(d); return; }
+            epics[pe] ||= { epic: idMap[pe], us:{} };
+            epics[pe].us[pu] ||= { us: idMap[pu], bugs:[] };
+            epics[pe].us[pu].bugs.push(d);
+          }
+        });
+        // Render EPIC groups
+        Object.keys(epics).filter(Boolean).forEach(eid=>{
+          const e = epics[eid];
+          const eHeader = document.createElement('div'); eHeader.className='planning-epic';
+          const eBadge = document.createElement('span'); eBadge.className='badge type'; eBadge.textContent='EPIC';
+          const eTitle = document.createElement('a'); eTitle.textContent = (e.epic&& (e.epic.title||e.epic.id)) || eid; eTitle.href = (e.epic&&e.epic.url)||'#'; eTitle.target='_blank';
+          eHeader.append(eBadge, eTitle); list.appendChild(eHeader);
+          // Render US under epic
+          const usKeys = Object.keys(e.us).sort((a,b)=>{
+            const A=e.us[a].us||{}; const B=e.us[b].us||{}; return cmpPlanning(A,B);
+          });
+          usKeys.forEach(uid=>{
+            const u=e.us[uid];
+            const li=document.createElement('div'); li.className='planning-us';
+            const uBadge=document.createElement('span'); uBadge.className='badge type'; uBadge.textContent='US';
+            const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=u.us.url; uLink.target='_blank';
+            const uMeta=document.createElement('span'); uMeta.className='meta';
+            const pts = u.us.story_points?`SP:${u.us.story_points}`:null;
+            uMeta.textContent = ['status:'+ (u.us.status||'') , u.us.prioriteit, pts].filter(Boolean).join(' · ');
+            li.append(uBadge,uLink,document.createTextNode(' '),uMeta);
+            // Bugs under US
+            if(u.bugs && u.bugs.length){
+              const bugRow=document.createElement('div'); bugRow.className='planning-bugs';
+              u.bugs.sort(cmpPlanning).forEach(b=>{
+                const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=b.url||b.path; chip.target='_blank';
+                bugRow.appendChild(chip);
+              });
+              li.appendChild(bugRow);
+            }
+            list.appendChild(li);
+          });
+        });
+        // Orphans (no parent_epic/us); render flat at end of sprint group
+        orphans.sort(cmpPlanning).forEach(d=>{
           const li=document.createElement('li'); li.className='doc-item';
           const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
           const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
@@ -126,6 +180,33 @@
           li.append(type,title,meta,link); list.appendChild(li);
         });
       });
+    } else if (view==='req-matrix'){
+      // Simple REQ ↔ EPIC matrix (EPIC rows with REQ chips)
+      const epics = docs.filter(d=>String(d.type).toUpperCase()==='EPIC');
+      const table=document.createElement('table'); table.className='matrix';
+      const thead=document.createElement('thead'); const trh=document.createElement('tr');
+      ['EPIC','Titel','REQs (count)'].forEach(h=>{ const th=document.createElement('th'); th.textContent=h; trh.appendChild(th); });
+      thead.appendChild(trh); table.appendChild(thead);
+      const tbody=document.createElement('tbody');
+      epics.sort((a,b)=>String(a.id||a.title).localeCompare(String(b.id||b.title))).forEach(e=>{
+        const reqIds = Array.isArray(e.linked_reqs)? e.linked_reqs : [];
+        if(!reqIds.length) return; // show only epics with reqs
+        const tr=document.createElement('tr');
+        const td1=document.createElement('td'); const a=document.createElement('a'); a.textContent=e.id||'EPIC'; a.href=e.url||e.path; a.target='_blank'; td1.appendChild(a);
+        const td2=document.createElement('td'); td2.textContent=e.title||'';
+        const td3=document.createElement('td');
+        reqIds.forEach(rid=>{
+          const r = idMap[rid];
+          const chip=document.createElement('span'); chip.className='chip';
+          if(r && r.url){ const link=document.createElement('a'); link.href=r.url; link.target='_blank'; link.textContent=rid; chip.appendChild(link); }
+          else { chip.textContent=rid; }
+          td3.appendChild(chip);
+        });
+        const count=document.createElement('span'); count.className='meta'; count.textContent=`  (${reqIds.length})`;
+        td3.appendChild(count);
+        tr.append(td1,td2,td3); tbody.appendChild(tr);
+      });
+      list.appendChild(table);
     } else if(view==='requirements'){
       const v = filtered.filter(d=>String(d.type).toUpperCase()==='REQ');
       v.forEach(d => {
