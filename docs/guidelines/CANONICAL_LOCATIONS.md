@@ -49,27 +49,27 @@ Laatste update: 05-09-2025 (Architectuur Consolidatie Compleet)
 - **Code Quality Reports**: `docs/code-analyse/quality/`
 - **Executive Summaries**: `docs/reviews/` ✅ ACTIEF
 
-### 6. Backlog Management (Hierarchical Structure - December 2025)
+### 6. Backlog Management (Vereenvoudigde Structuur - December 2025)
 
-**🔴 BELANGRIJKE STRUCTUUR WIJZIGING:**
+**🔴 NIEUWE VEREENVOUDIGDE STRUCTUUR:**
 ```
 docs/backlog/
 ├── EPIC-001/                    # Elke EPIC in eigen directory
 │   ├── EPIC-001.md             # Epic documentatie
-│   └── User Stories/           # Alle user stories van deze epic
-│       ├── US-001/             # Elke story in eigen directory
-│       │   ├── US-001.md       # Story documentatie
-│       │   └── bugs/           # Bugs van deze story
-│       │       └── BUG-XXX/    # Elke bug in eigen directory
-│       └── US-002/
+│   ├── US-001/                 # User stories direct onder EPIC
+│   │   └── US-001.md           # Story documentatie
+│   ├── US-002/
+│   │   └── US-002.md
+│   └── bugs/                   # Bugs op EPIC niveau
+│       └── BUG-XXX.md          # Bug documentatie
 └── EPIC-002/
     └── ...
 ```
 
 **Canonieke Locaties:**
 - **Epic**: `/docs/backlog/EPIC-XXX/EPIC-XXX.md` ✅ ACTIEF
-- **User Story**: `/docs/backlog/EPIC-XXX/User Stories/US-XXX/US-XXX.md` ✅ ACTIEF
-- **Bug**: `/docs/backlog/EPIC-XXX/User Stories/US-XXX/bugs/BUG-XXX/BUG-XXX.md` ✅ ACTIEF
+- **User Story**: `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md` ✅ ACTIEF
+- **Bug**: `/docs/backlog/EPIC-XXX/bugs/BUG-XXX.md` ✅ ACTIEF
 - **Requirements**: `/docs/backlog/requirements/` ✅ BEHOUDEN (92 requirements)
 - **Dashboards**: `/docs/backlog/dashboard/` ✅ BEHOUDEN
   - `index.html` (requirements tabel, zoeken + sorteren)
@@ -78,8 +78,9 @@ docs/backlog/
 
 **❌ VEROUDERDE LOCATIES (NIET MEER GEBRUIKEN):**
 - ~~`/docs/backlog/epics/`~~ → Gebruik `/docs/backlog/EPIC-XXX/`
-- ~~`/docs/backlog/stories/`~~ → Gebruik `/docs/backlog/EPIC-XXX/User Stories/`
-- ~~`/docs/backlog/bugs/`~~ → Gebruik `/docs/backlog/EPIC-XXX/User Stories/US-XXX/bugs/`
+- ~~`/docs/backlog/stories/`~~ → Gebruik `/docs/backlog/EPIC-XXX/US-XXX/`
+- ~~`/docs/backlog/bugs/`~~ → Gebruik `/docs/backlog/EPIC-XXX/bugs/`
+- ~~`/docs/backlog/EPIC-XXX/User Stories/`~~ → Stories direct onder EPIC
 
 ### 7. Archief
 - **Architectuur Consolidatie (Sept 2025)**: `docs/archief/2025-09-architectuur-consolidatie/`
