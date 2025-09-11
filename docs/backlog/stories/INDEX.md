@@ -38,7 +38,7 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 
 ## Complete Story Listing
 
-### EPIC-001: Basis Definitie Generatie (5 stories - 100% complete)
+### EPIC-001: Basis Definitie Generatie (6 stories - 100% complete)
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | [US-001](US-001.md) | Basic Definition Generation via GPT-4 | ✅ DONE | HOOG | 8 |
@@ -46,6 +46,7 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-003 | V1 Orchestrator Elimination | ✅ DONE | HOOG | 13 |
 | US-004 | AI Configuration System via ConfigManager | ✅ DONE | GEMIDDELD | 5 |
 | US-005 | Centralized AI Model Configuration | ✅ DONE | GEMIDDELD | 3 |
+| [US-069](US-069.md) | Prompt Builder Compaction Logic | ⏳ TODO | MEDIUM | 5 |
 
 ### EPIC-002: Kwaliteitstoetsing (8 stories - 100% complete)
 | ID | Story | Status | Prioriteit | Points |
@@ -93,7 +94,7 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-026 | Environment Variable Configuration | ✅ DONE | HOOG | 3 |
 | US-027 | Component-specific AI Configuration Beveiliging | ✅ DONE | GEMIDDELD | 5 |
 
-### EPIC-007: Prestaties & Scaling (8 stories - 25% complete)
+### EPIC-007: Prestaties & Scaling (9 stories - 22% complete)
 | ID | Story | Status | Prioriteit | Points |
 |----|-------|--------|----------|--------|
 | US-028 | Service Initialization Caching | ⏳ TODO | HOOG | 5 |
@@ -104,6 +105,7 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 | US-033 | V1 to V2 Migration | ✅ DONE | HOOG | 13 |
 | US-034 | Service Container Optimization | ✅ DONE | HOOG | 8 |
 | US-063 | Implement Database Maintenance Tools | ⏳ TODO | HOOG | 13 |
+| [US-073](US-073.md) | Rollback mechanisme voor hernoemscript | ⏳ TODO | MEDIUM | 3 |
 
 ### EPIC-009: Advanced Features (7 stories - 0% complete)
 | ID | Story | Status | Prioriteit | Points |
@@ -146,16 +148,16 @@ This index provides a complete listing of all user stories in the DefinitieAgent
 ### Total Points by Episch Verhaal
 | Episch Verhaal | Total Points | Completed | Remaining |
 |------|--------------|-----------|-----------|
-| EPIC-001 | 34 | 34 | 0 |
+| EPIC-001 | 39 | 34 | 5 |
 | EPIC-002 | 53 | 53 | 0 |
 | EPIC-003 | 13 | 0 | 13 |
 | EPIC-004 | 34 | 13 | 21 |
 | EPIC-005 | 21 | 0 | 21 |
 | EPIC-006 | 16 | 13 | 3 |
-| EPIC-007 | 52 | 21 | 31 |
+| EPIC-007 | 55 | 21 | 34 |
 | EPIC-009 | 76 | 0 | 76 |
 | EPIC-010 | 37 | 0 | 37 |
-| **TOTAL** | **336** | **134** | **202** |
+| **TOTAL** | **344** | **134** | **210** |
 
 ### Velocity Metrics
 - Average velocity per sprint: 15 points

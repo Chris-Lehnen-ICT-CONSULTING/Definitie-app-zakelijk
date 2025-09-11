@@ -5,8 +5,8 @@
 | [REQ-003](../../backlog/requirements/REQ-003.md) | Input validatie beveiliging | nonfunctional | HOOG | GEREED | [EPIC-002](../../epics/EPIC-002-kwaliteitstoetsing.md), [EPIC-006](../../epics/EPIC-006-security-auth.md) |
 | [REQ-004](../../backlog/requirements/REQ-004.md) | XSS Prevention | nonfunctional | HOOG | In Progress | [EPIC-004](../../epics/EPIC-004-user-interface.md), [EPIC-006](../../epics/EPIC-006-security-auth.md) |
 | [REQ-005](../../backlog/requirements/REQ-005.md) | SQL Injection Prevention | nonfunctional | HOOG | GEREED | [EPIC-001](../../epics/EPIC-001-basis-definitie-generatie.md), [EPIC-006](../../epics/EPIC-006-security-auth.md) |
-| [REQ-006](../../backlog/requirements/REQ-006.md) | OWASP Top 10 compliance | nonfunctional | HOOG | In Progress | [<!-- BROKEN LINK: EPIC-008 -->](../../epics/<!-- BROKEN LINK: EPIC-008 -->.md) |
-| [REQ-007](../../backlog/requirements/REQ-007.md) | Data Encryption at Rest | nonfunctional | HOOG | Backlog | [<!-- BROKEN LINK: EPIC-008 -->](../../epics/<!-- BROKEN LINK: EPIC-008 -->.md) |
+| [REQ-006](../../backlog/requirements/REQ-006.md) | OWASP Top 10 compliance | nonfunctional | HOOG | In Progress | [EPIC-006](../../epics/EPIC-006-security-auth.md) |
+| [REQ-007](../../backlog/requirements/REQ-007.md) | Data Encryption at Rest | nonfunctional | HOOG | Backlog | [EPIC-006](../../epics/EPIC-006-security-auth.md) |
 | [REQ-008](../../backlog/requirements/REQ-008.md) | Response Time < 5s | nonfunctional | HOOG | In Progress | [EPIC-007](../../epics/EPIC-007-performance-scaling.md) |
 | [REQ-009](../../backlog/requirements/REQ-009.md) | UI Responsiveness < 200ms | nonfunctional | HOOG | In Progress | [EPIC-004](../../epics/EPIC-004-user-interface.md), [EPIC-007](../../epics/EPIC-007-performance-scaling.md) |
 | [REQ-010](../../backlog/requirements/REQ-010.md) | validatie Time < 1s | nonfunctional | HOOG | GEREED | [EPIC-002](../../epics/EPIC-002-kwaliteitstoetsing.md), [EPIC-007](../../epics/EPIC-007-performance-scaling.md) |

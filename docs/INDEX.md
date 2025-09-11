@@ -45,8 +45,8 @@
 ### Product & Vereisten
 - [Product Vereisten (PRD)](./prd.md) ✅
 - [Project Brief](./brief.md) ✅
-- [Vereisten Compleet](./vereistes/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
-- **[📊 KWALITEITS-VERIFICATIE-RAPPORT](../KWALITEITS-VERIFICATIE-RAPPORT.md)** 🔥 **NIEUW** - Complete documentatie audit
+- [Vereisten Compleet](./backlog/requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
+- **[📊 KWALITEITS-VERIFICATIE-RAPPORT](../reports/analysis/KWALITEITS-VERIFICATIE-RAPPORT.md)** 🔥 **NIEUW** - Complete documentatie audit
 - **[🔍 Vertaling Analyse Rapport](./VERTALING-ANALYSE-RAPPORT.md)** 🆕 - Taalstatus & compliance analyse
 - **[🗺️ Traceability Matrix](./TRACEABILITY-MATRIX.md)** 🆕 - Vereisten ↔ Epische Verhalen ↔ Stories mapping
 
@@ -81,7 +81,7 @@
 - [Agents Documentation](./guidelines/AGENTS.md) ✅ Agent guidelines
 - [TDD to Uitrol Werkstroom](./guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md) ✅ Development workflow
 - [Werkstroom Library](./guidelines/WORKFLOW_LIBRARY.md) ✅ Multiple targeted workflows
-- [Werkstroom Routing](./guidelines/WORKFLOW_ROUTING.md) ✅ How to pick the right one
+- Werkstroom Routing: See workflow library in guidelines directory ✅ How to pick the right one
 - [AI Configuration Guide](./guidelines/AI_CONFIGURATION_GUIDE.md) ✅ AI setup guide
 
 ### 🔒 Compliance & Security (NEW)
@@ -118,7 +118,7 @@
 ### Testen & Validatie
 - **EPIC-010 Context Flow Testing** 🚨 **KRITIEK**
   - [EPIC-010 Test Strategy](./testing/EPIC-010-test-strategy.md) ✅ Complete test strategy with TDD approach
-  - [Test Suite Summary](../tests/EPIC_010_TEST_SUITE_SUMMARY.md) ✅ 250+ test cases across 10 files
+  - [Test Suite Summary](./testing/EPIC_010_TEST_SUITE_SUMMARY.md) ✅ 250+ test cases across 10 files
 - **PER-007 Testen** 🆕
   - [PER-007 TDD Test Plan](./testing/PER-007-tdd-test-plan.md) ✅ RED-GREEN-REFACTOR cycles
   - [PER-007 Test Scenarios](./testing/PER-007-test-scenarios.md) ✅ Comprehensive test data
