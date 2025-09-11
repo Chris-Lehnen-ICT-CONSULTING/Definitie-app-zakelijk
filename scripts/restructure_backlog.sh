@@ -39,10 +39,10 @@ EPICS=(
 for epic_info in "${EPICS[@]}"; do
   epic_id="${epic_info%%:*}"
   epic_name="${epic_info#*:}"
-  
+
   echo "📁 Creating structure for $epic_id..."
   mkdir -p "$NEW_DIR/$epic_id/User Stories"
-  
+
   # Kopieer EPIC file als deze bestaat
   if [ -f "$BACKLOG_DIR/epics/${epic_id}*.md" ]; then
     cp "$BACKLOG_DIR/epics/${epic_id}"*.md "$NEW_DIR/$epic_id/${epic_id}.md" 2>/dev/null || true
@@ -56,12 +56,12 @@ for us_file in $BACKLOG_DIR/stories/US-*.md; do
   if [ -f "$us_file" ]; then
     us_name=$(basename "$us_file" .md)
     epic=$(grep "^epic: " "$us_file" | cut -d' ' -f2 | cut -d'-' -f1-2)
-    
+
     # Fix voor EPIC-006 variant
     if [[ "$epic" == "EPIC-006-beveiliging-auth" ]]; then
       epic="EPIC-006"
     fi
-    
+
     if [ -n "$epic" ] && [ -d "$NEW_DIR/$epic" ]; then
       echo "  Moving $us_name to $epic..."
       mkdir -p "$NEW_DIR/$epic/User Stories/$us_name"
@@ -96,7 +96,7 @@ if [ -d "$BACKLOG_DIR/epics/EPIC-010/bugs" ]; then
     cp -r "$BACKLOG_DIR/epics/EPIC-010/bugs/CFR-BUG-014-synoniemen-antoniemen"/* \
        "$NEW_DIR/EPIC-010/User Stories/US-051/bugs/CFR-BUG-014/" 2>/dev/null || true
   fi
-  
+
   # CFR-BUG-015 hoort bij US-014 (web lookup)
   if [ -d "$BACKLOG_DIR/epics/EPIC-010/bugs/CFR-BUG-015-compat-web-lookup-title-attribute" ]; then
     mkdir -p "$NEW_DIR/EPIC-003/User Stories/US-014/bugs/CFR-BUG-015"

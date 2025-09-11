@@ -29,7 +29,7 @@ docs/backlog/
 
 **BELANGRIJKE REGELS:**
 - **NOOIT** stories direct in `/docs/backlog/stories/` plaatsen
-- **NOOIT** epics in `/docs/backlog/epics/` plaatsen  
+- **NOOIT** epics in `/docs/backlog/epics/` plaatsen
 - **ALTIJD** de hiërarchie volgen: EPIC → User Stories → US-XXX → bugs
 - **ALTIJD** elke entiteit in eigen directory met dezelfde naam als het bestand
 

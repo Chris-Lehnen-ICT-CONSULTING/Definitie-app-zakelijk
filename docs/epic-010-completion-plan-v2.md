@@ -43,7 +43,7 @@ if request.example_type == ExampleType.SYNONIEMEN:
 Context: {context_text if context_text else 'Algemeen juridisch'}
 
 Geef EXACT {request.max_examples} synoniemen of verwante termen.
-BELANGRIJK: 
+BELANGRIJK:
 - PRECIES {request.max_examples} items, niet meer en niet minder
 - Één synoniem per regel
 - GEEN nummering, bullets, streepjes of andere formatting
@@ -56,23 +56,23 @@ async def _generate_with_retry(self, request: ExampleRequest, max_retries: int =
     """Generate met 1 retry bij incorrect aantal."""
     for attempt in range(max_retries + 1):
         result = await self._generate_async(request)
-        
+
         if request.example_type in [ExampleType.SYNONIEMEN, ExampleType.ANTONIEMEN]:
             expected = request.max_examples
-            
+
             # Trim excess
             if len(result) > expected:
                 return result[:expected]
-            
+
             # Accept on last attempt (avoid infinite loops)
             if len(result) >= expected or attempt == max_retries:
                 if len(result) < expected:
                     logger.warning(f"Accepting {len(result)}/{expected} items after {attempt+1} attempts")
                 return result
-                
+
             # Retry with enhanced prompt
             request.extra_instruction = f"Je gaf {len(result)} items, maar er zijn EXACT {expected} nodig."
-    
+
     return result
 ```
 
@@ -199,7 +199,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Check voor legacy imports
         run: |
           # Blokkeer oude patterns
@@ -207,13 +207,13 @@ jobs:
           ! grep -r "\.overall_score" src/ || exit 1
           ! grep -r "request\.context[^_]" src/ || exit 1  # context als string
           ! grep -r "domein" src/ --include="*.py" || exit 1
-          
+
       - name: Check voor async anti-patterns in services
         run: |
           # asyncio.run alleen toegestaan in async_bridge
           ! grep -r "asyncio\.run" src/services/ || exit 1
           ! grep -r "run_coroutine_threadsafe" src/services/ || exit 1
-          
+
       - name: Check voor directe sync wrapper calls
         run: |
           # Geen directe calls buiten async_bridge
@@ -271,7 +271,7 @@ echo "=== Checking UI uses async_bridge ==="
 ! rg "factory\.generate_definition_sync" src/ui/
 ! rg "factory\.search_web_sources" src/ui/
 
-# 2. Services async check  
+# 2. Services async check
 echo "=== Checking services are properly async ==="
 ! rg "asyncio\.run|_run_async_safe" src/services/
 
