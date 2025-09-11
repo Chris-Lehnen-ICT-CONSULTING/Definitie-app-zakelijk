@@ -35,7 +35,7 @@ vereisten:
 
 Kernfunctionaliteit voor het genereren van juridische definities met GPT-4. Deze epic dekt de basis van het DefinitieAgent systeem, waarmee geautomatiseerde generatie van Nederlandse juridische definities met AI-ondersteuning mogelijk wordt.
 
-**⚠️ DEPRECATION NOTICE:** De UnifiedDefinitionGenerator wordt vervangen door moderne V2 orchestrators. Zie [EPIC-012](EPIC-012-legacy-orchestrator-refactoring.md) voor de refactoring van alle legacy generator modules naar de nieuwe architectuur.
+**⚠️ DEPRECATION NOTICE:** De UnifiedDefinitionGenerator wordt vervangen door moderne V2 orchestrators. Zie EPIC-012 voor de refactoring van alle legacy generator modules naar de nieuwe architectuur.
 
 ## Bedrijfswaarde
 
@@ -239,8 +239,8 @@ User Input → UI Layer → Generation Request
 
 ## Gerelateerde Documentatie
 
-- [Solution Architecture](../architectuur/SOLUTION_ARCHITECTURE.md)
-- [Technische Architectuur](../architectuur/TECHNICAL_ARCHITECTURE.md)
+- [Solution Architecture](../../architectuur/SOLUTION_ARCHITECTURE.md)
+- [Technische Architectuur](../../architectuur/TECHNICAL_ARCHITECTURE.md)
 - [Validation Orchestrator V2](../archief/2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
 
 ## Stakeholder Goedkeuring
