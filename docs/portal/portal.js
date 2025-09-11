@@ -14,6 +14,7 @@
   const sortSel = document.getElementById('sortSelect');
   const sprintSel = document.getElementById('sprintFilter');
   const viewTabs = document.getElementById('viewTabs');
+  const ownerInput = document.getElementById('ownerInput');
 
   const docs = (data.documents||[]).slice();
   const idMap = {};
@@ -23,6 +24,16 @@
     const h=(location.hash||'').toLowerCase();
     const m=h.match(/view=([a-z0-9_-]+)/);
     return (m && m[1]) || 'all';
+  }
+  function getHashParam(key){
+    const h=(location.hash||'');
+    const re=new RegExp(key+"=([^&]+)", 'i');
+    const m=h.match(re); return m?decodeURIComponent(m[1]):'';
+  }
+  function setHashParam(key, val){
+    const params = new URLSearchParams((location.hash||'').replace(/^#/,''));
+    if(val) params.set(key,val); else params.delete(key);
+    location.hash = '#'+params.toString();
   }
 
   function match(d, query){
@@ -62,6 +73,14 @@
       // Only show sprint filter if we actually have sprints
       const showSprint = (view==='planning') && sprints.length>0;
       sprintSel.parentElement.style.display = showSprint ? 'flex' : 'none';
+    }
+    // work controls
+    if(ownerInput){
+      const showWork = (view==='work');
+      const wrap = ownerInput.parentElement; if(wrap) wrap.style.display = showWork ? 'flex' : 'none';
+      if(showWork && !ownerInput.value){
+        ownerInput.value = getHashParam('owner') || localStorage.getItem('portalOwner') || 'developer';
+      }
     }
 
     // sorteren
@@ -146,6 +165,31 @@
         tr.append(td1,td2,td3); tbody.appendChild(tr);
       });
       list.appendChild(table);
+    } else if (view==='work'){
+      const owner = (ownerInput && ownerInput.value.trim()) || getHashParam('owner') || localStorage.getItem('portalOwner') || '';
+      if(owner){ localStorage.setItem('portalOwner', owner); setHashParam('owner', owner); }
+      const wanted = owner.toLowerCase();
+      const v = docs.filter(d=>{
+        const t=String(d.type).toUpperCase();
+        if(!(t==='US' || t==='BUG')) return false;
+        const st=String(d.status||'').toUpperCase();
+        if(['GEREED','VOLTOOID','RESOLVED'].includes(st)) return false;
+        const ow=String(d.owner||'').toLowerCase();
+        return !wanted || ow.includes(wanted);
+      }).sort(cmpPlanning);
+      const h = document.createElement('h3'); h.className='group'; h.textContent=`Mijn Werk (${owner||'alle owners'}) – ${v.length} items`;
+      list.appendChild(h);
+      v.forEach(d=>{
+        const li=document.createElement('li'); li.className='doc-item';
+        const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
+        const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
+        const meta=document.createElement('div'); meta.className='meta';
+        const sp = d.sprint?`sprint:${d.sprint}`:null;
+        const pts = d.story_points?`SP:${d.story_points}`:null;
+        meta.textContent=[d.status,d.owner,d.prioriteit,sp,pts].filter(Boolean).join(' • ');
+        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open'; link.target='_blank';
+        li.append(type,title,meta,link); list.appendChild(li);
+      });
     } else if(view==='requirements'){
       const v = filtered.filter(d=>String(d.type).toUpperCase()==='REQ');
       v.forEach(d => {
@@ -257,6 +301,7 @@
   q.addEventListener('input',render); tf.addEventListener('change',render); sf.addEventListener('change',render);
   if(sortSel) sortSel.addEventListener('change',render);
   if(sprintSel) sprintSel.addEventListener('change',render);
+  if(ownerInput) ownerInput.addEventListener('change', render);
   window.addEventListener('hashchange', render);
   render();
 })();
