@@ -236,9 +236,9 @@ Upload File
 
 ## Gerelateerde Documentatie
 
-- [Export Format Specifications](../specifications/export_formats.md)
-- [Import validatieregels](../specifications/import_validation.md)
-- [Batch Processing Guide](../guides/batch_processing.md)
+- Export Format Specifications: See Format Specifications section above
+- Import Validation Rules: See validation orchestrator V2 (`src/services/validation/`)
+- Batch Processing Guide: See Technical Architecture section above
 
 ## Stakeholder Goedkeuring
 

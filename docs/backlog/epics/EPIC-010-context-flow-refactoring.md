@@ -373,7 +373,7 @@ Opmerking: ASTRA traceability (US‑049), type‑validatie (US‑048) en E2E tes
 ## 🐛 Bugs en Issues
 
 ### Actieve Bugs
-- [CFR-BUG-014](CFR-BUG-014-synoniemen-antoniemen/README.md): Synoniemen/Antoniemen generatie incorrect (HOOG)
+- [CFR-BUG-014](EPIC-010/bugs/CFR-BUG-014-synoniemen-antoniemen/): Synoniemen/Antoniemen generatie incorrect (HOOG)
 
 ## Sprint 37 Planning - Volledige Async/UI Separatie
 
