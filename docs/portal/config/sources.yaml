@@ -1,0 +1,31 @@
+# Portal bronconfiguratie (MVP)
+
+version: 1
+sources:
+  - name: definitie-app-docs
+    type: local
+    root: ../../docs
+    include:
+      - "**/*.md"
+    exclude:
+      - "portal/**"
+      - "archief/**"  # optioneel: uitsluiten van archives
+    type_mapping:
+      # padpatterns -> doc type
+      - pattern: "backlog/requirements/REQ-*.md"
+        as: REQ
+      - pattern: "backlog/EPIC-*/EPIC-*.md"
+        as: EPIC
+      - pattern: "backlog/EPIC-*/US-*/US-*.md"
+        as: US
+      - pattern: "backlog/EPIC-*/US-*/BUG-*/BUG-*.md"
+        as: BUG
+      - pattern: "architectuur/*.md"
+        as: ARCH
+      - pattern: "guidelines/*.md"
+        as: GUIDE
+      - pattern: "testing/*.md"
+        as: TEST
+      - pattern: "compliance/*.md"
+        as: COMP
+

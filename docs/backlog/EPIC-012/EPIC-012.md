@@ -4,9 +4,11 @@
 **ID**: EPIC-012
 **Titel**: Refactor legacy orchestrators met behoud van business kennis
 **Status**: TODO
-**Priority**: HIGH
+**Priority**: HIGH - NEXT UP
 **Created**: 2025-01-10
+**Updated**: 2025-09-11
 **Owner**: Development Team
+**Sprint Planning**: Week 2 September 2025 (Na EPIC-010 completion)
 
 ## Business Value
 De applicatie bevat waardevolle business logica verspreid over 8 legacy bestanden. Deze refactoring zal:
@@ -40,10 +42,12 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 3. **Legacy Generator Modules** (6 bestanden):
    - `definition_generator_config.py` - Business configuratie parameters
    - `definition_generator_context.py` - EnrichedContext management
-   - `definition_generator_enhancement.py` - Enhancement business rules
+   - `definition_generator_enhancement.py` - Enhancement business rules ⚠️ **Bevat domein field references**
    - `definition_generator_prompts.py` - Prompt building intelligence
    - `definition_generator_cache.py` - Performance optimalisaties
    - `definition_generator_monitoring.py` - Metrics en monitoring logica
+
+**Note:** Deze modules bevatten de domein field references die door CI gates zijn gedetecteerd.
 
 ### Waardevolle Business Kennis te EXTRAHEREN en BEHOUDEN
 - **FeedbackBuilder** met 11 violation mappings

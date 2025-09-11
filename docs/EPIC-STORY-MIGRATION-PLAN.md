@@ -277,7 +277,7 @@ OLD: STORY-001 → NEW: US-052
 
 #### Stap 2: Story Files Creatie
 Voor elke story:
-1. Creëer `/docs/backlog/stories/US-XXX.md`
+1. Creëer `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
 2. Volledig frontmatter toevoegen
 3. Content uit master/archief mergen
 4. Acceptance criteria valideren

@@ -1,0 +1,138 @@
+name: EPIC-010 Legacy Pattern Gates
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  check-legacy-patterns:
+    runs-on: ubuntu-latest
+    name: Check for Legacy Patterns
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install ripgrep
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+      
+      - name: Check for generation_result imports
+        run: |
+          echo "Checking for legacy generation_result imports..."
+          if rg "from src\.models\.generation_result import" src/; then
+            echo "❌ FAIL: Legacy generation_result imports found"
+            exit 1
+          fi
+          echo "✅ PASS: No generation_result imports"
+      
+      - name: Check for deprecated attributes
+        run: |
+          echo "Checking for deprecated attributes..."
+          # Exclude ValidationResult.overall_score which is valid, and test/main sections
+          VIOLATIONS=$(rg "\.overall_score|\.best_iteration" src/ --type py | \
+                      grep -v "ValidationResult" | \
+                      grep -v "if __name__" | \
+                      grep -v "# Test" | \
+                      grep -v "# Example" | \
+                      grep -v "# Demo" || true)
+          
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ FAIL: Deprecated attributes found (.overall_score or .best_iteration)"
+            echo "These attributes were removed in EPIC-010. Use the new structure instead."
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+          echo "✅ PASS: No deprecated attributes"
+      
+      - name: Check for string context usage
+        run: |
+          echo "Checking for string context usage..."
+          # Match request.context but NOT request.context_dict, request.context_*, etc
+          if rg "request\.context(?!_|\w)" src/ --type py; then
+            echo "❌ FAIL: String context usage found (request.context)"
+            echo "Context must be a list, not a string. Use request.context_dict instead."
+            exit 1
+          fi
+          echo "✅ PASS: No string context usage"
+      
+      - name: Check for domein field
+        run: |
+          echo "Checking for domein field usage..."
+          # Exclude comments, docstrings, and specific allowed files
+          VIOLATIONS=$(rg "\bdomein\b" src/ --type py | \
+                      grep -v "^.*#.*domein" | \
+                      grep -v '""".*domein.*"""' | \
+                      grep -v "# Legacy" | \
+                      grep -v "# Deprecated" || true)
+          
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ FAIL: Domein field usage found"
+            echo "The 'domein' field was removed in EPIC-010. Use context fields instead."
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+          echo "✅ PASS: No domein field usage"
+      
+      - name: Check for asyncio.run in services
+        run: |
+          echo "Checking for asyncio.run in services..."
+          if rg "asyncio\.run\(" src/services/ --type py; then
+            echo "❌ FAIL: asyncio.run found in services"
+            echo "Services should be async-native. Use async_bridge in UI layer instead."
+            exit 1
+          fi
+          echo "✅ PASS: No asyncio.run in services"
+      
+      - name: Check for sync wrapper calls outside async_bridge
+        run: |
+          echo "Checking for direct sync wrapper calls..."
+          # Find calls but exclude async_bridge.py and imports
+          VIOLATIONS=$(rg "generate_definition_sync|search_web_sources\(" src/ --type py | \
+                      grep -v "async_bridge\.py" | \
+                      grep -v "service_factory\.py" | \
+                      grep -v "from.*import" | \
+                      grep -v "def generate_definition_sync" | \
+                      grep -v "def search_web_sources" || true)
+          
+          if [ -n "$VIOLATIONS" ]; then
+            echo "⚠️ WARNING: Direct sync wrapper calls found (will be error after Sprint 37):"
+            echo "$VIOLATIONS"
+            echo "These should use async_bridge.run_async() instead."
+            # Don't fail yet - these are being phased out in Sprint 37
+          else
+            echo "✅ PASS: No direct sync wrapper calls"
+          fi
+      
+      - name: Check for streamlit imports in services
+        run: |
+          echo "Checking for streamlit imports in service layer..."
+          VIOLATIONS=$(rg "import streamlit|from streamlit" src/services/ --type py | \
+                      grep -v "# Legacy" | \
+                      grep -v "# Deprecated" || true)
+          
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ FAIL: Streamlit imports found in services"
+            echo "Services should be framework-agnostic. Move UI logic to src/ui/"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+          echo "✅ PASS: No streamlit imports in services"
+      
+      - name: Summary
+        if: success()
+        run: |
+          echo "🎉 All legacy pattern checks passed!"
+          echo "The codebase is clean of deprecated EPIC-010 patterns."
+          echo ""
+          echo "Patterns checked:"
+          echo "  ✅ No legacy generation_result imports"
+          echo "  ✅ No deprecated attributes (.overall_score, .best_iteration)"
+          echo "  ✅ No string context usage"
+          echo "  ✅ No domein field references"
+          echo "  ✅ No asyncio.run in services"
+          echo "  ✅ No streamlit imports in services"
+          echo "  ⚠️ Sync wrappers being phased out (Sprint 37)"
