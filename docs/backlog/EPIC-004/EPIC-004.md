@@ -244,9 +244,9 @@ Main Application
 
 ## Gerelateerde Documentatie
 
-- [UI Design Guidelines](../guidelines/ui_design.md)
-- [Accessibility Standards](../guidelines/accessibility.md)
-- [Streamlit Components](../technisch/streamlit_components.md)
+- UI Design Guidelines
+- Accessibility Standards
+- Streamlit Components
 
 ## Stakeholder Goedkeuring
 

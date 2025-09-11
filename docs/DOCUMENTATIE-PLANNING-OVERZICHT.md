@@ -126,10 +126,10 @@ Deze documenten moeten nog daadwerkelijk aangemaakt worden:
 
 ## 🔗 GERELATEERDE DOCUMENTEN
 
-- [Link Verificatie Rapport](./LINK-VERIFICATIE-RAPPORT.md)
-- [Episch Verhaal Dashboard](./docs/backlog/epics/INDEX.md)
-- [Stories Index](./docs/backlog/stories/INDEX.md)
-- [Vereisten Overview](./docs/vereistes/vereistes-overview.md)
+- Link Verificatie Rapport
+- Episch Verhaal Dashboard
+- Stories Index
+- Vereisten Overview
 
 ---
 

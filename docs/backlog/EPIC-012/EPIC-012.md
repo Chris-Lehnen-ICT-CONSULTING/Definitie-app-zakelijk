@@ -165,9 +165,9 @@ De nieuwe user stories (US-066 t/m US-070) zijn geïdentificeerd tijdens de EPIC
 - **Test driven refactoring** - eerst tests voor business logica, dan refactoren
 
 ## Related Documentation
-- [Code Audit](./code-audit.md)
-- [EPIC-010](../EPIC-010-context-flow-refactoring.md) - Related context flow refactoring
+- Code Audit
+- EPIC-010 - Related context flow refactoring
 - US-043 - Related legacy context routes removal
 - US-056 - Related legacy session state removal
-- [V2 Architecture](../../../architectuur/SOLUTION_ARCHITECTURE.md)
-- [Migration Guidelines](../../../migration/legacy-code-inventory.md)
+- V2 Architecture
+- Migration Guidelines

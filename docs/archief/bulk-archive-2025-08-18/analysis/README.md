@@ -149,7 +149,7 @@ pytest --cov=src tests/
 ### 🎯 **Start Hier**
 - **[📋 Complete Diagnose](CODEBASE_DIAGNOSE_EN_VERBETERPLAN.md)** - Technische schuld analyse
 - **[📚 Documentatie Index](DOCUMENTATION_INDEX.md)** - Alle documentatie overzicht
-- **[🧹 Cleanup Status](CODEBASE_CLEANUP_STATUS.md)** - Huidige opruimingsvoortgang
+- **🧹 Cleanup Status** - Huidige opruimingsvoortgang
 
 ### 🏗️ **Module Analyses**
 - **[🤖 AI Toetser](../technische-referentie/modules/AI_TOETSER_MODULE_ANALYSIS.md)** - Monolithische validator

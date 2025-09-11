@@ -3,7 +3,7 @@
 **Versie**: 1.0
 **Datum**: 2025-08-26
 **Status**: Ready for Implementation
-**Referentie**: [SERVICE_ARCHITECTUUR_IMPLEMENTATIE_BLAUWDRUK.md](../architectuur/definitie%20service/SERVICE_ARCHITECTUUR_IMPLEMENTATIE_BLAUWDRUK.md) - Sectie 3
+**Referentie**: SERVICE_ARCHITECTUUR_IMPLEMENTATIE_BLAUWDRUK.md - Sectie 3
 
 ---
 

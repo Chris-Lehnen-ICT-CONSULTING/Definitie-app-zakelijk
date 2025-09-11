@@ -109,12 +109,12 @@ chmod 755 data/
 
 1. Lees de [Project README](README.md) voor features overzicht
 2. Check de [Roadmap](../../archive/2025-01-12/root/ROADMAP.md) voor geplande features
-3. Zie [Contributing](CONTRIBUTING.md) voor development guidelines
-4. Browse de [Architectuur docs](docs/brownfield-architecture.md)
+3. Zie Contributing voor development guidelines
+4. Browse de Architectuur docs
 
 ## 🆘 Hulp Nodig?
 
-- Check de [FAQ](docs/FAQ.md) - *Coming soon*
+- Check de FAQ - *Coming soon*
 - Zoek in [GitHub Issues](https://github.com/your-repo/issues)
 - Contact het development team
 

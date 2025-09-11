@@ -12,7 +12,7 @@ De testsuite dekt US-041/042 volledig; US-043 (legacy routes) is gepland en deel
   - [US-042: Fix "Anders..." Custom Context](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-042/US-042.md)
   - [US-043: Remove Legacy Context Routes](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-043/US-043.md)
 - **Bug Reports**:
-  - [CFR-BUG-003: GenerationResult Import Error](../backlog/bugs/CFR-BUG-003-generation-result-import.md)
+  - CFR-BUG-003: GenerationResult Import Error
 
 ## Test Coverage Summary
 

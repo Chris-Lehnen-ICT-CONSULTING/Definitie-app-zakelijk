@@ -64,8 +64,8 @@ Voor dit project gebruiken we BMAD voor:
 
 ## 📚 Resources
 
-- [BMAD Core Concepts](data/bmad-kb.md)
-- [Agent Orchestration Guide](../../../architecture/decisions/README.md)
+- BMAD Core Concepts
+- Agent Orchestration Guide
 - [Workflow Templates](../../../../../../../architectuur/templates)
 
 ## ⚠️ Note

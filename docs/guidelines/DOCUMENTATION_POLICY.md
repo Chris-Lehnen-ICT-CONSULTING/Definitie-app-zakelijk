@@ -205,7 +205,7 @@ Exceptions to this policy require:
 - [CANONICAL_LOCATIONS.md](./CANONICAL_LOCATIONS.md) - Document placement standards
 - [INDEX.md](../INDEX.md) - Documentation navigation hub
 - ASTRA_COMPLIANCE.md - Justice standards (archived in /docs/archief/)
-- [MASTER-EPICS-USER-STORIES.md](../backlog/stories/MASTER-EPICS-USER-STORIES.md) - Work item tracking
+- MASTER-EPICS-USER-STORIES.md - Work item tracking
 
 ---
 

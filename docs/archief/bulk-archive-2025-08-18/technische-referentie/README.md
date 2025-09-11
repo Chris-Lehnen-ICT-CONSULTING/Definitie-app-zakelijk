@@ -16,13 +16,13 @@ API documentatie en specificaties
 - Request/response formats
 - Authentication details
 
-### [integraties/](./integraties/)
+### integraties/
 Externe systeem integraties
 - Service connectoren
 - Data synchronisatie
 - Webhook configuraties
 
-### [configuratie/](./configuratie/)
+### configuratie/
 Systeem configuratie documentatie
 - Environment variables
 - Feature flags

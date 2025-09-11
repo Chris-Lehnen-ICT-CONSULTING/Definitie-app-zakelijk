@@ -382,9 +382,9 @@ Definition Input → Validation Request
 
 ## Related Documentation
 
-- [Validation Rules Documentation](../toetsregels/README.md)
-- [Modular Validation Service](../archief/2025-09-architectuur-consolidatie/misc/validation_orchestrator_v2.md)
-- [Rule Configuration Guide](../config/toetsregels/README.md)
+- Validation Rules Documentation
+- Modular Validation Service
+- Rule Configuration Guide
 
 ## Stakeholder Sign-off
 

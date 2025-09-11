@@ -34,8 +34,8 @@ Deze documenten zijn gearchiveerd omdat:
 ## 📚 Hoofddocumenten
 
 De informatie uit deze documenten is nu te vinden in:
-- **[TARGET_ARCHITECTURE.md](../TARGET_ARCHITECTURE.md)** - Alle visie en planning
-- **[CURRENT_STATE.md](../CURRENT_STATE.md)** - Alle huidige staat analyses
+- **TARGET_ARCHITECTURE.md** - Alle visie en planning
+- **CURRENT_STATE.md** - Alle huidige staat analyses
 - **MIGRATION_ROADMAP.md** - Alle actieve plannen (in ontwikkeling)
 
 ## ⚠️ Let Op

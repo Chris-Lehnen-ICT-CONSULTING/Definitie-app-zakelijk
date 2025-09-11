@@ -204,7 +204,7 @@ User Request → UI Tab → Service Layer → External API/DB → Response
 
 ### 8. Feature Realisatie & Product Status
 
-> 📄 **Zie [Complete Requirements Document](../REQUIREMENTS_AND_FEATURES_COMPLETE.md) voor alle details**
+> 📄 **Zie Complete Requirements Document voor alle details**
 
 #### Overall Product Completion Status
 ```
