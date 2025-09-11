@@ -109,8 +109,10 @@ def dataclass_to_schema_dict(
 
     # Calculate scores
     overall_score = getattr(result, "score", 0.0)
+    # Legacy compatibility - check for old attribute name
     if hasattr(result, "overall_score"):
-        overall_score = result.overall_score
+        # Deprecated: overall_score is replaced by score
+        overall_score = getattr(result, "overall_score", 0.0)
 
     # Map detailed scores - gebruik defaults als niet aanwezig
     detailed_scores = getattr(result, "detailed_scores", {})

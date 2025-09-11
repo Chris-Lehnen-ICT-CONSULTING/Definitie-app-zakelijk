@@ -427,17 +427,20 @@ class DefinitieChecker:
             )
 
             # Add validation issues if any
-            if (
-                agent_result.best_iteration
-                and agent_result.best_iteration.validation_result.violations
-            ):
+            # Note: best_iteration is deprecated, check for validation_result directly
+            validation_result = getattr(agent_result, 'validation_result', None)
+            if not validation_result and hasattr(agent_result, 'best_iteration'):
+                # Legacy fallback - deprecated
+                validation_result = getattr(agent_result.best_iteration, 'validation_result', None)
+            
+            if validation_result and hasattr(validation_result, 'violations'):
                 issues = [
                     {
                         "rule_id": v.rule_id,
-                        "severity": v.severity.value,
+                        "severity": v.severity.value if hasattr(v.severity, 'value') else str(v.severity),
                         "description": v.description,
                     }
-                    for v in agent_result.best_iteration.validation_result.violations
+                    for v in validation_result.violations
                 ]
                 record.set_validation_issues(issues)
 

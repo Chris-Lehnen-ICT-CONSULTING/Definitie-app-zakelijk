@@ -154,9 +154,9 @@ python scripts/merge_epic_content.py \
 ### Story Nummering Conversie:
 | Oud Format | Nieuw Format | File |
 |------------|--------------|------|
-| Story 1.1 | US-001 | docs/backlog/stories/US-001.md |
-| Story 1.2 | US-002 | docs/backlog/stories/US-002.md |
-| Story 2.1 | US-006 | docs/backlog/stories/US-006.md |
+| Story 1.1 | US-001 | docs/backlog/EPIC-001/US-001/US-001.md |
+| Story 1.2 | US-002 | docs/backlog/EPIC-001/US-002/US-002.md |
+| Story 2.1 | US-006 | docs/backlog/EPIC-002/US-006/US-006.md |
 | ... | ... | ... |
 
 ### Script Executie:
@@ -168,8 +168,8 @@ python scripts/extract_all_stories.py \
   --format US-XXX
 
 # Output:
-# Created: docs/backlog/stories/US-001.md (Episch Verhaal 1, Story 1.1)
-# Created: docs/backlog/stories/US-002.md (Episch Verhaal 1, Story 1.2)
+# Created: docs/backlog/EPIC-001/US-001/US-001.md (Episch Verhaal 1, Story 1.1)
+# Created: docs/backlog/EPIC-001/US-002/US-002.md (Episch Verhaal 1, Story 1.2)
 # ...
 ```
 
@@ -228,7 +228,7 @@ ls docs/backlog/epics/EPIC-*.md | wc -l  # Moet 13 zijn
 
 # 2. Tel stories
 echo "Stories in nieuwe structuur:"
-ls docs/backlog/stories/US-*.md | wc -l  # Moet 47+ zijn
+find docs/backlog/EPIC-*/US-*/US-*.md -maxdepth 1 -type f | wc -l  # Verwacht >= 47
 
 # 3. Check links
 python scripts/validate_links.py docs/backlog/epics/ docs/backlog/stories/
@@ -261,7 +261,7 @@ cat > docs/backlog/stories/MASTER-EPICS-USER-STORIES.md << 'EOF'
 
 ## Nieuwe Locaties:
 - **Epische Verhalen**: `/docs/backlog/epics/EPIC-XXX.md`
-- **Stories**: `/docs/backlog/stories/US-XXX.md`
+- **Stories**: `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
 - **Dashboard**: `/docs/backlog/epics/INDEX.md`
 
 ## Archief:
@@ -293,7 +293,7 @@ OUDE locatie:
 
 NIEUWE locaties:
 - docs/backlog/epics/EPIC-XXX.md (13 epic files)
-- docs/backlog/stories/US-XXX.md (47 story files)
+- docs/backlog/EPIC-XXX/US-XXX/US-XXX.md (story files)
 - docs/backlog/epics/INDEX.md (dashboard)
 
 Voordelen:
@@ -353,7 +353,7 @@ jobs:
 Na voltooiing moet je hebben:
 
 ✅ **13 epic files** in `/docs/backlog/epics/EPIC-XXX.md`
-✅ **47+ story files** in `/docs/backlog/stories/US-XXX.md`
+✅ **Story files** in `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
 ✅ **2 INDEX files** voor dashboards
 ✅ **0 duplicaten** in actieve directories
 ✅ **100% frontmatter** compliance

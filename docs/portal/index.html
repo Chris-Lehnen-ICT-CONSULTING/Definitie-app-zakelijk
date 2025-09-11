@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="nl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Centrale Documentatie‑Portal</title>
+    <link rel="stylesheet" href="portal.css" />
+  </head>
+  <body>
+    <header>
+      <h1>Centrale Documentatie‑Portal</h1>
+      <div class="toolbar">
+        <input id="q" type="search" placeholder="Zoek (titel/id/owner/status)…" />
+        <select id="typeFilter">
+          <option value="">Alle types</option>
+          <option>REQ</option>
+          <option>EPIC</option>
+          <option>US</option>
+          <option>BUG</option>
+          <option>ARCH</option>
+          <option>GUIDE</option>
+          <option>TEST</option>
+          <option>COMP</option>
+          <option>DOC</option>
+        </select>
+        <select id="statusFilter">
+          <option value="">Alle statussen</option>
+          <option>TE_DOEN</option>
+          <option>IN_UITVOERING</option>
+          <option>GEREED</option>
+          <option>VOLTOOID</option>
+          <option>OPEN</option>
+          <option>RESOLVED</option>
+          <option>Nog te bepalen</option>
+        </select>
+      </div>
+    </header>
+
+    <main>
+      <section id="stats"></section>
+      <section>
+        <ul id="list" class="doc-list"></ul>
+      </section>
+    </main>
+
+    <!-- Inline portal data (wordt automatisch overschreven door generate_portal.py) -->
+    <!--PORTAL-DATA-START-->
+    <script id="portal-data" type="application/json">{"documents":[],"aggregate":{"counts":{},"generated_at":""}}</script>
+    <!--PORTAL-DATA-END-->
+
+    <script src="portal.js"></script>
+  </body>
+  </html>
+

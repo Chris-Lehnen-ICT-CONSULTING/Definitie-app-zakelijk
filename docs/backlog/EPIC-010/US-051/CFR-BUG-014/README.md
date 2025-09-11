@@ -3,14 +3,14 @@ id: CFR-BUG-014
 epic: EPIC-010
 titel: Synoniemen en Antoniemen Generatie Incorrect
 prioriteit: HOOG
-status: OPEN
+status: RESOLVED
 aangemaakt: 2025-09-10
-bijgewerkt: 2025-09-10
+bijgewerkt: 2025-09-11
 gevonden_in: v1.0.1
 component: voorbeelden_service
 ---
 
-# CFR-BUG-014: Synoniemen en Antoniemen Generatie Incorrect
+# CFR-BUG-014: Synoniemen en Antoniemen Generatie Incorrect (OPGELOST)
 
 ## 🐛 Bug Beschrijving
 
@@ -57,7 +57,7 @@ isolatie
 - [ ] Check `DEFAULT_EXAMPLE_COUNTS` configuratie
 - [ ] Test met cache disabled
 
-## 🛠️ Reproductie Stappen
+## 🛠️ Reproductie Stappen (historisch)
 
 1. Start applicatie: `streamlit run src/main.py`
 2. Vul begrip in: "verbinding"

@@ -13,6 +13,8 @@
 | **Guidelines** | Verspreid | 7 in /guidelines/ | ✅ Gecentraliseerd |
 | **Templates** | Overal | /architectuur/templates/ | ✅ Georganiseerd |
 | **Archief** | Chaos | /archief/2025-09/ | ✅ Opgeruimd |
+| **EPIC-010** | 95% | 100% | ✅ **COMPLETED** (11-09-2025) |
+| **CI/CD Gates** | Geen | 7 patterns | ✅ **Geïmplementeerd** |
 
 ## 📊 Kwaliteitsmetrieken (8 September 2025) - POST CLEANUP
 
@@ -58,19 +60,21 @@
 - **[🇳🇱 NORMALISATIE RAPPORT](./NORMALISATIE_RAPPORT.md)** 🔥 **NIEUW** - Nederlandse terminologie normalisatie: 5256 wijzigingen
 
 ### 📦 Backlog Management (Centralized - September 2025)
-- **[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle 92 requirements (REQ-001 t/m REQ-092)
+- **[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle geregistreerde vereisten (REQ-001 t/m REQ-092)
 - **[📊 Episch Verhaal Dashboard](./backlog/README.md)** 🆕 **PRIMARY VIEW** - All epics with status & metrics
-- **[📋 Story Index](./backlog/README.md)** 🆕 **ALL STORIES** - Complete US-001 to US-055 listing
+- **[📋 Story Index](./backlog/README.md)** 🆕 **ALL STORIES** - Complete overzicht per EPIC (US-XXX)
 - **[🧭 Requirements Dashboard](./backlog/dashboard/index.html)** 🆕 - Zoeken, sorteren, doorklikken
 - **[▸ Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** 🆕 - In-/uitklapbare blokken per epic
 - **[↗︎ Grafisch Overzicht](./backlog/dashboard/graph.html)** 🆕 - REQ ↔ EPIC bipartite graph (offline)
-- **[🚨 EPIC-010: Context Flow](./backlog/epics/EPIC-010-context-flow-refactoring.md)** **KRITIEK** - Urgent context bug fixes
-  - **[📍 Implementation Plan](./implementation/EPIC-010-implementation-plan.md)** **NEW** - 9-phase detailed implementation
-  - **[🐛 CFR-BUG-003](./backlog/EPIC-010/US-041/CFR-BUG-003/CFR-BUG-003.md)** **KRITIEK** - GenerationResult import blocking 36 tests
-- Individual Requirements: `/docs/backlog/requirements/REQ-XXX.md` (92 requirements)
-- Individual Epische Verhalen: `/docs/backlog/epics/EPIC-XXX.md` (11 epics)
-- Individual Stories: `/docs/backlog/stories/US-XXX.md` (55 stories)
-- Bug Reports: `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md` (bugs binnen user stories)
+- **[✅ EPIC-010: Context Flow](./backlog/EPIC-010/EPIC-010.md)** **COMPLETED** - Context flow volledig gefixt (11-09-2025)
+  - **[📍 Implementatieplan](./implementation/EPIC-010-implementation-plan.md)** - 9‑fasen implementatie (voltooid)
+  - **[🛡️ CI Gates](../.github/workflows/epic-010-gates.yml)** **NIEUW** - Legacy pattern detection geïmplementeerd
+  - **[🔍 Check Script](../scripts/check-legacy-patterns.sh)** **NIEUW** - Lokale verificatie voor developers
+ - **[🧭 EPIC-013: Documentatie‑Portal](./backlog/EPIC-013/EPIC-013.md)** **HOOG** - Eén centrale, interactieve portal (auto‑sync, herbruikbaar)
+- Individuele vereisten: `/docs/backlog/requirements/REQ-XXX.md`
+- Individuele epics: `/docs/backlog/EPIC-XXX/EPIC-XXX.md`
+- Individuele stories: `/docs/backlog/EPIC-XXX/US-XXX/US-XXX.md`
+- Bugreports: `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md` (per user story)
 - [Deprecated MASTER](./backlog/stories/MASTER-EPICS-USER-STORIES.md) 📁 (archived with redirect)
 
 ### Guidelines & Standards 📋
