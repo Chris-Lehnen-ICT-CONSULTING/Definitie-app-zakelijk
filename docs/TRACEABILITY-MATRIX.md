@@ -32,15 +32,15 @@
 
 | Episch Verhaal ID | Titel | Vereisten | Verhalen | Volledigheid | Bedrijfsprioriteit |
 |---------|-------|--------------|---------|--------------|-------------------|
-| **[EPIC-001](./backlog/epics/EPIC-001-basis-definitie-generatie.md)** | Basis Definitie Generatie | 6 | 5 | 100% | 🔴 Kritiek |
-| **[EPIC-002](./backlog/epics/EPIC-002-kwaliteitstoetsing.md)** | Kwaliteitstoetsing | 18 | 8 | 100% | 🔴 Kritiek |
-| **[EPIC-003](./backlog/epics/EPIC-003-content-verrijking-web-lookup.md)** | Content Verrijking Web Lookup | 3 | 6 | 90% | 🟠 Hoog |
-| **[EPIC-004](./backlog/epics/EPIC-004-user-interface.md)** | Gebruikersinterface | 12 | 6 | 85% | 🟠 Hoog |
-| **[EPIC-005](./backlog/epics/EPIC-005-export-import.md)** | Export Import Functionaliteit | 5 | 3 | 80% | 🟡 Gemiddeld |
-| **[EPIC-006](./backlog/epics/EPIC-006-security-auth.md)** | Beveiliging & Authenticatie | 6 | 4 | 95% | 🔴 Kritiek |
-| **[EPIC-007](./backlog/epics/EPIC-007-performance-scaling.md)** | Prestatie & Schaalbaarheid | 17 | 9 | 75% | 🟡 Gemiddeld |
-| **[EPIC-009](./backlog/epics/EPIC-009-advanced-features.md)** | Geavanceerde Functionaliteiten | 6 | 10 | 60% | 🟢 Laag |
-| **[EPIC-010](./backlog/epics/EPIC-010-context-flow-refactoring.md)** | Context Flow Refactoring | 6 | 6 | 90% | 🟠 Hoog |
+| **[EPIC-001](./backlog/EPIC-001/EPIC-001.md)** | Basis Definitie Generatie | 6 | 5 | 100% | 🔴 Kritiek |
+| **[EPIC-002](./backlog/EPIC-002/EPIC-002.md)** | Kwaliteitstoetsing | 18 | 8 | 100% | 🔴 Kritiek |
+| **[EPIC-003](./backlog/EPIC-003/EPIC-003.md)** | Content Verrijking Web Lookup | 3 | 6 | 90% | 🟠 Hoog |
+| **[EPIC-004](./backlog/EPIC-004/EPIC-004.md)** | Gebruikersinterface | 12 | 6 | 85% | 🟠 Hoog |
+| **[EPIC-005](./backlog/EPIC-005/EPIC-005.md)** | Export Import Functionaliteit | 5 | 3 | 80% | 🟡 Gemiddeld |
+| **[EPIC-006](./backlog/EPIC-006/EPIC-006.md)** | Beveiliging & Authenticatie | 6 | 4 | 95% | 🔴 Kritiek |
+| **[EPIC-007](./backlog/EPIC-007/EPIC-007.md)** | Prestatie & Schaalbaarheid | 17 | 9 | 75% | 🟡 Gemiddeld |
+| **[EPIC-009](./backlog/EPIC-009/EPIC-009.md)** | Geavanceerde Functionaliteiten | 6 | 10 | 60% | 🟢 Laag |
+| **[EPIC-010](./backlog/EPIC-010/EPIC-010.md)** | Context Flow Refactoring | 6 | 6 | 90% | 🟠 Hoog |
 
 ---
 
@@ -49,7 +49,7 @@
 ### 3.1 Kritieke Vereisten (P1)
 
 #### REQ-001: Authenticatie & Autorisatie
-- **Episch Verhaal:** [EPIC-006](./backlog/epics/EPIC-006-security-auth.md) (Beveiliging & Authenticatie)
+- **Episch Verhaal:** [EPIC-006](./backlog/EPIC-006/EPIC-006.md) (Beveiliging & Authenticatie)
 - **Stories:**
   - [US-026](./backlog/stories/US-026.md): OAuth2/OIDC Implementatie
   - [US-027](./backlog/stories/US-027.md): Rolgebaseerde Toegangscontrole (RBAC)
@@ -60,7 +60,7 @@
 - **NORA Compliance:** BP-5.1 (Beveiliging by Design)
 
 #### REQ-018: Kern Definitie Generatie
-- **Episch Verhaal:** [EPIC-001](./backlog/epics/EPIC-001-basis-definitie-generatie.md) (Basis Definitie Generatie)
+- **Episch Verhaal:** [EPIC-001](./backlog/EPIC-001/EPIC-001.md) (Basis Definitie Generatie)
 - **Stories:**
   - [US-001](./backlog/stories/US-001.md): GPT-4 Definitie Generatie
   - [US-002](./backlog/stories/US-002.md): Prompt Sjabloon Systeem
@@ -72,7 +72,7 @@
 - **NORA Compliance:** BP-2.1 (Standaardisatie)
 
 #### REQ-020: Validatie Orchestrator V2
-- **Episch Verhaal:** [EPIC-002](./backlog/epics/EPIC-002-kwaliteitstoetsing.md) (Kwaliteitstoetsing)
+- **Episch Verhaal:** [EPIC-002](./backlog/EPIC-002/EPIC-002.md) (Kwaliteitstoetsing)
 - **Stories:**
   - [US-006](./backlog/stories/US-006.md): Validatie Regel Engine
   - [US-007](./backlog/stories/US-007.md): ARAI Regels Implementatie

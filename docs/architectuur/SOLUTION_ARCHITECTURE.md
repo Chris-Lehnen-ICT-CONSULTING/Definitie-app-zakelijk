@@ -27,7 +27,7 @@ status: active
 ## Executive Summary
 
 ### Solution Overview
-> DefinitieAgent draait volledig op V2 architectuur met gecentraliseerde AI configuratie, modulaire validatie services, en clean afhankelijkheid injection. Het systeem gebruikt ConfigManager voor component-specifieke AI settings en heeft alle V1 services verwijderd. De focus ligt nu op performance optimalisatie en voorbereiding voor multi-user deployment.
+> DefinitieAgent draait grotendeels op V2‑architectuur met gecentraliseerde AI‑configuratie, modulaire validatieservices en clean afhankelijkheidsinjectie. Het systeem gebruikt ConfigManager voor component‑specifieke AI‑instellingen. Enkele compatibiliteits‑stubs en fallback‑mechanismen bestaan nog (uitfasering gepland), conform de transitie naar een modulaire monoliet als tussenstap.
 
 ### Technical Scope
 - **System**: DefinitieAgent v2.0 - Government Definition Platform

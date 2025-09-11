@@ -2,14 +2,14 @@
 canonical: true
 status: active
 owner: documentation-team
-last_verified: 08-09-2025
+last_verified: 11-09-2025
 applies_to: definitie-app@v2
 ---
 
 # Traceability Matrix - Post Cleanup Status
 
 **Generated:** 08-09-2025 09:25
-**Total Elements:** 92 Vereisten | 11 Epische Verhalen | 55 Gebruikersverhalen | 289+ Code Files
+**Total Elements:** 92 Vereisten | 11 Epische Verhalen | 71 Gebruikersverhalen | 289+ Code Files
 
 ## 📊 Coverage Summary
 

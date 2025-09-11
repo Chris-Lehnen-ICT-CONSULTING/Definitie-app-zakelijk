@@ -1,9 +1,20 @@
-# DefinitieAgent - Complete Vereisten & Features Document
+---
+canonical: false
+status: archived
+owner: documentation-team
+last_verified: 11-09-2025
+applies_to: definitie-app@current
+note: Deze pagina is gearchiveerd; gebruik de individuele REQ-bestanden en dashboards.
+---
+
+# DefinitieAgent - Complete Vereisten & Features Document (GEARCHIVEERD)
+
+> Let op: Dit document was een ‘living document’ tijdens de vroege fase. De canonieke bron voor vereisten is nu per‑bestand in `docs/backlog/requirements/REQ-XXX.md`, met overzichten via de Traceability Matrix en dashboards in `docs/backlog/dashboard/`. Gebruik dit document enkel als historisch overzicht.
 
 ## 📋 Document Informatie
-- **Laatste update**: 19-08-2025
-- **Status**: Living Document
-- **Doel**: Centrale bron van alle vereistes, features en user stories
+- **Laatste update**: 19-08-2025 (historisch)
+- **Status**: Gearchiveerd (zie opmerking hierboven)
+- **Doel**: Historisch overzicht; actuele bron is per‑REQ + dashboards
 
 ---
 
