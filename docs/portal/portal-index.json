@@ -5977,6 +5977,30 @@
       "parent_us": "US-092.md"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Business Knowledge Extraction Document",
+      "path": "docs/backlog/EPIC-013/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
+      "url": "docs/backlog/EPIC-013/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-013",
+      "parent_us": "US-061"
+    },
+    {
       "id": "US-095",
       "type": "DOC",
       "title": "Geavanceerde zoek & dashboard‑integratie",
@@ -6239,6 +6263,198 @@
       },
       "parent_epic": "EPIC-013",
       "parent_us": "US-098.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "EPIC-014: Business Logic Refactoring Implementation",
+      "path": "docs/backlog/EPIC-014/EPIC-014.md",
+      "url": "docs/backlog/EPIC-014/EPIC-014.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014.md",
+      "parent_us": null
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-108: Implementeer Violation-to-Feedback Mapping Service",
+      "path": "docs/backlog/EPIC-014/US-108/US-108.md",
+      "url": "docs/backlog/EPIC-014/US-108/US-108.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-108.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-109: Implementeer Definitie Acceptatie Criteria Engine",
+      "path": "docs/backlog/EPIC-014/US-109/US-109.md",
+      "url": "docs/backlog/EPIC-014/US-109/US-109.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-109.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-107: Implementeer FeedbackBuilder Priority Algorithm",
+      "path": "docs/backlog/EPIC-014/US-107/US-107.md",
+      "url": "docs/backlog/EPIC-014/US-107/US-107.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-107.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-121: Implementeer Stagnation Detector",
+      "path": "docs/backlog/EPIC-014/US-121/US-121.md",
+      "url": "docs/backlog/EPIC-014/US-121/US-121.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-121.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-117: Implementeer Validation Element Detectors",
+      "path": "docs/backlog/EPIC-014/US-117/US-117.md",
+      "url": "docs/backlog/EPIC-014/US-117/US-117.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-117.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-110: Implementeer Weighted Score Calculator",
+      "path": "docs/backlog/EPIC-014/US-110/US-110.md",
+      "url": "docs/backlog/EPIC-014/US-110/US-110.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-110.md"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-111: Implementeer Iterative Improvement Controller",
+      "path": "docs/backlog/EPIC-014/US-111/US-111.md",
+      "url": "docs/backlog/EPIC-014/US-111/US-111.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-111.md"
     },
     {
       "id": null,
@@ -16347,7 +16563,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 481,
+      "DOC": 490,
       "report": 1,
       "log": 1,
       "analyse": 1,
@@ -16385,7 +16601,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-11T15:58:43Z"
+    "generated_at": "2025-09-11T19:09:36Z"
   },
   "sources": [
     "docs"
