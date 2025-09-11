@@ -66,11 +66,11 @@
 - **[↗︎ Grafisch Overzicht](./backlog/dashboard/graph.html)** 🆕 - REQ ↔ EPIC bipartite graph (offline)
 - **[🚨 EPIC-010: Context Flow](./backlog/epics/EPIC-010-context-flow-refactoring.md)** **KRITIEK** - Urgent context bug fixes
   - **[📍 Implementation Plan](./implementation/EPIC-010-implementation-plan.md)** **NEW** - 9-phase detailed implementation
-  - **[🐛 CFR-BUG-003](./backlog/bugs/CFR-BUG-003-generation-result-import.md)** **KRITIEK** - GenerationResult import blocking 36 tests
+  - **[🐛 CFR-BUG-003](./backlog/EPIC-010/US-041/CFR-BUG-003/CFR-BUG-003.md)** **KRITIEK** - GenerationResult import blocking 36 tests
 - Individual Requirements: `/docs/backlog/requirements/REQ-XXX.md` (92 requirements)
 - Individual Epische Verhalen: `/docs/backlog/epics/EPIC-XXX.md` (11 epics)
 - Individual Stories: `/docs/backlog/stories/US-XXX.md` (55 stories)
-- Bug Reports: `/docs/backlog/bugs/CFR-BUG-XXX.md` (context flow bugs)
+- Bug Reports: `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/BUG-XXX.md` (bugs binnen user stories)
 - [Deprecated MASTER](./backlog/stories/MASTER-EPICS-USER-STORIES.md) 📁 (archived with redirect)
 
 ### Guidelines & Standards 📋
@@ -83,6 +83,7 @@
 - [Werkstroom Library](./guidelines/WORKFLOW_LIBRARY.md) ✅ Multiple targeted workflows
 - Werkstroom Routing: See workflow library in guidelines directory ✅ How to pick the right one
 - [AI Configuration Guide](./guidelines/AI_CONFIGURATION_GUIDE.md) ✅ AI setup guide
+ - [Contributing](../CONTRIBUTING.md) ✅ Backlog-first, no TODO comments; CI/pre-commit enforcement
 
 ### 🔒 Compliance & Security (NEW)
 - **[ASTRA-NORA Mapping](./compliance/ASTRA-NORA-MAPPING.md)** 🔥 **NIEUW** - Complete ASTRA/NORA compliance mapping voor 40+ requirements
@@ -157,7 +158,7 @@ docs/
 │   ├── requirements/    92 requirements (REQ-001 to REQ-092)
 │   ├── epics/          11 epics (EPIC-001 to EPIC-011)
 │   ├── stories/        55 user stories (US-001 to US-055)
-│   ├── bugs/           Bug reports (CFR-BUG-XXX)
+│   └── US-XXX/         User stories met eventuele bugs
 │   └── dashboard/      HTML dashboards & visualizations
 ├── 📁 implementation/   Implementation plans & status tracking ✅
 ├── 📁 testing/          Test plans & results
