@@ -25,6 +25,9 @@ EXCLUDE_DIRS = {"portal"}
 
 FRONTMATTER_RE = re.compile(r"^---\n(.*?)\n---\n", re.DOTALL)
 H1_RE = re.compile(r"^#\s+(.+)$", re.MULTILINE)
+US_ID_RE = re.compile(r"\bUS-(\d{3})\b")
+EPIC_ID_RE = re.compile(r"\bEPIC-(\d{3})\b")
+REQ_ID_RE = re.compile(r"\bREQ-(\d{3})\b")
 
 
 def parse_frontmatter(text: str) -> dict:
@@ -74,6 +77,16 @@ def rel_url(path: Path) -> str:
     return str(path.as_posix())
 
 
+def load_traceability() -> dict:
+    tpath = DOCS / "traceability.json"
+    if not tpath.exists():
+        return {}
+    try:
+        return json.loads(tpath.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+
+
 def scan_docs() -> list[dict]:
     items: list[dict] = []
     for md in DOCS.rglob("*.md"):
@@ -85,7 +98,9 @@ def scan_docs() -> list[dict]:
             continue
         fm = parse_frontmatter(text)
         title = fm.get("titel") or fm.get("title") or first_heading(text) or md.stem
-        doc_type = fm.get("type") or classify(md)
+        classified = classify(md)
+        fm_type = fm.get("type")
+        doc_type = classified if classified != "DOC" else (fm_type or classified)
 
         # Planning gerelateerde velden
         sprint = fm.get("sprint") or ""
@@ -119,6 +134,11 @@ def scan_docs() -> list[dict]:
             if re.match(r"US-\d+", ppart):
                 parent_us = ppart
 
+        # Extract ID-like references for simple traceability (best-effort)
+        found_us_ids = sorted(set(m.group(0) for m in US_ID_RE.finditer(text)))
+        found_epic_ids = sorted(set(m.group(0) for m in EPIC_ID_RE.finditer(text)))
+        found_req_ids = sorted(set(m.group(0) for m in REQ_ID_RE.finditer(text)))
+
         item = {
             "id": fm.get("id") or None,
             "type": str(doc_type),
@@ -131,6 +151,7 @@ def scan_docs() -> list[dict]:
             "canonical": True if str(fm.get("canonical")).lower() == "true" else False,
             "last_verified": fm.get("last_verified") or None,
             "applies_to": fm.get("applies_to") or None,
+            "category": fm_type or None,
             "sprint": sprint or None,
             "story_points": story_points or None,
             "completion": completion or None,
@@ -142,6 +163,12 @@ def scan_docs() -> list[dict]:
             },
             "parent_epic": parent_epic,
             "parent_us": parent_us,
+            # lightweight refs (not authoritative)
+            "_refs": {
+                "us": found_us_ids,
+                "epic": found_epic_ids,
+                "req": found_req_ids,
+            },
         }
         items.append(item)
     return items
@@ -182,13 +209,59 @@ def inject_inline_json(data: dict) -> None:
 def main() -> int:
     PORTAL.mkdir(parents=True, exist_ok=True)
     items = scan_docs()
+    # Build id->item map and path lookups
+    by_id: dict[str, dict] = {}
+    for it in items:
+        iid = it.get("id")
+        if iid:
+            by_id[str(iid)] = it
+
+    # Load traceability and derive relations
+    tr = load_traceability()
+    epic_to_reqs: dict[str, list[str]] = {}
+    for k, v in tr.items():
+        if k.startswith("EPIC-"):
+            epic_to_reqs[k] = list(v.get("requirements", []) or [])
+    req_to_epics: dict[str, list[str]] = {}
+    for epic, reqs in epic_to_reqs.items():
+        for r in reqs:
+            req_to_epics.setdefault(r, []).append(epic)
+
+    # Compute REQ -> US via naive refs in REQ docs
+    req_to_us: dict[str, list[str]] = {}
+    for it in items:
+        if (it.get("type") == "REQ") and it.get("id"):
+            us_ids = [u for u in (it.get("_refs", {}).get("us") or []) if u in by_id]
+            if us_ids:
+                req_to_us[it["id"]] = sorted(set(us_ids))
+
+    # Attach relations to items
+    for it in items:
+        t = str(it.get("type") or "")
+        iid = it.get("id")
+        if t == "REQ" and iid:
+            it["linked_epics"] = sorted(set(req_to_epics.get(iid, []))) or None
+            it["linked_stories"] = sorted(set(req_to_us.get(iid, []))) or None
+        elif t == "EPIC" and iid:
+            it["linked_reqs"] = sorted(set(epic_to_reqs.get(iid, []))) or None
+        elif t == "US" and iid:
+            # derive linked REQs by inversion of req_to_us
+            linked = sorted(set(r for r, us in req_to_us.items() if iid in us))
+            it["linked_reqs"] = linked or None
+
+    # Optional top-level relations summary
+    relations = {
+        "req_to_epics": req_to_epics,
+        "req_to_us": req_to_us,
+    }
     data = {
         "documents": items,
         "aggregate": {
             "counts": aggregate_counts(items),
             "generated_at": datetime.utcnow().isoformat(timespec="seconds") + "Z",
         },
-        "sources": ["docs"]
+        "sources": ["docs"],
+        "relations": relations,
     }
     write_portal_index(data)
     inject_inline_json(data)
