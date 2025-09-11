@@ -59,8 +59,8 @@
 
 ### 📦 Backlog Management (Centralized - September 2025)
 - **[📊 Requirements Index](./backlog/requirements/)** 🆕 - Alle 92 requirements (REQ-001 t/m REQ-092)
-- **[📊 Episch Verhaal Dashboard](./backlog/epics/INDEX.md)** 🆕 **PRIMARY VIEW** - All epics with status & metrics
-- **[📋 Story Index](./backlog/stories/INDEX.md)** 🆕 **ALL STORIES** - Complete US-001 to US-055 listing
+- **[📊 Episch Verhaal Dashboard](./backlog/README.md)** 🆕 **PRIMARY VIEW** - All epics with status & metrics
+- **[📋 Story Index](./backlog/README.md)** 🆕 **ALL STORIES** - Complete US-001 to US-055 listing
 - **[🧭 Requirements Dashboard](./backlog/dashboard/index.html)** 🆕 - Zoeken, sorteren, doorklikken
 - **[▸ Per‑Epic Overzicht](./backlog/dashboard/per-epic.html)** 🆕 - In-/uitklapbare blokken per epic
 - **[↗︎ Grafisch Overzicht](./backlog/dashboard/graph.html)** 🆕 - REQ ↔ EPIC bipartite graph (offline)

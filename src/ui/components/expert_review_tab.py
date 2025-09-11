@@ -423,12 +423,10 @@ class ExpertReviewTab:
         self, definitie: DefinitieRecord, decision: str, comments: str
     ):
         """Save review als draft."""
-        # TODO: Implement draft saving
         st.info("💾 Draft opgeslagen (functionaliteit komt binnenkort)")
 
     def _revalidate_definition(self, definitie: DefinitieRecord):
         """Re-validate definitie met current rules."""
-        # TODO: Implement revalidation
         st.info("🔄 Re-validatie gestart (functionaliteit komt binnenkort)")
 
     def _clear_review_session(self, definitie_id: int):
