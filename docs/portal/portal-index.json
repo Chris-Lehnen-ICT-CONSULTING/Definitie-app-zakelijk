@@ -1396,12 +1396,12 @@
       "title": "Codex Multi‑Agent Gebruik",
       "path": "docs/codex-multi-agent-gebruik.md",
       "url": "docs/codex-multi-agent-gebruik.md",
-      "status": "concept",
+      "status": "active",
       "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
+      "owner": "development",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
       "story_points": null,
@@ -10881,6 +10881,40 @@
       "_refs": {
         "us": [
           "US-112"
+        ],
+        "epic": [
+          "EPIC-014"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-123",
+      "type": "feature",
+      "title": "Portal kan Multi‑Agent gids openen",
+      "path": "docs/backlog/EPIC-014/US-123/US-123.md",
+      "url": "docs/backlog/EPIC-014/US-123/US-123.md",
+      "status": "TE_DOEN",
+      "prioriteit": "MIDDEL",
+      "owner": "development",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "2",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-123.md",
+      "_refs": {
+        "us": [
+          "US-123"
         ],
         "epic": [
           "EPIC-014"
@@ -24098,7 +24132,7 @@
       "analyse": 1,
       "compliance-report": 1,
       "technische-analyse": 1,
-      "feature": 19,
+      "feature": 20,
       "BUG": 5,
       "Prestaties": 1,
       "technical-debt": 2,
@@ -24122,7 +24156,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-11T21:41:27Z"
+    "generated_at": "2025-09-12T07:03:46Z"
   },
   "sources": [
     "docs"
