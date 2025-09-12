@@ -61,6 +61,8 @@ class DefinitionEditTab:
                 if session and session.get('success'):
                     st.session_state.editing_definition = session.get('definition')
                     st.session_state.edit_session = session
+                    # Hydrate editor velden met huidige definitie
+                    self._hydrate_editor_fields(session.get('definition'))
         except Exception:
             pass
         
@@ -408,6 +410,9 @@ class DefinitionEditTab:
                     st.info("💾 Auto-save gevonden voor deze definitie.")
                     if st.button("Herstel auto-save", key="restore_auto_save_btn"):
                         self._restore_auto_save(session['auto_save'])
+
+                # Hydrate editor velden met huidige definitie
+                self._hydrate_editor_fields(session['definition'])
                 
                 st.success("✅ Edit sessie gestart")
                 st.rerun()
@@ -571,8 +576,10 @@ class DefinitionEditTab:
                 definition = self.repository.get(definition_id)
                 if definition:
                     st.session_state.editing_definition = definition
+                    # Velden hydrateren met bijgewerkte waarden
+                    self._hydrate_editor_fields(definition)
                     st.rerun()
-                    
+        
         except Exception as e:
             logger.error(f"Refresh error: {e}")
     
@@ -677,6 +684,25 @@ class DefinitionEditTab:
             return dt.strftime("%d-%m-%Y %H:%M")
         
         return str(dt)
+
+    def _hydrate_editor_fields(self, definition) -> None:
+        """Zet de editor velden in session_state volgens de Definition waardes.
+
+        Dit voorkomt dat Streamlit oude waarden vasthoudt wanneer we van definitie wisselen.
+        """
+        if not definition:
+            return
+        try:
+            st.session_state['edit_begrip'] = getattr(definition, 'begrip', '')
+            st.session_state['edit_definitie'] = getattr(definition, 'definitie', '')
+            st.session_state['edit_context'] = getattr(definition, 'context', '') or ''
+            st.session_state['edit_categorie'] = getattr(definition, 'categorie', 'proces') or 'proces'
+            st.session_state['edit_toelichting'] = getattr(definition, 'toelichting', '') or ''
+            meta = getattr(definition, 'metadata', {}) or {}
+            st.session_state['edit_status'] = meta.get('status', 'draft')
+            st.session_state['edit_juridische_context'] = meta.get('juridische_context', '') or ''
+        except Exception as e:
+            logger.warning(f"Kon editor velden niet hydrateren: {e}")
     
     def _init_session_state(self):
         """Initialize session state variables."""
