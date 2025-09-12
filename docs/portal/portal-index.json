@@ -1089,7 +1089,8 @@
       "_refs": {
         "us": [
           "US-001",
-          "US-055"
+          "US-055",
+          "US-064"
         ],
         "epic": [
           "EPIC-001",
@@ -25018,7 +25019,7 @@
       }
     },
     {
-      "id": "US-020",
+      "id": "US-136",
       "type": "feature",
       "title": "validatie Results Display",
       "path": "docs/backlog/EPIC-004/US-020/US-020.md",
@@ -25045,7 +25046,7 @@
         "us": [
           "US-018",
           "US-019",
-          "US-020"
+          "US-136"
         ],
         "epic": [
           "EPIC-004"
@@ -25469,19 +25470,19 @@
       "title": "Implement Definition Edit Interface",
       "path": "docs/backlog/EPIC-004/US-064/US-064.md",
       "url": "docs/backlog/EPIC-004/US-064/US-064.md",
-      "status": "Open",
+      "status": "Completed",
       "prioriteit": "HIGH",
       "owner": "ux-designer",
       "canonical": true,
-      "last_verified": "2025-09-11",
+      "last_verified": "2025-09-12",
       "applies_to": "definitie-app@current",
       "category": "feature",
-      "sprint": "backlog",
+      "sprint": "2025-09",
       "story_points": "8",
       "completion": null,
       "target_release": null,
       "planning": {
-        "sprint_number": null,
+        "sprint_number": 2025,
         "priority_rank": 5,
         "type_rank": 9
       },
@@ -25955,7 +25956,7 @@
       }
     },
     {
-      "id": "US-014",
+      "id": "US-135",
       "type": "feature",
       "title": "Modern Web Lookup Implementatie",
       "path": "docs/backlog/EPIC-003/US-014/US-014.md",
@@ -25980,7 +25981,7 @@
       "parent_us": "US-014.md",
       "_refs": {
         "us": [
-          "US-014"
+          "US-135"
         ],
         "epic": [
           "EPIC-003"
@@ -26270,7 +26271,7 @@
       "BUG": 5,
       "Prestaties": 1
     },
-    "generated_at": "2025-09-12T13:04:45Z"
+    "generated_at": "2025-09-12T13:12:02Z"
   },
   "sources": [
     "docs"
