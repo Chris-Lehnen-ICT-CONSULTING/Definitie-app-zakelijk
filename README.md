@@ -10,7 +10,8 @@
 [![Security](https://img.shields.io/badge/security-basic%20only-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
-> **✅ Status Update (2025-09-11)**: EPIC-010 Context Flow 100% completed, CI/CD gates geïmplementeerd tegen legacy patterns, klaar voor EPIC-012 refactoring
+> **✅ Status Update (2025-09-12)**: US-064 Definition Edit Interface volledig geïmplementeerd met version history, auto-save en 100% test coverage
+> **✅ Status Update (2025-09-11)**: EPIC-010 Context Flow 100% completed, CI/CD gates geïmplementeerd tegen legacy patterns
 
 ## 🧾 Snelstart Cheatsheet
 
@@ -51,12 +52,13 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 ### ✨ Kernfuncties
 
 - 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
+- ✏️ **Definition Edit Interface** ✅ NIEUW - Rich text editor met version history en auto-save
 - 📋 **45 Kwaliteitsregels** voor validatie (Python modules in src/toetsregels/regels/)
 - 🏗️ **Modulaire Architectuur** ValidationOrchestratorV2 + PromptServiceV2
 - 🌐 **Web Lookup Epic 3** Backend werkt, prompt augmentatie geïntegreerd
 - 📄 **Document Upload** voor kennisbasis uitbreiding
 - ⚡ **Performance Issues** 6x service init, 45x regel laden, 7.250 prompt tokens
-- 🖥️ **10 Streamlit UI Tabs** (3 actief, 7 placeholder)
+- 🖥️ **11 Streamlit UI Tabs** (inclusief nieuwe Edit tab)
 - 🔒 **Security** ❌ Geen authentication/encryption (productie blocker)
 - 📦 **Single Source of Truth** (voorstel) voor toetsregels = prompt instructies
 

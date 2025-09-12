@@ -15,6 +15,7 @@
 | **Archief** | Chaos | /archief/2025-09/ | ✅ Opgeruimd |
 | **EPIC-010** | 95% | 100% | ✅ **COMPLETED** (11-09-2025) |
 | **CI/CD Gates** | Geen | 7 patterns | ✅ **Geïmplementeerd** |
+| **US-064 Edit Interface** | 0% | 100% | ✅ **COMPLETED** (12-09-2025) |
 
 ## 📊 Kwaliteitsmetrieken (8 September 2025) - POST CLEANUP
 
