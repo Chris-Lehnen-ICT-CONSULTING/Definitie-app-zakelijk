@@ -114,7 +114,12 @@
     "title": "EPIC-003: Content Verrijking / Web Lookup",
     "stories": [
       "US-014",
-      "US-062"
+      "US-015",
+      "US-016",
+      "US-017",
+      "US-018",
+      "US-019",
+      "US-079"
     ],
     "requirements": [
       "REQ-014",
@@ -135,7 +140,7 @@
       "REQ-039",
       "REQ-040",
       "US-014",
-      "US-062"
+      "US-079"
     ]
   },
   "EPIC-004": {
