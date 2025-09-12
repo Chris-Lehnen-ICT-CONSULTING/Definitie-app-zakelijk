@@ -2015,7 +2015,7 @@
           "US-017",
           "US-018",
           "US-019",
-          "US-062"
+          "US-079"
         ],
         "epic": [
           "EPIC-001",
@@ -2314,7 +2314,7 @@
       }
     },
     {
-      "id": "US-062",
+      "id": "US-079",
       "type": "feature",
       "title": "Implement Wiktionary Integration",
       "path": "docs/backlog/EPIC-003/US-062/US-062.md",
@@ -2339,7 +2339,7 @@
       "parent_us": "US-062.md",
       "_refs": {
         "us": [
-          "US-062"
+          "US-079"
         ],
         "epic": [
           "EPIC-003"
@@ -5102,7 +5102,7 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-062"
+          "US-079"
         ],
         "epic": [
           "EPIC-003"
@@ -5116,7 +5116,7 @@
         "EPIC-004"
       ],
       "linked_stories": [
-        "US-062"
+        "US-079"
       ]
     },
     {
@@ -7355,7 +7355,7 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-062"
+          "US-079"
         ],
         "epic": [
           "EPIC-003"
@@ -7369,7 +7369,7 @@
         "EPIC-007"
       ],
       "linked_stories": [
-        "US-062"
+        "US-079"
       ]
     },
     {
@@ -24336,7 +24336,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:11:40Z"
+    "generated_at": "2025-09-12T07:15:44Z"
   },
   "sources": [
     "docs"
@@ -24617,7 +24617,7 @@
         "US-055"
       ],
       "REQ-021": [
-        "US-062"
+        "US-079"
       ],
       "REQ-088": [
         "US-020",
@@ -24632,7 +24632,7 @@
         "US-053"
       ],
       "REQ-012": [
-        "US-062"
+        "US-079"
       ],
       "REQ-091": [
         "US-014",
