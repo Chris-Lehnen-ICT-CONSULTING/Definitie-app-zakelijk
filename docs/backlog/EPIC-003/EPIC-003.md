@@ -263,6 +263,19 @@ User Request → Web Lookup Service
 - ⏳ Justid terminology alignment
 - ⏳ CJIB penalty term validation
 
+## Niet‑functionele eisen (NFR)
+
+Voor alle web‑lookup functionaliteit binnen deze EPIC gelden de volgende NFR’s voor “veilige scraping” en extern brongebruik:
+
+- Respecteer robots.txt en Terms of Service van bronnen
+- Timeouts per provider (≤ 5s) en totaallimiet per lookup
+- Rate limiting met exponential backoff bij fouten/timeouts
+- HTML/markup sanitization (XSS‑preventie) vóór verdere verwerking
+- Geen PII verzamelen of loggen; AVG/BIR‑conform
+- Eenduidige User‑Agent + contactinformatie waar vereist
+- Volledige herkomst (provenance) vastleggen: bron, timestamp, URL, versie
+- Audit‑logging van externe requests (samenvattend, zonder content dumps)
+
 ## Related Epische Verhalen
 
 - **<!-- BROKEN LINK: EPIC-008 -->**: Web Lookup Module (MERGED) - All functionality from Episch Verhaal 8 has been consoliDatumd here

@@ -139,6 +139,7 @@
 ### Workflows & Handleidingen
 - [Frontend Guide](./frontend/AI-FRONTEND-PROMPT-NL.md) ✅
 - See Guidelines & Standards section for development workflows
+- [🧩 Multi‑Agent Handleiding](./codex-multi-agent-gebruik.md) ✅ Parallelle agents, quick‑checks & scoreboard
 
 ## 📂 Huidige Directory Structuur
 

@@ -1,0 +1,44 @@
+name: Agent Quick Checks (EPIC-010)
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+    # Optional path filtering (uncomment to enable selective runs)
+    # paths:
+    #   - 'src/services/**'
+    #   - 'scripts/agent_quick_checks.sh'
+    #   - '.github/workflows/agent-quick-checks.yml'
+
+jobs:
+  quick-checks:
+    name: Run agent quick checks
+    runs-on: ubuntu-latest
+    # Optional label filter: run only when PR is related to EPIC-010
+    # Remove `|| true` to enforce label-based selection
+    if: contains(join(github.event.pull_request.labels.*.name, ' '), 'EPIC-010') || true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install ripgrep
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
+          pip install pytest
+
+      - name: Run quick checks
+        run: |
+          bash scripts/agent_quick_checks.sh
+

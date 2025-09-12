@@ -15,6 +15,9 @@ status: active
 
 Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Definitie‑app. Het doel is consistente kwaliteit, voorspelbaar gedrag en makkelijk samenwerken tussen mensen en agents.
 
+## Werken met meerdere agents
+- Zie de dedicated gids: [Codex Multi‑Agent Gebruik](../codex-multi-agent-gebruik.md) — parallelle agents (worktrees/patches), selectiecriteria, quick‑checks en scoreboard.
+
 ## Claude Code Agents Locatie
 - Primaire agent‑prompts: `~/\.claude/agents/` (lokaal bij jou)
 - Router + workflows: `~/\.claude/agents/workflow-router.md` en `~/\.claude/agents/workflows/workflows.yaml`
