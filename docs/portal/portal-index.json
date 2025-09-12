@@ -1831,7 +1831,7 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Web Lookup Configuratie (Episch Verhaal 3)",
+      "title": "Web Lookup Configuratie",
       "path": "docs/technisch/web_lookup_config.md",
       "url": "docs/technisch/web_lookup_config.md",
       "status": null,
@@ -24601,7 +24601,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:44:45Z"
+    "generated_at": "2025-09-12T07:50:28Z"
   },
   "sources": [
     "docs"
