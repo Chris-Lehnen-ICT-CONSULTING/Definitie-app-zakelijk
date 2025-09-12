@@ -2020,7 +2020,10 @@
           "US-081",
           "US-082",
           "US-083",
-          "US-084"
+          "US-084",
+          "US-087",
+          "US-088",
+          "US-089"
         ],
         "epic": [
           "EPIC-001",
@@ -2070,6 +2073,40 @@
         "req": [
           "REQ-015"
         ]
+      }
+    },
+    {
+      "id": "US-088",
+      "type": "feature",
+      "title": "No‑PII Logging & Masking",
+      "path": "docs/backlog/EPIC-003/US-088/US-088.md",
+      "url": "docs/backlog/EPIC-003/US-088/US-088.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-088.md",
+      "_refs": {
+        "us": [
+          "US-088"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
       }
     },
     {
@@ -2145,6 +2182,40 @@
       }
     },
     {
+      "id": "US-089",
+      "type": "feature",
+      "title": "Provider Metrics (Latency/Hit‑Ratio)",
+      "path": "docs/backlog/EPIC-003/US-089/US-089.md",
+      "url": "docs/backlog/EPIC-003/US-089/US-089.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-089.md",
+      "_refs": {
+        "us": [
+          "US-089"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": "US-080",
       "type": "feature",
       "title": "Wetgeving.nl (Wettenbank) Integratie",
@@ -2178,6 +2249,40 @@
         "req": [
           "REQ-015"
         ]
+      }
+    },
+    {
+      "id": "US-087",
+      "type": "feature",
+      "title": "Scraping NFR Enforcement (Sanitization/Robots)",
+      "path": "docs/backlog/EPIC-003/US-087/US-087.md",
+      "url": "docs/backlog/EPIC-003/US-087/US-087.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-087.md",
+      "_refs": {
+        "us": [
+          "US-087"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
       }
     },
     {
@@ -10116,6 +10221,424 @@
       }
     },
     {
+      "id": "EPIC-015",
+      "type": "DOC",
+      "title": "Multi-User & Externalisatie",
+      "path": "docs/backlog/EPIC-015/EPIC-015.md",
+      "url": "docs/backlog/EPIC-015/EPIC-015.md",
+      "status": "TE_DOEN",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-124",
+          "US-125",
+          "US-126",
+          "US-127",
+          "US-128",
+          "US-129",
+          "US-130",
+          "US-131",
+          "US-132",
+          "US-133",
+          "US-134"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-130",
+      "type": "feature",
+      "title": "Portal Publicatie/Hosting",
+      "path": "docs/backlog/EPIC-015/US-130/US-130.md",
+      "url": "docs/backlog/EPIC-015/US-130/US-130.md",
+      "status": "Backlog",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-130.md",
+      "_refs": {
+        "us": [
+          "US-130"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-131",
+      "type": "feature",
+      "title": "Hub Aggregator (Multi‑Repo)",
+      "path": "docs/backlog/EPIC-015/US-131/US-131.md",
+      "url": "docs/backlog/EPIC-015/US-131/US-131.md",
+      "status": "Backlog",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-131.md",
+      "_refs": {
+        "us": [
+          "US-131"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-125",
+      "type": "feature",
+      "title": "Role-Based Access Control (RBAC)",
+      "path": "docs/backlog/EPIC-015/US-125/US-125.md",
+      "url": "docs/backlog/EPIC-015/US-125/US-125.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-125.md",
+      "_refs": {
+        "us": [
+          "US-125"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-124",
+      "type": "feature",
+      "title": "Authenticatie (Login/Logout)",
+      "path": "docs/backlog/EPIC-015/US-124/US-124.md",
+      "url": "docs/backlog/EPIC-015/US-124/US-124.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-124.md",
+      "_refs": {
+        "us": [
+          "US-124"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-134",
+      "type": "feature",
+      "title": "Custom Workflows (Engine)",
+      "path": "docs/backlog/EPIC-015/US-134/US-134.md",
+      "url": "docs/backlog/EPIC-015/US-134/US-134.md",
+      "status": "Backlog",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-134.md",
+      "_refs": {
+        "us": [
+          "US-134"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-133",
+      "type": "feature",
+      "title": "Observability Stack (Metrics/Dashboards)",
+      "path": "docs/backlog/EPIC-015/US-133/US-133.md",
+      "url": "docs/backlog/EPIC-015/US-133/US-133.md",
+      "status": "Backlog",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-133.md",
+      "_refs": {
+        "us": [
+          "US-133"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-132",
+      "type": "feature",
+      "title": "Audit Trail + PII Scanner (Tooling)",
+      "path": "docs/backlog/EPIC-015/US-132/US-132.md",
+      "url": "docs/backlog/EPIC-015/US-132/US-132.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-132.md",
+      "_refs": {
+        "us": [
+          "US-132"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-126",
+      "type": "feature",
+      "title": "API Key Management",
+      "path": "docs/backlog/EPIC-015/US-126/US-126.md",
+      "url": "docs/backlog/EPIC-015/US-126/US-126.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-126.md",
+      "_refs": {
+        "us": [
+          "US-126"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-128",
+      "type": "feature",
+      "title": "Collaboration (Comments/Mentions)",
+      "path": "docs/backlog/EPIC-015/US-128/US-128.md",
+      "url": "docs/backlog/EPIC-015/US-128/US-128.md",
+      "status": "Backlog",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-128.md",
+      "_refs": {
+        "us": [
+          "US-128"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-129",
+      "type": "feature",
+      "title": "Version Control (Diff/History)",
+      "path": "docs/backlog/EPIC-015/US-129/US-129.md",
+      "url": "docs/backlog/EPIC-015/US-129/US-129.md",
+      "status": "Backlog",
+      "prioriteit": "LAAG",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-129.md",
+      "_refs": {
+        "us": [
+          "US-129"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-127",
+      "type": "feature",
+      "title": "Externe API (REST)",
+      "path": "docs/backlog/EPIC-015/US-127/US-127.md",
+      "url": "docs/backlog/EPIC-015/US-127/US-127.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-127.md",
+      "_refs": {
+        "us": [
+          "US-127"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": null,
       "type": "DOC",
       "title": "EPIC-012: Legacy Orchestrator Refactoring",
@@ -10411,6 +10934,40 @@
       }
     },
     {
+      "id": "US-086",
+      "type": "feature",
+      "title": "Chip Deeplink Filters (#q=…)",
+      "path": "docs/backlog/EPIC-013/US-086/US-086.md",
+      "url": "docs/backlog/EPIC-013/US-086/US-086.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": "documentation-team",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "2",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-013",
+      "parent_us": "US-086.md",
+      "_refs": {
+        "us": [
+          "US-086"
+        ],
+        "epic": [
+          "EPIC-013"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": "US-101",
       "type": "DOC",
       "title": "ADOPTING.md (projecteisen + integratiehandleiding)",
@@ -10649,6 +11206,40 @@
         "us": [
           "US-090",
           "US-095"
+        ],
+        "epic": [
+          "EPIC-013"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-085",
+      "type": "feature",
+      "title": "Portal A11y & Focus Polish",
+      "path": "docs/backlog/EPIC-013/US-085/US-085.md",
+      "url": "docs/backlog/EPIC-013/US-085/US-085.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": "documentation-team",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "2",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-013",
+      "parent_us": "US-085.md",
+      "_refs": {
+        "us": [
+          "US-085"
         ],
         "epic": [
           "EPIC-013"
@@ -24571,13 +25162,13 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 502,
+      "DOC": 503,
       "report": 1,
       "log": 1,
       "analyse": 1,
       "compliance-report": 1,
       "technische-analyse": 1,
-      "feature": 30,
+      "feature": 46,
       "BUG": 5,
       "Prestaties": 1,
       "technical-debt": 2,
@@ -24601,7 +25192,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:50:28Z"
+    "generated_at": "2025-09-12T08:41:13Z"
   },
   "sources": [
     "docs"

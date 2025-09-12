@@ -30,6 +30,9 @@ stories:
 - US-082
 - US-083
 - US-084
+- US-087
+- US-088
+- US-089
 target_release: v1.1
 titel: Content Verrijking / Web Lookup
 vereisten:
