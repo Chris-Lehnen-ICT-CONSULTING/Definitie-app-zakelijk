@@ -2317,8 +2317,8 @@
       "id": "US-079",
       "type": "feature",
       "title": "Implement Wiktionary Integration",
-      "path": "docs/backlog/EPIC-003/US-062/US-062.md",
-      "url": "docs/backlog/EPIC-003/US-062/US-062.md",
+      "path": "docs/backlog/EPIC-003/US-079/US-079.md",
+      "url": "docs/backlog/EPIC-003/US-079/US-079.md",
       "status": "Open",
       "prioriteit": "LOW",
       "owner": "developer",
@@ -2336,7 +2336,7 @@
         "type_rank": 9
       },
       "parent_epic": "EPIC-003",
-      "parent_us": "US-062.md",
+      "parent_us": "US-079.md",
       "_refs": {
         "us": [
           "US-079"
@@ -24336,7 +24336,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:15:44Z"
+    "generated_at": "2025-09-12T07:19:35Z"
   },
   "sources": [
     "docs"
