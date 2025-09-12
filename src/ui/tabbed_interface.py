@@ -44,6 +44,9 @@ from ui.components.context_state_cleaner import init_context_cleaner
 from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie generatie
     DefinitionGeneratorTab,
 )
+from ui.components.definition_edit_tab import (  # Edit interface voor definities
+    DefinitionEditTab,
+)
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.enhanced_context_manager_selector import (
@@ -138,6 +141,7 @@ class TabbedInterface:
 
         # Initialiseer alle tab componenten met repository referentie
         self.definition_tab = DefinitionGeneratorTab(self.checker)
+        self.edit_tab = DefinitionEditTab()  # Edit tab with extended repository
         self.expert_tab = ExpertReviewTab(self.repository)
         self.history_tab = HistoryTab(self.repository)
         self.export_tab = ExportTab(self.repository)
@@ -162,6 +166,11 @@ class TabbedInterface:
                 "title": "🚀 Definitie Generatie",
                 "icon": "🚀",
                 "description": "Genereer nieuwe definities met AI-ondersteuning",
+            },
+            "edit": {
+                "title": "✏️ Bewerk",
+                "icon": "✏️",
+                "description": "Bewerk definities met versiegeschiedenis en auto-save",
             },
             "expert": {
                 "title": "👨‍💼 Expert Review",
@@ -1333,6 +1342,8 @@ class TabbedInterface:
         try:
             if tab_key == "generator":
                 self.definition_tab.render()
+            elif tab_key == "edit":
+                self.edit_tab.render()
             elif tab_key == "expert":
                 self.expert_tab.render()
             elif tab_key == "history":
