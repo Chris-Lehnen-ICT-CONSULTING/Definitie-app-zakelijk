@@ -2015,7 +2015,10 @@
           "US-017",
           "US-018",
           "US-019",
-          "US-079"
+          "US-079",
+          "US-080",
+          "US-081",
+          "US-082"
         ],
         "epic": [
           "EPIC-001",
@@ -2028,6 +2031,42 @@
           "REQ-021",
           "REQ-039",
           "REQ-040"
+        ]
+      }
+    },
+    {
+      "id": "US-081",
+      "type": "feature",
+      "title": "Rechtspraak.nl ECLI Integratie",
+      "path": "docs/backlog/EPIC-003/US-081/US-081.md",
+      "url": "docs/backlog/EPIC-003/US-081/US-081.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-081.md",
+      "_refs": {
+        "us": [
+          "US-081"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-015"
         ]
       }
     },
@@ -2100,6 +2139,42 @@
         ],
         "req": [
           "REQ-012"
+        ]
+      }
+    },
+    {
+      "id": "US-080",
+      "type": "feature",
+      "title": "Wetgeving.nl (Wettenbank) Integratie",
+      "path": "docs/backlog/EPIC-003/US-080/US-080.md",
+      "url": "docs/backlog/EPIC-003/US-080/US-080.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-080.md",
+      "_refs": {
+        "us": [
+          "US-080"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-015"
         ]
       }
     },
@@ -2275,6 +2350,42 @@
         "us": [],
         "epic": [],
         "req": []
+      }
+    },
+    {
+      "id": "US-082",
+      "type": "feature",
+      "title": "EUR-Lex EU Recht Integratie",
+      "path": "docs/backlog/EPIC-003/US-082/US-082.md",
+      "url": "docs/backlog/EPIC-003/US-082/US-082.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-082.md",
+      "_refs": {
+        "us": [
+          "US-082"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-015"
+        ]
       }
     },
     {
@@ -5250,7 +5361,11 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [],
+        "us": [
+          "US-080",
+          "US-081",
+          "US-082"
+        ],
         "epic": [
           "EPIC-006",
           "EPIC-009"
@@ -5261,10 +5376,15 @@
         ]
       },
       "linked_epics": [
+        "EPIC-003",
         "EPIC-006",
         "EPIC-009"
       ],
-      "linked_stories": null
+      "linked_stories": [
+        "US-080",
+        "US-081",
+        "US-082"
+      ]
     },
     {
       "id": "REQ-005",
@@ -24312,7 +24432,7 @@
       "analyse": 1,
       "compliance-report": 1,
       "technische-analyse": 1,
-      "feature": 25,
+      "feature": 28,
       "BUG": 5,
       "Prestaties": 1,
       "technical-debt": 2,
@@ -24336,7 +24456,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:19:35Z"
+    "generated_at": "2025-09-12T07:28:44Z"
   },
   "sources": [
     "docs"
@@ -24457,6 +24577,11 @@
         "EPIC-003",
         "EPIC-004"
       ],
+      "REQ-015": [
+        "EPIC-003",
+        "EPIC-006",
+        "EPIC-009"
+      ],
       "REQ-004": [
         "EPIC-004",
         "EPIC-006"
@@ -24518,10 +24643,6 @@
       ],
       "REQ-002": [
         "EPIC-006"
-      ],
-      "REQ-015": [
-        "EPIC-006",
-        "EPIC-009"
       ],
       "REQ-044": [
         "EPIC-006"
@@ -24618,6 +24739,11 @@
       ],
       "REQ-021": [
         "US-079"
+      ],
+      "REQ-015": [
+        "US-080",
+        "US-081",
+        "US-082"
       ],
       "REQ-088": [
         "US-020",
