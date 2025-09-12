@@ -736,6 +736,7 @@ class DefinitieRepository:
                 "organisatorische_context",
                 "juridische_context",
                 "wettelijke_basis",
+                # version_number niet direct setbaar; wordt atomisch verhoogd
             }
 
             set_clauses = []
@@ -757,13 +758,26 @@ class DefinitieRepository:
                 set_clauses.append("updated_by = ?")
                 params.append(updated_by)
 
-            params.append(definitie_id)
+            # Optimistic locking met atomische versie verhoging
+            expected_version = updates.get("version_number")
+            # Verhoog versie altijd bij update
+            set_clauses.append("version_number = version_number + 1")
 
-            # Execute update - Build query safely from whitelisted fields
-            if not set_clauses:
+            # Build query safely from whitelisted fields
+            where_clause = "id = ?"
+            where_params: list[Any] = [definitie_id]
+            if expected_version is not None:
+                where_clause += " AND version_number = ?"
+                where_params.append(expected_version)
+
+            query = "UPDATE definities SET " + ", ".join(set_clauses) + f" WHERE {where_clause}"
+            cursor = conn.execute(query, params + where_params)
+            if cursor.rowcount == 0 and expected_version is not None:
+                # Versieconflict
+                logger.warning(
+                    f"Optimistic lock failed for definitie {definitie_id} (expected version {expected_version})"
+                )
                 return False
-            query = "UPDATE definities SET " + ", ".join(set_clauses) + " WHERE id = ?"
-            conn.execute(query, params)
 
             # Log update
             self._log_geschiedenis(
