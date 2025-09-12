@@ -584,6 +584,66 @@
     },
     {
       "id": null,
+      "type": "DOC",
+      "title": "Features → User Stories mapping",
+      "path": "docs/FEATURES-TO-US.md",
+      "url": "docs/FEATURES-TO-US.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-002",
+          "US-007",
+          "US-014",
+          "US-018",
+          "US-020",
+          "US-021",
+          "US-022",
+          "US-026",
+          "US-036",
+          "US-037",
+          "US-039",
+          "US-063",
+          "US-068",
+          "US-079",
+          "US-124",
+          "US-125",
+          "US-126",
+          "US-127",
+          "US-134"
+        ],
+        "epic": [
+          "EPIC-001",
+          "EPIC-002",
+          "EPIC-003",
+          "EPIC-004",
+          "EPIC-005",
+          "EPIC-007",
+          "EPIC-009",
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
       "type": "analyse",
       "title": "VERTALING-ANALYSE-RAPPORT",
       "path": "docs/VERTALING-ANALYSE-RAPPORT.md",
@@ -1041,6 +1101,42 @@
         "req": [
           "REQ-001",
           "REQ-092"
+        ]
+      }
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "ADOPTING.md — Portal & Generator Integratie",
+      "path": "docs/ADOPTING.md",
+      "url": "docs/ADOPTING.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-015"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-021"
         ]
       }
     },
@@ -25162,7 +25258,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 503,
+      "DOC": 505,
       "report": 1,
       "log": 1,
       "analyse": 1,
@@ -25192,7 +25288,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T08:47:04Z"
+    "generated_at": "2025-09-12T08:59:12Z"
   },
   "sources": [
     "docs"
