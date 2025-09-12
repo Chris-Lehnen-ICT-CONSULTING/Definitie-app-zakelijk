@@ -22,6 +22,17 @@ Gebruik
      cd docs/portal && python -m http.server 8080
      open http://localhost:8080
 
+Views
+- Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)
+- Planning: EPIC → US → BUG hiërarchie (sprint‑agnostisch); sprintfilter verschijnt alleen als sprints bestaan
+- Requirements: REQ‑overzicht met klikbare EPIC/US chips; tellen/traceability zichtbaar
+- REQ Matrix: per EPIC alle REQs als chips
+- Mijn Werk: open US/BUG gefilterd op owner/status/prioriteit; deeplinks via `#view=work&owner=…&wstatus=…&wprio=…&wonlyus=1`
+
+Snel‑filters en deeplinks
+- Type/status/prioriteit filters via UI; vrije zoek in titel/frontmatter
+- Chips (EPIC/US/REQ): direct openen; uitbreidbaar met filterdeeplinks `#q=…`
+
 Automatisering (aanbevolen)
 - Pre‑commit: draai de generator bij wijzigingen in docs/**.
 - CI: draai de generator bij iedere push/merge naar main.
@@ -30,6 +41,7 @@ Configuratie
 - Pas docs/portal/config/sources.yaml aan om extra paden in/uit te sluiten of types te mappen.
 - Voor meerdere projecten (aggregator/hub): gebruik dezelfde generator met een sources.yaml die meerdere bronnen definieert.
 
-Let op
-- Dit is een MVP‑skelet. portal.js/portal.css en de generator kunnen stapsgewijs uitgebreid worden (zoek, filters, badges, multi‑repo, etc.).
+Privacy & A11y
+- NFR’s: geen PII/secrets; sanitization; respecteer canonical/archived filters waar nodig
+- Basis A11y: toetsenbordnavigatie, aria‑labels; contrast (AA)
 
