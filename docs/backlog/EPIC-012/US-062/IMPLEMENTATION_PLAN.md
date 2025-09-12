@@ -159,8 +159,9 @@ class DefinitionOrchestratorV2:
             context=validation_context,
         )
 
-        # NIEUW: feedbackverrijking na validatie (opt-in via config/feature flag)
-        if getattr(self.config, "enable_feedback_loop", True) and self.feedback_engine:
+        # NIEUW: feedbackverrijking na validatie (opt-in via bestaande FeatureFlagManager)
+        from services.feature_flags import FeatureFlag
+        if self.feature_flags.is_enabled(FeatureFlag.AI_SUGGESTIONS) and self.feedback_engine:
             suggestions = await self.feedback_engine.process_validation_feedback(
                 definition_id=generation_id,
                 validation_result=validation_result,
@@ -258,6 +259,20 @@ class FeedbackServiceV2:
         """Genereer alternatieve suggesties per iteratie"""
 ```
 
+Output mapping naar V2 contract (ValidationResult):
+```python
+# Improvement suggestions conform V2 schema (TypedDict in services/validation/interfaces.py)
+@dataclass
+class ImprovementSuggestion:
+    type: Literal["rewrite", "addition", "removal", "restructure"]
+    description: str
+    example: str | None = None
+    impact: Literal["low", "medium", "high"] | None = None
+
+# FeedbackServiceV2 levert List[ImprovementSuggestion] die wordt geplaatst in
+# validation_result["improvement_suggestions"]
+```
+
 ---
 
 ## 🔧 Implementatie Opties
@@ -290,7 +305,7 @@ class FeedbackServiceV2:
 **Doel:** Edit mogelijkheid creëren
 - [ ] Plain text editor implementeren
 - [ ] Definitie opslaan/laden functionaliteit
-- [ ] Real-time validation integratie
+- [ ] Handmatige validatie-knop met cooldown (≥2s)
 - [ ] Version history basis
 - [ ] UI navigatie naar edit mode
 
@@ -314,8 +329,10 @@ class FeedbackServiceV2:
 - [ ] Performance optimalisatie
 - [ ] A/B testing tegen legacy
 - [ ] Gebruikersacceptatie tests
- - [ ] Single Import flow: endpoint/CLI voor “validate_imported_definition” (validatie + top‑5 feedback)
- - [ ] Bulk Import: batch API/CLI, CSV/Excel exporter (per item score + top‑3), aggregatierapport (acceptatie‑ratio, top violations, p95 duur)
+
+> Future (buiten scope van US‑062/US‑064, voor juiste stories/epics):
+> - Single Import flow → US‑027 (Import)
+> - Bulk Import rapportage → EPIC‑005/US‑062 (Bulk Import)
 
 ---
 
@@ -331,7 +348,7 @@ tests/services/feedback/
 ```
 
 ### Test Coverage Targets
-- FeedbackServiceV2: 95%+
+- FeedbackServiceV2: 80%+ (MVP), opschalen naar 90–95% in Advanced fase
 - Business logic: 100%
 - Edge cases: Stagnatie, regressie, max iteraties
 
