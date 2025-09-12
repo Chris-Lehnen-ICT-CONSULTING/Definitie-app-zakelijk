@@ -292,8 +292,10 @@ class DefinitionEditService:
                     'error': 'Definitie niet gevonden'
                 }
             
-            # Apply old value
-            if version_entry.get('definitie_oude_waarde'):
+            # Apply value from selected version (prefer new value of that entry)
+            if version_entry.get('definitie_nieuwe_waarde'):
+                current.definitie = version_entry['definitie_nieuwe_waarde']
+            elif version_entry.get('definitie_oude_waarde'):
                 current.definitie = version_entry['definitie_oude_waarde']
             
             # Apply context if available
@@ -444,40 +446,90 @@ class DefinitionEditService:
             if field in updates:
                 updated.metadata[field] = updates[field]
         
-        # Increment version
-        current_version = updated.metadata.get('version_number', 1)
-        updated.metadata['version_number'] = current_version + 1
-        
         return updated
     
     def _validate_definition(self, definition: Definition) -> Dict[str, Any]:
-        """Validate definition using validation service."""
+        """Validate definition using injected validation service (sync/async compatible)."""
         if not self.validation_service:
             return None
-        
+
         try:
-            # Run validation
-            results = self.validation_service.validate_definition(
-                definition.begrip,
-                definition.definitie,
-                definition.context or '',
-                definition.metadata.get('juridische_context', ''),
-                definition.categorie or 'proces'
-            )
-            
-            return {
-                'valid': results.overall_status == 'success',
-                'score': results.validation_score,
-                'issues': [
-                    {
-                        'rule': issue.regel_code,
-                        'message': issue.message,
-                        'severity': issue.severity
-                    }
-                    for issue in results.issues
-                ]
-            }
-            
+            import inspect
+            import asyncio
+
+            vs = self.validation_service
+
+            # Prefer validate_text if available (ValidationOrchestratorV2)
+            if hasattr(vs, 'validate_text'):
+                coro = vs.validate_text(
+                    begrip=definition.begrip,
+                    text=definition.definitie,
+                    ontologische_categorie=getattr(definition, 'ontologische_categorie', None) or definition.categorie,
+                    context=None,
+                )
+                results = asyncio.run(coro) if inspect.isawaitable(coro) else coro
+            else:
+                # Try generic validate_definition
+                maybe = None
+                # Try Definition object signature first
+                try:
+                    maybe = vs.validate_definition(definition)
+                except TypeError:
+                    # Fallback to parameterized signature
+                    maybe = vs.validate_definition(
+                        definition.begrip,
+                        definition.definitie,
+                        definition.context or '',
+                        definition.metadata.get('juridische_context', '') if definition.metadata else '',
+                        definition.categorie or 'proces',
+                    )
+
+                results = None
+                if inspect.isawaitable(maybe):
+                    results = asyncio.run(maybe)
+                else:
+                    results = maybe
+
+            # Normalize result to UI format
+            # Case 1: dict schema (ModularValidationService/Orchestrator ensure_schema)
+            if isinstance(results, dict):
+                violations = results.get('violations', []) or []
+                normalized_issues = []
+                for v in violations:
+                    rule = v.get('rule_id') or v.get('code')
+                    message = v.get('description') or v.get('message', '')
+                    severity = v.get('severity', 'warning')
+                    normalized_issues.append({'rule': rule, 'message': message, 'severity': severity})
+                return {
+                    'valid': bool(results.get('is_acceptable', False)),
+                    'score': float(results.get('overall_score', 0.0) or 0.0),
+                    'issues': normalized_issues,
+                }
+
+            # Case 2: legacy object with attributes
+            if hasattr(results, 'overall_status') or hasattr(results, 'validation_score'):
+                issues_attr = getattr(results, 'issues', []) or []
+                normalized_issues = []
+                for issue in issues_attr:
+                    try:
+                        normalized_issues.append(
+                            {
+                                'rule': getattr(issue, 'regel_code', None) or getattr(issue, 'rule', None),
+                                'message': getattr(issue, 'message', ''),
+                                'severity': getattr(issue, 'severity', 'warning'),
+                            }
+                        )
+                    except Exception:
+                        pass
+                return {
+                    'valid': getattr(results, 'overall_status', '') == 'success',
+                    'score': getattr(results, 'validation_score', 0.0) or 0.0,
+                    'issues': normalized_issues,
+                }
+
+            # Unknown format
+            return None
+
         except Exception as e:
             logger.error(f"Validation error: {e}")
             return None

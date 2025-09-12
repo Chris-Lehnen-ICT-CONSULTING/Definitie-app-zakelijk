@@ -68,16 +68,43 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         """
         self._stats["total_saves"] += 1
 
-        # Converteer Definition naar DefinitieRecord
-        record = self._definition_to_record(definition)
-
         try:
             # Gebruik legacy repository voor opslag
             if definition.id:
-                # Update bestaande
-                self.legacy_repo.update_definitie(definition.id, record)
+                # Update bestaande via updates-dict + optimistic versie
+                updates: dict[str, Any] = {}
+                updates["begrip"] = definition.begrip
+                updates["definitie"] = definition.definitie
+                updates["categorie"] = definition.categorie or "proces"
+                updates["organisatorische_context"] = definition.context or ""
+                if definition.metadata:
+                    if "juridische_context" in definition.metadata:
+                        updates["juridische_context"] = definition.metadata["juridische_context"]
+                    if "status" in definition.metadata:
+                        updates["status"] = definition.metadata["status"]
+                    if "wettelijke_basis" in definition.metadata:
+                        try:
+                            wb = definition.metadata.get("wettelijke_basis") or []
+                            if not isinstance(wb, list):
+                                wb = [wb]
+                            # legacy repo expects TEXT JSON for wettelijke_basis
+                            import json as _json
+                            updates["wettelijke_basis"] = _json.dumps(wb, ensure_ascii=False)
+                        except Exception:
+                            pass
+                    if "version_number" in definition.metadata:
+                        # Verwachte huidige versie voor optimistic locking
+                        updates["version_number"] = definition.metadata["version_number"]
+
+                updated_by = None
+                if definition.metadata and "updated_by" in definition.metadata:
+                    updated_by = definition.metadata["updated_by"]
+
+                self.legacy_repo.update_definitie(definition.id, updates, updated_by)
                 return definition.id
             # Maak nieuwe
+            # Converteer Definition naar DefinitieRecord
+            record = self._definition_to_record(definition)
             return self.legacy_repo.create_definitie(record)
 
         except Exception as e:

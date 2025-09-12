@@ -47,6 +47,7 @@ from ui.components.definition_generator_tab import (  # Hoofdtab voor definitie 
 from ui.components.definition_edit_tab import (  # Edit interface voor definities
     DefinitionEditTab,
 )
+from services.container import get_container  # Voor DI van validatie service
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.enhanced_context_manager_selector import (
@@ -141,7 +142,20 @@ class TabbedInterface:
 
         # Initialiseer alle tab componenten met repository referentie
         self.definition_tab = DefinitionGeneratorTab(self.checker)
-        self.edit_tab = DefinitionEditTab()  # Edit tab with extended repository
+
+        # Koppel validatie service aan Edit-tab (ModularValidation via Orchestrator V2)
+        try:
+            container = get_container()
+            validation_service = container.orchestrator()  # ValidationOrchestratorV2
+        except Exception as e:
+            logger.warning(
+                f"Validatie service niet beschikbaar ({type(e).__name__}: {e!s}); Edit-tab zonder validator"
+            )
+            validation_service = None
+
+        self.edit_tab = DefinitionEditTab(
+            validation_service=validation_service
+        )  # Edit tab with validator
         self.expert_tab = ExpertReviewTab(self.repository)
         self.history_tab = HistoryTab(self.repository)
         self.export_tab = ExportTab(self.repository)
@@ -1273,49 +1287,37 @@ class TabbedInterface:
                         st.rerun()
 
     def _render_main_tabs(self):
-        """Render de hoofdtabbladen."""
-        self._dbg("Main Tabs - Begin")
-        st.info(
-            f"🔍 DEBUG: Creating tabs... Available tabs: {list(self.tab_config.keys())}"
-        )
-
-        # Create tabs - dynamically add legacy tabs based on feature flags
+        """Render de hoofdtabbladen met radio-gestuurde navigatie."""
+        # Stel beschikbare keys samen (inclusief optionele legacy orchestratie)
         tab_keys = list(self.tab_config.keys())
-
-        # Add legacy orchestration tab if enabled
         if FeatureFlags.ENABLE_LEGACY_TAB.is_enabled() and self.orchestration_tab:
-            # Find position after export tab
-            export_index = (
-                tab_keys.index("export") if "export" in tab_keys else len(tab_keys)
-            )
+            export_index = tab_keys.index("export") if "export" in tab_keys else len(tab_keys)
             tab_keys.insert(export_index + 1, "orchestration")
-            # Add temporary config for orchestration tab
             self.tab_config["orchestration"] = {
                 "title": "🎭 Orchestration (Legacy)",
                 "icon": "🎭",
                 "description": "Legacy orchestratie - deprecated",
             }
 
-        tab_titles = [self.tab_config[key]["title"] for key in tab_keys]
+        # Actieve tab uit session of default
+        default_key = st.session_state.get("active_tab", "generator")
+        if default_key not in tab_keys:
+            default_key = tab_keys[0]
 
-        st.info(f"🔍 DEBUG: Tab titles: {tab_titles}")
+        # Radio-navigatie
+        selected_key = st.radio(
+            "Navigatie",
+            options=tab_keys,
+            format_func=lambda k: self.tab_config[k]["title"],
+            horizontal=True,
+            index=tab_keys.index(default_key),
+            key="main_tabs_radio",
+        )
+        # Bewaar keuze
+        st.session_state["active_tab"] = selected_key
 
-        try:
-            tabs = st.tabs(tab_titles)
-            st.success(f"✅ Created {len(tabs)} tabs")
-        except Exception as e:
-            st.error(f"❌ Failed to create tabs: {e}")
-            return
-
-        # Render each tab
-        for _i, (tab_key, tab) in enumerate(zip(tab_keys, tabs, strict=False)):
-            with tab:
-                st.info(f"🔍 DEBUG: Rendering tab: {tab_key}")
-                try:
-                    self._render_tab_content(tab_key)
-                    st.success(f"✅ Tab {tab_key} rendered")
-                except Exception as e:
-                    st.error(f"❌ Tab {tab_key} failed: {e}")
+        # Render alleen de geselecteerde tab
+        self._render_tab_content(selected_key)
 
     def _render_tab_content(self, tab_key: str):
         """Render inhoud van specifiek tabblad."""
