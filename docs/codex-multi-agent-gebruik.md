@@ -1,8 +1,12 @@
 ---
 titel: Codex Multi‑Agent Gebruik
 aangemaakt: 2025-09-10
-status: concept
+status: active
 doel: Parallelle probleemoplossing en code‑voorstellen met meerdere agents
+canonical: true
+owner: development
+last_verified: 2025-09-11
+applies_to: definitie-app@current
 ---
 
 # Codex Multi‑Agent Gebruik
