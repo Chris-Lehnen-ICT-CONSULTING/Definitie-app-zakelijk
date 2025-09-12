@@ -5607,7 +5607,9 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [],
+        "us": [
+          "US-016"
+        ],
         "epic": [
           "EPIC-003"
         ],
@@ -5618,7 +5620,9 @@
       "linked_epics": [
         "EPIC-003"
       ],
-      "linked_stories": null
+      "linked_stories": [
+        "US-016"
+      ]
     },
     {
       "id": "REQ-087",
@@ -6853,7 +6857,9 @@
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [],
+        "us": [
+          "US-015"
+        ],
         "epic": [
           "EPIC-003"
         ],
@@ -6864,7 +6870,9 @@
       "linked_epics": [
         "EPIC-003"
       ],
-      "linked_stories": null
+      "linked_stories": [
+        "US-015"
+      ]
     },
     {
       "id": "REQ-068",
@@ -24456,7 +24464,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:28:44Z"
+    "generated_at": "2025-09-12T07:32:30Z"
   },
   "sources": [
     "docs"
@@ -24745,6 +24753,9 @@
         "US-081",
         "US-082"
       ],
+      "REQ-040": [
+        "US-016"
+      ],
       "REQ-088": [
         "US-020",
         "US-051"
@@ -24752,6 +24763,9 @@
       "REQ-089": [
         "US-020",
         "US-052"
+      ],
+      "REQ-039": [
+        "US-015"
       ],
       "REQ-090": [
         "US-020",
