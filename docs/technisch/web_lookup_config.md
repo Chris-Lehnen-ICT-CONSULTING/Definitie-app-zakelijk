@@ -1,46 +1,89 @@
-# Web Lookup Configuratie (Episch Verhaal 3)
+# Web Lookup Configuratie
 
-Deze applicatie gebruikt één centrale configuratie voor de moderne web lookup en prompt‑augmentatie.
+Dit document beschrijft de standaardconfiguratie en aanbevolen gewichten voor de Web Lookup providers in DefinitieAgent.
 
-- Standaard bestand: `config/web_lookup_defaults.yaml`
-- Optionele override: zet `WEB_LOOKUP_CONFIG=/pad/naar/een/ander.yaml` als je tijdelijk een andere config wilt gebruiken.
+## Standaardconfiguratie
 
-## Kernsecties
+Bestand: `config/web_lookup_defaults.yaml`
 
-- `web_lookup.enabled`: schakel moderne web lookup in/uit (standaard: true)
-- `web_lookup.providers` per provider:
-  - `enabled`: bron aan/uit
-  - `weight`: relatieve weging voor ranking
-  - `timeout`: timeouts in seconden
-  - `cache_ttl`: cache TTL in seconden (voor toekomstige caching)
-  - `min_score`: minimum score OM mee te nemen
-- `web_lookup.cache` (voor toekomstige caching): strategy, ttl, max_entries
-- `web_lookup.sanitization`: beleid voor het veilig opschonen van snippets
-- `web_lookup.context_mappings`: optionele, domeinspecifieke hints
-- `web_lookup.prompt_augmentation`:
-  - `enabled`: voeg top‑K context toe aan de prompt
-  - `max_snippets`: maximum aantal snippets
-  - `max_tokens_per_snippet`: token‑budget per snippet (approx)
-  - `total_token_budget`: totaal token‑budget (approx)
-  - `prioritize_juridical`: autoritatieve bronnen eerst
-  - `section_header`: koptekst van de contextsectie
-  - `snippet_separator`: scheidingsteken per snippet
-  - `position`: `prepend`, `after_context` of `before_examples`
+```yaml
+web_lookup:
+  enabled: true
 
-## Gedrag
+  cache:
+    strategy: "stale-while-revalidate"
+    grace_period: 300
+    default_ttl: 3600
+    max_entries: 1000
 
-- Zonder env‑variabelen gebruikt de app altijd `config/web_lookup_defaults.yaml`.
-- Als `WEB_LOOKUP_CONFIG` is gezet, wordt dat pad gebruikt (hoogste prioriteit).
-- Prompt‑augmentatie staat standaard aan in de defaults.
+  sanitization:
+    strip_tags: [script, style, iframe, object, embed, form]
+    block_protocols: [javascript, data, vbscript]
+    max_snippet_length: 500
 
-## Waar dit gebruikt wordt
+  providers:
+    wikipedia:
+      enabled: true
+      weight: 0.7
+      timeout: 5
+      cache_ttl: 7200
+      min_score: 0.3
 
-- `ModernWebLookupService`: leest provider‑instellingen en wegingen
-- `DefinitionOrchestratorV2`: verrijkt context en schrijft `definition.metadata["sources"]`
-- `PromptServiceV2`: injecteert optioneel een contextsectie in de prompt
-- UI (`definition_generator_tab`): toont “📚 Gebruikte Bronnen” uit `metadata.sources`
+    sru_overheid:
+      enabled: true
+      weight: 1.0
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
 
-## Snelle validatie
+    wetgeving_nl:
+      enabled: true
+      weight: 0.9
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
 
-- Unit/integratie: `pytest -q tests/web_lookup`
-- App (dev): `streamlit run src/main.py` en een definitie genereren; controleer bronnen en promptsectie.
+    rechtspraak_ecli:
+      enabled: true
+      weight: 0.9
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+
+    eur_lex:
+      enabled: true
+      weight: 0.6
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.3
+
+    wikidata:
+      enabled: true
+      weight: 0.3
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.2
+
+    dbpedia:
+      enabled: true
+      weight: 0.2
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.2
+```
+
+## Aanbevolen gewichten
+
+- Juridisch (SRU/Wetgeving.nl/Rechtspraak): 0.8–1.0
+- Wikipedia: 0.6–0.8
+- EUR‑Lex: 0.5–0.7
+- Wikidata/DBpedia (verrijking): 0.2–0.4
+
+## NFR‑richtlijnen (veilige scraping)
+
+- Respecteer robots.txt en Terms of Service
+- Timeout ≤ 5s per provider; rate limiting + exponential backoff
+- Sanitization van HTML/markup (XSS‑preventie) vóór parsing
+- Geen PII verzamelen/loggen; AVG/BIR‑conform
+- Eenduidige User‑Agent; volledige provenance; beknopte audit logging
+
