@@ -2032,6 +2032,150 @@
       }
     },
     {
+      "id": "US-017",
+      "type": "feature",
+      "title": "Content Validatie & Filtering",
+      "path": "docs/backlog/EPIC-003/US-017/US-017.md",
+      "url": "docs/backlog/EPIC-003/US-017/US-017.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "KRITIEK",
+      "owner": "QA Team",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 1,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-017.md",
+      "_refs": {
+        "us": [
+          "US-017"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-039"
+        ]
+      }
+    },
+    {
+      "id": "US-019",
+      "type": "feature",
+      "title": "Cache Management (Web Lookup)",
+      "path": "docs/backlog/EPIC-003/US-019/US-019.md",
+      "url": "docs/backlog/EPIC-003/US-019/US-019.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": "DevOps",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-019.md",
+      "_refs": {
+        "us": [
+          "US-019"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-012"
+        ]
+      }
+    },
+    {
+      "id": "US-018",
+      "type": "feature",
+      "title": "Source Attribution System",
+      "path": "docs/backlog/EPIC-003/US-018/US-018.md",
+      "url": "docs/backlog/EPIC-003/US-018/US-018.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-018.md",
+      "_refs": {
+        "us": [
+          "US-018"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-040"
+        ]
+      }
+    },
+    {
+      "id": "US-016",
+      "type": "feature",
+      "title": "SRU Legal Database Integratie",
+      "path": "docs/backlog/EPIC-003/US-016/US-016.md",
+      "url": "docs/backlog/EPIC-003/US-016/US-016.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-016.md",
+      "_refs": {
+        "us": [
+          "US-016"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-021"
+        ]
+      }
+    },
+    {
       "id": "US-014",
       "type": "feature",
       "title": "Modern Web Lookup Implementatie",
@@ -2131,6 +2275,42 @@
         "us": [],
         "epic": [],
         "req": []
+      }
+    },
+    {
+      "id": "US-015",
+      "type": "feature",
+      "title": "Wikipedia API Integratie",
+      "path": "docs/backlog/EPIC-003/US-015/US-015.md",
+      "url": "docs/backlog/EPIC-003/US-015/US-015.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-015.md",
+      "_refs": {
+        "us": [
+          "US-015"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-021"
+        ]
       }
     },
     {
@@ -24132,7 +24312,7 @@
       "analyse": 1,
       "compliance-report": 1,
       "technische-analyse": 1,
-      "feature": 20,
+      "feature": 25,
       "BUG": 5,
       "Prestaties": 1,
       "technical-debt": 2,
@@ -24156,7 +24336,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:07:16Z"
+    "generated_at": "2025-09-12T07:11:40Z"
   },
   "sources": [
     "docs"
