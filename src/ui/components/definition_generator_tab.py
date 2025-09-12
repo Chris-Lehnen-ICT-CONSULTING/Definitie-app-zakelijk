@@ -865,7 +865,11 @@ class DefinitionGeneratorTab:
 
     def _edit_existing_definition(self, definitie: DefinitieRecord):
         """Bewerk bestaande definitie."""
-        st.info("🔄 Navigating to edit interface...")
+        # Zet doel definitie en navigeer programmatic naar radio‑tab 'edit'
+        SessionStateManager.set_value("editing_definition_id", definitie.id)
+        st.session_state["active_tab"] = "edit"
+        st.success("✏️ Bewerk-tab geopend — laden van definitie…")
+        st.rerun()
 
     def _edit_definition(self, definitie: DefinitieRecord):
         """Bewerk gegenereerde definitie."""

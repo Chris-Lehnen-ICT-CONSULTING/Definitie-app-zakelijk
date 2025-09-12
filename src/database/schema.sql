@@ -95,7 +95,7 @@ CREATE TABLE definitie_geschiedenis (
     definitie_nieuwe_waarde TEXT,
 
     -- Change metadata
-    wijziging_type VARCHAR(50) NOT NULL CHECK (wijziging_type IN ('created', 'updated', 'status_changed', 'approved', 'archived')),
+    wijziging_type VARCHAR(50) NOT NULL CHECK (wijziging_type IN ('created', 'updated', 'status_changed', 'approved', 'archived', 'auto_save')),
     wijziging_reden TEXT,
 
     -- User info

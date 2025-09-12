@@ -48,6 +48,21 @@ class DefinitionEditTab:
         """Render de edit tab interface."""
         st.markdown("## ✏️ Definitie Editor")
         st.markdown("Bewerk definities met een rijke text editor, versiegeschiedenis en auto-save functionaliteit.")
+
+        # Auto-start bewerksessie als er al een target ID is gezet (bijv. via generator-tab)
+        try:
+            target_id = st.session_state.get('editing_definition_id')
+            if target_id and not st.session_state.get('editing_definition'):
+                # Probeer sessie te starten zodat geschiedenis/auto-save beschikbaar zijn
+                session = self.edit_service.start_edit_session(
+                    target_id,
+                    user=st.session_state.get('user', 'system')
+                )
+                if session and session.get('success'):
+                    st.session_state.editing_definition = session.get('definition')
+                    st.session_state.edit_session = session
+        except Exception:
+            pass
         
         # Main layout
         col1, col2 = st.columns([2, 1])
@@ -211,6 +226,9 @@ class DefinitionEditTab:
     
     def _render_action_buttons(self):
         """Render action buttons for saving and validation."""
+        # Reden voor wijziging (persistente input boven de knoppen)
+        st.text_input("Reden voor wijziging (optioneel)", key="save_reason")
+
         col1, col2, col3, col4 = st.columns(4)
         
         with col1:
@@ -385,9 +403,10 @@ class DefinitionEditTab:
                 st.session_state.editing_definition = session['definition']
                 st.session_state.edit_session = session
                 
-                # Check for auto-save
+                # Check for auto-save en bied herstelknop
                 if session.get('auto_save'):
-                    if st.confirm("Er is een auto-save gevonden. Wil je deze herstellen?"):
+                    st.info("💾 Auto-save gevonden voor deze definitie.")
+                    if st.button("Herstel auto-save", key="restore_auto_save_btn"):
                         self._restore_auto_save(session['auto_save'])
                 
                 st.success("✅ Edit sessie gestart")
@@ -427,7 +446,7 @@ class DefinitionEditTab:
                 definition_id,
                 updates,
                 user=st.session_state.get('user', 'system'),
-                reason=st.text_input("Reden voor wijziging (optioneel)", key="save_reason"),
+                reason=st.session_state.get('save_reason'),
                 validate=True
             )
             
@@ -585,8 +604,16 @@ class DefinitionEditTab:
                 changed = True
                 break
         
-        # Auto-save if changed
+        # Auto-save if changed and interval verstreken
         if changed:
+            last = st.session_state.get('last_auto_save')
+            if last:
+                try:
+                    elapsed = datetime.now() - last
+                    if elapsed.total_seconds() < 30:
+                        return  # throttle
+                except Exception:
+                    pass
             self._perform_auto_save()
     
     def _perform_auto_save(self):
