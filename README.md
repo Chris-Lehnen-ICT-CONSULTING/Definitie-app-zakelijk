@@ -373,6 +373,15 @@ Zie de documentatie in `docs/guidelines/` voor development guidelines.
 - Browse [Architecture](docs/architectuur/) voor technische details
 - Zie [User Stories](docs/backlog/stories/MASTER-EPICS-USER-STORIES.md) voor features
 
+## 🗄️ Database Richtlijnen (Nieuw)
+
+- Enige actieve database: `data/definities.db`.
+- Initialisatie/migratie via `src/database/schema.sql` en `python src/database/migrate_database.py`.
+- Geen DB-bestanden in de root of elders; verwijder stray `*.db`, `*.db-shm`, `*.db-wal` buiten `data/`.
+- Backups (optioneel) onder `data/backups/` (niet onder versiebeheer).
+- Fallback-schema in code is noodpad; voorkeur is altijd laden vanaf `schema.sql`.
+- Richtlijnen: zie `docs/guidelines/DATABASE_GUIDELINES.md`.
+
 ## 📜 License
 
 Private project. All rights reserved.

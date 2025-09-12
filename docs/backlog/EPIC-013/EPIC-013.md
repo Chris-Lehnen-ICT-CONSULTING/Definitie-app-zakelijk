@@ -32,6 +32,7 @@ stories:
 - US-104
 - US-105
 - US-106
+- US-107
 target_release: v1.5
 titel: Centrale Documentatie‑Portal (Interactief & Auto‑sync)
 vereisten:

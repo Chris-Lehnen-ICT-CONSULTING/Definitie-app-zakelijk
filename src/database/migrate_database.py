@@ -54,6 +54,10 @@ def get_missing_columns(conn: sqlite3.Connection) -> list[tuple[str, str]]:
     if not check_column_exists(conn, "definities", "ketenpartners"):
         missing.append(("ketenpartners", "TEXT"))
 
+    # Check wettelijke_basis (JSON stored as TEXT)
+    if not check_column_exists(conn, "definities", "wettelijke_basis"):
+        missing.append(("wettelijke_basis", "TEXT"))
+
     return missing
 
 
@@ -86,7 +90,11 @@ def migrate_database(db_path: str = "data/definities.db"):
             logger.info(f"Ontbrekende kolommen gevonden: {missing_columns}")
 
             # Voeg ontbrekende kolommen toe - Use whitelist for security
-            allowed_columns = {"datum_voorstel": "TIMESTAMP", "ketenpartners": "TEXT"}
+            allowed_columns = {
+                "datum_voorstel": "TIMESTAMP",
+                "ketenpartners": "TEXT",
+                "wettelijke_basis": "TEXT",
+            }
 
             for column_name, column_type in missing_columns:
                 # Security check: only allow predefined columns

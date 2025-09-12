@@ -28,6 +28,8 @@ CREATE TABLE definities (
     -- Context informatie
     organisatorische_context VARCHAR(255) NOT NULL,
     juridische_context VARCHAR(255),
+    -- Wettelijke basis (JSON array als TEXT)
+    wettelijke_basis TEXT,
 
     -- Status management
     status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'established', 'archived')),
@@ -240,7 +242,8 @@ BEGIN
             'oude_status', OLD.status,
             'nieuwe_status', NEW.status,
             'organisatorische_context', NEW.organisatorische_context,
-            'juridische_context', NEW.juridische_context
+            'juridische_context', NEW.juridische_context,
+            'wettelijke_basis', NEW.wettelijke_basis
         )
     );
 END;

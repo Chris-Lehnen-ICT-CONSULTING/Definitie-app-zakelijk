@@ -291,6 +291,8 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 - Testen: `docs/testing/`
 - Projectkaders: `README.md`, `CLAUDE.md`
 - Claude Code Agents: `~/\.claude/agents/` (inclusief `workflow-router.md` en `workflows/workflows.yaml`)
+ - Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`
+ - Multi‑Agent Cheatsheet & Prompt Presets: `docs/snippets/CODEX_PROMPT_PRESETS.md`
 
 ---
 

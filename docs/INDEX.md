@@ -52,6 +52,9 @@
 - **[🔍 Vertaling Analyse Rapport](./VERTALING-ANALYSE-RAPPORT.md)** 🆕 - Taalstatus & compliance analyse
 - **[🗺️ Traceability Matrix](./TRACEABILITY-MATRIX.md)** 🆕 - Vereisten ↔ Epische Verhalen ↔ Stories mapping
 
+### 🗄️ Database
+- **[Database Richtlijnen](./guidelines/DATABASE_GUIDELINES.md)** 🆕 – Enige actieve DB: `data/definities.db`, init/migratie via schema.sql
+
 ### 🚀 Document Cleanup Reports (8 September 2025)
 - **[📈 QUALITY METRICS FINAL](./QUALITY-METRICS-FINAL.md)** 🔥 **NIEUW** - Quality score: 34% → 78% improvement
 - **[📊 COMPLIANCE DASHBOARD](./COMPLIANCE-DASHBOARD.md)** 🔥 **NIEUW** - ASTRA/NORA/Justice compliance status
@@ -140,6 +143,7 @@
 - [Frontend Guide](./frontend/AI-FRONTEND-PROMPT-NL.md) ✅
 - See Guidelines & Standards section for development workflows
 - [🧩 Multi‑Agent Handleiding](./codex-multi-agent-gebruik.md) ✅ Parallelle agents, quick‑checks & scoreboard
+- [🧰 Multi‑Agent Cheatsheet & Prompt Presets](./snippets/CODEX_PROMPT_PRESETS.md) ✅ Deep‑analysis prompt, pre‑flight checklist, kerncommando’s
 
 ## 📂 Huidige Directory Structuur
 
