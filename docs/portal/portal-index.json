@@ -2018,7 +2018,9 @@
           "US-079",
           "US-080",
           "US-081",
-          "US-082"
+          "US-082",
+          "US-083",
+          "US-084"
         ],
         "epic": [
           "EPIC-001",
@@ -2457,6 +2459,78 @@
         ],
         "req": [
           "REQ-012",
+          "REQ-021"
+        ]
+      }
+    },
+    {
+      "id": "US-084",
+      "type": "feature",
+      "title": "DBpedia Integratie (SPARQL)",
+      "path": "docs/backlog/EPIC-003/US-084/US-084.md",
+      "url": "docs/backlog/EPIC-003/US-084/US-084.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "LAAG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-084.md",
+      "_refs": {
+        "us": [
+          "US-084"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-021"
+        ]
+      }
+    },
+    {
+      "id": "US-083",
+      "type": "feature",
+      "title": "Wikidata Integratie (SPARQL)",
+      "path": "docs/backlog/EPIC-003/US-083/US-083.md",
+      "url": "docs/backlog/EPIC-003/US-083/US-083.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "LAAG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-083.md",
+      "_refs": {
+        "us": [
+          "US-083"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
           "REQ-021"
         ]
       }
@@ -5294,7 +5368,9 @@
       "parent_us": null,
       "_refs": {
         "us": [],
-        "epic": [],
+        "epic": [
+          "EPIC-003"
+        ],
         "req": []
       }
     },
@@ -5938,7 +6014,7 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Archief → Backlog Mapping",
+      "title": "Archief → Backlog Mapping (Verfijnd)",
       "path": "docs/backlog/requirements/ARCHIVE_TO_BACKLOG_MAPPING.md",
       "url": "docs/backlog/requirements/ARCHIVE_TO_BACKLOG_MAPPING.md",
       "status": null,
@@ -5963,44 +6039,24 @@
         "us": [
           "US-001",
           "US-002",
-          "US-003",
-          "US-004",
-          "US-005",
+          "US-006",
           "US-007",
-          "US-009",
-          "US-010",
-          "US-012",
           "US-014",
-          "US-015",
-          "US-016",
-          "US-017",
-          "US-018",
-          "US-019",
           "US-020",
           "US-021",
-          "US-023",
+          "US-022",
           "US-024",
           "US-025",
           "US-026",
           "US-027",
           "US-028",
-          "US-029",
-          "US-042",
-          "US-051",
-          "US-053",
-          "US-056",
-          "US-057",
+          "US-031",
           "US-060",
           "US-062",
           "US-063",
-          "US-064",
           "US-067",
-          "US-069",
-          "US-072",
-          "US-079",
-          "US-107",
-          "US-111",
-          "US-117"
+          "US-068",
+          "US-079"
         ],
         "epic": [
           "EPIC-001",
@@ -6011,10 +6067,7 @@
           "EPIC-006",
           "EPIC-007",
           "EPIC-008",
-          "EPIC-009",
-          "EPIC-010",
-          "EPIC-012",
-          "EPIC-014"
+          "EPIC-009"
         ],
         "req": []
       }
@@ -24524,7 +24577,7 @@
       "analyse": 1,
       "compliance-report": 1,
       "technische-analyse": 1,
-      "feature": 28,
+      "feature": 30,
       "BUG": 5,
       "Prestaties": 1,
       "technical-debt": 2,
@@ -24548,7 +24601,7 @@
       "implementation-plan": 1,
       "GUIDE": 9
     },
-    "generated_at": "2025-09-12T07:36:34Z"
+    "generated_at": "2025-09-12T07:44:45Z"
   },
   "sources": [
     "docs"

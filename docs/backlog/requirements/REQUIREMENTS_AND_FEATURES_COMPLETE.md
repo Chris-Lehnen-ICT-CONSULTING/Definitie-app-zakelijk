@@ -148,6 +148,8 @@ DefinitieAgent is een AI-powered tool voor het genereren van hoogwaardige Nederl
 
 ### Episch Verhaal 8: Web Lookup Module 🔄 (10% Compleet)
 
+> Archief-notitie: Dit episch verhaal is in de actuele backlog ondergebracht bij `EPIC-003` (Content Verrijking & Web Lookup). Gebruik EPIC-003 voor planning en status.
+
 #### Gebruikersverhalen
 | ID | Story | Status | Acceptatiecriteria | Notes |
 |----|-------|--------|-------------------|-------|
