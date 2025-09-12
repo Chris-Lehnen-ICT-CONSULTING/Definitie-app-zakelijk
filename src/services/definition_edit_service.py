@@ -460,6 +460,25 @@ class DefinitionEditService:
             vs = self.validation_service
 
             # Prefer validate_text if available (ValidationOrchestratorV2)
+            def _run_async(coro):
+                import asyncio, threading
+                try:
+                    return asyncio.run(coro)
+                except RuntimeError:
+                    # Fallback: run coroutine in a separate thread with its own loop
+                    holder = {}
+                    err = {}
+                    def _runner():
+                        try:
+                            holder['v'] = asyncio.run(coro)
+                        except Exception as e:  # pragma: no cover
+                            err['e'] = e
+                    t = threading.Thread(target=_runner, daemon=True)
+                    t.start(); t.join()
+                    if 'e' in err:
+                        raise err['e']
+                    return holder.get('v')
+
             if hasattr(vs, 'validate_text'):
                 coro = vs.validate_text(
                     begrip=definition.begrip,
@@ -467,7 +486,7 @@ class DefinitionEditService:
                     ontologische_categorie=getattr(definition, 'ontologische_categorie', None) or definition.categorie,
                     context=None,
                 )
-                results = asyncio.run(coro) if inspect.isawaitable(coro) else coro
+                results = _run_async(coro) if inspect.isawaitable(coro) else coro
             else:
                 # Try generic validate_definition
                 maybe = None
@@ -486,7 +505,7 @@ class DefinitionEditService:
 
                 results = None
                 if inspect.isawaitable(maybe):
-                    results = asyncio.run(maybe)
+                    results = _run_async(maybe)
                 else:
                     results = maybe
 
