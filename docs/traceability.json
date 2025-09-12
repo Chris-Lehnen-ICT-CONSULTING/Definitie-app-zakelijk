@@ -119,7 +119,10 @@
       "US-017",
       "US-018",
       "US-019",
-      "US-079"
+      "US-079",
+      "US-080",
+      "US-081",
+      "US-082"
     ],
     "requirements": [
       "REQ-014",
@@ -128,7 +131,8 @@
       "REQ-039",
       "REQ-040",
       "REQ-012",
-      "REQ-021"
+      "REQ-021",
+      "REQ-015"
     ],
     "dependencies": [],
     "referenced_by": [
