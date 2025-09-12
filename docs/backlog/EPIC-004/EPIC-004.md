@@ -20,6 +20,10 @@ stories:
 - US-064
 - US-067
 - US-068
+- US-069
+- US-070
+- US-071
+- US-110
 target_release: v1.2
 titel: User Interface
 vereisten:

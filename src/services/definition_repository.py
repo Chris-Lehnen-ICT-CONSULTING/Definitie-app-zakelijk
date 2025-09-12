@@ -354,6 +354,16 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 record.source_reference = definition.metadata["source_reference"]
             if "created_by" in definition.metadata:
                 record.created_by = definition.metadata["created_by"]
+            # Wettelijke basis (lijst) → JSON TEXT kolom
+            if "wettelijke_basis" in definition.metadata:
+                try:
+                    wet_list = definition.metadata.get("wettelijke_basis") or []
+                    if not isinstance(wet_list, list):
+                        wet_list = [wet_list]
+                    record.set_wettelijke_basis(wet_list)
+                except Exception:
+                    # Veiligheid: sla invalid type stil over
+                    pass
 
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
@@ -387,6 +397,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             metadata={
                 "status": record.status,
                 "juridische_context": record.juridische_context,
+                "wettelijke_basis": record.get_wettelijke_basis_list(),
                 "validation_score": record.validation_score,
                 "source_type": record.source_type,
                 "created_by": record.created_by,

@@ -71,6 +71,8 @@ class DefinitieRecord:
     categorie: str = ""  # Ontologische categorie
     organisatorische_context: str = ""  # Organisatie context
     juridische_context: str | None = ""  # Juridische context
+    # Wettelijke basis (JSON array als TEXT)
+    wettelijke_basis: str | None = None
 
     # Status en versioning - Houdt bij in welke fase de definitie zich bevindt
     status: str = DefinitieStatus.DRAFT.value  # Huidige status van de definitie
@@ -145,6 +147,20 @@ class DefinitieRecord:
         """
         # Converteer lijst naar JSON string en sla op
         self.validation_issues = json.dumps(issues, ensure_ascii=False)
+
+    # Wettelijke basis helpers
+    def get_wettelijke_basis_list(self) -> list[str]:
+        """Haal wettelijke basis op als list."""
+        if not self.wettelijke_basis:
+            return []
+        try:
+            return json.loads(self.wettelijke_basis)
+        except json.JSONDecodeError:
+            return []
+
+    def set_wettelijke_basis(self, basis: list[str]):
+        """Set wettelijke basis als JSON string."""
+        self.wettelijke_basis = json.dumps(basis, ensure_ascii=False)
 
     def get_export_destinations_list(self) -> list[str]:
         """Haal export destinations op als list.
@@ -339,6 +355,7 @@ class DefinitieRepository:
                         categorie VARCHAR(50) NOT NULL DEFAULT 'proces',
                         organisatorische_context VARCHAR(255) NOT NULL,
                         juridische_context VARCHAR(255),
+                        wettelijke_basis TEXT,
                         status VARCHAR(50) NOT NULL DEFAULT 'draft',
                         version_number INTEGER NOT NULL DEFAULT 1,
                         validation_score DECIMAL(3,2),
@@ -432,14 +449,14 @@ class DefinitieRepository:
                     """
                     INSERT INTO definities (
                         begrip, definitie, categorie, organisatorische_context, juridische_context,
-                        status, version_number, previous_version_id,
+                        wettelijke_basis, status, version_number, previous_version_id,
                         validation_score, validation_date, validation_issues,
                         source_type, source_reference, imported_from,
                         created_at, updated_at, created_by, updated_by,
                         approved_by, approved_at, approval_notes,
                         last_exported_at, export_destinations,
                         datum_voorstel, ketenpartners
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     (
                         record.begrip,
@@ -447,6 +464,7 @@ class DefinitieRepository:
                         record.categorie,
                         record.organisatorische_context,
                         record.juridische_context,
+                        record.wettelijke_basis,
                         record.status,
                         record.version_number,
                         record.previous_version_id,
@@ -475,13 +493,13 @@ class DefinitieRepository:
                     """
                     INSERT INTO definities (
                         begrip, definitie, categorie, organisatorische_context, juridische_context,
-                        status, version_number, previous_version_id,
+                        wettelijke_basis, status, version_number, previous_version_id,
                         validation_score, validation_date, validation_issues,
                         source_type, source_reference, imported_from,
                         created_at, updated_at, created_by, updated_by,
                         approved_by, approved_at, approval_notes,
                         last_exported_at, export_destinations
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     (
                         record.begrip,
@@ -489,6 +507,7 @@ class DefinitieRepository:
                         record.categorie,
                         record.organisatorische_context,
                         record.juridische_context,
+                        record.wettelijke_basis,
                         record.status,
                         record.version_number,
                         record.previous_version_id,
@@ -713,6 +732,10 @@ class DefinitieRepository:
                 "improved_version",
                 "context_info",
                 "metadata",
+                # context fields
+                "organisatorische_context",
+                "juridische_context",
+                "wettelijke_basis",
             }
 
             set_clauses = []
@@ -1018,6 +1041,7 @@ class DefinitieRepository:
             categorie=row["categorie"],
             organisatorische_context=row["organisatorische_context"],
             juridische_context=row["juridische_context"],
+            wettelijke_basis=row.get("wettelijke_basis") if isinstance(row, dict) else row["wettelijke_basis"],
             status=row["status"],
             version_number=row["version_number"],
             previous_version_id=row["previous_version_id"],

@@ -209,6 +209,10 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 - Schema gedefinieerd in `src/database/schema.sql`
 - Migraties in `src/database/migrations/`
 - UTF-8 encoding ondersteuning voor Nederlandse juridische tekst
+ - Enig toegestaan actief pad: `data/definities.db` (geen DB in root of elders)
+ - Initialiseer/migreer via `schema.sql` en `src/database/migrate_database.py`
+ - Verwijder stray `*.db`, `*.db-shm`, `*.db-wal` buiten `data/`
+ - Fallback CREATE in code is een noodpad; gebruik primair `schema.sql`
 
 ## Kritieke Performance Overwegingen
 
