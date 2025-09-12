@@ -27,6 +27,41 @@ web_lookup:
       cache_ttl: 3600
       min_score: 0.4
 
+    wetgeving_nl:
+      enabled: true
+      weight: 0.9
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+
+    rechtspraak_ecli:
+      enabled: true
+      weight: 0.9
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+
+    eur_lex:
+      enabled: true
+      weight: 0.6
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.3
+
+    wikidata:
+      enabled: true
+      weight: 0.3   # low priority enrichment
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.2
+
+    dbpedia:
+      enabled: true
+      weight: 0.2   # low priority enrichment
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.2
+
   context_mappings:
     DJI: ["Pbw", "WvSr"]
     OM: ["WvSv"]
