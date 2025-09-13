@@ -6647,34 +6647,30 @@
     {
       "id": "REQ-093",
       "type": "REQ",
-      "title": "Navigatie – Terug naar Portal vanuit geopende documenten",
+      "title": "Approval Gate Policy Management",
       "path": "../backlog/requirements/REQ-093.md",
       "url": "../backlog/requirements/REQ-093.md",
-      "status": "Backlog",
-      "prioriteit": "GEMIDDELD",
+      "status": "backlog",
+      "prioriteit": null,
       "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": "requirement",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "functional",
       "sprint": null,
       "story_points": null,
       "completion": null,
       "target_release": null,
       "planning": {
         "sprint_number": null,
-        "priority_rank": 3,
+        "priority_rank": 5,
         "type_rank": 4
       },
       "parent_epic": null,
       "parent_us": null,
       "_refs": {
-        "us": [
-          "US-160"
-        ],
-        "epic": [
-          "EPIC-013"
-        ],
+        "us": [],
+        "epic": [],
         "req": [
           "REQ-093"
         ]
@@ -6682,9 +6678,7 @@
       "linked_epics": [
         "EPIC-013"
       ],
-      "linked_stories": [
-        "US-160"
-      ]
+      "linked_stories": null
     },
     {
       "id": "REQ-011",
@@ -26873,7 +26867,7 @@
       "ARCH": 22,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T08:02:11Z"
+    "generated_at": "2025-09-13T08:02:24Z"
   },
   "sources": [
     "docs"
@@ -27167,9 +27161,6 @@
         "US-080",
         "US-081",
         "US-082"
-      ],
-      "REQ-093": [
-        "US-160"
       ],
       "REQ-040": [
         "US-016"
