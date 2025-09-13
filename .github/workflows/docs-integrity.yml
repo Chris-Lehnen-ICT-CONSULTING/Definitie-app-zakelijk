@@ -34,4 +34,21 @@ jobs:
 
       - name: Generate Portal
         run: |
-          bash scripts/docs/run_portal_generator.sh
+          python3 scripts/docs/generate_portal.py
+
+      - name: Drift Check (portal outputs up-to-date)
+        run: |
+          # Fail if regenerated portal differs from committed state
+          git add docs/portal/index.html docs/portal/portal-index.json
+          if ! git diff --cached --exit-code -- docs/portal/index.html docs/portal/portal-index.json; then
+            echo "::error ::Portal outputs are out-of-date. Run: python scripts/docs/generate_portal.py and commit the changes." >&2
+            exit 1
+          fi
+
+      - name: Upload Portal Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: portal-build
+          path: |
+            docs/portal/index.html
+            docs/portal/portal-index.json
