@@ -81,6 +81,7 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 | US-075 | Centraliseer async/sync-bridging | HIGH | 5 | TODO |
 | US-076 | Validators JSON-first + basisklasse | MEDIUM | 8 | TODO |
 | US-078 | Test-hygiëne, scheiding bron/test | LOW | 2 | TODO |
+| [US-170](./US-170/US-170.md) | Koppel Orchestration-tab aan V2 Orchestrator (UI wiring) | HIGH | 5 | TODO |
 
 **Totaal Story Points**: 51 (was 29) + 31 (US-071..US-076, US-078) = 82
 
