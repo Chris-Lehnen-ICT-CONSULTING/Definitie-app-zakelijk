@@ -252,8 +252,7 @@
         const pts = d.story_points?`SP:${d.story_points}`:null;
         const rel = d.target_release?`rel:${d.target_release}`:null;
         meta.textContent=[d.status,d.owner,d.prioriteit,sp,pts,rel,d.canonical?'canonical':null].filter(Boolean).join(' • ');
-        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open';
-        link.target='_blank';
+        const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         li.append(type,title,meta,link); list.appendChild(li);
       });
     }

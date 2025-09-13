@@ -13,6 +13,7 @@ import json
 import re
 import sys
 from pathlib import Path
+import os
 from datetime import datetime
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -72,9 +73,97 @@ def classify(path: Path) -> str:
     return "DOC"
 
 
+# Canonical type set used by the portal UI
+ALLOWED_TYPES = {"REQ", "EPIC", "US", "BUG", "ARCH", "GUIDE", "TEST", "COMP", "DOC"}
+
+# Lightweight synonym mapping from frontmatter 'type' → canonical portal type
+# Only applied when path heuristic returns DOC.
+TYPE_SYNONYMS = {
+    # user stories
+    "story": "US",
+    "user_story": "US",
+    "user story": "US",
+    # bugs / defects
+    "bug": "BUG",
+    "defect": "BUG",
+    "issue": "BUG",
+    # requirements
+    "requirement": "REQ",
+    # architecture / design
+    "architecture": "ARCH",
+    "architectuur": "ARCH",
+    "design": "ARCH",
+    # guides / handbooks / how-to
+    "guide": "GUIDE",
+    "gids": "GUIDE",
+    "howto": "GUIDE",
+    "how-to": "GUIDE",
+    "manual": "GUIDE",
+    # testing / qa
+    "test": "TEST",
+    "testing": "TEST",
+    "qa": "TEST",
+    # components / compliance
+    "component": "COMP",
+    "comp": "COMP",
+    "compliance": "COMP",
+    # generic reports / logs / analyses → treat as DOC in the portal
+    "report": "DOC",
+    "rapport": "DOC",
+    "log": "DOC",
+    "analysis": "DOC",
+    "analyse": "DOC",
+    "technische-analyse": "DOC",
+    "tech-analysis": "DOC",
+    "compliance-report": "DOC",
+    # generic catch-alls
+    "feature": "DOC",
+    # additional safe catch-alls frequently seen
+    "enhancement": "DOC",
+    "feature-enhancement": "DOC",
+    "technical-debt": "DOC",
+    "technical_debt": "DOC",
+    "technical-improvement": "DOC",
+    "tooling": "DOC",
+    "refactor": "DOC",
+    "implementation-plan": "GUIDE",
+    "ci-cd": "DOC",
+    "business-requirements": "REQ",
+    "audit-report": "DOC",
+    "prestaties": "DOC",
+    # bug synonyms
+    "bug-fix": "BUG",
+    "bugfix": "BUG",
+}
+
+
+def normalize_type(classified: str, fm_type: object) -> str:
+    """Return a canonical portal type.
+
+    - If a file is heuristically classified (not DOC), keep that.
+    - Else, map frontmatter 'type' through synonyms; default to DOC when unknown.
+    """
+    if classified and classified != "DOC":
+        return str(classified)
+    if not fm_type:
+        return "DOC"
+    key = str(fm_type).strip().lower()
+    mapped = TYPE_SYNONYMS.get(key)
+    if mapped:
+        return mapped
+    # If user already used a canonical label, accept it; else fall back to DOC
+    up = str(fm_type).strip().upper()
+    return up if up in ALLOWED_TYPES else "DOC"
+
+
 def rel_url(path: Path) -> str:
-    # linkbaar in repo viewer; voor lokaal gebruik blijft href naar pad werken
-    return str(path.as_posix())
+    """Maak paden relatief t.o.v. docs/portal/ zodat openen vanuit index.html werkt."""
+    try:
+        abs_path = (ROOT / path).resolve()
+    except Exception:
+        abs_path = path if path.is_absolute() else (ROOT / path).resolve()
+    rel = os.path.relpath(abs_path, start=PORTAL)
+    return Path(rel).as_posix()
 
 
 def load_traceability() -> dict:
@@ -85,6 +174,9 @@ def load_traceability() -> dict:
         return json.loads(tpath.read_text(encoding="utf-8"))
     except Exception:
         return {}
+
+
+# (Geen pre-rendering of viewer rendering in deze fase – alleen index/JSON output)
 
 
 def scan_docs() -> list[dict]:
@@ -100,7 +192,7 @@ def scan_docs() -> list[dict]:
         title = fm.get("titel") or fm.get("title") or first_heading(text) or md.stem
         classified = classify(md)
         fm_type = fm.get("type")
-        doc_type = classified if classified != "DOC" else (fm_type or classified)
+        doc_type = normalize_type(classified, fm_type)
 
         # Planning gerelateerde velden
         sprint = fm.get("sprint") or ""
