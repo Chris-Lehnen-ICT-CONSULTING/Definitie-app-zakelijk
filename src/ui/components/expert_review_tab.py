@@ -23,6 +23,9 @@ class ExpertReviewTab:
 
     def render(self):
         """Render expert review tab."""
+        # Prefill: toon laatst gegenereerde definitie met context (read-only) indien beschikbaar
+        self._render_prefill_readonly_context()
+
         # Verboden woorden management sectie
         self._render_verboden_woorden_management()
 
@@ -605,3 +608,47 @@ class ExpertReviewTab:
                     SessionStateManager.set_value("override_actief", False)
                     SessionStateManager.set_value("override_verboden_woorden", "")
                     st.rerun()
+    def _render_prefill_readonly_context(self):
+        """Render read-only contextpaneel voor laatst gegenereerde definitie (prefill)."""
+        try:
+            sel_id = SessionStateManager.get_value("selected_review_definition_id")
+            if not sel_id:
+                return
+            definitie = self.repository.get_definitie(sel_id)
+            if not definitie:
+                return
+
+            st.markdown("### ⭐ Laatst Gegenereerde Definitie (alleen lezen)")
+            with st.container():
+                col1, col2 = st.columns([2, 1])
+                with col1:
+                    st.markdown(f"**Begrip:** {definitie.begrip}")
+                    st.markdown("**Definitie:**")
+                    st.info(definitie.definitie)
+
+                with col2:
+                    st.markdown("**Context**")
+                    st.write(f"Organisatie: {definitie.organisatorische_context}")
+                    if definitie.juridische_context:
+                        st.write(f"Juridisch: {definitie.juridische_context}")
+                    # Wettelijke basis (JSON TEXT → list via helper)
+                    wb = definitie.get_wettelijke_basis_list()
+                    if wb:
+                        st.write(f"Wettelijke basis: {', '.join(wb)}")
+                    # Status (code) tonen als label in Nederlands
+                    label = self._status_label(definitie.status)
+                    st.write(f"Status: {label}")
+
+            st.markdown("---")
+        except Exception as e:
+            st.warning(f"Kon prefill niet tonen: {e!s}")
+
+    def _status_label(self, code: str) -> str:
+        """Geef Nederlands label voor statuscode."""
+        mapping = {
+            'draft': 'Concept',
+            'review': 'In review',
+            'established': 'Vastgesteld',
+            'archived': 'Gearchiveerd',
+        }
+        return mapping.get(code, code)
