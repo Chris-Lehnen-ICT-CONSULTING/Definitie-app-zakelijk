@@ -44,6 +44,45 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 - Documentatie: update relevante docs bij functionele wijzigingen; plaats documenten op de juiste plek (zie `docs/CANONICAL_LOCATIONS.md`).
 - Tests: maak/actualiseer tests bij nieuw gedrag; run gerichte suites waar mogelijk.
 
+## No‑Assumptions / Strict Mode
+- Doel: aannames elimineren door beslissingen expliciet te maken en goedkeuring te vragen op tussenstappen.
+- Strict proces:
+  - Start elk werk met `update_plan` + lijst “open vragen/unknowns”; pauzeer tot goedkeuring.
+  - Plaats approval gates: geen codepatch, tests, netwerk of DB‑reset zonder expliciete OK.
+  - Houd een Decision Log bij: beslissingen (geen aannames), motivatie en akkoordmoment.
+- Vereiste input (voorkomt aannames):
+  - Doel & scope, Definition of Done, acceptatiecriteria.
+  - API/contracten en wijzigingsruimte (wat wel/niet aanpassen).
+  - Randvoorwaarden: security, performance, UX/i18n/a11y, foutafhandeling.
+  - Voorbeelden/tegenvoorbeelden + testdata (happy/edge/error cases).
+  - Bron van waarheid en conflictbeleid bij inconsistenties.
+- Verificatie en bewijs:
+  - Lever testopdracht/scenario’s; draai tests en toon resultaten (logs/diff/screenshot waar passend).
+  - Per planstap een kort verificatieblok: wat geverifieerd, hoe, en met welk bewijs.
+- Alternatieven en keuzes:
+  - Geef per ontwerpbesluit 2–3 alternatieven met trade‑offs; vraag om keuze vóór implementatie.
+- Scope‑bescherming:
+  - Stel wijzigingsgrenzen: enkel paden X/Y, maximaal N regels diff, geen hernoem/format buiten scope.
+  - Benoem welke feature flags/env‑vars gebruikt mogen worden.
+- Templates (handig):
+  - Opdrachtbrief: doel, scope, DoD, constraints, risico’s, testcases, SSoT.
+  - Review‑gate: beslissingen ter goedkeuring, impact, rollback, testplan.
+- Direct toepasbaar (in deze repo):
+  - Zet “no‑assumptions” actief: agent stopt bij unknowns en vraagt eerst om akkoord.
+  - Start met een unknowns‑lijst en laat die expliciet goedkeuren vóór implementatie.
+
+### Slash Commands (toggles)
+- Gebruik onderstaande slash‑commando’s in je chat met de agent:
+  - `\/strict on` — activeer strict mode (geen aannames; agent pauzeert voor akkoord bij patches, tests, netwerk, DB‑reset).
+  - `\/strict off` — deactiveer strict mode.
+  - `\/approve` — geef akkoord voor de volgende geblokkeerde stap (patch/test/netwerk/DB). Optioneel: `\/approve all` voor alle huidige blokkers.
+  - `\/deny` — weiger de volgende geblokkeerde stap; agent biedt alternatief of vraagt om herplanning.
+  - `\/plan on` — dwing update_plan per stap (blijft al actief in strict mode).
+  - `\/plan off` — planmodus loslaten (niet aanbevolen).
+  - Optioneel scopes: `\/strict on patch,test` (alleen patches en tests onder gate). Scopes: `patch`, `test`, `network`, `db`, `all` (default `all`).
+
+Opmerking: Dit is een gedragsconventie van de agent (soft‑gate). Voor harde system‑gates gebruik je de sandbox/approval policy van de CLI (bijv. on‑request).
+
 ### Backlog ID Uniciteit (Quality Gate)
 - User stories (frontmatter `id: US-XXX`) zijn GLOBAAL uniek over de backlog (niet alleen per EPIC).
 - Bugs (`id: BUG-XXX`/`CFR-BUG-XXX`) zijn GLOBAAL uniek.
