@@ -298,16 +298,16 @@ class DefinitionEditService:
             elif version_entry.get('definitie_oude_waarde'):
                 current.definitie = version_entry['definitie_oude_waarde']
             
-            # Apply context if available
+            # Apply context if available (Context Model V2: drie lijsten)
             if version_entry.get('context_snapshot'):
                 context = version_entry['context_snapshot']
                 if isinstance(context, dict):
                     if 'organisatorische_context' in context:
-                        current.context = context['organisatorische_context']
+                        current.organisatorische_context = context['organisatorische_context'] or []
                     if 'juridische_context' in context:
-                        if not current.metadata:
-                            current.metadata = {}
-                        current.metadata['juridische_context'] = context['juridische_context']
+                        current.juridische_context = context['juridische_context'] or []
+                    if 'wettelijke_basis' in context:
+                        current.wettelijke_basis = context['wettelijke_basis'] or []
             
             # Save as new version
             return self.save_definition(
@@ -432,7 +432,9 @@ class DefinitionEditService:
             definitie=updates.get('definitie', definition.definitie),
             toelichting=updates.get('toelichting', definition.toelichting),
             bron=updates.get('bron', definition.bron),
-            context=updates.get('context', definition.context),
+            organisatorische_context=updates.get('organisatorische_context', getattr(definition, 'organisatorische_context', [])),
+            juridische_context=updates.get('juridische_context', getattr(definition, 'juridische_context', [])),
+            wettelijke_basis=updates.get('wettelijke_basis', getattr(definition, 'wettelijke_basis', [])),
             categorie=updates.get('categorie', definition.categorie),
             created_at=definition.created_at,
             updated_at=datetime.now(),
@@ -479,12 +481,27 @@ class DefinitionEditService:
                         raise err['e']
                     return holder.get('v')
 
+            # Bouw context_dict uit Context Model V2 lijsten
+            context_dict = None
+            try:
+                org = getattr(definition, 'organisatorische_context', None) or []
+                jur = getattr(definition, 'juridische_context', None) or []
+                wet = getattr(definition, 'wettelijke_basis', None) or []
+                if org or jur or wet:
+                    context_dict = {
+                        'organisatorische_context': list(org),
+                        'juridische_context': list(jur),
+                        'wettelijke_basis': list(wet),
+                    }
+            except Exception:
+                context_dict = None
+
             if hasattr(vs, 'validate_text'):
                 coro = vs.validate_text(
                     begrip=definition.begrip,
                     text=definition.definitie,
                     ontologische_categorie=getattr(definition, 'ontologische_categorie', None) or definition.categorie,
-                    context=None,
+                    context=context_dict,
                 )
                 results = _run_async(coro) if inspect.isawaitable(coro) else coro
             else:
@@ -495,8 +512,8 @@ class DefinitionEditService:
                     maybe = vs.validate_definition(definition)
                 except TypeError:
                     # Fallback to parameterized signature (keyword args to avoid ordering issues)
-                    context_dict = None
-                    if definition.metadata and definition.metadata.get('juridische_context'):
+                    # Gebruik V2 context indien beschikbaar, anders metadata fallback
+                    if context_dict is None and definition.metadata and definition.metadata.get('juridische_context'):
                         context_dict = {'juridische_context': definition.metadata.get('juridische_context')}
                     maybe = vs.validate_definition(
                         begrip=definition.begrip,
@@ -610,7 +627,9 @@ class DefinitionEditService:
             'definitie': definition.definitie,
             'toelichting': definition.toelichting,
             'bron': definition.bron,
-            'context': definition.context,
+            'organisatorische_context': getattr(definition, 'organisatorische_context', []),
+            'juridische_context': getattr(definition, 'juridische_context', []),
+            'wettelijke_basis': getattr(definition, 'wettelijke_basis', []),
             'categorie': definition.categorie,
             **(definition.metadata if definition.metadata else {})
         }
