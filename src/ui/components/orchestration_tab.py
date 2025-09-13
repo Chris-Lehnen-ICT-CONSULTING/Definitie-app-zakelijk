@@ -350,21 +350,48 @@ class OrchestrationTab:
             if iteration_score >= target_score:
                 break
 
-        # Create mock agent result (V2-style summary only; no best_iteration object)
+        # Create mock agent result in strict V2 UIResponseDict shape
         best_iteration = max(iterations, key=lambda x: x["score"])
+        first_iteration = iterations[0] if iterations else best_iteration
+        total_processing_time = sum(iter_["processing_time"] for iter_ in iterations)
 
-        return {
+        # V2 response
+        v2_response = {
             "success": True,
-            "begrip": begrip,
-            "iterations": iterations,
-            "iteration_count": len(iterations),
-            "final_definitie": best_iteration["definitie"],
-            "final_score": best_iteration["score"],
-            "target_reached": best_iteration["score"] >= target_score,
-            "total_processing_time": sum(
-                iter["processing_time"] for iter in iterations
-            ),
+            "definitie_origineel": first_iteration.get("definitie", ""),
+            "definitie_gecorrigeerd": best_iteration.get("definitie", ""),
+            "final_score": float(best_iteration.get("score", 0.0)),
+            "validation_details": {
+                "overall_score": float(best_iteration.get("score", 0.0)),
+                "is_acceptable": bool(best_iteration.get("score", 0.0) >= target_score),
+                "violations": [],
+                "passed_rules": [],
+            },
+            "voorbeelden": {
+                "voorbeeldzinnen": [],
+                "praktijkvoorbeelden": [],
+                "tegenvoorbeelden": [],
+                "synoniemen": [],
+                "antoniemen": [],
+                "toelichting": "",
+            },
+            "metadata": {
+                "generation_id": f"orch-{int(time.time())}",
+                "duration": float(total_processing_time),
+                "model": "orchestration-demo",
+                "prompt_text": None,
+                "context": {
+                    "organisatorisch": [org_context] if org_context else [],
+                    "juridisch": [jur_context] if jur_context else [],
+                    "wettelijk": [],
+                },
+                # Carry iterations for local visualization (non-contract field)
+                "iterations": iterations,
+            },
+            "sources": [],
         }
+
+        return v2_response
 
     def _update_real_time_metrics(self, placeholder, iterations):
         """Update real-time metrics display."""
@@ -443,59 +470,54 @@ class OrchestrationTab:
                 st.plotly_chart(fig, use_container_width=True)
 
     def _display_agent_result(self, agent_result):
-        """Display final agent result."""
+        """Display final agent result (expects V2 UIResponseDict)."""
         st.markdown("#### 🎯 Orchestratie Resultaten")
 
-        if agent_result["success"]:
-            # Overview metrics
-            col1, col2, col3, col4 = st.columns(4)
+        if not agent_result or not agent_result.get("success"):
+            st.error("❌ Orchestratie mislukt")
+            return
 
-            with col1:
-                st.metric("🔄 Iteraties", agent_result["iteration_count"])
+        # Overview metrics (derive from V2 fields)
+        validation = agent_result.get("validation_details", {}) or {}
+        meta = agent_result.get("metadata", {}) or {}
+        iterations = meta.get("iterations", [])  # Non-contract field we attach for visualization
 
-            with col2:
-                st.metric("📊 Finale Score", f"{agent_result['final_score']:.3f}")
+        col1, col2, col3, col4 = st.columns(4)
+        with col1:
+            st.metric("🔄 Iteraties", len(iterations))
+        with col2:
+            st.metric("📊 Finale Score", f"{agent_result.get('final_score', 0.0):.3f}")
+        with col3:
+            target_icon = "✅" if validation.get("is_acceptable") else "❌"
+            st.metric("🎯 Target Bereikt", target_icon)
+        with col4:
+            st.metric("⏱️ Totale Tijd", f"{meta.get('duration', 0.0):.1f}s")
 
-            with col3:
-                target_icon = "✅" if agent_result["target_reached"] else "❌"
-                st.metric("🎯 Target Bereikt", target_icon)
+        # Best result
+        st.markdown("##### 🏆 Beste Definitie")
+        st.success(agent_result.get("definitie_gecorrigeerd", ""))
 
-            with col4:
-                st.metric(
-                    "⏱️ Totale Tijd", f"{agent_result['total_processing_time']:.1f}s"
-                )
-
-            # Best result
-            st.markdown("##### 🏆 Beste Definitie")
-            st.success(agent_result["final_definitie"])
-
-            # Iteration details
+        # Iteration details (if available)
+        if iterations:
             with st.expander("📊 Iteratie Details", expanded=False):
-                for iteration in agent_result["iterations"]:
+                for iteration in iterations:
                     with st.container():
                         col1, col2, col3 = st.columns([1, 2, 1])
-
                         with col1:
-                            st.write(f"**Iteratie {iteration['iteration_number']}**")
-                            st.write(f"Score: {iteration['score']:.3f}")
-                            st.write(f"Violations: {iteration['violations']}")
-
+                            st.write(f"**Iteratie {iteration.get('iteration_number')}**")
+                            st.write(f"Score: {iteration.get('score', 0.0):.3f}")
+                            st.write(f"Violations: {iteration.get('violations', 0)}")
                         with col2:
                             st.write("**Definitie:**")
-                            st.info(iteration["definitie"])
-
+                            st.info(iteration.get("definitie", ""))
                         with col3:
                             st.write("**Verbeteringen:**")
-                            for improvement in iteration["improvements"]:
+                            for improvement in iteration.get("improvements", []) or []:
                                 st.write(f"• {improvement}")
-
                         st.markdown("---")
 
             # Performance chart
-            self._render_performance_chart(agent_result["iterations"])
-
-        else:
-            st.error("❌ Orchestratie mislukt")
+            self._render_performance_chart(iterations)
 
     def _render_performance_chart(self, iterations):
         """Render performance improvement chart."""
