@@ -126,6 +126,39 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Handover — US‑160 Gate + Context Model V2 cutover",
+      "path": "../HANDOVER-US-160-CONTEXT-MODEL-V2.md",
+      "url": "../HANDOVER-US-160-CONTEXT-MODEL-V2.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "engineering",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-160"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/HANDOVER-US-160-CONTEXT-MODEL-V2.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Refactor Log",
       "path": "../refactor-log.md",
       "url": "../refactor-log.md",
@@ -12726,16 +12759,16 @@
       "title": "Centrale Documentatie‑Portal (Interactief & Auto‑sync)",
       "path": "../backlog/EPIC-013/EPIC-013.md",
       "url": "../backlog/EPIC-013/EPIC-013.md",
-      "status": "TE_DOEN",
+      "status": "IN_UITVOERING",
       "prioriteit": "HOOG",
       "owner": "architecture",
       "canonical": true,
-      "last_verified": "11-09-2025",
+      "last_verified": "13-09-2025",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
       "story_points": null,
-      "completion": "0%",
+      "completion": "10%",
       "target_release": "v1.5",
       "planning": {
         "sprint_number": null,
@@ -13073,11 +13106,11 @@
       "title": "Geavanceerde zoek & dashboard‑integratie",
       "path": "../backlog/EPIC-013/US-095/US-095.md",
       "url": "../backlog/EPIC-013/US-095/US-095.md",
-      "status": "TE_DOEN",
+      "status": "IN_UITVOERING",
       "prioriteit": "HOOG",
       "owner": "documentation-team",
       "canonical": true,
-      "last_verified": "11-09-2025",
+      "last_verified": "13-09-2025",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
@@ -13093,6 +13126,7 @@
       "parent_us": "US-095.md",
       "_refs": {
         "us": [
+          "US-086",
           "US-090",
           "US-095"
         ],
@@ -27705,7 +27739,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 609,
+      "DOC": 610,
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
@@ -27713,7 +27747,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T10:45:14Z"
+    "generated_at": "2025-09-13T19:34:19Z"
   },
   "sources": [
     "docs"

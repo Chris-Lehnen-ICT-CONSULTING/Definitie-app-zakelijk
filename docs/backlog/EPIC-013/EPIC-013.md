@@ -6,9 +6,9 @@ bijgewerkt: 11-09-2025
 canonical: true
 owner: architecture
 prioriteit: HOOG
-status: TE_DOEN
-completion: 0%
-last_verified: 11-09-2025
+status: IN_UITVOERING
+completion: 10%
+last_verified: 13-09-2025
 stakeholders:
 - Product (PO)
 - Architectuur
@@ -76,6 +76,7 @@ Eén centrale, interactieve portalpagina (browser) voor de héle backlog én rel
 - [x] Generator draait in pre‑commit en CI bij doc‑wijzigingen (incl. CI drift‑guard)
 - [ ] Config maakt hergebruik in andere repos mogelijk zonder codewijzigingen
 - [x] Documentatie: `docs/portal/README.md` met gebruik/ontwikkeling (inclusief viewer & rendering)
+ - [x] Zoekoperators (MVP) en bookmarkbare query `#q=…` beschikbaar in portal
 
 ## Relaties
 - Richtlijnen: `docs/guidelines/CANONICAL_LOCATIONS.md`, `DOCUMENTATION_POLICY.md`
