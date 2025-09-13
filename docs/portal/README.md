@@ -26,6 +26,12 @@ Navigatie terug naar de Portal
 - Documenten openen via `viewer.html?src=…` in hetzelfde tabblad met bovenin een knop “Terug naar Portal”.
 - In de viewer kun je ook “Open direct” (zelfde tab) of “Open in nieuw tabblad” gebruiken.
 
+Rendering (MD/PDF/DOCX)
+- Markdown (.md): generator pre-rendert naar HTML met portal‑stijl; portal links verwijzen automatisch naar de gerenderde pagina voor prettige leesbaarheid en zichtbare links.
+- PDF (.pdf): wordt door de browser weergegeven in de viewer (iframe) met zoom/navigatie (browserafhankelijk).
+- Word (.docx): niet native in de browser; viewer biedt “Open direct”/“Nieuw tabblad” als fallback (openen/download in native app).
+- Feature‑flag: zet `PORTAL_RENDER_MD=0` om MD pre‑rendering uit te schakelen.
+
 Views
 - Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)
 - Planning: EPIC → US → BUG hiërarchie (sprint‑agnostisch); sprintfilter verschijnt alleen als sprints bestaan
