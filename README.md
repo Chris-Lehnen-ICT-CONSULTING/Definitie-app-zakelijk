@@ -40,6 +40,12 @@ pytest -q
 - **7 patterns geblokkeerd**: generation_result imports, .best_iteration, string context, domein field, asyncio.run in services, streamlit in services
 - **Status**: ✅ Actief sinds 11-09-2025 (EPIC-010 completed)
 
+### 📚 Portal (Backlog & Docs)
+- Open de centrale portal: `docs/portal/index.html` (dubbelklik; werkt offline).
+- Zoek/filter/sorteer over REQ/EPIC/US/BUG en relevante documentatie.
+- Documenten openen via een viewer met “Terug naar Portal”‑knop; Markdown wordt netjes gerenderd met portal‑stijl.
+- Portaldata wordt automatisch gegenereerd vóór commit en in CI gevalideerd (drift‑guard).
+
 ### 🌐 Web Lookup Config (Epic 3)
 - De applicatie gebruikt één configbestand: `config/web_lookup_defaults.yaml` (prompt‑augmentatie staat standaard aan).
 - Optioneel kun je een eigen config gebruiken via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
@@ -116,12 +122,28 @@ Let op: we laden geen `.env`; stel je sleutel in via je shell of VS Code.
 - Wil je een vastgestelde definitie toch aanpassen? Zet in de Expert‑tab de status expliciet terug (actie “Maak bewerkbaar”, reden verplicht). Logging wordt vastgelegd in de geschiedenis.
 - De zoekfunctie ondersteunt filteren op status (incl. “Vastgesteld”). 
 
-## 🧩 Contextbeleid
+## ✅ Vaststellen (Gate) — US‑160
 
-- De UI toont uitsluitend de bij de definitie **vastgelegde** context (zoals opgeslagen in de database):
-  - Organisatorische context (string), Juridische context (string), Wettelijke basis (lijst)
-  - Deze drie velden zijn altijd zichtbaar; als er niets is vastgelegd tonen we “—”.
-- De **globale** context (via de Context Selector) is een sessie‑instelling voor generatie/validatie/web‑lookup en wordt **niet** getoond of als fallback gebruikt in de contextweergave van definities.
+De applicatie hanteert een validatie‑gate bij het vaststellen (Option B). De gate is centraal configureerbaar en wordt in de service afgedwongen; de UI toont de status en vereiste actie (eventuele override).
+
+- Policyconfiguratie: `config/approval_gate.yaml` (env‑overlay via `APPROVAL_GATE_CONFIG_OVERLAY`).
+- Default policy:
+  - Hard: `require_org_context=true`, `require_jur_context=true`, `forbid_critical_issues=true`, `hard_min_score=0.75`.
+  - Soft: `soft_min_score=0.65`, `allow_high_issues_with_override=true`, `missing_wettelijke_basis_soft=true`.
+- DI: `GatePolicyService` met TTL‑cache (60s) beschikbaar via `ServiceContainer.gate_policy()`.
+- Workflow: `DefinitionWorkflowService` voert gate‑check uit vóór overgang naar `ESTABLISHED` en vereist bij soft‑gate een override‑reden (`notes`).
+- UI (Expert‑tab): toont indicator (groen=pass, oranje=override vereist, grijs=geblokkeerd) en handhaaft knoppenstate conform service‑uitkomst.
+
+Belangrijk: er zit momenteel een status‑bug in `DefinitionWorkflowService` (gebruikt `APPROVED` i.p.v. `ESTABLISHED`). Deze wordt gecorrigeerd als onderdeel van US‑160 service‑enforcement.
+
+## 🧩 Contextbeleid (V2)
+
+- Alle drie contexten zijn gelijkwaardig en verplicht in totaliteit: minimaal één van de drie moet gevuld zijn.
+- Opslag is canoniek als lijsten (JSON arrays) voor:
+  - Organisatorische context, Juridische context, Wettelijke basis.
+- De UI toont uitsluitend de bij de definitie vastgelegde context; “—” indien leeg.
+- De globale context (Context Selector) is voor generatie/validatie/web‑lookup en is geen fallback voor opslag.
+- Zie ook: docs/architectuur/CONTEXT_MODEL_V2.md
 
 ## 📖 Documentatie Richtlijnen
 
