@@ -200,6 +200,13 @@ class DefinitionGeneratorTab:
             else:
                 st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
 
+            # Sla ID van bewaarde definitie op voor Expert-tab prefill
+            if saved_record and getattr(saved_record, 'id', None):
+                try:
+                    SessionStateManager.set_value("selected_review_definition_id", saved_record.id)
+                except Exception:
+                    pass
+
             # Ontologische categorie sectie - prominent weergeven
             if determined_category:
                 self._render_ontological_category_section(
