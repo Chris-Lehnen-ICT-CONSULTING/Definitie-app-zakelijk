@@ -25,7 +25,7 @@
 ✅ docs/backlog/EPIC-002/EPIC-002.md
 ✅ docs/backlog/EPIC-007/EPIC-007.md
 ✅ docs/backlog/EPIC-010/EPIC-010.md
-✅ docs/backlog/EPIC-007/US-029/US-029.md (volledig verrijkt als voorbeeld)
+✅ docs/backlog/EPIC-007/US-143/US-143.md (volledig verrijkt als voorbeeld)
 ```
 
 ### Inhoudelijke Volledigheid ⚠️

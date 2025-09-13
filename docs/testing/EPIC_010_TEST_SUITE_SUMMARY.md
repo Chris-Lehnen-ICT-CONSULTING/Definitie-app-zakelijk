@@ -4,13 +4,13 @@
 De testsuite dekt US-041/042 volledig; US-043 (legacy routes) is gepland en deels als TDD aanwezig maar (nog) uitgesloten. Dit document geeft de beoogde suite weer; waar relevant is de actuele status toegevoegd.
 
 ## Related Documentation
-- **Epic**: [EPIC-010: Context Flow Refactoring](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/EPIC-010.md)
+- **Epic**: [EPIC-010: Context Flow Refactoring](../backlog/EPIC-010/EPIC-010.md)
 - **Implementation Plan**: [EPIC-010 Implementation Plan](../implementation/EPIC-010-implementation-plan.md)
 - **Test Strategy**: [EPIC-010 Test Strategy](./EPIC-010-test-strategy.md)
 - **User Stories**:
-  - [US-041: Fix Context Field Mapping](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-041/US-041.md)
-  - [US-042: Fix "Anders..." Custom Context](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-042/US-042.md)
-  - [US-043: Remove Legacy Context Routes](/Users/chrislehnen/Projecten/Definitie-app/docs/backlog/EPIC-010/US-043/US-043.md)
+  - [US-041: Fix Context Field Mapping](../backlog/EPIC-010/US-041/US-041.md)
+  - [US-042: Fix "Anders..." Custom Context](../backlog/EPIC-010/US-042/US-042.md)
+  - [US-043: Remove Legacy Context Routes](../backlog/EPIC-010/US-043/US-043.md)
 - **Bug Reports**:
   - CFR-BUG-003: GenerationResult Import Error
 

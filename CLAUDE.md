@@ -31,6 +31,9 @@ BELANGRIJKE REGELS:
 - BUGS altijd binnen de relevante `US-XXX` directory
 - ALTIJD de hiërarchie volgen: EPIC → US-XXX → BUG-XXX
 - ALTIJD elke user story in eigen directory met dezelfde naam
+ - EPIC‑ID’s (EPIC‑XXX) zijn GLOBAAL uniek voor het project.
+ - US‑ID’s zijn GLOBAAL uniek in de backlog (frontmatter `id:`). Hergebruik over epics is NIET toegestaan. Check duplicaten vóór het aanmaken/wijzigen en renummer indien nodig.
+ - BUG‑ID’s (BUG‑XXX/CFR‑BUG‑XXX) zijn GLOBAAL uniek.
 
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
 
@@ -68,7 +71,10 @@ BELANGRIJKE REGELS:
    - `docs/INDEX.md` voor algemeen overzicht
    - `docs/guidelines/CANONICAL_LOCATIONS.md` voor juiste locaties
 3. **Check archief:** `ls docs/archief/` voor oude versies
-4. **Update bestaand:** Als het bestaat, UPDATE dat document, maak GEEN nieuw
+4. **Backlog ID uniekheid:** Controleer dat de beoogde `id: US-XXX` nog niet bestaat in de héle backlog:
+   - `rg -n "^id: US-XXX$" docs/backlog` of gebruik de ID‑checker script (portal)
+   - Kies een vrij nummer en zet het in de frontmatter en H1‑kop
+5. **Update bestaand:** Als het bestaat, UPDATE dat document, maak GEEN nieuw
 
 ### ⚠️ Workflow voor nieuwe documenten
 

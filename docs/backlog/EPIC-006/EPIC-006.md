@@ -11,8 +11,8 @@ owner: business-analyst
 prioriteit: KRITIEK
 status: IN_UITVOERING
 stories:
-- US-024
-- US-025
+- US-140
+- US-141
 - US-026
 - US-027
 target_release: v1.0
@@ -52,7 +52,7 @@ beveiliging compliance and data protection for the DefinitieAgent system. This e
 
 ## Gebruikersverhalen Overzicht
 
-### US-024: API Key Validation at Startup
+### US-140: API Key Validation at Startup
 **Status:** Nog te bepalen
 **Prioriteit:** HOOG
 **Verhaalpunten:** 3
@@ -84,7 +84,7 @@ zodat configuration errors are caught early and don't cause runtime failures
 - Prestaties: Validation timeout of 5 seconds
 - Location: Add to `src/services/container.py` initialization
 
-### US-025: API Key beveiliging Fix ✅
+### US-141: API Key beveiliging Fix ✅
 **Status:** GEREED
 **Prioriteit:** KRITIEK
 **Verhaalpunten:** 5

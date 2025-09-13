@@ -1,9 +1,9 @@
 ---
 aangemaakt: '08-09-2025'
 applies_to: definitie-app@current
-bijgewerkt: '08-09-2025'
+bijgewerkt: '12-09-2025'
 canonical: true
-last_verified: 05-09-2025
+last_verified: 12-09-2025
 owner: architecture
 prioriteit: medium
 status: active
@@ -43,6 +43,12 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 - Stijl: volg bestaande structuur, import‑volgorde, en tooling (ruff/black waar geconfigureerd).
 - Documentatie: update relevante docs bij functionele wijzigingen; plaats documenten op de juiste plek (zie `docs/CANONICAL_LOCATIONS.md`).
 - Tests: maak/actualiseer tests bij nieuw gedrag; run gerichte suites waar mogelijk.
+
+### Backlog ID Uniciteit (Quality Gate)
+- User stories (frontmatter `id: US-XXX`) zijn GLOBAAL uniek over de backlog (niet alleen per EPIC).
+- Bugs (`id: BUG-XXX`/`CFR-BUG-XXX`) zijn GLOBAAL uniek.
+- Voordat je een US/BUG aanmaakt of wijzigt: check duplicaten en kies het eerstvolgende vrije nummer.
+- CI/portal mogen falen bij ID‑duplicaten; corrigeer altijd door te renummeren en referenties bij te werken.
 
 ## Specifieke Agents
 

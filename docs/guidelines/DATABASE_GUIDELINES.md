@@ -23,10 +23,9 @@ applies_to: definitie-app@current
 
 ## Kolommen (kern)
 - Context: `organisatorische_context`, `juridische_context`.
-- Wettelijke basis: `wettelijke_basis TEXT` (JSON array). Zie ook US‑070 voor normalisatievoorstel.
+- Wettelijke basis: `wettelijke_basis TEXT` (JSON array). Zie ook US‑154 voor normalisatievoorstel.
 - Versiebeheer/audit: `version_number`, `previous_version_id`, triggers op `definitie_geschiedenis`.
 
 ## Normalisatie (vervolgwerk)
-- Zie [US‑070](../EPIC-004/US-070/US-070.md) voor normalisatie naar `definitie_wettelijke_basis`.
-- Zie [US‑110](../EPIC-004/US-110/US-110.md) voor bronverantwoording/generatie‑metadata tabellen.
-
+- Zie [US‑154](../backlog/EPIC-004/US-154/US-154.md) voor normalisatie naar `definitie_wettelijke_basis`.
+- Zie [US‑110](../backlog/EPIC-004/US-110/US-110.md) voor bronverantwoording/generatie‑metadata tabellen.

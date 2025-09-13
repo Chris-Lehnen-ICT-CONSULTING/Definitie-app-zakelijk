@@ -47,10 +47,7 @@ status: active
 6. **Strangler Fig Pattern**: Gradual migration from monolith
 
 ### Reference to Enterprise Architecture
-- **Business Drivers**: → [EA Section 1: Business Architecture]
-- **Compliance Vereisten**: → [EA Section 5: Beveiliging & Risk]
-- **Technology Standards**: → [EA Section 4.1: Technology Standards]
-- **Investment Approval**: → [EA Section 7.2: Investment Portfolio]
+- **Enterprise Architecture (EA)**: zie [ENTERPRISE_ARCHITECTURE.md](./ENTERPRISE_ARCHITECTURE.md)
 
 ---
 
@@ -2796,7 +2793,7 @@ No auth               →    OAuth Module       →    Auth Service
 ## 14. References
 
 ### Internal Documentation
-- **Enterprise Architecture**: → [EA Document](docs/architectuur/ENTERPRISE_ARCHITECTURE.md)
+- **Enterprise Architecture**: → [EA Document](./ENTERPRISE_ARCHITECTURE.md)
 - **API Documentation**: https://api.definitieagent.nl/docs
 - **Runbooks**: /docs/runbooks/
 <!-- ADR directory niet meer beschikbaar na consolidatie - ADRs zijn geïntegreerd in de canonical architecture documenten -->
