@@ -552,9 +552,9 @@ sqlite3 data/definities.db "SELECT * FROM definities ORDER BY updated_at DESC LI
 ## 🔗 Gerelateerde Documenten
 
 - [US-064.md](./US-064.md) - User Story
-- [US-069.md](../US-069/US-069.md) - Wettelijke basis
-- [US-070.md](../US-070/US-070.md) - DB normalisatie  
-- [US-110.md](../../EPIC-XXX/US-110/US-110.md) - Prompt opslag
+- [US-153.md](../US-153/US-153.md) - Wettelijke basis
+- [US-154.md](../US-154/US-154.md) - DB normalisatie  
+- [US-110.md](../../EPIC-004/US-110/US-110.md) - Prompt opslag
 - [EPIC-004.md](../EPIC-004.md) - Parent Epic
 - [DATABASE_GUIDELINES.md](../../../guidelines/DATABASE_GUIDELINES.md) - DB richtlijnen
 - [CLAUDE.md](/CLAUDE.md) - Development richtlijnen

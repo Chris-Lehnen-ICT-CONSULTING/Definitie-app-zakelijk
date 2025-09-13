@@ -1,7 +1,7 @@
 # Canonieke Documentatie Locaties
 
 Dit document definieert de officiële locaties voor alle documentatie types.
-Laatste update: 05-09-2025 (Architectuur Consolidatie Compleet)
+Laatste update: 12-09-2025 (Architectuur Consolidatie Compleet)
 
 ## 🎯 Officiële Locaties
 
@@ -82,6 +82,13 @@ docs/backlog/
 - ~~`/docs/backlog/bugs/`~~ → Gebruik `/docs/backlog/EPIC-XXX/US-XXX/BUG-XXX/`
 - ~~`/docs/backlog/EPIC-XXX/bugs/`~~ → Bugs binnen US directories
 - ~~`/docs/backlog/EPIC-XXX/User Stories/`~~ → Stories direct onder EPIC
+
+#### ID Policy (Backlog)
+- Epic ID’s (`EPIC-XXX`) zijn GLOBAAL uniek binnen het project.
+- User Story ID’s (frontmatter `id: US-XXX`) zijn GLOBAAL uniek over de héle backlog (niet alleen binnen een EPIC).
+- Bug ID’s (frontmatter `id: BUG-XXX` of `CFR-BUG-XXX`) zijn ook globaal uniek.
+- De frontmatter‑`id` is de canonieke identiteit; map‑/bestandsnamen mogen historisch afwijken maar worden bij voorkeur opgevolgd.
+- Bij aanmaken/wijzigen: voer een uniekheidscheck uit en kies het eerstvolgende vrije nummer. Bij conflicten: renummer de nieuwere of minst‑gekoppelde story en update referenties/portals.
 
 ### 7. Archief
 - **Architectuur Consolidatie (Sept 2025)**: `docs/archief/2025-09-architectuur-consolidatie/`

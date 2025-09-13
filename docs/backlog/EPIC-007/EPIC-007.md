@@ -18,11 +18,11 @@ stakeholders:
 - CJIB (batch processing)
 status: IN_UITVOERING
 stories:
-- US-028
-- US-029
-- US-030
-- US-031
-- US-032
+- US-142
+- US-143
+- US-144
+- US-145
+- US-146
 - US-033
 - US-034
 - US-035
@@ -96,7 +96,7 @@ System efficiency and cost optimization through Prestaties improvements and scal
 
 ## Gebruikersverhalen Overzicht
 
-### US-028: Service Initialization Caching
+### US-142: Service Initialization Caching
 **Status:** Nog te bepalen
 **Prioriteit:** HOOG
 **Verhaalpunten:** 5
@@ -112,7 +112,7 @@ zodat application startup is fast and memory efficient
 - Implement singleton pattern properly
 - Add cache invalidation controls
 
-### US-029: Prompt Token Optimization
+### US-143: Prompt Token Optimization
 **Status:** Nog te bepalen
 **Prioriteit:** HOOG
 **Verhaalpunten:** 8
@@ -130,7 +130,7 @@ zodat operational costs are reduced while maintaining quality
 4. Compress context information
 5. Use dynamic prompt building
 
-### US-030: validatieregels Caching
+### US-144: validatieregels Caching
 **Status:** Nog te bepalen
 **Prioriteit:** HOOG
 **Verhaalpunten:** 5
@@ -147,7 +147,7 @@ zodat validation Prestaties is optimal
 - Add cache warming on startup
 - Monitor cache hit rates
 
-### US-031: ServiceContainer Circular Dependency Resolution
+### US-145: ServiceContainer Circular Dependency Resolution
 **Status:** Nog te bepalen
 **Prioriteit:** GEMIDDELD
 **Verhaalpunten:** 8
@@ -164,7 +164,7 @@ zodat the codebase is maintainable and testable
 4. Use factory pattern where needed
 5. ValiDatum with afhankelijkheid tools
 
-### US-032: Context Window Optimization
+### US-146: Context Window Optimization
 **Status:** Nog te bepalen
 **Prioriteit:** GEMIDDELD
 **Verhaalpunten:** 5
@@ -199,7 +199,7 @@ zodat I can work efficiently without delays
 **Implementatie:**
 - Basic optimization started
 - Lazy loading geïmplementeerd
-- Further caching needed (US-028)
+- Further caching needed (US-142)
 
 ## Prestaties Architecture
 
