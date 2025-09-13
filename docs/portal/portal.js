@@ -262,6 +262,14 @@
     if(view==='planning'){
       const allowed = new Set(['EPIC','US','BUG']);
       let v = filtered.filter(d=>allowed.has(String(d.type).toUpperCase()));
+      if(v.length === 0){
+        const empty = document.createElement('div');
+        empty.className = 'meta';
+        empty.style.margin = '12px';
+        empty.textContent = 'Geen items gevonden voor de huidige selectie. Pas je filters aan of kies een andere sprint.';
+        list.appendChild(empty);
+        return;
+      }
       const hasSprints = v.some(d=>!!d.sprint);
       // apply optional sprint filter only if sprints exist
       if(hasSprints){
@@ -402,7 +410,9 @@
     // Clear
     badgeContainer.textContent = '';
     const hasTokens = (parsed.text && parsed.text.length) || Object.values(parsed.filters||{}).some(a=>Array.isArray(a)&&a.length);
-    if(!hasTokens){
+    // Also consider active sprint dropdown as a token-equivalent
+    const activeSprintDropdown = (sprintSel && sprintSel.value) ? sprintSel.value : '';
+    if(!hasTokens && !activeSprintDropdown){
       badgeContainer.style.display = 'none';
       return;
     }
@@ -426,6 +436,14 @@
     (parsed.text||[]).forEach(tk=>{
       const b=document.createElement('span'); b.className='badge'; b.textContent=tk; badgeContainer.appendChild(b);
     });
+
+    // If sprint dropdown is active and not already present as a sprint: token, render a sprint badge
+    if(activeSprintDropdown){
+      const existing = (parsed.filters && parsed.filters.sprint) ? parsed.filters.sprint.map(v=>String(v).toLowerCase()) : [];
+      if(!existing.includes(String(activeSprintDropdown).toLowerCase())){
+        const sb = document.createElement('span'); sb.className='badge'; sb.textContent = `sprint:${activeSprintDropdown}`; badgeContainer.appendChild(sb);
+      }
+    }
 
     // Clear button
     const clear = document.createElement('button');
@@ -456,12 +474,21 @@
         epics[pe].us[pu].bugs.push(d);
       }
     });
-    Object.keys(epics).filter(Boolean).forEach(eid=>{
+    // Sort epics using planning comparator on their epic docs for consistent order
+    Object.keys(epics).filter(Boolean).sort((a,b)=>{
+      const A = epics[a].epic || {};
+      const B = epics[b].epic || {};
+      return cmpPlanning(A,B);
+    }).forEach(eid=>{
       const e = epics[eid];
       const eHeader = document.createElement('div'); eHeader.className='planning-epic';
       const eBadge = document.createElement('span'); eBadge.className='badge type'; eBadge.textContent='EPIC';
       const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=viewerHref((e.epic&&(e.epic.rendered_url||e.epic.url))||'#', (e.epic&&e.epic.title)||eid);
-      eHeader.append(eBadge, eTitle); list.appendChild(eHeader);
+      // Counts per epic
+      const usCount = Object.keys(e.us||{}).length;
+      const bugCount = Object.values(e.us||{}).reduce((acc, u)=>acc + ((u.bugs&&u.bugs.length)||0), 0);
+      const eMeta = document.createElement('span'); eMeta.className='meta'; eMeta.textContent = ` — US:${usCount} • BUG:${bugCount}`;
+      eHeader.append(eBadge, eTitle, eMeta); list.appendChild(eHeader);
       const usKeys = Object.keys(e.us).sort((a,b)=>{ const A=e.us[a].us||{}; const B=e.us[b].us||{}; return cmpPlanning(A,B); });
       usKeys.forEach(uid=>{
         const u=e.us[uid];
@@ -469,7 +496,8 @@
         const uBadge=document.createElement('span'); uBadge.className='badge type'; uBadge.textContent='US';
         const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=viewerHref(u.us.rendered_url||u.us.url, u.us.title||u.us.id);
         const uMeta=document.createElement('span'); uMeta.className='meta'; const pts=u.us.story_points?`SP:${u.us.story_points}`:null;
-        uMeta.textContent=['status:'+(u.us.status||''), u.us.prioriteit, pts].filter(Boolean).join(' · ');
+        const bugc = (u.bugs && u.bugs.length) ? `bugs:${u.bugs.length}` : null;
+        uMeta.textContent=['status:'+(u.us.status||''), u.us.prioriteit, pts, bugc].filter(Boolean).join(' · ');
         li.append(uBadge,uLink,document.createTextNode(' '),uMeta);
         if(u.bugs && u.bugs.length){
           const bugRow=document.createElement('div'); bugRow.className='planning-bugs';
