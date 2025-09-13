@@ -11,6 +11,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 import streamlit as st
+from config.context_options import ORGANIZATIONS, LEGAL_DOMAINS, COMMON_LAWS
 
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import DefinitionEditService
@@ -116,7 +117,8 @@ class DefinitionEditTab:
         with col3:
             # Search button
             if st.button("🔍 Zoek", key="edit_search_btn"):
-                self._search_definitions(search_term, status_filter)
+                # Gebruik het geselecteerde label als filter (mapping gebeurt in zoekfunctie)
+                self._search_definitions(search_term, status_label)
         
         # Display search results
         if 'edit_search_results' in st.session_state:
@@ -190,14 +192,27 @@ class DefinitionEditTab:
         col1, col2 = st.columns(2)
         
         with col1:
-            # Context
-            context = st.text_input(
+            # Organisatorische context (multiselect met Anders...)
+            org_options = list(ORGANIZATIONS)
+            current_org = getattr(definition, 'organisatorische_context', []) or []
+            org_selected = st.multiselect(
                 "Organisatorische Context",
-                value=definition.context or "",
-                key=k("context"),
+                options=[*org_options, "Anders..."],
+                default=[v for v in current_org if v in org_options],
+                key=k("org_multiselect"),
                 disabled=disabled,
-                help="De organisatie waarvoor deze definitie geldt"
+                help="Selecteer één of meer organisaties; kies Anders... om eigen waarde toe te voegen",
             )
+            if "Anders..." in org_selected:
+                org_custom = st.text_input(
+                    "Andere organisatie",
+                    key=k("org_custom"),
+                    disabled=disabled,
+                    help="Voeg een eigen organisatie toe",
+                )
+                if org_custom and org_custom.strip():
+                    if org_custom not in org_options:
+                        org_selected = [v for v in org_selected if v != "Anders..."] + [org_custom.strip()]
             
             # Category
             categorie = st.selectbox(
@@ -212,13 +227,49 @@ class DefinitionEditTab:
         
         with col2:
             # Juridische context
-            juridische_context = st.text_input(
+            # Juridische context (multiselect met Anders...)
+            jur_options = list(LEGAL_DOMAINS)
+            current_jur = getattr(definition, 'juridische_context', []) or []
+            jur_selected = st.multiselect(
                 "Juridische Context",
-                value=definition.metadata.get('juridische_context', '') if definition.metadata else '',
-                key=k("juridische_context"),
+                options=[*jur_options, "Anders..."],
+                default=[v for v in current_jur if v in jur_options],
+                key=k("jur_multiselect"),
                 disabled=disabled,
-                help="Het rechtsgebied waar deze definitie bij hoort"
+                help="Selecteer relevante rechtsgebieden; kies Anders... om eigen waarde toe te voegen",
             )
+            if "Anders..." in jur_selected:
+                jur_custom = st.text_input(
+                    "Ander rechtsgebied",
+                    key=k("jur_custom"),
+                    disabled=disabled,
+                    help="Voeg een eigen rechtsgebied toe",
+                )
+                if jur_custom and jur_custom.strip():
+                    if jur_custom not in jur_options:
+                        jur_selected = [v for v in jur_selected if v != "Anders..."] + [jur_custom.strip()]
+
+            # Wettelijke basis (multiselect met Anders...)
+            wet_options = list(COMMON_LAWS)
+            current_wet = getattr(definition, 'wettelijke_basis', []) or []
+            wet_selected = st.multiselect(
+                "Wettelijke Basis",
+                options=[*wet_options, "Anders..."],
+                default=[v for v in current_wet if v in wet_options],
+                key=k("wet_multiselect"),
+                disabled=disabled,
+                help="Selecteer toepasselijke wetten; kies Anders... om eigen waarde toe te voegen",
+            )
+            if "Anders..." in wet_selected:
+                wet_custom = st.text_input(
+                    "Andere wet",
+                    key=k("wet_custom"),
+                    disabled=disabled,
+                    help="Voeg een eigen wet toe",
+                )
+                if wet_custom and wet_custom.strip():
+                    if wet_custom not in wet_options:
+                        wet_selected = [v for v in wet_selected if v != "Anders..."] + [wet_custom.strip()]
             
             # Status
             current_status = definition.metadata.get('status', 'draft') if definition.metadata else 'draft'
@@ -247,6 +298,11 @@ class DefinitionEditTab:
             elif status_code == 'archived':
                 st.info("📦 Deze definitie is Gearchiveerd en daarom alleen-lezen. Herstel via de Expert-tab om te bewerken.")
         
+        # Persist geselecteerde context lijsten in session voor save
+        st.session_state[k("organisatorische_context")]= org_selected if 'org_selected' in locals() else []
+        st.session_state[k("juridische_context")] = jur_selected if 'jur_selected' in locals() else []
+        st.session_state[k("wettelijke_basis")] = wet_selected if 'wet_selected' in locals() else []
+
         # Track changes for auto-save
         self._track_changes()
     
@@ -469,14 +525,23 @@ class DefinitionEditTab:
                 return f"edit_{definition_id}_{name}"
             
             # Collect updates
+            # Minimaal één context vereist
+            org_list = st.session_state.get(k('organisatorische_context')) or []
+            jur_list = st.session_state.get(k('juridische_context')) or []
+            wet_list = st.session_state.get(k('wettelijke_basis')) or []
+            if not (org_list or jur_list or wet_list):
+                st.error("Minimaal één context is vereist (organisatorisch, juridisch of wettelijk)")
+                return
+
             updates = {
                 'begrip': st.session_state.get(k('begrip')),
                 'definitie': st.session_state.get(k('definitie')),
-                'context': st.session_state.get(k('context')),
+                'organisatorische_context': org_list,
+                'juridische_context': jur_list,
+                'wettelijke_basis': wet_list,
                 'categorie': st.session_state.get(k('categorie')),
                 'toelichting': st.session_state.get(k('toelichting')),
                 'status': st.session_state.get(k('status')),
-                'juridische_context': st.session_state.get(k('juridische_context')),
             }
             
             # Add version number for optimistic locking
@@ -525,11 +590,12 @@ class DefinitionEditTab:
             definition = Definition(
                 begrip=st.session_state.get(k('begrip'), ''),
                 definitie=st.session_state.get(k('definitie'), ''),
-                context=st.session_state.get(k('context'), ''),
+                organisatorische_context=st.session_state.get(k('organisatorische_context')) or [],
+                juridische_context=st.session_state.get(k('juridische_context')) or [],
+                wettelijke_basis=st.session_state.get(k('wettelijke_basis')) or [],
                 categorie=st.session_state.get(k('categorie'), 'proces'),
                 toelichting=st.session_state.get(k('toelichting'), ''),
                 metadata={
-                    'juridische_context': st.session_state.get(k('juridische_context'), ''),
                     'status': st.session_state.get(k('status'), 'draft')
                 }
             )
@@ -639,10 +705,15 @@ class DefinitionEditTab:
         fields_to_check = [
             (k('begrip'), 'begrip'),
             (k('definitie'), 'definitie'),
-            (k('context'), 'context'),
             (k('categorie'), 'categorie'),
             (k('toelichting'), 'toelichting'),
         ]
+        # Vergelijk ook V2 contextlijsten (genormaliseerd)
+        def _norm_list(v):
+            try:
+                return sorted([str(x).strip() for x in (v or [])])
+            except Exception:
+                return []
         
         for session_key, def_attr in fields_to_check:
             session_value = st.session_state.get(session_key)
@@ -650,6 +721,15 @@ class DefinitionEditTab:
             if session_value != def_value:
                 changed = True
                 break
+
+        if not changed:
+            # Check contextlijsten
+            if _norm_list(st.session_state.get(k('organisatorische_context'))) != _norm_list(getattr(definition, 'organisatorische_context', [])):
+                changed = True
+            elif _norm_list(st.session_state.get(k('juridische_context'))) != _norm_list(getattr(definition, 'juridische_context', [])):
+                changed = True
+            elif _norm_list(st.session_state.get(k('wettelijke_basis'))) != _norm_list(getattr(definition, 'wettelijke_basis', [])):
+                changed = True
         
         # Auto-save if changed and interval verstreken
         if changed:
@@ -676,11 +756,12 @@ class DefinitionEditTab:
             content = {
                 'begrip': st.session_state.get(k('begrip')),
                 'definitie': st.session_state.get(k('definitie')),
-                'context': st.session_state.get(k('context')),
+                'organisatorische_context': st.session_state.get(k('organisatorische_context')),
+                'juridische_context': st.session_state.get(k('juridische_context')),
+                'wettelijke_basis': st.session_state.get(k('wettelijke_basis')),
                 'categorie': st.session_state.get(k('categorie')),
                 'toelichting': st.session_state.get(k('toelichting')),
                 'status': st.session_state.get(k('status')),
-                'juridische_context': st.session_state.get(k('juridische_context')),
             }
             
             # Save
@@ -700,12 +781,17 @@ class DefinitionEditTab:
             field_mapping = {
                 'begrip': k('begrip'),
                 'definitie': k('definitie'),
-                'context': k('context'),
+                # V2 contextlijsten
+                'organisatorische_context': k('organisatorische_context'),
+                'juridische_context': k('juridische_context'),
+                'wettelijke_basis': k('wettelijke_basis'),
                 'categorie': k('categorie'),
                 'toelichting': k('toelichting'),
                 'status': k('status'),
-                'juridische_context': k('juridische_context'),
             }
+            # Backward compat: map legacy 'context' naar organisatorische_context indien aanwezig
+            if 'context' in auto_save_content and 'organisatorische_context' not in auto_save_content:
+                auto_save_content['organisatorische_context'] = auto_save_content.get('context')
             
             for field, session_key in field_mapping.items():
                 if field in auto_save_content:

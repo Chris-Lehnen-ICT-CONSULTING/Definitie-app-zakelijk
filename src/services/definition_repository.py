@@ -71,35 +71,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         try:
             # Gebruik legacy repository voor opslag
             if definition.id:
-                # Update bestaande via updates-dict + optimistic versie
-                updates: dict[str, Any] = {}
-                updates["begrip"] = definition.begrip
-                updates["definitie"] = definition.definitie
-                updates["categorie"] = definition.categorie or "proces"
-                updates["organisatorische_context"] = definition.context or ""
-                if definition.metadata:
-                    if "juridische_context" in definition.metadata:
-                        updates["juridische_context"] = definition.metadata["juridische_context"]
-                    if "status" in definition.metadata:
-                        updates["status"] = definition.metadata["status"]
-                    if "wettelijke_basis" in definition.metadata:
-                        try:
-                            wb = definition.metadata.get("wettelijke_basis") or []
-                            if not isinstance(wb, list):
-                                wb = [wb]
-                            # legacy repo expects TEXT JSON for wettelijke_basis
-                            import json as _json
-                            updates["wettelijke_basis"] = _json.dumps(wb, ensure_ascii=False)
-                        except Exception:
-                            pass
-                    if "version_number" in definition.metadata:
-                        # Verwachte huidige versie voor optimistic locking
-                        updates["version_number"] = definition.metadata["version_number"]
-
+                # Update bestaande via updates‑dict (legacy repo verwacht dict)
+                updates = self._definition_to_updates(definition)
                 updated_by = None
                 if definition.metadata and "updated_by" in definition.metadata:
                     updated_by = definition.metadata["updated_by"]
-
                 self.legacy_repo.update_definitie(definition.id, updates, updated_by)
                 return definition.id
             # Maak nieuwe
@@ -174,12 +150,16 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         self._stats["total_updates"] += 1
 
         try:
-            # Converteer naar record
-            record = self._definition_to_record(definition)
+            # Converteer naar updates‑dict (legacy verwacht dict)
+            updates = self._definition_to_updates(definition)
+
+            updated_by = None
+            if definition.metadata and "updated_by" in definition.metadata:
+                updated_by = definition.metadata["updated_by"]
 
             # Update via legacy repo
-            self.legacy_repo.update_definitie(definition_id, record)
-            return True
+            ok = self.legacy_repo.update_definitie(definition_id, updates, updated_by)
+            return bool(ok)
 
         except Exception as e:
             logger.error(f"Fout bij updaten definitie {definition_id}: {e}")
@@ -352,16 +332,17 @@ class DefinitionRepository(DefinitionRepositoryInterface):
 
     def _definition_to_record(self, definition: Definition) -> DefinitieRecord:
         """Converteer Definition naar DefinitieRecord."""
+        import json as _json
         record = DefinitieRecord(
             id=definition.id,
             begrip=definition.begrip,
             definitie=definition.definitie,
             categorie=definition.categorie or "proces",
-            organisatorische_context=definition.context or "",
-            juridische_context=(
-                definition.metadata.get("juridische_context")
-                if definition.metadata
-                else None
+            organisatorische_context=_json.dumps(
+                definition.organisatorische_context or [], ensure_ascii=False
+            ),
+            juridische_context=_json.dumps(
+                definition.juridische_context or [], ensure_ascii=False
             ),
             status=(
                 definition.metadata.get("status", DefinitieStatus.DRAFT.value)
@@ -373,6 +354,14 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             updated_at=definition.updated_at,
         )
 
+        # Wettelijke basis (JSON array)
+        try:
+            wb_list = list(definition.wettelijke_basis or [])
+            record.set_wettelijke_basis(wb_list)
+        except Exception:
+            # Laat default/None staan als iets misgaat
+            pass
+
         # Voeg extra metadata toe indien aanwezig
         if definition.metadata:
             if "validation_score" in definition.metadata:
@@ -381,16 +370,6 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 record.source_reference = definition.metadata["source_reference"]
             if "created_by" in definition.metadata:
                 record.created_by = definition.metadata["created_by"]
-            # Wettelijke basis (lijst) → JSON TEXT kolom
-            if "wettelijke_basis" in definition.metadata:
-                try:
-                    wet_list = definition.metadata.get("wettelijke_basis") or []
-                    if not isinstance(wet_list, list):
-                        wet_list = [wet_list]
-                    record.set_wettelijke_basis(wet_list)
-                except Exception:
-                    # Veiligheid: sla invalid type stil over
-                    pass
 
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:
@@ -411,20 +390,30 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             definitie_text = parts[0]
             toelichting = parts[1].strip() if len(parts) > 1 else None
 
+        import json as _json
+        # Parse context JSON arrays (safe fallbacks)
+        def _parse_list(val):
+            try:
+                if not val:
+                    return []
+                return list(_json.loads(val)) if isinstance(val, str) else list(val)
+            except Exception:
+                return []
+
         definition = Definition(
             id=record.id,
             begrip=record.begrip,
             definitie=definitie_text,
             toelichting=toelichting,
             bron=record.source_reference,
-            context=record.organisatorische_context,
+            organisatorische_context=_parse_list(record.organisatorische_context),
+            juridische_context=_parse_list(record.juridische_context),
+            wettelijke_basis=record.get_wettelijke_basis_list(),
             categorie=record.categorie,
             created_at=record.created_at,
             updated_at=record.updated_at,
             metadata={
                 "status": record.status,
-                "juridische_context": record.juridische_context,
-                "wettelijke_basis": record.get_wettelijke_basis_list(),
                 "validation_score": record.validation_score,
                 "source_type": record.source_type,
                 "created_by": record.created_by,
@@ -509,3 +498,78 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             "total_updates": 0,
             "total_deletes": 0,
         }
+
+    # ===== Legacy compatibility surface for workflow/UI =====
+    def get_definitie(self, definitie_id: int) -> DefinitieRecord | None:
+        """Pass‑through naar legacy repository (compat met bestaande callers)."""
+        try:
+            return self.legacy_repo.get_definitie(definitie_id)
+        except Exception:
+            return None
+
+    def update_definitie(
+        self, definitie_id: int, updates: dict[str, Any], updated_by: str | None = None
+    ) -> bool:
+        """Pass‑through update voor compatibiliteit."""
+        try:
+            return self.legacy_repo.update_definitie(definitie_id, updates, updated_by)
+        except Exception:
+            return False
+
+    def change_status(
+        self,
+        definitie_id: int,
+        new_status: "DefinitieStatus",
+        changed_by: str | None = None,
+        notes: str | None = None,
+    ) -> bool:
+        """Pass‑through statuswijziging voor compatibiliteit met workflowservice."""
+        try:
+            return self.legacy_repo.change_status(
+                definitie_id, new_status, changed_by, notes
+            )
+        except Exception:
+            return False
+
+    # ===== Helpers =====
+    def _definition_to_updates(self, definition: Definition) -> dict[str, Any]:
+        """Converteer Definition naar updates‑dict voor legacy update_definitie()."""
+        import json as _json
+        updates: dict[str, Any] = {}
+        if definition.begrip is not None:
+            updates["begrip"] = definition.begrip
+        if definition.definitie is not None:
+            updates["definitie"] = definition.definitie
+        if definition.categorie is not None:
+            updates["categorie"] = definition.categorie
+        # Contextvelden (JSON strings)
+        updates["organisatorische_context"] = _json.dumps(
+            definition.organisatorische_context or [], ensure_ascii=False
+        )
+        updates["juridische_context"] = _json.dumps(
+            definition.juridische_context or [], ensure_ascii=False
+        )
+        try:
+            updates["wettelijke_basis"] = (
+                None
+                if definition.wettelijke_basis is None
+                else _json.dumps(list(definition.wettelijke_basis), ensure_ascii=False)
+            )
+        except Exception:
+            updates["wettelijke_basis"] = None
+        # Embed toelichting in definitietekst indien aanwezig (consistent met create)
+        try:
+            if definition.toelichting and str(definition.toelichting).strip():
+                base = updates.get("definitie", definition.definitie or "")
+                if base is None:
+                    base = ""
+                # Voorkom dubbele embed: _record_to_definition levert definitie zonder 'Toelichting:'
+                # dus we kunnen veilig toevoegen
+                updates["definitie"] = f"{base}\n\nToelichting: {str(definition.toelichting).strip()}"
+        except Exception:
+            pass
+
+        # Extra velden
+        if definition.metadata and "status" in definition.metadata:
+            updates["status"] = definition.metadata["status"]
+        return updates
