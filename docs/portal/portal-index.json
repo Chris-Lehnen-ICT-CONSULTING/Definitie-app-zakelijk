@@ -12882,6 +12882,40 @@
       }
     },
     {
+      "id": "US-169",
+      "type": "DOC",
+      "title": "Portal Navigatie – Terug naar Portal vanuit geopende documenten",
+      "path": "../backlog/EPIC-013/US-169/US-169.md",
+      "url": "../backlog/EPIC-013/US-169/US-169.md",
+      "status": "Open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "documentation-team",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "2",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-013",
+      "parent_us": "US-169.md",
+      "_refs": {
+        "us": [
+          "US-169"
+        ],
+        "epic": [
+          "EPIC-013"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": "US-103",
       "type": "DOC",
       "title": "Grafiek subview (REQ↔EPIC bipartite) in Portal",
@@ -26859,7 +26893,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 608,
+      "DOC": 609,
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
@@ -26867,7 +26901,7 @@
       "ARCH": 22,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T08:06:24Z"
+    "generated_at": "2025-09-13T08:10:57Z"
   },
   "sources": [
     "docs"
