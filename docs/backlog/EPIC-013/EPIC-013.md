@@ -76,7 +76,9 @@ Eén centrale, interactieve portalpagina (browser) voor de héle backlog én rel
 - [x] Generator draait in pre‑commit en CI bij doc‑wijzigingen (incl. CI drift‑guard)
 - [ ] Config maakt hergebruik in andere repos mogelijk zonder codewijzigingen
 - [x] Documentatie: `docs/portal/README.md` met gebruik/ontwikkeling (inclusief viewer & rendering)
- - [x] Zoekoperators (MVP) en bookmarkbare query `#q=…` beschikbaar in portal
+- [x] Zoekoperators (MVP) en bookmarkbare query `#q=…` beschikbaar in portal
+ - [x] Planningweergave polish (basis): hiërarchie, sprintfilter, tellers en SP‑subtotaal
+ - [x] A11y (basis) en chip‑deeplinks (🔎/Alt‑klik) in views
 
 ## Relaties
 - Richtlijnen: `docs/guidelines/CANONICAL_LOCATIONS.md`, `DOCUMENTATION_POLICY.md`
