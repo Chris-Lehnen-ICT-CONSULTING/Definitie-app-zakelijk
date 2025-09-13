@@ -3353,6 +3353,42 @@
       }
     },
     {
+      "id": "US-160",
+      "type": "DOC",
+      "title": "Validatie‑gate bij Vaststellen (Option B)",
+      "path": "../backlog/EPIC-004/US-160/US-160.md",
+      "url": "../backlog/EPIC-004/US-160/US-160.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": "frontend-team",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-160.md",
+      "_refs": {
+        "us": [
+          "US-160"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": [
+          "REQ-093"
+        ]
+      }
+    },
+    {
       "id": "US-110",
       "type": "DOC",
       "title": "Persistente bronverantwoording (web sources) en generatie‑metadata voor definities",
@@ -4337,6 +4373,294 @@
         "req": [
           "REQ-091"
         ]
+      }
+    },
+    {
+      "id": "EPIC-016",
+      "type": "DOC",
+      "title": "Beheer & Configuratie Console",
+      "path": "../backlog/EPIC-016/EPIC-016.md",
+      "url": "../backlog/EPIC-016/EPIC-016.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-161",
+          "US-162",
+          "US-163",
+          "US-164",
+          "US-165",
+          "US-166",
+          "US-167"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-163",
+      "type": "DOC",
+      "title": "Validatieregels beheren (regels/gewichten/drempels)",
+      "path": "../backlog/EPIC-016/US-163/US-163.md",
+      "url": "../backlog/EPIC-016/US-163/US-163.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "validation",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-163.md",
+      "_refs": {
+        "us": [
+          "US-163"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-094"
+        ]
+      }
+    },
+    {
+      "id": "US-164",
+      "type": "DOC",
+      "title": "Contextopties beheren (organisaties/rechtsgebieden/wetgeving)",
+      "path": "../backlog/EPIC-016/US-164/US-164.md",
+      "url": "../backlog/EPIC-016/US-164/US-164.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-164.md",
+      "_refs": {
+        "us": [
+          "US-164"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-095"
+        ]
+      }
+    },
+    {
+      "id": "US-165",
+      "type": "DOC",
+      "title": "Configuratie auditlog en versiebeheer",
+      "path": "../backlog/EPIC-016/US-165/US-165.md",
+      "url": "../backlog/EPIC-016/US-165/US-165.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-165.md",
+      "_refs": {
+        "us": [
+          "US-165"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-096"
+        ]
+      }
+    },
+    {
+      "id": "US-162",
+      "type": "DOC",
+      "title": "Gate‑policy beheer (Approval Gate Policy)",
+      "path": "../backlog/EPIC-016/US-162/US-162.md",
+      "url": "../backlog/EPIC-016/US-162/US-162.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-162.md",
+      "_refs": {
+        "us": [
+          "US-162"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-093"
+        ]
+      }
+    },
+    {
+      "id": "US-167",
+      "type": "DOC",
+      "title": "Autorisatie voor Beheer (beheerderrol)",
+      "path": "../backlog/EPIC-016/US-167/US-167.md",
+      "url": "../backlog/EPIC-016/US-167/US-167.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-167.md",
+      "_refs": {
+        "us": [
+          "US-167"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      }
+    },
+    {
+      "id": "US-161",
+      "type": "DOC",
+      "title": "Beheer‑tab UI (⚙️) met configuratiesecties",
+      "path": "../backlog/EPIC-016/US-161/US-161.md",
+      "url": "../backlog/EPIC-016/US-161/US-161.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": "frontend-team",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-161.md",
+      "_refs": {
+        "us": [
+          "US-161"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-166",
+      "type": "DOC",
+      "title": "Configuratie import/export (JSON/YAML)",
+      "path": "../backlog/EPIC-016/US-166/US-166.md",
+      "url": "../backlog/EPIC-016/US-166/US-166.md",
+      "status": "Backlog",
+      "prioriteit": "LAAG",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-166.md",
+      "_refs": {
+        "us": [
+          "US-166"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
       }
     },
     {
@@ -5393,6 +5717,40 @@
       "linked_epics": [
         "EPIC-007"
       ],
+      "linked_stories": null
+    },
+    {
+      "id": "REQ-096",
+      "type": "REQ",
+      "title": "Configuratie Audit & Versiebeheer",
+      "path": "../backlog/requirements/REQ-096.md",
+      "url": "../backlog/requirements/REQ-096.md",
+      "status": "backlog",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "nonfunctional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": [
+          "REQ-096"
+        ]
+      },
+      "linked_epics": null,
       "linked_stories": null
     },
     {
@@ -8464,6 +8822,48 @@
       "linked_stories": null
     },
     {
+      "id": "REQ-094",
+      "type": "REQ",
+      "title": "Document Rendering & Preview (MD/PDF/DOCX)",
+      "path": "../backlog/requirements/REQ-094.md",
+      "url": "../backlog/requirements/REQ-094.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "requirement",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-168"
+        ],
+        "epic": [
+          "EPIC-013"
+        ],
+        "req": [
+          "REQ-094"
+        ]
+      },
+      "linked_epics": [
+        "EPIC-013"
+      ],
+      "linked_stories": [
+        "US-168"
+      ]
+    },
+    {
       "id": "REQ-067",
       "type": "REQ",
       "title": "Service Monitoring Dashboard",
@@ -8869,6 +9269,40 @@
       "linked_epics": [
         "EPIC-009"
       ],
+      "linked_stories": null
+    },
+    {
+      "id": "REQ-095",
+      "type": "REQ",
+      "title": "Context Opties Beheer",
+      "path": "../backlog/requirements/REQ-095.md",
+      "url": "../backlog/requirements/REQ-095.md",
+      "status": "backlog",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "functional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": [
+          "REQ-095"
+        ]
+      },
+      "linked_epics": null,
       "linked_stories": null
     },
     {
@@ -12516,6 +12950,40 @@
         "us": [
           "US-090",
           "US-104"
+        ],
+        "epic": [
+          "EPIC-013"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-168",
+      "type": "DOC",
+      "title": "Portal viewer – nette rendering voor MD/PDF/DOCX",
+      "path": "../backlog/EPIC-013/US-168/US-168.md",
+      "url": "../backlog/EPIC-013/US-168/US-168.md",
+      "status": "Open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "documentation-team",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-013",
+      "parent_us": "US-168.md",
+      "_refs": {
+        "us": [
+          "US-168"
         ],
         "epic": [
           "EPIC-013"
@@ -26397,15 +26865,15 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 598,
+      "DOC": 608,
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
-      "REQ": 95,
+      "REQ": 98,
       "ARCH": 22,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T07:53:34Z"
+    "generated_at": "2025-09-13T08:02:11Z"
   },
   "sources": [
     "docs"
@@ -26682,6 +27150,9 @@
       ],
       "REQ-093": [
         "EPIC-013"
+      ],
+      "REQ-094": [
+        "EPIC-013"
       ]
     },
     "req_to_us": {
@@ -26720,6 +27191,9 @@
       ],
       "REQ-012": [
         "US-079"
+      ],
+      "REQ-094": [
+        "US-168"
       ],
       "REQ-091": [
         "US-054",
