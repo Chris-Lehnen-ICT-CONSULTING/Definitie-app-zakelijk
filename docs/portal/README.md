@@ -34,9 +34,9 @@ Rendering (MD/PDF/DOCX)
 - Word (.docx): niet native in de browser; viewer biedt “Open direct”/“Nieuw tabblad” als fallback (openen/download in native app).
 - Feature‑flag: zet `PORTAL_RENDER_MD=0` om MD pre‑rendering uit te schakelen.
 
-Views
+ Views
 - Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)
-- Planning: EPIC → US → BUG hiërarchie (sprint‑agnostisch); sprintfilter verschijnt alleen als sprints bestaan
+- Planning: EPIC → US → BUG hiërarchie met aantallen (US en BUG per EPIC, bug-count per US). Sprintfilter verschijnt alleen als sprints bestaan en wordt zichtbaar als badge.
 - Requirements: REQ‑overzicht met klikbare EPIC/US chips; tellen/traceability zichtbaar
 - REQ Matrix: per EPIC alle REQs als chips
 - Mijn Werk: open US/BUG gefilterd op owner/status/prioriteit; deeplinks via `#view=work&owner=…&wstatus=…&wprio=…&wonlyus=1`
