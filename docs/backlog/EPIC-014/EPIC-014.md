@@ -36,10 +36,10 @@ Dit EPIC is gebaseerd op de business kennis extractie uit [US-061 – Extract en
 
 | ID | Titel | Priority | Points | Status | Notes |
 |----|-------|----------|--------|--------|-------|
-| [US-107](./US-107/US-107.md) | Implementeer FeedbackBuilder Priority Algorithm | CRITICAL | 5 | TODO | Core feedback logic |
+| [US-156](./US-156/US-156.md) | Implementeer FeedbackBuilder Priority Algorithm | CRITICAL | 5 | TODO | Core feedback logic |
 | [US-108](./US-108/US-108.md) | Implementeer Violation-to-Feedback Mapping Service | HIGH | 3 | TODO | 11+ mappings |
 | [US-109](./US-109/US-109.md) | Implementeer Definitie Acceptatie Criteria Engine | CRITICAL | 5 | TODO | 3-staps acceptatie |
-| [US-110](./US-110/US-110.md) | Implementeer Weighted Score Calculator | HIGH | 3 | TODO | Complex formules |
+| [US-157](./US-157/US-157.md) | Implementeer Weighted Score Calculator | HIGH | 3 | TODO | Complex formules |
 | [US-111](./US-111/US-111.md) | Implementeer Iterative Improvement Controller | CRITICAL | 8 | TODO | Core loop logic |
 | [US-112](./US-112/US-112.md) | Implementeer Voorbeelden Caching Strategy | MEDIUM | 3 | TODO | Performance |
 | [US-113](./US-113/US-113.md) | Implementeer Clarity Enhancement Service | MEDIUM | 5 | TODO | Mogelijk achterhaald? |
@@ -96,6 +96,11 @@ enhancement_limits = {
 - ✅ 100% business rules coverage in tests
 - ✅ Performance gelijk of beter dan legacy
 - ✅ Zero regression bugs in production
+
+## Acceptance Criteria (Project Governance)
+- Backlog ID Uniciteit: Alle user stories in de héle backlog hebben een GLOBAAL unieke frontmatter‑`id` (US‑XXX). 0 duplicaten (gevalideerd door portal/CI).
+- Richtlijnen: CLAUDE.md, CANONICAL_LOCATIONS.md, DOCUMENTATION_POLICY.md en AGENTS.md bevatten de regel voor globale uniciteit en zijn up‑to‑date (last_verified bijgewerkt).
+- CI Gate: Een check (portal of script) is opgenomen die faalt bij dubbele US/BUG‑IDs.
 
 ## Notes
 - **US-113 & US-116**: Enhancement services mogelijk achterhaald door EPIC-010

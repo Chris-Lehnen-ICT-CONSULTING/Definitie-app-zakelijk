@@ -3,7 +3,7 @@ aangemaakt: '08-09-2025'
 applies_to: definitie-app@current
 bijgewerkt: '08-09-2025'
 canonical: true
-last_verified: 04-09-2025
+last_verified: 12-09-2025
 owner: architecture
 prioriteit: medium
 status: active
@@ -212,3 +212,10 @@ Exceptions to this policy require:
 *Policy Versie: 1.0*
 *Effective Date: 04-09-2025*
 *Next Review: 04-12-2025*
+### 4. Backlog ID Policy (US/BUG)
+
+- User Stories hebben een frontmatter‑`id: US-XXX` die GLOBAAL uniek is over de héle backlog (niet per EPIC).
+- Bugs hebben een frontmatter‑`id: BUG-XXX`/`CFR-BUG-XXX` die GLOBAAL uniek is.
+- De `id` in frontmatter is leidend; H1‑kop moet overeenkomen.
+- Bij toevoegen/wijzigen: voer een uniekheidscheck uit (`rg -n "^id: US-" docs/backlog`) of gebruik de portal checker.
+- Duplicaten zijn niet toegestaan en worden door CI/portal als fout gerapporteerd.

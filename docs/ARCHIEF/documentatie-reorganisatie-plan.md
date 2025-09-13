@@ -56,9 +56,9 @@ Update hoofdstukken in README.md:
   - Real-time status tracking
 
 ### Technische Architectuur
-- **[Architectuur Overzicht](docs/architectuur/README.md)** - Index van alle architectuur documentatie
-- **[Enterprise Architecture](docs/architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategie
-- **[Solution Architecture](docs/architectuur/SOLUTION_ARCHITECTURE.md)** - Technische implementatie
+- **[Architectuur Overzicht](../architectuur/README.md)** - Index van alle architectuur documentatie
+- **[Enterprise Architecture](../architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategie
+- **[Solution Architecture](../architectuur/SOLUTION_ARCHITECTURE.md)** - Technische implementatie
 - **Legacy Migratie** - 10-weken migratie roadmap
 
 ### Quick Links

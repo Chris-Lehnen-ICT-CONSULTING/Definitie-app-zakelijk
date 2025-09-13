@@ -18,7 +18,7 @@ stakeholders:
 - KB (National Library - SRU provider)
 status: IN_UITVOERING
 stories:
-- US-014
+- US-135
 - US-015
 - US-016
 - US-017
@@ -77,7 +77,7 @@ External source integration for definition enrichment. This epic enables the sys
 
 ## Gebruikersverhalen Overzicht
 
-### US-014: Modern Web Lookup Implementatie ⏳
+### US-135: Modern Web Lookup Implementatie ⏳
 **Status:** IN_UITVOERING
 **Prioriteit:** HOOG
 **Verhaalpunten:** 13

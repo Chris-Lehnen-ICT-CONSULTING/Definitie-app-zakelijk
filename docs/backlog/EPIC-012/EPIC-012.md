@@ -66,7 +66,7 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 |----|-------|----------|--------|--------|
 | US-061 | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | **COMPLETED** ✅ |
 | US-064 | Consolideer orchestration logica | HIGH | 8 | TODO | NEXT |
-| US-062 | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
+| US-152 | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
 | US-063 | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
 | US-065 | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
 | US-066 | Verwijder Legacy DefinitieAgent uit Integratie/UI | HIGH | 5 | TODO |
@@ -76,7 +76,7 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 | US-070 | Refactor Category State Manager | MEDIUM | 3 | TODO |
 | US-071 | Resilience-consolidatie naar één module | MEDIUM | 5 | TODO |
 | US-072 | Export-consolidatie en mappen-opschoning | MEDIUM | 3 | TODO |
-| US-073 | Config-harmonisatie, verwijderen dotenv | HIGH | 3 | TODO |
+| US-159 | Config-harmonisatie, verwijderen dotenv | HIGH | 3 | TODO |
 | US-074 | Import-hygiëne, geen sys.path-hacks | HIGH | 5 | TODO |
 | US-075 | Centraliseer async/sync-bridging | HIGH | 5 | TODO |
 | US-076 | Validators JSON-first + basisklasse | MEDIUM | 8 | TODO |
@@ -139,7 +139,7 @@ De nieuwe user stories (US-066 t/m US-070) zijn geïdentificeerd tijdens de EPIC
 - Implementeer update_definition flow (edit → re‑validate)
 - Consolideer stats tracking
 
-### Phase 3: FeedbackBuilder Refactoring (US-062)
+### Phase 3: FeedbackBuilder Refactoring (US-152)
 **Week 2-3** - Kritieke service ná US‑064
 - Creëer FeedbackServiceV2 met 11 mappings (Fase 1)
 - Integreer violation feedback (post‑validatie hook in DefinitionOrchestratorV2)

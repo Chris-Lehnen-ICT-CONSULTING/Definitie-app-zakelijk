@@ -20,8 +20,8 @@ stories:
 - US-064
 - US-067
 - US-068
-- US-069
-- US-070
+- US-153
+- US-154
 - US-071
 - US-110
 target_release: v1.2
@@ -141,7 +141,7 @@ zodat I can work flexibly
 - Generation button with loading state
 - Result display area
 
-### US-020: Validation Results Display ✅
+### US-136: Validation Results Display ✅
 **Status:** GEREED
 **Prioriteit:** HOOG
 **Verhaalpunten:** 5
