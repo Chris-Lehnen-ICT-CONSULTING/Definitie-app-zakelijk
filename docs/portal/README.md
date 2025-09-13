@@ -41,9 +41,10 @@ Views
 - REQ Matrix: per EPIC alle REQs als chips
 - Mijn Werk: open US/BUG gefilterd op owner/status/prioriteit; deeplinks via `#view=work&owner=…&wstatus=…&wprio=…&wonlyus=1`
 
-Snel‑filters en deeplinks
-- Type/status/prioriteit filters via UI; vrije zoek in titel/frontmatter
-- Chips (EPIC/US/REQ): direct openen; uitbreidbaar met filterdeeplinks `#q=…`
+ Snel‑filters en deeplinks
+ - Type/status/prioriteit filters via UI; vrije zoek in titel/frontmatter
+ - Chips (EPIC/US/REQ): direct openen; filteren via 🔎 of Alt‑klik (zet `id:…` in `#q=`)
+ - Status/prioriteit/sprint/SP/release getoond als badges voor snelle scanbaarheid
 
 Automatisering (aanbevolen)
 - Pre‑commit: draai de generator bij wijzigingen in docs/**.

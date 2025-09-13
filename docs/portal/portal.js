@@ -22,6 +22,39 @@
     el.title=`Prioriteit: ${t}`;
     return el;
   }
+  function makeSprintBadge(txt){
+    const t=String(txt||''); if(!t) return null;
+    const el=document.createElement('span');
+    el.className='badge sprint-badge';
+    el.textContent=t;
+    el.title=`Sprint: ${t}`;
+    return el;
+  }
+  function makeSPBadge(val){
+    const n = Number(val);
+    if(Number.isNaN(n) || n <= 0) return null;
+    const el=document.createElement('span');
+    el.className='badge sp-badge';
+    el.textContent=`SP:${n}`;
+    el.title=`Story Points: ${n}`;
+    return el;
+  }
+  function makeRelBadge(txt){
+    const t=String(txt||''); if(!t) return null;
+    const el=document.createElement('span');
+    el.className='badge rel-badge';
+    el.textContent=`rel:${t}`;
+    el.title=`Target release: ${t}`;
+    return el;
+  }
+  function makeCanonicalBadge(flag){
+    if(!flag) return null;
+    const el=document.createElement('span');
+    el.className='badge canonical-badge';
+    el.textContent='canonical';
+    el.title='Canonical document';
+    return el;
+  }
 
   const data = getData();
   const list = document.getElementById('list');
@@ -374,12 +407,13 @@
         const meta=document.createElement('div'); meta.className='meta';
         const statusEl = makeStatusBadge(d.status);
         const prioEl = makePrioBadge(d.prioriteit);
-        const sp = d.sprint?`sprint:${d.sprint}`:null;
-        const pts = d.story_points?`SP:${d.story_points}`:null;
+        const sprintEl = makeSprintBadge(d.sprint);
+        const spEl = makeSPBadge(d.story_points);
         if(statusEl) meta.appendChild(statusEl);
         if(prioEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(prioEl); }
-        const tail = [d.owner, sp, pts].filter(Boolean).join(' • ');
-        if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
+        if(d.owner){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=d.owner; t.title='Owner'; meta.appendChild(t); }
+        if(sprintEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(sprintEl); }
+        if(spEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(spEl); }
         const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         link.setAttribute('aria-label',`Open ${d.title||d.id||d.path}`);
         li.append(type,title,meta,link); list.appendChild(li);
@@ -394,11 +428,13 @@
         const meta=document.createElement('div'); meta.className='meta';
         const statusEl = makeStatusBadge(d.status);
         const prioEl = makePrioBadge(d.prioriteit);
-        const rel = d.target_release?`rel:${d.target_release}`:null;
+        const relEl = makeRelBadge(d.target_release);
+        const canonEl = makeCanonicalBadge(d.canonical);
         if(statusEl) meta.appendChild(statusEl);
         if(prioEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(prioEl); }
-        const tail=[d.owner, rel, d.canonical?'canonical':null].filter(Boolean).join(' • ');
-        if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
+        if(d.owner){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const ow=document.createElement('span'); ow.textContent=d.owner; ow.title='Owner'; meta.appendChild(ow); }
+        if(relEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(relEl); }
+        if(canonEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(canonEl); }
         const rels=document.createElement('div'); rels.className='rels';
         // linked epics
         if(Array.isArray(d.linked_epics) && d.linked_epics.length){
@@ -435,13 +471,17 @@
         const meta=document.createElement('div'); meta.className='meta';
         const statusEl = makeStatusBadge(d.status);
         const prioEl = makePrioBadge(d.prioriteit);
-        const sp = d.sprint?`sprint:${d.sprint}`:null;
-        const pts = d.story_points?`SP:${d.story_points}`:null;
-        const rel = d.target_release?`rel:${d.target_release}`:null;
+        const sprintEl2 = makeSprintBadge(d.sprint);
+        const spEl2 = makeSPBadge(d.story_points);
+        const relEl2 = makeRelBadge(d.target_release);
+        const canonEl2 = makeCanonicalBadge(d.canonical);
         if(statusEl) meta.appendChild(statusEl);
         if(prioEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(prioEl); }
-        const tail=[d.owner, sp, pts, rel, d.canonical?'canonical':null].filter(Boolean).join(' • ');
-        if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
+        if(d.owner){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const ow=document.createElement('span'); ow.textContent=d.owner; ow.title='Owner'; meta.appendChild(ow); }
+        if(sprintEl2){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(sprintEl2); }
+        if(spEl2){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(spEl2); }
+        if(relEl2){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(relEl2); }
+        if(canonEl2){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(canonEl2); }
         const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         link.setAttribute('aria-label',`Open ${d.title||d.id||d.path}`);
         li.append(type,title,meta,link); list.appendChild(li);
