@@ -162,7 +162,8 @@ class DefinitionEditTab:
             return f"edit_{definition.id}_{name}"
         
         # Begrip field
-        disabled = (definition.metadata.get('status') == 'established') if definition.metadata else False
+        status_code = definition.metadata.get('status') if definition.metadata else None
+        disabled = True if status_code in ('established', 'archived') else False
 
         begrip = st.text_input(
             "Begrip",
@@ -241,7 +242,10 @@ class DefinitionEditTab:
         )
 
         if disabled:
-            st.info("🛡️ Deze definitie is Vastgesteld en daarom alleen-lezen. Zet de status via de Expert-tab terug om te bewerken.")
+            if status_code == 'established':
+                st.info("🛡️ Deze definitie is Vastgesteld en daarom alleen-lezen. Zet de status via de Expert-tab terug om te bewerken.")
+            elif status_code == 'archived':
+                st.info("📦 Deze definitie is Gearchiveerd en daarom alleen-lezen. Herstel via de Expert-tab om te bewerken.")
         
         # Track changes for auto-save
         self._track_changes()
