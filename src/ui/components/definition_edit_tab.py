@@ -416,8 +416,7 @@ class DefinitionEditTab:
                     if st.button("Herstel auto-save", key="restore_auto_save_btn"):
                         self._restore_auto_save(session['auto_save'])
 
-                # Hydrate editor velden met huidige definitie
-                self._hydrate_editor_fields(session['definition'])
+                # ID-gescope widget-keys zorgen dat de juiste waarden direct getoond worden
                 
                 st.success("✅ Edit sessie gestart")
                 st.rerun()
