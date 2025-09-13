@@ -18,6 +18,14 @@
   const workStatus = document.getElementById('workStatus');
   const workPriority = document.getElementById('workPriority');
   const workOnlyUs = document.getElementById('workOnlyUs');
+  const toolbar = document.querySelector('.toolbar');
+  // Create badge container once, placed just under toolbar
+  const badgeContainer = document.createElement('div');
+  badgeContainer.id = 'queryBadges';
+  badgeContainer.className = 'search-badges';
+  if(toolbar && toolbar.parentElement){
+    toolbar.insertAdjacentElement('afterend', badgeContainer);
+  }
 
   const docs = (data.documents||[]).slice();
   const idMap = {};
@@ -43,20 +51,140 @@
   function setHashParam(key, val){
     const params = new URLSearchParams((location.hash||'').replace(/^#/,''));
     if(val) params.set(key,val); else params.delete(key);
-    location.hash = '#'+params.toString();
+    const newHash = '#'+params.toString();
+    if(location.hash !== newHash){
+      location.hash = newHash;
+    }
+  }
+
+  // --- US-095: Lightweight query parser ---
+  // Parses key:value tokens with optional quoted values, supports multiple values per key.
+  // Supported keys (MVP): id, owner, type, status, sprint, prio (alias: prioriteit, priority), title
+  function normalizeKey(k){
+    const key = String(k||'').toLowerCase();
+    if(key === 'prio' || key === 'prioriteit' || key === 'priority') return 'prioriteit';
+    if(key === 'id' || key === 'owner' || key === 'type' || key === 'status' || key === 'sprint' || key === 'title') return key;
+    return null; // unknown keys ignored in MVP
+  }
+
+  function parseQuery(query){
+    const result = {
+      text: [],        // free text tokens
+      filters: {       // key -> array of values
+        id: [], owner: [], type: [], status: [], sprint: [], prioriteit: [], title: []
+      },
+      raw: String(query||'')
+    };
+    const q = String(query||'');
+    if(!q.trim()) return result;
+
+    // Match sequences of: key:("value with spaces"|'value'|value)
+    const re = /(^|\s)([a-zA-Z_][a-zA-Z0-9_]*):(?:"([^"]*)"|'([^']*)'|([^\s]+))/g;
+    let m;
+    // Keep track of ranges to remove matched segments from leftover
+    const spans = [];
+    while((m = re.exec(q))){
+      const raw = m[0];
+      const key = normalizeKey(m[2]);
+      const val = (m[3]!==undefined && m[3]!==null) ? m[3]
+                : (m[4]!==undefined && m[4]!==null) ? m[4]
+                : (m[5]!==undefined && m[5]!==null) ? m[5]
+                : '';
+      if(key && val){
+        if(!Array.isArray(result.filters[key])) result.filters[key] = [];
+        result.filters[key].push(val);
+      }
+      // Track the absolute index of the match to strip later
+      const start = m.index + (m[1] ? m[1].length : 0);
+      spans.push([start, start + raw.trimStart().length]);
+    }
+
+    // Build leftover by removing matched spans
+    if(spans.length){
+      // Merge overlapping spans for safety
+      spans.sort((a,b)=>a[0]-b[0]);
+      const merged = [];
+      for(const s of spans){
+        if(!merged.length || s[0] > merged[merged.length-1][1]) merged.push(s);
+        else merged[merged.length-1][1] = Math.max(merged[merged.length-1][1], s[1]);
+      }
+      let last = 0; let leftover = '';
+      for(const [a,b] of merged){
+        leftover += q.slice(last, a);
+        last = b;
+      }
+      leftover += q.slice(last);
+      // Remaining words become free-text tokens
+      leftover.trim().split(/\s+/).filter(Boolean).forEach(t=>result.text.push(t));
+    } else {
+      // No key:value tokens; split all as free text
+      q.trim().split(/\s+/).filter(Boolean).forEach(t=>result.text.push(t));
+    }
+
+    return result;
   }
 
   function match(d, query){
+    // Legacy free-text matcher (kept for now). Token-based filtering will be applied in pipeline.
     if(!query) return true;
     const s=(d.id+' '+(d.title||'')+' '+(d.status||'')+' '+(d.owner||'')).toLowerCase();
     return query.split(/\s+/).every(t=>s.includes(t));
   }
 
   function render(){
-    const query=(q.value||'').trim().toLowerCase();
+    const query=(q.value||'').trim();
+    // Keep hash 'q' in sync for bookmarkable queries
+    setHashParam('q', query);
+    const parsed = parseQuery(query);
+    const plainQuery = parsed.text.join(' ').toLowerCase();
+    // Update badge UI
+    updateBadgeUI(parsed);
     const t = tf.value;
     const s = sf.value;
-    let filtered = docs.filter(d => match(d,query) && (!t||d.type===t) && (!s||String(d.status||'')===s));
+    // Base filtering: free-text + dropdown type/status
+    let filtered = docs.filter(d => match(d,plainQuery) && (!t||d.type===t) && (!s||String(d.status||'')===s));
+
+    // Sprint dropdown (visible in planning, but apply if set)
+    const sprintFilterVal = (sprintSel && sprintSel.value) ? String(sprintSel.value) : '';
+    if(sprintFilterVal){
+      const want = sprintFilterVal.toLowerCase();
+      filtered = filtered.filter(d => String(d.sprint||'').toLowerCase() === want);
+    }
+
+    // Token-based filtering (AND across keys, OR within a key)
+    const ci = (x)=>String(x||'').toLowerCase();
+    const hasAny = (arr)=>Array.isArray(arr) && arr.length>0;
+    if(hasAny(parsed.filters.id)){
+      const wants = parsed.filters.id.map(ci);
+      filtered = filtered.filter(d => wants.includes(ci(d.id)));
+    }
+    if(hasAny(parsed.filters.owner)){
+      const wants = parsed.filters.owner.map(ci);
+      filtered = filtered.filter(d => wants.includes(ci(d.owner)));
+    }
+    if(hasAny(parsed.filters.type)){
+      const wants = parsed.filters.type.map(ci);
+      filtered = filtered.filter(d => wants.includes(ci(d.type)));
+    }
+    if(hasAny(parsed.filters.status)){
+      const wants = parsed.filters.status.map(ci);
+      filtered = filtered.filter(d => wants.includes(ci(d.status)));
+    }
+    if(hasAny(parsed.filters.sprint)){
+      const wants = parsed.filters.sprint.map(ci);
+      filtered = filtered.filter(d => wants.includes(ci(d.sprint)));
+    }
+    if(hasAny(parsed.filters.prioriteit)){
+      const wants = parsed.filters.prioriteit.map(ci);
+      filtered = filtered.filter(d => wants.includes(ci(d.prioriteit)));
+    }
+    if(hasAny(parsed.filters.title)){
+      const wants = parsed.filters.title.map(ci);
+      filtered = filtered.filter(d => {
+        const blob = ci((d.title||d.id||d.path));
+        return wants.every(w => blob.includes(w));
+      });
+    }
 
     // view handling
     const view = getView();
@@ -269,6 +397,46 @@
     stats.textContent=`Items: ${shown}  |  (REQ:${c.REQ||0} EPIC:${c.EPIC||0} US:${c.US||0} BUG:${c.BUG||0} ARCH:${c.ARCH||0} GUIDE:${c.GUIDE||0} TEST:${c.TEST||0} COMP:${c.COMP||0} DOC:${c.DOC||0})`;
   }
 
+  function updateBadgeUI(parsed){
+    if(!badgeContainer) return;
+    // Clear
+    badgeContainer.textContent = '';
+    const hasTokens = (parsed.text && parsed.text.length) || Object.values(parsed.filters||{}).some(a=>Array.isArray(a)&&a.length);
+    if(!hasTokens){
+      badgeContainer.style.display = 'none';
+      return;
+    }
+    badgeContainer.style.display = '';
+    const hint = document.createElement('span');
+    hint.className = 'hint';
+    hint.textContent = 'Filters:';
+    badgeContainer.appendChild(hint);
+
+    // Render filter badges
+    const renderPair = (k,v)=>{
+      const b = document.createElement('span');
+      b.className = 'badge';
+      b.textContent = `${k}:${v}`;
+      badgeContainer.appendChild(b);
+    };
+    for(const [k,vals] of Object.entries(parsed.filters)){
+      if(Array.isArray(vals)) vals.forEach(v=>renderPair(k,v));
+    }
+    // Free-text badges
+    (parsed.text||[]).forEach(tk=>{
+      const b=document.createElement('span'); b.className='badge'; b.textContent=tk; badgeContainer.appendChild(b);
+    });
+
+    // Clear button
+    const clear = document.createElement('button');
+    clear.className = 'clear-query';
+    clear.type = 'button';
+    clear.textContent = '× Wissen';
+    clear.title = 'Zoekopdracht wissen';
+    clear.addEventListener('click', ()=>{ q.value=''; render(); });
+    badgeContainer.appendChild(clear);
+  }
+
   function renderPlanningHierarchy(items, headerLabel){
     const h = document.createElement('h3'); h.className='group';
     h.textContent = `${headerLabel} (${items.length})`;
@@ -323,6 +491,12 @@
       li.append(type,title,meta,link); list.appendChild(li);
     });
   }
+
+  // Initialize search from hash (bookmarkable query)
+  try {
+    const initialQ = getHashParam('q');
+    if(initialQ) q.value = initialQ;
+  } catch(e){}
 
   q.addEventListener('input',render); tf.addEventListener('change',render); sf.addEventListener('change',render);
   if(sortSel) sortSel.addEventListener('change',render);

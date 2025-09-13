@@ -56,3 +56,19 @@ Configuratie
 Privacy & A11y
 - NFR’s: geen PII/secrets; sanitization; respecteer canonical/archived filters waar nodig
 - Basis A11y: toetsenbordnavigatie, aria‑labels; contrast (AA)
+
+Zoekoperators (MVP)
+- Ondersteund in het zoekveld `q` als key:value tokens; meerdere per key toegestaan (OR binnen een key, AND tussen keys en met UI‑filters).
+- Keys: `id:`, `owner:`, `type:`, `status:`, `sprint:`, `prio:` (alias: `prioriteit:`, `priority:`), `title:` (fallback op titel/id/path; partial match).
+- Waarden met spaties kunnen met quotes: `owner:"jan jansen"`.
+- Case‑insensitive; exact match per operator behalve `title:` en vrije tekst (partial).
+- Voorbeelden:
+  - `type:US status:IN_UITVOERING` — toon user stories in uitvoering
+  - `owner:developer prio:hoog` — items van owner ‘developer’ met prioriteit ‘HOOG’
+  - `sprint:"Sprint 37"` — filter op specifieke sprint
+  - `title:validatie architectuur` — titel/id/path bevat “validatie” én “architectuur”
+  - `id:US-095` — exact ID match
+
+Bookmarkbare query
+- Portal synchroniseert het zoekveld met de hash: `#q=type:US%20status:IN_UITVOERING`.
+- Werkt samen met andere hash‑params zoals `view=work`.
