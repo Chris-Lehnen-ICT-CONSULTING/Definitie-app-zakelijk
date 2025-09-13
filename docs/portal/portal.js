@@ -193,6 +193,7 @@
       Array.from(viewTabs.querySelectorAll('a')).forEach(a=>{
         const isActive=(a.getAttribute('href')||'').includes('view='+view);
         a.classList.toggle('active', !!isActive);
+        a.setAttribute('aria-selected', isActive ? 'true' : 'false');
       });
     }
 
@@ -302,14 +303,17 @@
         const reqIds = Array.isArray(e.linked_reqs)? e.linked_reqs : [];
         if(!reqIds.length) return; // show only epics with reqs
         const tr=document.createElement('tr');
-        const td1=document.createElement('td'); const a=document.createElement('a'); a.textContent=e.id||'EPIC'; a.href=viewerHref(e.rendered_url||e.url||e.path, e.title||e.id||'EPIC'); td1.appendChild(a);
+        const td1=document.createElement('td'); const a=document.createElement('a'); a.textContent=e.id||'EPIC'; a.href=viewerHref(e.rendered_url||e.url||e.path, e.title||e.id||'EPIC'); attachAltClickFilter(a, e.id||''); td1.appendChild(a);
         const td2=document.createElement('td'); td2.textContent=e.title||'';
         const td3=document.createElement('td');
         reqIds.forEach(rid=>{
           const r = idMap[rid];
           const chip=document.createElement('span'); chip.className='chip';
-          if(r && (r.rendered_url||r.url)){ const link=document.createElement('a'); link.href=viewerHref(r.rendered_url||r.url, r.title||rid); link.textContent=rid; chip.appendChild(link); }
-          else { chip.textContent=rid; }
+          if(r && (r.rendered_url||r.url)){
+            const link=document.createElement('a'); link.href=viewerHref(r.rendered_url||r.url, r.title||rid); link.textContent=rid; attachAltClickFilter(link, rid); chip.appendChild(link);
+          } else { chip.textContent=rid; }
+          // filter button
+          chip.appendChild(makeFilterButton(rid));
           td3.appendChild(chip);
         });
         const count=document.createElement('span'); count.className='meta'; count.textContent=`  (${reqIds.length})`;
@@ -369,7 +373,9 @@
           d.linked_epics.forEach(eid=>{
             const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=eid;
             const target=idMap[eid]; if(target && (target.rendered_url||target.url)) a.href=viewerHref(target.rendered_url||target.url, target.title||eid);
-            rels.appendChild(a);
+            attachAltClickFilter(a, eid);
+            const wrap=document.createElement('span'); wrap.className='chip'; wrap.appendChild(a); wrap.appendChild(makeFilterButton(eid));
+            rels.appendChild(wrap);
           });
         }
         // linked stories
@@ -378,7 +384,9 @@
           d.linked_stories.forEach(uid=>{
             const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=uid;
             const target=idMap[uid]; if(target && (target.rendered_url||target.url)) a.href=viewerHref(target.rendered_url||target.url, target.title||uid);
-            rels.appendChild(a);
+            attachAltClickFilter(a, uid);
+            const wrap=document.createElement('span'); wrap.className='chip'; wrap.appendChild(a); wrap.appendChild(makeFilterButton(uid));
+            rels.appendChild(wrap);
           });
         }
         const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path); link.textContent='open';
@@ -403,6 +411,31 @@
     // counts shown reflect current view selection
     const shown = list.querySelectorAll('li.doc-item').length;
     stats.textContent=`Items: ${shown}  |  (REQ:${c.REQ||0} EPIC:${c.EPIC||0} US:${c.US||0} BUG:${c.BUG||0} ARCH:${c.ARCH||0} GUIDE:${c.GUIDE||0} TEST:${c.TEST||0} COMP:${c.COMP||0} DOC:${c.DOC||0})`;
+  }
+
+  // ---- Chip deeplink helpers (US-086) ----
+  function applyIDFilter(id, append){
+    const token = `id:${id}`;
+    const cur = (q.value||'').trim();
+    const next = append && cur ? `${cur} ${token}` : token;
+    q.value = next;
+    render();
+  }
+  function attachAltClickFilter(anchor, id){
+    if(!anchor) return;
+    anchor.addEventListener('click', (e)=>{
+      if(e.altKey){ e.preventDefault(); applyIDFilter(id, e.shiftKey); }
+    });
+  }
+  function makeFilterButton(id){
+    const btn=document.createElement('button');
+    btn.className='filter-btn';
+    btn.type='button';
+    btn.textContent='🔎';
+    btn.title=`Filter op id:${id} (Shift: toevoegen)`;
+    btn.setAttribute('aria-label', `Filter op id ${id}`);
+    btn.addEventListener('click', (e)=>{ applyIDFilter(id, !!e.shiftKey); });
+    return btn;
   }
 
   function updateBadgeUI(parsed){
@@ -483,7 +516,7 @@
       const e = epics[eid];
       const eHeader = document.createElement('div'); eHeader.className='planning-epic';
       const eBadge = document.createElement('span'); eBadge.className='badge type'; eBadge.textContent='EPIC';
-      const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=viewerHref((e.epic&&(e.epic.rendered_url||e.epic.url))||'#', (e.epic&&e.epic.title)||eid);
+      const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=viewerHref((e.epic&&(e.epic.rendered_url||e.epic.url))||'#', (e.epic&&e.epic.title)||eid); attachAltClickFilter(eTitle, (e.epic&&e.epic.id)||eid||'');
       // Counts per epic
       const usCount = Object.keys(e.us||{}).length;
       const bugCount = Object.values(e.us||{}).reduce((acc, u)=>acc + ((u.bugs&&u.bugs.length)||0), 0);
@@ -494,14 +527,15 @@
         const u=e.us[uid];
         const li=document.createElement('div'); li.className='planning-us';
         const uBadge=document.createElement('span'); uBadge.className='badge type'; uBadge.textContent='US';
-        const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=viewerHref(u.us.rendered_url||u.us.url, u.us.title||u.us.id);
+        const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=viewerHref(u.us.rendered_url||u.us.url, u.us.title||u.us.id); attachAltClickFilter(uLink, u.us.id||'');
         const uMeta=document.createElement('span'); uMeta.className='meta'; const pts=u.us.story_points?`SP:${u.us.story_points}`:null;
         const bugc = (u.bugs && u.bugs.length) ? `bugs:${u.bugs.length}` : null;
         uMeta.textContent=['status:'+(u.us.status||''), u.us.prioriteit, pts, bugc].filter(Boolean).join(' · ');
-        li.append(uBadge,uLink,document.createTextNode(' '),uMeta);
+        const uFilter = makeFilterButton(u.us.id||'');
+        li.append(uBadge,uLink,uFilter,document.createTextNode(' '),uMeta);
         if(u.bugs && u.bugs.length){
           const bugRow=document.createElement('div'); bugRow.className='planning-bugs';
-          u.bugs.sort(cmpPlanning).forEach(b=>{ const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=viewerHref(b.rendered_url||b.url||b.path, b.title||b.id||'BUG'); bugRow.appendChild(chip); });
+          u.bugs.sort(cmpPlanning).forEach(b=>{ const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=viewerHref(b.rendered_url||b.url||b.path, b.title||b.id||'BUG'); attachAltClickFilter(chip, b.id||''); bugRow.appendChild(chip); const fb = makeFilterButton(b.id||''); bugRow.appendChild(fb); });
           li.appendChild(bugRow);
         }
         list.appendChild(li);

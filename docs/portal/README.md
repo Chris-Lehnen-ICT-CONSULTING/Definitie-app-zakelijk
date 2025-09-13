@@ -34,7 +34,7 @@ Rendering (MD/PDF/DOCX)
 - Word (.docx): niet native in de browser; viewer biedt “Open direct”/“Nieuw tabblad” als fallback (openen/download in native app).
 - Feature‑flag: zet `PORTAL_RENDER_MD=0` om MD pre‑rendering uit te schakelen.
 
- Views
+Views
 - Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)
 - Planning: EPIC → US → BUG hiërarchie met aantallen (US en BUG per EPIC, bug-count per US). Sprintfilter verschijnt alleen als sprints bestaan en wordt zichtbaar als badge.
 - Requirements: REQ‑overzicht met klikbare EPIC/US chips; tellen/traceability zichtbaar
@@ -56,6 +56,9 @@ Configuratie
 Privacy & A11y
 - NFR’s: geen PII/secrets; sanitization; respecteer canonical/archived filters waar nodig
 - Basis A11y: toetsenbordnavigatie, aria‑labels; contrast (AA)
+  - Skip‑link bovenaan: "Sla navigatie over en ga naar de lijst"
+  - Zichtbare focus‑states op tabs, knoppen en inputs (focus‑visible)
+  - Tabs hebben `role="tablist"` en `aria-selected`
 
 Zoekoperators (MVP)
 - Ondersteund in het zoekveld `q` als key:value tokens; meerdere per key toegestaan (OR binnen een key, AND tussen keys en met UI‑filters).
@@ -72,3 +75,9 @@ Zoekoperators (MVP)
 Bookmarkbare query
 - Portal synchroniseert het zoekveld met de hash: `#q=type:US%20status:IN_UITVOERING`.
 - Werkt samen met andere hash‑params zoals `view=work`.
+
+Chip‑deeplinks (US‑086 basis)
+- Elk chip‑element (EPIC/US/REQ/BUG) heeft een 🔎‑knopje om direct te filteren op `id:…`.
+- Toetscombinaties:
+  - Alt‑klik op een chip (link): filter i.p.v. openen.
+  - Shift‑klik op 🔎: voeg toe aan de bestaande query (AND tussen tokens).
