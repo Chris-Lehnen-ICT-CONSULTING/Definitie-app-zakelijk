@@ -309,6 +309,23 @@ class ExpertReviewTab:
                 else:
                     st.error("❌ Terugzetten mislukt")
 
+        elif status == 'archived':
+            st.markdown("#### ♻️ Herstel uit archief")
+            reason = st.text_area(
+                "Reden (verplicht)", key=f"restore_reason_{definitie.id}", height=80
+            )
+            disabled = not bool(reason and reason.strip())
+            if st.button("Herstel (naar Concept)", key=f"restore_btn_{definitie.id}", disabled=disabled):
+                user = st.session_state.get('user', 'expert')
+                ok = self.repository.change_status(
+                    definitie.id, DefinitieStatus.DRAFT, changed_by=user, notes=reason.strip()
+                )
+                if ok:
+                    st.success("✅ Definitie hersteld uit archief (Concept)")
+                    st.rerun()
+                else:
+                    st.error("❌ Herstellen mislukt")
+
     def _render_comparison_view(self, definitie: DefinitieRecord):
         """Render side-by-side comparison view voor edits."""
         st.markdown("#### ✏️ Definitie Bewerking")
