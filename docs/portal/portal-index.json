@@ -2941,6 +2941,45 @@
       }
     },
     {
+      "id": "US-155",
+      "type": "feature",
+      "title": "Expert Approval Interface - Goedkeuren van Definities",
+      "path": "docs/backlog/EPIC-004/US-155/US-155.md",
+      "url": "docs/backlog/EPIC-004/US-155/US-155.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "expert-reviewer",
+      "canonical": true,
+      "last_verified": "2025-09-12",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-155.md",
+      "_refs": {
+        "us": [
+          "US-064",
+          "US-072",
+          "US-155"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": [
+          "REQ-007",
+          "REQ-012"
+        ]
+      }
+    },
+    {
       "id": "US-154",
       "type": "DOC",
       "title": "Normaliseer Wettelijke Basis naar eigen tabel(len) met rijke query-ondersteuning",
@@ -11599,7 +11638,7 @@
           "US-076",
           "US-078",
           "US-152",
-          "US-155"
+          "US-159"
         ],
         "epic": [
           "EPIC-010",
@@ -11757,40 +11796,6 @@
       }
     },
     {
-      "id": "US-155",
-      "type": "DOC",
-      "title": "V2 UI‑contractconsolidatie + foutmapping (UIResponseDict overal)",
-      "path": "docs/backlog/EPIC-012/US-155/US-155.md",
-      "url": "docs/backlog/EPIC-012/US-155/US-155.md",
-      "status": "Nog te bepalen",
-      "prioriteit": "HOOG",
-      "owner": "developer-implementer",
-      "canonical": true,
-      "last_verified": "2025-09-12",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": "sprint-37",
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": 37,
-        "priority_rank": 2,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-012",
-      "parent_us": "US-155.md",
-      "_refs": {
-        "us": [
-          "US-155"
-        ],
-        "epic": [
-          "EPIC-012"
-        ],
-        "req": []
-      }
-    },
-    {
       "id": null,
       "type": "DOC",
       "title": "US-061: Extract en documenteer business kennis uit legacy",
@@ -11859,6 +11864,40 @@
         ],
         "epic": [
           "EPIC-010"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-159",
+      "type": "DOC",
+      "title": "V2 UI‑contractconsolidatie + foutmapping (UIResponseDict overal)",
+      "path": "docs/backlog/EPIC-012/US-159/US-159.md",
+      "url": "docs/backlog/EPIC-012/US-159/US-159.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-12",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "sprint-37",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 37,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-159.md",
+      "_refs": {
+        "us": [
+          "US-159"
+        ],
+        "epic": [
+          "EPIC-012"
         ],
         "req": []
       }
@@ -26258,7 +26297,7 @@
       "analyse": 1,
       "compliance-report": 1,
       "technische-analyse": 1,
-      "feature": 46,
+      "feature": 47,
       "BUG": 5,
       "Prestaties": 1,
       "technical-debt": 2,
@@ -26282,7 +26321,7 @@
       "implementation-plan": 1,
       "GUIDE": 10
     },
-    "generated_at": "2025-09-12T15:39:38Z"
+    "generated_at": "2025-09-13T06:49:26Z"
   },
   "sources": [
     "docs"
