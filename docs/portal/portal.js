@@ -285,7 +285,9 @@
           return na-nb || String(a).localeCompare(String(b));
         });
         sprintKeys.forEach(groupKey=>{
-          renderPlanningHierarchy(groups[groupKey].slice().sort(cmpPlanning), `Sprint: ${groupKey}`);
+          const itemsForGroup = groups[groupKey].slice().sort(cmpPlanning);
+          const label = String(groupKey).toLowerCase()==='backlog' ? 'Backlog (geen sprint)' : `Sprint: ${groupKey}`;
+          renderPlanningHierarchy(itemsForGroup, label);
         });
       } else {
         // No sprints: render a single EPIC→US→BUG hierarchy
@@ -351,9 +353,16 @@
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
         const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
         const meta=document.createElement('div'); meta.className='meta';
+        const statusTxt = String(d.status||'');
+        const prioTxt = String(d.prioriteit||'');
+        const statusEl = statusTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge status-badge status-${statusTxt.toUpperCase()}`; el.textContent=statusTxt; return el; })() : null;
+        const prioEl = prioTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge prio-badge prio-${prioTxt.toUpperCase()}`; el.textContent=prioTxt; return el; })() : null;
         const sp = d.sprint?`sprint:${d.sprint}`:null;
         const pts = d.story_points?`SP:${d.story_points}`:null;
-        meta.textContent=[d.status,d.owner,d.prioriteit,sp,pts].filter(Boolean).join(' • ');
+        if(statusEl) meta.appendChild(statusEl);
+        if(prioEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(prioEl); }
+        const tail = [d.owner, sp, pts].filter(Boolean).join(' • ');
+        if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
         const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         li.append(type,title,meta,link); list.appendChild(li);
       });
@@ -364,8 +373,15 @@
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'REQ';
         const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
         const meta=document.createElement('div'); meta.className='meta';
+        const statusTxt = String(d.status||'');
+        const prioTxt = String(d.prioriteit||'');
+        const statusEl = statusTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge status-badge status-${statusTxt.toUpperCase()}`; el.textContent=statusTxt; return el; })() : null;
+        const prioEl = prioTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge prio-badge prio-${prioTxt.toUpperCase()}`; el.textContent=prioTxt; return el; })() : null;
         const rel = d.target_release?`rel:${d.target_release}`:null;
-        meta.textContent=[d.status,d.owner,d.prioriteit,rel,d.canonical?'canonical':null].filter(Boolean).join(' • ');
+        if(statusEl) meta.appendChild(statusEl);
+        if(prioEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(prioEl); }
+        const tail=[d.owner, rel, d.canonical?'canonical':null].filter(Boolean).join(' • ');
+        if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
         const rels=document.createElement('div'); rels.className='rels';
         // linked epics
         if(Array.isArray(d.linked_epics) && d.linked_epics.length){
@@ -399,10 +415,17 @@
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
         const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
         const meta=document.createElement('div'); meta.className='meta';
+        const statusTxt = String(d.status||'');
+        const prioTxt = String(d.prioriteit||'');
+        const statusEl = statusTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge status-badge status-${statusTxt.toUpperCase()}`; el.textContent=statusTxt; return el; })() : null;
+        const prioEl = prioTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge prio-badge prio-${prioTxt.toUpperCase()}`; el.textContent=prioTxt; return el; })() : null;
         const sp = d.sprint?`sprint:${d.sprint}`:null;
         const pts = d.story_points?`SP:${d.story_points}`:null;
         const rel = d.target_release?`rel:${d.target_release}`:null;
-        meta.textContent=[d.status,d.owner,d.prioriteit,sp,pts,rel,d.canonical?'canonical':null].filter(Boolean).join(' • ');
+        if(statusEl) meta.appendChild(statusEl);
+        if(prioEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(prioEl); }
+        const tail=[d.owner, sp, pts, rel, d.canonical?'canonical':null].filter(Boolean).join(' • ');
+        if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
         const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         li.append(type,title,meta,link); list.appendChild(li);
       });
@@ -515,12 +538,20 @@
 
   function renderPlanningHierarchy(items, headerLabel){
     const h = document.createElement('h3'); h.className='group';
-    // Compute type counts for header summary
+    // Compute type counts and SP subtotal for header summary
     const typeCounts = items.reduce((acc,d)=>{ const t=String(d.type||'').toUpperCase(); acc[t]=(acc[t]||0)+1; return acc; }, {});
+    const spSubtotal = items.reduce((acc,d)=>{
+      if(String(d.type||'').toUpperCase()==='US'){
+        const v = Number(d.story_points);
+        if(!Number.isNaN(v)) return acc + v;
+      }
+      return acc;
+    }, 0);
     const parts = [];
     if(typeCounts.EPIC) parts.push(`EPIC:${typeCounts.EPIC}`);
     if(typeCounts.US) parts.push(`US:${typeCounts.US}`);
     if(typeCounts.BUG) parts.push(`BUG:${typeCounts.BUG}`);
+    if(spSubtotal>0) parts.push(`SP:${spSubtotal}`);
     const suffix = parts.length ? ` — ${parts.join(' • ')}` : '';
     h.textContent = `${headerLabel} (${items.length})${suffix}`;
     list.appendChild(h);
