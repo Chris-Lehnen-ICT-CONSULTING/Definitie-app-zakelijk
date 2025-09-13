@@ -33,8 +33,7 @@
           "US-041",
           "US-042",
           "US-048",
-          "US-050",
-          "US-143"
+          "US-050"
         ],
         "epic": [
           "EPIC-001",
@@ -92,7 +91,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "report",
       "title": "Documentatie Normalisatie Rapport",
       "path": "docs/NORMALISATIE_RAPPORT.md",
       "url": "docs/NORMALISATIE_RAPPORT.md",
@@ -122,7 +121,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "log",
       "title": "Refactor Log",
       "path": "docs/refactor-log.md",
       "url": "docs/refactor-log.md",
@@ -377,9 +376,7 @@
           "US-042",
           "US-043",
           "US-044",
-          "US-045",
-          "US-142",
-          "US-143"
+          "US-045"
         ],
         "epic": [
           "EPIC-001",
@@ -614,23 +611,23 @@
           "US-001",
           "US-002",
           "US-007",
+          "US-014",
           "US-018",
+          "US-020",
           "US-021",
           "US-022",
+          "US-026",
+          "US-036",
+          "US-037",
+          "US-039",
           "US-063",
           "US-068",
           "US-079",
+          "US-124",
           "US-125",
           "US-126",
           "US-127",
-          "US-134",
-          "US-135",
-          "US-136",
-          "US-137",
-          "US-148",
-          "US-149",
-          "US-151",
-          "US-158"
+          "US-134"
         ],
         "epic": [
           "EPIC-001",
@@ -647,7 +644,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "analyse",
       "title": "VERTALING-ANALYSE-RAPPORT",
       "path": "docs/VERTALING-ANALYSE-RAPPORT.md",
       "url": "docs/VERTALING-ANALYSE-RAPPORT.md",
@@ -1459,7 +1456,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "compliance-report",
       "title": "Documentation Standards Compliance Report",
       "path": "docs/DOCUMENTATION-STANDARDS-COMPLIANCE-REPORT.md",
       "url": "docs/DOCUMENTATION-STANDARDS-COMPLIANCE-REPORT.md",
@@ -2054,7 +2051,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "technische-analyse",
       "title": "Technical Root Cause Analysis - \"Anders...\" Option State Management Issue",
       "path": "docs/technisch/ANDERS-OPTION-ROOT-CAUSE-ANALYSIS.md",
       "url": "docs/technisch/ANDERS-OPTION-ROOT-CAUSE-ANALYSIS.md",
@@ -2187,8 +2184,7 @@
           "US-084",
           "US-087",
           "US-088",
-          "US-089",
-          "US-135"
+          "US-089"
         ],
         "epic": [
           "EPIC-001",
@@ -2206,7 +2202,7 @@
     },
     {
       "id": "US-081",
-      "type": "DOC",
+      "type": "feature",
       "title": "Rechtspraak.nl ECLI Integratie",
       "path": "docs/backlog/EPIC-003/US-081/US-081.md",
       "url": "docs/backlog/EPIC-003/US-081/US-081.md",
@@ -2242,7 +2238,7 @@
     },
     {
       "id": "US-088",
-      "type": "DOC",
+      "type": "feature",
       "title": "No‑PII Logging & Masking",
       "path": "docs/backlog/EPIC-003/US-088/US-088.md",
       "url": "docs/backlog/EPIC-003/US-088/US-088.md",
@@ -2276,7 +2272,7 @@
     },
     {
       "id": "US-017",
-      "type": "DOC",
+      "type": "feature",
       "title": "Content Validatie & Filtering",
       "path": "docs/backlog/EPIC-003/US-017/US-017.md",
       "url": "docs/backlog/EPIC-003/US-017/US-017.md",
@@ -2312,7 +2308,7 @@
     },
     {
       "id": "US-019",
-      "type": "DOC",
+      "type": "feature",
       "title": "Cache Management (Web Lookup)",
       "path": "docs/backlog/EPIC-003/US-019/US-019.md",
       "url": "docs/backlog/EPIC-003/US-019/US-019.md",
@@ -2348,7 +2344,7 @@
     },
     {
       "id": "US-089",
-      "type": "DOC",
+      "type": "feature",
       "title": "Provider Metrics (Latency/Hit‑Ratio)",
       "path": "docs/backlog/EPIC-003/US-089/US-089.md",
       "url": "docs/backlog/EPIC-003/US-089/US-089.md",
@@ -2382,7 +2378,7 @@
     },
     {
       "id": "US-080",
-      "type": "DOC",
+      "type": "feature",
       "title": "Wetgeving.nl (Wettenbank) Integratie",
       "path": "docs/backlog/EPIC-003/US-080/US-080.md",
       "url": "docs/backlog/EPIC-003/US-080/US-080.md",
@@ -2418,7 +2414,7 @@
     },
     {
       "id": "US-087",
-      "type": "DOC",
+      "type": "feature",
       "title": "Scraping NFR Enforcement (Sanitization/Robots)",
       "path": "docs/backlog/EPIC-003/US-087/US-087.md",
       "url": "docs/backlog/EPIC-003/US-087/US-087.md",
@@ -2452,7 +2448,7 @@
     },
     {
       "id": "US-018",
-      "type": "DOC",
+      "type": "feature",
       "title": "Source Attribution System",
       "path": "docs/backlog/EPIC-003/US-018/US-018.md",
       "url": "docs/backlog/EPIC-003/US-018/US-018.md",
@@ -2522,7 +2518,7 @@
     },
     {
       "id": "US-016",
-      "type": "DOC",
+      "type": "feature",
       "title": "SRU Legal Database Integratie",
       "path": "docs/backlog/EPIC-003/US-016/US-016.md",
       "url": "docs/backlog/EPIC-003/US-016/US-016.md",
@@ -2557,8 +2553,110 @@
       }
     },
     {
+      "id": "US-135",
+      "type": "feature",
+      "title": "Modern Web Lookup Implementatie",
+      "path": "docs/backlog/EPIC-003/US-014/US-014.md",
+      "url": "docs/backlog/EPIC-003/US-014/US-014.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-014.md",
+      "_refs": {
+        "us": [
+          "US-135"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-017",
+          "REQ-020",
+          "REQ-021",
+          "REQ-039",
+          "REQ-040"
+        ]
+      }
+    },
+    {
+      "id": "CFR-BUG-015",
+      "type": "BUG",
+      "title": "Compat web lookup gebruikt niet‑bestaand attribuut 'title",
+      "path": "docs/backlog/EPIC-003/US-014/CFR-BUG-015/README.md",
+      "url": "docs/backlog/EPIC-003/US-014/CFR-BUG-015/README.md",
+      "status": "OPEN",
+      "prioriteit": "HOOG",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-014",
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
+      "type": "BUG",
+      "title": "CFR-BUG-015",
+      "path": "docs/backlog/EPIC-003/US-014/CFR-BUG-015/CFR-BUG-015.md",
+      "url": "docs/backlog/EPIC-003/US-014/CFR-BUG-015/CFR-BUG-015.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-014",
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      }
+    },
+    {
       "id": "US-082",
-      "type": "DOC",
+      "type": "feature",
       "title": "EUR-Lex EU Recht Integratie",
       "path": "docs/backlog/EPIC-003/US-082/US-082.md",
       "url": "docs/backlog/EPIC-003/US-082/US-082.md",
@@ -2594,7 +2692,7 @@
     },
     {
       "id": "US-015",
-      "type": "DOC",
+      "type": "feature",
       "title": "Wikipedia API Integratie",
       "path": "docs/backlog/EPIC-003/US-015/US-015.md",
       "url": "docs/backlog/EPIC-003/US-015/US-015.md",
@@ -2630,7 +2728,7 @@
     },
     {
       "id": "US-079",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Wiktionary Integration",
       "path": "docs/backlog/EPIC-003/US-079/US-079.md",
       "url": "docs/backlog/EPIC-003/US-079/US-079.md",
@@ -2667,7 +2765,7 @@
     },
     {
       "id": "US-084",
-      "type": "DOC",
+      "type": "feature",
       "title": "DBpedia Integratie (SPARQL)",
       "path": "docs/backlog/EPIC-003/US-084/US-084.md",
       "url": "docs/backlog/EPIC-003/US-084/US-084.md",
@@ -2703,7 +2801,7 @@
     },
     {
       "id": "US-083",
-      "type": "DOC",
+      "type": "feature",
       "title": "Wikidata Integratie (SPARQL)",
       "path": "docs/backlog/EPIC-003/US-083/US-083.md",
       "url": "docs/backlog/EPIC-003/US-083/US-083.md",
@@ -2739,7 +2837,7 @@
     },
     {
       "id": "US-135",
-      "type": "DOC",
+      "type": "feature",
       "title": "Modern Web Lookup Implementatie",
       "path": "docs/backlog/EPIC-003/US-135/US-135.md",
       "url": "docs/backlog/EPIC-003/US-135/US-135.md",
@@ -2874,11 +2972,10 @@
           "US-064",
           "US-067",
           "US-068",
+          "US-069",
+          "US-070",
           "US-071",
-          "US-110",
-          "US-136",
-          "US-153",
-          "US-154"
+          "US-110"
         ],
         "epic": [
           "EPIC-004"
@@ -2901,7 +2998,7 @@
     },
     {
       "id": "US-021",
-      "type": "DOC",
+      "type": "feature",
       "title": "Tab Activation (7/10 tabs needed)",
       "path": "docs/backlog/EPIC-004/US-021/US-021.md",
       "url": "docs/backlog/EPIC-004/US-021/US-021.md",
@@ -2941,8 +3038,47 @@
       }
     },
     {
+      "id": "US-136",
+      "type": "feature",
+      "title": "validatie Results Display",
+      "path": "docs/backlog/EPIC-004/US-020/US-020.md",
+      "url": "docs/backlog/EPIC-004/US-020/US-020.md",
+      "status": "GEREED",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "Voltooid",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-020.md",
+      "_refs": {
+        "us": [
+          "US-018",
+          "US-019",
+          "US-136"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": [
+          "REQ-052",
+          "REQ-054"
+        ]
+      }
+    },
+    {
       "id": "US-155",
-      "type": "DOC",
+      "type": "feature",
       "title": "Expert Approval Interface - Goedkeuren van Definities",
       "path": "docs/backlog/EPIC-004/US-155/US-155.md",
       "url": "docs/backlog/EPIC-004/US-155/US-155.md",
@@ -3052,7 +3188,7 @@
     },
     {
       "id": "US-136",
-      "type": "DOC",
+      "type": "feature",
       "title": "validatie Results Display",
       "path": "docs/backlog/EPIC-004/US-136/US-136.md",
       "url": "docs/backlog/EPIC-004/US-136/US-136.md",
@@ -3090,8 +3226,43 @@
       }
     },
     {
-      "id": "US-067",
+      "id": "US-069",
       "type": "DOC",
+      "title": "Voeg wettelijke_basis toe aan DB schema en datalaag",
+      "path": "docs/backlog/EPIC-004/US-069/US-069.md",
+      "url": "docs/backlog/EPIC-004/US-069/US-069.md",
+      "status": "IN_UITVOERING",
+      "prioriteit": "HIGH",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-12",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-069.md",
+      "_refs": {
+        "us": [
+          "US-064",
+          "US-069"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-067",
+      "type": "feature",
       "title": "Implement Expert Review Draft and Revalidation Features",
       "path": "docs/backlog/EPIC-004/US-067/US-067.md",
       "url": "docs/backlog/EPIC-004/US-067/US-067.md",
@@ -3127,7 +3298,7 @@
     },
     {
       "id": "US-068",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Audit Trail Query for History Tab",
       "path": "docs/backlog/EPIC-004/US-068/US-068.md",
       "url": "docs/backlog/EPIC-004/US-068/US-068.md",
@@ -3163,7 +3334,7 @@
     },
     {
       "id": "US-025",
-      "type": "DOC",
+      "type": "feature",
       "title": "Definition Generation UI",
       "path": "docs/backlog/EPIC-004/US-025/US-025.md",
       "url": "docs/backlog/EPIC-004/US-025/US-025.md",
@@ -3202,7 +3373,7 @@
     },
     {
       "id": "US-022",
-      "type": "DOC",
+      "type": "Prestaties",
       "title": "UI Prestaties Optimization",
       "path": "docs/backlog/EPIC-004/US-022/US-022.md",
       "url": "docs/backlog/EPIC-004/US-022/US-022.md",
@@ -3267,9 +3438,7 @@
           "US-064",
           "US-069",
           "US-070",
-          "US-071",
-          "US-153",
-          "US-154"
+          "US-071"
         ],
         "epic": [
           "EPIC-004"
@@ -3279,7 +3448,7 @@
     },
     {
       "id": "US-023",
-      "type": "DOC",
+      "type": "feature",
       "title": "Responsive Design Implementatie",
       "path": "docs/backlog/EPIC-004/US-023/US-023.md",
       "url": "docs/backlog/EPIC-004/US-023/US-023.md",
@@ -3317,7 +3486,7 @@
     },
     {
       "id": "US-024",
-      "type": "DOC",
+      "type": "feature",
       "title": "Basic Tab Structure",
       "path": "docs/backlog/EPIC-004/US-024/US-024.md",
       "url": "docs/backlog/EPIC-004/US-024/US-024.md",
@@ -3353,6 +3522,42 @@
       }
     },
     {
+      "id": "US-070",
+      "type": "DOC",
+      "title": "Normaliseer Wettelijke Basis naar eigen tabel(len) met rijke query-ondersteuning",
+      "path": "docs/backlog/EPIC-004/US-070/US-070.md",
+      "url": "docs/backlog/EPIC-004/US-070/US-070.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-12",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-070.md",
+      "_refs": {
+        "us": [
+          "US-064",
+          "US-069",
+          "US-070"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": "US-110",
       "type": "DOC",
       "title": "Persistente bronverantwoording (web sources) en generatie‑metadata voor definities",
@@ -3379,10 +3584,10 @@
       "_refs": {
         "us": [
           "US-064",
+          "US-069",
+          "US-070",
           "US-071",
-          "US-110",
-          "US-153",
-          "US-154"
+          "US-110"
         ],
         "epic": [
           "EPIC-004"
@@ -3417,9 +3622,9 @@
       "_refs": {
         "us": [
           "US-064",
-          "US-110",
-          "US-153",
-          "US-154"
+          "US-069",
+          "US-070",
+          "US-110"
         ],
         "epic": [
           "EPIC-004"
@@ -3429,7 +3634,7 @@
     },
     {
       "id": "US-064",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Definition Edit Interface",
       "path": "docs/backlog/EPIC-004/US-064/US-064.md",
       "url": "docs/backlog/EPIC-004/US-064/US-064.md",
@@ -3522,8 +3727,8 @@
       "parent_us": "US-064",
       "_refs": {
         "us": [
-          "US-064",
-          "US-152"
+          "US-062",
+          "US-064"
         ],
         "epic": [
           "EPIC-004",
@@ -3592,11 +3797,11 @@
       "parent_us": null,
       "_refs": {
         "us": [
+          "US-026",
+          "US-027",
+          "US-028",
           "US-062",
-          "US-065",
-          "US-137",
-          "US-138",
-          "US-139"
+          "US-065"
         ],
         "epic": [
           "EPIC-005"
@@ -3611,8 +3816,125 @@
       }
     },
     {
+      "id": "US-023",
+      "type": "feature",
+      "title": "Batch Operations",
+      "path": "docs/backlog/EPIC-005/US-028/US-028.md",
+      "url": "docs/backlog/EPIC-005/US-028/US-028.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "LAAG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-005",
+      "parent_us": "US-028.md",
+      "_refs": {
+        "us": [
+          "US-021",
+          "US-022",
+          "US-023",
+          "US-035"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-075",
+          "REQ-076"
+        ]
+      }
+    },
+    {
+      "id": "US-021",
+      "type": "feature",
+      "title": "Export Formats (JSON, PDF, DOCX)",
+      "path": "docs/backlog/EPIC-005/US-026/US-026.md",
+      "url": "docs/backlog/EPIC-005/US-026/US-026.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-005",
+      "parent_us": "US-026.md",
+      "_refs": {
+        "us": [
+          "US-001",
+          "US-006",
+          "US-021"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-071",
+          "REQ-072"
+        ]
+      }
+    },
+    {
+      "id": "US-022",
+      "type": "feature",
+      "title": "Import validatie",
+      "path": "docs/backlog/EPIC-005/US-027/US-027.md",
+      "url": "docs/backlog/EPIC-005/US-027/US-027.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-005",
+      "parent_us": "US-027.md",
+      "_refs": {
+        "us": [
+          "US-021",
+          "US-022"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-073",
+          "REQ-074"
+        ]
+      }
+    },
+    {
       "id": "US-139",
-      "type": "DOC",
+      "type": "feature",
       "title": "Batch Operations",
       "path": "docs/backlog/EPIC-005/US-139/US-139.md",
       "url": "docs/backlog/EPIC-005/US-139/US-139.md",
@@ -3652,7 +3974,7 @@
     },
     {
       "id": "US-137",
-      "type": "DOC",
+      "type": "feature",
       "title": "Export Formats (JSON, PDF, DOCX)",
       "path": "docs/backlog/EPIC-005/US-137/US-137.md",
       "url": "docs/backlog/EPIC-005/US-137/US-137.md",
@@ -3691,7 +4013,7 @@
     },
     {
       "id": "US-138",
-      "type": "DOC",
+      "type": "feature",
       "title": "Import validatie",
       "path": "docs/backlog/EPIC-005/US-138/US-138.md",
       "url": "docs/backlog/EPIC-005/US-138/US-138.md",
@@ -3729,7 +4051,7 @@
     },
     {
       "id": "US-062",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Bulk Import Functionality",
       "path": "docs/backlog/EPIC-005/US-062/US-062.md",
       "url": "docs/backlog/EPIC-005/US-062/US-062.md",
@@ -3766,7 +4088,7 @@
     },
     {
       "id": "US-065",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Email Export and Scheduled Exports",
       "path": "docs/backlog/EPIC-005/US-065/US-065.md",
       "url": "docs/backlog/EPIC-005/US-065/US-065.md",
@@ -4395,7 +4717,7 @@
     },
     {
       "id": "US-043",
-      "type": "DOC",
+      "type": "technical-debt",
       "title": "Remove Legacy Context Routes",
       "path": "docs/backlog/EPIC-010/US-043/US-043.md",
       "url": "docs/backlog/EPIC-010/US-043/US-043.md",
@@ -4506,7 +4828,7 @@
     },
     {
       "id": "US-042",
-      "type": "BUG",
+      "type": "bug",
       "title": "Fix \"Anders...\" Custom Context Option",
       "path": "docs/backlog/EPIC-010/US-042/US-042.md",
       "url": "docs/backlog/EPIC-010/US-042/US-042.md",
@@ -4541,7 +4863,7 @@
     },
     {
       "id": "US-051",
-      "type": "DOC",
+      "type": "bug-fix",
       "title": "Fix CFR-BUG-014 Synoniemen/Antoniemen Generatie",
       "path": "docs/backlog/EPIC-010/US-051/US-051.md",
       "url": "docs/backlog/EPIC-010/US-051/US-051.md",
@@ -4644,7 +4966,7 @@
     },
     {
       "id": "US-056",
-      "type": "DOC",
+      "type": "technical_debt",
       "title": "Remove Legacy Session State Management System",
       "path": "docs/backlog/EPIC-010/US-056/US-056.md",
       "url": "docs/backlog/EPIC-010/US-056/US-056.md",
@@ -4678,7 +5000,7 @@
     },
     {
       "id": "US-058",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Comprehensive Audit Trail for Context Operations",
       "path": "docs/backlog/EPIC-010/US-058/US-058.md",
       "url": "docs/backlog/EPIC-010/US-058/US-058.md",
@@ -4713,7 +5035,7 @@
     },
     {
       "id": "US-059",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Data Integrity Safeguards for Context Management",
       "path": "docs/backlog/EPIC-010/US-059/US-059.md",
       "url": "docs/backlog/EPIC-010/US-059/US-059.md",
@@ -4749,7 +5071,7 @@
     },
     {
       "id": "US-057",
-      "type": "BUG",
+      "type": "bug",
       "title": "Fix \"Anders...\" Custom Context Option Functionality",
       "path": "docs/backlog/EPIC-010/US-057/US-057.md",
       "url": "docs/backlog/EPIC-010/US-057/US-057.md",
@@ -4784,7 +5106,7 @@
     },
     {
       "id": "US-050",
-      "type": "TEST",
+      "type": "testing",
       "title": "Create End-to-End Context FLAAG Tests",
       "path": "docs/backlog/EPIC-010/US-050/US-050.md",
       "url": "docs/backlog/EPIC-010/US-050/US-050.md",
@@ -4828,7 +5150,7 @@
     },
     {
       "id": "US-049",
-      "type": "COMP",
+      "type": "compliance",
       "title": "Add Context Traceability for ASTRA compliance",
       "path": "docs/backlog/EPIC-010/US-049/US-049.md",
       "url": "docs/backlog/EPIC-010/US-049/US-049.md",
@@ -4903,7 +5225,7 @@
     },
     {
       "id": "US-041",
-      "type": "BUG",
+      "type": "bug",
       "title": "Fix Context Field Mapping to Prompts",
       "path": "docs/backlog/EPIC-010/US-041/US-041.md",
       "url": "docs/backlog/EPIC-010/US-041/US-041.md",
@@ -5006,7 +5328,7 @@
     },
     {
       "id": "US-048",
-      "type": "DOC",
+      "type": "feature",
       "title": "Implement Context Type validatie",
       "path": "docs/backlog/EPIC-010/US-048/US-048.md",
       "url": "docs/backlog/EPIC-010/US-048/US-048.md",
@@ -5046,7 +5368,7 @@
     },
     {
       "id": "US-052",
-      "type": "DOC",
+      "type": "technical-debt",
       "title": "Orchestrator Async Voorbeelden Migration",
       "path": "docs/backlog/EPIC-010/US-052/US-052.md",
       "url": "docs/backlog/EPIC-010/US-052/US-052.md",
@@ -5085,7 +5407,7 @@
     },
     {
       "id": "US-053",
-      "type": "DOC",
+      "type": "ci-cd",
       "title": "Implement CI Gates tegen Legacy Patterns",
       "path": "docs/backlog/EPIC-010/US-053/US-053.md",
       "url": "docs/backlog/EPIC-010/US-053/US-053.md",
@@ -5873,8 +6195,8 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-055",
-          "US-135"
+          "US-014",
+          "US-055"
         ],
         "epic": [
           "EPIC-003",
@@ -5888,8 +6210,8 @@
       },
       "linked_epics": null,
       "linked_stories": [
-        "US-055",
-        "US-135"
+        "US-014",
+        "US-055"
       ]
     },
     {
@@ -6663,8 +6985,8 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-051",
-          "US-136"
+          "US-020",
+          "US-051"
         ],
         "epic": [
           "EPIC-004",
@@ -6676,8 +6998,8 @@
       },
       "linked_epics": null,
       "linked_stories": [
-        "US-051",
-        "US-136"
+        "US-020",
+        "US-051"
       ]
     },
     {
@@ -6710,23 +7032,22 @@
           "US-002",
           "US-006",
           "US-007",
+          "US-014",
+          "US-020",
           "US-021",
           "US-022",
+          "US-024",
           "US-025",
+          "US-026",
           "US-027",
+          "US-028",
+          "US-031",
           "US-060",
           "US-062",
           "US-063",
           "US-067",
           "US-068",
-          "US-079",
-          "US-135",
-          "US-136",
-          "US-137",
-          "US-140",
-          "US-141",
-          "US-142",
-          "US-145"
+          "US-079"
         ],
         "epic": [
           "EPIC-001",
@@ -6768,8 +7089,8 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-052",
-          "US-136"
+          "US-020",
+          "US-052"
         ],
         "epic": [
           "EPIC-004",
@@ -6781,8 +7102,8 @@
       },
       "linked_epics": null,
       "linked_stories": [
-        "US-052",
-        "US-136"
+        "US-020",
+        "US-052"
       ]
     },
     {
@@ -7457,7 +7778,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "business-requirements",
       "title": "Business Requirements Specification - Custom Context Input Functionality",
       "path": "docs/backlog/requirements/BRS-CUSTOM-CONTEXT-INPUT.md",
       "url": "docs/backlog/requirements/BRS-CUSTOM-CONTEXT-INPUT.md",
@@ -8009,8 +8330,8 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-053",
-          "US-136"
+          "US-020",
+          "US-053"
         ],
         "epic": [
           "EPIC-004",
@@ -8023,8 +8344,8 @@
       },
       "linked_epics": null,
       "linked_stories": [
-        "US-053",
-        "US-136"
+        "US-020",
+        "US-053"
       ]
     },
     {
@@ -9276,8 +9597,8 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-054",
-          "US-135"
+          "US-014",
+          "US-054"
         ],
         "epic": [
           "EPIC-003",
@@ -9289,8 +9610,8 @@
       },
       "linked_epics": null,
       "linked_stories": [
-        "US-054",
-        "US-135"
+        "US-014",
+        "US-054"
       ]
     },
     {
@@ -9749,7 +10070,7 @@
     },
     {
       "id": "US-060",
-      "type": "DOC",
+      "type": "technical-improvement",
       "title": "Implement Event Bus Architecture",
       "path": "docs/backlog/EPIC-009/US-060/US-060.md",
       "url": "docs/backlog/EPIC-009/US-060/US-060.md",
@@ -9784,8 +10105,42 @@
       }
     },
     {
-      "id": "US-066",
+      "id": null,
       "type": "DOC",
+      "title": "US-035: Load Testen & Benchmarking",
+      "path": "docs/backlog/EPIC-009/US-035/US-035.md",
+      "url": "docs/backlog/EPIC-009/US-035/US-035.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-035.md",
+      "_refs": {
+        "us": [
+          "US-035"
+        ],
+        "epic": [
+          "EPIC-007"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-066",
+      "type": "feature-enhancement",
       "title": "Implement AI Enhancement for Definitions",
       "path": "docs/backlog/EPIC-009/US-066/US-066.md",
       "url": "docs/backlog/EPIC-009/US-066/US-066.md",
@@ -9922,6 +10277,142 @@
       }
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-037: Collaborative Editing",
+      "path": "docs/backlog/EPIC-009/US-037/US-037.md",
+      "url": "docs/backlog/EPIC-009/US-037/US-037.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-037.md",
+      "_refs": {
+        "us": [
+          "US-037"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-039: Batch Processing",
+      "path": "docs/backlog/EPIC-009/US-039/US-039.md",
+      "url": "docs/backlog/EPIC-009/US-039/US-039.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-039.md",
+      "_refs": {
+        "us": [
+          "US-039"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-038: API Endpoints",
+      "path": "docs/backlog/EPIC-009/US-038/US-038.md",
+      "url": "docs/backlog/EPIC-009/US-038/US-038.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-038.md",
+      "_refs": {
+        "us": [
+          "US-038"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-036: Versie History",
+      "path": "docs/backlog/EPIC-009/US-036/US-036.md",
+      "url": "docs/backlog/EPIC-009/US-036/US-036.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-009",
+      "parent_us": "US-036.md",
+      "_refs": {
+        "us": [
+          "US-036"
+        ],
+        "epic": [
+          "EPIC-009"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": "EPIC-007",
       "type": "DOC",
       "title": "Prestaties & Scaling",
@@ -9947,17 +10438,16 @@
       "parent_us": null,
       "_refs": {
         "us": [
+          "US-028",
           "US-029",
+          "US-030",
+          "US-031",
+          "US-032",
           "US-033",
           "US-034",
           "US-035",
           "US-047",
-          "US-063",
-          "US-142",
-          "US-143",
-          "US-144",
-          "US-145",
-          "US-146"
+          "US-063"
         ],
         "epic": [
           "EPIC-007"
@@ -9984,8 +10474,46 @@
       }
     },
     {
-      "id": "US-073",
+      "id": "US-028",
       "type": "DOC",
+      "title": "Service Initialization Caching",
+      "path": "docs/backlog/EPIC-007/US-028/US-028.md",
+      "url": "docs/backlog/EPIC-007/US-028/US-028.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-007",
+      "parent_us": "US-028.md",
+      "_refs": {
+        "us": [
+          "US-028"
+        ],
+        "epic": [
+          "EPIC-007"
+        ],
+        "req": [
+          "REQ-061",
+          "REQ-065",
+          "REQ-073"
+        ]
+      }
+    },
+    {
+      "id": "US-073",
+      "type": "tooling",
       "title": "Rollback mechanisme voor hernoemscript (analyse/hernoem-naar-nederlands.py)",
       "path": "docs/backlog/EPIC-007/US-073/US-073.md",
       "url": "docs/backlog/EPIC-007/US-073/US-073.md",
@@ -10016,6 +10544,45 @@
         ],
         "req": [
           "REQ-006"
+        ]
+      }
+    },
+    {
+      "id": "US-029",
+      "type": "DOC",
+      "title": "vermindert OpenAI met minimaal 30% Token Gebruik met 60% door Prompt Optimalisatie",
+      "path": "docs/backlog/EPIC-007/US-029/US-029.md",
+      "url": "docs/backlog/EPIC-007/US-029/US-029.md",
+      "status": "todo",
+      "prioriteit": "high",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "current",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-007",
+      "parent_us": "US-029.md",
+      "_refs": {
+        "us": [
+          "US-029",
+          "US-030"
+        ],
+        "epic": [
+          "EPIC-007"
+        ],
+        "req": [
+          "REQ-061",
+          "REQ-065",
+          "REQ-073"
         ]
       }
     },
@@ -10148,6 +10715,40 @@
       "_refs": {
         "us": [
           "US-035"
+        ],
+        "epic": [
+          "EPIC-007"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-032: Frontend Bundle Optimization",
+      "path": "docs/backlog/EPIC-007/US-032/US-032.md",
+      "url": "docs/backlog/EPIC-007/US-032/US-032.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-007",
+      "parent_us": "US-032.md",
+      "_refs": {
+        "us": [
+          "US-032"
         ],
         "epic": [
           "EPIC-007"
@@ -10310,7 +10911,7 @@
     },
     {
       "id": "US-063",
-      "type": "DOC",
+      "type": "technical-improvement",
       "title": "Implement Database Maintenance Tools",
       "path": "docs/backlog/EPIC-007/US-063/US-063.md",
       "url": "docs/backlog/EPIC-007/US-063/US-063.md",
@@ -10380,6 +10981,44 @@
       }
     },
     {
+      "id": "US-030",
+      "type": "DOC",
+      "title": "validatieregels Caching",
+      "path": "docs/backlog/EPIC-007/US-030/US-030.md",
+      "url": "docs/backlog/EPIC-007/US-030/US-030.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-007",
+      "parent_us": "US-030.md",
+      "_refs": {
+        "us": [
+          "US-030"
+        ],
+        "epic": [
+          "EPIC-007"
+        ],
+        "req": [
+          "REQ-061",
+          "REQ-065",
+          "REQ-073"
+        ]
+      }
+    },
+    {
       "id": "US-039",
       "type": "DOC",
       "title": "Config schema‑validatie + omgevingprofielen (SSOT via config_manager)",
@@ -10445,6 +11084,44 @@
           "EPIC-007"
         ],
         "req": []
+      }
+    },
+    {
+      "id": "US-031",
+      "type": "DOC",
+      "title": "Database Query Optimization",
+      "path": "docs/backlog/EPIC-007/US-031/US-031.md",
+      "url": "docs/backlog/EPIC-007/US-031/US-031.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "GEMIDDELD",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-007",
+      "parent_us": "US-031.md",
+      "_refs": {
+        "us": [
+          "US-031"
+        ],
+        "epic": [
+          "EPIC-007"
+        ],
+        "req": [
+          "REQ-061",
+          "REQ-065",
+          "REQ-073"
+        ]
       }
     },
     {
@@ -10606,7 +11283,7 @@
     },
     {
       "id": "US-069",
-      "type": "DOC",
+      "type": "technical-improvement",
       "title": "Prompt Builder Compaction Logic",
       "path": "docs/backlog/EPIC-001/US-069/US-069.md",
       "url": "docs/backlog/EPIC-001/US-069/US-069.md",
@@ -10819,10 +11496,10 @@
       "parent_us": null,
       "_refs": {
         "us": [
+          "US-024",
+          "US-025",
           "US-026",
-          "US-027",
-          "US-140",
-          "US-141"
+          "US-027"
         ],
         "epic": [
           "EPIC-006"
@@ -10990,7 +11667,7 @@
     },
     {
       "id": "US-140",
-      "type": "DOC",
+      "type": "enhancement",
       "title": "API Key validatie at Startup",
       "path": "docs/backlog/EPIC-006/US-140/US-140.md",
       "url": "docs/backlog/EPIC-006/US-140/US-140.md",
@@ -11103,6 +11780,83 @@
       }
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-025: User authenticatie",
+      "path": "docs/backlog/EPIC-006/US-025/US-025.md",
+      "url": "docs/backlog/EPIC-006/US-025/US-025.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-006",
+      "parent_us": "US-025.md",
+      "_refs": {
+        "us": [
+          "US-025"
+        ],
+        "epic": [
+          "EPIC-006"
+        ],
+        "req": [
+          "REQ-044",
+          "REQ-045",
+          "REQ-071"
+        ]
+      }
+    },
+    {
+      "id": "US-024",
+      "type": "enhancement",
+      "title": "API Key validatie at Startup",
+      "path": "docs/backlog/EPIC-006/US-024/US-024.md",
+      "url": "docs/backlog/EPIC-006/US-024/US-024.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "05-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "enhancement",
+      "sprint": "backlog",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-006",
+      "parent_us": "US-024.md",
+      "_refs": {
+        "us": [
+          "US-024",
+          "US-025",
+          "US-026"
+        ],
+        "epic": [
+          "EPIC-006"
+        ],
+        "req": [
+          "REQ-024",
+          "REQ-025"
+        ]
+      }
+    },
+    {
       "id": "US-030",
       "type": "DOC",
       "title": "Logging‑redactie (PII masking) en retentiebeleid",
@@ -11201,6 +11955,7 @@
       "parent_us": null,
       "_refs": {
         "us": [
+          "US-124",
           "US-125",
           "US-126",
           "US-127",
@@ -11210,8 +11965,7 @@
           "US-131",
           "US-132",
           "US-133",
-          "US-134",
-          "US-158"
+          "US-134"
         ],
         "epic": [
           "EPIC-015"
@@ -11221,7 +11975,7 @@
     },
     {
       "id": "US-130",
-      "type": "DOC",
+      "type": "feature",
       "title": "Portal Publicatie/Hosting",
       "path": "docs/backlog/EPIC-015/US-130/US-130.md",
       "url": "docs/backlog/EPIC-015/US-130/US-130.md",
@@ -11255,7 +12009,7 @@
     },
     {
       "id": "US-131",
-      "type": "DOC",
+      "type": "feature",
       "title": "Hub Aggregator (Multi‑Repo)",
       "path": "docs/backlog/EPIC-015/US-131/US-131.md",
       "url": "docs/backlog/EPIC-015/US-131/US-131.md",
@@ -11289,7 +12043,7 @@
     },
     {
       "id": "US-125",
-      "type": "DOC",
+      "type": "feature",
       "title": "Role-Based Access Control (RBAC)",
       "path": "docs/backlog/EPIC-015/US-125/US-125.md",
       "url": "docs/backlog/EPIC-015/US-125/US-125.md",
@@ -11322,8 +12076,42 @@
       }
     },
     {
+      "id": "US-124",
+      "type": "feature",
+      "title": "Authenticatie (Login/Logout)",
+      "path": "docs/backlog/EPIC-015/US-124/US-124.md",
+      "url": "docs/backlog/EPIC-015/US-124/US-124.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-11",
+      "applies_to": null,
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-015",
+      "parent_us": "US-124.md",
+      "_refs": {
+        "us": [
+          "US-124"
+        ],
+        "epic": [
+          "EPIC-015"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": "US-134",
-      "type": "DOC",
+      "type": "feature",
       "title": "Custom Workflows (Engine)",
       "path": "docs/backlog/EPIC-015/US-134/US-134.md",
       "url": "docs/backlog/EPIC-015/US-134/US-134.md",
@@ -11357,7 +12145,7 @@
     },
     {
       "id": "US-133",
-      "type": "DOC",
+      "type": "feature",
       "title": "Observability Stack (Metrics/Dashboards)",
       "path": "docs/backlog/EPIC-015/US-133/US-133.md",
       "url": "docs/backlog/EPIC-015/US-133/US-133.md",
@@ -11391,7 +12179,7 @@
     },
     {
       "id": "US-158",
-      "type": "DOC",
+      "type": "feature",
       "title": "Authenticatie (Login/Logout)",
       "path": "docs/backlog/EPIC-015/US-158/US-158.md",
       "url": "docs/backlog/EPIC-015/US-158/US-158.md",
@@ -11425,7 +12213,7 @@
     },
     {
       "id": "US-132",
-      "type": "DOC",
+      "type": "feature",
       "title": "Audit Trail + PII Scanner (Tooling)",
       "path": "docs/backlog/EPIC-015/US-132/US-132.md",
       "url": "docs/backlog/EPIC-015/US-132/US-132.md",
@@ -11459,7 +12247,7 @@
     },
     {
       "id": "US-126",
-      "type": "DOC",
+      "type": "feature",
       "title": "API Key Management",
       "path": "docs/backlog/EPIC-015/US-126/US-126.md",
       "url": "docs/backlog/EPIC-015/US-126/US-126.md",
@@ -11493,7 +12281,7 @@
     },
     {
       "id": "US-128",
-      "type": "DOC",
+      "type": "feature",
       "title": "Collaboration (Comments/Mentions)",
       "path": "docs/backlog/EPIC-015/US-128/US-128.md",
       "url": "docs/backlog/EPIC-015/US-128/US-128.md",
@@ -11527,7 +12315,7 @@
     },
     {
       "id": "US-129",
-      "type": "DOC",
+      "type": "feature",
       "title": "Version Control (Diff/History)",
       "path": "docs/backlog/EPIC-015/US-129/US-129.md",
       "url": "docs/backlog/EPIC-015/US-129/US-129.md",
@@ -11561,7 +12349,7 @@
     },
     {
       "id": "US-127",
-      "type": "DOC",
+      "type": "feature",
       "title": "Externe API (REST)",
       "path": "docs/backlog/EPIC-015/US-127/US-127.md",
       "url": "docs/backlog/EPIC-015/US-127/US-127.md",
@@ -11633,12 +12421,11 @@
           "US-070",
           "US-071",
           "US-072",
+          "US-073",
           "US-074",
           "US-075",
           "US-076",
-          "US-078",
-          "US-152",
-          "US-159"
+          "US-078"
         ],
         "epic": [
           "EPIC-010",
@@ -11650,7 +12437,7 @@
     },
     {
       "id": "US-072",
-      "type": "DOC",
+      "type": "refactor",
       "title": "DefinitionWorkflowService – combineer Workflow en Repository acties",
       "path": "docs/backlog/EPIC-012/US-072/US-072.md",
       "url": "docs/backlog/EPIC-012/US-072/US-072.md",
@@ -11711,6 +12498,40 @@
       "_refs": {
         "us": [
           "US-074"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-073",
+      "type": "DOC",
+      "title": "V2 UI‑contractconsolidatie + foutmapping (UIResponseDict overal)",
+      "path": "docs/backlog/EPIC-012/US-073/US-073.md",
+      "url": "docs/backlog/EPIC-012/US-073/US-073.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": true,
+      "last_verified": "2025-09-12",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": "sprint-37",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 37,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-073.md",
+      "_refs": {
+        "us": [
+          "US-073"
         ],
         "epic": [
           "EPIC-012"
@@ -11903,6 +12724,82 @@
       }
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Implementation Plan: FeedbackBuilder Refactoring",
+      "path": "docs/backlog/EPIC-012/US-062/IMPLEMENTATION_PLAN.md",
+      "url": "docs/backlog/EPIC-012/US-062/IMPLEMENTATION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-062",
+      "_refs": {
+        "us": [
+          "US-027",
+          "US-028",
+          "US-061",
+          "US-062",
+          "US-064"
+        ],
+        "epic": [
+          "EPIC-005",
+          "EPIC-012"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-062: Refactor FeedbackBuilder naar moderne service",
+      "path": "docs/backlog/EPIC-012/US-062/US-062.md",
+      "url": "docs/backlog/EPIC-012/US-062/US-062.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-062.md",
+      "_refs": {
+        "us": [
+          "US-027",
+          "US-061",
+          "US-062",
+          "US-064"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": []
+      }
+    },
+    {
       "id": "EPIC-013",
       "type": "DOC",
       "title": "Centrale Documentatie‑Portal (Interactief & Auto‑sync)",
@@ -11961,7 +12858,7 @@
     },
     {
       "id": "US-086",
-      "type": "DOC",
+      "type": "feature",
       "title": "Chip Deeplink Filters (#q=…)",
       "path": "docs/backlog/EPIC-013/US-086/US-086.md",
       "url": "docs/backlog/EPIC-013/US-086/US-086.md",
@@ -12275,7 +13172,7 @@
     },
     {
       "id": "US-085",
-      "type": "DOC",
+      "type": "feature",
       "title": "Portal A11y & Focus Polish",
       "path": "docs/backlog/EPIC-013/US-085/US-085.md",
       "url": "docs/backlog/EPIC-013/US-085/US-085.md",
@@ -12685,8 +13582,10 @@
       "_refs": {
         "us": [
           "US-061",
+          "US-107",
           "US-108",
           "US-109",
+          "US-110",
           "US-111",
           "US-112",
           "US-113",
@@ -12697,9 +13596,7 @@
           "US-118",
           "US-119",
           "US-120",
-          "US-121",
-          "US-156",
-          "US-157"
+          "US-121"
         ],
         "epic": [
           "EPIC-010",
@@ -12778,8 +13675,42 @@
       }
     },
     {
-      "id": "US-122",
+      "id": null,
       "type": "DOC",
+      "title": "US-107: Implementeer FeedbackBuilder Priority Algorithm",
+      "path": "docs/backlog/EPIC-014/US-107/US-107.md",
+      "url": "docs/backlog/EPIC-014/US-107/US-107.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-107.md",
+      "_refs": {
+        "us": [
+          "US-107"
+        ],
+        "epic": [
+          "EPIC-014"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": "US-122",
+      "type": "feature",
       "title": "Branch Overzicht & Koppeling met US/BUG",
       "path": "docs/backlog/EPIC-014/US-122/US-122.md",
       "url": "docs/backlog/EPIC-014/US-122/US-122.md",
@@ -12986,7 +13917,7 @@
     },
     {
       "id": "US-123",
-      "type": "DOC",
+      "type": "feature",
       "title": "Portal kan Multi‑Agent gids openen",
       "path": "docs/backlog/EPIC-014/US-123/US-123.md",
       "url": "docs/backlog/EPIC-014/US-123/US-123.md",
@@ -13181,6 +14112,40 @@
       "_refs": {
         "us": [
           "US-117"
+        ],
+        "epic": [
+          "EPIC-014"
+        ],
+        "req": []
+      }
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-110: Implementeer Weighted Score Calculator",
+      "path": "docs/backlog/EPIC-014/US-110/US-110.md",
+      "url": "docs/backlog/EPIC-014/US-110/US-110.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-110.md",
+      "_refs": {
+        "us": [
+          "US-110"
         ],
         "epic": [
           "EPIC-014"
@@ -23913,7 +24878,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "audit-report",
       "title": "POST-CONSOLIDATION DOCUMENTATION SCAN REPORT",
       "path": "docs/archief/2025-09-05/POST_CONSOLIDATION_SCAN.md",
       "url": "docs/archief/2025-09-05/POST_CONSOLIDATION_SCAN.md",
@@ -25325,7 +26290,7 @@
     },
     {
       "id": null,
-      "type": "DOC",
+      "type": "implementation-plan",
       "title": "Implementation Roadmap & Test Strategy - \"Anders...\" Option Fix",
       "path": "docs/implementation/ANDERS-OPTION-IMPLEMENTATION-ROADMAP.md",
       "url": "docs/implementation/ANDERS-OPTION-IMPLEMENTATION-ROADMAP.md",
@@ -25481,8 +26446,8 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-110",
-          "US-154"
+          "US-070",
+          "US-110"
         ],
         "epic": [
           "EPIC-004"
@@ -25560,7 +26525,7 @@
       "prioriteit": "medium",
       "owner": "architecture",
       "canonical": true,
-      "last_verified": "12-09-2025",
+      "last_verified": "04-09-2025",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
@@ -25688,7 +26653,7 @@
       "prioriteit": "medium",
       "owner": "architecture",
       "canonical": true,
-      "last_verified": "12-09-2025",
+      "last_verified": "05-09-2025",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
@@ -26291,15 +27256,37 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 600,
-      "BUG": 8,
-      "TEST": 24,
-      "COMP": 6,
+      "DOC": 550,
+      "report": 1,
+      "log": 1,
+      "analyse": 1,
+      "compliance-report": 1,
+      "technische-analyse": 1,
+      "feature": 53,
+      "BUG": 7,
+      "Prestaties": 1,
+      "technical-debt": 2,
+      "bug": 3,
+      "bug-fix": 1,
+      "technical_debt": 1,
+      "testing": 1,
+      "compliance": 1,
+      "ci-cd": 1,
       "REQ": 93,
+      "business-requirements": 1,
+      "technical-improvement": 3,
+      "feature-enhancement": 1,
+      "tooling": 1,
+      "enhancement": 2,
+      "refactor": 1,
       "ARCH": 21,
+      "TEST": 23,
+      "audit-report": 1,
+      "COMP": 5,
+      "implementation-plan": 1,
       "GUIDE": 10
     },
-    "generated_at": "2025-09-13T07:13:21Z"
+    "generated_at": "2025-09-13T07:17:20Z"
   },
   "sources": [
     "docs"
@@ -26577,8 +27564,8 @@
     },
     "req_to_us": {
       "REQ-092": [
-        "US-055",
-        "US-135"
+        "US-014",
+        "US-055"
       ],
       "REQ-021": [
         "US-079"
@@ -26592,26 +27579,26 @@
         "US-016"
       ],
       "REQ-088": [
-        "US-051",
-        "US-136"
+        "US-020",
+        "US-051"
       ],
       "REQ-089": [
-        "US-052",
-        "US-136"
+        "US-020",
+        "US-052"
       ],
       "REQ-039": [
         "US-015"
       ],
       "REQ-090": [
-        "US-053",
-        "US-136"
+        "US-020",
+        "US-053"
       ],
       "REQ-012": [
         "US-079"
       ],
       "REQ-091": [
-        "US-054",
-        "US-135"
+        "US-014",
+        "US-054"
       ]
     }
   }
