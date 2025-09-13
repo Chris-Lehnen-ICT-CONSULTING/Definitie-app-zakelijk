@@ -12541,7 +12541,7 @@
       "path": "../backlog/EPIC-013/US-107/US-107.md",
       "url": "../backlog/EPIC-013/US-107/US-107.md",
       "status": "Open",
-      "prioriteit": "HIGH",
+      "prioriteit": "HOOG",
       "owner": "documentation-team",
       "canonical": true,
       "last_verified": "2025-09-12",
@@ -12553,7 +12553,7 @@
       "target_release": null,
       "planning": {
         "sprint_number": null,
-        "priority_rank": 5,
+        "priority_rank": 2,
         "type_rank": 9
       },
       "parent_epic": "EPIC-013",
@@ -26867,7 +26867,7 @@
       "ARCH": 22,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T08:02:24Z"
+    "generated_at": "2025-09-13T08:04:35Z"
   },
   "sources": [
     "docs"
