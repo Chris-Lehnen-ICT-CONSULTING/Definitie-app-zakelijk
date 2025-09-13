@@ -36,6 +36,12 @@ else
     # Normal pre-commit flow voor human developers
     echo "Running standard pre-commit checks..."
 
+    # Backlog integrity guard (IDs + links)
+    if [ -f "scripts/docs/check_backlog_integrity.py" ]; then
+        echo "Running backlog integrity checks (IDs + links)..."
+        python3 scripts/docs/check_backlog_integrity.py || exit 1
+    fi
+
     # Check if pre-commit is installed
     if command -v pre-commit &> /dev/null; then
         pre-commit run --all-files
