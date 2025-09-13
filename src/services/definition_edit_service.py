@@ -464,22 +464,33 @@ class DefinitionEditService:
             # Prefer validate_text if available (ValidationOrchestratorV2)
             def _run_async(coro):
                 import asyncio, threading
+                # Try current loop first
                 try:
-                    return asyncio.run(coro)
+                    loop = asyncio.get_running_loop()
+                    fut = asyncio.run_coroutine_threadsafe(coro, loop)
+                    return fut.result()
                 except RuntimeError:
-                    # Fallback: run coroutine in a separate thread with its own loop
-                    holder = {}
-                    err = {}
-                    def _runner():
+                    pass
+                # Fallback: run coroutine in a dedicated loop in background thread
+                holder: dict[str, object] = {}
+                err: dict[str, BaseException] = {}
+
+                def _runner():
+                    try:
+                        loop2 = asyncio.new_event_loop()
                         try:
-                            holder['v'] = asyncio.run(coro)
-                        except Exception as e:  # pragma: no cover
-                            err['e'] = e
-                    t = threading.Thread(target=_runner, daemon=True)
-                    t.start(); t.join()
-                    if 'e' in err:
-                        raise err['e']
-                    return holder.get('v')
+                            asyncio.set_event_loop(loop2)
+                            holder['v'] = loop2.run_until_complete(coro)
+                        finally:
+                            loop2.close()
+                    except BaseException as e:  # pragma: no cover
+                        err['e'] = e
+
+                t = threading.Thread(target=_runner, daemon=True)
+                t.start(); t.join()
+                if 'e' in err:
+                    raise err['e']
+                return holder.get('v')
 
             # Bouw context_dict uit Context Model V2 lijsten
             context_dict = None
