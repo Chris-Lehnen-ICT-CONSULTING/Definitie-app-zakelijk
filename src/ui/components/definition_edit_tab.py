@@ -155,10 +155,13 @@ class DefinitionEditTab:
             return f"edit_{definition.id}_{name}"
         
         # Begrip field
+        disabled = (definition.metadata.get('status') == 'established') if definition.metadata else False
+
         begrip = st.text_input(
             "Begrip",
             value=definition.begrip,
             key=k("begrip"),
+            disabled=disabled,
             help="Het juridische begrip dat gedefinieerd wordt"
         )
         
@@ -171,6 +174,7 @@ class DefinitionEditTab:
             value=definition.definitie,
             height=200,
             key=k("definitie"),
+            disabled=disabled,
             help="De volledige definitie van het begrip"
         )
         
@@ -183,6 +187,7 @@ class DefinitionEditTab:
                 "Organisatorische Context",
                 value=definition.context or "",
                 key=k("context"),
+                disabled=disabled,
                 help="De organisatie waarvoor deze definitie geldt"
             )
             
@@ -203,6 +208,7 @@ class DefinitionEditTab:
                 "Juridische Context",
                 value=definition.metadata.get('juridische_context', '') if definition.metadata else '',
                 key=k("juridische_context"),
+                disabled=disabled,
                 help="Het rechtsgebied waar deze definitie bij hoort"
             )
             
@@ -213,6 +219,7 @@ class DefinitionEditTab:
                 ["draft", "review", "established", "archived"],
                 index=["draft", "review", "established", "archived"].index(current_status),
                 key=k("status"),
+                disabled=True if disabled else False,
                 help="De huidige status van de definitie"
             )
         
@@ -222,8 +229,12 @@ class DefinitionEditTab:
             value=definition.toelichting or "",
             height=100,
             key=k("toelichting"),
+            disabled=disabled,
             help="Extra uitleg of context bij de definitie"
         )
+
+        if disabled:
+            st.info("🛡️ Deze definitie is Vastgesteld en daarom alleen-lezen. Zet de status via de Expert-tab terug om te bewerken.")
         
         # Track changes for auto-save
         self._track_changes()
