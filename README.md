@@ -116,6 +116,13 @@ Let op: we laden geen `.env`; stel je sleutel in via je shell of VS Code.
 - Wil je een vastgestelde definitie toch aanpassen? Zet in de Expert‑tab de status expliciet terug (actie “Maak bewerkbaar”, reden verplicht). Logging wordt vastgelegd in de geschiedenis.
 - De zoekfunctie ondersteunt filteren op status (incl. “Vastgesteld”). 
 
+## 🧩 Contextbeleid
+
+- De UI toont uitsluitend de bij de definitie **vastgelegde** context (zoals opgeslagen in de database):
+  - Organisatorische context (string), Juridische context (string), Wettelijke basis (lijst)
+  - Deze drie velden zijn altijd zichtbaar; als er niets is vastgelegd tonen we “—”.
+- De **globale** context (via de Context Selector) is een sessie‑instelling voor generatie/validatie/web‑lookup en wordt **niet** getoond of als fallback gebruikt in de contextweergave van definities.
+
 ## 📖 Documentatie Richtlijnen
 
 ### 🎯 Single Source of Truth Policy
