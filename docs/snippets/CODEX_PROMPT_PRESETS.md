@@ -72,6 +72,15 @@ codex config set patch.preview=true
 alias codex-deep='codex --trace --debug'
 ```
 
+### Slash Commands (agent toggles)
+Gebruik deze in je chat om gedrag te sturen (details in `docs/guidelines/AGENTS.md`).
+
+- `/strict on` | `/strict off` — strict mode (geen aannames; pauzes voor akkoord bij patches/tests/netwerk/DB).
+- `/approve` | `/approve all` — geef akkoord voor geblokkeerde stap(pen).
+- `/deny` — weiger volgende geblokkeerde stap.
+- `/plan on` | `/plan off` — planmodus forceren/uitzetten.
+- Scopes: `/strict on patch,test` om alleen bepaalde domeinen te gaten (`patch`, `test`, `network`, `db`, `all`).
+
 ## Prompt Presets (Copy‑Paste)
 
 ### How to use (quick)
@@ -144,3 +153,34 @@ Bronnen:
 - Agents richtlijnen: `docs/guidelines/AGENTS.md`
 - Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`
 - Projectrichtlijnen: `README.md`, `CLAUDE.md`
+
+## No‑Assumptions / Strict Mode (Codex)
+
+Doel: werken zonder aannames door beslissingen expliciet te maken en akkoord te vragen op tussenstappen.
+
+- Strict proces
+  - Start elk werk met `update_plan` + “open vragen/unknowns”; pauzeer tot goedkeuring.
+  - Approval gates: geen codepatch, tests, netwerk of DB‑reset zonder expliciete OK.
+  - Decision Log: leg beslissingen (geen aannames), motivatie en akkoordmoment vast.
+- Vereiste input (voorkomt aannames)
+  - Doel & scope, Definition of Done, acceptatiecriteria.
+  - API/contracten en wijzigingsruimte (wat wel/niet aanpassen).
+  - Randvoorwaarden: security, performance, UX/i18n/a11y, foutafhandeling.
+  - Voorbeelden/tegenvoorbeelden + testdata (happy/edge/error cases).
+  - Bron van waarheid en conflictbeleid bij inconsistenties.
+- Verificatie en bewijs
+  - Lever testopdracht/scenario’s; draai tests en toon resultaten (logs/diff/screenshot waar passend).
+  - Per planstap een kort verificatieblok: wat geverifieerd, hoe, en met welk bewijs.
+- Alternatieven en keuzes
+  - Geef per ontwerpbesluit 2–3 alternatieven met trade‑offs; vraag om keuze vóór implementatie.
+- Scope‑bescherming
+  - Stel wijzigingsgrenzen: enkel paden X/Y, maximaal N regels diff, geen hernoem/format buiten scope.
+  - Specificeer welke feature flags/env‑vars gebruikt mogen worden.
+- Templates (handig)
+  - Opdrachtbrief: doel, scope, DoD, constraints, risico’s, testcases, SSoT.
+  - Review‑gate: beslissingen ter goedkeuring, impact, rollback, testplan.
+- Direct toepasbaar in deze repo
+  - Zet “no‑assumptions” actief: de agent stopt bij unknowns en vraagt om akkoord.
+  - Start met een unknowns‑lijst en laat die expliciet goedkeuren vóór implementatie.
+
+Zie ook: “Slash Commands (agent toggles)” hierboven om strict mode snel te togglen tijdens je sessie.

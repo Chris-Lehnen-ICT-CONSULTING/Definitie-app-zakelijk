@@ -117,6 +117,45 @@ codex config set patch.preview=true
 alias codex-deep='codex --trace --debug'
 ```
 
+### Slash Commands (toggles voor gedrag)
+Gebruik deze in je Codex‑sessie om agents voorspelbaar en zonder aannames te laten werken. Uitgebreid beschreven in `docs/guidelines/AGENTS.md`.
+
+- `/strict on` — activeer strict mode: geen aannames; pauze voor akkoord bij patches, tests, netwerk en DB‑reset.
+- `/strict off` — deactiveer strict mode.
+- `/approve` / `/approve all` — akkoord op de volgende (of alle huidige) geblokkeerde stappen.
+- `/deny` — weiger de volgende stap; agent biedt alternatief of plant om.
+- `/plan on` / `/plan off` — planmodus verplicht/uit.
+- Scopes: `/strict on patch,test` om alleen bepaalde domeinen te gaten (`patch`, `test`, `network`, `db`, `all`).
+
+## No‑Assumptions / Strict Mode (Codex)
+
+Doel: werken zonder aannames door beslissingen expliciet te maken en akkoord te vragen op tussenstappen.
+
+- Strict proces
+  - Start elk werk met `update_plan` + “open vragen/unknowns”; pauzeer tot goedkeuring.
+  - Approval gates: geen codepatch, tests, netwerk of DB‑reset zonder expliciete OK.
+  - Decision Log: leg beslissingen (geen aannames), motivatie en akkoordmoment vast.
+- Vereiste input (voorkomt aannames)
+  - Doel & scope, Definition of Done, acceptatiecriteria.
+  - API/contracten en wijzigingsruimte (wat wel/niet aanpassen).
+  - Randvoorwaarden: security, performance, UX/i18n/a11y, foutafhandeling.
+  - Voorbeelden/tegenvoorbeelden + testdata (happy/edge/error cases).
+  - Bron van waarheid en conflictbeleid bij inconsistenties.
+- Verificatie en bewijs
+  - Lever testopdracht/scenario’s; draai tests en toon resultaten (logs/diff/screenshot waar passend).
+  - Per planstap een kort verificatieblok: wat geverifieerd, hoe, en met welk bewijs.
+- Alternatieven en keuzes
+  - Geef per ontwerpbesluit 2–3 alternatieven met trade‑offs; vraag om keuze vóór implementatie.
+- Scope‑bescherming
+  - Stel wijzigingsgrenzen: enkel paden X/Y, maximaal N regels diff, geen hernoem/format buiten scope.
+  - Specificeer welke feature flags/env‑vars gebruikt mogen worden.
+- Templates (handig)
+  - Opdrachtbrief: doel, scope, DoD, constraints, risico’s, testcases, SSoT.
+  - Review‑gate: beslissingen ter goedkeuring, impact, rollback, testplan.
+- Direct toepasbaar in deze repo
+  - Zet “no‑assumptions” actief: de agent stopt bij unknowns en vraagt om akkoord.
+  - Start met een unknowns‑lijst en laat die expliciet goedkeuren vóór implementatie.
+
 Prompt‑preset (plak bovenaan je opdracht):
 
 > Gebruik een stap‑voor‑stap plan (update_plan) en werk het na elke stap bij. Toon aannames, alternatieven en verificaties. Houd je aan V2‑contracten; geen legacy/sync. Voor code: eerst impactanalyse, dan minimale patch, daarna teststrategie en rollbackplan.
