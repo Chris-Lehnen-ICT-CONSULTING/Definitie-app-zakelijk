@@ -6,7 +6,6 @@ from datetime import UTC, datetime
 
 UTC = UTC  # Python 3.10 compatibility
 
-import streamlit as st
 
 # Gebruik standaard logging
 logger = logging.getLogger(__name__)
@@ -16,25 +15,12 @@ logger = logging.getLogger(__name__)
 def laad_verboden_woorden() -> list[str]:
     """
     Laadt de lijst met verboden woorden volgens deze volgorde:
-    1. UI-override vanuit Streamlit sessiestate
-    2. Anders: via het verboden_woorden.json bestand
+    1. Via het verboden_woorden.json bestand (canoniek)
+    2. Bij afwezigheid of fout → lege lijst
     3. Bij fouten → lege lijst
     """
     try:
-        # 1) UI-override: alleen als override_actief én lijst niet leeg
-        raw = st.session_state.get("override_verboden_woorden")
-        if st.session_state.get("override_actief") and raw:
-            # raw bestaat en bevat ten minste één element
-            if isinstance(raw, str):
-                woorden = [w.strip() for w in raw.split(",") if w.strip()]
-            elif isinstance(raw, list):
-                woorden = raw
-            else:
-                woorden = []
-            logger.debug("Verboden woorden geladen uit UI-override.")
-            return woorden
-
-        # 2) Direct laden uit JSON bestand
+        # 1) Direct laden uit JSON bestand
         verboden_woorden_path = os.path.join(
             os.path.dirname(__file__), "verboden_woorden.json"
         )
@@ -50,7 +36,7 @@ def laad_verboden_woorden() -> list[str]:
                 )
                 return woorden
 
-        # 3) Fallback: lege lijst
+        # 2) Fallback: lege lijst
         logger.warning("Geen verboden woorden bestand gevonden, gebruik lege lijst")
         return []
 
