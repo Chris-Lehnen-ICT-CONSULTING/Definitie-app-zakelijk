@@ -72,3 +72,9 @@ select{padding:8px;border:1px solid #ccc;border-radius:6px}
 .prio-HOOG{ background:#ffedd5; border-color:#fed7aa; color:#7c2d12 }
 .prio-GEMIDDELD{ background:#fef9c3; border-color:#fde68a; color:#7a5200 }
 .prio-LAAG{ background:#e5e7eb; border-color:#d1d5db; color:#374151 }
+
+/* Sprint / Story Points / Release badges */
+.sprint-badge{ background:#e0f2fe; border-color:#bae6fd; color:#075985 }
+.sp-badge{ background:#fef9c3; border-color:#fde68a; color:#7a5200 }
+.rel-badge{ background:#f3e8ff; border-color:#e9d5ff; color:#6b21a8 }
+.canonical-badge{ background:#ecfccb; border-color:#d9f99d; color:#365314 }
