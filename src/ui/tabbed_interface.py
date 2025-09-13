@@ -853,7 +853,7 @@ class TabbedInterface:
                     agent_result = service_result
                     saved_record = None
                 else:
-                    # Legacy path
+                    # Fallback path (compatibility route if unified service is unavailable)
                     check_result, agent_result, saved_record = (
                         self.checker.generate_with_check(
                             begrip=begrip,
@@ -973,8 +973,7 @@ class TabbedInterface:
                     SessionStateManager.clear_value("regeneration_begrip")
                     SessionStateManager.clear_value("regeneration_category")
 
-                # Store detailed validation results for display
-                # Check for both legacy (best_iteration) and new service (dict) formats
+                # Store detailed validation results for display (V2 dict format)
                 if isinstance(agent_result, dict):
                     logger.info(
                         f"Attempting to run toets_definitie. agent_result type: {type(agent_result)}"

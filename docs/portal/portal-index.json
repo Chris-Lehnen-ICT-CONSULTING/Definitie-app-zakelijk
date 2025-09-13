@@ -12931,11 +12931,11 @@
       "title": "Portal UI – tabs/views (Planning, Requirements, Alles)",
       "path": "../backlog/EPIC-013/US-100/US-100.md",
       "url": "../backlog/EPIC-013/US-100/US-100.md",
-      "status": "TE_DOEN",
+      "status": "IN_UITVOERING",
       "prioriteit": "GEMIDDELD",
       "owner": "documentation-team",
       "canonical": true,
-      "last_verified": "11-09-2025",
+      "last_verified": "13-09-2025",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
@@ -13434,11 +13434,11 @@
       "title": "Planningweergave (sprint/epic/us/bug) en prioriteringscontrols in Portal",
       "path": "../backlog/EPIC-013/US-097/US-097.md",
       "url": "../backlog/EPIC-013/US-097/US-097.md",
-      "status": "TE_DOEN",
+      "status": "IN_UITVOERING",
       "prioriteit": "HOOG",
       "owner": "product",
       "canonical": true,
-      "last_verified": "11-09-2025",
+      "last_verified": "13-09-2025",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
@@ -27715,7 +27715,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T20:41:29Z"
+    "generated_at": "2025-09-13T20:46:35Z"
   },
   "sources": [
     "docs"
