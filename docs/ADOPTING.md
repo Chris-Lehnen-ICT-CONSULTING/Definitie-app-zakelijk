@@ -35,6 +35,11 @@ python scripts/docs/generate_portal.py
 ```
 - Schrijft `docs/portal/portal-index.json` + injecteert inline JSON in `docs/portal/index.html`
 
+Navigatie & Rendering (MVP)
+- Documenten openen via `docs/portal/viewer.html?src=…` met een duidelijke knop “Terug naar Portal”.
+- Markdown (.md) wordt vooraf gerenderd naar HTML met portal‑stijl onder `docs/portal/rendered/…` (feature‑flag: `PORTAL_RENDER_MD=0` om uit te zetten).
+- PDF’s openen in de browser viewer; DOCX opent via fallback (download/native app) als conversie niet beschikbaar is.
+
 ## Pre‑commit/CI snippets
 - Pre‑commit (voorbeeld entry in `.pre-commit-config.yaml`):
 ```
@@ -46,7 +51,9 @@ python scripts/docs/generate_portal.py
   files: ^docs/(?!portal/).+\.md$
   stages: [pre-commit]
 ```
-- CI: zie voorbeeld `.github/workflows/portal.yml` (regenereren + commit/PR)
+- CI drift‑guard: zie `.github/workflows/docs-integrity.yml`
+  - Regenereren `docs/portal/*` → cached diff → fail bij drift (met instructie)
+  - Upload portal‑artifact (index.html + portal-index.json)
 
 ## Privacy & NFR’s
 - Geen PII/secrets in portaldata of logs
@@ -57,4 +64,3 @@ python scripts/docs/generate_portal.py
 - Verkeerde paden (gebruik canonieke structuur)
 - Vergeten traceability (REQ‑links in frontmatter/body)
 - Broken links (draai de generator; linkscan staat in het project)
-

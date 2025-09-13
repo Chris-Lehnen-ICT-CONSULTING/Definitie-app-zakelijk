@@ -10,7 +10,9 @@ Structuur
   - index.html           (UI + inline data placeholder)
   - portal.js            (client‑side renderen/filters)
   - portal.css           (stijl)
+  - viewer.html          (documentviewer met Terug‑naar‑Portal knop)
   - portal-index.json    (optioneel: losse JSON export)
+  - rendered/            (gegenereerde HTML van Markdown documenten)
 
 Gebruik
 1) Genereer de portaldata:
