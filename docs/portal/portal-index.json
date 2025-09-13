@@ -3358,7 +3358,7 @@
       "title": "Validatie‑gate bij Vaststellen (Option B)",
       "path": "../backlog/EPIC-004/US-160/US-160.md",
       "url": "../backlog/EPIC-004/US-160/US-160.md",
-      "status": "Backlog",
+      "status": "Gepland",
       "prioriteit": "HOOG",
       "owner": "frontend-team",
       "canonical": true,
@@ -26867,7 +26867,7 @@
       "ARCH": 22,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T08:17:31Z"
+    "generated_at": "2025-09-13T09:24:30Z"
   },
   "sources": [
     "docs"
