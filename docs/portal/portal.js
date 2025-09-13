@@ -5,6 +5,24 @@
     try { return JSON.parse(el.textContent||'{}'); } catch(e){ return {documents:[],aggregate:{}}; }
   }
 
+  // Helpers to build status/prio badges with titles for A11y/UX consistency
+  function makeStatusBadge(txt){
+    const t=String(txt||''); if(!t) return null;
+    const el=document.createElement('span');
+    el.className=`badge status-badge status-${t.toUpperCase()}`;
+    el.textContent=t;
+    el.title=`Status: ${t}`;
+    return el;
+  }
+  function makePrioBadge(txt){
+    const t=String(txt||''); if(!t) return null;
+    const el=document.createElement('span');
+    el.className=`badge prio-badge prio-${t.toUpperCase()}`;
+    el.textContent=t;
+    el.title=`Prioriteit: ${t}`;
+    return el;
+  }
+
   const data = getData();
   const list = document.getElementById('list');
   const q = document.getElementById('q');
@@ -350,13 +368,12 @@
       list.appendChild(h);
       v.forEach(d=>{
         const li=document.createElement('li'); li.className='doc-item';
+        li.setAttribute('role','listitem');
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
         const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
         const meta=document.createElement('div'); meta.className='meta';
-        const statusTxt = String(d.status||'');
-        const prioTxt = String(d.prioriteit||'');
-        const statusEl = statusTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge status-badge status-${statusTxt.toUpperCase()}`; el.textContent=statusTxt; return el; })() : null;
-        const prioEl = prioTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge prio-badge prio-${prioTxt.toUpperCase()}`; el.textContent=prioTxt; return el; })() : null;
+        const statusEl = makeStatusBadge(d.status);
+        const prioEl = makePrioBadge(d.prioriteit);
         const sp = d.sprint?`sprint:${d.sprint}`:null;
         const pts = d.story_points?`SP:${d.story_points}`:null;
         if(statusEl) meta.appendChild(statusEl);
@@ -364,19 +381,19 @@
         const tail = [d.owner, sp, pts].filter(Boolean).join(' • ');
         if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
         const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path); link.textContent='open';
+        link.setAttribute('aria-label',`Open ${d.title||d.id||d.path}`);
         li.append(type,title,meta,link); list.appendChild(li);
       });
     } else if(view==='requirements'){
       const v = filtered.filter(d=>String(d.type).toUpperCase()==='REQ');
       v.forEach(d => {
         const li=document.createElement('li'); li.className='doc-item';
+        li.setAttribute('role','listitem');
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'REQ';
         const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
         const meta=document.createElement('div'); meta.className='meta';
-        const statusTxt = String(d.status||'');
-        const prioTxt = String(d.prioriteit||'');
-        const statusEl = statusTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge status-badge status-${statusTxt.toUpperCase()}`; el.textContent=statusTxt; return el; })() : null;
-        const prioEl = prioTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge prio-badge prio-${prioTxt.toUpperCase()}`; el.textContent=prioTxt; return el; })() : null;
+        const statusEl = makeStatusBadge(d.status);
+        const prioEl = makePrioBadge(d.prioriteit);
         const rel = d.target_release?`rel:${d.target_release}`:null;
         if(statusEl) meta.appendChild(statusEl);
         if(prioEl){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(prioEl); }
@@ -412,13 +429,12 @@
       // default: all documents flat list
       filtered.forEach(d => {
         const li=document.createElement('li'); li.className='doc-item';
+        li.setAttribute('role','listitem');
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
         const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
         const meta=document.createElement('div'); meta.className='meta';
-        const statusTxt = String(d.status||'');
-        const prioTxt = String(d.prioriteit||'');
-        const statusEl = statusTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge status-badge status-${statusTxt.toUpperCase()}`; el.textContent=statusTxt; return el; })() : null;
-        const prioEl = prioTxt ? (()=>{ const el=document.createElement('span'); el.className=`badge prio-badge prio-${prioTxt.toUpperCase()}`; el.textContent=prioTxt; return el; })() : null;
+        const statusEl = makeStatusBadge(d.status);
+        const prioEl = makePrioBadge(d.prioriteit);
         const sp = d.sprint?`sprint:${d.sprint}`:null;
         const pts = d.story_points?`SP:${d.story_points}`:null;
         const rel = d.target_release?`rel:${d.target_release}`:null;
@@ -427,6 +443,7 @@
         const tail=[d.owner, sp, pts, rel, d.canonical?'canonical':null].filter(Boolean).join(' • ');
         if(tail){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); const t=document.createElement('span'); t.textContent=tail; meta.appendChild(t); }
         const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
+        link.setAttribute('aria-label',`Open ${d.title||d.id||d.path}`);
         li.append(type,title,meta,link); list.appendChild(li);
       });
     }
@@ -612,13 +629,14 @@
     });
     orphans.sort(cmpPlanning).forEach(d=>{
       const li=document.createElement('li'); li.className='doc-item';
+      li.setAttribute('role','listitem');
       const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
       const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
       const meta=document.createElement('div'); meta.className='meta';
       const pts = d.story_points?`SP:${d.story_points}`:null;
       const rel = d.target_release?`rel:${d.target_release}`:null;
       meta.textContent=[d.status,d.owner,d.prioriteit,pts,rel,d.canonical?'canonical':null].filter(Boolean).join(' • ');
-      const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path); link.textContent='open';
+      const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path); link.textContent='open'; link.setAttribute('aria-label',`Open ${d.title||d.id||d.path}`);
       li.append(type,title,meta,link); list.appendChild(li);
     });
   }
