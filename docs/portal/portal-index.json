@@ -3442,7 +3442,7 @@
       "title": "Validatie‑gate bij Vaststellen (Option B)",
       "path": "../backlog/EPIC-004/US-160/US-160.md",
       "url": "../backlog/EPIC-004/US-160/US-160.md",
-      "status": "Gepland",
+      "status": "Backlog",
       "prioriteit": "HOOG",
       "owner": "frontend-team",
       "canonical": true,
@@ -13323,7 +13323,7 @@
       "title": "Portal viewer – nette rendering voor MD/PDF/DOCX",
       "path": "../backlog/EPIC-013/US-168/US-168.md",
       "url": "../backlog/EPIC-013/US-168/US-168.md",
-      "status": "Open",
+      "status": "GEREED",
       "prioriteit": "GEMIDDELD",
       "owner": "documentation-team",
       "canonical": true,
@@ -26868,7 +26868,8 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-110"
+          "US-110",
+          "US-154"
         ],
         "epic": [
           "EPIC-004"
@@ -27712,7 +27713,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T10:29:22Z"
+    "generated_at": "2025-09-13T10:33:06Z"
   },
   "sources": [
     "docs"
