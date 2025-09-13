@@ -350,7 +350,7 @@ class OrchestrationTab:
             if iteration_score >= target_score:
                 break
 
-        # Create mock agent result
+        # Create mock agent result (V2-style summary only; no best_iteration object)
         best_iteration = max(iterations, key=lambda x: x["score"])
 
         return {
@@ -358,7 +358,6 @@ class OrchestrationTab:
             "begrip": begrip,
             "iterations": iterations,
             "iteration_count": len(iterations),
-            "best_iteration": best_iteration,
             "final_definitie": best_iteration["definitie"],
             "final_score": best_iteration["score"],
             "target_reached": best_iteration["score"] >= target_score,
