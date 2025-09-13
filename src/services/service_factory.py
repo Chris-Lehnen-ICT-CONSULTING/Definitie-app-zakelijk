@@ -515,12 +515,31 @@ class ServiceFactory:
             )
             return fut.result()
         except RuntimeError:
-            # No running loop: safe to run
-            return asyncio.run(
-                self._adapter.generate_definition(
-                    begrip=begrip, context_dict=context_dict, **kwargs
-                )
-            )
+            # No running loop: create a dedicated loop in a worker thread
+            result_holder: dict[str, object] = {}
+            error_holder: dict[str, BaseException] = {}
+
+            def _runner():
+                try:
+                    loop2 = asyncio.new_event_loop()
+                    try:
+                        asyncio.set_event_loop(loop2)
+                        coro = self._adapter.generate_definition(
+                            begrip=begrip, context_dict=context_dict, **kwargs
+                        )
+                        result_holder["v"] = loop2.run_until_complete(coro)
+                    finally:
+                        loop2.close()
+                except BaseException as e:  # pragma: no cover
+                    error_holder["e"] = e
+
+            import threading
+
+            t = threading.Thread(target=_runner, daemon=True)
+            t.start(); t.join()
+            if "e" in error_holder:
+                raise error_holder["e"]
+            return result_holder.get("v")
 
     # Modern wrapper
     def generate_definition(self, begrip: str, context_dict: dict, **kwargs):

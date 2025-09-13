@@ -326,21 +326,40 @@ class PromptServiceV2:
         Returns:
             Generated prompt text
         """
-        import asyncio
+        import asyncio, threading
 
         # Create async wrapper
         async def _async_build():
             result = await self.build_generation_prompt(request)
             return result.text
 
-        # Run in new event loop if needed
+        # Prefer current loop if present
         try:
             loop = asyncio.get_running_loop()
-            # Already in async context
             return asyncio.run_coroutine_threadsafe(_async_build(), loop).result()
         except RuntimeError:
-            # No async context, create one
-            return asyncio.run(_async_build())
+            pass
+
+        # No running loop: use a dedicated background loop
+        result_holder: dict[str, str] = {}
+        error_holder: dict[str, BaseException] = {}
+
+        def _runner():
+            try:
+                loop2 = asyncio.new_event_loop()
+                try:
+                    asyncio.set_event_loop(loop2)
+                    result_holder["v"] = loop2.run_until_complete(_async_build())
+                finally:
+                    loop2.close()
+            except BaseException as e:  # pragma: no cover
+                error_holder["e"] = e
+
+        t = threading.Thread(target=_runner, daemon=True)
+        t.start(); t.join()
+        if "e" in error_holder:
+            raise error_holder["e"]
+        return result_holder.get("v", "")
 
     def _maybe_augment_with_web_context(  # noqa: PLR0911, PLR0915
         self, prompt_text: str, enriched_context: EnrichedContext
