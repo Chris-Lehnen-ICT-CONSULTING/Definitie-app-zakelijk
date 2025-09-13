@@ -61,8 +61,6 @@ class DefinitionEditTab:
                 if session and session.get('success'):
                     st.session_state.editing_definition = session.get('definition')
                     st.session_state.edit_session = session
-                    # Hydrate editor velden met huidige definitie
-                    self._hydrate_editor_fields(session.get('definition'))
         except Exception:
             pass
         
@@ -152,11 +150,15 @@ class DefinitionEditTab:
             st.error("Geen definitie geselecteerd voor bewerking.")
             return
         
+        # ID-gescope widget keys helper
+        def k(name: str) -> str:
+            return f"edit_{definition.id}_{name}"
+        
         # Begrip field
         begrip = st.text_input(
             "Begrip",
             value=definition.begrip,
-            key="edit_begrip",
+            key=k("begrip"),
             help="Het juridische begrip dat gedefinieerd wordt"
         )
         
@@ -168,7 +170,7 @@ class DefinitionEditTab:
             "Definitie tekst",
             value=definition.definitie,
             height=200,
-            key="edit_definitie",
+            key=k("definitie"),
             help="De volledige definitie van het begrip"
         )
         
@@ -180,7 +182,7 @@ class DefinitionEditTab:
             context = st.text_input(
                 "Organisatorische Context",
                 value=definition.context or "",
-                key="edit_context",
+                key=k("context"),
                 help="De organisatie waarvoor deze definitie geldt"
             )
             
@@ -191,7 +193,7 @@ class DefinitionEditTab:
                 index=["type", "proces", "resultaat", "exemplaar"].index(
                     definition.categorie or "proces"
                 ),
-                key="edit_categorie",
+                key=k("categorie"),
                 help="Ontologische categorie van het begrip"
             )
         
@@ -200,7 +202,7 @@ class DefinitionEditTab:
             juridische_context = st.text_input(
                 "Juridische Context",
                 value=definition.metadata.get('juridische_context', '') if definition.metadata else '',
-                key="edit_juridische_context",
+                key=k("juridische_context"),
                 help="Het rechtsgebied waar deze definitie bij hoort"
             )
             
@@ -210,7 +212,7 @@ class DefinitionEditTab:
                 "Status",
                 ["draft", "review", "established", "archived"],
                 index=["draft", "review", "established", "archived"].index(current_status),
-                key="edit_status",
+                key=k("status"),
                 help="De huidige status van de definitie"
             )
         
@@ -219,7 +221,7 @@ class DefinitionEditTab:
             "Toelichting (optioneel)",
             value=definition.toelichting or "",
             height=100,
-            key="edit_toelichting",
+            key=k("toelichting"),
             help="Extra uitleg of context bij de definitie"
         )
         
@@ -228,8 +230,11 @@ class DefinitionEditTab:
     
     def _render_action_buttons(self):
         """Render action buttons for saving and validation."""
-        # Reden voor wijziging (persistente input boven de knoppen)
-        st.text_input("Reden voor wijziging (optioneel)", key="save_reason")
+        # Reden voor wijziging (persistente input boven de knoppen) - ID-gescope
+        def_id = st.session_state.get('editing_definition_id')
+        def k(name: str) -> str:
+            return f"edit_{def_id}_{name}"
+        st.text_input("Reden voor wijziging (optioneel)", key=k("save_reason"))
 
         col1, col2, col3, col4 = st.columns(4)
         
@@ -430,16 +435,18 @@ class DefinitionEditTab:
             if not definition_id:
                 st.error("Geen definitie geselecteerd")
                 return
+            def k(name: str) -> str:
+                return f"edit_{definition_id}_{name}"
             
             # Collect updates
             updates = {
-                'begrip': st.session_state.get('edit_begrip'),
-                'definitie': st.session_state.get('edit_definitie'),
-                'context': st.session_state.get('edit_context'),
-                'categorie': st.session_state.get('edit_categorie'),
-                'toelichting': st.session_state.get('edit_toelichting'),
-                'status': st.session_state.get('edit_status'),
-                'juridische_context': st.session_state.get('edit_juridische_context'),
+                'begrip': st.session_state.get(k('begrip')),
+                'definitie': st.session_state.get(k('definitie')),
+                'context': st.session_state.get(k('context')),
+                'categorie': st.session_state.get(k('categorie')),
+                'toelichting': st.session_state.get(k('toelichting')),
+                'status': st.session_state.get(k('status')),
+                'juridische_context': st.session_state.get(k('juridische_context')),
             }
             
             # Add version number for optimistic locking
@@ -451,7 +458,7 @@ class DefinitionEditTab:
                 definition_id,
                 updates,
                 user=st.session_state.get('user', 'system'),
-                reason=st.session_state.get('save_reason'),
+                reason=st.session_state.get(k('save_reason')),
                 validate=True
             )
             
@@ -481,16 +488,19 @@ class DefinitionEditTab:
         try:
             # Create definition object from current state
             from services.interfaces import Definition
-            
+            def_id = st.session_state.get('editing_definition_id')
+            def k(name: str) -> str:
+                return f"edit_{def_id}_{name}"
+
             definition = Definition(
-                begrip=st.session_state.get('edit_begrip', ''),
-                definitie=st.session_state.get('edit_definitie', ''),
-                context=st.session_state.get('edit_context', ''),
-                categorie=st.session_state.get('edit_categorie', 'proces'),
-                toelichting=st.session_state.get('edit_toelichting', ''),
+                begrip=st.session_state.get(k('begrip'), ''),
+                definitie=st.session_state.get(k('definitie'), ''),
+                context=st.session_state.get(k('context'), ''),
+                categorie=st.session_state.get(k('categorie'), 'proces'),
+                toelichting=st.session_state.get(k('toelichting'), ''),
                 metadata={
-                    'juridische_context': st.session_state.get('edit_juridische_context', ''),
-                    'status': st.session_state.get('edit_status', 'draft')
+                    'juridische_context': st.session_state.get(k('juridische_context'), ''),
+                    'status': st.session_state.get(k('status'), 'draft')
                 }
             )
             
@@ -576,8 +586,6 @@ class DefinitionEditTab:
                 definition = self.repository.get(definition_id)
                 if definition:
                     st.session_state.editing_definition = definition
-                    # Velden hydrateren met bijgewerkte waarden
-                    self._hydrate_editor_fields(definition)
                     st.rerun()
         
         except Exception as e:
@@ -593,15 +601,17 @@ class DefinitionEditTab:
         if not definition:
             return
         
+        def k(name: str) -> str:
+            return f"edit_{definition.id}_{name}"
         changed = False
         
         # Check each field for changes
         fields_to_check = [
-            ('edit_begrip', 'begrip'),
-            ('edit_definitie', 'definitie'),
-            ('edit_context', 'context'),
-            ('edit_categorie', 'categorie'),
-            ('edit_toelichting', 'toelichting'),
+            (k('begrip'), 'begrip'),
+            (k('definitie'), 'definitie'),
+            (k('context'), 'context'),
+            (k('categorie'), 'categorie'),
+            (k('toelichting'), 'toelichting'),
         ]
         
         for session_key, def_attr in fields_to_check:
@@ -629,16 +639,18 @@ class DefinitionEditTab:
             definition_id = st.session_state.get('editing_definition_id')
             if not definition_id:
                 return
+            def k(name: str) -> str:
+                return f"edit_{definition_id}_{name}"
             
             # Collect current state
             content = {
-                'begrip': st.session_state.get('edit_begrip'),
-                'definitie': st.session_state.get('edit_definitie'),
-                'context': st.session_state.get('edit_context'),
-                'categorie': st.session_state.get('edit_categorie'),
-                'toelichting': st.session_state.get('edit_toelichting'),
-                'status': st.session_state.get('edit_status'),
-                'juridische_context': st.session_state.get('edit_juridische_context'),
+                'begrip': st.session_state.get(k('begrip')),
+                'definitie': st.session_state.get(k('definitie')),
+                'context': st.session_state.get(k('context')),
+                'categorie': st.session_state.get(k('categorie')),
+                'toelichting': st.session_state.get(k('toelichting')),
+                'status': st.session_state.get(k('status')),
+                'juridische_context': st.session_state.get(k('juridische_context')),
             }
             
             # Save
@@ -651,15 +663,18 @@ class DefinitionEditTab:
     def _restore_auto_save(self, auto_save_content: Dict[str, Any]):
         """Restore from auto-save."""
         try:
+            def_id = st.session_state.get('editing_definition_id')
+            def k(name: str) -> str:
+                return f"edit_{def_id}_{name}"
             # Update session state with auto-save content
             field_mapping = {
-                'begrip': 'edit_begrip',
-                'definitie': 'edit_definitie',
-                'context': 'edit_context',
-                'categorie': 'edit_categorie',
-                'toelichting': 'edit_toelichting',
-                'status': 'edit_status',
-                'juridische_context': 'edit_juridische_context',
+                'begrip': k('begrip'),
+                'definitie': k('definitie'),
+                'context': k('context'),
+                'categorie': k('categorie'),
+                'toelichting': k('toelichting'),
+                'status': k('status'),
+                'juridische_context': k('juridische_context'),
             }
             
             for field, session_key in field_mapping.items():
@@ -685,24 +700,7 @@ class DefinitionEditTab:
         
         return str(dt)
 
-    def _hydrate_editor_fields(self, definition) -> None:
-        """Zet de editor velden in session_state volgens de Definition waardes.
-
-        Dit voorkomt dat Streamlit oude waarden vasthoudt wanneer we van definitie wisselen.
-        """
-        if not definition:
-            return
-        try:
-            st.session_state['edit_begrip'] = getattr(definition, 'begrip', '')
-            st.session_state['edit_definitie'] = getattr(definition, 'definitie', '')
-            st.session_state['edit_context'] = getattr(definition, 'context', '') or ''
-            st.session_state['edit_categorie'] = getattr(definition, 'categorie', 'proces') or 'proces'
-            st.session_state['edit_toelichting'] = getattr(definition, 'toelichting', '') or ''
-            meta = getattr(definition, 'metadata', {}) or {}
-            st.session_state['edit_status'] = meta.get('status', 'draft')
-            st.session_state['edit_juridische_context'] = meta.get('juridische_context', '') or ''
-        except Exception as e:
-            logger.warning(f"Kon editor velden niet hydrateren: {e}")
+    # _hydrate_editor_fields verwijderd: niet nodig met ID-gescope widget keys
     
     def _init_session_state(self):
         """Initialize session state variables."""
