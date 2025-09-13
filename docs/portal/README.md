@@ -20,7 +20,7 @@ Gebruik
    - Dubbelklik op docs/portal/index.html (offline werkt, data is inline)
    - Of serveer statisch: (optioneel)
      cd docs/portal && python -m http.server 8080
-     open http://localhost:8080
+  open http://localhost:8080
 
 Views
 - Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)
@@ -44,4 +44,3 @@ Configuratie
 Privacy & A11y
 - NFR’s: geen PII/secrets; sanitization; respecteer canonical/archived filters waar nodig
 - Basis A11y: toetsenbordnavigatie, aria‑labels; contrast (AA)
-

@@ -439,8 +439,12 @@
   },
   "EPIC-013": {
     "title": "EPIC-013: Centrale Documentatie‑Portal (Interactief & Auto‑sync)",
-    "stories": [],
-    "requirements": [],
+    "stories": [
+      "US-160"
+    ],
+    "requirements": [
+      "REQ-093"
+    ],
     "dependencies": [],
     "referenced_by": []
   },
