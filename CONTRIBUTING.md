@@ -19,7 +19,11 @@ Welkom! Dit document beschrijft hoe we bijdragen leveren en kwaliteitsregels han
   - `pip install pre-commit`
   - `pre-commit install`
   - Handmatige check: `bash scripts/ci/check_no_todo_markers.sh`
-- CI blokkeert PR’s met TODO-achtige comments via `.github/workflows/no-todo-markers.yml`.
+  - Backlog‑integriteit draait automatisch vóór commit: `scripts/docs/check_backlog_integrity.py` (faalt bij dubbele IDs of gebroken interne links).
+  - Portaldata wordt automatisch gegenereerd vóór commit: `python scripts/docs/generate_portal.py` (wijzigingen aan `docs/**` regenereert `docs/portal/*`).
+- CI gates:
+  - No‑TODO gate: `.github/workflows/no-todo-markers.yml` blokkeert TODO‑achtige comments in code.
+  - Docs‑integriteit: `.github/workflows/docs-integrity.yml` draait backlog‑integriteit + portal‑generatie met drift‑guard (faalt als portal‑outputs niet up‑to‑date zijn) en uploadt portal‑artefacten.
 
 ## PR Richtlijnen
 - Voeg link toe naar relevante story/bug/epic (bijv. `US-041`, `CFR-BUG-015`).
@@ -33,4 +37,3 @@ Welkom! Dit document beschrijft hoe we bijdragen leveren en kwaliteitsregels han
 - TODO Mapping: `docs/backlog/TODO-MAPPING.md`
 
 Dank voor je bijdrage! ✨
-
