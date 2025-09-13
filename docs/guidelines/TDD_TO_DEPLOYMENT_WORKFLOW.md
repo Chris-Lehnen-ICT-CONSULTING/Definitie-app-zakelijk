@@ -77,7 +77,7 @@ TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR 
   - User story in `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md`
   - Format: As a [role], I want [feature], so that [benefit]
 - **Gate Conditions**:
-  - [ ] User story has unique ID
+  - [ ] User story has GLOBALLY unique ID (frontmatter `id: US-XXX`)
   - [ ] All SMART criteria defined (Specific, Measurable, Achievable, Relevant, Time-bound)
   - [ ] Acceptance criteria in BDD format
   - [ ] Domain rules documented

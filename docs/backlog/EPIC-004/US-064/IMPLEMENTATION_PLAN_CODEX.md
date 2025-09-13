@@ -13,7 +13,7 @@ Deze Codex-notitie beschrijft de implementatie voor US-064. Het plan volgt de pr
 Gerelateerde documenten
 - Story: docs/backlog/EPIC-004/US-064/US-064.md
 - Architectuur: docs/backlog/EPIC-012/EPIC-012.md (Phase 2: update_definition flow)
-- Feedback: docs/backlog/EPIC-012/US-062/IMPLEMENTATION_PLAN.md (verwijst naar US‑064)
+- Feedback: docs/backlog/EPIC-012/US-152/IMPLEMENTATION_PLAN.md (verwijst naar US‑064)
 
 ## Doelen
 - Editor toont standaard de AI‑gegenereerde definitie (voorkeur de opgeschoonde variant) en biedt preview/diff.

@@ -53,8 +53,8 @@
 - **Stories:**
   - [US-026](backlog/EPIC-006/US-026/US-026.md): OAuth2/OIDC Implementatie
   - [US-027](backlog/EPIC-006/US-027/US-027.md): Rolgebaseerde Toegangscontrole (RBAC)
-  - [US-028](backlog/EPIC-007/US-028/US-028.md): Sessiebeheer
-  - [US-029](backlog/EPIC-007/US-029/US-029.md): Audit Logging
+  - [US-028](backlog/EPIC-007/US-142/US-142.md): Sessiebeheer
+  - [US-029](backlog/EPIC-007/US-143/US-143.md): Audit Logging
 - **Justitie Context:** Koppeling met Justid voor identiteitsverificatie
 - **ASTRA Compliance:** AR-6.1 (Identiteitsbeheer), AR-6.2 (Autorisatie)
 - **NORA Compliance:** BP-5.1 (Beveiliging by Design)
