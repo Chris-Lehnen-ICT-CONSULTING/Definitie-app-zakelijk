@@ -99,10 +99,17 @@ class DefinitionEditTab:
             )
         
         with col2:
-            # Status filter
-            status_filter = st.selectbox(
+            # Status filter (NL labels → codes)
+            status_options = {
+                "Alle": None,
+                "Concept": "draft",
+                "In review": "review",
+                "Vastgesteld": "established",
+                "Gearchiveerd": "archived",
+            }
+            status_label = st.selectbox(
                 "Status",
-                ["Alle", "draft", "review", "established"],
+                list(status_options.keys()),
                 key="edit_status_filter"
             )
         
@@ -386,8 +393,17 @@ class DefinitionEditTab:
         try:
             # Build filters
             filters = {}
-            if status_filter != "Alle":
-                filters['status'] = status_filter
+            # Map label → code (als we labels doorgeven)
+            status_label_to_code = {
+                "Alle": None,
+                "Concept": "draft",
+                "In review": "review",
+                "Vastgesteld": "established",
+                "Gearchiveerd": "archived",
+            }
+            status_code = status_label_to_code.get(status_filter, status_filter)
+            if status_code and status_code != "Alle":
+                filters['status'] = status_code
             
             # Search
             results = self.repository.search_with_filters(

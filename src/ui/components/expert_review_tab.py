@@ -128,7 +128,7 @@ class ExpertReviewTab:
             with col3:
                 # Status info
                 st.markdown("**Status**")
-                st.markdown(f"🔄 {definitie.status}")
+                st.markdown(f"🔄 {self._status_label(definitie.status)}")
 
                 # Validation issues
                 issues = definitie.get_validation_issues_list()
@@ -177,15 +177,20 @@ class ExpertReviewTab:
                 st.info(definitie.definitie)
 
                 st.markdown("#### Context")
-                st.write(f"**Organisatorisch:** {definitie.organisatorische_context}")
-                if definitie.juridische_context:
-                    st.write(f"**Juridisch:** {definitie.juridische_context}")
+                org_val = definitie.organisatorische_context or "—"
+                jur_val = definitie.juridische_context or "—"
+                wb_list = definitie.get_wettelijke_basis_list() if hasattr(definitie, 'get_wettelijke_basis_list') else []
+                wb_val = ", ".join(wb_list) if wb_list else "—"
+
+                st.write(f"**Organisatorisch:** {org_val}")
+                st.write(f"**Juridisch:** {jur_val}")
+                st.write(f"**Wettelijke basis:** {wb_val}")
                 st.write(f"**Categorie:** {definitie.categorie}")
 
             with col2:
                 st.markdown("#### Metadata")
                 st.write(f"**ID:** {definitie.id}")
-                st.write(f"**Status:** {definitie.status}")
+                st.write(f"**Status:** {self._status_label(definitie.status)}")
                 st.write(f"**Versie:** {definitie.version_number}")
 
                 if definitie.validation_score:
