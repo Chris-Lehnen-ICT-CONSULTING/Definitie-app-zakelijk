@@ -104,9 +104,13 @@ class DefinitionGeneratorTab:
 
             with col1:
                 st.markdown(f"**Definitie:** {definitie.definitie}")
-                st.markdown(f"**Context:** {definitie.organisatorische_context}")
-                if definitie.juridische_context:
-                    st.markdown(f"**Juridisch:** {definitie.juridische_context}")
+                org, jur, wet = self._format_record_context(definitie)
+                if org:
+                    st.markdown(f"**Organisatorisch:** {org}")
+                if jur:
+                    st.markdown(f"**Juridisch:** {jur}")
+                if wet:
+                    st.markdown(f"**Wettelijk:** {wet}")
 
             with col2:
                 st.markdown(f"**Status:** `{definitie.status}`")
@@ -150,11 +154,47 @@ class DefinitionGeneratorTab:
                 f"Match {i+1}: {definitie.begrip} (Score: {score:.2f})", expanded=i == 0
             ):
                 st.markdown(f"**Definitie:** {definitie.definitie}")
-                st.markdown(f"**Context:** {definitie.organisatorische_context}")
+                org, jur, wet = self._format_record_context(definitie)
+                ctx_parts = []
+                if org:
+                    ctx_parts.append(f"Organisatorisch: {org}")
+                if jur:
+                    ctx_parts.append(f"Juridisch: {jur}")
+                if wet:
+                    ctx_parts.append(f"Wettelijk: {wet}")
+                st.markdown(f"**Context:** {' | '.join(ctx_parts) if ctx_parts else '—'}")
                 st.markdown(f"**Redenen:** {', '.join(reasons)}")
 
                 if st.button("Gebruik deze definitie", key=f"dup_use_{definitie.id}"):
                     self._use_existing_definition(definitie)
+
+    @staticmethod
+    def _format_record_context(def_record: DefinitieRecord) -> tuple[str, str, str]:
+        """Formatteer contextvelden van een DefinitieRecord als weergavetekst.
+
+        DefinitieRecord bewaart org/jur als TEXT; voor V2 kan dit JSON arrays zijn.
+        Deze helper parseert veilig en maakt een korte weergave.
+        """
+        import json as _json
+
+        def _parse(val) -> list[str]:
+            try:
+                if not val:
+                    return []
+                if isinstance(val, str):
+                    return list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                if isinstance(val, list):
+                    return val
+            except Exception:
+                return []
+            return []
+
+        org_list = _parse(getattr(def_record, "organisatorische_context", None))
+        jur_list = _parse(getattr(def_record, "juridische_context", None))
+        wet_list = []
+        if hasattr(def_record, "get_wettelijke_basis_list"):
+            wet_list = def_record.get_wettelijke_basis_list() or []
+        return ", ".join(org_list), ", ".join(jur_list), ", ".join(wet_list)
 
     def _render_generation_results(self, generation_result):
         """Render resultaten van definitie generatie."""
@@ -450,49 +490,45 @@ class DefinitionGeneratorTab:
                         st.error(f"Prompt Debug kon niet worden gerenderd: {e!s}")
                     logger.exception("Prompt debug section rendering failed")
             else:
-                # Legacy format
-                iteration_result = (
-                    agent_result.best_iteration.generation_result
-                    if agent_result.best_iteration
-                    else None
-                )
+                # Legacy object format is no longer supported. Show prompt if present in saved_record metadata.
                 voorbeelden_prompts = (
                     generation_result.get("voorbeelden_prompts")
                     if generation_result
                     else None
                 )
-
-                # Ensure prompt is visible even if only prompt_text is available
                 prompt_source = None
-                if iteration_result and getattr(
-                    iteration_result, "prompt_template", None
-                ):
-                    prompt_source = iteration_result.prompt_template
-                elif iteration_result and getattr(
-                    iteration_result, "prompt_text", None
-                ):
-                    prompt_source = iteration_result.prompt_text
-                elif saved_record and getattr(saved_record, "metadata", None):
+                if saved_record and getattr(saved_record, "metadata", None):
                     meta = (
                         saved_record.metadata
                         if isinstance(saved_record.metadata, dict)
                         else {}
                     )
-                    prompt_source = meta.get("prompt_text") or meta.get(
-                        "prompt_template"
-                    )
+                    prompt_source = meta.get("prompt_text") or meta.get("prompt_template")
 
-                if prompt_source:
+                try:
+                    if prompt_source:
+                        class _PromptContainer:
+                            def __init__(self, text: str):
+                                self.prompt_template = text
 
-                    class _PromptContainer:
-                        def __init__(self, text: str):
-                            self.prompt_template = text
-
-                    PromptDebugSection.render(
-                        _PromptContainer(prompt_source), voorbeelden_prompts
-                    )
-                else:
-                    PromptDebugSection.render(iteration_result, voorbeelden_prompts)
+                        PromptDebugSection.render(
+                            _PromptContainer(prompt_source), voorbeelden_prompts
+                        )
+                    else:
+                        with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
+                            st.info(
+                                "Legacy resultaatvorm gedetecteerd. Geen promptinformatie beschikbaar. Regenereren met V2 wordt aanbevolen."
+                            )
+                            if voorbeelden_prompts:
+                                st.markdown("#### 🎯 Voorbeelden Generatie Prompts")
+                                tabs = st.tabs(list(voorbeelden_prompts.keys()))
+                                for i, (example_type, prompt) in enumerate(
+                                    voorbeelden_prompts.items()
+                                ):
+                                    with tabs[i]:
+                                        st.code(prompt, language="text")
+                except Exception:
+                    pass
 
         # Category change regeneration preview (op logische locatie)
         category_change_state = generation_result.get("category_change_state")
