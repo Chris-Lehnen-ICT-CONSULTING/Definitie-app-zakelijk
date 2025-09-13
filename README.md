@@ -53,6 +53,9 @@ DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlan
 
 - 🤖 **AI Definitie Generatie** met GPT-4 (✅ 99% test coverage, temp=0 consistentie)
 - ✏️ **Definition Edit Interface** ✅ NIEUW - Rich text editor met version history en auto-save
+- 🧭 **Radio‑tabs navigatie** ✅ NIEUW – Sneller schakelen tussen tabs (zonder JS‑workarounds)
+- 🔗 **Generator → Bewerk** ✅ Eén‑klik doorsturen met de juiste definitie
+- ⭐ **Expert Prefill** ✅ Expert‑tab toont direct de laatst gegenereerde definitie (alleen lezen)
 - 📋 **45 Kwaliteitsregels** voor validatie (Python modules in src/toetsregels/regels/)
 - 🏗️ **Modulaire Architectuur** ValidationOrchestratorV2 + PromptServiceV2
 - 🌐 **Web Lookup Epic 3** Backend werkt, prompt augmentatie geïntegreerd
@@ -99,6 +102,19 @@ OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 ```
 
 Let op: we laden geen `.env`; stel je sleutel in via je shell of VS Code.
+
+## 🧭 Nieuwe UI‑navigatie
+
+- De hoofdnavigatie gebruikt radio‑tabs (bovenaan). De geselecteerde tab wordt onthouden; schakelen is direct.
+- Vanuit de Generator kun je via “📝 Bewerk” direct naar de Bewerk‑tab met de juiste definitie.
+- De Expert‑tab toont (indien beschikbaar) bovenaan automatisch de laatst gegenereerde definitie met alle context (read‑only). 
+
+## 🔒 Statusbescherming en bewerken
+
+- Statuslabels in de UI: Concept (draft), In review (review), Vastgesteld (established), Gearchiveerd (archived).
+- Een definitie met status “Vastgesteld” is read‑only in de Bewerk‑tab (velden disabled). 
+- Wil je een vastgestelde definitie toch aanpassen? Zet in de Expert‑tab de status expliciet terug (actie “Maak bewerkbaar”, reden verplicht). Logging wordt vastgelegd in de geschiedenis.
+- De zoekfunctie ondersteunt filteren op status (incl. “Vastgesteld”). 
 
 ## 📖 Documentatie Richtlijnen
 
@@ -392,3 +408,22 @@ Private project. All rights reserved.
 
 **DefinitieAgent v2.3** - Features First Development
 *"Legacy code is de specificatie"* 🚀
+
+## 🧭 Docs Integrity & Health Report
+
+- CI workflow: `.github/workflows/docs-integrity.yml`
+  - Draait integriteitscheck op elke push/PR.
+  - Faalt bij:
+    - Dubbele US/BUG‑IDs (frontmatter `id:`) in de héle backlog
+    - Broken links in canonical docs (archief geeft alleen warnings)
+  - Genereert portal (docs/portal) en een health‑rapport.
+
+- Lokaal draaien:
+  - Integriteitscheck: `python3 scripts/docs/check_backlog_integrity.py`
+  - Health report (JSON): `python3 scripts/docs/report_backlog_health.py --out docs/reports/backlog-health.json`
+  - Portal genereren: `bash scripts/docs/run_portal_generator.sh`
+
+- Rapport & gedrag:
+  - JSON rapport: `docs/reports/backlog-health.json`
+  - Canonical docs: strikte validatie (ID‑uniciteit + links)
+  - Archief/non‑canonical: alleen waarschuwingen voor broken links

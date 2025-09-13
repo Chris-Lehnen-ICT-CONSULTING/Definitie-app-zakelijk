@@ -80,11 +80,11 @@ Total: 4/4 tests passed
    OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
    ```
 
-2. Navigeer naar de **"✏️ Bewerk"** tab in de interface
+2. Navigeer via de radio‑tabs naar **"✏️ Bewerk"**
 
 3. Zoek naar een definitie om te bewerken:
    - Gebruik de zoekbalk om op begrip of inhoud te zoeken
-   - Filter optioneel op status (draft, review, established)
+   - Filter optioneel op status (Concept, In review, Vastgesteld)
    - Klik op "✏️ Bewerk" bij de gewenste definitie
 
 4. Bewerk de definitie:
@@ -93,7 +93,11 @@ Total: 4/4 tests passed
    - Gebruik "💾 Opslaan" voor handmatig opslaan
    - Gebruik "✅ Valideren" om de kwaliteit te controleren
 
-5. Bekijk versiegeschiedenis:
+5. Status “Vastgesteld” (read‑only):
+   - Als een definitie status “Vastgesteld” heeft, zijn velden in de Bewerk‑tab uitgeschakeld.
+   - Zet de status expliciet terug via de Expert‑tab (“Maak bewerkbaar”, reden verplicht) om aanpassingen mogelijk te maken. De wijziging wordt gelogd in de geschiedenis.
+
+6. Bekijk versiegeschiedenis:
    - Rechts zie je de complete history
    - Klik op een entry voor details
    - Gebruik "↩️ Herstel" om terug te gaan naar een eerdere versie
@@ -125,6 +129,15 @@ result = service.save_definition(
     reason="Correctie van typfout"
 )
 ```
+
+### Integratie met Expert‑tab
+
+- De Expert‑tab toont (indien beschikbaar) automatisch de laatst gegenereerde definitie bovenaan, met alle context (organisatorisch, juridisch, wettelijke basis) read‑only.
+- In de Expert‑tab kun je:
+  - “Vaststellen” (status → Vastgesteld) met confirmatie/notities; logging wordt vastgelegd.
+  - “Afwijzen” (status → Concept) met verplichte reden; logging wordt vastgelegd.
+  - “Maak bewerkbaar” (status Vastgesteld → Concept) met verplichte reden; logging wordt vastgelegd.
+
 
 ## Keyboard Shortcuts
 
