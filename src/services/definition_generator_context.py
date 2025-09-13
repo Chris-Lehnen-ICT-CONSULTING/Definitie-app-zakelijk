@@ -39,7 +39,6 @@ class ContextType(Enum):
     ORGANISATORISCH = "organisatorisch"
     JURIDISCH = "juridisch"
     WETTELIJK = "wettelijk"
-    DOMEIN = "domein"
     TECHNISCH = "technisch"
     HISTORISCH = "historisch"
 
@@ -240,7 +239,6 @@ class HybridContextManager:
             "organisatorisch": [],
             "juridisch": [],
             "wettelijk": [],
-            "domein": [],
             "technisch": [],
             "historisch": [],
         }

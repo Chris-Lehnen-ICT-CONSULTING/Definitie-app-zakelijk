@@ -122,15 +122,33 @@ class ExportService:
                 )
                 result = fut.result()
             except RuntimeError:
-                # No running loop: safe to run
-                result = asyncio.run(
-                    self.validation_orchestrator.validate_text(
-                        begrip=export_data.begrip,
-                        text=text_for_validation,
-                        ontologische_categorie=None,
-                        context=None,
-                    )
-                )
+                # No running loop: run in dedicated thread event loop
+                import threading
+                result_holder: dict[str, object] = {}
+                error_holder: dict[str, BaseException] = {}
+
+                def _runner():
+                    try:
+                        loop2 = asyncio.new_event_loop()
+                        try:
+                            asyncio.set_event_loop(loop2)
+                            coro = self.validation_orchestrator.validate_text(
+                                begrip=export_data.begrip,
+                                text=text_for_validation,
+                                ontologische_categorie=None,
+                                context=None,
+                            )
+                            result_holder["v"] = loop2.run_until_complete(coro)
+                        finally:
+                            loop2.close()
+                    except BaseException as e:  # pragma: no cover
+                        error_holder["e"] = e
+
+                t = threading.Thread(target=_runner, daemon=True)
+                t.start(); t.join()
+                if "e" in error_holder:
+                    raise error_holder["e"]
+                result = result_holder.get("v")
             except Exception as e:  # pragma: no cover - defensive
                 msg = f"Validatie mislukt vóór export: {e!s}"
                 raise ValueError(msg)
@@ -250,7 +268,9 @@ class ExportService:
             "definitie_aangepast",
             "status",
             "categorie",
+            "organisatorische_context",
             "juridische_context",
+            "wettelijke_basis",
             "voorkeursterm",
             "synoniemen",
             "antoniemen",
@@ -272,7 +292,9 @@ class ExportService:
                 "definitie_aangepast": export_data.definitie_aangepast or "",
                 "status": export_data.metadata.get("status", ""),
                 "categorie": export_data.metadata.get("categorie", ""),
+                "organisatorische_context": export_data.metadata.get("organisatorische_context", ""),
                 "juridische_context": export_data.metadata.get("juridische_context", ""),
+                "wettelijke_basis": export_data.metadata.get("wettelijke_basis", ""),
                 "voorkeursterm": export_data.voorkeursterm,
                 "synoniemen": export_data.synoniemen,
                 "antoniemen": export_data.antoniemen,
