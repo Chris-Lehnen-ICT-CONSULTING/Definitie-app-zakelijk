@@ -3442,7 +3442,7 @@
       "title": "Validatie‑gate bij Vaststellen (Option B)",
       "path": "../backlog/EPIC-004/US-160/US-160.md",
       "url": "../backlog/EPIC-004/US-160/US-160.md",
-      "status": "Backlog",
+      "status": "Gepland",
       "prioriteit": "HOOG",
       "owner": "frontend-team",
       "canonical": true,
@@ -3472,6 +3472,41 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-160/US-160.html"
+    },
+    {
+      "id": "US-161",
+      "type": "DOC",
+      "title": "Uniforme contextrepresentatie (Context Model V2)",
+      "path": "../backlog/EPIC-004/US-161/US-161.md",
+      "url": "../backlog/EPIC-004/US-161/US-161.md",
+      "status": "Gepland",
+      "prioriteit": "KRITIEK",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "current",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 1,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-161.md",
+      "_refs": {
+        "us": [
+          "US-161"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-161/US-161.html"
     },
     {
       "id": "US-110",
@@ -14652,6 +14687,37 @@
         "req": []
       },
       "rendered_url": "rendered/workflows/validation_orchestrator_rollout.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
+      "title": "Context Model V2 (Canoniek)",
+      "path": "../architectuur/CONTEXT_MODEL_V2.md",
+      "url": "../architectuur/CONTEXT_MODEL_V2.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/CONTEXT_MODEL_V2.html"
     },
     {
       "id": null,
@@ -26802,8 +26868,7 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-110",
-          "US-154"
+          "US-110"
         ],
         "epic": [
           "EPIC-004"
@@ -27639,15 +27704,15 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 608,
+      "DOC": 609,
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
       "REQ": 98,
-      "ARCH": 22,
+      "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T10:00:54Z"
+    "generated_at": "2025-09-13T10:24:17Z"
   },
   "sources": [
     "docs"
