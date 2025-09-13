@@ -33,6 +33,8 @@ stories:
 - US-105
 - US-106
 - US-107
+- US-168
+- US-169
 target_release: v1.5
 titel: Centrale Documentatie‑Portal (Interactief & Auto‑sync)
 vereisten:
@@ -70,10 +72,10 @@ Eén centrale, interactieve portalpagina (browser) voor de héle backlog én rel
 - Externe hosting/publicatie
 
 ## Acceptatiecriteria (epic)
-- [ ] `docs/portal/index.html` bestaat en is interactief (zoek/filter/sort)
-- [ ] Generator draait in pre‑commit en CI bij doc‑wijzigingen
+- [x] `docs/portal/index.html` bestaat en is interactief (zoek/filter/sort)
+- [x] Generator draait in pre‑commit en CI bij doc‑wijzigingen (incl. CI drift‑guard)
 - [ ] Config maakt hergebruik in andere repos mogelijk zonder codewijzigingen
-- [ ] Documentatie: `docs/portal/README.md` met gebruik/ontwikkeling
+- [x] Documentatie: `docs/portal/README.md` met gebruik/ontwikkeling (inclusief viewer & rendering)
 
 ## Relaties
 - Richtlijnen: `docs/guidelines/CANONICAL_LOCATIONS.md`, `DOCUMENTATION_POLICY.md`
