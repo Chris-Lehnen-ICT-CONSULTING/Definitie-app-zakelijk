@@ -19,6 +19,7 @@ from datetime import datetime
 ROOT = Path(__file__).resolve().parents[2]
 DOCS = ROOT / "docs"
 PORTAL = DOCS / "portal"
+RENDERED = PORTAL / "rendered"
 
 # Eenvoudige glob‑set voor scanning. Config (sources.yaml) is voor latere fases.
 INCLUDE = ["**/*.md"]
@@ -176,6 +177,132 @@ def load_traceability() -> dict:
         return {}
 
 
+def simple_markdown_to_html(md: str) -> str:
+    """Eenvoudige Markdown → HTML conversie (koppen/lijsten/links/code/blockquote/para).
+    Ontworpen zonder externe dependencies; dekt de meest voorkomende patronen.
+    """
+    lines = md.replace('\r\n', '\n').split('\n')
+    html_lines: list[str] = []
+    in_code = False
+    code_buf: list[str] = []
+    list_mode: str | None = None  # 'ul' of 'ol'
+
+    def flush_code():
+        nonlocal in_code, code_buf
+        if not in_code:
+            return
+        html_lines.append('<pre><code>' + ('\n'.join(code_buf)).replace('&','&amp;').replace('<','&lt;').replace('>','&gt;') + '</code></pre>')
+        in_code = False
+        code_buf = []
+
+    def flush_list():
+        nonlocal list_mode
+        if list_mode:
+            html_lines.append(f'</{list_mode}>')
+            list_mode = None
+
+    for raw in lines:
+        line = raw.rstrip('\n')
+        if line.strip().startswith('```'):
+            if in_code:
+                flush_code()
+            else:
+                in_code = True
+            continue
+        if in_code:
+            code_buf.append(line)
+            continue
+
+        # headings
+        m = re.match(r'^(#{1,6})\s+(.*)$', line)
+        if m:
+            flush_list()
+            level = len(m.group(1))
+            content = m.group(2).strip()
+            html_lines.append(f'<h{level}>' + content + f'</h{level}>')
+            continue
+
+        # blockquote
+        if line.startswith('> '):
+            flush_list()
+            html_lines.append('<blockquote>' + line[2:] + '</blockquote>')
+            continue
+
+        # lists
+        if re.match(r'^\s*[-*]\s+.+', line):
+            if list_mode != 'ul':
+                flush_list()
+                html_lines.append('<ul>')
+                list_mode = 'ul'
+            html_lines.append('<li>' + line.split(' ', 1)[1] + '</li>')
+            continue
+        if re.match(r'^\s*\d+\.\s+.+', line):
+            if list_mode != 'ol':
+                flush_list()
+                html_lines.append('<ol>')
+                list_mode = 'ol'
+            html_lines.append('<li>' + re.sub(r'^\s*\d+\.\s+', '', line) + '</li>')
+            continue
+
+        # blank line → para break
+        if not line.strip():
+            flush_list()
+            html_lines.append('')
+            continue
+
+        # inline: code, bold, italic, links
+        t = line
+        t = re.sub(r'`([^`]+)`', r'<code>\1</code>', t)
+        t = re.sub(r'\*\*([^*]+)\*\*', r'<strong>\1</strong>', t)
+        t = re.sub(r'\*([^*]+)\*', r'<em>\1</em>', t)
+        t = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2" target="_blank">\1</a>', t)
+        html_lines.append('<p>' + t + '</p>')
+
+    flush_code()
+    flush_list()
+    out = '\n'.join(x for x in html_lines)
+    return out
+
+
+def write_rendered_markdown(md_path: Path, title: str) -> Path:
+    """Render een .md bestand naar een standalone HTML onder docs/portal/rendered/…"""
+    try:
+        text = md_path.read_text(encoding='utf-8', errors='ignore')
+    except Exception:
+        return Path()
+    body = simple_markdown_to_html(text)
+    rel = md_path.relative_to(DOCS)
+    out_dir = (RENDERED / rel.parent)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    out_file = out_dir / (rel.stem + '.html')
+    html = f"""<!doctype html>
+<html lang=\"nl\">
+<head>
+  <meta charset=\"utf-8\" />
+  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />
+  <title>{title}</title>
+  <link rel=\"stylesheet\" href=\"../portal.css\" />
+  <style>
+    .doc {{ max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }}
+    .doc h1,.doc h2,.doc h3,.doc h4{{ color:#223 }}
+    .doc p{{ line-height:1.6; color:#222 }}
+    .doc a{{ color:#1d4ed8; text-decoration: underline; }}
+    .doc pre{{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }}
+    .doc code{{ background:#f0f2f5; padding:2px 6px; border-radius:4px }}
+    .back{{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }}
+  </style>
+</head>
+<body>
+  <div class=\"doc\">
+    <a class=\"back\" href=\"../../index.html\">← Terug naar Portal</a>
+    {body}
+  </div>
+</body>
+</html>"""
+    out_file.write_text(html, encoding='utf-8')
+    return out_file
+
+
 # (Geen pre-rendering of viewer rendering in deze fase – alleen index/JSON output)
 
 
@@ -262,6 +389,11 @@ def scan_docs() -> list[dict]:
                 "req": found_req_ids,
             },
         }
+        # Optioneel: pre-render Markdown naar HTML voor mooie viewer weergave
+        if os.getenv("PORTAL_RENDER_MD", "1") != "0" and md.suffix.lower() == ".md":
+            rendered = write_rendered_markdown(md, str(title))
+            if rendered and rendered.exists():
+                item["rendered_url"] = rel_url(rendered.relative_to(ROOT))
         items.append(item)
     return items
 
