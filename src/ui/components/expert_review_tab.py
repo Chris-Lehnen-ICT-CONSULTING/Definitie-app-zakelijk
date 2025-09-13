@@ -164,8 +164,8 @@ class ExpertReviewTab:
         # Side-by-side comparison if edited
         self._render_comparison_view(selected_def)
 
-        # Review form
-        self._render_review_form(selected_def)
+        # Review acties (US-155): Vaststellen / Afwijzen / Maak bewerkbaar
+        self._render_review_actions(selected_def)
 
     def _render_definition_details(self, definitie: DefinitieRecord):
         """Render uitgebreide definitie details."""
@@ -244,6 +244,65 @@ class ExpertReviewTab:
                     st.write(
                         f"- {issue.get('rule_id', 'Unknown')}: {issue.get('description', 'No description')}"
                     )
+
+    def _render_review_actions(self, definitie: DefinitieRecord):
+        """Render US-155 acties: Vaststellen, Afwijzen, Maak bewerkbaar."""
+        from services.container import get_container
+        container = get_container()
+        workflow = container.definition_workflow_service()
+
+        status = definitie.status
+        label = self._status_label(status)
+        st.markdown(f"**Huidige status:** {label}")
+
+        if status == 'review':
+            col1, col2 = st.columns(2)
+            with col1:
+                st.markdown("#### ✅ Vaststellen")
+                notes = st.text_area(
+                    "Notities (optioneel)", key=f"approve_notes_{definitie.id}", height=80
+                )
+                if st.button("Vaststellen", key=f"approve_btn_{definitie.id}", type="primary"):
+                    user = st.session_state.get('user', 'expert')
+                    res = workflow.approve(definition_id=definitie.id, user=user, notes=notes or "")
+                    if res.success:
+                        st.success("✅ Definitie vastgesteld")
+                        st.rerun()
+                    else:
+                        st.error(f"❌ Vaststellen mislukt: {res.error_message or 'Onbekende fout'}")
+            with col2:
+                st.markdown("#### ❌ Afwijzen")
+                reason = st.text_area(
+                    "Reden (verplicht)", key=f"reject_reason_{definitie.id}", height=80
+                )
+                disabled = not bool(reason and reason.strip())
+                if st.button("Afwijzen", key=f"reject_btn_{definitie.id}", disabled=disabled):
+                    user = st.session_state.get('user', 'expert')
+                    res = workflow.reject(definition_id=definitie.id, user=user, reason=reason.strip())
+                    if res.success:
+                        st.success("✅ Definitie afgewezen (terug naar Concept)")
+                        st.rerun()
+                    else:
+                        st.error(f"❌ Afwijzen mislukt: {res.error_message or 'Onbekende fout'}")
+
+        elif status == 'established':
+            st.markdown("#### 🔓 Maak bewerkbaar")
+            reason = st.text_area(
+                "Reden (verplicht)", key=f"unlock_reason_{definitie.id}", height=80
+            )
+            disabled = not bool(reason and reason.strip())
+            if st.button("Maak bewerkbaar (naar Concept)", key=f"unlock_btn_{definitie.id}", disabled=disabled):
+                user = st.session_state.get('user', 'expert')
+                # Gebruik repository change_status via workflowservice workflow (indien beschikbaar een helper)
+                # Voor nu: direct repository call veilig voor single-user
+                ok = self.repository.change_status(
+                    definitie.id, DefinitieStatus.DRAFT, changed_by=user, notes=reason.strip()
+                )
+                if ok:
+                    st.success("✅ Status teruggezet naar Concept; bewerken weer mogelijk")
+                    st.rerun()
+                else:
+                    st.error("❌ Terugzetten mislukt")
 
     def _render_comparison_view(self, definitie: DefinitieRecord):
         """Render side-by-side comparison view voor edits."""
