@@ -3442,7 +3442,7 @@
       "title": "Validatie‑gate bij Vaststellen (Option B)",
       "path": "../backlog/EPIC-004/US-160/US-160.md",
       "url": "../backlog/EPIC-004/US-160/US-160.md",
-      "status": "Gepland",
+      "status": "Backlog",
       "prioriteit": "HOOG",
       "owner": "frontend-team",
       "canonical": true,
@@ -12729,7 +12729,9 @@
           "US-104",
           "US-105",
           "US-106",
-          "US-107"
+          "US-107",
+          "US-168",
+          "US-169"
         ],
         "epic": [
           "EPIC-012",
@@ -27645,7 +27647,7 @@
       "ARCH": 22,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T09:56:08Z"
+    "generated_at": "2025-09-13T10:00:54Z"
   },
   "sources": [
     "docs"
