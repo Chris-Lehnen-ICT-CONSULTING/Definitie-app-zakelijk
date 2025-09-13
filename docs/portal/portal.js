@@ -159,13 +159,13 @@
         const reqIds = Array.isArray(e.linked_reqs)? e.linked_reqs : [];
         if(!reqIds.length) return; // show only epics with reqs
         const tr=document.createElement('tr');
-        const td1=document.createElement('td'); const a=document.createElement('a'); a.textContent=e.id||'EPIC'; a.href=e.url||e.path; a.target='_blank'; td1.appendChild(a);
+        const td1=document.createElement('td'); const a=document.createElement('a'); a.textContent=e.id||'EPIC'; a.href=e.url||e.path; td1.appendChild(a);
         const td2=document.createElement('td'); td2.textContent=e.title||'';
         const td3=document.createElement('td');
         reqIds.forEach(rid=>{
           const r = idMap[rid];
           const chip=document.createElement('span'); chip.className='chip';
-          if(r && r.url){ const link=document.createElement('a'); link.href=r.url; link.target='_blank'; link.textContent=rid; chip.appendChild(link); }
+          if(r && r.url){ const link=document.createElement('a'); link.href=r.url; link.textContent=rid; chip.appendChild(link); }
           else { chip.textContent=rid; }
           td3.appendChild(chip);
         });
@@ -207,7 +207,7 @@
         const sp = d.sprint?`sprint:${d.sprint}`:null;
         const pts = d.story_points?`SP:${d.story_points}`:null;
         meta.textContent=[d.status,d.owner,d.prioriteit,sp,pts].filter(Boolean).join(' • ');
-        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open'; link.target='_blank';
+        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open';
         li.append(type,title,meta,link); list.appendChild(li);
       });
     } else if(view==='requirements'){
@@ -225,7 +225,7 @@
           const lbl=document.createElement('span'); lbl.className='rels-label'; lbl.textContent='EPIC:'; rels.appendChild(lbl);
           d.linked_epics.forEach(eid=>{
             const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=eid;
-            const target=idMap[eid]; if(target && target.url) a.href=target.url; a.target='_blank';
+            const target=idMap[eid]; if(target && target.url) a.href=target.url;
             rels.appendChild(a);
           });
         }
@@ -234,11 +234,11 @@
           const lbl=document.createElement('span'); lbl.className='rels-label'; lbl.textContent='US:'; rels.appendChild(lbl);
           d.linked_stories.forEach(uid=>{
             const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=uid;
-            const target=idMap[uid]; if(target && target.url) a.href=target.url; a.target='_blank';
+            const target=idMap[uid]; if(target && target.url) a.href=target.url;
             rels.appendChild(a);
           });
         }
-        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open'; link.target='_blank';
+        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open';
         li.append(type,title,meta,rels,link); list.appendChild(li);
       });
     } else {
@@ -285,20 +285,20 @@
       const e = epics[eid];
       const eHeader = document.createElement('div'); eHeader.className='planning-epic';
       const eBadge = document.createElement('span'); eBadge.className='badge type'; eBadge.textContent='EPIC';
-      const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=(e.epic&&e.epic.url)||'#'; eTitle.target='_blank';
+      const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=(e.epic&&e.epic.url)||'#';
       eHeader.append(eBadge, eTitle); list.appendChild(eHeader);
       const usKeys = Object.keys(e.us).sort((a,b)=>{ const A=e.us[a].us||{}; const B=e.us[b].us||{}; return cmpPlanning(A,B); });
       usKeys.forEach(uid=>{
         const u=e.us[uid];
         const li=document.createElement('div'); li.className='planning-us';
         const uBadge=document.createElement('span'); uBadge.className='badge type'; uBadge.textContent='US';
-        const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=u.us.url; uLink.target='_blank';
+        const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=u.us.url;
         const uMeta=document.createElement('span'); uMeta.className='meta'; const pts=u.us.story_points?`SP:${u.us.story_points}`:null;
         uMeta.textContent=['status:'+(u.us.status||''), u.us.prioriteit, pts].filter(Boolean).join(' · ');
         li.append(uBadge,uLink,document.createTextNode(' '),uMeta);
         if(u.bugs && u.bugs.length){
           const bugRow=document.createElement('div'); bugRow.className='planning-bugs';
-          u.bugs.sort(cmpPlanning).forEach(b=>{ const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=b.url||b.path; chip.target='_blank'; bugRow.appendChild(chip); });
+          u.bugs.sort(cmpPlanning).forEach(b=>{ const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=b.url||b.path; bugRow.appendChild(chip); });
           li.appendChild(bugRow);
         }
         list.appendChild(li);
@@ -312,7 +312,7 @@
       const pts = d.story_points?`SP:${d.story_points}`:null;
       const rel = d.target_release?`rel:${d.target_release}`:null;
       meta.textContent=[d.status,d.owner,d.prioriteit,pts,rel,d.canonical?'canonical':null].filter(Boolean).join(' • ');
-      const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open'; link.target='_blank';
+      const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open';
       li.append(type,title,meta,link); list.appendChild(li);
     });
   }
