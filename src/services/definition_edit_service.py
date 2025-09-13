@@ -494,13 +494,15 @@ class DefinitionEditService:
                 try:
                     maybe = vs.validate_definition(definition)
                 except TypeError:
-                    # Fallback to parameterized signature
+                    # Fallback to parameterized signature (keyword args to avoid ordering issues)
+                    context_dict = None
+                    if definition.metadata and definition.metadata.get('juridische_context'):
+                        context_dict = {'juridische_context': definition.metadata.get('juridische_context')}
                     maybe = vs.validate_definition(
-                        definition.begrip,
-                        definition.definitie,
-                        definition.context or '',
-                        definition.metadata.get('juridische_context', '') if definition.metadata else '',
-                        definition.categorie or 'proces',
+                        begrip=definition.begrip,
+                        text=definition.definitie,
+                        ontologische_categorie=getattr(definition, 'ontologische_categorie', None) or definition.categorie,
+                        context=context_dict,
                     )
 
                 results = None
