@@ -23,6 +23,13 @@
   const idMap = {};
   docs.forEach(d=>{ if(d && d.id) idMap[String(d.id)] = d; });
 
+  function viewerHref(path, title){
+    const base = new URL('viewer.html', location.href);
+    if(path){ base.searchParams.set('src', path); }
+    if(title){ base.searchParams.set('title', title); }
+    return base.toString();
+  }
+
   function getView(){
     const h=(location.hash||'').toLowerCase();
     const m=h.match(/view=([a-z0-9_-]+)/);
@@ -159,13 +166,13 @@
         const reqIds = Array.isArray(e.linked_reqs)? e.linked_reqs : [];
         if(!reqIds.length) return; // show only epics with reqs
         const tr=document.createElement('tr');
-        const td1=document.createElement('td'); const a=document.createElement('a'); a.textContent=e.id||'EPIC'; a.href=e.url||e.path; td1.appendChild(a);
+        const td1=document.createElement('td'); const a=document.createElement('a'); a.textContent=e.id||'EPIC'; a.href=viewerHref(e.url||e.path, e.title||e.id||'EPIC'); td1.appendChild(a);
         const td2=document.createElement('td'); td2.textContent=e.title||'';
         const td3=document.createElement('td');
         reqIds.forEach(rid=>{
           const r = idMap[rid];
           const chip=document.createElement('span'); chip.className='chip';
-          if(r && r.url){ const link=document.createElement('a'); link.href=r.url; link.textContent=rid; chip.appendChild(link); }
+          if(r && r.url){ const link=document.createElement('a'); link.href=viewerHref(r.url, r.title||rid); link.textContent=rid; chip.appendChild(link); }
           else { chip.textContent=rid; }
           td3.appendChild(chip);
         });
@@ -207,7 +214,7 @@
         const sp = d.sprint?`sprint:${d.sprint}`:null;
         const pts = d.story_points?`SP:${d.story_points}`:null;
         meta.textContent=[d.status,d.owner,d.prioriteit,sp,pts].filter(Boolean).join(' • ');
-        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open';
+        const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         li.append(type,title,meta,link); list.appendChild(li);
       });
     } else if(view==='requirements'){
@@ -225,7 +232,7 @@
           const lbl=document.createElement('span'); lbl.className='rels-label'; lbl.textContent='EPIC:'; rels.appendChild(lbl);
           d.linked_epics.forEach(eid=>{
             const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=eid;
-            const target=idMap[eid]; if(target && target.url) a.href=target.url;
+            const target=idMap[eid]; if(target && target.url) a.href=viewerHref(target.url, target.title||eid);
             rels.appendChild(a);
           });
         }
@@ -234,11 +241,11 @@
           const lbl=document.createElement('span'); lbl.className='rels-label'; lbl.textContent='US:'; rels.appendChild(lbl);
           d.linked_stories.forEach(uid=>{
             const a=document.createElement('a'); a.className='badge link-badge'; a.textContent=uid;
-            const target=idMap[uid]; if(target && target.url) a.href=target.url;
+            const target=idMap[uid]; if(target && target.url) a.href=viewerHref(target.url, target.title||uid);
             rels.appendChild(a);
           });
         }
-        const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open';
+        const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         li.append(type,title,meta,rels,link); list.appendChild(li);
       });
     } else {
@@ -285,20 +292,20 @@
       const e = epics[eid];
       const eHeader = document.createElement('div'); eHeader.className='planning-epic';
       const eBadge = document.createElement('span'); eBadge.className='badge type'; eBadge.textContent='EPIC';
-      const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=(e.epic&&e.epic.url)||'#';
+      const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=viewerHref((e.epic&&e.epic.url)||'#', (e.epic&&e.epic.title)||eid);
       eHeader.append(eBadge, eTitle); list.appendChild(eHeader);
       const usKeys = Object.keys(e.us).sort((a,b)=>{ const A=e.us[a].us||{}; const B=e.us[b].us||{}; return cmpPlanning(A,B); });
       usKeys.forEach(uid=>{
         const u=e.us[uid];
         const li=document.createElement('div'); li.className='planning-us';
         const uBadge=document.createElement('span'); uBadge.className='badge type'; uBadge.textContent='US';
-        const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=u.us.url;
+        const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=viewerHref(u.us.url, u.us.title||u.us.id);
         const uMeta=document.createElement('span'); uMeta.className='meta'; const pts=u.us.story_points?`SP:${u.us.story_points}`:null;
         uMeta.textContent=['status:'+(u.us.status||''), u.us.prioriteit, pts].filter(Boolean).join(' · ');
         li.append(uBadge,uLink,document.createTextNode(' '),uMeta);
         if(u.bugs && u.bugs.length){
           const bugRow=document.createElement('div'); bugRow.className='planning-bugs';
-          u.bugs.sort(cmpPlanning).forEach(b=>{ const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=b.url||b.path; bugRow.appendChild(chip); });
+          u.bugs.sort(cmpPlanning).forEach(b=>{ const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=viewerHref(b.url||b.path, b.title||b.id||'BUG'); bugRow.appendChild(chip); });
           li.appendChild(bugRow);
         }
         list.appendChild(li);
@@ -312,7 +319,7 @@
       const pts = d.story_points?`SP:${d.story_points}`:null;
       const rel = d.target_release?`rel:${d.target_release}`:null;
       meta.textContent=[d.status,d.owner,d.prioriteit,pts,rel,d.canonical?'canonical':null].filter(Boolean).join(' • ');
-      const link=document.createElement('a'); link.className='link'; link.href=d.url||d.path; link.textContent='open';
+      const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
       li.append(type,title,meta,link); list.appendChild(li);
     });
   }

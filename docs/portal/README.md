@@ -23,8 +23,8 @@ Gebruik
     open http://localhost:8080
 
 Navigatie terug naar de Portal
-- Documenten openen nu in hetzelfde tabblad. Gebruik de browserknop “Terug” om eenvoudig terug te keren naar de Portal.
-- Tip: wil je een document in een nieuw tabblad openen, gebruik Ctrl/Cmd+klik op de link.
+- Documenten openen via `viewer.html?src=…` in hetzelfde tabblad met bovenin een knop “Terug naar Portal”.
+- In de viewer kun je ook “Open direct” (zelfde tab) of “Open in nieuw tabblad” gebruiken.
 
 Views
 - Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)
