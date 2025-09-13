@@ -36,7 +36,7 @@ Rendering (MD/PDF/DOCX)
 
 Views
 - Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)
-- Planning: EPIC → US → BUG hiërarchie met aantallen (US en BUG per EPIC, bug-count per US). Sprintfilter verschijnt alleen als sprints bestaan en wordt zichtbaar als badge.
+- Planning: EPIC → US → BUG hiërarchie met aantallen (US en BUG per EPIC, bug-count per US) en sprint‑subtotaal van story points (SP) per groep. Sprintfilter verschijnt alleen als sprints bestaan en wordt zichtbaar als badge; groep “Backlog (geen sprint)” indien items geen sprint hebben.
 - Requirements: REQ‑overzicht met klikbare EPIC/US chips; tellen/traceability zichtbaar
 - REQ Matrix: per EPIC alle REQs als chips
 - Mijn Werk: open US/BUG gefilterd op owner/status/prioriteit; deeplinks via `#view=work&owner=…&wstatus=…&wprio=…&wonlyus=1`
