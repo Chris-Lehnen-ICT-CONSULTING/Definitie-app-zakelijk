@@ -12481,7 +12481,8 @@
           "US-076",
           "US-078",
           "US-152",
-          "US-159"
+          "US-159",
+          "US-170"
         ],
         "epic": [
           "EPIC-010",
@@ -12642,6 +12643,41 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-012/US-152/IMPLEMENTATION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-170: Koppel Orchestration-tab aan V2 Orchestrator (productiepad)",
+      "path": "../backlog/EPIC-012/US-170/US-170.md",
+      "url": "../backlog/EPIC-012/US-170/US-170.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-170.md",
+      "_refs": {
+        "us": [
+          "US-170"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-012/US-170/US-170.html"
     },
     {
       "id": null,
@@ -27739,7 +27775,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 610,
+      "DOC": 611,
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
@@ -27747,7 +27783,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T20:46:39Z"
+    "generated_at": "2025-09-13T20:54:12Z"
   },
   "sources": [
     "docs"
