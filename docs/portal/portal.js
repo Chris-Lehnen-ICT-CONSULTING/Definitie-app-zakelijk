@@ -478,19 +478,51 @@
       }
     }
 
-    // Clear button
+    // Clear button (query)
     const clear = document.createElement('button');
     clear.className = 'clear-query';
     clear.type = 'button';
     clear.textContent = '× Wissen';
     clear.title = 'Zoekopdracht wissen';
+    clear.setAttribute('aria-label','Wis zoekopdracht');
     clear.addEventListener('click', ()=>{ q.value=''; render(); });
     badgeContainer.appendChild(clear);
+
+    // Reset all filters
+    const reset = document.createElement('button');
+    reset.className = 'reset-all';
+    reset.type = 'button';
+    reset.textContent = 'Reset alle filters';
+    reset.title = 'Reset query, type/status/sprint en werk-filters';
+    reset.setAttribute('aria-label','Reset alle filters');
+    reset.addEventListener('click', ()=>{
+      // Inputs
+      if(q) q.value='';
+      if(tf) tf.value='';
+      if(sf) sf.value='';
+      if(sprintSel) sprintSel.value='';
+      if(ownerInput) ownerInput.value='';
+      if(workStatus) workStatus.value='';
+      if(workPriority) workPriority.value='';
+      if(workOnlyUs) workOnlyUs.checked=false;
+      // Hash params
+      setHashParam('q',''); setHashParam('view', getView());
+      setHashParam('owner',''); setHashParam('wstatus',''); setHashParam('wprio',''); setHashParam('wonlyus','');
+      render();
+    });
+    badgeContainer.appendChild(reset);
   }
 
   function renderPlanningHierarchy(items, headerLabel){
     const h = document.createElement('h3'); h.className='group';
-    h.textContent = `${headerLabel} (${items.length})`;
+    // Compute type counts for header summary
+    const typeCounts = items.reduce((acc,d)=>{ const t=String(d.type||'').toUpperCase(); acc[t]=(acc[t]||0)+1; return acc; }, {});
+    const parts = [];
+    if(typeCounts.EPIC) parts.push(`EPIC:${typeCounts.EPIC}`);
+    if(typeCounts.US) parts.push(`US:${typeCounts.US}`);
+    if(typeCounts.BUG) parts.push(`BUG:${typeCounts.BUG}`);
+    const suffix = parts.length ? ` — ${parts.join(' • ')}` : '';
+    h.textContent = `${headerLabel} (${items.length})${suffix}`;
     list.appendChild(h);
     const epics = {}; const orphans=[];
     items.forEach(d=>{
@@ -528,11 +560,17 @@
         const li=document.createElement('div'); li.className='planning-us';
         const uBadge=document.createElement('span'); uBadge.className='badge type'; uBadge.textContent='US';
         const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=viewerHref(u.us.rendered_url||u.us.url, u.us.title||u.us.id); attachAltClickFilter(uLink, u.us.id||'');
-        const uMeta=document.createElement('span'); uMeta.className='meta'; const pts=u.us.story_points?`SP:${u.us.story_points}`:null;
+        const uMeta=document.createElement('span'); uMeta.className='meta';
+        const statusTxt = String(u.us.status||'');
+        const prioTxt = String(u.us.prioriteit||'');
+        const pts=u.us.story_points?`SP:${u.us.story_points}`:null;
         const bugc = (u.bugs && u.bugs.length) ? `bugs:${u.bugs.length}` : null;
-        uMeta.textContent=['status:'+(u.us.status||''), u.us.prioriteit, pts, bugc].filter(Boolean).join(' · ');
+        const statusEl=document.createElement('span'); statusEl.className=`badge status-badge status-${statusTxt.toUpperCase()}`; statusEl.textContent=statusTxt||'';
+        const prioEl=document.createElement('span'); prioEl.className=`badge prio-badge prio-${prioTxt.toUpperCase()}`; prioEl.textContent=prioTxt||'';
         const uFilter = makeFilterButton(u.us.id||'');
-        li.append(uBadge,uLink,uFilter,document.createTextNode(' '),uMeta);
+        li.append(uBadge,uLink,uFilter,document.createTextNode(' '),statusEl,document.createTextNode(' '),prioEl);
+        const after=document.createElement('span'); after.className='meta'; after.textContent=['', pts, bugc].filter(Boolean).join(' · ');
+        li.append(document.createTextNode(' '), after);
         if(u.bugs && u.bugs.length){
           const bugRow=document.createElement('div'); bugRow.className='planning-bugs';
           u.bugs.sort(cmpPlanning).forEach(b=>{ const chip=document.createElement('a'); chip.className='badge bug-chip'; chip.textContent=b.title||b.id||'BUG'; chip.href=viewerHref(b.rendered_url||b.url||b.path, b.title||b.id||'BUG'); attachAltClickFilter(chip, b.id||''); bugRow.appendChild(chip); const fb = makeFilterButton(b.id||''); bugRow.appendChild(fb); });

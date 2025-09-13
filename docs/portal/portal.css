@@ -26,6 +26,10 @@ select{padding:8px;border:1px solid #ccc;border-radius:6px}
 .clear-query{font-size:11px; padding:2px 6px; border:1px solid #ddd; background:#fafafa; color:#333; border-radius:6px; cursor:pointer}
 .clear-query:hover{background:#f2f2f2}
 
+/* Reset all filters button */
+.reset-all{font-size:11px; padding:2px 8px; border:1px solid #bbb; background:#f5f5f5; color:#222; border-radius:6px; cursor:pointer}
+.reset-all:hover{background:#ececec}
+
 /* Planning hierarchical styles */
 .planning-epic{margin:8px 0 4px 0; font-weight:600; color:#223}
 .planning-us{margin:4px 0 0 12px}
@@ -52,3 +56,19 @@ select{padding:8px;border:1px solid #ccc;border-radius:6px}
 /* Chip filter buttons */
 .filter-btn { margin-left:4px; font-size:11px; padding:0 6px; line-height:18px; border:1px solid #ccd; background:#f8f9fb; border-radius:6px; cursor:pointer; color:#223; }
 .filter-btn:hover { background:#eef3ff; }
+
+/* Status and priority badges (AA contrast) */
+.badge.status-badge{font-weight:600}
+.badge.prio-badge{font-weight:600}
+
+/* Status */
+.status-TE_DOEN{ background:#e5e7eb; border-color:#d1d5db; color:#111827 }
+.status-IN_UITVOERING{ background:#dbeafe; border-color:#bfdbfe; color:#1e3a8a }
+.status-OPEN{ background:#e0e7ff; border-color:#c7d2fe; color:#1e3a8a }
+.status-GEREED, .status-VOLTOOID, .status-RESOLVED{ background:#dcfce7; border-color:#bbf7d0; color:#065f46 }
+
+/* Priority */
+.prio-KRITIEK{ background:#fee2e2; border-color:#fecaca; color:#7f1d1d }
+.prio-HOOG{ background:#ffedd5; border-color:#fed7aa; color:#7c2d12 }
+.prio-GEMIDDELD{ background:#fef9c3; border-color:#fde68a; color:#7a5200 }
+.prio-LAAG{ background:#e5e7eb; border-color:#d1d5db; color:#374151 }
