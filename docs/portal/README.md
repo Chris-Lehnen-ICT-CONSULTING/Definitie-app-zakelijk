@@ -17,10 +17,14 @@ Gebruik
    python scripts/docs/generate_portal.py
 
 2) Open de pagina:
-   - Dubbelklik op docs/portal/index.html (offline werkt, data is inline)
-   - Of serveer statisch: (optioneel)
-     cd docs/portal && python -m http.server 8080
-  open http://localhost:8080
+  - Dubbelklik op docs/portal/index.html (offline werkt, data is inline)
+  - Of serveer statisch: (optioneel)
+    cd docs/portal && python -m http.server 8080
+    open http://localhost:8080
+
+Navigatie terug naar de Portal
+- Documenten openen nu in hetzelfde tabblad. Gebruik de browserknop “Terug” om eenvoudig terug te keren naar de Portal.
+- Tip: wil je een document in een nieuw tabblad openen, gebruik Ctrl/Cmd+klik op de link.
 
 Views
 - Alles: volledige lijst met zoek/filters/sort (titel/prioriteit/planning)

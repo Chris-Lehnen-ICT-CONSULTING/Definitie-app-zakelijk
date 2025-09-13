@@ -12853,7 +12853,7 @@
       "title": "Portal Navigatie – Terug naar Portal vanuit geopende documenten",
       "path": "../backlog/EPIC-013/US-169/US-169.md",
       "url": "../backlog/EPIC-013/US-169/US-169.md",
-      "status": "Open",
+      "status": "GEREED",
       "prioriteit": "GEMIDDELD",
       "owner": "documentation-team",
       "canonical": true,
@@ -26867,7 +26867,7 @@
       "ARCH": 22,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T08:12:51Z"
+    "generated_at": "2025-09-13T08:13:56Z"
   },
   "sources": [
     "docs"
