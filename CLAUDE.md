@@ -187,6 +187,7 @@ De applicatie gebruikt een **ServiceContainer** patroon (`src/services/container
 
 - **ValidationOrchestratorV2**: Hoofd orchestratie service die validatie flow coördineert
 - **ModularValidationService**: Beheert 45 validatieregels met modulaire architectuur
+- **ApprovalGatePolicy (EPIC-016)**: Centrale policy voor validatie‑gate bij Vaststellen (mode/drempels/vereiste velden); UI‑beheerbaar
 - **UnifiedDefinitionGenerator**: Core definitie generatie logica
 - **AIServiceV2**: GPT-4 integratie met temperatuur controle en rate limiting
 - **PromptServiceV2**: Modulaire prompt building met context-aware templates
@@ -208,6 +209,7 @@ De applicatie gebruikt Streamlit's session state uitgebreid. Belangrijke state v
 - `st.session_state.validation_results`: Validatie uitkomsten
 - `st.session_state.voorbeelden`: Voorbeeld zinnen
 - `st.session_state.service_container`: Singleton service container
+- Configuratie (EPIC‑016): Gate‑policy, validatieregels en contextopties worden centraal beheerd (DB/config) en via DI gelezen; wijzigingen zijn auditbaar en kunnen via UI worden aangepast.
 
 ### Database Architectuur
 
