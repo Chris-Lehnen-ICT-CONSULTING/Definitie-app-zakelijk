@@ -7201,6 +7201,45 @@
       "linked_stories": null
     },
     {
+      "id": "REQ-097",
+      "type": "REQ",
+      "title": "Iteratieve Verbetering van Definities (V2 Orchestrator)",
+      "path": "../backlog/requirements/REQ-097.md",
+      "url": "../backlog/requirements/REQ-097.md",
+      "status": "TODO",
+      "prioriteit": "HOOG",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "functional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-170"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-097.html",
+      "linked_epics": null,
+      "linked_stories": null
+    },
+    {
       "id": "REQ-050",
       "type": "REQ",
       "title": "Accessibility WCAG 2.1 AA compliance",
@@ -27779,11 +27818,11 @@
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
-      "REQ": 98,
+      "REQ": 99,
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-13T20:54:12Z"
+    "generated_at": "2025-09-14T08:27:38Z"
   },
   "sources": [
     "docs"
