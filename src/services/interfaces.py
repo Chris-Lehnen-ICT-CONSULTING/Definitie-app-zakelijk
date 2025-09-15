@@ -123,7 +123,8 @@ class DefinitionStatus(Enum):
 
     DRAFT = "draft"  # Concept versie, nog in bewerking
     REVIEW = "review"  # Klaar voor juridische review
-    APPROVED = "approved"  # Goedgekeurd voor gebruik
+    # APPROVED is uitgefaseerd; map naar 'established' voor compatibiliteit
+    APPROVED = "established"  # Backwards alias voor 'established'
     REJECTED = "rejected"  # Afgekeurd, moet aangepast worden
     ARCHIVED = "archived"  # Gearchiveerd, niet meer actief
 

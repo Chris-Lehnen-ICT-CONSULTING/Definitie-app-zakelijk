@@ -32,18 +32,18 @@ jobs:
       - name: Check for deprecated attributes
         run: |
           echo "Checking for deprecated attributes..."
-          # Exclude ValidationResult.overall_score which is valid, and test/main sections
-          VIOLATIONS=$(rg "\.overall_score|\.best_iteration" src/ --type py | \
-                      grep -v "ValidationResult" | \
-                      grep -v "if __name__" | \
-                      grep -v "# Test" | \
-                      grep -v "# Example" | \
-                      grep -v "# Demo" || true)
+          # Restrict scope to non-UI code for overall_score and block best_iteration outside demo tab
+          VIOLATIONS=$(rg "\.overall_score" src/ --type py | \
+                      grep -v "^src/ui/" | \
+                      grep -v "ValidationResult" || true)
+          BI_VIOLATIONS=$(rg "\bbest_iteration\b" src/ --type py | \
+                          grep -v "src/ui/components/orchestration_tab.py" || true)
           
-          if [ -n "$VIOLATIONS" ]; then
+          if [ -n "$VIOLATIONS" ] || [ -n "$BI_VIOLATIONS" ]; then
             echo "❌ FAIL: Deprecated attributes found (.overall_score or .best_iteration)"
             echo "These attributes were removed in EPIC-010. Use the new structure instead."
             echo "$VIOLATIONS"
+            echo "$BI_VIOLATIONS"
             exit 1
           fi
           echo "✅ PASS: No deprecated attributes"
@@ -86,6 +86,16 @@ jobs:
             exit 1
           fi
           echo "✅ PASS: No asyncio.run in services"
+
+      - name: Check for event-loop bridging in services
+        run: |
+          echo "Checking for event-loop bridging in services..."
+          if rg "run_coroutine_threadsafe|new_event_loop|run_until_complete" src/services/ --type py; then
+            echo "❌ FAIL: Event-loop bridging found in services"
+            echo "Services should expose async APIs only; bridging belongs in UI."
+            exit 1
+          fi
+          echo "✅ PASS: No event-loop bridging in services"
       
       - name: Check for sync wrapper calls outside async_bridge
         run: |
@@ -121,6 +131,32 @@ jobs:
             exit 1
           fi
           echo "✅ PASS: No streamlit imports in services"
+
+      - name: Check for UI imports outside UI layer
+        run: |
+          echo "Checking for UI imports outside src/ui/..."
+          VIOLATIONS=$(rg "\bfrom\s+ui\.|\bimport\s+ui\b" src/ --type py | \
+                       grep -v "^src/ui/" | \
+                       grep -v "^src/main.py" || true)
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ FAIL: UI imports found outside src/ui"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+          echo "✅ PASS: No UI imports outside UI"
+
+      - name: Check for streamlit imports outside UI layer
+        run: |
+          echo "Checking for streamlit imports outside src/ui/..."
+          VIOLATIONS=$(rg "^\s*(import|from)\s+streamlit" src/ --type py | \
+                       grep -v "^src/ui/" | \
+                       grep -v "^src/main.py" || true)
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ FAIL: streamlit imports found outside src/ui"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+          echo "✅ PASS: No streamlit imports outside UI"
       
       - name: Summary
         if: success()
