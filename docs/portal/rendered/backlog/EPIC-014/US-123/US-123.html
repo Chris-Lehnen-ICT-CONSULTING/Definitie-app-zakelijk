@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portal kan Multi‑Agent gids openen</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-123</p>
+<p>titel: Portal kan Multi‑Agent gids openen</p>
+<p>epic: EPIC-014</p>
+<p>status: TE_DOEN</p>
+<p>prioriteit: MIDDEL</p>
+<p>story_points: 2</p>
+<p>owner: development</p>
+<p>type: feature</p>
+<p>sprint: backlog</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+
+<h1>US-123: Portal kan Multi‑Agent gids openen</h1>
+
+<h2>Achtergrond</h2>
+<p>Als developer wil ik vanuit de Documentatie‑Portal direct de gids voor multi‑agent gebruik kunnen openen, zodat ik snel parallelle workflows (worktrees/patches), quick‑checks en het scoreboard kan toepassen.</p>
+
+<h2>Doel</h2>
+<p>Het document <code>docs/codex-multi-agent-gebruik.md</code> is vindbaar en klikbaar in de Portal, en opent in dezelfde Portal UI.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Het document verschijnt als item in de Portal index met titel “Codex Multi‑Agent Gebruik”.</li>
+<li>[ ] Klikken op het item toont de inhoud in de Portal viewer (geen download).</li>
+<li>[ ] Zoekfunctie van de Portal vindt dit document op trefwoorden: "multi-agent", "scoreboard", "quick-checks".</li>
+<li>[ ] Cross‑link zichtbaar vanuit `docs/guidelines/AGENTS.md` werkt en opent ook in de Portal.</li>
+</ul>
+
+<h2>Uitwerking (schets)</h2>
+<ul>
+<li>Portal data: verifieer/actualiseer opname in `docs/portal/portal-index.json` (pad `docs/codex-multi-agent-gebruik.md`).</li>
+<li>Weergave: gebruik bestaande Portal render pipeline (geen nieuwe component nodig).</li>
+<li>Validatie: handmatige controle door het openen vanuit Portal en via directe deeplink.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Document is zichtbaar en opent binnen de Portal viewer.</li>
+<li>[ ] Titel/metadata correct weergegeven.</li>
+<li>[ ] Link uit statusbar/AGENTS.md leidt naar hetzelfde Portal‑document.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

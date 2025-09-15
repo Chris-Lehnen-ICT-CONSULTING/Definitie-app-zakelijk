@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Build Modular Prompt Template System with Context-Aware Selection</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-001</li>
+<p>aangemaakt: 02-01-2025</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>epic: EPIC-001</p>
+<p>id: US-002</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: Voltooid</p>
+<p>status: GEREED</p>
+<p>story_points: 5</p>
+<p>titel: Build Modular Prompt Template System with Context-Aware Selection</p>
+<p>toegewezen_aan: development-team</p>
+<p>vereisten:</p>
+<li>REQ-018</li>
+<li>REQ-038</li>
+<li>REQ-059</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-002: Build Modular Prompt Template System with Context-Aware Selection</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>As a</strong> juridische definitie author working across OM/DJI/Rechtspraak domains</p>
+<p><strong>wil ik</strong> modular, context-aware prompt templates that automatically adapt to legal domain</p>
+<p><strong>zodat</strong> I achieve 95% consistency in definition structure while reducing prompt tokens by 40%</p>
+
+<h2>Problem Statement</h2>
+
+<p><strong>Current Situation:</strong></p>
+<ul>
+<li>Single monolithic prompt template using 7,250 tokens</li>
+<li>No adaptation to different legal contexts (criminal vs civil)</li>
+<li>65% of prompt content is irrelevant for specific requests</li>
+<li>Template Wijzigingen require code deployment</li>
+<li>No Versieing or A/B testing capability</li>
+</ul>
+
+<p><strong>Desired Outcome:</strong></p>
+<ul>
+<li>Modular templates using < 3,000 tokens per request</li>
+<li>Context-aware template selection (criminal/civil/administrative)</li>
+<li>Load templates from configuration files (no code Wijzigingen)</li>
+<li>Template Versieing with fallback support</li>
+<li>40% reduction in API costs through optimization</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** Modulair prompt template systeem met context-aware selectie voor juridische domeinen</li>
+<li>**Meetbaar:**</li>
+<li> - Template load tijd: < 50ms</li>
+<li> - Token reductie: 40% (van 7250 naar < 3000 tokens)</li>
+<li> - Template hit rate: > 95% voor standaard contexten</li>
+<li> - Configuratie updates zonder code deployment</li>
+<li>**Acceptabel:** YAML-based templates met Jinja2 templating</li>
+<li>**Relevant:** Kostenreductie en verbeterde onderhoudbaarheid</li>
+<li>**Tijdgebonden:** Geïmplementeerd in Sprint 2, operationeel sinds Week 4</li>
+</ul>
+
+<h3>ASTRA/NORA Compliance</h3>
+<ul>
+<li>**ASTRA-ARC-002**: Modulaire architectuur principes</li>
+<li>**NORA-BP-07**: Herbruikbare componenten</li>
+<li>**DJI-ARCH-004**: Configuratie-gedreven systemen</li>
+</ul>
+
+
+<h3>Criterion 1: Modular Template Architecture</h3>
+<pre><code>Scenario: Context-specifieke template selectie
+  Gegeven templates opgeslagen in 'config/prompts/templates/'
+  En een gebruiker selecteert context "strafrecht"
+  Wanneer een definitie wordt aangevraagd voor "voorlopige hechtenis"
+  Dan laadt het systeem 'criminal_law_template.yaml'
+  En voegt deze samen met 'base_template.yaml'
+  En includeert alleen strafrecht-relevante validatieregels
+  En is de totale prompt size &lt; 3,000 tokens
+  En wordt een trace log gegenereerd met template selectie details</code></pre>
+
+<h3>Criterion 2: Dynamic Variable Substitution</h3>
+<pre><code>Scenario: Dynamische variabele vervanging
+  Gegeven een template met variabelen '{term}', '{context}', '{domain}', '{examples}'
+  En waarden: term="vonnis", context="strafrecht", domain="OM"
+  Wanneer de prompt wordt samengesteld
+  Dan worden alle variabelen vervangen met actuele waarden
+  En worden ongebruikte optionele variabelen verwijderd
+  En worden speciale karakters correct ge-escaped
+  En blijven Nederlandse formatteringsregels behouden
+  En wordt de output gevalideerd tegen het template schema</code></pre>
+
+<h3>Criterion 3: Template Validatie & Completeness</h3>
+<pre><code>Scenario: Template volledigheidscontrole
+  Gegeven een gegenereerde prompt uit templates
+  Wanneer deze wordt gevalideerd voor GPT-4 verzending
+  Dan controleert het systeem op:
+    | Check | Vereiste |
+    | Minimale lengte | &gt; 100 karakters |
+    | Maximale lengte | &lt; 10000 karakters |
+    | Verplichte secties | Aanwezig |
+    | Taalconsistentie | 100% Nederlands |
+  En bij validatiefalen wordt fallback template gebruikt
+  En wordt een validatie rapport gelogd</code></pre>
+<p><strong>dan</strong> it must contain:</p>
+<ul>
+<li>Required sections: instruction, term, context, output format</li>
+<li>Maximum 45 validatieregels (context-filtered)</li>
+<li>Valid JSON structure for structured output</li>
+<li>Token count validatie (< 3,000)</li>
+</ul>
+
+<h3>Criterion 4: Template Hot-Reload</h3>
+<p><strong>gegeven</strong> templates are modified in <code>config/prompts/templates/</code></p>
+<p><strong>wanneer</strong> the application is running</p>
+<p><strong>dan</strong>:</p>
+<ul>
+<li>Wijzigingen are detected within 30 seconds</li>
+<li>New templates are loaded without restart</li>
+<li>Active sessions continue with old templates (graceful)</li>
+<li>Admin notification of template upDatum</li>
+</ul>
+
+<h2>Technical Implementatie</h2>
+
+<h3>Implementatie Approach</h3>
+
+<ol>
+<li>**Step 1**: Create template structure in `config/prompts/templates/`</li>
+<pre><code>   templates/
+   ├── base_template.yaml
+   ├── criminal_law_template.yaml
+   ├── civil_law_template.yaml
+   ├── administrative_law_template.yaml
+   └── validation_rules/
+       ├── criminal_rules.yaml
+       └── civil_rules.yaml</code></pre>
+</ol>
+
+<ol>
+<li>**Step 2**: Implement `PromptServiceV2` in `src/services/prompt_service_v2.py`</li>
+<pre><code>   class PromptServiceV2:
+       def build_prompt(self, term, context, domain, examples=None):
+           template = self._select_template(context)
+           rules = self._get_relevant_rules(context)
+           return self._merge_En_substitute(template, rules, locals())</code></pre>
+</ol>
+
+<ol>
+<li>**Step 3**: Add template caching with file watcher</li>
+</ol>
+<ul>
+<li>  - Use `watchdog` library for file system monitoring</li>
+<li>  - Implement LRU cache with 15-minute TTL</li>
+<li>  - Cache key: hash(template_path + modification_time)</li>
+</ul>
+
+<ol>
+<li>**Step 4**: Implement token counting en optimization</li>
+</ol>
+<ul>
+<li>  - Use `tiktoken` for accurate GPT-4 token counts</li>
+<li>  - Implement `optimize_prompt()` to remove redundancy</li>
+<li>  - Add telemetry for token usage tracking</li>
+</ul>
+
+<h3>Code Locations</h3>
+<ul>
+<li>Primary files:</li>
+<li> - `src/services/prompt_service_v2.py` (main service)</li>
+<li> - `src/services/template_loader.py` (template management)</li>
+<li> - `src/utils/token_counter.py` (token optimization)</li>
+<li> - `config/prompts/templates/*.yaml` (template files)</li>
+<li>Key functions:</li>
+<li> - `PromptServiceV2.build_prompt()` - main entry point</li>
+<li> - `PromptServiceV2._select_template()` - context-aware selection</li>
+<li> - `PromptServiceV2._merge_templates()` - template composition</li>
+<li> - `TemplateLoader.load_with_cache()` - cached loading</li>
+<li> - `TokenCounter.count_tokens()` - accurate counting</li>
+</ul>
+
+<h3>Technical Decisions</h3>
+<ul>
+<li>Format: YAML for templates (human-readable, supports multiline)</li>
+<li>Parser: Jinja2 for variable substitution (industry stEnard)</li>
+<li>Cache: Redis for production, in-memory for development</li>
+<li>File watching: watchdog library (cross-platform)</li>
+<li>Token counting: tiktoken with cl100k_base encoding</li>
+</ul>
+
+<h2>Domain & compliance</h2>
+
+<h3>Domeinregels</h3>
+<ul>
+<li>**ASTRA guideline**: Templates externalized from code (configuration as code)</li>
+<li>**NORA principle**: Reusable components across government systems</li>
+<li>**Justice stEnards**:</li>
+<li> - OM: Openbaar Ministerie (OM)-focused language en structure</li>
+<li> - DJI: Rehabilitation en detentie terminology</li>
+<li> - Rechtspraak: rechtbank procedure alignment</li>
+<li> - All templates must support Dutch en English</li>
+</ul>
+
+<h3>beveiliging & Privacy</h3>
+<ul>
+<li>**beveiliging**: Templates stored read-only in production</li>
+<li>**Privacy**: No PII in template examples or structure</li>
+<li>**Audit**: Log template selection en Versie for each request</li>
+<li>**Access**: Template modification requires admin role</li>
+</ul>
+
+
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-001</li>
+</ul>
+<h2>Test Scenario's</h2>
+
+<h3>Unit Tests</h3>
+
+<ol>
+<li>**Test**: `test_template_selection_by_context()`</li>
+</ol>
+<ul>
+<li>  - Input: Various contexts ("strafrecht", "bestuursrecht", "civiel")</li>
+<li>  - Expected: Correct template file selected</li>
+<li>  - Assert: `selected_template.name == expected_template`</li>
+<li>  - Coverage: All context types</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_variable_substitution_completeness()`</li>
+</ol>
+<ul>
+<li>  - Input: Template with 10 variables, provide 7 values</li>
+<li>  - Expected: 7 replaced, 3 optional removed cleanly</li>
+<li>  - Assert: No `{` or `}` in output, all values present</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_token_count_optimization()`</li>
+</ol>
+<ul>
+<li>  - Setup: Load template with all rules (7,250 tokens)</li>
+<li>  - Action: Apply context filter for "strafrecht"</li>
+<li>  - Expected: Reduced to < 3,000 tokens</li>
+<li>  - Assert: `token_count < 3000`, `"straf" in output`</li>
+</ul>
+
+<h3>Integration Tests</h3>
+
+<ol>
+<li>**Test**: `test_template_hot_reload()`</li>
+</ol>
+<ul>
+<li>  - Setup: Start application, modify template file</li>
+<li>  - Wait: 30 seconds</li>
+<li>  - Action: Generate new prompt</li>
+<li>  - Assert: New template content used, no restart needed</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_concurrent_template_access()`</li>
+</ol>
+<ul>
+<li>  - Setup: 50 concurrent requests with different contexts</li>
+<li>  - Action: Generate prompts simultaneously</li>
+<li>  - Assert: Correct templates used, no race conditions</li>
+</ul>
+
+<h3>Prestaties Tests</h3>
+
+<ol>
+<li>**Test**: `test_template_loading_Prestaties()`</li>
+</ol>
+<ul>
+<li>  - Setup: Clear cache, load 100 different prompts</li>
+<li>  - maatregel: Load time per template</li>
+<li>  - Assert: `first_load < 100ms`, `cached_load < 5ms`</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[x] Template file structure aangemaakt in `config/prompts/`</li>
+<li>[x] PromptServiceV2 geïmplementeerd with modular loading</li>
+<li>[x] Token counting integrated with tiktoken</li>
+<li>[x] Template caching with Redis/in-memory</li>
+<li>[x] File watcher for hot-reload capability</li>
+<li>[x] Unit tests written (> 85% coverage)</li>
+<li>[x] Integration tests for template selection</li>
+<li>[x] Prestaties tests validatie < 3,000 tokens</li>
+<li>[x] beveiliging review (no code injection possible)</li>
+<li>[x] Documentation: template authoring guide</li>
+<li>[x] Code review by senior architect</li>
+<li>[x] A/B test shows 40% token reduction</li>
+<li>[x] Deployed with feature flag</li>
+</ul>
+
+<h2>Risks & Mitigation</h2>
+
+<ol>
+<li>**Risk**: Template syntax errors break generation</li>
+</ol>
+<ul>
+<li>  - Probability: GEMIDDELD</li>
+<li>  - Impact: HOOG</li>
+<li>  - Mitigation: Template validatie on load, fallback to last valid</li>
+</ul>
+
+<ol>
+<li>**Risk**: Context mapping incomplete</li>
+</ol>
+<ul>
+<li>  - Probability: LAAG</li>
+<li>  - Impact: GEMIDDELD</li>
+<li>  - Mitigation: Default template fallback, logging of unmapped contexts</li>
+</ul>
+
+<ol>
+<li>**Risk**: Cache invalidation issues</li>
+</ol>
+<ul>
+<li>  - Probability: LAAG</li>
+<li>  - Impact: LAAG</li>
+<li>  - Mitigation: Conservative TTL, manual cache clear option</li>
+</ul>
+
+<h2>Notes & References</h2>
+
+<h3>Implementatie Milestones</h3>
+<ul>
+<li>Template design: 05-01-2025</li>
+<li>Initial Implementatie: 08-01-2025</li>
+<li>Token optimization: 12-01-2025</li>
+<li>Hot-reload added: 15-01-2025</li>
+<li>productie deployment: 20-01-2025</li>
+</ul>
+
+<h3>Metrics Achieved</h3>
+<ul>
+<li>Token reduction: 58% (target: 40%) ✅</li>
+<li>Template load time: 3ms cached (target: < 10ms) ✅</li>
+<li>Context accuracy: 98% (target: 95%) ✅</li>
+<li>Template Wijzigingen without deploy: 100% (target: 100%) ✅</li>
+</ul>
+
+<h3>Gerelateerde Documentatie</h3>
+<ul>
+<li>Template authoring guide: `docs/guides/template-authoring.md`</li>
+<li>Token optimization: `docs/architectuur/prompt-refactoring/`</li>
+<li>Configuration: `config/prompts/README.md`</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This story is part of EPIC-001: Basis Definitie Generatie</em></p>
+
+  </div>
+</body>
+</html>

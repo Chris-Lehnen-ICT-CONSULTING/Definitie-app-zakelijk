@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configuratie auditlog en versiebeheer</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-165</p>
+<p>titel: Configuratie auditlog en versiebeheer</p>
+<p>epic: EPIC-016</p>
+<p>status: Backlog</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>story_points: 3</p>
+<p>aangemaakt: 2025-09-13</p>
+<p>bijgewerkt: 2025-09-13</p>
+<p>owner: architecture</p>
+<p>type: feature</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-13</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-096</li>
+<p>---</p>
+</ul>
+
+<h1>US-165: Configuratie auditlog en versiebeheer</h1>
+
+<h2>Doel</h2>
+<p>Elke wijziging aan configuratie vastleggen (wie/wat/wanneer/voorheen→nieuw) en versies kunnen inzien/terugdraaien.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Auditlog per wijziging zichtbaar in Beheer‑tab</li>
+<li>[ ] Versieoverzicht per configuratiegroep; mogelijkheid tot rollback naar vorige versie</li>
+<li>[ ] Exporteer auditlog als CSV/JSON</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] DB‑audittabel(len)</li>
+<li>[ ] UI‑weergave audit + rollback‑actie</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<h2>Data‑model</h2>
+<ul>
+<li>Tabel `config_audit` (id, config_key, prev_value_json, new_value_json, changed_by, changed_at, comment)</li>
+<li>Tabel `config_versions` (id, config_key, version, value_json, created_at, created_by)</li>
+</ul>
+
+<h2>UI‑Details</h2>
+<ul>
+<li>Auditlijst met filter op key/user/datum; actie “Rollback naar versie X”.</li>
+<li>Rollback toont diff en confirmatie.</li>
+</ul>
+
+<h2>Performance/retentie</h2>
+<ul>
+<li>Retentiebeleid (bijv. max 100 versies per key of 180 dagen); export vóór purge.</li>
+</ul>
+
+  </div>
+</body>
+</html>

@@ -442,8 +442,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # Use ValidationOrchestratorInterface.validate_text
             from services.validation.interfaces import ValidationContext
 
+            # Tolerant correlation_id: als generation_id geen geldige UUID is, genereer er één
+            try:
+                corr = uuid.UUID(generation_id)
+            except Exception:
+                corr = uuid.uuid4()
             validation_context = ValidationContext(
-                correlation_id=uuid.UUID(generation_id),
+                correlation_id=corr,
                 metadata={"generation_id": generation_id},
             )
             validation_result = await self.validation_service.validate_text(
@@ -473,8 +478,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 )
 
                 # Re-validate enhanced text with new context
+                try:
+                    corr2 = uuid.UUID(generation_id)
+                except Exception:
+                    corr2 = uuid.uuid4()
                 enhanced_context = ValidationContext(
-                    correlation_id=uuid.UUID(generation_id),
+                    correlation_id=corr2,
                     metadata={"generation_id": generation_id, "enhanced": True},
                 )
                 validation_result = await self.validation_service.validate_text(
@@ -656,7 +665,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         return Definition(
             begrip=request.begrip,
             definitie=text,
-            context=request.context,
+            organisatorische_context=request.organisatorische_context or [],
+            juridische_context=request.juridische_context or [],
+            wettelijke_basis=request.wettelijke_basis or [],
             # EPIC-010: domein field verwijderd
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
             valid=validation_result.get("is_acceptable", False),

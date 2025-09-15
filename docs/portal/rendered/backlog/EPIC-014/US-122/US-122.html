@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Branch Overzicht & Koppeling met US/BUG</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-122</p>
+<p>titel: Branch Overzicht & Koppeling met US/BUG</p>
+<p>epic: EPIC-014</p>
+<p>status: TE_DOEN</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 3</p>
+<p>owner: developer</p>
+<p>type: feature</p>
+<p>sprint: backlog</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+
+<h1>US-122: Branch Overzicht & Koppeling met US/BUG</h1>
+
+<h2>Achtergrond</h2>
+<p>Als single developer wil ik in de Portal snel zien welke git branches er zijn, wat hun status is (ahead/behind), en welke user stories/bugs eraan gerelateerd zijn, zodat ik gericht kan mergen of opruimen.</p>
+
+<h2>Doel</h2>
+<p>Een “Branches” subview in de Portal die per branch toont:</p>
+<ul>
+<li>Naam, ahead/behind tov `main`, laatste commit</li>
+<li>Gerelateerde items: herkend via branchnaam (US-XXX/BUG-XXX) en via diff-op-bestanden (backlog/EPIC-XXX/…)</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] CLI/Script dat branch‑metadata ophaalt (zonder netwerk):</li>
+<li> - `git for-each-ref` op remotes en locals (naam, sha, datum)</li>
+<li> - ahead/behind t.o.v. main (`git rev-list --left-right --count`)</li>
+<li>[ ] Mapping naar werkitems:</li>
+<li> - Herken US/BUG in branchnaam (regex: `US-\d+`, `BUG-\d+`)</li>
+<li> - Diff t.o.v. main: files onder `docs/backlog/EPIC-*/US-*/` en `BUG-*` koppelen</li>
+<li>[ ] Output JSON: `docs/portal/branches.json` (per branch: meta + related_us + related_bugs + changed_files)</li>
+<li>[ ] Portal view “Branches”: tabel met kolommen (branch, ahead/behind, laatste commit, items), chips klikbaar naar docs.</li>
+<li>[ ] Pre‑commit/CI job die `branches.json` bijwerkt bij push/PR (optioneel)</li>
+</ul>
+
+<h2>Uitwerking (schets)</h2>
+<ul>
+<li>Script: `scripts/docs/scan_branches.py`</li>
+<li> - Schrijft `docs/portal/branches.json`</li>
+<li>UI: nieuw tabje “Branches” in `docs/portal/index.html` + rendering in `portal.js`</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] `branches.json` genereert lokaal < 0.5s</li>
+<li>[ ] Portal toont branches met correcte counts (validatie middels 1-2 testbranches)</li>
+<li>[ ] Documentatie in `docs/portal/README.md` over deeplinks/filters</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

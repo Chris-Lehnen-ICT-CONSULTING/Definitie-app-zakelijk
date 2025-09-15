@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Provider Integration Guide voor Developers</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 06-09-2025</p>
+<p>afhankelijkheden: []</p>
+<p>bijgewerkt: 06-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-011</p>
+<p>id: US-054</p>
+<p>owner: documentation-team</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>sprint: Sprint 24</p>
+<p>status: Backlog</p>
+<p>story_points: 3</p>
+<p>titel: Provider Integration Guide voor Developers</p>
+<p>toegewezen_aan: Backend Team</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-091</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-054: Provider Integration Guide voor Developers</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> backend developer</p>
+<p><strong>Wil ik</strong> een duidelijke handleiding voor het toevoegen van nieuwe data providers</p>
+<p><strong>Zodat</strong> ik zelfstandig nieuwe juridische bronnen kan integreren zonder architectuur kennis</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Stap-voor-Stap Instructies</h3>
+<p><strong>Gegeven</strong> een nieuwe externe API (bv. EUR-Lex)</p>
+<p><strong>Wanneer</strong> ik deze wil integreren</p>
+<p><strong>Dan</strong> kan ik de guide volgen en binnen 4 uur een werkende provider hebben</p>
+<p><strong>En</strong> zijn alle stappen genummerd en geïllustreerd</p>
+<p><strong>En</strong> zijn common pitfalls en solutions gedocumenteerd</p>
+<p><strong>En</strong> is er een troubleshooting sectie beschikbaar</p>
+
+<h3>Criterion 2: Interface Specificatie</h3>
+<p><strong>Gegeven</strong> de provider base class</p>
+<p><strong>Wanneer</strong> ik een nieuwe provider implementeer</p>
+<p><strong>Dan</strong> weet ik exact welke methods en properties vereist zijn</p>
+<p><strong>En</strong> zijn alle methods voorzien van type hints</p>
+<p><strong>En</strong> is inheritance hierarchy duidelijk gedocumenteerd</p>
+<p><strong>En</strong> zijn abstract vs concrete methods gespecificeerd</p>
+
+<h3>Criterion 3: Configuratie Voorbeelden</h3>
+<p><strong>Gegeven</strong> provider-specifieke settings (API keys, endpoints)</p>
+<p><strong>Wanneer</strong> ik deze moet configureren</p>
+<p><strong>Dan</strong> zijn er YAML voorbeelden voor verschillende scenarios</p>
+<p><strong>En</strong> is environment variable mapping gedocumenteerd</p>
+<p><strong>En</strong> zijn security best practices toegepast</p>
+<p><strong>En</strong> is secret management geïntegreerd</p>
+
+<h3>Criterion 4: Test Harness</h3>
+<p><strong>Gegeven</strong> een nieuwe provider implementatie</p>
+<p><strong>Wanneer</strong> ik wil verifiëren dat deze correct werkt</p>
+<p><strong>Dan</strong> is er een test template met mock data</p>
+<p><strong>En</strong> zijn unit tests voorbeelden beschikbaar</p>
+<p><strong>En</strong> is integration testing gedocumenteerd</p>
+<p><strong>En</strong> zijn performance benchmarks gedefinieerd</p>
+
+<h3>Criterion 5: Justice Sector Providers (NIEUW)</h3>
+<p><strong>Gegeven</strong> specifieke juridische databronnen</p>
+<p><strong>Wanneer</strong> ik justice sector APIs wil integreren</p>
+<p><strong>Dan</strong> zijn er voorbeelden voor:</p>
+<ul>
+<li>Rechtspraak.nl API</li>
+<li>EUR-Lex Europa</li>
+<li>Wetten.nl/BWB</li>
+<li>ECLI resolver</li>
+<li>OM/CVOM bronnen</li>
+</ul>
+
+<h2>Domain Vereisten</h2>
+
+<h3>Provider Types</h3>
+
+<h4>Standard Providers</h4>
+<ul>
+<li>**REST API Providers**</li>
+<li> - JSON response handling</li>
+<li> - XML parsing met lxml/ElementTree</li>
+<li> - GraphQL query support</li>
+<li> - Pagination strategies (cursor, offset, page)</li>
+</ul>
+
+<ul>
+<li>**SOAP/SRU Providers**</li>
+<li> - WSDL parsing en client generatie</li>
+<li> - SRU 2.0 protocol implementatie</li>
+<li> - Z39.50 voor bibliotheek catalogi</li>
+<li> - SOAP fault handling</li>
+</ul>
+
+<ul>
+<li>**Database Connectors**</li>
+<li> - SQLAlchemy integration</li>
+<li> - Connection pooling</li>
+<li> - Query optimization</li>
+<li> - Transaction management</li>
+</ul>
+
+<h4>Justice Sector Specific</h4>
+<ul>
+<li>**Rechtspraak.nl Provider**</li>
+<li> - ECLI based queries</li>
+<li> - Uitspraken metadata parsing</li>
+<li> - Instantie filtering</li>
+<li> - Rechtsgebied categorisatie</li>
+</ul>
+
+<ul>
+<li>**EUR-Lex Provider**</li>
+<li> - CELEX number lookup</li>
+<li> - Multi-language support</li>
+<li> - Document relationships</li>
+<li> - Legal basis extraction</li>
+</ul>
+
+<ul>
+<li>**Wetten.nl/BWB Provider**</li>
+<li> - BWB identifier resolution</li>
+<li> - Versie management (geldig op datum)</li>
+<li> - Wetsartikel navigatie</li>
+<li> - Koninklijke besluiten parsing</li>
+</ul>
+
+<ul>
+<li>**OM/CVOM Providers**</li>
+<li> - Oriëntatiepunten straftoemeting</li>
+<li> - Richtlijnen voor strafvordering</li>
+<li> - Aanwijzingen lookup</li>
+<li> - Beleidsregels parsing</li>
+</ul>
+
+<h3>Integration Aspects</h3>
+
+<h4>Authentication & Beveiliging</h4>
+<ul>
+<li>**API Key Management**</li>
+<li> - Environment variable storage</li>
+<li> - Key rotation procedures</li>
+<li> - Multi-tenant key handling</li>
+<li> - Audit logging voor key usage</li>
+</ul>
+
+<ul>
+<li>**OAuth 2.0 / OIDC**</li>
+<li> - Authorization code flow</li>
+<li> - Client credentials flow</li>
+<li> - Token refresh automation</li>
+<li> - PKCE implementation voor public clients</li>
+</ul>
+
+<ul>
+<li>**Certificate-based Auth**</li>
+<li> - PKIoverheid certificaten</li>
+<li> - Mutual TLS setup</li>
+<li> - Certificate validation chain</li>
+<li> - HSM integration voor high security</li>
+</ul>
+
+<h4>Rate Limiting & Prestaties</h4>
+<ul>
+<li>**Throttling Strategies**</li>
+<li> - Token bucket algorithm</li>
+<li> - Sliding window counters</li>
+<li> - Distributed rate limiting</li>
+<li> - Backoff strategies (exponential, jittered)</li>
+</ul>
+
+<ul>
+<li>**Caching Layers**</li>
+<li> - Redis voor response caching</li>
+<li> - TTL configuration per provider</li>
+<li> - Cache invalidation strategies</li>
+<li> - Partial response caching</li>
+</ul>
+
+<h4>Data Processing</h4>
+<ul>
+<li>**Response Normalization**</li>
+<li> - Schema validation met Pydantic</li>
+<li> - Data type conversions</li>
+<li> - Unicode handling voor juridische teksten</li>
+<li> - HTML/XML entity decoding</li>
+</ul>
+
+<ul>
+<li>**Error Handling**</li>
+<li> - Circuit breaker pattern</li>
+<li> - Fallback mechanisms</li>
+<li> - Dead letter queues</li>
+<li> - Error reporting naar monitoring</li>
+</ul>
+
+<h4>Compliance & Audit</h4>
+<ul>
+<li>**GDPR/AVG Compliance**</li>
+<li> - Personal data masking</li>
+<li> - Consent tracking</li>
+<li> - Right to erasure support</li>
+<li> - Data retention policies</li>
+</ul>
+
+<ul>
+<li>**Audit Trail**</li>
+<li> - Request/response logging</li>
+<li> - User attribution</li>
+<li> - Change tracking</li>
+<li> - Compliance reporting</li>
+</ul>
+
+<h2>Definition of Ready</h2>
+<ul>
+<li>[x] Vereisten REQ-091 goedgekeurd</li>
+<li>[x] Bestaande providers geanalyseerd</li>
+<li>[x] Interface design vastgesteld</li>
+<li>[x] Template structuur bepaald</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Document `docs/guides/provider_integration.md` aangemaakt</li>
+<li>[ ] Provider interface volledig gedocumenteerd</li>
+<li>[ ] 2+ complete provider voorbeelden (Wikipedia, SRU)</li>
+<li>[ ] Configuration YAML templates</li>
+<li>[ ] Test harness met voorbeelden</li>
+<li>[ ] Reviewed door backend team</li>
+<li>[ ] Nieuwe test provider succesvol toegevoegd</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Provider Interface</h3>
+<pre><code>class BaseProvider(ABC):
+    """Base class voor externe data providers"""
+
+    @abstractmethod
+    def search(self, query: str) -&gt; List[Result]:
+        """Zoek in externe bron"""
+        pass
+
+    @abstractmethod
+    def parse_response(self, response: Any) -&gt; List[Result]:
+        """Parse provider-specifieke response"""
+        pass
+
+    @abstractmethod
+    def validate_config(self) -&gt; bool:
+        """Valideer provider configuratie"""
+        pass</code></pre>
+
+<h3>Guide Onderdelen</h3>
+
+<h4>Part 1: Foundation (Beginner)</h4>
+<ol>
+<li>**Quick Start Tutorial**</li>
+</ol>
+<ul>
+<li>  - Wikipedia provider in 10 minuten</li>
+<li>  - Basis configuratie setup</li>
+<li>  - Eerste succesvolle query</li>
+<li>  - Debug tips voor beginners</li>
+</ul>
+
+<ol>
+<li>**Provider Architecture**</li>
+</ol>
+<ul>
+<li>  - Component diagram</li>
+<li>  - Sequence diagrams voor data flow</li>
+<li>  - Dependency injection patterns</li>
+<li>  - Service container integration</li>
+</ul>
+
+<ol>
+<li>**Base Provider Interface**</li>
+<pre><code>   from abc import ABC, abstractmethod
+   from typing import List, Dict, Any, Optional
+   from dataclasses import dataclass
+
+   @dataclass
+   class ProviderResult:
+       """Standardized provider response"""
+       content: str
+       metadata: Dict[str, Any]
+       source: str
+       relevance_score: float
+
+   class BaseProvider(ABC):
+       @abstractmethod
+       async def search(self,
+                       query: str,
+                       limit: int = 10,
+                       filters: Optional[Dict] = None) -&gt; List[ProviderResult]:
+           """Execute search query"""
+           pass</code></pre>
+</ol>
+
+<h4>Part 2: Implementatie (Intermediate)</h4>
+<ol>
+<li>**Configuration Deep Dive**</li>
+</ol>
+<ul>
+<li>  - YAML schema definition</li>
+<li>  - Environment variable mapping</li>
+<li>  - Secrets management</li>
+<li>  - Multi-environment setup</li>
+</ul>
+
+<ol>
+<li>**Authentication Patterns**</li>
+</ol>
+<ul>
+<li>  - API key implementation</li>
+<li>  - OAuth flow walkthrough</li>
+<li>  - Certificate setup guide</li>
+<li>  - Token management</li>
+</ul>
+
+<ol>
+<li>**Advanced Features**</li>
+</ol>
+<ul>
+<li>  - Async/await patterns</li>
+<li>  - Streaming responses</li>
+<li>  - Batch operations</li>
+<li>  - WebSocket connections</li>
+</ul>
+
+<h4>Part 3: Justice Sector (Advanced)</h4>
+<ol>
+<li>**Legal Data Providers**</li>
+</ol>
+<ul>
+<li>  - Rechtspraak.nl complete example</li>
+<li>  - EUR-Lex integration</li>
+<li>  - Wetten.nl/BWB walkthrough</li>
+<li>  - Chain integration patterns</li>
+</ul>
+
+<ol>
+<li>**Compliance & Beveiliging**</li>
+</ol>
+<ul>
+<li>  - AVG/GDPR implementation</li>
+<li>  - BIO compliance checklist</li>
+<li>  - Audit logging setup</li>
+<li>  - Penetration test prep</li>
+</ul>
+
+<ol>
+<li>**Production Uitrol**</li>
+</ol>
+<ul>
+<li>  - Prestaties tuning</li>
+<li>  - Monitoring setup</li>
+<li>  - Alerting configuration</li>
+<li>  - Disaster recovery</li>
+</ul>
+
+<h2>Test Scenario's</h2>
+
+<h3>Unit Testen</h3>
+<ol>
+<li>**Provider Interface Tests**</li>
+</ol>
+<ul>
+<li>  - All abstract methods geïmplementeerd</li>
+<li>  - Type hints validation</li>
+<li>  - Return types correct</li>
+<li>  - Error propagation works</li>
+</ul>
+
+<ol>
+<li>**Mock Provider Testen**</li>
+<pre><code>   class MockProvider(BaseProvider):
+       """Test provider met fake data"""
+       async def search(self, query, limit=10, filters=None):
+           return [
+               ProviderResult(
+                   content="Test definitie",
+                   metadata={"bron": "mock"},
+                   source="MockProvider",
+                   relevance_score=0.95
+               )
+           ]</code></pre>
+</ol>
+
+<h3>Integration Testen</h3>
+<ol>
+<li>**Wikipedia Provider Replication**</li>
+</ol>
+<ul>
+<li>  - Developer kan binnen 2 uur Wikipedia provider namaken</li>
+<li>  - Search returns relevante resultaten</li>
+<li>  - Rate limiting respecteert Wikipedia policy</li>
+<li>  - Caching werkt correct</li>
+</ul>
+
+<ol>
+<li>**SRU Provider Implementatie**</li>
+</ol>
+<ul>
+<li>  - Z39.50/SRU 2.0 queries succesvol</li>
+<li>  - Response parsing correct</li>
+<li>  - Character encoding handled</li>
+<li>  - Pagination werkt</li>
+</ul>
+
+<ol>
+<li>**Rechtspraak.nl Integration**</li>
+</ol>
+<ul>
+<li>  - ECLI lookup functioneert</li>
+<li>  - Metadata correct extracted</li>
+<li>  - Filtering op instantie/rechtsgebied</li>
+<li>  - Prestaties <2 sec per query</li>
+</ul>
+
+<h3>Beveiliging Testen</h3>
+<ol>
+<li>**Authentication Validation**</li>
+</ol>
+<ul>
+<li>  - API keys properly validated</li>
+<li>  - OAuth tokens refreshed automatically</li>
+<li>  - Certificate chain verified</li>
+<li>  - Invalid auth rejected</li>
+</ul>
+
+<ol>
+<li>**Rate Limiting Verification**</li>
+</ol>
+<ul>
+<li>  - Limits enforced per provider</li>
+<li>  - Backoff strategy works</li>
+<li>  - Circuit breaker activates</li>
+<li>  - Recovery after cooldown</li>
+</ul>
+
+<h3>Prestaties Testen</h3>
+<ol>
+<li>**Load Testen**</li>
+</ol>
+<ul>
+<li>  - 100 concurrent queries handled</li>
+<li>  - Memory usage <100MB per provider</li>
+<li>  - Response time <500ms cached</li>
+<li>  - No memory leaks over time</li>
+</ul>
+
+<ol>
+<li>**Error Resilience**</li>
+</ol>
+<ul>
+<li>  - Network errors handled gracefully</li>
+<li>  - Malformed responses don't crash</li>
+<li>  - Timeout handling works</li>
+<li>  - Fallback providers activate</li>
+</ul>
+
+<h3>Compliance Testen</h3>
+<ol>
+<li>**Justice Sector Validation**</li>
+</ol>
+<ul>
+<li>   - AVG compliance verified</li>
+<li>   - Audit trail complete</li>
+<li>   - Data retention honored</li>
+<li>   - Beveiliging controls effective</li>
+</ul>
+
+<h2>Geschatte Effort</h2>
+<ul>
+<li>Interface documentatie: 3 uur</li>
+<li>Voorbeeld providers: 5 uur</li>
+<li>Configuration guide: 2 uur</li>
+<li>Test harness: 3 uur</li>
+<li>Review & testing: 2 uur</li>
+<li>**Totaal: 15 uur (3 story points)**</li>
+</ul>
+
+<h2>Implementatie Notities</h2>
+
+<h3>Development Timeline</h3>
+<p><strong>Week 1 (7 uur)</strong></p>
+<ul>
+<li>Provider interface documentatie</li>
+<li>Wikipedia & SRU voorbeelden</li>
+<li>Basic configuratie guide</li>
+<li>Test harness setup</li>
+</ul>
+
+<p><strong>Week 2 (8 uur)</strong></p>
+<ul>
+<li>Justice sector providers (Rechtspraak, EUR-Lex)</li>
+<li>Beveiliging & compliance sectie</li>
+<li>Prestaties optimization guide</li>
+<li>Production checklist</li>
+</ul>
+
+<h3>Code Organization</h3>
+<pre><code>src/providers/
+├── base/
+│   ├── __init__.py
+│   ├── provider.py          # Abstract base class
+│   ├── cache.py            # Caching logic
+│   └── auth.py             # Authentication handlers
+├── implementations/
+│   ├── wikipedia.py        # Reference implementation
+│   ├── sru.py             # SRU/Z39.50 provider
+│   ├── Rechtspraak.py     # Rechtspraak.nl
+│   ├── eurlex.py         # EUR-Lex
+│   └── wetten_nl.py       # Wetten.nl/BWB
+├── utils/
+│   ├── rate_limiter.py
+│   ├── normalizer.py
+│   └── validator.py
+└── tests/
+    ├── test_base.py
+    ├── test_providers.py
+    └── fixtures/</code></pre>
+
+<h3>Common Pitfalls & Solutions</h3>
+
+<p>| Pitfall | Solution |</p>
+<p>|---------|----------|</p>
+<p>| Hardcoded credentials | Use environment variables |</p>
+<p>| No rate limiting | Implement token bucket |</p>
+<p>| Blocking I/O | Use async/await |</p>
+<p>| No error handling | Circuit breaker pattern |</p>
+<p>| Memory leaks | Proper connection cleanup |</p>
+<p>| No caching | Redis with TTL |</p>
+<p>| Poor performance | Connection pooling |</p>
+<p>| No monitoring | OpenTelemetry integration |</p>
+
+<h3>Beveiliging Checklist</h3>
+<ul>
+<li>[ ] No secrets in code</li>
+<li>[ ] HTTPS only for APIs</li>
+<li>[ ] Input validation</li>
+<li>[ ] Output sanitization</li>
+<li>[ ] Rate limiting enabled</li>
+<li>[ ] Audit logging active</li>
+<li>[ ] Error messages sanitized</li>
+<li>[ ] CORS properly configured</li>
+<li>[ ] Afhankelijkheden updated</li>
+<li>[ ] Beveiliging headers set</li>
+</ul>
+
+<h3>Maintenance & Support</h3>
+<ul>
+<li>**Documentation Updates**: Bij elke nieuwe provider</li>
+<li>**Code Reviews**: Verplicht voor provider changes</li>
+<li>**Prestaties Monitoring**: Weekly dashboard review</li>
+<li>**Beveiliging Audits**: Quarterly penetration tests</li>
+<li>**Community Support**: Slack channel #providers</li>
+</ul>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Context Model V2 (Canoniek)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>canonical: true</p>
+<p>status: active</p>
+<p>owner: architecture</p>
+<p>last_verified: 2025-09-13</p>
+<p>applies_to: definitie-app@current</p>
+<p>---</p>
+
+<h1>Context Model V2 (Canoniek)</h1>
+
+<p>Doel: één uniforme, gelijkwaardige representatie voor alle contextvelden van een definitie. Elke definitie heeft minimaal één contextwaarde (ongeacht welke van de drie).</p>
+
+<h2>Canonieke datamodel</h2>
+<ul>
+<li>`organisatorische_context: list[str]` (JSON array in DB)</li>
+<li>`juridische_context: list[str]` (JSON array in DB)</li>
+<li>`wettelijke_basis: list[str]` (JSON array in DB)</li>
+</ul>
+
+<p>Eigenschappen:</p>
+<ul>
+<li>Geen primair/speciaalfeld: alle drie contexten zijn even belangrijk.</li>
+<li>Minimaal één context vereist (validatie‑regel in service/validator).</li>
+<li>UI en services werken uitsluitend met lijsten (geen string fallback).</li>
+</ul>
+
+<h2>Database opslag</h2>
+<ul>
+<li>Tabel `definities` bevat drie TEXT‑kolommen die JSON arrays opslaan:</li>
+<li> - `organisatorische_context`, `juridische_context`, `wettelijke_basis`.</li>
+<li>Trigger/geschiedenis blijven werken met snapshots op JSON‑string basis.</li>
+<li>Testdata‑reset toegestaan (alle huidige data is testdata en mag verwijderd worden).</li>
+</ul>
+
+<h2>Service/API</h2>
+<ul>
+<li>`Definition`/DTO’s: context wordt geleverd/verwacht als lijsten.</li>
+<li>Repositories mappen 1‑op‑1 (geen backward compat voor strings of metadata‑afwijkingen).</li>
+<li>Orchestrator/Validator ontvangen `ValidationRequest.context` met deze drie lijsten.</li>
+</ul>
+
+<h2>UI</h2>
+<ul>
+<li>Bewerk‑tab: drie velden, elk multi‑value.</li>
+<li>Context selector(s): beheren lijsten; geen “hoofdcontext”.</li>
+<li>Validatie: minimaal één context ingevuld voordat bewerkingen (of vaststellen) toegestaan zijn.</li>
+</ul>
+
+<h2>Migratie/Reset</h2>
+<ul>
+<li>Omdat alle data testdata is: reset DB naar nieuw schema (DROP/CREATE) i.p.v. migratie.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>Alle services/UI werken met lijsten voor de drie contexten.</li>
+<li>Minstens één contextwaarde vereist in create/update flows.</li>
+<li>Geen verwijzingen meer naar `Definition.context` (string) of context in `metadata`.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

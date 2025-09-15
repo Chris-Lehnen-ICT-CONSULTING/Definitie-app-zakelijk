@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Lookup Configuratie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Web Lookup Configuratie</h1>
+
+<p>Dit document beschrijft de standaardconfiguratie en aanbevolen gewichten voor de Web Lookup providers in DefinitieAgent.</p>
+
+<h2>Standaardconfiguratie</h2>
+
+<p>Bestand: <code>config/web_lookup_defaults.yaml</code></p>
+
+<pre><code>web_lookup:
+  enabled: true
+
+  cache:
+    strategy: "stale-while-revalidate"
+    grace_period: 300
+    default_ttl: 3600
+    max_entries: 1000
+
+  sanitization:
+    strip_tags: [script, style, iframe, object, embed, form]
+    block_protocols: [javascript, data, vbscript]
+    max_snippet_length: 500
+
+  providers:
+    wikipedia:
+      enabled: true
+      weight: 0.7
+      timeout: 5
+      cache_ttl: 7200
+      min_score: 0.3
+
+    sru_overheid:
+      enabled: true
+      weight: 1.0
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+
+    wetgeving_nl:
+      enabled: true
+      weight: 0.9
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+
+    rechtspraak_ecli:
+      enabled: true
+      weight: 0.9
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.4
+
+    eur_lex:
+      enabled: true
+      weight: 0.6
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.3
+
+    wikidata:
+      enabled: true
+      weight: 0.3
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.2
+
+    dbpedia:
+      enabled: true
+      weight: 0.2
+      timeout: 5
+      cache_ttl: 3600
+      min_score: 0.2</code></pre>
+
+<h2>Aanbevolen gewichten</h2>
+
+<ul>
+<li>Juridisch (SRU/Wetgeving.nl/Rechtspraak): 0.8–1.0</li>
+<li>Wikipedia: 0.6–0.8</li>
+<li>EUR‑Lex: 0.5–0.7</li>
+<li>Wikidata/DBpedia (verrijking): 0.2–0.4</li>
+</ul>
+
+<h2>NFR‑richtlijnen (veilige scraping)</h2>
+
+<ul>
+<li>Respecteer robots.txt en Terms of Service</li>
+<li>Timeout ≤ 5s per provider; rate limiting + exponential backoff</li>
+<li>Sanitization van HTML/markup (XSS‑preventie) vóór parsing</li>
+<li>Geen PII verzamelen/loggen; AVG/BIR‑conform</li>
+<li>Eenduidige User‑Agent; volledige provenance; beknopte audit logging</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

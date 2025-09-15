@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement Database Maintenance Tools</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-063</p>
+<p>titel: Implement Database Maintenance Tools</p>
+<p>epic: EPIC-007</p>
+<p>status: Open</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 13</p>
+<p>note: Database optimalisatie voor performance</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>owner: database-admin</p>
+<p>type: technical-improvement</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-006</li>
+<li>REQ-007</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+</ul>
+
+<h1>US-063: Implement Database Maintenance Tools</h1>
+
+<p><strong>Epic:</strong> EPIC-007 - Performance & Scaling</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> system administrator</p>
+<p><strong>wil ik</strong> database maintenance tools hebben</p>
+<p><strong>zodat</strong> ik de database gezond en performant kan houden</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>Meerdere TODO's in <code>ui/components/export_tab.py</code> voor database maintenance:</p>
+<ul>
+<li>Regel 753: Orphan detection</li>
+<li>Regel 819: Duplicate cleanup</li>
+<li>Regel 824: Index rebuilding</li>
+<li>Regel 829: Database analysis</li>
+</ul>
+
+<p>Deze tools zijn essentieel voor database gezondheid en performance.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Orphan Detection</h3>
+<ul>
+<li>[ ] Detecteer records zonder valide foreign keys</li>
+<li>[ ] Identificeer ongebruikte voorbeelden</li>
+<li>[ ] Vind losse validation results</li>
+<li>[ ] Genereer orphan rapport</li>
+<li>[ ] Optie om orphans te verwijderen</li>
+</ul>
+
+<h3>Duplicate Cleanup</h3>
+<ul>
+<li>[ ] Detecteer duplicate definities (zelfde begrip+context)</li>
+<li>[ ] Identificeer near-duplicates (>90% similarity)</li>
+<li>[ ] Merge strategy voor duplicates</li>
+<li>[ ] Behoud beste versie</li>
+<li>[ ] Audit trail van cleanup</li>
+</ul>
+
+<h3>Index Rebuilding</h3>
+<ul>
+<li>[ ] Analyze index fragmentation</li>
+<li>[ ] Rebuild indexes indien nodig</li>
+<li>[ ] Update statistics</li>
+<li>[ ] Vacuum database (SQLite)</li>
+<li>[ ] Performance metrics voor/na</li>
+</ul>
+
+<h3>Database Analysis</h3>
+<ul>
+<li>[ ] Table size analysis</li>
+<li>[ ] Query performance analysis</li>
+<li>[ ] Storage efficiency metrics</li>
+<li>[ ] Growth trends</li>
+<li>[ ] Optimization recommendations</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Maintenance Service</h3>
+<pre><code>class DatabaseMaintenanceService:
+    async def detect_orphans(self) -&gt; OrphanReport
+    async def cleanup_duplicates(self, strategy: MergeStrategy) -&gt; CleanupResult
+    async def rebuild_indexes(self) -&gt; RebuildResult
+    async def analyze_database(self) -&gt; AnalysisReport
+    async def optimize_database(self) -&gt; OptimizationResult</code></pre>
+
+<h3>Maintenance Schedule</h3>
+<pre><code>class MaintenanceScheduler:
+    def schedule_daily_tasks(self)  # Orphan detection
+    def schedule_weekly_tasks(self)  # Duplicate cleanup
+    def schedule_monthly_tasks(self)  # Index rebuild</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Alle maintenance functies geïmplementeerd</li>
+<li>[ ] UI controls in export tab</li>
+<li>[ ] Dry-run mode voor alle operations</li>
+<li>[ ] Progress indicators</li>
+<li>[ ] Rollback capability</li>
+<li>[ ] Unit tests voor detectie logic</li>
+<li>[ ] Integration tests met test database</li>
+<li>[ ] Performance benchmarks</li>
+<li>[ ] Admin documentatie</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Data loss tijdens cleanup | Critical | Backup voor operations |</p>
+<p>| Database locks | High | Off-peak scheduling |</p>
+<p>| Performance degradatie | Medium | Incremental processing |</p>
+<p>| False positive duplicates | Medium | Manual review option |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Implementeer read-only analyse eerst</li>
+<li>Destructive operations require confirmation</li>
+<li>Consider scheduled maintenance windows</li>
+<li>Log alle maintenance operations</li>
+</ul>
+
+  </div>
+</body>
+</html>

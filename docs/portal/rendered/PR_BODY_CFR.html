@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PR_BODY_CFR</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <ul>
+<li>Doel: CFR‑plan lean maken en afstemmen op Solution Architecture zonder over‑engineering.</li>
+<li>Scope: Geen herstructurering; integreer nieuwe onderdelen in bestaande modules (context, prompts, aggregation). UI/session state strikt uit services.</li>
+<li>Bewaking: CI/CD guards en contracttests toegevoegd; feature flag voor gefaseerde uitrol.</li>
+</ul>
+
+<p>Wijzigingen</p>
+<ul>
+<li>Geen directory‑reorg: behoud bestaande boom; uitbreiden i.p.v. dupliceren.</li>
+<li>Integratiepunten:</li>
+<li> - Context mapping (PER‑007) in `definition_generator_context.py` (dedupe + determinisme).</li>
+<li> - MergePolicy in `data_aggregation_service.py` (optioneel `services/merge_policy.py`).</li>
+<li> - ContextFormatter in `services/prompts/context_formatter.py` (PROMPT‑ vs UI‑style).</li>
+<li>Prestaties‑budgets: expliciet “in‑process” (zonder LLM); e2e met LLM apart meten/rapporteren.</li>
+<li>CI/CD guards:</li>
+<li> - Verbied `streamlit`/`st.session_state` in `src/services/**`.</li>
+<li> - Schema‑tests voor EnrichedContext (vereiste keys/limieten).</li>
+<li> - Prompt‑style tests: PROMPT zonder emoji; UI met emoji; trimming/limieten afdwingen.</li>
+<li>Feature flag: `ENABLE_FULL_CONTEXT_FLOW` (aan in dev/test; uit in prod tot validatie rond is).</li>
+</ul>
+
+<p>Niet In Scope</p>
+<ul>
+<li>Code‑wijzigingen of directory‑reorganisatie.</li>
+<li>Zware nieuwe modellen of aparte top‑level mappen (geen `src/models`, geen `services/formatting`/`aggregation`).</li>
+</ul>
+
+<p>Risico’s & Rollback</p>
+<ul>
+<li>Risico: scope‑creep via reorg → gemitigeerd door integratie in bestaande lagen.</li>
+<li>Rollback: docs‑only; revert commit volstaat. Later code‑rollout gedekt door feature flag.</li>
+</ul>
+
+<p>Review Checklist</p>
+<ul>
+<li>Past in SA (services UI‑agnostisch; DI‑singletons ok).</li>
+<li>Geen duplicatie van bestaande componenten; integratieplan is minimaal en concreet.</li>
+<li>Prestaties‑budgetten realistisch en duidelijk gescope’d.</li>
+<li>Guards/tests dekken regressierisico’s.</li>
+<li>Feature flag‑aanpak beschreven en beperkt van scope.</li>
+</ul>
+
+<p>Links</p>
+<ul>
+<li>Plan: `docs/architectuur/CFR-IMPLEMENTATION-PLAN-AGENTS.md` (gereviseerd)</li>
+<li>Index: `docs/INDEX.md` (“KLAAR FOR REVIEW”)</li>
+<li>Changelog: `CHANGELOG.md` ([Unreleased] bijgewerkt)</li>
+</ul>
+
+  </div>
+</body>
+</html>

@@ -171,33 +171,33 @@ class GenerationRequest:
 
 @dataclass
 class Definition:
-    """Definitie data object met alle benodigde metadata voor juridische definities."""
+    """Definitie data object met alle benodigde metadata voor juridische definities.
 
-    id: int | None = None  # Database primary key voor unieke identificatie
-    begrip: str = ""  # Het begrip dat wordt gedefinieerd (hoofdterm)
-    definitie: str = ""  # De eigenlijke definitie tekst
-    toelichting: str | None = None  # Uitgebreidere uitleg of context
-    bron: str | None = None  # Juridische bron (wet, artikel, jurisprudentie)
-    # DEPRECATED (EPIC-010): maintain for UI compatibility only; prefer list-based context fields in requests
-    context: str | None = None  # Specifieke context (legacy)
-    # REMOVED (EPIC-010): domein field removed - use juridische_context from request
-    synoniemen: list[str] | None = None  # Alternatieve benamingen voor hetzelfde begrip
-    gerelateerde_begrippen: list[str] | None = (
-        None  # Begrippen die inhoudelijk gerelateerd zijn
-    )
-    voorbeelden: list[str] | None = None  # Concrete voorbeelden ter verduidelijking
-    categorie: str | None = None  # Legacy categorisering (wordt vervangen)
-    ontologische_categorie: str | None = (
-        None  # V2: Nieuwe classificatie volgens 6-stappen protocol
-    )
-    valid: bool | None = None  # Status van laatste validatie check
-    validation_violations: list | None = (
-        None  # V2: Lijst van gevonden validatie overtredingen
-    )
-    created_by: str | None = None  # Wie heeft deze definitie aangemaakt (audit trail)
-    created_at: datetime | None = None  # Wanneer werd definitie aangemaakt
-    updated_at: datetime | None = None  # Laatste wijzigingsdatum
-    metadata: dict[str, Any] | None = None  # Extra metadata voor uitbreidbaarheid
+    Context Model V2: drie gelijkwaardige contextlijsten; minimaal één context vereist binnen de flow
+    (validatie wordt elders afgedwongen). Legacy 'context' string is verwijderd.
+    """
+
+    id: int | None = None
+    begrip: str = ""
+    definitie: str = ""
+    toelichting: str | None = None
+    bron: str | None = None
+    # Context (canoniek)
+    organisatorische_context: list[str] | None = None
+    juridische_context: list[str] | None = None
+    wettelijke_basis: list[str] | None = None
+    # Overig
+    synoniemen: list[str] | None = None
+    gerelateerde_begrippen: list[str] | None = None
+    voorbeelden: list[str] | None = None
+    categorie: str | None = None
+    ontologische_categorie: str | None = None
+    valid: bool | None = None
+    validation_violations: list | None = None
+    created_by: str | None = None
+    created_at: datetime | None = None
+    updated_at: datetime | None = None
+    metadata: dict[str, Any] | None = None
 
     def __post_init__(self) -> None:
         """Post-initialisatie om None waarden te vervangen door lege lijsten/dictionaries."""
@@ -211,6 +211,13 @@ class Definition:
             self.metadata = {}  # Zorg voor lege dictionary voor uitbreidbaarheid
         if self.validation_violations is None:
             self.validation_violations = []  # Lege lijst voor validatie resultaten
+        # Context lijsten initialiseren
+        if self.organisatorische_context is None:
+            self.organisatorische_context = []
+        if self.juridische_context is None:
+            self.juridische_context = []
+        if self.wettelijke_basis is None:
+            self.wettelijke_basis = []
 
 
 @dataclass

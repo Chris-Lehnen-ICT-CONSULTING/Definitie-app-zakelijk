@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unit tests generator + portal‑lint</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-104</p>
+<p>epic: EPIC-013</p>
+<p>applies_to: definitie-app@current</p>
+<p>aangemaakt: 11-09-2025</p>
+<p>bijgewerkt: 11-09-2025</p>
+<p>owner: platform</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>status: TE_DOEN</p>
+<p>story_points: 3</p>
+<p>canonical: true</p>
+<p>last_verified: 11-09-2025</p>
+<p>titel: Unit tests generator + portal‑lint</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-090</li>
+<p>---</p>
+</ul>
+
+<h1>US-104: Unit tests generator + portal‑lint</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als</strong> ontwikkelaar wil ik betrouwbare tests en een lint voor docs/portal, <strong>zodat</strong> regressies vroeg worden gevangen.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Unittests voor frontmatter parsing, tellingen en injectie</li>
+<li>[ ] Lint/validator voor frontmatter contract + verouderde paden</li>
+<li>[ ] CI job voert tests/lint uit</li>
+</ul>
+
+<h2>Verificatie</h2>
+<ul>
+<li>`pytest -q` groen; validator rapporteert 0 fouten op deze repo</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

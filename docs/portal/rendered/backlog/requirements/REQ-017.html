@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>45 Validatieregels</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-017</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/architectuur/SOLUTION_ARCHITECTURE.md</li>
+<li> - docs/testing/validation_orchestrator_testplan.md</li>
+<p>  epics:</p>
+<li> - EPIC-002</li>
+<li> - EPIC-003</li>
+<p>  stories:</p>
+<li> - US-2.1</li>
+<li> - US-3.1</li>
+<li> - US-3.2</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: all validatieregel files</li>
+<p>  path: config/toetsregels/regels/</p>
+<li>line: validatie Implementaties</li>
+<p>  path: src/toetsregels/regels/</p>
+<p>status: GEREED</p>
+<p>titel: 45 Validatieregels</p>
+<p>type: domain</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>REQ-017: 45 Validatieregels</h1>
+
+<h2>Domain Context</h2>
+
+<p>This vereiste aligns with Dutch justitiesector stEnards en frameworks:</p>
+
+<ul>
+<li>**ASTRA compliance**: FolLAAGs ASTRA (Algemene Strategie Referentie Architectuur) richtlijnen for justice IT systems</li>
+<li>**NORA Principles**: Adheres to NederlEnse Overheid Referentie Architectuur for government-wide interoperability</li>
+<li>**justitieketen Integration**: Compatible with OM (Openbaar Ministerie), DJI (Dienst Justitiële Inrichtingen), Justid, En Rechtspraak systems</li>
+<li>**Legal Framework**: Complies with Dutch juridische terminologie stEnards en Aanwijzingen voor de regelgeving</li>
+<li>**Data Quality**: Meets justitiesector data quality vereisten for juridische definities</li>
+</ul>
+
+<h2>Requirement Description</h2>
+
+<p>The system must implement en maintain exactly 45 validatieregels organized in categories:</p>
+<ul>
+<li>**ARAI**: Accuracy en Relevance rules (7 rules)</li>
+<li>**CON**: Consistency rules (6 rules)</li>
+<li>**ESS**: Essential elements rules (8 rules)</li>
+<li>**INT**: Integration rules (6 rules)</li>
+<li>**SAM**: Coherence en connection rules (6 rules)</li>
+<li>**STR**: Structure rules (7 rules)</li>
+<li>**VER**: Verification rules (5 rules)</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+<ol>
+<li>**Rule Implementatie**: All 45 rules are geïmplementeerd en functional</li>
+<li>**Dual Format**: Each rule has both JSON configuration en Python Implementatie</li>
+<li>**Prioriteit System**: Rules correctly implement HOOG/GEMIDDELD/LAAG priority</li>
+<li>**Prestaties**: All rules execute within 100ms individually</li>
+<li>**Modularity**: Rules can be enabled/disabled independently</li>
+<li>**Reporting**: Clear validatie results with specific feedback</li>
+</ol>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Implementatie Details</h2>
+
+<h3>Rule Structure</h3>
+<ul>
+<li>JSON configuration in `config/toetsregels/regels/[category]/`</li>
+<li>Python Implementatie in `src/toetsregels/regels/[category]/`</li>
+<li>Orchestrated by `ModularValidationService`</li>
+</ul>
+
+<h3>Categories</h3>
+
+<h4>ARAI (Accuracy/Relevance)</h4>
+<ul>
+<li>ARAI-001: Term accuracy</li>
+<li>ARAI-002: Source relevance</li>
+<li>ARAI-003: Context alignment</li>
+<li>ARAI-004: Factual correctness</li>
+<li>ARAI-005: Legal accuracy</li>
+<li>ARAI-006: Domain specificity</li>
+<li>ARAI-007: Reference validatie</li>
+</ul>
+
+<h4>CON (Consistency)</h4>
+<ul>
+<li>CON-001: Term consistency</li>
+<li>CON-002: Style consistency</li>
+<li>CON-003: Format consistency</li>
+<li>CON-004: Reference consistency</li>
+<li>CON-005: Structure consistency</li>
+<li>CON-006: Language consistency</li>
+</ul>
+
+<h4>ESS (Essential Elements)</h4>
+<ul>
+<li>ESS-001: Required term presence</li>
+<li>ESS-002: Definition completeness</li>
+<li>ESS-003: Genus vereiste</li>
+<li>ESS-004: Differentia vereiste</li>
+<li>ESS-005: Context vereiste</li>
+<li>ESS-006: Example vereiste</li>
+<li>ESS-007: Source citation</li>
+<li>ESS-008: Scope definition</li>
+</ul>
+
+<h2>Prestaties vereisten</h2>
+
+<ul>
+<li>Total validatie time: < 1 second for all 45 rules</li>
+<li>Memory usage: < 100MB for rule engine</li>
+<li>Parallel execution support</li>
+<li>Result caching for repeated validations</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>Python 3.11+ for rule Implementatie</li>
+<li>JSON schema validatie</li>
+<li>ModularValidationService framework</li>
+</ul>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Full Implementatie of 45 validatieregels Implementatie functionality</li>
+<li>**Meetbaar**: All Acceptatiecriteria met, 100% validatie accuracy</li>
+<li>**Haalbaar**: Leveraging GPT-4 API en existing validatie framework</li>
+<li>**Relevant**: Core functionality for Dutch juridische definitie quality</li>
+<li>**Tijdgebonden**: Complete within current development sprint</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

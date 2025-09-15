@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-010 Gaps Analysis - Review Punten vs User Stories</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>titel: EPIC-010 Gaps Analysis - Review Punten vs User Stories</p>
+<p>aangemaakt: 2025-09-10</p>
+<p>status: Analyse</p>
+<p>---</p>
+
+<h1>📊 EPIC-010 Gaps Analysis</h1>
+
+<h2>Overzicht</h2>
+
+<p>Dit document analyseert of alle review punten uit het v2 plan gedekt zijn door user stories/bugs in EPIC-010.</p>
+
+<h2>✅ Gedekte Punten</h2>
+
+<h3>1. UI Migratie + Wrapper Removal</h3>
+<p><strong>Review punt:</strong> UI migratie en wrapper removal op dezelfde dag</p>
+<p><strong>Gedekt door:</strong></p>
+<ul>
+<li>✅ US-043-B: Migreer UI naar Async Bridge</li>
+<li>✅ US-043-C: Verwijder Deprecated Sync Methods</li>
+<p><strong>Status:</strong> Volledig gedekt, inclusief acceptance criteria</p>
+</ul>
+
+<h3>2. Legacy Routes Removal</h3>
+<p><strong>Review punt:</strong> Elimineer service-laag bridging</p>
+<p><strong>Gedekt door:</strong></p>
+<ul>
+<li>✅ US-043: Remove Legacy Context Routes (hoofdstory)</li>
+<li>✅ US-043 sub-stories voor specifieke onderdelen</li>
+<p><strong>Status:</strong> Volledig gedekt</p>
+</ul>
+
+<h3>3. E2E Testing</h3>
+<p><strong>Review punt:</strong> End-to-end tests voor context flow</p>
+<p><strong>Gedekt door:</strong></p>
+<ul>
+<li>✅ US-050: Create End-to-End Context FLAAG Tests</li>
+<li>✅ US-043-E: E2E Test Suite Update</li>
+<p><strong>Status:</strong> Volledig gedekt</p>
+</ul>
+
+<h3>4. CFR-BUG-014</h3>
+<p><strong>Review punt:</strong> Fix synoniemen/antoniemen generatie</p>
+<p><strong>Gedekt door:</strong></p>
+<ul>
+<li>✅ CFR-BUG-014 genoemd in EPIC-010 (regel 336)</li>
+<p><strong>Status:</strong> Bug is geïdentificeerd maar GEEN dedicated user story</p>
+</ul>
+
+<h2>❌ Ontbrekende User Stories</h2>
+
+<h3>1. CFR-BUG-014 Fix Implementation</h3>
+<p><strong>Review punt:</strong></p>
+<ul>
+<li>Prompts met definitie + context toevoegen</li>
+<li>Retry logic (max 1 retry, accepteer <N op laatste)</li>
+<li>UI display zonder bullets</li>
+<li>Parser met komma-fallback</li>
+</ul>
+
+<p><strong>Ontbreekt:</strong> Dedicated user story voor bug fix</p>
+<p><strong>Voorstel:</strong> Maak US-051: Fix CFR-BUG-014 Synoniemen/Antoniemen Generatie</p>
+
+<h3>2. Timeout Config via rate_limit_config</h3>
+<p><strong>Review punt:</strong> Gebruik bestaande rate_limit_config.py ipv nieuwe timeouts.yaml</p>
+<p><strong>Gedekt door:</strong></p>
+<ul>
+<li>⚠️ US-043-D spreekt over timeouts.yaml (incorrect)</li>
+<p><strong>Status:</strong> User story bestaat maar moet aangepast worden</p>
+<p><strong>Actie:</strong> Update US-043-D om rate_limit_config.py te gebruiken</p>
+</ul>
+
+<h3>3. Orchestrator Async Voorbeelden</h3>
+<p><strong>Review punt:</strong> Orchestrator moet genereer_alle_voorbeelden_async gebruiken</p>
+<p><strong>Ontbreekt:</strong> Geen specifieke user story</p>
+<p><strong>Voorstel:</strong> Maak US-052: Orchestrator Async Voorbeelden Migration</p>
+
+<h3>4. CI-Gates Implementation</h3>
+<p><strong>Review punt:</strong> Blokkeer legacy patterns automatisch</p>
+<p><strong>Ontbreekt:</strong> Geen user story voor CI-gates</p>
+<p><strong>Voorstel:</strong> Maak US-053: Implement CI Gates tegen Legacy Patterns</p>
+
+<h2>📋 Nieuwe User Stories Nodig</h2>
+
+<h3>US-051: Fix CFR-BUG-014 Synoniemen/Antoniemen Generatie</h3>
+<p><strong>Epic:</strong> EPIC-010</p>
+<p><strong>Prioriteit:</strong> KRITIEK</p>
+<p><strong>Sprint:</strong> 37</p>
+<p><strong>Story Points:</strong> 5</p>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>[ ] Prompts bevatten definitie + context</li>
+<li>[ ] Max 1 retry bij te weinig items</li>
+<li>[ ] Accepteer <N op laatste poging (geen infinite loop)</li>
+<li>[ ] Parser ondersteunt komma-gescheiden fallback</li>
+<li>[ ] UI toont synoniemen/antoniemen zonder bullets</li>
+<li>[ ] Consistent 3-5 items gegenereerd</li>
+</ul>
+
+<h3>US-052: Orchestrator Async Voorbeelden Migration</h3>
+<p><strong>Epic:</strong> EPIC-010</p>
+<p><strong>Prioriteit:</strong> HOOG</p>
+<p><strong>Sprint:</strong> 37</p>
+<p><strong>Story Points:</strong> 3</p>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>[ ] Orchestrator V2 gebruikt genereer_alle_voorbeelden_async</li>
+<li>[ ] Geen _run_async_safe in orchestrator</li>
+<li>[ ] Geen asyncio.run in services</li>
+<li>[ ] Tests aangepast voor async flow</li>
+</ul>
+
+<h3>US-053: Implement CI Gates tegen Legacy Patterns</h3>
+<p><strong>Epic:</strong> EPIC-010</p>
+<p><strong>Prioriteit:</strong> MEDIUM</p>
+<p><strong>Sprint:</strong> 37</p>
+<p><strong>Story Points:</strong> 2</p>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<ul>
+<li>[ ] GitHub Actions workflow voor pattern checking</li>
+<li>[ ] Blokkeer generation_result imports</li>
+<li>[ ] Blokkeer overall_score references</li>
+<li>[ ] Blokkeer domein field usage</li>
+<li>[ ] Blokkeer asyncio.run in services</li>
+<li>[ ] Fail CI bij violations</li>
+</ul>
+
+<h2>📝 Aan te Passen User Stories</h2>
+
+<h3>US-043-D: Implementeer Robuuste Timeouts</h3>
+<p><strong>Wijziging nodig:</strong></p>
+<ul>
+<li>Gebruik `get_endpoint_timeout` uit `rate_limit_config.py`</li>
+<li>GEEN nieuwe timeouts.yaml file</li>
+<li>Update async_bridge om rate_limit_config te gebruiken</li>
+</ul>
+
+<h2>🎯 Samenvatting</h2>
+
+<p><strong>Goed gedekt:</strong></p>
+<ul>
+<li>UI migratie strategie ✅</li>
+<li>Legacy route removal ✅</li>
+<li>E2E testing ✅</li>
+</ul>
+
+<p><strong>Ontbreekt/Aanpassen:</strong></p>
+<ul>
+<li>CFR-BUG-014 implementatie story ❌</li>
+<li>Timeout config approach (US-043-D aanpassen) ⚠️</li>
+<li>Orchestrator async migration ❌</li>
+<li>CI-gates implementation ❌</li>
+</ul>
+
+<p><strong>Actie vereist:</strong></p>
+<ol>
+<li>Maak 3 nieuwe user stories (US-051, US-052, US-053)</li>
+<li>Update US-043-D voor rate_limit_config gebruik</li>
+<li>Update EPIC-010 met nieuwe stories in Sprint 37 planning</li>
+</ol>
+
+  </div>
+</body>
+</html>

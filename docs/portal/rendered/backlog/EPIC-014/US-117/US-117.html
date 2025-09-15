@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-117: Implementeer Validation Element Detectors</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-117: Implementeer Validation Element Detectors</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> validatie engine  </p>
+<p><strong>Wil ik</strong> specifieke elementen in definities kunnen detecteren  </p>
+<p><strong>Zodat</strong> ik kan valideren of vereiste onderdelen aanwezig zijn  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: HIGH  </p>
+<p><strong>Story Points</strong>: 5  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Set van 7 detectie functies die checken of bepaalde vereiste elementen aanwezig zijn in een definitie.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Implementeer unieke identificatie detector</li>
+<li>[ ] Implementeer testbaar element detector</li>
+<li>[ ] Implementeer onderscheidend kenmerk detector</li>
+<li>[ ] Implementeer authentieke bron detector</li>
+<li>[ ] Implementeer ontologische categorie detector</li>
+<li>[ ] Implementeer single sentence detector</li>
+<li>[ ] Implementeer noun start detector</li>
+</ul>
+
+<h2>Detection Patterns</h2>
+<pre><code>detectors = {
+    "unique_id": r"\b(uniek|specifiek|identificeer|registratie|nummer|code|id)\b",
+    "testable": r"\b(\d+|binnen|na|voor|volgens|conform|gebaseerd op)\b",
+    "distinguishing": r"\b(onderscheidt|specifiek|bijzonder|kenmerk|eigenschap)\b",
+    "authentic": r"\b(volgens|conform|gebaseerd|bepaald|bedoeld|wet|regeling)\b",
+    "ontological": r"\b(soort|type|categorie|proces|resultaat|exemplaar)\b",
+    "noun_start": r"^(?!is|de|het|een|wordt|betreft|zijn|kan|moet|mag)\b"
+}</code></pre>
+
+<h2>Special Rules</h2>
+<ul>
+<li>Onderscheidend kenmerk: ook TRUE als definitie > 8 woorden</li>
+<li>Single sentence: max 1 sentence ending (.!?)</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Regex patterns</li>
+<li>Text analysis utilities</li>
+</ul>
+  </div>
+</body>
+</html>

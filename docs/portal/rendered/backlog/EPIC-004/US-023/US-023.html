@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Responsive Design Implementatie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-015</li>
+<p>aangemaakt: 08-02-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-004</p>
+<p>id: US-023</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>sprint: backlog</p>
+<p>status: Nog te bepalen</p>
+<p>story_points: 8</p>
+<p>titel: Responsive Design Implementatie</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<li>REQ-048</li>
+<li>REQ-057</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-023: Responsive Design Implementatie</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As a</strong> user on different devices</p>
+<p><strong>wil ik</strong> the application to adapt to my screen size</p>
+<p><strong>zodat</strong> I can use it effectively on any device</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Mobile Support</h3>
+<p><strong>gegeven</strong> a mobile device</p>
+<p><strong>wanneer</strong> accessing the application</p>
+<p><strong>dan</strong> the UI is fully functional en readable</p>
+
+<h3>Criterion 2: Tablet Support</h3>
+<p><strong>gegeven</strong> a tablet device</p>
+<p><strong>wanneer</strong> using the application</p>
+<p><strong>dan</strong> the layout optimizes for tablet screens</p>
+
+<h3>Criterion 3: Desktop Support</h3>
+<p><strong>gegeven</strong> various desktop resolutions</p>
+<p><strong>wanneer</strong> resizing the browser</p>
+<p><strong>dan</strong> the UI adapts gracefully</p>
+
+<h2>Domain vereisten</h2>
+
+<h3>ASTRA compliance</h3>
+<ul>
+<li>Multi-device support</li>
+<li>Accessibility stEnards</li>
+<li>Progressive enhancement</li>
+</ul>
+
+<h3>Justice Domain Specifics</h3>
+<ul>
+<li>Support for government devices</li>
+<li>Legacy browser compatibility</li>
+<li>Print-friendly layouts</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Breakpoints</h3>
+<ul>
+<li>Mobile: 320px - 768px</li>
+<li>Tablet: 769px - 1024px</li>
+<li>Desktop: 1025px - 1920px</li>
+<li>Wide: 1921px+</li>
+</ul>
+
+<h3>Responsive Components</h3>
+<ul>
+<li>Navigation menu (hamburger on mobile)</li>
+<li>Tab layout (vertical on mobile)</li>
+<li>Forms (single column on mobile)</li>
+<li>Tables (horizontal scroll)</li>
+<li>Modals (full screen on mobile)</li>
+</ul>
+
+<h3>CSS Framework</h3>
+<pre><code>/* Mobile First Approach */
+.container {
+  width: 100%;
+  padding: 1rem;
+}
+
+@media (min-width: 768px) {
+  .container {
+    max-width: 750px;
+    margin: 0 auto;
+  }
+}</code></pre>
+
+<h2>testdekking vereisten</h2>
+
+<h3>Device Tests</h3>
+<ul>
+<li>Mobile phones (iOS/Enroid)</li>
+<li>Tablets (iPad/Enroid)</li>
+<li>Desktop browsers</li>
+<li>Different orientations</li>
+</ul>
+
+<h3>Responsive Tests</h3>
+<ul>
+<li>Breakpoint transitions</li>
+<li>Touch interactions</li>
+<li>Viewport Wijzigingen</li>
+<li>Print layouts</li>
+</ul>
+
+<h3>Test Files</h3>
+<ul>
+<li>`tests/ui/test_responsive_design.py`</li>
+<li>`tests/e2e/test_mobile_experience.py`</li>
+<li>`tests/e2e/test_tablet_experience.py`</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] All breakpoints geïmplementeerd</li>
+<li>[ ] Mobile UI fully functional</li>
+<li>[ ] Tablet layout optimized</li>
+<li>[ ] Desktop experience maintained</li>
+<li>[ ] Touch interactions working</li>
+<li>[ ] Print styles added</li>
+<li>[ ] Cross-browser testing complete</li>
+<li>[ ] Documentation bijgewerkt</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Mobile Optimizations</h3>
+<ul>
+<li>Touch-friendly Maartons (min 44px)</li>
+<li>Simplified navigation</li>
+<li>Optimized form inputs</li>
+<li>Reduced data tables</li>
+<li>Mobile-specific features</li>
+</ul>
+
+<h3>Prestaties Considerations</h3>
+<ul>
+<li>Lazy load images</li>
+<li>Conditional component loading</li>
+<li>Reduced animations on mobile</li>
+<li>Optimized assets per device</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-004</li>
+</ul>
+<h3>External</h3>
+<ul>
+<li>CSS framework (responsive)</li>
+<li>Device testing tools</li>
+<li>Browser testing services</li>
+</ul>
+
+<h3>Internal</h3>
+<ul>
+<li>UI components</li>
+<li>Layout system</li>
+<li>State management</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Design mockups needed</li>
+<li>Mobile usage: ~20% of users</li>
+<li>Tablet usage: ~15% of users</li>
+<li>Prioriteit increased due to mobile adoption</li>
+</ul>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>Responsive Design Guide: See EPIC-004 responsive design requirements</li>
+<li>Mobile UI Patterns: Streamlit responsive components used in UI tabs</li>
+<li>Device Testing Strategy: See EPIC-004 accessibility and testing requirements</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This story is part of EPIC-004: User Interface</em></p>
+
+  </div>
+</body>
+</html>

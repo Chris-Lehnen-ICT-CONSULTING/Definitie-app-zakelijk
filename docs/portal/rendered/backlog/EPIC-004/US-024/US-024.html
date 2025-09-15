@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Basic Tab Structure</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden: []</p>
+<p>aangemaakt: 25-01-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-004</p>
+<p>id: US-024</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: Voltooid</p>
+<p>status: GEREED</p>
+<p>story_points: 3</p>
+<p>titel: Basic Tab Structure</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-048</li>
+<li>REQ-055</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-024: Basic Tab Structure</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As a</strong> developer</p>
+<p><strong>wil ik</strong> a basic tab structure geïmplementeerd</p>
+<p><strong>zodat</strong> I can build features within organized UI sections</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Tab Container</h3>
+<p><strong>gegeven</strong> the UHeb ik nodigs organization</p>
+<p><strong>wanneer</strong> tab structure is geïmplementeerd</p>
+<p><strong>dan</strong> a functional tab container exists</p>
+
+<h3>Criterion 2: Tab Navigation</h3>
+<p><strong>gegeven</strong> multiple tabs exist</p>
+<p><strong>wanneer</strong> users click tab headers</p>
+<p><strong>dan</strong> corresponding content is displayed</p>
+
+<h3>Criterion 3: Tab State</h3>
+<p><strong>gegeven</strong> users switch between tabs</p>
+<p><strong>wanneer</strong> returning to a tab</p>
+<p><strong>dan</strong> the previous state is preserved</p>
+
+<h2>Domain vereisten</h2>
+
+<h3>ASTRA compliance</h3>
+<ul>
+<li>StEnard UI patterns</li>
+<li>Component reusability</li>
+<li>Clean architecture</li>
+</ul>
+
+<h3>Justice Domain Specifics</h3>
+<ul>
+<li>Professional appearance</li>
+<li>Clear navigation</li>
+<li>Intuitive design</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Implementatie</h3>
+<pre><code>import streamlit as st
+
+def create_tabs():
+    tab1, tab2, tab3 = st.tabs([
+        "Definitie Generatie",
+        "Validatie",
+        "Export"
+    ])
+
+    with tab1:
+        render_definition_tab()
+    with tab2:
+        render_validation_tab()
+    with tab3:
+        render_export_tab()</code></pre>
+
+<h3>Tab Structure</h3>
+<ul>
+<li>Container component</li>
+<li>Tab headers</li>
+<li>Content panels</li>
+<li>State management</li>
+<li>Event hEnling</li>
+</ul>
+
+<h2>testdekking vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Tab creation</li>
+<li>Navigation logic</li>
+<li>State preservation</li>
+<li>Content rendering</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>Tab switching</li>
+<li>Data persistence</li>
+<li>Prestaties</li>
+</ul>
+
+<h3>Test Files</h3>
+<ul>
+<li>`tests/ui/test_tab_structure.py`</li>
+<li>`tests/ui/test_tab_navigation.py`</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[x] Tab container geïmplementeerd</li>
+<li>[x] Navigation working</li>
+<li>[x] State management added</li>
+<li>[x] Basic styling applied</li>
+<li>[x] Tests passing</li>
+<li>[x] Documentation aangemaakt</li>
+<li>[x] Code review Voltooid</li>
+<li>[x] Deployed to production</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Components aangemaakt</h3>
+<ul>
+<li>TabContainer class</li>
+<li>TabHeader component</li>
+<li>TabContent wrapper</li>
+<li>Navigation hEnler</li>
+<li>State manager</li>
+</ul>
+
+<h3>Functionaliteiten</h3>
+<ul>
+<li>Smooth tab switching</li>
+<li>Keyboard navigation</li>
+<li>Active tab indication</li>
+<li>Responsive layout</li>
+<li>Accessibility support</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-004</li>
+</ul>
+<h3>External</h3>
+<ul>
+<li>Streamlit tabs component</li>
+</ul>
+
+<h3>Internal</h3>
+<ul>
+<li>UI framework</li>
+<li>State management</li>
+<li>Theme system</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Implemented: 25-01-2025</li>
+<li>First Versie simple Maar functional</li>
+<li>Foundation for future tab development</li>
+<li>Prestaties optimized: 01-02-2025</li>
+</ul>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>Tab Architecture: `src/ui/tabs/` (implementation directory)</li>
+<li>UI Component Guide: Streamlit components used throughout codebase</li>
+<li>State Management: Streamlit session state pattern in main application</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This story is part of EPIC-004: User Interface</em></p>
+
+  </div>
+</body>
+</html>

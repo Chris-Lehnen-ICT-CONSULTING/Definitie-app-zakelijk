@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Testen & QA</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-009</li>
+<p>aangemaakt: 10-01-2025</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>epic: EPIC-002</p>
+<p>id: US-010</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: Voltooid</p>
+<p>status: GEREED</p>
+<p>story_points: 8</p>
+<p>titel: Testen & QA</p>
+<p>toegewezen_aan: development-team</p>
+<p>vereisten:</p>
+<li>REQ-068</li>
+<li>REQ-069</li>
+<li>REQ-072</li>
+<li>REQ-074</li>
+<li>REQ-076</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-010: Testen & QA</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>As a</strong> QA engineer</p>
+<p><strong>wil ik</strong> comprehensive tests for the validatie system</p>
+<p><strong>zodat</strong> quality en reliability are ensured</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Unit testdekking</h3>
+<p><strong>gegeven</strong> the validatie codebase</p>
+<p><strong>wanneer</strong> coverage is measured</p>
+<p><strong>dan</strong> at least 90% code coverage is achieved</p>
+
+<h3>Criterion 2: Integration Tests</h3>
+<p><strong>gegeven</strong> the validatie system</p>
+<p><strong>wanneer</strong> integration tests run</p>
+<p><strong>dan</strong> all rule interactions are tested</p>
+
+<h3>Criterion 3: Prestaties Tests</h3>
+<p><strong>gegeven</strong> Prestaties vereisten</p>
+<p><strong>wanneer</strong> load tests run</p>
+<p><strong>dan</strong> validatie completes within 1 second</p>
+
+<h2>Technische Notities</h2>
+<ul>
+<li>Unit tests in `tests/services/test_modular_validation_service.py`</li>
+<li>Integration tests in `tests/integration/test_validation_flag.py`</li>
+<li>98% testdekking achieved</li>
+<li>Prestaties: < 500ms for full validatie</li>
+</ul>
+
+
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-002</li>
+</ul>
+<h2>Test Scenario's</h2>
+<ol>
+<li>Test each validatieregel individually</li>
+<li>Test rule combinations en interactions</li>
+<li>Test error hEnling en edge cases</li>
+<li>Test Prestaties under load</li>
+<li>Test with various definition types</li>
+</ol>
+
+<h2>Definitie van Gereed</h2>
+<ul>
+<li>[x] Code geïmplementeerd en reviewed</li>
+<li>[x] Unit tests written en passing</li>
+<li>[x] Integration tests passing</li>
+<li>[x] Documentation bijgewerkt</li>
+<li>[x] Acceptatiecriteria met</li>
+</ul>
+
+  </div>
+</body>
+</html>

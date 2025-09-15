@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>XSS Prevention</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-004</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - TECHNICAL_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-004</li>
+<li> - EPIC-006</li>
+<p>  stories:</p>
+<li> - US-4.1</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: Streamlit UI rendering</li>
+<p>  path: src/ui/components/definition_generator_tab.py</p>
+<li>line: HTML export generation</li>
+<p>  path: src/services/export_service.py</p>
+<p>status: In Progress</p>
+<p>titel: XSS Prevention</p>
+<p>type: nonfunctional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-004: XSS Prevention</h1>
+
+<h2>Beschrijving</h2>
+
+<p>Het systeem moet Cross-Site Scripting (XSS) aanvallen voorkomen door alle user-generated content te escapen voordat deze wordt weergegeven in de browser of geëxporteerd naar HTML/PDF formaten.</p>
+
+<h2>Rationale</h2>
+
+<p>XSS aanvallen kunnen leiden tot sessie hijacking, data diefstal, en malware distriMaarie. Juridische systemen zijn een aantrekkelijk doelwit vanwege de gevoelige aard van de data.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+
+<ul>
+<li>Alle output wordt HTML-escaped met behulp van proven libraries</li>
+<li>Content beveiliging beleid (CSP) headers worden toegepast</li>
+<li>Inline JavaScript is volledig verboden</li>
+<li>User input wordt nooit direct in HTML templates geïnjecteerd</li>
+<li>Markdown rendering gebruikt safe mode zonder raw HTML</li>
+<li>Geautomatiseerde XSS scanning in CI/CD pipeline</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** Implementeer complete XSS preventie met output escaping en CSP headers</li>
+<li>**Meetbaar:**</li>
+<li> - 0 XSS vulnerabilities in OWASP ZAP scan</li>
+<li> - 100% output HTML-escaped coverage</li>
+<li> - CSP header score A+ (securityheaders.com)</li>
+<li> - < 10ms overhead voor escaping</li>
+<li> - 0 inline JavaScript executies</li>
+<li> - 100% van exports XSS-safe</li>
+<li>**Acceptabel:** Gebruik Streamlit built-in protectie + html.escape</li>
+<li>**Relevant:** Beschermt tegen sessie hijacking en data theft</li>
+<li>**Tijdgebonden:** Compleet voor security audit (Sprint 3, week 1)</li>
+</ul>
+
+
+<h2>BDD Test Scenario's</h2>
+
+<pre><code>Scenario: XSS preventie in definitie weergave
+  Gegeven een definitie met XSS payload: "&lt;img src=x onerror=alert('XSS')&gt;"
+  Wanneer de definitie wordt weergegeven in de UI
+  Dan wordt de HTML geëscaped naar "&amp;lt;img src=x onerror=alert('XSS')&amp;gt;"
+  En wordt geen JavaScript uitgevoerd
+  En wordt de tekst veilig als plain text getoond
+
+Scenario: CSP header blokkering
+  Gegeven de applicatie heeft CSP headers geconfigureerd
+  Wanneer een aanvaller inline script probeert te injecteren
+  Dan blokkeert de browser het script
+  En wordt een CSP violation gerapporteerd
+  En blijft de applicatie functioneel
+  En wordt het incident gelogd
+
+Scenario: Veilige HTML export
+  Gegeven een definitie met HTML: "&lt;b&gt;vonnis&lt;/b&gt;&lt;script&gt;steal()&lt;/script&gt;"
+  Wanneer deze wordt geëxporteerd naar HTML
+  Dan wordt alleen &lt;b&gt; tag behouden (whitelist)
+  En wordt &lt;script&gt; volledig verwijderd
+  En is het resultaat: "&lt;b&gt;vonnis&lt;/b&gt;"
+  En bevat de export geen executable code
+
+Scenario: Markdown rendering beveiliging
+  Gegeven markdown met raw HTML: "# Titel\n&lt;iframe src='evil.com'&gt;&lt;/iframe&gt;"
+  Wanneer deze wordt gerenderd
+  Dan gebruikt de renderer safe mode
+  En wordt de iframe tag genegeerd
+  En wordt alleen "# Titel" gerenderd
+
+Scenario: OWASP ZAP scan validatie
+  Gegeven de applicatie is deployed op test omgeving
+  Wanneer OWASP ZAP automated scan draait
+  Dan worden 0 high risk XSS vulnerabilities gevonden
+  En worden 0 medium risk XSS issues gevonden
+  En wordt het rapport opgeslagen voor audit</code></pre>
+
+<h2>Uitwerking / Notities</h2>
+
+<ul>
+<li>Streamlit heeft ingebouwde XSS protectie voor st.write() en st.markdown()</li>
+<li>Export service gebruikt html.escape() voor alle dynamische content</li>
+<li>CSP header: "default-src 'self'; script-src 'none'; style-src 'self' 'unsafe-inline'"</li>
+<li>Regular security audits met OWASP ZAP scanner</li>
+<li>Whitelist van toegestane HTML tags voor rich text (b, i, em, strong)</li>
+<li>DOMPurify library voor geavanceerde HTML sanitization</li>
+<li>Beveiliging headers monitoring via securityheaders.com API</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+
+<ul>
+<li>met: REQ-001 — Session cookies vs XSS - opgelost door httpOnly en secure flags</li>
+</ul>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Implement complete xss prevention beveiliging control</li>
+<li>**Meetbaar**: Geen kwetsbaarheden in beveiligingsscans, 100% testdekking</li>
+<li>**Haalbaar**: Using established beveiliging libraries en patterns</li>
+<li>**Relevant**: KRITIEK voor justitiesector gegevensbeschermingscompliance</li>
+<li>**Tijdgebonden**: Must be operational before productie deployment</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

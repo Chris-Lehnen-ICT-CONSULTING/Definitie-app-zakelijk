@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TDD to Uitrol Werkstroom</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>TDD to Uitrol Werkstroom</h1>
+
+<h2>Versie</h2>
+<ul>
+<li>**Versie**: 2.0.0</li>
+<li>**Laatst Bijgewerkt**: 30-01-2025</li>
+<li>**Status**: Active</li>
+<li>**Eigenaar**: tdd-orchestrator</li>
+</ul>
+
+<h2>Overview</h2>
+<p>This document describes the complete workflow from TDD development to production deployment using the orchestrated agent system. It serves as the <strong>single source of truth</strong> for all workflow execution.</p>
+
+<h2>📦 Work Unit Definition</h2>
+
+<h3>What Constitutes a Work Unit</h3>
+<p>A <strong>work unit</strong> is a logically complete, self-contained piece of work that delivers value:</p>
+
+<h4>Valid Work Units ✅</h4>
+<ul>
+<li>**Gebruikersverhaal**: Complete feature implementation (e.g., "US-034: Add user registration")</li>
+<li>**Bug Fix**: Complete issue resolution (e.g., "BUG-001: Fix login timeout")</li>
+<li>**Feature**: Standalone functionality (e.g., "FEAT-012: Add dark mode")</li>
+<li>**Refactoring**: Complete code improvement (e.g., "REF-005: Extract payment service")</li>
+</ul>
+
+<h4>NOT Work Units ❌</h4>
+<ul>
+<li>Single lines of code</li>
+<li>Incomplete implementations</li>
+<li>Random code fragments</li>
+<li>Work in progress</li>
+</ul>
+
+<h3>Work Unit Classification</h3>
+
+<h4>CODE (Requires Full TDD Werkstroom)</h4>
+<pre><code>requires_tdd:
+  - Python files (*.py)
+  - Config files affecting app behavior (*.yaml, *.json)
+  - SQL/Database schemas
+  - API endpoints
+  - Business logic
+  - UI components
+  - Test files</code></pre>
+
+<h4>DOCUMENTATION (Direct Update Allowed)</h4>
+<pre><code>skip_tdd:
+  - Markdown files (*.md)
+  - README updates
+  - Comments/docstrings
+  - Architecture diagrams
+  - User guides
+  - CHANGELOG (unless auto-generated)</code></pre>
+
+<h2>Werkstroom Diagram</h2>
+
+<pre><code>Work Unit Created
+        ↓
+TODO → ANALYSIS → DESIGN → TEST-RED → DEV-GREEN → REVIEW → REFACTOR → TEST-CONFIRM → DONE
+                                                                                         ↓
+                                                            DevOps Pipeline Orchestrator
+                                                                                         ↓
+                                                    BRANCH → COMMIT → PR → CI → RELEASE → DEPLOY → MONITOR</code></pre>
+
+<h2>Phase 1: TDD Development (TDD Orchestrator)</h2>
+
+<h3>1.1 TODO → ANALYSIS</h3>
+<ul>
+<li>**Agent**: business-analyst-justice</li>
+<li>**Trigger**: Work unit created with ID</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Analyze complete vereiste</li>
+<li>Create user story with SMART criteria</li>
+<li>Define acceptatiecriteria (Gegeven-Wanneer-Dan)</li>
+<li>Document domain rules and constraints</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - User story in `docs/backlog/stories/MASTER-EPICS-USER-STORIES.md`</li>
+<li> - Format: As a [role], I want [feature], so that [benefit]</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] User story has GLOBALLY unique ID (frontmatter `id: US-XXX`)</li>
+<li> - [ ] All SMART criteria defined (Specific, Measurable, Achievable, Relevant, Time-bound)</li>
+<li> - [ ] Acceptance criteria in BDD format</li>
+<li> - [ ] Domain rules documented</li>
+<li>**Duration**: ~15 minutes</li>
+</ul>
+
+<h3>1.2 ANALYSIS → DESIGN</h3>
+<ul>
+<li>**Agent**: justice-architecture-designer</li>
+<li>**Prerequisite**: ANALYSIS phase complete</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Create/update Enterprise Architecture (EA)</li>
+<li>Design Solution Architecture (SA)</li>
+<li>Define Technical Architecture (TA)</li>
+<li>Specify API contracts</li>
+<li>Define component boundaries</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - EA documentation in `docs/architectuur/EA.md#<ID>`</li>
+<li> - SA documentation in `docs/architectuur/SA.md#<ID>`</li>
+<li> - TA documentation in `docs/architectuur/TA.md#<ID>`</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] All three architecture layers documented</li>
+<li> - [ ] API contracts defined (if applicable)</li>
+<li> - [ ] Component interfaces specified</li>
+<li> - [ ] Non-functional vereistes listed</li>
+<li> - [ ] ASTRA/NORA compliance checked</li>
+<li>**Duration**: ~20 minutes</li>
+</ul>
+
+<h3>1.3 DESIGN → TEST-RED</h3>
+<ul>
+<li>**Agent**: quality-assurance-tester</li>
+<li>**Prerequisite**: DESIGN phase complete</li>
+<li>**Critical Rule**: Tests MUST fail initially</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Write failing unit tests</li>
+<li>Write failing integration tests</li>
+<li>Cover all acceptatiecriteria</li>
+<li>Include edge cases</li>
+<li>Use AAA pattern (Arrange-Act-Assert)</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - Test files in `tests/unit/test_<ID>_*.py`</li>
+<li> - Test files in `tests/integration/test_<ID>_*.py`</li>
+<li>**Commit**: `test(<ID>): add failing tests for <description>`</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] All tests written before implementation</li>
+<li> - [ ] Tests fail as expected (RED state)</li>
+<li> - [ ] Coverage for all acceptatiecriteria</li>
+<li> - [ ] Edge cases included</li>
+<li> - [ ] Commit made with correct format</li>
+<li>**Duration**: ~25 minutes</li>
+</ul>
+
+<h3>1.4 TEST-RED → DEV-GREEN</h3>
+<ul>
+<li>**Agent**: developer-implementer</li>
+<li>**Prerequisite**: TEST-RED phase complete, tests failing</li>
+<li>**Critical Rule**: Complete implementation in ONE session</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Implement COMPLETE feature/fix</li>
+<li>Write minimal code to pass tests</li>
+<li>Include type hints and docstrings</li>
+<li>No feature creep - only what's needed</li>
+<li>Make ALL tests green</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - Complete working code</li>
+<li> - All tests passing</li>
+<li>**Commit**: `feat(<ID>): implement <description>`</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] ALL tests green</li>
+<li> - [ ] Complete implementation (no TODOs)</li>
+<li> - [ ] Type hints included</li>
+<li> - [ ] Docstrings added</li>
+<li> - [ ] No additional features beyond scope</li>
+<li> - [ ] Commit made with correct format</li>
+<li>**Duration**: ~30 minutes</li>
+</ul>
+
+<h3>1.5 DEV-GREEN → REVIEW</h3>
+<ul>
+<li>**Agent**: code-reviewer-comprehensive</li>
+<li>**Prerequisite**: DEV-GREEN phase complete, all tests green</li>
+<li>**Critical Rule**: Review only, NO code changes</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Review against 7-point checklist:</li>
+</ol>
+<ul>
+<li>    - Correctness & Logic</li>
+<li>    - Test Coverage</li>
+<li>    - Beveiliging & Privacy</li>
+<li>    - Prestaties</li>
+<li>    - Code Style</li>
+<li>    - Documentation</li>
+<li>    - Domain Compliance</li>
+</ul>
+<ol>
+<li>Categorize findings (🔴 Critical, 🟡 Recommendations, 🟢 Good)</li>
+<li>Provide concrete suggestions</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - Review report in `docs/reviews/<ID>-review.md`</li>
+<li> - Verdict: APPROVED / APPROVED WITH CONDITIONS / CHANGES REQUESTED</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] Complete review report created</li>
+<li> - [ ] No 🔴 critical blocking issues</li>
+<li> - [ ] All checklist items evaluated</li>
+<li> - [ ] Concrete suggestions provided</li>
+<li> - [ ] Verdict clearly stated</li>
+<li>**Duration**: ~15 minutes</li>
+</ul>
+
+<h3>1.6 REVIEW → REFACTOR</h3>
+<ul>
+<li>**Agent**: refactor-specialist</li>
+<li>**Prerequisite**: REVIEW phase complete, no blocking issues</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Implement micro-refactors only</li>
+<li>Improve code quality</li>
+<li>Preserve exact behavior</li>
+<li>Update refactor log</li>
+<li>Keep tests green</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - Optimized code (if needed)</li>
+<li> - Entry in `docs/refactor-log.md`</li>
+<li>**Commit**: `refactor(<ID>): <specific improvement>` (if changes made)</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] Tests still green</li>
+<li> - [ ] Behavior unchanged</li>
+<li> - [ ] Refactor log updated</li>
+<li> - [ ] Only micro-refactors applied</li>
+<li> - [ ] Commit made if changes applied</li>
+<li>**Duration**: ~20 minutes</li>
+</ul>
+
+<h3>1.7 REFACTOR → TEST-CONFIRM</h3>
+<ul>
+<li>**Agent**: quality-assurance-tester</li>
+<li>**Prerequisite**: REFACTOR phase complete</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Run complete test suite</li>
+<li>Validate coverage (target: ≥80%)</li>
+<li>Check for regressions</li>
+<li>Run integration tests</li>
+<li>Update test documentation</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - Test report with coverage metrics</li>
+<li> - Update `docs/test-coverage.md`</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] All tests green</li>
+<li> - [ ] Coverage ≥80% (60% minimum)</li>
+<li> - [ ] No regressions detected</li>
+<li> - [ ] Integration tests passing</li>
+<li> - [ ] Prestaties benchmarks met</li>
+<li>**Duration**: ~10 minutes</li>
+</ul>
+
+<h3>1.8 TEST-CONFIRM → DONE</h3>
+<ul>
+<li>**Agent**: tdd-orchestrator</li>
+<li>**Prerequisite**: All phases complete</li>
+<li>**Tasks**:</li>
+</ul>
+<ol>
+<li>Update story status in MASTER-EPICS-USER-STORIES.md</li>
+<li>Update CHANGELOG.md</li>
+<li>Verify complete artifact trail</li>
+<li>Trigger DevOps Pipeline (if configured)</li>
+</ol>
+<ul>
+<li>**Output**:</li>
+<li> - Status: DONE in tracking</li>
+<li> - Complete audit trail</li>
+<li>**Gate Conditions**:</li>
+<li> - [ ] All 7 previous phases complete</li>
+<li> - [ ] All artifacts present</li>
+<li> - [ ] Story status updated</li>
+<li> - [ ] CHANGELOG entry added</li>
+<li> - [ ] Ready for deployment</li>
+<li>**Duration**: ~5 minutes</li>
+<li>**Trigger**: DevOps Pipeline Orchestrator (automatic if configured)</li>
+</ul>
+
+<h2>Phase 2: Uitrol Pipeline (DevOps Pipeline Orchestrator)</h2>
+
+<h3>2.1 BRANCH_MANAGEMENT</h3>
+<ul>
+<li>Create/update feature branch</li>
+<li>Sync with main branch</li>
+<li>Resolve conflicts if any</li>
+<li>**Commands**:</li>
+<pre><code>  git checkout -b feature/&lt;ID&gt;
+  git rebase main
+  git push --set-upstream origin feature/&lt;ID&gt;</code></pre>
+</ul>
+
+<h3>2.2 COMMIT_ORCHESTRATION</h3>
+<ul>
+<li>Ensure semantic commits</li>
+<li>Bundle related changes</li>
+<li>Sign commits if required</li>
+<li>**Commands**:</li>
+<pre><code>  git add -A
+  git commit -m "feat(&lt;ID&gt;): description"
+  git push</code></pre>
+</ul>
+
+<h3>2.3 PR_LIFECYCLE</h3>
+<ul>
+<li>Create pull request</li>
+<li>Add comprehensive description</li>
+<li>Request reviews</li>
+<li>Monitor approval status</li>
+<li>**Commands**:</li>
+<pre><code>  gh pr create --title "[&lt;ID&gt;] Feature" --body "$(cat PR_TEMPLATE.md)"
+  gh pr status
+  gh pr checks</code></pre>
+</ul>
+
+<h3>2.4 CI_VALIDATION</h3>
+<ul>
+<li>Run complete test suite</li>
+<li>Check code coverage (≥60%)</li>
+<li>Run security scans</li>
+<li>Validate linting</li>
+<li>**Commands**:</li>
+<pre><code>  pytest --cov=src --cov-report=html
+  python -m ruff check src
+  python -m black --check src</code></pre>
+</ul>
+
+<h3>2.5 DEPLOYMENT_PREP</h3>
+<ul>
+<li>Generate version number</li>
+<li>Create changelog</li>
+<li>Prepare rollback plan</li>
+<li>Validate environment</li>
+</ul>
+
+<h3>2.6 RELEASE_MANAGEMENT</h3>
+<ul>
+<li>Create release tag</li>
+<li>Generate release notes</li>
+<li>Create GitHub release</li>
+<li>**Commands**:</li>
+<pre><code>  git tag -a v&lt;version&gt; -m "Release v&lt;version&gt;"
+  gh release create v&lt;version&gt; --title "Release v&lt;version&gt;"</code></pre>
+</ul>
+
+<h3>2.7 DEPLOYMENT</h3>
+<ul>
+<li>Deploy to staging first</li>
+<li>Run health checks</li>
+<li>Deploy to production (with approval)</li>
+<li>Monitor deployment</li>
+</ul>
+
+<h3>2.8 POST_DEPLOYMENT</h3>
+<ul>
+<li>Run smoke tests</li>
+<li>Monitor metrics for 30 minutes</li>
+<li>Update documentation</li>
+<li>Notify team</li>
+</ul>
+
+<h2>Werkstroom Enforcement</h2>
+
+<h3>Violation Handling</h3>
+
+<h4>Type 1: Phase Skip Attempt</h4>
+<pre><code>Violation: Attempting DEV without TEST-RED
+Response: BLOCK with error
+Fix: Complete TEST-RED first
+Audit: Log violation attempt</code></pre>
+
+<h4>Type 2: Incomplete Phase</h4>
+<pre><code>Violation: Moving to next phase with incomplete work
+Response: REJECT transition
+Fix: Complete current phase
+Audit: Track incomplete items</code></pre>
+
+<h4>Type 3: Wrong Agent</h4>
+<pre><code>Violation: Wrong agent for phase
+Response: REDIRECT to correct agent
+Fix: Use phase-agent mapping
+Audit: Log mismatch</code></pre>
+
+<h4>Type 4: Missing Work Unit</h4>
+<pre><code>Violation: Starting without ID
+Response: CREATE work unit first
+Fix: Assign ID and story
+Audit: Track orphan work</code></pre>
+
+<h3>Emergency Override Protocol</h3>
+
+<p>For production hotfixes ONLY:</p>
+<pre><code>Command: OVERRIDE &lt;ID&gt; &lt;justification&gt;
+Approval: Required from team lead
+Audit: Full trail maintained
+Post-fix: Must complete skipped phases</code></pre>
+
+<h2>Agent Coordination</h2>
+
+<h3>Phase-to-Agent Mapping</h3>
+<p>| Phase | Primary Agent | Supporting Agent |</p>
+<p>|-------|--------------|------------------|</p>
+<p>| TODO | tdd-orchestrator | - |</p>
+<p>| ANALYSIS | business-analyst-justice | prompt-engineer |</p>
+<p>| DESIGN | justice-architecture-designer | - |</p>
+<p>| TEST-RED | quality-assurance-tester | prompt-engineer |</p>
+<p>| DEV-GREEN | developer-implementer | prompt-engineer |</p>
+<p>| REVIEW | code-reviewer-comprehensive | - |</p>
+<p>| REFACTOR | refactor-specialist | - |</p>
+<p>| TEST-CONFIRM | quality-assurance-tester | - |</p>
+<p>| DONE | tdd-orchestrator | doc-standards-guardian |</p>
+
+<h3>Prompt Engineer Integration</h3>
+<p>The prompt-engineer agent supports other agents by:</p>
+<ul>
+<li>Optimizing prompts for each phase</li>
+<li>Preventing hallucinations</li>
+<li>Ensuring clear output formats</li>
+<li>Improving token efficiency</li>
+</ul>
+
+<h2>Quality Standards</h2>
+
+<h3>Minimum Vereisten per Phase</h3>
+<ul>
+<li>**ANALYSIS**: SMART criteria present</li>
+<li>**DESIGN**: All 3 architecture layers</li>
+<li>**TEST-RED**: Tests failing</li>
+<li>**DEV-GREEN**: Tests passing</li>
+<li>**REVIEW**: No critical issues</li>
+<li>**REFACTOR**: Behavior preserved</li>
+<li>**TEST-CONFIRM**: Coverage ≥80%</li>
+<li>**DONE**: All artifacts present</li>
+</ul>
+
+<h3>Commit Message Formats</h3>
+<pre><code>test(&lt;ID&gt;): &lt;description&gt;      # For TEST-RED phase
+feat(&lt;ID&gt;): &lt;description&gt;       # For DEV-GREEN phase
+refactor(&lt;ID&gt;): &lt;description&gt;   # For REFACTOR phase
+fix(&lt;ID&gt;): &lt;description&gt;        # For bug fixes
+docs(&lt;ID&gt;): &lt;description&gt;       # For documentation</code></pre>
+
+<h2>Metrics & Monitoring</h2>
+
+<h3>Key Prestaties Indicators</h3>
+<ul>
+<li>**Lead Time**: TODO → Production</li>
+<li>**Cycle Time**: DEV-GREEN → Production</li>
+<li>**Phase Duration**: Target vs Actual</li>
+<li>**Violation Rate**: Attempts to skip phases</li>
+<li>**Coverage Trend**: Must maintain or improve</li>
+<li>**Uitrol Success Rate**: Target >95%</li>
+</ul>
+
+<h3>Tracking Template</h3>
+<pre><code>{
+  "work_unit_id": "FEAT-001",
+  "type": "feature",
+  "created": "2024-01-30T10:00:00Z",
+  "current_phase": "TEST-RED",
+  "phase_durations": {
+    "ANALYSIS": "15m",
+    "DESIGN": "20m",
+    "TEST-RED": "ongoing"
+  },
+  "violations": [],
+  "coverage": null,
+  "status": "IN_PROGRESS"
+}</code></pre>
+
+<h2>Best Practices</h2>
+
+<ol>
+<li>**Complete Work Units**: Never fragment implementation</li>
+<li>**Phase Completeness**: Finish entire phase before handoff</li>
+<li>**Atomic Commits**: One logical change per commit</li>
+<li>**Test First**: Always RED before GREEN</li>
+<li>**Document Everything**: Maintain full audit trail</li>
+<li>**Monitor Post-Deploy**: Watch for 30 minutes minimum</li>
+</ol>
+
+<h2>Example Werkstroom Execution</h2>
+
+<pre><code># User initiates work
+&gt; "Implement user authentication feature"
+
+# TDD Orchestrator responds
+&gt; Work Unit Created: FEAT-AUTH-001
+&gt; Starting Phase: TODO → ANALYSIS
+
+# Phase progression
+&gt; ANALYSIS complete (15m) → DESIGN
+&gt; DESIGN complete (20m) → TEST-RED
+&gt; TEST-RED complete (25m) → DEV-GREEN
+&gt; DEV-GREEN complete (30m) → REVIEW
+&gt; REVIEW complete (15m) → REFACTOR
+&gt; REFACTOR complete (20m) → TEST-CONFIRM
+&gt; TEST-CONFIRM complete (10m) → DONE
+
+# Total time: 2h 15m
+&gt; FEAT-AUTH-001 ready for deployment
+
+# DevOps Pipeline triggered
+&gt; Creating PR #456
+&gt; CI validation passed
+&gt; Deployed to production as v1.2.3</code></pre>
+
+<h2>Documentation Updates</h2>
+
+<p>After workflow completion, these documents are updated:</p>
+<ul>
+<li>`docs/backlog/stories/MASTER-EPICS-USER-STORIES.md` - Story status</li>
+<li>`CHANGELOG.md` - Feature/fix entry</li>
+<li>`docs/reviews/<ID>-review.md` - Review report</li>
+<li>`docs/refactor-log.md` - Refactor notes</li>
+<li>`docs/test-coverage.md` - Coverage metrics</li>
+<li>`docs/deployments/<date>.md` - Uitrol record</li>
+</ul>
+
+<h2>Rollback Procedures</h2>
+
+<p>Automatic rollback triggers:</p>
+<ol>
+<li>Health check failures</li>
+<li>Smoke test failures</li>
+<li>Error rate >5% above baseline</li>
+<li>Manual intervention</li>
+</ol>
+
+<p>Rollback process:</p>
+<ol>
+<li>Revert to previous version</li>
+<li>Run health checks</li>
+<li>Notify team</li>
+<li>Create incident report</li>
+<li>Schedule post-mortem</li>
+</ol>
+
+<h2>References</h2>
+
+<ul>
+<li>Agent Definitions: `docs/AGENTS.md`</li>
+<li>Architecture Standards: `docs/architectuur/`</li>
+<li>Canonical Locations: `docs/CANONICAL_LOCATIONS.md`</li>
+<li>Project Guidelines: `CLAUDE.md`</li>
+</ul>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Remove Legacy Context Routes</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-041</li>
+<li>US-042</li>
+<li>CFR-BUG-003</li>
+<p>aangemaakt: 04-09-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 08-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-010</p>
+<p>id: US-043</p>
+<p>last_verified: 08-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: sprint-36</p>
+<p>status: Nog te bepalen</p>
+<p>story_points: 8</p>
+<p>titel: Remove Legacy Context Routes</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: technical-debt</p>
+<p>vereisten:</p>
+<li>REQ-019</li>
+<li>REQ-020</li>
+<li>REQ-032</li>
+<p>implementation_plan: docs/implementation/EPIC-010-implementation-plan.md#fase-5</p>
+<p>related_bugs:</p>
+<li>CFR-BUG-001</li>
+<li>CFR-BUG-002</li>
+<li>CFR-BUG-003</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-043: Remove Legacy Context Routes</h1>
+
+<p><strong>Episch Verhaal:</strong> EPIC-001</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As a</strong> developer maintaining the DefinitieAgent system</p>
+<p><strong>wil ik</strong> a single, clear context flag path without legacy routes</p>
+<p><strong>zodat</strong> context hEnling is predictable, maintainable, En ASTRA compliant</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Legacy Route Identification</h3>
+<p><strong>gegeven</strong> multiple context flag paths exist in the codebase</p>
+<p><strong>wanneer</strong> analysis is performed</p>
+<p><strong>dan</strong> all legacy routes are identified en documented</p>
+
+<h3>Criterion 2: Single Path Implementatie</h3>
+<p><strong>gegeven</strong> legacy routes have been identified</p>
+<p><strong>wanneer</strong> refactoring is complete</p>
+<p><strong>dan</strong> exactly one context flag path exists from UI to prompt</p>
+
+<h3>Criterion 3: No Functionality Loss</h3>
+<p><strong>gegeven</strong> the refactoring is complete</p>
+<p><strong>wanneer</strong> all context features are tested</p>
+<p><strong>dan</strong> no existing functionality is lost or degraded</p>
+
+<h3>Criterion 4: Prestaties Improvement</h3>
+<p><strong>gegeven</strong> legacy routes are removed</p>
+<p><strong>wanneer</strong> context processing is measured</p>
+<p><strong>dan</strong> Prestaties improves by at least 20%</p>
+
+<h3>Criterion 5: Code Coverage</h3>
+<p><strong>gegeven</strong> the new single path is geïmplementeerd</p>
+<p><strong>wanneer</strong> tests are run</p>
+<p><strong>dan</strong> code coverage is > 95% for context flag</p>
+
+<h2>Domain vereisten</h2>
+
+<h3>ASTRA compliance</h3>
+<ul>
+<li>Single responsibility principle for context hEnling</li>
+<li>Clear service boundaries (no cross-service context manipulation)</li>
+<li>auditspoor for all context transformations</li>
+<li>Loose coupling between UI en business logic</li>
+</ul>
+
+<h3>NORA StEnards</h3>
+<ul>
+<li>Government IT simplification richtlijnen</li>
+<li>Maintainable architecture patterns</li>
+<li>Clear data flag documentation</li>
+<li>Technical debt reduction</li>
+</ul>
+
+<h3>Justice Domain Specifics</h3>
+<ul>
+<li>OM context vereisten preserved</li>
+<li>DJI organizational context maintained</li>
+<li>Rechtspraak jurisdictional context supported</li>
+<li>Justid terminology consistency</li>
+<li>No regression in chain partner integrations</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Current Legacy Routes (TO REMOVE)</h3>
+<ol>
+<li>**Direct Session State Access**</li>
+</ol>
+<ul>
+<li>  - `st.session_state.juridische_context` (bypasses validatie)</li>
+<li>  - `st.session_state.organisatorische_context` (no auditspoor)</li>
+</ul>
+
+<ol>
+<li>**Old V1 Context HEnlers**</li>
+</ol>
+<ul>
+<li>  - `src/services/legacy/context_hEnler.py`</li>
+<li>  - `src/ui/old_context_widget.py`</li>
+</ul>
+
+<ol>
+<li>**Multiple Transformation Points**</li>
+</ol>
+<ul>
+<li>  - Context transformed in UI layer</li>
+<li>  - Context transformed in service layer</li>
+<li>  - Context transformed in prompt builder</li>
+</ul>
+
+<h3>Target Architecture (SINGLE PATH)</h3>
+<pre><code># Clean context flag
+UI Input → ContextValidator → GenerationRequest → PromptService → AI
+                ↓
+          Audit Logger</code></pre>
+
+<h3>Implementatie Steps</h3>
+<ol>
+<li>Map all current context access points</li>
+<li>Create unified ContextManager service</li>
+<li>Migrate all context access to ContextManager</li>
+<li>Remove legacy code paths</li>
+<li>UpDatum all tests</li>
+<li>ValiDatum with justice partners</li>
+</ol>
+
+<h3>Code Locations to Refactor</h3>
+<ul>
+<li>`src/ui/tabbed_interface.py` - Remove direct state access</li>
+<li>`src/services/prompt_service_v2.py` - Centralize context hEnling</li>
+<li>`src/services/definition_generator.py` - Use ContextManager</li>
+<li>`src/services/interfaces.py` - UpDatum GenerationRequest</li>
+<li>Remove all files in `src/legacy/` directory</li>
+<li>`src/ui/components/definition_generator_tab.py` - Update dependency injection TODO (line 86)</li>
+<li>`src/ui/components/definition_generator_tab.py` - Implement proper user auth for history (line 322)</li>
+<li>`src/ui/components/context_selector.py` - Implement preset saving to database (line 116)</li>
+</ul>
+
+<h2>testdekking vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>ContextManager initialization</li>
+<li>Context validatie logic</li>
+<li>Context transformation</li>
+<li>auditspoor generation</li>
+<li>Error hEnling for invalid context</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>UI to ContextManager flag</li>
+<li>ContextManager to PromptService</li>
+<li>End-to-end context propagation</li>
+<li>Legacy route removal verification</li>
+<li>Prestaties benchmarks</li>
+</ul>
+
+<h3>justitieketen Tests</h3>
+<ul>
+<li>OM context scenarios</li>
+<li>DJI organizational vereisten</li>
+<li>Rechtspraak jurisdiction hEnling</li>
+<li>Justid terminology validatie</li>
+<li>CJIB integration compatibility</li>
+</ul>
+
+<h2>Test Files</h2>
+
+<h3>Primary Test Suite</h3>
+<ul>
+<li>**`tests/unit/test_us043_remove_legacy_routes.py`** (10 test classes)</li>
+<li> - Single context flow path validation</li>
+<li> - Performance improvement verification (>20% target)</li>
+<li> - Legacy code removal confirmation</li>
+<li> - Session state encapsulation tests</li>
+<li> - Memory efficiency validation</li>
+<li> - Code maintainability metrics</li>
+</ul>
+
+<h3>Performance Tests</h3>
+<ul>
+<li>**`tests/performance/test_context_flow_performance.py`** (8 test classes)</li>
+<li> - End-to-end timing validation</li>
+<li> - Memory usage optimization (< 50MB overhead)</li>
+<li> - Throughput under load (>100 req/sec)</li>
+<li> - Latency percentiles (p50 <50ms, p95 <100ms, p99 <200ms)</li>
+<li> - Scalability testing (20 concurrent threads)</li>
+<li> - Cache effectiveness (>20% improvement)</li>
+<li> - Resource utilization (<80% CPU)</li>
+</ul>
+
+<h3>Feature Flag Tests</h3>
+<ul>
+<li>**`tests/unit/test_feature_flags_context_flow.py`** (9 test classes)</li>
+<li> - Feature flag configuration validation</li>
+<li> - Percentage-based rollout scenarios</li>
+<li> - A/B testing between legacy and new paths</li>
+<li> - Fallback mechanism testing</li>
+<li> - Performance impact measurement</li>
+<li> - Multi-flag interaction scenarios</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>**`tests/integration/test_context_flow_epic_cfr.py`**</li>
+<li> - Complete context flow validation</li>
+<li> - Legacy route deprecation verification</li>
+<li> - Performance benchmarking</li>
+</ul>
+
+<h3>Test Execution Commands</h3>
+<pre><code># Run US-043 specific tests
+pytest tests/unit/test_us043_remove_legacy_routes.py -v
+
+# Performance improvement validation
+pytest tests/performance/test_context_flow_performance.py -v --benchmark
+
+# Feature flag rollout testing
+pytest tests/unit/test_feature_flags_context_flow.py -v
+
+# Verify no legacy routes remain
+grep -r "session_state.*context" src/ --include="*.py" | grep -v "# DEPRECATED"
+
+# Integration testing
+pytest tests/integration/test_context_flow_epic_cfr.py::test_single_flow_path -v
+
+# Memory profiling
+pytest tests/performance/test_context_flow_performance.py::test_memory_efficiency -v --memprof</code></pre>
+
+<h3>Expected Test Outcomes</h3>
+<ul>
+<li>**Before Refactor**: Multiple context paths detected, inconsistent behavior</li>
+<li>**After Refactor**: Single unified path, >20% performance improvement</li>
+<li>**Code Quality**: Cyclomatic complexity reduced by 40%</li>
+<li>**Maintainability**: Technical debt score improved by 50%</li>
+<li>**Coverage**: 100% coverage for new ContextManager service</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] All legacy routes identified en documented</li>
+<li>[ ] ContextManager service geïmplementeerd</li>
+<li>[ ] All context access migrated to single path</li>
+<li>[ ] Legacy code removed from codebase</li>
+<li>[ ] Unit tests written (> 95% coverage)</li>
+<li>[ ] Integration tests passing</li>
+<li>[ ] Prestaties improvement verified (> 20%)</li>
+<li>[ ] No functionality regression</li>
+<li>[ ] auditspoor working for all context</li>
+<li>[ ] ASTRA compliance verified</li>
+<li>[ ] Justice partner validatie Voltooid</li>
+<li>[ ] Documentation bijgewerkt</li>
+<li>[ ] Code review Goedgekeurd</li>
+<li>[ ] beveiliging review passed</li>
+</ul>
+
+<h2>Risk Assessment</h2>
+
+<h3>Technical Risks</h3>
+<ul>
+<li>**Hidden Afhankelijkheden**: Legacy code may have undocumented Afhankelijkheden</li>
+<li> - *Mitigation*: Comprehensive code analysis en testing</li>
+<li>**State Management**: Streamlit state complexity</li>
+<li> - *Mitigation*: Careful state migration with rollback plan</li>
+</ul>
+
+<h3>Business Risks</h3>
+<ul>
+<li>**Regression**: Context features might break</li>
+<li> - *Mitigation*: Extensive testing with real justice scenarios</li>
+<li>**Partner Impact**: Wijzigingen affect chain integrations</li>
+<li> - *Mitigation*: Early partner communication en testing</li>
+</ul>
+
+<h2>Implementatie Prioriteit</h2>
+
+<p><strong>HOOG PRIORITY</strong> - This technical debt blocks:</p>
+<ul>
+<li>ASTRA compliance certification</li>
+<li>Prestaties optimization efforts</li>
+<li>New feature development</li>
+<li>Chain-wide integration</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<h3>Must Complete First</h3>
+<ul>
+<li>US-041: Fix Context Field Mapping (establishes correct flag)</li>
+<li>US-042: Fix "Eners..." Option (defines edge cases)</li>
+</ul>
+
+<h3>Can Proceed In Parallel</h3>
+<ul>
+<li>US-044: Context Type validatie</li>
+<li>US-045: Context Traceability</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Legacy routes discovered during CFR-BUG-001 investigation</li>
+<li>Multiple teams have added context hEnling over time</li>
+<li>No central ownership led to proliferation of paths</li>
+<li>Estimated 30% of context bugs due to legacy routes</li>
+<li>Justice partners report inconsistent context behavior</li>
+</ul>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>EPIC-010</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>This story is part of EPIC-010: Context FLAAG Refactoring (KRITIEK)</strong></p>
+
+  </div>
+</body>
+</html>

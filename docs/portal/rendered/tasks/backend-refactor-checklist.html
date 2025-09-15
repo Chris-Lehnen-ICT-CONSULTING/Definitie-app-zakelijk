@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Backend Refactor Checklist (Q1 2025)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>applies_to: definitie-app@v2</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>canonical: false</p>
+<p>last_verified: 02-09-2025</p>
+<p>owner: architecture</p>
+<p>prioriteit: medium</p>
+<p>status: active</p>
+<p>---</p>
+
+
+
+<h1>Backend Refactor Checklist (Q1 2025)</h1>
+
+<p>Doel: afronden Story 2.4, quick wins, en een kleine FastAPI‑basis, passend bij een kleine gebruikersgroep.</p>
+
+<h2>Week 1 — Story 2.4 (Integration & Migration)</h2>
+<ul>
+<li>[ ] DefinitionOrchestratorV2 valideert uitsluitend via ValidationOrchestratorV2 (gerealiseerd; verifiëren in UI‑flow)</li>
+<li>[ ] Verwijder resterende directe validatie‑calls (search & confirm)</li>
+<li>[ ] Golden tests (zie Testblok):</li>
+<li> - [ ] Contract: schema‑conform resultaat (overall_score, is_acceptable, violations)</li>
+<li> - [ ] Mapping: dataclass→schema mapping consistent (errors/suggestions)</li>
+<li> - [ ] Failure path: degraded result met correlation_id</li>
+</ul>
+
+<h2>Week 2 — Quick Wins</h2>
+<ul>
+<li>DB</li>
+<li> - [ ] Indexes voor duplicate detection en queries (begrip, organisatorische_context, categorie, status)</li>
+<li>Tests/QA</li>
+<li> - [ ] pytest‑cov baseline (bijv. 20–30%)</li>
+<li> - [ ] Pre‑commit doc‑lint actief (location, links, staleness); `pre-commit run --all-files`</li>
+<li> - [ ] Fix aggregatie afronding (0.81 vs 0.80) in ModularValidationService (indien nog open)</li>
+<li> - [ ] Mini performance sanity: determinisme/score‑stabiliteit (100 runs op hetzelfde input)</li>
+<li>Docs</li>
+<li> - [ ] INDEX canonical mapping check (alles onder `docs/architectuur/`)</li>
+<li> - [ ] last_verified bijwerken voor gewijzigde canonieke docs</li>
+</ul>
+
+<h2>Week 3+ — FastAPI Foundation (read‑only)</h2>
+<ul>
+<li>API laag (los van Streamlit)</li>
+<li> - [ ] FastAPI skeleton (health, versie, simpele read‑only endpoint voor definities)</li>
+<li> - [ ] Auth skeleton (eenvoudige API‑key check)</li>
+<li> - [ ] Smoke tests (uvicorn startup, 200 op /health)</li>
+</ul>
+
+<h2>Testblok (Golden/Contract)</h2>
+<p>1) ValidationOrchestratorV2 contract</p>
+<ul>
+<li>  - Input: (begrip, text) combinaties, met/zonder cleaning</li>
+<li>  - Verwacht:</li>
+<li>    - `version`, `overall_score`, `is_acceptable`, `violations`, `passed_rules`, `detailed_scores`, `system.correlation_id`</li>
+<li>    - Violations gesorteerd, correlation_id aanwezig</li>
+</ul>
+
+<p>2) ModularValidationService determinisme & aggregatie</p>
+<ul>
+<li>  - Zelfde input → identieke output (scores/violations) over 100 runs</li>
+<li>  - Aggregatie afronding consistent (2 decimalen) en >= threshold → is_acceptable True</li>
+</ul>
+
+<p>3) PromptServiceV2 golden prompts (light)</p>
+<ul>
+<li>  - Zelfde request/context → stabiele prompt‑componenten (category‑aware component aanwezig)</li>
+<li>  - `token_count` ~gelijk (±10%)</li>
+</ul>
+
+<h2>Observability & Config (continu)</h2>
+<ul>
+<li>[ ] Loggen in orchestrator V2: duration, generation_id, validatie status</li>
+<li>[ ] Feature flags: geen legacy fallbacks in productie‑pad</li>
+</ul>
+
+  </div>
+</body>
+</html>

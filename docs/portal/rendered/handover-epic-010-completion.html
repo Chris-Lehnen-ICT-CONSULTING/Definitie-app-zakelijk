@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Handover Document - EPIC-010 Afronding</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>titel: Handover Document - EPIC-010 Afronding</p>
+<p>aangemaakt: 2025-09-10</p>
+<p>status: 85% voltooid</p>
+<p>prioriteit: KRITIEK</p>
+<p>sprint: 37</p>
+<p>---</p>
+
+<h1>📋 Handover Document - EPIC-010 Context Flow Refactoring</h1>
+
+<h2>🎯 Executive Summary</h2>
+
+<p>EPIC-010 is <strong>85% voltooid</strong> met de kern architectuur volledig werkend. De applicatie is stabiel en functioneel, met context propagatie 100% werkend. De resterende 15% betreft het volledig uitfaseren van deprecated sync wrappers in Sprint 37.</p>
+
+<h2>📊 Huidige Status</h2>
+
+<h3>✅ Wat is Voltooid (85%)</h3>
+
+<ol>
+<li>**Context Propagatie (100%)**</li>
+</ol>
+<ul>
+<li>  - UI context bereikt AI prompts correct</li>
+<li>  - List-based velden werken volledig</li>
+<li>  - "Anders..." optie werkt zonder crashes</li>
+</ul>
+
+<ol>
+<li>**Framework Separatie (100%)**</li>
+</ol>
+<ul>
+<li>  - `ServiceContextAdapter` is framework-neutraal</li>
+<li>  - `UI ContextAdapter` handelt Streamlit af</li>
+<li>  - Geen streamlit imports in services</li>
+</ul>
+
+<ol>
+<li>**V2-Only Pad (100%)**</li>
+</ol>
+<ul>
+<li>  - Legacy fallback volledig verwijderd</li>
+<li>  - Feature flags zijn UI-only</li>
+<li>  - Services hebben geen UI dependencies</li>
+</ul>
+
+<ol>
+<li>**Test Coverage**</li>
+</ol>
+<ul>
+<li>  - 71 tests passed, 5 skipped</li>
+<li>  - 60+ test files aangepast voor domein removal</li>
+<li>  - Core functionaliteit volledig getest</li>
+</ul>
+
+<h3>⚠️ Wat Resteert (15%)</h3>
+
+<ol>
+<li>**Deprecated Sync Wrappers**</li>
+</ol>
+<ul>
+<li>  - `generate_definition_sync()` in ServiceFactory</li>
+<li>  - `search_web_sources()` in ServiceFactory</li>
+<li>  - Beide met DEPRECATED markers</li>
+<li>  - UI gebruikt deze nog direct</li>
+</ul>
+
+<ol>
+<li>**UI Migratie naar Async Bridge**</li>
+</ol>
+<ul>
+<li>  - `ui/helpers/async_bridge.py` bestaat en werkt</li>
+<li>  - UI code moet gemigreerd worden</li>
+<li>  - Timeouts moeten geconfigureerd worden</li>
+</ul>
+
+<h2>🐛 Actieve Bugs</h2>
+
+<h3>CFR-BUG-014: Synoniemen/Antoniemen Incorrect</h3>
+<ul>
+<li>**Locatie**: `docs/backlog/epics/EPIC-010/CFR-BUG-014-synoniemen-antoniemen/`</li>
+<li>**Impact**: HOOG - Genereert 2/5 synoniemen, formatting issues</li>
+<li>**Vermoedelijke oorzaak**: Prompt module of parser issue</li>
+<li>**Te onderzoeken**:</li>
+<li> - `src/services/prompts/modules/synoniemen_module.py`</li>
+<li> - `src/services/prompts/modules/antoniemen_module.py`</li>
+<li> - `src/voorbeelden/voorbeelden_service.py`</li>
+</ul>
+
+<h2>🚀 Sprint 37 - Actieplan voor Afronding</h2>
+
+<h3>Week 1: UI Migratie Voorbereiden</h3>
+<pre><code># 1. Maak feature branch
+git checkout -b feature/sprint-37-async-completion
+
+# 2. Implementeer timeout configuratie
+# config/timeouts.yaml
+timeouts:
+  generation: 30
+  web_lookup: 15
+  export: 10
+  validation: 5
+
+# 3. Update async_bridge met config
+from config_manager import get_config
+timeouts = get_config().timeouts</code></pre>
+
+<h3>Week 2: UI Componenten Migreren</h3>
+
+<h4>Stap 1: Update UI Imports</h4>
+<pre><code># Van:
+from services.service_factory import get_definition_service
+factory = get_definition_service()
+result = factory.generate_definition_sync(...)
+
+# Naar:
+from services.service_factory import get_definition_service
+from ui.helpers.async_bridge import generate_definition_sync
+factory = get_definition_service()
+result = generate_definition_sync(factory, ...)</code></pre>
+
+<h4>Stap 2: Migreer Per Component</h4>
+<p><strong>Te migreren bestanden:</strong></p>
+<ol>
+<li>`src/ui/tabbed_interface.py` (2 calls)</li>
+<li>`src/ui/components/definition_generator_tab.py` (1 call)</li>
+<li>Andere tab componenten die sync methods gebruiken</li>
+</ol>
+
+<h3>Week 3: Cleanup & Testing</h3>
+
+<h4>Stap 1: Verwijder Deprecated Methods</h4>
+<pre><code># In service_factory.py - VERWIJDER:
+def generate_definition_sync(...)
+def search_web_sources(...)</code></pre>
+
+<h4>Stap 2: Run Full Test Suite</h4>
+<pre><code># Verificatie queries
+rg -n "generate_definition_sync" src/
+rg -n "search_web_sources" src/
+rg -n "asyncio.run" src/services/
+pytest tests/ -v</code></pre>
+
+<h2>📝 Belangrijke Bestanden & Locaties</h2>
+
+<h3>Core Files om te Wijzigen:</h3>
+<ul>
+<li>`src/services/service_factory.py` - Verwijder sync wrappers</li>
+<li>`src/ui/tabbed_interface.py` - Migreer naar async_bridge</li>
+<li>`src/ui/components/definition_generator_tab.py` - Migreer naar async_bridge</li>
+<li>`src/ui/helpers/async_bridge.py` - Voeg config timeouts toe</li>
+</ul>
+
+<h3>Documentatie om bij te Werken:</h3>
+<ul>
+<li>`docs/backlog/EPIC-010/EPIC-010.md` - Update naar 100%</li>
+<li>`docs/architectuur/SOLUTION_ARCHITECTURE.md` - Document async pattern</li>
+<li>`CHANGELOG.md` - Document breaking changes</li>
+</ul>
+
+<h3>Test Files:</h3>
+<ul>
+<li>`tests/services/test_service_factory.py` - Update na removal</li>
+<li>`tests/ui/test_async_bridge.py` - Nieuwe tests voor timeouts</li>
+<li>`tests/integration/test_context_flow_epic_cfr.py` - E2E tests</li>
+</ul>
+
+<h2>⚠️ Risico's & Mitigatie</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| UI breekt na sync removal | HOOG | Test elke UI component na migratie |</p>
+<p>| Timeout te agressief | MEDIUM | Start met 30s, monitor productie |</p>
+<p>| Async overhead | LAAG | Profile voor/na, <100ms acceptable |</p>
+<p>| Regressies in tests | MEDIUM | Fix tests voor removal |</p>
+
+<h2>🔍 Verificatie Checklist</h2>
+
+<h3>Voor Merge:</h3>
+<ul>
+<li>[ ] Alle UI componenten gebruiken async_bridge</li>
+<li>[ ] Geen sync wrappers in ServiceFactory</li>
+<li>[ ] Geen `asyncio.run` in services</li>
+<li>[ ] Geen `run_coroutine_threadsafe` buiten async_bridge</li>
+<li>[ ] Alle tests groen</li>
+<li>[ ] Performance benchmark <100ms overhead</li>
+<li>[ ] CFR-BUG-014 opgelost</li>
+</ul>
+
+<h3>Verificatie Commands:</h3>
+<pre><code># 1. Check voor streamlit in services
+rg -n "import streamlit" src/services/
+# Verwacht: 0 results
+
+# 2. Check voor sync patterns
+rg -n "generate_definition_sync|search_web_sources" src/
+# Verwacht: alleen in async_bridge.py
+
+# 3. Check voor async anti-patterns
+rg -n "asyncio\.run|run_coroutine_threadsafe" src/services/
+# Verwacht: 0 results
+
+# 4. Run tests
+pytest tests/services/ -v
+pytest tests/ui/ -v</code></pre>
+
+<h2>💡 Tips voor Implementatie</h2>
+
+<ol>
+<li>**Gefaseerde Migratie**: Migreer één UI component per keer</li>
+<li>**Feature Flags**: Gebruik UI feature flags voor rollback</li>
+<li>**Monitor Logs**: Check voor timeout errors in productie</li>
+<li>**Backup Plan**: Houd branch met sync wrappers tot alles werkt</li>
+</ol>
+
+<h2>📞 Contact & Resources</h2>
+
+<ul>
+<li>**EPIC-010 Main Doc**: `docs/backlog/EPIC-010/EPIC-010.md`</li>
+<li>**Sprint 37 Planning**: Zie sectie "Sprint 37 Planning" in EPIC-010</li>
+<li>**Architecture Docs**: `docs/architectuur/`</li>
+<li>**Previous Work**: Commits 827d7d4..88a60f8</li>
+</ul>
+
+<h2>🎯 Definition of Done</h2>
+
+<p>EPIC-010 is volledig afgerond wanneer:</p>
+<ol>
+<li>✅ Context propagatie 100% werkend</li>
+<li>✅ Geen streamlit imports in services</li>
+<li>⬜ Geen sync wrappers in ServiceFactory</li>
+<li>⬜ Alle UI gebruikt async_bridge</li>
+<li>⬜ Timeouts geconfigureerd en getest</li>
+<li>⬜ CFR-BUG-014 opgelost</li>
+<li>⬜ Documentatie bijgewerkt</li>
+<li>⬜ Alle tests groen</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Geschatte tijd voor afronding</strong>: 1 sprint (3 weken)</p>
+<p><strong>Complexiteit</strong>: Medium</p>
+<p><strong>Business Value</strong>: Hoog (clean architecture, maintainability)</p>
+
+  </div>
+</body>
+</html>

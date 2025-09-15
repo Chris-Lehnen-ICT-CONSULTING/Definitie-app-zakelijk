@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>validatie Orchestration FLAAG</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-032</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/architectuur/SOLUTION_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-002</li>
+<p>  stories:</p>
+<li> - US-2.1</li>
+<li> - US-2.2</li>
+<li> - US-2.3</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: 1-500</li>
+<p>  path: src/services/orchestrators/validation_orchestrator_v2.py</p>
+<li>line: 1-200</li>
+<p>  path: docs/architectuur/validation_orchestrator_v2.md</p>
+<p>status: GEREED</p>
+<p>titel: validatie Orchestration FLAAG</p>
+<p>type: functional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-032: validatie Orchestration FLAAG</h1>
+
+<h2>Beschrijving</h2>
+<p>Het systeem moet een centrale orchestrator implementeren die de volledige validatiestroom coördineert, van definitie-input tot gestructureerde validatieresultaten.</p>
+
+<h2>Rationale</h2>
+<p>Een orchestrator zorgt voor consistente validatie-uitvoering, proper error hEnling, en centrale coördinatie van alle 45 validatieregels zonder tight coupling tussen componenten.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>Orchestrator verwerkt alle 45 regels in parallelle batches</li>
+<li>Error recovery per regel (één falende regel blokkeert niet Eneren)</li>
+<li>Totale orchestration overhead < 50ms</li>
+<li>Progress reporting tijdens langlopende validaties</li>
+<li>Gestructureerde output met categorie-groepering</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Uitwerking / Notities</h2>
+<p>De orchestrator implementeert:</p>
+<ul>
+<li>Parallel processing per categorie (ARAI, CON, ESS, etc.)</li>
+<li>Graceful degradation bij regel-failures</li>
+<li>Aggregatie van resultaten</li>
+<li>Prestaties metrics collection</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+<p>Geen conflicten geïdentificeerd.</p>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Implement all validatie orchestration flag validatieregels</li>
+<li>**Meetbaar**: 95%+ accuracy in detecting quality issues</li>
+<li>**Haalbaar**: Using modular validatie framework</li>
+<li>**Relevant**: Ensures compliance with Dutch legal stEnards</li>
+<li>**Tijdgebonden**: Operational within validatie epic timeline</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

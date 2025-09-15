@@ -59,8 +59,11 @@ class DuplicateDetectionService:
         matches = []
 
         for existing in existing_definitions:
-            # Skip archived definitions
-            if hasattr(existing, "status") and existing.status == "archived":
+            # Skip archived definitions (status may be attribute or in metadata)
+            status_val = getattr(existing, "status", None)
+            if not status_val and getattr(existing, "metadata", None):
+                status_val = existing.metadata.get("status")
+            if status_val == "archived":
                 continue
 
             # Check exact match
@@ -108,11 +111,18 @@ class DuplicateDetectionService:
         if def1.begrip.lower() != def2.begrip.lower():
             return False
 
-        # Context moet ook matchen
-        context1 = def1.context or ""
-        context2 = def2.context or ""
+        # Context moet ook matchen (drie lijsten, order-onafhankelijk)
+        def _norm_list(lst):
+            return tuple(sorted([str(x).lower().strip() for x in (lst or [])]))
 
-        return context1.lower() == context2.lower()
+        return (
+            _norm_list(getattr(def1, "organisatorische_context", []))
+            == _norm_list(getattr(def2, "organisatorische_context", []))
+            and _norm_list(getattr(def1, "juridische_context", []))
+            == _norm_list(getattr(def2, "juridische_context", []))
+            and _norm_list(getattr(def1, "wettelijke_basis", []))
+            == _norm_list(getattr(def2, "wettelijke_basis", []))
+        )
 
     def _calculate_similarity(self, str1: str, str2: str) -> float:
         """
@@ -132,9 +142,23 @@ class DuplicateDetectionService:
         if not str1 or not str2:
             return 0.0
 
-        # Convert to lowercase and split into words
-        set1 = set(str1.lower().split())
-        set2 = set(str2.lower().split())
+        # Convert to lowercase and split into words with light stemming
+        def _normalize_tokens(s: str) -> set[str]:
+            tokens = []
+            import re
+            cleaned = re.sub(r"[-/._]", " ", (s or "").lower())
+            for t in cleaned.split():
+                base = t.strip()
+                # Light Dutch-ish stemming to catch e/elijk/elijke variants
+                for suf in ("elijke", "elijk", "en", "e"):
+                    if base.endswith(suf) and len(base) > len(suf) + 1:
+                        base = base[: -len(suf)]
+                        break
+                tokens.append(base)
+            return set(tokens)
+
+        set1 = _normalize_tokens(str1)
+        set2 = _normalize_tokens(str2)
 
         # Handle empty sets
         if not set1 or not set2:

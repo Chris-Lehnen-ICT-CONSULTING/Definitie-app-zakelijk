@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Backup en Restore Functionality</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-047</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/architectuur/TECHNICAL_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-006</li>
+<p>  stories:</p>
+<li> - US-6.4</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: 500-550</li>
+<p>  path: docs/architectuur/TECHNICAL_ARCHITECTURE.md</p>
+<li>line: 1-100</li>
+<p>  path: Nog te bepalen - Backup/restore script planned</p>
+<p>status: Backlog</p>
+<p>titel: Backup en Restore Functionality</p>
+<p>type: nonfunctional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-047: Backup en Restore Functionality</h1>
+
+<h2>Beschrijving</h2>
+<p>Het systeem moet automated backup en restore functionaliteit bieden voor database, configuratie, en user-generated content met point-in-time recovery mogelijkheden.</p>
+
+<h2>Rationale</h2>
+<p>Data loss prevention is kritiek voor een overheidssysteem. Backup/restore procedures zijn nodig voor disaster recovery en compliance met data retention policies.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>Dagelijkse automated backups</li>
+<li>Retention: 30 dagen dagelijks, 12 maEnen maEnelijks</li>
+<li>Restore test maEnelijks uitgevoerd</li>
+<li>RTO (Recovery Time Objective): < 4 uur</li>
+<li>RPO (Recovery Point Objective): < 24 uur</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Uitwerking / Notities</h2>
+<p>Backup strategie:</p>
+<ul>
+<li>Database: Full + incremental backups</li>
+<li>Files: Versieed object storage</li>
+<li>Configuration: Git-based Versieing</li>
+<li>Encrypted off-site storage</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+<p>Geen conflicten geïdentificeerd.</p>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Develop backup en restore functionality interface component</li>
+<li>**Meetbaar**: < 200ms response time, WCAG AA compliance</li>
+<li>**Haalbaar**: Using Streamlit framework capabilities</li>
+<li>**Relevant**: Improves user experience en productivity</li>
+<li>**Tijdgebonden**: Aligned with UI epic completion milestone</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

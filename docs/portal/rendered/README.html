@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Definitie-app Documentatie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Definitie-app Documentatie</h1>
+
+<p>Welkom bij de centrale documentatie hub voor het Definitie-app project.</p>
+
+<h2>🧭 Navigatie</h2>
+
+<p>Start hier: <a href="./INDEX.md" target="_blank">INDEX.md</a> — centrale overzichtspagina voor alle documentatie.</p>
+
+<h2>🗂️ Documentatie Structuur</h2>
+
+<h3>[architectuur/](./architectuur/)</h3>
+<p>Canonical architecture documentatie (geconsolideerd September 2025)</p>
+<ul>
+<li>**[ENTERPRISE_ARCHITECTURE.md](./architectuur/ENTERPRISE_ARCHITECTURE.md)** - Business & strategic view</li>
+<li>**[SOLUTION_ARCHITECTURE.md](./architectuur/SOLUTION_ARCHITECTURE.md)** - Solution design patterns</li>
+<li>**[TECHNICAL_ARCHITECTURE.md](./architectuur/TECHNICAL_ARCHITECTURE.md)** - Implementatie details</li>
+<li>[templates/](./architectuur/templates/) - Architecture templates</li>
+<p><!-- ADRs zijn geïntegreerd in de canonical architecture documenten EA/SA/TA --></p>
+</ul>
+
+<h3>[technisch/](./technisch/)</h3>
+<p>Gedetailleerde technische documentatie</p>
+<ul>
+<li>Module analyses</li>
+<li>API specificaties</li>
+<li>Configuratie guides</li>
+<li>Error catalogus</li>
+</ul>
+
+<h3>[reviews/](./reviews/)</h3>
+<p>Code quality en review documentatie</p>
+<ul>
+<li>Code reviews</li>
+<li>Prestaties analyses</li>
+<li>Beveiliging assessments</li>
+</ul>
+
+<h3>[workflows/](./workflows/)</h3>
+<p>Development workflows en processen</p>
+<ul>
+<li>TDD to Uitrol workflow</li>
+<li>Validation orchestrator rollout</li>
+<li>Development guides</li>
+</ul>
+
+<h3>[guidelines/](./guidelines/)</h3>
+<p>Project-wide guidelines en standards (7 documenten)</p>
+<ul>
+<li>Documentation policies en standards</li>
+<li>Development workflows</li>
+<li>Agent guidelines</li>
+<li>AI configuration guides</li>
+</ul>
+
+<h3>[archief/](./archief/)</h3>
+<p>Historische documentatie en referentie materiaal</p>
+<ul>
+<li>[2025-09-architectuur-consolidatie/](./archief/2025-09-architectuur-consolidatie/) - Sept 2025 consolidatie (89 docs)</li>
+<li>Oude versies en legacy documentatie</li>
+</ul>
+
+<h3>stories/</h3>
+<p>User stories en epics</p>
+<ul>
+<li>Master epics en user stories document</li>
+<li>Episch Verhaal tracking en status</li>
+</ul>
+
+<h2>📍 Snelle Navigatie</h2>
+
+<p><strong>Voor Developers:</strong></p>
+<ul>
+<li>[Technical Documentation](./technisch/)</li>
+<li>[Architecture Documents](./architectuur/)</li>
+<li>[Development Workflows](./workflows/)</li>
+</ul>
+
+<p><strong>Voor Architecten:</strong></p>
+<ul>
+<li>[Enterprise Architecture](./architectuur/ENTERPRISE_ARCHITECTURE.md) - Business view</li>
+<li>[Solution Architecture](./architectuur/SOLUTION_ARCHITECTURE.md) - Solution design</li>
+<li>[Technical Architecture](./architectuur/TECHNICAL_ARCHITECTURE.md) - Tech stack</li>
+</ul>
+
+<p><strong>Voor Product Owners:</strong></p>
+<ul>
+<li>[Architecture Decisions](./architectuur/) - See EA/SA/TA documents</li>
+<li>Master Epische Verhalen & Stories - Single source of truth</li>
+<li>[Code Reviews](./reviews/) - Review documentatie</li>
+</ul>
+
+<p><strong>Voor Operations:</strong></p>
+<ul>
+<li>[TDD to Uitrol Werkstroom](./guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md) - Complete workflow</li>
+<li>[Web Lookup Config](./technisch/web_lookup_config.md) - Configuration guide</li>
+</ul>
+
+<h2>🎯 Belangrijke Documenten</h2>
+
+<ul>
+<li>Master TODO - Taken en planning (integrated in stories)</li>
+<li>Validation Rules - 46 toetsregels (see config/toetsregels/)</li>
+<li>6-Stappen Protocol - Definitie methodologie (archived)</li>
+</ul>
+
+<h2>✅ Consolidatie Status (September 2025)</h2>
+
+<p>Documentatie consolidatie is <strong>compleet</strong>:</p>
+<ul>
+<li>**89 architecture docs → 3 canonical documents**</li>
+<li>**Guidelines gecentraliseerd** in [/guidelines/](./guidelines/)</li>
+<li>**Templates gescheiden** van documentatie</li>
+<li>Zie [CANONICAL_LOCATIONS.md](./guidelines/CANONICAL_LOCATIONS.md) voor officiële locaties</li>
+</ul>
+
+<h2>🔍 Zoeken</h2>
+
+<p>Gebruik <code>grep -r "search term" .</code> OM door alle documentatie te zoeken.</p>
+
+<h2>📝 Bijdragen</h2>
+
+<ol>
+<li>Volg de canonieke locaties in [guidelines/CANONICAL_LOCATIONS.md](./guidelines/CANONICAL_LOCATIONS.md)</li>
+<li>Check eerst [guidelines/DOCUMENT-CREATION-WORKFLOW.md](./guidelines/DOCUMENT-CREATION-WORKFLOW.md)</li>
+<li>Vermijd het creëren van duplicaten - zoek eerst!</li>
+<li>Update deze README bij structuur wijzigingen</li>
+</ol>
+
+<h2>📅 Laatste Update</h2>
+
+<p>5 September 2025 - Architectuur consolidatie compleet, guidelines gecentraliseerd</p>
+
+  </div>
+</body>
+</html>

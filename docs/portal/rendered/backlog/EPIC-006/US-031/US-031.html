@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CI‑security: Secrets‑scan en dependency‑audit (pip‑audit/safety)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-031</p>
+<p>epic: EPIC-006</p>
+<p>titel: CI‑security: Secrets‑scan en dependency‑audit (pip‑audit/safety)</p>
+<p>status: Nog te bepalen</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 3</p>
+<p>owner: devops-engineer</p>
+<p>sprint: sprint-37</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-12</p>
+<p>applies_to: definitie-app@current</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-006</li>
+<p>links:</p>
+<li>docs/backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md#testing--cicd</li>
+<p>---</p>
+</ul>
+
+<h1>US-031: CI‑security: Secrets‑scan en dependency‑audit (pip‑audit/safety)</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als DevOps engineer wil ik secrets‑scans en dependency‑audits in CI, zodat lekken en kwetsbaarheden vroegtijdig worden gedetecteerd.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>Specifiek: GitHub Actions job(s) voor detect‑secrets/ggshield en pip‑audit/safety.</li>
+<li>Meetbaar: pipeline faalt bij High severity; rapporten geüpload als artifacts.</li>
+<li>Acceptabel: extra jobtijd < 2m gemiddeld.</li>
+<li>Relevant: REQ‑006.</li>
+<li>Tijdgebonden: sprint‑37.</li>
+</ul>
+
+<h2>Implementatienotities</h2>
+<ul>
+<li>Workflow `.github/workflows/security.yml` met 2 jobs: `secrets-scan`, `deps-audit`.</li>
+<li>baseline file voor detect‑secrets in repo om false positives te whitelisten.</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>E2E: maak een testbranch met dummy secret → job moet falen.</li>
+<li>E2E: forceer kwetsbare dependency in virtualenv → audit moet detecteren.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>Jobs draaien op PR en main; badge/README sectie “Security Status” geüpdatet.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

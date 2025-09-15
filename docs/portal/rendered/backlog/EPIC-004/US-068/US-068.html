@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement Audit Trail Query for History Tab</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-068</p>
+<p>titel: Implement Audit Trail Query for History Tab</p>
+<p>epic: EPIC-004</p>
+<p>status: Open</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 3</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>owner: developer</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-045</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+</ul>
+
+<h1>US-068: Implement Audit Trail Query for History Tab</h1>
+
+<p><strong>Epic:</strong> EPIC-004 - User Interface</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> compliance officer of juridisch professional</p>
+<p><strong>wil ik</strong> de complete audit trail van definitie wijzigingen kunnen zien</p>
+<p><strong>zodat</strong> ik de evolutie van definities kan traceren en compliance kan aantonen</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>TODO in <code>ui/components/history_tab.py:72</code>:</p>
+<ul>
+<li>Implement audit trail query from definitie_geschiedenis table</li>
+</ul>
+
+<p>De UI toont nu placeholder data maar haalt geen echte audit trail op.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[ ] Audit trail toont alle wijzigingen van een definitie</li>
+<li>[ ] Inclusief: wie, wat, wanneer, waarom</li>
+<li>[ ] Filtering op datum range</li>
+<li>[ ] Filtering op type wijziging</li>
+<li>[ ] Filtering op gebruiker</li>
+<li>[ ] Export mogelijkheid (CSV/JSON)</li>
+</ul>
+
+<h3>Data Criteria</h3>
+<ul>
+<li>[ ] Query haalt data uit definitie_geschiedenis table</li>
+<li>[ ] Performance optimized met indices</li>
+<li>[ ] Pagination voor grote histories</li>
+<li>[ ] Soft deletes worden getoond</li>
+<li>[ ] Version diffs kunnen bekeken worden</li>
+</ul>
+
+<h3>UI Criteria</h3>
+<ul>
+<li>[ ] Timeline view van changes</li>
+<li>[ ] Expandable details per change</li>
+<li>[ ] Color coding voor type changes</li>
+<li>[ ] Search binnen history</li>
+<li>[ ] Compare versions side-by-side</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>History Query Service</h3>
+<pre><code>class AuditTrailService:
+    def get_definition_history(
+        self,
+        definition_id: int,
+        filters: HistoryFilters
+    ) -&gt; PaginatedHistory:
+        # Query definitie_geschiedenis
+        # Apply filters
+        # Format for display
+
+    def get_change_diff(
+        self,
+        version_a: int,
+        version_b: int
+    ) -&gt; VersionDiff:
+        # Compare two versions</code></pre>
+
+<h3>Database Query</h3>
+<pre><code>SELECT
+    dg.id,
+    dg.definitie_id,
+    dg.actie,
+    dg.oude_waarde,
+    dg.nieuwe_waarde,
+    dg.gebruiker,
+    dg.timestamp,
+    dg.reden
+FROM definitie_geschiedenis dg
+WHERE dg.definitie_id = ?
+ORDER BY dg.timestamp DESC
+LIMIT ? OFFSET ?</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Audit trail service geïmplementeerd</li>
+<li>[ ] Database queries geoptimaliseerd</li>
+<li>[ ] UI component toont echte data</li>
+<li>[ ] Filtering werkend</li>
+<li>[ ] Pagination geïmplementeerd</li>
+<li>[ ] Export functionaliteit</li>
+<li>[ ] Unit tests voor service</li>
+<li>[ ] Integration test met database</li>
+<li>[ ] Performance test (>1000 history items)</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Performance grote histories | High | Indices + pagination |</p>
+<p>| Missing audit entries | High | Data integrity checks |</p>
+<p>| Privacy concerns | Medium | Role-based filtering |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Overweeg caching voor vaak bekeken histories</li>
+<li>Audit trail moet onveranderbaar zijn (append-only)</li>
+<li>Consider integration met externe audit systems</li>
+</ul>
+
+  </div>
+</body>
+</html>

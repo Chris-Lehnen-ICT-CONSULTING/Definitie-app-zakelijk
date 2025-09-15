@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Traceability Dashboard - DefinitieAgent</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Traceability Dashboard - DefinitieAgent</h1>
+
+<p><strong>Laatst Bijgewerkt:</strong> 08-09-2025 10:15</p>
+<p><strong>Compliance Status:</strong> ASTRA/NORA/GEMMA Compliant</p>
+<p><strong>Next Review:</strong> Sprint 37 Planning</p>
+
+<h2>Executive Metrics</h2>
+
+<h3>Overall Project Health</h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│ Vereisten Coverage:  78% (72/92)         │
+│ Stories Completed:      52% (45/86)         │
+│ Code Coverage:          67%                 │
+│ Technical Debt:         15%                 │
+│ Sprint Velocity:        18 points/sprint    │
+└─────────────────────────────────────────────┘</code></pre>
+
+<h2>Compliance Status</h2>
+
+<h3>ASTRA Framework Compliance</h3>
+<p>| Control | Status | Coverage | Evidence |</p>
+<p>|---------|--------|----------|----------|</p>
+<p>| ASTRA-SEC-001 | ✅ Compliant | 100% | REQ-001, REQ-002, REQ-004 |</p>
+<p>| ASTRA-SEC-002 | ✅ Compliant | 100% | REQ-003, REQ-044 |</p>
+<p>| ASTRA-QUA-001 | ✅ Compliant | 95% | REQ-019, REQ-023-029 |</p>
+<p>| ASTRA-PER-001 | ⚠️ Partial | 80% | REQ-008-012 |</p>
+<p>| ASTRA-DAT-001 | ✅ Compliant | 90% | REQ-078-082 |</p>
+
+<h3>NORA Principles Adherence</h3>
+<p>| Principle | Status | Implementatie | Gap |</p>
+<p>|-----------|--------|----------------|-----|</p>
+<p>| BP-07 Herbruikbaarheid | ✅ | Modular architecture | None |</p>
+<p>| BP-09 Transparantie | ✅ | Audit logging | None |</p>
+<p>| BP-11 Eenduidige begrippen | ✅ | Validation rules | None |</p>
+<p>| BP-12 Betrouwbaarheid | ⚠️ | Backup missing | REQ-047 |</p>
+<p>| BP-15 Vertrouwelijkheid | ✅ | Beveiliging impl | None |</p>
+
+<h3>Justice Sector Vereisten</h3>
+<p>| Organization | Requirement | Status | Blocker |</p>
+<p>|--------------|-------------|--------|---------|</p>
+<p>| DJI | SSO Integration | 🔴 Not Started | REQ-044 |</p>
+<p>| OM | Terminology Standards | ✅ Complete | None |</p>
+<p>| Rechtspraak | Case Integration | ⚠️ In Progress | REQ-020 |</p>
+<p>| Justid | Identity Management | 🔴 Blocked | REQ-044 |</p>
+
+<h2>Prioriteit Vereisten Status (Top 20)</h2>
+
+<h3>Critical Path Items (Blocking Production)</h3>
+<p>| REQ ID | Title | SMART Status | BDD Status | Implementatie | Risk |</p>
+<p>|--------|-------|--------------|------------|----------------|------|</p>
+<p>| REQ-044 | Justice SSO | ✅ Defined | ✅ Scenarios | 🔴 Not Started | <strong>HOOG</strong> |</p>
+<p>| REQ-047 | Backup/Restore | ✅ Defined | ⚠️ Partial | 🔴 Not Started | <strong>HOOG</strong> |</p>
+<p>| REQ-085 | PostgreSQL Migration | ⚠️ Partial | ❌ Missing | 🟡 Planning | <strong>GEMIDDELD</strong> |</p>
+
+<h3>Core Functionality (MVP Complete)</h3>
+<p>| REQ ID | Title | SMART Status | BDD Status | Implementatie | Coverage |</p>
+<p>|--------|-------|--------------|------------|----------------|----------|</p>
+<p>| REQ-001 | Auth & Authorization | ✅ Complete | ✅ Complete | 🟡 40% | <code>src/auth/</code> |</p>
+<p>| REQ-018 | GPT-4 Integration | ✅ Complete | ✅ Complete | ✅ 100% | <code>src/services/ai_service_v2.py</code> |</p>
+<p>| REQ-019 | Validation Pipeline | ✅ Complete | ✅ Complete | ✅ 100% | <code>src/services/validation/</code> |</p>
+<p>| REQ-023 | ARAI Rules | ✅ Complete | ✅ Complete | ✅ 100% | <code>src/toetsregels/regels/arai_*.py</code> |</p>
+
+<h3>Prestaties Vereisten</h3>
+<p>| REQ ID | Metric | Target | Current | Status | Trend |</p>
+<p>|--------|--------|--------|---------|--------|-------|</p>
+<p>| REQ-008 | Response Time | <200ms | 185ms | ✅ Met | ↗️ |</p>
+<p>| REQ-009 | Concurrent Users | 100 | 75 | ⚠️ Close | → |</p>
+<p>| REQ-011 | Cache Hit Ratio | 80% | 65% | 🔴 Below | ↘️ |</p>
+<p>| REQ-012 | DB Query Time | <50ms | 45ms | ✅ Met | → |</p>
+
+<h2>Episch Verhaal Progress Tracking</h2>
+
+<h3>EPIC-001: Basis Definitie Generatie</h3>
+<pre><code>Progress: ████████████████████ 100%
+Stories:  5/5 Complete
+Req Coverage: 8/8 (100%)
+Code Coverage: 89%</code></pre>
+
+<h3>EPIC-002: Kwaliteitstoetsing</h3>
+<pre><code>Progress: ████████████████████ 100%
+Stories:  8/8 Complete
+Req Coverage: 19/19 (100%)
+Code Coverage: 92%</code></pre>
+
+<h3>EPIC-003: Content Verrijking</h3>
+<pre><code>Progress: ██████░░░░░░░░░░░░░░ 30%
+Stories:  1/3 Complete
+Req Coverage: 4/4 (100%)
+Code Coverage: 45%</code></pre>
+
+<h3>EPIC-007: Prestaties & Scaling</h3>
+<pre><code>Progress: ███████░░░░░░░░░░░░░ 35%
+Stories:  2/7 Complete
+Req Coverage: 20/20 (100%)
+Code Coverage: 58%</code></pre>
+
+<h2>Gebruikersverhaal BDD Coverage</h2>
+
+<h3>Stories with Complete BDD</h3>
+<p>| Story | Episch Verhaal | BDD Scenarios | Test Coverage | Status |</p>
+<p>|-------|------|---------------|---------------|--------|</p>
+<p>| US-001 | EPIC-001 | 4 scenarios | 95% | ✅ Complete |</p>
+<p>| US-002 | EPIC-001 | 3 scenarios | 88% | ✅ Complete |</p>
+<p>| US-006.2 | EPIC-006 | 3 scenarios | 82% | ✅ Complete |</p>
+
+<h3>Stories Needing BDD</h3>
+<p>| Story | Episch Verhaal | Prioriteit | Assignment |</p>
+<p>|-------|------|----------|------------|</p>
+<p>| US-003 | EPIC-001 | HOOG | Sprint 37 |</p>
+<p>| US-004.x | EPIC-004 | GEMIDDELD | Sprint 38 |</p>
+<p>| US-009.3 | EPIC-009 | LAAG | Backlog |</p>
+
+<h2>Code Component Mapping Summary</h2>
+
+<h3>High Coverage Components (>80%)</h3>
+<pre><code>src/services/
+├── definition_generator.py     [92%] → REQ-015, REQ-018
+├── validation/
+│   ├── orchestrator_v2.py     [89%] → REQ-019, REQ-032
+│   └── modular_service.py     [94%] → REQ-023-029
+└── ai_service_v2.py           [88%] → REQ-018, REQ-038</code></pre>
+
+<h3>Low Coverage Components (<60%)</h3>
+<pre><code>src/auth/                       [42%] → REQ-001, REQ-003, REQ-044
+src/backup/                     [0%]  → REQ-047 (Not implemented)
+src/services/web_lookup/        [55%] → REQ-020, REQ-039, REQ-040</code></pre>
+
+<h2>Sprint 37 Planning Recommendations</h2>
+
+<h3>Must Complete (Production Blockers)</h3>
+<ol>
+<li>**REQ-044**: Justice SSO Integration</li>
+</ol>
+<ul>
+<li>  - Estimated: 13 story points</li>
+<li>  - Afhankelijkheden: Justid access, certificates</li>
+<li>  - Risk: Delay blocks entire go-live</li>
+</ul>
+
+<ol>
+<li>**REQ-047**: Backup/Restore Implementatie</li>
+</ol>
+<ul>
+<li>  - Estimated: 8 story points</li>
+<li>  - Afhankelijkheden: Storage solution selection</li>
+<li>  - Risk: Data loss without backup</li>
+</ul>
+
+<h3>Should Complete (High Value)</h3>
+<ol>
+<li>**US-003**: Error Handling Enhancement</li>
+</ol>
+<ul>
+<li>  - Add BDD scenarios</li>
+<li>  - Improve coverage to 80%</li>
+<li>  - Estimated: 5 story points</li>
+</ul>
+
+<ol>
+<li>**REQ-011**: Cache Optimization</li>
+</ol>
+<ul>
+<li>  - Implement Redis layer</li>
+<li>  - Target 80% hit ratio</li>
+<li>  - Estimated: 8 story points</li>
+</ul>
+
+<h3>Could Complete (Nice to Have)</h3>
+<ol>
+<li>**US-004.x**: Remaining UI Tabs</li>
+</ol>
+<ul>
+<li>  - Complete tab activation</li>
+<li>  - Add BDD scenarios</li>
+<li>  - Estimated: 13 story points</li>
+</ul>
+
+<h2>Risk Matrix</h2>
+
+<h3>Critical Risks</h3>
+<p>| Risk | Impact | Probability | Mitigation |</p>
+<p>|------|--------|-------------|------------|</p>
+<p>| SSO not ready for go-live | HOOG | HOOG | Escalate to management, consider temporary auth |</p>
+<p>| Prestaties degradation at scale | HOOG | GEMIDDELD | Implement caching, load testing |</p>
+<p>| Data loss without backup | HOOG | LAAG | Prioritize REQ-047, manual backups |</p>
+
+<h3>Technical Debt Items</h3>
+<p>| Item | Impact | Effort | Prioriteit |</p>
+<p>|------|--------|--------|----------|</p>
+<p>| Duplicate validation code | GEMIDDELD | 5 SP | Sprint 38 |</p>
+<p>| Missing integration tests | HOOG | 8 SP | Sprint 37 |</p>
+<p>| Hardcoded configurations | LAAG | 3 SP | Sprint 39 |</p>
+
+<h2>Automated Metrics Collection</h2>
+
+<h3>Data Sources</h3>
+<ul>
+<li>**Coverage**: `pytest --cov` reports</li>
+<li>**Prestaties**: Prometheus/Grafana metrics</li>
+<li>**Compliance**: Automated ASTRA scanner</li>
+<li>**Progress**: Jira API integration</li>
+<li>**Code Quality**: SonarQube analysis</li>
+</ul>
+
+<h3>Update Frequency</h3>
+<ul>
+<li>**Real-time**: Prestaties metrics</li>
+<li>**Hourly**: Code coverage</li>
+<li>**Daily**: Compliance scans</li>
+<li>**Sprint**: Progress reports</li>
+</ul>
+
+<h2>Action Items</h2>
+
+<h3>Immediate (This Week)</h3>
+<ul>
+<li>[ ] Schedule SSO integration meeting with Justid team</li>
+<li>[ ] Create BDD scenarios for US-003</li>
+<li>[ ] Implement basic backup script as temporary solution</li>
+<li>[ ] Update REQ-085 with detailed PostgreSQL migration plan</li>
+</ul>
+
+<h3>Sprint 37</h3>
+<ul>
+<li>[ ] Complete SSO integration (REQ-044)</li>
+<li>[ ] Implement backup/restore (REQ-047)</li>
+<li>[ ] Achieve 80% cache hit ratio (REQ-011)</li>
+<li>[ ] Add BDD to 5 more user stories</li>
+</ul>
+
+<h3>Before Go-Live</h3>
+<ul>
+<li>[ ] 100% coverage on critical path vereisten</li>
+<li>[ ] All ASTRA controls validated</li>
+<li>[ ] Load testing completed with 200 concurrent users</li>
+<li>[ ] Disaster recovery plan tested</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Dashboard Eigenaar:</strong> Business Analyst - Justice Domain</p>
+<p><strong>Technical Eigenaar:</strong> Solution Architect</p>
+<p><strong>Review Cycle:</strong> Every Sprint Planning</p>
+<p><strong>Escalation:</strong> Product Eigenaar / Scrum Master</p>
+
+<p><em>This dashboard is automatically generated from source code analysis, test results, and requirement documents. For manual updates, edit the source vereisten and user stories directly.</em></p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-113: Implementeer Clarity Enhancement Service</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-113: Implementeer Clarity Enhancement Service</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> definitie enhancer  </p>
+<p><strong>Wil ik</strong> vage termen detecteren en verbeteren  </p>
+<p><strong>Zodat</strong> definities helderder en specifieker worden  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: MEDIUM  </p>
+<p><strong>Story Points</strong>: 5  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>⚠️ WAARSCHUWING</h2>
+<p>Deze functionaliteit is mogelijk achterhaald door EPIC-010 improvements. Evalueer of dit nog nodig is.</p>
+
+<h2>Business Context</h2>
+<p>Detecteert en verbetert vage terminologie in definities. Gebruikt pattern matching en vagueness scoring.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Detecteer vague patterns (enigszins, wellicht, etc.)</li>
+<li>[ ] Bereken vagueness score (0.0-1.0)</li>
+<li>[ ] Trigger enhancement bij score > 0.3</li>
+<li>[ ] Detecteer en fix cirkelredenering</li>
+<li>[ ] Vervang vage termen met specifieke alternatieven</li>
+</ul>
+
+<h2>Vagueness Patterns</h2>
+<pre><code>unclear_patterns = [
+    r"\b(enigszins|soms|wellicht|mogelijk|misschien)\b",
+    r"\b(enzovoort|etc\.?|enz\.?)\b",
+    r"\b(diverse|verschillende|meerdere)\b(?!\s+\w+)",
+    r"\b(dergelijke|soortgelijke)\b(?!\s+\w+)"
+]</code></pre>
+
+<h2>Scoring Algorithm</h2>
+<pre><code>vagueness_score = matches / max(len(text.split()), 1) * 10
+# Cap at 1.0</code></pre>
+
+<h2>Circular Reasoning Detection</h2>
+<ul>
+<li>Check: begrip komt >1 keer voor</li>
+<li>Fix: vervang 2e+ occurrence met "dit"</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Text analysis utilities</li>
+<li>Pattern matching engine</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Mogelijk deprecated door V2 prompt improvements</li>
+<li>Test tegen moderne output voordat implementeren</li>
+</ul>
+  </div>
+</body>
+</html>

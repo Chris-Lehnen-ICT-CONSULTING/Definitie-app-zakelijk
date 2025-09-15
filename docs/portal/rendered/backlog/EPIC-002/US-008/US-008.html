@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Container Wiring</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-007</li>
+<p>aangemaakt: 10-01-2025</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>epic: EPIC-002</p>
+<p>id: US-008</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: Voltooid</p>
+<p>status: GEREED</p>
+<p>story_points: 3</p>
+<p>titel: Container Wiring</p>
+<p>toegewezen_aan: development-team</p>
+<p>vereisten:</p>
+<li>REQ-020</li>
+<li>REQ-032</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-008: Container Wiring</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>As a</strong> developer</p>
+<p><strong>wil ik</strong> validatie services properly wired in the service container</p>
+<p><strong>zodat</strong> afhankelijkheid injection works correctly</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Service Registration</h3>
+<p><strong>gegeven</strong> the service container initializes</p>
+<p><strong>wanneer</strong> validatie services are needed</p>
+<p><strong>dan</strong> they are properly registered en available</p>
+
+<h3>Criterion 2: Dependency Resolution</h3>
+<p><strong>gegeven</strong> validatie service has Afhankelijkheden</p>
+<p><strong>wanneer</strong> the service is requested</p>
+<p><strong>dan</strong> all Afhankelijkheden are correctly injected</p>
+
+<h3>Criterion 3: Singleton Pattern</h3>
+<p><strong>gegeven</strong> multiple requests for validatie service</p>
+<p><strong>wanneer</strong> the service is accessed</p>
+<p><strong>dan</strong> the same instance is returned</p>
+<h3>Specific</h3>
+<p>De gebruiker moet exact [ACTIE] kunnen uitvoeren met [RESULTAAT]</p>
+
+<h3>Measurable</h3>
+<p>Response tijd < 2 seconden, Success rate > 99%, Gebruikerstevredenheid > 8/10</p>
+
+
+<h2>Technische Notities</h2>
+<ul>
+<li>Wiring in `src/services/container.py`</li>
+<li>ModularValidationService registered as singleton</li>
+<li>Afhankelijkheden include rule loader en config</li>
+<li>Lazy initialization for Prestaties</li>
+</ul>
+
+
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-002</li>
+</ul>
+<h2>Test Scenario's</h2>
+<ol>
+<li>Test service registration</li>
+<li>Verify afhankelijkheid injection</li>
+<li>Confirm singleton behavior</li>
+<li>Test lazy initialization</li>
+<li>ValiDatum circular afhankelijkheid prevention</li>
+</ol>
+
+<h2>Definitie van Gereed</h2>
+<ul>
+<li>[x] Code geïmplementeerd en reviewed</li>
+<li>[x] Unit tests written en passing</li>
+<li>[x] Integration tests passing</li>
+<li>[x] Documentation bijgewerkt</li>
+<li>[x] Acceptatiecriteria met</li>
+</ul>
+
+  </div>
+</body>
+</html>
