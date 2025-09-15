@@ -319,13 +319,13 @@ class DefinitionUIService:
                 "created_at": definitie.created_at,
                 "created_by": definitie.created_by,
                 "can_edit": self.workflow_service.can_change_status(
-                    definitie.status, "DRAFT"
+                    definitie.status, "draft"
                 ),
                 "can_review": self.workflow_service.can_change_status(
-                    definitie.status, "REVIEW"
+                    definitie.status, "review"
                 ),
                 "can_approve": self.workflow_service.can_change_status(
-                    definitie.status, "APPROVED"
+                    definitie.status, "established"
                 ),
             }
 
