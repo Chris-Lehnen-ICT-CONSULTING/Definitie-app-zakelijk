@@ -311,6 +311,14 @@ def scan_docs() -> list[dict]:
     for md in DOCS.rglob("*.md"):
         if any(part in EXCLUDE_DIRS for part in md.relative_to(DOCS).parts[:1]):
             continue
+        # Exclude archived handover documents from portal listings
+        rel_posix = md.relative_to(DOCS).as_posix()
+        low = rel_posix.lower()
+        if "archief/handovers/" in rel_posix:
+            continue
+        # Exclude any document with 'handover' in its relative path (case-insensitive)
+        if "handover" in low:
+            continue
         try:
             text = md.read_text(encoding="utf-8", errors="ignore")
         except Exception:
