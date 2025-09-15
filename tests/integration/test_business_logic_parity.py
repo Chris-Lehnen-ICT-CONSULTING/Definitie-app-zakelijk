@@ -39,7 +39,7 @@ class TestBusinessLogicParity:
 
     @pytest.mark.asyncio
     @patch('prompt_builder.stuur_prompt_naar_gpt')
-    @patch('config.config_loader.laad_toetsregels')
+    @patch('toetsregels.loader.load_toetsregels')
     async def test_validation_rules_consistency(
         self,
         mock_load_rules,
@@ -47,7 +47,7 @@ class TestBusinessLogicParity:
         mock_toetsregels
     ):
         """Test dat validatie regels consistent toegepast worden."""
-        mock_load_rules.return_value = mock_toetsregels
+        mock_load_rules.return_value = {"regels": mock_toetsregels}
 
         # Test cases met verschillende validatie scenarios
         test_cases = [

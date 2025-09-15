@@ -195,7 +195,7 @@ class CleaningService(CleaningServiceInterface):
         """
         try:
             # Test de opschoning configuratie door een simpele test
-            from config.config_loader import laad_verboden_woorden
+            from config.verboden_woorden import laad_verboden_woorden
 
             config = laad_verboden_woorden()
 
@@ -204,9 +204,12 @@ class CleaningService(CleaningServiceInterface):
                 logger.warning("Geen opschoning configuratie gevonden")
                 return False
 
-            verboden_lijst = (
-                config.get("verboden_woorden", []) if isinstance(config, dict) else []
-            )
+            if isinstance(config, dict):
+                verboden_lijst = config.get("verboden_woorden", [])
+            elif isinstance(config, list):
+                verboden_lijst = config
+            else:
+                verboden_lijst = []
             if not verboden_lijst:
                 logger.warning("Geen verboden woorden gevonden in configuratie")
                 return False

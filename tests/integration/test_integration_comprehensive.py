@@ -21,7 +21,7 @@ from document_processing.document_extractor import extract_text_from_file
 from utils.cache import cached, clear_cache, get_cache_stats
 from validation.sanitizer import get_sanitizer, sanitize_user_input
 
-from config.config_loader import laad_toetsregels
+from toetsregels.loader import load_toetsregels
 from config.config_manager import ConfigSection, get_config_manager
 
 # Mock generation functions
@@ -80,7 +80,7 @@ class IntegrationTestSuite:
 
         # Initialize core components
         self.toetser = ModularToetser()
-        self.toetsregels = laad_toetsregels()
+        self.toetsregels = load_toetsregels().get("regels", {})
         self.sanitizer = get_sanitizer()
 
     def run_scenario(self, scenario_name: str, test_function):
@@ -406,7 +406,7 @@ class TestErrorHandlingIntegration:
             # Step 2: Configuration loading with error
             try:
                 # Mock configuration error
-                with patch("config.config_loader.laad_toetsregels") as mock_loader:
+                with patch("toetsregels.loader.load_toetsregels") as mock_loader:
                     mock_loader.side_effect = FileNotFoundError("Config file not found")
 
                     rules = mock_loader()

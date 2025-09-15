@@ -78,7 +78,8 @@ class AIServiceV2(AIServiceInterface):
                 max_retries=getattr(api_config, "rate_limit_max_retries", 3),
             )
 
-        self.client = AsyncGPTClient(rate_limit_config=rate_limit_config)
+        self._rate_limit_config = rate_limit_config
+        self._client: AsyncGPTClient | None = None
         self.default_model = default_model
         self.use_cache = use_cache
         self._token_encoders = {}  # Cache encoders per model
@@ -86,6 +87,11 @@ class AIServiceV2(AIServiceInterface):
         # Initialize default model encoder if available
         if TIKTOKEN_AVAILABLE:
             self._get_or_create_encoder(self.default_model)
+
+    def _get_client(self) -> AsyncGPTClient:
+        if self._client is None:
+            self._client = AsyncGPTClient(rate_limit_config=self._rate_limit_config)
+        return self._client
 
     async def generate_definition(
         self,
@@ -150,7 +156,7 @@ class AIServiceV2(AIServiceInterface):
 
             # Make actual API call with timeout
             result = await asyncio.wait_for(
-                self.client.chat_completion(
+                self._get_client().chat_completion(
                     prompt=prompt,
                     model=model_to_use,
                     temperature=temperature,
