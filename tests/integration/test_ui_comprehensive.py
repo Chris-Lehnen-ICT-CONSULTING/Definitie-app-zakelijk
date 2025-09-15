@@ -161,9 +161,12 @@ except ImportError as e:
     class ContextSelector:
         def __init__(self):
             pass
-
-        def render_context_selection(self):
-            return {}
+        def render(self):
+            return {
+                "organisatorische_context": [],
+                "juridische_context": [],
+                "wettelijke_basis": [],
+            }
 
     def initialize_session_state():
         pass
@@ -247,44 +250,40 @@ class TestContextSelector:
     def test_context_selector_initialization(self):
         """Test context selector initialization."""
         assert self.context_selector is not None
-        assert hasattr(self.context_selector, "render_context_selection")
+        assert hasattr(self.context_selector, "render")
 
     def test_context_selection_rendering(self):
         """Test context selection rendering."""
         # Mock the render method to return test data
-        with patch.object(
-            self.context_selector, "render_context_selection"
-        ) as mock_render:
+        with patch.object(self.context_selector, "render") as mock_render:
             mock_render.return_value = {
-                "organisatorisch": ["DJI"],
-                "juridisch": ["Strafrecht"],
-                "wettelijk": ["Wetboek van Strafrecht"],
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "wettelijke_basis": ["Wetboek van Strafrecht"],
             }
 
-            context = self.context_selector.render_context_selection()
+            context = self.context_selector.render()
 
             assert context is not None
             assert isinstance(context, dict)
-            assert "organisatorisch" in context
-            assert "DJI" in context["organisatorisch"]
+            assert "organisatorische_context" in context
+            assert "DJI" in context["organisatorische_context"]
 
     def test_empty_context_handling(self):
         """Test handling of empty context selection."""
-        with patch.object(
-            self.context_selector, "render_context_selection"
-        ) as mock_render:
+        with patch.object(self.context_selector, "render") as mock_render:
             mock_render.return_value = {}
 
-            context = self.context_selector.render_context_selection()
+            context = self.context_selector.render()
 
             assert context == {}
 
     def test_context_validation(self):
         """Test context validation logic."""
         valid_contexts = [
-            {"organisatorisch": ["DJI"], "juridisch": ["Strafrecht"]},
-            {"organisatorisch": ["Politie"]},
-            {"juridisch": ["Bestuursrecht"], "wettelijk": ["AVG"]},
+            {"organisatorische_context": ["DJI"], "juridische_context": ["Strafrecht"]},
+            {"organisatorische_context": ["Politie"]},
+            {"juridische_context": ["Bestuursrecht"], "wettelijke_basis": ["AVG"]},
         ]
 
         for context in valid_contexts:

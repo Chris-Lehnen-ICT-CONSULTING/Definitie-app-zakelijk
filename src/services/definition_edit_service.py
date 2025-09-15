@@ -386,9 +386,14 @@ class DefinitionEditService:
         """
         try:
             # Search definitions
+            # Normalize filters: map legacy 'context' key to 'context_filter'
+            normalized_filters = dict(filters) if filters else {}
+            if 'context' in normalized_filters and 'context_filter' not in normalized_filters:
+                normalized_filters['context_filter'] = normalized_filters.pop('context')
+
             definitions = self.repository.search_with_filters(
                 search_term=search_term,
-                **filters if filters else {}
+                **normalized_filters
             )
             
             updates = []

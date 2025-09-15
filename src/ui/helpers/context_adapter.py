@@ -48,9 +48,9 @@ class ContextAdapter:
             Context dictionary compatible with legacy code
         """
         # First check if ContextManager has context
-        current_context = self.context_manager.get_current_context()
-        if current_context:
-            return current_context
+        current = self.context_manager.get_context()
+        if current is not None:
+            return current.to_dict()
 
         # Fallback to session state for backward compatibility
         context = {}
@@ -89,9 +89,9 @@ class ContextAdapter:
         context = self.get_from_session_state()
         if context:
             self.context_manager.set_context(
-                key="ui_session",
-                value=context,
+                context_data=context,
                 source=ContextSource.UI,  # Session state comes from UI
+                actor="ui",
             )
             logger.info("Synced session state to ContextManager")
 
@@ -107,18 +107,56 @@ class ContextAdapter:
         Returns:
             Merged context dictionary
         """
-        # Start with ContextManager's merged context
-        merged = self.context_manager.get_merged_context()
+        # Start with ContextManager context (if any)
+        merged: dict[str, Any] = {}
+        current = self.context_manager.get_context()
+        if current is not None:
+            merged.update(current.to_dict())
 
         # Add session state context (may override)
         session_context = self.get_from_session_state()
-        merged.update(session_context)
+        if session_context:
+            merged.update(session_context)
 
         # Add any additional context (highest priority)
         if additional_context:
             merged.update(additional_context)
 
         return merged
+
+    # Backward-compatible helper names used by UI code
+    def set_in_session_state(
+        self,
+        context_data: dict[str, Any],
+        source: ContextSource = ContextSource.UI,
+        actor: str = "ui",
+    ) -> None:
+        """Store provided context in the central manager.
+
+        This mirrors the previous pattern of updating st.session_state but
+        now routes through ContextManager for a single source of truth.
+        """
+        try:
+            self.context_manager.set_context(
+                context_data=context_data, source=source, actor=actor
+            )
+        except Exception as exc:
+            logger.error(f"Failed to set context in manager: {exc}")
+
+    def validate(self) -> tuple[bool, list[str]]:
+        """Lightweight validation hook for UI.
+
+        Returns (is_valid, messages). Uses ContextManager semantics: if current
+        context can be retrieved, consider it valid. UI-specific validation
+        remains in the component.
+        """
+        try:
+            current = self.context_manager.get_context()
+            _ = current.to_dict() if current is not None else {}
+            return True, []
+        except Exception as exc:
+            logger.warning(f"Context validation failed: {exc}")
+            return False, [str(exc)]
 
     def prepare_generation_request(self, begrip: str, **kwargs) -> dict[str, Any]:
         """

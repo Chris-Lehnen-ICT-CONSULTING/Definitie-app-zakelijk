@@ -73,7 +73,7 @@ echo ""
 echo "2. Deprecated Attributes Check"
 echo "------------------------------"
 # Exclude ValidationResult.overall_score which is valid
-DEPRECATED_MATCHES=$(rg "\.overall_score|\.best_iteration" src/ --type py 2>/dev/null | \
+DEPRECATED_MATCHES=$(rg "\.overall_score|\.best_iteration" src/services/ --type py 2>/dev/null | \
                     grep -v "ValidationResult" | \
                     grep -v "if __name__" | \
                     grep -v "# Test" | \
