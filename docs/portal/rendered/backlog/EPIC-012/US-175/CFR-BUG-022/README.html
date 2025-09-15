@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>`best_iteration` fallback in UI hoofdflow aanwezig</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: CFR-BUG-022</p>
+<p>titel: <code>best_iteration</code> fallback in UI hoofdflow aanwezig</p>
+<p>status: OPEN</p>
+<p>severity: HIGH</p>
+<p>gevonden_op: 2025-09-15</p>
+<p>component: ui</p>
+<p>---</p>
+
+<h1>CFR-BUG-022: `best_iteration` fallback in UI hoofdflow aanwezig</h1>
+
+<h2>Beschrijving</h2>
+<p>UI bevat nog checks/fallbacks op <code>best_iteration</code> buiten de legacy demo-tab, in strijd met V2-only beleid.</p>
+
+<h2>Verwacht Gedrag</h2>
+<p>Hoofdflow gebruikt uitsluitend V2-responses; <code>best_iteration</code> alleen in demo-tab onder flag.</p>
+
+<h2>Oplossing</h2>
+<p>Onderdeel van <a href="../US-175.md" target="_blank">US-175</a>: verwijder fallbacks; isoleer demo-tab.</p>
+
+<h2>Tests</h2>
+<ul>
+<li>Regex: `rg -n "\\bbest_iteration\\b" src | grep -v 'src/ui/components/orchestration_tab.py'` → 0</li>
+<li>UI smoke: render zonder legacy afhankelijkheid.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

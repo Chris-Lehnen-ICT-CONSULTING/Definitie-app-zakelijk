@@ -1156,7 +1156,9 @@
           "EPIC-010",
           "EPIC-011",
           "EPIC-013",
-          "EPIC-014"
+          "EPIC-014",
+          "EPIC-016",
+          "EPIC-017"
         ],
         "req": [
           "REQ-001",
@@ -3237,6 +3239,76 @@
       "rendered_url": "rendered/backlog/EPIC-004/US-136/US-136.html"
     },
     {
+      "id": "US-178",
+      "type": "DOC",
+      "title": "Drafts & versies in repository (get_or_create_draft, history, rollback)",
+      "path": "../backlog/EPIC-004/US-178/US-178.md",
+      "url": "../backlog/EPIC-004/US-178/US-178.md",
+      "status": "TODO",
+      "prioriteit": "HIGH",
+      "owner": "backend-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "2025-09",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-178.md",
+      "_refs": {
+        "us": [
+          "US-178"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-178/US-178.html"
+    },
+    {
+      "id": "US-177",
+      "type": "DOC",
+      "title": "UI Container introduceren en ServiceContainer ontkoppelen van UI",
+      "path": "../backlog/EPIC-004/US-177/US-177.md",
+      "url": "../backlog/EPIC-004/US-177/US-177.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "ui-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "refactor",
+      "sprint": "2025-09",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-177.md",
+      "_refs": {
+        "us": [
+          "US-177"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-177/US-177.html"
+    },
+    {
       "id": "US-067",
       "type": "DOC",
       "title": "Implement Expert Review Draft and Revalidation Features",
@@ -4596,11 +4668,11 @@
       "title": "Beheer & Configuratie Console",
       "path": "../backlog/EPIC-016/EPIC-016.md",
       "url": "../backlog/EPIC-016/EPIC-016.md",
-      "status": "Backlog",
+      "status": "Active",
       "prioriteit": "HOOG",
       "owner": "product-owner",
       "canonical": true,
-      "last_verified": "2025-09-13",
+      "last_verified": "2025-09-15",
       "applies_to": "definitie-app@current",
       "category": null,
       "sprint": null,
@@ -4616,13 +4688,13 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-161",
-          "US-162",
-          "US-163",
-          "US-164",
-          "US-165",
-          "US-166",
-          "US-167"
+          "US-181",
+          "US-182",
+          "US-183",
+          "US-184",
+          "US-185",
+          "US-186",
+          "US-187"
         ],
         "epic": [
           "EPIC-016"
@@ -4632,106 +4704,32 @@
       "rendered_url": "rendered/backlog/EPIC-016/EPIC-016.html"
     },
     {
-      "id": "US-163",
+      "id": null,
       "type": "DOC",
-      "title": "Validatieregels beheren (regels/gewichten/drempels)",
-      "path": "../backlog/EPIC-016/US-163/US-163.md",
-      "url": "../backlog/EPIC-016/US-163/US-163.md",
-      "status": "Backlog",
-      "prioriteit": "GEMIDDELD",
-      "owner": "validation",
-      "canonical": true,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
+      "title": "US-185: Configuratie auditlog en versiebeheer",
+      "path": "../backlog/EPIC-016/US-185/US-185.md",
+      "url": "../backlog/EPIC-016/US-185/US-185.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
       "sprint": null,
-      "story_points": "8",
+      "story_points": null,
       "completion": null,
       "target_release": null,
       "planning": {
         "sprint_number": null,
-        "priority_rank": 3,
+        "priority_rank": 5,
         "type_rank": 9
       },
       "parent_epic": "EPIC-016",
-      "parent_us": "US-163.md",
+      "parent_us": "US-185.md",
       "_refs": {
         "us": [
-          "US-163"
-        ],
-        "epic": [
-          "EPIC-016"
-        ],
-        "req": [
-          "REQ-094"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-016/US-163/US-163.html"
-    },
-    {
-      "id": "US-164",
-      "type": "DOC",
-      "title": "Contextopties beheren (organisaties/rechtsgebieden/wetgeving)",
-      "path": "../backlog/EPIC-016/US-164/US-164.md",
-      "url": "../backlog/EPIC-016/US-164/US-164.md",
-      "status": "Backlog",
-      "prioriteit": "GEMIDDELD",
-      "owner": "product-owner",
-      "canonical": true,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-016",
-      "parent_us": "US-164.md",
-      "_refs": {
-        "us": [
-          "US-164"
-        ],
-        "epic": [
-          "EPIC-016"
-        ],
-        "req": [
-          "REQ-095"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-016/US-164/US-164.html"
-    },
-    {
-      "id": "US-165",
-      "type": "DOC",
-      "title": "Configuratie auditlog en versiebeheer",
-      "path": "../backlog/EPIC-016/US-165/US-165.md",
-      "url": "../backlog/EPIC-016/US-165/US-165.md",
-      "status": "Backlog",
-      "prioriteit": "GEMIDDELD",
-      "owner": "architecture",
-      "canonical": true,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "3",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-016",
-      "parent_us": "US-165.md",
-      "_refs": {
-        "us": [
-          "US-165"
+          "US-185"
         ],
         "epic": [
           "EPIC-016"
@@ -4740,19 +4738,315 @@
           "REQ-096"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-165/US-165.html"
+      "rendered_url": "rendered/backlog/EPIC-016/US-185/US-185.html"
     },
     {
-      "id": "US-162",
+      "id": null,
       "type": "DOC",
-      "title": "Gate‑policy beheer (Approval Gate Policy)",
-      "path": "../backlog/EPIC-016/US-162/US-162.md",
-      "url": "../backlog/EPIC-016/US-162/US-162.md",
+      "title": "US-182: Gate‑policy beheer (Approval Gate Policy)",
+      "path": "../backlog/EPIC-016/US-182/US-182.md",
+      "url": "../backlog/EPIC-016/US-182/US-182.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-182.md",
+      "_refs": {
+        "us": [
+          "US-182"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-093"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-016/US-182/US-182.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-183: Validatieregels beheren (regels/gewichten/drempels)",
+      "path": "../backlog/EPIC-016/US-183/US-183.md",
+      "url": "../backlog/EPIC-016/US-183/US-183.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-183.md",
+      "_refs": {
+        "us": [
+          "US-183"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-094"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-016/US-183/US-183.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-184: Contextopties beheren (organisaties/rechtsgebieden/wetgeving)",
+      "path": "../backlog/EPIC-016/US-184/US-184.md",
+      "url": "../backlog/EPIC-016/US-184/US-184.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-184.md",
+      "_refs": {
+        "us": [
+          "US-184"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-095"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-016/US-184/US-184.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-181: Beheer‑tab UI (⚙️) met configuratiesecties",
+      "path": "../backlog/EPIC-016/US-181/US-181.md",
+      "url": "../backlog/EPIC-016/US-181/US-181.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-181.md",
+      "_refs": {
+        "us": [
+          "US-181"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-016/US-181/US-181.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-186: Configuratie import/export (JSON/YAML)",
+      "path": "../backlog/EPIC-016/US-186/US-186.md",
+      "url": "../backlog/EPIC-016/US-186/US-186.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-186.md",
+      "_refs": {
+        "us": [
+          "US-186"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-016/US-186/US-186.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-187: Autorisatie voor Beheer (beheerderrol)",
+      "path": "../backlog/EPIC-016/US-187/US-187.md",
+      "url": "../backlog/EPIC-016/US-187/US-187.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-016",
+      "parent_us": "US-187.md",
+      "_refs": {
+        "us": [
+          "US-187"
+        ],
+        "epic": [
+          "EPIC-016"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-016/US-187/US-187.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "EPIC-017: Iteratieve Verbeteringen (V2 Orchestrator)",
+      "path": "../backlog/EPIC-017/EPIC-017.md",
+      "url": "../backlog/EPIC-017/EPIC-017.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-15",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-017.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-061",
+          "US-170",
+          "US-188",
+          "US-189"
+        ],
+        "epic": [
+          "EPIC-012",
+          "EPIC-017"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-017/EPIC-017.html"
+    },
+    {
+      "id": "US-170",
+      "type": "DOC",
+      "title": "Koppel Orchestration-tab aan V2 Orchestrator (UI wiring)",
+      "path": "../backlog/EPIC-017/US-170/US-170.md",
+      "url": "../backlog/EPIC-017/US-170/US-170.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": "frontend-team",
+      "canonical": true,
+      "last_verified": "2025-09-15",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-017",
+      "parent_us": "US-170.md",
+      "_refs": {
+        "us": [
+          "US-170"
+        ],
+        "epic": [
+          "EPIC-017"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-017/US-170/US-170.html"
+    },
+    {
+      "id": "US-188",
+      "type": "DOC",
+      "title": "Iteration Controller voor V2 Orchestrator",
+      "path": "../backlog/EPIC-017/US-188/US-188.md",
+      "url": "../backlog/EPIC-017/US-188/US-188.md",
       "status": "Backlog",
       "prioriteit": "HOOG",
       "owner": "architecture",
       "canonical": true,
-      "last_verified": "2025-09-13",
+      "last_verified": "2025-09-15",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": null,
@@ -4764,127 +5058,57 @@
         "priority_rank": 2,
         "type_rank": 9
       },
-      "parent_epic": "EPIC-016",
-      "parent_us": "US-162.md",
+      "parent_epic": "EPIC-017",
+      "parent_us": "US-188.md",
       "_refs": {
         "us": [
-          "US-162"
+          "US-188"
         ],
         "epic": [
-          "EPIC-016"
-        ],
-        "req": [
-          "REQ-093"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-016/US-162/US-162.html"
-    },
-    {
-      "id": "US-167",
-      "type": "DOC",
-      "title": "Autorisatie voor Beheer (beheerderrol)",
-      "path": "../backlog/EPIC-016/US-167/US-167.md",
-      "url": "../backlog/EPIC-016/US-167/US-167.md",
-      "status": "Backlog",
-      "prioriteit": "GEMIDDELD",
-      "owner": "architecture",
-      "canonical": true,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 3,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-016",
-      "parent_us": "US-167.md",
-      "_refs": {
-        "us": [
-          "US-167"
-        ],
-        "epic": [
-          "EPIC-016"
+          "EPIC-017"
         ],
         "req": [
           "REQ-097"
         ]
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-167/US-167.html"
+      "rendered_url": "rendered/backlog/EPIC-017/US-188/US-188.html"
     },
     {
-      "id": "US-161",
+      "id": "US-189",
       "type": "DOC",
-      "title": "Beheer‑tab UI (⚙️) met configuratiesecties",
-      "path": "../backlog/EPIC-016/US-161/US-161.md",
-      "url": "../backlog/EPIC-016/US-161/US-161.md",
+      "title": "FeedbackBuilder V2 (Violation→Feedback mapping)",
+      "path": "../backlog/EPIC-017/US-189/US-189.md",
+      "url": "../backlog/EPIC-017/US-189/US-189.md",
       "status": "Backlog",
-      "prioriteit": "HOOG",
-      "owner": "frontend-team",
-      "canonical": true,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": "feature",
-      "sprint": null,
-      "story_points": "5",
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 2,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-016",
-      "parent_us": "US-161.md",
-      "_refs": {
-        "us": [
-          "US-161"
-        ],
-        "epic": [
-          "EPIC-016"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-016/US-161/US-161.html"
-    },
-    {
-      "id": "US-166",
-      "type": "DOC",
-      "title": "Configuratie import/export (JSON/YAML)",
-      "path": "../backlog/EPIC-016/US-166/US-166.md",
-      "url": "../backlog/EPIC-016/US-166/US-166.md",
-      "status": "Backlog",
-      "prioriteit": "LAAG",
+      "prioriteit": "KRITIEK",
       "owner": "architecture",
       "canonical": true,
-      "last_verified": "2025-09-13",
+      "last_verified": "2025-09-15",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": null,
-      "story_points": "3",
+      "story_points": "8",
       "completion": null,
       "target_release": null,
       "planning": {
         "sprint_number": null,
-        "priority_rank": 4,
+        "priority_rank": 1,
         "type_rank": 9
       },
-      "parent_epic": "EPIC-016",
-      "parent_us": "US-166.md",
+      "parent_epic": "EPIC-017",
+      "parent_us": "US-189.md",
       "_refs": {
         "us": [
-          "US-166"
+          "US-189"
         ],
         "epic": [
-          "EPIC-016"
+          "EPIC-017"
         ],
-        "req": []
+        "req": [
+          "REQ-097"
+        ]
       },
-      "rendered_url": "rendered/backlog/EPIC-016/US-166/US-166.html"
+      "rendered_url": "rendered/backlog/EPIC-017/US-189/US-189.html"
     },
     {
       "id": "EPIC-010",
@@ -5090,6 +5314,74 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-010/US-042/US-042.html"
+    },
+    {
+      "id": "US-171",
+      "type": "DOC",
+      "title": "Services async-only enforcement (verwijder sync-bridges)",
+      "path": "../backlog/EPIC-010/US-171/US-171.md",
+      "url": "../backlog/EPIC-010/US-171/US-171.md",
+      "status": "TODO",
+      "prioriteit": "HIGH",
+      "owner": "platform-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "refactor",
+      "sprint": "2025-09",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-171.md",
+      "_refs": {
+        "us": [
+          "US-171"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-171/US-171.html"
+    },
+    {
+      "id": "CFR-BUG-019",
+      "type": "BUG",
+      "title": "Sync-bridges aanwezig in services (event-loop bridging)",
+      "path": "../backlog/EPIC-010/US-171/CFR-BUG-019/README.md",
+      "url": "../backlog/EPIC-010/US-171/CFR-BUG-019/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-171",
+      "_refs": {
+        "us": [
+          "US-171"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-171/CFR-BUG-019/README.html"
     },
     {
       "id": "US-051",
@@ -5609,6 +5901,215 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-010/US-048/US-048.html"
+    },
+    {
+      "id": "US-172",
+      "type": "DOC",
+      "title": "UI-laaggrenzen afdwingen (geen Streamlit/UI-imports buiten src/ui)",
+      "path": "../backlog/EPIC-010/US-172/US-172.md",
+      "url": "../backlog/EPIC-010/US-172/US-172.md",
+      "status": "TODO",
+      "prioriteit": "HIGH",
+      "owner": "platform-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "refactor",
+      "sprint": "2025-09",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-172.md",
+      "_refs": {
+        "us": [
+          "US-172"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-172/US-172.html"
+    },
+    {
+      "id": "CFR-BUG-023",
+      "type": "BUG",
+      "title": "UI dependencies buiten UI (services/config/utils)",
+      "path": "../backlog/EPIC-010/US-172/CFR-BUG-023/README.md",
+      "url": "../backlog/EPIC-010/US-172/CFR-BUG-023/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-172",
+      "_refs": {
+        "us": [
+          "US-172"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-172/CFR-BUG-023/README.html"
+    },
+    {
+      "id": "US-173",
+      "type": "DOC",
+      "title": "CI-gates uitbreiden en scope fixen (legacy/laaggrenzen/async)",
+      "path": "../backlog/EPIC-010/US-173/US-173.md",
+      "url": "../backlog/EPIC-010/US-173/US-173.md",
+      "status": "TODO",
+      "prioriteit": "HIGH",
+      "owner": "devex-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "infra",
+      "sprint": "2025-09",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-173.md",
+      "_refs": {
+        "us": [
+          "US-171",
+          "US-172",
+          "US-173",
+          "US-175"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-173/US-173.html"
+    },
+    {
+      "id": "CFR-BUG-021",
+      "type": "BUG",
+      "title": "CI gate false positives (deprecated attributes scope)",
+      "path": "../backlog/EPIC-010/US-173/CFR-BUG-021/README.md",
+      "url": "../backlog/EPIC-010/US-173/CFR-BUG-021/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-173",
+      "_refs": {
+        "us": [
+          "US-173"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-173/CFR-BUG-021/README.html"
+    },
+    {
+      "id": "US-174",
+      "type": "DOC",
+      "title": "Workflow-status harmoniseren (ESTABLISHED) + doc-sync",
+      "path": "../backlog/EPIC-010/US-174/US-174.md",
+      "url": "../backlog/EPIC-010/US-174/US-174.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "domain-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "fix",
+      "sprint": "2025-09",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-174.md",
+      "_refs": {
+        "us": [
+          "US-174"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-174/US-174.html"
+    },
+    {
+      "id": "CFR-BUG-020",
+      "type": "BUG",
+      "title": "Status-inconsistentie (APPROVED vs ESTABLISHED) in services/doc",
+      "path": "../backlog/EPIC-010/US-174/CFR-BUG-020/README.md",
+      "url": "../backlog/EPIC-010/US-174/CFR-BUG-020/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-174",
+      "_refs": {
+        "us": [
+          "US-174"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-174/CFR-BUG-020/README.html"
     },
     {
       "id": "US-052",
@@ -7274,7 +7775,9 @@
       },
       "rendered_url": "rendered/backlog/requirements/REQ-097.html",
       "linked_epics": null,
-      "linked_stories": null
+      "linked_stories": [
+        "US-170"
+      ]
     },
     {
       "id": "REQ-050",
@@ -11900,6 +12403,41 @@
       "rendered_url": "rendered/backlog/EPIC-006/US-140/US-140.html"
     },
     {
+      "id": "US-176",
+      "type": "DOC",
+      "title": "SecurityMiddleware minimale integratie aan UI-zijde",
+      "path": "../backlog/EPIC-006/US-176/US-176.md",
+      "url": "../backlog/EPIC-006/US-176/US-176.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "security-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "security",
+      "sprint": "2025-09",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-006",
+      "parent_us": "US-176.md",
+      "_refs": {
+        "us": [
+          "US-176"
+        ],
+        "epic": [
+          "EPIC-006"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-006/US-176/US-176.html"
+    },
+    {
       "id": null,
       "type": "DOC",
       "title": "US-141: User authenticatie",
@@ -12569,7 +13107,8 @@
         "epic": [
           "EPIC-010",
           "EPIC-012",
-          "EPIC-014"
+          "EPIC-014",
+          "EPIC-017"
         ],
         "req": []
       },
@@ -12870,6 +13409,74 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-012/US-159/US-159.html"
+    },
+    {
+      "id": "US-175",
+      "type": "DOC",
+      "title": "Legacy Orchestrator isoleren (V2-only hoofdflow)",
+      "path": "../backlog/EPIC-012/US-175/US-175.md",
+      "url": "../backlog/EPIC-012/US-175/US-175.md",
+      "status": "TODO",
+      "prioriteit": "HIGH",
+      "owner": "core-services",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "refactor",
+      "sprint": "2025-09",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-175.md",
+      "_refs": {
+        "us": [
+          "US-175"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-012/US-175/US-175.html"
+    },
+    {
+      "id": "CFR-BUG-022",
+      "type": "BUG",
+      "title": "`best_iteration` fallback in UI hoofdflow aanwezig",
+      "path": "../backlog/EPIC-012/US-175/CFR-BUG-022/README.md",
+      "url": "../backlog/EPIC-012/US-175/CFR-BUG-022/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-175",
+      "_refs": {
+        "us": [
+          "US-175"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-012/US-175/CFR-BUG-022/README.html"
     },
     {
       "id": "EPIC-013",
@@ -27856,15 +28463,15 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 612,
-      "BUG": 9,
+      "DOC": 624,
+      "BUG": 14,
       "TEST": 24,
       "COMP": 6,
       "REQ": 99,
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-15T06:40:45Z"
+    "generated_at": "2025-09-15T08:28:12Z"
   },
   "sources": [
     "docs"
@@ -28161,6 +28768,9 @@
       ],
       "REQ-040": [
         "US-016"
+      ],
+      "REQ-097": [
+        "US-170"
       ],
       "REQ-088": [
         "US-051",

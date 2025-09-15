@@ -196,20 +196,6 @@ class FeatureFlags:
         return True
 
 
-def show_legacy_warning(component_name: str):
-    """Show a warning banner for legacy components.
-
-    Args:
-        component_name: Name of the legacy component
-    """
-    import streamlit as st
-
-    st.warning(
-        f"⚠️ **Legacy Component**: {component_name}\n\n"
-        f"This component is deprecated and will be removed in a future version. "
-        f"Please use the new V2 implementation instead."
-    )
-
 
 def guard_legacy_route(feature_flag: FeatureFlag):
     """Decorator to guard legacy routes with feature flags.

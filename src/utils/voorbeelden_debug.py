@@ -11,8 +11,6 @@ import uuid
 from datetime import UTC, datetime
 from functools import wraps
 
-import streamlit as st
-
 # Check if debug mode is enabled
 DEBUG_ENABLED = os.getenv("DEBUG_EXAMPLES", "false").lower() == "true"
 
@@ -99,7 +97,12 @@ class VoorbeeldenDebugger:
 
         logger.debug(f"[{generation_id}] Session State at {point}:")
 
-        # Check for voorbeelden in session state
+        # Check for voorbeelden in session state (UI only)
+        try:
+            st = __import__("streamlit")
+        except Exception:
+            logger.debug(f"[{generation_id}] Session state unavailable (no UI context)")
+            return
         if hasattr(st, "session_state"):
             relevant_keys = [
                 "voorbeelden",

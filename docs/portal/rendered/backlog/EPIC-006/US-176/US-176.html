@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SecurityMiddleware minimale integratie aan UI-zijde</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-176</p>
+<p>titel: SecurityMiddleware minimale integratie aan UI-zijde</p>
+<p>epic: EPIC-006</p>
+<p>status: TODO</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 3</p>
+<p>sprint: 2025-09</p>
+<p>type: security</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>owner: security-team</p>
+<p>---</p>
+
+<h1>US-176: SecurityMiddleware minimale integratie aan UI-zijde</h1>
+
+<p>Doel: basis security preflight op UI-entrypoints naar orchestrators zonder services te vervuilen.</p>
+
+<h2>Scope</h2>
+<ul>
+<li>`src/ui/**` entrypoints die orchestrator-calls doen: roep `get_security_middleware().validate_request(...)` aan met `ValidationRequest`.</li>
+<li>Logging/headers voor audit; geen service-injectie in services.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>Zichtbare usage in UI main pad; geen usages in `src/services/**`.</li>
+<li>Unit/integratietest: malafide input geblokkeerd; normale input toegestaan binnen latency-budget.</li>
+</ul>
+
+<h2>Taken</h2>
+<p>1) Voeg preflight call(s) toe rond generate/validate/export acties.</p>
+<p>2) Documenteer configuratie (env vars/flags) in bestaande security-epic docs.</p>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: mock middleware → verwacht gedrag.</li>
+<li>Integratie: smoke door UI-flow met/zonder security flag.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>
