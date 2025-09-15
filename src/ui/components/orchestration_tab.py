@@ -69,6 +69,11 @@ class OrchestrationTab:
             )
             return
 
+        # Always show archive notice when legacy tab is forced on
+        st.warning(
+            "⚠️ Legacy agent is gearchiveerd; gebruik V2‑iteraties (EPIC‑017)."
+        )
+
         if not self.DefinitieAgent:
             st.error("❌ Orchestration Agent niet beschikbaar")
             return
