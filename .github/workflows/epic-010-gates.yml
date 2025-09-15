@@ -33,9 +33,9 @@ jobs:
         run: |
           echo "Checking for deprecated attributes (services scope)..."
           # Scope checks to service layer to avoid false positives in validation/analysis/UI
-          VIOLATIONS=$(rg "\.overall_score" src/services/ --type py | \
+          VIOLATIONS=$(rg -n -P "^(?!\s*#).*\\.overall_score" src/services/ --type py | \
                       grep -v "ValidationResult" || true)
-          BI_VIOLATIONS=$(rg "\bbest_iteration\b" src/services/ --type py || true)
+          BI_VIOLATIONS=$(rg -n -P "^(?!\s*#).*\\bbest_iteration\\b" src/services/ --type py || true)
           
           if [ -n "$VIOLATIONS" ] || [ -n "$BI_VIOLATIONS" ]; then
             echo "❌ FAIL: Deprecated attributes found in services (.overall_score or .best_iteration)"
@@ -169,4 +169,3 @@ jobs:
           echo "  ✅ No asyncio.run in services"
           echo "  ✅ No streamlit imports in services"
           echo "  ⚠️ Sync wrappers being phased out (Sprint 37)"
-
