@@ -451,12 +451,32 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 correlation_id=corr,
                 metadata={"generation_id": generation_id},
             )
-            validation_result = await self.validation_service.validate_text(
+            raw_validation = await self.validation_service.validate_definition(
                 begrip=sanitized_request.begrip,
                 text=cleaned_text,
                 ontologische_categorie=sanitized_request.ontologische_categorie,
                 context=validation_context,
             )
+            # Normalize to dict for internal decisions
+            def _as_dict(v):
+                if isinstance(v, dict):
+                    return v
+                # Dataclass-like with attributes (e.g., ValidationResult)
+                is_ok = getattr(v, "is_valid", False)
+                # Prefer 'violations' attribute if present, else fallback to 'errors'
+                vio_list = getattr(v, "violations", None)
+                if vio_list is None:
+                    vio_list = getattr(v, "errors", []) or []
+                return {
+                    "is_acceptable": bool(is_ok),
+                    "violations": vio_list,
+                    "passed_rules": [],
+                    "detailed_scores": {},
+                    "version": "v2",
+                    "system": {},
+                }
+
+            validation_result = _as_dict(raw_validation)
 
             logger.info(
                 f"Generation {generation_id}: Validation complete (valid: {validation_result.get('is_acceptable', False)})"
@@ -486,12 +506,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     correlation_id=corr2,
                     metadata={"generation_id": generation_id, "enhanced": True},
                 )
-                validation_result = await self.validation_service.validate_text(
+                raw_validation = await self.validation_service.validate_definition(
                     begrip=sanitized_request.begrip,
                     text=enhanced_text,
                     ontologische_categorie=sanitized_request.ontologische_categorie,
                     context=enhanced_context,
                 )
+                validation_result = _as_dict(raw_validation)
 
                 cleaned_text = enhanced_text
                 was_enhanced = True
@@ -594,7 +615,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             return DefinitionResponseV2(
                 success=True,
                 definition=definition,
-                validation_result=validation_result,
+                validation_result=raw_validation,
                 metadata={
                     "generation_id": generation_id,
                     "duration": final_duration,
