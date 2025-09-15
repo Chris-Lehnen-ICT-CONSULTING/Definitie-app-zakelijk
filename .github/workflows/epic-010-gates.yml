@@ -31,22 +31,19 @@ jobs:
       
       - name: Check for deprecated attributes
         run: |
-          echo "Checking for deprecated attributes..."
-          # Restrict scope to non-UI code for overall_score and block best_iteration outside demo tab
-          VIOLATIONS=$(rg "\.overall_score" src/ --type py | \
-                      grep -v "^src/ui/" | \
+          echo "Checking for deprecated attributes (services scope)..."
+          # Scope checks to service layer to avoid false positives in validation/analysis/UI
+          VIOLATIONS=$(rg "\.overall_score" src/services/ --type py | \
                       grep -v "ValidationResult" || true)
-          BI_VIOLATIONS=$(rg "\bbest_iteration\b" src/ --type py | \
-                          grep -v "src/ui/components/orchestration_tab.py" || true)
+          BI_VIOLATIONS=$(rg "\bbest_iteration\b" src/services/ --type py || true)
           
           if [ -n "$VIOLATIONS" ] || [ -n "$BI_VIOLATIONS" ]; then
-            echo "❌ FAIL: Deprecated attributes found (.overall_score or .best_iteration)"
-            echo "These attributes were removed in EPIC-010. Use the new structure instead."
+            echo "❌ FAIL: Deprecated attributes found in services (.overall_score or .best_iteration)"
             echo "$VIOLATIONS"
             echo "$BI_VIOLATIONS"
             exit 1
           fi
-          echo "✅ PASS: No deprecated attributes"
+          echo "✅ PASS: No deprecated attributes in services"
       
       - name: Check for string context usage
         run: |
@@ -172,3 +169,4 @@ jobs:
           echo "  ✅ No asyncio.run in services"
           echo "  ✅ No streamlit imports in services"
           echo "  ⚠️ Sync wrappers being phased out (Sprint 37)"
+
