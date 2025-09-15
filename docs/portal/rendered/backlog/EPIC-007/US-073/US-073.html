@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rollback mechanisme voor hernoemscript (analyse/hernoem-naar-nederlands.py)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-073</p>
+<p>titel: Rollback mechanisme voor hernoemscript (analyse/hernoem-naar-nederlands.py)</p>
+<p>epic: EPIC-007</p>
+<p>status: Open</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 3</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: tooling-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>owner: developer</p>
+<p>type: tooling</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-006</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+</ul>
+
+<h1>US-073: Rollback mechanisme voor hernoemscript</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als ontwikkelaar wil ik dat het hernoemscript alle contentwijzigingen automatisch kan terugdraaien bij testfalen zodat de repository niet in een inconsistente toestand achterblijft.</p>
+
+<h2>Context en Herkomst</h2>
+<ul>
+<li>TODO in code: `scripts/analyse/hernoem-naar-nederlands.py:310` – “Rollback alle content wijzigingen”.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Script maakt vooraf een transactielog van alle gewijzigde bestanden (pad + originele inhoud hash).</li>
+<li>[ ] Bij falende tests/validatie worden alle gewijzigde bestanden hersteld naar de oorspronkelijke inhoud.</li>
+<li>[ ] Ook bestandsnaam-hernoemingen worden teruggedraaid (rename rollback).</li>
+<li>[ ] Droogloop modus (`--dry-run`) zonder wijzigingen, met diff-overzicht.</li>
+<li>[ ] Exit codes: 0 (succes), 1 (rollback uitgevoerd), 2 (onherstelbare fout).</li>
+</ul>
+
+<h2>Technische Uitwerking</h2>
+<ul>
+<li>Introduceer `ChangeSet` klasse met `apply()` en `rollback()`.</li>
+<li>Bewaar originele inhoud in tempdir met content hashes.</li>
+<li>Verifieer rollback met hashes en toon samenvatting.</li>
+</ul>
+
+<h2>Tests</h2>
+<ul>
+<li>Unit: wijzigingen toepassen en rollback, inclusief rename + content.</li>
+<li>Integratie: gesimuleerde testfailure triggert volledige rollback en schoon exit.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Rollback geïmplementeerd en gedocumenteerd (`--help`).</li>
+<li>[ ] Tests groen.</li>
+<li>[ ] CI job gebruikt `--dry-run` voor preview.</li>
+</ul>
+
+  </div>
+</body>
+</html>

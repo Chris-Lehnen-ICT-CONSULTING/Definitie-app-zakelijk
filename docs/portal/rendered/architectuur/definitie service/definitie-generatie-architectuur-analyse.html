@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>[GEARCHIVEERD] Definition Generation Architecture Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>applies_to: definitie-app@v2</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>canonical: false</p>
+<p>last_verified: 02-09-2025</p>
+<p>owner: architecture</p>
+<p>prioriteit: medium</p>
+<p>status: archived</p>
+<p>---</p>
+
+
+
+<h1>[GEARCHIVEERD] Definition Generation Architecture Analysis</h1>
+
+<p>Gearchiveerd ten gunste van de actuele Solution Architecture.</p>
+<p>Zie: <code>docs/architectuur/SOLUTION_ARCHITECTURE.md</code>.</p>
+
+<h2>Executive Summary</h2>
+
+<p>This analysis identifies significant architectural issues in the definition generation system, revealing multiple layers of abstraction, unused components, and abandoned code paths. The system appears to have evolved through multiple architectural approaches without proper cleanup, resulting in a complex and inefficient codebase.</p>
+
+<h2>Architecture Overview</h2>
+
+<h3>Intended Architecture Flow</h3>
+<pre><code>User Input → DefinitieChecker → DefinitieAgent → ServiceContainer → DefinitionOrchestrator → GPT</code></pre>
+
+<h3>Actual Architecture Flow</h3>
+<pre><code>User Input → DefinitieChecker → DefinitieAgent (legacy adapter) → ServiceContainer → DefinitionOrchestrator → prompt_builder (legacy) → GPT</code></pre>
+
+<h2>Key Findings</h2>
+
+<h3>1. Unused Code Components</h3>
+
+<h4>A. Enhancement Module (Never Used)</h4>
+<ul>
+<li>**File**: `src/services/definition_generator_enhancement.py`</li>
+<li>**Status**: Completely unused - no imports found</li>
+<li>**Purpose**: Intended for quality improvements, context integration, ontological enhancement</li>
+<li>**Classes**: `EnhancementEngine`, `QualityEnhancer`, `ContextIntegrator`, `OntologicalEnhancer`</li>
+<li>**Impact**: ~800 lines of unused code</li>
+</ul>
+
+<h4>B. Hybrid Context Engine (Partially Used)</h4>
+<ul>
+<li>**File**: `src/hybrid_context/hybrid_context_engine.py`</li>
+<li>**Status**: Imported but never actually instantiated</li>
+<li>**Purpose**: Advanced context enrichment with multiple sources</li>
+<li>**Note**: The `HybridContextManager` tries to use it but falls back to placeholder implementation</li>
+</ul>
+
+<h4>C. Template System (Abandoned)</h4>
+<ul>
+<li>**Location**: `src/services/definition_generator_prompts.py`</li>
+<li>**Status**: Templates defined but mostly unused</li>
+<li>**Templates**:</li>
+<li> - `ontologie_type`, `ontologie_proces`, `ontologie_resultaat`, `ontologie_exemplaar`</li>
+<li> - Only `default` template occasionally used</li>
+<li>**Impact**: Complex template selection logic that always falls back to legacy</li>
+</ul>
+
+<h4>D. Unused Validation Components</h4>
+<ul>
+<li>**Files**:</li>
+<li> - `src/validation/dutch_text_validator.py` - No usage found</li>
+<li> - `src/validation/input_validator.py` - No imports</li>
+<li>**Purpose**: Intended for Dutch language validation and input sanitization</li>
+</ul>
+
+<h3>2. Architectural Decisions Leading to Abandonment</h3>
+
+<h4>A. Multiple Generation Approaches</h4>
+<ol>
+<li>**Legacy Approach**: `prompt_builder/prompt_builder.py` - Still in use</li>
+<li>**Services Approach**: `services/definition_generator_*` - Partially geïmplementeerd</li>
+<li>**Unified Approach**: `UnifiedDefinitionGenerator` - Started but abandoned</li>
+<li>**Orchestrator Approach**: `DefinitionOrchestrator` - Current but uses legacy internally</li>
+</ol>
+
+<h4>B. Adapter Pattern Overuse</h4>
+<ul>
+<li>`DefinitieAgent` acts as adapter for legacy interface</li>
+<li>`DefinitieGenerator` class is just a wrapper around `DefinitionOrchestrator`</li>
+<li>Multiple compatibility layers maintained for backward compatibility</li>
+</ul>
+
+<h4>C. Configuration Complexity</h4>
+<ul>
+<li>**UnifiedGeneratorConfig** with nested configs (GPTConfig, ContextConfig, etc.)</li>
+<li>Most configuration options ignored in actual implementation</li>
+<li>Default values hardcoded in multiple places</li>
+</ul>
+
+<h3>3. Code Flow Analysis</h3>
+
+<h4>Current Flow (Simplified)</h4>
+<pre><code># 1. Entry Point (definitie_checker.py)
+DefinitieChecker.generate_with_check()
+  ↓
+# 2. Legacy Adapter (definitie_agent.py)
+DefinitieAgent → DefinitieGenerator (adapter)
+  ↓
+# 3. Service Container
+ServiceContainer.orchestrator()
+  ↓
+# 4. Orchestrator (definition_orchestrator.py)
+DefinitionOrchestrator._generate_definition()
+  ↓
+# 5. Back to Legacy!
+prompt_builder.stuur_prompt_naar_gpt()</code></pre>
+
+<h4>Intended Flow (Never Realized)</h4>
+<pre><code># What the architecture suggests should happen:
+GenerationRequest → EnrichedContext → UnifiedPromptBuilder → GPT → Enhancement → Validation → Storage</code></pre>
+
+<h3>4. Specific Unused Components</h3>
+
+<h4>Service Layer</h4>
+<ul>
+<li>`ab_testing_framework.py` - A/B testing framework, no usage</li>
+<li>`definition_generator_cache.py` - Caching layer, superseded by utils/cache</li>
+<li>`definition_generator_monitoring.py` - Monitoring, no actual implementation</li>
+</ul>
+
+<h4>Domain Layer</h4>
+<ul>
+<li>Most files in `src/domain/` are data files with no actual usage in generation</li>
+<li>Ontological categories defined but not integrated into prompt building</li>
+</ul>
+
+<h4>Validation Rules</h4>
+<ul>
+<li>40+ rule files in `src/toetsregels/regels/`</li>
+<li>Only referenced by name in prompt builder, actual logic unused</li>
+</ul>
+
+<h3>5. Architectural Debt</h3>
+
+<h4>Circular Afhankelijkheden</h4>
+<ul>
+<li>Services import from prompt_builder (legacy)</li>
+<li>Prompt builder imports from services</li>
+<li>Hybrid context tries to import from services creating circular refs</li>
+</ul>
+
+<h4>Multiple Truth Sources</h4>
+<ul>
+<li>Configuration in multiple places</li>
+<li>Template selection logic duplicated</li>
+<li>Context parsing geïmplementeerd 3 different ways</li>
+</ul>
+
+<h4>Dead Code Paths</h4>
+<pre><code># Example from definition_generator_context.py
+async def _call_hybrid_engine(self, request):
+    # Placeholder voor hybrid context engine call
+    # In werkelijke implementatie zou dit een complexe AI context engine aanroepen
+    return {
+        "context_summary": f"Hybrid context voor {request.begrip}...",
+        "metadata": {"sources_used": ["documents", "knowledge_base", "rules"]}
+    }</code></pre>
+
+<h2>Recommendations</h2>
+
+<h3>1. Immediate Actions</h3>
+<ul>
+<li>Remove unused enhancement module</li>
+<li>Delete unused validation components</li>
+<li>Remove template system if staying with legacy prompt builder</li>
+</ul>
+
+<h3>2. Architectural Simplification</h3>
+<ul>
+<li>Choose ONE generation approach and remove others</li>
+<li>Eliminate adapter layers</li>
+<li>Consolidate configuration</li>
+</ul>
+
+<h3>3. Code Cleanup Prioriteit</h3>
+<ol>
+<li>`services/definition_generator_enhancement.py` - Delete entirely</li>
+<li>`services/definition_generator_prompts.py` - Keep only legacy builder</li>
+<li>`hybrid_context/*` - Either implement properly or remove</li>
+<li>`validation/dutch_text_validator.py` - Delete if not needed</li>
+</ol>
+
+<h3>4. Refactoring Strategy</h3>
+<ul>
+<li>Commit to either legacy or modern approach, not both</li>
+<li>If keeping modern services, actually use them</li>
+<li>If staying with legacy, remove service abstractions</li>
+</ul>
+
+<h2>Impact Analysis</h2>
+
+<h3>Prestaties Impact</h3>
+<ul>
+<li>Multiple abstraction layers add latency</li>
+<li>Unused imports slow startup</li>
+<li>Complex object creation for simple operations</li>
+</ul>
+
+<h3>Maintenance Impact</h3>
+<ul>
+<li>Developers confused by multiple approaches</li>
+<li>Bug fixes needed in multiple places</li>
+<li>Testen complexity increased</li>
+</ul>
+
+<h3>Technical Debt Metrics</h3>
+<ul>
+<li>**Unused Code**: ~3,000+ lines</li>
+<li>**Duplicate Logic**: 5+ implementations of same features</li>
+<li>**Dead Imports**: 20+ unused imports</li>
+<li>**Circular Afhankelijkheden**: 3 identified cycles</li>
+</ul>
+
+<h2>Conclusion</h2>
+
+<p>The definition generation architecture shows clear signs of abandoned refactoring efforts. Multiple architectural approaches were started but never completed, leaving a complex web of adapters, unused services, and legacy code. The system would benefit significantly from choosing a single architectural approach and removing all unused components.</p>
+
+  </div>
+</body>
+</html>

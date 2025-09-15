@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>validatie Time < 1s</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-010</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - SOLUTION_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-002</li>
+<li> - EPIC-007</li>
+<p>  stories:</p>
+<li> - US-2.1</li>
+<li> - US-7.4</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: Prestaties Targets section</li>
+<p>  path: CLAUDE.md</p>
+<li>line: validatie execution logic</li>
+<p>  path: src/services/validatie/modular_validation_service.py</p>
+<p>status: GEREED</p>
+<p>titel: validatie Time < 1s</p>
+<p>type: nonfunctional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-010: validatie Time < 1s</h1>
+
+<h2>Beschrijving</h2>
+
+<p>Het complete validatie proces met alle 45 toetsregels moet binnen 1 seconde voltooid zijn. Dit omvat regel executie, result aggregatie, en score berekening.</p>
+
+<h2>Rationale</h2>
+
+<p>Snelle validatie feedback is cruciaal voor een iteratief definitie ontwikkelingsproces. Gebruikers moeten direct zien welke aspecten verbetering behoeven.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+
+<ul>
+<li>45 validatie regels executie binnen 1000ms</li>
+<li>Parallel processing waar mogelijk (non-blocking rules)</li>
+<li>Incrementele validatie bij tekst wijzigingen</li>
+<li>Caching van ongewijzigde validatie resultaten</li>
+<li>Prestaties metrics per regel beschikbaar</li>
+<li>Automatische disabling van trage regels (> 100ms) met waarschuwing</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** Voer alle 45 validatieregels uit binnen 1 seconde met parallel processing</li>
+<li>**Meetbaar:**</li>
+<li> - Totale validatietijd: < 1000ms (95e percentiel)</li>
+<li> - Per regel timeout: 100ms max</li>
+<li> - Parallel execution: min 10 regels gelijktijdig</li>
+<li> - Cache hit ratio: > 80% voor ongewijzigde tekst</li>
+<li> - CPU gebruik: < 50% per validatie</li>
+<li> - Memory overhead: < 100MB per validatie</li>
+<li>**Acceptabel:** Async processing met ThreadPoolExecutor</li>
+<li>**Relevant:** Directe feedback essentieel voor iteratieve verbetering</li>
+<li>**Tijdgebonden:** Prestaties target bereikt in Sprint 2</li>
+</ul>
+
+
+<h2>BDD Test Scenario's</h2>
+
+<pre><code>Scenario: Validatie binnen 1 seconde voor normale definitie
+  Gegeven een definitie van 500 woorden
+  Wanneer alle 45 validatieregels worden uitgevoerd
+  Dan is de totale executietijd &lt; 1000ms
+  En worden minimaal 10 regels parallel verwerkt
+  En is de CPU usage &lt; 50%
+  En is het geheugengebruik &lt; 100MB
+
+Scenario: Timeout handling voor trage regel
+  Gegeven een validatieregel die 200ms duurt
+  Wanneer de regel wordt uitgevoerd
+  Dan wordt deze na 100ms getimeout
+  En wordt een waarschuwing gelogd
+  En gaan andere regels door met valideren
+  En wordt de regel als TIMEOUT gemarkeerd
+
+Scenario: Cache hit voor ongewijzigde tekst
+  Gegeven een eerder gevalideerde definitie
+  Wanneer dezelfde tekst opnieuw wordt gevalideerd
+  Dan wordt het cache resultaat gebruikt
+  En is de response tijd &lt; 50ms
+  En worden geen regels opnieuw uitgevoerd
+  En is de cache hit ratio &gt; 80%
+
+Scenario: Incrementele validatie bij kleine wijziging
+  Gegeven een definitie met 1 woord gewijzigd
+  Wanneer validatie wordt getriggerd
+  Dan worden alleen beïnvloede regels opnieuw uitgevoerd
+  En blijven andere resultaten gecached
+  En is de validatietijd &lt; 200ms
+
+Scenario: Prestaties onder load
+  Gegeven 10 gelijktijdige validatie requests
+  Wanneer alle requests worden verwerkt
+  Dan is de gemiddelde response tijd &lt; 1500ms
+  En is de 99e percentiel &lt; 2000ms
+  En worden alle requests succesvol afgehandeld</code></pre>
+
+<h2>Uitwerking / Notities</h2>
+
+<ul>
+<li>Huidige implementatie: ModularValidationService</li>
+<li>Rule execution in batches per prioriteit (HOOG/GEMIDDELD/LAAG)</li>
+<li>Async processing voor onafhankelijke regels</li>
+<li>Memoization van dure text analysis operaties</li>
+<li>Rule timeout van 100ms per regel</li>
+<li>Profiling shows: 80% tijd in text parsing, 20% in regel logica</li>
+<li>ThreadPoolExecutor met 10 workers voor parallelisatie</li>
+<li>LRU cache voor validatie resultaten (max 1000 entries)</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+
+<p>Geen conflicten geïdentificeerd</p>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Implement complete validatie time < 1s beveiliging control</li>
+<li>**Meetbaar**: Geen kwetsbaarheden in beveiligingsscans, 100% testdekking</li>
+<li>**Haalbaar**: Using established beveiliging libraries en patterns</li>
+<li>**Relevant**: KRITIEK voor justitiesector gegevensbeschermingscompliance</li>
+<li>**Tijdgebonden**: Must be operational before productie deployment</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

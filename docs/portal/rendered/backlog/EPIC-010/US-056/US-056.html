@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Remove Legacy Session State Management System</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-056</p>
+<p>epic: EPIC-010</p>
+<p>titel: Remove Legacy Session State Management System</p>
+<p>canonical: true</p>
+<p>status: todo</p>
+<p>owner: developer-implementer</p>
+<p>last_verified: 2025-09-09</p>
+<p>applies_to: definitie-app@v1.1</p>
+<p>type: technical_debt</p>
+<p>priority: critical</p>
+<p>story_points: 13</p>
+<p>sprint: sprint-36</p>
+<p>dependencies: []</p>
+<p>created: 2025-09-09</p>
+<p>updated: 2025-09-09</p>
+<p>assigned_to: development-team</p>
+<p>---</p>
+
+<h1>US-056: Remove Legacy Session State Management System</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als een</strong> systeem architect</p>
+<p><strong>wil ik</strong> dat het legacy session state management systeem volledig verwijderd wordt</p>
+<p><strong>zodat</strong> er geen conflicten meer zijn tussen dual state systems en de applicatie stabiel functioneert</p>
+
+<h2>Context</h2>
+<p>Het huidige systeem heeft twee conflicterende state management systemen die tegelijkertijd opereren. Het legacy systeem in <code>tabbed_interface.py</code> conflicteert met het moderne ContextManager systeem, wat leidt tot race conditions, data corruptie, en de "Anders..." optie crash.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** Alle directe session state manipulatie uit UI componenten verwijderen</li>
+<li>**Meetbaar:**</li>
+<li> - 0 directe `st.session_state` aanroepen in UI layer</li>
+<li> - 100% state operaties via ContextManager</li>
+<li> - 0 "Anders..." optie crashes</li>
+<li>**Acceptabel:** Backward compatibility behouden voor bestaande data</li>
+<li>**Relevant:** Elimineert root cause van state conflicts</li>
+<li>**Tijdgebonden:** Compleet binnen Sprint 36 (5 dagen)</li>
+</ul>
+
+<h3>Criterion 1: Legacy Code Verwijdering</h3>
+<p><strong>Gegeven</strong> het legacy session state systeem bestaat in <code>tabbed_interface.py</code></p>
+<p><strong>Wanneer</strong> de refactoring compleet is</p>
+<p><strong>Dan</strong> zijn alle directe session state manipulaties verwijderd uit:</p>
+<ul>
+<li>Lines 641-662: `_cleanup_context_session_state()`</li>
+<li>Lines 678-790: Fallback implementatie</li>
+<li>Alle `st.session_state.org_context_values` references</li>
+<li>Alle `st.session_state.jur_context_values` references</li>
+<li>Alle `st.session_state.wet_basis_values` references</li>
+</ul>
+
+<h3>Criterion 2: ContextManager Adoptie</h3>
+<p><strong>Gegeven</strong> ContextManager is de goedgekeurde state management oplossing</p>
+<p><strong>Wanneer</strong> UI componenten context data nodig hebben</p>
+<p><strong>Dan</strong> gebruiken ze uitsluitend:</p>
+<pre><code>from services.context.context_manager import get_context_manager
+context_manager = get_context_manager()
+context_data = context_manager.get_context()</code></pre>
+
+<h3>Criterion 3: Geen Hardcoded Test Data</h3>
+<p><strong>Gegeven</strong> hardcoded test waardes vervuilen de productie code</p>
+<p><strong>Wanneer</strong> de cleanup compleet is</p>
+<p><strong>Dan</strong> zijn deze waardes volledig verwijderd:</p>
+<ul>
+<li>`["test", "testen", "rest"]`</li>
+<li>`["auto", "cargo", "inbraak"]`</li>
+<li>Alle andere hardcoded context waardes</li>
+</ul>
+
+<h3>Criterion 4: Feature Flag Protection</h3>
+<p><strong>Gegeven</strong> we moeten een veilige rollout garanderen</p>
+<p><strong>Wanneer</strong> de nieuwe implementatie deployed wordt</p>
+<p><strong>Dan</strong> is het beschermd door feature flags:</p>
+<pre><code>if feature_flags.is_enabled("unified_state_management"):
+    return self._use_context_manager()
+else:
+    return self._use_legacy_with_warning()</code></pre>
+
+<h3>Criterion 5: Audit Trail</h3>
+<p><strong>Gegeven</strong> ASTRA compliance vereist volledige traceerbaarheid</p>
+<p><strong>Wanneer</strong> context operaties uitgevoerd worden</p>
+<p><strong>Dan</strong> wordt elke operatie gelogd met:</p>
+<ul>
+<li>Timestamp</li>
+<li>User identifier</li>
+<li>Operation type</li>
+<li>Previous value</li>
+<li>New value</li>
+<li>Correlation ID</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Bestanden om te Wijzigen</h3>
+<ol>
+<li>**src/ui/tabbed_interface.py**</li>
+</ol>
+<ul>
+<li>  - Verwijder `_cleanup_context_session_state()` methode</li>
+<li>  - Verwijder legacy fallback in `_render_simplified_context_selector()`</li>
+<li>  - Vervang met ContextManager calls</li>
+</ul>
+
+<ol>
+<li>**src/ui/components/context_selector.py**</li>
+</ol>
+<ul>
+<li>  - Deprecate volledig (legacy component)</li>
+<li>  - Redirect naar enhanced_context_manager_selector</li>
+</ul>
+
+<ol>
+<li>**src/services/container.py**</li>
+</ol>
+<ul>
+<li>  - Ensure ContextManager is singleton</li>
+<li>  - Add proper initialization</li>
+</ul>
+
+<h3>Migration Strategy</h3>
+<pre><code>class StateManagementMigrator:
+    """Handles migration from legacy to unified state"""
+
+    def migrate_session_state(self):
+        """One-time migration of existing session state"""
+        legacy_keys = [
+            "org_context_values",
+            "jur_context_values",
+            "wet_basis_values"
+        ]
+
+        for key in legacy_keys:
+            if key in st.session_state:
+                # Migrate to ContextManager
+                self._migrate_to_context_manager(key, st.session_state[key])
+                # Remove from session state
+                del st.session_state[key]</code></pre>
+
+<h3>Monitoring Requirements</h3>
+<ul>
+<li>Track state conflict occurrences (target: 0)</li>
+<li>Monitor "Anders..." option success rate (target: 100%)</li>
+<li>Log migration completions</li>
+<li>Alert on any legacy state access attempts</li>
+</ul>
+
+<h2>Domain Requirements</h2>
+
+<h3>ASTRA Compliance</h3>
+<ul>
+<li>**Layered Architecture:** UI layer mag geen business logic bevatten</li>
+<li>**Service Orientation:** State management via service layer</li>
+<li>**Component Independence:** Geen tight coupling tussen UI en state</li>
+</ul>
+
+<h3>NORA Standards</h3>
+<ul>
+<li>**Traceability:** Alle state changes moeten geaudit worden</li>
+<li>**Transparency:** User moet kunnen zien welke context gebruikt wordt</li>
+<li>**Standardization:** Gebruik standaard patterns voor state management</li>
+</ul>
+
+<h3>Justice Chain Specifics</h3>
+<ul>
+<li>Context moet uitwisselbaar zijn met ketenpartners</li>
+<li>Audit trail moet 7 jaar bewaard blijven</li>
+<li>Geen persoonlijke data in state (AVG/GDPR)</li>
+</ul>
+
+<h2>Test Coverage Requirements</h2>
+
+<h3>Unit Tests</h3>
+<pre><code>def test_no_direct_session_state_access():
+    """Verify UI components don't access session state directly"""
+
+def test_context_manager_singleton():
+    """Ensure only one ContextManager instance exists"""
+
+def test_legacy_data_migration():
+    """Verify existing data migrates correctly"""
+
+def test_feature_flag_protection():
+    """Ensure feature flags work correctly"""</code></pre>
+
+<h3>Integration Tests</h3>
+<pre><code>def test_ui_context_manager_integration():
+    """Full flow from UI to ContextManager"""
+
+def test_anders_option_with_unified_state():
+    """Verify Anders... option works without crashes"""</code></pre>
+
+<h3>Performance Tests</h3>
+<ul>
+<li>State operations < 50ms</li>
+<li>No memory leaks during state transitions</li>
+<li>Concurrent access handling</li>
+</ul>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Alle legacy session state code verwijderd</li>
+<li>[ ] ContextManager volledig geïntegreerd</li>
+<li>[ ] Feature flags geïmplementeerd en getest</li>
+<li>[ ] Audit trail functioneert voor alle operaties</li>
+<li>[ ] Unit tests geschreven (>90% coverage)</li>
+<li>[ ] Integration tests passed</li>
+<li>[ ] Performance benchmarks gehaald</li>
+<li>[ ] Code review door architect goedgekeurd</li>
+<li>[ ] Security review completed</li>
+<li>[ ] Documentation updated</li>
+<li>[ ] Migration script getest</li>
+<li>[ ] Rollback plan gedocumenteerd</li>
+<li>[ ] Monitoring alerts configured</li>
+<li>[ ] ASTRA/NORA compliance geverifieerd</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+<ul>
+<li>ContextManager service moet operationeel zijn</li>
+<li>Feature flag framework moet geïmplementeerd zijn</li>
+<li>Audit service moet beschikbaar zijn</li>
+</ul>
+
+<h2>Risico's en Mitigaties</h2>
+
+<p>| Risico | Kans | Impact | Mitigatie |</p>
+<p>|--------|------|--------|-----------|</p>
+<p>| Data verlies tijdens migratie | Laag | Hoog | Backup + parallel operation |</p>
+<p>| Gebruikers ervaren breaking changes | Medium | Medium | Feature flags + communication |</p>
+<p>| Performance degradatie | Laag | Medium | Benchmarking + optimization |</p>
+<p>| Incomplete migratie | Laag | Hoog | Automated validation checks |</p>
+
+<h2>Notities</h2>
+<ul>
+<li>Dit is een kritieke refactoring die de root cause van de "Anders..." bug oplost</li>
+<li>Moet zeer voorzichtig uitgevoerd worden met adequate testing</li>
+<li>Coördinatie met DevOps team vereist voor production rollout</li>
+<li>Consider paired programming voor kritieke secties</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Story Status:</strong> Ready for Development</p>
+<p><strong>Estimated Effort:</strong> 13 story points (1 sprint)</p>
+<p><strong>Business Value:</strong> Elimineert kritieke bugs en compliance issues</p>
+
+  </div>
+</body>
+</html>

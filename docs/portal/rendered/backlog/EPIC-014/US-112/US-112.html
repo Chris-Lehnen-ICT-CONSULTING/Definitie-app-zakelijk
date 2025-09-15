@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-112: Implementeer Voorbeelden Caching Strategy</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-112: Implementeer Voorbeelden Caching Strategy</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> performance optimizer  </p>
+<p><strong>Wil ik</strong> voorbeelden cachen tussen iteraties  </p>
+<p><strong>Zodat</strong> we 2-3 seconden per iteratie besparen  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: MEDIUM  </p>
+<p><strong>Story Points</strong>: 3  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Voorbeelden generatie kost ~2-3 seconden. Door deze alleen in iteratie 1 te genereren en te hergebruiken, besparen we significant op totale processing tijd.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Genereer voorbeelden alleen in eerste iteratie</li>
+<li>[ ] Store voorbeelden in `_first_iteration_voorbeelden`</li>
+<li>[ ] Hergebruik voorbeelden in iteraties 2 en 3</li>
+<li>[ ] Voorbeelden blijven consistent over alle iteraties</li>
+<li>[ ] Performance verbetering meetbaar (2-3 sec/iteratie)</li>
+</ul>
+
+<h2>Technical Implementation</h2>
+<pre><code>class VoorbeeldenCache:
+    def __init__(self):
+        self._cache = {}
+    
+    def get_or_generate(self, begrip, definitie, iteration):
+        cache_key = f"{begrip}_{hash(definitie[:50])}"
+        
+        if iteration == 1 or cache_key not in self._cache:
+            # Generate and cache
+            voorbeelden = self._generate_voorbeelden(begrip, definitie)
+            self._cache[cache_key] = voorbeelden
+            return voorbeelden
+        
+        # Return cached
+        return self._cache[cache_key]</code></pre>
+
+<h2>Performance Impact</h2>
+<ul>
+<li>Iteratie 1: ~5 seconden (met voorbeelden)</li>
+<li>Iteratie 2-3: ~2 seconden (zonder, gebruik cache)</li>
+<li>Totale besparing: 4-6 seconden per volledige run</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Voorbeelden generator service</li>
+<li>Iteration controller</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Cache key moet stabiel zijn maar definitie-specifiek</li>
+<li>Memory footprint minimal (max 3 definities in cache)</li>
+</ul>
+  </div>
+</body>
+</html>

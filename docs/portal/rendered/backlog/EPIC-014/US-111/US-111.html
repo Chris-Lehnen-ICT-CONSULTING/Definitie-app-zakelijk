@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-111: Implementeer Iterative Improvement Controller</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-111: Implementeer Iterative Improvement Controller</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> orchestrator  </p>
+<p><strong>Wil ik</strong> een intelligente iteratie controller met stop criteria  </p>
+<p><strong>Zodat</strong> definities iteratief verbeterd worden zonder infinite loops  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: CRITICAL  </p>
+<p><strong>Story Points</strong>: 8  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Dit is het hart van de DefinitieAgent - de iteratieve verbeterloop die definities verfijnt tot acceptabel niveau. Bevat intelligente stop criteria om nutteloze iteraties te voorkomen.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Maximum 3 iteraties (configureerbaar)</li>
+<li>[ ] Minimum improvement threshold: 0.05 per iteratie</li>
+<li>[ ] Best iteration tracking (hoogste score wint)</li>
+<li>[ ] Voorbeelden caching (alleen genereren in iteratie 1)</li>
+<li>[ ] Feedback history management (max 10 items, FIFO)</li>
+<li>[ ] Stagnatie detectie met automatische stop</li>
+<li>[ ] Early success exit bij acceptatie criteria</li>
+<li>[ ] Performance metrics tracking per iteratie</li>
+</ul>
+
+<h2>Technical Details</h2>
+
+<h3>Core Loop Implementation</h3>
+<pre><code>class IterativeImprovementController:
+    def __init__(self):
+        self.max_iterations = 3
+        self.improvement_threshold = 0.05
+        self.max_feedback_history = 10
+        
+    def run_improvement_loop(self, initial_context):
+        iterations = []
+        best_iteration = None
+        feedback_history = []
+        first_iteration_voorbeelden = None
+        
+        for i in range(1, self.max_iterations + 1):
+            # Generate definition
+            if i == 1:
+                result = generate_with_examples(context)
+                first_iteration_voorbeelden = result.voorbeelden
+            else:
+                result = generate_without_examples(context)
+                result.voorbeelden = first_iteration_voorbeelden  # Reuse!
+            
+            # Validate
+            validation = validate(result.definitie)
+            
+            # Track best
+            if not best_iteration or validation.score &gt; best_iteration.score:
+                best_iteration = IterationResult(result, validation)
+            
+            # Check success
+            if validation.is_acceptable:
+                return SuccessResult(best_iteration, f"Accepted at iteration {i}")
+            
+            # Check improvement (skip voor eerste iteratie)
+            if i &gt; 1:
+                improvement = validation.score - iterations[-1].validation.score
+                if improvement &lt; self.improvement_threshold:
+                    # Stagnatie gedetecteerd
+                    if improvement &lt; 0:
+                        log.warning(f"Score degraded by {-improvement}")
+                    else:
+                        log.warning(f"Insufficient improvement: {improvement}")
+            
+            # Prepare next iteration
+            if i &lt; self.max_iterations:
+                feedback = generate_feedback(validation, i)
+                feedback_history.extend(feedback)
+                # FIFO management
+                if len(feedback_history) &gt; self.max_feedback_history:
+                    feedback_history = feedback_history[-self.max_feedback_history:]
+                context.feedback_history = feedback_history
+            
+            iterations.append(IterationResult(result, validation))
+        
+        # Max iterations reached
+        return PartialSuccessResult(best_iteration, 
+                                   f"Max iterations ({self.max_iterations}) reached")</code></pre>
+
+<h3>Stagnation Detection</h3>
+<pre><code>def detect_stagnation(score_history):
+    if len(score_history) &lt; 2:
+        return False
+    
+    # Check laatste 2 scores
+    recent_scores = score_history[-2:]
+    score_diff = abs(recent_scores[1] - recent_scores[0])
+    
+    if score_diff &lt; 0.05:  # Stagnatie threshold
+        return True
+    
+    # Check voor oscillatie (score gaat op en neer)
+    if len(score_history) &gt;= 3:
+        if score_history[-1] &lt; score_history[-2] &lt; score_history[-3]:
+            return True  # Dalende trend
+    
+    return False</code></pre>
+
+<h3>Performance Optimizations</h3>
+<ol>
+<li>**Voorbeelden Caching**: </li>
+</ol>
+<ul>
+<li>  - Genereer alleen in iteratie 1</li>
+<li>  - Besparing: ~2-3 seconden per iteratie 2 & 3</li>
+</ul>
+
+<ol>
+<li>**Early Exit**:</li>
+</ol>
+<ul>
+<li>  - Stop zodra acceptatie criteria gehaald</li>
+<li>  - Stop bij stagnatie/degradatie</li>
+</ul>
+
+<ol>
+<li>**Feedback Limiting**:</li>
+</ol>
+<ul>
+<li>  - Max 10 items in history</li>
+<li>  - Voorkomt prompt bloat</li>
+</ul>
+
+<h2>Test Cases</h2>
+<ol>
+<li>Test happy path: acceptatie in iteratie 1</li>
+<li>Test improvement: iteratie 2 beter dan 1</li>
+<li>Test stagnatie: stop bij <0.05 improvement</li>
+<li>Test degradatie: beste iteratie behouden</li>
+<li>Test max iterations: stop na 3</li>
+<li>Test voorbeelden caching: zelfde voorbeelden in alle iteraties</li>
+<li>Test feedback FIFO: max 10 items</li>
+</ol>
+
+<h2>Performance Requirements</h2>
+<ul>
+<li>Iteratie 1: <5 seconden (incl. voorbeelden)</li>
+<li>Iteratie 2-3: <2 seconden (zonder voorbeelden)</li>
+<li>Totale loop: <10 seconden worst case</li>
+</ul>
+
+<h2>Configuration</h2>
+<pre><code># Bewezen optimale waarden uit productie
+ITERATION_CONFIG = {
+    "max_iterations": 3,           # Balans kwaliteit/performance
+    "improvement_threshold": 0.05,  # 5% minimum verbetering
+    "max_feedback_history": 10,     # Voorkom prompt overflow
+    "enable_caching": True          # Voorbeelden caching
+}</code></pre>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Definition generator (met/zonder voorbeelden)</li>
+<li>Validation engine</li>
+<li>Feedback builder</li>
+<li>Performance timer</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Core functionaliteit - uitgebreid testen vereist</li>
+<li>Voorbeelden caching is kritiek voor performance</li>
+<li>Best iteration tracking voorkomt kwaliteit regressie</li>
+</ul>
+  </div>
+</body>
+</html>

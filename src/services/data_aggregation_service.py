@@ -140,14 +140,57 @@ class DataAggregationService:
                 "status": definitie_record.status,
                 "versie": definitie_record.versie,
                 "categorie": definitie_record.categorie,
-                "juridische_context": definitie_record.juridische_context,
                 "datum_voorstel": definitie_record.created_at,
                 "voorsteller": definitie_record.created_by or "Systeem",
             }
 
-            # Context uit definitie record
-            if definitie_record.context:
-                export_data.context_dict = definitie_record.context
+            # Context uit definitie record (V2: drie lijsten)
+            import json as _json
+
+            def _parse_list(val) -> list[str]:
+                try:
+                    if not val:
+                        return []
+                    if isinstance(val, str):
+                        s = val.strip()
+                        if s.startswith("["):
+                            return list(_json.loads(s))
+                        # Split op komma voor legacy samengestelde strings
+                        parts = [p.strip() for p in s.split(",") if p.strip()]
+                        return parts or []
+                    if isinstance(val, list):
+                        return val
+                except Exception:
+                    return []
+                return []
+
+            org_list = _parse_list(getattr(definitie_record, "organisatorische_context", None))
+            jur_list = _parse_list(getattr(definitie_record, "juridische_context", None))
+            wet_raw = (
+                definitie_record.get_wettelijke_basis_list()
+                if hasattr(definitie_record, "get_wettelijke_basis_list")
+                else []
+            )
+            if isinstance(wet_raw, list):
+                wet_list = wet_raw
+            elif not wet_raw:
+                wet_list = []
+            else:
+                wet_list = [wet_raw]
+            # Indien legacy 'context' dict aanwezig is op record, geef die prioriteit voor export-compatibiliteit
+            legacy_ctx = getattr(definitie_record, "context", None)
+            if isinstance(legacy_ctx, dict) and legacy_ctx:
+                export_data.context_dict = legacy_ctx
+            else:
+                export_data.context_dict = {
+                    "organisatorisch": org_list,
+                    "juridisch": jur_list,
+                    "wettelijk": wet_list,
+                }
+            # Ook handige stringrepresentaties in metadata voor CSV
+            export_data.metadata["organisatorische_context"] = ", ".join(map(str, org_list))
+            export_data.metadata["juridische_context"] = ", ".join(map(str, jur_list))
+            export_data.metadata["wettelijke_basis"] = ", ".join(map(str, wet_list))
 
             # Timestamps
             export_data.created_at = definitie_record.created_at

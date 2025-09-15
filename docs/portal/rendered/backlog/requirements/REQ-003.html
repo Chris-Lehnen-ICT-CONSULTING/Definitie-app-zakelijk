@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Input validatie beveiliging</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-003</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - SOLUTION_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-002</li>
+<li> - EPIC-006</li>
+<p>  stories:</p>
+<li> - US-2.1</li>
+<li> - US-2.2</li>
+<li> - US-6.4</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: Input validatie logic</li>
+<p>  path: src/services/validatie/modular_validation_service.py</p>
+<li>line: 45 validatieregels</li>
+<p>  path: src/toetsregels/regels/</p>
+<p>status: GEREED</p>
+<p>titel: Input validatie beveiliging</p>
+<p>type: nonfunctional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-003: Input validatie beveiliging</h1>
+
+<h2>Beschrijving</h2>
+
+<p>Alle gebruikersinvoer moet strikt gevalideerd worden voordat deze wordt verwerkt. Dit omvat definitieteksten, zoektermen, en configuratie parameters. Validatie moet plaatsvinden op zowel client- als server-side.</p>
+
+<h2>Rationale</h2>
+
+<p>Ongevalideerde input is de belangrijkste oorzaak van beveiliging vulnerabilities zoals injection attacks, XSS, en buffer overflags. Strikte validatie voorkomt deze aanvallen.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+
+<ul>
+<li>Alle 45 toetsregels moeten actief zijn voor definitie validatie</li>
+<li>Input lengte beperking: max 10.000 karakters per definitie</li>
+<li>Whitelist benadering voor toegestane karakters (NederlEnse letters, cijfers, leestekens)</li>
+<li>Sanitization van HTML/JavaScript in alle text velden</li>
+<li>SQL parameterized queries voor alle database interacties</li>
+<li>Validatie response binnen 1 seconde</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** Valideer alle gebruikersinput tegen 45 toetsregels met sanitization</li>
+<li>**Meetbaar:**</li>
+<li> - 100% van input gevalideerd (0 unvalidated paths)</li>
+<li> - < 100ms validatie response tijd</li>
+<li> - 45/45 toetsregels actief en werkend</li>
+<li> - Max 10.000 karakters per definitie (hard limit)</li>
+<li> - 0 XSS/SQL injection vulnerabilities (OWASP scan)</li>
+<li> - > 99% legitieme input geaccepteerd</li>
+<li>**Acceptabel:** ModularValidationService met bestaande regel engine</li>
+<li>**Relevant:** Voorkomt security breaches en data corruptie</li>
+<li>**Tijdgebonden:** Volledig operationeel voor go-live (Sprint 2)</li>
+</ul>
+
+
+<h2>BDD Test Scenario's</h2>
+
+<pre><code>Scenario: Validatie van normale definitie input
+  Gegeven een gebruiker voert definitie in: "Een vonnis is een uitspraak van de rechter"
+  Wanneer de definitie wordt gevalideerd
+  Dan slagen alle 45 toetsregels
+  En wordt de definitie geaccepteerd binnen 100ms
+  En wordt een validatie score &gt; 0.95 gegeven
+
+Scenario: Blokkeren van XSS aanval
+  Gegeven een gebruiker voert in: "&lt;script&gt;alert('XSS')&lt;/script&gt;vonnis"
+  Wanneer de input wordt gevalideerd
+  Dan wordt de script tag gesanitized
+  En wordt de schone tekst "vonnis" verwerkt
+  En wordt een security waarschuwing gelogd
+  En krijgt de gebruiker een foutmelding
+
+Scenario: SQL injection preventie
+  Gegeven een definitie met SQL: "'; DROP TABLE definities; --"
+  Wanneer deze naar de database wordt geschreven
+  Dan wordt parameterized query gebruikt
+  En wordt de string als data behandeld, niet als SQL
+  En blijft de database intact
+  En wordt de poging gelogd met IP adres
+
+Scenario: Karakter limiet handhaving
+  Gegeven een definitie van 15.000 karakters
+  Wanneer de gebruiker probeert op te slaan
+  Dan wordt de input afgekeurd bij 10.001 karakters
+  En krijgt de gebruiker melding: "Definitie te lang (max 10.000)"
+  En wordt de eerste 10.000 karakters behouden als draft
+
+Scenario: Toetsregel validatie performance
+  Gegeven 100 gelijktijdige validatie requests
+  Wanneer alle 45 regels worden toegepast
+  Dan is de gemiddelde response tijd &lt; 100ms
+  En is de 95e percentiel &lt; 200ms
+  En worden alle regels parallel uitgevoerd</code></pre>
+
+<h2>Uitwerking / Notities</h2>
+
+<ul>
+<li>ModularValidationService implementeert alle validatie logica</li>
+<li>Toetsregels gedefinieerd in JSON + Python modules</li>
+<li>Client-side validatie in Streamlit UI als eerste verdedigingslinie</li>
+<li>Server-side validatie als authoritative check</li>
+<li>Logging van alle geweigerde input voor security monitoring</li>
+<li>OWASP Top 10 compliance checks</li>
+<li>Rate limiting: max 100 validaties per minuut per gebruiker</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+
+<p>Geen conflicten geïdentificeerd</p>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Implement complete input validatie beveiliging beveiliging control</li>
+<li>**Meetbaar**: Geen kwetsbaarheden in beveiligingsscans, 100% testdekking</li>
+<li>**Haalbaar**: Using established beveiliging libraries en patterns</li>
+<li>**Relevant**: KRITIEK voor justitiesector gegevensbeschermingscompliance</li>
+<li>**Tijdgebonden**: Must be operational before productie deployment</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

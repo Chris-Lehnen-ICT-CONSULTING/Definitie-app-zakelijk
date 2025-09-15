@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-010 Verfijnd Implementatieplan - Context Flow & Orchestration Fixes</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>EPIC-010 Verfijnd Implementatieplan - Context Flow & Orchestration Fixes</h1>
+
+<h2>Overzicht</h2>
+<p>Verfijnd actieplan op basis van review feedback.</p>
+
+<p><strong>Datum</strong>: 2025-01-10</p>
+<p><strong>Status</strong>: READY FOR IMPLEMENTATION</p>
+<p><strong>Geschatte doorlooptijd</strong>: 2-3 dagen</p>
+
+<p>---</p>
+
+<h2>Prioriteit 1: Voorbeelden UI Bug - Logging & Diagnose 🔴 KRITIEK</h2>
+
+<h3>Verfijnde Logging Implementatie</h3>
+
+<h4>Environment Flag Setup</h4>
+<pre><code># Start met debug logging
+DEBUG_EXAMPLES=true OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py</code></pre>
+
+<h4>Logging Points met Generation ID & Counts</h4>
+
+<pre><code># 1. src/services/orchestrators/definition_orchestrator_v2.py:439
+if os.getenv('DEBUG_EXAMPLES'):
+    logger.info(
+        "[EXAMPLES-A] V2 generated | gen_id=%s | begrip=%s | keys=%s | counts=%s",
+        generation_id,
+        sanitized_request.begrip,
+        list(voorbeelden.keys()) if isinstance(voorbeelden, dict) else "NOT_DICT",
+        {k: len(v) if isinstance(v, (list, str)) else "INVALID"
+         for k, v in (voorbeelden or {}).items()}
+    )
+
+# 2. src/services/service_factory.py:260
+if os.getenv('DEBUG_EXAMPLES'):
+    logger.info(
+        "[EXAMPLES-B] Adapter | gen_id=%s | metadata.voorbeelden=%s | ui_keys=%s",
+        metadata.get('generation_id'),
+        "present" if metadata.get("voorbeelden") else "missing",
+        list((voorbeelden or {}).keys()) if isinstance(voorbeelden, dict) else "NOT_DICT"
+    )
+
+# 3. src/ui/tabbed_interface.py - VOOR SessionStateManager.set_value
+if os.getenv('DEBUG_EXAMPLES'):
+    logger.info(
+        "[EXAMPLES-C] Pre-store | gen_id=%s | voorbeelden=%s | counts=%s",
+        agent_result.get('metadata', {}).get('generation_id'),
+        "present" if agent_result.get("voorbeelden") else "missing",
+        {k: len(v) if isinstance(v, (list, str)) else "INVALID"
+         for k, v in (agent_result.get("voorbeelden") or {}).items()}
+    )
+
+# 4. src/ui/tabbed_interface.py - NA SessionStateManager.set_value
+if os.getenv('DEBUG_EXAMPLES'):
+    stored = SessionStateManager.get_value("last_generation_result", {})
+    logger.info(
+        "[EXAMPLES-C2] Post-store | gen_id=%s | stored.voorbeelden=%s",
+        stored.get('metadata', {}).get('generation_id'),
+        "present" if stored.get("voorbeelden") else "missing"
+    )
+
+# 5. src/ui/components/definition_generator_tab.py:940
+if os.getenv('DEBUG_EXAMPLES'):
+    logger.info(
+        "[EXAMPLES-D] UI-render | gen_id=%s | voorbeelden=%s | counts=%s",
+        agent_result.get('metadata', {}).get('generation_id'),
+        "present" if voorbeelden else "missing",
+        {k: len(v) if isinstance(v, (list, str)) else "INVALID"
+         for k, v in (voorbeelden or {}).items()}
+    )</code></pre>
+
+<h3>Diagnose Protocol</h3>
+<ol>
+<li>Start app met `DEBUG_EXAMPLES=true`</li>
+<li>Genereer definitie voor "verdachte"</li>
+<li>Analyseer logs: A→B→C→C2→D</li>
+<li>Identificeer waar voorbeelden leeg wordt</li>
+</ol>
+
+<h3>Interpretatie Matrix</h3>
+<p>| Leeg bij | Oorzaak | Fix |</p>
+<p>|----------|---------|-----|</p>
+<p>| A | Generator probleem | Check unified_voorbeelden |</p>
+<p>| B | Metadata doorvoer | Check orchestrator→adapter |</p>
+<p>| C | Pre-store constructie | Check agent_result building |</p>
+<p>| C2 | State overschrijving | Check SessionState logic |</p>
+<p>| D | Render pad | Check conditionele UI logic |</p>
+
+<p>---</p>
+
+<h2>Prioriteit 2: Cache Strategy - Voorbereiding 🟡 BELANGRIJK</h2>
+
+<h3>Verfijnde Cache Key Design</h3>
+
+<pre><code>def _generate_cache_key(self, *args, **kwargs) -&gt; str:
+    """Generate robust cache key with versioning."""
+
+    # Extract key components
+    if args and hasattr(args[0], 'example_type'):
+        request = args[0]
+        key_parts = [
+            "v2",  # Version salt for schema changes
+            request.example_type.value,
+            hashlib.md5(request.begrip.lower().encode()).hexdigest()[:8],
+            hashlib.md5(request.definitie.encode()).hexdigest()[:8],
+            str(request.max_examples),
+            request.model or "default",
+            str(request.temperature or 0.7)[:3],
+            hashlib.md5(json.dumps(request.context_dict, sort_keys=True).encode()).hexdigest()[:8]
+        ]
+    else:
+        # Fallback for other cache uses
+        key_parts = [
+            "v2",
+            hashlib.md5(str(args).encode()).hexdigest()[:16],
+            hashlib.md5(json.dumps(kwargs, sort_keys=True, default=str).encode()).hexdigest()[:16]
+        ]
+
+    return "|".join(key_parts)</code></pre>
+
+<h3>Verfijnde TTL Matrix</h3>
+
+<pre><code>CACHE_TTL_BY_TYPE = {
+    ExampleType.SYNONIEMEN: 14400,      # 4 uur - zeer stabiel
+    ExampleType.ANTONIEMEN: 14400,      # 4 uur - zeer stabiel
+    ExampleType.VOORBEELDZINNEN: 3600,  # 1 uur - redelijk stabiel
+    ExampleType.PRAKTIJKVOORBEELDEN: 1800,  # 30 min - context gevoelig
+    ExampleType.TEGENVOORBEELDEN: 1800,     # 30 min - context gevoelig
+    ExampleType.TOELICHTING: 1800           # 30 min - zeer context specifiek
+}
+
+# Cache invalidatie bij schema changes
+CACHE_SCHEMA_VERSION = "2025-01-10-v1"  # Bump bij wijzigingen</code></pre>
+
+<h3>Cache Monitoring</h3>
+
+<pre><code>@dataclass
+class CacheMetrics:
+    hit_rate: float  # Target: &gt;40% voor synoniemen/antoniemen
+    avg_latency_ms: float  # Target: -20% vs baseline
+    type_distribution: dict[str, int]  # Verificatie geen cross-type hits</code></pre>
+
+<p>---</p>
+
+<h2>Prioriteit 3: Context Harmonisatie Fix 🟢 MINOR</h2>
+
+<h3>Concrete Fix</h3>
+
+<p><strong>File</strong>: <code>src/ui/tabbed_interface.py</code></p>
+<p><strong>Regels</strong>: 919-921</p>
+
+<pre><code># VOOR:
+contexten = {
+    "organisatorisch": org_context,
+    "juridisch": jur_context,
+    "wettelijk": context_data.get("wettelijke_basis", []),  # ❌ Inconsistent
+}
+
+# NA:
+contexten = {
+    "organisatorisch": org_context,
+    "juridisch": jur_context,
+    "wettelijk": wet_context,  # ✅ Consistent met prompt flow
+}</code></pre>
+
+<h3>Verificatie</h3>
+<ul>
+<li>Validatie module krijgt exact dezelfde context als prompt flow</li>
+<li>Geen functionele wijziging, alleen harmonisatie</li>
+</ul>
+
+<p>---</p>
+
+<h2>Prioriteit 4: Legacy Routes Documentatie & Feature Flags 🟢 DOCUMENTATIE</h2>
+
+<h3>Integration Checker Marking</h3>
+
+<pre><code># src/integration/definitie_checker.py
+ENABLE_LEGACY_AGENT = os.getenv('ENABLE_LEGACY_AGENT', 'false').lower() == 'true'
+
+def generate_definition(self, ...):
+    if ENABLE_LEGACY_AGENT:
+        # TODO: US-043/US-066 - Legacy DefinitieAgent pad
+        logger.warning("Using legacy DefinitieAgent - migrate to V2")
+        return self.agent.generate_definition(...)
+    else:
+        # V2 pad - standaard
+        return self.generate_with_integrated_service(...)</code></pre>
+
+<h3>Orchestration Tab UI Banner</h3>
+
+<pre><code># src/ui/components/orchestration_tab.py
+def render(self):
+    st.warning("⚠️ Legacy Orchestration Tab - Gebruik Definition Generator tab voor V2")
+
+    if not os.getenv('ENABLE_LEGACY_TAB', 'false').lower() == 'true':
+        st.info("Tab uitgeschakeld. Set ENABLE_LEGACY_TAB=true om te activeren.")
+        return
+
+    # Legacy rendering...</code></pre>
+
+<p>---</p>
+
+<h2>Design Notes</h2>
+
+<h3>Cache Key Ontwerp Rationale</h3>
+<ul>
+<li>**Version salt**: Schema wijzigingen invalideren oude entries</li>
+<li>**Hash lengtes**: 8 chars voor balans tussen uniqueness en key size</li>
+<li>**Context hash**: Voorkomt cache pollution bij verschillende contexts</li>
+<li>**Model/temp**: Verschillende modellen/temps = verschillende outputs</li>
+</ul>
+
+<h3>TTL Rationale</h3>
+<ul>
+<li>**Synoniemen/Antoniemen**: 4 uur - taal verandert niet snel</li>
+<li>**Voorbeeldzinnen**: 1 uur - redelijk stabiel</li>
+<li>**Praktijk/Tegen**: 30 min - context afhankelijk</li>
+<li>**Toelichting**: 30 min - zeer specifiek</li>
+</ul>
+
+<p>---</p>
+
+<h2>Acceptatiecriteria (Meetbaar)</h2>
+
+<h3>Voorbeelden Bug</h3>
+<ul>
+<li>✅ Logs tonen consistente keys/sizes door A→B→C→C2→D</li>
+<li>✅ UI toont alle 6 typen</li>
+<li>✅ Counts = DEFAULT_EXAMPLE_COUNTS</li>
+<li>✅ Generation ID consistent door hele flow</li>
+</ul>
+
+<h3>Cache (Bij Herinschakeling)</h3>
+<ul>
+<li>✅ Hit rate >40% voor synoniemen/antoniemen</li>
+<li>✅ P95 latency -20% vs baseline</li>
+<li>✅ Geen cross-type cache hits</li>
+<li>✅ Cache metrics dashboard beschikbaar</li>
+</ul>
+
+<h3>Stateless Services</h3>
+<ul>
+<li>✅ 0 streamlit imports in src/services/</li>
+<li>✅ CI check fail bij UI dependencies in services</li>
+<li>✅ Alle config via DI/constructor</li>
+</ul>
+
+<h3>Legacy Routes</h3>
+<ul>
+<li>✅ Feature flags default "false"</li>
+<li>✅ UI banners voor legacy tabs</li>
+<li>✅ 0 referenties naar DefinitieAgent in default flow</li>
+<li>✅ Monitoring voor legacy route gebruik</li>
+</ul>
+
+<p>---</p>
+
+<h2>Risico Mitigatie</h2>
+
+<h3>Test Impact</h3>
+<ul>
+<li>**Risico**: Tests falen door legacy removal</li>
+<li>**Mitigatie**: Pariteits-suite met V1/V2 vergelijking</li>
+</ul>
+
+<h3>Cache Herinschakeling</h3>
+<ul>
+<li>**Risico**: Performance regressie</li>
+<li>**Mitigatie**: Gradual rollout met monitoring</li>
+</ul>
+
+<h3>UI Voorbeelden</h3>
+<ul>
+<li>**Risico**: Fix breekt andere UI delen</li>
+<li>**Mitigatie**: Feature flag voor rollback</li>
+</ul>
+
+<p>---</p>
+
+<h2>CI/CD Checks</h2>
+
+<pre><code># .github/workflows/epic-010-checks.yml
+- name: Check No UI Dependencies in Services
+  run: |
+    if grep -r "import streamlit" src/services/; then
+      echo "ERROR: Streamlit imports found in services"
+      exit 1
+    fi
+
+- name: Check Legacy Routes Disabled
+  run: |
+    if ! grep "ENABLE_LEGACY_AGENT.*false" src/integration/definitie_checker.py; then
+      echo "ERROR: Legacy agent not disabled by default"
+      exit 1
+    fi</code></pre>
+
+<p>---</p>
+
+<h2>Volgende Stappen</h2>
+
+<ol>
+<li>**Vandaag**: Implementeer debug logging met env flag</li>
+<li>**Vandaag**: Run diagnose, rapporteer waar voorbeelden leeg wordt</li>
+<li>**Morgen**: Implementeer cache key/TTL design (niet activeren)</li>
+<li>**Morgen**: Apply context harmonisatie (1 regel)</li>
+<li>**Overmorgen**: Feature flags voor legacy routes</li>
+<li>**Later**: Activeer cache na succesvolle tests</li>
+</ol>
+
+  </div>
+</body>
+</html>

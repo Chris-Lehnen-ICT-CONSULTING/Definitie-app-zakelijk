@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Beheer & Configuratie Console</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-016</p>
+<p>titel: Beheer & Configuratie Console</p>
+<p>status: Backlog</p>
+<p>prioriteit: HOOG</p>
+<p>owner: product-owner</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-13</p>
+<p>stories:</p>
+<ul>
+<li>US-161</li>
+<li>US-162</li>
+<li>US-163</li>
+<li>US-164</li>
+<li>US-165</li>
+<li>US-166</li>
+<li>US-167</li>
+<p>---</p>
+</ul>
+
+<h1>EPIC-016: Beheer & Configuratie Console</h1>
+
+<h2>Doel</h2>
+<p>Één centrale UI‑tab om alle belangrijke variabelen en policies te beheren zonder codewijziging: gate‑policy, validatieregels, contextopties, audit en import/export.</p>
+
+<h2>Succescriteria</h2>
+<ul>
+<li>[ ] Alle variabelen via UI te beheren (met confirmatie en audit)</li>
+<li>[ ] Wijzigingen direct effectief (hot‑reload of veilige herlaad)</li>
+<li>[ ] Autoriseerbaar (beheerderrol in vervolg)</li>
+<li>[ ] Geen regressie in bestaande flows</li>
+</ul>
+
+<h2>Globale scope</h2>
+<ul>
+<li>UI‑tab “⚙️ Beheer” met subsecties</li>
+<li>Opslag in DB (config‑tabel) met audit trail en versies</li>
+<li>Minimale caching, hot‑reload support</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>EPIC‑004 (UI)</li>
+<li>EPIC‑012 (validation/orchestrator) – integratie voor validatieregels</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

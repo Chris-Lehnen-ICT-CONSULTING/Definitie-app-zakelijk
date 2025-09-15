@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DefinitionWorkflowService – combineer Workflow en Repository acties</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-072</p>
+<p>titel: DefinitionWorkflowService – combineer Workflow en Repository acties</p>
+<p>epic: EPIC-012</p>
+<p>status: Completed</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: backend-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>owner: architect</p>
+<p>type: refactor</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-015</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+</ul>
+
+<h1>US-072: DefinitionWorkflowService – combineer Workflow en Repository acties</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als developer wil ik één service die workflowtransities (review/approve/reject) afhandelt én de bijbehorende repository-updates en audit/event-publicatie verzorgt zodat UI-code geen losse services hoeft te coördineren en we consistente businessregels afdwingen.</p>
+
+<h2>Context en Herkomst</h2>
+<ul>
+<li>TODO in code: `src/ui/components/definition_generator_tab.py:896` – “In Phase 2, create a DefinitionWorkflowService that combines both”.</li>
+<li>EPIC-012 (Legacy Orchestrator Refactoring) richt zich op consolidatie van orchestration/business-logica.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Publieke API:</li>
+<li> - `submit_for_review(definition_id: int, user: str, notes: str) -> WorkflowResult`</li>
+<li> - `approve(definition_id: int, user: str, notes: str) -> WorkflowResult`</li>
+<li> - `reject(definition_id: int, user: str, reason: str) -> WorkflowResult`</li>
+<li>[ ] Valideert transities tegen businessregels (WorkflowService logica)</li>
+<li>[ ] Persistente statuswijziging via repository (atomair)</li>
+<li>[ ] Audit logging + (optioneel) event publishing (indien Event Bus actief)</li>
+<li>[ ] Retourneert gestandaardiseerde `WorkflowResult` met nieuwe status en metadata</li>
+<li>[ ] UI roept alleen deze service aan (geen directe repo-calls meer voor status)</li>
+</ul>
+
+<h2>Technische Uitwerking</h2>
+<h3>Service Contract</h3>
+<pre><code>@dataclass
+class WorkflowResult:
+    success: bool
+    new_status: str | None
+    updated_by: str | None
+    notes: str | None
+    events: list[str]
+
+class DefinitionWorkflowService:
+    def __init__(self, workflow_service, repository, event_bus=None, audit_logger=None): ...
+    def submit_for_review(self, definition_id: int, user: str, notes: str = "") -&gt; WorkflowResult: ...
+    def approve(self, definition_id: int, user: str, notes: str = "") -&gt; WorkflowResult: ...
+    def reject(self, definition_id: int, user: str, reason: str = "") -&gt; WorkflowResult: ...</code></pre>
+
+<h3>Migratie</h3>
+<ul>
+<li>UI: vervang in `definition_generator_tab.py` de directe repository-statuswijziging door `DefinitionWorkflowService` calls.</li>
+<li>Behoud backward compatibility met bestaande `WorkflowService` door interne compositie.</li>
+</ul>
+
+<h2>Tests</h2>
+<ul>
+<li>Unit: geldige/ongeldige transities, atomaire updates, audit/event aanroepen.</li>
+<li>Integratie: UI actie → service → statuswijziging & audit trail.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[x] Service geïmplementeerd met bovengenoemd contract</li>
+<li>[x] UI aangepast om nieuwe service te gebruiken</li>
+<li>[ ] Unit/integratietests groen (TODO: implementeer tests)</li>
+<li>[ ] Documentatie en sequentiediagram in EPIC-012 bijgewerkt</li>
+</ul>
+
+<h2>Implementatie Notities (2025-09-11)</h2>
+<ul>
+<li>DefinitionWorkflowService aangemaakt in `src/services/definition_workflow_service.py`</li>
+<li>ServiceContainer bijgewerkt met `definition_workflow_service()` methode</li>
+<li>UI code in `definition_generator_tab.py` gebruikt nu de nieuwe service</li>
+<li>Domein field references verwijderd (vervangen door juridische_context)</li>
+<li>Export service bijgewerkt om juridische_context te gebruiken i.p.v. domein</li>
+</ul>
+
+  </div>
+</body>
+</html>

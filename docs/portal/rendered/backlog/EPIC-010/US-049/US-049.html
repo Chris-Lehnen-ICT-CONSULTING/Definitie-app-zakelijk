@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Context Traceability for ASTRA compliance</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-041</li>
+<li>US-048</li>
+<p>aangemaakt: 05-09-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-010</p>
+<p>id: US-049</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: KRITIEK</p>
+<p>sprint: sprint-37</p>
+<p>status: Nog te bepalen</p>
+<p>story_points: 8</p>
+<p>titel: Add Context Traceability for ASTRA compliance</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: compliance</p>
+<p>vereisten:</p>
+<li>REQ-019</li>
+<li>REQ-037</li>
+<li>REQ-046</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-049: Add Context Traceability for ASTRA compliance</h1>
+
+<p><strong>Episch Verhaal:</strong> EPIC-001</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As an</strong> auditor for the Dutch justitieketen</p>
+<p><strong>wil ik</strong> complete traceability of all context decisions en transformations</p>
+<p><strong>zodat</strong> legal accountability is maintained en ASTRA compliance is demonstrable</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Context Input Logging</h3>
+<p><strong>gegeven</strong> context is provided in the UI</p>
+<p><strong>wanneer</strong> the user submits the request</p>
+<p><strong>dan</strong> all context fields are logged with timestamp en user identifier</p>
+
+<h3>Criterion 2: Transformation Tracking</h3>
+<p><strong>gegeven</strong> context is transformed between layers</p>
+<p><strong>wanneer</strong> any modification occurs</p>
+<p><strong>dan</strong> the transformation is logged with before/after states</p>
+
+<h3>Criterion 3: Prompt Inclusion Audit</h3>
+<p><strong>gegeven</strong> context is included in AI prompts</p>
+<p><strong>wanneer</strong> the prompt is constructed</p>
+<p><strong>dan</strong> an audit record shows exactly what context was sent to GPT-4</p>
+
+<h3>Criterion 4: Decision Traceability</h3>
+<p><strong>gegeven</strong> context influences definition generation</p>
+<p><strong>wanneer</strong> the definition is aangemaakt</p>
+<p><strong>dan</strong> a traceable link exists between context input en output</p>
+
+<h3>Criterion 5: auditspoor Query</h3>
+<p><strong>gegeven</strong> an audit investigation is needed</p>
+<p><strong>wanneer</strong> querying the auditspoor</p>
+<p><strong>dan</strong> complete context flag can be reconstructed for any definition</p>
+
+<h2>Domain vereisten</h2>
+
+<h3>ASTRA compliance (KRITIEK)</h3>
+<ul>
+<li>**Traceability**: End-to-end context tracking from UI to AI</li>
+<li>**Immutability**: Audit records cannot be modified or deleted</li>
+<li>**Completeness**: Every context interaction must be logged</li>
+<li>**Correlation**: Link audit records across system boundaries</li>
+<li>**Retention**: 7-year retention per justice vereisten</li>
+<li>**Prestaties**: Logging must not impact response time > 50ms</li>
+</ul>
+
+<h3>NORA StEnards</h3>
+<ul>
+<li>**Government Audit StEnards**: BIR 2012 compliance</li>
+<li>**Data Integrity**: Cryptographic signatures on audit records</li>
+<li>**Time Synchronization**: NTP-synchronized timestamps</li>
+<li>**Export Formats**: Support for stEnard audit formats (CEF, LEEF)</li>
+<li>**Privacy**: No PII in audit logs (tokenization required)</li>
+</ul>
+
+<h3>Justice Domain Specifics</h3>
+<ul>
+<li>**OM vereisten**: Openbaar Ministerie (OM) decision tracking</li>
+<li>**DJI StEnards**: detentie context accountability</li>
+<li>**Rechtspraak Needs**: Judicial review capability</li>
+<li>**Justid Integration**: Central audit repository sync</li>
+<li>**Chain Correlation**: Cross-organization audit correlation</li>
+</ul>
+
+<h3>Legal vereisten</h3>
+<ul>
+<li>**WBP/AVG**: Privacy law compliance</li>
+<li>**Archiefwet**: Government archive vereisten</li>
+<li>**Aanwijzingen**: Legal drafting traceability</li>
+<li>**EU Directives**: Cross-border audit stEnards</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Audit Architecture</h3>
+<pre><code>class ContextAuditService:
+    """ASTRA-compliant context auditspoor"""
+
+    def log_context_input(self, request_id: str, context: Dict) -&gt; AuditRecord:
+        """Log initial context from UI"""
+        record = AuditRecord(
+            id=generate_uuid(),
+            request_id=request_id,
+            timestamp=Datumtime.utcnow().isoformat(),
+            event_type="CONTEXT_INPUT",
+            actor=self.get_user_token(),  # Tokenized user ID
+            context_hash=self.hash_context(context),
+            context_metadata=self.extract_metadata(context),
+            system_state=self.capture_system_state()
+        )
+
+        # Cryptographic signature
+        record.signature = self.sign_record(record)
+
+        # Immutable storage
+        self.audit_store.append(record)
+
+        # Chain notification
+        self.notify_chain_partners(record)
+
+        return record
+
+    def trace_transformation(self,
+                           request_id: str,
+                           before: Dict,
+                           after: Dict,
+                           transformer: str) -&gt; AuditRecord:
+        """Track context transformations"""
+        # Implementatie...</code></pre>
+
+<h3>Audit Storage Schema</h3>
+<pre><code>CREATE TABLE context_audit_trail (
+    audit_id UUID PRIMARY KEY,
+    request_id UUID NOT NULL,
+    timestamp TIMESTAMP WITH TIME ZONE NOT NULL,
+    event_type VARCHAR(50) NOT NULL,
+    actor_token VARCHAR(256) NOT NULL,
+    context_hash VARCHAR(64) NOT NULL,
+    transformation_before JSONB,
+    transformation_after JSONB,
+    system_metadata JSONB NOT NULL,
+    signature VARCHAR(512) NOT NULL,
+    chain_correlation_id VARCHAR(128),
+
+    -- Indexes for query Prestaties
+    INDEX idx_request_id (request_id),
+    INDEX idx_timestamp (timestamp),
+    INDEX idx_event_type (event_type),
+    INDEX idx_chain_correlation (chain_correlation_id),
+
+    -- Immutability constraints
+    CHECK (signature IS NOT NULL),
+    -- No UPDatum or DELETE permissions granted
+) WITH (
+    -- PostgreSQL immutable table options
+    autovacuum_enabled = false,
+    toast_tuple_target = 0
+);</code></pre>
+
+<h3>Correlation Strategy</h3>
+<pre><code># Audit correlation configuration
+correlation:
+  chain_id_format: "JUSTICE-{org}-{year}-{sequence}"
+  organizations:
+    - code: OM
+      endpoint: https://audit.OM.nl/correlation
+    - code: DJI
+      endpoint: https://audit.DJI.nl/correlation
+    - code: RECHT
+      endpoint: https://audit.Rechtspraak.nl/correlation
+
+  sync:
+    interval: 300  # seconds
+    batch_size: 100
+    retry_policy:
+      max_attempts: 3
+      backoff: exponential</code></pre>
+
+<h3>Query Interface</h3>
+<pre><code>class AuditQueryService:
+    """Query interface for auditspoor"""
+
+    def reconstruct_context_flag(self, definition_id: str) -&gt; ContextFLAAG:
+        """Reconstruct complete context flag for a definition"""
+        # Get all audit records for the request
+        records = self.audit_store.query(
+            "SELECT * FROM context_audit_trail "
+            "WHERE request_id = %s "
+            "ORDER BY timestamp ASC",
+            [definition_id]
+        )
+
+        # Build timeline
+        flag = ContextFLAAG()
+        for record in records:
+            flag.add_event(
+                timestamp=record.timestamp,
+                event_type=record.event_type,
+                context_state=self.decrypt_context(record),
+                actor=record.actor_token
+            )
+
+        # Verify integrity
+        if not self.verify_chain_integrity(flag):
+            raise AuditIntegrityError("Audit chain compromised")
+
+        return flag</code></pre>
+
+<h2>testdekking vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Audit record creation</li>
+<li>Signature generation en verification</li>
+<li>Context hashing algorithms</li>
+<li>Metadata extraction</li>
+<li>Correlation ID generation</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>End-to-end auditspoor</li>
+<li>Database immutability</li>
+<li>Chain partner notifications</li>
+<li>Query Prestaties</li>
+<li>Export functionality</li>
+</ul>
+
+<h3>compliance Tests</h3>
+<ul>
+<li>ASTRA traceability vereisten</li>
+<li>BIR 2012 audit stEnards</li>
+<li>7-year retention verification</li>
+<li>Privacy compliance (no PII)</li>
+<li>Signature integrity</li>
+</ul>
+
+<h3>Prestaties Tests</h3>
+<ul>
+<li>< 50ms logging overhead</li>
+<li>Query response < 2s for 1M records</li>
+<li>Bulk export capabilities</li>
+<li>Concurrent write hEnling</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] ContextAuditService geïmplementeerd</li>
+<li>[ ] Immutable storage configured</li>
+<li>[ ] Cryptographic signatures working</li>
+<li>[ ] Context hashing geïmplementeerd</li>
+<li>[ ] Transformation tracking active</li>
+<li>[ ] Query interface operational</li>
+<li>[ ] Chain correlation working</li>
+<li>[ ] Export formats supported</li>
+<li>[ ] Unit tests > 95% coverage</li>
+<li>[ ] Integration tests passing</li>
+<li>[ ] Prestaties benchmarks met</li>
+<li>[ ] ASTRA compliance verified</li>
+<li>[ ] BIR 2012 stEnards met</li>
+<li>[ ] beveiliging review passed</li>
+<li>[ ] Chain partner validatie</li>
+<li>[ ] Documentatie compleet</li>
+<li>[ ] Monitoring dashboards active</li>
+<li>[ ] productie deployment successful</li>
+</ul>
+
+<h2>Risk Assessment</h2>
+
+<h3>Technical Risks</h3>
+<ul>
+<li>**Storage Growth**: auditspoor size</li>
+<li> - *Mitigation*: Archival strategy, compression</li>
+<li>**Prestaties Impact**: Logging overhead</li>
+<li> - *Mitigation*: Async logging, batching</li>
+<li>**Chain Sync Failure**: Partner system unavailability</li>
+<li> - *Mitigation*: Local queue, retry mechanism</li>
+</ul>
+
+<h3>compliance Risks</h3>
+<ul>
+<li>**Incomplete Audit**: Missing context events</li>
+<li> - *Mitigation*: Comprehensive instrumentation</li>
+<li>**Integrity Compromise**: Audit tampering</li>
+<li> - *Mitigation*: Cryptographic signatures, immutable storage</li>
+<li>**Privacy Violation**: PII in logs</li>
+<li> - *Mitigation*: Tokenization, data masking</li>
+</ul>
+
+<h2>Implementatie Prioriteit</h2>
+
+<p><strong>KRITIEK</strong> - Blocks:</p>
+<ul>
+<li>ASTRA compliance certification</li>
+<li>justitieketen integration approval</li>
+<li>productie deployment autorisatie</li>
+<li>Legal accountability vereisten</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<h3>External</h3>
+<ul>
+<li>PostgreSQL with immutable table support</li>
+<li>NTP time synchronization</li>
+<li>HSM for signature keys</li>
+<li>Chain partner audit endpoints</li>
+</ul>
+
+<h3>Internal</h3>
+<ul>
+<li>US-041: Context mapping (what to audit)</li>
+<li>US-048: Context validatie (validatie events)</li>
+<li>authenticatie service (user tokens)</li>
+<li>Configuration management</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>ASTRA compliance is mEnatory for justice systems</li>
+<li>BIR 2012 is the government audit stEnard</li>
+<li>7-year retention is legal vereiste</li>
+<li>Consider blockchain for future immutability</li>
+<li>EU stEnards required for cross-border cases</li>
+</ul>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>EPIC-010</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>This story is part of EPIC-010: Context FLAAG Refactoring (KRITIEK)</strong></p>
+
+  </div>
+</body>
+</html>

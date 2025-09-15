@@ -286,6 +286,25 @@ class ServiceContainer:
             )
         return self._instances["duplicate_detector"]
 
+    # ===== Approval Gate Policy (US-160) =====
+    def gate_policy(self):
+        """
+        Get or create GatePolicyService instance.
+
+        Loads approval gate policy (YAML) with lazy TTL caching.
+        """
+        if "gate_policy" not in self._instances:
+            from services.policies.approval_gate_policy import GatePolicyService
+
+            base_path = self.config.get(
+                "approval_gate_config_path", "config/approval_gate.yaml"
+            )
+            self._instances["gate_policy"] = GatePolicyService(base_path)
+            logger.info(
+                "GatePolicyService instance aangemaakt (config: %s)", base_path
+            )
+        return self._instances["gate_policy"]
+
     def workflow(self) -> WorkflowService:
         """
         Get of create WorkflowService instance.
@@ -318,12 +337,14 @@ class ServiceContainer:
             # Optional services (None for now, can be added later)
             event_bus = None  # Pending: integrate Event Bus when US-060 is delivered
             audit_logger = None  # Pending: integrate Audit Trail when US-068 is delivered
+            gate_policy_service = self.gate_policy()
             
             self._instances["definition_workflow_service"] = DefinitionWorkflowService(
                 workflow_service=workflow_service,
                 repository=repository,
                 event_bus=event_bus,
                 audit_logger=audit_logger,
+                gate_policy_service=gate_policy_service,
             )
             logger.info("DefinitionWorkflowService instance aangemaakt (US-072)")
         return self._instances["definition_workflow_service"]

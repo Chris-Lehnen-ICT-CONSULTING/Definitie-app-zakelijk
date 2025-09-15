@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>📋 Werkplan voor 10 Januari 2025</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>📋 Werkplan voor 10 Januari 2025</h1>
+
+<h2>🎯 Huidige Status</h2>
+<ul>
+<li>**V2 Migration**: ~65% compleet (geverifieerd)</li>
+<li>**Legacy Validation**: ✅ VERWIJDERD</li>
+<li>**Story 2.3**: ✅ Alle tests slagen</li>
+<li>**Story 2.4**: ✅ Alle tests slagen</li>
+<li>**Branch**: `feat/story-2.4-interface-migration`</li>
+</ul>
+
+<h2>🚀 Prioriteiten voor Morgen</h2>
+
+<h3>1. KRITISCH: End-to-End UI Test (30 min)</h3>
+<p><strong>Doel</strong>: Verifiëren dat voorbeelden en prompts correct werken in de UI</p>
+
+<pre><code># Start de applicatie
+python src/main.py
+
+# Test in browser:
+# 1. Maak nieuwe definitie
+# 2. Check of voorbeelden worden gegenereerd
+# 3. Verifieer dat prompt tekst zichtbaar is
+# 4. Test of alles werkt zonder legacy validator</code></pre>
+
+<p><strong>Waarom</strong>: We hebben veel refactoring gedaan maar nog geen runtime verificatie</p>
+
+<h3>2. Story 2.4 Voltooien (2-3 uur)</h3>
+
+<h4>A. DefinitionValidatorV2 Adapter Implementeren</h4>
+<p>Hoewel we legacy hebben verwijderd, kunnen we een clean V2 adapter maken voor toekomstige uitbreidbaarheid:</p>
+
+<pre><code># src/services/validation/definition_validator_v2.py
+class DefinitionValidatorV2:
+    """Clean V2 validator adapter voor toekomstige uitbreiding."""
+
+    def __init__(self, orchestrator: ValidationOrchestratorV2):
+        self.orchestrator = orchestrator
+
+    async def validate_definition(self, definition: Definition) -&gt; ValidationResult:
+        return await self.orchestrator.validate_definition(definition)</code></pre>
+
+<h4>B. API Endpoints Toevoegen (indien nodig)</h4>
+<pre><code># src/api/validation_api.py
+@app.post("/api/v2/validation/single")
+async def validate_single(request: ValidationRequest):
+    # V2 validation endpoint
+    pass
+
+@app.post("/api/v2/validation/batch")
+async def validate_batch(requests: List[ValidationRequest]):
+    # Batch validation endpoint
+    pass</code></pre>
+
+<h3>3. Story 2.5: Testen & QA Starten (2-3 uur)</h3>
+
+<p>Nu Story 2.4 praktisch klaar is, kunnen we Story 2.5 beginnen:</p>
+
+<h4>Checklist:</h4>
+<ul>
+<li>[ ] Prestaties benchmarks voor V2 vs legacy</li>
+<li>[ ] Integration tests voor complete flow</li>
+<li>[ ] Load testing voor batch operations</li>
+<li>[ ] Beveiliging audit van nieuwe endpoints</li>
+<li>[ ] Documentation update</li>
+</ul>
+
+<h3>4. Opruimen & Consolideren (1 uur)</h3>
+
+<h4>Te verwijderen/updaten:</h4>
+<ul>
+<li>[ ] DefinitionValidatorInterface uit interfaces.py verwijderen</li>
+<li>[ ] Alle test files die nog legacy references hebben</li>
+<li>[ ] Update README met nieuwe architectuur</li>
+<li>[ ] Clean up oude TODO comments</li>
+</ul>
+
+<h3>5. Feature Flags Implementeren (optioneel, 2 uur)</h3>
+
+<p>Voor productie rollout:</p>
+<pre><code># config/feature_flags.py
+FEATURE_FLAGS = {
+    "use_v2_validation": True,  # Nu altijd true!
+    "use_v2_orchestrator": True,
+    "enable_batch_processing": False,  # Voor later
+    "enable_parallel_validation": False  # Story 2.6
+}</code></pre>
+
+<h2>📊 Success Metrics voor Morgen</h2>
+
+<p>✅ <strong>Must Have</strong>:</p>
+<ul>
+<li>UI werkt volledig zonder legacy validator</li>
+<li>Voorbeelden en prompts zijn zichtbaar</li>
+<li>Alle tests blijven groen</li>
+</ul>
+
+<p>🎯 <strong>Should Have</strong>:</p>
+<ul>
+<li>Story 2.4 officieel afgesloten</li>
+<li>Story 2.5 gestart met eerste tests</li>
+<li>Prestaties baseline gemeten</li>
+</ul>
+
+<p>💡 <strong>Nice to Have</strong>:</p>
+<ul>
+<li>API endpoints werkend</li>
+<li>Feature flags systeem</li>
+<li>Documentatie bijgewerkt</li>
+</ul>
+
+<h2>🔧 Commando's voor Quick Start</h2>
+
+<pre><code># 1. Check huidige status
+git status
+pytest tests/services/test_modular_validation_service_contract.py -v
+pytest tests/services/orchestrators/test_validation_orchestrator_v2.py -v
+
+# 2. Start applicatie voor UI test
+python src/main.py
+
+# 3. Run complete test suite
+pytest -v
+
+# 4. Check coverage
+pytest --cov=src/services --cov-report=html</code></pre>
+
+<h2>💭 Overwegingen</h2>
+
+<ol>
+<li>**V2 is praktisch klaar** - Focus op polish en productie-readiness</li>
+<li>**Legacy is weg** - Geen tijd meer verspillen aan backwards compatibility</li>
+<li>**Tests slagen** - Nu focus op real-world testing</li>
+<li>**Prestaties** - Meet het verschil tussen oude en nieuwe implementatie</li>
+</ol>
+
+<h2>📝 Notes</h2>
+
+<ul>
+<li>Dashboard staat in: `reports/visualizations/validation-dashboard.html`</li>
+<li>Migration plan in: `docs/migration/remove-legacy-validation-plan.md`</li>
+<li>Overdracht docs in: `docs/handover/`</li>
+</ul>
+
+<p>---</p>
+<p><em>Geschatte tijd tot Story 2.4 completion: 3-4 uur</em></p>
+<p><em>Geschatte tijd tot V2 volledig production-ready: 2-3 dagen</em></p>
+
+  </div>
+</body>
+</html>

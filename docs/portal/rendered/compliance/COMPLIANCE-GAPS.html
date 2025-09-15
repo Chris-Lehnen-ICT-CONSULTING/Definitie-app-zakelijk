@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Compliance Gap Analysis</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>canonical: true</p>
+<p>status: active</p>
+<p>owner: architecture</p>
+<p>last_verified: 2025-09-08</p>
+<p>applies_to: definitie-app@v2</p>
+<p>document_type: gap-analysis</p>
+<p>---</p>
+
+<h1>Compliance Gap Analysis</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Dit document identificeert en analyseert compliance gaps in het DefinitieAgent project ten opzichte van justice sector standaarden (ASTRA, NORA), wettelijke vereisten (AVG, BIO, Wjsg), en organisatie-specifieke eisen (OM, DJI, Rechtspraak, Justid). De analyse toont kritieke gaps die productie-deployment kunnen blokkeren.</p>
+
+<h2>Gap Severity Levels</h2>
+
+<ul>
+<li>🔴 **KRITIEK**: Blokkeert productie deployment, wettelijke non-compliance</li>
+<li>🟠 **HOOG**: Significant risico, moet voor go-live opgelost zijn</li>
+<li>🟡 **MEDIUM**: Belangrijk voor volledige compliance, kan gefaseerd</li>
+<li>🟢 **LAAG**: Nice-to-have, optimalisatie mogelijkheid</li>
+</ul>
+
+<h2>Critical Compliance Gaps</h2>
+
+<h3>1. Security & Authentication Gaps</h3>
+
+<h4>GAP-001: Justice SSO Integration Ontbreekt 🔴</h4>
+<ul>
+<li>**Requirement**: REQ-001, REQ-029</li>
+<li>**Standard**: ASTRA-SEC-002, ASTRA-SEC-014</li>
+<li>**Impact**: Geen productie deployment mogelijk zonder Justice SSO</li>
+<li>**Current State**: Basic authentication placeholder</li>
+<li>**Target State**: Volledig geïntegreerde Justice SSO (SAML 2.0/OAuth2)</li>
+<li>**Affected Orgs**: Alle (DJI, OM, Rechtspraak, Justid)</li>
+<li>**Resolution**:</li>
+<pre><code>  # Required implementation in src/auth/
+  - sso_integration.py      # Justice SSO SAML/OAuth handler
+  - identity_federation.py  # Multi-org identity management
+  - session_manager.py      # Secure session handling
+  - mfa_support.py         # Multi-factor authentication</code></pre>
+<li>**Timeline**: Q1 2025 (Sprint 37-39)</li>
+<li>**Dependencies**: Justid SSO team, PKI certificates</li>
+</ul>
+
+<h4>GAP-002: Audit Logging Niet Compliant 🔴</h4>
+<ul>
+<li>**Requirement**: REQ-024</li>
+<li>**Standard**: ASTRA-AUD-001, ASTRA-AUD-002</li>
+<li>**Legal**: Wjsg Art. 35, AVG Art. 30</li>
+<li>**Current State**: Basic application logging</li>
+<li>**Target State**: Forensische audit trail met immutability</li>
+<li>**Affected Orgs**: OM (kritiek), DJI (kritiek), Justid</li>
+<li>**Resolution**:</li>
+<pre><code>  # Required components
+  - Immutable log store (append-only)
+  - Cryptographic log chaining
+  - Who/What/When/Where/Why tracking
+  - Log retention policy (10-20 jaar)
+  - Audit log export voor forensisch onderzoek</code></pre>
+<li>**Timeline**: Q1 2025 (Sprint 38)</li>
+</ul>
+
+<h4>GAP-003: Data Classification System Ontbreekt 🔴</h4>
+<ul>
+<li>**Requirement**: REQ-025</li>
+<li>**Standard**: ASTRA-DATA-009, ASTRA-SEC-013</li>
+<li>**Legal**: BIO, Wjsg Art. 22</li>
+<li>**Current State**: Geen data rubricering</li>
+<li>**Target State**: Automatische classificatie (Openbaar/Intern/Vertrouwelijk/Geheim)</li>
+<li>**Affected Orgs**: DJI (justitiabelen), OM (strafzaken), Justid (screening)</li>
+<li>**Resolution**:</li>
+<li> - Metadata tagging systeem</li>
+<li> - Automatische classificatie engine</li>
+<li> - Access control per rubricering niveau</li>
+<li> - Encryption per sensitivity level</li>
+<li>**Timeline**: Q2 2025 (Sprint 40-41)</li>
+</ul>
+
+<h3>2. Integration & Architecture Gaps</h3>
+
+<h4>GAP-004: Justice Chain Interfaces Niet Geïmplementeerd 🟠</h4>
+<ul>
+<li>**Requirement**: REQ-015, REQ-030</li>
+<li>**Standard**: ASTRA-INT-001, ASTRA-INT-009</li>
+<li>**Current State**: Standalone applicatie</li>
+<li>**Target State**: Volledig geïntegreerd in justice chain</li>
+<li>**Affected Systems**:</li>
+<li> - GPS (OM) - XML berichten</li>
+<li> - TULP (DJI) - REST services</li>
+<li> - GPS-RM (Rechtspraak) - SOAP/REST</li>
+<li> - JDS (Justid) - Service bus</li>
+<li>**Resolution**:</li>
+<pre><code>  interfaces:
+    om:
+      protocol: REST/SOAP
+      format: JSON/XML
+      auth: mTLS + OAuth2
+    dji:
+      protocol: REST
+      format: JSON
+      auth: SAML 2.0
+    rechtspraak:
+      protocol: REST
+      format: JSON/XML
+      auth: API Key + TLS
+    justid:
+      protocol: REST/SOAP
+      format: JSON/XML
+      auth: PKI + OAuth2</code></pre>
+<li>**Timeline**: Q2 2025 (Sprint 41-43)</li>
+</ul>
+
+<h4>GAP-005: ASTRA Architecture Documentation Incompleet 🟠</h4>
+<ul>
+<li>**Requirement**: REQ-013</li>
+<li>**Standard**: ASTRA-GOV-001, ASTRA-DOC-001</li>
+<li>**Current State**: Basis architectuur docs</li>
+<li>**Target State**: Volledige ASTRA-compliant documentatie</li>
+<li>**Missing Documents**:</li>
+<li> - Project Start Architecture (PSA)</li>
+<li> - Solution Architecture Document (SAD)</li>
+<li> - Infrastructure Architecture</li>
+<li> - Security Architecture</li>
+<li> - Data Architecture</li>
+<li>**Resolution**: Complete architecture documentation suite</li>
+<li>**Timeline**: Q1 2025 (Sprint 37-38)</li>
+</ul>
+
+<h3>3. Data & Privacy Gaps</h3>
+
+<h4>GAP-006: AVG/GDPR Compliance Documentatie Ontbreekt 🔴</h4>
+<ul>
+<li>**Legal**: AVG Art. 30, 35</li>
+<li>**Standard**: NORA-BP-15, BIO</li>
+<li>**Current State**: Geen privacy documentatie</li>
+<li>**Target State**: Complete DPIA, verwerkingsregister, privacy statement</li>
+<li>**Required Documents**:</li>
+<li> - Data Protection Impact Assessment (DPIA)</li>
+<li> - Verwerkingsregister Art. 30 AVG</li>
+<li> - Privacy Statement</li>
+<li> - Verwerkersovereenkomsten</li>
+<li> - Data breach procedure</li>
+<li>**Timeline**: Q1 2025 (Sprint 37)</li>
+</ul>
+
+<h4>GAP-007: Bewaartermijnen Niet Geconfigureerd 🟠</h4>
+<ul>
+<li>**Requirement**: REQ-021</li>
+<li>**Legal**: Archiefwet, sector-specifieke termijnen</li>
+<li>**Current State**: Onbeperkte data retentie</li>
+<li>**Target State**: Automatische data lifecycle management</li>
+<li>**Required Retention**:</li>
+<li> - OM: 10 jaar (strafzaken)</li>
+<li> - DJI: 20 jaar (detentie gegevens)</li>
+<li> - Rechtspraak: 5-10 jaar (uitspraken)</li>
+<li> - Justid: 5 jaar (screening)</li>
+<li>**Timeline**: Q2 2025 (Sprint 40)</li>
+</ul>
+
+<h3>4. Quality & Testing Gaps</h3>
+
+<h4>GAP-008: Security Testing Ontbreekt 🔴</h4>
+<ul>
+<li>**Requirement**: REQ-039</li>
+<li>**Standard**: ASTRA-TEST-004, ASTRA-SEC-015</li>
+<li>**Legal**: BIO verplichtingen</li>
+<li>**Current State**: Alleen functionele tests</li>
+<li>**Target State**: Continue security testing pipeline</li>
+<li>**Required Tests**:</li>
+<li> - OWASP ZAP scanning</li>
+<li> - Dependency vulnerability scanning</li>
+<li> - Static code analysis (SAST)</li>
+<li> - Dynamic analysis (DAST)</li>
+<li> - Penetration testing (yearly)</li>
+<li>**Timeline**: Q1 2025 (Sprint 38-39)</li>
+</ul>
+
+<h4>GAP-009: Performance Testing Niet Uitgevoerd 🟡</h4>
+<ul>
+<li>**Requirement**: REQ-008, REQ-009, REQ-038</li>
+<li>**Standard**: ASTRA-PER-001, ASTRA-TEST-003</li>
+<li>**Current State**: Geen load/stress testing</li>
+<li>**Target State**: Automated performance testing</li>
+<li>**Required Metrics**:</li>
+<li> - Response time < 5s (generation)</li>
+<li> - UI response < 200ms</li>
+<li> - 1000 concurrent users</li>
+<li> - 10,000 requests/hour</li>
+<li>**Timeline**: Q2 2025 (Sprint 42)</li>
+</ul>
+
+<h3>5. Operational Gaps</h3>
+
+<h4>GAP-010: Monitoring & Alerting Ontbreekt 🟠</h4>
+<ul>
+<li>**Standard**: ASTRA-OPS-001, NORA-BP-17</li>
+<li>**Current State**: Geen productie monitoring</li>
+<li>**Target State**: 24/7 monitoring met alerting</li>
+<li>**Required Components**:</li>
+<li> - Application Performance Monitoring (APM)</li>
+<li> - Security Information Event Management (SIEM)</li>
+<li> - Uptime monitoring</li>
+<li> - Error tracking</li>
+<li> - Compliance dashboard</li>
+<li>**Timeline**: Q2 2025 (Sprint 43)</li>
+</ul>
+
+<h2>Compliance Gap Matrix</h2>
+
+<p>| Gap ID | Area | Severity | Legal Risk | Business Impact | Resolution Effort |</p>
+<p>|--------|------|----------|------------|-----------------|-------------------|</p>
+<p>| GAP-001 | SSO Integration | 🔴 KRITIEK | HIGH | Blocks production | 3-4 weeks |</p>
+<p>| GAP-002 | Audit Logging | 🔴 KRITIEK | HIGH | Legal liability | 2-3 weeks |</p>
+<p>| GAP-003 | Data Classification | 🔴 KRITIEK | HIGH | Data breach risk | 3-4 weeks |</p>
+<p>| GAP-004 | Chain Integration | 🟠 HOOG | MEDIUM | Limited functionality | 4-6 weeks |</p>
+<p>| GAP-005 | ASTRA Docs | 🟠 HOOG | LOW | Approval delay | 2 weeks |</p>
+<p>| GAP-006 | GDPR Docs | 🔴 KRITIEK | HIGH | €20M fine risk | 1-2 weeks |</p>
+<p>| GAP-007 | Retention Policy | 🟠 HOOG | MEDIUM | Compliance issue | 2 weeks |</p>
+<p>| GAP-008 | Security Testing | 🔴 KRITIEK | HIGH | Security breaches | 2-3 weeks |</p>
+<p>| GAP-009 | Performance Test | 🟡 MEDIUM | LOW | User experience | 1-2 weeks |</p>
+<p>| GAP-010 | Monitoring | 🟠 HOOG | MEDIUM | Operational risk | 2-3 weeks |</p>
+
+<h2>Resolution Roadmap</h2>
+
+<h3>Sprint 37 (Immediate - Week 1-2)</h3>
+<ul>
+<li>[ ] GAP-006: Start DPIA and privacy documentation</li>
+<li>[ ] GAP-005: Begin ASTRA architecture documentation</li>
+<li>[ ] GAP-001: Initiate Justice SSO integration planning</li>
+</ul>
+
+<h3>Sprint 38 (Week 3-4)</h3>
+<ul>
+<li>[ ] GAP-002: Implement forensic audit logging</li>
+<li>[ ] GAP-008: Setup security testing pipeline</li>
+<li>[ ] GAP-005: Complete architecture documentation</li>
+</ul>
+
+<h3>Sprint 39 (Week 5-6)</h3>
+<ul>
+<li>[ ] GAP-001: Complete SSO integration development</li>
+<li>[ ] GAP-008: Execute first security scan</li>
+<li>[ ] GAP-003: Design data classification system</li>
+</ul>
+
+<h3>Sprint 40 (Week 7-8)</h3>
+<ul>
+<li>[ ] GAP-003: Implement data classification</li>
+<li>[ ] GAP-007: Configure retention policies</li>
+<li>[ ] GAP-004: Start chain integration development</li>
+</ul>
+
+<h3>Sprint 41-43 (Q2 2025)</h3>
+<ul>
+<li>[ ] GAP-004: Complete chain integrations</li>
+<li>[ ] GAP-009: Execute performance testing</li>
+<li>[ ] GAP-010: Deploy monitoring infrastructure</li>
+</ul>
+
+<h2>Risk Assessment</h2>
+
+<h3>High Risk Items (Must Fix Before Production)</h3>
+
+<p>| Risk | Current State | Required State | Consequence if Not Fixed |</p>
+<p>|------|--------------|----------------|-------------------------|</p>
+<p>| No Justice SSO | Basic auth | Federated SSO | <strong>Cannot deploy</strong> - No access for justice users |</p>
+<p>| No audit trail | App logs only | Forensic logging | <strong>Legal liability</strong> - Wjsg/AVG violations, no evidence trail |</p>
+<p>| No data classification | All data same | Rubricering system | <strong>Data breach</strong> - Sensitive data exposure |</p>
+<p>| No GDPR compliance | Undocumented | Full DPIA/docs | <strong>€20M fine</strong> - AVG Article 83 penalties |</p>
+<p>| No security testing | Untested | Continuous testing | <strong>Security breach</strong> - Reputation damage, liability |</p>
+
+<h3>Medium Risk Items (Should Fix Soon)</h3>
+
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| Limited integration | Reduced functionality | Phased rollout per organization |</p>
+<p>| No monitoring | Blind operations | Manual checks until automated |</p>
+<p>| Performance unknown | User complaints | Set expectations, optimize later |</p>
+
+<h2>Compliance Checklist</h2>
+
+<h3>Legal Requirements ❌</h3>
+<ul>
+<li>[ ] AVG/GDPR compliance documentation</li>
+<li>[ ] Wjsg compliance for justice data</li>
+<li>[ ] BIO baseline implementation</li>
+<li>[ ] Archiefwet retention policies</li>
+<li>[ ] eIDAS for digital identity</li>
+</ul>
+
+<h3>Technical Standards ⚠️</h3>
+<ul>
+<li>[x] NORA principles (partial)</li>
+<li>[ ] ASTRA framework (incomplete)</li>
+<li>[ ] GEMMA architecture (not started)</li>
+<li>[x] OWASP Top 10 (basic coverage)</li>
+<li>[ ] Justice chain standards (not implemented)</li>
+</ul>
+
+<h3>Organizational Requirements ❌</h3>
+<ul>
+<li>[ ] OM integration requirements</li>
+<li>[ ] DJI security requirements</li>
+<li>[ ] Rechtspraak API standards</li>
+<li>[ ] Justid identity management</li>
+</ul>
+
+<h3>Operational Readiness ❌</h3>
+<ul>
+<li>[ ] 24/7 monitoring capability</li>
+<li>[ ] Incident response procedures</li>
+<li>[ ] Disaster recovery plan</li>
+<li>[ ] Service level agreements</li>
+<li>[ ] Change management process</li>
+</ul>
+
+<h2>Budget & Resource Requirements</h2>
+
+<h3>Development Resources</h3>
+<ul>
+<li>**SSO Integration**: 2 developers × 4 weeks = 8 person-weeks</li>
+<li>**Audit System**: 1 developer × 3 weeks = 3 person-weeks</li>
+<li>**Chain Integration**: 3 developers × 6 weeks = 18 person-weeks</li>
+<li>**Security Hardening**: 2 developers × 4 weeks = 8 person-weeks</li>
+<li>**Total Development**: ~37 person-weeks</li>
+</ul>
+
+<h3>Infrastructure Costs</h3>
+<ul>
+<li>**Monitoring Tools**: €2,000/month</li>
+<li>**Security Scanning**: €1,500/month</li>
+<li>**HSM/PKI**: €3,000 setup + €500/month</li>
+<li>**Audit Storage**: €1,000/month</li>
+<li>**Total Monthly**: ~€5,000</li>
+</ul>
+
+<h3>External Services</h3>
+<ul>
+<li>**Security Audit**: €15,000 (one-time)</li>
+<li>**Penetration Test**: €10,000 (yearly)</li>
+<li>**DPIA Consultant**: €5,000 (one-time)</li>
+<li>**Compliance Audit**: €8,000 (yearly)</li>
+</ul>
+
+<h2>Success Criteria</h2>
+
+<h3>Minimum Viable Compliance (MVC) for Production</h3>
+<ol>
+<li>✅ Justice SSO operational</li>
+<li>✅ Forensic audit logging active</li>
+<li>✅ Data classification implemented</li>
+<li>✅ GDPR documentation complete</li>
+<li>✅ Security baseline achieved</li>
+<li>✅ One justice org integrated</li>
+</ol>
+
+<h3>Full Compliance Target</h3>
+<ol>
+<li>✅ All 4 justice organizations integrated</li>
+<li>✅ Complete ASTRA/NORA compliance</li>
+<li>✅ Automated security testing</li>
+<li>✅ 24/7 monitoring operational</li>
+<li>✅ All retention policies automated</li>
+<li>✅ Performance SLAs met</li>
+</ol>
+
+<h2>Recommendations</h2>
+
+<h3>Immediate Actions (This Week)</h3>
+<ol>
+<li>**Schedule meeting** with Justid for SSO integration requirements</li>
+<li>**Start DPIA** with privacy officer/DPO</li>
+<li>**Document** current security measures for BIO baseline</li>
+<li>**Contact** each justice org for integration specifications</li>
+</ol>
+
+<h3>Short Term (Next Month)</h3>
+<ol>
+<li>**Implement** audit logging system</li>
+<li>**Deploy** security scanning pipeline</li>
+<li>**Complete** ASTRA documentation</li>
+<li>**Design** data classification scheme</li>
+</ol>
+
+<h3>Medium Term (Next Quarter)</h3>
+<ol>
+<li>**Integrate** with all justice systems</li>
+<li>**Deploy** monitoring infrastructure</li>
+<li>**Execute** penetration testing</li>
+<li>**Achieve** BIO certification</li>
+</ol>
+
+<h2>Escalation Path</h2>
+
+<h3>For Critical Gaps</h3>
+<ol>
+<li>**Level 1**: Development Team Lead</li>
+<li>**Level 2**: Product Owner + Security Officer</li>
+<li>**Level 3**: CTO + Compliance Officer</li>
+<li>**Level 4**: Executive Board + Legal Counsel</li>
+</ol>
+
+<h3>Approval Required From</h3>
+<ul>
+<li>**Justice SSO**: Justid Architecture Board</li>
+<li>**Chain Integration**: Justice Chain Coordination Committee</li>
+<li>**Security Measures**: CISO + Security Board</li>
+<li>**GDPR Compliance**: Data Protection Officer</li>
+<li>**Production Deployment**: Change Advisory Board</li>
+</ul>
+
+<h2>Conclusion</h2>
+
+<p>Het DefinitieAgent project heeft <strong>10 significante compliance gaps</strong> waarvan <strong>5 kritiek</strong> zijn voor productie deployment. De geschatte effort voor volledige compliance is <strong>37 person-weeks</strong> met een infrastructure investering van <strong>€5,000/maand</strong> en eenmalige kosten van <strong>€38,000</strong>.</p>
+
+<h3>Go/No-Go Decision Criteria</h3>
+<ul>
+<li>**NO-GO** zonder: SSO, Audit logging, GDPR docs, Security testing</li>
+<li>**LIMITED-GO** mogelijk met: Enkele org integratie, basis monitoring</li>
+<li>**FULL-GO** vereist: Alle gaps opgelost, volledige compliance</li>
+</ul>
+
+<h3>Recommended Path Forward</h3>
+<ol>
+<li>**Phase 1** (Q1 2025): Fix kritieke gaps, achieve MVC</li>
+<li>**Phase 2** (Q2 2025): Complete integrations, full compliance</li>
+<li>**Phase 3** (Q3 2025): Optimization and certification</li>
+</ol>
+
+<h2>Change Log</h2>
+<ul>
+<li>2025-09-08: Initial gap analysis completed</li>
+<li>2025-09-08: Identified 10 major compliance gaps</li>
+<li>2025-09-08: Created resolution roadmap and budget estimate</li>
+</ul>
+
+  </div>
+</body>
+</html>

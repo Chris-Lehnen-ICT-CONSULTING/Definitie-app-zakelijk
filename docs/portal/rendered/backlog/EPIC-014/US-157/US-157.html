@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-157: Implementeer Weighted Score Calculator</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-157: Implementeer Weighted Score Calculator</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> validatie engine  </p>
+<p><strong>Wil ik</strong> weighted scores berekenen op basis van regel prioriteit  </p>
+<p><strong>Zodat</strong> belangrijke regels zwaarder wegen in de eindscore  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: HIGH  </p>
+<p><strong>Story Points</strong>: 3  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Complexe score berekening die rekening houdt met prioriteit en aanbeveling niveau van regels.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Implementeer weighted average formule</li>
+<li>[ ] Base weights: hoog=1.0, midden=0.7, laag=0.4</li>
+<li>[ ] Multipliers: verplicht=1.5, aanbevolen=1.0, optioneel=0.8</li>
+<li>[ ] Score penalties per violation type</li>
+<li>[ ] Severity multipliers toepassen</li>
+</ul>
+
+<h2>Formula</h2>
+<pre><code>Score = Σ(regel_score × regel_weight) / Σ(regel_weight)</code></pre>
+
+<h2>Penalties</h2>
+<ul>
+<li>Forbidden pattern: -0.3 × count × severity_multiplier</li>
+<li>Missing element: -0.4 × severity_multiplier</li>
+<li>Structure issue: -0.25 × severity_multiplier</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Rule priorities en aanbevelingen</li>
+<li>Violation counts per type</li>
+</ul>
+
+  </div>
+</body>
+</html>

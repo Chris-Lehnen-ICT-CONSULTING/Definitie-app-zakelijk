@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-120: Implementeer Best Iteration Tracker</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-120: Implementeer Best Iteration Tracker</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> quality controller  </p>
+<p><strong>Wil ik</strong> de beste iteratie bijhouden  </p>
+<p><strong>Zodat</strong> we nooit een slechtere definitie retourneren  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: MEDIUM  </p>
+<p><strong>Story Points</strong>: 2  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Houdt de beste scoring iteratie bij gedurende het improvement proces om kwaliteitsregressie te voorkomen.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Track score per iteratie</li>
+<li>[ ] Update best wanneer nieuwe score hoger is</li>
+<li>[ ] Bewaar complete iteration result (niet alleen definitie)</li>
+<li>[ ] Return best iteration bij max iterations</li>
+<li>[ ] Include metadata voor traceability</li>
+</ul>
+
+<h2>Implementation</h2>
+<pre><code>class BestIterationTracker:
+    def __init__(self):
+        self.best_iteration = None
+        self.best_score = 0.0
+        self.iteration_history = []
+    
+    def update(self, iteration_result: IterationResult):
+        self.iteration_history.append(iteration_result)
+        
+        if iteration_result.validation.overall_score &gt; self.best_score:
+            self.best_iteration = iteration_result
+            self.best_score = iteration_result.validation.overall_score
+            log.info(f"New best: iteration {iteration_result.number}, "
+                    f"score {self.best_score:.3f}")
+    
+    def get_best(self) -&gt; IterationResult:
+        return self.best_iteration or self.iteration_history[-1]</code></pre>
+
+<h2>Metadata to Track</h2>
+<ul>
+<li>Iteration number</li>
+<li>Score</li>
+<li>Timestamp</li>
+<li>Feedback applied</li>
+<li>Enhancement applied</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>IterationResult dataclass</li>
+<li>ValidationResult</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Essentieel voor kwaliteitsgarantie</li>
+<li>Voorkomt dat tijdelijke degradatie permanent wordt</li>
+</ul>
+  </div>
+</body>
+</html>

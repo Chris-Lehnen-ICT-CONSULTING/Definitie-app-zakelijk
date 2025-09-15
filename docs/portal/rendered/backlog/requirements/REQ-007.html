@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Data Encryption at Rest</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-007</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/architectuur/TECHNICAL_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - <!-- BROKEN LINK: EPIC-008 --></li>
+<p>  stories:</p>
+<li> - US-3.1</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: Database storage</li>
+<p>  path: data/definities.db</p>
+<li>line: Export file storage</li>
+<p>  path: exports/</p>
+<li>line: Log file storage</li>
+<p>  path: logs/</p>
+<p>status: Backlog</p>
+<p>titel: Data Encryption at Rest</p>
+<p>type: nonfunctional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>REQ-007: Data Encryption at Rest</h1>
+
+<h2>Requirement Description</h2>
+
+<p>All sensitive data stored by the system must be encrypted at rest:</p>
+<ul>
+<li>Database encryption for definitions</li>
+<li>Encrypted storage for API keys</li>
+<li>Secure temporary file hEnling</li>
+<li>Encrypted backups</li>
+<li>Log file protection</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+<ol>
+<li>**Database Encryption**: SQLite database encrypted</li>
+<li>**File Encryption**: Exports en temp files encrypted</li>
+<li>**Key Management**: Secure key storage en rotation</li>
+<li>**Backup Encryption**: All backups encrypted</li>
+<li>**Log Protection**: Sensitive data redacted in logs</li>
+<li>**Prestaties Impact**: < 10% degradation</li>
+</ol>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Implementatie Details</h2>
+
+<h3>Encryption Strategies</h3>
+
+<h4>Database Encryption</h4>
+<ul>
+<li>SQLCipher for SQLite encryption</li>
+<li>AES-256 encryption stEnard</li>
+<li>Key derivation from master password</li>
+<li>Transparent encryption/decryption</li>
+</ul>
+
+<h4>File System Encryption</h4>
+<pre><code># Example Implementatie
+from cryptography.fernet import Fernet
+
+def encrypt_file(filepath, key):
+    cipher = Fernet(key)
+    with open(filepath, 'rb') as file:
+        encrypted = cipher.encrypt(file.read())
+    # Write encrypted content</code></pre>
+
+<h4>Key Management</h4>
+<ul>
+<li>Master key in environment variable</li>
+<li>Key rotation every 90 days</li>
+<li>Separate keys for different data types</li>
+<li>Hardware beveiliging module (HSM) for production</li>
+</ul>
+
+<h3>Data Classification</h3>
+<ul>
+<li>**HOOGly Sensitive**: API keys, user credentials</li>
+<li>**Sensitive**: juridische definities, personal data</li>
+<li>**Internal**: System logs, metrics</li>
+<li>**Public**: Documentation, templates</li>
+</ul>
+
+<h2>beveiliging StEnards</h2>
+
+<ul>
+<li>AES-256 for symmetric encryption</li>
+<li>RSA-2048 for asymmetric encryption</li>
+<li>PBKDF2 for key derivation</li>
+<li>Secure rEnom for initialization vectors</li>
+</ul>
+
+<h2>Prestaties Considerations</h2>
+
+<ul>
+<li>Lazy decryption for large datasets</li>
+<li>Caching of decrypted frequently accessed data</li>
+<li>Async encryption for exports</li>
+<li>Hardware acceleration where available</li>
+</ul>
+
+<h2>compliance vereisten</h2>
+
+<ul>
+<li>AVG Article 32 compliance</li>
+<li>Dutch gegevensbescherming laws</li>
+<li>Industry best practices</li>
+<li>Regular beveiliging audits</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>cryptography library</li>
+<li>SQLCipher for database</li>
+<li>Key management service</li>
+<li>HSM integration (production)</li>
+</ul>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Implement complete data encryption at rest beveiliging control</li>
+<li>**Meetbaar**: Geen kwetsbaarheden in beveiligingsscans, 100% testdekking</li>
+<li>**Haalbaar**: Using established beveiliging libraries en patterns</li>
+<li>**Relevant**: KRITIEK voor justitiesector gegevensbeschermingscompliance</li>
+<li>**Tijdgebonden**: Must be operational before productie deployment</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

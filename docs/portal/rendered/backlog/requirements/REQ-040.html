@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SRU (Search/Retrieve via URL) Integration</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-040</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/technisch/web_lookup_config.md</li>
+<p>  epics:</p>
+<li> - EPIC-003</li>
+<p>  stories:</p>
+<li> - US-016</li>
+<p>prioriteit: GEMIDDELD</p>
+<p>sources:</p>
+<li>line: 200-300</li>
+<p>  path: src/services/modern_web_lookup_service.py</p>
+<li>line: 30-50</li>
+<p>  path: config/web_lookup_defaults.yaml</p>
+<p>status: In Progress</p>
+<p>titel: SRU (Search/Retrieve via URL) Integration</p>
+<p>type: functional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-040: SRU (Search/Retrieve via URL) Integration</h1>
+
+<h2>Beschrijving</h2>
+<p>Het systeem moet SRU protocol gebruiken voor het doorzoeken van juridische databases en bibliotheken zoals de Koninklijke Bibliotheek.</p>
+
+<p>Gerelateerd: US-016 (SRU Legal Database Integratie)</p>
+
+<h2>Rationale</h2>
+<p>SRU biedt toegang tot autoritatieve juridische bronnen en officiële publicaties die essentieel zijn voor het onderbouwen van juridische definities.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>SRU 2.0 protocol implementatie</li>
+<li>Query translation van natuurlijke taal naar CQL</li>
+<li>Response parsing (XML/Dublin Core)</li>
+<li>Timeout hEnling (10 seconden max)</li>
+<li>Result relevance scoring</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** Implementeer SRU 2.0 protocol voor juridische database toegang</li>
+<li>**Meetbaar:**</li>
+<li> - Query response: < 3 seconden (95e percentiel)</li>
+<li> - Success rate: > 80% voor KB queries</li>
+<li> - Min 5 resultaten per succesvolle query</li>
+<li> - XML parsing: < 100ms</li>
+<li> - Relevance score: 0.0-1.0 schaal</li>
+<li> - Timeout: 10 seconden hard limit</li>
+<li>**Acceptabel:** Python SRU client library met async support</li>
+<li>**Relevant:** Toegang tot officiële juridische bronnen</li>
+<li>**Tijdgebonden:** MVP in Sprint 3, volledig in Sprint 4</li>
+</ul>
+
+
+<h2>BDD Test Scenario's</h2>
+
+<pre><code>Scenario: SRU query naar Koninklijke Bibliotheek
+  Gegeven de KB SRU endpoint is beschikbaar
+  En de zoekterm is "wetboek van strafrecht"
+  Wanneer een SRU search wordt uitgevoerd
+  Dan wordt CQL query gebouwd: "title=wetboek AND title=strafrecht"
+  En wordt de query naar KB gestuurd
+  En komt response binnen 3 seconden
+  En bevat minimaal 5 resultaten
+  En heeft elk resultaat titel, auteur, en jaar
+
+Scenario: SRU timeout handling
+  Gegeven een trage SRU server
+  Wanneer de response &gt; 10 seconden duurt
+  Dan wordt de request gecancelled
+  En wordt een timeout error gelogd
+  En valt het systeem terug op andere bronnen
+  En krijgt gebruiker melding "KB tijdelijk onbereikbaar"
+
+Scenario: Dublin Core metadata parsing
+  Gegeven een SRU response in XML formaat
+  Wanneer de response wordt geparseerd
+  Dan worden Dublin Core velden geëxtraheerd:
+    | Veld | Mapping |
+    | dc:title | titel |
+    | dc:creator | auteur |
+    | dc:date | publicatiejaar |
+    | dc:subject | onderwerp |
+    | dc:identifier | isbn/issn |
+  En worden speciale karakters correct gedecodeerd
+  En wordt de relevance score berekend
+
+Scenario: Multi-source aggregatie met SRU
+  Gegeven SRU resultaten van KB
+  En Wikipedia resultaten
+  Wanneer resultaten worden geaggregeerd
+  Dan krijgt SRU weight factor 1.0
+  En krijgt Wikipedia factor 0.7
+  En worden duplicaten gedetecteerd op titel
+  En is de finale ranking op gewogen score</code></pre>
+
+<h2>Uitwerking / Notities</h2>
+<p>SRU endpoints:</p>
+<ul>
+<li>KB (Koninklijke Bibliotheek): https://jsru.kb.nl/sru</li>
+<li>Officiële bekendmakingen: https://zoek.officielebekendmakingen.nl/sru</li>
+<li>Parlementaire documenten: via KB gateway</li>
+<li>Weight factor 1.0 in aggregation (hoogste prioriteit)</li>
+<li>CQL (Contextual Query Language) voor complexe queries</li>
+<li>Batch queries mogelijk voor performance</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+<p>Geen conflicten geïdentificeerd.</p>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

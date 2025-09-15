@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>vermindert OpenAI met minimaal 30% Token Gebruik met 60% door Prompt Optimalisatie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 29-01-2025</p>
+<p>afhankelijkheden:</p>
+<ul>
+<li>US-030</li>
+<p>bijgewerkt: 05-09-2025</p>
+<p>epic: EPIC-007</p>
+<p>id: US-143</p>
+<p>prioriteit: high</p>
+<p>sprint: current</p>
+<p>status: todo</p>
+<p>story_points: 8</p>
+<p>titel: vermindert OpenAI met minimaal 30% Token Gebruik met 60% door Prompt Optimalisatie</p>
+<p>toegewezen_aan: development-team</p>
+<p>vereisten:</p>
+<li>REQ-061</li>
+<li>REQ-065</li>
+<li>REQ-073</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-143: vermindert OpenAI met minimaal 30% Token Gebruik met 60% door Prompt Optimalisatie</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als</strong> product owner</p>
+<p><strong>wil ik</strong> het OpenAI API token gebruik verminderen van 7.250 naar minder dan 3.000 tokens per definitie aanvraag</p>
+<p><strong>zodat</strong> we 60% kostenbesparing realiseren met behoud van definitiekwaliteit en compliance</p>
+
+<h2>Probleemstelling</h2>
+
+<p><strong>Huidige Situatie:</strong></p>
+<ul>
+<li>Elke definitie aanvraag gebruikt ~7.250 tokens (gemeten in productie)</li>
+<li>Context wordt 3x gedupliceerd in de prompt keten</li>
+<li>Alle 45 validatieregels worden meegenomen terwijl slechts 5-10 relevant zijn</li>
+<li>MaEnelijkse API kosten overschrijden budget met 40%</li>
+<li>Geen prompt caching mechanisme aanwezig</li>
+</ul>
+
+<p><strong>Gewenste Uitkomst:</strong></p>
+<ul>
+<li>vermindert token met minimaal 30% gebruik naar < 3.000 per aanvraag</li>
+<li>Implementeer slimme regel selectie (alleen relevante regels)</li>
+<li>Cache en hergebruik prompt templates</li>
+<li>Behoud huidige definitie kwaliteitsscore (>95%)</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterium 1: Token Reductie Doel</h3>
+<p><strong>gegeven</strong> een definitie aanvraag voor een juridische term</p>
+<p><strong>wanneer</strong> de geoptimaliseerde prompt wordt gegenereerd</p>
+<p><strong>dan</strong> is het totale token aantal onder 3.000 (geverifieerd via tiktoken)</p>
+
+<h3>Criterium 2: Slimme Regel Selectie</h3>
+<p><strong>gegeven</strong> een definitie aanvraag met context "strafrecht"</p>
+<p><strong>wanneer</strong> validatieregels worden toegevoegd aan de prompt</p>
+<p><strong>dan</strong> worden alleen strafrechtelijk relevante regels meegenomen (5-8 regels, niet alle 45)</p>
+
+<h3>Criterium 3: Prompt Template Caching</h3>
+<p><strong>gegeven</strong> een prompt template is gegenereerd voor context type X</p>
+<p><strong>wanneer</strong> een Enere aanvraag met hetzelfde context type binnen 15 minuten binnenkomt</p>
+<p><strong>dan</strong> wordt het gecachte template hergebruikt (cache hit rate > 70%)</p>
+
+<h3>Criterium 4: Kwaliteitsbehoud</h3>
+<p><strong>gegeven</strong> de geoptimaliseerde prompts zijn in gebruik</p>
+<p><strong>wanneer</strong> definities worden gegenereerd</p>
+<p><strong>dan</strong> blijft het validatie slagingspercentage boven 95%</p>
+
+<h3>Criterium 5: Prestatie Impact</h3>
+<p><strong>gegeven</strong> de optimalisatie is geïmplementeerd</p>
+<p><strong>wanneer</strong> responstijd wordt gemeten</p>
+<p><strong>dan</strong> blijft de totale generatietijd onder 5 seconden</p>
+
+<h2>Technische Implementatie</h2>
+
+<h3>Implementatie Aanpak</h3>
+<ol>
+<li>**Stap 1**: Implementeer token telling in `PromptServiceV2.build_prompt()`</li>
+</ol>
+<ul>
+<li>  - Voeg tiktoken bibliotheek toe voor accurate telling</li>
+<li>  - Log token aantallen voor analyse</li>
+</ul>
+
+<ol>
+<li>**Stap 2**: Creëer context-bewuste regel selectie in `ModularValidationService`</li>
+</ol>
+<ul>
+<li>  - Bouw regel relevantie matrix (context → regels mapping)</li>
+<li>  - Implementeer `get_relevant_rules(context_type)` methode</li>
+</ul>
+
+<ol>
+<li>**Stap 3**: Implementeer prompt template caching</li>
+</ol>
+<ul>
+<li>  - Gebruik Redis of in-memory cache met 15-minuten TTL</li>
+<li>  - Cache sleutel: hash van (context_type, domein, taal)</li>
+</ul>
+
+<ol>
+<li>**Stap 4**: Verwijder prompt duplicaties</li>
+</ol>
+<ul>
+<li>  - Audit prompt constructie keten</li>
+<li>  - Elimineer redundante context toevoegingen</li>
+</ul>
+
+<h3>Code Locaties</h3>
+<ul>
+<li>Primaire bestEnen:</li>
+<li> - `src/services/prompt_service_v2.py`</li>
+<li> - `src/services/validatie/modular_validation_service.py`</li>
+<li> - `src/services/ai_service_v2.py`</li>
+<li>Kern functies:</li>
+<li> - `PromptServiceV2.build_prompt()`</li>
+<li> - `PromptServiceV2._select_relevant_rules()`</li>
+<li> - `ModularValidationService.get_validation_rules()`</li>
+<li>Configuratie bestEnen:</li>
+<li> - `config/prompt_optimization.yaml` (nieuwe config)</li>
+<li> - `config/validation_rules_mapping.json` (nieuwe mapping)</li>
+</ul>
+
+<h3>Technische Beslissingen</h3>
+<ul>
+<li>Gebruik tiktoken voor accurate GPT-4 token telling</li>
+<li>Implementeer LRU cache voor prompt templates (max 100 entries)</li>
+<li>Creëer regel relevantie scoring algoritme</li>
+<li>Gebruik afhankelijkheid injection voor cache provider</li>
+</ul>
+
+<h2>Domein & compliance</h2>
+
+<h3>Domein Regels</h3>
+<ul>
+<li>ASTRA vereiste: Behoud volledige auditspoor van regel selectie</li>
+<li>NORA richtlijn: Resource optimalisatie zonder kwaliteitsverlies</li>
+<li>Justitieketen: Definities moeten juridisch valide blijven voor OM, DJI, Rechtspraak</li>
+</ul>
+
+<h3>beveiliging & Privacy</h3>
+<ul>
+<li>beveiliging: Geen gevoelige data in gecachte prompts</li>
+<li>Privacy: Zorg dat PII nooit wordt gecacht</li>
+<li>Audit: Log welke regels zijn uitgesloten en waarom</li>
+</ul>
+
+
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-007</li>
+</ul>
+<h2>Test Scenario's</h2>
+
+<h3>Unit Tests</h3>
+<ol>
+<li>**Test**: `test_token_telling_accuratesse()`</li>
+</ol>
+<ul>
+<li>  - Input: Bekende prompt met 1.000 tokens</li>
+<li>  - Verwacht: Telling komt overeen met tiktoken output ±5%</li>
+<li>  - Assert: `abs(geteld - 1000) < 50`</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_relevante_regel_selectie()`</li>
+</ol>
+<ul>
+<li>  - Input: Context "strafrecht"</li>
+<li>  - Verwacht: Retourneert regels ["STR001", "STR002", "VER003"]</li>
+<li>  - Assert: Geen "BES*" (bestuursrecht) regels meegenomen</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_prompt_cache_hit()`</li>
+</ol>
+<ul>
+<li>  - Setup: Genereer prompt voor context A, dan zelfde context opnieuw</li>
+<li>  - Verwacht: Tweede aanroep retourneert gecacht resultaat</li>
+<li>  - Assert: Uitvoeringstijd < 10ms voor gecachte aanroep</li>
+</ul>
+
+<h3>Integratie Tests</h3>
+<ol>
+<li>**Test**: `test_end_to_end_token_reductie()`</li>
+</ol>
+<ul>
+<li>  - Setup: Genereer definitie met oud en nieuw systeem</li>
+<li>  - Meet: Token aantallen voor beide</li>
+<li>  - Assert: Nieuw aantal < (oud aantal * 0.4)</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_kwaliteitsbehoud()`</li>
+</ol>
+<ul>
+<li>  - Setup: Genereer 100 definities met geoptimaliseerde prompts</li>
+<li>  - Meet: Validatie slagingspercentage</li>
+<li>  - Assert: Slagingspercentage >= 95%</li>
+</ul>
+
+<h3>Prestatie Tests</h3>
+<ol>
+<li>**Test**: `test_cache_prestatie_onder_belasting()`</li>
+</ol>
+<ul>
+<li>  - Setup: 1000 gelijktijdige verzoeken, 30% zelfde context</li>
+<li>  - Meet: Cache hit rate, responstijden</li>
+<li>  - Assert: Hit rate > 70%, p95 respons < 100ms</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+<ul>
+<li>[ ] Token telling geïmplementeerd met tiktoken</li>
+<li>[ ] Regel relevantie matrix gecreëerd en getest</li>
+<li>[ ] Prompt template caching operationeel</li>
+<li>[ ] Duplicaties verwijderd uit prompt keten</li>
+<li>[ ] Unit tests geschreven (dekking > 90%)</li>
+<li>[ ] Integratie tests slagen</li>
+<li>[ ] Prestatie benchmarks gehaald (< 3.000 tokens)</li>
+<li>[ ] Beveiliging review voltooid (geen PII in cache)</li>
+<li>[ ] Documentatie bijgewerkt met optimalisatie details</li>
+<li>[ ] Code review goedgekeurd door senior developer</li>
+<li>[ ] A/B test toont 60% token reductie</li>
+<li>[ ] Uitgerold naar test omgeving</li>
+<li>[ ] Geen degradatie in definitie kwaliteitsmetrieken</li>
+</ul>
+
+<h2>Risico's & Mitigatie</h2>
+
+<ol>
+<li>**Risico**: Uitsluiten van regels veroorzaakt validatie fouten</li>
+</ol>
+<ul>
+<li>  - Kans: Gemiddeld</li>
+<li>  - Impact: Hoog</li>
+<li>  - Mitigatie: Implementeer gefaseerde uitrol met monitoring</li>
+</ul>
+
+<ol>
+<li>**Risico**: Cache invalidatie problemen</li>
+</ol>
+<ul>
+<li>  - Kans: Laag</li>
+<li>  - Impact: Gemiddeld</li>
+<li>  - Mitigatie: Conservatieve TTL (15 min), hEnmatige cache clear optie</li>
+</ul>
+
+<ol>
+<li>**Risico**: Verschillende OpenAI model versies tellen tokens Eners</li>
+</ol>
+<ul>
+<li>  - Kans: Laag</li>
+<li>  - Impact: Laag</li>
+<li>  - Mitigatie: Gebruik model-specifieke tiktoken encoding</li>
+</ul>
+
+<h2>Notities & Referenties</h2>
+<ul>
+<li>Gerelateerde issues: #342 (Hoge API kosten), #298 (Trage responstijden)</li>
+<li>Spike resultaten: Token analyse toont 65% verspilling in huidige prompts</li>
+<li>OpenAI prijzen: €0.03/1K tokens (GPT-4)</li>
+<li>Verwachte besparing: €500/maEn bij huidige volume</li>
+</ul>
+
+  </div>
+</body>
+</html>

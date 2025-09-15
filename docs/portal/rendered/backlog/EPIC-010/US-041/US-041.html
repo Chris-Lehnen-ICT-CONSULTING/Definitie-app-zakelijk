@@ -1,0 +1,317 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fix Context Field Mapping to Prompts</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>CFR-BUG-003</li>
+<p>aangemaakt: 04-09-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 08-09-2025</p>
+<p>bug_id: CFR-BUG-001</p>
+<p>canonical: true</p>
+<p>epic: EPIC-010</p>
+<p>id: US-041</p>
+<p>last_verified: 08-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: KRITIEK</p>
+<p>sprint: sprint-36</p>
+<p>status: Nog te bepalen</p>
+<p>story_points: 8</p>
+<p>titel: Fix Context Field Mapping to Prompts</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: bug</p>
+<p>implementation_plan: docs/implementation/EPIC-010-implementation-plan.md#fase-3</p>
+<p>related_bugs:</p>
+<li>CFR-BUG-001</li>
+<li>CFR-BUG-003</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-041: Fix Context Field Mapping to Prompts</h1>
+
+<p><strong>Episch Verhaal:</strong> EPIC-001</p>
+
+<h2>🚨 KRITIEK BUG</h2>
+
+<p><strong>Context fields (juridische_context, wettelijke_basis, organisatorische_context) are NOT being passed to AI prompts, resulting in non-compliant definitions.</strong></p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As a</strong> legal professional</p>
+<p><strong>wil ik</strong> all three context types included in my definition prompts</p>
+<p><strong>zodat</strong> generated definitions have complete legal en organizational context</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Organisatorische Context</h3>
+<p><strong>gegeven</strong> a user selects organisatorische_context values in the UI</p>
+<p><strong>wanneer</strong> the definition is generated</p>
+<p><strong>dan</strong> the organisatorische_context appears in the AI prompt</p>
+
+<h3>Criterion 2: Juridische Context</h3>
+<p><strong>gegeven</strong> a user selects juridische_context values in the UI</p>
+<p><strong>wanneer</strong> the definition is generated</p>
+<p><strong>dan</strong> the juridische_context appears in the AI prompt</p>
+
+<h3>Criterion 3: Wettelijke Basis</h3>
+<p><strong>gegeven</strong> a user selects wettelijke_basis values in the UI</p>
+<p><strong>wanneer</strong> the definition is generated</p>
+<p><strong>dan</strong> the wettelijke_basis appears in the AI prompt</p>
+
+<h3>Criterion 4: Debug Visibility</h3>
+<p><strong>gegeven</strong> all three context types are selected</p>
+<p><strong>wanneer</strong> viewing the debug prompt</p>
+<p><strong>dan</strong> all context values are visible in the constructed prompt</p>
+
+<h3>Criterion 5: Logging</h3>
+<p><strong>gegeven</strong> context values are passed to the prompt</p>
+<p><strong>wanneer</strong> the prompt is logged</p>
+<p><strong>dan</strong> context appears in the structured sections of the prompt</p>
+
+<h2>Domain vereisten</h2>
+
+<h3>ASTRA vereisten</h3>
+<ul>
+<li>All justice definitions MUST include organizational context</li>
+<li>Context terminology MUST match Justid stEnards</li>
+</ul>
+
+<h3>NORA compliance</h3>
+<ul>
+<li>Legal basis MUST be traceable to specific laws</li>
+<li>Juridical context MUST align with Dutch legal system categories</li>
+</ul>
+
+<h3>Privacy & beveiliging</h3>
+<ul>
+<li>No sensitive case data in context fields</li>
+<li>Context fields must not contain PII</li>
+<li>Context should add < 100 tokens to prompt</li>
+</ul>
+
+<h2>Root Cause Analysis</h2>
+
+<p>The <code>_convert_request_to_context</code> method in <code>prompt_service_v2.py</code> creates <code>base_context</code> Maar doesn't properly extract en map the UI context fields from the request object.</p>
+
+<h3>Current Code Issue</h3>
+<pre><code># Line 158-176 in prompt_service_v2.py
+def _convert_request_to_context(self, request):
+    base_context = {
+        'juridische_context': [],  # NOT MAPPED FROM REQUEST
+        'wettelijke_basis': [],    # NOT MAPPED FROM REQUEST
+        'organisatorische_context': []  # NOT MAPPED FROM REQUEST
+    }</code></pre>
+
+<h2>Technische Notities</h2>
+
+<h3>Affected Components</h3>
+<ul>
+<li>`src/services/prompts/prompt_service_v2.py` (lines 158-176)</li>
+<li>`src/ui/tabbed_interface.py` (context collection)</li>
+<li>`src/services/definition_generator_context.py`</li>
+<li>`src/services/interfaces.py` (GenerationRequest)</li>
+</ul>
+
+<h3>Key Functions to Fix</h3>
+<ul>
+<li>`PromptServiceV2._convert_request_to_context()`</li>
+<li>`TabbedInterface._hEnle_definition_generation()`</li>
+<li>`EnrichedContext` initialization</li>
+</ul>
+
+<h3>Fix Implementatie</h3>
+<pre><code>def _convert_request_to_context(self, request):
+    """Properly extract context from request"""
+    base_context = {
+        'juridische_context': request.juridische_context or [],
+        'wettelijke_basis': request.wettelijke_basis or [],
+        'organisatorische_context': request.organisatorische_context or []
+    }
+    return base_context</code></pre>
+
+<h2>testdekking vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Test context extraction from request</li>
+<li>Test empty context hEnling</li>
+<li>Test context type validatie</li>
+<li>Test prompt inclusion</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>UI to prompt flag</li>
+<li>All context combinations</li>
+<li>Debug output verification</li>
+</ul>
+
+<h3>Test Scenario's</h3>
+<ol>
+<li>All three context types populated</li>
+<li>Single context type only</li>
+<li>No context selected</li>
+<li>Mixed empty en populated</li>
+</ol>
+
+<h2>Test Files</h2>
+
+<h3>Primary Test Suite</h3>
+<ul>
+<li>**`tests/unit/test_us041_context_field_mapping.py`** (250+ test cases)</li>
+<li> - Context field type validation</li>
+<li> - PromptServiceV2 integration tests</li>
+<li> - Context propagation flow validation</li>
+<li> - Justice domain-specific scenarios</li>
+<li> - ASTRA compliance basics</li>
+<li> - Edge cases and error conditions</li>
+</ul>
+
+<h3>Supporting Test Files</h3>
+<ul>
+<li>**`tests/integration/test_context_flow_epic_cfr.py`**</li>
+<li> - End-to-end context flow testing</li>
+<li> - Integration with all three user stories</li>
+<li> - Context audit trail validation</li>
+</ul>
+
+<ul>
+<li>**`tests/unit/test_anders_edge_cases.py`**</li>
+<li> - Extreme input scenarios</li>
+<li> - Security validation (XSS, SQL injection prevention)</li>
+<li> - Unicode and encoding edge cases</li>
+</ul>
+
+<h3>Test Execution Commands</h3>
+<pre><code># Run US-041 specific unit tests
+pytest tests/unit/test_us041_context_field_mapping.py -v
+
+# Run integration tests for context flow
+pytest tests/integration/test_context_flow_epic_cfr.py::TestContextFlowIntegration -v
+
+# Run with coverage report
+pytest tests/unit/test_us041_context_field_mapping.py --cov=src.services.prompts --cov-report=html
+
+# Quick smoke test
+pytest tests/unit/test_us041_context_field_mapping.py -k "test_basic" -v</code></pre>
+
+<h3>Expected Test Outcomes</h3>
+<ul>
+<li>**Before Fix**: All tests should FAIL (context not propagated)</li>
+<li>**After Fix**: 100% pass rate for context mapping tests</li>
+<li>**Performance**: Context processing < 50ms</li>
+<li>**Coverage**: >95% for modified code</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] Context properly extracted from request</li>
+<li>[ ] All three context types mapped correctly</li>
+<li>[ ] Context visible in generated prompts</li>
+<li>[ ] Unit tests written en passing</li>
+<li>[ ] Integration tests passing</li>
+<li>[ ] Debug logging shows context</li>
+<li>[ ] Code review Voltooid</li>
+<li>[ ] Deployed to test environment</li>
+<li>[ ] User validatie successful</li>
+</ul>
+
+<h2>Bug Report Details</h2>
+
+<h3>Steps to Reproduce</h3>
+<ol>
+<li>Open Definition Generator</li>
+<li>Enter term: "voorlopige hechtenis"</li>
+<li>Select values in all context fields</li>
+<li>Generate definition</li>
+<li>Check debug prompt output</li>
+<li>**BUG**: Context fields are empty in prompt</li>
+</ol>
+
+<h3>Expected vs Actual</h3>
+<ul>
+<li>**Expected**: Context values in prompt</li>
+<li>**Actual**: Empty context arrays</li>
+<li>**Impact**: Definitions lack legal context</li>
+</ul>
+
+<h2>Risk Assessment</h2>
+
+<h3>Business Risk</h3>
+<ul>
+<li>**Legal compliance**: HOOG - Definitions not meeting justice stEnards</li>
+<li>**User Trust**: HOOG - System not using provided input</li>
+<li>**Quality**: HOOG - Generic definitions without context</li>
+</ul>
+
+<h3>Technical Risk</h3>
+<ul>
+<li>**Complexity**: LAAG - Simple mapping fix</li>
+<li>**Testen**: GEMIDDELD - Need comprehensive tests</li>
+<li>**Regression**: LAAG - Isolated change</li>
+</ul>
+
+<h2>Implementatie Prioriteit</h2>
+
+<p><strong>IMMEDIATE HOTFIX REQUIRED</strong></p>
+
+<p>This is blocking compliant definition generation en must be fixed before any new features.</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Bug discovered: 04-09-2025</li>
+<li>Root cause identified: 04-09-2025</li>
+<li>Fix planned: Sprint 36 (current)</li>
+<li>**Workaround**: None available</li>
+</ul>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>EPIC-010</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This story is part of EPIC-010: Context FLAAG Refactoring (KRITIEK)</em></p>
+
+  </div>
+</body>
+</html>

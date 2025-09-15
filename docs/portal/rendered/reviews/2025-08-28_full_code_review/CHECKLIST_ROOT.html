@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checklist — Root-bestanden</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Checklist — Root-bestanden</h1>
+
+<p>Regel: vink een item pas af als het voorstel + acceptatiecriteria in <code>CODE_REVIEW_REPORT.md</code> staat. Items met “EXCLUDED (generated/secret)” nemen we niet op in de review, tenzij je anders aangeeft.</p>
+
+<h2>ROOT</h2>
+
+<ul>
+<li>[ ] [.gitignore](CODE_REVIEW_REPORT.md#-gitignore)</li>
+<li>[ ] [.pre-commit-config.yaml](CODE_REVIEW_REPORT.md#-pre-commit-config-yaml)</li>
+<li>[ ] [CHANGELOG.md](CODE_REVIEW_REPORT.md#changelog-md)</li>
+<li>[ ] [CONTRIBUTING.md](CODE_REVIEW_REPORT.md#contributing-md)</li>
+<li>[ ] [PROMPT_SYSTEM_ANALYSIS.md](CODE_REVIEW_REPORT.md#prompt_system_analysis-md)</li>
+<li>[ ] [pyproject.toml](CODE_REVIEW_REPORT.md#pyproject-toml)</li>
+<li>[ ] [README.md](CODE_REVIEW_REPORT.md#readme-md)</li>
+<li>[ ] [vereistes-dev.txt](CODE_REVIEW_REPORT.md#vereistes-dev-txt)</li>
+<li>[ ] [vereistes.txt](CODE_REVIEW_REPORT.md#vereistes-txt)</li>
+<li>[ ] [temperature_analysis_complete.md](CODE_REVIEW_REPORT.md#temperature_analysis_complete-md)</li>
+<li>[ ] [temperature_analysis.md](CODE_REVIEW_REPORT.md#temperature_analysis-md)</li>
+</ul>
+
+<h2>EXCLUDED (generated/secret)</h2>
+
+<ul>
+<li>[ ] .coverage — EXCLUDED (generated)</li>
+<li>[ ] .DS_Store — EXCLUDED (os)</li>
+<li>[ ] .env — EXCLUDED (secret)</li>
+<li>[ ] .env.backup — EXCLUDED (secret)</li>
+<li>[ ] .env.example — EXCLUDED (example, alleen opnemen indien gewenst)</li>
+<li>[ ] .env.new_services_disabled — EXCLUDED (secret)</li>
+<li>[ ] definities.db — EXCLUDED (database artifact)</li>
+</ul>
+
+  </div>
+</body>
+</html>
