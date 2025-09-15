@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>validatie Results Display</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-018</li>
+<li>US-019</li>
+<p>aangemaakt: 01-02-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-004</p>
+<p>id: US-136</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: Voltooid</p>
+<p>status: GEREED</p>
+<p>story_points: 5</p>
+<p>titel: validatie Results Display</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<li>REQ-052</li>
+<li>REQ-054</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-136: validatie Results Display</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As a</strong> legal professional</p>
+<p><strong>wil ik</strong> clear display of validatie results</p>
+<p><strong>zodat</strong> I can understEn en fix quality issues</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Results Organization</h3>
+<p><strong>gegeven</strong> validatie completes</p>
+<p><strong>wanneer</strong> results are displayed</p>
+<p><strong>dan</strong> they are organized by category en priority</p>
+
+<h3>Criterion 2: Visual Indicators</h3>
+<p><strong>gegeven</strong> different result types</p>
+<p><strong>wanneer</strong> displayed to user</p>
+<p><strong>dan</strong> color coding en icons indicate severity</p>
+
+<h3>Criterion 3: Actionable Feedback</h3>
+<p><strong>gegeven</strong> validatie issues exist</p>
+<p><strong>wanneer</strong> results are shown</p>
+<p><strong>dan</strong> clear suggestions for fixes are provided</p>
+
+<h2>Domain vereisten</h2>
+
+<h3>ASTRA compliance</h3>
+<ul>
+<li>Clear information architecture</li>
+<li>Accessibility stEnards</li>
+<li>Visual hierarchy</li>
+</ul>
+
+<h3>Justice Domain Specifics</h3>
+<ul>
+<li>Dutch language messages</li>
+<li>juridische terminologie</li>
+<li>compliance indicators</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Display Components</h3>
+<ul>
+<li>Summary statistics</li>
+<li>Category breakdown</li>
+<li>Individual rule results</li>
+<li>Prioriteit indicators</li>
+<li>Fix suggestions</li>
+<li>Score visualization</li>
+</ul>
+
+<h3>Visual Design</h3>
+<pre><code>def display_results(results):
+    # Summary
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Score", results.score)
+    col2.metric("Passed", results.passed)
+    col3.metric("Failed", results.failed)
+
+    # Details by category
+    for category in results.categories:
+        with st.expEner(category.name):
+            display_category_results(category)</code></pre>
+
+<h3>Color Coding</h3>
+<ul>
+<li>🟢 Green: Passed</li>
+<li>🟡 YelLAAG: Warning</li>
+<li>🔴 Red: Failed</li>
+<li>🔵 Blue: Info</li>
+</ul>
+
+<h2>testdekking vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Result formatting</li>
+<li>Score calculation</li>
+<li>Category grouping</li>
+<li>Color coding logic</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>Full results display</li>
+<li>Interactive elements</li>
+<li>Prestaties with large results</li>
+</ul>
+
+<h3>Test Files</h3>
+<ul>
+<li>`tests/ui/test_validation_display.py`</li>
+<li>`tests/ui/test_result_formatting.py`</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[x] Results display geïmplementeerd</li>
+<li>[x] Category grouping working</li>
+<li>[x] Color coding applied</li>
+<li>[x] Fix suggestions shown</li>
+<li>[x] Interactive elements functional</li>
+<li>[x] Accessibility verified</li>
+<li>[x] Tests passing</li>
+<li>[x] User feedback incorporated</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Functionaliteiten</h3>
+<ul>
+<li>Collapsible categories</li>
+<li>Severity filtering</li>
+<li>Export results</li>
+<li>Print-friendly view</li>
+<li>Result comparison</li>
+<li>Trend visualization</li>
+</ul>
+
+<h3>User Experience</h3>
+<ul>
+<li>Progressive disclosure</li>
+<li>Clear visual hierarchy</li>
+<li>Actionable insights</li>
+<li>Contextual help</li>
+<li>Smooth interactions</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-004</li>
+</ul>
+<h3>External</h3>
+<ul>
+<li>Streamlit components</li>
+<li>Charting library</li>
+</ul>
+
+<h3>Internal</h3>
+<ul>
+<li>validatie service</li>
+<li>Result processor</li>
+<li>UI framework</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Implemented: 01-02-2025</li>
+<li>User testing: 08-02-2025</li>
+<li>Accessibility audit: 10-02-2025</li>
+<li>Prestaties optimized: 12-02-2025</li>
+</ul>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>validatie UI Guide</li>
+<li>Result Display Patterns</li>
+<li>Accessibility richtlijnen</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This story is part of EPIC-004: User Interface</em></p>
+
+  </div>
+</body>
+</html>

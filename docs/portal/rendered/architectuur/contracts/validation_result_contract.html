@@ -1,0 +1,305 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ValidationResult Contract</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>ValidationResult Contract</h1>
+
+<p>---</p>
+<p>document: ValidationResult Contract</p>
+<p>version: 1.0</p>
+<p>status: CONCEPT</p>
+<p>type: Contract</p>
+<p>parent: validation_orchestrator_v2.md</p>
+<p>related:</p>
+<ul>
+<li> - error_catalog_validation.md</li>
+<li> - validation_result.schema.json</li>
+<li> - validation_orchestrator_rollout.md</li>
+<p>see-also:</p>
+<li> - golden-dataset-validation.md</li>
+<li> - ADR-006-validation-orchestrator-v2.md</li>
+<p>owner: Dev Lead</p>
+<p>created: 29-12-2024</p>
+<p>updated: 29-12-2024</p>
+<p>tags: [validation, contract, v2, async, schema]</p>
+<p>---</p>
+</ul>
+
+<h2>Executive Summary</h2>
+
+<p>Dit document definieert het bindende contract voor <code>ValidationResult</code> objecten in de ValidationOrchestratorV2. Het specificeert data structuur, versie beleid, en compatibility garanties.</p>
+
+<h2>Scope & Status</h2>
+
+<ul>
+<li>**Scope**: Alle validation responses van ValidationOrchestratorV2</li>
+<li>**Versie**: 1.0.0 (SemVer)</li>
+<li>**Backward Compatibility**: Gegarandeerd binnen major version</li>
+</ul>
+
+<h2>Versie Beheer</h2>
+
+<h3>Semantic Versioning</h3>
+<ul>
+<li>**Major** (1.x.x): Breaking changes - veld verwijdering, type changes, semantiek breuk</li>
+<li>**Minor** (x.1.x): Non-breaking additions - nieuwe optionele velden</li>
+<li>**Patch** (x.x.1): Bug fixes, documentatie updates</li>
+</ul>
+
+<h3>Compatibility Rules</h3>
+<ul>
+<li>Consumers MOETEN unknown fields ignoreren (forward compatibility)</li>
+<li>Producers MOGEN NIET required fields weglaten (backward compatibility)</li>
+<li>Schema validatie via JSON Schema draft 2020-12</li>
+</ul>
+
+<h2>Data Model</h2>
+
+<h3>Core Fields</h3>
+
+<pre><code>interface ValidationResult {
+  // Contract metadata
+  version: string;           // Contract versie (e.g., "1.0.0")
+
+  // Validation outcome
+  overall_score: number;     // 0.0 - 1.0
+  is_acceptable: boolean;    // Pass/fail decision
+
+  // Violations detail
+  violations: ValidationViolation[];
+  passed_rules: string[];    // Rule IDs that passed
+
+  // Scoring breakdown
+  detailed_scores: Record&lt;string, number&gt;;
+
+  // Improvements (optional)
+  improvement_suggestions?: Suggestion[];
+
+  // System metadata (optional)
+  system?: SystemMetadata;
+}</code></pre>
+
+<h3>ValidationViolation Structure</h3>
+
+<pre><code>interface ValidationViolation {
+  // Identification
+  code: string;              // Error code (zie Error Catalog)
+  rule_id: string;           // Specific rule (e.g., "ARAI04SUB1")
+  category: string;          // Category (taal|juridisch|structuur|samenhang|system)
+
+  // Details
+  severity: 'info' | 'warning' | 'error';
+  message: string;           // User-friendly message (i18n ready)
+
+  // Location (optional)
+  location?: {
+    text_span?: { start: number; end: number };
+    indices?: number[];
+    line?: number;
+    column?: number;
+  };
+
+  // Remediation
+  suggestions?: string[];    // Possible fixes
+  metadata?: Record&lt;string, any&gt;;  // Additional context
+}</code></pre>
+
+<h3>SystemMetadata Structure</h3>
+
+<pre><code>interface SystemMetadata {
+  correlation_id: string;    // Request tracing ID
+  engine_version?: string;   // Validator version
+  profile_used?: string;     // Validation profile
+  timestamp?: string;        // ISO 8601
+  duration_ms?: number;      // Processing time
+
+  timings?: {
+    cleaning_ms?: number;
+    validation_ms?: number;
+    enhancement_ms?: number;
+  };
+}</code></pre>
+
+<h2>JSON Schema</h2>
+
+<p>Volledig schema: <a href="./schemas/validation_result.schema.json" target="_blank">validation_result.schema.json</a></p>
+
+<h3>Validatie</h3>
+<pre><code># Validate response
+ajv validate -s validation_result.schema.json -d response.json
+
+# TypeScript types generation
+json2ts validation_result.schema.json &gt; ValidationResult.d.ts</code></pre>
+
+<h2>Mapping Strategy</h2>
+
+<h3>Modern Validator → Services Interface</h3>
+
+<pre><code># src/services/validation/mappers.py
+def map_to_interface(modern_result: ModernValidationResult) -&gt; ValidationResult:
+    return ValidationResult(
+        version="1.0.0",
+        overall_score=modern_result.overall_score,
+        is_acceptable=modern_result.is_acceptable,
+        violations=[map_violation(v) for v in modern_result.violations],
+        passed_rules=modern_result.passed_rules,
+        detailed_scores=modern_result.detailed_scores,
+        improvement_suggestions=modern_result.suggestions,
+        system={
+            "correlation_id": context.correlation_id,
+            "engine_version": modern_result.engine_version,
+            "profile_used": modern_result.profile_name
+        }
+    )</code></pre>
+
+<h2>Error Handling</h2>
+
+<p>Validation results zijn ALTIJD functioneel - exceptions worden opgevangen:</p>
+
+<pre><code>try:
+    result = await validator.validate(...)
+except Exception as e:
+    # Return degraded result, not exception
+    return ValidationResult(
+        version="1.0.0",
+        overall_score=0.0,
+        is_acceptable=False,
+        violations=[{
+            "code": "SYS-INT-001",
+            "severity": "error",
+            "message": "Validation service unavailable",
+            "rule_id": "SYSTEM",
+            "category": "system"
+        }],
+        passed_rules=[],
+        detailed_scores={},
+        system={"error": str(e)}
+    )</code></pre>
+
+<h2>Example Payloads</h2>
+
+<h3>Success Response</h3>
+<pre><code>{
+  "version": "1.0.0",
+  "overall_score": 0.86,
+  "is_acceptable": true,
+  "violations": [
+    {
+      "code": "VAL-STR-001",
+      "severity": "warning",
+      "message": "Zin bevat meer dan 20 woorden",
+      "rule_id": "ARAI04",
+      "category": "structuur",
+      "location": {
+        "text_span": {"start": 12, "end": 47}
+      },
+      "suggestions": ["Splits de zin op bij 'waarbij'"]
+    }
+  ],
+  "passed_rules": ["VAL-LNG-001", "VAL-JUR-002", "VAL-SAM-001"],
+  "detailed_scores": {
+    "taal": 0.9,
+    "juridisch": 0.8,
+    "structuur": 0.85,
+    "samenhang": 0.88
+  },
+  "system": {
+    "correlation_id": "550e8400-e29b-41d4-a716-446655440000",
+    "engine_version": "2.1.0",
+    "profile_used": "default",
+    "duration_ms": 145
+  }
+}</code></pre>
+
+<h3>Validation Failure</h3>
+<pre><code>{
+  "version": "1.0.0",
+  "overall_score": 0.42,
+  "is_acceptable": false,
+  "violations": [
+    {
+      "code": "VAL-JUR-003",
+      "severity": "error",
+      "message": "Definitie bevat circulaire verwijzing",
+      "rule_id": "ARAI02",
+      "category": "juridisch"
+    }
+  ],
+  "passed_rules": [],
+  "detailed_scores": {
+    "taal": 0.7,
+    "juridisch": 0.2,
+    "structuur": 0.5,
+    "samenhang": 0.3
+  }
+}</code></pre>
+
+<h2>Compatibility Testen</h2>
+
+<h3>Golden Snapshots</h3>
+<ul>
+<li>Maintain bij: `tests/fixtures/golden/validation_results/`</li>
+<li>Update alleen met explicit changelog entry</li>
+<li>Automated regression via: `pytest tests/contracts/test_validation_contract.py`</li>
+</ul>
+
+<h3>Contract Tests</h3>
+<pre><code>def test_contract_compatibility():
+    # Load all golden snapshots
+    for snapshot in golden_snapshots:
+        # Validate against schema
+        assert validate_schema(snapshot, "validation_result.schema.json")
+        # Check backward compatibility
+        assert can_deserialize_v1(snapshot)</code></pre>
+
+<h2>Backward Compatibility Mapping (v1.0.0 → latest)</h2>
+
+<ul>
+<li>Pinned schema `validation_result_v1.0.0.schema.json` hanteert andere veldnamen/structuur dan de “latest” variant.</li>
+<li>Belangrijkste verschillen en mapping voor consumers:</li>
+<li> - `metadata` (v1) → `system` (latest)</li>
+<li>   - `metadata.correlation_id` → `system.correlation_id`</li>
+<li>   - `metadata.processing_time_ms` → `system.duration_ms`</li>
+<li>   - `metadata.validator_version` → `system.engine_version`</li>
+<li> - `warnings` (v1 optioneel array) → geen direct equivalent; opnemen als `violations` met `severity="info"` indien gewenst.</li>
+<li>Richtlijn:</li>
+<li> - Producers: lever “latest” (`system`) uit.</li>
+<li> - Consumers: ondersteun v1 via een lichte adapter die bovenstaande mapping toepast.</li>
+</ul>
+
+<h2>Related Documents</h2>
+<ul>
+<li>**Parent**: Validation Orchestrator V2 Architecture (see Solution Architecture)</li>
+<li>**Schema**: [JSON Schema Definition](./schemas/validation_result.schema.json)</li>
+<li>**Errors**: [Error Catalog](../../technisch/error_catalog_validation.md)</li>
+<li>**Usage**: Rollout Runbook (documentation in planning)</li>
+<li>**Testen**: [Golden Dataset](../../testing/golden-dataset-validation.md)</li>
+</ul>
+
+<h2>Change Log</h2>
+<p>| Versie | Date | Changes | Author |</p>
+<p>|---------|------|---------|--------|</p>
+<p>| 1.0.0 | 29-12-2024 | Initial contract definition | Dev Lead |</p>
+
+<p>---</p>
+<p><em>Contract governance: Changes require approval from Dev Lead + Architect</em></p>
+
+  </div>
+</body>
+</html>

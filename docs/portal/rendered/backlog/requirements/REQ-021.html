@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Lookup Integration</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-021</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/guidelines/web_lookup_config.md</li>
+<li> - docs/architectuur/SOLUTION_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-003</li>
+<p>  stories:</p>
+<li> - US-079</li>
+<p>prioriteit: GEMIDDELD</p>
+<p>sources:</p>
+<li>line: ModernWebLookupService class</li>
+<p>  path: src/services/modern_web_lookup_service.py</p>
+<li>line: entire configuration</li>
+<p>  path: config/web_lookup_defaults.yaml</p>
+<p>status: GEREED</p>
+<p>titel: Web Lookup Integration</p>
+<p>type: functional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>REQ-021: Web Lookup Integration</h1>
+
+<h2>Domain Context</h2>
+
+<p>This vereiste aligns with Dutch justitiesector stEnards en frameworks:</p>
+
+<ul>
+<li>**ASTRA compliance**: FolLAAGs ASTRA (Algemene Strategie Referentie Architectuur) richtlijnen for justice IT systems</li>
+<li>**NORA Principles**: Adheres to NederlEnse Overheid Referentie Architectuur for government-wide interoperability</li>
+<li>**justitieketen Integration**: Compatible with OM (Openbaar Ministerie), DJI (Dienst Justitiële Inrichtingen), Justid, En Rechtspraak systems</li>
+<li>**Legal Framework**: Complies with Dutch juridische terminologie stEnards en Aanwijzingen voor de regelgeving</li>
+<li>**Data Quality**: Meets justitiesector data quality vereisten for juridische definities</li>
+</ul>
+
+<h2>Requirement Description</h2>
+
+<p>The system must integrate external web sources to enrich context for definition generation:</p>
+<ul>
+<li>Wikipedia API for general knowledge</li>
+<li>SRU protocol for library catalog data</li>
+<li>Configurable provider weights en priorities</li>
+<li>Fallback mechanisms for unavailable sources</li>
+<li>Result caching en deduplication</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+<ol>
+<li>**Wikipedia Integration**: Search en retrieve relevant articles</li>
+<li>**SRU Integration**: Query library catalogs for legal sources</li>
+<li>**Provider Management**: Configurable weights (0.0-1.0)</li>
+<li>**Error Handling**: Graceful degradation wanneer sources unavailable</li>
+<li>**Prestaties**: Lookup completes within 2 seconds</li>
+<li>**Caching**: Cache results for 15 minutes</li>
+<li>**Relevance**: Filter irrelevant results</li>
+</ol>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Implementatie Details</h2>
+
+<h3>Provider Configuration</h3>
+<pre><code>providers:
+  wikipedia:
+    enabled: true
+    weight: 0.7
+    timeout: 3
+    max_results: 3
+
+  sru:
+    enabled: true
+    weight: 1.0
+    timeout: 5
+    max_results: 5
+    endpoint: "https://jsru.kb.nl/sru"</code></pre>
+
+<h3>Service Architecture</h3>
+<ul>
+<li>**ModernWebLookupService**: Main coordination</li>
+<li>**WikipediaProvider**: Wikipedia API wrapper</li>
+<li>**SRUProvider**: SRU protocol Implementatie</li>
+<li>**ResultRanker**: Score en rank results</li>
+<li>**CacheManager**: LRU cache for results</li>
+</ul>
+
+<h3>Lookup FLAAG</h3>
+<ol>
+<li>Parse search query from term</li>
+<li>Query providers in parallel</li>
+<li>Apply timeout constraints</li>
+<li>Rank results by relevance en weight</li>
+<li>Deduplicate similar content</li>
+<li>Cache successful results</li>
+<li>Return enriched context</li>
+</ol>
+
+<h3>Wikipedia Integration</h3>
+<ul>
+<li>Use Wikipedia API v2</li>
+<li>Search in Dutch (nl) primarily</li>
+<li>Fallback to English for Latin terms</li>
+<li>Extract summary en key sections</li>
+<li>FolLAAG redirects automatically</li>
+</ul>
+
+<h3>SRU Integration</h3>
+<ul>
+<li>Query legal en academic sources</li>
+<li>Support Dublin Core metadata</li>
+<li>Filter by publication Datum en type</li>
+<li>Prioritize authoritative sources</li>
+<li>HEnle MARC records</li>
+</ul>
+
+<h2>Prestaties vereisten</h2>
+
+<ul>
+<li>**Latency**: P95 < 2 seconds</li>
+<li>**Throughput**: 100 requests/minute</li>
+<li>**Cache Hit Rate**: > 60%</li>
+<li>**Availability**: Degrade gracefully, never block</li>
+</ul>
+
+<h2>Quality Metrics</h2>
+
+<ul>
+<li>**Relevance**: 80% of results relevant</li>
+<li>**Coverage**: Find context for 70% of terms</li>
+<li>**Accuracy**: 95% correct metadata</li>
+<li>**Freshness**: UpDatum cache every 15 minutes</li>
+</ul>
+
+<h2>Error Scenarios</h2>
+
+<ol>
+<li>**Provider Timeout**: Return partial results</li>
+<li>**Network Error**: Use cached results if available</li>
+<li>**API Limit**: Implement exponential backoff</li>
+<li>**Invalid Response**: Log en skip provider</li>
+<li>**No Results**: Return empty context gracefully</li>
+</ol>
+
+<h2>beveiliging Considerations</h2>
+
+<ul>
+<li>Sanitize search queries</li>
+<li>ValiDatum API responses</li>
+<li>Rate limit outgoing requests</li>
+<li>Use HTTPS for all connections</li>
+<li>No storage of sensitive data</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>requests library for HTTP</li>
+<li>wikipedia-api package</li>
+<li>SRU client library</li>
+<li>Redis or in-memory cache</li>
+<li>Network connectivity</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

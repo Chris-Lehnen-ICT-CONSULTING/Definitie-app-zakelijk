@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Configuratie import/export (JSON/YAML)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-166</p>
+<p>titel: Configuratie import/export (JSON/YAML)</p>
+<p>epic: EPIC-016</p>
+<p>status: Backlog</p>
+<p>prioriteit: LAAG</p>
+<p>story_points: 3</p>
+<p>aangemaakt: 2025-09-13</p>
+<p>bijgewerkt: 2025-09-13</p>
+<p>owner: architecture</p>
+<p>type: feature</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-13</p>
+<p>---</p>
+
+<h1>US-166: Configuratie import/export (JSON/YAML)</h1>
+
+<h2>Doel</h2>
+<p>Beheerconfiguratie kunnen exporteren (backup/overdracht) en importeren (migratie/herstel) in JSON of YAML.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Export van huidige configuratie naar JSON/YAML via UI</li>
+<li>[ ] Import met validatie en preview ('diff') voor toepassen</li>
+<li>[ ] Foutmeldingen duidelijk; import atomic (alles of niets)</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] UI‑acties export/import aanwezig</li>
+<li>[ ] Validatie en preview implementatie</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<h2>Import/Export details</h2>
+<ul>
+<li>Export: download JSON/YAML met alle configgroepen (gate‑policy, regels, contextopties).</li>
+<li>Import: upload → validatie → diff‑preview → confirm → atomic apply (+ audit entry).</li>
+<li>Foutafhandeling: duidelijke meldingen; geen gedeeltelijke writes.</li>
+</ul>
+
+  </div>
+</body>
+</html>

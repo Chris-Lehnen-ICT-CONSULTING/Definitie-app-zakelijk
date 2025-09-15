@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UI Responsiveness < 200ms</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-009</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - TECHNICAL_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-004</li>
+<li> - EPIC-007</li>
+<p>  stories:</p>
+<li> - US-4.1</li>
+<li> - US-7.3</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: Prestaties Targets section</li>
+<p>  path: CLAUDE.md</p>
+<li>line: UI components</li>
+<p>  path: src/ui/components/</p>
+<p>status: In Progress</p>
+<p>titel: UI Responsiveness < 200ms</p>
+<p>type: nonfunctional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-009: UI Responsiveness < 200ms</h1>
+
+<h2>Beschrijving</h2>
+
+<p>Alle UI interacties (klikken, typen, navigeren) moeten binnen 200 milliseconden visuele feedback geven aan de gebruiker. Dit zorgt voor een vloeiende gebruikerservaring.</p>
+
+<h2>Rationale</h2>
+
+<p>Onderzoek toont aan dat gebruikers delays boven 200ms als merkbaar ervaren. Voor productieve werkzaamheden is een responsieve UI essentieel voor gebruikerstevredenheid.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+
+<ul>
+<li>Maarton clicks tonen loading state binnen 100ms</li>
+<li>Tab switches compleet binnen 150ms</li>
+<li>Form input feedback binnen 50ms</li>
+<li>Progress indicators voor operaties > 1 seconde</li>
+<li>Smooth scrolling en animaties (60 fps)</li>
+<li>First Contentful Paint (FCP) < 1.5s bij initial load</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Uitwerking / Notities</h2>
+
+<ul>
+<li>Streamlit st.spinner() voor loading feedback</li>
+<li>Lazy loading van zware componenten</li>
+<li>Client-side validatie voor immediate feedback</li>
+<li>Debouncing voor search/filter inputs (300ms)</li>
+<li>Virtual scrolling voor lange lijsten</li>
+<li>Browser caching van static assets</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+
+<p>Geen conflicten geïdentificeerd</p>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Implement complete ui responsiveness < 200ms beveiliging control</li>
+<li>**Meetbaar**: Geen kwetsbaarheden in beveiligingsscans, 100% testdekking</li>
+<li>**Haalbaar**: Using established beveiliging libraries en patterns</li>
+<li>**Relevant**: KRITIEK voor justitiesector gegevensbeschermingscompliance</li>
+<li>**Tijdgebonden**: Must be operational before productie deployment</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

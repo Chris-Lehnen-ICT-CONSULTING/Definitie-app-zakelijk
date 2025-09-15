@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement CI Gates tegen Legacy Patterns</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-053</p>
+<p>titel: Implement CI Gates tegen Legacy Patterns</p>
+<p>epic: EPIC-010</p>
+<p>status: COMPLETED</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 2</p>
+<p>sprint: sprint-37</p>
+<p>toegewezen_aan: devops-team</p>
+<p>aangemaakt: 2025-09-10</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>completed: 2025-09-11</p>
+<p>owner: devops-engineer</p>
+<p>type: ci-cd</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-068</li>
+<li>REQ-069</li>
+<p>Afhankelijkheden:</p>
+<li>US-043</li>
+<li>US-051</li>
+<li>US-052</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-10</p>
+<p>---</p>
+</ul>
+
+<h1>US-053: Implement CI Gates tegen Legacy Patterns</h1>
+
+<p><strong>Epic:</strong> EPIC-010 - Context Flow Refactoring</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> DevOps engineer</p>
+<p><strong>wil ik</strong> automatische CI gates die legacy patterns blokkeren</p>
+<p><strong>zodat</strong> we regressie voorkomen en de codebase clean houden na de refactor</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>Na het verwijderen van legacy patterns en deprecated code tijdens de EPIC-010 refactor, bestaat het risico dat ontwikkelaars per ongeluk deze patterns weer introduceren. We hebben automatische checks nodig die de CI pipeline laten falen wanneer verboden patterns gedetecteerd worden.</p>
+
+<h3>Te Blokkeren Patterns</h3>
+
+<ol>
+<li>**Legacy imports**: `from src.models.generation_result import`</li>
+<li>**Deprecated attributes**: `.overall_score`, `.best_iteration`</li>
+<li>**String context**: `request.context` (zonder underscore)</li>
+<li>**Domein field**: Alle references naar `domein`</li>
+<li>**Sync bridging in services**: `asyncio.run()` buiten async_bridge</li>
+<li>**Direct sync wrapper calls**: `generate_definition_sync()` buiten async_bridge</li>
+</ol>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[ ] GitHub Actions workflow geconfigureerd</li>
+<li>[ ] Workflow runt op elke push en PR</li>
+<li>[ ] Duidelijke error messages bij violations</li>
+<li>[ ] Exit code 1 bij gevonden violations</li>
+<li>[ ] Groene check bij clean code</li>
+</ul>
+
+<h3>Technische Criteria</h3>
+<ul>
+<li>[ ] Workflow file: `.github/workflows/epic-010-gates.yml`</li>
+<li>[ ] Gebruikt grep/ripgrep voor pattern matching</li>
+<li>[ ] Exclude patterns voor valse positieven</li>
+<li>[ ] Performance: < 30 seconden runtime</li>
+<li>[ ] Configureerbare pattern lijst</li>
+</ul>
+
+<h3>Pattern Checks</h3>
+<ul>
+<li>[ ] Check legacy imports geblokkeerd</li>
+<li>[ ] Check deprecated attributes geblokkeerd</li>
+<li>[ ] Check string context geblokkeerd</li>
+<li>[ ] Check domein field geblokkeerd</li>
+<li>[ ] Check asyncio.run in services geblokkeerd</li>
+<li>[ ] Check directe sync wrapper calls geblokkeerd</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>GitHub Actions Workflow</h3>
+
+<pre><code># .github/workflows/epic-010-gates.yml
+name: EPIC-010 Legacy Pattern Gates
+
+on:
+  push:
+    branches: [ main, develop, feature/* ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  check-legacy-patterns:
+    runs-on: ubuntu-latest
+    name: Check for Legacy Patterns
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install ripgrep
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ripgrep
+
+      - name: Check for generation_result imports
+        run: |
+          echo "Checking for legacy generation_result imports..."
+          if rg "from src\.models\.generation_result import" src/; then
+            echo "❌ FAIL: Legacy generation_result imports found"
+            exit 1
+          fi
+          echo "✅ PASS: No generation_result imports"
+
+      - name: Check for deprecated attributes
+        run: |
+          echo "Checking for deprecated attributes..."
+          if rg "\.overall_score|\.best_iteration" src/ --type py; then
+            echo "❌ FAIL: Deprecated attributes found"
+            exit 1
+          fi
+          echo "✅ PASS: No deprecated attributes"
+
+      - name: Check for string context usage
+        run: |
+          echo "Checking for string context usage..."
+          # Match request.context but NOT request.context_dict
+          if rg "request\.context(?!_dict)" src/ --type py; then
+            echo "❌ FAIL: String context usage found"
+            exit 1
+          fi
+          echo "✅ PASS: No string context usage"
+
+      - name: Check for domein field
+        run: |
+          echo "Checking for domein field usage..."
+          # Exclude comments and docstrings
+          if rg "\bdomein\b" src/ --type py | grep -v "^.*#.*domein" | grep -v '""".*domein.*"""'; then
+            echo "❌ FAIL: Domein field usage found"
+            exit 1
+          fi
+          echo "✅ PASS: No domein field usage"
+
+      - name: Check for asyncio.run in services
+        run: |
+          echo "Checking for asyncio.run in services..."
+          if rg "asyncio\.run\(" src/services/ --type py; then
+            echo "❌ FAIL: asyncio.run found in services (only allowed in async_bridge)"
+            exit 1
+          fi
+          echo "✅ PASS: No asyncio.run in services"
+
+      - name: Check for sync wrapper calls outside async_bridge
+        run: |
+          echo "Checking for direct sync wrapper calls..."
+          # Find calls but exclude async_bridge.py and imports
+          VIOLATIONS=$(rg "generate_definition_sync|search_web_sources" src/ui/ --type py | \
+                      grep -v "async_bridge\.py" | \
+                      grep -v "from.*async_bridge import")
+
+          if [ -n "$VIOLATIONS" ]; then
+            echo "❌ FAIL: Direct sync wrapper calls found:"
+            echo "$VIOLATIONS"
+            exit 1
+          fi
+          echo "✅ PASS: No direct sync wrapper calls"
+
+      - name: Summary
+        if: success()
+        run: |
+          echo "🎉 All legacy pattern checks passed!"
+          echo "The codebase is clean of deprecated patterns."</code></pre>
+
+<h3>Local Verification Script</h3>
+
+<pre><code>#!/bin/bash
+# scripts/check-legacy-patterns.sh
+
+echo "Running local legacy pattern checks..."
+
+FAILED=0
+
+# Function to check pattern
+check_pattern() {
+    local pattern=$1
+    local description=$2
+    local path=${3:-"src/"}
+
+    echo -n "Checking $description... "
+    if rg "$pattern" "$path" --type py -q; then
+        echo "❌ FAIL"
+        echo "  Found in:"
+        rg "$pattern" "$path" --type py -l | head -5
+        FAILED=$((FAILED + 1))
+    else
+        echo "✅ PASS"
+    fi
+}
+
+# Run checks
+check_pattern "from src\.models\.generation_result import" "generation_result imports"
+check_pattern "\.overall_score|\.best_iteration" "deprecated attributes"
+check_pattern "request\.context(?!_dict)" "string context"
+check_pattern "\bdomein\b" "domein field"
+check_pattern "asyncio\.run\(" "asyncio.run in services" "src/services/"
+
+# Check sync wrappers
+echo -n "Checking direct sync wrapper calls... "
+VIOLATIONS=$(rg "generate_definition_sync|search_web_sources" src/ui/ --type py | \
+            grep -v "async_bridge" | \
+            grep -v "from.*import")
+if [ -n "$VIOLATIONS" ]; then
+    echo "❌ FAIL"
+    FAILED=$((FAILED + 1))
+else
+    echo "✅ PASS"
+fi
+
+# Summary
+echo ""
+if [ $FAILED -eq 0 ]; then
+    echo "🎉 All checks passed!"
+    exit 0
+else
+    echo "❌ $FAILED checks failed"
+    exit 1
+fi</code></pre>
+
+<h2>Test Scenarios</h2>
+
+<h3>Unit Tests</h3>
+<ol>
+<li>Test workflow syntax valid</li>
+<li>Test pattern matching accuracy</li>
+<li>Test false positive exclusions</li>
+<li>Test performance < 30s</li>
+</ol>
+
+<h3>Integration Tests</h3>
+<ol>
+<li>Test op PR met clean code (moet slagen)</li>
+<li>Test op PR met legacy patterns (moet falen)</li>
+<li>Test verschillende branch strategies</li>
+<li>Test parallel runs</li>
+</ol>
+
+<h2>Verificatie</h2>
+
+<pre><code># 1. Valideer workflow syntax
+yamllint .github/workflows/epic-010-gates.yml
+
+# 2. Test lokaal
+bash scripts/check-legacy-patterns.sh
+
+# 3. Test met opzettelijke violations
+echo "from src.models.generation_result import OldModel" &gt; test_violation.py
+bash scripts/check-legacy-patterns.sh
+rm test_violation.py
+
+# 4. Dry run van workflow
+act -n  # Gebruik 'act' tool voor lokale GitHub Actions</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[x] Workflow file aangemaakt en gecommit</li>
+<li>[x] Lokaal verificatie script aangemaakt</li>
+<li>[x] Alle pattern checks geïmplementeerd</li>
+<li>[x] False positives uitgesloten</li>
+<li>[ ] Workflow getest op test branch</li>
+<li>[ ] Documentatie toegevoegd aan CI/CD docs</li>
+<li>[ ] Team geïnformeerd over nieuwe gates</li>
+</ul>
+
+<h2>Implementation Status</h2>
+
+<p>✅ <strong>COMPLETED</strong> - 11 September 2025</p>
+
+<h3>Wat is geïmplementeerd:</h3>
+<ol>
+<li>**GitHub Actions Workflow** (`.github/workflows/epic-010-gates.yml`)</li>
+</ol>
+<ul>
+<li>  - Controleert op 7 verschillende legacy patterns</li>
+<li>  - Runt op alle pushes en pull requests</li>
+<li>  - Duidelijke foutmeldingen bij violations</li>
+</ul>
+
+<ol>
+<li>**Lokaal Check Script** (`scripts/check-legacy-patterns.sh`)</li>
+</ol>
+<ul>
+<li>  - Developers kunnen lokaal checken voor het pushen</li>
+<li>  - Kleurgecodeerde output voor duidelijkheid</li>
+<li>  - Warnings voor patterns die in Sprint 37 verwijderd worden</li>
+</ul>
+
+<ol>
+<li>**Patterns die geblokkeerd worden:**</li>
+</ol>
+<ul>
+<li>  - Legacy generation_result imports</li>
+<li>  - Deprecated attributes (.best_iteration)</li>
+<li>  - String context usage (request.context)</li>
+<li>  - Domein field references</li>
+<li>  - asyncio.run in services</li>
+<li>  - Streamlit imports in services</li>
+<li>  - Direct sync wrapper calls (warning niveau)</li>
+</ul>
+
+<h3>Aanpassingen tijdens implementatie:</h3>
+<ul>
+<li>ValidationResult.overall_score uitgesloten (dit is een valid attribute)</li>
+<li>Test/demo code uitgesloten van checks</li>
+<li>Sync wrappers zijn warnings tot Sprint 37 (gefaseerde uitrol)</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| False positives | Medium | Goede exclude patterns |</p>
+<p>| Performance impact | Low | Gebruik ripgrep, cache |</p>
+<p>| Bypass attempts | Low | Protected branches |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Deze gates zijn permanent, niet alleen voor Sprint 37</li>
+<li>Patterns kunnen uitgebreid worden in de toekomst</li>
+<li>Consider integratie met SonarQube voor uitgebreidere checks</li>
+<li>Lokaal script helpt developers voor ze pushen</li>
+</ul>
+
+  </div>
+</body>
+</html>

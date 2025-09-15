@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tab Activation (7/10 tabs needed)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-018</li>
+<li>US-019</li>
+<li>US-020</li>
+<p>aangemaakt: 01-02-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-004</p>
+<p>id: US-021</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>sprint: current</p>
+<p>status: IN_UITVOERING</p>
+<p>story_points: 8</p>
+<p>titel: Tab Activation (7/10 tabs needed)</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<li>REQ-048</li>
+<li>REQ-052</li>
+<li>REQ-055</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-021: Tab Activation (7/10 tabs needed)</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As a</strong> legal professional in the Dutch justitieketen</p>
+<p><strong>wil ik</strong> all UI tabs to be functional with justice-specific features</p>
+<p><strong>zodat</strong> I can efficiently create compliant juridische definities for OM, DJI, En Rechtspraak</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Tab Implementatie</h3>
+<p><strong>gegeven</strong> 10 tabs are designed</p>
+<p><strong>wanneer</strong> Implementatie is complete</p>
+<p><strong>dan</strong> all tabs are accessible en functional</p>
+
+<h3>Criterion 2: Tab Navigation</h3>
+<p><strong>gegeven</strong> multiple tabs exist</p>
+<p><strong>wanneer</strong> user clicks between tabs</p>
+<p><strong>dan</strong> navigation is smooth en state is preserved</p>
+
+<h3>Criterion 3: Tab Content</h3>
+<p><strong>gegeven</strong> each tab has a purpose</p>
+<p><strong>wanneer</strong> tab is selected</p>
+<p><strong>dan</strong> appropriate content en functionality is displayed</p>
+
+<h2>Domain vereisten</h2>
+
+<h3>ASTRA compliance</h3>
+<ul>
+<li>Consistent UI patterns folLAAGing justitieketen stEnards</li>
+<li>Accessibility stEnards (WCAG 2.1 AA for government)</li>
+<li>Responsive design for rechtbank tablets en desktop systems</li>
+<li>auditspoor for all tab interactions</li>
+<li>Service-oriented tab architecture</li>
+</ul>
+
+<h3>Justice Domain Specifics</h3>
+<ul>
+<li>Dutch juridische terminologie in all UI elements</li>
+<li>OM workflag support (Openbaar Ministerie (OM) context)</li>
+<li>DJI vereisten (detentie management)</li>
+<li>Rechtspraak stEnards (judicial formatting)</li>
+<li>Justid terminology compliance</li>
+<li>CJIB integration readiness</li>
+</ul>
+
+<h3>NORA vereisten</h3>
+<ul>
+<li>Government UI stEnards (Rijkshuisstijl)</li>
+<li>Privacy-by-design in tab data hEnling</li>
+<li>Secure state management (no PII in URLs)</li>
+<li>Open stEnards for data exchange</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Current Status</h3>
+<ul>
+<li>✅ Definition Generation tab</li>
+<li>✅ validatie Results tab</li>
+<li>✅ Export tab</li>
+<li>⏳ Voorbeelden tab (Examples)</li>
+<li>⏳ Grammatica tab (Grammar)</li>
+<li>⏳ Context tab</li>
+<li>⏳ Bronnen tab (Sources)</li>
+<li>⏳ History tab</li>
+<li>⏳ Settings tab</li>
+<li>⏳ Help tab</li>
+</ul>
+
+<h3>Implementatie Structure</h3>
+<pre><code>tabs = {
+    "definition": DefinitionTab(),
+    "validatie": ValidationTab(),
+    "examples": VoorbeeldenTab(),  # Nog te bepalen
+    "grammar": GrammaticaTab(),    # Nog te bepalen
+    "context": ContextTab(),       # Nog te bepalen
+    "sources": BronnenTab(),       # Nog te bepalen
+    "history": HistoryTab(),       # Nog te bepalen
+}</code></pre>
+
+<h2>testdekking vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Tab initialization with justice profiles</li>
+<li>Tab switching logic with audit logging</li>
+<li>State preservation (no PII leakage)</li>
+<li>Content rendering for Dutch legal text</li>
+<li>ASTRA compliance validatie</li>
+<li>Justid terminology integration</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>Tab interactions</li>
+<li>Data flag between tabs</li>
+<li>Prestaties testing</li>
+<li>Browser compatibility</li>
+</ul>
+
+<h3>Test Files</h3>
+<ul>
+<li>`tests/ui/test_tab_interface.py`</li>
+<li>`tests/ui/tabs/test_*.py` (per tab)</li>
+<li>`tests/integration/test_tab_navigation.py`</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] All 10 tabs geïmplementeerd</li>
+<li>[ ] Navigation working smoothly</li>
+<li>[ ] State management complete</li>
+<li>[ ] Responsive design verified</li>
+<li>[ ] Accessibility tested</li>
+<li>[ ] Documentation bijgewerkt</li>
+<li>[ ] User testing Voltooid</li>
+<li>[ ] Prestaties optimized</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Remaining Tasks</h3>
+<ol>
+<li>Implement VoorbeeldenTab (examples)</li>
+<li>Implement GrammaticaTab (grammar checking)</li>
+<li>Implement enhanced ContextTab</li>
+<li>Implement BronnenTab (source management)</li>
+<li>Implement HistoryTab (definition history)</li>
+<li>Implement SettingsTab (user preferences)</li>
+<li>Implement HelpTab (documentation)</li>
+</ol>
+
+<h3>Tab Features with Justice Context</h3>
+
+<h4>Voorbeelden Tab (Examples)</h4>
+<ul>
+<li>**Purpose**: Manage example sentences from jurisprudentie</li>
+<li>**OM Use**: Openbaar Ministerie (OM) context examples</li>
+<li>**DJI Use**: detentie-related examples</li>
+<li>**Rechtspraak Use**: Jurisprudence examples</li>
+<li>**Features**: ECLI linking, case anonymization</li>
+</ul>
+
+<h4>Grammatica Tab (Grammar)</h4>
+<ul>
+<li>**Purpose**: Legal Dutch grammar validatie</li>
+<li>**StEnards**: Aanwijzingen voor de regelgeving</li>
+<li>**validatie**: juridische terminologie consistency</li>
+<li>**Integration**: Justid terminology checker</li>
+</ul>
+
+<h4>Context Tab (Enhanced)</h4>
+<ul>
+<li>**Purpose**: Comprehensive context management</li>
+<li>**Juridische Context**: Legal framework selection</li>
+<li>**Organisatorische Context**: OM/DJI/Rechtspraak specific</li>
+<li>**Wettelijke Basis**: Law article references</li>
+<li>**ASTRA Traceability**: Full auditspoor</li>
+</ul>
+
+<h4>Bronnen Tab (Sources)</h4>
+<ul>
+<li>**Purpose**: Legal source management</li>
+<li>**Sources**: Rechtspraak.nl, wetten.nl, EUR-Lex</li>
+<li>**Features**: ECLI validatie, source ranking</li>
+<li>**AttriMaarion**: Automatic citation generation</li>
+</ul>
+
+<h4>History Tab (auditspoor)</h4>
+<ul>
+<li>**Purpose**: Definition Versie control</li>
+<li>**compliance**: ASTRA audit vereisten</li>
+<li>**Features**: Change tracking, approval workflag</li>
+<li>**Retention**: 7-year legal retention beleid</li>
+</ul>
+
+<h4>Settings Tab (Configuration)</h4>
+<ul>
+<li>**Organization**: OM/DJI/Rechtspraak profiles</li>
+<li>**Preferences**: Legal formatting options</li>
+<li>**beveiliging**: Role-based access control</li>
+<li>**Integration**: Justid SSO settings</li>
+</ul>
+
+<h4>Help Tab (Documentation)</h4>
+<ul>
+<li>**Guides**: Justice-specific workflags</li>
+<li>**StEnards**: ASTRA/NORA references</li>
+<li>**Support**: Chain helpdesk integration</li>
+<li>**Training**: OM/DJI/Rechtspraak tutorials</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-004</li>
+</ul>
+<h3>External</h3>
+<ul>
+<li>Streamlit tab components</li>
+<li>UI component libraries</li>
+</ul>
+
+<h3>Internal</h3>
+<ul>
+<li>Service container</li>
+<li>State management</li>
+<li>Backend services</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Started: 01-02-2025</li>
+<li>3/10 tabs complete: 15-02-2025</li>
+<li>Target: All tabs by Sprint 38</li>
+<li>GEBLOKKEERD by: UX design approval from justitieketen partners</li>
+<li>Requires: Justid terminology service access</li>
+<li>In afwachting: BIR beveiliging review for sensitive tabs</li>
+<li>validatie needed: OM/DJI/Rechtspraak user testing</li>
+</ul>
+
+<h2>Gerelateerde Documentatie</h2>
+
+<ul>
+<li>UI Architecture: See EPIC-004 user interface design specifications</li>
+<li>Tab Implementation Guide: `src/ui/tabs/` (implementation directory)</li>
+<li>State Management: Streamlit session state (`st.session_state` in codebase)</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This story is part of EPIC-004: User Interface</em></p>
+
+  </div>
+</body>
+</html>

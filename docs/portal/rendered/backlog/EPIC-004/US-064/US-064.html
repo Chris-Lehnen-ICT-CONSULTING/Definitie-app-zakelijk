@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement Definition Edit Interface</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-064</p>
+<p>titel: Implement Definition Edit Interface</p>
+<p>epic: EPIC-004</p>
+<p>status: Completed</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 8</p>
+<p>sprint: 2025-09</p>
+<p>toegewezen_aan: frontend-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-12</p>
+<p>owner: ux-designer</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-085</li>
+<li>REQ-086</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-12</p>
+<p>completed_date: 2025-09-12</p>
+<p>---</p>
+</ul>
+
+<h1>US-064: Implement Definition Edit Interface</h1>
+
+<p><strong>Epic:</strong> EPIC-004 - User Interface</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> juridisch professional</p>
+<p><strong>wil ik</strong> gegenereerde definities kunnen bewerken in een gebruiksvriendelijke interface</p>
+<p><strong>zodat</strong> ik definities kan verfijnen en aanpassen aan specifieke behoeften</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>TODO's in <code>ui/components/definition_generator_tab.py</code>:</p>
+<ul>
+<li>Regel 344: Navigate to edit interface</li>
+<li>Regel 350: Implement definition editing</li>
+<li>Regel 387: Implement settings modal</li>
+</ul>
+
+<p>Momenteel kunnen definities alleen opnieuw gegenereerd worden, niet direct bewerkt.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[x] Rich text editor voor definitie tekst</li>
+<li>[x] Voorbeelden individueel kunnen bewerken</li>
+<li>[x] Context velden kunnen aanpassen</li>
+<li>[x] Metadata kunnen bijwerken</li>
+<li>[x] Version history behouden</li>
+<li>[x] Preview mode voor wijzigingen</li>
+<li>[x] Undo/redo functionaliteit</li>
+<li>[x] Auto-save drafts</li>
+</ul>
+
+<h3>UI/UX Criteria</h3>
+<ul>
+<li>[x] Inline editing waar mogelijk</li>
+<li>[ ] Syntax highlighting voor juridische termen (future)</li>
+<li>[ ] Markdown ondersteuning (future)</li>
+<li>[x] Responsive design</li>
+<li>[x] Keyboard shortcuts</li>
+<li>[x] Validation feedback real-time</li>
+</ul>
+
+<h3>Data Integrity</h3>
+<ul>
+<li>[x] Wijzigingen traceerbaar (wie, wat, wanneer)</li>
+<li>[x] Originele versie behouden</li>
+<li>[x] Rollback mogelijkheid</li>
+<li>[x] Conflict resolution bij concurrent editing</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Edit Component</h3>
+<pre><code>class DefinitionEditInterface:
+    def render_editor(self, definition: DefinitieRecord)
+    def handle_text_change(self, field: str, value: str)
+    def validate_changes(self) -&gt; ValidationResult
+    def save_draft(self) -&gt; bool
+    def publish_changes(self) -&gt; bool
+    def show_diff(self, original: str, modified: str)</code></pre>
+
+<h3>Editor Features</h3>
+<ul>
+<li>Rich text editing (TinyMCE of vergelijkbaar)</li>
+<li>Markdown support met preview</li>
+<li>Auto-completion voor juridische termen</li>
+<li>Spell checking Nederlands</li>
+<li>Format preservation</li>
+</ul>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[x] Edit interface component compleet</li>
+<li>[x] Rich text editor geïntegreerd</li>
+<li>[x] Version tracking werkend</li>
+<li>[x] Auto-save functionaliteit</li>
+<li>[x] Validation tijdens editing</li>
+<li>[x] Unit tests voor edit logic</li>
+<li>[x] E2E tests voor edit flow</li>
+<li>[x] Keyboard navigation getest</li>
+<li>[x] Gebruikersdocumentatie</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Data loss tijdens editing | High | Auto-save + drafts |</p>
+<p>| Concurrent edit conflicts | Medium | Locking mechanism |</p>
+<p>| Browser compatibility | Low | Test major browsers |</p>
+<p>| Performance grote teksten | Medium | Lazy loading |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Begin met plain text editor, voeg rich text later toe</li>
+<li>Overweeg collaborative editing voor toekomst</li>
+<li>Integreer met existing validation service</li>
+</ul>
+
+<h2>✅ Implementation Complete (2025-09-12)</h2>
+
+<h3>Geïmplementeerde Componenten:</h3>
+<ol>
+<li>**Repository Layer** - `src/services/definition_edit_repository.py`</li>
+</ol>
+<ul>
+<li>  - Version history management</li>
+<li>  - Auto-save support</li>
+<li>  - Advanced search filters</li>
+<li>  - Bulk operations</li>
+</ul>
+
+<ol>
+<li>**Service Layer** - `src/services/definition_edit_service.py`</li>
+</ol>
+<ul>
+<li>  - Edit session orchestration</li>
+<li>  - Auto-save (30s interval)</li>
+<li>  - Version conflict detection</li>
+<li>  - Validation integration</li>
+</ul>
+
+<ol>
+<li>**UI Component** - `src/ui/components/definition_edit_tab.py`</li>
+</ol>
+<ul>
+<li>  - Search & select interface</li>
+<li>  - Rich text editing</li>
+<li>  - Version history panel</li>
+<li>  - Auto-save indicator</li>
+</ul>
+
+<h3>Test Coverage: 100%</h3>
+<ul>
+<li>9/9 comprehensive tests passed</li>
+<li>Database, repository, service, and UI fully tested</li>
+</ul>
+
+<p>Zie <code>IMPLEMENTATION_COMPLETE.md</code> voor volledige details.</p>
+
+  </div>
+</body>
+</html>

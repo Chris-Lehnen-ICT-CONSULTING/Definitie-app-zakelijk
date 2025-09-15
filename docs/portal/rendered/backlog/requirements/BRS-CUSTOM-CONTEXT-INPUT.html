@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Business Requirements Specification - Custom Context Input Functionality</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: 2025-09-09</p>
+<p>bijgewerkt: 2025-09-09</p>
+<p>titel: Business Requirements Specification - Custom Context Input Functionality</p>
+<p>canonical: true</p>
+<p>type: business-requirements</p>
+<p>status: goedgekeurd</p>
+<p>applies_to: definitie-app@v1.1</p>
+<p>owner: business-analyst-justice</p>
+<p>priority: KRITIEK</p>
+<p>stakeholders:</p>
+<ul>
+<li>OM (Openbaar Ministerie)</li>
+<li>DJI (Dienst Justitiële Inrichtingen)</li>
+<li>Justid (Justitiële Informatiedienst)</li>
+<li>Rechtspraak</li>
+<li>NFI (Nederlands Forensisch Instituut)</li>
+<li>KMAR (Koninklijke Marechaussee)</li>
+<li>FIOD (Fiscale Inlichtingen- en Opsporingsdienst)</li>
+<p>---</p>
+</ul>
+
+<h1>Business Requirements Specification: Custom Context Input Functionality</h1>
+
+<h2>1. Executive Summary</h2>
+
+<h3>1.1 Business Need</h3>
+<p>De Nederlandse justitieketen opereert binnen complexe, domein-specifieke contexten die niet altijd volledig gedekt worden door voorgedefinieerde opties. Justice professionals hebben de mogelijkheid nodig om aangepaste contextwaarden in te voeren voor organisatorische, juridische en wettelijke contexten om juridisch correcte en domein-specifieke definities te genereren.</p>
+
+<h3>1.2 Business Value</h3>
+<ul>
+<li>**Compliance:** Voldoen aan ASTRA/NORA/Justid standaarden voor contextdocumentatie</li>
+<li>**Flexibiliteit:** Ondersteuning voor nieuwe organisaties en wetgeving zonder code-wijzigingen</li>
+<li>**Nauwkeurigheid:** Definities met correcte, specifieke context voor juridische documenten</li>
+<li>**Efficiency:** Verminderde tijd voor definitiecreatie van 15 naar 3 minuten</li>
+<li>**Risk Mitigation:** Eliminatie van €50K aansprakelijkheidsrisico per onjuiste definitie</li>
+</ul>
+
+<h3>1.3 Scope</h3>
+<p>Dit document specificeert de functionele requirements voor het invoeren, valideren, opslaan en gebruiken van aangepaste contextwaarden binnen de DefinitieAgent applicatie, specifiek voor de drie contextvelden: Organisatorische Context, Juridische Context, en Wettelijke Basis.</p>
+
+<h2>2. Stakeholder Analysis</h2>
+
+<h3>2.1 Primary Stakeholders</h3>
+
+<p>| Stakeholder | Role | Needs | Priority |</p>
+<p>|-------------|------|-------|----------|</p>
+<p>| OM Officier van Justitie | Eindgebruiker | Specifieke zaaktypen en afdelingen invoeren | KRITIEK |</p>
+<p>| DJI Beleidsmedewerker | Eindgebruiker | Detentie-specifieke contexten toevoegen | HOOG |</p>
+<p>| Rechtspraak Griffier | Eindgebruiker | Rechtbank-specifieke termen definiëren | HOOG |</p>
+<p>| Justid Architect | Systeem Owner | ASTRA/NORA compliance waarborgen | KRITIEK |</p>
+<p>| NFI Specialist | Eindgebruiker | Forensische contexten specificeren | MEDIUM |</p>
+<p>| FIOD Analist | Eindgebruiker | Financiële delict contexten | MEDIUM |</p>
+
+<h3>2.2 Stakeholder Requirements Matrix</h3>
+
+<p>| Stakeholder | Requirement | Rationale | Acceptance Criteria |</p>
+<p>|-------------|-------------|-----------|-------------------|</p>
+<p>| OM | Zaaktype-specifieke context | Verschillende delicttypen vereisen verschillende definities | Kan "Ondermijningszaken" als context invoeren |</p>
+<p>| DJI | Regime-aanduiding | Definities verschillen per detentieregime | Kan "EBI-regime" of "ISD-maatregel" selecteren |</p>
+<p>| Rechtspraak | Instantie-specifieke context | Terminologie verschilt per rechtbank | Kan "Rechtbank Amsterdam, Handelsrecht" invoeren |</p>
+<p>| Justid | Traceerbaarheid | Audit trail voor compliance | Alle custom invoer gelogd met timestamp en gebruiker |</p>
+<p>| NFI | Technische specialisaties | Forensische methodes als context | Kan "DNA-analyse" of "Digitaal Forensisch" toevoegen |</p>
+
+<h2>3. Functional Requirements</h2>
+
+<h3>3.1 Custom Input Entry (FR-001)</h3>
+
+<p><strong>ID:</strong> FR-001</p>
+<p><strong>Titel:</strong> Aangepaste Context Invoer Mogelijkheid</p>
+<p><strong>Prioriteit:</strong> KRITIEK</p>
+<p><strong>Categorie:</strong> User Interface</p>
+
+<p><strong>Beschrijving:</strong></p>
+<p>Het systeem MOET gebruikers in staat stellen om aangepaste contextwaarden in te voeren voor elk van de drie contextvelden wanneer de voorgedefinieerde opties niet toereikend zijn.</p>
+
+<p><strong>Detailed Requirements:</strong></p>
+<ol>
+<li>Een "Anders..." optie MOET beschikbaar zijn in elke context selector</li>
+<li>Bij selectie van "Anders..." MOET een tekstveld verschijnen</li>
+<li>Het tekstveld MOET maximaal 200 karakters accepteren</li>
+<li>De ingevoerde waarde MOET direct beschikbaar zijn voor selectie</li>
+<li>Multiple custom waarden MOETEN tegelijkertijd geselecteerd kunnen worden</li>
+</ol>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<pre><code>Given ik ben een OM medewerker
+When ik "Anders..." selecteer in Organisatorische Context
+And ik typ "Landelijk Parket - Team Ondermijning"
+Then moet deze waarde toegevoegd worden aan mijn selectie
+And moet de waarde beschikbaar zijn in de prompt generatie</code></pre>
+
+<h3>3.2 Input Validation (FR-002)</h3>
+
+<p><strong>ID:</strong> FR-002</p>
+<p><strong>Titel:</strong> Validatie van Aangepaste Invoer</p>
+<p><strong>Prioriteit:</strong> HOOG</p>
+<p><strong>Categorie:</strong> Data Quality</p>
+
+<p><strong>Beschrijving:</strong></p>
+<p>Het systeem MOET alle aangepaste invoer valideren tegen justice-domein specifieke regels en security requirements.</p>
+
+<p><strong>Validation Rules:</strong></p>
+
+<p>| Regel | Beschrijving | Actie bij Overtreding |</p>
+<p>|-------|--------------|----------------------|</p>
+<p>| VR-001 | Geen SQL injection karakters | Invoer afwijzen, waarschuwing tonen |</p>
+<p>| VR-002 | Geen HTML/Script tags | Tags strippen, gebruiker informeren |</p>
+<p>| VR-003 | Minimaal 3 karakters | Invoer afwijzen, minimum tonen |</p>
+<p>| VR-004 | Maximaal 200 karakters | Truncate met waarschuwing |</p>
+<p>| VR-005 | Geen persoonlijke data (BSN, etc.) | Invoer blokkeren, privacy waarschuwing |</p>
+<p>| VR-006 | Justice terminologie check | Suggesties tonen voor spelfouten |</p>
+<p>| VR-007 | Geen verboden termen | Invoer afwijzen, alternatief suggereren |</p>
+
+<p><strong>Acceptance Criteria:</strong></p>
+<pre><code>Given ik voer een custom waarde in
+When de waarde "&lt;script&gt;alert('hack')&lt;/script&gt;" is
+Then moet het systeem de script tags verwijderen
+And moet alleen "alert('hack')" opgeslagen worden
+And moet een waarschuwing getoond worden</code></pre>
+
+<h3>3.3 Data Persistence (FR-003)</h3>
+
+<p><strong>ID:</strong> FR-003</p>
+<p><strong>Titel:</strong> Opslag van Aangepaste Contextwaarden</p>
+<p><strong>Prioriteit:</strong> HOOG</p>
+<p><strong>Categorie:</strong> Data Management</p>
+
+<p><strong>Beschrijving:</strong></p>
+<p>Aangepaste contextwaarden MOETEN persistent opgeslagen worden voor hergebruik en audit doeleinden.</p>
+
+<p><strong>Storage Requirements:</strong></p>
+<ol>
+<li>Custom waarden MOETEN gekoppeld zijn aan gebruiker/organisatie</li>
+<li>Timestamp van creatie MOET vastgelegd worden</li>
+<li>Gebruiksfrequentie MOET bijgehouden worden</li>
+<li>Waarden MOETEN doorzoekbaar zijn</li>
+<li>Export naar CSV/JSON MOET mogelijk zijn</li>
+</ol>
+
+<p><strong>Data Model:</strong></p>
+<pre><code>CREATE TABLE custom_context_values (
+    id UUID PRIMARY KEY,
+    context_type VARCHAR(50) NOT NULL, -- 'organisatorisch', 'juridisch', 'wettelijk'
+    value VARCHAR(200) NOT NULL,
+    normalized_value VARCHAR(200) NOT NULL, -- Voor zoeken
+    created_by VARCHAR(100) NOT NULL,
+    organization VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP NOT NULL,
+    usage_count INTEGER DEFAULT 0,
+    last_used TIMESTAMP,
+    status VARCHAR(20) DEFAULT 'active', -- 'active', 'deprecated', 'blocked'
+    audit_trail JSONB NOT NULL
+);</code></pre>
+
+<h3>3.4 Integration with Generation (FR-004)</h3>
+
+<p><strong>ID:</strong> FR-004</p>
+<p><strong>Titel:</strong> Integratie met Definitie Generatie</p>
+<p><strong>Prioriteit:</strong> KRITIEK</p>
+<p><strong>Categorie:</strong> System Integration</p>
+
+<p><strong>Beschrijving:</strong></p>
+<p>Aangepaste contextwaarden MOETEN volledig geïntegreerd worden in het definitie generatie proces.</p>
+
+<p><strong>Integration Points:</strong></p>
+<ol>
+<li>**Prompt Building:** Custom waarden MOETEN in de GPT-4 prompt opgenomen worden</li>
+<li>**Web Lookup:** Custom waarden MOETEN gebruikt worden voor externe bronnen zoeken</li>
+<li>**Validation Rules:** Context-specifieke validatie regels MOETEN toegepast worden</li>
+<li>**Export:** Custom context MOET in alle export formaten opgenomen worden</li>
+</ol>
+
+<p><strong>Example Prompt Integration:</strong></p>
+<pre><code>prompt_template = """
+Genereer een juridische definitie voor: {term}
+
+Organisatorische Context: {org_context}  # Inclusief custom waarden
+Juridische Context: {jur_context}        # Inclusief custom waarden
+Wettelijke Basis: {wet_context}          # Inclusief custom waarden
+
+De definitie moet voldoen aan Nederlandse rechtsterminologie.
+"""</code></pre>
+
+<h3>3.5 Suggestions & Auto-complete (FR-005)</h3>
+
+<p><strong>ID:</strong> FR-005</p>
+<p><strong>Titel:</strong> Intelligente Suggesties voor Custom Invoer</p>
+<p><strong>Prioriteit:</strong> MEDIUM</p>
+<p><strong>Categorie:</strong> User Experience</p>
+
+<p><strong>Beschrijving:</strong></p>
+<p>Het systeem MOET intelligente suggesties bieden tijdens het typen van custom waarden.</p>
+
+<p><strong>Suggestion Sources:</strong></p>
+<ol>
+<li>**Historical:** Eerder gebruikte custom waarden door dezelfde organisatie</li>
+<li>**Frequency:** Populaire custom waarden binnen het domein</li>
+<li>**Similarity:** Waarden die lijken op wat getypt wordt</li>
+<li>**Authority:** Officiële termen uit Justid terminologie database</li>
+<li>**Corrections:** Spelling correcties voor justice termen</li>
+</ol>
+
+<h3>3.6 Access Control (FR-006)</h3>
+
+<p><strong>ID:</strong> FR-006</p>
+<p><strong>Titel:</strong> Toegangscontrole voor Custom Waarden</p>
+<p><strong>Prioriteit:</strong> HOOG</p>
+<p><strong>Categorie:</strong> Security</p>
+
+<p><strong>Beschrijving:</strong></p>
+<p>Toegang tot custom context functies MOET gecontroleerd worden op basis van gebruikersrollen.</p>
+
+<p><strong>Role Matrix:</strong></p>
+
+<p>| Role | Create Custom | View Own | View Organization | View All | Approve |</p>
+<p>|------|--------------|----------|-------------------|----------|---------|</p>
+<p>| Gebruiker | ✓ | ✓ | ✗ | ✗ | ✗ |</p>
+<p>| Power User | ✓ | ✓ | ✓ | ✗ | ✗ |</p>
+<p>| Admin | ✓ | ✓ | ✓ | ✓ | ✓ |</p>
+<p>| Auditor | ✗ | ✗ | ✓ | ✓ | ✗ |</p>
+
+<h2>4. Use Cases</h2>
+
+<h3>4.1 UC-001: OM Officier Voegt Zaaktype Context Toe</h3>
+
+<p><strong>Actor:</strong> OM Officier van Justitie</p>
+<p><strong>Precondition:</strong> Gebruiker is ingelogd met OM credentials</p>
+<p><strong>Trigger:</strong> Definitie nodig voor ondermijningszaak</p>
+
+<p><strong>Main Flow:</strong></p>
+<ol>
+<li>Officier selecteert "OM" in Organisatorische Context</li>
+<li>Officier selecteert "Anders..." voor extra specificatie</li>
+<li>Systeem toont tekstveld</li>
+<li>Officier typt "Ondermijning - Synthetische Drugs"</li>
+<li>Systeem valideert invoer</li>
+<li>Systeem voegt waarde toe aan selectie</li>
+<li>Officier genereert definitie</li>
+<li>Systeem gebruikt custom context in prompt</li>
+<li>Definitie bevat ondermijning-specifieke elementen</li>
+</ol>
+
+<p><strong>Alternate Flow 4a:</strong> Invoer bevat verboden karakters</p>
+<ol>
+<li>Systeem toont validatie waarschuwing</li>
+<li>Officier past invoer aan</li>
+<li>Flow gaat verder bij stap 5</li>
+</ol>
+
+<p><strong>Postcondition:</strong> Definitie gegenereerd met specifieke ondermijning context</p>
+
+<h3>4.2 UC-002: DJI Medewerker Specificeert Detentieregime</h3>
+
+<p><strong>Actor:</strong> DJI Beleidsmedewerker</p>
+<p><strong>Precondition:</strong> Gebruiker werkt aan EBI beleidsdocument</p>
+<p><strong>Trigger:</strong> Definitie nodig voor EBI-specifieke term</p>
+
+<p><strong>Main Flow:</strong></p>
+<ol>
+<li>Medewerker selecteert "DJI" in Organisatorische Context</li>
+<li>Medewerker selecteert "Anders..."</li>
+<li>Medewerker typt "EBI - Extra Beveiligde Inrichting"</li>
+<li>Systeem suggereert "EBI-regime" als alternatief</li>
+<li>Medewerker accepteert suggestie</li>
+<li>Waarde wordt toegevoegd aan context</li>
+<li>Definitie wordt gegenereerd met EBI-specifieke context</li>
+</ol>
+
+<p><strong>Postcondition:</strong> EBI-specifieke definitie beschikbaar</p>
+
+<h3>4.3 UC-003: Rechtbank Griffier Definieert Lokale Term</h3>
+
+<p><strong>Actor:</strong> Rechtbank Griffier</p>
+<p><strong>Precondition:</strong> Werkt aan rechtbank-specifiek document</p>
+<p><strong>Trigger:</strong> Lokale procedureterm moet gedefinieerd worden</p>
+
+<p><strong>Main Flow:</strong></p>
+<ol>
+<li>Griffier selecteert "Rechtspraak" in Organisatorische Context</li>
+<li>Griffier selecteert "Anders..."</li>
+<li>Griffier typt "Rechtbank Amsterdam - Internationale Handelskamer"</li>
+<li>In Juridische Context selecteert griffier "Anders..."</li>
+<li>Griffier typt "Engels-Nederlands Handelsrecht"</li>
+<li>Systeem genereert definitie met beide custom contexten</li>
+<li>Definitie bevat specifieke verwijzingen naar NCC procedures</li>
+</ol>
+
+<p><strong>Postcondition:</strong> Lokaal-specifieke definitie gecreëerd</p>
+
+<h2>5. Business Rules</h2>
+
+<h3>5.1 Context Combination Rules</h3>
+
+<p>| Rule ID | Rule Description | Implementation |</p>
+<p>|---------|-----------------|----------------|</p>
+<p>| BR-001 | Maximaal 5 contextwaarden per veld | UI limiet + validatie |</p>
+<p>| BR-002 | Minimaal 1 context vereist voor justice definities | Validatie voor submit |</p>
+<p>| BR-003 | OM context vereist OM-specifieke validatie | Conditional validation |</p>
+<p>| BR-004 | DJI context activeert detentie templates | Template selection |</p>
+<p>| BR-005 | Custom waarden mogen niet conflicteren | Conflict detection |</p>
+
+<h3>5.2 Data Governance Rules</h3>
+
+<p>| Rule ID | Rule Description | Rationale |</p>
+<p>|---------|-----------------|-----------|</p>
+<p>| DG-001 | Custom waarden 7 jaar bewaren | Wettelijke bewaarplicht |</p>
+<p>| DG-002 | Audit log is immutable | Compliance requirement |</p>
+<p>| DG-003 | Persoonlijke data moet geanonimiseerd | AVG/GDPR compliance |</p>
+<p>| DG-004 | Export alleen met autorisatie | Security requirement |</p>
+<p>| DG-005 | Quarterly review van custom waarden | Quality assurance |</p>
+
+<h3>5.3 Quality Rules</h3>
+
+<p>| Rule ID | Criterium | Threshold | Actie |</p>
+<p>|---------|-----------|-----------|-------|</p>
+<p>| QR-001 | Gebruiksfrequentie | < 3 in 6 maanden | Review voor deprecation |</p>
+<p>| QR-002 | Spelling variaties | > 3 similar | Consolidatie suggestie |</p>
+<p>| QR-003 | Lengte | > 150 chars | Waarschuwing voor afkorting |</p>
+<p>| QR-004 | Duplicaten | Exact match | Prevent creation |</p>
+<p>| QR-005 | Relevantie | Not in domain | Flag for review |</p>
+
+<h2>6. Non-Functional Requirements</h2>
+
+<h3>6.1 Performance Requirements</h3>
+
+<p>| Requirement | Metric | Target | Rationale |</p>
+<p>|-------------|--------|--------|-----------|</p>
+<p>| NFR-001 | Custom value validation | < 100ms | User experience |</p>
+<p>| NFR-002 | Suggestion generation | < 200ms | Responsive feel |</p>
+<p>| NFR-003 | Context integration | < 50ms overhead | Maintain speed |</p>
+<p>| NFR-004 | Database query | < 500ms | Acceptable wait |</p>
+<p>| NFR-005 | Concurrent users | 100+ | Expected load |</p>
+
+<h3>6.2 Security Requirements</h3>
+
+<p>| Requirement | Description | Implementation |</p>
+<p>|-------------|-------------|----------------|</p>
+<p>| SEC-001 | Input sanitization | OWASP guidelines |</p>
+<p>| SEC-002 | SQL injection prevention | Prepared statements |</p>
+<p>| SEC-003 | XSS protection | Output encoding |</p>
+<p>| SEC-004 | Rate limiting | 10 custom/minute/user |</p>
+<p>| SEC-005 | Audit logging | Every action logged |</p>
+
+<h3>6.3 Usability Requirements</h3>
+
+<p>| Requirement | Description | Success Criteria |</p>
+<p>|-------------|-------------|------------------|</p>
+<p>| USE-001 | Intuitive interface | 90% task completion |</p>
+<p>| USE-002 | Clear error messages | Dutch language, specific |</p>
+<p>| USE-003 | Keyboard navigation | Full accessibility |</p>
+<p>| USE-004 | Mobile responsive | Works on tablet |</p>
+<p>| USE-005 | Help text available | Context-sensitive |</p>
+
+<h2>7. Data Requirements</h2>
+
+<h3>7.1 Data Model Entities</h3>
+
+<pre><code>erDiagram
+    CUSTOM_CONTEXT {
+        UUID id PK
+        string context_type
+        string value
+        string normalized_value
+        timestamp created_at
+        string created_by
+        int usage_count
+    }
+
+    CONTEXT_USAGE {
+        UUID id PK
+        UUID context_id FK
+        UUID definition_id FK
+        timestamp used_at
+        string used_by
+    }
+
+    CONTEXT_SUGGESTION {
+        UUID id PK
+        string original_value
+        string suggested_value
+        string suggestion_type
+        float confidence_score
+    }
+
+    CUSTOM_CONTEXT ||--o{ CONTEXT_USAGE : used_in
+    CUSTOM_CONTEXT ||--o{ CONTEXT_SUGGESTION : has_suggestions</code></pre>
+
+<h3>7.2 Data Validation Matrix</h3>
+
+<p>| Field | Type | Min | Max | Pattern | Required |</p>
+<p>|-------|------|-----|-----|---------|----------|</p>
+<p>| context_type | enum | - | - | org\|jur\|wet | Yes |</p>
+<p>| value | string | 3 | 200 | ^[^<>'"]+$ | Yes |</p>
+<p>| created_by | string | - | 100 | Email format | Yes |</p>
+<p>| organization | string | - | 100 | Justice orgs | Yes |</p>
+<p>| usage_count | integer | 0 | - | Positive | Yes |</p>
+
+<h2>8. Integration Requirements</h2>
+
+<h3>8.1 System Integrations</h3>
+
+<p>| System | Integration Type | Data Flow | Frequency |</p>
+<p>|--------|-----------------|-----------|-----------|</p>
+<p>| GPT-4 API | REST | Context → Prompt | Per generation |</p>
+<p>| Web Lookup | REST | Context → Search | Per generation |</p>
+<p>| Audit Service | Event | All actions | Real-time |</p>
+<p>| Export Service | Batch | Context + Definition | On demand |</p>
+<p>| Analytics | Stream | Usage metrics | Continuous |</p>
+
+<h3>8.2 Data Exchange Formats</h3>
+
+<p><strong>JSON Format for Context:</strong></p>
+<pre><code>{
+  "organisatorische_context": [
+    "OM",
+    "CUSTOM:Landelijk Parket - Ondermijning"
+  ],
+  "juridische_context": [
+    "Strafrecht",
+    "CUSTOM:Internationale Rechtshulp"
+  ],
+  "wettelijke_basis": [
+    "Wetboek van Strafrecht",
+    "CUSTOM:EU Richtlijn 2019/1937"
+  ],
+  "metadata": {
+    "custom_values_count": 3,
+    "validation_status": "approved",
+    "created_timestamp": "2025-09-09T10:30:00Z"
+  }
+}</code></pre>
+
+<h2>9. Acceptance Test Scenarios</h2>
+
+<h3>9.1 Happy Path Scenarios</h3>
+
+<p>| Scenario | Steps | Expected Result |</p>
+<p>|----------|-------|-----------------|</p>
+<p>| ATS-001 | Add single custom value | Value available in prompt |</p>
+<p>| ATS-002 | Add multiple custom values | All values in context |</p>
+<p>| ATS-003 | Reuse previous custom | Auto-complete works |</p>
+<p>| ATS-004 | Mix custom and preset | Both types integrated |</p>
+<p>| ATS-005 | Export with custom | Custom values in export |</p>
+
+<h3>9.2 Edge Case Scenarios</h3>
+
+<p>| Scenario | Condition | Expected Behavior |</p>
+<p>|----------|-----------|-------------------|</p>
+<p>| ECS-001 | 200 character input | Accept and truncate message |</p>
+<p>| ECS-002 | Special characters | Strip dangerous, keep safe |</p>
+<p>| ECS-003 | Duplicate custom | Prevent duplicate, show existing |</p>
+<p>| ECS-004 | Network timeout | Graceful degradation |</p>
+<p>| ECS-005 | Concurrent updates | Last write wins, audit both |</p>
+
+<h3>9.3 Error Scenarios</h3>
+
+<p>| Scenario | Error Condition | Error Handling |</p>
+<p>|----------|----------------|----------------|</p>
+<p>| ERR-001 | SQL injection attempt | Block, log, alert admin |</p>
+<p>| ERR-002 | XSS attempt | Sanitize, warn user |</p>
+<p>| ERR-003 | Invalid characters | Show specific error |</p>
+<p>| ERR-004 | Too short input | Request minimum length |</p>
+<p>| ERR-005 | Session timeout | Save draft, re-auth |</p>
+
+<h2>10. Migration & Rollout Strategy</h2>
+
+<h3>10.1 Phased Rollout</h3>
+
+<p>| Phase | Scope | Duration | Success Criteria |</p>
+<p>|-------|-------|----------|------------------|</p>
+<p>| Pilot | 5 OM users | 1 week | No critical bugs |</p>
+<p>| Limited | Single organization | 2 weeks | 90% satisfaction |</p>
+<p>| Expanded | 3 organizations | 2 weeks | <5 bugs/week |</p>
+<p>| Full | All users | Ongoing | 95% adoption |</p>
+
+<h3>10.2 Data Migration</h3>
+
+<p><strong>Existing Context Values:</strong></p>
+<ol>
+<li>Scan existing definitions for unofficial context</li>
+<li>Extract and normalize values</li>
+<li>Create custom context entries</li>
+<li>Link to original definitions</li>
+<li>Notify users of available values</li>
+</ol>
+
+<h2>11. Success Metrics</h2>
+
+<h3>11.1 Business Metrics</h3>
+
+<p>| Metric | Baseline | Target | Measurement |</p>
+<p>|--------|----------|--------|-------------|</p>
+<p>| Definition creation time | 15 min | 3 min | Time tracking |</p>
+<p>| Context accuracy | 60% | 95% | User validation |</p>
+<p>| Rework rate | 30% | 5% | Revision tracking |</p>
+<p>| User satisfaction | 6/10 | 9/10 | Quarterly survey |</p>
+<p>| Compliance rate | 70% | 100% | Audit results |</p>
+
+<h3>11.2 Technical Metrics</h3>
+
+<p>| Metric | Target | Alert Threshold | Critical |</p>
+<p>|--------|--------|-----------------|----------|</p>
+<p>| Custom value creation/day | 50 | >200 | >500 |</p>
+<p>| Validation failures | <5% | >10% | >20% |</p>
+<p>| Response time p95 | 200ms | 500ms | 1s |</p>
+<p>| Error rate | <0.1% | >1% | >5% |</p>
+<p>| Availability | 99.9% | <99.5% | <99% |</p>
+
+<h2>12. Risks & Mitigations</h2>
+
+<p>| Risk | Probability | Impact | Mitigation |</p>
+<p>|------|-------------|--------|------------|</p>
+<p>| Data quality degradation | Medium | High | Validation + review process |</p>
+<p>| Performance impact | Low | Medium | Caching + optimization |</p>
+<p>| Security vulnerabilities | Low | Critical | Security testing + monitoring |</p>
+<p>| User adoption issues | Medium | Medium | Training + intuitive UI |</p>
+<p>| Compliance violations | Low | High | Audit trail + controls |</p>
+
+<h2>13. Dependencies</h2>
+
+<h3>13.1 Technical Dependencies</h3>
+<ul>
+<li>ContextManager service operational</li>
+<li>Database schema updates completed</li>
+<li>Session state management fixed</li>
+<li>Validation service enhanced</li>
+</ul>
+
+<h3>13.2 Business Dependencies</h3>
+<ul>
+<li>Stakeholder approval obtained</li>
+<li>Training materials prepared</li>
+<li>Support processes defined</li>
+<li>Governance framework established</li>
+</ul>
+
+<h2>14. Appendices</h2>
+
+<h3>A. Glossary</h3>
+
+<p>| Term | Definition |</p>
+<p>|------|------------|</p>
+<p>| Custom Context | User-defined context value not in preset list |</p>
+<p>| Context Field | One of three categorization dimensions |</p>
+<p>| Validation | Process of checking input against rules |</p>
+<p>| Sanitization | Removal of dangerous characters |</p>
+<p>| Normalization | Standardization for searching |</p>
+
+<h3>B. References</h3>
+<ul>
+<li>ASTRA Architecture Framework v3.0</li>
+<li>NORA Standards 2024</li>
+<li>Justid Terminology Database</li>
+<li>OWASP Input Validation Guidelines</li>
+<li>AVG/GDPR Compliance Framework</li>
+</ul>
+
+<h3>C. Change Log</h3>
+
+<p>| Version | Date | Author | Changes |</p>
+<p>|---------|------|--------|---------|</p>
+<p>| 1.0 | 2025-09-09 | Business Analyst | Initial specification |</p>
+
+<p>---</p>
+
+<p><strong>Approval Status:</strong> Awaiting Stakeholder Review</p>
+<p><strong>Next Review:</strong> 2025-09-16</p>
+<p><strong>Distribution:</strong> Product Owner, Development Team, Architecture Board, Compliance Officer</p>
+
+  </div>
+</body>
+</html>

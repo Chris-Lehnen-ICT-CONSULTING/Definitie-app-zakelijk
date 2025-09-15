@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Export Functionality</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-022</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/architectuur/SOLUTION_ARCHITECTURE.md</li>
+<li> - docs/prd.md</li>
+<p>  epics:</p>
+<li> - EPIC-005</li>
+<p>  stories:</p>
+<li> - US-5.1</li>
+<li> - US-5.2</li>
+<li> - US-5.3</li>
+<p>prioriteit: GEMIDDELD</p>
+<p>sources:</p>
+<li>line: ExportService class</li>
+<p>  path: src/services/export_service.py</p>
+<li>line: export UI Implementatie</li>
+<p>  path: src/ui/tabs/export_tab.py</p>
+<p>status: GEREED</p>
+<p>titel: Export Functionality</p>
+<p>type: functional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>REQ-022: Export Functionality</h1>
+
+<h2>Domain Context</h2>
+
+<p>This vereiste aligns with Dutch justitiesector stEnards en frameworks:</p>
+
+<ul>
+<li>**ASTRA compliance**: FolLAAGs ASTRA (Algemene Strategie Referentie Architectuur) richtlijnen for justice IT systems</li>
+<li>**NORA Principles**: Adheres to NederlEnse Overheid Referentie Architectuur for government-wide interoperability</li>
+<li>**justitieketen Integration**: Compatible with OM (Openbaar Ministerie), DJI (Dienst Justitiële Inrichtingen), Justid, En Rechtspraak systems</li>
+<li>**Legal Framework**: Complies with Dutch juridische terminologie stEnards en Aanwijzingen voor de regelgeving</li>
+<li>**Data Quality**: Meets justitiesector data quality vereisten for juridische definities</li>
+</ul>
+
+<h2>Requirement Description</h2>
+
+<p>The system must provide comprehensive export functionality for definitions:</p>
+<ul>
+<li>Multiple export formats (JSON, CSV, PDF, Word)</li>
+<li>Bulk export with filtering options</li>
+<li>Include validatie results en metadata</li>
+<li>Template-based formatting</li>
+<li>Versie history export</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+<ol>
+<li>**Format Support**: Export to JSON, CSV, PDF, DOCX</li>
+<li>**Bulk Export**: Select multiple definitions</li>
+<li>**Filtering**: By Datum, status, category, validatie score</li>
+<li>**Metadata**: Include timestamps, Versies, validatie</li>
+<li>**Templates**: Customizable export templates</li>
+<li>**Prestaties**: Export 100 definitions < 10 seconds</li>
+<li>**UI Integration**: Seamless export from interface</li>
+</ol>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Implementatie Details</h2>
+
+<h3>Export Formats</h3>
+
+<h4>JSON Export</h4>
+<pre><code>{
+  "definitions": [{
+    "term": "term_name",
+    "definition": "definition_text",
+    "metadata": {
+      "aangemaakt": "2025-01-01T10:00:00Z",
+      "Versie": "1.0",
+      "validation_score": 0.95
+    },
+    "validation_results": [],
+    "examples": [],
+    "sources": []
+  }]
+}</code></pre>
+
+<h4>CSV Export</h4>
+<ul>
+<li>Columns: Term, Definition, Category, aangemaakt, Score</li>
+<li>UTF-8 encoding for Dutch characters</li>
+<li>Excel-compatible format</li>
+</ul>
+
+<h4>PDF Export</h4>
+<ul>
+<li>Professional layout with headers/footers</li>
+<li>Table of contents for bulk exports</li>
+<li>Syntax HOOGlighting for examples</li>
+<li>Page numbers en timestamps</li>
+</ul>
+
+<h4>Word Export</h4>
+<ul>
+<li>Structured document with styles</li>
+<li>Editable format</li>
+<li>Track Wijzigingen compatible</li>
+<li>Table support for metadata</li>
+</ul>
+
+<h3>Service Architecture</h3>
+<ul>
+<li>**ExportService**: Main export orchestration</li>
+<li>**FormatConverters**: Format-specific converters</li>
+<li>**TemplateEngine**: Template processing</li>
+<li>**FilterService**: Query building for filters</li>
+<li>**FileManager**: Temporary file hEnling</li>
+</ul>
+
+<h3>Export FLAAG</h3>
+<ol>
+<li>User selects definitions en format</li>
+<li>Apply filters en sorting</li>
+<li>Fetch data from repository</li>
+<li>Transform to target format</li>
+<li>Apply template if specified</li>
+<li>Generate file with proper encoding</li>
+<li>Provide download link</li>
+<li>Clean up temporary files</li>
+</ol>
+
+<h2>Prestaties Optimization</h2>
+
+<ul>
+<li>Streaming for large exports</li>
+<li>Pagination for bulk operations</li>
+<li>Async processing for PDF generation</li>
+<li>Compression for large files</li>
+<li>CDN for static templates</li>
+</ul>
+
+<h2>Quality vereisten</h2>
+
+<ul>
+<li>**Accuracy**: 100% data fidelity</li>
+<li>**Completeness**: All metadata included</li>
+<li>**Formatting**: Professional appearance</li>
+<li>**Compatibility**: Works in target applications</li>
+<li>**Encoding**: Proper Dutch character support</li>
+</ul>
+
+<h2>Error Handling</h2>
+
+<ul>
+<li>**Memory Limit**: Stream large exports</li>
+<li>**Timeout**: Break into chunks</li>
+<li>**Format Error**: Provide detailed message</li>
+<li>**File System**: Clean up on failure</li>
+<li>**Permission**: Check write access</li>
+</ul>
+
+<h2>beveiliging Considerations</h2>
+
+<ul>
+<li>Input sanitization for filenames</li>
+<li>Path traversal prevention</li>
+<li>File size limits (100MB)</li>
+<li>Virus scanning for uploads</li>
+<li>Temporary file cleanup</li>
+</ul>
+
+<h2>UI Integration</h2>
+
+<ul>
+<li>Export Maarton in main interface</li>
+<li>Format selector dropdown</li>
+<li>Filter panel for bulk export</li>
+<li>Progress indicator for long operations</li>
+<li>Download manager integration</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>pEnas for CSV generation</li>
+<li>reportlab for PDF creation</li>
+<li>python-docx for Word documents</li>
+<li>Jinja2 for templates</li>
+<li>File system access</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

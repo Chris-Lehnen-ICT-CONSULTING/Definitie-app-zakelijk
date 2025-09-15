@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🎯 AI Frontend Generatie Prompt voor DefinitieAgent</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>🎯 AI Frontend Generatie Prompt voor DefinitieAgent</h1>
+
+<h2>Meesterlijke Prompt voor AI-Gedreven Frontend Ontwikkeling</h2>
+
+<h3>🌐 Hoofddoel</h3>
+<p>Creëer een moderne, responsieve webapplicatie voor DefinitieAgent - een geavanceerd Nederlands juridisch definitiebeheerssysteem dat juridische professionals helpt bij het maken, valideren en beheren van gestandaardiseerde juridische terminologiedefinities met AI-ondersteuning, kwaliteitscontrole en samenwerkingsworkflows.</p>
+
+<h3>📋 Gedetailleerde Stap-voor-Stap Instructies</h3>
+
+<ol>
+<li>**Initialiseer een Next.js 14 applicatie** met TypeScript, Tailwind CSS, en Shadcn/ui componenten</li>
+<li>**Stel de projectstructuur in** met de volgende mappen:</li>
+</ol>
+<ul>
+<li>  - `/app` - App router pagina's en layouts</li>
+<li>  - `/components` - Herbruikbare UI componenten georganiseerd per functie</li>
+<li>  - `/lib` - Utilities, API clients, en businesslogica</li>
+<li>  - `/hooks` - Aangepaste React hooks voor state en effecten</li>
+<li>  - `/types` - TypeScript type definities</li>
+<li>  - `/styles` - Globale stijlen en Tailwind configuratie</li>
+</ul>
+
+<ol>
+<li>**Maak de hoofdlayout** (`/app/layout.tsx`):</li>
+</ol>
+<ul>
+<li>  - Vaste header met app-branding "DefinitieAgent" en versie-indicator</li>
+<li>  - Responsieve navigatie die inklapt naar hamburgermenu op mobiel</li>
+<li>  - Footer met snelle links en systeemstatus indicator</li>
+<li>  - Gebruik Inter lettertype voor bodytekst en Geist Mono voor code/definities</li>
+</ul>
+
+<ol>
+<li>**Implementeer de globale context configuratiebalk** (boven hoofdinhoud):</li>
+</ol>
+<ul>
+<li>  - Begrip invoerveld met Nederlands label "Begrip" - verplicht veld met validatie</li>
+<li>  - Multi-select dropdown voor "Context Organisatie"</li>
+<li>  - Multi-select dropdown voor "Wettelijke Context"</li>
+<li>  - Multi-select dropdown voor "Wettelijke Grondslag"</li>
+<li>  - Document uploadzone met drag-and-drop ondersteuning voor PDF, Word, CSV, JSON, HTML</li>
+</ul>
+
+<ol>
+<li>**Bouw het tabnavigatie systeem** met deze 9 tabs:</li>
+</ol>
+<ul>
+<li>  - 🚀 Definitie Generatie - PRIMAIRE TAB</li>
+<li>  - 👨‍💼 Expert Review</li>
+<li>  - 📜 Geschiedenis</li>
+<li>  - 📤 Export & Beheer</li>
+<li>  - 🔧 Kwaliteitscontrole</li>
+<li>  - 🔌 Externe Bronnen</li>
+<li>  - 📈 Monitoring</li>
+<li>  - 🔍 Web Lookup</li>
+<li>  - 🛠️ Management</li>
+</ul>
+
+<ol>
+<li>**Implementeer de Definitie Generatie tab** (primaire workflow):</li>
+</ol>
+<ul>
+<li>  - Snelle actieknoppen: "Genereer Definitie", "Controleer Duplicaten", "Wis Velden"</li>
+<li>  - Resultatenweergavegebied met:</li>
+<li>    - Gegenereerde definitietekst (alleen-lezen met kopieerknop)</li>
+<li>    - Opschoning vergelijkingsweergave (origineel vs opgeschoond naast elkaar)</li>
+<li>    - Validatieresultaten met kleurgecodeerde indicatoren</li>
+<li>    - Synoniemen, antoniemen, en voorbeeldzinnen secties</li>
+<li>    - Bronreferenties met klikbare links</li>
+<li>  - Debug modus schakelaar die technische details toont</li>
+</ul>
+
+<ol>
+<li>**Creëer de Expert Review tab**:</li>
+</ol>
+<ul>
+<li>  - Lijstweergave van definities in afwachting van beoordeling</li>
+<li>  - Detailweergave met inline bewerkingsmogelijkheden</li>
+<li>  - Goedkeuring/afwijzing workflow met opmerkingen</li>
+<li>  - Versievergelijkingstools</li>
+</ul>
+
+<ol>
+<li>**Bouw de Geschiedenis tab**:</li>
+</ol>
+<ul>
+<li>  - Doorzoekbare, sorteerbare tabel van alle definities</li>
+<li>  - Filters op datum, status, maker, categorie</li>
+<li>  - Snelle acties: bekijken, bewerken, dupliceren, verwijderen</li>
+<li>  - Exporteer geselecteerde items functionaliteit</li>
+</ul>
+
+<ol>
+<li>**Ontwerp het Kwaliteitscontrole dashboard**:</li>
+</ol>
+<ul>
+<li>  - Metriekkaarten met slaag/faal percentages</li>
+<li>  - Regelovertreding uitsplitsing grafiek</li>
+<li>  - Recente validatieresultaten tijdlijn</li>
+<li>  - Configureerbaar testregelbeheer</li>
+</ul>
+
+<ol>
+<li>**Stijl met mobile-first responsief ontwerp**:</li>
+</ol>
+<ul>
+<li>   - Mobiel (<768px): Enkele kolom, inklapbare secties, ondernavigatie</li>
+<li>   - Tablet (768-1024px): Twee-kolom layouts waar geschikt</li>
+<li>   - Desktop (>1024px): Volledige multi-kolom layouts met zijbalken</li>
+</ul>
+
+<h3>💻 Codevoorbeelden, Datastructuren & Beperkingen</h3>
+
+<h4>API Contract Structuur:</h4>
+<pre><code>// Definitie Generatie Verzoek
+interface GenereerDefinitieVerzoek {
+  begrip: string;
+  context: {
+    organisatie: string[];
+    wettelijk: string[];
+    wettelijkeGrondslag: string[];
+  };
+  documenten?: GeuploadDocument[];
+}
+
+// Definitie Response
+interface DefinitieResponse {
+  id: string;
+  begrip: string;
+  definitie: string;
+  opgeschoondeDefinitie?: string;
+  synoniemen: string[];
+  antoniemen: string[];
+  voorbeelden: string[];
+  bronnen: Bron[];
+  validatie: ValidatieResultaat;
+  categorie: OntologischeCategorie;
+  metadata: {
+    aangemaakt: string;
+    aangemaaktDoor: string;
+    versie: number;
+  };
+}
+
+// Validatie Resultaat
+interface ValidatieResultaat {
+  geslaagd: boolean;
+  score: number;
+  regels: RegelResultaat[];
+}</code></pre>
+
+<h4>Component Voorbeeld - Definitie Weergave:</h4>
+<pre><code>// components/definitie/DefinitieWeergave.tsx
+export function DefinitieWeergave({ definitie }: { definitie: DefinitieResponse }) {
+  return (
+    &lt;Card className="w-full"&gt;
+      &lt;CardHeader&gt;
+        &lt;CardTitle className="flex items-center justify-between"&gt;
+          &lt;span&gt;{definitie.begrip}&lt;/span&gt;
+          &lt;Badge variant={definitie.validatie.geslaagd ? "success" : "destructive"}&gt;
+            {definitie.validatie.score}% Geldig
+          &lt;/Badge&gt;
+        &lt;/CardTitle&gt;
+      &lt;/CardHeader&gt;
+      &lt;CardContent&gt;
+        &lt;div className="space-y-4"&gt;
+          &lt;div&gt;
+            &lt;Label&gt;Definitie&lt;/Label&gt;
+            &lt;p className="mt-1 text-sm text-gray-700"&gt;{definitie.definitie}&lt;/p&gt;
+          &lt;/div&gt;
+          {/* Aanvullende secties */}
+        &lt;/div&gt;
+      &lt;/CardContent&gt;
+    &lt;/Card&gt;
+  );
+}</code></pre>
+
+<h4>State Management Patroon:</h4>
+<pre><code>// Gebruik Zustand voor globale state
+import { create } from 'zustand';
+
+interface AppState {
+  huidigBegrip: string;
+  context: Context;
+  definities: DefinitieResponse[];
+  isLaden: boolean;
+  setBegrip: (begrip: string) =&gt; void;
+  setContext: (context: Partial&lt;Context&gt;) =&gt; void;
+  genereerDefinitie: () =&gt; Promise&lt;void&gt;;
+}
+
+const useAppStore = create&lt;AppState&gt;((set, get) =&gt; ({
+  // Implementatie
+}));</code></pre>
+
+<h4>Ontwerpsysteem Kleuren:</h4>
+<pre><code>/* Tailwind config uitbreiding */
+colors: {
+  primair: {
+    50: '#eff6ff',
+    500: '#3b82f6',
+    900: '#1e3a8a'
+  },
+  succes: '#10b981',
+  waarschuwing: '#f59e0b',
+  fout: '#ef4444',
+  info: '#3b82f6'
+}</code></pre>
+
+<h4>Nederlandse UI Tekst Constanten:</h4>
+<pre><code>export const UI_TEKST = {
+  knoppen: {
+    genereer: "Genereer Definitie",
+    controleerDuplicaten: "Controleer Duplicaten",
+    wis: "Wis Velden",
+    exporteer: "Exporteer",
+    opslaan: "Opslaan"
+  },
+  labels: {
+    begrip: "Begrip",
+    definitie: "Definitie",
+    context: "Context",
+    validatie: "Validatie",
+    bronnen: "Bronnen"
+  },
+  berichten: {
+    laden: "Bezig met laden...",
+    succes: "Definitie succesvol gegenereerd",
+    fout: "Er is een fout opgetreden"
+  }
+};</code></pre>
+
+<h3>🚫 Beperkingen & Grenzen</h3>
+
+<p><strong>NIET DOEN:</strong></p>
+<ul>
+<li>Backend API contracten of database schema's wijzigen</li>
+<li>Andere UI bibliotheek gebruiken dan Shadcn/ui en Tailwind CSS</li>
+<li>Authenticatie/autorisatie implementeren (wordt door backend afgehandeld)</li>
+<li>Nieuwe API endpoints maken (alleen bestaande consumeren)</li>
+<li>Nederlandse terminologie of juridische taalpatronen wijzigen</li>
+<li>Animaties toevoegen die kunnen afleiden van professioneel gebruik</li>
+<li>localStorage gebruiken voor gevoelige data (gebruik veilige sessie opslag)</li>
+</ul>
+
+<p><strong>ALLEEN WIJZIGEN:</strong></p>
+<ul>
+<li>Bestanden in de `/app`, `/components`, `/lib`, `/hooks`, `/types` mappen</li>
+<li>Tailwind configuratie voor aangepaste design tokens</li>
+<li>Publieke assets in `/public` map</li>
+<li>Omgevingsvariabelen in `.env.local` voor API endpoints</li>
+</ul>
+
+<p><strong>MOET BEVATTEN:</strong></p>
+<ul>
+<li>TypeScript strict mode voor alle componenten</li>
+<li>Error boundaries voor elegante foutafhandeling</li>
+<li>Laadstaten voor alle asynchrone operaties</li>
+<li>Toegankelijkheidsfuncties (ARIA labels, toetsenbordnavigatie)</li>
+<li>Nederlandse taal voor alle gebruikersteksten</li>
+<li>Responsief ontwerp voor alle schermformaten</li>
+<li>Printvriendelijke stijlen voor definitie exports</li>
+</ul>
+
+<h3>🎨 Visuele Ontwerprichtlijnen</h3>
+
+<p><strong>Kleurenpalet:</strong></p>
+<ul>
+<li>Primair: Professioneel blauw (#3b82f6)</li>
+<li>Achtergrond: Lichtgrijs (#f9fafb) met witte kaarten</li>
+<li>Tekst: Donkergrijs (#1f2937) voor hoog contrast</li>
+<li>Succes: Groen (#10b981)</li>
+<li>Waarschuwing: Oranje (#f59e0b)</li>
+<li>Fout: Rood (#ef4444)</li>
+</ul>
+
+<p><strong>Typografie:</strong></p>
+<ul>
+<li>Koppen: Inter lettertype, semi-bold</li>
+<li>Body: Inter lettertype, regular</li>
+<li>Definities: Geist Mono of vergelijkbaar monospace</li>
+<li>Regelafstand: 1.5 voor leesbaarheid</li>
+</ul>
+
+<p><strong>Spacing:</strong></p>
+<ul>
+<li>Gebruik 4px grid systeem (space-1 = 4px)</li>
+<li>Kaart padding: 16-24px</li>
+<li>Sectie marges: 32px</li>
+<li>Consistente afstand tussen elementen</li>
+</ul>
+
+<p><strong>Component Stijl:</strong></p>
+<ul>
+<li>Afgeronde hoeken (8px voor kaarten, 6px voor knoppen)</li>
+<li>Subtiele schaduwen voor diepte</li>
+<li>Duidelijke focus staten voor toegankelijkheid</li>
+<li>Hover staten voor alle interactieve elementen</li>
+</ul>
+
+<h3>🔧 Technische Vereisten</h3>
+
+<p><strong>Prestaties:</strong></p>
+<ul>
+<li>Lazy load zware componenten</li>
+<li>Implementeer virtueel scrollen voor lange lijsten</li>
+<li>Gebruik React.memo voor dure componenten</li>
+<li>Debounce zoekinvoer (300ms)</li>
+<li>Cache API responses met SWR of React Query</li>
+</ul>
+
+<p><strong>Browser Ondersteuning:</strong></p>
+<ul>
+<li>Chrome/Edge (laatste 2 versies)</li>
+<li>Firefox (laatste 2 versies)</li>
+<li>Safari 14+</li>
+<li>Mobiele browsers (iOS Safari, Chrome Android)</li>
+</ul>
+
+<p><strong>Test Aanpak:</strong></p>
+<ul>
+<li>Unit tests voor utilities en hooks</li>
+<li>Component tests met React Testen Library</li>
+<li>E2E tests voor kritieke gebruikersflows</li>
+<li>Toegankelijkheidstests met axe-core</li>
+</ul>
+
+<h3>📱 Mobile-First Breekpunten</h3>
+
+<pre><code>// Mobile First Aanpak
+// Standaard: Mobiel (&lt;768px)
+.component {
+  // Mobiele stijlen
+}
+
+// Tablet (≥768px)
+@media (min-width: 768px) {
+  .component {
+    // Tablet overschrijvingen
+  }
+}
+
+// Desktop (≥1024px)
+@media (min-width: 1024px) {
+  .component {
+    // Desktop overschrijvingen
+  }
+}</code></pre>
+
+<p>---</p>
+
+<h2>🚀 Aan de Slag Instructies</h2>
+
+<p>Bij het gebruik van deze prompt met een AI frontend tool:</p>
+
+<ol>
+<li>**Verstrek deze volledige prompt** OM context vast te stellen</li>
+<li>**Begin met het genereren van de projectstructuur** en core layout</li>
+<li>**Focus op één tab tegelijk**, beginnend met Definitie Generatie</li>
+<li>**Test elk component** voordat je naar de volgende gaat</li>
+<li>**Itereer op styling** nadat functionaliteit compleet is</li>
+<li>**Voeg verfijning toe** (animaties, transities) als laatste touches</li>
+</ol>
+
+<h2>⚠️ Belangrijke Opmerkingen</h2>
+
+<ul>
+<li>Deze applicatie behandelt juridische definities die precisie en professionaliteit vereisen</li>
+<li>Alle gegenereerde code moet worden beoordeeld op veiligheid en naleving</li>
+<li>De AI moet consistentie behouden met Nederlandse juridische terminologie</li>
+<li>Focus op bruikbaarheid boven flitsend ontwerp - dit is een professioneel hulpmiddel</li>
+<li>Zorg dat alle formulieren juiste validatie hebben voor indiening</li>
+<li>Overweeg dat de applicatie dagelijks door juridische professionals wordt gebruikt</li>
+</ul>
+
+<p>Onthoud: AI-gegenereerde code is een startpunt. Altijd beoordelen, testen en verfijnen voor productie-implementatie.</p>
+
+  </div>
+</body>
+</html>

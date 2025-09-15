@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Core Definition Generation</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-018</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/architectuur/SOLUTION_ARCHITECTURE.md</li>
+<li> - docs/architectuur/validation_orchestrator_v2.md</li>
+<p>  epics:</p>
+<li> - EPIC-001</li>
+<p>  stories:</p>
+<li> - US-1.1</li>
+<li> - US-1.2</li>
+<li> - US-1.3</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: UnifiedDefinitionGenerator class</li>
+<p>  path: src/services/unified_definition_generator.py</p>
+<li>line: generate_with_validation method</li>
+<p>  path: src/services/ai_service_v2.py</p>
+<p>status: GEREED</p>
+<p>titel: Core Definition Generation</p>
+<p>type: functional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>REQ-018: Core Definition Generation</h1>
+
+<h2>Domain Context</h2>
+
+<p>This vereiste aligns with Dutch justitiesector stEnards en frameworks:</p>
+
+<ul>
+<li>**ASTRA compliance**: FolLAAGs ASTRA (Algemene Strategie Referentie Architectuur) richtlijnen for justice IT systems</li>
+<li>**NORA Principles**: Adheres to NederlEnse Overheid Referentie Architectuur for government-wide interoperability</li>
+<li>**justitieketen Integration**: Compatible with OM (Openbaar Ministerie), DJI (Dienst Justitiële Inrichtingen), Justid, En Rechtspraak systems</li>
+<li>**Legal Framework**: Complies with Dutch juridische terminologie stEnards en Aanwijzingen voor de regelgeving</li>
+<li>**Data Quality**: Meets justitiesector data quality vereisten for juridische definities</li>
+</ul>
+
+<h2>Requirement Description</h2>
+
+<p>The system must provide core functionality to generate hoogwaardige Dutch juridische definities using GPT-4, including:</p>
+<ul>
+<li>Input processing en validatie</li>
+<li>Context-aware prompt construction</li>
+<li>GPT-4 API integration with retry logic</li>
+<li>Response parsing en formatting</li>
+<li>Quality assurance checks</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+<ol>
+<li>**Input Handling**: Accept legal terms with optional context</li>
+<li>**Prompt Generation**: Build structured prompts with context en examples</li>
+<li>**API Integration**: Reliable GPT-4 communication with error hEnling</li>
+<li>**Response Quality**: Generated definitions meet legal stEnards</li>
+<li>**Prestaties**: Generation completes within 5 seconds</li>
+<li>**Formatting**: Output folLAAGs stEnardized definition format</li>
+</ol>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** GPT-4 integratie voor generatie van juridische definities met context-aware prompting en kwaliteitscontrole</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties (P95)</li>
+<li> - Processing tijd: < 5 seconden voor generatie (P99)</li>
+<li> - Success rate: > 95% voor eerste generatie poging</li>
+<li> - Token gebruik: < 3000 tokens per definitie</li>
+<li> - Validatie score: > 85% op alle toetsregels</li>
+<li>**Acceptabel:** Implementeerbaar met huidige OpenAI Enterprise agreement en budget</li>
+<li>**Relevant:** Core functionaliteit voor 500+ juridische professionals in justice keten</li>
+<li>**Tijdgebonden:** MVP gereed voor pilot met OM (Q1 2025)</li>
+</ul>
+
+<h3>BDD Scenario's</h3>
+<pre><code>Scenario: Succesvolle definitie generatie met context
+  Gegeven een juridisch professional voert term "dwangsom" in
+  En selecteert context "bestuursrecht"
+  En er zijn voorbeeldzinnen beschikbaar
+  Wanneer op "Genereer Definitie" wordt geklikt
+  Dan wordt binnen 5 seconden een definitie gegenereerd
+  En bevat de definitie minimaal 100 woorden
+  En bevat de definitie verwijzing naar Awb artikel 5:32
+  En scoort de definitie &gt; 85% op validatieregels
+  En wordt de definitie opgeslagen met metadata
+
+Scenario: Fallback bij API timeout
+  Gegeven de OpenAI API reageert niet binnen 10 seconden
+  Wanneer een definitie wordt aangevraagd
+  Dan wordt automatisch een retry uitgevoerd met exponential backoff
+  En na 3 pogingen wordt een fallback prompt gebruikt
+  En wordt de gebruiker geinformeerd over de vertraging
+  En wordt het incident gelogd voor monitoring
+
+Scenario: Rate limiting afhandeling
+  Gegeven het API rate limit is bereikt
+  Wanneer een nieuwe definitie wordt aangevraagd
+  Dan wordt het verzoek in een queue geplaatst
+  En krijgt de gebruiker een geschatte wachttijd
+  En worden verzoeken volgens FIFO principe verwerkt
+  En wordt een waarschuwing gestuurd naar operations</code></pre>
+
+
+<h2>Implementatie Details</h2>
+
+<h3>Components</h3>
+<ul>
+<li>**UnifiedDefinitionGenerator**: Main orchestration service</li>
+<li>**AIServiceV2**: GPT-4 API wrapper with retry logic</li>
+<li>**PromptServiceV2**: Modular prompt builder</li>
+<li>**ResponseParser**: Extract en format definition from GPT response</li>
+</ul>
+
+<h3>Process FLAAG</h3>
+<ol>
+<li>Receive term en optional context</li>
+<li>Build structured prompt with templates</li>
+<li>Call GPT-4 with appropriate parameters</li>
+<li>Parse en validatie response</li>
+<li>Format definition according to stEnards</li>
+<li>Return definition with metadata</li>
+</ol>
+
+<h3>GPT-4 Configuration</h3>
+<ul>
+<li>Model: gpt-4-turbo-preview or gpt-4</li>
+<li>Temperature: 0.3 for consistency</li>
+<li>Max tokens: 2000 for comprehensive definitions</li>
+<li>System prompt: juridische definitie expert role</li>
+</ul>
+
+<h2>Quality vereisten</h2>
+
+<ul>
+<li>**Accuracy**: 95% accuracy on juridische terminologie</li>
+<li>**Completeness**: All essential elements present</li>
+<li>**Consistency**: Uniform style en formatting</li>
+<li>**Clarity**: Clear, unambiguous language</li>
+<li>**Legal Validity**: Compliant with Dutch legal stEnards</li>
+</ul>
+
+<h2>Error Handling</h2>
+
+<ul>
+<li>API timeout: Retry with exponential backoff</li>
+<li>Invalid response: Fallback to simplified prompt</li>
+<li>Rate limiting: Queue management</li>
+<li>Network errors: Graceful degradation</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>OpenAI GPT-4 API access</li>
+<li>Valid API key configuration</li>
+<li>Network connectivity</li>
+<li>Prompt templates in config/</li>
+</ul>
+<h2>Implementatie Verificatie</h2>
+
+<h3>Test Coverage Vereisten</h3>
+<ul>
+<li>Unit tests: > 90% coverage voor generator service</li>
+<li>Integration tests: API mocking voor alle OpenAI calls</li>
+<li>Prestaties tests: Load testing met 100 concurrent users</li>
+<li>Acceptance tests: BDD scenarios geautomatiseerd</li>
+</ul>
+
+<h3>Monitoring & Observability</h3>
+<ul>
+<li>Prometheus metrics voor response times</li>
+<li>Grafana dashboard voor API usage</li>
+<li>AlertManager voor failure rates > 5%</li>
+<li>ELK stack voor centralized logging</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

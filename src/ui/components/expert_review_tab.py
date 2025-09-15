@@ -54,36 +54,63 @@ class ExpertReviewTab:
                 st.info("✅ Geen definities wachten op review")
                 return
 
-            # Filter en sort options
-            col1, col2, col3 = st.columns([2, 1, 1])
+            # Verzamel unieke contextopties uit wachtrij (geparseerde lijsten)
+            uniq_org: set[str] = set()
+            uniq_jur: set[str] = set()
+            uniq_wet: set[str] = set()
+            for d in pending_reviews:
+                org_list, jur_list, wet_list = self._parse_context_lists(d)
+                uniq_org.update(org_list)
+                uniq_jur.update(jur_list)
+                uniq_wet.update(wet_list)
 
-            with col1:
+            # Filter en sort options
+            st.markdown("#### Filters")
+            col_search, col_sort = st.columns([2, 1])
+            with col_search:
                 search_filter = st.text_input(
-                    "🔍 Filter definities",
-                    placeholder="Zoek op begrip...",
+                    "🔍 Zoek op begrip/definitie",
+                    placeholder="Zoekterm...",
                     key="review_search",
                 )
-
-            with col2:
+            with col_sort:
                 sort_by = st.selectbox(
                     "Sorteer op",
                     ["Datum (nieuw eerst)", "Datum (oud eerst)", "Begrip A-Z", "Score"],
                     key="review_sort",
                 )
 
-            with col3:
-                context_filter = st.selectbox(
-                    "Filter context",
-                    [
-                        "Alle",
-                        *list({d.organisatorische_context for d in pending_reviews}),
-                    ],
-                    key="review_context_filter",
+            col_org, col_jur, col_wet = st.columns(3)
+            with col_org:
+                org_filter = st.multiselect(
+                    "Organisatorisch",
+                    options=sorted(uniq_org),
+                    key="review_org_filter",
+                    help="Filter op organisaties (één of meer)",
+                )
+            with col_jur:
+                jur_filter = st.multiselect(
+                    "Juridisch",
+                    options=sorted(uniq_jur),
+                    key="review_jur_filter",
+                    help="Filter op rechtsgebieden (één of meer)",
+                )
+            with col_wet:
+                wet_filter = st.multiselect(
+                    "Wettelijk",
+                    options=sorted(uniq_wet),
+                    key="review_wet_filter",
+                    help="Filter op wetten (één of meer)",
                 )
 
             # Apply filters
             filtered_reviews = self._apply_filters(
-                pending_reviews, search_filter, context_filter, sort_by
+                pending_reviews,
+                search=search_filter,
+                org_filter=org_filter,
+                jur_filter=jur_filter,
+                wet_filter=wet_filter,
+                sort_by=sort_by,
             )
 
             # Display review queue
@@ -104,7 +131,17 @@ class ExpertReviewTab:
                 # Begrip en definitie preview
                 st.markdown(f"**{definitie.begrip}** ({definitie.categorie})")
                 st.markdown(f"*{definitie.definitie[:100]}...*")
-                st.caption(f"Context: {definitie.organisatorische_context}")
+                # Geharmoniseerde contextweergave
+                org, jur, wet = self._format_record_context(definitie)
+                ctx_parts = []
+                if org:
+                    ctx_parts.append(f"Organisatorisch: {org}")
+                if jur:
+                    ctx_parts.append(f"Juridisch: {jur}")
+                if wet:
+                    ctx_parts.append(f"Wettelijk: {wet}")
+                if ctx_parts:
+                    st.caption(" | ".join(ctx_parts))
 
             with col2:
                 # Metadata
@@ -177,14 +214,10 @@ class ExpertReviewTab:
                 st.info(definitie.definitie)
 
                 st.markdown("#### Context")
-                org_val = definitie.organisatorische_context or "—"
-                jur_val = definitie.juridische_context or "—"
-                wb_list = definitie.get_wettelijke_basis_list() if hasattr(definitie, 'get_wettelijke_basis_list') else []
-                wb_val = ", ".join(wb_list) if wb_list else "—"
-
-                st.write(f"**Organisatorisch:** {org_val}")
-                st.write(f"**Juridisch:** {jur_val}")
-                st.write(f"**Wettelijke basis:** {wb_val}")
+                org_val, jur_val, wb_val = self._format_record_context(definitie)
+                st.write(f"**Organisatorisch:** {org_val or '—'}")
+                st.write(f"**Juridisch:** {jur_val or '—'}")
+                st.write(f"**Wettelijke basis:** {wb_val or '—'}")
                 st.write(f"**Categorie:** {definitie.categorie}")
 
             with col2:
@@ -261,13 +294,57 @@ class ExpertReviewTab:
         st.markdown(f"**Huidige status:** {label}")
 
         if status == 'review':
+            # US-160: Gate preview tonen en knoppenstate bepalen
+            try:
+                gate = workflow.preview_gate(definitie.id)
+            except Exception:
+                gate = {"status": "blocked", "reasons": ["Technische fout bij gate‑preview"]}
+
+            gate_status = gate.get("status", "blocked")
+            gate_reasons = gate.get("reasons", []) or []
+
+            # Indicator
+            if gate_status == "pass":
+                st.success("✅ Gate: toegestaan om vast te stellen")
+            elif gate_status == "override_required":
+                st.warning("⚠️ Gate: override vereist (reden verplicht)")
+                with st.expander("Reden(en)", expanded=False):
+                    for r in gate_reasons:
+                        st.write(f"- {r}")
+            else:  # blocked
+                st.error("🚫 Gate: blokkade — voldoet niet aan criteria")
+                with st.expander("Reden(en)", expanded=False):
+                    for r in gate_reasons:
+                        st.write(f"- {r}")
+
             col1, col2 = st.columns(2)
             with col1:
                 st.markdown("#### ✅ Vaststellen")
-                notes = st.text_area(
-                    "Notities (optioneel)", key=f"approve_notes_{definitie.id}", height=80
+                # Bij override_required moet een reden worden opgegeven
+                notes_label = (
+                    "Reden (verplicht bij override)" if gate_status == "override_required" else "Notities (optioneel)"
                 )
-                if st.button("Vaststellen", key=f"approve_btn_{definitie.id}", type="primary"):
+                notes = st.text_area(notes_label, key=f"approve_notes_{definitie.id}", height=80)
+
+                approve_label = (
+                    "Vaststellen met override" if gate_status == "override_required" else "Vaststellen"
+                )
+                approve_disabled = gate_status == "blocked" or (
+                    gate_status == "override_required" and not (notes and notes.strip())
+                )
+                approve_help = None
+                if gate_status == "blocked":
+                    approve_help = "Gate blokkeert vaststellen — los issues op of vul ontbrekende velden"
+                elif gate_status == "override_required" and not (notes and notes.strip()):
+                    approve_help = "Voer een reden in voor de override"
+
+                if st.button(
+                    approve_label,
+                    key=f"approve_btn_{definitie.id}",
+                    type="primary",
+                    disabled=approve_disabled,
+                    help=approve_help,
+                ):
                     user = st.session_state.get('user', 'expert')
                     res = workflow.approve(definition_id=definitie.id, user=user, notes=notes or "")
                     if res.success:
@@ -518,16 +595,51 @@ class ExpertReviewTab:
         SessionStateManager.clear_value("selected_review_definition")
         SessionStateManager.clear_value(f"edited_definition_{definitie_id}")
 
+    def _format_record_context(self, definitie: DefinitieRecord) -> tuple[str, str, str]:
+        """Normaliseer en formatteer context (org/jur/wet) voor weergave."""
+        import json as _json
+
+        def _parse(val) -> list[str]:
+            try:
+                if not val:
+                    return []
+                if isinstance(val, str):
+                    return list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                if isinstance(val, list):
+                    return val
+            except Exception:
+                return []
+            return []
+
+        org_list = _parse(getattr(definitie, "organisatorische_context", None))
+        jur_list = _parse(getattr(definitie, "juridische_context", None))
+        wet_list = definitie.get_wettelijke_basis_list() if hasattr(definitie, 'get_wettelijke_basis_list') else []
+        return ", ".join(org_list), ", ".join(jur_list), ", ".join(wet_list)
+
     def _show_definition_preview(self, definitie: DefinitieRecord):
         """Show quick definition preview."""
         with st.expander(f"👁️ Preview: {definitie.begrip}", expanded=True):
             st.info(definitie.definitie)
+            org, jur, wet = self._format_record_context(definitie)
+            parts = []
+            if org:
+                parts.append(f"Organisatorisch: {org}")
+            if jur:
+                parts.append(f"Juridisch: {jur}")
+            if wet:
+                parts.append(f"Wettelijk: {wet}")
             st.caption(
-                f"Context: {definitie.organisatorische_context} | Score: {definitie.validation_score:.2f if definitie.validation_score else 'N/A'}"
+                f"Context: {' | '.join(parts) if parts else '—'} | Score: {definitie.validation_score:.2f if definitie.validation_score else 'N/A'}"
             )
 
     def _apply_filters(
-        self, reviews: list[DefinitieRecord], search: str, context: str, sort_by: str
+        self,
+        reviews: list[DefinitieRecord],
+        search: str,
+        org_filter: list[str],
+        jur_filter: list[str],
+        wet_filter: list[str],
+        sort_by: str,
     ) -> list[DefinitieRecord]:
         """Apply filters en sorting to review list."""
         filtered = reviews
@@ -541,9 +653,25 @@ class ExpertReviewTab:
                 or search.lower() in r.definitie.lower()
             ]
 
-        # Context filter
-        if context != "Alle":
-            filtered = [r for r in filtered if r.organisatorische_context == context]
+        # Context filters (V2): overlappende selectie per categorie, AND tussen categorieën
+        if org_filter:
+            filtered = [
+                r
+                for r in filtered
+                if set(org_filter) & set(self._parse_context_lists(r)[0])
+            ]
+        if jur_filter:
+            filtered = [
+                r
+                for r in filtered
+                if set(jur_filter) & set(self._parse_context_lists(r)[1])
+            ]
+        if wet_filter:
+            filtered = [
+                r
+                for r in filtered
+                if set(wet_filter) & set(self._parse_context_lists(r)[2])
+            ]
 
         # Sorting
         if sort_by == "Datum (nieuw eerst)":
@@ -556,6 +684,31 @@ class ExpertReviewTab:
             filtered.sort(key=lambda x: x.validation_score or 0, reverse=True)
 
         return filtered
+
+    def _parse_context_lists(self, definitie: DefinitieRecord) -> tuple[list[str], list[str], list[str]]:
+        """Parseer org/jur (JSON/str) en wet (helper) naar lijsten."""
+        import json as _json
+
+        def _parse(val) -> list[str]:
+            try:
+                if not val:
+                    return []
+                if isinstance(val, str):
+                    return list(_json.loads(val)) if val.strip().startswith("[") else [val]
+                if isinstance(val, list):
+                    return val
+            except Exception:
+                return []
+            return []
+
+        org_list = _parse(getattr(definitie, "organisatorische_context", None))
+        jur_list = _parse(getattr(definitie, "juridische_context", None))
+        wet_list = (
+            definitie.get_wettelijke_basis_list()
+            if hasattr(definitie, "get_wettelijke_basis_list")
+            else []
+        )
+        return org_list, jur_list, wet_list
 
     def _render_verboden_woorden_management(self):
         """Render verboden woorden runtime management interface."""

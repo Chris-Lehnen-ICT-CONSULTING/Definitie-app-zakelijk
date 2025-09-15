@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Regression Test Suite</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-076</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/testing/test_strategy.md</li>
+<p>  epics:</p>
+<li> - EPIC-002</li>
+<p>  stories:</p>
+<li> - US-2.5</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: all</li>
+<p>  path: tests/regression/</p>
+<li>line: 1-150</li>
+<p>  path: docs/testing/regression_strategy.md</p>
+<p>status: In Progress</p>
+<p>titel: Regression Test Suite</p>
+<p>type: nonfunctional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-076: Regression Test Suite</h1>
+
+<h2>Beschrijving</h2>
+<p>Het systeem moet een comprehensive regression test suite hebben die automatisch critieke functionaliteit valideert na elke change.</p>
+
+<h2>Rationale</h2>
+<p>Regression testing voorkomt dat nieuwe Wijzigingen bestaEne functionaliteit breken, essentieel voor systeem stabiliteit.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>Automated regression suite</li>
+<li>Coverage van alle KRITIEK paths</li>
+<li>Execution tijd < 15 minuten</li>
+<li>Run bij elke deployment</li>
+<li>Historical test results tracking</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Uitwerking / Notities</h2>
+<p>Regression coverage:</p>
+<ul>
+<li>Core definition generation</li>
+<li>All 45 validatieregels</li>
+<li>Import/export functionality</li>
+<li>User auDanticatie flags</li>
+<li>Database operations</li>
+<li>API endpoints</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+<p>Geen conflicten geïdentificeerd.</p>
+<h2>SMART Criteria</h2>
+
+<ul>
+<li>**Specifiek**: Optimize regression test suite Prestaties</li>
+<li>**Meetbaar**: Meet defined SLA targets</li>
+<li>**Haalbaar**: Through caching en optimization</li>
+<li>**Relevant**: Ensures production readiness</li>
+<li>**Tijdgebonden**: Before production go-live</li>
+</ul>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

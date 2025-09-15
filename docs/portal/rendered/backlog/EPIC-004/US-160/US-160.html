@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validatie‑gate bij Vaststellen (Option B)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-160</p>
+<p>titel: Validatie‑gate bij Vaststellen (Option B)</p>
+<p>epic: EPIC-004</p>
+<p>status: Gepland</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegezegd_door: product-owner</p>
+<p>aangemaakt: 2025-09-13</p>
+<p>bijgewerkt: 2025-09-13</p>
+<p>owner: frontend-team</p>
+<p>type: feature</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-13</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-093</li>
+<p>---</p>
+</ul>
+
+<h1>US-160: Validatie‑gate bij Vaststellen (Option B)</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als</strong> expert reviewer</p>
+<p><strong>wil ik</strong> dat het vaststellen van definities aan kwaliteitsregels voldoet (met duidelijke drempels en eventueel override)</p>
+<p><strong>zodat</strong> alleen kwalitatief acceptabele definities als Vastgesteld de keten in gaan</p>
+
+<h2>Context en scope</h2>
+<ul>
+<li>Gate wordt zowel in de UI zichtbaar als in de service afgedwongen.</li>
+<li>Hard beleid (Context Model V2): minimaal één context ingevuld (organisatorisch of juridisch of wettelijk).</li>
+<li>Soft beleid: wettelijke_basis ontbreekt → override toegestaan met reden.</li>
+<li>Score‑drempel: overall_score ≥ 0.75 en geen ‘critical’ issues (configurabel).</li>
+<li>Uitbreidingen/andere opties worden expliciet NIET in deze US geïmplementeerd en worden vastgelegd (zie “Niet opgenomen in scope”).</li>
+</ul>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<p>1) UI‑gate duidelijk zichtbaar:</p>
+<ul>
+<li>Expert‑tab toont validatiescore en issues.</li>
+<li>Knop “Vaststellen” is:</li>
+<li> - Groen (enabled) wanneer gate gehaald is.</li>
+<li> - Oranje (enabled, met “Vaststellen met override” + reden verplicht) bij soft‑violations (bijv. ontbrekende wettelijke basis of enkel ‘high’ issues, score ≥ 0.65).</li>
+<li> - Grijs (disabled) wanneer hard‑gate niet gehaald is (score < 0.75 of ‘critical’ issues of ontbrekende org/jur context).</li>
+<p>2) Service‑gate enforced:</p>
+<li>DefinitionWorkflowService blokkeert transitie naar established indien hard‑gate niet gehaald is.</li>
+<li>Bij override (soft‑gate) is “reden” verplicht en wordt als notes/geschiedenis vastgelegd.</li>
+<p>3) Logging/Audit:</p>
+<li>Gate‑uitkomst (pass/blocked/override) en eventuele override‑reden in `definitie_geschiedenis` (notes/reden) terug te vinden.</li>
+<p>4) Configurabel:</p>
+<li>Drempel (min_overall_score), forbid_critical, soft‑override‑drempel en require_fields via centrale policy (YAML/DI). Defaults gedocumenteerd.</li>
+<p>5) Regressie‑vrij:</p>
+<li>Bestaande Vaststellen/Afwijzen/Terugzetten functionaliteit blijft werken; UI geeft duidelijke meldingen.</li>
+</ul>
+
+<h2>Niet opgenomen in scope (vastgelegd voor vervolg‑US’en)</h2>
+<ul>
+<li>Option C (alle drie contextvelden hard) – NIET nu.</li>
+<li>Conditioneel vereisen van wettelijke_basis (bijv. op status/categorie) – NIET nu.</li>
+<li>UI‑beheer van policy (variabelen) – opgenomen in EPIC‑016.</li>
+</ul>
+
+<h2>UI Specificaties (Expert‑tab)</h2>
+<ul>
+<li>Badge/indicator bij score (groen/oranje/grijs) met toelichting op niet‑gehaalde criteria.</li>
+<li>Override‑dialoog (reden verplicht) bij soft‑gate; reden wordt gelogd.</li>
+</ul>
+
+<h2>Service Specificaties</h2>
+<ul>
+<li>DefinitionWorkflowService consulteert GatePolicyService (DI) en beslist gate‑uitkomst vóór statuswijziging.</li>
+<li>Bij override: statuswijziging toegestaan, met verplichte `notes` (reden) die in geschiedenis worden vastgelegd.</li>
+<li>Geen ad‑hoc her‑validatie in `approve()`; als er geen betrouwbare validatiegegevens aanwezig zijn, blokkeer met duidelijke instructie (eerst (her)valideren).</li>
+<li>Enum‑correctie: statuswijziging gebeurt naar `ESTABLISHED` (niet `APPROVED`).</li>
+</ul>
+
+<h2>Testscenario’s</h2>
+<ul>
+<li>Gate pass (score ≥ 0.75, geen critical, org/jur gevuld) → Vaststellen lukt.</li>
+<li>Soft‑gate (score 0.65–0.74 of enkel ‘high’ issues) → Vaststellen met override (reden verplicht) lukt en logt.</li>
+<li>Hard‑fail (score < 0.65 of critical issues of alle contexten leeg) → Vaststellen disabled en service‑block met melding.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] UI‑gate zichtbaar en correct (groen/oranje/grijs + override flow)</li>
+<li>[ ] Service‑gate enforced (block/override met logging)</li>
+<li>[ ] Policy laadbaar/configureerbaar via DI (YAML)</li>
+<li>[ ] Documentatie bijgewerkt (README/architectuur)</li>
+<li>[ ] Smoke‑tests handmatig gedraaid voor pass/soft‑override/block</li>
+</ul>
+
+<h2>Achtergrond & Businesswaarde</h2>
+<ul>
+<li>Verhoogt kwaliteit en consistentie van “Vastgestelde” definities; vermindert herwerk.</li>
+<li>Maakt besluitvorming transparant (override met reden) en auditeerbaar.</li>
+</ul>
+
+<h2>In scope / Out of scope</h2>
+<p>In scope:</p>
+<ul>
+<li>Gate‑policy toepassen bij Vaststellen (UI + service), Option B.</li>
+<li>Duidelijke gebruikersfeedback en logging.</li>
+<p>Out of scope:</p>
+<li>UI‑beheer van policy (EPIC‑016), conditionele vereisten voor wettelijke_basis, Option C.</li>
+</ul>
+
+<h2>Businessregels</h2>
+<ul>
+<li>Gate beslist op basis van: overall_score, violation severities, aanwezigheid vereiste velden.</li>
+<li>Soft‑gate: override vereist “reden” (notes) → audit.</li>
+<li>Gate beslist vóór statuswijziging (service), UI toont status van de gate.</li>
+</ul>
+
+<h2>UI/UX specificaties (verder uitgewerkt)</h2>
+<ul>
+<li>Indicator bij validatiescore: groen (≥0.75, geen critical), oranje (≥0.65 en alleen high/soft‑issues), grijs (onder drempel of missing hard‑fields).</li>
+<li>Tooltip/expander met exacte criteria (drempels, ontbrekende velden, issues samenvatting).</li>
+<li>Override dialoog: tekstveld (min 10 chars), bevestigknop, melding dat audit wordt vastgelegd.</li>
+</ul>
+
+<h2>Service/API specificaties</h2>
+<ul>
+<li>GatePolicyService (DI):</li>
+<li> - Configbestand: `config/approval_gate.yaml` met defaults.</li>
+<li> - Env‑overlay: `APPROVAL_GATE_CONFIG_OVERLAY=/pad/naar/overlay.yaml` (deep‑merge).</li>
+<li> - TTL‑cache: `cache.ttl_seconds` (default 60s).</li>
+<li>DefinitionWorkflowService:</li>
+<li> - `preview_gate(definition_id) -> {status: pass|override_required|blocked, reasons: [...]}` voor UI‑presentatie.</li>
+<li> - `approve(definition_id, user, notes)` voert gate‑check uit; bij `override_required` zijn `notes` verplicht; bij `blocked` geeft `error_message` terug.</li>
+<li> - Status enum consistent met database: `ESTABLISHED`.</li>
+</ul>
+
+<h2>Data/Config</h2>
+<ul>
+<li>YAML‑voorbeeld (defaults):</li>
+<pre><code>hard_requirements:
+  require_org_context: true
+  require_jur_context: true
+  forbid_critical_issues: true
+
+thresholds:
+  hard_min_score: 0.75
+  soft_min_score: 0.65
+
+soft_requirements:
+  allow_high_issues_with_override: true
+  missing_wettelijke_basis_soft: true
+
+cache:
+  ttl_seconds: 60</code></pre>
+</ul>
+
+<h2>Monitoring/Telemetrie</h2>
+<ul>
+<li>Tel aantal vaststellingen per dag, overrides, blocks; gemiddelde score bij vaststellen; top reasons voor blok/override.</li>
+</ul>
+
+<h2>Veiligheid/Autorisatie</h2>
+<ul>
+<li>Gate is non‑bypassable (service‑enforcement); UI weerspiegelt uitkomst.</li>
+<li>Override reden verplicht, gelogd met user en timestamp.</li>
+</ul>
+
+<h2>Risico’s & Mitigaties</h2>
+<ul>
+<li>Te strenge drempel blokkeert doorstroom → policy configureerbaar en zichtbare feedback.</li>
+<li>Inconsistentie UI vs service → service leidend; UI leest service‑uitkomst.</li>
+</ul>
+
+<h2>Belangrijk (technische noot)</h2>
+<ul>
+<li>Huidige bug: `DefinitionWorkflowService` gebruikt `APPROVED` i.p.v. `ESTABLISHED`. Dit wordt in Fase B gecorrigeerd samen met de gate‑enforcement.</li>
+</ul>
+
+<h2>Roll‑out plan</h2>
+<ul>
+<li>Fase 1: service‑enforcement + UI‑indicatoren (zonder beheer‑UI; YAML defaults).</li>
+<li>Fase 2 (EPIC‑016): beheer‑UI + audit + import/export; conditionele regels.</li>
+</ul>
+
+<h2>Testmatrix (uitgebreid)</h2>
+<ul>
+<li>[ ] PASS: score=0.80, geen critical, org/jur gevuld → knop groen, service approve OK.</li>
+<li>[ ] SOFT: score=0.70, geen critical, missing wettelijke_basis → override vereist; service approve met notes OK.</li>
+<li>[ ] BLOCK: score=0.60 of critical aanwezig of org/jur leeg → disabled/blocked; service foutmelding.</li>
+</ul>
+
+  </div>
+</body>
+</html>

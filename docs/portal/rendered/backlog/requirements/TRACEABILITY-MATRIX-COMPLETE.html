@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Complete Traceability Matrix - DefinitieAgent</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Complete Traceability Matrix - DefinitieAgent</h1>
+
+<p><strong>Generated:</strong> 08-09-2025</p>
+<p><strong>Compliance:</strong> ASTRA/NORA/GEMMA</p>
+
+<h2>Executive Summary</h2>
+
+<p>This enhanced traceability matrix provides complete REQ → EPIC → US → Code Component mappings with SMART criteria and BDD specifications for all critical vereisten.</p>
+
+<h2>Prioriteit 1: Core Functionality (REQ-001 to REQ-020)</h2>
+
+<h3>REQ-001: Input Validation and Sanitization</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** All user inputs must be validated and sanitized before processing</li>
+<li>**Measurable:** 100% input coverage, 0 injection vulnerabilities</li>
+<li>**Achievable:** Using established validation libraries</li>
+<li>**Relevant:** Critical for security compliance (ASTRA-SEC-001)</li>
+<li>**Time-bound:** Implementatie within Sprint 1</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-006 (Beveiliging & Auth)</li>
+<li>Story: US-006.2</li>
+<li>Code Components:</li>
+<li> - `src/services/validation/input_sanitizer.py`</li>
+<li> - `src/utils/security/validators.py`</li>
+<li> - `tests/security/test_input_validation.py`</li>
+</ul>
+
+<p><strong>BDD Scenario:</strong></p>
+<pre><code>Gegeven een gebruiker voert potentieel schadelijke input in
+Wanneer de input wordt verwerkt door het systeem
+Dan wordt de input gesanitized volgens OWASP richtlijnen
+En worden SQL injection pogingen geblokkeerd
+En wordt een audit log entry gemaakt</code></pre>
+
+<h3>REQ-002: API Key Beveiliging</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** Secure storage and handling of API keys</li>
+<li>**Measurable:** 0 hardcoded keys, 100% encrypted storage</li>
+<li>**Achievable:** Environment variables + key vault</li>
+<li>**Relevant:** NORA-BP-15 (Vertrouwelijkheid)</li>
+<li>**Time-bound:** Pre-production requirement</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-006 (Beveiliging & Auth)</li>
+<li>Stories: US-006.2, US-006.3, US-006.4</li>
+<li>Code Components:</li>
+<li> - `src/services/security/api_key_manager.py`</li>
+<li> - `src/config/environment.py`</li>
+<li> - `.env.example`</li>
+</ul>
+
+<h3>REQ-003: Authentication and Authorization</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** Role-based access control with Justice SSO</li>
+<li>**Measurable:** 100% endpoint coverage, <2s auth response</li>
+<li>**Achievable:** OAuth2/SAML2 integration</li>
+<li>**Relevant:** DJI/OM security vereisten</li>
+<li>**Time-bound:** Sprint 3 completion</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-006 (Beveiliging & Auth)</li>
+<li>Story: US-006.1</li>
+<li>Code Components:</li>
+<li> - `src/auth/sso_integration.py`</li>
+<li> - `src/middleware/auth_middleware.py`</li>
+<li> - `src/models/user_roles.py`</li>
+</ul>
+
+<h3>REQ-015: Context-aware Definitie Generatie</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** Generate definitions with legal context understanding</li>
+<li>**Measurable:** 95% accuracy on legal terminology</li>
+<li>**Achievable:** GPT-4 with custom prompts</li>
+<li>**Relevant:** Core business requirement</li>
+<li>**Time-bound:** MVP requirement</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-001 (Basis Definitie Generatie)</li>
+<li>Stories: US-001.1, US-001.2</li>
+<li>Code Components:</li>
+<li> - `src/services/definition_generator.py`</li>
+<li> - `src/services/ai_service_v2.py`</li>
+<li> - `src/prompts/legal_context_prompts.py`</li>
+</ul>
+
+<h3>REQ-018: Definitie Generatie via AI</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** GPT-4 integration for definition generation</li>
+<li>**Measurable:** <5s response time, 99% uptime</li>
+<li>**Achievable:** OpenAI API with fallback</li>
+<li>**Relevant:** Core functionality</li>
+<li>**Time-bound:** Already implemented</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-001 (Basis Definitie Generatie)</li>
+<li>Story: US-001.1</li>
+<li>Code Components:</li>
+<li> - `src/services/ai_service_v2.py`</li>
+<li> - `src/services/unified_definition_generator.py`</li>
+<li> - `config/openai_config.yaml`</li>
+</ul>
+
+<h3>REQ-019: Validatie Pipeline</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** 45 validation rules in modular pipeline</li>
+<li>**Measurable:** <1s validation time, 100% rule coverage</li>
+<li>**Achievable:** Parallel processing</li>
+<li>**Relevant:** Quality assurance</li>
+<li>**Time-bound:** Implemented</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-002 (Kwaliteitstoetsing)</li>
+<li>Stories: US-002.1, US-002.2, US-002.3</li>
+<li>Code Components:</li>
+<li> - `src/services/validation/validation_orchestrator_v2.py`</li>
+<li> - `src/services/validation/modular_validation_service.py`</li>
+<li> - `src/toetsregels/regels/`</li>
+</ul>
+
+<h2>Prioriteit 2: Validation Rules (REQ-023 to REQ-029)</h2>
+
+<h3>REQ-023: ARAI Validation Rules</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** Argument-based validation rules</li>
+<li>**Measurable:** 100% ARAI rule implementation</li>
+<li>**Achievable:** Rule engine pattern</li>
+<li>**Relevant:** Legal accuracy</li>
+<li>**Time-bound:** Completed</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-002 (Kwaliteitstoetsing)</li>
+<li>Stories: US-002.7, US-002.8</li>
+<li>Code Components:</li>
+<li> - `src/toetsregels/regels/arai_*.py`</li>
+<li> - `config/toetsregels/regels/ARAI_*.json`</li>
+<li> - `tests/toetsregels/test_arai_rules.py`</li>
+</ul>
+
+<p><strong>BDD Scenario:</strong></p>
+<pre><code>Gegeven een definitie met argumentatiestructuur
+Wanneer ARAI validatie wordt uitgevoerd
+Dan worden alle premissen gecontroleerd
+En wordt de conclusie geverifieerd
+En wordt een ARAI score tussen 0-100 teruggegeven</code></pre>
+
+<h3>REQ-024 through REQ-029: Category-specific Validation</h3>
+<p><strong>Consolidated SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** CON, ESS, INT, SAM, STR, VER validation categories</li>
+<li>**Measurable:** 100% coverage per category, weighted scoring</li>
+<li>**Achievable:** Modular rule implementation</li>
+<li>**Relevant:** Nederlandse Wetgevingstechniek compliance</li>
+<li>**Time-bound:** All implemented</li>
+</ul>
+
+<p><strong>Mapping per Category:</strong></p>
+<ul>
+<li>CON (Consistency): `src/toetsregels/regels/con_*.py`</li>
+<li>ESS (Essential): `src/toetsregels/regels/ess_*.py`</li>
+<li>INT (Integration): `src/toetsregels/regels/int_*.py`</li>
+<li>SAM (Coherence): `src/toetsregels/regels/sam_*.py`</li>
+<li>STR (Structure): `src/toetsregels/regels/str_*.py`</li>
+<li>VER (Verification): `src/toetsregels/regels/ver_*.py`</li>
+</ul>
+
+<h2>Prioriteit 3: Prestaties Vereisten (REQ-008 to REQ-012)</h2>
+
+<h3>REQ-008: Response Time Optimization</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** UI response <200ms, API <2s</li>
+<li>**Measurable:** P95 latency metrics</li>
+<li>**Achievable:** Caching + async processing</li>
+<li>**Relevant:** User experience</li>
+<li>**Time-bound:** Prestaties sprint</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-007 (Prestaties & Scaling)</li>
+<li>Stories: US-007.1, US-007.2</li>
+<li>Code Components:</li>
+<li> - `src/services/cache/response_cache.py`</li>
+<li> - `src/utils/performance/profiler.py`</li>
+<li> - `src/middleware/performance_monitor.py`</li>
+</ul>
+
+<h3>REQ-011: Caching Strategy</h3>
+<p><strong>SMART Criteria:</strong></p>
+<ul>
+<li>**Specific:** Multi-layer caching (Redis + in-memory)</li>
+<li>**Measurable:** 80% cache hit ratio</li>
+<li>**Achievable:** Redis implementation</li>
+<li>**Relevant:** Prestaties optimization</li>
+<li>**Time-bound:** Sprint 4</li>
+</ul>
+
+<p><strong>Mapping:</strong></p>
+<ul>
+<li>Episch Verhaal: EPIC-007 (Prestaties & Scaling)</li>
+<li>Story: US-007.3</li>
+<li>Code Components:</li>
+<li> - `src/services/cache/redis_cache.py`</li>
+<li> - `src/services/cache/memory_cache.py`</li>
+<li> - `config/cache_config.yaml`</li>
+</ul>
+
+<h2>Code Component Traceability</h2>
+
+<h3>Service Layer Mappings</h3>
+<pre><code>src/services/
+├── container.py → REQ-059 (Environment config)
+├── ai_service_v2.py → REQ-018, REQ-038 (AI integration)
+├── definition_generator.py → REQ-015, REQ-018
+├── validation/
+│   ├── validation_orchestrator_v2.py → REQ-019, REQ-032
+│   └── modular_validation_service.py → REQ-023-029
+├── web_lookup/
+│   └── modern_web_lookup_service.py → REQ-020, REQ-039, REQ-040
+└── cache/
+    └── cache_service.py → REQ-011, REQ-031</code></pre>
+
+<h3>Database Layer Mappings</h3>
+<pre><code>src/database/
+├── schema.sql → REQ-078 (Data model)
+├── repository.py → REQ-079 (Data integrity)
+└── migrations/ → REQ-065 (Migration system)</code></pre>
+
+<h3>UI Component Mappings</h3>
+<pre><code>src/ui/
+├── tabs/
+│   ├── generation_tab.py → US-004.4
+│   ├── validation_tab.py → US-004.5
+│   └── history_tab.py → US-004.6
+└── components/
+    ├── validation_display.py → REQ-052 (Real-time feedback)
+    └── progress_indicator.py → REQ-053 (Progress indicators)</code></pre>
+
+<h2>Test Coverage Mapping</h2>
+
+<h3>Unit Test Vereisten</h3>
+<pre><code>tests/
+├── services/
+│   ├── test_definition_generator.py → REQ-068 (99% coverage)
+│   ├── test_validation_service.py → REQ-068 (98% coverage)
+│   └── test_repository.py → REQ-068 (100% coverage)
+├── toetsregels/
+│   └── test_all_rules.py → REQ-023-029 (Rule testing)
+└── security/
+    └── test_security.py → REQ-001-007, REQ-071</code></pre>
+
+<h2>ASTRA/NORA Compliance Mapping</h2>
+
+<h3>ASTRA Controls</h3>
+<ul>
+<li>**ASTRA-SEC-001**: Input Validation → REQ-001</li>
+<li>**ASTRA-SEC-002**: Authentication → REQ-003</li>
+<li>**ASTRA-QUA-001**: Quality Pipeline → REQ-019</li>
+<li>**ASTRA-PER-001**: Prestaties → REQ-008-012</li>
+<li>**ASTRA-DAT-001**: Data Management → REQ-078-082</li>
+</ul>
+
+<h3>NORA Principles</h3>
+<ul>
+<li>**NORA-BP-07**: Herbruikbaarheid → REQ-034 (Custom rules)</li>
+<li>**NORA-BP-12**: Betrouwbaarheid → REQ-061 (Graceful degradation)</li>
+<li>**NORA-BP-15**: Vertrouwelijkheid → REQ-002, REQ-006</li>
+<li>**NORA-BP-18**: Controleerbaarheid → REQ-005, REQ-045</li>
+</ul>
+
+<h3>Justice Sector Specific</h3>
+<ul>
+<li>**DJI-SEC-001**: SSO Integration → REQ-044</li>
+<li>**OM-DAT-001**: Data Retention → REQ-081</li>
+<li>**Justid-AUTH-001**: Identity Management → REQ-003</li>
+<li>**Rechtspraak-INT-001**: System Integration → REQ-020</li>
+</ul>
+
+<h2>Gap Analysis</h2>
+
+<h3>Missing Implementations</h3>
+<ol>
+<li>**REQ-044**: Justice SSO Integration - Blocking production</li>
+<li>**REQ-047**: Backup and Restore - Critical for operations</li>
+<li>**REQ-085**: PostgreSQL Migration - Prestaties requirement</li>
+<li>**US-009.3**: Collaborative Editing - No vereisten defined</li>
+</ol>
+
+<h3>Risk Assessment</h3>
+<ul>
+<li>**Critical:** SSO integration blocks production deployment</li>
+<li>**High:** Backup/restore needed for data safety</li>
+<li>**Medium:** PostgreSQL migration for scaling</li>
+<li>**Low:** Collaborative editing (future feature)</li>
+</ul>
+
+<h2>Verification Checklist</h2>
+
+<h3>Per Sprint Verification</h3>
+<ul>
+<li>[ ] All new stories have vereisten</li>
+<li>[ ] All vereisten have SMART criteria</li>
+<li>[ ] All stories have BDD scenarios</li>
+<li>[ ] Code components are mapped</li>
+<li>[ ] Tests cover vereisten</li>
+<li>[ ] ASTRA/NORA compliance checked</li>
+</ul>
+
+<h3>Release Gate Criteria</h3>
+<ul>
+<li>[ ] 100% requirement coverage</li>
+<li>[ ] 80% test coverage minimum</li>
+<li>[ ] All critical vereisten implemented</li>
+<li>[ ] Beveiliging vereisten validated</li>
+<li>[ ] Prestaties targets met</li>
+<li>[ ] Compliance documentation complete</li>
+</ul>
+
+<h2>Dashboard Metrics</h2>
+
+<h3>Current Status</h3>
+<ul>
+<li>**Vereisten Implemented:** 72/92 (78%)</li>
+<li>**Stories Completed:** 45/86 (52%)</li>
+<li>**Code Coverage:** 67%</li>
+<li>**ASTRA Compliance:** 85%</li>
+<li>**NORA Compliance:** 90%</li>
+</ul>
+
+<h3>Sprint Velocity</h3>
+<ul>
+<li>**Average Verhaalpunten:** 18/sprint</li>
+<li>**Vereisten/Sprint:** 8-10</li>
+<li>**Bug Rate:** 2.3/sprint</li>
+<li>**Technical Debt:** 15%</li>
+</ul>
+
+<p>---</p>
+
+<p><em>Laatst Bijgewerkt: 08-09-2025</em></p>
+<p><em>Next Review: Sprint Planning 37</em></p>
+<p><em>Eigenaar: Business Analyst - Justice Domain</em></p>
+
+  </div>
+</body>
+</html>

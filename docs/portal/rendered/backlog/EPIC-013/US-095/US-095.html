@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Geavanceerde zoek & dashboard‑integratie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-095</p>
+<p>epic: EPIC-013</p>
+<p>applies_to: definitie-app@current</p>
+<p>aangemaakt: 11-09-2025</p>
+<p>bijgewerkt: 11-09-2025</p>
+<p>owner: documentation-team</p>
+<p>prioriteit: HOOG</p>
+<p>status: IN_UITVOERING</p>
+<p>story_points: 5</p>
+<p>canonical: true</p>
+<p>last_verified: 13-09-2025</p>
+<p>titel: Geavanceerde zoek & dashboard‑integratie</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-090</li>
+<p>---</p>
+</ul>
+
+<h1>US-095: Geavanceerde zoek & dashboard‑integratie</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als</strong> gebruiker wil ik snel kunnen zoeken en filteren in alle docs, <strong>zodat</strong> ik direct op de juiste plek uitkom.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[x] Globale zoekbalk (vrije tekst/fuzzy) over titel + id + owner + status (MVP)</li>
+<li>[x] Zoekoperators: `id:`, `owner:`, `type:`, `status:`, `sprint:`, `prio:`/`prioriteit:`/`priority:`, `title:` (MVP)</li>
+<li>[x] UI‑badges tonen actieve tokens + snelle wis‑knop</li>
+<li>[x] Documentatie voor zoekoperators met voorbeelden</li>
+<li>[ ] Bookmarkbare query (`#q=…`) en deeplinks (vervolgstap; zie US-086)</li>
+<li>[ ] Extra filters: canonical en advanced (range/negatie) buiten scope MVP</li>
+<li>[ ] Snelle cross‑link naar bestaande dashboards (HTML) waar beschikbaar</li>
+</ul>
+
+<h2>Implementatie‑notities</h2>
+<ul>
+<li>Client‑side filteren (JSON in browser); debounced zoek</li>
+<li>Lightweight parser in `docs/portal/portal.js` met token‑filters (AND over keys, OR binnen key)</li>
+<li>UI‑badges + clear in Portal; hulp‑link naar viewer met README sectie</li>
+<li>Badge‑kleuren voor status/prioriteit; sectietabs</li>
+</ul>
+
+<h2>Verificatie</h2>
+<ul>
+<li>Zoek op vrije tekst “EPIC‑010” toont epic en relevante US/bugs</li>
+<li>`type:US status:IN_UITVOERING` toont alleen user stories in uitvoering</li>
+<li>`owner:"documentation-team" prio:hoog` filtert op owner (met spaties) en prioriteit</li>
+<li>`sprint:"Sprint 37"` filtert op specifieke sprint (indien aanwezig)</li>
+<li>`title:validatie architectuur` matcht beide woorden in titel/id/path</li>
+<li>“× Wissen” wist query en verbergt badges</li>
+</ul>
+
+<h2>Opmerkingen</h2>
+<ul>
+<li>Bookmarkbare query en chip‑deeplinks via `#q=…` worden opgepakt in US-086.</li>
+</ul>
+
+  </div>
+</body>
+</html>

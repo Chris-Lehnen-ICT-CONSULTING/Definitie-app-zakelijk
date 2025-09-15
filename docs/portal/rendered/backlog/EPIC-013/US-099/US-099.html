@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Traceability‑integratie in generator (REQ↔EPIC↔US)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-099</p>
+<p>epic: EPIC-013</p>
+<p>applies_to: definitie-app@current</p>
+<p>aangemaakt: 11-09-2025</p>
+<p>bijgewerkt: 11-09-2025</p>
+<p>owner: architecture</p>
+<p>prioriteit: HOOG</p>
+<p>status: TE_DOEN</p>
+<p>story_points: 5</p>
+<p>canonical: true</p>
+<p>last_verified: 11-09-2025</p>
+<p>titel: Traceability‑integratie in generator (REQ↔EPIC↔US)</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-090</li>
+<p>---</p>
+</ul>
+
+<h1>US-099: Traceability‑integratie in generator (REQ↔EPIC↔US)</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als</strong> architect wil ik dat de generator <code>docs/traceability.json</code> (en REQ‑REGISTRY) inleest, <strong>zodat</strong> de Portal REQs kan tonen met gekoppelde EPICs/US en omgekeerd.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Generator leest `docs/traceability.json` (indien aanwezig) en voegt relaties toe aan items</li>
+<li>[ ] Voor REQ: lijst EPICs/US (ids) zichtbaar in JSON en UI (links)</li>
+<li>[ ] Voor EPIC: lijst REQs/US zichtbaar</li>
+<li>[ ] Fallback: als traceability.json ontbreekt, degradeert UI zonder fouten</li>
+</ul>
+
+<h2>Implementatienotities</h2>
+<ul>
+<li>Minimalistische parser; respecteer bestaande schema</li>
+<li>Verrijk `documents[i].relations = { reqs, epics, stories }`</li>
+</ul>
+
+<h2>Verificatie</h2>
+<ul>
+<li>Voorbeeld met een paar REQs/EPICs/US toont juiste koppelingen en klikbare links</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

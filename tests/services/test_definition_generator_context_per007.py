@@ -36,7 +36,7 @@ def test_base_context_includes_all_three_lists():
 def test_prompt_service_v2_converts_all_context_fields():
     request = make_request()
     svc = PromptServiceV2()
-    enriched = svc._convert_request_to_context(request)
+    enriched = svc._DEPRECATED_convert_request_to_context(request)
 
     assert set(enriched.base_context.get("organisatorisch", [])) >= {"DJI", "OM"}
     assert "Strafrecht" in enriched.base_context.get("juridisch", [])

@@ -1,0 +1,235 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UPDATE REQUIREMENTS - Post-Consolidation Documentation Fixes</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>applies_to: definitie-app@v2</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>canonical: true</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: documentation</p>
+<p>prioriteit: immediate</p>
+<p>status: active</p>
+<p>---</p>
+
+
+
+<h1>UPDATE REQUIREMENTS - Post-Consolidation Documentation Fixes</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Na de grote architectuur consolidatie (September 2025) zijn er nog verschillende documenten met verouderde references. Dit document inventariseert alle noodzakelijke updates en prioriteert deze volgens impact.</p>
+
+<h2>🔴 KRITIEK - Immediate Action Required</h2>
+
+<h3>1. Non-Existent Directory References</h3>
+<p><strong>Problem</strong>: Meerdere documenten verwijzen naar <code>/docs/architectuur/beslissingen/</code> die niet meer bestaat.</p>
+
+<p><strong>Affected Files</strong>:</p>
+<ul>
+<li>`/docs/architectuur/SOLUTION_ARCHITECTURE.md` (line 2784)</li>
+<li>`/docs/architectuur/ENTERPRISE_ARCHITECTURE.md` (line 768)</li>
+<li>`/docs/guidelines/CANONICAL_LOCATIONS.md` (line 21)</li>
+<li>`/docs/workflows/validation_orchestrator_rollout.md`</li>
+<li>`/docs/README.md` (line 13, 64)</li>
+</ul>
+
+<p><strong>Fix</strong>: Remove or update references to point to ADR sections within the main architecture documents.</p>
+
+<h3>2. Broken File References</h3>
+<p><strong>Problem</strong>: References naar niet-bestaande bestanden.</p>
+
+<p><strong>Affected Files</strong>:</p>
+<ul>
+<li>`/docs/architectuur/TECHNICAL_ARCHITECTURE.md`:</li>
+<li> - Line: References `V2_AI_SERVICE_MIGRATIE_ANALYSE.md` (archived)</li>
+<li> - Line: References `../technisch/service-container.md` (doesn't exist)</li>
+<li> - Line: References `../technisch/AI_CONFIGURATION_GUIDE.md` (doesn't exist)</li>
+</ul>
+
+<ul>
+<li>`/docs/prd.md`:</li>
+<li> - References `V2_AI_SERVICE_MIGRATIE_BROWNFIELD.md`</li>
+</ul>
+
+<ul>
+<li>Multiple files reference `validation_orchestrator_v2.md` (archived):</li>
+<li> - `/docs/technisch/error_catalog_validation.md`</li>
+<li> - `/docs/development/validation_orchestrator_implementation.md`</li>
+<li> - `/docs/workflows/validation_orchestrator_rollout.md`</li>
+<li> - `/docs/architectuur/contracts/validation_result_contract.md`</li>
+</ul>
+
+<p><strong>Fix</strong>: Update to point to relevant sections in consolidated architecture documents.</p>
+
+<h2>🟡 HOOG - Should Fix Soon</h2>
+
+<h3>3. Outdated Cross-References</h3>
+<p><strong>Problem</strong>: Architecture documents still have old naming in cross-references.</p>
+
+<p><strong>Current Status</strong>:</p>
+<ul>
+<li>ENTERPRISE_ARCHITECTURE.md ✅ Correct frontmatter</li>
+<li>SOLUTION_ARCHITECTURE.md ⚠️ Needs check</li>
+<li>TECHNICAL_ARCHITECTURE.md ⚠️ Needs check</li>
+</ul>
+
+<p><strong>Fix</strong>: Ensure all three documents use consistent cross-reference naming.</p>
+
+<h3>4. CANONICAL_LOCATIONS.md Inconsistencies</h3>
+<p><strong>Problem</strong>: Still lists <code>/docs/architectuur/beslissingen/</code> as Active.</p>
+
+<p><strong>Fix</strong>:</p>
+<ul>
+<li>Remove beslissingen directory reference (line 21)</li>
+<li>Update to clarify ADRs are now embedded in main documents</li>
+<li>Add note about consolidated architecture</li>
+</ul>
+
+<h2>🟢 GEMIDDELD - General Cleanup</h2>
+
+<h3>5. Testen Documents</h3>
+<p><strong>Files to check</strong>:</p>
+<ul>
+<li>`/docs/testing/CONSOLIDATION_VALIDATION_REPORT.md` - Has broken links</li>
+<li>`/docs/testing/PER-007-test-scenarios.md` - Check for outdated refs</li>
+</ul>
+
+<h3>6. Werkstroom Documents</h3>
+<p><strong>Files to update</strong>:</p>
+<ul>
+<li>`/docs/workflows/TDD_TO_DEPLOYMENT_WORKFLOW.md`</li>
+<li>`/docs/workflows/validation_orchestrator_rollout.md`</li>
+</ul>
+
+<h3>7. Review Documents</h3>
+<p><strong>Old reviews referencing pre-consolidation structure</strong>:</p>
+<ul>
+<li>`/docs/reviews/2025-08-28_full_code_review/CHECKLIST_DOCS.md`</li>
+<li>Contains references to old ADR files in beslissingen/</li>
+</ul>
+
+<h2>🔵 LAAG - Documentation Polish</h2>
+
+<h3>8. CHANGELOG.md</h3>
+<ul>
+<li>Contains CFR/PER-007 references that could be clarified</li>
+<li>Not broken, but could add context about consolidation</li>
+</ul>
+
+<h3>9. Archive References</h3>
+<ul>
+<li>Various files reference archived documents</li>
+<li>Consider adding "(archived)" suffix to make clear</li>
+</ul>
+
+<h2>Implementatie Plan</h2>
+
+<h3>Phase 1: Critical Fixes (Immediate)</h3>
+<p><strong>Time Estimate</strong>: 1-2 hours</p>
+<ol>
+<li>Remove all references to `/docs/architectuur/beslissingen/` directory</li>
+<li>Fix broken file paths in TECHNICAL_ARCHITECTURE.md</li>
+<li>Update validation_orchestrator_v2.md references</li>
+</ol>
+
+<h3>Phase 2: High Prioriteit (Today)</h3>
+<p><strong>Time Estimate</strong>: 1 hour</p>
+<ol>
+<li>Update CANONICAL_LOCATIONS.md</li>
+<li>Fix cross-references between architecture documents</li>
+<li>Update prd.md references</li>
+</ol>
+
+<h3>Phase 3: Medium Prioriteit (This Week)</h3>
+<p><strong>Time Estimate</strong>: 2 hours</p>
+<ol>
+<li>Review and update all testing documents</li>
+<li>Update workflow documents</li>
+<li>Clean up review documents</li>
+</ol>
+
+<h3>Phase 4: Low Prioriteit (As Time Permits)</h3>
+<p><strong>Time Estimate</strong>: 30 minutes</p>
+<ol>
+<li>Polish CHANGELOG.md</li>
+<li>Add archive indicators where helpful</li>
+</ol>
+
+<h2>Validation Checklist</h2>
+
+<p>After fixes, verify:</p>
+<ul>
+<li>[ ] No grep results for "beslissingen/" outside archive</li>
+<li>[ ] No broken internal links (use link checker)</li>
+<li>[ ] All three architecture docs have matching cross-refs</li>
+<li>[ ] CANONICAL_LOCATIONS.md reflects actual structure</li>
+<li>[ ] No references to non-existent files</li>
+<li>[ ] All frontmatter is complete and accurate</li>
+</ul>
+
+<h2>Search Commands for Verification</h2>
+
+<pre><code># Find all beslissingen references
+grep -r "beslissingen/" docs --include="*.md" | grep -v archief
+
+# Find potential broken paths
+grep -r "validation_orchestrator_v2\.md" docs --include="*.md" | grep -v archief
+grep -r "V2_AI_SERVICE" docs --include="*.md" | grep -v archief
+
+# Check for old architecture file names
+grep -r "EA\.md\|SA\.md\|TA\.md" docs --include="*.md" | grep -v archief
+
+# Find CFR references
+grep -r "CFR-" docs --include="*.md" | grep -v archief</code></pre>
+
+<h2>Notes</h2>
+
+<ul>
+<li>De consolidatie was succesvol maar liet enkele "loose ends" achter</li>
+<li>Focus op het verwijderen van references naar niet-bestaande directories</li>
+<li>Veel documenten zijn al correct, alleen kleine updates nodig</li>
+<li>Archive structure is goed, alleen actieve documenten need fixes</li>
+</ul>
+
+<p>---</p>
+<p>Generated: 05-09-2025</p>
+<p>Next Review: After Phase 2 completion</p>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

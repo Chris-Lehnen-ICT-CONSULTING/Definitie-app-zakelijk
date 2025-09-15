@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-156: Implementeer FeedbackBuilder Priority Algorithm</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-156: Implementeer FeedbackBuilder Priority Algorithm</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> ontwikkelaar  </p>
+<p><strong>Wil ik</strong> het bewezen feedback prioritering algoritme implementeren  </p>
+<p><strong>Zodat</strong> de AI model effectieve, niet-overweldigende feedback krijgt  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: CRITICAL  </p>
+<p><strong>Story Points</strong>: 5  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Dit algoritme is cruciaal voor de iteratieve verbetering. Het zorgt ervoor dat de AI:</p>
+<ul>
+<li>Niet overweldigd wordt met teveel feedback tegelijk</li>
+<li>Focus houdt op de meest impactvolle problemen</li>
+<li>Variatie krijgt in feedback tussen iteraties</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Implementeer 5-staps prioritering: Kritiek → Groepering → Type-specifiek → Leren → Versterking</li>
+<li>[ ] Maximum 3 kritieke violations tegelijk presenteren</li>
+<li>[ ] Maximum 5 totale feedback items per iteratie</li>
+<li>[ ] Iteratie-bewuste feedback (verschillende formuleringen per iteratie)</li>
+<li>[ ] Deduplicatie van feedback items</li>
+<li>[ ] Emoji gebruik voor prioriteit indicatie (🚨 voor kritiek, 💡 voor suggesties)</li>
+</ul>
+
+<h2>Technical Details</h2>
+
+<h3>Priority Order Algorithm</h3>
+<pre><code>def prioritize_feedback(feedback_items):
+    # 1. Critical items met 🚨
+    critical = [f for f in feedback if f.startswith("🚨")]
+    
+    # 2. Concrete suggesties met 💡
+    suggestions = [f for f in feedback if "💡" in f or "Voeg toe:" in f or "Vervang" in f]
+    
+    # 3. Overige feedback
+    other = [f for f in feedback if f not in critical + suggestions]
+    
+    # Combineer en dedupliceer
+    prioritized = critical[:3] + suggestions + other
+    return unique(prioritized)[:5]</code></pre>
+
+<h3>Iteratie-Bewuste Feedback</h3>
+<pre><code>iteration_feedback = {
+    1: "Vermijd deze patronen: {patterns}",
+    2: "Nog steeds aanwezig: {patterns}. Probeer alternatieve formuleringen.",
+    3: "Fundamentele herformulering nodig voor: {patterns}"
+}</code></pre>
+
+<h2>Test Cases</h2>
+<ol>
+<li>Test met 10+ violations → max 5 feedback items</li>
+<li>Test met 5 critical violations → max 3 critical in output</li>
+<li>Test deduplicatie met duplicate feedback</li>
+<li>Test iteratie-specifieke formuleringen</li>
+<li>Test emoji prioriteit ordering</li>
+</ol>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Validation result met violations</li>
+<li>Feedback context met history</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Dit is CORE functionaliteit - geen wijzigingen zonder uitgebreide testing</li>
+<li>Performance kritiek: moet <100ms blijven</li>
+</ul>
+
+  </div>
+</body>
+</html>

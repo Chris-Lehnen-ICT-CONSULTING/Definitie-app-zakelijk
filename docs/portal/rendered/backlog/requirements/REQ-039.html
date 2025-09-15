@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Wikipedia API Integration</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>id: REQ-039</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/technisch/web_lookup_config.md</li>
+<p>  epics:</p>
+<li> - EPIC-003</li>
+<p>  stories:</p>
+<li> - US-015</li>
+<p>prioriteit: GEMIDDELD</p>
+<p>sources:</p>
+<li>line: 100-200</li>
+<p>  path: src/services/modern_web_lookup_service.py</p>
+<li>line: 1-30</li>
+<p>  path: config/web_lookup_defaults.yaml</p>
+<p>status: GEREED</p>
+<p>titel: Wikipedia API Integration</p>
+<p>type: functional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>Requirement REQ-039: Wikipedia API Integration</h1>
+
+<h2>Beschrijving</h2>
+<p>Het systeem moet de Wikipedia API gebruiken voor het ophalen van contextuele informatie over juridische begrippen ter verrijking van definities.</p>
+
+<p>Gerelateerd: US-015 (Wikipedia API Integratie)</p>
+
+<h2>Rationale</h2>
+<p>Wikipedia biedt betrouwbare, gestructureerde informatie die kan helpen bij het contextualiseren van juridische begrippen en het vinden van relevante voorbeelden.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>API calls met timeout van 5 seconden</li>
+<li>Caching van resultaten voor 15 minuten</li>
+<li>NederlEnse Wikipedia prioriteit, fallback naar Engels</li>
+<li>Rate limiting: max 10 requests per seconde</li>
+<li>Sanitization van externe content (XSS preventie)</li>
+</ul>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h2>Uitwerking / Notities</h2>
+<p>Wikipedia integratie gebruikt:</p>
+<ul>
+<li>MediaWiki API voor structured data</li>
+<li>Content extraction en summarization</li>
+<li>Link naar originele bron in output</li>
+<li>Weight factor 0.7 in aggregation</li>
+</ul>
+
+<h2>Conflicten (indien van toepassing)</h2>
+<p>Geen conflicten geïdentificeerd.</p>
+
+
+<h3>Compliance Referenties</h3>
+
+<ul>
+<li>**ASTRA Controls:**</li>
+<li> - ASTRA-QUA-001: Kwaliteitsborging</li>
+<li> - ASTRA-SEC-002: Beveiliging by Design</li>
+<li>**NORA Principes:**</li>
+<li> - NORA-BP-07: Herbruikbaarheid</li>
+<li> - NORA-BP-12: Betrouwbaarheid</li>
+<li>**GEMMA Referenties:**</li>
+<li> - GEMMA-ARC-03: Architectuur patterns</li>
+<li>**Justice Sector:**</li>
+<li> - DJI/OM integratie vereisten</li>
+<li> - Rechtspraak compatibiliteit</li>
+</ul>
+
+  </div>
+</body>
+</html>

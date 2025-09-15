@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iteratieve Verbetering van Definities (V2 Orchestrator)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '13-09-2025'</p>
+<p>bijgewerkt: '13-09-2025'</p>
+<p>id: REQ-097</p>
+<p>links:</p>
+<p>  docs:</p>
+<ul>
+<li> - docs/architectuur/SOLUTION_ARCHITECTURE.md</li>
+<li> - docs/architectuur/TECHNICAL_ARCHITECTURE.md</li>
+<p>  epics:</p>
+<li> - EPIC-012</li>
+<p>  stories:</p>
+<li> - US-170</li>
+<p>prioriteit: HOOG</p>
+<p>sources:</p>
+<li>line: Orchestration-tab → V2 UIResponseDict</li>
+<p>  path: src/ui/components/orchestration_tab.py</p>
+<li>line: DefinitionOrchestratorV2 (11-fasen)</li>
+<p>  path: src/services/orchestrators/definition_orchestrator_v2.py</p>
+<p>status: TODO</p>
+<p>titel: Iteratieve Verbetering van Definities (V2 Orchestrator)</p>
+<p>type: functional</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>REQ-097: Iteratieve Verbetering van Definities (V2 Orchestrator)</h1>
+
+<h2>Domeincontext</h2>
+<ul>
+<li>EPIC-012 consolideert legacy naar V2 services met een stateless orchestrator.</li>
+<li>Deze requirement borgt dat definities iteratief worden verbeterd met duidelijke stop‑criteria, kwaliteitsgates en consistente UI‑presentatie.</li>
+</ul>
+
+<h2>Beschrijving</h2>
+<p>Het systeem moet definities iteratief kunnen verbeteren via de V2 orchestrator, met per iteratie valideerbare kwaliteitsmetingen en heldere stop‑criteria. De UI (Orchestration‑tab, achter feature flag) moet dezelfde V2‑contractvorm presenteren als de hoofdgenerator (platte dict, geen legacy objecten).</p>
+
+<h2>Acceptatiecriteria</h2>
+<ol>
+<li>Iteratieve loop</li>
+</ol>
+<ul>
+<li>  - Maximaal 3 iteraties (configureerbaar)</li>
+<li>  - Vroegtijdig stoppen bij acceptatie (gate pass) of stagnatie (< 0.05 verbetering)</li>
+</ul>
+<ol>
+<li>Kwaliteitsmeting per iteratie</li>
+</ol>
+<ul>
+<li>  - Score en violations beschikbaar per iteratie</li>
+<li>  - “Beste” resultaat wordt vastgelegd (hoogste score)</li>
+</ul>
+<ol>
+<li>Gate‑enforcement</li>
+</ol>
+<ul>
+<li>  - Acceptatiecriteria via policy (`approval_gate.yaml`): minimale score, geen kritieke violations, “minimaal één context” vereist</li>
+<li>  - UI toont pass / override_required / blocked en vraagt reden bij override</li>
+</ul>
+<ol>
+<li>V2‑contract in UI</li>
+</ol>
+<ul>
+<li>  - Response in UIResponseDict‑vorm: `success`, `definitie_gecorrigeerd`, `final_score`, `validation_details`, `voorbeelden`, `metadata`, `sources`</li>
+<li>  - Context in `metadata.context` met drie lijsten: `organisatorisch`, `juridisch`, `wettelijk`</li>
+</ul>
+<ol>
+<li>Async‑conform</li>
+</ol>
+<ul>
+<li>  - Geen `asyncio.run` in services; UI gebruikt bridge of event loop</li>
+</ul>
+
+<h3>SMART Acceptatiecriteria</h3>
+<ul>
+<li>Specifiek: iteratieve verbetering met kwaliteitsgates en V2‑UI‑contract</li>
+<li>Meetbaar:</li>
+<li> - Iteraties: ≤ 3 per run; verbetering per iteratie ≥ 0.05 (indien niet geaccepteerd)</li>
+<li> - Gate: `overall_score ≥ policy.hard_min_score` én 0 kritieke violations</li>
+<li> - UI: 100% velden van UIResponseDict aanwezig</li>
+<li>Acceptabel: implementatie via bestaande V2 orchestrator en policy loader</li>
+<li>Relevant: ondersteunt expert‑review door zichtbare kwaliteitsstappen</li>
+<li>Tijdgebonden: oplevering samen met US‑170 koppeling</li>
+</ul>
+
+<h3>BDD Scenario’s</h3>
+<pre><code>Scenario: Acceptatie in iteratie 1
+  Gegeven een initieel voorstel met score ≥ drempel en 0 kritieke violations
+  Wanneer de orchestrator een iteratie uitvoert
+  Dan is de gate status "pass" en stopt de loop
+  En wordt definitie_gecorrigeerd getoond met final_score
+
+Scenario: Verbetering in iteratie 2
+  Gegeven een initieel voorstel met score &lt; drempel
+  En verbetering ≥ 0.05 in iteratie 2
+  Wanneer de orchestrator twee iteraties uitvoert
+  Dan wordt iteratie 2 als beste resultaat gekozen
+  En toont de UI final_score en validation_details
+
+Scenario: Stagnatie → vroege stop
+  Gegeven verbetering &lt; 0.05 tussen opeenvolgende iteraties
+  Wanneer een nieuwe iteratie gepland staat
+  Dan stopt de loop en wordt beste resultaat tot dan gebruikt
+
+Scenario: Gate override vereist
+  Gegeven score tussen soft en hard drempel of alleen "high" violations
+  Wanneer de expert vaststelt met override
+  Dan vraagt de UI om een reden en registreert deze in metadata</code></pre>
+
+<h2>Implementatie‑aanwijzingen</h2>
+<ul>
+<li>UI Orchestration‑tab blijft achter feature flag (`ENABLE_LEGACY_TAB=true`) totdat productie‑koppeling klaar is (US‑170)</li>
+<li>UI gebruikt `ui.helpers.async_bridge` voor orchestrator calls</li>
+<li>Normaliseer responses naar UIResponseDict (zo nodig); V2 orchestrator levert dit al</li>
+<li>Gate‑policy laden via `GatePolicyService` (TTL‑cache)</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit (UI): normalisatie naar V2‑contract; rendering van gate status en override‑reason</li>
+<li>Integratie: orchestrator call → gate → UI; scenario’s pass/override/blocked</li>
+<li>Negatief: API/timeout → UI melding, geen crash</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+<ul>
+<li>DefinitionOrchestratorV2</li>
+<li>GatePolicyService en `config/approval_gate.yaml`</li>
+<li>Async bridge in UI</li>
+</ul>
+
+<h2>Compliance</h2>
+<ul>
+<li>Geen `best_iteration` of legacy objecten in UI</li>
+<li>Geen `asyncio.run` in services; UI doet bridging</li>
+<li>Context Model V2 (drie lijsten) overal gehandhaafd</li>
+</ul>
+
+  </div>
+</body>
+</html>

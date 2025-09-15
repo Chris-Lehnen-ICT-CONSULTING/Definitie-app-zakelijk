@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Normaliseer Wettelijke Basis naar eigen tabel(len) met rijke query-ondersteuning</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-154</p>
+<p>titel: Normaliseer Wettelijke Basis naar eigen tabel(len) met rijke query-ondersteuning</p>
+<p>epic: EPIC-004</p>
+<p>status: Open</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-12</p>
+<p>---</p>
+
+<h1>US-154: Normaliseer Wettelijke Basis naar eigen tabel(len) met rijke query-ondersteuning</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als data-analist en jurist wil ik dat de wettelijke basis van definities genormaliseerd wordt opgeslagen in een aparte tabel zodat ik rijke zoekvragen, rapportages en kwaliteitscontroles kan uitvoeren (bijv. per wet/artikel/jurisdictie), zonder de beperkingen van een JSON‑veld.</p>
+
+<h2>Context</h2>
+<ul>
+<li>Huidig: `wettelijke_basis` is een JSON array in `definities` (zie [US‑153](../US-153/US-153.md)). Dat is voldoende voor weergeven/basale opslag, maar beperkt voor query’s en datakwaliteit.</li>
+<li>Doel: Eerste‑klas entiteit(en) voor wettelijke verwijzingen met indexen en optionele masterdata, zonder bestaande flows te breken.</li>
+<li>Gerelateerd werk: [US‑064 (Edit Interface)](../US-064/US-064.md) — UI moet wettelijk kunnen bewerken; normalisatie maakt validatie en filters beter.</li>
+<li>Epic: [EPIC‑004](../EPIC-004.md)</li>
+</ul>
+
+<h2>Scope</h2>
+<p>In scope</p>
+<ul>
+<li>Nieuwe tabel `definitie_wettelijke_basis` (many‑to‑one: verwijzingen per definitie).</li>
+<li>Optioneel (fase 2): mastertabel `wettelijke_bron` met metadata (BWBR, titel, jurisdictie, uri) en verwijzing vanuit de verwijzingstabel.</li>
+<li>Migratie: backfill uit `definities.wettelijke_basis` JSON (best effort) naar verwijzingstabel.</li>
+<li>Repo‑API’s: lezen/schrijven/DELTA‑updates op verwijzingen; geen sessiestate‑afhankelijkheden.</li>
+<li>UI‑schema: uitbreidingskader in Edit Interface (structuurvelden) — implementatie volgt in US‑064.</li>
+</ul>
+
+<p>Out of scope</p>
+<ul>
+<li>Volledige implementatie van UI/Services (valt onder US‑064); deze US dekt ontwerp + migratie + repo‑contract.</li>
+<li>Verplichte masterdata‑lookup (kan later via Web Lookup epics/US’s).</li>
+</ul>
+
+<h2>Ontwerp</h2>
+
+<h3>DDL (fase 1 — verwijzingstabel)</h3>
+<pre><code>-- Verwijzingen naar wettelijke basis per definitie
+CREATE TABLE IF NOT EXISTS definitie_wettelijke_basis (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    definitie_id INTEGER NOT NULL REFERENCES definities(id) ON DELETE CASCADE,
+
+    -- Kernvelden (vrij te vullen; bron_id/citeerstring zijn optioneel/normeerbaar)
+    bron_type VARCHAR(50),            -- bijv. "wet", "regeling", "richtlijn", "verdrag"
+    bron_id VARCHAR(100),             -- bijv. BWBR-nummer of ECLI, vrij tekst
+    citeerstring TEXT NOT NULL,       -- menselijke verwijzing; minimaal 1 veld verplicht
+    artikel VARCHAR(50),              -- bijv. "2", "2.1.3"
+    lid VARCHAR(50),                  -- bijv. "3"
+    onderdeel VARCHAR(50),            -- bijv. "a"
+    jurisdictie VARCHAR(50),          -- "NL", "EU"
+    uri VARCHAR(500),                 -- link naar brontekst
+    herkomst VARCHAR(100),            -- bijv. "manual", "lookup:wikipedia"
+
+    actief BOOLEAN NOT NULL DEFAULT TRUE,
+    aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    bijgewerkt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Indexen voor query-prestaties
+CREATE INDEX IF NOT EXISTS idx_wet_basis_definitie_id ON definitie_wettelijke_basis(definitie_id);
+CREATE INDEX IF NOT EXISTS idx_wet_basis_bron_id ON definitie_wettelijke_basis(bron_id);
+CREATE INDEX IF NOT EXISTS idx_wet_basis_bron_type ON definitie_wettelijke_basis(bron_type);
+
+-- Trigger voor automatische timestamp updates
+CREATE TRIGGER IF NOT EXISTS trg_wet_basis_update
+AFTER UPDATE ON definitie_wettelijke_basis
+FOR EACH ROW WHEN NEW.bijgewerkt_op = OLD.bijgewerkt_op
+BEGIN
+    UPDATE definitie_wettelijke_basis
+    SET bijgewerkt_op = CURRENT_TIMESTAMP
+    WHERE id = NEW.id;
+END;</code></pre>
+
+<h3>DDL (fase 2 — optionele mastertabel)</h3>
+<pre><code>CREATE TABLE IF NOT EXISTS wettelijke_bron (
+    bron_id VARCHAR(100) PRIMARY KEY, -- bijv. BWBR-nummer
+    titel TEXT,
+    afkorting TEXT,
+    jurisdictie VARCHAR(50),
+    uri VARCHAR(500),
+    actief BOOLEAN NOT NULL DEFAULT TRUE,
+    aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    bijgewerkt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Eventueel FK vanuit definitie_wettelijke_basis (niet verplicht in fase 1)
+-- ALTER TABLE definitie_wettelijke_basis ADD COLUMN bron_id VARCHAR(100);
+-- en zorg dat bron_id (optioneel) verwijst naar wettelijke_bron(bron_id)</code></pre>
+
+<h3>Migratie (backfill)</h3>
+<p>Stap 1: DDL uitvoeren (fase 1)</p>
+<ul>
+<li>Voeg tabel + indexen + trigger toe.</li>
+</ul>
+
+<p>Stap 2: Backfill uit JSON kolom</p>
+<ul>
+<li>Voor elk record in `definities` met `wettelijke_basis` (JSON array):</li>
+<li> - Parse lijst van strings; maak per item een verwijzingsrecord in `definitie_wettelijke_basis` met `citeerstring = item` en `herkomst = 'migratie:json'`.</li>
+<li> - Laat overige velden NULL; verrijking volgt in latere epics.</li>
+</ul>
+
+<p>Stap 3: Consistentie</p>
+<ul>
+<li>Laat `definities.wettelijke_basis` voorlopig staan (compatibiliteit/preview/cache).</li>
+<li>(Optioneel) maak een periodic task (niet in deze US) om verwijzingen ↔ JSON te synchroniseren tijdens transitie.</li>
+</ul>
+
+<h3>Repository‑API (voorstel, DB‑laag)</h3>
+<p>Bestand: <code>src/database/definitie_repository.py</code> (of aparte module <code>wettelijke_basis_repository.py</code>)</p>
+
+<p>Dataclass (concept):</p>
+<pre><code>@dataclass
+class WettelijkeVerwijzing:
+    id: int | None
+    definitie_id: int
+    citeerstring: str
+    bron_type: str | None = None
+    bron_id: str | None = None
+    artikel: str | None = None
+    lid: str | None = None
+    onderdeel: str | None = None
+    jurisdictie: str | None = None
+    uri: str | None = None
+    herkomst: str | None = None
+    actief: bool = True
+    aangemaakt_op: datetime | None = None
+    bijgewerkt_op: datetime | None = None</code></pre>
+
+<p>Methodes (signatures, geen implementatie in deze US):</p>
+<ul>
+<li>`list_wettelijke_basis(definitie_id: int) -> list[WettelijkeVerwijzing]`</li>
+<li>`add_wettelijke_basis(definitie_id: int, verwijzingen: list[WettelijkeVerwijzing]) -> list[int]`</li>
+<li>`update_wettelijke_basis_delta(definitie_id: int, nieuwe: list[WettelijkeVerwijzing]) -> dict`</li>
+<li> - Voert diffs uit op basis van (citeerstring, artikel, lid, onderdeel) om ruis te voorkomen.</li>
+<li>`delete_wettelijke_basis_for_definition(definitie_id: int) -> int`</li>
+</ul>
+
+<h3>UI‑implicaties (US‑064)</h3>
+<ul>
+<li>Edit Interface toont een sectie “Wettelijke basis (gestructureerd)” met rijen:</li>
+<li> - Velden: citeerstring (verplicht), evt. bron_id, artikel, lid, onderdeel, jurisdictie, uri.</li>
+<li> - Acties: toevoegen/verwijderen, validatie (basis inputcontrole), opslaan als concept.</li>
+<li>Bij opslaan: roep delta‑API aan; JSON‑kolom kan als preview/cache blijven.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Tabel `definitie_wettelijke_basis` bestaat met indexen en update‑trigger.</li>
+<li>[ ] Backfill script (of migratiestap) zet bestaande JSON‑waarden om naar verwijzingsrecords (best effort, zonder verlies van data in JSON‑kolom).</li>
+<li>[ ] Repo‑contract gedefinieerd (signatures en dataclass) voor CRUD + delta‑updates.</li>
+<li>[ ] Links en verwijzingen in dit document werken (EPIC, US‑064, US‑069, bronbestanden).</li>
+</ul>
+
+<h2>Teststrategie (concept)</h2>
+<ul>
+<li>Migratie: op een kopie van de DB met `wettelijke_basis` JSON‑data — controleer aantal records in `definitie_wettelijke_basis` en steekproeven op inhoud (citeerstring + definitie_id).</li>
+<li>Integratie (na implementatie in andere US’en): UI → repo delta‑update → DB records; JSON‑kolom blijft consistent of wordt later gesynchroniseerd.</li>
+</ul>
+
+<h2>Risico’s en mitigatie</h2>
+<ul>
+<li>Onvolledige parsing van vrije citeerstrings — mitigatie: bewaar altijd raw `citeerstring`; normalisatie kan later.</li>
+<li>Extra complexiteit bij dubbele opslag (JSON + tabel) — mitigatie: overgangsperiode beperken; plan voor synchronisatie/opschoning.</li>
+<li>Query‑prestaties — mitigatie: indexen voorzien; FTS5/verdere indexen pas toevoegen bij bewezen noodzaak.</li>
+</ul>
+
+<h2>Referenties</h2>
+<ul>
+<li>Schema: `src/database/schema.sql`</li>
+<li>Migratie: `src/database/migrate_database.py`</li>
+<li>Gerelateerd: [US‑064](../US-064/US-064.md), [US‑153](../US-153/US-153.md), [EPIC‑004](../EPIC-004.md)</li>
+</ul>
+
+  </div>
+</body>
+</html>

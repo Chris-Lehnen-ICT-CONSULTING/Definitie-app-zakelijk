@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Centrale Documentatie‑Portal (Interactief & Auto‑sync)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-013</p>
+<p>applies_to: definitie-app@current</p>
+<p>aangemaakt: 11-09-2025</p>
+<p>bijgewerkt: 11-09-2025</p>
+<p>canonical: true</p>
+<p>owner: architecture</p>
+<p>prioriteit: HOOG</p>
+<p>status: IN_UITVOERING</p>
+<p>completion: 10%</p>
+<p>last_verified: 13-09-2025</p>
+<p>stakeholders:</p>
+<ul>
+<li>Product (PO)</li>
+<li>Architectuur</li>
+<li>Documentation-team</li>
+<li>DevOps/CI</li>
+<p>stories:</p>
+<li>US-090</li>
+<li>US-091</li>
+<li>US-092</li>
+<li>US-093</li>
+<li>US-094</li>
+<li>US-095</li>
+<li>US-096</li>
+<li>US-097</li>
+<li>US-098</li>
+<li>US-099</li>
+<li>US-100</li>
+<li>US-101</li>
+<li>US-102</li>
+<li>US-103</li>
+<li>US-104</li>
+<li>US-105</li>
+<li>US-106</li>
+<li>US-107</li>
+<li>US-168</li>
+<li>US-169</li>
+<p>target_release: v1.5</p>
+<p>titel: Centrale Documentatie‑Portal (Interactief & Auto‑sync)</p>
+<p>vereisten:</p>
+<li>REQ-088</li>
+<li>REQ-089</li>
+<li>REQ-090</li>
+<p>---</p>
+</ul>
+
+<h1>EPIC-013: Centrale Documentatie‑Portal (Interactief & Auto‑sync)</h1>
+
+<h2>Managementsamenvatting</h2>
+
+<p>Eén centrale, interactieve portalpagina (browser) voor de héle backlog én relevante documentatie (architectuur, richtlijnen, testing, compliance). De portal wordt automatisch bijgewerkt bij iedere wijziging (status, verplaatsen, toevoegen/verwijderen) en is als herbruikbare oplossing in te zetten voor andere projecten.</p>
+
+<h2>Doelen</h2>
+<ul>
+<li>Single pane of glass voor backlog + documentatie</li>
+<li>Directe navigatie, zoek/filter/sort, statusbadges</li>
+<li>Auto‑sync vanuit frontmatter/registry/traceability</li>
+<li>Herbruikbaar in andere repositories (configurabel)</li>
+</ul>
+
+<h2>Succesmetrieken (SMART)</h2>
+<ul>
+<li>Portal opent lokaal via `docs/portal/index.html` en toont actuele data (< 2s generatie)</li>
+<li>0 verouderde verwijzingen naar niet‑canonieke paden</li>
+<li>100% van doc‑wijzigingen gereflecteerd binnen 1 CI‑run of pre‑commit</li>
+<li>1 gedeelde generator (config‑gedreven) bruikbaar in ≥ 2 andere projecten</li>
+</ul>
+
+<h2>Scope</h2>
+<ul>
+<li>Generator CLI die frontmatter + registry + traceability inleest en `portal-index.json` + `index.html` rendeert</li>
+<li>Pre‑commit/CI‑hooking voor automatische updates</li>
+<li>Portal UI met zoek/filter/sort en klikbare links</li>
+<li>Configuratie voor andere projecten (padmapping, categorieën)</li>
+</ul>
+
+<h2>Niet in scope (nu)</h2>
+<ul>
+<li>Complexe workflow‑automatisering (bv. tests/metrics naar stories terugschrijven)</li>
+<li>Externe hosting/publicatie</li>
+</ul>
+
+<h2>Acceptatiecriteria (epic)</h2>
+<ul>
+<li>[x] `docs/portal/index.html` bestaat en is interactief (zoek/filter/sort)</li>
+<li>[x] Generator draait in pre‑commit en CI bij doc‑wijzigingen (incl. CI drift‑guard)</li>
+<li>[ ] Config maakt hergebruik in andere repos mogelijk zonder codewijzigingen</li>
+<li>[x] Documentatie: `docs/portal/README.md` met gebruik/ontwikkeling (inclusief viewer & rendering)</li>
+<li>[x] Zoekoperators (MVP) en bookmarkbare query `#q=…` beschikbaar in portal</li>
+<li>- [x] Planningweergave polish (basis): hiërarchie, sprintfilter, tellers en SP‑subtotaal</li>
+<li>- [x] A11y (basis) en chip‑deeplinks (🔎/Alt‑klik) in views</li>
+</ul>
+
+<h2>Relaties</h2>
+<ul>
+<li>Richtlijnen: `docs/guidelines/CANONICAL_LOCATIONS.md`, `DOCUMENTATION_POLICY.md`</li>
+<li>Architectuur: `docs/architectuur/*ARCHITECTURE.md`</li>
+<li>Traceability: `docs/traceability.json`, `docs/backlog/requirements/REQ-REGISTRY.json`</li>
+<li>- Broninput (business kennis): [US-061 – Extract en documenteer business kennis](../EPIC-012/US-061/US-061.md)</li>
+</ul>
+
+  </div>
+</body>
+</html>

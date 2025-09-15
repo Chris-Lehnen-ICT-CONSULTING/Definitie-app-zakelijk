@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Archief → Backlog Mapping (Verfijnd)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>generated: 2025-09-12 09:40:32</p>
+<p>source: docs/backlog/requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md</p>
+<p>method: refined mapping (domain→EPIC + fuzzy titelmatch + force-cover)</p>
+<p>---</p>
+<h1>Archief → Backlog Mapping (Verfijnd)</h1>
+
+<h2>Epics</h2>
+<p>| Archief Epic | Status | Backlog Epic/Opmerking |</p>
+<p>|---|---|---|</p>
+<p>| EPIC-001 — Basis Definitie Generatie ✅ (90% Compleet) | AANWEZIG | docs/backlog/EPIC-001 |</p>
+<p>| EPIC-002 — Kwaliteitstoetsing ✅ (85% Compleet) | AANWEZIG | docs/backlog/EPIC-002 |</p>
+<p>| EPIC-003 — Content Verrijking 🔄 (30% Compleet) | AANWEZIG | docs/backlog/EPIC-003 |</p>
+<p>| EPIC-004 — User Interface ❌ (30% Compleet) | AANWEZIG | docs/backlog/EPIC-004 |</p>
+<p>| EPIC-005 — Export & Import ❌ (10% Compleet) | AANWEZIG | docs/backlog/EPIC-005 |</p>
+<p>| EPIC-006 — Beveiliging & Auth ❌ (0% Compleet) | AANWEZIG | docs/backlog/EPIC-006 |</p>
+<p>| EPIC-007 — Prestaties & Scaling 🔄 (20% Compleet) | AANWEZIG | docs/backlog/EPIC-007 |</p>
+<p>| EPIC-008 — Web Lookup Module 🔄 (10% Compleet) | HERNOEMD -> EPIC-003 | docs/backlog/EPIC-003 |</p>
+<p>| EPIC-009 — Advanced Features ❌ (5% Compleet) | AANWEZIG | docs/backlog/EPIC-009 |</p>
+
+<h2>Items (Features/Stories)</h2>
+<p>| ID | Story | Archiefstatus | EPIC | Gedekt | Beste US |</p>
+<p>|---|---|---|---|---|---|</p>
+<p>| DEF-001 | Als gebruiker wil ik een begrip kunnen invoeren | ✅ Compleet | EPIC-001 | Nee | - |</p>
+<p>| DEF-002 | Als gebruiker wil ik context kunnen selecteren | ✅ Compleet | EPIC-001 | Nee | docs/backlog/EPIC-001/US-001/US-001.md |</p>
+<p>| DEF-003 | Als gebruiker wil ik een AI-gegenereerde definitie krijgen | ✅ Compleet | EPIC-001 | Ja | docs/backlog/EPIC-001/US-001/US-001.md |</p>
+<p>| DEF-004 | Als gebruiker wil ik de kwaliteitsscore zien | ✅ Compleet | EPIC-001 | Nee | - |</p>
+<p>| DEF-005 | Als gebruiker wil ik duplicate check | 🔄 In Progress | EPIC-001 | Nee | docs/backlog/EPIC-001/US-002/US-002.md |</p>
+<p>| KWA-001 | Als gebruiker wil ik gedetailleerde validatie zien | ✅ Compleet | EPIC-002 | Ja | docs/backlog/EPIC-002/US-006/US-006.md |</p>
+<p>| KWA-002 | Als gebruiker wil ik suggesties voor verbetering | ✅ Compleet | EPIC-002 | Nee | - |</p>
+<p>| KWA-003 | Als gebruiker wil ik iteratieve verbetering | ✅ Compleet | EPIC-002 | Nee | - |</p>
+<p>| KWA-004 | Als gebruiker wil ik custom toetsregels | ❌ Niet Gestart | EPIC-002 | Nee | docs/backlog/EPIC-002/US-007/US-007.md |</p>
+<p>| ENR-001 | Als gebruiker wil ik synoniemen zien | ✅ Compleet | EPIC-003 | Nee | docs/backlog/EPIC-003/US-079/US-079.md |</p>
+<p>| ENR-002 | Als gebruiker wil ik antoniemen zien | ✅ Compleet | EPIC-003 | Nee | docs/backlog/EPIC-003/US-079/US-079.md |</p>
+<p>| ENR-003 | Als gebruiker wil ik voorbeeldzinnen | 🔄 In Progress | EPIC-003 | Ja | - |</p>
+<p>| ENR-004 | Als gebruiker wil ik praktijkvoorbeelden | ❌ Niet Gestart | EPIC-003 | Ja | - |</p>
+<p>| ENR-005 | Als gebruiker wil ik tegenvoorbeelden | ❌ Niet Gestart | EPIC-003 | Ja | - |</p>
+<p>| ENR-006 | Als gebruiker wil ik toelichting | ❌ Niet Gestart | EPIC-003 | Ja | - |</p>
+<p>| UI-001 | Als gebruiker wil ik definitie generator tab | ✅ Compleet | EPIC-004 | Ja | docs/backlog/EPIC-004/US-025/US-025.md |</p>
+<p>| UI-002 | Als gebruiker wil ik history tab | ✅ Compleet | EPIC-004 | Nee | docs/backlog/EPIC-004/US-021/US-021.md |</p>
+<p>| UI-003 | Als gebruiker wil ik export tab | ✅ Compleet | EPIC-004 | Nee | docs/backlog/EPIC-004/US-136/US-136.md |</p>
+<p>| UI-004 | Als gebruiker wil ik web lookup tab | ❌ Niet Gestart | EPIC-004 | Nee | - |</p>
+<p>| UI-005 | Als gebruiker wil ik expert review tab | ❌ Niet Gestart | EPIC-004 | Ja | docs/backlog/EPIC-004/US-067/US-067.md |</p>
+<p>| UI-006 | Als gebruiker wil ik prompt viewer tab | ❌ Niet Gestart | EPIC-004 | Nee | - |</p>
+<p>| UI-007 | Als gebruiker wil ik monitoring tab | ❌ Niet Gestart | EPIC-004 | Nee | docs/backlog/EPIC-004/US-022/US-022.md |</p>
+<p>| UI-008 | Als gebruiker wil ik management tab | ❌ Niet Gestart | EPIC-004 | Nee | docs/backlog/EPIC-004/US-021/US-021.md |</p>
+<p>| UI-009 | Als gebruiker wil ik orchestration tab | ❌ Niet Gestart | EPIC-004 | Nee | - |</p>
+<p>| UI-010 | Als gebruiker wil ik quality control tab | 🔄 In Progress | EPIC-004 | Nee | docs/backlog/EPIC-004/US-136/US-136.md |</p>
+<p>| UI-011 | Als gebruiker wil ik datum voorstel veld | ❌ Niet Gestart | EPIC-004 | Nee | docs/backlog/EPIC-004/US-068/US-068.md |</p>
+<p>| UI-012 | Als gebruiker wil ik voorgesteld door veld | ❌ Niet Gestart | EPIC-004 | Ja | - |</p>
+<p>| UI-013 | Als gebruiker wil ik ketenpartners selectie | ❌ Niet Gestart | EPIC-004 | Nee | - |</p>
+<p>| UI-014 | Als gebruiker wil ik ontologische score zien | 🔄 In Progress | EPIC-004 | Nee | docs/backlog/EPIC-004/US-136/US-136.md |</p>
+<p>| UI-015 | Als gebruiker wil ik voorkeursterm selectie | ❌ Niet Gestart | EPIC-004 | Ja | - |</p>
+<p>| EXP-001 | Als gebruiker wil ik TXT export | ✅ Compleet | EPIC-005 | Nee | docs/backlog/EPIC-005/US-137/US-137.md |</p>
+<p>| EXP-002 | Als gebruiker wil ik Word export | ❌ Niet Gestart | EPIC-005 | Ja | docs/backlog/EPIC-005/US-137/US-137.md |</p>
+<p>| EXP-003 | Als gebruiker wil ik PDF export | ❌ Niet Gestart | EPIC-005 | Nee | docs/backlog/EPIC-005/US-137/US-137.md |</p>
+<p>| EXP-004 | Als gebruiker wil ik Excel export | ❌ Niet Gestart | EPIC-005 | Ja | docs/backlog/EPIC-005/US-062/US-062.md |</p>
+<p>| EXP-005 | Als gebruiker wil ik JSON export | 🔄 In Progress | EPIC-005 | Ja | docs/backlog/EPIC-005/US-137/US-137.md |</p>
+<p>| IMP-001 | Als gebruiker wil ik CSV import | ❌ Niet Gestart | EPIC-005 | Nee | docs/backlog/EPIC-005/US-137/US-137.md |</p>
+<p>| IMP-002 | Als gebruiker wil ik document upload | 🔄 In Progress | EPIC-005 | Nee | docs/backlog/EPIC-005/US-137/US-137.md |</p>
+<p>| SEC-001 | Als admin wil ik gebruikers authenticatie | ❌ Niet Gestart | EPIC-006 | Nee | docs/backlog/EPIC-006/US-141/US-141.md |</p>
+<p>| SEC-002 | Als admin wil ik role-based access | ❌ Niet Gestart | EPIC-006 | Nee | docs/backlog/EPIC-006/US-140/US-140.md |</p>
+<p>| SEC-003 | Als admin wil ik API key management | ❌ Niet Gestart | EPIC-006 | Nee | docs/backlog/EPIC-006/US-140/US-140.md |</p>
+<p>| SEC-004 | Als gebruiker wil ik data encryptie | ❌ Niet Gestart | EPIC-006 | Nee | - |</p>
+<p>| SEC-005 | Als admin wil ik audit logging | ❌ Niet Gestart | EPIC-006 | Ja | docs/backlog/EPIC-006/US-027/US-027.md |</p>
+<p>| PER-001 | Als gebruiker wil ik <5 sec response | ❌ Niet Gestart | EPIC-007 | Nee | docs/backlog/EPIC-007/US-142/US-142.md |</p>
+<p>| PER-002 | Als gebruiker wil ik caching | 🔄 In Progress | EPIC-007 | Nee | docs/backlog/EPIC-007/US-142/US-142.md |</p>
+<p>| PER-003 | Als admin wil ik horizontal scaling | ❌ Niet Gestart | EPIC-007 | Nee | docs/backlog/EPIC-007/US-063/US-063.md |</p>
+<p>| PER-004 | Als gebruiker wil ik async processing | 🔄 In Progress | EPIC-007 | Ja | docs/backlog/EPIC-007/US-063/US-063.md |</p>
+<p>| PER-005 | Als admin wil ik database optimization | ✅ Compleet | EPIC-007 | Ja | docs/backlog/EPIC-007/US-145/US-145.md |</p>
+<p>| WEB-001 | Als gebruiker wil ik externe bronnen zoeken | 🔄 In Progress | EPIC-003 | Ja | docs/backlog/EPIC-003/US-135/US-135.md |</p>
+<p>| WEB-002 | Als gebruiker wil ik bron validatie | ❌ Niet Gestart | EPIC-003 | Ja | docs/backlog/EPIC-003/US-135/US-135.md |</p>
+<p>| WEB-003 | Als gebruiker wil ik automatische verrijking | ❌ Niet Gestart | EPIC-003 | Nee | docs/backlog/EPIC-003/US-135/US-135.md |</p>
+<p>| WEB-004 | Als gebruiker wil ik bron attributie | ❌ Niet Gestart | EPIC-003 | Nee | docs/backlog/EPIC-003/US-135/US-135.md |</p>
+<p>| ADV-001 | Als gebruiker wil ik bulk operations | ❌ Niet Gestart | EPIC-009 | Nee | docs/backlog/EPIC-009/US-060/US-060.md |</p>
+<p>| ADV-002 | Als gebruiker wil ik version control | ❌ Niet Gestart | EPIC-009 | Nee | - |</p>
+<p>| ADV-003 | Als gebruiker wil ik collaboration | ❌ Niet Gestart | EPIC-009 | Nee | - |</p>
+<p>| ADV-004 | Als gebruiker wil ik API access | 🔄 In Progress | EPIC-009 | Nee | - |</p>
+<p>| ADV-005 | Als gebruiker wil ik custom workflows | ❌ Niet Gestart | EPIC-009 | Nee | - |</p>
+
+  </div>
+</body>
+</html>

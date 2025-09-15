@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement Centralized AI Configuration System with Environment Override</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-001</li>
+<p>aangemaakt: 10-01-2025</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>epic: EPIC-001</p>
+<p>id: US-004</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: Voltooid</p>
+<p>status: GEREED</p>
+<p>story_points: 5</p>
+<p>titel: Implement Centralized AI Configuration System with Environment Override</p>
+<p>toegewezen_aan: development-team</p>
+<p>vereisten:</p>
+<li>REQ-038</li>
+<li>REQ-059</li>
+<li>REQ-078</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-004: Implement Centralized AI Configuration System with Environment Override</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>As a</strong> system administrator managing DefinitieAgent across DTAP environments</p>
+<p><strong>wil ik</strong> centralized AI configuration with environment-specific overrides en zero hardcoded values</p>
+<p><strong>zodat</strong> I can tune AI behavior per environment without code Wijzigingen en reduce deployment errors by 90%</p>
+
+<h2>Problem Statement</h2>
+
+<p><strong>Current Situation:</strong></p>
+<ul>
+<li>AI settings hardcoded in 12 different files</li>
+<li>API keys exposed in code (beveiliging risk)</li>
+<li>Different temperature values across components (inconsistent)</li>
+<li>No way to tune settings without code deployment</li>
+<li>Production incidents due to wrong model selection</li>
+<li>3 hours to upDatum AI settings across all environments</li>
+</ul>
+
+<p><strong>Desired Outcome:</strong></p>
+<ul>
+<li>Single source of truth for AI configuration</li>
+<li>Environment-specific overrides (dev/test/acc/prod)</li>
+<li>Zero hardcoded values in codebase</li>
+<li>Hot-reload configuration Wijzigingen</li>
+<li>Secure API key management</li>
+<li>Configuration Wijzigingen in < 1 minute</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Hierarchical Configuration Loading</h3>
+<p><strong>gegeven</strong> the configuration hierarchy:</p>
+<ol>
+<li>Default values in `config/ai/defaults.yaml`</li>
+<li>Environment-specific in `config/ai/{env}.yaml`</li>
+<li>Component-specific in `config/ai/components/{component}.yaml`</li>
+<li>Environment variables (HOOGest priority)</li>
+</ol>
+
+<p><strong>wanneer</strong> <code>ConfigManager.get_ai_config()</code> is called</p>
+<p><strong>dan</strong> configuration is merged in priority order with proper override behavior</p>
+
+<h3>Criterion 2: Component-Specific Configuration</h3>
+<p><strong>gegeven</strong> different AI vereisten per component:</p>
+<ul>
+<li>Generator: temperature=0.3, max_tokens=1000</li>
+<li>Validator: temperature=0.1, max_tokens=500</li>
+<li>Web lookup: temperature=0.5, max_tokens=2000</li>
+</ul>
+
+<p><strong>wanneer</strong> <code>ConfigManager.get_component_config('generator')</code> is called</p>
+<p><strong>dan</strong> component-specific settings are returned with defaults filled in</p>
+
+<h3>Criterion 3: Secure Environment Variable Handling</h3>
+<p><strong>gegeven</strong> sensitive configuration like API keys</p>
+<p><strong>wanneer</strong> environment variables are set:</p>
+<ul>
+<li>`OPENAI_API_KEY=sk-xxx`</li>
+<li>`AI_MODEL_OVERRIDE=gpt-4-turbo`</li>
+<li>`AI_TEMPERATURE_OVERRIDE=0.2`</li>
+</ul>
+
+<p><strong>dan</strong>:</p>
+<ul>
+<li>API key is loaded Maar never logged</li>
+<li>Model en temperature override config files</li>
+<li>Missing env vars use defaults without failing</li>
+</ul>
+
+<h2>Technical Implementatie</h2>
+
+<h3>Implementatie Approach</h3>
+
+<ol>
+<li>**Step 1**: Create ConfigManager class in `src/config/config_manager.py`</li>
+<pre><code>   class ConfigManager:
+       def __init__(self):
+           self.base_config = self._load_yaml('config/ai/defaults.yaml')
+           self.env_config = self._load_env_config()
+           self.component_configs = self._load_component_configs()
+
+       def get_ai_config(self, component=None):
+           # Merge hierarchy: base -&gt; env -&gt; component -&gt; env_vars</code></pre>
+</ol>
+
+<ol>
+<li>**Step 2**: Define configuration schema</li>
+<pre><code>   # config/ai/defaults.yaml
+   ai:
+     model: gpt-4-0125-preview
+     temperature: 0.3
+     max_tokens: 1000
+     timeout: 30
+     retry:
+       max_attempts: 3
+       backoff_factor: 2</code></pre>
+</ol>
+
+<ol>
+<li>**Step 3**: Implement environment variable mapping</li>
+<pre><code>   ENV_MAPPING = {
+       'OPENAI_API_KEY': 'ai.api_key',
+       'AI_MODEL': 'ai.model',
+       'AI_TEMPERATURE': 'ai.temperature',
+       'AI_MAX_TOKENS': 'ai.max_tokens'
+   }</code></pre>
+</ol>
+
+<ol>
+<li>**Step 4**: Add validatie en type checking</li>
+</ol>
+<ul>
+<li>  - ValiDatum model names against alLAAGed list</li>
+<li>  - Check temperature range (0.0 - 2.0)</li>
+<li>  - Verify max_tokens limits</li>
+<li>  - Ensure required fields present</li>
+</ul>
+
+<h3>Code Locations</h3>
+<ul>
+<li>Primary files:</li>
+<li> - `src/config/config_manager.py` (main Implementatie)</li>
+<li> - `src/config/validators.py` (config validatie)</li>
+<li> - `config/ai/defaults.yaml` (default settings)</li>
+<li> - `config/ai/production.yaml` (prod overrides)</li>
+<li>Key functions:</li>
+<li> - `ConfigManager.get_ai_config(component=None)`</li>
+<li> - `ConfigManager.reload_config()` (hot reload)</li>
+<li> - `ConfigManager.validatie_config(config_dict)`</li>
+<li>Integration points:</li>
+<li> - `src/services/ai_service_v2.py` (uses config)</li>
+<li> - `src/services/container.py` (injects ConfigManager)</li>
+</ul>
+
+<h3>Technical Decisions</h3>
+<ul>
+<li>Format: YAML for human readability en comments</li>
+<li>validatie: Pydantic models for type safety</li>
+<li>Caching: In-memory with 5-minute TTL</li>
+<li>Hot reload: File watcher with debounce</li>
+<li>Secrets: Environment variables only (never in files)</li>
+</ul>
+
+<h2>Domain & compliance</h2>
+
+<h3>Domeinregels</h3>
+<ul>
+<li>**ASTRA vereiste**: Externalized configuration (12-factor app)</li>
+<li>**NORA principle**: Environment-specific configuration without code Wijzigingen</li>
+<li>**Justice beveiliging**: API keys must never be logged or exposed</li>
+<li>**AVG compliance**: No PII in configuration files</li>
+</ul>
+
+<h3>beveiliging & Privacy</h3>
+<ul>
+<li>**beveiliging**: API keys only via environment variables</li>
+<li>**Privacy**: No user data in configuration</li>
+<li>**Audit**: Log configuration Wijzigingen with timestamp en user</li>
+<li>**Access**: Config files read-only in production</li>
+</ul>
+
+
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-001</li>
+</ul>
+<h2>Test Scenario's</h2>
+
+<h3>Unit Tests</h3>
+
+<ol>
+<li>**Test**: `test_hierarchical_config_merge()`</li>
+</ol>
+<ul>
+<li>  - Setup: Base, env, component configs with overlapping keys</li>
+<li>  - Action: Call get_ai_config('generator')</li>
+<li>  - Assert: Values properly overridden in correct order</li>
+<li>  - File: `tests/config/test_config_manager.py`</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_env_variable_override()`</li>
+</ol>
+<ul>
+<li>  - Setup: Set AI_TEMPERATURE=0.8 in environment</li>
+<li>  - Action: Load configuration</li>
+<li>  - Assert: temperature == 0.8 despite file saying 0.3</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_missing_config_graceful_hEnling()`</li>
+</ol>
+<ul>
+<li>  - Setup: Delete optional config file</li>
+<li>  - Action: Load configuration</li>
+<li>  - Assert: Defaults used, no exception raised</li>
+</ul>
+
+<h3>Integration Tests</h3>
+
+<ol>
+<li>**Test**: `test_ai_service_uses_config()`</li>
+</ol>
+<ul>
+<li>  - Setup: Set specific config values</li>
+<li>  - Action: Initialize AIServiceV2</li>
+<li>  - Assert: Service uses configured values</li>
+</ul>
+
+<ol>
+<li>**Test**: `test_hot_reload_config_Wijzigingen()`</li>
+</ol>
+<ul>
+<li>  - Setup: Start app, modify config file</li>
+<li>  - Wait: 10 seconds</li>
+<li>  - Assert: New values active without restart</li>
+</ul>
+
+<h3>beveiliging Tests</h3>
+
+<ol>
+<li>**Test**: `test_api_key_not_logged()`</li>
+</ol>
+<ul>
+<li>  - Setup: Enable debug logging, set API key</li>
+<li>  - Action: Load en use configuration</li>
+<li>  - Assert: API key never appears in logs</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[x] ConfigManager class geïmplementeerd with hierarchy</li>
+<li>[x] YAML configuration files aangemaakt</li>
+<li>[x] Environment variable mapping working</li>
+<li>[x] Component-specific configs geïmplementeerd</li>
+<li>[x] validatie with Pydantic models</li>
+<li>[x] Unit tests written (> 90% coverage)</li>
+<li>[x] Integration tests with AI services</li>
+<li>[x] beveiliging tests for API key hEnling</li>
+<li>[x] Hot reload functionality tested</li>
+<li>[x] Documentation: configuration guide written</li>
+<li>[x] Code review: Goedgekeurd by beveiliging team</li>
+<li>[x] No hardcoded values remain in codebase</li>
+<li>[x] Deployed to all environments</li>
+</ul>
+
+<h2>Risks & Mitigation</h2>
+
+<ol>
+<li>**Risk**: Configuration errors break application startup</li>
+</ol>
+<ul>
+<li>  - Probability: GEMIDDELD</li>
+<li>  - Impact: HOOG</li>
+<li>  - Mitigation: validatie on load, fallback to defaults</li>
+</ul>
+
+<ol>
+<li>**Risk**: API keys exposed through misconfiguration</li>
+</ol>
+<ul>
+<li>  - Probability: LAAG</li>
+<li>  - Impact: KRITIEK</li>
+<li>  - Mitigation: Secrets scanner in CI/CD, audit logging</li>
+</ul>
+
+<ol>
+<li>**Risk**: Hot reload causes inconsistent state</li>
+</ol>
+<ul>
+<li>  - Probability: LAAG</li>
+<li>  - Impact: GEMIDDELD</li>
+<li>  - Mitigation: Atomic config upDatums, health checks</li>
+</ul>
+
+<h2>Notes & References</h2>
+
+<h3>Implementatie Timeline</h3>
+<ul>
+<li>Design: 10-01-2025</li>
+<li>Implementatie: 12-01-2025</li>
+<li>Testen: 15-01-2025</li>
+<li>beveiliging review: 17-01-2025</li>
+<li>Production: 20-01-2025</li>
+</ul>
+
+<h3>Metrics Achieved</h3>
+<ul>
+<li>Configuration deployment time: 45 seconds (was 3 hours) ✅</li>
+<li>Hardcoded values removed: 100% (12 files cleaned) ✅</li>
+<li>Environment-specific incidents: 0 (was 2/month) ✅</li>
+<li>Config change success rate: 100% ✅</li>
+</ul>
+
+<h3>Gerelateerde Documentatie</h3>
+<ul>
+<li>Config guide: `docs/configuration/ai-config-guide.md`</li>
+<li>beveiliging: `docs/beveiliging/secrets-management.md`</li>
+<li>Architecture: `docs/architectuur/TECHNICAL_ARCHITECTURE.md`</li>
+</ul>
+
+<p>---</p>
+
+<p><em>This story is part of EPIC-001: Basis Definitie Generatie</em></p>
+
+  </div>
+</body>
+</html>

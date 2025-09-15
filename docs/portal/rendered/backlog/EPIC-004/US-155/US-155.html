@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Expert Approval Interface - Goedkeuren van Definities</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-155</p>
+<p>titel: Expert Approval Interface - Goedkeuren van Definities</p>
+<p>epic: EPIC-004</p>
+<p>status: Open</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: frontend-team</p>
+<p>aangemaakt: 2025-09-12</p>
+<p>bijgewerkt: 2025-09-12</p>
+<p>owner: expert-reviewer</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-007</li>
+<li>REQ-012</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-12</p>
+<p>---</p>
+</ul>
+
+<h1>US-155: Expert Approval Interface - Goedkeuren van Definities</h1>
+
+<p><strong>Epic:</strong> EPIC-004 - User Interface</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> juridisch expert / eindredacteur  </p>
+<p><strong>wil ik</strong> definities kunnen goedkeuren (status "established" geven)  </p>
+<p><strong>zodat</strong> alleen gevalideerde en goedgekeurde definities als definitief worden beschouwd</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>Momenteel bestaat de workflow infrastructuur (US-072: DefinitionWorkflowService) met methods voor:</p>
+<ul>
+<li>`submit_for_review()` - werkt al via Generator tab</li>
+<li>`approve()` - backend bestaat, maar geen UI</li>
+<li>`reject()` - backend bestaat, maar geen UI</li>
+</ul>
+
+<p>De Expert Review tab toont wel een review queue maar heeft geen knoppen om definities daadwerkelijk goed te keuren of af te wijzen.</p>
+
+<h2>Huidige Workflow Status</h2>
+
+<p>Definities doorlopen deze statussen:</p>
+<ol>
+<li>**draft** - Initiële status na generatie</li>
+<li>**review** - Na "Submit voor Review" (werkt al)</li>
+<li>**established** - Na goedkeuring door expert (ONTBREEKT IN UI)</li>
+<li>**archived** - Gearchiveerde/verouderde definities</li>
+</ol>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[x] Backend service bestaat al (DefinitionWorkflowService)</li>
+<li>[ ] Expert Review tab toont direct de laatst gegenereerde definitie (prefill)</li>
+<li>[ ] Prefill toont alle context (organisatorisch, juridisch, wettelijke basis) read‑only</li>
+<li>[ ] Expert Review tab toont "Vaststellen" knop voor definities met status "In review"</li>
+<li>[ ] Expert Review tab toont "Afwijzen" knop met verplicht reden‑veld</li>
+<li>[ ] Na vaststellen wordt status "Vastgesteld" (DB: established)</li>
+<li>[ ] Na afwijzen wordt status terug naar "Concept" (DB: draft) met feedback/reden</li>
+<li>[ ] Approval metadata wordt vastgelegd (approved_by, approved_at, approval_notes)</li>
+<li>[ ] Audit trail via `definitie_geschiedenis` (status_changed) + metadata snapshot</li>
+<li>[ ] Voor definities met status "Vastgesteld" is er een actie "Maak bewerkbaar" (status terugzetten) met verplicht reden‑veld en logging</li>
+<li>[ ] Zoekfunctie ondersteunt filteren op status, inclusief "Vastgesteld"</li>
+</ul>
+
+<h3>UI/UX Criteria</h3>
+<ul>
+<li>[ ] Duidelijke visuele scheiding tussen Concept / In review / Vastgesteld / Gearchiveerd</li>
+<li>[ ] Alle UI‑labels in het Nederlands; DB‑statuscodes blijven ongewijzigd</li>
+<li>[ ] Approval workflow met confirmatie dialoog</li>
+<li>[ ] Afwijzen verplicht een reden</li>
+<li>[ ] Optioneel: batch vaststellen voor meerdere definities tegelijk</li>
+<li>[ ] Filter op status in overzichten; "Vastgesteld" zichtbaar/selecteerbaar</li>
+</ul>
+
+<h3>Autorisatie</h3>
+<ul>
+<li>[ ] Alleen gebruikers met expert rol kunnen goedkeuren (future: rol-based)</li>
+<li>[ ] Voor nu: iedereen kan goedkeuren (single-user app)</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>0. Context (sample data uit schema)</h3>
+<ul>
+<li>Het systeem bevat voorbeelddata in `schema.sql` met één definitie die direct als "established" is ingevoerd (demonstratiedoeleinden).</li>
+<li>Dit bevestigt dat de status technisch bestaat, maar de UI moet een bewuste gebruikersactie bieden om van "In review" naar "Vastgesteld" te gaan (met confirmatie en logging).</li>
+</ul>
+
+<h3>Terminologie (NL labels in UI; DB‑codes blijven)</h3>
+<ul>
+<li>draft → "Concept"</li>
+<li>review → "In review"</li>
+<li>established → "Vastgesteld"</li>
+<li>archived → "Gearchiveerd"</li>
+</ul>
+
+<h3>1. Expert Review Tab Uitbreiding</h3>
+
+<pre><code># In expert_review_tab.py
+def _render_approval_actions(self, definitie: DefinitieRecord):
+    """Render approval/rejection acties voor een definitie."""
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        if st.button("✅ Goedkeuren", key=f"approve_{definitie.id}"):
+            notes = st.text_area("Goedkeuringsnotities (optioneel)")
+            if st.button("Bevestig Goedkeuring"):
+                self._approve_definition(definitie.id, notes)
+    
+    with col2:
+        if st.button("❌ Afwijzen", key=f"reject_{definitie.id}"):
+            reason = st.text_area("Reden voor afwijzing (verplicht)")
+            if reason and st.button("Bevestig Afwijzing"):
+                self._reject_definition(definitie.id, reason)
+
+def _approve_definition(self, definition_id: int, notes: str = ""):
+    """Goedkeur een definitie via WorkflowService."""
+    workflow_service = st.session_state.service_container.definition_workflow_service()
+    result = workflow_service.approve(
+        definition_id=definition_id,
+        user=st.session_state.get('user', 'expert'),
+        notes=notes
+    )
+    if result.success:
+        st.success(f"✅ Definitie goedgekeurd (status: {result.new_status})")
+        st.rerun()
+    else:
+        st.error(f"❌ Goedkeuring mislukt: {result.error_message}")</code></pre>
+
+<h3>1b. Prefill + read‑only context</h3>
+<ul>
+<li>Generator zet `selected_review_definition_id` na succesvol bewaren/genereren.</li>
+<li>Expert‑tab toont bovenaan (indien aanwezig) een read‑only contextpaneel met ALLEEN de vastgelegde context:</li>
+<li> - Begrip, definitie (samenvatting)</li>
+<li> - Organisatorische context (leeg = “—”)</li>
+<li> - Juridische context (leeg = “—”)</li>
+<li> - Wettelijke basis (lijst; leeg = “—”)</li>
+<li> - Status (badge), aangemaakt/bewerkt door en timestamps</li>
+<li>Globale context (Context Selector) wordt NIET getoond en NIET als fallback gebruikt.</li>
+</ul>
+
+<h3>2. Status Visualisatie</h3>
+
+<pre><code>def _render_status_badge(self, status: str):
+    """Render een status badge met juiste kleur."""
+    badges = {
+        'draft': ('📝', 'gray'),
+        'review': ('👁️', 'blue'),
+        'established': ('✅', 'green'),
+        'archived': ('📦', 'orange')
+    }
+    icon, color = badges.get(status, ('❓', 'gray'))
+    st.markdown(f":{color}[{icon} {status.upper()}]")</code></pre>
+
+<h3>3. Established Definities View</h3>
+
+<p>Aparte sectie/filter voor goedgekeurde definities:</p>
+<ul>
+<li>Toon alleen established definities</li>
+<li>Metadata: goedgekeurd door, goedgekeurd op</li>
+<li>Export-ready indicator</li>
+<li>Beschermd tegen wijzigingen (tenzij expert)</li>
+</ul>
+
+<h3>4. Status terugzetten (Vastgesteld → Concept)</h3>
+<ul>
+<li>In Expert‑tab bij status Vastgesteld: actie "🔓 Maak bewerkbaar" met verplicht reden‑veld.</li>
+<li>Zet status terug naar Concept (DB: draft) via `DefinitionWorkflowService` en log reden in geschiedenis (status_changed met context_snapshot + reden).</li>
+<li>Edit‑tab wordt weer bewerkbaar.</li>
+</ul>
+
+<h3>5. Zoeken op status (incl. Vastgesteld)</h3>
+<ul>
+<li>Zoekfunctie behoudt statusfilter en toont ook "Vastgesteld".</li>
+<li>Resultaten voor Vastgesteld openen in Expert‑tab (read‑only); via actie "Maak bewerkbaar" kan status worden teruggezet (met logging) om daarna te bewerken in de Bewerk‑tab.</li>
+</ul>
+
+<h2>Integratie met Edit Interface</h2>
+
+<p>De Edit Interface (US-064) moet rekening houden met status:</p>
+<ul>
+<li>**Concept** (draft): Vrij bewerkbaar</li>
+<li>**In review** (review): Bewerkbaar met waarschuwing</li>
+<li>**Vastgesteld** (established): Read‑only; via Expert‑tab kan de status expliciet worden teruggezet</li>
+<li>**Gearchiveerd** (archived): Read‑only</li>
+</ul>
+
+<h2>Test Scenario's</h2>
+
+<ol>
+<li>**Happy Path**</li>
+</ol>
+<ul>
+<li>  - Genereer definitie (draft)</li>
+<li>  - Submit voor review</li>
+<li>  - Open Expert Review tab</li>
+<li>  - Prefill toont alle context read‑only</li>
+<li>  - Vaststellen → status wordt Vastgesteld</li>
+<li>  - Controleer: statusbadge, approval metadata, audit logging aanwezig</li>
+</ul>
+
+<ol>
+<li>**Rejection Flow**</li>
+</ol>
+<ul>
+<li>  - Definitie in review</li>
+<li>  - Afwijzen met reden (verplicht)</li>
+<li>  - Controleer status = Concept</li>
+<li>  - Controleer feedback/redenen in geschiedenis en metadata</li>
+</ul>
+
+<ol>
+<li>**Edit Protection**</li>
+</ol>
+<ul>
+<li>  - Definitie met status Vastgesteld</li>
+<li>  - Probeer te bewerken in Bewerk‑tab → read‑only met duidelijke melding</li>
+<li>  - Expert‑tab: "Maak bewerkbaar" met verplicht reden‑veld</li>
+<li>  - Na terugzetten status = Concept → Bewerk‑tab weer bewerkbaar</li>
+</ul>
+
+<ol>
+<li>**Zoek op status**</li>
+</ol>
+<ul>
+<li>  - Zoekfilter op "Vastgesteld" toont alle vastgestelde definities (incl. sample uit schema)</li>
+<li>  - Open één record → read‑only; status kan via Expert‑tab teruggezet worden (met logging)</li>
+</ul>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Expert Review tab heeft approve/reject knoppen</li>
+<li>[ ] Workflow service integratie werkt</li>
+<li>[ ] Status changes worden gelogd in history</li>
+<li>[ ] Visuele status indicators werkend</li>
+<li>[ ] Prefill toont laatst gegenereerde definitie met alle context (read‑only)</li>
+<li>[ ] Filter op status (incl. Vastgesteld) werkt</li>
+<li>[ ] Edit bescherming voor Vastgesteld (read‑only) + expliciet terugzetten mogelijk</li>
+<li>[ ] Tests voor approval workflow</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>**US-072**: DefinitionWorkflowService (✅ Completed)</li>
+<li>**US-064**: Definition Edit Interface (✅ Completed)  </li>
+<li>**Database**: approved_by, approved_at, approval_notes kolommen bestaan al</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>De backend service bestaat al volledig (DefinitionWorkflowService)</li>
+<li>Database kolommen voor approval metadata bestaan al</li>
+<li>Dit is puur een UI implementatie taak</li>
+<li>Single-user app: geen complexe rol-based access control nodig</li>
+</ul>
+
+<h2>Geschatte Implementatietijd</h2>
+
+<ul>
+<li>Expert Review tab uitbreiding: 2 uur</li>
+<li>Status visualisatie: 1 uur  </li>
+<li>Edit protection logic: 1 uur</li>
+<li>Testing: 1 uur</li>
+<li>**Totaal: ~5 uur**</li>
+</ul>
+
+  </div>
+</body>
+</html>

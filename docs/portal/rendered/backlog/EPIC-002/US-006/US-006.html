@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>validatie Interface Design</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden: []</p>
+<p>aangemaakt: 10-01-2025</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>epic: EPIC-002</p>
+<p>id: US-006</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: Voltooid</p>
+<p>status: GEREED</p>
+<p>story_points: 5</p>
+<p>titel: validatie Interface Design</p>
+<p>toegewezen_aan: development-team</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-017</li>
+<li>REQ-020</li>
+<li>REQ-030</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-006: validatie Interface Design</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>As a</strong> software architect</p>
+<p><strong>wil ik</strong> a clean validatie interface design</p>
+<p><strong>zodat</strong> validatieregels can be added en modified easily</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>Criterion 1: Interface Definition</h3>
+<p><strong>gegeven</strong> the need for multiple validatieregels</p>
+<p><strong>wanneer</strong> designing the validatie system</p>
+<p><strong>dan</strong> a clear interface is defined for all rules</p>
+
+<h3>Criterion 2: Rule Categories</h3>
+<p><strong>gegeven</strong> 45 validatieregels in 7 categories</p>
+<p><strong>wanneer</strong> organizing the validatie system</p>
+<p><strong>dan</strong> rules are properly categorized (ARAI, CON, ESS, INT, SAM, STR, VER)</p>
+
+<h3>Criterion 3: Extensibility</h3>
+<p><strong>gegeven</strong> new validatieregels may be needed</p>
+<p><strong>wanneer</strong> the interface is designed</p>
+<p><strong>dan</strong> new rules can be added without changing existing code</p>
+
+<h2>Technische Notities</h2>
+<ul>
+<li>Interface defined in `src/services/validatie/interfaces.py`</li>
+<li>Rule categories match ASTRA richtlijnen</li>
+<li>Each rule implements `ValidationRule` interface</li>
+<li>Supports priority levels (HOOG, GEMIDDELD, LAAG)</li>
+</ul>
+
+
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-002</li>
+</ul>
+<h2>Test Scenario's</h2>
+<ol>
+<li>ValiDatum interface completeness</li>
+<li>Test rule category assignment</li>
+<li>Verify extensibility with mock rules</li>
+<li>Test priority hEnling</li>
+<li>ValiDatum rule metadata structure</li>
+</ol>
+
+<h2>Definitie van Gereed</h2>
+<ul>
+<li>[x] Code geïmplementeerd en reviewed</li>
+<li>[x] Unit tests written en passing</li>
+<li>[x] Integration tests passing</li>
+<li>[x] Documentation bijgewerkt</li>
+<li>[x] Acceptatiecriteria met</li>
+</ul>
+
+  </div>
+</body>
+</html>

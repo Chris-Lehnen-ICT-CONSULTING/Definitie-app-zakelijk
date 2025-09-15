@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Werkstroom Library</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>canonical: true</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: architecture</p>
+<p>prioriteit: medium</p>
+<p>status: active</p>
+<p>---</p>
+
+
+
+<h1>Werkstroom Library</h1>
+
+<p>Doel: meerdere, doelgerichte workflows naast de bestaande TDD→Uitrol creëren, zodat we niet elke opdracht door hetzelfde zware pad sturen. Dit document beschrijft de beschikbare workflows, hun fasen, agents, en wanneer je welke inzet.</p>
+
+<h2>Overzicht (wanneer welke workflow?)</h2>
+<ul>
+<li>Analyse: wanneer de vraag nog niet klaar is voor implementatie; we willen user story, acceptatiecriteria en architectuur vormen.</li>
+<li>Review: wanneer er al code/diffs zijn en er een gestructureerde review nodig is zonder implementatie.</li>
+<li>Document Cleanup: wanneer documentatie opgeschoond, gestandaardiseerd en geherstructureerd moet worden.</li>
+<li>Refactor Only: wanneer gedrag ongewijzigd blijft en we enkel kwaliteit/structuur verbeteren.</li>
+<li>Hotfix: wanneer er een urgente productie‑bug is met versnelde route en gecontroleerde risico’s.</li>
+<li>Full TDD: wanneer we een complete feature/fix van A tot Z implementeren met zware kwaliteitsgates.</li>
+</ul>
+
+<h2>1) Analyse Werkstroom</h2>
+<ul>
+<li>Doel: van vraag → user story met SMART criteria → EA/SA/TA artefacten.</li>
+<li>Fasen en agents:</li>
+<li> - ANALYSIS: business-analyst-justice (output: user story + BDD acceptatiecriteria)</li>
+<li> - DESIGN: justice-architecture-designer (output: EA/SA/TA, API contracten, NFRs)</li>
+<li> - DOC-CHECK: doc-standards-guardian (output: canonical locaties, frontmatter, index updates)</li>
+<li>Gates (per fase): SMART criteria, BDD compleet; EA/SA/TA aanwezig; docs conform policy.</li>
+<li>Exit: story is KLAAR FOR DEV, geen tests/code vereist.</li>
+</ul>
+
+<h2>2) Review Werkstroom</h2>
+<ul>
+<li>Doel: systematische review van code/diff met oordeel en suggesties; geen implementatie.</li>
+<li>Fasen en agents:</li>
+<li> - REVIEW: code-reviewer-comprehensive (output: reviewrapport, verdict)</li>
+<li> - OPTIONAL-FOLLOWUP: refactor-specialist (micro‑refactors met tests groen)</li>
+<li>Gates: reviewrapport volledig, geen 🔴 blockers; bij follow‑up blijven alle tests groen.</li>
+<li>Exit: reviewrapport + aanbevelingen; implementatie is optioneel en separaat.</li>
+</ul>
+
+<h2>3) Document Cleanup Werkstroom</h2>
+<ul>
+<li>Doel: documentatie standaardiseren, ontdubbelen, frontmatter/links repareren en canonical structuur herstellen.</li>
+<li>Fasen en agents:</li>
+<li> - AUDIT: doc-standards-guardian (detecteer ontbrekende frontmatter, broken links, duplicaten)</li>
+<li> - FIX: doc-standards-guardian (+ prompt-engineer support) (auto‑fix en herstructurering)</li>
+<li> - VERIFY: quality-assurance-tester (linkcheck, structuurvalidatie)</li>
+<li>Gates: mandatory files aanwezig; canonical paths; geen broken links; index/overzichten geüpdatet.</li>
+<li>Exit: schone, consistente docs; geen code of CI nodig.</li>
+</ul>
+
+<h2>4) Refactor Only Werkstroom</h2>
+<ul>
+<li>Doel: kwaliteit/structuur verbeteren zonder gedrag te wijzigen.</li>
+<li>Fasen en agents:</li>
+<li> - PLAN: refactor-specialist (scope, micro‑refactors, impact)</li>
+<li> - APPLY: refactor-specialist (kleine, atomaire refactors)</li>
+<li> - VERIFY: quality-assurance-tester (alle tests nog groen, coverage ≥ baseline)</li>
+<li>Gates: geen gedragswijziging; tests blijven groen; refactor‑log bijgewerkt.</li>
+<li>Exit: code schoner, prestaties en leesbaarheid verbeterd, zonder functionele impact.</li>
+</ul>
+
+<h2>5) Hotfix Werkstroom</h2>
+<ul>
+<li>Doel: snelle, gecontroleerde fix voor productie‑incidenten met minimale vertraging en maximale veiligheid.</li>
+<li>Fasen en agents:</li>
+<li> - TRIAGE: tdd-orchestrator (OVERRIDE protocol; classificatie P1/P2, blast‑radius)</li>
+<li> - FIX: developer-implementer (+ minimal test bij voorkeur) (patch gericht; geen scope‑creep)</li>
+<li> - REVIEW-LIGHT: code-reviewer-comprehensive (snelle controlerapportage, security check)</li>
+<li> - DEPLOY: devops-pipeline-orchestrator (staging→prod met handmatige approval; rollback klaar)</li>
+<li>Gates: issue gereproduceerd of helder; minimal test of reproduceerbaar scenario; manual approval voor prod; rollback‑plan aanwezig.</li>
+<li>Exit: productie hersteld; incidentrapport en post‑mortem gepland.</li>
+</ul>
+
+<h2>6) Full TDD Werkstroom (Bestaand)</h2>
+<ul>
+<li>Doel: volledige implementatie van feature/fix met RED→GREEN→REFACTOR en streng bewaakte gates.</li>
+<li>Verwijzing: docs/guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md</li>
+<li>Let op: gebruik deze niet standaard voor documentatie/kleine wijzigingen; kies een lichtere workflow als passend.</li>
+</ul>
+
+<h2>Artefacten en Locaties (samengevat)</h2>
+<ul>
+<li>User stories: docs/backlog/stories/MASTER-EPICS-USER-STORIES.md</li>
+<li>Architectuur: docs/architectuur/</li>
+<li>Reviews: docs/reviews/<ID>-review.md</li>
+<li>Refactor log: docs/refactor-log.md</li>
+<li>Deployments: docs/deployments/<date>.md</li>
+<li>Index: docs/INDEX.md, docs/guidelines/CANONICAL_LOCATIONS.md</li>
+</ul>
+
+  </div>
+</body>
+</html>

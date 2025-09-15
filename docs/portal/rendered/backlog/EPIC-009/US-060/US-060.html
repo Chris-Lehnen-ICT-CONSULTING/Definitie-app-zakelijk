@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement Event Bus Architecture</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-060</p>
+<p>titel: Implement Event Bus Architecture</p>
+<p>epic: EPIC-009</p>
+<p>status: Open</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 8</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>owner: architect</p>
+<p>type: technical-improvement</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-015</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+</ul>
+
+<h1>US-060: Implement Event Bus Architecture</h1>
+
+<p><strong>Epic:</strong> EPIC-009 - Advanced Features</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> system architect</p>
+<p><strong>wil ik</strong> een event-driven architectuur met event bus</p>
+<p><strong>zodat</strong> services loosely coupled kunnen communiceren en events kunnen publiceren/consumeren</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>De codebase bevat meerdere TODO's voor event publishing wanneer een event bus beschikbaar is:</p>
+<ul>
+<li>`services/workflow_service.py:515` - Event publishing voor category changes</li>
+<li>`services/category_service.py:101` - Event publishing voor category updates</li>
+</ul>
+
+<p>Momenteel wordt alleen logging gebruikt waar eigenlijk events gepubliceerd zouden moeten worden.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[ ] Event bus infrastructuur geïmplementeerd</li>
+<li>[ ] Publisher/Subscriber pattern werkend</li>
+<li>[ ] Category change events worden gepubliceerd</li>
+<li>[ ] Workflow events worden gepubliceerd</li>
+<li>[ ] Event replay capability voor debugging</li>
+<li>[ ] Dead letter queue voor failed events</li>
+</ul>
+
+<h3>Technische Criteria</h3>
+<ul>
+<li>[ ] Event bus service in `services/events/`</li>
+<li>[ ] Event types gedefinieerd in `services/events/types.py`</li>
+<li>[ ] Async event publishing</li>
+<li>[ ] Event serialization (JSON)</li>
+<li>[ ] Event versioning support</li>
+<li>[ ] Retention policy configureerbaar</li>
+</ul>
+
+<h3>Performance Criteria</h3>
+<ul>
+<li>[ ] Event publishing < 10ms</li>
+<li>[ ] No blocking on event publish</li>
+<li>[ ] Buffering voor bulk events</li>
+<li>[ ] Max 1000 events/second throughput</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Event Bus Service</h3>
+<pre><code># services/events/event_bus.py
+class EventBus:
+    async def publish(self, event: Event) -&gt; None
+    async def subscribe(self, event_type: str, handler: Callable) -&gt; None
+    async def unsubscribe(self, subscription_id: str) -&gt; None</code></pre>
+
+<h3>Event Types</h3>
+<pre><code># services/events/types.py
+@dataclass
+class CategoryChangeEvent:
+    category_id: int
+    old_category: str
+    new_category: str
+    changed_by: str
+    timestamp: datetime</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Event bus service geïmplementeerd</li>
+<li>[ ] Unit tests voor event publishing/subscribing</li>
+<li>[ ] Integration tests voor event flow</li>
+<li>[ ] TODO's in code vervangen door event publishing</li>
+<li>[ ] Performance benchmarks uitgevoerd</li>
+<li>[ ] Documentatie bijgewerkt</li>
+<li>[ ] Code review completed</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Event ordering issues | Medium | Implement event timestamps |</p>
+<p>| Memory leaks van subscribers | High | Weak references gebruiken |</p>
+<p>| Event storms | High | Rate limiting implementeren |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Overweeg gebruik van Redis pub/sub voor productie</li>
+<li>Begin met in-memory implementatie voor development</li>
+<li>Event sourcing kan later toegevoegd worden</li>
+</ul>
+
+  </div>
+</body>
+</html>

@@ -25,11 +25,10 @@ CREATE TABLE definities (
         'OTH'     -- Overig (niet-gecategoriseerd)
     )),
 
-    -- Context informatie
-    organisatorische_context VARCHAR(255) NOT NULL,
-    juridische_context VARCHAR(255),
-    -- Wettelijke basis (JSON array als TEXT)
-    wettelijke_basis TEXT,
+    -- Context informatie (canoniek als JSON arrays in TEXT)
+    organisatorische_context TEXT NOT NULL DEFAULT '[]', -- JSON array
+    juridische_context TEXT NOT NULL DEFAULT '[]',       -- JSON array
+    wettelijke_basis TEXT NOT NULL DEFAULT '[]',         -- JSON array
 
     -- Status management
     status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'established', 'archived')),

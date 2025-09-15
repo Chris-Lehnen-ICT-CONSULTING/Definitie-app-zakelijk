@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Orchestrator Async Voorbeelden Migration</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-052</p>
+<p>titel: Orchestrator Async Voorbeelden Migration</p>
+<p>epic: EPIC-010</p>
+<p>status: Open</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 3</p>
+<p>sprint: sprint-37</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-10</p>
+<p>bijgewerkt: 2025-09-10</p>
+<p>owner: developer-implementer</p>
+<p>type: technical-debt</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-032</li>
+<li>REQ-033</li>
+<p>Afhankelijkheden:</p>
+<li>US-043</li>
+<li>US-051</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-10</p>
+<p>---</p>
+</ul>
+
+<h1>US-052: Orchestrator Async Voorbeelden Migration</h1>
+
+<p><strong>Epic:</strong> EPIC-010 - Context Flow Refactoring</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> system architect</p>
+<p><strong>wil ik</strong> dat de orchestrator volledig async werkt zonder sync bridging in de service laag</p>
+<p><strong>zodat</strong> we een clean async architectuur hebben zonder anti-patterns</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>De <code>DefinitionOrchestratorV2</code> gebruikt momenteel de synchrone <code>genereer_alle_voorbeelden()</code> methode binnen een async flow. Dit veroorzaakt sync bridging in de service laag wat tegen het architectuur principe is dat alleen de UI laag mag bridgen tussen sync en async.</p>
+
+<h3>Current Anti-Pattern</h3>
+<pre><code># In definition_orchestrator_v2.py
+async def generate_definition(...):
+    # FOUT: Sync call in async context
+    voorbeelden = self.voorbeelden_service.genereer_alle_voorbeelden(
+        begrip, definitie, context_dict
+    )</code></pre>
+
+<h3>Desired Pattern</h3>
+<pre><code># In definition_orchestrator_v2.py
+async def generate_definition(...):
+    # GOED: Async call in async context
+    voorbeelden = await self.voorbeelden_service.genereer_alle_voorbeelden_async(
+        begrip, definitie, context_dict
+    )</code></pre>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[ ] Orchestrator gebruikt `genereer_alle_voorbeelden_async()`</li>
+<li>[ ] Alle voorbeelden types worden nog steeds gegenereerd</li>
+<li>[ ] Parallel processing blijft behouden</li>
+<li>[ ] Error handling werkt correct voor async flow</li>
+</ul>
+
+<h3>Technische Criteria</h3>
+<ul>
+<li>[ ] Geen `_run_async_safe()` calls in orchestrator</li>
+<li>[ ] Geen `asyncio.run()` in services directory</li>
+<li>[ ] Geen `run_coroutine_threadsafe()` in services</li>
+<li>[ ] Alleen `ui/helpers/async_bridge.py` mag sync/async bridging doen</li>
+<li>[ ] Tests aangepast voor async flow</li>
+</ul>
+
+<h3>Performance Criteria</h3>
+<ul>
+<li>[ ] Voorbeelden generatie tijd gelijk of beter</li>
+<li>[ ] Parallel processing werkend</li>
+<li>[ ] Geen deadlocks of race conditions</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>1. Update Orchestrator</h3>
+<pre><code># In src/services/orchestrators/definition_orchestrator_v2.py
+
+# Van:
+voorbeelden = self.voorbeelden_service.genereer_alle_voorbeelden(
+    begrip=begriff,
+    definitie=generated_definition,
+    context_dict=context_dict,
+    max_examples=max_examples
+)
+
+# Naar:
+voorbeelden = await self.voorbeelden_service.genereer_alle_voorbeelden_async(
+    begrip=begriff,
+    definitie=generated_definition,
+    context_dict=context_dict,
+    max_examples=max_examples
+)</code></pre>
+
+<h3>2. Verwijder Sync Bridging</h3>
+<pre><code># Verwijder uit services:
+def _run_async_safe(self, coro):
+    """REMOVE THIS - alleen UI mag bridgen"""
+    pass
+
+# Vervang alle instances met proper async:
+# Van: self._run_async_safe(some_async_method())
+# Naar: await some_async_method()</code></pre>
+
+<h3>3. Update Tests</h3>
+<pre><code># In tests/services/test_orchestrator_v2.py
+@pytest.mark.asyncio
+async def test_orchestrator_uses_async_voorbeelden():
+    orchestrator = DefinitionOrchestratorV2(...)
+
+    # Mock async voorbeelden service
+    mock_voorbeelden = AsyncMock()
+    mock_voorbeelden.genereer_alle_voorbeelden_async.return_value = {...}
+
+    result = await orchestrator.generate_definition(...)
+
+    # Verify async method was called
+    mock_voorbeelden.genereer_alle_voorbeelden_async.assert_called_once()</code></pre>
+
+<h2>Test Scenarios</h2>
+
+<h3>Unit Tests</h3>
+<ol>
+<li>Test orchestrator roept async voorbeelden aan</li>
+<li>Test error handling in async flow</li>
+<li>Test parallel processing blijft werkend</li>
+<li>Test timeout handling</li>
+</ol>
+
+<h3>Integration Tests</h3>
+<ol>
+<li>End-to-end definition generation met async voorbeelden</li>
+<li>Performance test: meet parallel vs sequential</li>
+<li>Stress test: meerdere concurrent requests</li>
+</ol>
+
+<h3>Verificatie Script</h3>
+<pre><code># Check geen sync bridging in services
+echo "=== Checking for sync bridging in services ==="
+! rg "_run_async_safe|asyncio\.run" src/services/ || {
+    echo "FAIL: Sync bridging gevonden in services"
+    exit 1
+}
+
+# Check orchestrator gebruikt async
+echo "=== Checking orchestrator uses async ==="
+rg "await.*genereer_alle_voorbeelden_async" src/services/orchestrators/ || {
+    echo "FAIL: Orchestrator gebruikt geen async voorbeelden"
+    exit 1
+}
+
+echo "SUCCESS: Alle checks passed"</code></pre>
+
+<h2>Verificatie</h2>
+
+<pre><code># 1. Check geen sync patterns in services
+rg -n "_run_async_safe|asyncio\.run|run_coroutine_threadsafe" src/services/
+
+# 2. Verify orchestrator uses async
+rg -n "genereer_alle_voorbeelden_async" src/services/orchestrators/
+
+# 3. Run tests
+pytest tests/services/test_orchestrator_v2.py -v
+
+# 4. Performance check
+python -c "
+import asyncio
+import time
+from src.services.orchestrators.definition_orchestrator_v2 import DefinitionOrchestratorV2
+
+async def test_performance():
+    orchestrator = DefinitionOrchestratorV2(...)
+    start = time.time()
+    await orchestrator.generate_definition(...)
+    duration = time.time() - start
+    print(f'Generation took {duration:.2f}s')
+    assert duration &lt; 10, 'Performance degraded'
+
+asyncio.run(test_performance())
+"</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Code complete met alle acceptatiecriteria</li>
+<li>[ ] Unit tests groen</li>
+<li>[ ] Integration tests groen</li>
+<li>[ ] Geen sync bridging in services directory</li>
+<li>[ ] Verificatie script succesvol</li>
+<li>[ ] Performance gelijk of beter</li>
+<li>[ ] Code review completed</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Deadlocks in async flow | High | Uitgebreide async tests |</p>
+<p>| Performance degradatie | Medium | Benchmark voor/na |</p>
+<p>| Test complexity | Low | Goede async test helpers |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Dit is een pure technical debt story</li>
+<li>Geen functionele wijzigingen voor gebruikers</li>
+<li>Critical voor clean architecture</li>
+<li>Moet voor US-043-C om sync wrappers te kunnen verwijderen</li>
+</ul>
+
+  </div>
+</body>
+</html>

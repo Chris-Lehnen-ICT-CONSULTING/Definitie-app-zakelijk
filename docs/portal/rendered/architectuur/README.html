@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>🏗️ DefinitieAgent Architecture Documentation</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>🏗️ DefinitieAgent Architecture Documentation</h1>
+
+<h2>📋 Overview</h2>
+
+<p>This directory contains the complete architecture documentation for the DefinitieAgent project, including Enterprise Architecture (EA) and Solution Architecture (SA) documents with automated synchronization and validation.</p>
+
+<h3>Documentatie-organisatie scripts (toelichting)</h3>
+<p>Deze scripts gaan over documentstructuur en consistentie (niet over applicatiecode):</p>
+<ul>
+<li>`scripts/hooks/check-doc-location.py`: pre-commit controle op juiste mappen + relocatie‑suggesties.</li>
+<li>`scripts/migrate-documents-fase3.sh`: verplaats/hernoem docs volgens structuur. Eerst `--dry-run`, alleen maintainers met `--execute`.</li>
+<li>`scripts/architecture_validator.py`: valideert EA/SA op scheiding van concerns, overlap, templates.</li>
+<li>`scripts/architecture_sync.py`: synchroniseert gedeelde secties/metadata (ADR‑referenties, metrics) tussen EA en SA.</li>
+<p>Zie ook: CONTRIBUTING.md (root) → “Documentatie‑organisatie (alleen maintainers)”.</p>
+</ul>
+
+<h2>🎯 Hoofddocumenten</h2>
+
+<p>| Document | Doel | Status | Laatste Update |</p>
+<p>|----------|------|--------|----------------|</p>
+<p>| <strong><a href="./ENTERPRISE_ARCHITECTURE.md" target="_blank">ENTERPRISE_ARCHITECTURE.md</a></strong> | Strategische business architectuur met product portfolio | ✅ Actief | 20-08-2025 |</p>
+<p>| <strong><a href="./SOLUTION_ARCHITECTURE.md" target="_blank">SOLUTION_ARCHITECTURE.md</a></strong> | Technische implementatie met feature registry | ✅ Actief | 20-08-2025 |</p>
+<p>| <strong><a href="./TECHNICAL_ARCHITECTURE.md" target="_blank">TECHNICAL_ARCHITECTURE.md</a></strong> | Technische implementatie details | ✅ Actief | 04-09-2025 |</p>
+
+<h2>📁 Directory Structuur</h2>
+
+<h3>Core Documenten</h3>
+
+<ul>
+<li>**Enterprise Architecture** - Business view inclusief product portfolio status</li>
+<li>**Solution Architecture** - Technische view met feature implementation details</li>
+<li>**Product Delivery Tracker** - Sprint voortgang en blockers</li>
+</ul>
+
+<h3>Architecture Decisions</h3>
+
+<p>Belangrijke architectuur beslissingen zijn opgenomen in de hoofddocumenten:</p>
+<ul>
+<li>Zie ENTERPRISE_ARCHITECTURE.md sectie 5 voor strategische beslissingen</li>
+<li>Zie SOLUTION_ARCHITECTURE.md sectie 7 voor solution beslissingen</li>
+<li>Zie TECHNICAL_ARCHITECTURE.md sectie 3 voor technische beslissingen</li>
+</ul>
+
+<h3>[templates/](./templates/)</h3>
+
+<p>Herbruikbare templates en voorbeelden</p>
+
+<ul>
+<li>Enterprise Architecture Template</li>
+<li>Solution Architecture Template</li>
+<li>Cross-reference Guide</li>
+</ul>
+
+<h3>Gearchiveerde Documentatie</h3>
+
+<p>Gearchiveerde documentatie is te vinden in:</p>
+<ul>
+<li>`/docs/archief/2025-09-architectuur-consolidatie/` - Architectuur consolidatie september 2025</li>
+<li>`/docs/archief/` - Oudere gearchiveerde documenten</li>
+</ul>
+
+<h2>🚀 Quick Start</h2>
+
+<ol>
+<li>**Business Stakeholder?** Begin met [ENTERPRISE_ARCHITECTURE.md](./ENTERPRISE_ARCHITECTURE.md)</li>
+<li>**Developer?** Start met [SOLUTION_ARCHITECTURE.md](./SOLUTION_ARCHITECTURE.md)</li>
+<li>**Technical Lead?** Check [TECHNICAL_ARCHITECTURE.md](./TECHNICAL_ARCHITECTURE.md)</li>
+<li>**Architect?** Lees alle drie canonical documenten</li>
+</ol>
+
+<h2>📊 Product & Architectuur Status</h2>
+
+<h3>Overall Product Completion: 26%</h3>
+
+<pre><code>Features: 23/87 complete (26%)
+Epische Verhalen Status:
+├─ Basis Definitie: ████████░░ 80% ✅
+├─ Kwaliteit:       ███████░░░ 75% ✅
+├─ UI:              ██░░░░░░░░ 20% 🔴
+├─ Beveiliging:        ░░░░░░░░░░  0% 🔴
+├─ Prestaties:     ██░░░░░░░░ 20% 🟠
+├─ Export/Import:   █░░░░░░░░░ 14% 🟠
+├─ Web Lookup:      ░░░░░░░░░░  0% 🔴
+├─ Monitoring:      ████░░░░░░ 40% 🟡
+└─ Content:         ██████░░░░ 67% ✅</code></pre>
+
+<h3>Critical Blockers</h3>
+
+<ul>
+<li>🔴 No Authentication (cannot deploy)</li>
+<li>🔴 Single-user database (SQLite locks)</li>
+<li>🔴 Missing Web Lookup (core feature)</li>
+<li>🟠 Prestaties 8-12s (target <5s)</li>
+</ul>
+
+<h2>🔗 Gerelateerde Documentatie</h2>
+
+<ul>
+<li>[Technical Documentation](../technisch/) - Technische analyses en rapporten</li>
+<li>[Development Workflows](../workflows/) - Development workflows</li>
+<li>[Testen Documentation](../testing/) - Test plannen en scenarios</li>
+</ul>
+
+<h2>📝 Conventies</h2>
+
+<ul>
+<li>**Hoofddocumenten**: UPPERCASE.md voor zichtbaarheid</li>
+<li>**ADRs**: `ADR-XXX-titel.md` formaat</li>
+<li>**Diagrammen**: Mermaid (.mmd) of PlantUML (.puml)</li>
+<li>**Updates**: Altijd versie en datum bijwerken</li>
+</ul>
+
+<h2>📝 Voor Documentatie Schrijvers</h2>
+
+<h3>Belangrijke Richtlijnen</h3>
+
+<ul>
+<li>**Geen code in deze directory** - alleen documentatie</li>
+<li>Gebruik de juiste subdirectory voor je document type</li>
+<li>ADRs volgen het ADR-XXX-titel.md formaat</li>
+<li>Contracts hebben altijd een versienummer</li>
+</ul>
+
+<h3>Document Validatie Tools</h3>
+
+<p>Voor maintainers zijn er hulpscripts beschikbaar OM documentatie kwaliteit te waarborgen:</p>
+
+<ul>
+<li>**Locatie check**: De pre-commit hook controleert automatisch of documenten in de juiste directories staan</li>
+<li>**EA/SA validatie**: `python scripts/architecture_validator.py` controleert scheiding van concerns</li>
+<li>**Synchronisatie**: `python scripts/architecture_sync.py` houdt gedeelde secties consistent</li>
+</ul>
+
+<p>⚠️ <strong>Let op</strong>: Document migratie scripts zijn alleen voor maintainers. Zie CONTRIBUTING.md (root) voor details.</p>
+
+<h2>🚧 Onderhoud</h2>
+
+<p>| Document | Laatste Update | Review Cyclus | Eigenaar |</p>
+<p>|----------|---------------|---------------|-------|</p>
+<p>| ENTERPRISE_ARCHITECTURE.md | 20-08-2025 | Quarterly | Enterprise Architect |</p>
+<p>| SOLUTION_ARCHITECTURE.md | 20-08-2025 | Sprint | Solution Architect |</p>
+<p>| TECHNICAL_ARCHITECTURE.md | 04-09-2025 | Sprint | Technical Lead |</p>
+<p>| ADRs | Various | As needed | Team |</p>
+
+<h2>🔄 Recente Updates (20-08-2025)</h2>
+
+<h3>Architectuur Reorganisatie Voltooid</h3>
+
+<ul>
+<li>✅ EA uitgebreid met Product Portfolio Status (Section 8)</li>
+<li>✅ SA uitgebreid met Feature Registry (Section 12) en Tech Debt (Section 13)</li>
+<li>✅ Nieuw PRODUCT_DELIVERY_TRACKER.md voor sprint tracking</li>
+<li>✅ 12 duplicate documenten gearchiveerd</li>
+<li>✅ Van 30+ naar 15 actieve documenten (50% reductie)</li>
+</ul>
+
+<p>Voor vragen of updates, contact het architecture team via Slack #architecture-discussion.</p>
+
+  </div>
+</body>
+</html>

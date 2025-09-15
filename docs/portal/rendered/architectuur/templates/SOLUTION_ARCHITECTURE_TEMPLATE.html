@@ -1,0 +1,822 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SOLUTION ARCHITECTURE - DEFINITIEAPP</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '08-09-2025'</p>
+<p>afhankelijkheden:</p>
+<ul>
+<li>../../vereisten/REQUIREMENTS_AND_FEATURES_COMPLETE.md</li>
+<li>../../testing/</li>
+<p>applies_to: definitie-app@v2</p>
+<p>bijgewerkt: '08-09-2025'</p>
+<p>canonical: true</p>
+<p>compliance:</p>
+<p>  ASTRA: true</p>
+<p>  bio: true</p>
+<p>  GEMMA: true</p>
+<p>  NORA: true</p>
+<p>cross_references:</p>
+<p>  ea: ../ENTERPRISE_ARCHITECTURE.md</p>
+<p>  sa: ../SOLUTION_ARCHITECTURE.md</p>
+<p>  ta: ../TECHNICAL_ARCHITECTURE.md</p>
+<p>last_verified: YYYY-MM-DD</p>
+<p>next_review: YYYY-MM-DD</p>
+<p>owner: architecture</p>
+<p>prioriteit: medium</p>
+<p>review_cycle: quarterly</p>
+<p>stakeholders:</p>
+<li>contact: solution-architects@justice.nl</li>
+<p>  role: owner</p>
+<li>contact: tech-lead@justice.nl</li>
+<p>  role: tech_lead</p>
+<p>status: active</p>
+<p>supersedes:</p>
+<li>../../archief/2025-09-architectuur-consolidatie/sa-variants/SA.md</li>
+<li>../../archief/2025-09-architectuur-consolidatie/cfr-documents/SA-CFR.md</li>
+<p>version_history:</p>
+<p>  current: 2.0.0</p>
+<p>  migration_date: 2025-09-XX</p>
+<p>  previous: 1.x.x</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>SOLUTION ARCHITECTURE - DEFINITIEAPP</h1>
+
+<h2>1. Executive Summary</h2>
+
+<h3>1.1 Solution Overview</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Technical solution summary for architects and developers]</strong></p>
+
+<p>The DefinitieApp is a microservices-based solution leveraging AI for automated legal definition generation and validation. The architecture implements a service-oriented design with clear separation of concerns, enabling scalability, maintainability, and compliance with justice chain vereistes.</p>
+
+<p><strong>Key Architectural Characteristics:</strong></p>
+<ul>
+<li>Service-oriented architecture with afhankelijkheid injection</li>
+<li>Event-driven validation orchestration</li>
+<li>Context-aware prompt management</li>
+<li>Modular validation rule system (45+ rules)</li>
+<li>Cache-optimized for performance</li>
+</ul>
+
+<h3>1.2 Key Design Decisions</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Top technical design decisions]</strong></p>
+
+<p>| Decision | Pattern/Technology | Rationale | Trade-offs |</p>
+<p>|----------|-------------------|-----------|------------|</p>
+<p>| Service Container Pattern | Dependency Injection | Testability, loose coupling | Initial complexity |</p>
+<p>| Async Processing | Python AsyncIO | Prestaties, scalability | Debugging complexity |</p>
+<p>| Modular Validation | Plugin Architecture | Extensibility, maintainability | More files to manage |</p>
+<p>| Context Flow Service | Mediator Pattern | Complete context preservation | Additional layer |</p>
+<p>| [Decision] | [Pattern] | [Rationale] | [Trade-offs] |</p>
+
+<h3>1.3 Integration Strategy</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: High-level integration approach]</strong></p>
+
+<pre><code>graph LR
+    subgraph "DefinitieApp Core"
+        API[API Gateway]
+        SVC[Service Layer]
+        DAL[Data Access Layer]
+    end
+
+    subgraph "External Systems"
+        AI[OpenAI GPT-4]
+        WEB[Web Sources]
+        AUTH[Justid Auth]
+    end
+
+    API --&gt; SVC
+    SVC --&gt; DAL
+    SVC --&gt; AI
+    SVC --&gt; WEB
+    API --&gt; AUTH</code></pre>
+
+<h2>2. Solution Context</h2>
+
+<h3>2.1 Problem Statement</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Technical problems being solved]</strong></p>
+
+<h4>2.1.1 Current Challenges</h4>
+<ul>
+<li>**Token Inefficiency**: All 45 validation rules hardcoded in prompts (7,250 tokens)</li>
+<li>**Context Loss**: Only organizational context correctly passed to prompts</li>
+<li>**Service Duplication**: V1 and V2 orchestrators running simultaneously</li>
+<li>**Prestaties Issues**: 6x service initialization on Streamlit reruns</li>
+</ul>
+
+<h4>2.1.2 Solution Approach</h4>
+<ul>
+<li>Implement context-aware prompt composition</li>
+<li>Single source of truth for validation rules</li>
+<li>Complete V2 migration with V1 elimination</li>
+<li>Service caching with proper lifecycle management</li>
+</ul>
+
+<h3>2.2 Solution Scope</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: What's in and out of scope]</strong></p>
+
+<h4>In Scope</h4>
+<ul>
+<li>✅ AI-powered definition generation</li>
+<li>✅ 45+ validation rules implementation</li>
+<li>✅ Web content enrichment</li>
+<li>✅ User interface (Streamlit)</li>
+<li>✅ Export functionality (JSON, PDF)</li>
+<li>✅ Caching and performance optimization</li>
+</ul>
+
+<h4>Out of Scope</h4>
+<ul>
+<li>❌ User authentication (delegated to Justid)</li>
+<li>❌ Training custom AI models</li>
+<li>❌ Real-time collaboration features</li>
+<li>❌ Mobile application</li>
+</ul>
+
+<h3>2.3 Constraints & Assumptions</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Technical limitations and assumptions]</strong></p>
+
+<h4>Constraints</h4>
+<p>| Type | Constraint | Impact | Mitigation |</p>
+<p>|------|------------|---------|------------|</p>
+<p>| Technical | Python 3.11+ required | Limits deployment options | Container-based deployment |</p>
+<p>| Prestaties | < 5s response time | Architecture decisions | Caching, async processing |</p>
+<p>| Beveiliging | No data persistence of PII | Storage design | Tokenization, encryption |</p>
+<p>| Integration | OpenAI API afhankelijkheid | Availability risk | Fallback mechanisms |</p>
+
+<h4>Assumptions</h4>
+<ul>
+<li>Stable internet connectivity for API calls</li>
+<li>OpenAI API availability > 99%</li>
+<li>Users have modern browsers (Chrome 90+, Firefox 88+)</li>
+<li>[Additional assumptions]</li>
+</ul>
+
+<h2>3. Functional Architecture</h2>
+
+<h3>3.1 Functional Decomposition</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Break down system into functional components]</strong></p>
+
+<pre><code>graph TD
+    subgraph "Core Functions"
+        F1[Definition Generation]
+        F2[Quality Validation]
+        F3[Content Enrichment]
+    end
+
+    subgraph "Supporting Functions"
+        F4[Context Management]
+        F5[Prompt Building]
+        F6[Cache Management]
+    end
+
+    subgraph "Cross-Cutting"
+        F7[Logging/Monitoring]
+        F8[Error Handling]
+        F9[Beveiliging]
+    end
+
+    F1 --&gt; F5
+    F1 --&gt; F4
+    F2 --&gt; F4
+    F3 --&gt; F6</code></pre>
+
+<h4>3.1.1 Function Descriptions</h4>
+
+<p><strong>Definition Generation (F1)</strong></p>
+<ul>
+<li>**Purpose**: Generate legal definitions using AI</li>
+<li>**Inputs**: Term, context, parameters</li>
+<li>**Outputs**: Generated definition text</li>
+<li>**Afhankelijkheden**: AI Service, Prompt Service</li>
+</ul>
+
+<p><strong>[TEMPLATE: Continue for each function]</strong></p>
+
+<h3>3.2 Service Design</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Service architecture and contracts]</strong></p>
+
+<h4>3.2.1 Service Catalog</h4>
+
+<p>| Service | Responsibility | Interface | SLA |</p>
+<p>|---------|----------------|-----------|-----|</p>
+<p>| ValidationOrchestratorV2 | Coordinate validation flow | Async Python | < 1s |</p>
+<p>| AIServiceV2 | GPT-4 integration | REST/Async | < 3s |</p>
+<p>| PromptServiceV2 | Dynamic prompt building | Python API | < 100ms |</p>
+<p>| WebLookupService | External content fetch | HTTP/Async | < 2s |</p>
+<p>| ContextFlowService | Context preservation | Python API | < 50ms |</p>
+
+<h4>3.2.2 Service Interaction Pattern</h4>
+
+<pre><code>sequenceDiagram
+    participant UI
+    participant Orchestrator
+    participant PromptService
+    participant AIService
+    participant ValidationService
+
+    UI-&gt;&gt;Orchestrator: Generate Definition
+    Orchestrator-&gt;&gt;PromptService: Build Prompt
+    PromptService--&gt;&gt;Orchestrator: Complete Prompt
+    Orchestrator-&gt;&gt;AIService: Call GPT-4
+    AIService--&gt;&gt;Orchestrator: Definition
+    Orchestrator-&gt;&gt;ValidationService: Validate
+    ValidationService--&gt;&gt;Orchestrator: Results
+    Orchestrator--&gt;&gt;UI: Definition + Validation</code></pre>
+
+<h3>3.3 Process Flows</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Key business processes]</strong></p>
+
+<h4>3.3.1 Definition Generation Flow</h4>
+
+<pre><code>stateDiagram-v2
+    [*] --&gt; InputReceived
+    InputReceived --&gt; ContextExtraction
+    ContextExtraction --&gt; PromptBuilding
+    PromptBuilding --&gt; AIGeneration
+    AIGeneration --&gt; ValidationCheck
+
+    ValidationCheck --&gt; PassedValidation: All rules pass
+    ValidationCheck --&gt; FailedValidation: Rules fail
+
+    PassedValidation --&gt; StoreDefinition
+    FailedValidation --&gt; UserFeedback
+
+    StoreDefinition --&gt; [*]
+    UserFeedback --&gt; InputReceived: Retry</code></pre>
+
+<h2>4. Data Architecture</h2>
+
+<h3>4.1 Data Model</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Logical data model]</strong></p>
+
+<pre><code>erDiagram
+    DEFINITION {
+        uuid id PK
+        string term
+        text definition_text
+        json context
+        timestamp created_at
+        string status
+        uuid created_by
+    }
+
+    VALIDATION_RESULT {
+        uuid id PK
+        uuid definition_id FK
+        string rule_id
+        boolean passed
+        text feedback
+        timestamp validated_at
+    }
+
+    VALIDATION_RULE {
+        string id PK
+        string category
+        string priority
+        json rule_config
+        boolean active
+    }
+
+    USER_SESSION {
+        uuid session_id PK
+        json preferences
+        timestamp last_active
+    }
+
+    DEFINITION ||--o{ VALIDATION_RESULT : has
+    VALIDATION_RESULT }o--|| VALIDATION_RULE : applies
+    USER_SESSION ||--o{ DEFINITION : creates</code></pre>
+
+<h3>4.2 Data Flow Design</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: How data moves through the system]</strong></p>
+
+<h4>4.2.1 Data Flow Diagram</h4>
+
+<pre><code>graph LR
+    subgraph "Input Layer"
+        USER[User Input]
+        API[API Input]
+    end
+
+    subgraph "Processing Layer"
+        VALID[Validation Engine]
+        ENRICH[Enrichment Service]
+        AI[AI Generator]
+    end
+
+    subgraph "Storage Layer"
+        CACHE[(Cache)]
+        DB[(Database)]
+        BLOB[(Document Store)]
+    end
+
+    USER --&gt; VALID
+    API --&gt; VALID
+    VALID --&gt; AI
+    AI --&gt; ENRICH
+    ENRICH --&gt; CACHE
+    CACHE --&gt; DB
+    DB --&gt; BLOB</code></pre>
+
+<h4>4.2.2 Data Lifecycle</h4>
+
+<p>| Stage | Action | Retention | Privacy Controls |</p>
+<p>|-------|---------|-----------|------------------|</p>
+<p>| Input | Validate & Sanitize | Session only | Input filtering |</p>
+<p>| Processing | Transform & Enrich | 24 hours (cache) | In-memory only |</p>
+<p>| Storage | Persist if approved | 7 years | Encrypted at rest |</p>
+<p>| Archive | Move to cold storage | 10 years | Compliance audit |</p>
+<p>| Deletion | Permanent removal | N/A | Secure wipe |</p>
+
+<h3>4.3 Data Quality & Validation</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Data quality measures]</strong></p>
+
+<h4>4.3.1 Validation Rules Categories</h4>
+
+<p>| Category | Code | Rules | Prioriteit | Description |</p>
+<p>|----------|------|-------|----------|-------------|</p>
+<p>| Essential | ESS | 8 | Critical | Must-have quality checks |</p>
+<p>| Structural | STR | 7 | High | Format and structure |</p>
+<p>| Semantic | SEM | 6 | High | Meaning and context |</p>
+<p>| Consistency | CON | 5 | Medium | Internal consistency |</p>
+<p>| Integration | INT | 4 | Medium | External alignment |</p>
+<p>| AI-Readiness | ARAI | 15 | High | AI model compatibility |</p>
+
+<h4>4.3.2 Data Quality Metrics</h4>
+
+<pre><code>@dataclass
+class DataQualityMetrics:
+    completeness: float  # % of required fields populated
+    accuracy: float      # % passing validation rules
+    consistency: float   # % internally consistent
+    timeliness: float   # % updated within SLA
+    uniqueness: float   # % deduplicated</code></pre>
+
+<h2>5. Integration Architecture</h2>
+
+<h3>5.1 Integration Patterns</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: How systems integrate]</strong></p>
+
+<p>| Pattern | Use Case | Implementatie | Example |</p>
+<p>|---------|----------|----------------|---------|</p>
+<p>| Request-Response | Synchronous operations | REST API | Definition generation |</p>
+<p>| Publish-Subscribe | Event notifications | Redis PubSub | Validation complete |</p>
+<p>| Batch Processing | Bulk operations | Scheduled jobs | Export definitions |</p>
+<p>| Circuit Breaker | Fault tolerance | Resilience lib | External API calls |</p>
+<p>| Retry with Backoff | Transient failures | Exponential delay | OpenAI requests |</p>
+
+<h3>5.2 API Contracts</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: API specifications]</strong></p>
+
+<h4>5.2.1 REST API Endpoints</h4>
+
+<pre><code>openapi: 3.0.0
+paths:
+  /api/v2/definitions:
+    post:
+      summary: Generate new definition
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [term, context]
+              properties:
+                term:
+                  type: string
+                context:
+                  type: object
+                  properties:
+                    organizational: array
+                    juridical: array
+                    legal_basis: array
+      responses:
+        200:
+          description: Definition generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Definition'</code></pre>
+
+<h4>5.2.2 Internal Service Contracts</h4>
+
+<pre><code>class ValidationContract(Protocol):
+    """Contract for validation services"""
+
+    async def validate(
+        self,
+        text: str,
+        context: Dict[str, Any]
+    ) -&gt; ValidationResult:
+        """Validate text against rules"""
+        ...
+
+    def get_rules(self) -&gt; List[ValidationRule]:
+        """Get active validation rules"""
+        ...</code></pre>
+
+<h3>5.3 Event Architecture</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Event-driven design]</strong></p>
+
+<h4>5.3.1 Event Catalog</h4>
+
+<p>| Event | Producer | Consumers | Payload | Frequency |</p>
+<p>|-------|----------|-----------|---------|-----------|</p>
+<p>| DefinitionCreated | DefinitionService | ValidationService, AuditService | Definition object | ~100/day |</p>
+<p>| ValidationCompleted | ValidationService | UIService, NotificationService | Validation results | ~100/day |</p>
+<p>| CacheInvalidated | CacheService | All services | Cache keys | ~10/hour |</p>
+<p>| [Event] | [Producer] | [Consumers] | [Payload] | [Frequency] |</p>
+
+<h4>5.3.2 Event Flow</h4>
+
+<pre><code>graph LR
+    subgraph "Event Bus"
+        EB[Redis PubSub]
+    end
+
+    DS[DefinitionService] --&gt;|publish| EB
+    VS[ValidationService] --&gt;|publish| EB
+
+    EB --&gt;|subscribe| AS[AuditService]
+    EB --&gt;|subscribe| NS[NotificationService]
+    EB --&gt;|subscribe| MS[MonitoringService]</code></pre>
+
+<h2>6. Beveiliging Architecture</h2>
+
+<h3>6.1 Beveiliging Zones</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Beveiliging boundaries and zones]</strong></p>
+
+<pre><code>graph TB
+    subgraph "DMZ"
+        LB[Load Balancer]
+        WAF[Web App Firewall]
+    end
+
+    subgraph "Application Zone"
+        API[API Gateway]
+        APP[Application Services]
+    end
+
+    subgraph "Data Zone"
+        DB[(Database)]
+        CACHE[(Cache)]
+    end
+
+    subgraph "Management Zone"
+        MON[Monitoring]
+        LOG[Logging]
+    end
+
+    LB --&gt; API
+    API --&gt; APP
+    APP --&gt; DB
+    APP --&gt; CACHE
+    APP --&gt; MON
+    APP --&gt; LOG</code></pre>
+
+<h3>6.2 Authentication & Authorization</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Access control design]</strong></p>
+
+<h4>6.2.1 Authentication Flow</h4>
+
+<pre><code>sequenceDiagram
+    participant User
+    participant App
+    participant Justid
+    participant API
+
+    User-&gt;&gt;App: Access Application
+    App-&gt;&gt;Justid: Redirect to Auth
+    Justid-&gt;&gt;User: Login Challenge
+    User-&gt;&gt;Justid: Credentials
+    Justid-&gt;&gt;App: Auth Token
+    App-&gt;&gt;API: Request + Token
+    API-&gt;&gt;API: Validate Token
+    API--&gt;&gt;App: Protected Resource</code></pre>
+
+<h4>6.2.2 Authorization Matrix</h4>
+
+<p>| Role | Generate | Validate | Export | Admin | Audit |</p>
+<p>|------|----------|----------|---------|--------|-------|</p>
+<p>| Guest | ❌ | ❌ | ❌ | ❌ | ❌ |</p>
+<p>| User | ✅ | ✅ | ✅ | ❌ | ❌ |</p>
+<p>| Power User | ✅ | ✅ | ✅ | ⚠️ | ✅ |</p>
+<p>| Admin | ✅ | ✅ | ✅ | ✅ | ✅ |</p>
+
+<h3>6.3 Data Protection</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Data security measures]</strong></p>
+
+<h4>6.3.1 Encryption Standards</h4>
+
+<p>| Data State | Method | Algorithm | Key Management |</p>
+<p>|------------|---------|-----------|----------------|</p>
+<p>| At Rest | Database Encryption | AES-256-GCM | Azure Key Vault |</p>
+<p>| In Transit | TLS | TLS 1.3 | Certificate Manager |</p>
+<p>| In Memory | Process Isolation | OS-level | N/A |</p>
+<p>| Backups | Encrypted Archives | AES-256 | HSM |</p>
+
+<h4>6.3.2 Data Classification</h4>
+
+<p>| Classification | Examples | Controls | Retention |</p>
+<p>|----------------|----------|----------|-----------|</p>
+<p>| Public | Published definitions | None | 10 years |</p>
+<p>| Internal | Draft definitions | Access control | 7 years |</p>
+<p>| Confidential | User data | Encryption + Access | 2 years |</p>
+<p>| Secret | API keys | Vault storage | Rotation |</p>
+
+<h2>7. Quality Attributes</h2>
+
+<h3>7.1 Prestaties Vereisten</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Prestaties targets and design]</strong></p>
+
+<h4>7.1.1 Prestaties Targets</h4>
+
+<p>| Operation | Target | Current | Design Approach |</p>
+<p>|-----------|---------|---------|-----------------|</p>
+<p>| Definition Generation | < 5s | 4.2s | Async processing, caching |</p>
+<p>| Validation Execution | < 1s | 0.8s | Parallel validation |</p>
+<p>| UI Response | < 200ms | 180ms | Client-side caching |</p>
+<p>| Export Generation | < 2s | 1.5s | Background processing |</p>
+<p>| API Response | < 500ms | 450ms | Connection pooling |</p>
+
+<h4>7.1.2 Prestaties Design Patterns</h4>
+
+<pre><code># Caching Strategy
+@cache_resource(ttl=3600)
+async def get_enrichment_data(term: str) -&gt; EnrichmentData:
+    """Cache external lookups for 1 hour"""
+    return await web_lookup_service.fetch(term)
+
+# Connection Pooling
+class DatabasePool:
+    def __init__(self):
+        self.pool = asyncpg.create_pool(
+            min_size=10,
+            max_size=100,
+            command_timeout=60
+        )</code></pre>
+
+<h3>7.2 Scalability Design</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: How system scales]</strong></p>
+
+<h4>7.2.1 Scaling Dimensions</h4>
+
+<p>| Dimension | Current | Target | Strategy |</p>
+<p>|-----------|---------|---------|----------|</p>
+<p>| Concurrent Users | 100 | 1000 | Horizontal scaling |</p>
+<p>| Definitions/Day | 500 | 5000 | Async processing |</p>
+<p>| Validation Rules | 45 | 100+ | Plugin architecture |</p>
+<p>| Data Volume | 1GB | 100GB | Partitioning |</p>
+
+<h4>7.2.2 Scaling Architecture</h4>
+
+<pre><code>graph TB
+    subgraph "Load Layer"
+        LB[Load Balancer]
+    end
+
+    subgraph "App Layer (Horizontal)"
+        APP1[App Instance 1]
+        APP2[App Instance 2]
+        APP3[App Instance N]
+    end
+
+    subgraph "Cache Layer"
+        REDIS[Redis Cluster]
+    end
+
+    subgraph "Data Layer"
+        DB1[(Primary DB)]
+        DB2[(Read Replica)]
+    end
+
+    LB --&gt; APP1
+    LB --&gt; APP2
+    LB --&gt; APP3
+
+    APP1 --&gt; REDIS
+    APP2 --&gt; REDIS
+    APP3 --&gt; REDIS
+
+    APP1 --&gt; DB1
+    APP2 --&gt; DB2
+    APP3 --&gt; DB2</code></pre>
+
+<h3>7.3 Reliability Patterns</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Fault tolerance and recovery]</strong></p>
+
+<h4>7.3.1 Reliability Measures</h4>
+
+<p>| Pattern | Implementatie | Recovery Time | Data Loss |</p>
+<p>|---------|----------------|---------------|-----------|</p>
+<p>| Circuit Breaker | External API calls | < 30s | None |</p>
+<p>| Retry Logic | Transient failures | < 5s | None |</p>
+<p>| Fallback | Cache responses | Immediate | None |</p>
+<p>| Health Checks | Kubernetes probes | < 10s | None |</p>
+<p>| Backup/Restore | Daily snapshots | < 4 hours | < 24 hours |</p>
+
+<h4>7.3.2 Failure Scenarios</h4>
+
+<pre><code>class ResilientAIService:
+    @circuit_breaker(failure_threshold=5, recovery_timeout=30)
+    @retry(max_attempts=3, backoff=exponential)
+    async def generate(self, prompt: str) -&gt; str:
+        try:
+            return await self.openai_client.complete(prompt)
+        except OpenAIError as e:
+            # Fallback to cached response
+            return await self.cache.get_similar(prompt)</code></pre>
+
+<h2>8. Uitrol Architecture</h2>
+
+<h3>8.1 Uitrol Model</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: How solution is deployed]</strong></p>
+
+<pre><code>graph TB
+    subgraph "Development"
+        DEV[Local Docker]
+    end
+
+    subgraph "Test"
+        TEST[Kubernetes Test Cluster]
+    end
+
+    subgraph "Acceptance"
+        ACC[Kubernetes ACC Cluster]
+    end
+
+    subgraph "Production"
+        subgraph "Region 1"
+            PROD1[Kubernetes Prod Cluster]
+        end
+        subgraph "Region 2"
+            PROD2[Kubernetes DR Cluster]
+        end
+    end
+
+    DEV --&gt; TEST
+    TEST --&gt; ACC
+    ACC --&gt; PROD1
+    PROD1 -.-&gt; PROD2</code></pre>
+
+<h3>8.2 Environment Strategy</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Environment configuration]</strong></p>
+
+<p>| Environment | Purpose | Scale | Data | Access |</p>
+<p>|-------------|---------|-------|------|---------|</p>
+<p>| Development | Feature development | 1 instance | Synthetic | Developers |</p>
+<p>| Test | Integration testing | 2 instances | Test data | Dev + Test |</p>
+<p>| Acceptance | User acceptance | 4 instances | Production-like | Business |</p>
+<p>| Production | Live system | 8+ instances | Real data | All users |</p>
+<p>| DR | Disaster recovery | 4 instances | Replicated | Emergency |</p>
+
+<h3>8.3 Release Management</h3>
+
+<p><strong>[TEMPLATE GUIDANCE: Uitrol and release process]</strong></p>
+
+<h4>8.3.1 Release Pipeline</h4>
+
+<pre><code>graph LR
+    CODE[Code Commit] --&gt; BUILD[Build &amp; Test]
+    BUILD --&gt; SCAN[Beveiliging Scan]
+    SCAN --&gt; PACKAGE[Container Build]
+    PACKAGE --&gt; DEPLOY_TEST[Deploy to Test]
+    DEPLOY_TEST --&gt; TEST[Run Tests]
+    TEST --&gt; DEPLOY_ACC[Deploy to ACC]
+    DEPLOY_ACC --&gt; UAT[User Acceptance]
+    UAT --&gt; DEPLOY_PROD[Deploy to Prod]
+    DEPLOY_PROD --&gt; VERIFY[Smoke Tests]</code></pre>
+
+<h4>8.3.2 Uitrol Configuration</h4>
+
+<pre><code># Kubernetes Uitrol Spec
+apiVersion: apps/v1
+kind: Uitrol
+metadata:
+  name: definitie-app
+spec:
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    spec:
+      containers:
+      - name: app
+        image: definitie-app:v2.0.0
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10</code></pre>
+
+<h2>9. References</h2>
+
+<h3>Internal Documentation</h3>
+<ul>
+<li>[Enterprise Architecture](../ENTERPRISE_ARCHITECTURE.md) - Business context and capabilities</li>
+<li>[Technical Architecture](../TECHNICAL_ARCHITECTURE.md) - Implementatie details</li>
+<li>Test Strategy - Testen approach (document in planning)</li>
+<li>API Documentation - Detailed API specs (see /docs/technisch/ for technical docs)</li>
+</ul>
+
+<h3>Architecture Decisions</h3>
+<p><!-- ADRs zijn geïntegreerd in de canonical architecture documenten --></p>
+<p><!-- Zie sectie 7 van het SOLUTION_ARCHITECTURE.md hoofddocument voor solution beslissingen --></p>
+
+<h3>External References</h3>
+<ul>
+<li>[ASTRA Framework](https://ASTRA.justice.nl) - Architecture standards</li>
+<li>[OpenAPI Specification](https://swagger.io/specification/) - API standards</li>
+<li>[Kubernetes Documentation](https://kubernetes.io/docs/) - Container orchestration</li>
+<li>[Python AsyncIO](https://docs.python.org/3/library/asyncio.html) - Async programming</li>
+</ul>
+
+<h3>Technical Standards</h3>
+<ul>
+<li>[ISO/IEC 25010](https://iso25000.com/index.php/en/iso-25000-standards/iso-25010) - Quality attributes</li>
+<li>[OWASP Top 10](https://owasp.org/www-project-top-ten/) - Beveiliging guidelines</li>
+<li>[REST API Guidelines](https://restfulapi.net/) - API best practices</li>
+</ul>
+
+<p>---</p>
+
+<h2>Document Control</h2>
+
+<p><strong>Last Review</strong>: [Date]</p>
+<p><strong>Next Review</strong>: [Date]</p>
+<p><strong>Change Log</strong>:</p>
+<p>| Date | Versie | Change | Author |</p>
+<p>|------|---------|--------|---------|</p>
+<p>| 2025-09-XX | 2.0.0 | Initial consolidated version | Architecture Team |</p>
+<p>| [Date] | [Versie] | [Change] | [Author] |</p>
+
+<h2>Approval</h2>
+
+<p>| Role | Name | Signature | Date |</p>
+<p>|------|------|-----------|------|</p>
+<p>| Solution Architect | [Name] | [Digital signature] | [Date] |</p>
+<p>| Technical Lead | [Name] | [Digital signature] | [Date] |</p>
+<p>| Beveiliging Architect | [Name] | [Digital signature] | [Date] |</p>
+
+<p>---</p>
+
+<p><em>This document is maintained by the Solution Architecture Team and reviewed quarterly.</em></p>
+<p><em>For questions or updates, contact: solution-architects@justice.nl</em></p>
+
+  </div>
+</body>
+</html>

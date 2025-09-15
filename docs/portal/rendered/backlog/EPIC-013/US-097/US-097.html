@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Planningweergave (sprint/epic/us/bug) en prioriteringscontrols in Portal</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-097</p>
+<p>epic: EPIC-013</p>
+<p>applies_to: definitie-app@current</p>
+<p>aangemaakt: 11-09-2025</p>
+<p>bijgewerkt: 11-09-2025</p>
+<p>owner: product</p>
+<p>prioriteit: HOOG</p>
+<p>status: IN_UITVOERING</p>
+<p>story_points: 5</p>
+<p>canonical: true</p>
+<p>last_verified: 13-09-2025</p>
+<p>titel: Planningweergave (sprint/epic/us/bug) en prioriteringscontrols in Portal</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-090</li>
+<p>---</p>
+</ul>
+
+<h1>US-097: Planningweergave (sprint/epic/us/bug) en prioriteringscontrols in Portal</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als</strong> product owner wil ik in de Portal de geplande volgorde en prioriteit van EPICs/US/Bugs kunnen zien (per sprint), <strong>zodat</strong> ik eenvoudig de uitvoering kan sturen en communiceren.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[x] Sorteermodus “Planning”: sorteer op sprintnummer → prioriteit → type (EPIC→US→BUG)</li>
+<li>[x] Groeperen per sprint (als sprints bestaan): binnen sprint EPIC → US → BUG; anders één hiërarchie</li>
+<li>[x] Sprintfilter zichtbaar bij sprints (MVP: single-select)</li>
+<li>[x] Per item: status/prioriteit badges; owner; SP (indien aanwezig); klik opent bronbestand</li>
+<li>[x] Items zonder sprint onder label “Backlog (geen sprint)”</li>
+<li>[x] Tellingen: per EPIC (US/BUG) en per US (BUG)</li>
+<li>[x] Sprintheader toont SP-subtotaal</li>
+<li>[x] Empty-state wanneer selectie geen items oplevert</li>
+<li>[ ] Sprintfilter multi-select (vervolgstap)</li>
+<li>[ ] Uitklapbare groepen (vervolgstap)</li>
+</ul>
+
+<h2>Implementatienotities</h2>
+<ul>
+<li>Generator: `planning.sprint_number`, `planning.priority_rank`, `planning.type_rank` gebruikt</li>
+<li>UI: groeperen per sprint automatisch; sprintfilter (single-select) verschijnt alleen indien sprints bestaan; sorteeropties uitgebreid</li>
+</ul>
+
+<h2>Verificatie</h2>
+<ul>
+<li>Testdataset met gemixte sprints (bv. Sprint 36/37/38) sorteert en groepeert correct</li>
+<li>Filter op één sprint toont alleen items uit die sprint</li>
+<li>Items zonder sprint worden gegroepeerd onder “Backlog (geen sprint)”</li>
+<li>SP-subtotaal zichtbaar in sprintheader; EPIC/US tellers kloppen</li>
+</ul>
+
+  </div>
+</body>
+</html>

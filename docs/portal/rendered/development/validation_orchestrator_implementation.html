@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validation Orchestrator V2 — Implementatie Guide</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Validation Orchestrator V2 — Implementatie Guide</h1>
+
+<p>---</p>
+<p>document: Validation Orchestrator Implementatie Guide</p>
+<p>version: 0.1</p>
+<p>status: CONCEPT</p>
+<p>type: Developer Guide</p>
+<p>parent: # ../architecture/validation_orchestrator_v2.md (gearchiveerd)</p>
+<p>related:</p>
+<ul>
+<li> - ../architecture/contracts/validation_result_contract.md</li>
+<li> - ../architecture/contracts/schemas/validation_result.schema.json</li>
+<li> - ../workflows/validation_orchestrator_rollout.md</li>
+<p>owner: Dev Lead</p>
+<p>created: 29-08-2025</p>
+<p>updated: 29-08-2025</p>
+<p>tags: [validation, orchestrator, implementation, async, schema]</p>
+<p>---</p>
+</ul>
+
+<h2>Doel</h2>
+<p>Praktische leidraad voor het implementeren van <code>ValidationOrchestratorV2</code> conform de architectuur en het <code>ValidationResult</code> contract. Richt zich op interfacehandtekeningen, foutbeleid, schema‑binding en batch‑semantiek.</p>
+
+<h2>Interfaces</h2>
+
+<pre><code>from typing import Iterable, Mapping, TypedDict
+from dataclasses import dataclass, field
+from uuid import UUID, uuid4
+
+class ValidationResult(TypedDict):
+    version: str
+    overall_score: float
+    is_acceptable: bool
+    violations: list[dict]
+    passed_rules: list[str]
+    detailed_scores: dict[str, float]
+    improvement_suggestions: list[dict] | None
+    system: dict | None
+
+@dataclass(frozen=True)
+class ValidationContext:
+    correlation_id: UUID | None = None
+    profile: str | None = None
+    locale: str | None = None
+    trace_parent: str | None = None
+    feature_flags: Mapping[str, bool] = field(default_factory=dict)
+
+@dataclass(frozen=True)
+class ValidationRequest:
+    begrip: str
+    text: str
+    ontologische_categorie: str | None = None
+    context: ValidationContext | None = None</code></pre>
+
+<h2>Handtekeningen</h2>
+
+<pre><code>class ValidationOrchestratorInterface(Protocol):
+    async def validate_text(
+        self,
+        begrip: str,
+        text: str,
+        ontologische_categorie: str | None = None,
+        context: ValidationContext | None = None,
+    ) -&gt; ValidationResult: ...
+
+    async def validate_definition(
+        self,
+        definition: Definition,
+        context: ValidationContext | None = None,
+    ) -&gt; ValidationResult: ...
+
+    async def batch_validate(
+        self,
+        items: Iterable[ValidationRequest],
+        max_concurrency: int = 1,
+    ) -&gt; list[ValidationResult]: ...</code></pre>
+
+<h2>Foutbeleid</h2>
+<ul>
+<li>Operationele fouten (timeouts/upstream) → degraded `ValidationResult` met cataloguscode (`TMO-*`, `UPS-*`, `INT-*`) en `system.error` gevuld; `category` = `system` in `violations[*]`.</li>
+<li>Programmeer/contractschendingen → raise (early fail), niet mappen.</li>
+<li>Cancellation: laat `asyncio.CancelledError` bubbelen.</li>
+</ul>
+
+<h2>Correlation ID</h2>
+<ul>
+<li>Indien `context.correlation_id is None`, genereer `uuid4()` en zet in `system.correlation_id` van de output.</li>
+<li>Propageren naar onderliggende services (logging/telemetry).</li>
+</ul>
+
+<h2>Batch‑semantiek</h2>
+<ul>
+<li>Outputvolgorde == inputvolgorde, ook bij `max_concurrency > 1` (gebruik index‑zipper of gather‑ordering).</li>
+<li>Start met sequentieel (`max_concurrency=1`); verhoog pas na reentrancy‑check.</li>
+</ul>
+
+<h2>Schema‑binding</h2>
+<ul>
+<li>`ValidationResult` volgen volgens `validation_result.schema.json`.</li>
+<li>Test: valideer responses in contracttests; geen runtime‑validatie in hot path tenzij via feature flag/sampling.</li>
+</ul>
+
+<h2>Voorbeeld Implementatie (Skeleton)</h2>
+
+<pre><code>class ValidationOrchestratorV2:
+    def __init__(self, validation_service, cleaning_service=None):
+        self.validation_service = validation_service
+        self.cleaning_service = cleaning_service
+
+    async def validate_text(self, begrip, text, ontologische_categorie=None, context=None):
+        cid = (context.correlation_id if context and context.correlation_id else uuid4())
+        cleaned = text
+        if self.cleaning_service is not None:
+            res = await self.cleaning_service.clean_text(text, begrip)
+            cleaned = res.cleaned_text
+        result = await self.validation_service.validate_definition(
+            begrip, cleaned, ontologische_categorie, {"correlation_id": str(cid)}
+        )
+        # Ensure contract fields
+        result.setdefault("version", "1.0.0")
+        sys = result.get("system") or {}
+        sys.setdefault("correlation_id", str(cid))
+        result["system"] = sys
+        return result
+
+    async def validate_definition(self, definition, context=None):
+        return await self.validate_text(
+            definition.begrip,
+            definition.definitie,
+            getattr(definition, "ontologische_categorie", None),
+            context,
+        )
+
+    async def batch_validate(self, items, max_concurrency=1):
+        # Start sequentieel; parallelisatie volgt na reentrancy‑bevestiging
+        results = []
+        for req in items:
+            results.append(
+                await self.validate_text(
+                    req.begrip, req.text, req.ontologische_categorie, req.context
+                )
+            )
+        return results</code></pre>
+
+<h2>Backward Compatibility</h2>
+<ul>
+<li>Oud gepind schema (`validation_result_v1.0.0.schema.json`) gebruikt `metadata` i.p.v. `system` en andere veldnamen.</li>
+<li>Producer‑richtlijn: produceer ALTIJD “latest” (met `system`).</li>
+<li>Consumer‑adapter (indien nodig): map `metadata.*` → `system.*` (o.a. `metadata.correlation_id` → `system.correlation_id`).</li>
+</ul>
+
+<h2>Tests (uittreksel)</h2>
+<ul>
+<li>JSON Schema validatie voor responses (happy/edge/degraded).</li>
+<li>UUID‑validatie voor `system.correlation_id` (policy‑test).</li>
+<li>Batch ordering en cancellation gedrag.</li>
+</ul>
+
+<p>---</p>
+<p><em>Deze guide evolveert mee met implementatiefeedback en lessons learned uit rollout.</em></p>
+
+  </div>
+</body>
+</html>
