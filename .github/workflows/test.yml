@@ -44,9 +44,9 @@ jobs:
 
     - name: Run type checking
       run: |
-        # Run mypy if available
+        # Run mypy if available (exclude non-package dir with hyphen)
         if command -v mypy &> /dev/null; then
-          mypy src/ --ignore-missing-imports
+          mypy src/ --ignore-missing-imports --exclude 'src/toetsregels/sets/per-categorie'
         fi
 
     - name: Run tests with coverage

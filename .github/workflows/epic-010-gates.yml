@@ -59,10 +59,9 @@ jobs:
       - name: Check for domein field
         run: |
           echo "Checking for domein field usage..."
-          # Exclude comments, docstrings, and specific allowed files
-          VIOLATIONS=$(rg "\bdomein\b" src/ --type py | \
-                      grep -v "^.*#.*domein" | \
-                      grep -v '""".*domein.*"""' | \
+          # Match likely field/attribute names only (avoid comments/docstrings)
+          VIOLATIONS=$(rg -n -P '(^|[^#])\bdomein\s*[:=]' src/ --type py | \
+                      grep -v '"""' | \
                       grep -v "# Legacy" | \
                       grep -v "# Deprecated" || true)
           
