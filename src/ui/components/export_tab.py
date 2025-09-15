@@ -459,34 +459,80 @@ class ExportTab:
                                 "id": def_rec.id,
                                 "status": def_rec.status,
                                 "categorie": def_rec.categorie,
-                                "domein": def_rec.domein,
-                                "datum_voorstel": def_rec.created_at,
-                                "voorsteller": def_rec.created_by or "Systeem",
-                                "versie": def_rec.versie,
+                                # Optionele velden; sommige modellen hebben deze niet
+                                "datum_voorstel": getattr(def_rec, "created_at", None),
+                                "voorsteller": getattr(def_rec, "created_by", None) or "Systeem",
+                                "versie": getattr(def_rec, "version_number", None),
                             }
                             if include_metadata
                             else {}
                         ),
-                        "context_dict": def_rec.context or {},
+                        # Context kan verschillen per record; indien aanwezig meegeven
+                        "context_dict": getattr(def_rec, "context", {}) or {},
                     }
 
-                    # Gebruik nieuwe export service
-                    result = self.service.export_definition(
-                        definition_id=def_rec.id,
-                        ui_data=additional_data,
-                        format=format_type.lower(),
-                    )
+                    # Probeer sync export via service adapter
+                    try:
+                        result = self.service.export_definition(
+                            definition_id=def_rec.id,
+                            ui_data=additional_data,
+                            format=format_type.lower(),
+                        )
+                    except NotImplementedError:
+                        # Fallback naar async export indien validatiegate actief is
+                        from services.container import get_container
+                        from services.export_service import ExportFormat
+                        from ui.helpers.async_bridge import run_async
 
-                    if result["success"] and "content" in result:
-                        # Voor bulk export, verzamel content
-                        # Voor nu tonen we download voor eerste definitie als voorbeeld
-                        if def_rec == filtered_data[0]:
-                            timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
-                            filename = f"definitie_{def_rec.begrip}_{timestamp}.{format_type.lower()}"
+                        container = get_container()
+                        export_service = container.export_service()
+
+                        fmt_map = {
+                            "txt": ExportFormat.TXT,
+                            "json": ExportFormat.JSON,
+                            "csv": ExportFormat.CSV,
+                        }
+                        export_format = fmt_map.get(format_type.lower())
+                        if not export_format:
+                            st.warning(
+                                f"Formaat {format_type} wordt nog niet ondersteund in async export"
+                            )
+                            continue
+
+                        path = run_async(
+                            export_service.export_definitie_async(
+                                definitie_id=def_rec.id,
+                                definitie_record=None,
+                                additional_data=additional_data,
+                                format=export_format,
+                            )
+                        )
+                        result = {"success": True, "path": path}
+
+                    # Toon downloadknop voor de eerste definitie
+                    if result.get("success") and def_rec == filtered_data[0]:
+                        file_bytes = None
+                        filename = None
+                        if "content" in result:
+                            file_bytes = result["content"]
+                        elif "path" in result and result["path"]:
+                            try:
+                                with open(result["path"], "rb") as f:
+                                    file_bytes = f.read()
+                            except Exception:
+                                file_bytes = None
+                            # Extract filename if available
+                            filename = result.get("filename")
+
+                        if file_bytes:
+                            if not filename:
+                                timestamp = datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
+                                safe_begrip = (def_rec.begrip or "definitie").replace(" ", "_")
+                                filename = f"definitie_{safe_begrip}_{timestamp}.{format_type.lower()}"
 
                             st.download_button(
                                 label=f"📥 Download {format_type} (Voorbeeld: {def_rec.begrip})",
-                                data=result["content"],
+                                data=file_bytes,
                                 file_name=filename,
                                 mime=self._get_mime_type(format_type),
                             )
