@@ -10,6 +10,7 @@ import json  # JSON verwerking voor metadata opslag
 import logging  # Logging faciliteiten voor debug en monitoring
 import os  # Operating system interface voor bestandsoperaties
 import pickle  # Python object serialisatie voor cache data
+from collections import OrderedDict
 from collections.abc import Callable
 from datetime import (  # Datum en tijd voor TTL management, timezone
     UTC,
@@ -208,6 +209,8 @@ class FileCache:
 # Global cache instance
 _cache_config = CacheConfig()
 _cache = FileCache(_cache_config)
+# Global stats for decorator-based cache
+_stats = {"hits": 0, "misses": 0, "evictions": 0}
 
 
 def cached(ttl: int | None = None, cache_key_func: Callable | None = None):
@@ -237,10 +240,12 @@ def cached(ttl: int | None = None, cache_key_func: Callable | None = None):
             cached_result = _cache.get(cache_key)
             if cached_result is not None:
                 logger.debug(f"Cache hit for {func.__name__}")
+                _stats["hits"] += 1
                 return cached_result
 
             # Cache miss - execute function
             logger.debug(f"Cache miss for {func.__name__}")
+            _stats["misses"] += 1
             result = func(*args, **kwargs)
 
             # Store in cache
@@ -271,13 +276,25 @@ def cache_gpt_call(prompt: str, model: str | None = None, **kwargs) -> str:
 
 
 def get_cache_stats() -> dict[str, Any]:
-    """Get global cache statistics."""
-    return _cache.get_stats()
+    """Get global cache statistics (decorator + file cache)."""
+    file_stats = _cache.get_stats()
+    total = _stats["hits"] + _stats["misses"]
+    hit_rate = (float(_stats["hits"]) / total) if total else 0.0
+    return {
+        "hits": _stats["hits"],
+        "misses": _stats["misses"],
+        "hit_rate": round(hit_rate, 2),
+        "evictions": _stats.get("evictions", 0),
+        **{f"file_{k}": v for k, v in file_stats.items()},
+    }
 
 
 def clear_cache():
     """Clear global cache."""
     _cache.clear()
+    _stats["hits"] = 0
+    _stats["misses"] = 0
+    # keep evictions as a running metric for manager; doesn't affect decorator tests
 
 
 def configure_cache(
@@ -406,3 +423,154 @@ def cache_async_result(ttl: int | None = None):
         return wrapper
 
     return decorator
+
+
+class CacheManager:
+    """Thread-safe in-memory cache with simple file persistence and LRU eviction."""
+
+    def __init__(self, cache_dir: str | None = None, max_size: int = 1000, default_ttl: int = 3600):
+        self.cache_dir = str(cache_dir or "cache")
+        Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
+        self.max_size = int(max_size)
+        self.default_ttl = int(default_ttl)
+        try:
+            import threading
+
+            self._lock = threading.Lock()
+        except Exception:  # pragma: no cover - extremely unlikely
+            self._lock = None
+        # key -> (value, expires_at)
+        self._store: OrderedDict[str, tuple[Any, float]] = OrderedDict()
+        self._hits = 0
+        self._misses = 0
+        self._evictions = 0
+
+    def _now(self) -> float:
+        return datetime.now(UTC).timestamp()
+
+    def _hash(self, key: str) -> str:
+        return hashlib.md5(key.encode()).hexdigest()
+
+    def _file_path(self, key: str) -> Path:
+        return Path(self.cache_dir) / f"cm_{self._hash(key)}.pkl"
+
+    def _expired(self, expires_at: float) -> bool:
+        return self._now() > expires_at
+
+    def set(self, key: str, value: Any, ttl: int | None = None) -> None:
+        ttl = int(ttl if ttl is not None else self.default_ttl)
+        expires_at = self._now() + ttl
+        if self._lock:
+            with self._lock:
+                self._set_locked(key, value, expires_at)
+        else:
+            self._set_locked(key, value, expires_at)
+
+    def _set_locked(self, key: str, value: Any, expires_at: float) -> None:
+        # Update memory (move to end for LRU)
+        if key in self._store:
+            self._store.pop(key, None)
+        self._store[key] = (value, expires_at)
+        # Evict if over capacity
+        while len(self._store) > self.max_size:
+            evicted_key, _ = self._store.popitem(last=False)
+            self._evictions += 1
+            _stats["evictions"] = _stats.get("evictions", 0) + 1
+            # Remove file for evicted key
+            try:
+                self._file_path(evicted_key).unlink(missing_ok=True)  # type: ignore[call-arg]
+            except TypeError:  # Python <3.8
+                fp = self._file_path(evicted_key)
+                if fp.exists():
+                    fp.unlink()
+        # Persist to disk
+        try:
+            with open(self._file_path(key), "wb") as f:
+                pickle.dump({"value": value, "expires_at": expires_at}, f)
+        except Exception as e:
+            logger.debug(f"CacheManager: failed to persist key {key}: {e}")
+
+    def get(self, key: str, default: Any | None = None) -> Any | None:
+        if self._lock:
+            with self._lock:
+                return self._get_locked(key, default)
+        return self._get_locked(key, default)
+
+    def _get_locked(self, key: str, default: Any | None) -> Any | None:
+        item = self._store.get(key)
+        if item is not None:
+            value, expires_at = item
+            if not self._expired(expires_at):
+                # Mark as recently used
+                self._store.move_to_end(key)
+                self._hits += 1
+                return value
+            # Expired
+            self._store.pop(key, None)
+            try:
+                self._file_path(key).unlink(missing_ok=True)  # type: ignore[call-arg]
+            except TypeError:
+                fp = self._file_path(key)
+                if fp.exists():
+                    fp.unlink()
+
+        # Try file persistence
+        fp = self._file_path(key)
+        if fp.exists():
+            try:
+                with open(fp, "rb") as f:
+                    payload = pickle.load(f)
+                value = payload.get("value")
+                expires_at = float(payload.get("expires_at", 0))
+                if not self._expired(expires_at):
+                    # Warm memory
+                    self._store[key] = (value, expires_at)
+                    self._hits += 1
+                    return value
+                # Expired on disk
+                fp.unlink()
+            except Exception as e:
+                logger.debug(f"CacheManager: failed to read persisted key {key}: {e}")
+
+        self._misses += 1
+        return default
+
+    def delete(self, key: str) -> None:
+        if self._lock:
+            with self._lock:
+                self._store.pop(key, None)
+        else:
+            self._store.pop(key, None)
+        try:
+            self._file_path(key).unlink(missing_ok=True)  # type: ignore[call-arg]
+        except TypeError:
+            fp = self._file_path(key)
+            if fp.exists():
+                fp.unlink()
+
+    def clear(self) -> None:
+        if self._lock:
+            with self._lock:
+                self._store.clear()
+        else:
+            self._store.clear()
+        # Remove files written by CacheManager
+        try:
+            for p in Path(self.cache_dir).glob("cm_*.pkl"):
+                try:
+                    p.unlink()
+                except Exception:
+                    pass
+        except Exception:
+            pass
+
+    def get_stats(self) -> dict[str, Any]:
+        total = self._hits + self._misses
+        hit_rate = (float(self._hits) / total) if total else 0.0
+        return {
+            "hits": self._hits,
+            "misses": self._misses,
+            "hit_rate": round(hit_rate, 2),
+            "evictions": self._evictions,
+            "entries": len(self._store),
+        }

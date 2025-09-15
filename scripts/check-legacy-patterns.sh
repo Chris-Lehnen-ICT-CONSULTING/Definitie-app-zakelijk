@@ -67,13 +67,13 @@ check_warning() {
 echo ""
 echo "1. Legacy Imports Check"
 echo "-----------------------"
-check_pattern "from src\.models\.generation_result import" "generation_result imports" "."
+check_pattern "from src\\.models\\.generation_result import" "generation_result imports" "."
 
 echo ""
 echo "2. Deprecated Attributes Check"
 echo "------------------------------"
-# Exclude ValidationResult.overall_score which is valid
-DEPRECATED_MATCHES=$(rg "\.overall_score|\.best_iteration" src/services/ --type py 2>/dev/null | \
+# Exclude ValidationResult.overall_score which is valid; scope to services to avoid false positives
+DEPRECATED_MATCHES=$(rg "\\.overall_score|\\.best_iteration" src/services/ --type py 2>/dev/null | \
                     grep -v "ValidationResult" | \
                     grep -v "if __name__" | \
                     grep -v "# Test" | \
@@ -94,15 +94,14 @@ echo ""
 echo "3. String Context Check"
 echo "-----------------------"
 # Match request.context but NOT request.context_dict or request.context_*
-check_pattern "request\.context(?!_|\w)" "string context usage"
+check_pattern "request\\.context(?!_|\\w)" "string context usage"
 
 echo ""
 echo "4. Domein Field Check"
 echo "--------------------"
-# Exclude comments and docstrings
-DOMEIN_MATCHES=$(rg "\bdomein\b" src/ --type py 2>/dev/null | \
-                grep -v "^.*#.*domein" | \
-                grep -v '""".*domein.*"""' | \
+# Beperk tot waarschijnlijke veld/attribuut-namen: 'domein' als annotatie of assignment, geen comments/docstrings
+DOMEIN_MATCHES=$(rg -n '(^|[^#])\\bdomein\\s*[:=]' src/ --type py 2>/dev/null | \
+                grep -v '"""' | \
                 grep -v "# Legacy" | \
                 grep -v "# Deprecated" || true)
 
@@ -119,16 +118,16 @@ fi
 echo ""
 echo "5. Services Architecture Check"
 echo "------------------------------"
-check_pattern "asyncio\.run\(" "asyncio.run in services" "src/services/"
+check_pattern "asyncio\\.run\\(" "asyncio.run in services" "src/services/"
 check_pattern "import streamlit|from streamlit" "streamlit imports in services" "src/services/" "# Legacy|# Deprecated"
 
 echo ""
 echo "6. Sync Wrapper Usage Check (Warning)"
 echo "-------------------------------------"
 # Check for sync wrappers outside of allowed locations
-SYNC_VIOLATIONS=$(rg "generate_definition_sync|search_web_sources\(" src/ --type py 2>/dev/null | \
-                 grep -v "async_bridge\.py" | \
-                 grep -v "service_factory\.py" | \
+SYNC_VIOLATIONS=$(rg "generate_definition_sync|search_web_sources\\(" src/ --type py 2>/dev/null | \
+                 grep -v "async_bridge\\.py" | \
+                 grep -v "service_factory\\.py" | \
                  grep -v "from.*import" | \
                  grep -v "def generate_definition_sync" | \
                  grep -v "def search_web_sources" || true)
@@ -167,3 +166,4 @@ else
     echo "These patterns were removed in EPIC-010 refactoring."
     exit 1
 fi
+
