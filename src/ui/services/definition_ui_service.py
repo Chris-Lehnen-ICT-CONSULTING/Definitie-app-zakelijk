@@ -263,7 +263,7 @@ class DefinitionUIService:
 
             # Check if transition is allowed
             if not self.workflow_service.can_change_status(
-                current_status=definitie.status, new_status="REVIEW"
+                current_status=definitie.status, new_status="review"
             ):
                 return {
                     "success": False,

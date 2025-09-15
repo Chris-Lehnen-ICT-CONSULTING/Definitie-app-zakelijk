@@ -576,66 +576,62 @@ def generate_or_retrieve_definition(
             "categorie": categorie.value,
         }
 
-        # Step 3: Generate using integrated service
+        # Step 3: Generate using integrated service (async API, V2 dict response)
         try:
-            # ServiceAdapter.generate_definition is sync (legacy-compatibel)
-            integrated_result = self._get_integrated_service().generate_definition(
+            # ServiceAdapter.generate_definition is async and returns a V2 UIResponse-like dict
+            integrated_result = await self._get_integrated_service().generate_definition(
                 begrip, context
             )
 
-            if integrated_result.success:
-                # Save to database if we have a definitie_record
-                if integrated_result.definitie_record:
-                    # Update record with additional metadata
-                    integrated_result.definitie_record.created_by = (
-                        created_by or "integrated_service"
-                    )
+            # Expect a dict: { success: bool, definitie_gecorrigeerd: str, final_score: float, ... }
+            if isinstance(integrated_result, dict) and integrated_result.get("success"):
+                definitie_text = (
+                    integrated_result.get("definitie_gecorrigeerd")
+                    or integrated_result.get("definitie_origineel")
+                    or ""
+                )
 
-                    # Save to database
-                    saved_id = self.repository.create_definitie(
-                        integrated_result.definitie_record
-                    )
+                # Derive validation score from canonical fields
+                final_score = integrated_result.get("final_score")
+                if final_score is None:
+                    vd = integrated_result.get("validation_details") or {}
+                    final_score = vd.get("overall_score")
 
-                    if saved_id:
-                        # Retrieve saved record
-                        saved_record = self.repository.get_definitie(saved_id)
-                        logger.info(
-                            f"Successfully saved definition for '{begrip}' with ID {saved_id}"
-                        )
-                        return check_result, integrated_result, saved_record
-                    logger.error(
-                        f"Failed to save definition for '{begrip}' to database"
-                    )
-                    return check_result, integrated_result, None
-                # Handle legacy result format
-                if integrated_result.definitie_gecorrigeerd:
-                    # Create record from legacy format
-                    record = DefinitieRecord(
-                        begrip=begrip,
-                        definitie=integrated_result.definitie_gecorrigeerd,
-                        categorie=categorie.value,
-                        organisatorische_context=organisatorische_context,
-                        juridische_context=juridische_context,
-                        status=DefinitieStatus.REVIEW.value,
-                        validation_score=(
-                            integrated_result.validation_result.overall_score
-                            if integrated_result.validation_result
-                            else None
-                        ),
-                        source_type=SourceType.GENERATED.value,
-                        source_reference=f"IntegratedService_{integrated_result.service_mode.value}",
-                        created_by=created_by or "integrated_service",
-                    )
+                record = DefinitieRecord(
+                    begrip=begrip,
+                    definitie=definitie_text,
+                    categorie=categorie.value,
+                    organisatorische_context=organisatorische_context,
+                    juridische_context=juridische_context,
+                    status=DefinitieStatus.REVIEW.value,
+                    validation_score=(float(final_score) if final_score is not None else None),
+                    source_type=SourceType.GENERATED.value,
+                    source_reference="IntegratedService_V2",
+                    created_by=created_by or "integrated_service",
+                )
 
-                    saved_id = self.repository.create_definitie(record)
-                    if saved_id:
-                        saved_record = self.repository.get_definitie(saved_id)
-                        return check_result, integrated_result, saved_record
-
+                saved_id = self.repository.create_definitie(record)
+                if saved_id:
+                    saved_record = self.repository.get_definitie(saved_id)
+                    logger.info(
+                        f"Successfully saved definition for '{begrip}' with ID {saved_id}"
+                    )
+                    return check_result, integrated_result, saved_record
+                logger.error(
+                    f"Failed to save definition for '{begrip}' to database"
+                )
                 return check_result, integrated_result, None
-            logger.warning(
-                f"Integrated service failed for '{begrip}': {integrated_result.error_message}"
-            )
+
+            # Non-success result: return as-is for caller to inspect
+            if isinstance(integrated_result, dict):
+                logger.warning(
+                    f"Integrated service failed for '{begrip}': "
+                    f"{integrated_result.get('error_message') or integrated_result.get('message') or 'unknown error'}"
+                )
+            else:
+                logger.warning(
+                    f"Integrated service returned unexpected result type for '{begrip}': {type(integrated_result).__name__}"
+                )
             return check_result, integrated_result, None
 
         except Exception as e:
