@@ -30,15 +30,41 @@ class APIConfigAdapter:
     def __init__(self, config: APIConfig):
         self.config = config
 
-    def get_model_config(self) -> dict[str, Any]:
+    def get_model_config(self, model: str | None = None) -> dict[str, Any]:
+        m = model or self.config.default_model
+        settings = self.config.model_settings or {}
+        entry = settings.get(m)
+        if entry:
+            return {
+                "model": m,
+                "temperature": entry.get("temperature", self.config.default_temperature),
+                "max_tokens": entry.get("max_tokens", self.config.default_max_tokens),
+            }
+        # Fallback to defaults when model not found
         return {
-            "model": self.config.default_model,
+            "model": m,
             "temperature": self.config.default_temperature,
             "max_tokens": self.config.default_max_tokens,
         }
 
-    def get_gpt_call_params(self) -> dict[str, Any]:
-        return self.get_model_config()
+    def get_gpt_call_params(
+        self,
+        model: str | None = None,
+        temperature: float | None = None,
+        max_tokens: int | None = None,
+        **kwargs,
+    ) -> dict[str, Any]:
+        base = self.get_model_config(model)
+        # Apply explicit overrides (None preserves defaults)
+        if temperature is not None:
+            base["temperature"] = temperature
+        if max_tokens is not None:
+            base["max_tokens"] = max_tokens
+        if model is not None:
+            base["model"] = model
+        # Merge extra parameters
+        base.update(kwargs)
+        return base
 
     def ensure_api_key(self) -> str:
         key = self.config.openai_api_key or ""

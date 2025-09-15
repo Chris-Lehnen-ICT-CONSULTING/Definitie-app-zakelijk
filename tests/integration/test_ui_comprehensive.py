@@ -493,8 +493,8 @@ class TestUIIntegration:
             mock_instance = mock_toetser.return_value
             mock_instance.validate_definition.return_value = ["No issues found"]
 
-            with patch("config.config_loader.laad_toetsregels") as mock_rules:
-                mock_rules.return_value = {"ESS01": {"uitleg": "Test rule"}}
+            with patch("toetsregels.loader.load_toetsregels") as mock_rules:
+                mock_rules.return_value = {"regels": {"ESS01": {"uitleg": "Test rule"}}}
 
                 # Test backend integration
                 with patch.object(

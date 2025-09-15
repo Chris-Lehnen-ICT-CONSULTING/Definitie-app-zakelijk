@@ -22,7 +22,7 @@ Voorbeelden van opschoning:
 
 import re  # Reguliere expressies voor patroon matching
 
-from config.config_loader import laad_verboden_woorden  # Verboden woorden configuratie
+from config.verboden_woorden import laad_verboden_woorden  # Verboden woorden configuratie
 
 # Geïsoleerde module voor opschoning van GPT-gegenereerde definities
 # Verwijdert alle verboden aanhefconstructies, dwingt hoofdletter en punt af
@@ -77,10 +77,13 @@ def opschonen(definitie: str, begrip: str) -> str:
 
     # Stap 2: Laad verboden woordenlijst uit centrale configuratie
     config = laad_verboden_woorden()  # Laad configuratie uit JSON bestand
-    # Haal verboden woorden lijst uit config (ondersteunt zowel dict als lijst formaat)
-    verboden_lijst = (
-        config.get("verboden_woorden", []) if isinstance(config, dict) else []
-    )  # Extract lijst met veilige fallback
+    # Haal verboden woorden lijst (ondersteunt zowel dict als lijst formaat)
+    if isinstance(config, dict):
+        verboden_lijst = config.get("verboden_woorden", [])
+    elif isinstance(config, list):
+        verboden_lijst = config
+    else:
+        verboden_lijst = []
 
     # Stap 3: Genereer regex patronen voor alle verboden beginconstructies
     begrip_esc = re.escape(
