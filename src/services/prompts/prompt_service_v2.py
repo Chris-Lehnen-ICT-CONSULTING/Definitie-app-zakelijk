@@ -313,53 +313,11 @@ class PromptServiceV2:
     # Epic 3: Prompt Augmentation
     # ==============================
     def build_prompt(self, request: GenerationRequest) -> str:
-        """
-        Synchronous wrapper for build_generation_prompt.
-
-        Used for compatibility with sync test code and legacy interfaces.
-
-        US-043: Now uses HybridContextManager through async build_generation_prompt.
-
-        Args:
-            request: GenerationRequest with begrip and context
-
-        Returns:
-            Generated prompt text
-        """
-        import asyncio, threading
-
-        # Create async wrapper
-        async def _async_build():
-            result = await self.build_generation_prompt(request)
-            return result.text
-
-        # Prefer current loop if present
-        try:
-            loop = asyncio.get_running_loop()
-            return asyncio.run_coroutine_threadsafe(_async_build(), loop).result()
-        except RuntimeError:
-            pass
-
-        # No running loop: use a dedicated background loop
-        result_holder: dict[str, str] = {}
-        error_holder: dict[str, BaseException] = {}
-
-        def _runner():
-            try:
-                loop2 = asyncio.new_event_loop()
-                try:
-                    asyncio.set_event_loop(loop2)
-                    result_holder["v"] = loop2.run_until_complete(_async_build())
-                finally:
-                    loop2.close()
-            except BaseException as e:  # pragma: no cover
-                error_holder["e"] = e
-
-        t = threading.Thread(target=_runner, daemon=True)
-        t.start(); t.join()
-        if "e" in error_holder:
-            raise error_holder["e"]
-        return result_holder.get("v", "")
+        """Sync wrapper verwijderd. Gebruik build_generation_prompt (async) via UI async_bridge."""
+        raise NotImplementedError(
+            "build_prompt (sync) is verwijderd. Gebruik de async methode "
+            "build_generation_prompt vanuit de UI via ui.helpers.async_bridge.run_async"
+        )
 
     def _maybe_augment_with_web_context(  # noqa: PLR0911, PLR0915
         self, prompt_text: str, enriched_context: EnrichedContext

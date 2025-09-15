@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Orchestration Tab (V2) – UI Koppeling met iteraties</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-190</p>
+<p>titel: Orchestration Tab (V2) – UI Koppeling met iteraties</p>
+<p>epic: EPIC-017</p>
+<p>status: Backlog</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 5</p>
+<p>aangemaakt: 2025-09-15</p>
+<p>bijgewerkt: 2025-09-15</p>
+<p>owner: frontend-team</p>
+<p>type: feature</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-15</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-097</li>
+<p>---</p>
+</ul>
+
+<h1>US-190: Orchestration Tab (V2) – UI Koppeling met iteraties</h1>
+
+<h2>Doel</h2>
+<p>Koppel de bestaande orchestration tab aan de V2‑orchestrator iteratieloop (US‑188) en FeedbackBuilder V2 (US‑189), toon iteratie‑metrics (scores, violations per iteratie, duur) en diff t.o.v. vorige iteratie. Achter feature‑flag.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] UI gebruikt uitsluitend V2‑API’s en V2‑UIResponse; geen legacy imports.</li>
+<li>[ ] Visualisaties: score per iteratie (lijn/balk), violations per severity, diff van definitietekst.</li>
+<li>[ ] Telemetrie zichtbaar (duur, feedbackcount, reused_examples indicator).</li>
+<li>[ ] Feature‑flag gated; verborgen in standaardconfig.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] UI‑componenten en wiring naar services (async via UI‑bridge waar nodig).</li>
+<li>[ ] Flag‑toggle en duidelijke “Demo (V2 Iterations)” label.</li>
+<li>[ ] Tests: smoke‑flow met mocks, rendering‑sanity.</li>
+</ul>
+
+<h2>Technical Notes</h2>
+<ul>
+<li>Gebruik `ui/helpers/async_bridge.py` voor async‑aanroepen.</li>
+<li>Geen sessiestate voor bron van waarheid; alles via services.</li>
+<li>Exporteer samenvatting naar JSON (optioneel) voor debug.</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Smoke: 1–3 iteratie scenario (mocks) met vaste resultaten; visualisaties tonen correcte waarden.</li>
+<li>Contract: UI leest alleen V2‑keys en faalt niet bij ontbrekende legacy velden.</li>
+</ul>
+
+<h2>Risico’s</h2>
+<ul>
+<li>Verwarring met legacy tab → duidelijk label en flag; documenteer verschil.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

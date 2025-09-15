@@ -100,61 +100,11 @@ class ExportService:
             additional_data=additional_data,
         )
 
-        # Optionele validatiegate vóór export
+        # Validatiegate alleen via async pad ondersteund
         if self.enable_validation_gate and self.validation_orchestrator is not None:
-            text_for_validation = (
-                export_data.definitie_aangepast
-                or export_data.definitie_gecorrigeerd
-                or export_data.definitie_origineel
+            raise NotImplementedError(
+                "Export validatiegate vereist async pad. Roep export_definitie_async aan vanuit de UI via async_bridge."
             )
-            try:
-                # Check if we're already in an async context
-                loop = asyncio.get_running_loop()
-                # In async context: run coroutine thread-safely
-                fut = asyncio.run_coroutine_threadsafe(
-                    self.validation_orchestrator.validate_text(
-                        begrip=export_data.begrip,
-                        text=text_for_validation,
-                        ontologische_categorie=None,
-                        context=None,
-                    ),
-                    loop,
-                )
-                result = fut.result()
-            except RuntimeError:
-                # No running loop: run in dedicated thread event loop
-                import threading
-                result_holder: dict[str, object] = {}
-                error_holder: dict[str, BaseException] = {}
-
-                def _runner():
-                    try:
-                        loop2 = asyncio.new_event_loop()
-                        try:
-                            asyncio.set_event_loop(loop2)
-                            coro = self.validation_orchestrator.validate_text(
-                                begrip=export_data.begrip,
-                                text=text_for_validation,
-                                ontologische_categorie=None,
-                                context=None,
-                            )
-                            result_holder["v"] = loop2.run_until_complete(coro)
-                        finally:
-                            loop2.close()
-                    except BaseException as e:  # pragma: no cover
-                        error_holder["e"] = e
-
-                t = threading.Thread(target=_runner, daemon=True)
-                t.start(); t.join()
-                if "e" in error_holder:
-                    raise error_holder["e"]
-                result = result_holder.get("v")
-            except Exception as e:  # pragma: no cover - defensive
-                msg = f"Validatie mislukt vóór export: {e!s}"
-                raise ValueError(msg)
-            if not isinstance(result, dict) or not result.get("is_acceptable", False):
-                msg = "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
-                raise ValueError(msg)
 
         # Export naar gekozen formaat
         if format == ExportFormat.TXT:
@@ -165,6 +115,49 @@ class ExportService:
             return self._export_to_csv(export_data)
         msg = f"Export formaat {format} nog niet geïmplementeerd"
         raise NotImplementedError(msg)
+
+    async def export_definitie_async(
+        self,
+        definitie_id: int | None = None,
+        definitie_record: DefinitieRecord | None = None,
+        additional_data: dict[str, Any] | None = None,
+        format: ExportFormat = ExportFormat.TXT,
+    ) -> str:
+        """Asynchrone export met optionele validatiegate."""
+        export_data = self.data_aggregation_service.aggregate_definitie_for_export(
+            definitie_id=definitie_id,
+            definitie_record=definitie_record,
+            additional_data=additional_data,
+        )
+        # Optionele async validatiegate
+        if self.enable_validation_gate and self.validation_orchestrator is not None:
+            text_for_validation = (
+                export_data.definitie_aangepast
+                or export_data.definitie_gecorrigeerd
+                or export_data.definitie_origineel
+            )
+            try:
+                result = await self.validation_orchestrator.validate_text(
+                    begrip=export_data.begrip,
+                    text=text_for_validation,
+                    ontologische_categorie=None,
+                    context=None,
+                )
+            except Exception as e:  # pragma: no cover - defensive
+                raise ValueError(f"Validatie mislukt vóór export: {e!s}")
+            if not isinstance(result, dict) or not result.get("is_acceptable", False):
+                raise ValueError(
+                    "Export geblokkeerd: definitie niet acceptabel volgens validatiegate"
+                )
+
+        # Export uitvoeren
+        if format == ExportFormat.TXT:
+            return self._export_to_txt(export_data)
+        if format == ExportFormat.JSON:
+            return self._export_to_json(export_data)
+        if format == ExportFormat.CSV:
+            return self._export_to_csv(export_data)
+        raise NotImplementedError(f"Export formaat {format} nog niet geïmplementeerd")
 
     def _export_to_txt(self, export_data: DefinitieExportData) -> str:
         """

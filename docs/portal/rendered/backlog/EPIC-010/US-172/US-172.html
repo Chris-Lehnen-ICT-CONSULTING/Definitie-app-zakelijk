@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UI-laaggrenzen afdwingen (geen Streamlit/UI-imports buiten src/ui)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-172</p>
+<p>titel: UI-laaggrenzen afdwingen (geen Streamlit/UI-imports buiten src/ui)</p>
+<p>epic: EPIC-010</p>
+<p>status: TODO</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: 2025-09</p>
+<p>type: refactor</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>owner: platform-team</p>
+<p>---</p>
+
+<h1>US-172: UI-laaggrenzen afdwingen (geen Streamlit/UI-imports buiten src/ui)</h1>
+
+<p>Doel: strikt scheiden van UI en services/config; geen UI/Streamlit afhankelijkheden buiten <code>src/ui/**</code>.</p>
+
+<h2>Scope</h2>
+<ul>
+<li>`src/config/feature_flags.py`: verwijder `show_legacy_warning` (verplaats naar `src/ui/helpers/feature_toggle.py`).</li>
+<li>`src/services/category_state_manager.py`: maak pure dict-mutator; verwijder `ui.session_state`-import.</li>
+<li>`src/services/container.py`: verwijder UI-service creatie; verplaats naar `src/ui/container.py`.</li>
+<li>`src/services/__init__.py`: verwijder compat-UI stub `render_feature_flag_toggle`.</li>
+<li>`src/utils/voorbeelden_debug.py`: verplaats naar UI of maak Streamlit optioneel (lazy import/guard).</li>
+<li>`src/integration/definitie_checker.py`: verwijder UI-imports; V2-only.</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>`rg -n "\b(import|from)\s+streamlit" src | grep -v '^src/ui/' | grep -v '^src/main.py'` → 0 matches</li>
+<li>`rg -n "\bfrom\s+ui\.|\bimport\s+ui\b" src | grep -v '^src/ui/' | grep -v '^src/main.py'` → 0 matches</li>
+<li>Services en config importeerbaar zonder UI.</li>
+</ul>
+
+<h2>Taken</h2>
+<p>1) Verplaats UI-renders naar <code>src/ui/helpers/feature_toggle.py</code>; update callsites.</p>
+<p>2) Refactor CategoryStateManager naar pure helpers en pas UI aan om session state te schrijven.</p>
+<p>3) Introduceer <code>src/ui/container.py</code> en laat services-container UI-los.</p>
+<p>4) Voorbeelden-debug: UI-only of guarded import.</p>
+<p>5) Opschonen compat-stubs in services.</p>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: import-tests services zonder UI dependencies.</li>
+<li>Unit: CategoryStateManager verandert alleen dict; geen UI import.</li>
+<li>Regex-acceptatie (zie boven) als test/gate.</li>
+</ul>
+
+<h2>Risks & Mitigatie</h2>
+<ul>
+<li>Breuk in UI imports → mechanische refactor met zoek/vervang en smoke-test.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

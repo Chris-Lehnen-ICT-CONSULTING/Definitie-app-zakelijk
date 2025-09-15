@@ -451,46 +451,18 @@ class DefinitionEditService:
         return updated
     
     def _validate_definition(self, definition: Definition) -> Dict[str, Any]:
-        """Validate definition using injected validation service (sync/async compatible)."""
+        """Validate definition using injected validation service (sync only).
+
+        Async validation is not executed here. If only an async API is available,
+        return None and let the UI call validation via async_bridge.
+        """
         if not self.validation_service:
             return None
 
         try:
             import inspect
-            import asyncio
 
             vs = self.validation_service
-
-            # Prefer validate_text if available (ValidationOrchestratorV2)
-            def _run_async(coro):
-                import asyncio, threading
-                # Try current loop first
-                try:
-                    loop = asyncio.get_running_loop()
-                    fut = asyncio.run_coroutine_threadsafe(coro, loop)
-                    return fut.result()
-                except RuntimeError:
-                    pass
-                # Fallback: run coroutine in a dedicated loop in background thread
-                holder: dict[str, object] = {}
-                err: dict[str, BaseException] = {}
-
-                def _runner():
-                    try:
-                        loop2 = asyncio.new_event_loop()
-                        try:
-                            asyncio.set_event_loop(loop2)
-                            holder['v'] = loop2.run_until_complete(coro)
-                        finally:
-                            loop2.close()
-                    except BaseException as e:  # pragma: no cover
-                        err['e'] = e
-
-                t = threading.Thread(target=_runner, daemon=True)
-                t.start(); t.join()
-                if 'e' in err:
-                    raise err['e']
-                return holder.get('v')
 
             # Bouw context_dict uit Context Model V2 lijsten
             context_dict = None
@@ -508,36 +480,38 @@ class DefinitionEditService:
                 context_dict = None
 
             if hasattr(vs, 'validate_text'):
-                coro = vs.validate_text(
+                fn = getattr(vs, 'validate_text')
+                # Sla async API over (UI moet async_bridge gebruiken)
+                if inspect.iscoroutinefunction(fn):
+                    return None
+                results = fn(
                     begrip=definition.begrip,
                     text=definition.definitie,
                     ontologische_categorie=getattr(definition, 'ontologische_categorie', None) or definition.categorie,
                     context=context_dict,
                 )
-                results = _run_async(coro) if inspect.isawaitable(coro) else coro
             else:
                 # Try generic validate_definition
-                maybe = None
-                # Try Definition object signature first
                 try:
-                    maybe = vs.validate_definition(definition)
+                    fn = getattr(vs, 'validate_definition')
+                except AttributeError:
+                    fn = getattr(vs, 'validate', None)
+                if fn is None:
+                    return None
+                if inspect.iscoroutinefunction(fn):
+                    return None
+                # Support both signatures
+                try:
+                    results = fn(definition)
                 except TypeError:
-                    # Fallback to parameterized signature (keyword args to avoid ordering issues)
-                    # Gebruik V2 context indien beschikbaar, anders metadata fallback
                     if context_dict is None and definition.metadata and definition.metadata.get('juridische_context'):
                         context_dict = {'juridische_context': definition.metadata.get('juridische_context')}
-                    maybe = vs.validate_definition(
+                    results = fn(
                         begrip=definition.begrip,
                         text=definition.definitie,
                         ontologische_categorie=getattr(definition, 'ontologische_categorie', None) or definition.categorie,
                         context=context_dict,
                     )
-
-                results = None
-                if inspect.isawaitable(maybe):
-                    results = _run_async(maybe)
-                else:
-                    results = maybe
 
             # Normalize result to UI format
             # Case 1: dict schema (ModularValidationService/Orchestrator ensure_schema)

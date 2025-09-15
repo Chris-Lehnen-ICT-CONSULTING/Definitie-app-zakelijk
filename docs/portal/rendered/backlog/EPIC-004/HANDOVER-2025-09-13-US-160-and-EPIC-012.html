@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>canonical: false</p>
+<p>status: active</p>
+<p>owner: engineering</p>
+<p>last_verified: 2025-09-13</p>
+<p>applies_to: definitie-app@current</p>
+<p>---</p>
+
+<h1>Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13</h1>
+
+<p>Doel: overdraagbare snapshot om in een nieuwe sessie/chat direct verder te kunnen met validatie, afronding en vervolgstappen.</p>
+
+<h2>Scope (deze handover)</h2>
+<ul>
+<li>US‑160: Gate + Context Model V2 (drie lijsten; min‑1 context; gate‑policy)</li>
+<li>UI + services harmonisatie naar V2 (geen legacy objectvormen, geen `asyncio.run` in services)</li>
+<li>Orchestration‑tab: V2‑responsevorm (demo) en verborgen achter feature‑flag; vervolgwerk vastgelegd in US‑170</li>
+</ul>
+
+<h2>Wat is gedaan</h2>
+<ul>
+<li>Repository adapter</li>
+<li> - Updates via dict i.p.v. record; wettelijke_basis als JSON; toelichting wordt bij update behouden.</li>
+<li> - Bestanden: `src/services/definition_repository.py` (+ compat: `get_definitie`, `change_status`).</li>
+<li>Gate policy + preview</li>
+<li> - Config: `config/approval_gate.yaml`; loader: `src/services/policies/approval_gate_policy.py` (TTL‑cache, env overlay)</li>
+<li> - Preview gebruikt robuuste repo‑call; `_evaluate_gate` implementeert pass/override_required/blocked.</li>
+<li>UI Edit/Expert/Generator</li>
+<li> - Edit: 3 contextlijsten + Anders…; min‑1 context enforced; validatie gebruikt V2 context.</li>
+<li> - Generator: prompt debug V2‑only; geen legacy best_iteration pad meer.</li>
+<li> - Expert: gate‑preview zichtbaar; approve/override gedrag.</li>
+<li>Orchestration‑tab (demo)</li>
+<li> - V2 UIResponseDict output; iteraties in `metadata.iterations` voor grafieken; default verborgen achter `ENABLE_LEGACY_TAB=false`.</li>
+<li>Async hygiene (services)</li>
+<li> - `asyncio.run` verwijderd uit services; UI doet bridging (thread/loop safe).</li>
+<li>“Domein” verwijderd uit base_context</li>
+<li> - `src/services/definition_generator_context.py`: geen `domein` key meer.</li>
+<li>Verboden woorden decoupled van Streamlit</li>
+<li> - `src/config/verboden_woorden.py` laadt JSON (UI‑overrides in UI, niet in services).</li>
+</ul>
+
+<h2>Nieuwe items (requirements/stories)</h2>
+<ul>
+<li>REQ‑097: “Iteratieve Verbetering van Definities (V2 Orchestrator)”</li>
+<li> - Document: `docs/backlog/requirements/REQ-097.md`</li>
+<li>US‑170: “Koppel Orchestration‑tab aan V2 Orchestrator (productiepad)”</li>
+<li> - Document: `docs/backlog/EPIC-012/US-170/US-170.md`</li>
+<li> - Toegevoegd aan EPIC‑012 tabel.</li>
+</ul>
+
+<h2>Hoe verder (volgorde en checks)</h2>
+<p>1) Snelle smoke (zonder netwerk)</p>
+<ul>
+<li>  - Reset DB: `bash scripts/db/reset_context_model_v2.sh`</li>
+<li>  - Start UI: `PYTHONPATH=. streamlit run src/main.py`</li>
+<li>  - Verify:</li>
+<li>    - Edit‑tab: min‑1 context, Anders…, opslaan + toelichting zichtbaar.</li>
+<li>    - Expert‑tab: gate‑preview (pass/override/blocked); approve werkt met/zonder override reden.</li>
+<li>    - Generator‑tab: V2 keys in debug (prompt via saved_record metadata als beschikbaar).</li>
+<p>2) Optioneel demo Orchestration‑tab</p>
+<li>  - `ENABLE_LEGACY_TAB=true PYTHONPATH=. streamlit run src/main.py`</li>
+<li>  - Tab is V2‑vormig, maar gebruikt demo‑iteraties (geen netwerk/AI calls).</li>
+<li>  - Volledige koppeling volgt onder US‑170.</li>
+<p>3) Tests (zonder netwerk)</p>
+<li>  - Draai selectief repository/workflow/gate suites; netwerk‑afhankelijke tests skippen zonder `OPENAI_API_KEY`.</li>
+<li>  - Voorbeeld: `pytest -q tests/services -k "definition_repository or workflow or gate"`</li>
+<p>4) CI gates aanscherpen (volgende sprint)</p>
+<li>  - Legacy‑pattern script hard laten falen; secret scan; pip‑audit.</li>
+</ul>
+
+<h2>Strict mode / slash‑commands (voor nieuwe chat)</h2>
+<ul>
+<li>`/strict on` | `/strict off` — strikte modus (pauzeer vóór patches/tests/netwerk/DB‑reset; geen aannames).</li>
+<li>`/approve` | `/approve all` — akkoord voor geblokkeerde stap(pen).</li>
+<li>`/deny` — weiger volgende geblokkeerde stap.</li>
+<li>`/plan on` | `/plan off` — planmodus aan/uit.</li>
+<li>Scopes: `/strict on patch,test` (scopes: `patch`, `test`, `network`, `db`, `all`).</li>
+</ul>
+
+<h2>Openstaande punten (kort)</h2>
+<ul>
+<li>UI restanten: comments/labels verder V2‑maken (grotendeels gedaan; alleen cosmetisch).</li>
+<li>Tests uitbreiden/activeren voor V2‑contract (validation_details/voorbeelden/sources rendering).</li>
+<li>Security middleware minimaal koppelen (headers, redactie; zie EPIC‑006 referenties).</li>
+</ul>
+
+<h2>Referenties</h2>
+<ul>
+<li>Gate Policy: `config/approval_gate.yaml`, service: `src/services/policies/approval_gate_policy.py`</li>
+<li>DB Schema V2: `src/database/schema.sql` (JSON arrays, defaults `[]`)</li>
+<li>Reset script: `scripts/db/reset_context_model_v2.sh`</li>
+<li>V2 Orchestrator: `src/services/orchestrators/definition_orchestrator_v2.py`</li>
+<li>Prompt Service V2: `src/services/prompts/prompt_service_v2.py`</li>
+</ul>
+
+<h2>Laatste status</h2>
+<ul>
+<li>Branch: `main` (gepusht)</li>
+<li>Laatste commits omvatten: US‑160 fixes, async‑cleanup, V2 UI harmonisatie, REQ‑097/US‑170 toevoegingen.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>
