@@ -7,7 +7,7 @@ Deze module integreert alle business logic van de Context Aware builder:
 3. Confidence indicators met emoji's (🔴🟡🟢)
 4. Advanced source formatting
 5. Abbreviation/expansion handling
-6. Organisatorische en domein context verwerking
+6. Verwerking van V2-contexten (organisatorisch, juridisch, wettelijk)
 """
 
 import logging
@@ -27,7 +27,7 @@ class ContextAwarenessModule(BasePromptModule):
     - Adaptive formatting based on context quality
     - Source confidence visualization
     - Abbreviation handling
-    - Traditional org/domain context processing
+    - V2-contextverwerking: organisatorisch/juridisch/wettelijk (geen legacy 'domein')
     """
 
     def __init__(self):
