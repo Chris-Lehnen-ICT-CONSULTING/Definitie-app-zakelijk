@@ -30,34 +30,9 @@ class OrchestrationTab:
 
     def _init_orchestration_agent(self):
         """Initialiseer orchestration agent."""
-        # Check if legacy agent is enabled
-        if not FeatureFlags.ENABLE_LEGACY_AGENT.is_enabled():
-            self.DefinitieAgent = None
-            self.agent = None
-            return
-
-        try:
-            import sys
-            from pathlib import Path
-
-            sys.path.append(str(Path(__file__).parents[2] / "orchestration"))
-
-            from definitie_agent import AgentStatus, DefinitieAgent, IterationResult
-
-            from domain.ontological_categories import OntologischeCategorie
-
-            # Store classes for use
-            self.DefinitieAgent = DefinitieAgent
-            self.AgentStatus = AgentStatus
-            self.IterationResult = IterationResult
-            self.OntologischeCategorie = OntologischeCategorie
-
-            # Initialize agent
-            self.agent = self.DefinitieAgent(max_iterations=1)  # Geen iteraties
-
-        except Exception as e:
-            st.error(f"❌ Kon orchestration agent niet laden: {e!s}")
-            self.DefinitieAgent = None
+        # Legacy agent wordt niet meer geïmporteerd; demo-tab blijft informatief achter feature flag
+        self.DefinitieAgent = None
+        self.agent = None
 
     def render(self):
         """Render orchestration tab."""
