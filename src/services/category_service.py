@@ -159,8 +159,8 @@ class CategoryService:
         Returns:
             Tuple van (is_valid: bool, error_message: Optional[str])
         """
-        # Business rule: Goedgekeurde definities mogen niet van categorie wijzigen
-        if definition.status == "APPROVED":
+        # Business rule: Vastgestelde definities mogen niet van categorie wijzigen
+        if definition.status == "established":
             return False, "Goedgekeurde definities kunnen niet van categorie wijzigen"
 
         # Toekomstige business rules kunnen hier toegevoegd worden

@@ -420,12 +420,8 @@ class DefinitieChecker:
                 ketenpartners=json.dumps([]),
             )
 
-            # Add validation issues if any
-            # Note: best_iteration is deprecated, check for validation_result directly
+            # Add validation issues if any (V2 only)
             validation_result = getattr(agent_result, 'validation_result', None)
-            if not validation_result and hasattr(agent_result, 'best_iteration'):
-                # Legacy fallback - deprecated
-                validation_result = getattr(agent_result.best_iteration, 'validation_result', None)
             
             if validation_result and hasattr(validation_result, 'violations'):
                 issues = [
