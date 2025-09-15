@@ -111,20 +111,7 @@ Generated: 2025-09-08 10:17
 ### development/validation_orchestrator_implementation.md
 - ❌ Missing frontmatter
 
-### handover/HANDOVER_WEB_LOOKUP_EPIC3.md
-- ❌ Missing frontmatter
-
-### handover/HANDOVER_STORY_2.4.md
-- ❌ Missing frontmatter
-
-### handover/plan-2025-01-10.md
-- ❌ Missing frontmatter
-
-### handover/refactoring-status-verified-2025-01-09.md
-- ❌ Missing frontmatter
-
-### handover/plan-2025-01-10-updated.md
-- ❌ Missing frontmatter
+<!-- handover docs verplaatst naar archief -->
 
 ### workflows/validation_orchestrator_rollout.md
 - ❌ Missing frontmatter
@@ -805,20 +792,7 @@ Generated: 2025-09-08 10:17
 ### technisch/validation_observability_privacy.md
 - ⚠️ Multiple H1 headers (9)
 
-### handover/HANDOVER_WEB_LOOKUP_EPIC3.md
-- ⚠️ Multiple H1 headers (10)
-
-### handover/HANDOVER_STORY_2.4.md
-- ⚠️ Multiple H1 headers (25)
-
-### handover/plan-2025-01-10.md
-- ⚠️ Multiple H1 headers (14)
-
-### handover/refactoring-status-verified-2025-01-09.md
-- ⚠️ Multiple H1 headers (17)
-
-### handover/plan-2025-01-10-updated.md
-- ⚠️ Multiple H1 headers (17)
+<!-- handover docs verplaatst naar archief -->
 
 ### workflows/validation_orchestrator_rollout.md
 - ⚠️ Multiple H1 headers (14)
