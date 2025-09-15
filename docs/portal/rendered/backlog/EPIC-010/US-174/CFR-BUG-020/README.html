@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Status-inconsistentie (APPROVED vs ESTABLISHED) in services/doc</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: CFR-BUG-020</p>
+<p>titel: Status-inconsistentie (APPROVED vs ESTABLISHED) in services/doc</p>
+<p>status: OPEN</p>
+<p>severity: MEDIUM</p>
+<p>gevonden_op: 2025-09-15</p>
+<p>component: workflow/status</p>
+<p>---</p>
+
+<h1>CFR-BUG-020: Status-inconsistentie (APPROVED vs ESTABLISHED) in services/doc</h1>
+
+<h2>Beschrijving</h2>
+<ul>
+<li>`src/services/category_service.py:163` gebruikt string `"APPROVED"` i.p.v. canonieke `ESTABLISHED`.</li>
+<li>`src/services/interfaces.py::DefinitionStatus` definieert `APPROVED` terwijl workflow/repository `ESTABLISHED` gebruiken.</li>
+<li>README bevat verouderde notitie over APPROVED-bug.</li>
+</ul>
+
+<h2>Verwacht Gedrag</h2>
+<p>Eén canonieke statusbron; services volgen <code>ESTABLISHED</code> terminologie.</p>
+
+<h2>Oplossing</h2>
+<p>Onderdeel van <a href="../US-174.md" target="_blank">US-174</a>: code refactor + doc‑sync.</p>
+
+<h2>Tests</h2>
+<ul>
+<li>Unit: category‑wijziging bij ESTABLISHED niet toegestaan.</li>
+<li>Regex: geen `APPROVED` meer in services.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

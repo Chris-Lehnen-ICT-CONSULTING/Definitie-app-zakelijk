@@ -9,6 +9,7 @@ wordt gegenereerd, om duplicaten te voorkomen.
 import json  # JSON verwerking voor metadata
 import logging  # Logging faciliteiten voor debug en monitoring
 from dataclasses import dataclass  # Dataklassen voor gestructureerde data
+from datetime import UTC, datetime
 from enum import Enum  # Enumeraties voor actie types
 from typing import (  # Type hints voor betere code documentatie
     Any,
@@ -403,9 +404,6 @@ class DefinitieChecker:
             first_iteration = agent_result.iterations[0]
             context = first_iteration.generation_result.context
 
-            # Get metadata from session state
-            from ui.session_state import SessionStateManager
-
             # Create record
             record = DefinitieRecord(
                 begrip=context.begrip,
@@ -417,13 +415,9 @@ class DefinitieChecker:
                 validation_score=agent_result.final_score,
                 source_type=SourceType.GENERATED.value,
                 source_reference=f"DefinitieAgent v{agent_result.iteration_count} iterations",
-                created_by=created_by
-                or SessionStateManager.get_value("voorgesteld_door")
-                or "system",
-                datum_voorstel=SessionStateManager.get_value("datum_voorstel"),
-                ketenpartners=json.dumps(
-                    SessionStateManager.get_value("ketenpartners", [])
-                ),
+                created_by=created_by or "system",
+                datum_voorstel=datetime.now(UTC),
+                ketenpartners=json.dumps([]),
             )
 
             # Add validation issues if any

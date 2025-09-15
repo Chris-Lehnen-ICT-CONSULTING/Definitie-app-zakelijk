@@ -7,6 +7,7 @@ geen losse services hoeft te coördineren en we consistente businessregels afdwi
 """
 
 import logging
+import json
 from dataclasses import dataclass
 from datetime import datetime
 from typing import Any
@@ -189,6 +190,7 @@ class DefinitionWorkflowService:
         definition_id: int,
         user: str,
         notes: str = "",
+        ketenpartners: list[str] | None = None,
     ) -> WorkflowResult:
         """
         Approve een definitie.
@@ -274,6 +276,17 @@ class DefinitionWorkflowService:
                     error_message="Status update mislukt in repository",
                 )
             
+            # Update ketenpartners indien opgegeven
+            if ketenpartners is not None:
+                try:
+                    self.repository.update_definitie(
+                        definition_id,
+                        {"ketenpartners": json.dumps(list(ketenpartners), ensure_ascii=False)},
+                        updated_by=user,
+                    )
+                except Exception as e:  # pragma: no cover
+                    logger.warning(f"Kon ketenpartners niet opslaan voor {definition_id}: {e}")
+
             # Log audit trail
             if self.audit_logger:
                 self.audit_logger.log_transition(

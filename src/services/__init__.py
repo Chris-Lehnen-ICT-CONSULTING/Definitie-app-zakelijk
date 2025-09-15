@@ -27,7 +27,7 @@ def render_feature_flag_toggle(*args, **kwargs):
 
     logger = logging.getLogger(__name__)
     logger.warning(
-        "render_feature_flag_toggle called from services - import from ui.helpers.feature_toggle instead"
+        "render_feature_flag_toggle called from services - use the UI feature toggle helper in the UI layer"
     )
     return True
 

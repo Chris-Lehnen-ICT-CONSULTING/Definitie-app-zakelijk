@@ -116,7 +116,7 @@ class ServiceAdapter:
         self.container = container
         self.orchestrator = container.orchestrator()
         self.web_lookup = container.web_lookup()
-        self.ui_service = container.definition_ui_service()
+        # UI services worden niet langer vanuit de serviceslaag beheerd
 
     def get_service_info(self) -> dict:
         """Return service info voor UI detectie."""
@@ -460,9 +460,24 @@ class ServiceAdapter:
         Returns:
             Export resultaat dict
         """
-        return self.ui_service.export_definition(
-            definitie_id=definition_id, ui_data=ui_data, format=format
+        # Gebruik pure serviceslaag voor export (geen UI-service afhankelijkheid)
+        from services.export_service import ExportFormat
+        export_service = self.container.export_service()
+        export_path = export_service.export_definitie(
+            definitie_id=definition_id,
+            definitie_record=None,
+            additional_data=ui_data,
+            format=ExportFormat(format.lower()),
         )
+        import os
+        filename = os.path.basename(export_path) if export_path else None
+        return {
+            "success": True if export_path else False,
+            "path": export_path,
+            "filename": filename,
+            "message": (f"Definitie succesvol geëxporteerd naar {filename}" if export_path else "Export mislukt"),
+            "error": None if export_path else "Export pad onbekend",
+        }
 
     # Voeg meer legacy compatible methods toe indien nodig...
 
@@ -495,54 +510,15 @@ class ServiceFactory:
     def genereer_definitie(
         self, begrip: str, context: str | dict | None = None, **kwargs
     ):
-        """Generate a definition (sync), mapping legacy context to new structure."""
-        context_dict: dict[str, list] = {}
-        if isinstance(context, dict):
-            context_dict = context  # Already a dict-style context
-        elif isinstance(context, str) and context:
-            # Map legacy single string to organisatorisch for minimal compatibility
-            context_dict = {"organisatorisch": [context]}
-        import asyncio
-
-        try:
-            loop = asyncio.get_running_loop()
-            # In async context: submit task to loop and wait thread-safely
-            fut = asyncio.run_coroutine_threadsafe(
-                self._adapter.generate_definition(
-                    begrip=begrip, context_dict=context_dict, **kwargs
-                ),
-                loop,
-            )
-            return fut.result()
-        except RuntimeError:
-            # No running loop: create a dedicated loop in a worker thread
-            result_holder: dict[str, object] = {}
-            error_holder: dict[str, BaseException] = {}
-
-            def _runner():
-                try:
-                    loop2 = asyncio.new_event_loop()
-                    try:
-                        asyncio.set_event_loop(loop2)
-                        coro = self._adapter.generate_definition(
-                            begrip=begrip, context_dict=context_dict, **kwargs
-                        )
-                        result_holder["v"] = loop2.run_until_complete(coro)
-                    finally:
-                        loop2.close()
-                except BaseException as e:  # pragma: no cover
-                    error_holder["e"] = e
-
-            import threading
-
-            t = threading.Thread(target=_runner, daemon=True)
-            t.start(); t.join()
-            if "e" in error_holder:
-                raise error_holder["e"]
-            return result_holder.get("v")
+        """Sync wrapper is verwijderd. Gebruik UI async_bridge vanuit de UI-laag."""
+        raise NotImplementedError(
+            "genereer_definitie (sync) is verwijderd uit services. "
+            "Roep de async methode aan via ui.helpers.async_bridge.generate_definition_sync"
+        )
 
     # Modern wrapper
     def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
+        """Sync wrapper is verwijderd; zie NotImplementedError boven."""
         return self.genereer_definitie(begrip=begrip, context=context_dict, **kwargs)
 
     def get_stats(self) -> dict:

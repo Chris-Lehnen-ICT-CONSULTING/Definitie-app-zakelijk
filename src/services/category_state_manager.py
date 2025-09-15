@@ -1,16 +1,15 @@
-"""Category state management - bridge tussen session state en services."""
+"""Category state helpers — UI-vrije dict-mutaties."""
 
 import logging
 from typing import Any
 
 from models.category_models import DefinitionCategory
-from ui.session_state import SessionStateManager
 
 logger = logging.getLogger(__name__)
 
 
 class CategoryStateManager:
-    """Beheer category state zonder direct session state access in UI."""
+    """Beheer categorieveld in generation_result als pure helper."""
 
     @staticmethod
     def update_generation_result_category(
@@ -18,17 +17,10 @@ class CategoryStateManager:
     ) -> dict[str, Any]:
         """Update category in generation result.
 
-        Dit is een bridge functie die de session state update centraliseert.
-        In de toekomst kan dit vervangen worden door events.
+        Pure helper: muteert alleen het doorgegeven generation_result dict.
         """
-        # Update de category in het result object
         generation_result["determined_category"] = new_category
-
-        # Update session state (voorlopig nog nodig)
-        SessionStateManager.set_value("last_generation_result", generation_result)
-
-        logger.info(f"Category updated in generation result: {new_category}")
-
+        logger.info(f"Category set on generation_result: {new_category}")
         return generation_result
 
     @staticmethod
@@ -43,5 +35,5 @@ class CategoryStateManager:
 
     @staticmethod
     def clear_category_selector():
-        """Clear category selector state."""
-        SessionStateManager.set_value("show_category_selector", False)
+        """No-op placeholder; UI beheert eigen session state."""
+        return None

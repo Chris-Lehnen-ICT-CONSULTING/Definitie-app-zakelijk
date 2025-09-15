@@ -326,6 +326,18 @@ class ExpertReviewTab:
                 )
                 notes = st.text_area(notes_label, key=f"approve_notes_{definitie.id}", height=80)
 
+                # Ketenpartners selectie
+                from config.config_manager import get_config, ConfigSection
+                ui_cfg = get_config(ConfigSection.UI)
+                partner_opties = list(getattr(ui_cfg, "ketenpartners", []))
+                geselecteerd = st.multiselect(
+                    "🤝 Ketenpartners die akkoord zijn",
+                    options=partner_opties,
+                    default=definitie.get_ketenpartners_list() if hasattr(definitie, "get_ketenpartners_list") else [],
+                    key=f"approve_ketenpartners_{definitie.id}",
+                    help="Selecteer alle partners die expliciet akkoord zijn met deze definitie."
+                )
+
                 approve_label = (
                     "Vaststellen met override" if gate_status == "override_required" else "Vaststellen"
                 )
@@ -346,7 +358,12 @@ class ExpertReviewTab:
                     help=approve_help,
                 ):
                     user = st.session_state.get('user', 'expert')
-                    res = workflow.approve(definition_id=definitie.id, user=user, notes=notes or "")
+                    res = workflow.approve(
+                        definition_id=definitie.id,
+                        user=user,
+                        notes=notes or "",
+                        ketenpartners=geselecteerd,
+                    )
                     if res.success:
                         st.success("✅ Definitie vastgesteld")
                         st.rerun()

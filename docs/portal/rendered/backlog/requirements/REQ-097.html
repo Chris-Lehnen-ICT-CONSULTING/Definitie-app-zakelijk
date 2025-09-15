@@ -157,6 +157,16 @@ Scenario: Gate override vereist
 <li>Context Model V2 (drie lijsten) overal gehandhaafd</li>
 </ul>
 
+<h2>Implementatie Referentie (legacy, gearchiveerd)</h2>
+<ul>
+<li>Gearchiveerde legacy implementatie met iteratieve logica en FeedbackBuilder:</li>
+<li> - `docs/archief/legacy/orchestration/definitie_agent.py`</li>
+<li>Relevante businesskennis (US‑061 extractie):</li>
+<li> - Stop‑criteria: max 3 iteraties; improvement_threshold 0.05; acceptance_threshold 0.80</li>
+<li> - FeedbackBuilder: 11+ violation→feedback mappings; prioritering (kritiek → suggesties → overig); max 5 items/iteratie; deduplicatie</li>
+<li> - Voorbeelden optimalisatie: genereer in iteratie 1; hergebruik in volgende iteraties</li>
+</ul>
+
   </div>
 </body>
 </html>
