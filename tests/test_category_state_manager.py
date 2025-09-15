@@ -1,7 +1,7 @@
 """Tests voor CategoryStateManager."""
 
 import pytest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from src.services.category_state_manager import CategoryStateManager
 from models.category_models import DefinitionCategory
 
@@ -9,8 +9,7 @@ from models.category_models import DefinitionCategory
 class TestCategoryStateManager:
     """Test class voor CategoryStateManager."""
 
-    @patch('src.services.category_state_manager.SessionStateManager')
-    def test_update_generation_result_category(self, mock_session_manager):
+    def test_update_generation_result_category(self):
         """Test update van category in generation result."""
         # Arrange
         generation_result = {
@@ -27,9 +26,7 @@ class TestCategoryStateManager:
         # Assert
         assert result["determined_category"] == "REL"
         assert result["other_data"] == "preserved"  # Other data preserved
-        mock_session_manager.set_value.assert_called_once_with(
-            "last_generation_result", result
-        )
+        # Geen UI side-effecten meer; puur dict-mutatie
 
     def test_get_current_category_exists(self):
         """Test get current category wanneer deze bestaat."""
@@ -55,13 +52,10 @@ class TestCategoryStateManager:
         # Assert
         assert category is None
 
-    @patch('src.services.category_state_manager.SessionStateManager')
-    def test_clear_category_selector(self, mock_session_manager):
+    def test_clear_category_selector(self):
         """Test clear category selector."""
         # Act
         CategoryStateManager.clear_category_selector()
 
-        # Assert
-        mock_session_manager.set_value.assert_called_once_with(
-            "show_category_selector", False
-        )
+        # Assert: no-op, geen exception en geen return
+        assert CategoryStateManager.clear_category_selector() is None
