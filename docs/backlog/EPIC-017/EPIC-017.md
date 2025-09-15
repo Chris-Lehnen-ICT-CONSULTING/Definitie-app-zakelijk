@@ -93,3 +93,40 @@ Bronnen:
 ## Notes
 - EPIC‑012 kan worden afgerond zonder deze epic; iteratieve verbeteringen leven hier.
 - Legacy DefinitieAgent blijft gearchiveerd of strikt achter demo‑flag; geen runtime‑pad in hoofdflow.
+
+## Legacy Business Knowledge (geconsolideerd in deze EPIC)
+Deze sectie maakt de EPIC de canonieke plek voor de iteratieve businesskennis, zodat er geen broncode uit archief nodig is om het ontwerp te begrijpen.
+
+- Stopcriteria en drempels (uit US‑061):
+  - max_iter: 3 (configurabel)
+  - improvement_threshold: 0.05 (stagnatie)
+  - acceptance_threshold (overall): 0.80 (policy‑gedreven)
+  - category_threshold: 0.75 (policy‑gedreven)
+  - forbid_critical: true (policy)
+
+- Iteratie‑pseudocode (V2‑ontwerp):
+  - init = generate(); score0 = validate(init)
+  - if gate_pass(score0): return init
+  - for i in 2..max_iter:
+    - feedback = FeedbackBuilderV2(score(i‑1), violations(i‑1), history)
+    - candidate = generate(feedback, reuse_examples= i>1)
+    - score = validate(candidate)
+    - if score.overall - best.overall < improvement_threshold: break
+    - update best = max(best, candidate, key=score)
+    - if gate_pass(score): break
+  - return best
+
+- FeedbackBuilder (samenvatting):
+  - Inputs: violations (V2 schema), iteration, history
+  - Mapping prioriteit: kritiek → suggesties → overig
+  - Deduplicatie; max 5 feedbackitems/iteratie; deterministische sortering
+  - Voorbeeldregels (uit US‑061): CON‑01 (context‑specifiek), ESS‑01..05 (essentie/kenmerken), INT‑01/03 (formulering), STR‑01/02 (structuur)
+
+- Voorbeelden (prestatie):
+  - Genereer voorbeelden in iteratie 1; hergebruik in latere iteraties, tenzij feedback expliciet om nieuwe voorbeelden vraagt.
+
+- Telemetrie/UX:
+  - Bewaar per iteratie: overall_score, violations, duration, feedback_used, reused_examples
+  - UI toont score per iteratie, violations per severity en diff t.o.v. vorige iteratie
+
+Referentie (historische code, niet leidend): `docs/archief/legacy/orchestration/definitie_agent.py`

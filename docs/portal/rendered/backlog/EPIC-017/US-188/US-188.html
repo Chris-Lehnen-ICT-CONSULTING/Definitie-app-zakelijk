@@ -68,6 +68,32 @@
 <li>Telemetry: verzamel per iteratie; UI leest via metadata.iterations[].</li>
 </ul>
 
+<h3>Pseudocode (V2)</h3>
+<pre><code>best = None
+prev_score = None
+for i in range(1, max_iter + 1):
+    if i == 1:
+        candidate = generate(request)
+    else:
+        feedback = feedback_builder.get_feedback_for(prev_violations, i, history)
+        candidate = generate(request, feedback=feedback, reuse_examples=True)
+
+    score, violations = validate(candidate)
+
+    if best is None or score &gt; best.score:
+        best = candidate
+
+    if gate_pass(score, violations, policy):
+        break
+
+    if prev_score is not None and (score - prev_score) &lt; improvement_threshold:
+        break
+
+    prev_score = score
+    prev_violations = violations
+
+return best</code></pre>
+
 <h2>Testplan</h2>
 <ul>
 <li>Unit: stop bij acceptatie; stop bij < 0.05; hard‑limit op 3 iteraties; hergebruik voorbeelden.</li>
@@ -80,7 +106,6 @@
 <li>Onnodige iteraties → early‑stop en drempels correct toepassen.</li>
 <li>Contract drift → UI‑contracttest en schema‑asserts.</li>
 </ul>
-
 
   </div>
 </body>
