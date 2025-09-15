@@ -602,7 +602,44 @@ class DefinitionEditTab:
             
             # Validate
             results = self.edit_service._validate_definition(definition)
-            
+
+            # Als de service None teruggeeft (alleen async API beschikbaar), gebruik UI async-bridge
+            if results is None:
+                from services.container import get_container
+                from ui.helpers.async_bridge import run_async
+
+                container = get_container()
+                orch = container.orchestrator()
+                v = run_async(
+                    orch.validation_service.validate_text(
+                        begrip=definition.begrip,
+                        text=definition.definitie,
+                        ontologische_categorie=definition.categorie,
+                        context={
+                            "organisatorische_context": definition.organisatorische_context or [],
+                            "juridische_context": definition.juridische_context or [],
+                            "wettelijke_basis": definition.wettelijke_basis or [],
+                        },
+                    )
+                )
+                # Normaliseer naar UI‑structuur
+                if isinstance(v, dict):
+                    violations = v.get("violations", []) or []
+                    normalized_issues = []
+                    for item in violations:
+                        normalized_issues.append(
+                            {
+                                "rule": item.get("rule_id") or item.get("code"),
+                                "message": item.get("description") or item.get("message", ""),
+                                "severity": item.get("severity", "warning"),
+                            }
+                        )
+                    results = {
+                        "valid": bool(v.get("is_acceptable", False)),
+                        "score": float(v.get("overall_score", 0.0) or 0.0),
+                        "issues": normalized_issues,
+                    }
+
             if results:
                 self._show_validation_results(results)
             else:
