@@ -126,39 +126,6 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Handover — US‑160 Gate + Context Model V2 cutover",
-      "path": "../HANDOVER-US-160-CONTEXT-MODEL-V2.md",
-      "url": "../HANDOVER-US-160-CONTEXT-MODEL-V2.md",
-      "status": "active",
-      "prioriteit": null,
-      "owner": "engineering",
-      "canonical": true,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-160"
-        ],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/HANDOVER-US-160-CONTEXT-MODEL-V2.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
       "title": "Refactor Log",
       "path": "../refactor-log.md",
       "url": "../refactor-log.md",
@@ -495,37 +462,6 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Handover Document: V2 Contract Refactoring",
-      "path": "../handover-v2-contract-refactoring.md",
-      "url": "../handover-v2-contract-refactoring.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover-v2-contract-refactoring.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
       "title": "PR_BODY_CFR",
       "path": "../PR_BODY_CFR.md",
       "url": "../PR_BODY_CFR.md",
@@ -553,44 +489,6 @@
         "req": []
       },
       "rendered_url": "rendered/PR_BODY_CFR.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Handover Document: Epic-010 Context Flow Analysis & Harmonisatie",
-      "path": "../handover-epic-010-context-analysis.md",
-      "url": "../handover-epic-010-context-analysis.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-041",
-          "US-042",
-          "US-043",
-          "US-048",
-          "US-049",
-          "US-050"
-        ],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover-epic-010-context-analysis.html"
     },
     {
       "id": null,
@@ -1395,132 +1293,6 @@
         ]
       },
       "rendered_url": "rendered/docs-compliance-check.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Handover Document: Voorbeelden UI Display Fixes - COMPLETED",
-      "path": "../handover-voorbeelden-fixes-completed.md",
-      "url": "../handover-voorbeelden-fixes-completed.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover-voorbeelden-fixes-completed.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Handover Document - EPIC-010 Afronding",
-      "path": "../handover-epic-010-completion.md",
-      "url": "../handover-epic-010-completion.md",
-      "status": "85% voltooid",
-      "prioriteit": "KRITIEK",
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": "37",
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": 37,
-        "priority_rank": 1,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [
-          "EPIC-010"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/handover-epic-010-completion.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Handover Document - DefinitieAgent Fixes",
-      "path": "../HANDOVER-2025-09-09.md",
-      "url": "../HANDOVER-2025-09-09.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/HANDOVER-2025-09-09.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Handover Document: Voorbeelden UI Display Fix",
-      "path": "../handover-voorbeelden-ui-fix.md",
-      "url": "../handover-voorbeelden-ui-fix.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover-voorbeelden-ui-fix.html"
     },
     {
       "id": null,
@@ -2944,43 +2716,6 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-003/US-135/CFR-BUG-015/CFR-BUG-015.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13",
-      "path": "../backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
-      "url": "../backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
-      "status": "active",
-      "prioriteit": null,
-      "owner": "engineering",
-      "canonical": false,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-004",
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-170"
-        ],
-        "epic": [
-          "EPIC-012"
-        ],
-        "req": [
-          "REQ-097"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.html"
     },
     {
       "id": "EPIC-004",
@@ -13024,43 +12759,6 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13",
-      "path": "../backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
-      "url": "../backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
-      "status": "active",
-      "prioriteit": null,
-      "owner": "engineering",
-      "canonical": false,
-      "last_verified": "2025-09-13",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-012",
-      "parent_us": null,
-      "_refs": {
-        "us": [
-          "US-170"
-        ],
-        "epic": [
-          "EPIC-012"
-        ],
-        "req": [
-          "REQ-097"
-        ]
-      },
-      "rendered_url": "rendered/backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
       "title": "EPIC-012: Legacy Orchestrator Refactoring",
       "path": "../backlog/EPIC-012/EPIC-012.md",
       "url": "../backlog/EPIC-012/EPIC-012.md",
@@ -15014,378 +14712,6 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-014/US-118/US-118.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "📋 Overdracht Document - Episch Verhaal 3: Web Lookup Modernization",
-      "path": "../handover/HANDOVER_WEB_LOOKUP_EPIC3.md",
-      "url": "../handover/HANDOVER_WEB_LOOKUP_EPIC3.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/HANDOVER_WEB_LOOKUP_EPIC3.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "📋 Overdracht Document - Story 2.4 ValidationOrchestratorV2 Integration",
-      "path": "../handover/HANDOVER_STORY_2.4.md",
-      "url": "../handover/HANDOVER_STORY_2.4.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/HANDOVER_STORY_2.4.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "📋 Werkplan voor 10 Januari 2025",
-      "path": "../handover/plan-2025-01-10.md",
-      "url": "../handover/plan-2025-01-10.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/plan-2025-01-10.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "🔍 V2 Migration Status - Geverifieerde Stand van Zaken",
-      "path": "../handover/refactoring-status-verified-2025-01-09.md",
-      "url": "../handover/refactoring-status-verified-2025-01-09.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/refactoring-status-verified-2025-01-09.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "📋 Updated Werkplan voor 10 Januari 2025",
-      "path": "../handover/plan-2025-01-10-updated.md",
-      "url": "../handover/plan-2025-01-10-updated.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/plan-2025-01-10-updated.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Overdracht Document - Story 2.4: Integration & Migration",
-      "path": "../handover/archive/story-2.4-handover-2025-01-09.md",
-      "url": "../handover/archive/story-2.4-handover-2025-01-09.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/archive/story-2.4-handover-2025-01-09.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Session Overdracht - Story 2.3 Implementatie Progress",
-      "path": "../handover/archive/session-handover-2025-01-09.md",
-      "url": "../handover/archive/session-handover-2025-01-09.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/archive/session-handover-2025-01-09.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Overdracht Document - Refactoring Status Overview",
-      "path": "../handover/archive/refactoring-status-handover-2025-01-09.md",
-      "url": "../handover/archive/refactoring-status-handover-2025-01-09.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/archive/refactoring-status-handover-2025-01-09.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Story 2.4 Implementatie Overdracht Document",
-      "path": "../handover/archive/story-2.4-implementation-2025-01-09.md",
-      "url": "../handover/archive/story-2.4-implementation-2025-01-09.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/archive/story-2.4-implementation-2025-01-09.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Session Overdracht - Story 2.3 ModularValidationService Implementatie",
-      "path": "../handover/archive/session-handover-2025-01-09-evening.md",
-      "url": "../handover/archive/session-handover-2025-01-09-evening.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/archive/session-handover-2025-01-09-evening.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Session Overdracht - 10 Januari 2025",
-      "path": "../handover/archive/session-handover-2025-01-10.md",
-      "url": "../handover/archive/session-handover-2025-01-10.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/archive/session-handover-2025-01-10.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "Session Overdracht - Story 2.3 ModularValidationService Implementatie",
-      "path": "../handover/archive/session-handover-2025-01-09-implementation.md",
-      "url": "../handover/archive/session-handover-2025-01-09-implementation.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/handover/archive/session-handover-2025-01-09-implementation.html"
     },
     {
       "id": null,
@@ -18713,6 +18039,680 @@
         "req": []
       },
       "rendered_url": "rendered/archief/PER-007-CFR-superseded/ADR-PER-007-context-flow-fix.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover — US‑160 Gate + Context Model V2 cutover",
+      "path": "../archief/handovers/HANDOVER-US-160-CONTEXT-MODEL-V2.md",
+      "url": "../archief/handovers/HANDOVER-US-160-CONTEXT-MODEL-V2.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "engineering",
+      "canonical": true,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-160"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/HANDOVER-US-160-CONTEXT-MODEL-V2.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover Document: V2 Contract Refactoring",
+      "path": "../archief/handovers/handover-v2-contract-refactoring.md",
+      "url": "../archief/handovers/handover-v2-contract-refactoring.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover-v2-contract-refactoring.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover Document: Epic-010 Context Flow Analysis & Harmonisatie",
+      "path": "../archief/handovers/handover-epic-010-context-analysis.md",
+      "url": "../archief/handovers/handover-epic-010-context-analysis.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-041",
+          "US-042",
+          "US-043",
+          "US-048",
+          "US-049",
+          "US-050"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover-epic-010-context-analysis.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover Document: Voorbeelden UI Display Fixes - COMPLETED",
+      "path": "../archief/handovers/handover-voorbeelden-fixes-completed.md",
+      "url": "../archief/handovers/handover-voorbeelden-fixes-completed.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover-voorbeelden-fixes-completed.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover Document - EPIC-010 Afronding",
+      "path": "../archief/handovers/handover-epic-010-completion.md",
+      "url": "../archief/handovers/handover-epic-010-completion.md",
+      "status": "85% voltooid",
+      "prioriteit": "KRITIEK",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "37",
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 37,
+        "priority_rank": 1,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover-epic-010-completion.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover Document - DefinitieAgent Fixes",
+      "path": "../archief/handovers/HANDOVER-2025-09-09.md",
+      "url": "../archief/handovers/HANDOVER-2025-09-09.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/HANDOVER-2025-09-09.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover Document: Voorbeelden UI Display Fix",
+      "path": "../archief/handovers/handover-voorbeelden-ui-fix.md",
+      "url": "../archief/handovers/handover-voorbeelden-ui-fix.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover-voorbeelden-ui-fix.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13",
+      "path": "../archief/handovers/backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "url": "../archief/handovers/backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "engineering",
+      "canonical": false,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-170"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/archief/handovers/backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13",
+      "path": "../archief/handovers/backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "url": "../archief/handovers/backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "engineering",
+      "canonical": false,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-170"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/archief/handovers/backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "📋 Overdracht Document - Episch Verhaal 3: Web Lookup Modernization",
+      "path": "../archief/handovers/handover/HANDOVER_WEB_LOOKUP_EPIC3.md",
+      "url": "../archief/handovers/handover/HANDOVER_WEB_LOOKUP_EPIC3.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/HANDOVER_WEB_LOOKUP_EPIC3.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "📋 Overdracht Document - Story 2.4 ValidationOrchestratorV2 Integration",
+      "path": "../archief/handovers/handover/HANDOVER_STORY_2.4.md",
+      "url": "../archief/handovers/handover/HANDOVER_STORY_2.4.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/HANDOVER_STORY_2.4.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "📋 Werkplan voor 10 Januari 2025",
+      "path": "../archief/handovers/handover/plan-2025-01-10.md",
+      "url": "../archief/handovers/handover/plan-2025-01-10.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/plan-2025-01-10.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🔍 V2 Migration Status - Geverifieerde Stand van Zaken",
+      "path": "../archief/handovers/handover/refactoring-status-verified-2025-01-09.md",
+      "url": "../archief/handovers/handover/refactoring-status-verified-2025-01-09.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/refactoring-status-verified-2025-01-09.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "📋 Updated Werkplan voor 10 Januari 2025",
+      "path": "../archief/handovers/handover/plan-2025-01-10-updated.md",
+      "url": "../archief/handovers/handover/plan-2025-01-10-updated.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/plan-2025-01-10-updated.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Overdracht Document - Story 2.4: Integration & Migration",
+      "path": "../archief/handovers/handover/archive/story-2.4-handover-2025-01-09.md",
+      "url": "../archief/handovers/handover/archive/story-2.4-handover-2025-01-09.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/archive/story-2.4-handover-2025-01-09.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Session Overdracht - Story 2.3 Implementatie Progress",
+      "path": "../archief/handovers/handover/archive/session-handover-2025-01-09.md",
+      "url": "../archief/handovers/handover/archive/session-handover-2025-01-09.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/archive/session-handover-2025-01-09.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Overdracht Document - Refactoring Status Overview",
+      "path": "../archief/handovers/handover/archive/refactoring-status-handover-2025-01-09.md",
+      "url": "../archief/handovers/handover/archive/refactoring-status-handover-2025-01-09.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/archive/refactoring-status-handover-2025-01-09.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Story 2.4 Implementatie Overdracht Document",
+      "path": "../archief/handovers/handover/archive/story-2.4-implementation-2025-01-09.md",
+      "url": "../archief/handovers/handover/archive/story-2.4-implementation-2025-01-09.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/archive/story-2.4-implementation-2025-01-09.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Session Overdracht - Story 2.3 ModularValidationService Implementatie",
+      "path": "../archief/handovers/handover/archive/session-handover-2025-01-09-evening.md",
+      "url": "../archief/handovers/handover/archive/session-handover-2025-01-09-evening.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/archive/session-handover-2025-01-09-evening.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Session Overdracht - 10 Januari 2025",
+      "path": "../archief/handovers/handover/archive/session-handover-2025-01-10.md",
+      "url": "../archief/handovers/handover/archive/session-handover-2025-01-10.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/archive/session-handover-2025-01-10.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Session Overdracht - Story 2.3 ModularValidationService Implementatie",
+      "path": "../archief/handovers/handover/archive/session-handover-2025-01-09-implementation.md",
+      "url": "../archief/handovers/handover/archive/session-handover-2025-01-09-implementation.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/archief/handovers/handover/archive/session-handover-2025-01-09-implementation.html"
     },
     {
       "id": null,
@@ -28473,7 +28473,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-15T08:40:43Z"
+    "generated_at": "2025-09-15T09:36:28Z"
   },
   "sources": [
     "docs"

@@ -308,7 +308,6 @@ OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 1. `docs/backlog/EPIC-010/EPIC-010.md` → Status: 100%
 2. `CHANGELOG.md` → Document breaking changes
 3. Verwijder obsolete docs:
-   - `docs/handover-epic-010-completion.md`
    - `docs/epic-010-completion-plan.md` (vervangen door v2)
 
 ## ✅ Definition of Done

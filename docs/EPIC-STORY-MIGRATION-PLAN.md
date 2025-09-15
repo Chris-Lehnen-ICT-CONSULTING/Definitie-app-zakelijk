@@ -168,9 +168,7 @@ Migratie naar een **moderne, schaalbare backlog structuur** met:
 ### Diep Archief Ontdekkingen
 
 #### 1. Workflows Archief (`/docs/archief/2025-01-workflows/`)
-- **story-2.3-implementation-handover.md**: Bevat handover documentatie voor Story 2.3
-  - Status: Branch `feat/story-2.3-container-wiring` bestaat niet meer
-  - Actie: Controleren of functionaliteit geïmplementeerd is
+<!-- handover document verwijzing verwijderd (verouderd) -->
 
 #### 2. Consolidatie Archief (`/docs/archief/2025-09-architectuur-consolidatie/`)
 - **EPIC-MANAGEMENT-ARCHITECTURE-REVIEW.md**: Management epic voor architectuur review
