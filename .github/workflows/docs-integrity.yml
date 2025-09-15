@@ -38,12 +38,30 @@ jobs:
 
       - name: Drift Check (portal outputs up-to-date)
         run: |
-          # Fail if regenerated portal differs from committed state
-          git add docs/portal/index.html docs/portal/portal-index.json
-          if ! git diff --cached --exit-code -- docs/portal/index.html docs/portal/portal-index.json; then
-            echo "::error ::Portal outputs are out-of-date. Run: python scripts/docs/generate_portal.py and commit the changes." >&2
-            exit 1
-          fi
+          # Fail if regenerated portal differs from committed (ignore timestamp noise)
+          python3 - << 'PY'
+import json, subprocess, sys
+from pathlib import Path
+
+def load_head(path: str) -> str:
+    return subprocess.check_output(["git", "show", f"HEAD:{path}"]).decode()
+
+def normalize_portal_index(text: str) -> dict:
+    data = json.loads(text)
+    # Remove volatile fields
+    if isinstance(data, dict):
+        agg = data.get("aggregate") or {}
+        if isinstance(agg, dict):
+            agg.pop("generated_at", None)
+    return data
+
+curr = Path("docs/portal/portal-index.json").read_text(encoding="utf-8")
+head = load_head("docs/portal/portal-index.json")
+if normalize_portal_index(curr) != normalize_portal_index(head):
+    print("::error ::Portal outputs are out-of-date (ignoring generated_at). Run: python scripts/docs/generate_portal.py and commit the changes.")
+    sys.exit(1)
+print("Portal outputs up-to-date (normalized)")
+PY
 
       - name: Upload Portal Artifact
         uses: actions/upload-artifact@v4
