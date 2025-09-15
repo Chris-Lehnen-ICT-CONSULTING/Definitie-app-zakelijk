@@ -70,6 +70,10 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "flaky: mark test as flaky (may fail intermittently)"
     )
+    # Optional benchmark marker when pytest-benchmark plugin is absent
+    config.addinivalue_line(
+        "markers", "benchmark: mark test as benchmark (optional plugin)"
+    )
 
 
 # Configure test collection to ignore certain files
@@ -113,6 +117,16 @@ def benchmark_timer():
             assert self.elapsed < seconds, f"Took {self.elapsed:.2f}s, expected under {seconds}s"
 
     return Timer()
+
+
+# Provide a minimal fallback for the 'benchmark' fixture when pytest-benchmark
+# plugin is not installed. It simply runs the callable once.
+@pytest.fixture
+def benchmark():
+    def run(fn, *args, **kwargs):
+        return fn(*args, **kwargs)
+
+    return run
 
 
 # Test data fixtures

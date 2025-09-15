@@ -279,7 +279,7 @@ class DefinitionEditRepository(DefinitionRepository):
                            search_term: str = None,
                            categorie: str = None,
                            status: str = None,
-                           context: str = None,
+                           context_filter: str = None,
                            date_from: datetime = None,
                            date_to: datetime = None,
                            limit: int = 50) -> List[Definition]:
@@ -290,7 +290,7 @@ class DefinitionEditRepository(DefinitionRepository):
             search_term: Optionele zoekterm
             categorie: Filter op categorie
             status: Filter op status
-            context: Filter op organisatorische context
+            context_filter: Filter op organisatorische context
             date_from: Filter vanaf datum
             date_to: Filter tot datum
             limit: Maximum aantal resultaten
@@ -319,9 +319,9 @@ class DefinitionEditRepository(DefinitionRepository):
                     query += " AND status = ?"
                     params.append(status)
                 
-                if context:
+                if context_filter:
                     query += " AND organisatorische_context LIKE ?"
-                    params.append(f"%{context}%")
+                    params.append(f"%{context_filter}%")
                 
                 if date_from:
                     query += " AND created_at >= ?"

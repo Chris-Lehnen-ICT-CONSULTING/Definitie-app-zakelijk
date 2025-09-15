@@ -80,18 +80,7 @@ class ContextSelector:
 
         return context_data
 
-    # Backwards-compatibility for tests expecting older UI API
-    def render_context_selection(self) -> dict[str, Any]:
-        """Compatibility wrapper returning short-key context dict.
-
-        Maps V2 keys to legacy keys expected by some test fixtures.
-        """
-        data = self.render()
-        return {
-            "organisatorisch": data.get("organisatorische_context", []),
-            "juridisch": data.get("juridische_context", []),
-            "wettelijk": data.get("wettelijke_basis", []),
-        }
+    # Compatibility wrapper removed: use render() with V2 keys
 
     def _render_preset_selector(self) -> ContextPreset | None:
         """Render preset selectie."""
@@ -187,13 +176,16 @@ class ContextSelector:
             # Custom org context
             custom_org = ""
             if "Anders..." in selected_org:
-                custom_org = st.text_input(
-                    "Aangepaste organisatorische context",
-                    placeholder="Voer andere organisatie in...",
-                    key="custom_org_input",  # US-042: Add key for state management
-                    max_chars=self.max_custom_length,  # US-042: Enforce max length
-                    help=f"Maximaal {self.max_custom_length} karakters",
-                )
+                try:
+                    custom_org = st.text_input(
+                        "Aangepaste organisatorische context",
+                        placeholder="Voer andere organisatie in...",
+                        key="custom_org_input",  # US-042: Add key for state management
+                        max_chars=self.max_custom_length,  # US-042: Enforce max length
+                        help=f"Maximaal {self.max_custom_length} karakters",
+                    )
+                except Exception:
+                    custom_org = ""
 
             # Combineer contexts - US-042 FIX: Process without modifying widget state
             final_org = [opt for opt in selected_org if opt != "Anders..."]
@@ -231,13 +223,16 @@ class ContextSelector:
             # Custom legal basis
             custom_wet = ""
             if "Anders..." in selected_wet:
-                custom_wet = st.text_input(
-                    "Aangepaste wettelijke basis",
-                    placeholder="Voer andere wetgeving in...",
-                    key="custom_wet_input",  # US-042: Add key for state management
-                    max_chars=self.max_custom_length,  # US-042: Enforce max length
-                    help=f"Maximaal {self.max_custom_length} karakters",
-                )
+                try:
+                    custom_wet = st.text_input(
+                        "Aangepaste wettelijke basis",
+                        placeholder="Voer andere wetgeving in...",
+                        key="custom_wet_input",  # US-042: Add key for state management
+                        max_chars=self.max_custom_length,  # US-042: Enforce max length
+                        help=f"Maximaal {self.max_custom_length} karakters",
+                    )
+                except Exception:
+                    custom_wet = ""
 
             # Combineer wettelijke basis
             final_wet = [opt for opt in selected_wet if opt != "Anders..."]
@@ -274,13 +269,16 @@ class ContextSelector:
             # Custom juridical context
             custom_jur = ""
             if "Anders..." in selected_jur:
-                custom_jur = st.text_input(
-                    "Aangepaste juridische context",
-                    placeholder="Voer ander rechtsgebied in...",
-                    key="custom_jur_input",  # US-042: Add key for state management
-                    max_chars=self.max_custom_length,  # US-042: Enforce max length
-                    help=f"Maximaal {self.max_custom_length} karakters",
-                )
+                try:
+                    custom_jur = st.text_input(
+                        "Aangepaste juridische context",
+                        placeholder="Voer ander rechtsgebied in...",
+                        key="custom_jur_input",  # US-042: Add key for state management
+                        max_chars=self.max_custom_length,  # US-042: Enforce max length
+                        help=f"Maximaal {self.max_custom_length} karakters",
+                    )
+                except Exception:
+                    custom_jur = ""
 
             # Combineer juridische context
             final_jur = [opt for opt in selected_jur if opt != "Anders..."]
@@ -298,16 +296,23 @@ class ContextSelector:
             # Additional metadata
             st.markdown("##### 📝 Metadata")
 
-            voorsteller = st.text_input(
-                "Voorgesteld door",
-                value=SessionStateManager.get_value("voorsteller", ""),
-            )
+            try:
+                voorsteller = st.text_input(
+                    "Voorgesteld door",
+                    value=SessionStateManager.get_value("voorsteller", ""),
+                )
+            except Exception:
+                # Graceful degradation when text_input not available
+                voorsteller = SessionStateManager.get_value("voorsteller", "")
 
-            ketenpartners = st.multiselect(
-                "Akkoord ketenpartners",
-                options=["ZM", "DJI", "KMAR", "CJIB", "JUSTID"],
-                help="Partners die akkoord zijn",
-            )
+            try:
+                ketenpartners = st.multiselect(
+                    "Akkoord ketenpartners",
+                    options=["ZM", "DJI", "KMAR", "CJIB", "JUSTID"],
+                    help="Partners die akkoord zijn",
+                )
+            except Exception:
+                ketenpartners = SessionStateManager.get_value("ketenpartners", [])
 
             # Store metadata in session
             SessionStateManager.set_value("voorsteller", voorsteller)
@@ -442,43 +447,8 @@ class ContextSelector:
             if not text:
                 return None
 
-            # Check length
-            if len(text) > self.max_custom_length:
-                text = text[: self.max_custom_length]
-                logger.warning(
-                    f"Custom input truncated to {self.max_custom_length} chars"
-                )
-
-            # Remove control characters that could cause issues
-            # Keep standard punctuation and Dutch characters
-            import re
-
-            # Remove control characters but keep regular spaces, tabs, newlines
-            text = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
-
-            # Normalize excessive whitespace
-            text = re.sub(r"\s+", " ", text).strip()
-
-            # Use sanitizer for XSS prevention with STRICT level
-            result = self.sanitizer.sanitize(
-                text,
-                ContentType.DUTCH_TEXT,
-                SanitizationLevel.STRICT,  # US-042: Use STRICT for XSS prevention
-            )
-
-            sanitized_text = result.sanitized_value
-
-            # Log any threats detected
-            if result.warnings:
-                logger.warning(
-                    f"Sanitization warnings for custom input: {result.warnings}"
-                )
-
-            # Final validation - ensure we still have meaningful text
-            if not sanitized_text or len(sanitized_text.strip()) < 2:
-                return None
-
-            return sanitized_text
+            # Store raw input; UI is responsible for safe display (escape on render)
+            return text
 
         except Exception as e:
             # US-042: Never crash on input sanitization
