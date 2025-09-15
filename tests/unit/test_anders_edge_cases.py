@@ -192,7 +192,14 @@ class TestConcurrencyAndRaceConditions:
         def modify_anders(value):
             try:
                 with patch('streamlit.multiselect') as mock_multiselect, \
-                     patch('streamlit.text_input') as mock_text_input:
+                     patch('streamlit.text_input') as mock_text_input, \
+                     patch('streamlit.markdown') as _md, \
+                     patch('streamlit.selectbox') as _sb, \
+                     patch('streamlit.columns', return_value=[MagicMock(), MagicMock()]) as _cols, \
+                     patch('streamlit.expander', return_value=MagicMock()) as _exp, \
+                     patch('streamlit.checkbox', return_value=False) as _cb, \
+                     patch('streamlit.info') as _info, \
+                     patch('streamlit.warning') as _warn:
 
                     mock_multiselect.return_value = ["Anders..."]
                     mock_text_input.return_value = f"Concurrent_{value}"
@@ -505,11 +512,17 @@ class TestErrorRecovery:
     def test_recovery_from_render_error(self):
         """Test recovery when render partially fails."""
         with patch('streamlit.multiselect') as mock_multiselect:
-            # First call fails, second succeeds
-            mock_multiselect.side_effect = [
-                Exception("Render failed"),
-                ["DJI", "Anders..."]
-            ]
+            # First call fails, then return valid selections for all multiselects
+            def multiselect_side_effect(*args, **kwargs):
+                if not hasattr(multiselect_side_effect, "calls"):
+                    multiselect_side_effect.calls = 0
+                multiselect_side_effect.calls += 1
+                if multiselect_side_effect.calls == 1:
+                    raise Exception("Render failed")
+                # Subsequent calls: return valid lists for each multiselect
+                return ["DJI", "Anders..."] if "Organisatorische" in (args[0] if args else "") else []
+
+            mock_multiselect.side_effect = multiselect_side_effect
 
             selector = ContextSelector()
 
