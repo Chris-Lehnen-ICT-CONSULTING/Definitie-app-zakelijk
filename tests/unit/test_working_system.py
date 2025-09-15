@@ -18,7 +18,7 @@ from config.config_adapters import (
     get_default_temperature,
     get_paths_config,
 )
-from config.config_loader import laad_toetsregels
+from toetsregels.loader import load_toetsregels
 
 # Import available modules
 from config.config_manager import ConfigSection, get_config, get_config_manager
@@ -170,7 +170,7 @@ class TestModularToetser:
 
         # Load real toetsregels
         try:
-            self.toetsregels = laad_toetsregels()
+            self.toetsregels = load_toetsregels().get("regels", {})
         except Exception:
             # Fallback minimal toetsregels for testing
             self.toetsregels = {

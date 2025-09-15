@@ -378,9 +378,9 @@ class TestCoreFunctionality(unittest.TestCase):
         """Test configuratie laden en validatie."""
         try:
             # Test toetsregels laden - dit is de meest kritieke configuratie
-            from config.config_loader import laad_toetsregels
+            from toetsregels.loader import load_toetsregels
 
-            toetsregels = laad_toetsregels()
+            toetsregels = load_toetsregels().get("regels", {})
             self.assertIsInstance(toetsregels, dict)
             self.assertGreater(len(toetsregels), 0)
 

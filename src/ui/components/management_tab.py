@@ -957,9 +957,9 @@ class ManagementTab:
             st.markdown("**Toetsregels Test**")
 
             try:
-                from config.config_loader import laad_toetsregels
+                from toetsregels.loader import load_toetsregels
 
-                toetsregels = laad_toetsregels()
+                toetsregels = load_toetsregels().get("regels", {})
 
                 st.write(f"📋 **Geladen toetsregels:** {len(toetsregels)}")
 

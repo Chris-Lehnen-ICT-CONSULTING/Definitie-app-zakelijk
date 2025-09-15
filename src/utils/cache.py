@@ -213,7 +213,23 @@ _cache = FileCache(_cache_config)
 _stats = {"hits": 0, "misses": 0, "evictions": 0}
 
 
-def cached(ttl: int | None = None, cache_key_func: Callable | None = None):
+def _generate_key_from_args(func_name: str, *args, **kwargs) -> str:
+    content = json.dumps(
+        {"func": func_name, "args": args, "kwargs": sorted(kwargs.items())},
+        sort_keys=True,
+        default=str,
+    )
+    return hashlib.md5(content.encode()).hexdigest()
+
+
+from typing import Optional
+
+
+def cached(
+    ttl: int | None = None,
+    cache_key_func: Callable | None = None,
+    cache_manager: Optional["CacheManager"] = None,
+):
     """
     Decorator to cache function results.
 
@@ -234,10 +250,12 @@ def cached(ttl: int | None = None, cache_key_func: Callable | None = None):
             if cache_key_func:
                 cache_key = cache_key_func(*args, **kwargs)
             else:
-                cache_key = _cache._generate_cache_key(func.__name__, *args, **kwargs)
+                cache_key = _generate_key_from_args(func.__name__, *args, **kwargs)
 
             # Try to get from cache
-            cached_result = _cache.get(cache_key)
+            backend_get = (cache_manager.get if cache_manager else _cache.get)
+            backend_set = (cache_manager.set if cache_manager else _cache.set)
+            cached_result = backend_get(cache_key)
             if cached_result is not None:
                 logger.debug(f"Cache hit for {func.__name__}")
                 _stats["hits"] += 1
@@ -249,7 +267,7 @@ def cached(ttl: int | None = None, cache_key_func: Callable | None = None):
             result = func(*args, **kwargs)
 
             # Store in cache
-            _cache.set(cache_key, result, ttl)
+            backend_set(cache_key, result, ttl)
 
             return result
 

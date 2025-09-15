@@ -10,7 +10,7 @@ Deze module is verantwoordelijk voor:
 import logging
 from typing import Any
 
-from config.config_loader import laad_toetsregels
+from toetsregels.loader import load_toetsregels
 
 from .base_module import BasePromptModule, ModuleContext, ModuleOutput
 
@@ -48,7 +48,7 @@ class SamRulesModule(BasePromptModule):
 
         # Load toetsregels from JSON
         try:
-            self._toetsregels = laad_toetsregels()
+            self._toetsregels = load_toetsregels().get("regels", {})
             logger.info(
                 f"SamRulesModule geïnitialiseerd (examples={self.include_examples})"
             )

@@ -21,7 +21,7 @@ from document_processing.document_extractor import extract_text_from_file
 from utils.cache import cached, clear_cache, get_cache_stats
 from validation.sanitizer import get_sanitizer, sanitize_content
 
-from config.config_loader import laad_toetsregels
+from toetsregels.loader import load_toetsregels
 from config.config_manager import ConfigSection, get_config_manager
 
 # Import resilience and rate limiting components
@@ -107,7 +107,7 @@ class TestAIToetserPerformance:
         """Setup for each test method."""
         self.monitor = PerformanceMonitor()
         self.toetser = ModularToetser()
-        self.toetsregels = laad_toetsregels()
+        self.toetsregels = load_toetsregels().get("regels", {})
 
     def test_single_validation_performance(self):
         """Test performance of single definition validation."""
@@ -329,7 +329,7 @@ class TestConfigurationPerformance:
 
         # Load toetsregels multiple times
         for i in range(20):
-            regels = laad_toetsregels()
+            regels = load_toetsregels().get("regels", {})
             assert isinstance(regels, dict)
             assert len(regels) > 0
 
@@ -530,7 +530,7 @@ class TestSystemPerformanceIntegration:
 
         # 1. Load configuration
         config_manager = get_config_manager()
-        toetsregels = laad_toetsregels()
+        toetsregels = load_toetsregels().get("regels", {})
 
         # 2. Initialize components
         toetser = ModularToetser()
@@ -564,7 +564,7 @@ class TestSystemPerformanceIntegration:
     def test_sustained_load_performance(self):
         """Test performance under sustained load."""
         toetser = ModularToetser()
-        toetsregels = laad_toetsregels()
+        toetsregels = load_toetsregels().get("regels", {})
 
         measurement = self.monitor.start_measurement("sustained_load")
 
@@ -616,7 +616,7 @@ class TestPerformanceRegression:
     def test_performance_baselines(self):
         """Test that performance meets established baselines."""
         toetser = ModularToetser()
-        toetsregels = laad_toetsregels()
+        toetsregels = load_toetsregels().get("regels", {})
 
         # Test single validation baseline
         start_time = time.time()
