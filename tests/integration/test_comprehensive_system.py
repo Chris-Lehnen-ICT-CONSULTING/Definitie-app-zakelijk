@@ -21,7 +21,7 @@ from config.config_adapters import (
     get_default_temperature,
     get_paths_config,
 )
-from config.config_loader import laad_toetsregels
+from toetsregels.loader import load_toetsregels
 
 # Import available modules
 from config.config_manager import ConfigSection, get_config, get_config_manager
@@ -210,7 +210,7 @@ class TestAIToetserSystem:
     def setup_method(self):
         """Setup for each test method."""
         self.toetser = ModularToetser()
-        self.toetsregels = laad_toetsregels()
+        self.toetsregels = load_toetsregels().get("regels", {})
 
     def test_toetser_initialization(self):
         """Test ModularToetser initialization."""
@@ -273,7 +273,7 @@ class TestSystemIntegration:
         """Test end-to-end definition validation process."""
         # Initialize components
         toetser = ModularToetser()
-        toetsregels = laad_toetsregels()
+        toetsregels = load_toetsregels().get("regels", {})
 
         # Test definition
         test_definition = "Autorisatie is het proces waarbij wordt bepaald welke rechten een geauthenticeerde gebruiker heeft."
@@ -301,7 +301,7 @@ class TestSystemIntegration:
             nonlocal call_count
             call_count += 1
             toetser = ModularToetser()
-            toetsregels = laad_toetsregels()
+            toetsregels = load_toetsregels().get("regels", {})
             return toetser.validate_definition(definition, toetsregels)
 
         # First call
@@ -316,7 +316,7 @@ class TestSystemIntegration:
         """Test error handling across integrated systems."""
         # Test with invalid inputs
         toetser = ModularToetser()
-        toetsregels = laad_toetsregels()
+        toetsregels = load_toetsregels().get("regels", {})
 
         # Test None input
         try:
@@ -371,7 +371,7 @@ class TestPerformanceBaseline:
     def test_validation_performance_baseline(self):
         """Test validation performance baseline."""
         toetser = ModularToetser()
-        toetsregels = laad_toetsregels()
+        toetsregels = load_toetsregels().get("regels", {})
 
         # Test validation performance
         start_time = time.time()
@@ -459,7 +459,7 @@ class TestSystemStability:
         def worker(worker_id):
             try:
                 toetser = ModularToetser()
-                toetsregels = laad_toetsregels()
+                toetsregels = load_toetsregels().get("regels", {})
                 for i in range(10):
                     definition = f"Worker {worker_id} definition {i}."
                     result = toetser.validate_definition(definition, toetsregels)
@@ -487,7 +487,7 @@ class TestSystemStability:
     def test_error_recovery_stability(self):
         """Test system stability during error conditions."""
         toetser = ModularToetser()
-        toetsregels = laad_toetsregels()
+        toetsregels = load_toetsregels().get("regels", {})
 
         # Test with various error conditions
         error_inputs = [
