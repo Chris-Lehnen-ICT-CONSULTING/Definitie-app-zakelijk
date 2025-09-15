@@ -2944,6 +2944,43 @@
       "rendered_url": "rendered/backlog/EPIC-003/US-135/CFR-BUG-015/CFR-BUG-015.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13",
+      "path": "../backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "url": "../backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "engineering",
+      "canonical": false,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-170"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/HANDOVER-2025-09-13-US-160-and-EPIC-012.html"
+    },
+    {
       "id": "EPIC-004",
       "type": "DOC",
       "title": "User Interface",
@@ -12443,6 +12480,43 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-015/US-127/US-127.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Handover — US‑160 (Context Model V2) + EPIC‑012 (V2 Orchestrator) — Checkpoint 2025‑09‑13",
+      "path": "../backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "url": "../backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "engineering",
+      "canonical": false,
+      "last_verified": "2025-09-13",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-170"
+        ],
+        "epic": [
+          "EPIC-012"
+        ],
+        "req": [
+          "REQ-097"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-012/HANDOVER-2025-09-13-US-160-and-EPIC-012.html"
     },
     {
       "id": null,
@@ -27782,7 +27856,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 610,
+      "DOC": 612,
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
@@ -27790,7 +27864,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-15T06:35:51Z"
+    "generated_at": "2025-09-15T06:40:45Z"
   },
   "sources": [
     "docs"
