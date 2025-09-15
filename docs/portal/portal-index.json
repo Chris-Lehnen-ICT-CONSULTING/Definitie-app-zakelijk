@@ -3475,7 +3475,7 @@
       "title": "Validatie‑gate bij Vaststellen (Option B)",
       "path": "../backlog/EPIC-004/US-160/US-160.md",
       "url": "../backlog/EPIC-004/US-160/US-160.md",
-      "status": "Backlog",
+      "status": "Gepland",
       "prioriteit": "HOOG",
       "owner": "frontend-team",
       "canonical": true,
@@ -10390,37 +10390,6 @@
         ]
       },
       "rendered_url": "rendered/backlog/dashboard/README.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "ARCHIVE – Backlog Dashboards",
-      "path": "../backlog/dashboard/ARCHIVED.md",
-      "url": "../backlog/dashboard/ARCHIVED.md",
-      "status": "archived",
-      "prioriteit": null,
-      "owner": "documentation-team",
-      "canonical": false,
-      "last_verified": "2025-09-11",
-      "applies_to": "definitie-app@current",
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": null,
-      "parent_us": null,
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/dashboard/ARCHIVED.html"
     },
     {
       "id": "EPIC-009",
@@ -26977,8 +26946,7 @@
       "parent_us": null,
       "_refs": {
         "us": [
-          "US-110",
-          "US-154"
+          "US-110"
         ],
         "epic": [
           "EPIC-004"
@@ -27814,7 +27782,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 611,
+      "DOC": 610,
       "BUG": 9,
       "TEST": 24,
       "COMP": 6,
@@ -27822,7 +27790,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-14T08:27:38Z"
+    "generated_at": "2025-09-15T06:34:14Z"
   },
   "sources": [
     "docs"

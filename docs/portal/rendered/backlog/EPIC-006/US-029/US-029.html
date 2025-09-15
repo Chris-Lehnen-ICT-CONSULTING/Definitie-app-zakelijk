@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Security headers (CSP/HSTS/X-Frame-Options) + CSRF + UI rate limiting</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-029</p>
+<p>epic: EPIC-006</p>
+<p>titel: Security headers (CSP/HSTS/X-Frame-Options) + CSRF + UI rate limiting</p>
+<p>status: Nog te bepalen</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 5</p>
+<p>owner: security-engineer</p>
+<p>sprint: sprint-37</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-12</p>
+<p>applies_to: definitie-app@current</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-006</li>
+<p>afhankelijkheden:</p>
+<li>EPIC-006/US-028</li>
+<p>links:</p>
+<li>docs/backlog/DEEP_DIVE_IMPROVEMENT_PLAN.md#security--privacy-req006-owasp</li>
+<p>---</p>
+</ul>
+
+<h1>US-029: Security headers (CSP/HSTS/X-Frame-Options) + CSRF + UI rate limiting</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als security officer wil ik standaard security headers, CSRF‑bescherming en UI‑rate limiting zodat de applicatie OWASP Top‑10 mitigaties toepast en risico’s op XSS/Clickjacking/CSRF minimaliseert.</p>
+
+<h2>Acceptatiecriteria (SMART)</h2>
+<ul>
+<li>Specifiek: Header‑set (CSP, HSTS, X‑Frame‑Options, X‑Content‑Type‑Options, X‑XSS‑Protection) actief; CSRF‑token voor state‑wijzigende acties; UI‑rate limiting op submit‑acties.</li>
+<li>Meetbaar:</li>
+<li> - SecurityHeaders scan score: A (of gelijkwaardig) zonder High findings.</li>
+<li> - 100% POST‑acties voorzien van CSRF‑token (mock‑API of middleware path voor Streamlit).</li>
+<li> - Rate limiting: dubbele klikken of bots worden geblokkeerd/loggen.</li>
+<li>Acceptabel: Streamlit heeft beperkte header‑controle; alternatief via reverse proxy of werkbare middleware.</li>
+<li>Relevant: REQ‑006.</li>
+<li>Tijdgebonden: sprint‑37.</li>
+</ul>
+
+<h2>Implementatienotities</h2>
+<ul>
+<li>Indien Streamlit headers niet zet: documenteer Nginx/Traefik configuratie in `docs/handleidingen/deployment/` en voeg runtime check toe die waarschuwt als headers ontbreken.</li>
+<li>CSRF: minimalistisch via per‑sessie nonce en hidden field in formulieren; verifieer op submit.</li>
+<li>UI rate limit: client‑side throttle + server‑side eenvoudige limiter (session‑scoped).</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Security header integration test (requests naar lokale server; validate headers).</li>
+<li>CSRF unit/integration tests met geldige/ongeldige tokens.</li>
+<li>Rate limiting test: snelle herhaalde submits → geblokkeerd met nette melding.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>Documentatie voor headers aanwezig; CI check (ZAP baseline) zonder High; tests groen.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

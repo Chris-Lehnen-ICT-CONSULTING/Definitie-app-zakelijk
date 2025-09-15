@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Technical Analysis: Prompt Generation Implementatie Issues</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Technical Analysis: Prompt Generation Implementatie Issues</h1>
+
+<h2>Executive Summary</h2>
+
+<p>The prompt generation implementation has several critical technical issues preventing sophisticated features from activating:</p>
+
+<ol>
+<li>**Ontological category data corruption**: String value gets converted to character list</li>
+<li>**Legacy prompt builder threshold never reached**: Context items too low</li>
+<li>**Toetsregels integration missing**: No connection to prompt generation</li>
+<li>**Enriched context features unused**: Advanced features bypassed</li>
+</ol>
+
+<h2>1. Exact Technical Flow Wanneer Generating Definition with Category "proces"</h2>
+
+<h3>Flow Trace:</h3>
+
+<pre><code># 1. TabbedInterface._handle_definition_generation() - line 709
+auto_categorie, category_reasoning, category_scores = asyncio.run(
+    self._determine_ontological_category(begrip, primary_org, primary_jur)
+)
+# Returns: OntologischeCategorie.PROCES (enum value)
+
+# 2. ServiceAdapter.generate_definition() - service_factory.py line 161
+categorie = kwargs.get("categorie")
+ontologische_categorie = None
+if categorie:
+    if hasattr(categorie, "value"):
+        ontologische_categorie = categorie.value  # "proces" (string)
+    else:
+        ontologische_categorie = str(categorie)
+
+# 3. GenerationRequest created - line 199
+request = GenerationRequest(
+    ontologische_categorie=ontologische_categorie,  # "proces" as string
+)
+
+# 4. DefinitionOrchestrator._generate_definition() - line 391
+base_context = {
+    "ontologische_categorie": context.request.ontologische_categorie,  # Still "proces"
+}</code></pre>
+
+<h2>2. Where Ontological Category Data Gets Corrupted</h2>
+
+<h3>The Bug Location:</h3>
+
+<p>In <code>DefinitionOrchestrator._generate_definition()</code> at line 412:</p>
+
+<pre><code># BUG: ontologische_categorie is placed in base_context dict
+base_context = {
+    "organisatorisch": [...],
+    "juridisch": [...],
+    "wettelijk": [],
+    "ontologische_categorie": context.request.ontologische_categorie,  # WRONG!
+}</code></pre>
+
+<h3>What Happens:</h3>
+
+<ol>
+<li>`base_context` is a dict that expects lists as values</li>
+<li>Wanneer `EnrichedContext` processes this, it may iterate over the string "proces"</li>
+<li>This creates `['p', 'r', 'o', 'c', 'e', 's']` - a character list!</li>
+</ol>
+
+<h3>The Fix:</h3>
+
+<pre><code># Move ontologische_categorie to metadata, not base_context
+base_context = {
+    "organisatorisch": [...],
+    "juridisch": [...],
+    "wettelijk": [],
+    # Remove from here!
+}
+
+enriched_context = EnrichedContext(
+    base_context=base_context,
+    sources=[],
+    expanded_terms={},
+    confidence_scores={},
+    metadata={
+        "ontologische_categorie": context.request.ontologische_categorie,  # HERE!
+        "extra_instructies": context.request.extra_instructies,
+    },
+)</code></pre>
+
+<h2>3. Why Legacy Prompt Builder Threshold Fails</h2>
+
+<h3>The Issue:</h3>
+
+<p>In <code>UnifiedPromptBuilder._select_strategy()</code> at line 618:</p>
+
+<pre><code># Legacy builder selected only when:
+if "legacy" in self.builders and len(context.sources) &lt;= 1:
+    total_context_items = sum(len(items) for items in context.base_context.values())
+    if total_context_items &lt;= 3:  # THIS THRESHOLD IS RARELY MET!
+        return "legacy"</code></pre>
+
+<h3>Why It Fails:</h3>
+
+<ol>
+<li>Most real-world scenarios have >3 context items</li>
+<li>The threshold is too restrictive</li>
+<li>Legacy builder has sophisticated features that never activate</li>
+</ol>
+
+<h3>Example:</h3>
+<pre><code># Typical context:
+{
+    "organisatorisch": ["DJI", "detentie"],  # 2 items
+    "juridisch": ["strafrecht"],            # 1 item
+    "wettelijk": ["Pbw"],                   # 1 item
+}
+# Total: 4 items - legacy builder skipped!</code></pre>
+
+<h2>4. Missing Toetsregels Integration</h2>
+
+<h3>Current State:</h3>
+
+<p>Toetsregels (validation rules) exist but aren't used during prompt generation:</p>
+
+<pre><code># In validation/toetsregels.py - sophisticated rules defined
+TOETSREGELS = {
+    "CON-01": {...},  # Context rules
+    "ESS-01": {...},  # Essential elements
+    "STR-01": {...},  # Structure rules
+}
+
+# BUT: No connection to prompt generation!</code></pre>
+
+<h3>What Should Happen:</h3>
+
+<pre><code>class RuleBasedPromptBuilder(PromptBuilder):
+    def build_prompt(self, begrip, context, config):
+        # 1. Analyze which rules might be violated
+        potential_issues = self._predict_rule_violations(begrip, context)
+
+        # 2. Add preventive instructions to prompt
+        prompt = self._base_prompt(begrip, context)
+        prompt += "\n\nLet op de volgende kwaliteitsregels:\n"
+
+        for rule_id, rule in potential_issues.items():
+            prompt += f"- {rule.beschrijving}\n"
+            if rule.positief_voorbeeld:
+                prompt += f"  Goed: {rule.positief_voorbeeld}\n"
+
+        return prompt</code></pre>
+
+<h2>5. Enriched Context Features Not Activated</h2>
+
+<h3>Available but Unused Features:</h3>
+
+<ol>
+<li>**Web Lookup Integration**</li>
+<pre><code># In EnrichedContext:
+sources: list[ContextSource]  # Can include web sources
+expanded_terms: dict[str, str]  # Abbreviation expansion
+confidence_scores: dict[str, float]  # Source reliability
+
+# BUT: Always empty in current flow!</code></pre>
+</ol>
+
+<ol>
+<li>**Sophisticated Prompt Templates**</li>
+<pre><code># In BasicPromptBuilder - ontology-specific templates exist:
+"ontologie_proces": PromptTemplate(...)  # Never selected!
+"ontologie_type": PromptTemplate(...)    # Never selected!</code></pre>
+</ol>
+
+<ol>
+<li>**Context-Aware Strategy**</li>
+<pre><code># ContextAwarePromptBuilder has rich features:
+- _calculate_context_score()  # Unused
+- _build_rich_context_prompt()  # Never reached
+- _format_detailed_context()  # Never called</code></pre>
+</ol>
+
+<h2>Technical Solutions</h2>
+
+<h3>1. Fix Ontological Category Handling:</h3>
+
+<pre><code># In DefinitionOrchestrator._generate_definition():
+enriched_context = EnrichedContext(
+    base_context={
+        "organisatorisch": [...],
+        "juridisch": [...],
+        "wettelijk": [],
+    },
+    metadata={
+        "ontologische_categorie": context.request.ontologische_categorie,
+        "extra_instructies": context.request.extra_instructies,
+    }
+)</code></pre>
+
+<h3>2. Enable Sophisticated Features:</h3>
+
+<pre><code># In BasicPromptBuilder._select_template():
+def _select_template(self, begrip: str, context: EnrichedContext) -&gt; PromptTemplate:
+    # PRIORITY 1: Check metadata for ontological category
+    ontologische_categorie = context.metadata.get("ontologische_categorie")
+    if ontologische_categorie:
+        template_key = f"ontologie_{ontologische_categorie}"
+        if template_key in self.templates:
+            logger.info(f"Using ontological template: {template_key}")
+            return self.templates[template_key]</code></pre>
+
+<h3>3. Integrate Toetsregels:</h3>
+
+<pre><code># New method in UnifiedPromptBuilder:
+def _enhance_prompt_with_rules(self, base_prompt: str, begrip: str) -&gt; str:
+    """Add rule-based guidance to prevent common violations."""
+    from validation.toetsregels import get_relevant_rules
+
+    rules = get_relevant_rules(begrip)
+    if rules:
+        base_prompt += "\n\nZorg ervoor dat de definitie voldoet aan:"
+        for rule in rules:
+            base_prompt += f"\n- {rule.beschrijving}"
+
+    return base_prompt</code></pre>
+
+<h3>4. Activate Web Lookup:</h3>
+
+<pre><code># In DefinitionOrchestrator._generate_definition():
+if self.config.enable_web_lookup:
+    # Lookup before generation
+    web_results = await self._lookup_web_sources(begrip)
+    for result in web_results:
+        enriched_context.sources.append(
+            ContextSource(
+                source_type="web",
+                content=result.definition,
+                confidence=result.confidence
+            )
+        )</code></pre>
+
+<h2>Code Snippets Showing Current vs Fixed Flow</h2>
+
+<h3>Current Broken Flow:</h3>
+<pre><code># 1. Category becomes string in base_context
+base_context["ontologische_categorie"] = "proces"
+
+# 2. Gets processed as iterable
+for key, items in base_context.items():
+    # "proces" becomes ['p','r','o','c','e','s']
+
+# 3. Template selection fails
+if ontologische_categorie:  # This is now a list!
+    # Never matches template</code></pre>
+
+<h3>Fixed Flow:</h3>
+<pre><code># 1. Category in metadata
+metadata["ontologische_categorie"] = "proces"
+
+# 2. Template selection works
+template_key = f"ontologie_{metadata['ontologische_categorie']}"
+# Returns: "ontologie_proces"
+
+# 3. Sophisticated prompt used
+prompt = templates["ontologie_proces"].format(
+    begrip=begrip,
+    context_section=context_text
+)</code></pre>
+
+<h2>Prestaties Impact</h2>
+
+<p>Current implementation bypasses ~80% of available features:</p>
+<ul>
+<li>Legacy prompt builder: <5% usage due to threshold</li>
+<li>Ontological templates: 0% usage due to bug</li>
+<li>Rule integration: 0% implementation</li>
+<li>Web enrichment: 0% activation</li>
+</ul>
+
+<p>Fixing these issues would significantly improve definition quality without adding latency.</p>
+
+  </div>
+</body>
+</html>

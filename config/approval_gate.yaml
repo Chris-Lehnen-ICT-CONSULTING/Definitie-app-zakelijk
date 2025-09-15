@@ -1,0 +1,23 @@
+# US-160 Option B — Validatie-gate policy (defaults)
+
+# Hard criteria: must all be satisfied, otherwise block
+hard_requirements:
+  min_one_context_required: true    # minimaal één van de drie contexten gevuld
+  forbid_critical_issues: true      # geen 'critical' issues toegestaan
+
+# Thresholds used for gate decisions
+thresholds:
+  hard_min_score: 0.75   # score < 0.75 => blocked
+  soft_min_score: 0.65   # 0.65 <= score < 0.75 OR 'high' only => override required
+
+# Soft criteria that can be overridden with a reason
+soft_requirements:
+  allow_high_issues_with_override: true   # enkel 'high' issues -> override toegestaan
+  missing_wettelijke_basis_soft: true     # ontbrekende wettelijke_basis => override toegestaan
+
+# Cache & reload behavior
+cache:
+  ttl_seconds: 60         # TTL voor herladen policy (DI-cache)
+
+# Notes: Deze policy kan via env override pad overschreven worden
+# door APPROVAL_GATE_CONFIG_OVERLAY=/pad/naar/bestand.yaml

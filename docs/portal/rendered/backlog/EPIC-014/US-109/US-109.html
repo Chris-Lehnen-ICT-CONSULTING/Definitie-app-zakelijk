@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-109: Implementeer Definitie Acceptatie Criteria Engine</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-109: Implementeer Definitie Acceptatie Criteria Engine</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> systeem  </p>
+<p><strong>Wil ik</strong> een robuuste acceptatie engine met 3-staps validatie  </p>
+<p><strong>Zodat</strong> alleen kwalitatief goede definities worden goedgekeurd  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: CRITICAL  </p>
+<p><strong>Story Points</strong>: 5  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Deze engine bepaalt of een gegenereerde definitie acceptabel is voor productie gebruik. Het gebruikt een bewezen 3-staps validatie proces dat juridische compliance waarborgt.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Implementeer 3-staps acceptatie flow</li>
+<li>[ ] Stap 1: Critical violations check (moet 0 zijn)</li>
+<li>[ ] Stap 2: Overall score check (minimum 80%)</li>
+<li>[ ] Stap 3: Category compliance check (minimum 75%)</li>
+<li>[ ] Early exit bij failure (efficiency)</li>
+<li>[ ] Configureerbare thresholds (maar met PO approval voor wijziging)</li>
+<li>[ ] Detailed rejection reason in response</li>
+</ul>
+
+<h2>Technical Details</h2>
+
+<h3>3-Steps Acceptance Algorithm</h3>
+<pre><code>class AcceptanceCriteriaEngine:
+    def __init__(self):
+        self.thresholds = {
+            "critical_violations": 0,      # GEEN kritieke fouten
+            "overall_score": 0.8,          # 80% minimum
+            "category_compliance": 0.75    # 75% voor categorie
+        }
+    
+    def evaluate(self, validation_result) -&gt; (bool, str):
+        # Step 1: Critical violations (juridisch verplicht)
+        critical_count = len([v for v in validation_result.violations 
+                            if v.severity == CRITICAL])
+        if critical_count &gt; self.thresholds["critical_violations"]:
+            return False, f"Rejected: {critical_count} critical violations found"
+        
+        # Step 2: Overall score
+        if validation_result.overall_score &lt; self.thresholds["overall_score"]:
+            return False, f"Rejected: Score {validation_result.overall_score:.2%} &lt; 80%"
+        
+        # Step 3: Category compliance
+        if validation_result.category_compliance &lt; self.thresholds["category_compliance"]:
+            return False, f"Rejected: Category compliance {validation_result.category_compliance:.2%} &lt; 75%"
+        
+        return True, "Accepted: All criteria met"</code></pre>
+
+<h3>Business Rules</h3>
+<ul>
+<li>**Critical violations = 0**: Juridische vereiste, GEEN exceptions</li>
+<li>**Overall 80%**: Balans tussen kwaliteit en haalbaarheid</li>
+<li>**Category 75%**: Iets flexibeler voor cross-categorie begrippen</li>
+</ul>
+
+<h2>Test Cases</h2>
+<ol>
+<li>Test met 1 critical violation → moet rejecten</li>
+<li>Test met score 79% → moet rejecten</li>
+<li>Test met category compliance 74% → moet rejecten</li>
+<li>Test met alle criteria OK → moet accepteren</li>
+<li>Test early exit (critical fail = geen verdere checks)</li>
+<li>Test detailed rejection messages</li>
+</ol>
+
+<h2>Configuration</h2>
+<pre><code># WAARSCHUWING: Deze waarden zijn geoptimaliseerd over 3+ jaar
+# NIET wijzigen zonder PO approval en A/B testing
+acceptance_criteria:
+  critical_violations_allowed: 0
+  minimum_overall_score: 0.80
+  minimum_category_compliance: 0.75</code></pre>
+
+<h2>Dependencies</h2>
+<ul>
+<li>ValidationResult met scores en violations</li>
+<li>ViolationSeverity enum</li>
+</ul>
+
+<h2>Risks</h2>
+<ul>
+<li>Te strenge criteria → weinig definities accepted</li>
+<li>Te losse criteria → kwaliteit degradatie</li>
+<li>**Mitigation**: Shadow mode A/B testing bij threshold wijzigingen</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Deze thresholds zijn gebaseerd op 3+ jaar productie data</li>
+<li>Category compliance is bewust lager dan overall (cross-categorie flexibiliteit)</li>
+</ul>
+  </div>
+</body>
+</html>

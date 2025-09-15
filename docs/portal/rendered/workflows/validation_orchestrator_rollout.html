@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validation Orchestrator V2 - Rollout Runbook</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Validation Orchestrator V2 - Rollout Runbook</h1>
+
+<p>---</p>
+<p>document: Validation Orchestrator Rollout Runbook</p>
+<p>version: 1.0</p>
+<p>status: CONCEPT</p>
+<p>type: Runbook</p>
+<p>parent: # validation_orchestrator_v2.md (gearchiveerd)</p>
+<p>related:</p>
+<ul>
+<li> - validation_result_contract.md</li>
+<li> - error_catalog_validation.md</li>
+<li> - golden-dataset-validation.md</li>
+<p>see-also:</p>
+<li> - validation_observability_privacy.md</li>
+<li> - ../architectuur/SOLUTION_ARCHITECTURE.md</li>
+<p>owner: DevOps Lead</p>
+<p>created: 29-12-2024</p>
+<p>updated: 29-12-2024</p>
+<p>tags: [validation, rollout, deployment, feature-flag, shadow-mode]</p>
+<p>---</p>
+</ul>
+
+<h2>Executive Summary</h2>
+
+<p>Dit runbook beschrijft de veilige, gefaseerde rollout van ValidationOrchestratorV2 via feature flags, shadow mode comparison, en automated rollback procedures.</p>
+
+<h2>Prerequisites</h2>
+
+<h3>Technical Vereisten</h3>
+<ul>
+<li>[ ] Feature flag `VALIDATION_ORCHESTRATOR_V2` geconfigureerd</li>
+<li>[ ] Monitoring dashboards live (Grafana/Datadog)</li>
+<li>[ ] Alerting rules actief</li>
+<li>[ ] Golden dataset beschikbaar</li>
+<li>[ ] Contract tests passing</li>
+<li>[ ] Re-entrancy verificatie compleet</li>
+<li>[ ] Rollback scripts getest</li>
+</ul>
+
+<h3>Organizational Vereisten</h3>
+<ul>
+<li>[ ] Change Advisory Board (CAB) approval</li>
+<li>[ ] Stakeholder communication sent</li>
+<li>[ ] On-call schedule confirmed</li>
+<li>[ ] Rollback owner assigned</li>
+<li>[ ] Success criteria agreed</li>
+</ul>
+
+<h2>Rollout Phases</h2>
+
+<h3>Phase 0: Shadow Mode (Production)</h3>
+
+<p><strong>Duration</strong>: 48-72 hours</p>
+<p><strong>Traffic</strong>: 100% old path, 100% shadow new path</p>
+<p><strong>Purpose</strong>: Baseline comparison zonder user impact</p>
+
+<h4>Configuration</h4>
+<pre><code>feature_flags:
+  VALIDATION_ORCHESTRATOR_V2:
+    enabled: false
+    shadow_mode: true
+    shadow_sample_rate: 1.0  # 100% shadow
+    correlation_enabled: true</code></pre>
+
+<h4>Metrics to Monitor</h4>
+<p>| Metric | Threshold | Alert Level | Action |</p>
+<p>|--------|-----------|-------------|--------|</p>
+<p>| diff_rate | ≤2% | - | Continue |</p>
+<p>| diff_rate | 2-5% | Warning | Investigate differences |</p>
+<p>| diff_rate | >5% | Critical | Stop rollout, investigate |</p>
+<p>| p95_latency_delta | ≤+10% | - | Continue |</p>
+<p>| p95_latency_delta | >+10% | Warning | Check performance |</p>
+<p>| error_rate_delta | ≤+0.2pp | - | Continue |</p>
+<p>| error_rate_delta | >+0.2pp | Critical | Stop rollout |</p>
+
+<h4>Shadow Comparison Logic</h4>
+<pre><code>async def shadow_compare(request: ValidationRequest) -&gt; ShadowResult:
+    # Run both paths
+    old_result = await old_validator.validate(request)
+    new_result = await new_validator.validate(request)
+
+    # Compare results
+    diff = compare_results(old_result, new_result)
+
+    # Log differences
+    if diff.has_differences:
+        await log_shadow_diff(
+            correlation_id=request.correlation_id,
+            diff=diff,
+            old_result=sanitize(old_result),
+            new_result=sanitize(new_result)
+        )
+
+    # Emit metrics
+    metrics.increment("shadow.total")
+    if diff.has_differences:
+        metrics.increment("shadow.differences")
+        metrics.histogram("shadow.score_delta", diff.score_delta)
+
+    # Always return old result to user
+    return old_result</code></pre>
+
+<h3>Phase 1: Canary Uitrol (10%)</h3>
+
+<p><strong>Duration</strong>: 24-48 hours</p>
+<p><strong>Traffic</strong>: 10% new path, 90% old path</p>
+<p><strong>Purpose</strong>: Limited production exposure</p>
+
+<h4>Configuration</h4>
+<pre><code>feature_flags:
+  VALIDATION_ORCHESTRATOR_V2:
+    enabled: true
+    rollout_percentage: 10
+    shadow_mode: false
+    sticky_sessions: true  # Consistent per user</code></pre>
+
+<h4>Canary Selection</h4>
+<pre><code>def should_use_v2(user_id: str, percentage: float) -&gt; bool:
+    """Deterministic canary selection."""
+    hash_value = hashlib.md5(user_id.encode()).hexdigest()
+    user_bucket = int(hash_value[:8], 16) % 100
+    return user_bucket &lt; percentage</code></pre>
+
+<h4>Success Criteria</h4>
+<ul>
+<li>[ ] Error rate delta <0.5pp</li>
+<li>[ ] P95 latency delta <20%</li>
+<li>[ ] No critical alerts</li>
+<li>[ ] User complaint rate normal</li>
+<li>[ ] All contract tests passing</li>
+</ul>
+
+<h3>Phase 2: Progressive Rollout (50%)</h3>
+
+<p><strong>Duration</strong>: 24 hours</p>
+<p><strong>Traffic</strong>: 50% new path</p>
+<p><strong>Purpose</strong>: Broader validation</p>
+
+<h4>Configuration</h4>
+<pre><code>feature_flags:
+  VALIDATION_ORCHESTRATOR_V2:
+    enabled: true
+    rollout_percentage: 50</code></pre>
+
+<h4>Additional Monitoring</h4>
+<ul>
+<li>User feedback channels</li>
+<li>Support ticket volume</li>
+<li>Business metrics impact</li>
+</ul>
+
+<h3>Phase 3: Full Rollout (100%)</h3>
+
+<p><strong>Duration</strong>: 48 hours observation</p>
+<p><strong>Traffic</strong>: 100% new path</p>
+<p><strong>Purpose</strong>: Complete migration</p>
+
+<h4>Configuration</h4>
+<pre><code>feature_flags:
+  VALIDATION_ORCHESTRATOR_V2:
+    enabled: true
+    rollout_percentage: 100
+    legacy_endpoint_enabled: true  # Keep for emergency</code></pre>
+
+<h3>Phase 4: Cleanup</h3>
+
+<p><strong>After</strong>: 1 sprint (2 weeks)</p>
+<p><strong>Actions</strong>:</p>
+<ul>
+<li>[ ] Remove feature flag</li>
+<li>[ ] Delete legacy code paths</li>
+<li>[ ] Archive shadow comparison logs</li>
+<li>[ ] Update documentation</li>
+<li>[ ] Close rollout ticket</li>
+</ul>
+
+<h2>Telemetry & Metrics</h2>
+
+<h3>Key Metrics</h3>
+
+<pre><code># Request rate
+rate(validation_requests_total[5m])
+
+# Error rate
+rate(validation_errors_total[5m]) / rate(validation_requests_total[5m])
+
+# Latency percentiles
+histogram_quantile(0.50, validation_duration_seconds)
+histogram_quantile(0.95, validation_duration_seconds)
+histogram_quantile(0.99, validation_duration_seconds)
+
+# Shadow mode differences
+rate(shadow_differences_total[5m]) / rate(shadow_comparisons_total[5m])
+
+# Score divergence
+histogram_quantile(0.95, shadow_score_delta)
+
+# Rule coverage
+validation_rules_evaluated / validation_rules_total</code></pre>
+
+<h3>Dashboard Queries</h3>
+
+<h4>Grafana Dashboard</h4>
+<pre><code>{
+  "panels": [
+    {
+      "title": "Validation Error Rate",
+      "targets": [{
+        "expr": "rate(validation_errors_total[5m])"
+      }]
+    },
+    {
+      "title": "P95 Latency Comparison",
+      "targets": [
+        {"expr": "histogram_quantile(0.95, validation_v1_duration)", "legend": "V1"},
+        {"expr": "histogram_quantile(0.95, validation_v2_duration)", "legend": "V2"}
+      ]
+    },
+    {
+      "title": "Shadow Diff Rate",
+      "targets": [{
+        "expr": "rate(shadow_differences_total[5m]) / rate(shadow_comparisons_total[5m])"
+      }]
+    }
+  ]
+}</code></pre>
+
+<h3>Alert Configuration</h3>
+
+<pre><code>alerts:
+  - name: ValidationHighErrorRate
+    expr: rate(validation_errors_total[5m]) &gt; 0.05
+    for: 5m
+    severity: warning
+    annotations:
+      summary: "Validation error rate above 5%"
+
+  - name: ValidationHighDiffRate
+    expr: rate(shadow_differences_total[5m]) / rate(shadow_comparisons_total[5m]) &gt; 0.05
+    for: 10m
+    severity: critical
+    annotations:
+      summary: "Shadow comparison diff rate above 5%"
+
+  - name: ValidationHighLatency
+    expr: histogram_quantile(0.95, validation_duration_seconds) &gt; 1.0
+    for: 5m
+    severity: warning
+    annotations:
+      summary: "P95 validation latency above 1s"</code></pre>
+
+<h2>Rollback Procedures</h2>
+
+<h3>Immediate Rollback (Emergency)</h3>
+
+<p><strong>Time to Rollback</strong>: <1 minute</p>
+
+<pre><code># 1. Disable feature flag immediately
+curl -X POST https://config-service/flags/VALIDATION_ORCHESTRATOR_V2 \
+  -d '{"enabled": false, "rollout_percentage": 0}'
+
+# 2. Verify traffic routing
+watch 'curl -s https://metrics/api/v1/query?query=validation_orchestrator_active'
+
+# 3. Clear caches if needed
+redis-cli FLUSHDB
+
+# 4. Notify stakeholders
+./scripts/notify_rollback.sh "Emergency rollback executed"</code></pre>
+
+<h3>Gradual Rollback (Controlled)</h3>
+
+<p><strong>Time to Rollback</strong>: 5-10 minutes</p>
+
+<pre><code># 1. Reduce percentage gradually
+for pct in 50 25 10 0; do
+  curl -X POST https://config-service/flags/VALIDATION_ORCHESTRATOR_V2 \
+    -d "{\"rollout_percentage\": $pct}"
+  sleep 120  # Wait 2 minutes between steps
+  ./scripts/check_metrics.sh || break
+done
+
+# 2. Monitor metrics during rollback
+watch -n 5 './scripts/rollback_metrics.sh'</code></pre>
+
+<h3>Post-Rollback Actions</h3>
+
+<ol>
+<li>**Immediate** (within 1 hour):</li>
+</ol>
+<ul>
+<li>  - [ ] Confirm metrics stabilized</li>
+<li>  - [ ] Collect error logs</li>
+<li>  - [ ] Document timeline</li>
+<li>  - [ ] Notify stakeholders</li>
+</ul>
+
+<ol>
+<li>**Short-term** (within 24 hours):</li>
+</ol>
+<ul>
+<li>  - [ ] Root cause analysis</li>
+<li>  - [ ] Create bug tickets</li>
+<li>  - [ ] Update runbook</li>
+<li>  - [ ] Schedule retrospective</li>
+</ul>
+
+<ol>
+<li>**Long-term** (within 1 week):</li>
+</ol>
+<ul>
+<li>  - [ ] Fix identified issues</li>
+<li>  - [ ] Update tests</li>
+<li>  - [ ] Plan re-rollout</li>
+<li>  - [ ] Share learnings</li>
+</ul>
+
+<h2>Safety & Privacy</h2>
+
+<h3>Correlation IDs</h3>
+<p>Every request MOET een correlation ID hebben:</p>
+<pre><code>correlation_id = request.headers.get('X-Correlation-ID') or str(uuid.uuid4())</code></pre>
+
+<h3>PII Masking</h3>
+<pre><code>def mask_validation_logs(log_entry: dict) -&gt; dict:
+    """Mask PII in validation logs."""
+    if 'definition_text' in log_entry:
+        # Only log first 100 chars
+        log_entry['definition_text'] = log_entry['definition_text'][:100] + '...[TRUNCATED]'
+    if 'user_id' in log_entry:
+        # Hash user ID
+        log_entry['user_id'] = hashlib.sha256(log_entry['user_id'].encode()).hexdigest()[:8]
+    return log_entry</code></pre>
+
+<h3>Log Retention</h3>
+<p>| Environment | Retention | Purpose |</p>
+<p>|-------------|-----------|---------|</p>
+<p>| Development | 30 days | Debugging |</p>
+<p>| Staging | 60 days | Testen |</p>
+<p>| Production | 90 days | Compliance (AVG/BIO) |</p>
+<p>| Archives | 1 year | Audit trail |</p>
+
+<h2>Communication Plan</h2>
+
+<h3>Stakeholder Matrix</h3>
+
+<p>| Stakeholder | Wanneer | Channel | Message |</p>
+<p>|-------------|------|---------|---------|</p>
+<p>| Dev Team | T-1 week | Slack | Rollout schedule |</p>
+<p>| Product | T-3 days | Email | Feature flag timeline |</p>
+<p>| Support | T-1 day | Training | What to expect |</p>
+<p>| Users | T-0 | In-app | Maintenance notice |</p>
+<p>| Leadership | T+1 day | Report | Success metrics |</p>
+
+<h3>Status Page Updates</h3>
+
+<pre><code>## Validation Service Upgrade
+**Status**: In Progress
+**Impact**: None expected
+**Started**: 29-12-2024 10:00 CET
+
+We're upgrading our validation service to improve performance
+and accuracy. No user impact expected.
+
+Updates:
+- 10:00 - Shadow mode enabled
+- 10:30 - Metrics nominal
+- 11:00 - Starting canary rollout (10%)</code></pre>
+
+<h2>Ownership & Escalation</h2>
+
+<h3>RACI Matrix</h3>
+
+<p>| Task | Responsible | Accountable | Consulted | Informed |</p>
+<p>|------|------------|-------------|-----------|----------|</p>
+<p>| Flag toggle | DevOps | Tech Lead | Dev Team | Product |</p>
+<p>| Monitoring | DevOps | DevOps Lead | SRE | Tech Lead |</p>
+<p>| Rollback decision | Tech Lead | CTO | DevOps, Product | All |</p>
+<p>| Communication | Product | Product Lead | Tech Lead | Users |</p>
+
+<h3>Escalation Path</h3>
+
+<ol>
+<li>**L1**: On-call engineer (0-15 min)</li>
+<li>**L2**: Tech Lead (15-30 min)</li>
+<li>**L3**: Platform Team (30-60 min)</li>
+<li>**L4**: CTO (>60 min)</li>
+</ol>
+
+<h2>Related Documents</h2>
+<p><!-- Validation Orchestrator V2 document gearchiveerd - functionaliteit gedocumenteerd in TECHNICAL_ARCHITECTURE.md --></p>
+<ul>
+<li>**Contract**: [ValidationResult Contract](../architectuur/contracts/validation_result_contract.md)</li>
+<li>**Errors**: [Error Catalog](../technisch/error_catalog_validation.md)</li>
+<li>**Testen**: [Golden Dataset](../testing/golden-dataset-validation.md)</li>
+<li>**Monitoring**: [Observability Guide](../technisch/validation_observability_privacy.md)</li>
+</ul>
+
+<h2>Appendix: Scripts</h2>
+
+<h3>check_metrics.sh</h3>
+<pre><code>#!/bin/bash
+# Check if metrics are within acceptable range
+
+ERROR_RATE=$(curl -s https://metrics/api/v1/query?query=validation_error_rate | jq '.data.result[0].value[1]')
+LATENCY_P95=$(curl -s https://metrics/api/v1/query?query=validation_p95_latency | jq '.data.result[0].value[1]')
+
+if (( $(echo "$ERROR_RATE &gt; 0.05" | bc -l) )); then
+  echo "ERROR: Error rate too high: $ERROR_RATE"
+  exit 1
+fi
+
+if (( $(echo "$LATENCY_P95 &gt; 1.0" | bc -l) )); then
+  echo "WARNING: P95 latency high: $LATENCY_P95"
+fi
+
+echo "Metrics OK - Error: $ERROR_RATE, P95: $LATENCY_P95"</code></pre>
+
+<h2>Change Log</h2>
+<p>| Versie | Date | Changes | Author |</p>
+<p>|---------|------|---------|--------|</p>
+<p>| 1.0 | 29-12-2024 | Initial runbook | DevOps Lead |</p>
+
+<p>---</p>
+<p><em>This runbook must be reviewed before each rollout and updated based on lessons learned.</em></p>
+
+  </div>
+</body>
+</html>

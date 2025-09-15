@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement AI Enhancement for Definitions</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-066</p>
+<p>titel: Implement AI Enhancement for Definitions</p>
+<p>epic: EPIC-009</p>
+<p>status: Open</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>owner: architect</p>
+<p>type: feature-enhancement</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-015</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+</ul>
+
+<h1>US-066: Implement AI Enhancement for Definitions</h1>
+
+<p><strong>Epic:</strong> EPIC-009 - Advanced Features</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> juridisch professional</p>
+<p><strong>wil ik</strong> dat gegenereerde definities automatisch verbeterd worden met AI</p>
+<p><strong>zodat</strong> de kwaliteit en consistentie van definities verder verhoogd wordt</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>De codebase bevat TODO's voor AI enhancement die nu overgeslagen worden:</p>
+<ul>
+<li>`src/services/definition_orchestrator.py:424` - Implement enhancement logic</li>
+<li>`src/services/definition_orchestrator.py:445` - Implement AI enhancement logic</li>
+</ul>
+
+<p>Momenteel retourneert de enhancement functie gewoon de originele definitie zonder verbeteringen.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[ ] AI enhancement toegepast na initiële generatie</li>
+<li>[ ] Enhancement houdt rekening met context</li>
+<li>[ ] Juridische terminologie wordt verfijnd</li>
+<li>[ ] Consistentie check tussen definitie delen</li>
+<li>[ ] Enhancement kan aan/uit gezet worden</li>
+<li>[ ] Enhancement resultaat is traceerbaar</li>
+</ul>
+
+<h3>Technische Criteria</h3>
+<ul>
+<li>[ ] Enhancement service in orchestrator</li>
+<li>[ ] Separate prompt voor enhancement</li>
+<li>[ ] Configureerbare enhancement parameters</li>
+<li>[ ] Performance impact < 2 seconden</li>
+<li>[ ] Fallback naar origineel bij falen</li>
+</ul>
+
+<h3>Kwaliteit Criteria</h3>
+<ul>
+<li>[ ] Enhancement verbetert score op validatieregels</li>
+<li>[ ] Leesbaarheid score verbetert</li>
+<li>[ ] Juridische precisie verhoogt</li>
+<li>[ ] Geen context verlies</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Enhancement Service</h3>
+<pre><code>class DefinitionEnhancer:
+    async def enhance_definition(
+        self,
+        definition: str,
+        context: ContextData,
+        validation_results: Optional[ValidationResult] = None
+    ) -&gt; EnhancedDefinition:
+        # Use validation feedback for targeted enhancement
+        # Apply juridical terminology improvements
+        # Ensure consistency across definition parts</code></pre>
+
+<h3>Enhancement Prompts</h3>
+<ul>
+<li>Focus op juridische precisie</li>
+<li>Gebruik validation feedback</li>
+<li>Behoud originele betekenis</li>
+<li>Verbeter leesbaarheid</li>
+</ul>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Enhancement logic geïmplementeerd</li>
+<li>[ ] Unit tests voor enhancement</li>
+<li>[ ] Integration test met orchestrator</li>
+<li>[ ] A/B testing setup voor kwaliteit meting</li>
+<li>[ ] Performance benchmarks</li>
+<li>[ ] Feature flag voor aan/uit</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Over-enhancement | Medium | Configureerbare thresholds |</p>
+<p>| Performance degradatie | High | Async processing + caching |</p>
+<p>| Context drift | Medium | Strict prompt engineering |</p>
+<p>| Cost increase | Low | Monitor token usage |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Begin met simpele enhancement (formatting, terminology)</li>
+<li>Gebruik validation results als input voor gerichte verbetering</li>
+<li>Overweeg multi-pass enhancement voor complexe definities</li>
+<li>Monitor quality metrics voor/na enhancement</li>
+</ul>
+
+  </div>
+</body>
+</html>

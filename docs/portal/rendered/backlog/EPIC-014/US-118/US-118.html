@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-118: Implementeer Structure Checkers</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-118: Implementeer Structure Checkers</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> structure validator  </p>
+<p><strong>Wil ik</strong> structurele vereisten kunnen checken  </p>
+<p><strong>Zodat</strong> definities correct gestructureerd zijn  </p>
+
+<h2>Status</h2>
+<p><strong>Status</strong>: TODO  </p>
+<p><strong>Priority</strong>: HIGH  </p>
+<p><strong>Story Points</strong>: 3  </p>
+<p><strong>Epic</strong>: <a href="../EPIC-014.md" target="_blank">EPIC-014: Business Logic Refactoring</a>  </p>
+
+<h2>Business Context</h2>
+<p>Set van 6 structure checks die de grammaticale en structurele correctheid van definities valideren.</p>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>[ ] Check max_one_sentence (enkele zin)</li>
+<li>[ ] Check clear_structure (min 5 woorden)</li>
+<li>[ ] Check clear_pronoun_references</li>
+<li>[ ] Check clear_article_references</li>
+<li>[ ] Check proper_noun_start</li>
+<li>[ ] Check concrete_terminology</li>
+</ul>
+
+<h2>Structure Checks</h2>
+<pre><code>checks = {
+    "max_one_sentence": lambda d: len(re.split(r"[.!?]+", d.strip())) &lt;= 2,
+    "clear_structure": lambda d: len(d.split()) &gt;= 5,
+    "clear_pronoun_references": lambda d: not re.search(
+        r"\b(deze|dit|die)\b(?!\s+(begrip|definitie))", d
+    ),
+    "clear_article_references": lambda d: not re.search(
+        r"\bde\s+(proces|activiteit)\b(?!\s+\w+)", d
+    ),
+    "proper_noun_start": lambda d: not re.match(
+        r"^(is|de|het|een|wordt|betreft|zijn|kan|moet|mag)\b", d.strip()
+    ),
+    "concrete_terminology": lambda d: not re.search(
+        r"\b(proces|activiteit|zaak|ding)\b(?!\s+\w+)", d
+    )
+}</code></pre>
+
+<h2>Error Messages</h2>
+<pre><code>error_messages = {
+    "max_one_sentence": "Definitie moet één zin zijn",
+    "clear_structure": "Definitie te kort (min 5 woorden)",
+    "clear_pronoun_references": "Onduidelijke verwijzingen (deze/dit/die)",
+    "proper_noun_start": "Start met zelfstandig naamwoord",
+    "concrete_terminology": "Gebruik specifieke terminologie"
+}</code></pre>
+
+<h2>Dependencies</h2>
+<ul>
+<li>Regex patterns</li>
+<li>Text parsing utilities</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>Deze checks zijn kritiek voor juridische definities</li>
+<li>Moeten snel zijn (<10ms per check)</li>
+</ul>
+  </div>
+</body>
+</html>

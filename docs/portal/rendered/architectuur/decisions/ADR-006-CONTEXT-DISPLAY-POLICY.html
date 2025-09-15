@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Contextweergavebeleid in UI (alleen vastgelegde context)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: ADR-006</p>
+<p>title: Contextweergavebeleid in UI (alleen vastgelegde context)</p>
+<p>status: active</p>
+<p>owner: architecture</p>
+<p>canonical: true</p>
+<p>applies_to: definitie-app@current</p>
+<p>last_verified: 2025-09-13</p>
+<p>---</p>
+
+<h1>ADR-006: Contextweergavebeleid in UI (alleen vastgelegde context)</h1>
+
+<h2>Besluit</h2>
+<ul>
+<li>De UI (Expert‑tab en Bewerk‑tab) toont uitsluitend de **vastgelegde context** die bij een definitie in de database is opgeslagen:</li>
+<li> - Organisatorische context (string)</li>
+<li> - Juridische context (string)</li>
+<li> - Wettelijke basis (lijst; JSON TEXT in DB)</li>
+<li>De **globale context** (ContextManager/Context Selector) wordt **niet getoond** en **niet als fallback** gebruikt in de contextweergave.</li>
+<li>Alle drie contextvelden worden **altijd** getoond. Als er niets is vastgelegd wordt dit expliciet weergegeven als **“—”**.</li>
+</ul>
+
+<h2>Achtergrond</h2>
+<ul>
+<li>De applicatie kent twee contextbronnen:</li>
+<p>  1) Globale context (sessie) voor generatie/validatie/web‑lookup</p>
+<p>  2) Vastgelegde context (per definitie) voor opslag, tonen, zoeken en audit</p>
+<li>Voor consistentie, transparantie en auditbaarheid willen we exact laten zien wat er bij een definitie is vastgelegd — zonder impliciete menging met sessie‑instellingen.</li>
+</ul>
+
+<h2>Overwegingen</h2>
+<ul>
+<li>Minimal invasive (AGENTS/CLAUDE): geen aanpassing van DB‑model of services noodzakelijk; dit is een UI‑presentatiekeuze.</li>
+<li>Voorkomt verwarring tussen tijdelijke sessiecontext en persistente definitiecontext.</li>
+<li>Maakt audit/geschiedenis eenduidig: wat je ziet, is wat er is opgeslagen.</li>
+</ul>
+
+<h2>Consequenties</h2>
+<ul>
+<li>Lege contextvelden blijven expliciet leeg (—) tot de gebruiker ze vastlegt in de Bewerk‑tab en opslaat (met logging/geschiedenis).</li>
+<li>Zoeken en statusflows werken op de vastgelegde context; de globale context heeft hier geen invloed op.</li>
+<li>“Vastgesteld” blijft read‑only; om context te wijzigen moet de status eerst bewust worden teruggezet (met logging).</li>
+</ul>
+
+<h2>Uitvoering</h2>
+<ul>
+<li>Expert‑tab: contextdetails tonen altijd Organisatorisch / Juridisch / Wettelijke basis op basis van het record; leeg = “—”.</li>
+<li>Bewerk‑tab: dezelfde drie velden; read‑only bij status “Vastgesteld”.</li>
+<li>Geen fallback/merge met globale context in de weergave.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

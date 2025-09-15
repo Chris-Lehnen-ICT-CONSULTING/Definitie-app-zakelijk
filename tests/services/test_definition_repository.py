@@ -39,16 +39,15 @@ def sample_definition():
     return Definition(
         begrip="Identiteitsbewijs",
         definitie="Een officieel document uitgegeven door de overheid.",
-        context="Overheidsadministratie",
-        # domein removed per US-043
+        organisatorische_context=["Overheidsadministratie"],
+        juridische_context=["Wet op de identificatieplicht"],
         categorie="type",
         toelichting="Dit wordt gebruikt voor identificatie.",
         bron="AI-gegenereerd",
         metadata={
             "status": "draft",
             "validation_score": 0.95,
-            "juridische_context": "Wet op de identificatieplicht"
-        }
+        },
     )
 
 
@@ -59,14 +58,14 @@ def sample_record():
     record.id = 123
     record.begrip = "Identiteitsbewijs"
     record.definitie = "Een officieel document uitgegeven door de overheid."
-    record.organisatorische_context = "Overheidsadministratie"
+    record.organisatorische_context = "[\"Overheidsadministratie\"]"
     record.categorie = "type"
     record.status = DefinitieStatus.DRAFT.value
     record.source_type = SourceType.GENERATED.value
     record.created_at = datetime.now(timezone.utc)
     record.updated_at = datetime.now(timezone.utc)
     record.validation_score = 0.95
-    record.juridische_context = "Wet op de identificatieplicht"
+    record.juridische_context = "[\"Wet op de identificatieplicht\"]"
     return record
 
 
@@ -496,7 +495,7 @@ class TestDefinitionRepository:
         assert record.definitie == "Test definitie"
         assert record.categorie == "proces"  # Default
         assert record.status == DefinitieStatus.DRAFT.value  # Default
-        assert record.organisatorische_context == ""
+        assert record.organisatorische_context == "[]"
 
     def test_definition_to_record_with_source_reference(self, repository):
         """Test conversie met source_reference in metadata."""

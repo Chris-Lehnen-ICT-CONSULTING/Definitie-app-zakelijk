@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Export Formats (JSON, PDF, DOCX)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden:</p>
+<ul>
+<li>US-001</li>
+<li>US-006</li>
+<p>aangemaakt: 05-09-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 05-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-005</p>
+<p>id: US-137</p>
+<p>last_verified: 05-09-2025</p>
+<p>owner: developer-implementer</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>sprint: backlog</p>
+<p>status: Nog te bepalen</p>
+<p>story_points: 8</p>
+<p>titel: Export Formats (JSON, PDF, DOCX)</p>
+<p>toegewezen_aan: unassigned</p>
+<p>type: feature</p>
+<p>---</p>
+</ul>
+
+
+
+<h1>US-137: Export Formats (JSON, PDF, DOCX)</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>As a</strong> legal analyst using DefinitieAgent</p>
+<p><strong>wil ik to</strong> export definitions in multiple formats (JSON, PDF, DOCX)</p>
+<p><strong>zodat</strong> I can share definitions with stakeholders in their preferred format en integrate them into legal documents</p>
+
+<h2>Acceptatiecriteria</h2>
+
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** [Exact gedrag dat moet worden gerealiseerd]</li>
+<li>**Meetbaar:**</li>
+<li> - Response tijd: < 200ms voor UI acties</li>
+<li> - Processing tijd: < 5 seconden voor generatie</li>
+<li> - Success rate: > 95% voor validaties</li>
+<li>**Acceptabel:** Haalbaar binnen huidige architectuur</li>
+<li>**Relevant:** Direct gerelateerd aan gebruikersbehoefte</li>
+<li>**Tijdgebonden:** Gerealiseerd binnen huidige sprint</li>
+</ul>
+
+
+<h3>AC1: JSON Export Implementatie</h3>
+<p><strong>gegeven</strong> a validatied definition exists in the system</p>
+<p><strong>wanneer</strong> I select JSON export format</p>
+<p><strong>dan</strong> the system generates a structured JSON file containing:</p>
+<ul>
+<li>Definition text en metadata</li>
+<li>All validatie results with scores</li>
+<li>Context en domain information</li>
+<li>Example sentences</li>
+<li>Timestamp en Versie information</li>
+</ul>
+
+<h3>AC2: PDF Export with Formatting</h3>
+<p><strong>gegeven</strong> a definition with validatie results</p>
+<p><strong>wanneer</strong> I select PDF export</p>
+<p><strong>dan</strong> the system generates a professionally formatted PDF with:</p>
+<ul>
+<li>Organization brEning headers</li>
+<li>Structured sections for definition, validatie, examples</li>
+<li>Color-coded validatie status indicators</li>
+<li>Page numbers en generation timestamp</li>
+<li>Compliant with ASTRA document stEnards</li>
+</ul>
+
+<h3>AC3: DOCX Export for Editing</h3>
+<p><strong>gegeven</strong> a definition ready for export</p>
+<p><strong>wanneer</strong> I select DOCX format</p>
+<p><strong>dan</strong> the system creates a Word document with:</p>
+<ul>
+<li>Editable definition text</li>
+<li>Structured styles for headings en content</li>
+<li>Tables for validatie results</li>
+<li>Track Wijzigingen compatibility</li>
+<li>Metadata in document properties</li>
+</ul>
+
+<h3>AC4: Export Configuration</h3>
+<p><strong>gegeven</strong> the export functionality is available</p>
+<p><strong>wanneer</strong> I initiate an export</p>
+<p><strong>dan</strong> I can configure:</p>
+<ul>
+<li>Which sections to include/exclude</li>
+<li>Language preference (Dutch/English headers)</li>
+<li>Confidentiality markings</li>
+<li>Custom footer text</li>
+</ul>
+
+<h2>Domain vereisten</h2>
+
+<h3>justitieketen StEnards</h3>
+<ul>
+<li>Exports must comply with ASTRA document exchange stEnards</li>
+<li>Include required metadata fields for Justid integration</li>
+<li>Support digital signature preparation for official documents</li>
+<li>Maintain chain of custody information</li>
+</ul>
+
+<h3>Data Privacy</h3>
+<ul>
+<li>Remove PII from examples wanneer required</li>
+<li>Include data classification markings</li>
+<li>Support redaction capabilities for sensitive content</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Implementatie Approach</h3>
+<ul>
+<li>Use `reportlab` for PDF generation</li>
+<li>Use `python-docx` for DOCX creation</li>
+<li>Leverage existing JSON serialization with enhancements</li>
+<li>Create abstract `ExportService` interface</li>
+</ul>
+
+<h3>Affected Components</h3>
+<ul>
+<li>Create new `src/services/export/` module</li>
+<li>Add export hEnlers for each format</li>
+<li>Integrate with UI through export tab</li>
+<li>UpDatum `ServiceContainer` with export service</li>
+</ul>
+
+<h3>Data FLAAG</h3>
+<ol>
+<li>Retrieve definition from repository</li>
+<li>Gather associated validatie results</li>
+<li>Apply export template based on format</li>
+<li>Generate output file</li>
+<li>Provide download/save functionality</li>
+</ol>
+
+
+
+<h2>Afhankelijkheden</h2>
+
+<ul>
+<li>EPIC-005</li>
+</ul>
+<h2>Test vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Test each export format generator independently</li>
+<li>Verify metadata inclusion</li>
+<li>Test configuration options</li>
+<li>ValiDatum output format compliance</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>End-to-end export from UI</li>
+<li>Multi-language support verification</li>
+<li>Large definition hEnling</li>
+<li>Concurrent export requests</li>
+</ul>
+
+<h3>validatie Tests</h3>
+<ul>
+<li>PDF readability en structure</li>
+<li>DOCX compatibility with MS Word</li>
+<li>JSON schema validatie</li>
+<li>ASTRA compliance checking</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] All three export formats geïmplementeerd</li>
+<li>[ ] Export service integrated with UI</li>
+<li>[ ] Configuration options available</li>
+<li>[ ] Unit tests achieving 80% coverage</li>
+<li>[ ] Integration tests passing</li>
+<li>[ ] Documentation bijgewerkt</li>
+<li>[ ] ASTRA compliance verified</li>
+<li>[ ] Prestaties benchmarks met (< 2s for export)</li>
+<li>[ ] beveiliging review Voltooid</li>
+<li>[ ] Accessibility vereisten met</li>
+</ul>
+
+<h2>Links</h2>
+
+<ul>
+<li>Related vereisten: REQ-071, REQ-072</li>
+<li>Episch Verhaal: EPIC-005-export-import</li>
+<li>Technical Design: `docs/technisch/export-service-design.md`</li>
+<li>ASTRA StEnards: `docs/richtlijnen/ASTRA-document-exchange.md`</li>
+</ul>
+
+  </div>
+</body>
+</html>

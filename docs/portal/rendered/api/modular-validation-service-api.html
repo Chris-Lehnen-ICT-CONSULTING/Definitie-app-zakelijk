@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ModularValidationService API Documentation</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>ModularValidationService API Documentation</h1>
+
+<h2>Overview</h2>
+<p>The <code>ModularValidationService</code> is a lightweight, async-first validation service that provides deterministic validation results for Dutch definitions. It supports both individual and batch validation operations.</p>
+
+<h2>Class: ModularValidationService</h2>
+
+<h3>Constructor</h3>
+
+<pre><code>ModularValidationService(
+    toetsregel_manager: Optional[ToetsregelManager] = None,
+    cleaning_service: Optional[CleaningService] = None,
+    config: Optional[Config] = None
+)</code></pre>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>`toetsregel_manager`: Optional manager for loading validation rules from external sources</li>
+<li>`cleaning_service`: Optional service for text cleaning/normalization</li>
+<li>`config`: Optional configuration object for weights and thresholds</li>
+</ul>
+
+<h3>Methods</h3>
+
+<h4>`async validate_definition()`</h4>
+
+<p>Validates a single definition text against configured rules.</p>
+
+<pre><code>async def validate_definition(
+    begrip: str,
+    text: str,
+    ontologische_categorie: Optional[str] = None,
+    context: Optional[Dict[str, Any]] = None
+) -&gt; Dict[str, Any]</code></pre>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>`begrip`: The concept/term being defined</li>
+<li>`text`: The definition text to validate</li>
+<li>`ontologische_categorie`: Optional ontological category for context-aware validation</li>
+<li>`context`: Optional context dictionary with metadata</li>
+</ul>
+
+<p><strong>Returns:</strong></p>
+<p>A dictionary conforming to the ValidationResult schema:</p>
+
+<pre><code>{
+    "version": "1.0.0",
+    "overall_score": 0.85,  # Float between 0.0-1.0
+    "is_acceptable": True,   # Boolean indicating if definition passes threshold
+    "violations": [
+        {
+            "code": "VAL-LEN-001",
+            "severity": "warning",
+            "message": "Definition is too short",
+            "rule_id": "VAL-LEN-001",
+            "category": "structuur"
+        }
+    ],
+    "passed_rules": ["ESS-CONT-001", "CON-CIRC-001"],
+    "detailed_scores": {
+        "taal": 0.90,
+        "juridisch": 0.85,
+        "structuur": 0.80,
+        "samenhang": 0.88
+    },
+    "system": {
+        "correlation_id": "uuid-string"
+    }
+}</code></pre>
+
+<p><strong>Example:</strong></p>
+
+<pre><code>service = ModularValidationService()
+result = await service.validate_definition(
+    begrip="proces",
+    text="Een proces is een reeks van samenhangende activiteiten."
+)
+
+if result["is_acceptable"]:
+    print(f"Valid! Score: {result['overall_score']}")
+else:
+    for violation in result["violations"]:
+        print(f"Issue: {violation['code']} - {violation['message']}")</code></pre>
+
+<h4>`async batch_validate()`</h4>
+
+<p>Validates multiple definitions in batch with optional concurrency control.</p>
+
+<pre><code>async def batch_validate(
+    items: List[Union[ValidationRequest, Tuple[str, str], Dict]],
+    max_concurrency: int = 1
+) -&gt; List[Dict[str, Any]]</code></pre>
+
+<p><strong>Parameters:</strong></p>
+<ul>
+<li>`items`: List of items to validate. Can be:</li>
+<li> - `ValidationRequest` objects</li>
+<li> - Tuples of `(begrip, text)`</li>
+<li> - Dictionaries with `begrip` and `text` keys</li>
+<li>`max_concurrency`: Maximum number of parallel validations (default: 1 for sequential)</li>
+</ul>
+
+<p><strong>Returns:</strong></p>
+<p>List of ValidationResult dictionaries in the same order as input items.</p>
+
+<p><strong>Example:</strong></p>
+
+<pre><code># Using ValidationRequest objects
+from services.validation.interfaces import ValidationRequest
+
+items = [
+    ValidationRequest(begrip="proces", text="Een proces is..."),
+    ValidationRequest(begrip="systeem", text="Een systeem is...")
+]
+
+# Sequential processing
+results = await service.batch_validate(items, max_concurrency=1)
+
+# Parallel processing (up to 5 concurrent)
+results = await service.batch_validate(items, max_concurrency=5)
+
+# Using tuples (backwards compatibility)
+simple_items = [
+    ("begrip1", "Definitie tekst 1"),
+    ("begrip2", "Definitie tekst 2")
+]
+results = await service.batch_validate(simple_items)</code></pre>
+
+<h2>Validation Rules</h2>
+
+<h3>Default Rules</h3>
+
+<p>Wanneer no <code>ToetsregelManager</code> is provided, the service uses these default rules:</p>
+
+<p>| Rule Code | Description | Weight | Category |</p>
+<p>|-----------|-------------|--------|----------|</p>
+<p>| VAL-EMP-001 | Empty text validation | 1.0 | juridisch |</p>
+<p>| VAL-LEN-001 | Minimum length (20 chars) | 0.9 | juridisch |</p>
+<p>| VAL-LEN-002 | Maximum length (500 chars) | 0.6 | juridisch |</p>
+<p>| ESS-CONT-001 | Essential content check | 1.0 | juridisch |</p>
+<p>| CON-CIRC-001 | Circular definition check | 0.8 | samenhang |</p>
+<p>| STR-TERM-001 | Terminology structure | 0.5 | structuur |</p>
+<p>| STR-ORG-001 | Organization structure | 0.7 | structuur |</p>
+
+<h3>Dynamic Rule Loading</h3>
+
+<p>Wanneer a <code>ToetsregelManager</code> is provided, rules are loaded dynamically:</p>
+
+<pre><code>from toetsregels.manager import ToetsregelManager
+
+manager = ToetsregelManager()
+service = ModularValidationService(toetsregel_manager=manager)
+
+# Service now uses rules from manager (typically 40+ rules)</code></pre>
+
+<h2>Configuration</h2>
+
+<h3>Weights Configuration</h3>
+
+<p>Customize rule weights via config:</p>
+
+<pre><code>config = Config(
+    weights={
+        "VAL-EMP-001": 1.0,
+        "VAL-LEN-001": 0.8,
+        "ESS-CONT-001": 0.9
+    }
+)
+service = ModularValidationService(config=config)</code></pre>
+
+<h3>Threshold Configuration</h3>
+
+<p>Set acceptance threshold:</p>
+
+<pre><code>config = Config(
+    thresholds={
+        "overall_accept": 0.75  # Definitions with score &gt;= 0.75 are acceptable
+    }
+)</code></pre>
+
+<h2>Error Handling</h2>
+
+<p>The service uses degraded error handling - validation always returns a result:</p>
+
+<ul>
+<li>If a rule fails, it's marked as a violation but doesn't stop validation</li>
+<li>If cleaning fails, original text is used</li>
+<li>If ToetsregelManager fails, default rules are used</li>
+<li>System errors are captured in the `system.error` field</li>
+</ul>
+
+<h2>Prestaties Considerations</h2>
+
+<ul>
+<li>**Sequential validation** (`max_concurrency=1`): Predictable, lower resource usage</li>
+<li>**Parallel validation** (`max_concurrency>1`): Faster for large batches, higher memory usage</li>
+<li>**Rule evaluation**: All rules are evaluated independently for isolation</li>
+<li>**Deterministic output**: Same input always produces same output (given same rules/config)</li>
+</ul>
+
+<h2>Migration from Legacy ValidationService</h2>
+
+<p>See the <a href="./migration-guide-validation-result.md" target="_blank">Migration Guide</a> for details on migrating from the legacy ValidationService to ModularValidationService.</p>
+
+  </div>
+</body>
+</html>

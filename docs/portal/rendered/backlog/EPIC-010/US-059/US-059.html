@@ -1,0 +1,409 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement Data Integrity Safeguards for Context Management</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-059</p>
+<p>epic: EPIC-010</p>
+<p>titel: Implement Data Integrity Safeguards for Context Management</p>
+<p>canonical: true</p>
+<p>status: todo</p>
+<p>owner: developer-implementer</p>
+<p>last_verified: 2025-09-09</p>
+<p>applies_to: definitie-app@v1.1</p>
+<p>type: feature</p>
+<p>priority: high</p>
+<p>story_points: 5</p>
+<p>sprint: sprint-36</p>
+<p>dependencies: [US-056, US-057]</p>
+<p>created: 2025-09-09</p>
+<p>updated: 2025-09-09</p>
+<p>assigned_to: development-team</p>
+<p>---</p>
+
+<h1>US-059: Implement Data Integrity Safeguards for Context Management</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p><strong>Als een</strong> systeem beheerder</p>
+<p><strong>wil ik</strong> robuuste data integrity safeguards voor context management</p>
+<p><strong>zodat</strong> data corruptie voorkomen wordt en het systeem betrouwbaar blijft onder alle omstandigheden</p>
+
+<h2>Context</h2>
+<p>De huidige dual state management systemen veroorzaken data corruptie wanneer ze conflicteren. We hebben safeguards nodig die data integriteit waarborgen tijdens normaal gebruik, migratie, en edge cases.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>SMART Acceptatiecriteria</h3>
+
+<ul>
+<li>**Specifiek:** Implementeer validatie, consistency checks, en recovery mechanisms</li>
+<li>**Meetbaar:**</li>
+<li> - 0 data corruptie incidents</li>
+<li> - 100% consistency tussen views</li>
+<li> - Recovery tijd < 5 seconden</li>
+<li>**Acceptabel:** Transparant voor gebruikers</li>
+<li>**Relevant:** Voorkomt productie incidenten</li>
+<li>**Tijdgebonden:** Implementatie binnen 2 dagen</li>
+</ul>
+
+<h3>Criterion 1: Input Validation Layer</h3>
+<p><strong>Gegeven</strong> data wordt ingevoerd in het systeem</p>
+<p><strong>Wanneer</strong> context data verwerkt wordt</p>
+<p><strong>Dan</strong> wordt gevalideerd:</p>
+<ul>
+<li>Type correctheid (list[str] voor alle context velden)</li>
+<li>Lengte constraints (max 200 chars per waarde)</li>
+<li>Character set validatie (geen control characters)</li>
+<li>Duplicate detection en removal</li>
+<li>Null/undefined handling</li>
+</ul>
+
+<h3>Criterion 2: State Consistency Checks</h3>
+<p><strong>Gegeven</strong> het systeem opereert met state management</p>
+<p><strong>Wanneer</strong> state gelezen of geschreven wordt</p>
+<p><strong>Dan</strong> worden consistency checks uitgevoerd:</p>
+<pre><code>def verify_state_consistency(self) -&gt; bool:
+    """Verify state consistency across all components"""
+    checks = [
+        self._check_type_consistency(),
+        self._check_value_boundaries(),
+        self._check_no_orphaned_state(),
+        self._check_no_circular_references(),
+        self._check_audit_trail_match()
+    ]
+    return all(checks)</code></pre>
+
+<h3>Criterion 3: Transaction Boundaries</h3>
+<p><strong>Gegeven</strong> operaties kunnen falen halverwege</p>
+<p><strong>Wanneer</strong> een context update uitgevoerd wordt</p>
+<p><strong>Dan</strong> wordt dit als atomaire transactie behandeld:</p>
+<ul>
+<li>Begin transaction</li>
+<li>Validate all inputs</li>
+<li>Apply changes</li>
+<li>Verify consistency</li>
+<li>Commit or rollback</li>
+</ul>
+
+<h3>Criterion 4: Recovery Mechanisms</h3>
+<p><strong>Gegeven</strong> data corruptie kan optreden ondanks safeguards</p>
+<p><strong>Wanneer</strong> corruptie gedetecteerd wordt</p>
+<p><strong>Dan</strong> activeert automatic recovery:</p>
+<ul>
+<li>Detect corruption via checksums</li>
+<li>Isolate corrupted data</li>
+<li>Attempt repair from audit log</li>
+<li>Fallback to last known good state</li>
+<li>Alert administrators</li>
+</ul>
+
+<h3>Criterion 5: Monitoring & Alerting</h3>
+<p><strong>Gegeven</strong> vroege detectie voorkomt grote problemen</p>
+<p><strong>Wanneer</strong> integrity issues ontstaan</p>
+<p><strong>Dan</strong> wordt monitoring getriggerd:</p>
+<ul>
+<li>Real-time consistency checks</li>
+<li>Anomaly detection</li>
+<li>Performance degradation alerts</li>
+<li>Automatic health reports</li>
+<li>Incident correlation</li>
+</ul>
+
+<h2>Technische Notities</h2>
+
+<h3>Data Integrity Service</h3>
+<pre><code>from typing import Any, Dict, List, Optional
+import hashlib
+import json
+
+class DataIntegrityService:
+    """Ensures data integrity for context management"""
+
+    def __init__(self):
+        self.checksum_cache = {}
+        self.validation_rules = self._load_validation_rules()
+
+    def validate_context_data(
+        self,
+        data: Dict[str, Any],
+        context_type: str
+    ) -&gt; ValidationResult:
+        """Comprehensive validation of context data"""
+
+        # Type validation
+        if not self._validate_types(data):
+            return ValidationResult.failure("Type validation failed")
+
+        # Business rule validation
+        if not self._validate_business_rules(data, context_type):
+            return ValidationResult.failure("Business rule violation")
+
+        # Integrity check
+        if not self._verify_integrity(data):
+            return ValidationResult.failure("Integrity check failed")
+
+        return ValidationResult.success()
+
+    def ensure_transaction_integrity(
+        self,
+        operation: Callable,
+        rollback_data: Dict[str, Any]
+    ) -&gt; OperationResult:
+        """Execute operation with transaction semantics"""
+
+        # Create savepoint
+        savepoint = self._create_savepoint()
+
+        try:
+            # Execute operation
+            result = operation()
+
+            # Verify post-condition
+            if not self._verify_post_conditions():
+                raise IntegrityError("Post-condition failed")
+
+            # Commit
+            self._commit_transaction()
+            return OperationResult.success(result)
+
+        except Exception as e:
+            # Rollback
+            self._rollback_to_savepoint(savepoint, rollback_data)
+            return OperationResult.failure(str(e))
+
+    def detect_and_repair_corruption(self) -&gt; RepairResult:
+        """Detect and attempt to repair data corruption"""
+
+        corruptions = self._detect_corruptions()
+
+        if not corruptions:
+            return RepairResult.no_issues()
+
+        repairs = []
+        for corruption in corruptions:
+            repair = self._attempt_repair(corruption)
+            repairs.append(repair)
+
+        return RepairResult(repairs)</code></pre>
+
+<h3>Validation Rules Engine</h3>
+<pre><code>class ValidationRules:
+    """Context data validation rules"""
+
+    CONTEXT_FIELD_RULES = {
+        "organisatorische_context": {
+            "type": list,
+            "element_type": str,
+            "max_elements": 5,
+            "max_element_length": 200,
+            "min_element_length": 3,
+            "pattern": r"^[a-zA-Z0-9\s\-\.]+$",
+            "forbidden_values": ["test", "debug", "demo"]
+        },
+        "juridische_context": {
+            "type": list,
+            "element_type": str,
+            "max_elements": 5,
+            "max_element_length": 200,
+            "allowed_values": None,  # Any valid Dutch legal term
+            "cross_validation": "check_legal_terminology"
+        },
+        "wettelijke_basis": {
+            "type": list,
+            "element_type": str,
+            "max_elements": 10,
+            "reference_validation": "validate_legal_reference"
+        }
+    }</code></pre>
+
+<h3>Database Constraints</h3>
+<pre><code>-- Add check constraints for data integrity
+ALTER TABLE context_data ADD CONSTRAINT check_org_context
+    CHECK (jsonb_typeof(organisatorische_context) = 'array');
+
+ALTER TABLE context_data ADD CONSTRAINT check_jur_context
+    CHECK (jsonb_typeof(juridische_context) = 'array');
+
+ALTER TABLE context_data ADD CONSTRAINT check_wet_basis
+    CHECK (jsonb_typeof(wettelijke_basis) = 'array');
+
+-- Add triggers for validation
+CREATE OR REPLACE FUNCTION validate_context_data()
+RETURNS TRIGGER AS $$
+BEGIN
+    -- Validate array elements are strings
+    IF NOT (
+        SELECT bool_and(jsonb_typeof(elem) = 'string')
+        FROM jsonb_array_elements(NEW.organisatorische_context) elem
+    ) THEN
+        RAISE EXCEPTION 'Invalid context data type';
+    END IF;
+
+    -- Check for forbidden values
+    IF EXISTS (
+        SELECT 1 FROM jsonb_array_elements_text(NEW.organisatorische_context) elem
+        WHERE elem IN ('test', 'cargo', 'auto', 'inbraak')
+    ) THEN
+        RAISE EXCEPTION 'Forbidden test values detected';
+    END IF;
+
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER enforce_context_validation
+BEFORE INSERT OR UPDATE ON context_data
+FOR EACH ROW EXECUTE FUNCTION validate_context_data();</code></pre>
+
+<h3>Monitoring Configuration</h3>
+<pre><code>monitoring:
+  integrity_checks:
+    - name: type_consistency
+      interval: 30s
+      alert_threshold: 1
+      severity: critical
+
+    - name: value_boundaries
+      interval: 60s
+      alert_threshold: 5
+      severity: warning
+
+    - name: checksum_verification
+      interval: 300s
+      alert_threshold: 1
+      severity: critical
+
+  alerts:
+    - channel: pagerduty
+      conditions:
+        - severity: critical
+        - occurences: 1
+
+    - channel: slack
+      conditions:
+        - severity: warning
+        - occurences: 3</code></pre>
+
+<h2>Domain Requirements</h2>
+
+<h3>Justice Sector Data Quality Standards</h3>
+<ul>
+<li>**Accuracy:** 100% correcte context attributie</li>
+<li>**Completeness:** Geen missing required fields</li>
+<li>**Consistency:** Uniform across all views</li>
+<li>**Timeliness:** Real-time validation</li>
+<li>**Validity:** Conformeert aan domein regels</li>
+<li>**Uniqueness:** Geen duplicate context waarden</li>
+</ul>
+
+<h3>Compliance Requirements</h3>
+<ul>
+<li>**ASTRA:** Data quality governance</li>
+<li>**NORA:** Data integrity standards</li>
+<li>**ISO 27001:** Information security</li>
+<li>**NEN 7510:** Healthcare information security (voor DJI)</li>
+</ul>
+
+<h2>Test Coverage Requirements</h2>
+
+<h3>Unit Tests</h3>
+<pre><code>def test_type_validation():
+    """Verify type checking works correctly"""
+
+def test_boundary_validation():
+    """Test min/max constraints"""
+
+def test_pattern_validation():
+    """Test regex pattern matching"""
+
+def test_forbidden_value_detection():
+    """Ensure test values are rejected"""</code></pre>
+
+<h3>Integration Tests</h3>
+<pre><code>def test_transaction_rollback():
+    """Verify rollback on failure"""
+
+def test_corruption_detection():
+    """Test corruption detection mechanism"""
+
+def test_auto_repair():
+    """Verify automatic repair functionality"""</code></pre>
+
+<h3>Chaos Engineering Tests</h3>
+<pre><code>def test_concurrent_updates():
+    """Simulate race conditions"""
+
+def test_partial_failure():
+    """Test partial update failures"""
+
+def test_corruption_injection():
+    """Inject corruption and verify recovery"""</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Validation layer geïmplementeerd</li>
+<li>[ ] Consistency checks operationeel</li>
+<li>[ ] Transaction boundaries werkend</li>
+<li>[ ] Recovery mechanisms getest</li>
+<li>[ ] Database constraints toegevoegd</li>
+<li>[ ] Monitoring geconfigureerd</li>
+<li>[ ] Unit tests >95% coverage</li>
+<li>[ ] Integration tests passed</li>
+<li>[ ] Chaos tests uitgevoerd</li>
+<li>[ ] Performance impact <5%</li>
+<li>[ ] Documentation compleet</li>
+<li>[ ] Runbook voor recovery</li>
+<li>[ ] Alerts geconfigureerd</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+<ul>
+<li>**US-056:** Unified state management</li>
+<li>**US-057:** Anders... option fix</li>
+<li>Database schema updates</li>
+<li>Monitoring infrastructure</li>
+</ul>
+
+<h2>Risico's en Mitigaties</h2>
+
+<p>| Risico | Kans | Impact | Mitigatie |</p>
+<p>|--------|------|--------|-----------|</p>
+<p>| Performance overhead | Medium | Medium | Caching + async validation |</p>
+<p>| False positives | Medium | Laag | Tunable thresholds |</p>
+<p>| Complex recovery | Laag | Medium | Automated playbooks |</p>
+<p>| User disruption | Laag | Medium | Transparent recovery |</p>
+
+<h2>Notities</h2>
+<ul>
+<li>Consider implementing event sourcing voor perfect recovery</li>
+<li>Plan voor gradual rollout met monitoring</li>
+<li>Create dashboard voor data quality metrics</li>
+<li>Train support team op recovery procedures</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Story Status:</strong> Ready for Development</p>
+<p><strong>Estimated Effort:</strong> 5 story points</p>
+<p><strong>Business Value:</strong> Prevents data corruption and production incidents</p>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>VERTALING-ANALYSE-RAPPORT</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>canonical: false</p>
+<p>status: active</p>
+<p>owner: business-analyst</p>
+<p>last_verified: 2025-09-05</p>
+<p>applies_to: definitie-app@current</p>
+<p>type: analyse</p>
+<p>generated: 2025-09-05</p>
+<p>---</p>
+
+<h1>VERTALING-ANALYSE-RAPPORT</h1>
+<h2>Definitie-app Documentatie Taalstatus en Compliance</h2>
+
+<p>---</p>
+<p><strong>Datum:</strong> 05-09-2025</p>
+<p><strong>Analist:</strong> Business Analyst Justice Domain</p>
+<p><strong>Scope:</strong> Vereisten, Epische Verhalen, Gebruikersverhalen</p>
+<p><strong>Doel:</strong> Volledige Nederlandse documentatie conform ASTRA/NORA/GEMMA standaarden</p>
+
+<p>---</p>
+
+<h2>1. EXECUTIVE SUMMARY</h2>
+
+<h3>Huidige Situatie</h3>
+<ul>
+<li>**188 documenten** geanalyseerd (88 Vereisten, 9 Epische Verhalen, 50 Gebruikersverhalen)</li>
+<li>**83% bevat Engels of gemengde taal** - kritieke compliance gap</li>
+<li>**SMART criteria compliance: 45%** - significant verbeterpotentieel</li>
+<li>**Justice domein terminologie: inconsistent** - risico voor ketenintegratie</li>
+</ul>
+
+<h3>Urgentie Assessment</h3>
+<p>🔴 <strong>KRITIEK</strong>: Documentatie voldoet niet aan Nederlandse overheidsstandaarden</p>
+<ul>
+<li>AVG/GDPR compliance vereist Nederlandse documentatie</li>
+<li>NORA/GEMMA standaarden schrijven Nederlands voor</li>
+<li>Ketenpartners (OM, DJI, Rechtspraak) verwachten Nederlandse documentatie</li>
+</ul>
+
+<h3>Impact voor Stakeholders</h3>
+<ul>
+<li>**OM**: Risico op miscommunicatie bij integratie met strafrechtketen</li>
+<li>**DJI**: Compliance issues bij audit door Inspectie JenV</li>
+<li>**Rechtspraak**: Onvoldoende aansluiting bij KEI-standaarden</li>
+<li>**Justid**: Beveiliging clearance vertraging door onduidelijke vereistes</li>
+</ul>
+
+<p>---</p>
+
+<h2>2. INVENTARISATIE OVERZICHT</h2>
+
+<h3>2.1 Vereisten (REQ-000 t/m REQ-087)</h3>
+<p>| Status | Aantal | Percentage | Prioriteit voor Vertaling |</p>
+<p>|--------|--------|------------|---------------------------|</p>
+<p>| <strong>Nederlands</strong> | 5 | 5.7% | ✅ Gereed |</p>
+<p>| <strong>Engels</strong> | 10 | 11.4% | 🔴 P1 - Urgent |</p>
+<p>| <strong>Mixed</strong> | 73 | 82.9% | 🟠 P1 - Urgent |</p>
+
+<h3>2.2 Epische Verhalen (EPIC-001 t/m EPIC-010)</h3>
+<p>| Episch Verhaal ID | Titel | Taalstatus | SMART Score | Business Prioriteit |</p>
+<p>|---------|-------|------------|-------------|-------------------|</p>
+<p>| EPIC-001 | Basis Definitie Generatie | Mixed | 75% | 🔴 Kritiek |</p>
+<p>| EPIC-002 | Kwaliteitstoetsing | Mixed | 60% | 🔴 Kritiek |</p>
+<p>| EPIC-003 | Content Verrijking Web Lookup | Mixed | 50% | 🟠 Hoog |</p>
+<p>| EPIC-004 | User Interface | Mixed | 65% | 🟠 Hoog |</p>
+<p>| EPIC-005 | Export Import | Nederlands | 80% | 🟡 Gemiddeld |</p>
+<p>| EPIC-006 | Beveiliging Auth | Mixed | 70% | 🔴 Kritiek |</p>
+<p>| EPIC-007 | Prestaties Scaling | Engels | 40% | 🟡 Gemiddeld |</p>
+<p>| EPIC-009 | Advanced Features | Engels | 45% | 🟢 Laag |</p>
+<p>| EPIC-010 | Context Flow Refactoring | Mixed | 55% | 🟠 Hoog |</p>
+
+<h3>2.3 Gebruikersverhalen (US-001 t/m US-050)</h3>
+<p>| Categorie | Aantal | Taalstatus | Compliance Issues |</p>
+<p>|-----------|--------|------------|-------------------|</p>
+<p>| Basis Features (US-001-010) | 10 | Mixed | "As a" format i.p.v. "Als een" |</p>
+<p>| Validatie (US-011-020) | 10 | Mixed | Engelse acceptatiecriteria |</p>
+<p>| Web Lookup (US-021-030) | 10 | Engels | Volledig Engels, geen NL context |</p>
+<p>| UI/UX (US-031-040) | 10 | Mixed | Nederlandse persona's ontbreken |</p>
+<p>| Advanced (US-041-050) | 10 | Engels | Geen Justice context |</p>
+
+<p>---</p>
+
+<h2>3. COMPLIANCE GAP ANALYSE</h2>
+
+<h3>3.1 ASTRA Compliance</h3>
+<p>| Requirement | Status | Gap | Actie |</p>
+<p>|------------|--------|-----|-------|</p>
+<p>| Nederlandse documentatie | ❌ Niet compliant | 83% niet-Nederlands | Volledige vertaling vereist |</p>
+<p>| Traceerbare vereistes | ⚠️ Deels compliant | Inconsistente linking | Traceability matrix bouwen |</p>
+<p>| Business value koppeling | ❌ Niet compliant | Ontbreekt in 60% | Value statements toevoegen |</p>
+<p>| Stakeholder mapping | ❌ Niet compliant | Geen expliciete mapping | Stakeholder matrix maken |</p>
+
+<h3>3.2 NORA Standaarden</h3>
+<p>| Principe | Compliance | Risico | Mitigatie |</p>
+<p>|----------|------------|--------|-----------|</p>
+<p>| NL taaleis | 17% | Hoog | Prioritaire vertaling P1 docs |</p>
+<p>| Toegankelijkheid | Onbekend | Medium | WCAG audit na vertaling |</p>
+<p>| Interoperabiliteit | Risico | Hoog | Justice terminologie standaardiseren |</p>
+
+<h3>3.3 GEMMA Referentiearchitectuur</h3>
+<p>| Component | Status | Actie |</p>
+<p>|-----------|--------|-------|</p>
+<p>| Zaakgericht werken | Niet geïmplementeerd | Zaak-begrippen toevoegen |</p>
+<p>| DigiD/eHerkenning refs | Ontbreekt | Beveiliging stories updaten |</p>
+<p>| Basisregistraties | Niet genoemd | Koppelvlakken definiëren |</p>
+
+<p>---</p>
+
+<h2>4. SMART CRITERIA ASSESSMENT</h2>
+
+<h3>Vereisten SMART Scoring</h3>
+<p>| Score | Aantal | Percentage | Voorbeelden |</p>
+<p>|-------|--------|------------|-------------|</p>
+<p>| S-M-A-R-T (100%) | 8 | 9.1% | REQ-010, REQ-020, REQ-055 |</p>
+<p>| S-M-A-R (75%) | 15 | 17.0% | REQ-002, REQ-015, REQ-030 |</p>
+<p>| S-M-A (60%) | 22 | 25.0% | REQ-001, REQ-004, REQ-025 |</p>
+<p>| S-M (40%) | 28 | 31.8% | REQ-003, REQ-040, REQ-050 |</p>
+<p>| < 40% | 15 | 17.0% | REQ-070, REQ-080, REQ-085 |</p>
+
+<h3>Ontbrekende SMART Elementen</h3>
+<ol>
+<li>**Tijdgebonden (T)**: 65% mist concrete deadlines</li>
+<li>**Realistisch (R)**: 45% mist technische haalbaarheidstoets</li>
+<li>**Acceptabel (A)**: 40% mist stakeholder goedkeuringscriteria</li>
+</ol>
+
+<p>---</p>
+
+<h2>5. PRIORITERING MATRIX</h2>
+
+<h3>P1 - KRITIEK (Week 1-2)</h3>
+<p>Documenten die direct business impact hebben en compliance risico's vormen:</p>
+
+<p>| Document | Reden | Effort | Bedrijfswaarde |</p>
+<p>|----------|-------|--------|----------------|</p>
+<p>| REQ-001 (Auth) | Beveiliging kritiek | 2 uur | Zeer Hoog |</p>
+<p>| REQ-018 (Core Gen) | Hoofdfunctionaliteit | 3 uur | Zeer Hoog |</p>
+<p>| REQ-020 (Orchestrator) | Architectuur basis | 2 uur | Zeer Hoog |</p>
+<p>| EPIC-001 (Basis Gen) | Kern epic | 4 uur | Zeer Hoog |</p>
+<p>| EPIC-002 (Kwaliteit) | Compliance basis | 4 uur | Zeer Hoog |</p>
+<p>| EPIC-006 (Beveiliging) | AVG/Beveiliging | 3 uur | Zeer Hoog |</p>
+<p>| US-001 t/m US-005 | Core features | 5 uur | Zeer Hoog |</p>
+
+<p><strong>Totaal P1 Effort: 23 uur</strong></p>
+
+<h3>P2 - BELANGRIJK (Week 3-4)</h3>
+<p>Documenten voor ketenintegratie en gebruikerswaarde:</p>
+
+<p>| Categorie | Documenten | Effort | Impact |</p>
+<p>|-----------|------------|--------|--------|</p>
+<p>| Web Lookup | REQ-039-041, EPIC-003 | 8 uur | Hoog |</p>
+<p>| UI/UX | REQ-048-052, EPIC-004 | 10 uur | Hoog |</p>
+<p>| Validatie Stories | US-011-020 | 10 uur | Hoog |</p>
+
+<p><strong>Totaal P2 Effort: 28 uur</strong></p>
+
+<h3>P3 - NICE-TO-HAVE (Week 5-6)</h3>
+<p>Optimalisaties en advanced features:</p>
+
+<p>| Categorie | Documenten | Effort | Impact |</p>
+<p>|-----------|------------|--------|--------|</p>
+<p>| Prestaties | REQ-060-065, EPIC-007 | 6 uur | Gemiddeld |</p>
+<p>| Advanced | REQ-070-087, EPIC-009 | 8 uur | Laag |</p>
+<p>| Remaining Stories | US-041-050 | 5 uur | Laag |</p>
+
+<p><strong>Totaal P3 Effort: 19 uur</strong></p>
+
+<p>---</p>
+
+<h2>6. JUSTICE DOMEIN SPECIFIEKE AANDACHTSPUNTEN</h2>
+
+<h3>6.1 Terminologie Standaardisatie</h3>
+<p><strong>Verkeerd</strong> ❌ → <strong>Correct</strong> ✅</p>
+<ul>
+<li>"Public Prosecution" → "Openbaar Ministerie (OM)"</li>
+<li>"Legal definition" → "Juridische definitie"</li>
+<li>"Court" → "Rechtbank/Gerechtshof"</li>
+<li>"Case" → "Zaak"</li>
+<li>"Verdict" → "Vonnis/Uitspraak"</li>
+<li>"Detention" → "Detentie/Vrijheidsbeneming"</li>
+<li>"Authentication" → "Authenticatie" (technisch) / "Waarmerking" (juridisch)</li>
+</ul>
+
+<h3>6.2 Wettelijk Kader Referenties</h3>
+<p>Toe te voegen in relevante documenten:</p>
+<ul>
+<li>**Awb** (Algemene wet bestuursrecht) - REQ-001, REQ-018</li>
+<li>**Sv** (Wetboek van Strafvordering) - EPIC-001, US-001-010</li>
+<li>**AVG/GDPR** - REQ-001, EPIC-006, US-Beveiliging</li>
+<li>**Archiefwet** - REQ-055, REQ-082</li>
+<li>**Wet politiegegevens** - REQ-040 (SRU integratie)</li>
+</ul>
+
+<h3>6.3 Ketenpartner Specifieke Vereisten</h3>
+<p>| Partner | Focus Areas | Documenten | Prioriteit |</p>
+<p>|---------|-------------|------------|------------|</p>
+<p>| <strong>OM</strong> | Strafrechtketen, ZSM | REQ-018, EPIC-001 | P1 |</p>
+<p>| <strong>DJI</strong> | Detentie, Re-integratie | REQ-030, EPIC-002 | P1 |</p>
+<p>| <strong>Rechtspraak</strong> | KEI, Procesrecht | REQ-040, EPIC-003 | P2 |</p>
+<p>| <strong>Justid</strong> | Identiteit, Screening | REQ-001, EPIC-006 | P1 |</p>
+<p>| <strong>Politie</strong> | Opsporingsinfo | REQ-039, US-Web | P2 |</p>
+
+<p>---</p>
+
+<h2>7. VERTAALSTRATEGIE</h2>
+
+<h3>7.1 Fasering</h3>
+<pre><code>gantt
+    title Vertaal Roadmap Q1 2025
+    dateFormat YYYY-MM-DD
+    section P1 Kritiek
+    Beveiliging &amp; Auth docs    :06-01-2025, 3d
+    Core Functionality     :08-01-2025, 4d
+    Basis Epische Verhalen           :10-01-2025, 3d
+    section P2 Belangrijk
+    Ketenintegratie       :13-01-2025, 5d
+    UI/UX Documentatie    :16-01-2025, 4d
+    section P3 Optimalisatie
+    Prestaties docs      :20-01-2025, 3d
+    Advanced features     :22-01-2025, 3d</code></pre>
+
+<h3>7.2 Kwaliteitsborging</h3>
+<ol>
+<li>**Peer Review**: Elke vertaling door Justice domein expert</li>
+<li>**Terminologie Check**: Consistentie via glossarium</li>
+<li>**SMART Validatie**: Automated checking script</li>
+<li>**Stakeholder Review**: OM/DJI/Rechtspraak vertegenwoordigers</li>
+</ol>
+
+<h3>7.3 Tooling & Automation</h3>
+<pre><code># Voorgestelde validatie scripts:
+- check_dutch_compliance.py     # Taalcheck
+- validate_smart_criteria.py    # SMART scoring
+- justice_terminology_check.py  # Domein terminologie
+- generate_traceability.py      # Requirement linking</code></pre>
+
+<p>---</p>
+
+<h2>8. DELIVERABLES & TIJDLIJN</h2>
+
+<h3>Week 1-2 (6-17 Jan 2025)</h3>
+<ul>
+<li>[ ] P1 documenten volledig Nederlands</li>
+<li>[ ] SMART criteria 100% voor P1 docs</li>
+<li>[ ] Justice terminologie glossarium v1.0</li>
+<li>[ ] Traceability matrix Vereisten ↔ Epische Verhalen</li>
+</ul>
+
+<h3>Week 3-4 (20-31 Jan 2025)</h3>
+<ul>
+<li>[ ] P2 documenten vertaald</li>
+<li>[ ] Stakeholder persona's gedefinieerd</li>
+<li>[ ] Ketenintegratie vereistes compleet</li>
+<li>[ ] ASTRA compliance rapport</li>
+</ul>
+
+<h3>Week 5-6 (3-14 Feb 2025)</h3>
+<ul>
+<li>[ ] P3 documenten vertaald</li>
+<li>[ ] Volledige traceability Req ↔ Episch Verhaal ↔ Story</li>
+<li>[ ] NORA/GEMMA compliance certificering</li>
+<li>[ ] Documentatie audit trail compleet</li>
+</ul>
+
+<p>---</p>
+
+<h2>9. RISICO'S & MITIGATIE</h2>
+
+<p>| Risico | Kans | Impact | Mitigatie |</p>
+<p>|--------|------|--------|-----------|</p>
+<p>| Inconsistente terminologie | Hoog | Hoog | Glossarium + automated checks |</p>
+<p>| Stakeholder alignment | Medium | Hoog | Weekly review sessions |</p>
+<p>| Technical debt door vertaling | Laag | Medium | Code-doc sync validation |</p>
+<p>| Compliance audit failure | Medium | Zeer Hoog | Pre-audit door externe partij |</p>
+
+<p>---</p>
+
+<h2>10. AANBEVELINGEN</h2>
+
+<h3>Onmiddellijke Acties (Deze Week)</h3>
+<ol>
+<li>✅ **Glossarium opstellen** met Justice terminologie</li>
+<li>✅ **P1 documenten** identificeren en prioriteren</li>
+<li>✅ **Vertaalteam** samenstellen met domein expertise</li>
+<li>✅ **Automated tooling** implementeren voor consistency</li>
+</ol>
+
+<h3>Structurele Verbeteringen</h3>
+<ol>
+<li>**Documentation-as-Code**: Versiebeheer voor alle docs</li>
+<li>**CI/CD Integration**: Automated compliance checking</li>
+<li>**Living Documentation**: Real-time sync met codebase</li>
+<li>**Stakeholder Portal**: Directe feedback loop</li>
+</ol>
+
+<h3>Governance</h3>
+<ol>
+<li>**Documentation Eigenaar**: Aanwijzen per epic/component</li>
+<li>**Review Board**: OM/DJI/Rechtspraak vertegenwoordiging</li>
+<li>**Compliance Officer**: ASTRA/NORA toetsing</li>
+<li>**Change Control**: Documentatie wijzigingen tracken</li>
+</ol>
+
+<p>---</p>
+
+<h2>APPENDIX A: Analyse Scripts</h2>
+
+<pre><code># Taal analyse
+find docs -name "*.md" -exec grep -l "As a\|I want\|So that" {} \;
+
+# SMART check
+python scripts/validate_smart_criteria.py docs/vereistes/
+
+# Terminology scan
+grep -r "court\|prosecution\|legal" docs/ --include="*.md"
+
+# Completeness check
+for file in docs/vereistes/REQ-*.md; do
+  echo "$file: $(grep -c "Acceptatiecriteria" $file)"
+done</code></pre>
+
+<h2>APPENDIX B: Prioriteit Classificatie</h2>
+
+<p><strong>P1 - KRITIEK</strong>:</p>
+<ul>
+<li>Blokkeert go-live</li>
+<li>Compliance vereist</li>
+<li>Beveiliging gerelateerd</li>
+</ul>
+
+<p><strong>P2 - BELANGRIJK</strong>:</p>
+<ul>
+<li>Ketenintegratie</li>
+<li>Gebruikerswaarde</li>
+<li>Prestaties</li>
+</ul>
+
+<p><strong>P3 - NICE-TO-HAVE</strong>:</p>
+<ul>
+<li>Optimalisaties</li>
+<li>Advanced features</li>
+<li>Toekomstige uitbreidingen</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Document Status:</strong> FINAL</p>
+<p><strong>Versie:</strong> 1.0</p>
+<p><strong>Goedkeuring Vereist:</strong> Business Eigenaar, Compliance Officer, Technical Lead</p>
+
+  </div>
+</body>
+</html>

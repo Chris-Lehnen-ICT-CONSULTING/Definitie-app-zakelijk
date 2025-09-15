@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Implement Email Export and Scheduled Exports</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-065</p>
+<p>titel: Implement Email Export and Scheduled Exports</p>
+<p>epic: EPIC-005</p>
+<p>status: Open</p>
+<p>prioriteit: LOW</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-11</p>
+<p>bijgewerkt: 2025-09-11</p>
+<p>owner: developer</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-083</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-11</p>
+<p>---</p>
+</ul>
+
+<h1>US-065: Implement Email Export and Scheduled Exports</h1>
+
+<p><strong>Epic:</strong> EPIC-005 - Export & Import</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> juridisch professional</p>
+<p><strong>wil ik</strong> exports via email kunnen versturen en periodieke exports kunnen plannen</p>
+<p><strong>zodat</strong> ik automatisch rapporten kan distribueren naar stakeholders</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>TODO's in <code>ui/components/export_tab.py</code>:</p>
+<ul>
+<li>Regel 834: Email export functionaliteit</li>
+<li>Regel 839: Scheduled exports</li>
+</ul>
+
+<p>Deze features verhogen gebruiksgemak voor periodieke rapportage.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Email Export</h3>
+<ul>
+<li>[ ] Email configuratie (SMTP settings)</li>
+<li>[ ] Recipient management (TO, CC, BCC)</li>
+<li>[ ] Email templates voor exports</li>
+<li>[ ] Attachment size limits handling</li>
+<li>[ ] Delivery confirmation</li>
+<li>[ ] Error handling voor failed sends</li>
+</ul>
+
+<h3>Scheduled Exports</h3>
+<ul>
+<li>[ ] Schedule configuratie (daily/weekly/monthly)</li>
+<li>[ ] Time zone support</li>
+<li>[ ] Export format selectie</li>
+<li>[ ] Recipient lijst per schedule</li>
+<li>[ ] Enable/disable schedules</li>
+<li>[ ] Execution history</li>
+<li>[ ] Failure notifications</li>
+</ul>
+
+<h3>Security</h3>
+<ul>
+<li>[ ] Email authentication (OAuth2/SMTP auth)</li>
+<li>[ ] Encrypted attachments optie</li>
+<li>[ ] Rate limiting</li>
+<li>[ ] Audit trail voor sent emails</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Email Service</h3>
+<pre><code>class EmailExportService:
+    async def configure_smtp(self, settings: SMTPSettings)
+    async def send_export(
+        self,
+        export_data: ExportData,
+        recipients: list[str],
+        template: EmailTemplate
+    ) -&gt; EmailResult
+    async def validate_recipients(self, emails: list[str]) -&gt; ValidationResult</code></pre>
+
+<h3>Scheduler Service</h3>
+<pre><code>class ExportScheduler:
+    def create_schedule(self, config: ScheduleConfig) -&gt; Schedule
+    def update_schedule(self, schedule_id: str, config: ScheduleConfig)
+    def delete_schedule(self, schedule_id: str)
+    def get_next_execution(self, schedule_id: str) -&gt; datetime
+    async def execute_scheduled_export(self, schedule_id: str)</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Email service geïmplementeerd</li>
+<li>[ ] SMTP configuratie UI</li>
+<li>[ ] Email template editor</li>
+<li>[ ] Schedule configuratie UI</li>
+<li>[ ] Cron job runner voor schedules</li>
+<li>[ ] Test emails functionaliteit</li>
+<li>[ ] Unit tests voor services</li>
+<li>[ ] Integration test met email</li>
+<li>[ ] Documentatie voor setup</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Email spam filters | Medium | SPF/DKIM setup docs |</p>
+<p>| SMTP credentials exposure | High | Secure storage |</p>
+<p>| Failed scheduled jobs | Medium | Retry mechanism |</p>
+<p>| Large attachments | Low | Compression/links |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Start met basic SMTP, voeg OAuth2 later toe</li>
+<li>Consider SendGrid/Mailgun voor productie</li>
+<li>Implement email queuing voor reliability</li>
+<li>Add unsubscribe mechanism voor compliance</li>
+</ul>
+
+  </div>
+</body>
+</html>

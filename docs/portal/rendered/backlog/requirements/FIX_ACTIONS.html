@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Vereisten Fix Action Plan</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Vereisten Fix Action Plan</h1>
+
+<p><strong>Prioriteit:</strong> IMMEDIATE</p>
+<p><strong>Estimated Time:</strong> 4-6 hours for critical fixes</p>
+<p><strong>Impact:</strong> Restores vereistes traceability and accuracy</p>
+
+<h2>Phase 1: Critical Fixes (Do Today)</h2>
+
+<h3>1.1 Fix Episch Verhaal Format Issues (30 minutes)</h3>
+
+<p><strong>Affected Files:</strong> REQ-023 through REQ-037 and others</p>
+
+<p><strong>Quick Fix Script:</strong></p>
+<pre><code># Fix EPIC-002 to EPIC-002 format
+for file in REQ-*.md; do
+  sed -i.bak 's/EPIC-002/EPIC-002/g' "$file"
+  sed -i.bak 's/\[EPIC-\([0-9]\)\]/[EPIC-00\1]/g' "$file"
+done
+
+# Verify changes
+grep -h "epics:" REQ-*.md | sort -u</code></pre>
+
+<h3>1.2 Update Source File References (2 hours)</h3>
+
+<p><strong>File Mapping Updates Needed:</strong></p>
+
+<pre><code># Old → New mappings
+corrections:
+  REQ-001:
+    old: TODO: src/services/auth_service.py (file does not exist)
+    new: # No auth service exists - remove or mark as TODO
+
+  REQ-004:
+    old: src/ui/tabs/generation_tab.py
+    new: src/ui/tabs/generation_tab.py
+
+  REQ-005:
+    old: src/services/definition_repository.py
+    new: src/services/definition_repository.py
+
+  REQ-013 to REQ-037:
+    old: config/toetsregels/regels/*.json
+    new: src/toetsregels/regels/*.py
+
+  REQ-018:
+    old: src/services/definition_generator.py
+    new: src/services/definition_generator.py
+
+  REQ-020:
+    old: src/services/validation/orchestrator_v2.py
+    new: src/services/validation/orchestrator_v2.py</code></pre>
+
+<h3>1.3 Fix Story References (1 hour)</h3>
+
+<p><strong>Invalid Stories to Remove/Update:</strong></p>
+<ul>
+<li> → Remove (doesn't exist)</li>
+<li> → Remove (doesn't exist)</li>
+<li>US-3.1, US-3.1, US-3.1 → Change to US-3.1 (web lookup stories)</li>
+<li>Add CFR.1 through CFR.6 where context flow is mentioned</li>
+</ul>
+
+<h3>1.4 Status Corrections (30 minutes)</h3>
+
+<p><strong>Change from "Done" to "In Progress":</strong></p>
+<ul>
+<li>REQ-005: SQL Injection Prevention (repository missing)</li>
+<li>REQ-018: Core Definition Generation (service renamed)</li>
+<li>REQ-022: Export Functionality (tab missing)</li>
+<li>REQ-023 through REQ-037: If JSON rules referenced</li>
+</ul>
+
+<h2>Phase 2: High Prioriteit Improvements (This Week)</h2>
+
+<h3>2.1 Add SMART Criteria Template</h3>
+
+<p>Create template for missing criteria:</p>
+<pre><code>## Acceptatiecriteria (SMART)
+
+- **Specifiek:** [What exactly should happen]
+- **Meetbaar:** [Metric with number, e.g., "&lt; 5 seconds", "&gt; 95%"]
+- **Acceptabel:** [Why this is reasonable]
+- **Relevant:** [How it supports the vereiste]
+- **Tijdgebonden:** [Wanneer or how often, e.g., "within 24 hours", "every request"]</code></pre>
+
+<h3>2.2 Prioriteit Vereisten to Fix First</h3>
+
+<p>Focus on these high-impact vereistes:</p>
+<ol>
+<li>REQ-001: Authentication (security critical)</li>
+<li>REQ-008: Prestaties (user experience)</li>
+<li>REQ-023-037: Validation rules (core functionality)</li>
+<li>REQ-038-039: External integrations (GPT-4, Wikipedia)</li>
+</ol>
+
+<h3>2.3 Domain Context Additions</h3>
+
+<p>For REQ-013 through REQ-022, add:</p>
+<ul>
+<li>Nederlandse rechtsterminologie</li>
+<li>ASTRA vereiste references (e.g., "ASTRA-QUA-001")</li>
+<li>NORA principles (e.g., "NORA-BP-07")</li>
+<li>Justice sector specific vereistes</li>
+</ul>
+
+<h2>Phase 3: Automation & Prevention (Next Sprint)</h2>
+
+<h3>3.1 Validation Script</h3>
+
+<pre><code># vereistes_validator.py
+def validate_vereiste(req_file):
+    issues = []
+
+    # Check source files exist
+    for source in req['sources']:
+        if not Path(source['path']).exists():
+            issues.append(f"Missing file: {source['path']}")
+
+    # Check epic format
+    for epic in req['links']['epics']:
+        if not re.match(r'EPIC-\d{3}', epic):
+            issues.append(f"Invalid epic format: {epic}")
+
+    # Check SMART criteria
+    if 'moet' not in req['criteria']:
+        issues.append("Missing measurable criteria")
+
+    return issues</code></pre>
+
+<h3>3.2 CI/CD Integration</h3>
+
+<p>Add GitHub Action:</p>
+<pre><code>name: Validate Vereisten
+on:
+  push:
+    paths:
+      - 'docs/vereistes/*.md'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: python scripts/validate_vereistes.py</code></pre>
+
+<h2>Quick Wins Checklist</h2>
+
+<ul>
+<li>[ ] Run epic format fix script</li>
+<li>[ ] Update validation rule references (.json → .py)</li>
+<li>[ ] Remove non-existent story references</li>
+<li>[ ] Fix "Done" status for ungeïmplementeerd vereistes</li>
+<li>[ ] Add SMART criteria to REQ-001 through REQ-010</li>
+<li>[ ] Update MASTER-EPICS-USER-STORIES.md references</li>
+<li>[ ] Add Dutch context to domain vereistes</li>
+<li>[ ] Create vereistes validation script</li>
+<li>[ ] Document new file locations in CANONICAL_LOCATIONS.md</li>
+</ul>
+
+<h2>Verification Commands</h2>
+
+<p>After fixes, run these checks:</p>
+
+<pre><code># Check all source files exist
+grep -h "path:" REQ-*.md | sed 's/.*path: //' | while read f; do
+  [ -f "../../$f" ] || echo "Missing: $f"
+done
+
+# Verify epic format
+grep -h "EPIC-" REQ-*.md | grep -v "EPIC-00" || echo "All epics properly formatted"
+
+# Check for orphaned vereistes
+for req in REQ-*.md; do
+  grep -q "epics:\|stories:" "$req" || echo "Orphaned: $req"
+done</code></pre>
+
+<h2>Expected Outcomes</h2>
+
+<p>After completing Phase 1:</p>
+<ul>
+<li>✅ All epic references properly formatted</li>
+<li>✅ Source files correctly referenced or marked TODO</li>
+<li>✅ No false "Done" status</li>
+<li>✅ Valid story links only</li>
+</ul>
+
+<p>After completing Phase 2:</p>
+<ul>
+<li>✅ All high-priority vereistes have SMART criteria</li>
+<li>✅ Domain vereistes include Dutch legal context</li>
+<li>✅ Clear traceability from vereistes to implementation</li>
+</ul>
+
+<p>After completing Phase 3:</p>
+<ul>
+<li>✅ Automated validation prevents future issues</li>
+<li>✅ CI/CD catches problems before merge</li>
+<li>✅ Vereisten stay synchronized with code</li>
+</ul>
+
+<p>---</p>
+
+<p><strong>Note:</strong> Save original files before bulk updates:</p>
+<pre><code>tar -czf vereistes_backup_$(date +%Y%m%d).tar.gz REQ-*.md</code></pre>
+
+  </div>
+</body>
+</html>
