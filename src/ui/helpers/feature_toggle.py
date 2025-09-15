@@ -38,3 +38,12 @@ def render_feature_flag_toggle():
             )
 
         return True  # Always return True for V2
+
+
+def render_legacy_warning(component_name: str) -> None:
+    """Toon een waarschuwing voor legacy componenten in de UI."""
+    st.warning(
+        f"⚠️ **Legacy Component**: {component_name}\n\n"
+        f"Deze component is verouderd en wordt in een toekomstige versie verwijderd. "
+        f"Gebruik de V2-implementatie waar mogelijk."
+    )

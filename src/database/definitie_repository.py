@@ -737,6 +737,8 @@ class DefinitieRepository:
                 "juridische_context",
                 "wettelijke_basis",
                 # version_number niet direct setbaar; wordt atomisch verhoogd
+                # aanvullende legacy/meta velden
+                "ketenpartners",
             }
 
             set_clauses = []

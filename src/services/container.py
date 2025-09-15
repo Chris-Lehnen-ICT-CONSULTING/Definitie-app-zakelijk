@@ -408,30 +408,7 @@ class ServiceContainer:
             logger.info("ExportService instance aangemaakt")
         return self._instances["export_service"]
 
-    def definition_ui_service(self) -> "DefinitionUIService":
-        """
-        Get of create DefinitionUIService instance.
-
-        Returns:
-            Singleton instance van DefinitionUIService
-        """
-        if "definition_ui_service" not in self._instances:
-            from ui.services.definition_ui_service import DefinitionUIService
-
-            # Use existing services
-            repo = self.repository()
-            workflow_service = self.workflow()
-            export_service = self.export_service()
-            data_agg_service = self.data_aggregation_service()
-
-            self._instances["definition_ui_service"] = DefinitionUIService(
-                repository=repo,
-                workflow_service=workflow_service,
-                export_service=export_service,
-                data_aggregation_service=data_agg_service,
-            )
-            logger.info("DefinitionUIService instance aangemaakt")
-        return self._instances["definition_ui_service"]
+    # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
 

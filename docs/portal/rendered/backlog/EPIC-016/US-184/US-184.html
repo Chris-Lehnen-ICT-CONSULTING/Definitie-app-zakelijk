@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-184: Contextopties beheren (organisaties/rechtsgebieden/wetgeving)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>id: US-184</p>
+<p>titel: Contextopties beheren (organisaties/rechtsgebieden/wetgeving)</p>
+<p>epic: EPIC-016</p>
+<p>status: Backlog</p>
+<p>prioriteit: GEMIDDELD</p>
+<p>story_points: 5</p>
+<p>aangemaakt: 2025-09-13</p>
+<p>bijgewerkt: 2025-09-15</p>
+<p>owner: product-owner</p>
+<p>type: feature</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-15</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-095</li>
+<p>---</p>
+</ul>
+
+<h1>US-184: Contextopties beheren (organisaties/rechtsgebieden/wetgeving)</h1>
+
+<h2>Doel</h2>
+<p>Beheer van keuzelijsten voor de Context Selector: Organisatorische contexten, Juridische contexten en Wettelijke basis.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] CRUD op drie lijsten (organisatorisch/juridisch/wetgeving) via UI</li>
+<li>[ ] Validatie op lengte/tekens; dubbele items voorkomen</li>
+<li>[ ] Opslag in DB (config) met audit trail</li>
+<li>[ ] Direct zichtbaar in Context Selector (hot‑reload)</li>
+<li>[ ] Export/Import (JSON/YAML)</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Beheer UI per lijst</li>
+<li>[ ] DB‑opslag + audit trail</li>
+<li>[ ] ContextManager leest actuele lijsten</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<h2>Data‑model</h2>
+<ul>
+<li>Tabel `context_options` (id, group, value, sort_order, active, created_at, updated_at)</li>
+<li>group ∈ {org, jur, wet}</li>
+</ul>
+
+<h2>UI‑Details</h2>
+<ul>
+<li>CRUD per groep; sorteerbaar; deactiveer ipv verwijderen.</li>
+<li>Validatie: unieke waarde binnen groep (case‑insensitive), max lengte.</li>
+</ul>
+
+<h2>Integratie</h2>
+<ul>
+<li>EnhancedContextManagerSelector leest opties uit DB via ContextManager.</li>
+<li>Hot‑reload bij wijziging.</li>
+</ul>
+
+<h2>Import/Export</h2>
+<ul>
+<li>JSON/YAML lijst per groep.</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: CRUD op context_options; unieke waarden per groep; sortering; active toggle</li>
+<li>Integratie: wijzig lijst → UI selector toont update zonder restart; ContextManager leest nieuwe set</li>
+<li>UI: validaties, duplicate preventie, audit entry</li>
+</ul>
+
+  </div>
+</body>
+</html>

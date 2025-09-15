@@ -10,6 +10,7 @@
 **Progress**: US-061 COMPLETED - Business kennis geëxtraheerd en gedocumenteerd
 **Decision (2025-09-11)**: Start met US-064 vóór US-062 voor maximale waarde
 **Follow-up**: Zie [EPIC-014](../EPIC-014/EPIC-014.md) voor implementatie van geëxtraheerde business logic
+**Iteratieve verbeteringen verplaatst**: Zie [EPIC-017](../EPIC-017/EPIC-017.md) voor de iteratieve V2‑loop en UI‑koppeling (voorheen o.a. US‑170/US‑152 in deze epic)
 **Owner**: Development Team
 **Sprint Planning**: Week 2 September 2025 (Na EPIC-010 completion)
 
@@ -66,7 +67,7 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 |----|-------|----------|--------|--------|
 | US-061 | Extract en documenteer business kennis uit legacy | CRITICAL | 5 | **COMPLETED** ✅ |
 | US-064 | Consolideer orchestration logica | HIGH | 8 | TODO | NEXT |
-| US-152 | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO |
+| US-152 | Refactor FeedbackBuilder naar moderne service | CRITICAL | 8 | TODO | (Zie EPIC‑017/US‑189 voor uitwerking) |
 | US-063 | Integreer legacy config en context in V2 | HIGH | 5 | TODO |
 | US-065 | Moderniseer UI dependencies | MEDIUM | 3 | TODO |
 | US-066 | Verwijder Legacy DefinitieAgent uit Integratie/UI | HIGH | 5 | TODO |
@@ -81,7 +82,7 @@ De applicatie bevat waardevolle business logica verspreid over 8 legacy bestande
 | US-075 | Centraliseer async/sync-bridging | HIGH | 5 | TODO |
 | US-076 | Validators JSON-first + basisklasse | MEDIUM | 8 | TODO |
 | US-078 | Test-hygiëne, scheiding bron/test | LOW | 2 | TODO |
-| [US-170](./US-170/US-170.md) | Koppel Orchestration-tab aan V2 Orchestrator (UI wiring) | HIGH | 5 | TODO |
+| [US-170](../EPIC-017/US-170/US-170.md) | Koppel Orchestration-tab aan V2 Orchestrator (UI wiring) | HIGH | 5 | TODO | (Verplaatst naar EPIC‑017) |
 
 **Totaal Story Points**: 51 (was 29) + 31 (US-071..US-076, US-078) = 82
 

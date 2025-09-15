@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Iteration Controller voor V2 Orchestrator</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-188</p>
+<p>titel: Iteration Controller voor V2 Orchestrator</p>
+<p>epic: EPIC-017</p>
+<p>status: Backlog</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 8</p>
+<p>aangemaakt: 2025-09-15</p>
+<p>bijgewerkt: 2025-09-15</p>
+<p>owner: architecture</p>
+<p>type: feature</p>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-15</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-097</li>
+<p>---</p>
+</ul>
+
+<h1>US-188: Iteration Controller voor V2 Orchestrator</h1>
+
+<h2>Doel</h2>
+<p>Implementeer een iteratieloop bovenop de V2‑orchestrator met duidelijke stopcriteria en telemetrie: generate → validate → feedback → repeat (≤3 iteraties), stop bij acceptatie of minimale verbetering < 0.05.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Iteraties ≤ 3, configurabel met defaults.</li>
+<li>[ ] Stop bij is_acceptable=True (policy), of bij scoreverbetering < 0.05 t.o.v. vorige iteratie.</li>
+<li>[ ] Geen kritieke violations toegestaan; category‑score ≥ 0.75 (policy/layered check).</li>
+<li>[ ] Voorbeelden uit iteratie 1 kunnen hergebruikt worden (prestatieoptimalisatie).</li>
+<li>[ ] Telemetrie per iteratie (score, violations, duration, used_feedback, reused_examples)</li>
+<li>[ ] Contract V2: output blijft UIResponse‑vorm; geen legacy “best_iteration”.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Nieuwe controller (of orchestrator‑fase) met iteratielogica en configuratie.</li>
+<li>[ ] Telemetrie hooks en samenvatting in metadata.</li>
+<li>[ ] Unit/integratie tests (mocks) voor stopcriteria en prestaties.</li>
+<li>[ ] Documentatie bijgewerkt (EPIC‑017 referentie, configuratiehandleiding).</li>
+</ul>
+
+<h2>Technical Notes</h2>
+<ul>
+<li>Config: max_iter=3, improvement_threshold=0.05, acceptance_threshold=0.80 (policy‑gedreven waar zinvol).</li>
+<li>Hergebruik voorbeelden: cache voorbeelden van iteratie 1, pas alleen bij echte verbetering regenereren.</li>
+<li>Telemetry: verzamel per iteratie; UI leest via metadata.iterations[].</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: stop bij acceptatie; stop bij < 0.05; hard‑limit op 3 iteraties; hergebruik voorbeelden.</li>
+<li>Integratie (offline/mocks): 3 scenario’s (accept in 1, accept in 2, stagnatie in 3). Determinisme asserts.</li>
+<li>Performance smoke: iteratiepad < X ms met mocks (budget bepalen).</li>
+</ul>
+
+<h2>Risico’s</h2>
+<ul>
+<li>Onnodige iteraties → early‑stop en drempels correct toepassen.</li>
+<li>Contract drift → UI‑contracttest en schema‑asserts.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

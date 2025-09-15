@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-017: Iteratieve Verbeteringen (V2 Orchestrator)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>canonical: true</p>
+<p>status: active</p>
+<p>owner: architecture</p>
+<p>last_verified: 2025-09-15</p>
+<p>applies_to: definitie-app@current</p>
+<p>---</p>
+
+<h1>EPIC-017: Iteratieve Verbeteringen (V2 Orchestrator)</h1>
+
+<h2>Epic Overview</h2>
+<p>ID: EPIC-017</p>
+<p>Titel: Iteratieve verbetering en feedbackloop voor definitiegeneratie (V2)</p>
+<p>Status: ACTIVE (nieuw)</p>
+<p>Priority: HIGH</p>
+<p>Created: 2025-09-15</p>
+<p>Updated: 2025-09-15</p>
+<p>Owner: Architecture/Engineering</p>
+<p>stories:</p>
+<ul>
+<li>US-170</li>
+<li>US-188</li>
+<li>US-189</li>
+</ul>
+
+<p>Doel: de iteratieve verbeteringscyclus (feedbackloop) realiseren bovenop de V2‑orchestrator, losgekoppeld van EPIC‑012, zodat EPIC‑012 kan worden afgerond zonder de iteratieve component. Deze epic bundelt REQ‑097 en de UI‑koppeling (voorheen US‑170 in EPIC‑012) plus relevante businesskennis uit US‑061.</p>
+
+<h2>Business Value</h2>
+<ul>
+<li>Verhoogde kwaliteit door gecontroleerde iteraties (max 3) met duidelijke stopcriteria.</li>
+<li>Transparante feedback (Violation→Feedback mapping) en learning‑loop zonder legacy afhankelijkheden.</li>
+<li>Meetbare voortgang per iteratie (scores, violaties, gate‑status) en UX‑inzicht via grafieken.</li>
+</ul>
+
+<h2>Scope</h2>
+<h3>In Scope</h3>
+<ul>
+<li>Iteratieve loop bovenop V2 (acceptatie ≥ 0.80 overall; category ≥ 0.75; improvement threshold 0.05; max 3 iteraties).</li>
+<li>FeedbackBuilder V2 (11+ mappings) als aparte service/module aan Orchestrator V2.</li>
+<li>UI‑koppeling (orchestration tab) naar V2 voor demo/visualisatie (achter feature flag).</li>
+<li>Telemetrie/metrics per iteratie; caching/hergebruik van voorbeelden waar zinvol.</li>
+</ul>
+
+<h3>Out of Scope</h3>
+<ul>
+<li>Backwards compatibility met legacy agent/iteraties in runtime.</li>
+<li>Security integratie (EPIC‑006) buiten minimale hooks.</li>
+<li>Database migraties buiten bestaande schema’s (schema.sql blijft bron).</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>V2 Orchestrator: `src/services/orchestrators/definition_orchestrator_v2.py`</li>
+<li>Businesskennis geëxtraheerd (US‑061) ✅</li>
+<li>Validation V2 contracten vastgesteld (UIResponse/ValidationDetails) ✅</li>
+</ul>
+
+<h2>Requirements</h2>
+<ul>
+<li>REQ‑097: Iteratieve Verbetering van Definities (V2 Orchestrator)</li>
+<li> - Path: `docs/backlog/requirements/REQ-097.md`</li>
+</ul>
+
+<h2>Technical Context</h2>
+<ul>
+<li>Stopcriteria: max 3 iteraties; stop bij acceptatie of bij < 0.05 scoreverbetering.</li>
+<li>Drempels: overall ≥ 0.80; categorie ≥ 0.75; geen kritieke violations.</li>
+<li>Voorbeelden optimalisatie: voorbeelden alleen in 1e iteratie genereren en hergebruiken.</li>
+<li>FeedbackBuilder: prioritering (kritiek → suggesties → overig), max 5 items/iteratie, deduplicatie.</li>
+<li>UI: grafieken voor score per iteratie, violations per severiteit, diff t.o.v. vorige iteratie.</li>
+</ul>
+
+<p>Bronnen:</p>
+<ul>
+<li>US‑061 Business Knowledge Extraction: `docs/backlog/EPIC-012/US-061/BUSINESS_KNOWLEDGE_EXTRACTION.md`</li>
+<li>EPIC‑012 (context en verwijzingen): `docs/backlog/EPIC-012/EPIC-012.md`</li>
+</ul>
+
+<h2>Acceptatiecriteria (Epic)</h2>
+<ul>
+<li>Iteratieloop en stopcriteria werken contract‑conform (zonder legacy best_iteration).</li>
+<li>FeedbackBuilder V2 levert deterministische, prioriteerde feedback per iteratie.</li>
+<li>UI orchestration tab (V2) toont iteratie‑metrics; flag‑beschermd; geen legacy imports.</li>
+<li>Tests (unit/integratie) en determinisme gegarandeerd; CI‑gates blijven groen.</li>
+</ul>
+
+<h2>Definition of Done (Epic)</h2>
+<ul>
+<li>US‑188..US‑190 gerealiseerd en getest.</li>
+<li>Documentatie en portal bijgewerkt; geen broken links.</li>
+</ul>
+
+<h2>Risks & Mitigations</h2>
+<p>| Risk | Impact | Probability | Mitigation |</p>
+<p>|------|--------|-------------|------------|</p>
+<p>| Performance door extra iteraties | Medium | Medium | Voorbeelden caching, early‑stop, mock validatie voor offline test |</p>
+<p>| Feedback duplicatie/ruis | Medium | Low | Deduplicatie + mapping‑prioriteit |</p>
+<p>| Contract drift met UI | Medium | Low | Strikte V2‑UIResponse + contracttests |</p>
+
+<h2>Implementation Plan</h2>
+<h3>Fase 1 — FeedbackBuilder V2 (US‑189)</h3>
+<ul>
+<li>Port violation→feedback mappings (US‑061) naar service/module; deterministische selectie/prioritering; API voor “next feedback set”.</li>
+</ul>
+
+<h3>Fase 2 — Iteration Controller (US‑188)</h3>
+<ul>
+<li>Voeg iteratielus toe rond generate→validate→feedback; stopcriteria/drempels; telemetry hooks; hergebruik voorbeelden.</li>
+</ul>
+
+<h3>Fase 3 — UI Wiring (US‑170)</h3>
+<ul>
+<li>Orchestration tab aan V2 koppelen; grafieken/metrics; flag‑achter de schermen; geen legacy imports.</li>
+</ul>
+
+<h3>Fase 4 — Tests & Gates</h3>
+<ul>
+<li>Unit/integratie; determinisme asserts; CI‑gates voor legacy‑patronen blijven actief.</li>
+</ul>
+
+<h2>Notes</h2>
+<ul>
+<li>EPIC‑012 kan worden afgerond zonder deze epic; iteratieve verbeteringen leven hier.</li>
+<li>Legacy DefinitieAgent blijft gearchiveerd of strikt achter demo‑flag; geen runtime‑pad in hoofdflow.</li>
+</ul>
+
+  </div>
+</body>
+</html>

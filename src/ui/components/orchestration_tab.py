@@ -14,7 +14,8 @@ import plotly.express as px
 import plotly.graph_objects as go
 import streamlit as st
 
-from config.feature_flags import FeatureFlags, show_legacy_warning
+from config.feature_flags import FeatureFlags
+from ui.helpers.feature_toggle import render_legacy_warning
 from database.definitie_repository import DefinitieRepository
 from ui.session_state import SessionStateManager
 
@@ -73,7 +74,7 @@ class OrchestrationTab:
             return
 
         # Show deprecation warning
-        show_legacy_warning("Orchestration Tab (Legacy DefinitieAgent)")
+        render_legacy_warning("Orchestration Tab (Legacy DefinitieAgent)")
 
         st.markdown("### 🤖 Intelligente Definitie Orchestratie")
 

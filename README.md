@@ -40,6 +40,19 @@ pytest -q
 - **7 patterns geblokkeerd**: generation_result imports, .best_iteration, string context, domein field, asyncio.run in services, streamlit in services
 - **Status**: ✅ Actief sinds 11-09-2025 (EPIC-010 completed)
 
+### 🔧 Wijzigingen P1 (2025‑09‑15)
+- Services async‑only: sync wrappers in services verwijderd. UI gebruikt `src/ui/helpers/async_bridge.py` voor sync↔async bridging.
+- PromptServiceV2: `build_prompt` (sync) verwijderd → gebruik `build_generation_prompt` (async) via UI‑bridge.
+- ExportService: validation‑gate alleen in async pad (`export_definitie_async`). Sync pad faalt wanneer gate is ingeschakeld.
+- Feature flags: `show_legacy_warning` verplaatst naar `ui/helpers/feature_toggle.py`; `config/feature_flags.py` is UI‑vrij.
+- CategoryStateManager: nu pure helpers (geen `ui.session_state` import). UI schrijft zelf sessiestatus.
+- Expert‑tab: bij “Vaststellen” kan je nu ketenpartners selecteren; worden persistent opgeslagen in DB en komen mee in export.
+- Integratie: `datum_voorstel` wordt bij create gezet op `datetime.now(UTC)` (geen UI‑dependency meer).
+
+Let op voor ontwikkelaars:
+- Tests of code die `ServiceFactory.genereer_definitie(...)` of `PromptServiceV2.build_prompt(...)` aanroepen krijgen nu `NotImplementedError`. Migreer naar async paden + UI‑bridge.
+- Services mogen geen `streamlit`/`ui.*` importeren. CI‑gates worden uitgebreid om dit te bewaken.
+
 ### 📚 Portal (Backlog & Docs)
 - Open de centrale portal: `docs/portal/index.html` (dubbelklik; werkt offline).
 - Zoek/filter/sorteer over REQ/EPIC/US/BUG en relevante documentatie.
@@ -134,7 +147,7 @@ De applicatie hanteert een validatie‑gate bij het vaststellen (Option B). De g
 - Workflow: `DefinitionWorkflowService` voert gate‑check uit vóór overgang naar `ESTABLISHED` en vereist bij soft‑gate een override‑reden (`notes`).
 - UI (Expert‑tab): toont indicator (groen=pass, oranje=override vereist, grijs=geblokkeerd) en handhaaft knoppenstate conform service‑uitkomst.
 
-Belangrijk: er zit momenteel een status‑bug in `DefinitionWorkflowService` (gebruikt `APPROVED` i.p.v. `ESTABLISHED`). Deze wordt gecorrigeerd als onderdeel van US‑160 service‑enforcement.
+Belangrijk: status “ESTABLISHED” is leidend. Eventuele verwijzingen naar “APPROVED” worden uitgefaseerd (US‑174).
 
 ## 🧩 Contextbeleid (V2)
 
