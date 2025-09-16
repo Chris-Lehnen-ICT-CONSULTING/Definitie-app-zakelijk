@@ -24,16 +24,9 @@ from validation.sanitizer import get_sanitizer, sanitize_user_input
 from toetsregels.loader import load_toetsregels
 from config.config_manager import ConfigSection, get_config_manager
 
-# Mock generation functions
-try:
-    from generation.definitie_generator import create_hybrid_generation_context
-
-    GENERATION_AVAILABLE = True
-except ImportError:
-    GENERATION_AVAILABLE = False
-
-    def create_hybrid_generation_context(**kwargs):
-        return {"context": "mocked", "enhanced": True}
+# Lokale stub voor generation functionaliteit (legacy verwijderd)
+def create_hybrid_generation_context(**kwargs):
+    return {"context": "mocked", "enhanced": True}
 
 
 # Mock export functions
@@ -159,19 +152,14 @@ class TestBasicWorkflowIntegration:
             components.append("modular_toetser")
             data_flow.append("definition -> validation_results")
 
-            # Step 4: Mock definition generation
-            with patch(
-                "generation.definitie_generator.generate_definition"
-            ) as mock_gen:
-                mock_gen.return_value = {
-                    "definitie": test_definition,
-                    "bronnen_gebruikt": "Testbron",
-                    "confidence_score": 0.85,
-                }
-
-                generation_result = mock_gen(**sanitized_input)
-                components.append("definitie_generator")
-                data_flow.append("sanitized_input -> generated_definition")
+            # Step 4: Mock definition generation (lokale stub, geen legacy)
+            generation_result = {
+                "definitie": test_definition,
+                "bronnen_gebruikt": "Testbron",
+                "confidence_score": 0.85,
+            }
+            components.append("definitie_generator_stub")
+            data_flow.append("sanitized_input -> generated_definition_stub")
 
             # Step 5: Export result
             export_data = {
@@ -262,21 +250,14 @@ class TestBasicWorkflowIntegration:
                 "legal_references": processed_doc.legal_references,
             }
 
-            # Step 5: Generate definition with document context
-            with patch(
-                "generation.definitie_generator.generate_definition"
-            ) as mock_gen:
-                mock_gen.return_value = {
-                    "definitie": "Authenticatie is het proces van identiteitsverificatie zoals gedefinieerd in de Nederlandse wet.",
-                    "bronnen_gebruikt": "Nederlandse Wet op de Identificatie",
-                    "document_enhanced": True,
-                }
-
-                enhanced_definition = mock_gen(
-                    begrip="authenticatie", document_context=document_context
-                )
-                components.append("enhanced_generation")
-                data_flow.append("document_context -> enhanced_definition")
+            # Step 5: Generate definition with document context (lokale stub)
+            enhanced_definition = {
+                "definitie": "Authenticatie is het proces van identiteitsverificatie zoals gedefinieerd in de Nederlandse wet.",
+                "bronnen_gebruikt": "Nederlandse Wet op de Identificatie",
+                "document_enhanced": True,
+            }
+            components.append("enhanced_generation_stub")
+            data_flow.append("document_context -> enhanced_definition_stub")
 
             return {
                 "success": True,
@@ -339,22 +320,15 @@ class TestBasicWorkflowIntegration:
                 components.append("context_fusion")
                 data_flow.append("doc_context + web_context -> hybrid_context")
 
-            # Step 4: Generate definition with hybrid context
-            with patch(
-                "generation.definitie_generator.create_hybrid_generation_context"
-            ) as mock_hybrid_gen:
-                mock_hybrid_gen.return_value = {
-                    "definitie": "Authenticatie is het proces van identiteitsverificatie conform Nederlandse wetgeving en internationale standaarden.",
-                    "bronnen_gebruikt": "AVG, Wet ID-kaart, Wikipedia",
-                    "hybrid_enhanced": True,
-                    "context_quality": "high",
-                }
-
-                final_definition = mock_hybrid_gen(
-                    begrip="authenticatie", hybrid_context=hybrid_context
-                )
-                components.append("hybrid_generation")
-                data_flow.append("hybrid_context -> enhanced_definition")
+            # Step 4: Generate definition with hybrid context (lokale stub)
+            final_definition = {
+                "definitie": "Authenticatie is het proces van identiteitsverificatie conform Nederlandse wetgeving en internationale standaarden.",
+                "bronnen_gebruikt": "AVG, Wet ID-kaart, Wikipedia",
+                "hybrid_enhanced": True,
+                "context_quality": "high",
+            }
+            components.append("hybrid_generation_stub")
+            data_flow.append("hybrid_context -> enhanced_definition_stub")
 
             return {
                 "success": True,
@@ -658,20 +632,15 @@ class TestDataFlowIntegration:
             components.append("validator")
             data_flow.append("sanitized -> validation_results")
 
-            # Step 4: Enrichment transformation (mock)
-            with patch(
-                "generation.definitie_generator.enrich_definition"
-            ) as mock_enrich:
-                mock_enrich.return_value = {
-                    "original": sanitized,
-                    "enriched": f"Enriched: {sanitized}",
-                    "metadata": {"source": "enrichment_engine"},
-                }
-
-                enriched = mock_enrich(sanitized)
-                transformations.append(("enriched", enriched))
-                components.append("enricher")
-                data_flow.append("validation_results -> enriched")
+            # Step 4: Enrichment transformation (lokale stub)
+            enriched = {
+                "original": sanitized,
+                "enriched": f"Enriched: {sanitized}",
+                "metadata": {"source": "enrichment_engine"},
+            }
+            transformations.append(("enriched", enriched))
+            components.append("enricher_stub")
+            data_flow.append("validation_results -> enriched_stub")
 
             # Verify data integrity through pipeline
             data_integrity_check = all(t[1] is not None for t in transformations)
