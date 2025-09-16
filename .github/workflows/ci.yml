@@ -44,7 +44,7 @@ jobs:
         run: |
           python -m pytest -q --maxfail=1 --disable-warnings \
             --cov=src --cov-report=term-missing \
-            tests/services/test_validation_v2_smoke.py
+            tests/smoke/test_validation_v2_smoke.py
 
       - name: Upload coverage as artifact (optional)
         if: always()
