@@ -6,7 +6,7 @@ en basis-aanroepen door de orchestrator kunnen worden uitgevoerd.
 
 import os
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch, MagicMock, AsyncMock
 
 # Forceer DEV_MODE voor deze smoke test
 os.environ["DEV_MODE"] = "true"
@@ -24,8 +24,9 @@ def test_management_tab_uses_v2_in_dev_mode():
     assert os.getenv("DEV_MODE", "false").lower() == "true"
 
 
-def test_validation_v2_basic_call():
-    """Eenvoudige V2 orchestrator call met gepatchte methode."""
+@pytest.mark.asyncio
+async def test_validation_v2_basic_call():
+    """Eenvoudige V2 orchestrator call met gepatchte async methode."""
     from services.orchestrators.validation_orchestrator_v2 import (
         ValidationOrchestratorV2,
     )
@@ -34,8 +35,8 @@ def test_validation_v2_basic_call():
     # Orchestrator met minimale dependency
     orchestrator = ValidationOrchestratorV2(validation_service=MagicMock())
 
-    # Patch validate_text om een simpel resultaat terug te geven (sync mock)
-    with patch.object(orchestrator, "validate_text") as mock_validate:
+    # Patch validate_text om een simpel resultaat terug te geven (async mock)
+    with patch.object(orchestrator, "validate_text", new_callable=AsyncMock) as mock_validate:
         mock_result = ValidationResult(
             version="1.0.0",
             overall_score=0.85,
@@ -47,8 +48,8 @@ def test_validation_v2_basic_call():
         )
         mock_validate.return_value = mock_result
 
-        # Voer validatie uit (sync door mock)
-        result = orchestrator.validate_text(
+        # Voer validatie uit (await async mock)
+        result = await orchestrator.validate_text(
             "Begrip", "Een test is een methode om iets te controleren.", "proces"
         )
 
