@@ -25,10 +25,6 @@ from database.definitie_repository import (
     get_definitie_repository,  # Repository toegang en factory
 )
 from domain.ontological_categories import OntologischeCategorie  # Generatie componenten
-from orchestration.definitie_agent import (  # Orchestratie componenten
-    AgentResult,
-    DefinitieAgent,
-)
 
 # Integrated service imports verplaatst naar functie niveau om circulaire imports te voorkomen
 
@@ -73,9 +69,6 @@ class DefinitieChecker:
             repository: DefinitieRepository instance, gebruikt default als None
         """
         self.repository = repository or get_definitie_repository()
-        self.agent = DefinitieAgent(
-            max_iterations=1
-        )  # Geen iteraties, direct resultaat
 
         # Lazy load integrated service to avoid circular import
         self.integrated_service = None
@@ -163,10 +156,10 @@ class DefinitieChecker:
         # Hybrid context parameters
         selected_document_ids: list[str] | None = None,
         enable_hybrid: bool = False,
-    ) -> tuple[DefinitieCheckResult, AgentResult | None, DefinitieRecord | None]:
+    ) -> tuple[DefinitieCheckResult, Any | None, DefinitieRecord | None]:
         """
-        Voer complete workflow uit: check + eventuele generatie + opslag.
-        Ondersteunt hybrid context enhancement met document integration.
+        V2-route: voer complete workflow uit via ServiceAdapter (geen legacy agent).
+        Ondersteunt hybrid context parameters (doorgegeven indien ondersteund).
 
         Args:
             begrip: Het begrip om te definiëren
@@ -191,43 +184,75 @@ class DefinitieChecker:
             # Return bestaande definitie zonder nieuwe generatie
             return check_result, None, check_result.existing_definitie
 
-        # Stap 3: Genereer nieuwe definitie (mogelijk met hybrid context)
-        if enable_hybrid and selected_document_ids:
-            logger.info(
-                f"Generating new definition for '{begrip}' with hybrid context ({len(selected_document_ids)} documents)"
-            )
-        else:
-            logger.info(f"Generating new definition for '{begrip}' (standard context)")
-
-        # Convert categorie string to enum if needed
-        if isinstance(categorie, str):
-            categorie = OntologischeCategorie(categorie.lower())
-
-        agent_result = self.agent.generate_definition(
-            begrip=begrip,
-            organisatorische_context=organisatorische_context,
-            juridische_context=juridische_context,
-            categorie=categorie,
-            # Pass hybrid context parameters
-            selected_document_ids=selected_document_ids,
-            enable_hybrid=enable_hybrid,
+        # Stap 3: Genereer via geïntegreerde V2 service (sync wrapper)
+        logger.info(
+            f"Generating new definition for '{begrip}' via V2 service (context: {organisatorische_context})"
         )
+        try:
+            from ui.helpers.async_bridge import generate_definition_sync
 
-        # Stap 4: Sla definitie op in database
-        if agent_result.success:
-            saved_record = self._save_generated_definition(
-                agent_result, categorie, created_by
+            adapter = self._get_integrated_service()
+            context_dict = {
+                "organisatorisch": [organisatorische_context]
+                if organisatorische_context
+                else [],
+                "juridisch": [juridische_context] if juridische_context else [],
+                "wettelijk": [],
+            }
+
+            extra_kwargs: dict[str, Any] = {"organisatie": organisatorische_context}
+            # categorie kan een enum of string zijn
+            extra_kwargs["categorie"] = (
+                categorie.value if hasattr(categorie, "value") else str(categorie)
+            )
+            if selected_document_ids is not None:
+                extra_kwargs["selected_document_ids"] = selected_document_ids
+            if enable_hybrid:
+                extra_kwargs["enable_hybrid"] = enable_hybrid
+
+            integrated_result = generate_definition_sync(
+                adapter, begrip=begrip, context_dict=context_dict, **extra_kwargs
             )
 
-            return check_result, agent_result, saved_record
-        logger.warning(
-            f"Failed to generate definition for '{begrip}': {agent_result.reason}"
-        )
-        return check_result, agent_result, None
+            if isinstance(integrated_result, dict) and integrated_result.get("success"):
+                definitie_text = (
+                    integrated_result.get("definitie_gecorrigeerd")
+                    or integrated_result.get("definitie_origineel")
+                    or ""
+                )
+                final_score = integrated_result.get("final_score")
+
+                saved_record = self._save_generated_definition_v2(
+                    begrip=begrip,
+                    definitie_text=definitie_text,
+                    categorie=(
+                        categorie
+                        if isinstance(categorie, OntologischeCategorie)
+                        else OntologischeCategorie(str(categorie))
+                    ),
+                    organisatorische_context=organisatorische_context,
+                    juridische_context=juridische_context,
+                    final_score=(float(final_score) if final_score is not None else None),
+                    created_by=created_by,
+                    source_reference="IntegratedService_V2",
+                )
+                return check_result, integrated_result, saved_record
+
+            # Mislukking of onverwacht type: log en return
+            msg = (
+                integrated_result.get("error_message")
+                if isinstance(integrated_result, dict)
+                else f"Unexpected result type: {type(integrated_result).__name__}"
+            )
+            logger.warning(f"Failed to generate definition for '{begrip}': {msg}")
+            return check_result, integrated_result, None
+        except Exception as e:
+            logger.error(f"V2 generation error for '{begrip}': {e!s}")
+            return check_result, {"success": False, "error_message": str(e)}, None
 
     def update_existing_definition(
         self, definitie_id: int, updated_by: str | None = None, regenerate: bool = False
-    ) -> tuple[bool, AgentResult | None]:
+    ) -> tuple[bool, Any | None]:
         """
         Update bestaande definitie, optioneel met regeneratie.
 
@@ -250,31 +275,60 @@ class DefinitieChecker:
             )
             return success, None
 
-        # Regenerate definitie
-        categorie = OntologischeCategorie(existing.categorie)
+        # Regenerate definitie via V2 service
+        from ui.helpers.async_bridge import generate_definition_sync
 
-        agent_result = self.agent.generate_definition(
+        categorie = OntologischeCategorie(existing.categorie)
+        adapter = self._get_integrated_service()
+
+        def _to_list(val):
+            try:
+                if not val:
+                    return []
+                if isinstance(val, str):
+                    v = val.strip()
+                    if v.startswith("["):
+                        import json as _json
+
+                        return list(_json.loads(v))
+                    return [val]
+                if isinstance(val, list):
+                    return val
+            except Exception:
+                return []
+            return []
+
+        context_dict = {
+            "organisatorisch": _to_list(getattr(existing, "organisatorische_context", None)),
+            "juridisch": _to_list(getattr(existing, "juridische_context", None)),
+            "wettelijk": [],
+        }
+
+        integrated_result = generate_definition_sync(
+            adapter,
             begrip=existing.begrip,
-            organisatorische_context=existing.organisatorische_context,
-            juridische_context=existing.juridische_context or "",
-            categorie=categorie,
+            context_dict=context_dict,
+            categorie=categorie.value,
+            organisatie=(context_dict["organisatorisch"][0] if context_dict["organisatorisch"] else ""),
         )
 
-        if agent_result.success:
-            # Update with new definition
+        if isinstance(integrated_result, dict) and integrated_result.get("success"):
+            definitie_text = (
+                integrated_result.get("definitie_gecorrigeerd")
+                or integrated_result.get("definitie_origineel")
+                or ""
+            )
+            final_score = integrated_result.get("final_score") or 0.0
             updates = {
-                "definitie": agent_result.final_definitie,
-                "validation_score": agent_result.final_score,
-                "version_number": existing.version_number + 1,
+                "definitie": definitie_text,
+                "validation_score": float(final_score),
+                "version_number": (existing.version_number + 1 if getattr(existing, "version_number", None) else 1),
                 "previous_version_id": definitie_id,
             }
+            success = self.repository.update_definitie(definitie_id, updates, updated_by)
+            return success, integrated_result
 
-            success = self.repository.update_definitie(
-                definitie_id, updates, updated_by
-            )
-            return success, agent_result
-
-        return False, agent_result
+        return False, integrated_result
 
     def approve_definition(
         self, definitie_id: int, approved_by: str, notes: str | None = None
@@ -392,59 +446,37 @@ class DefinitieChecker:
             confidence=1.0 - best_match.match_score,
         )
 
-    def _save_generated_definition(
+    def _save_generated_definition_v2(
         self,
-        agent_result: AgentResult,
+        *,
+        begrip: str,
+        definitie_text: str,
         categorie: OntologischeCategorie,
+        organisatorische_context: str,
+        juridische_context: str,
+        final_score: float | None,
         created_by: str | None = None,
+        source_reference: str = "IntegratedService_V2",
     ) -> DefinitieRecord:
-        """Sla gegenereerde definitie op in database."""
-        # Extract context from first iteration
-        if agent_result.iterations:
-            first_iteration = agent_result.iterations[0]
-            context = first_iteration.generation_result.context
-
-            # Create record
-            record = DefinitieRecord(
-                begrip=context.begrip,
-                definitie=agent_result.final_definitie,
-                categorie=categorie.value,
-                organisatorische_context=context.organisatorische_context,
-                juridische_context=context.juridische_context,
-                status=DefinitieStatus.REVIEW.value,  # Start in review
-                validation_score=agent_result.final_score,
-                source_type=SourceType.GENERATED.value,
-                source_reference=f"DefinitieAgent v{agent_result.iteration_count} iterations",
-                created_by=created_by or "system",
-                datum_voorstel=datetime.now(UTC),
-                ketenpartners=json.dumps([]),
-            )
-
-            # Add validation issues if any (V2 only)
-            validation_result = getattr(agent_result, 'validation_result', None)
-            
-            if validation_result and hasattr(validation_result, 'violations'):
-                issues = [
-                    {
-                        "rule_id": v.rule_id,
-                        "severity": v.severity.value if hasattr(v.severity, 'value') else str(v.severity),
-                        "description": v.description,
-                    }
-                    for v in validation_result.violations
-                ]
-                record.set_validation_issues(issues)
-
-            # Save to database
-            record_id = self.repository.create_definitie(record)
-            record.id = record_id
-
-            logger.info(
-                f"Saved generated definition {record_id} for '{context.begrip}'"
-            )
-            return record
-
-        msg = "No iterations found in agent result"
-        raise ValueError(msg)
+        """Sla een via V2 service gegenereerde definitie op in database."""
+        record = DefinitieRecord(
+            begrip=begrip,
+            definitie=definitie_text,
+            categorie=categorie.value,
+            organisatorische_context=organisatorische_context,
+            juridische_context=juridische_context,
+            status=DefinitieStatus.REVIEW.value,  # Start in review
+            validation_score=final_score,
+            source_type=SourceType.GENERATED.value,
+            source_reference=source_reference,
+            created_by=created_by or "integrated_service",
+            datum_voorstel=datetime.now(UTC),
+            ketenpartners=json.dumps([]),
+        )
+        record_id = self.repository.create_definitie(record)
+        record.id = record_id
+        logger.info(f"Saved generated definition {record_id} for '{begrip}'")
+        return record
 
 
 # Convenience functions
@@ -524,10 +556,17 @@ def generate_or_retrieve_definition(
             "source": "existing",
             "check_action": check_result.action.value,
         }
+    # Failure path
+    error_msg = None
+    if isinstance(agent_result, dict):
+        error_msg = agent_result.get("error_message") or agent_result.get("message")
+    else:
+        # Backward fallback if non-dict is ever returned
+        error_msg = getattr(agent_result, "reason", None)
     return "Definitie kon niet worden gegenereerd", {
         "source": "failed",
         "check_action": check_result.action.value,
-        "error": agent_result.reason if agent_result else "Unknown error",
+        "error": error_msg or "Unknown error",
     }
 
     async def generate_with_integrated_service(
