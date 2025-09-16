@@ -134,9 +134,19 @@ class HybridContextManager:
 
                     # Format results as string for legacy compatibility
                     if results:
-                        return f"Web informatie voor {term}: " + "; ".join(
-                            [f"{r.title} ({r.source.name})" for r in results[:3]]
-                        )
+                        labels: list[str] = []
+                        for r in results[:3]:
+                            meta = getattr(r, "metadata", {}) or {}
+                            label = (
+                                meta.get("wikipedia_title")
+                                or meta.get("dc_title")
+                                or getattr(r, "term", None)
+                                or (meta.get("title") if isinstance(meta.get("title"), str) else None)
+                                or r.source.name
+                            )
+                            labels.append(f"{label} ({r.source.name})")
+
+                        return f"Web informatie voor {term}: " + "; ".join(labels)
                     return ""
 
                 self._web_lookup = web_lookup_wrapper
