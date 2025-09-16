@@ -3846,6 +3846,37 @@
       "rendered_url": "rendered/backlog/EPIC-005/US-065/US-065.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Validatie V2 Migratieplan — Legacy → V2 consolidatie",
+      "path": "../backlog/EPIC-002/VALIDATIE-V2-MIGRATIE-PLAN.md",
+      "url": "../backlog/EPIC-002/VALIDATIE-V2-MIGRATIE-PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/VALIDATIE-V2-MIGRATIE-PLAN.html"
+    },
+    {
       "id": "EPIC-002",
       "type": "DOC",
       "title": "Kwaliteitstoetsing",
@@ -27795,7 +27826,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 603,
+      "DOC": 604,
       "BUG": 14,
       "TEST": 24,
       "COMP": 6,
@@ -27803,7 +27834,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-16T08:36:55Z"
+    "generated_at": "2025-09-16T08:52:01Z"
   },
   "sources": [
     "docs"
