@@ -1,7 +1,20 @@
 """UI Components package voor DefinitieAgent.
 
-Bevat alle herbruikbare UI componenten voor de Streamlit interface
-inclusief tabs, forms, displays, en interactieve elementen.
+Bevat herbruikbare Streamlit componenten. Deze module exporteert een
+lichte aggregator-klasse voor backwards compatibiliteit met tests die
+``from ui.components import UIComponents`` verwachten.
 """
 
-# UI Components package voor DefinitieAgent - bevat herbruikbare Streamlit componenten
+
+class UIComponents:  # Backwards-compatibele aggregator
+    """Placeholder/aggregator voor UI componenten.
+
+    In de huidige architectuur worden componenten direct uit de
+    submodules geïmporteerd. Deze klasse bestaat voor testcompatibiliteit
+    en kan later uitgebreid worden met helpers.
+    """
+
+    pass
+
+
+__all__ = ["UIComponents"]

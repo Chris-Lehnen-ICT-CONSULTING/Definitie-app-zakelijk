@@ -23,13 +23,14 @@ from .unified_voorbeelden import (
     get_examples_generator,  # Hoofdklassen voor voorbeeld generatie; Convenience functies voor directe voorbeeld generatie; Batch functies voor efficiënte bulk generatie; Utility functies voor generator management; Factory functie voor generator instanties
 )
 
-# Achterwaartse compatibiliteit - check voor legacy bestanden indien nodig
-# Zorgt voor soepele migratie van oude code naar nieuwe geünificeerde systeem
+# Achterwaartse compatibiliteit - check voor legacy bestanden zonder import side-effects
+# Gebruik find_spec om te voorkomen dat er een OpenAI client wordt geinstantieerd tijdens test collection
 try:
-    import voorbeelden.voorbeelden  # Check legacy module availability
-except ImportError:
-    # Legacy bestanden niet beschikbaar - continue met nieuwe implementatie
-    pass
+    import importlib.util as _importlib_util
+
+    LEGACY_AVAILABLE = _importlib_util.find_spec("voorbeelden.voorbeelden") is not None
+except Exception:
+    LEGACY_AVAILABLE = False
 
 # Exporteer publieke interface - alle voorbeeld generatie componenten
 __all__ = [
