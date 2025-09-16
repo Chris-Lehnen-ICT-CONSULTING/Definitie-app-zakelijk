@@ -74,6 +74,67 @@ class ContentSanitizer:
         self.sanitization_history: list[dict[str, Any]] = []
         self.load_sanitization_rules()
 
+    # Convenience instance methods expected by tests
+    def sanitize_html(self, value: Any) -> str:
+        return self.sanitize(value, ContentType.HTML, SanitizationLevel.STRICT).sanitized_value
+
+    def sanitize_sql(self, value: Any) -> str:
+        # Treat as plain text with STRICT rules (SQL patterns are included)
+        return self.sanitize(value, ContentType.PLAIN_TEXT, SanitizationLevel.STRICT).sanitized_value
+
+    def sanitize_path(self, value: Any) -> str:
+        # Strictly remove traversal patterns
+        result = self.sanitize(value, ContentType.PLAIN_TEXT, SanitizationLevel.STRICT)
+        return result.sanitized_value
+
+    def sanitize_content(self, value: Any, content_type: str = "text", level: str | None = None) -> str:
+        ct_map = {
+            "text": ContentType.PLAIN_TEXT,
+            "html": ContentType.HTML,
+            "markdown": ContentType.MARKDOWN,
+            "json": ContentType.JSON,
+            "url": ContentType.URL,
+            "email": ContentType.EMAIL,
+        }
+        lvl_map = {
+            None: SanitizationLevel.MODERATE,
+            "permissive": SanitizationLevel.PERMISSIVE,
+            "moderate": SanitizationLevel.MODERATE,
+            "strict": SanitizationLevel.STRICT,
+            "paranoid": SanitizationLevel.PARANOID,
+        }
+        # Heuristic: if unspecified (text) but content looks like HTML, treat as HTML
+        ct = ct_map.get(content_type, ContentType.PLAIN_TEXT)
+        try:
+            if ct == ContentType.PLAIN_TEXT and isinstance(value, str) and "<" in value and ">" in value:
+                ct = ContentType.HTML
+        except Exception:
+            pass
+        lv = lvl_map.get(level, SanitizationLevel.MODERATE)
+        return self.sanitize(value, ct, lv).sanitized_value
+
+    def sanitize_dutch_text(self, value: Any) -> str:
+        return self.sanitize(value, ContentType.DUTCH_TEXT, SanitizationLevel.MODERATE).sanitized_value
+
+    def sanitize_with_whitelist(self, html_input: str, allowed_tags: list[str]) -> str:
+        # Remove all tags not in allowed list; very basic implementation
+        import re
+
+        # Remove script/iframe aggressively first
+        tmp = re.sub(r"<script[^>]*>.*?</script>", "", html_input, flags=re.IGNORECASE | re.DOTALL)
+        tmp = re.sub(r"<iframe[^>]*>.*?</iframe>", "", tmp, flags=re.IGNORECASE | re.DOTALL)
+
+        # Escape all tags then restore allowed tags
+        escaped = html.escape(tmp)
+        for tag in allowed_tags:
+            # Restore opening and closing tags for whitelist
+            escaped = re.sub(fr"&lt;{tag}&gt;", f"<{tag}>", escaped, flags=re.IGNORECASE)
+            escaped = re.sub(fr"&lt;/{tag}&gt;", f"</{tag}>", escaped, flags=re.IGNORECASE)
+            # Restore simple <tag ...> variants
+            escaped = re.sub(fr"&lt;{tag}([^&]*)&gt;", fr"<{tag}\1>", escaped, flags=re.IGNORECASE)
+
+        return escaped
+
     def load_sanitization_rules(self):
         """Load built-in sanitization rules."""
 
@@ -278,6 +339,13 @@ class ContentSanitizer:
                     )
                     changes_made.append("Path traversal patterns removed")
                     warnings.append("Potential path traversal attempt detected")
+
+                # In strict mode, when sanitizing HTML, strip all remaining tags
+                if content_type == ContentType.HTML:
+                    old_value = sanitized_value
+                    sanitized_value = re.sub(r"<[^>]+>", "", sanitized_value)
+                    if old_value != sanitized_value:
+                        changes_made.append("HTML tags stripped (strict)")
 
             # Length validation
             if len(sanitized_value) > 10000:  # Configurable limit
