@@ -451,10 +451,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 correlation_id=corr,
                 metadata={"generation_id": generation_id},
             )
-            raw_validation = await self.validation_service.validate_definition(
+            # Validate using Definition object per interface contract
+            temp_definition = Definition(
                 begrip=sanitized_request.begrip,
-                text=cleaned_text,
+                definitie=cleaned_text,
+                organisatorische_context=sanitized_request.organisatorische_context or [],
+                juridische_context=sanitized_request.juridische_context or [],
+                wettelijke_basis=sanitized_request.wettelijke_basis or [],
                 ontologische_categorie=sanitized_request.ontologische_categorie,
+                created_by=sanitized_request.actor,
+            )
+            raw_validation = await self.validation_service.validate_definition(
+                definition=temp_definition,
                 context=validation_context,
             )
             # Normalize to dict for internal decisions
@@ -506,10 +514,18 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     correlation_id=corr2,
                     metadata={"generation_id": generation_id, "enhanced": True},
                 )
-                raw_validation = await self.validation_service.validate_definition(
+                # Re-validate enhanced text using Definition object
+                enhanced_definition = Definition(
                     begrip=sanitized_request.begrip,
-                    text=enhanced_text,
+                    definitie=enhanced_text,
+                    organisatorische_context=sanitized_request.organisatorische_context or [],
+                    juridische_context=sanitized_request.juridische_context or [],
+                    wettelijke_basis=sanitized_request.wettelijke_basis or [],
                     ontologische_categorie=sanitized_request.ontologische_categorie,
+                    created_by=sanitized_request.actor,
+                )
+                raw_validation = await self.validation_service.validate_definition(
+                    definition=enhanced_definition,
                     context=enhanced_context,
                 )
                 validation_result = _as_dict(raw_validation)
