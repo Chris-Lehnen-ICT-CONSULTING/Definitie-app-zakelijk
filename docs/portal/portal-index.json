@@ -5640,6 +5640,39 @@
       "rendered_url": "rendered/backlog/EPIC-010/US-048/US-048.html"
     },
     {
+      "id": "US-175",
+      "type": "DOC",
+      "title": "US-175 — Ontologische categorie doorgeven aan promptmodules en categorie-specifieke instructies toepassen",
+      "path": "../backlog/EPIC-010/US-175/US-175.md",
+      "url": "../backlog/EPIC-010/US-175/US-175.md",
+      "status": "TE_DOEN",
+      "prioriteit": "HOOG",
+      "owner": "engineering",
+      "canonical": true,
+      "last_verified": "16-09-2025",
+      "applies_to": null,
+      "category": null,
+      "sprint": "next",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-175.md",
+      "_refs": {
+        "us": [
+          "US-175"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-175/US-175.html"
+    },
+    {
       "id": "US-172",
       "type": "DOC",
       "title": "UI-laaggrenzen afdwingen (geen Streamlit/UI-imports buiten src/ui)",
@@ -27729,7 +27762,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 601,
+      "DOC": 602,
       "BUG": 14,
       "TEST": 24,
       "COMP": 6,
@@ -27737,7 +27770,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-16T08:07:55Z"
+    "generated_at": "2025-09-16T08:32:03Z"
   },
   "sources": [
     "docs"

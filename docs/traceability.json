@@ -395,12 +395,14 @@
   "EPIC-010": {
     "title": "EPIC-CFR: Context FLAAG Refactoring",
     "stories": [
-      "US-042"
+      "US-042",
+      "US-175"
     ],
     "requirements": [],
     "dependencies": [],
     "referenced_by": [
-      "US-042"
+      "US-042",
+      "US-175"
     ]
   },
   "EPIC-011": {
