@@ -134,11 +134,11 @@ class TestDefinitionOrchestratorV2:
         call_args = mock_services["prompt_service"].build_generation_prompt.call_args
         assert call_args[0][0].ontologische_categorie == "proces"
 
-        # Verify validation service received ontological category
+        # Verify validation service received ontological category via Definition object
         mock_services["validation_service"].validate_definition.assert_called_once()
         call_args = mock_services["validation_service"].validate_definition.call_args
-        assert "ontologische_categorie" in call_args.kwargs
-        assert call_args.kwargs["ontologische_categorie"] == "proces"
+        assert "definition" in call_args.kwargs
+        assert call_args.kwargs["definition"].ontologische_categorie == "proces"
 
         # Verify definition object has correct ontological category
         assert response.definition.ontologische_categorie == "proces"
