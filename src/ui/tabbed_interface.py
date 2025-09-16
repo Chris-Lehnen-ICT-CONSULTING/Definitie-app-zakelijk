@@ -118,6 +118,25 @@ class TabbedInterface:
                         "version": "test",
                     }
 
+                async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
+                    # Uniform V2 response vorm; UI kan hiermee omgaan
+                    return {
+                        "success": False,
+                        "definitie_origineel": "",
+                        "definitie_gecorrigeerd": "",
+                        "final_score": 0.0,
+                        "validation_details": {
+                            "overall_score": 0.0,
+                            "is_acceptable": False,
+                            "violations": [],
+                            "passed_rules": [],
+                        },
+                        "voorbeelden": {},
+                        "metadata": {"error": "Definition service unavailable"},
+                        "sources": [],
+                        "error_message": "Definition service unavailable",
+                    }
+
             self.definition_service = _DummyService()
 
         # Maak DefinitieChecker met de service
@@ -827,48 +846,27 @@ class TabbedInterface:
                         )
                         auto_categorie = auto_categorie_original
 
-                # Gebruik de nieuwe service factory indien beschikbaar
-                if hasattr(self, "definition_service") and hasattr(
-                    self.definition_service, "get_service_info"
-                ):
-                    # Gebruik async_bridge voor sync-to-async conversie
-                    from ui.helpers.async_bridge import generate_definition_sync
+                # Altijd V2-servicepad gebruiken (geen legacy fallback)
+                from ui.helpers.async_bridge import generate_definition_sync
 
-                    service_result = generate_definition_sync(
-                        self.definition_service,
-                        begrip=begrip,
-                        context_dict={
-                            "organisatorisch": org_context,
-                            "juridisch": jur_context,
-                            "wettelijk": wet_context,  # EPIC-010: Gebruik consistente variabele
-                        },
-                        organisatie=primary_org,
-                        categorie=auto_categorie,
-                        # Pass regeneration context for GVI feedback loop
-                        regeneration_context=regeneration_context,
-                    )
+                service_result = generate_definition_sync(
+                    self.definition_service,
+                    begrip=begrip,
+                    context_dict={
+                        "organisatorisch": org_context,
+                        "juridisch": jur_context,
+                        "wettelijk": wet_context,  # EPIC-010: Gebruik consistente variabele
+                    },
+                    organisatie=primary_org,
+                    categorie=auto_categorie,
+                    # Pass regeneration context for GVI feedback loop
+                    regeneration_context=regeneration_context,
+                )
 
-                    # Converteer naar checker formaat voor UI compatibility
-                    check_result = None
-                    agent_result = service_result
-                    saved_record = None
-                else:
-                    # Fallback path (compatibility route if unified service is unavailable)
-                    check_result, agent_result, saved_record = (
-                        self.checker.generate_with_check(
-                            begrip=begrip,
-                            organisatorische_context=primary_org,
-                            juridische_context=primary_jur,
-                            categorie=auto_categorie,
-                            force_generate=False,
-                            created_by="global_user",
-                            # Hybride context parameters
-                            selected_document_ids=(
-                                selected_doc_ids if use_hybrid else None
-                            ),
-                            enable_hybrid=use_hybrid,
-                        )
-                    )
+                # Converteer naar checker formaat voor UI compatibility variabelen
+                check_result = None
+                agent_result = service_result
+                saved_record = None
 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
