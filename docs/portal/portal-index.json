@@ -5121,6 +5121,39 @@
       "rendered_url": "rendered/backlog/EPIC-010/US-171/CFR-BUG-019/README.html"
     },
     {
+      "id": "US-179",
+      "type": "DOC",
+      "title": "US-179 — Ontologische categorie doorgeven aan promptmodules en categorie-specifieke instructies toepassen",
+      "path": "../backlog/EPIC-010/US-179/US-179.md",
+      "url": "../backlog/EPIC-010/US-179/US-179.md",
+      "status": "TE_DOEN",
+      "prioriteit": "HOOG",
+      "owner": "engineering",
+      "canonical": true,
+      "last_verified": "16-09-2025",
+      "applies_to": null,
+      "category": null,
+      "sprint": "next",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-179.md",
+      "_refs": {
+        "us": [
+          "US-179"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-179/US-179.html"
+    },
+    {
       "id": "US-051",
       "type": "BUG",
       "title": "Fix CFR-BUG-014 Synoniemen/Antoniemen Generatie",
@@ -5769,7 +5802,7 @@
           "US-171",
           "US-172",
           "US-173",
-          "US-175"
+          "US-179"
         ],
         "epic": [
           "EPIC-010"
@@ -27762,7 +27795,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 602,
+      "DOC": 603,
       "BUG": 14,
       "TEST": 24,
       "COMP": 6,
@@ -27770,7 +27803,7 @@
       "ARCH": 23,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-16T08:32:03Z"
+    "generated_at": "2025-09-16T08:36:55Z"
   },
   "sources": [
     "docs"
