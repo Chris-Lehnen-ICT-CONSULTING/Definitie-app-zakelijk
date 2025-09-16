@@ -4127,7 +4127,8 @@
         "US-011",
         "US-012",
         "US-013",
-        "US-191"
+        "US-191",
+        "US-193"
       ]
     },
     {
@@ -4405,6 +4406,40 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-002/US-012/US-012.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-193",
+      "type": "US",
+      "title": "US-193 — UI toont V2‑validatie (alle toetsregels) i.p.v. legacy validator",
+      "path": "../backlog/EPIC-002/US-193/US-193.md",
+      "url": "../backlog/EPIC-002/US-193/US-193.md",
+      "status": "TE_DOEN",
+      "prioriteit": "HOOG",
+      "owner": "ui",
+      "canonical": true,
+      "last_verified": "16-09-2025",
+      "applies_to": null,
+      "category": null,
+      "sprint": "next",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-193.md",
+      "_refs": {
+        "us": [
+          "US-193"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-193/US-193.html",
       "linked_reqs": null
     },
     {
@@ -28316,7 +28351,7 @@
     "counts": {
       "DOC": 415,
       "EPIC": 16,
-      "US": 182,
+      "US": 183,
       "BUG": 10,
       "REQ": 99,
       "ARCH": 23,
@@ -28324,7 +28359,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-16T09:12:43Z"
+    "generated_at": "2025-09-16T09:14:51Z"
   },
   "sources": [
     "docs"
