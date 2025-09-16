@@ -30,10 +30,11 @@ def test_ui_imports():
 
 
 def test_services_imports():
-    """Test services module imports."""
-    from services.definition_service import DefinitionService
+    """Test services module imports (nieuwe architectuur)."""
+    from services.service_factory import get_definition_service
 
-    assert DefinitionService
+    service = get_definition_service()
+    assert service is not None
 
 
 def test_session_state_defaults():
@@ -47,12 +48,13 @@ def test_session_state_defaults():
 
 
 def test_definition_service_creation():
-    """Test definition service can be created."""
-    from services.definition_service import DefinitionService
+    """Test dat service via factory kan worden verkregen."""
+    from services.service_factory import get_definition_service
 
-    service = DefinitionService()
+    service = get_definition_service()
     assert service is not None
-    assert hasattr(service, "logger")
+    # Minimale interfacecontrole
+    assert hasattr(service, "get_stats")
 
 
 if __name__ == "__main__":

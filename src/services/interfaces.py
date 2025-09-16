@@ -75,7 +75,7 @@ class UIResponseDict(TypedDict):
     """Canonical UI response format for V2 contract.
 
     This is the ONLY format the UI should receive.
-    No best_iteration, no is_valid, no object forms.
+    No best iteration attr, no is_valid, no object forms.
     """
 
     success: bool

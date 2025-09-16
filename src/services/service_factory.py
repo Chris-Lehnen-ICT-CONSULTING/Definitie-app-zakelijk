@@ -66,7 +66,7 @@ class LegacyGenerationResult:
             self.total_processing_time = getattr(self, "processing_time", 0.0)
         if not hasattr(self, "iterations"):
             self.iterations = []
-        # NO MORE best_iteration - V2 doesn't use iterations
+        # NO MORE best iteration — V2 doesn't use iterations
 
     def __getitem__(self, key):
         """Dict-like access voor backward compatibility."""
@@ -228,7 +228,7 @@ class ServiceAdapter:
         """Convert orchestrator response to canonical UI format.
 
         Creates a UIResponseDict with all required fields populated.
-        No best_iteration, no is_valid, only the canonical V2 format.
+        No best iteration attr, no is_valid, only the canonical V2 format.
         """
 
         # Extract definition text

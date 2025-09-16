@@ -15,6 +15,7 @@ from .config_loader import laad_toetsregels, laad_verboden_woorden
 from .config_manager import (
     APIConfig,
     CacheConfig as _CacheCfg,
+    ValidationConfig as _ValCfg,
     ConfigSection,
     PathsConfig as _PathsCfg,
     get_config,
@@ -148,6 +149,20 @@ def get_openai_api_key() -> str:
     return cfg.openai_api_key
 
 
+class ValidationConfigAdapter:
+    def __init__(self, config: _ValCfg):
+        self.config = config
+
+    def get_validation_limits(self) -> dict[str, int]:
+        return {
+            "max_text_length": int(getattr(self.config, "max_text_length", 10000)),
+        }
+
+
+def get_validation_config() -> ValidationConfigAdapter:
+    return ValidationConfigAdapter(get_config(ConfigSection.VALIDATION))
+
+
 __all__ = [
     # Legacy
     "laad_toetsregels",
@@ -156,6 +171,7 @@ __all__ = [
     "get_api_config",
     "get_cache_config",
     "get_paths_config",
+    "get_validation_config",
     # Direct config helpers
     "get_config_manager",
     "get_config",
