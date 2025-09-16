@@ -373,7 +373,16 @@
         td3.appendChild(count);
         tr.append(td1,td2,td3); tbody.appendChild(tr);
       });
-      list.appendChild(table);
+      if(tbody.childElementCount === 0){
+        const empty = document.createElement('div');
+        empty.className = 'meta';
+        empty.style.margin = '12px';
+        empty.textContent = 'Geen EPICs met gekoppelde REQs gevonden.';
+        list.appendChild(empty);
+      } else {
+        table.appendChild(tbody);
+        list.appendChild(table);
+      }
     } else if (view==='work'){
       const owner = (ownerInput && ownerInput.value.trim()) || getHashParam('owner') || localStorage.getItem('portalOwner') || '';
       if(owner){ localStorage.setItem('portalOwner', owner); setHashParam('owner', owner); }
