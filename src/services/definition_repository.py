@@ -288,6 +288,124 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             logger.error(f"Fout bij ophalen status '{status}': {e}")
             return []
 
+    def get_or_create_draft(
+        self,
+        begrip: str,
+        context: dict[str, Any] | None = None
+    ) -> int:
+        """
+        Get existing draft or create new one for begrip+context combination.
+
+        Ensures exactly one draft exists per unique begrip+context combination.
+        This enables stateless editing without session state dependencies.
+
+        Args:
+            begrip: The term/concept being defined
+            context: Dictionary with context information:
+                - organisatorische_context: list[str]
+                - juridische_context: list[str]
+                - categorie: str (ontological category)
+
+        Returns:
+            ID of existing or newly created draft definition
+
+        Note:
+            Uses UNIQUE constraint on (begrip, organisatorische_context,
+            juridische_context, categorie, status) to ensure uniqueness.
+        """
+        import json
+
+        # Prepare context values
+        context = context or {}
+        org_context = json.dumps(sorted(context.get("organisatorische_context", [])))
+        jur_context = json.dumps(sorted(context.get("juridische_context", [])))
+        categorie = context.get("categorie", "OTH")  # Default to "OTH" (Other)
+
+        try:
+            with self._get_connection() as conn:
+                cursor = conn.cursor()
+
+                # First try to find existing draft
+                cursor.execute(
+                    """
+                    SELECT id FROM definities
+                    WHERE begrip = ?
+                    AND organisatorische_context = ?
+                    AND juridische_context = ?
+                    AND categorie = ?
+                    AND status = 'draft'
+                    LIMIT 1
+                    """,
+                    (begrip, org_context, jur_context, categorie)
+                )
+
+                row = cursor.fetchone()
+                if row:
+                    draft_id = row[0]
+                    logger.info(
+                        f"Found existing draft {draft_id} for begrip='{begrip}', "
+                        f"categorie={categorie}"
+                    )
+                    return draft_id
+
+                # No existing draft found, create new one
+                cursor.execute(
+                    """
+                    INSERT INTO definities (
+                        begrip,
+                        definitie,
+                        organisatorische_context,
+                        juridische_context,
+                        categorie,
+                        status,
+                        created_at,
+                        updated_at,
+                        created_by
+                    ) VALUES (?, ?, ?, ?, ?, 'draft', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, ?)
+                    """,
+                    (
+                        begrip,
+                        "",  # Empty definition for new draft
+                        org_context,
+                        jur_context,
+                        categorie,
+                        context.get("created_by", "system")
+                    )
+                )
+
+                conn.commit()
+                draft_id = cursor.lastrowid
+
+                logger.info(
+                    f"Created new draft {draft_id} for begrip='{begrip}', "
+                    f"categorie={categorie}"
+                )
+                return draft_id
+
+        except Exception as e:
+            logger.error(f"Error in get_or_create_draft for '{begrip}': {e}")
+            # If we hit a UNIQUE constraint violation, try to fetch again
+            # (race condition protection)
+            if "UNIQUE constraint failed" in str(e):
+                with self._get_connection() as conn:
+                    cursor = conn.cursor()
+                    cursor.execute(
+                        """
+                        SELECT id FROM definities
+                        WHERE begrip = ?
+                        AND organisatorische_context = ?
+                        AND juridische_context = ?
+                        AND categorie = ?
+                        AND status = 'draft'
+                        LIMIT 1
+                        """,
+                        (begrip, org_context, jur_context, categorie)
+                    )
+                    row = cursor.fetchone()
+                    if row:
+                        return row[0]
+            raise
+
     def set_duplicate_service(self, duplicate_service):
         """
         Inject the duplicate detection service.
