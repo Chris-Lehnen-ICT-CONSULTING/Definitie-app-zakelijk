@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-193 — UI toont V2‑validatie (alle toetsregels) i.p.v. legacy validator</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-193</p>
+<p>status: TE_DOEN</p>
+<p>prioriteit: HOOG</p>
+<p>owner: ui</p>
+<p>canonical: true</p>
+<p>sprint: next</p>
+<p>story_points: 5</p>
+<p>last_verified: 16-09-2025</p>
+<p>---</p>
+
+<h1>US-193 — UI toont V2‑validatie (alle toetsregels) i.p.v. legacy validator</h1>
+
+<p>Doel</p>
+<ul>
+<li>De UI toont uitsluitend de resultaten van de V2‑validator (ValidationOrchestratorV2/ModularValidationService), inclusief alle toetsregels uit de JSON‑set, en geen resultaten of ruis van de legacy/modulaire validator.</li>
+</ul>
+
+<p>Scope</p>
+<ul>
+<li>UI (validatiepaneel in tabbed interface en eventuele detailvensters) gebruikt één bron: V2‑validatieresultaat uit orchestrator/validator.</li>
+<li>Toon violations met code/severity/description/suggestion; sorteervolgorde deterministisch.</li>
+<li>Toon aanvullende metadata bij specifieke regels (bv. CON‑01 duplicate: link/ID naar bestaande definitie in DB).</li>
+</ul>
+
+<p>Niet in scope</p>
+<ul>
+<li>Promptcategorie‑propagatie (valt onder EPIC‑010/US‑179).</li>
+<li>ESS‑02 presence/consistency herontwerp (valt onder EPIC‑002/US‑191).</li>
+<li>V2 JSON‑regeldekking (valt onder EPIC‑002/US‑192).</li>
+</ul>
+
+<p>Oplossing (functioneel)</p>
+<ul>
+<li>UI gebruikt het canonieke V2‑resultaat (ValidationDetailsDict) met:</li>
+<li> - overall_score (0.0–1.0)</li>
+<li> - is_acceptable (bool)</li>
+<li> - violations: [{rule_id, severity, description, suggestion?}]</li>
+<li> - passed_rules: [rule_id]</li>
+<li>Legacy paden verwijderen uit UI (geen `ai_toetser/modular_toetser`, geen `toetsregels/modular_loader`).</li>
+<li>Duidelijke mapping naar UI‑stijlen: high=rood, medium=oranje, low=geel; passed in groen.</li>
+<li>(Optioneel) Expand/collapse details per violation, met eventuele metadata (bijv. duplicate definitie ID klikbaar naar beheerpagina).</li>
+</ul>
+
+<p>Technisch (voorstel)</p>
+<p>1) Data‑bron</p>
+<ul>
+<li>  - Gebruik `response.validation_result` van DefinitionOrchestratorV2 of roep `validation_orchestrator.validate_text(...)`.</li>
+<p>2) Rendering</p>
+<li>  - Component in UI/validatiepaneel die V2‑dict rendert; geen legacy objectvorm.</li>
+<li>  - Sorteer violations op code (determinisme) en severity.</li>
+<p>3) Verwijder legacy integratie</p>
+<li>  - Verwijder imports/aanroepen `ai_toetser.modular_toetser` en `toetsregels.modular_loader` uit UI code.</li>
+<p>4) Telemetrie (optioneel)</p>
+<li>  - Toon aantal regels toegepast, aantal passed, aantal violations.</li>
+</ul>
+
+<p>Acceptatiecriteria</p>
+<ul>
+<li>AC1: UI toont alleen V2‑validatieresultaat (één bron), geen dubbele meldingen uit legacy pad.</li>
+<li>AC2: Violations bevatten code/severity/description en (indien aanwezig) suggestion/metadata; deterministische sortering.</li>
+<li>AC3: CON‑01 duplicate toont een duidelijke melding met bestaande definitie ID/naam/links (indien aanwezig in metadata).</li>
+<li>AC4: Geen “Kon Python module niet laden …” warnings in logs na UI‑flow.</li>
+<li>AC5: Performance: UI‑rendering van validatie blijft < 50ms per render (excl. network/db werk).</li>
+</ul>
+
+<p>Testplan</p>
+<ul>
+<li>Unit: rendercomponenten voor verschillende severities en met/zonder suggestions/metadata.</li>
+<li>Integratie: orchestrator flow levert V2‑resultaat, UI toont juiste tellingen/kleuren/volgorde.</li>
+<li>Logsanity: geen legacy validator warnings in testlogs.</li>
+</ul>
+
+  </div>
+</body>
+</html>

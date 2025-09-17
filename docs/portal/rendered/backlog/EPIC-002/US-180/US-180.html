@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-180 — Regelherstructurering: CON‑01 vs expliciete contextbenoeming</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-180</p>
+<p>status: TE_DOEN</p>
+<p>prioriteit: HOOG</p>
+<p>owner: architecture</p>
+<p>canonical: true</p>
+<p>sprint: later</p>
+<p>story_points: 3</p>
+<p>last_verified: 2025-09-16</p>
+<p>epic: EPIC-002</p>
+<p>---</p>
+
+<h1>US-180 — Regelherstructurering: CON‑01 vs expliciete contextbenoeming</h1>
+
+<p>Context</p>
+<p>In de huidige regels dekt CON‑01 zowel (A) contextvereiste + impliciete formulering als (B) het verbod op het expliciet benoemen van de context in de definitietekst. Dit maakt de regel semantisch breed en vermengt taalpatronen met data‑/workflowaspecten (context aanwezig, duplicate‑signaal).</p>
+
+<p>Doel</p>
+<p>Splits de verantwoordelijkheden:</p>
+<ul>
+<li>CON‑01: focus op “context aanwezig + duplicate‑signaal (DB‑check)” en implicietheid als eigenschap (zonder taalpatroon‑ban).</li>
+<li>Verplaats “expliciet context benoemen (tekstpatronen)” naar SAM‑01 of introduceer een aparte CON‑regel (bijv. CON‑03) die zuiver tekstueel is.</li>
+</ul>
+
+<p>Scope</p>
+<ul>
+<li>Aanpassen JSON van CON‑01: verwijder/verminder expliciet‑context patronen; behoud toelichting over impliciet formuleren en DB‑signaal.</li>
+<li>Uitbreiden SAM‑01 met expliciet‑context patronen (of nieuwe CON‑regel toevoegen) voor taalgebaseerde detectie (FORBIDDEN_PATTERN).</li>
+<li>Updaten V2‑validator mapping: </li>
+<li> - CON‑01: MISSING_ELEMENT (geen context) + WARNING bij duplicate (metadata met bestaande definitie‑ID); geen FORBIDDEN_PATTERN meer uit tekst.</li>
+<li> - SAM‑01 of CON‑03: FORBIDDEN_PATTERN voor expliciete contextbenoeming.</li>
+</ul>
+
+<p>Acceptatiecriteria</p>
+<ul>
+<li>[ ] CON‑01 valideert enkel contextaanwezigheid + duplicate‑signaal; geen FORBIDDEN_PATTERN uit tekst.</li>
+<li>[ ] Expliciet‑context patronen actief onder SAM‑01 of nieuwe CON‑regel; voorbeelden uit huidige CON‑01.json blijven afgedekt.</li>
+<li>[ ] V2‑validator produceert consistente violations: CON‑01 → MISSING_ELEMENT/WARNING; SAM‑01/CON‑03 → FORBIDDEN_PATTERN.</li>
+<li>[ ] Documentatie (migratieplan) bijgewerkt; tests aangepast.</li>
+</ul>
+
+<p>Impact</p>
+<ul>
+<li>JSON regels: wijziging in CON‑01 en SAM‑01/nieuwe CON‑regel.</li>
+<li>V2‑validator: mapping en tests wijzigen; geen DB‑schemawijziging nodig.</li>
+</ul>
+
+<p>Risico’s & Mitigaties</p>
+<ul>
+<li>Gedragsverandering: minimaliseren door testdekking te updaten en golden cases te behouden.</li>
+<li>Overlap: duidelijke scheiding in documentatie en code (CON‑01 = data/workflow; SAM‑01/CON‑03 = tekstpatronen).</li>
+</ul>
+
+<p>Plan van aanpak (kort)</p>
+<p>1) Update JSON en migratieplan.</p>
+<p>2) Aanpassen V2‑validator mapping (CON‑01 → context/duplicate; SAM‑01/CON‑03 → patterns).</p>
+<p>3) Tests bijwerken (golden en integratie).</p>
+
+<p>Opmerkingen</p>
+<p>Deze US verandert geen database; het volgt schema.sql en V2 contracten; geen Streamlit of asyncio.run in services nodig.</p>
+
+
+  </div>
+</body>
+</html>
