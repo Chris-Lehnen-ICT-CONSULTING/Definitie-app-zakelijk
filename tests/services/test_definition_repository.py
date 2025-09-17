@@ -745,3 +745,270 @@ class TestDefinitionRepositoryIntegration:
         assert success is True
         assert repository._stats['total_searches'] == 1
         assert repository._stats['total_updates'] == 1
+
+
+class TestDraftManagement:
+    """Test suite for draft management functionality (US-064)."""
+
+    @pytest.fixture
+    def repository_with_db(self, tmp_path):
+        """Create repository with actual SQLite database for draft tests."""
+        # Create a temporary database
+        db_path = tmp_path / "test_drafts.db"
+
+        # Initialize database with schema
+        import sqlite3
+        conn = sqlite3.connect(str(db_path))
+        cursor = conn.cursor()
+
+        # Create simplified definities table for testing
+        cursor.execute("""
+            CREATE TABLE definities (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                begrip VARCHAR(255) NOT NULL,
+                definitie TEXT NOT NULL,
+                organisatorische_context TEXT NOT NULL DEFAULT '[]',
+                juridische_context TEXT NOT NULL DEFAULT '[]',
+                categorie VARCHAR(50) NOT NULL DEFAULT 'OTH',
+                status VARCHAR(50) NOT NULL DEFAULT 'draft',
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                created_by VARCHAR(255),
+                UNIQUE(begrip, organisatorische_context, juridische_context, categorie, status)
+            )
+        """)
+        conn.commit()
+        conn.close()
+
+        # Create repository with actual database
+        repo = DefinitionRepository(db_path=str(db_path))
+
+        # Mock the legacy repository's get_definitie method to directly query database
+        def mock_get_definitie(def_id):
+            conn = sqlite3.connect(str(db_path))
+            conn.row_factory = sqlite3.Row
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM definities WHERE id = ?", (def_id,))
+            row = cursor.fetchone()
+            conn.close()
+
+            if row:
+                record = DefinitieRecord()
+                record.id = row['id']
+                record.begrip = row['begrip']
+                record.definitie = row['definitie']
+                record.organisatorische_context = row['organisatorische_context']
+                record.juridische_context = row['juridische_context']
+                record.categorie = row['categorie']
+                record.status = row['status']
+                record.created_at = row['created_at']
+                record.updated_at = row['updated_at']
+                return record
+            return None
+
+        repo.legacy_repo.get_definitie = mock_get_definitie
+        return repo
+
+    def test_get_or_create_draft_creates_new(self, repository_with_db):
+        """Test creating a new draft when none exists."""
+        # Execute
+        draft_id = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "categorie": "proces"
+            }
+        )
+
+        # Verify
+        assert draft_id > 0
+
+        # Check the draft was created in database
+        definition = repository_with_db.get(draft_id)
+        assert definition is not None
+        assert definition.begrip == "TestBegrip"
+        assert definition.definitie == ""  # Empty for new draft
+        assert "DJI" in definition.organisatorische_context
+        assert "Strafrecht" in definition.juridische_context
+
+    def test_get_or_create_draft_returns_existing(self, repository_with_db):
+        """Test returning existing draft when one already exists."""
+        # Create first draft
+        draft_id_1 = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "categorie": "proces"
+            }
+        )
+
+        # Try to create again with same context
+        draft_id_2 = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "categorie": "proces"
+            }
+        )
+
+        # Verify - should return same ID
+        assert draft_id_1 == draft_id_2
+
+    def test_get_or_create_draft_different_contexts(self, repository_with_db):
+        """Test creating separate drafts for different contexts."""
+        # Create draft with context A
+        draft_id_a = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "categorie": "proces"
+            }
+        )
+
+        # Create draft with context B (different org context)
+        draft_id_b = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["IND"],  # Different
+                "juridische_context": ["Strafrecht"],
+                "categorie": "proces"
+            }
+        )
+
+        # Verify - should be different IDs
+        assert draft_id_a != draft_id_b
+
+    def test_get_or_create_draft_different_categories(self, repository_with_db):
+        """Test creating separate drafts for different categories."""
+        # Create draft with category "proces"
+        draft_id_proces = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "categorie": "proces"
+            }
+        )
+
+        # Create draft with category "type"
+        draft_id_type = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["DJI"],
+                "juridische_context": ["Strafrecht"],
+                "categorie": "type"  # Different category
+            }
+        )
+
+        # Verify - should be different IDs
+        assert draft_id_proces != draft_id_type
+
+    def test_get_or_create_draft_empty_context(self, repository_with_db):
+        """Test creating draft with empty/no context."""
+        # Execute with no context
+        draft_id = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip"
+        )
+
+        # Verify
+        assert draft_id > 0
+
+        # Check defaults were applied
+        definition = repository_with_db.get(draft_id)
+        assert definition.begrip == "TestBegrip"
+        assert definition.organisatorische_context == []
+        assert definition.juridische_context == []
+
+    def test_get_or_create_draft_handles_race_condition(self, repository_with_db):
+        """Test handling of race condition with UNIQUE constraint."""
+        # Create a draft first
+        draft_id_1 = repository_with_db.get_or_create_draft(
+            begrip="RaceBegrip",
+            context={"categorie": "proces"}
+        )
+
+        # Mock the connection to simulate UNIQUE constraint violation
+        original_get_connection = repository_with_db._get_connection
+        call_count = [0]
+
+        def mock_get_connection():
+            call_count[0] += 1
+            # On the second call (during INSERT attempt), raise error
+            if call_count[0] == 2:
+                # Create a mock connection that raises on INSERT
+                import sqlite3
+                from contextlib import contextmanager
+
+                @contextmanager
+                def failing_connection():
+                    conn = sqlite3.connect(repository_with_db.db_path)
+                    conn.row_factory = sqlite3.Row
+                    original_execute = conn.cursor().execute
+
+                    class MockCursor:
+                        def __init__(self, real_cursor):
+                            self._cursor = real_cursor
+
+                        def execute(self, query, params=None):
+                            if "INSERT INTO" in query:
+                                raise sqlite3.IntegrityError("UNIQUE constraint failed")
+                            return self._cursor.execute(query, params)
+
+                        def fetchone(self):
+                            return self._cursor.fetchone()
+
+                        def __getattr__(self, name):
+                            return getattr(self._cursor, name)
+
+                    def cursor():
+                        return MockCursor(conn.cursor())
+
+                    conn.cursor = cursor
+                    try:
+                        yield conn
+                    finally:
+                        conn.close()
+
+                return failing_connection()
+
+            return original_get_connection()
+
+        repository_with_db._get_connection = mock_get_connection
+
+        # Try to create again - should handle race condition and return existing
+        draft_id_2 = repository_with_db.get_or_create_draft(
+            begrip="RaceBegrip",
+            context={"categorie": "proces"}
+        )
+
+        # Should return the existing draft
+        assert draft_id_1 == draft_id_2
+
+    def test_get_or_create_draft_context_sorting(self, repository_with_db):
+        """Test that context lists are sorted for consistency."""
+        # Create draft with unsorted context
+        draft_id_1 = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["Org2", "Org1"],
+                "juridische_context": ["Jur2", "Jur1"],
+                "categorie": "proces"
+            }
+        )
+
+        # Try to create with same context but different order
+        draft_id_2 = repository_with_db.get_or_create_draft(
+            begrip="TestBegrip",
+            context={
+                "organisatorische_context": ["Org1", "Org2"],  # Different order
+                "juridische_context": ["Jur1", "Jur2"],  # Different order
+                "categorie": "proces"
+            }
+        )
+
+        # Should return same draft (contexts are sorted)
+        assert draft_id_1 == draft_id_2
