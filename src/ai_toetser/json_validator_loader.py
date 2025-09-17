@@ -64,14 +64,24 @@ class JSONValidatorLoader:
             logger.warning(f"Geen JSON configuratie gevonden voor {regel_id}")
             return None
 
-        # Bepaal Python bestandsnaam (CON-01 -> CON_01.py)
-        py_filename = regel_id.replace("-", "_") + ".py"
-        # Python files zijn nu in validators directory
-        validators_dir = self.regels_dir.parent / "validators"
-        py_path = validators_dir / py_filename
+        # Bepaal mogelijke Python bestandsnamen
+        # Primair: CON-01 -> CON_01.py
+        candidates = [regel_id.replace("-", "_") + ".py"]
+        # Alternatief (ARAI-01 → ARAI01.py, ARAI-02SUB1 → ARAI02SUB1.py)
+        candidates.append(regel_id.replace("-", "") + ".py")
 
-        if not py_path.exists():
-            logger.warning(f"Geen Python implementatie gevonden: {py_path}")
+        validators_dir = self.regels_dir.parent / "validators"
+        py_path = None
+        for name in candidates:
+            path = validators_dir / name
+            if path.exists():
+                py_path = path
+                break
+
+        if py_path is None:
+            logger.warning(
+                f"Geen Python implementatie gevonden voor {regel_id} (geprobeerd: {', '.join(candidates)})"
+            )
             return None
 
         try:
