@@ -91,7 +91,7 @@ class DefinitieAgent:
     ) -> AgentResult:
         # Lazy imports to avoid circular dependencies at import time
         from services.service_factory import get_definition_service
-        from ui.helpers.async_bridge import generate_definition_sync
+        from ui.helpers.async_bridge import run_async
 
         # Build legacy-style context dict expected by ServiceAdapter
         context_dict = {
@@ -112,10 +112,11 @@ class DefinitieAgent:
         if enable_hybrid:
             extra_kwargs["enable_hybrid"] = enable_hybrid
 
-        # Obtain V2 adapter and generate definition synchronously via bridge
+        # Obtain V2 adapter and generate definition asynchronously via run_async
         adapter = get_definition_service()
-        v2_result = generate_definition_sync(
-            adapter, begrip=begrip, context_dict=context_dict, **extra_kwargs
+        v2_result = run_async(
+            adapter.generate_definition(begrip, context_dict, **extra_kwargs),
+            timeout=120
         )
 
         success = bool(v2_result.get("success"))

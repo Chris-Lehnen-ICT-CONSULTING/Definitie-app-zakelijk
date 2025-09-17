@@ -189,7 +189,7 @@ class DefinitieChecker:
             f"Generating new definition for '{begrip}' via V2 service (context: {organisatorische_context})"
         )
         try:
-            from ui.helpers.async_bridge import generate_definition_sync
+            from ui.helpers.async_bridge import run_async
 
             adapter = self._get_integrated_service()
             context_dict = {
@@ -210,8 +210,9 @@ class DefinitieChecker:
             if enable_hybrid:
                 extra_kwargs["enable_hybrid"] = enable_hybrid
 
-            integrated_result = generate_definition_sync(
-                adapter, begrip=begrip, context_dict=context_dict, **extra_kwargs
+            integrated_result = run_async(
+                adapter.generate_definition(begrip, context_dict, **extra_kwargs),
+                timeout=120
             )
 
             if isinstance(integrated_result, dict) and integrated_result.get("success"):
@@ -276,7 +277,7 @@ class DefinitieChecker:
             return success, None
 
         # Regenerate definitie via V2 service
-        from ui.helpers.async_bridge import generate_definition_sync
+        from ui.helpers.async_bridge import run_async
 
         categorie = OntologischeCategorie(existing.categorie)
         adapter = self._get_integrated_service()
@@ -304,12 +305,14 @@ class DefinitieChecker:
             "wettelijk": [],
         }
 
-        integrated_result = generate_definition_sync(
-            adapter,
-            begrip=existing.begrip,
-            context_dict=context_dict,
-            categorie=categorie.value,
-            organisatie=(context_dict["organisatorisch"][0] if context_dict["organisatorisch"] else ""),
+        integrated_result = run_async(
+            adapter.generate_definition(
+                begrip=existing.begrip,
+                context_dict=context_dict,
+                categorie=categorie.value,
+                organisatie=(context_dict["organisatorisch"][0] if context_dict["organisatorisch"] else ""),
+            ),
+            timeout=120
         )
 
         if isinstance(integrated_result, dict) and integrated_result.get("success"):

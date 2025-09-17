@@ -847,20 +847,22 @@ class TabbedInterface:
                         auto_categorie = auto_categorie_original
 
                 # Altijd V2-servicepad gebruiken (geen legacy fallback)
-                from ui.helpers.async_bridge import generate_definition_sync
+                from ui.helpers.async_bridge import run_async
 
-                service_result = generate_definition_sync(
-                    self.definition_service,
-                    begrip=begrip,
-                    context_dict={
-                        "organisatorisch": org_context,
-                        "juridisch": jur_context,
-                        "wettelijk": wet_context,  # EPIC-010: Gebruik consistente variabele
-                    },
-                    organisatie=primary_org,
-                    categorie=auto_categorie,
-                    # Pass regeneration context for GVI feedback loop
-                    regeneration_context=regeneration_context,
+                service_result = run_async(
+                    self.definition_service.generate_definition(
+                        begrip=begrip,
+                        context_dict={
+                            "organisatorisch": org_context,
+                            "juridisch": jur_context,
+                            "wettelijk": wet_context,  # EPIC-010: Gebruik consistente variabele
+                        },
+                        organisatie=primary_org,
+                        categorie=auto_categorie,
+                        # Pass regeneration context for GVI feedback loop
+                        regeneration_context=regeneration_context,
+                    ),
+                    timeout=120
                 )
 
                 # Converteer naar checker formaat voor UI compatibility variabelen
