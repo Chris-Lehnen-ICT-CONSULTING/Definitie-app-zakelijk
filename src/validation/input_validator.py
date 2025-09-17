@@ -75,8 +75,8 @@ class ValidationRule:
 
 
 @dataclass
-class ValidationResult:
-    """Result of a validation check."""
+class InputValidationResult:
+    """Result of input validation check."""
 
     field_name: str
     validation_type: ValidationType
@@ -483,7 +483,7 @@ class InputValidator:
 
     def validate(
         self, data: dict[str, Any], schema_name: str
-    ) -> list[ValidationResult]:
+    ) -> list[InputValidationResult]:
         """Validate data against a schema."""
         if schema_name not in self.schemas:
             msg = f"Schema '{schema_name}' not found"
@@ -546,7 +546,7 @@ class InputValidator:
 
     def _validate_single_rule(
         self, value: Any, rule: ValidationRule, full_data: dict[str, Any]
-    ) -> ValidationResult:
+    ) -> InputValidationResult:
         """Validate a single rule."""
         try:
             if rule.validation_type == ValidationType.REQUIRED:
@@ -594,7 +594,7 @@ class InputValidator:
             else:
                 passed = True
 
-            return ValidationResult(
+            return InputValidationResult(
                 field_name=rule.field_name,
                 validation_type=rule.validation_type,
                 severity=rule.severity,
@@ -609,7 +609,7 @@ class InputValidator:
 
         except Exception as e:
             logger.error(f"Error validating rule {rule.field_name}: {e}")
-            return ValidationResult(
+            return InputValidationResult(
                 field_name=rule.field_name,
                 validation_type=rule.validation_type,
                 severity=ValidationSeverity.ERROR,
@@ -629,7 +629,7 @@ class InputValidator:
 
     def get_errors(
         self, data: dict[str, Any], schema_name: str
-    ) -> list[ValidationResult]:
+    ) -> list[InputValidationResult]:
         """Get only validation errors."""
         results = self.validate(data, schema_name)
         return [
@@ -640,7 +640,7 @@ class InputValidator:
 
     def get_warnings(
         self, data: dict[str, Any], schema_name: str
-    ) -> list[ValidationResult]:
+    ) -> list[InputValidationResult]:
         """Get only validation warnings."""
         results = self.validate(data, schema_name)
         return [
@@ -734,7 +734,7 @@ def get_validator() -> InputValidator:
     return _global_validator
 
 
-def validate_input(data: dict[str, Any], schema_name: str) -> list[ValidationResult]:
+def validate_input(data: dict[str, Any], schema_name: str) -> list[InputValidationResult]:
     """Convenience function for input validation."""
     validator = get_validator()
     return validator.validate(data, schema_name)
@@ -746,7 +746,7 @@ def is_valid_input(data: dict[str, Any], schema_name: str) -> bool:
     return validator.is_valid(data, schema_name)
 
 
-def get_input_errors(data: dict[str, Any], schema_name: str) -> list[ValidationResult]:
+def get_input_errors(data: dict[str, Any], schema_name: str) -> list[InputValidationResult]:
     """Convenience function to get input errors."""
     validator = get_validator()
     return validator.get_errors(data, schema_name)

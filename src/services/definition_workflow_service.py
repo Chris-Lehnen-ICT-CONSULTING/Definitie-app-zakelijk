@@ -442,6 +442,48 @@ class DefinitionWorkflowService:
                 error_message=str(e),
             )
     
+    def update_status(
+        self,
+        definition_id: int,
+        new_status: str,
+        user: str | None = None,
+        notes: str = "",
+    ) -> bool:
+        """
+        Adapter voor repository change_status - implements interface.
+
+        Converts string status to DefinitieStatus enum and delegates
+        to repository's change_status method.
+
+        Args:
+            definition_id: ID of the definition
+            new_status: New status as string
+            user: User performing the change
+            notes: Optional notes
+
+        Returns:
+            bool: True if successful
+        """
+        from models.enums import DefinitieStatus
+
+        try:
+            # Convert string to enum (case insensitive)
+            status_enum = DefinitieStatus[new_status.upper()]
+
+            # Delegate to repository
+            return self.repository.change_status(
+                definitie_id=definition_id,
+                new_status=status_enum,
+                changed_by=user,
+                notes=notes,
+            )
+        except (KeyError, AttributeError) as e:
+            logger.error(f"Invalid status '{new_status}': {e}")
+            return False
+        except Exception as e:
+            logger.error(f"Failed to update status: {e}")
+            return False
+
     def get_allowed_transitions(
         self,
         definition_id: int,
