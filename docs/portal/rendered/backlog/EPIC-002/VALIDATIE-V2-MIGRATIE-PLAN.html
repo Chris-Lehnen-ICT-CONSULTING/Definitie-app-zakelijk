@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Validatie V2 Migratieplan — Legacy → V2 consolidatie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Validatie V2 Migratieplan — Legacy → V2 consolidatie</h1>
+
+<p>Doel</p>
+<ul>
+<li>Eén valideerpad (V2) in de hele applicatie, zonder legacy/modulaire validators in runtime.</li>
+<li>Volledige, deterministische regeldekking via V2 (schema‑conforme output).</li>
+<li>Geen ruis in logs (geen missing‑module warnings, geen schema warnings).</li>
+</ul>
+
+<p>Scope</p>
+<ul>
+<li>Vervangt aanroepen naar `ai_toetser/modular_toetser` en `toetsregels/modular_loader` door V2.</li>
+<li>Centraliseert validatie via `ValidationOrchestratorV2` / `ModularValidationService`.</li>
+<li>Maakt DB‑schema‑initialisatie idempotent (geen WARN bij bestaande tabellen).</li>
+</ul>
+
+<p>Probleemobservaties (huidig)</p>
+<ul>
+<li>UI roept na de V2‑flow nog de legacy/modulaire validator aan → veel "Kon Python module niet laden" warnings en inconsistente regeldekking.</li>
+<li>V2 gebruikt een beperkte defaultregelset zolang er geen ToetsregelManager is aangesloten.</li>
+<li>DB‑init logt bij elke start "Schema execution warning: table definities already exists".</li>
+</ul>
+
+<p>Duurzame oplossing</p>
+<p>1) Schakel legacy validator in UI uit</p>
+<ul>
+<li>  - Verwijder alle aanroepen naar legacy pad in UI (o.a. `src/ui/tabbed_interface.py`):</li>
+<li>    - `from ai_toetser.modular_toetser import toets_definitie`</li>
+<li>    - `from toetsregels.modular_loader import load_all_toetsregels`</li>
+<li>  - Vervang door V2:</li>
+<li>    - Gebruik het V2‑validatieresultaat dat de `DefinitionOrchestratorV2` al teruggeeft, óf</li>
+<li>    - Roep `validation_orchestrator.validate_text(begrip, text, ontologische_categorie, context)` aan vanuit de container.</li>
+</ul>
+
+<p>2) Volledige regelset via V2</p>
+<ul>
+<li>  - Koppel een compacte ToetsregelManager‑adapter aan `ModularValidationService`:</li>
+<li>    - Laad alle JSON‑regels (`src/toetsregels/regels/*.json`) → vul `_internal_rules` en `_default_weights`.</li>
+<li>    - Laat per‑regel Python modules achterwege (tenzij expliciet nodig) om fragiele imports te vermijden.</li>
+<li>  - Doel: V2 past de volledige regelset toe, deterministisch en zonder legacy loaders.</li>
+</ul>
+
+<p>3) Centraliseer contract en output</p>
+<ul>
+<li>  - UI leest alleen het canonieke V2‑formaat:</li>
+<li>    - `overall_score`, `is_acceptable`, `violations[]`, `passed_rules[]`.</li>
+<li>  - Verwijder/deprecate legacy objectvormen en dubbele mapping in UI.</li>
+</ul>
+
+<p>4) DB‑schema idempotent maken</p>
+<ul>
+<li>  - In `src/database/definitie_repository._init_database`:</li>
+<li>    - Als `schema.sql` gebruikt wordt: check of kern‑tabellen bestaan (bv. `definities`) en skip `executescript` wanneer aanwezig.</li>
+<li>    - Of pas `schema.sql` aan zodat alle `CREATE TABLE` uitspraken `IF NOT EXISTS` gebruiken.</li>
+<li>  - Logniveau van reeds‑bestaat scenario → INFO (geen WARNING).</li>
+</ul>
+
+<p>5) Opruimen en documenteren</p>
+<ul>
+<li>  - Markeerstubs voor legacy validators (import werkt, maar niet meer aangeroepen; duidelijke waarschuwing).</li>
+<li>  - Korte notitie in README/CHANGELOG en update van developer docs (V2‑only pad, contract en voorbeelden).</li>
+</ul>
+
+<p>Uitvoering in fases</p>
+<ul>
+<li>Fase A (UI‑switch):</li>
+<li> - UI verwijdert legacy calls en gebruikt uitsluitend V2‑validatie (via orchestrator of rechtstreeks).</li>
+<li> - Verifieer dat validatiesecties in UI gevuld blijven met V2‑output.</li>
+</ul>
+
+<ul>
+<li>Fase B (V2 ToetsregelManager‑adapter):</li>
+<li> - V2 laadt alle JSON‑regels en weegt ze (prioriteit/weight in JSON).</li>
+<li> - Bepaal (optioneel) per‑regel hooks voor complexe checks via een stabiele V2‑interface (geen directe module‑imports).</li>
+</ul>
+
+<ul>
+<li>Fase C (DB‑schema):</li>
+<li> - Idempotente init of IF NOT EXISTS; downgrade warning naar info.</li>
+</ul>
+
+<ul>
+<li>Fase D (opschonen):</li>
+<li> - Markeer legacy validator‑paden als deprecated of verwijder ze uit runtime‑pad.</li>
+</ul>
+
+<ul>
+<li>Fase E (tests):</li>
+<li> - Update tests die nog `ai_toetser/modular_toetser` importeren.</li>
+<li> - Voeg een regeldekking‑smoke toe (aantal geladen regels via V2) en een logsanity‑check (geen missing‑module warnings).</li>
+</ul>
+
+<p>Acceptatiecriteria</p>
+<ul>
+<li>UI gebruikt uitsluitend V2‑validatie; geen aanroepen naar `ai_toetser/modular_toetser` of `toetsregels/modular_loader` in runtime.</li>
+<li>V2 past de volledige JSON‑regelset toe (zichtbaar via een eenvoudige API/telemetrie of test‑assert op rule‑count).</li>
+<li>Geen "Kon Python module niet laden …" warnings meer in logs.</li>
+<li>Geen DB‑schema warnings; init is idempotent of logt alleen INFO wanneer schema bestaat.</li>
+<li>Bestaande integratie‑ en smokeslagen groen; V2‑response is consistent in UI.</li>
+</ul>
+
+<p>Risico’s en mitigatie</p>
+<ul>
+<li>Per‑regel Python modules: als er unieke logica in zit, definieer gecontroleerde hooks (optioneel) en schrijf migratietests.</li>
+<li>Performance: V2 blijft deterministisch; rule‑set laden gebeurt éénmalig en kan gecachet worden.</li>
+</ul>
+
+<p>Concreet te wijzigen call‑sites</p>
+<ul>
+<li>`src/ui/tabbed_interface.py`: verwijder imports/aanroepen naar legacy validators; gebruik V2‑data.</li>
+<li>`src/services/service_factory.py` / container: exposeer eenvoudige V2‑validate methoden (optioneel helper) voor UI.</li>
+<li>`src/database/definitie_repository.py`: maak `_init_database` idempotent of pas `schema.sql` aan.</li>
+</ul>
+
+<p>Relatie met US‑179 (categorie‑doorvoer)</p>
+<ul>
+<li>Los te tracken (EPIC‑010/US‑179): ontologische categorie expliciet doorgeven aan promptmodules, zodat categorie‑specifieke instructies en templates actief zijn. Dit staat los van de validator‑consolidatie, maar is complementair voor de kwaliteit van de gegenereerde definities.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

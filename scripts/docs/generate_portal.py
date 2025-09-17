@@ -54,15 +54,44 @@ def first_heading(text: str) -> str | None:
 
 
 def classify(path: Path) -> str:
+    """Bepaal documenttype op basis van pad en bestandsnaam.
+
+    - REQ: docs/backlog/requirements/REQ-XXX.md
+    - EPIC: docs/backlog/EPIC-XXX/EPIC-XXX.md
+    - US: docs/backlog/EPIC-XXX/US-YYY/US-YYY.md
+    - BUG: .../BUG-ZZZ/BUG-ZZZ.md of pad bevat /BUG-/CFR-BUG-
+    - ARCH/GUIDE/TEST/COMP: op basis van mapsegement
+    - Anders: DOC
+    """
     p = str(path).replace("\\", "/")
+    # Directe mappings op map-segmenten
     if "/backlog/requirements/REQ-" in p:
         return "REQ"
-    if "/backlog/EPIC-" in p and p.endswith("/EPIC-" + path.parent.name + ".md"):
+
+    fname = path.name  # bv. EPIC-003.md of US-081.md
+    parent = path.parent.name  # bv. EPIC-003 of US-081
+    gparent = path.parent.parent.name if path.parent else ""
+
+    # EPIC: bestandsnaam == mapnaam + .md en mapnaam matcht EPIC-\d+
+    if re.fullmatch(r"EPIC-\d{3}\.md", fname) and re.fullmatch(r"EPIC-\d{3}", parent):
         return "EPIC"
-    if "/backlog/EPIC-" in p and "/US-" in p and p.endswith("/US-" + path.parent.name + ".md"):
+
+    # US: idem, met grootouder EPIC-\d+
+    if (
+        re.fullmatch(r"US-\d{3}\.md", fname)
+        and re.fullmatch(r"US-\d{3}", parent)
+        and re.fullmatch(r"EPIC-\d{3}", gparent)
+    ):
         return "US"
-    if "/BUG-" in p or "/CFR-BUG-" in p:
+
+    # BUG: tolerant — of specifieke mapstructuur, of presence van BUG-segment
+    if (
+        re.fullmatch(r"BUG-\d{3}\.md", fname)
+        or "/BUG-" in p
+        or "/CFR-BUG-" in p
+    ):
         return "BUG"
+
     if "/architectuur/" in p:
         return "ARCH"
     if "/guidelines/" in p:
@@ -451,9 +480,11 @@ def main() -> int:
     # Load traceability and derive relations
     tr = load_traceability()
     epic_to_reqs: dict[str, list[str]] = {}
+    epic_to_us: dict[str, list[str]] = {}
     for k, v in tr.items():
         if k.startswith("EPIC-"):
             epic_to_reqs[k] = list(v.get("requirements", []) or [])
+            epic_to_us[k] = list(v.get("stories", []) or [])
     req_to_epics: dict[str, list[str]] = {}
     for epic, reqs in epic_to_reqs.items():
         for r in reqs:
@@ -476,6 +507,7 @@ def main() -> int:
             it["linked_stories"] = sorted(set(req_to_us.get(iid, []))) or None
         elif t == "EPIC" and iid:
             it["linked_reqs"] = sorted(set(epic_to_reqs.get(iid, []))) or None
+            it["linked_stories"] = sorted(set(epic_to_us.get(iid, []))) or None
         elif t == "US" and iid:
             # derive linked REQs by inversion of req_to_us
             linked = sorted(set(r for r, us in req_to_us.items() if iid in us))

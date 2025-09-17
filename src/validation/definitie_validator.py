@@ -76,7 +76,7 @@ class RuleViolation:
 
 
 @dataclass
-class ValidationResult:
+class DefinitieValidationResult:
     """Resultaat van definitie validatie."""
 
     definitie: str
@@ -313,7 +313,7 @@ class DefinitieValidator:
         definitie: str,
         categorie: OntologischeCategorie,
         context: dict[str, Any] | None = None,
-    ) -> ValidationResult:
+    ) -> DefinitieValidationResult:
         """
         Valideer definitie tegen toetsregels.
 
@@ -366,7 +366,7 @@ class DefinitieValidator:
         # 5. Genereer verbeteringsvoorstellen
         improvements = self._generate_improvement_suggestions(violations)
 
-        return ValidationResult(
+        return DefinitieValidationResult(
             definitie=definitie,
             overall_score=overall_score,
             violations=violations,
@@ -730,7 +730,7 @@ class DefinitieValidator:
 # Convenience functions
 def validate_definitie(
     definitie: str, categorie: str = "type", context: dict[str, Any] | None = None
-) -> ValidationResult:
+) -> DefinitieValidationResult:
     """
     Convenience functie voor snelle definitie validatie.
 
