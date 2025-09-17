@@ -221,6 +221,7 @@ class ServiceContainer:
                 get_toetsregel_manager(),
                 None,
                 ValidationConfig.from_yaml("src/config/validation_rules.yaml"),
+                repository=self.repository(),
             )
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
 
