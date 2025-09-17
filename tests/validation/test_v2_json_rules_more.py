@@ -53,6 +53,18 @@ async def test_sam01_misleading_qualifier():
 
 
 @pytest.mark.asyncio
+async def test_str03_not_just_synonym():
+    svc = ModularValidationService(get_toetsregel_manager(), None, None)
+    res = await svc.validate_definition(
+        begrip="evaluatie",
+        text="beoordeling",
+        ontologische_categorie=None,
+        context={},
+    )
+    assert any(v.get("code") == "STR-03" for v in res.get("violations", []))
+
+
+@pytest.mark.asyncio
 async def test_ver01_lemma_plural_triggers():
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
     # 'gegevens' is meervoud → VER-01 should trigger (not plurale tantum whitelist)
@@ -83,4 +95,3 @@ async def test_con02_authentic_source_required():
         context={},
     )
     assert not any(v.get("code") == "CON-02" for v in res_ok.get("violations", []))
-
