@@ -20,7 +20,7 @@ from .dutch_text_validator import (
 # Importeer input validatie componenten voor gebruikersinvoer controle
 from .input_validator import (
     InputValidator,  # Hoofdklasse voor input validatie
-    ValidationResult,  # Resultaat van validatie actie
+    InputValidationResult,  # Resultaat van input validatie actie
     ValidationRule,  # Individuele validatie regel
     ValidationSchema,  # Schema definitie voor validatie regels
     ValidationSeverity,  # Ernst niveau van validatie issues
@@ -62,7 +62,7 @@ __all__ = [
     "SanitizationLevel",  # Niveau van sanering proces
     "SanitizationResult",  # Sanering resultaat container
     "SanitizationRule",  # Individuele sanering regel
-    "ValidationResult",  # Validatie resultaat container
+    "InputValidationResult",  # Input validatie resultaat container
     "ValidationRule",  # Individuele validatie regel
     "ValidationSchema",  # Schema voor validatie regels
     "ValidationSeverity",  # Ernst niveau van validatie issues

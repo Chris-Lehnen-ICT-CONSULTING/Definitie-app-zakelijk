@@ -1359,16 +1359,18 @@ class DefinitionGeneratorTab:
 
             from domain.ontological_categories import OntologischeCategorie
 
-            # Gebruik async_bridge voor sync-to-async conversie
-            from ui.helpers.async_bridge import generate_definition_sync
+            # Gebruik async_bridge voor async uitvoering
+            from ui.helpers.async_bridge import run_async
 
-            service_result = generate_definition_sync(
-                definition_service,
-                begrip=begrip,
-                context_dict=context_dict,
-                organisatie=generation_result.get("organisatie", ""),
-                categorie=OntologischeCategorie(new_category.lower()),
-                regeneration_context=self.regeneration_service.get_active_context(),
+            service_result = run_async(
+                definition_service.generate_definition(
+                    begrip=begrip,
+                    context_dict=context_dict,
+                    organisatie=generation_result.get("organisatie", ""),
+                    categorie=OntologischeCategorie(new_category.lower()),
+                    regeneration_context=self.regeneration_service.get_active_context(),
+                ),
+                timeout=120
             )
 
             # Step 5: Update UI with results
