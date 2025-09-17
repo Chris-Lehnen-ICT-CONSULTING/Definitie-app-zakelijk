@@ -97,6 +97,24 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     context_dict["locale"] = context.locale
                 if context.feature_flags:
                     context_dict["feature_flags"] = dict(context.feature_flags)
+            else:
+                context_dict = {}
+
+            # Enrich with definition contexts for rules that require them (e.g., CON-01)
+            try:
+                context_dict["organisatorische_context"] = list(
+                    definition.organisatorische_context or []
+                )
+                context_dict["juridische_context"] = list(
+                    definition.juridische_context or []
+                )
+                context_dict["wettelijke_basis"] = list(
+                    definition.wettelijke_basis or []
+                )
+                if getattr(definition, "categorie", None):
+                    context_dict["categorie"] = definition.categorie
+            except Exception:
+                pass
 
             # Call underlying service
             result = await self.validation_service.validate_definition(
