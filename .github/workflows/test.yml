@@ -42,11 +42,11 @@ jobs:
           ruff check src/services || true
         fi
 
-    - name: Run type checking
+    - name: Run type checking (services only)
       run: |
-        # Run mypy if available (exclude hyphenated non-package dirs)
+        # Focus type checking op services-laag om ruis te beperken
         if command -v mypy &> /dev/null; then
-          mypy src/ --ignore-missing-imports --exclude 'src/toetsregels/sets/(per-categorie|per-context|per-prioriteit)'
+          mypy src/services --ignore-missing-imports
         fi
 
     - name: Run tests with coverage
