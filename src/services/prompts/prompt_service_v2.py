@@ -110,6 +110,31 @@ class PromptServiceV2:
                     if key not in enriched_context.metadata:
                         enriched_context.metadata[key] = value
 
+            # US-179: Ensure ontological category is present in prompt metadata
+            # so SemanticCategorisationModule and TemplateModule can apply
+            # category-specific guidance and templates.
+            if request.ontologische_categorie and isinstance(
+                request.ontologische_categorie, str
+            ):
+                cat = request.ontologische_categorie.strip().lower()
+                enriched_context.metadata["ontologische_categorie"] = cat
+
+                # Minimal mapping from ESS category → template semantic category
+                # Proces → "Proces"; type/exemplaar → "Object"; resultaat → "Maatregel"
+                mapping = {
+                    "proces": "Proces",
+                    "activiteit": "Proces",
+                    "type": "Object",
+                    "soort": "Object",
+                    "exemplaar": "Object",
+                    "particulier": "Object",
+                    "resultaat": "Maatregel",
+                    "uitkomst": "Maatregel",
+                }
+                semantic = mapping.get(cat)
+                if semantic and "semantic_category" not in enriched_context.metadata:
+                    enriched_context.metadata["semantic_category"] = semantic
+
             # Generate prompt using existing advanced system with category support
             prompt_text = self.prompt_generator.build_prompt(
                 begrip=request.begrip, context=enriched_context
