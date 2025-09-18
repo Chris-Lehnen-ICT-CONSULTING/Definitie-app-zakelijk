@@ -43,15 +43,88 @@ have_worktree_for() {
   git worktree list --porcelain | awk '/worktree /{print $2}' | grep -Fxq "$path"
 }
 
+# --- Advisory: Should we multi? --------------------------------------------
+
+get_upstream_ref() {
+  git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null || true
+}
+
+get_base_commit() {
+  local upstream
+  upstream=$(get_upstream_ref)
+  if [[ -n "$upstream" ]]; then
+    git merge-base HEAD "$upstream" 2>/dev/null || git rev-parse HEAD~1 2>/dev/null || echo ""
+  else
+    git rev-parse HEAD~1 2>/dev/null || echo ""
+  fi
+}
+
+advise_multi() {
+  # Heuristics: recommend NO when tiny or docs-only; YES when broad/large.
+  local base
+  base=$(get_base_commit)
+  if [[ -z "$base" ]]; then
+    echo "Advice: Unknown (single-commit repo). Using conservative default: NO for trivial tasks, YES if you compare approaches."
+    return 1
+  fi
+
+  # Gather diff stats
+  local files_changed insertions deletions total_lines
+  local diffstat
+  diffstat=$(git diff --shortstat "$base"..HEAD || true)
+  # Fallbacks for portability (BSD/GNU)
+  files_changed=$(git diff --name-only "$base"..HEAD | wc -l | tr -d ' ')
+  insertions=$(echo "$diffstat" | grep -Eo '[0-9]+ insertion' 2>/dev/null | awk '{print $1}' | head -n1 || true)
+  deletions=$(echo "$diffstat" | grep -Eo '[0-9]+ deletion' 2>/dev/null | awk '{print $1}' | head -n1 || true)
+  insertions=${insertions:-0}
+  deletions=${deletions:-0}
+  total_lines=$(( (insertions + deletions) ))
+
+  # Determine docs-only
+  local docs_only=1
+  local new_files
+  new_files=$(git diff --diff-filter=A --name-only "$base"..HEAD | wc -l | tr -d ' ')
+  while IFS= read -r f; do
+    [[ -z "$f" ]] && continue
+    if [[ "$f" == docs/* || "$f" == *.md || "$f" == *.mdx ]]; then
+      : # still docs-only
+    else
+      docs_only=0
+      break
+    fi
+  done < <(git diff --name-only "$base"..HEAD)
+
+  # Decision
+  if [[ $files_changed -le 3 && $total_lines -le 50 && $docs_only -eq 1 ]]; then
+    echo "Advice: NO — changes are docs-only and tiny ($files_changed files, ~${total_lines} LOC)."
+    return 1
+  fi
+  if [[ $files_changed -le 2 && $total_lines -le 50 && $new_files -eq 0 ]]; then
+    echo "Advice: NO — small change ($files_changed files, ~${total_lines} LOC), no new files."
+    return 1
+  fi
+  if [[ $files_changed -ge 6 || $total_lines -ge 200 || $new_files -ge 2 ]]; then
+    echo "Advice: YES — broad or large change ($files_changed files, ~${total_lines} LOC, $new_files new)."
+    return 0
+  fi
+
+  echo "Advice: MAYBE — depends on whether you want to compare approaches."
+  return 2
+}
+
 cmd_init() {
   local count=0
   local names=()
+  local strict=0
+  local force=0
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -n|--num)
         count="$2"; shift 2;;
+      --strict) strict=1; shift;;
+      --force|-y) force=1; shift;;
       -h|--help)
-        echo "Usage: $0 init [-n 2] [agent-a agent-b ...]"; exit 0;;
+        echo "Usage: $0 init [-n 2] [--strict|--force] [agent-a agent-b ...]"; exit 0;;
       *) names+=("$1"); shift;;
     esac
   done
@@ -62,6 +135,20 @@ cmd_init() {
     else
       # default two agents
       read -r -a names <<< "$(default_agents)"
+    fi
+  fi
+
+  # Advisory check
+  if [[ $force -eq 0 ]]; then
+    if advise_multi; then
+      : # recommended
+    else
+      local rc=$?
+      if [[ $strict -eq 1 ]]; then
+        echo -e "${YELLOW}Aborting due to advisory and --strict.${NC} Use --force to override.${NC}"
+        exit 1
+      fi
+      echo -e "${YELLOW}Warning:${NC} advisory recommends against multi-init (rc=$rc). Use --force to override or run 'bash scripts/multiagent.sh check' for details."
     fi
   fi
 
@@ -181,10 +268,12 @@ cmd_help() {
 Multi‑Agent Helper
 
 Commands:
-  init [-n NUM] [NAMES...]     Create worktrees for agents (default: agent-a agent-b)
+  init [-n NUM] [--strict|--force] [NAMES...]
+                                Create worktrees for agents (default: agent-a agent-b)
   status                        Show worktrees and local agent branches
   review [--quick-checks] [NAMES...]  Run tests scoreboard (and optional quick checks)
   teardown [--delete-branches] [NAMES...]  Remove worktrees (and optionally branches)
+  check                         Print advisory if multi-agent is recommended
 
 Examples:
   $0 init -n 2
@@ -201,10 +290,10 @@ main() {
     status) cmd_status "$@" ;;
     review) cmd_review "$@" ;;
     teardown) cmd_teardown "$@" ;;
+    check) advise_multi ;;
     -h|--help|help) cmd_help ;;
     *) echo -e "${RED}Unknown command:${NC} $cmd"; cmd_help; exit 1;;
   esac
 }
 
 main "$@"
-
