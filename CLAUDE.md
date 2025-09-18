@@ -2,40 +2,56 @@
 
 Dit bestand biedt richtlijnen aan Claude Code bij het werken met code in deze repository.
 
+## 🎯 BELANGRIJKE UPDATE: Unified Agent Instructions
+
+**Voor geharmoniseerde werking met Codex, volg ook:**
+- **Primaire instructies**: `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` (LEES DIT EERST!)
+- **Kwaliteitsregels**: `~/.ai-agents/quality-gates.yaml` (forbidden patterns)
+- **Tool mappings**: `~/.ai-agents/agent-mappings.yaml` (Claude ↔ Codex)
+- **Preflight checks**: `~/.ai-agents/preflight-checks.sh` (run voor wijzigingen)
+
+De unified instructions bevatten:
+- ✅ Approval Ladder (wanneer toestemming vragen)
+- 🚫 Forbidden Patterns (wat NOOIT te doen)
+- 🔄 Workflow Selection (welke aanpak wanneer)
+- 📝 Naming Conventions (juiste namen gebruiken)
+
+**Bij conflicten**: Unified instructions > Dit document
+
 ## Project Overzicht
 
 DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die GPT-4 gebruikt met 45+ kwaliteitsvalidatieregels. De applicatie gebruikt Streamlit voor de UI en volgt een service-georiënteerde architectuur met dependency injection.
 
-## 📁 BACKLOG STRUCTUUR - STRIKT VOLGEN!
+## 📁 BACKLOG STRUCTUUR
 
-De backlog heeft een vaste hiërarchische structuur die ALTIJD gevolgd moet worden:
+**Voor de volledige backlog structuur regels:**
+- EPIC → US-XXX → BUG-XXX hiërarchie
+- ID uniekheid vereisten
+- Directory structuur
 
-```
-docs/backlog/
-├── EPIC-001/                      # Elke EPIC in eigen directory
-│   ├── EPIC-001.md                # Epic documentatie
-│   ├── US-001/                    # User stories direct onder EPIC
-│   │   ├── US-001.md              # Story documentatie
-│   │   └── BUG-XXX/               # Bugs binnen US directory
-│   │       └── BUG-XXX.md         # Bug documentatie
-│   └── US-002/
-│       └── US-002.md
-└── EPIC-002/
-    └── ...
-```
-
-BELANGRIJKE REGELS:
-- NOOIT stories direct in `/docs/backlog/stories/` plaatsen
-- NOOIT epics in `/docs/backlog/epics/` plaatsen
-- GEEN "User Stories" subdirectory – stories direct onder EPIC
-- BUGS altijd binnen de relevante `US-XXX` directory
-- ALTIJD de hiërarchie volgen: EPIC → US-XXX → BUG-XXX
-- ALTIJD elke user story in eigen directory met dezelfde naam
- - EPIC‑ID’s (EPIC‑XXX) zijn GLOBAAL uniek voor het project.
- - US‑ID’s zijn GLOBAAL uniek in de backlog (frontmatter `id:`). Hergebruik over epics is NIET toegestaan. Check duplicaten vóór het aanmaken/wijzigen en renummer indien nodig.
- - BUG‑ID’s (BUG‑XXX/CFR‑BUG‑XXX) zijn GLOBAAL uniek.
+**➡️ Zie:**
+- `docs/guidelines/CANONICAL_LOCATIONS.md` voor backlog structuur
+- `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` voor naming conventions
 
 ## 🚫 KRITIEKE REGELS VOOR CLAUDE/AI
+
+### 🔴 PROJECT ROOT - STRIKT BELEID
+
+**NOOIT bestanden in project root plaatsen, behalve:**
+- README.md, CONTRIBUTING.md, CLAUDE.md
+- requirements.txt, requirements-dev.txt
+- Config files: pyproject.toml, pytest.ini, .pre-commit-config.yaml
+
+**VERBODEN in root - ALTIJD verplaatsen naar:**
+- `test_*.py` → `tests/` (gebruik subdirs: unit/, integration/, smoke/, debug/)
+- `*.sh` scripts → `scripts/` (gebruik subdirs: maintenance/, monitoring/, testing/)
+- `*.log` files → `logs/` (archiveer oude logs in logs/archive/YYYY-MM/)
+- `*.db` files → `data/` (oude databases naar data/old_databases/)
+- `HANDOVER*.md` → `docs/archief/handovers/`
+- `*PLAN*.md` → `docs/planning/`
+- `*REPORT*` → `docs/reports/`
+
+**Bij twijfel:** Check `~/.ai-agents/quality-gates.yaml` sectie "forbidden_locations"
 
 ### ⚠️ REFACTOREN, GEEN BACKWARDS COMPATIBILITY
 
@@ -48,67 +64,16 @@ BELANGRIJKE REGELS:
 - **Focus op: code verbeteren, NIET op compatibiliteit**
 - **Business logica documenteren tijdens refactoring proces**
 
-### Belangrijke Instructie Herinneringen
 
-- **Doe wat gevraagd is; niets meer, niets minder**
-- **NOOIT** bestanden aanmaken tenzij absoluut noodzakelijk voor het doel
-- **ALTIJD** voorkeur geven aan bewerken van bestaand bestand boven nieuw maken
-- **NOOIT** proactief documentatiebestanden (\*.md) of README bestanden maken tenzij expliciet gevraagd
+### 📁 Document & File Management
 
-### 📁 Archivering - GEBRUIK ALLEEN /docs/archief/
+**Voor alle regels rondom:**
+- Archivering → Gebruik `/docs/archief/`
+- Document duplicatie preventie
+- Approval requirements voor file operations
 
-- **ALTIJD:** Gebruik `/docs/archief/` voor archivering
-- **NOOIT:** Maak geen nieuwe directories zoals `archive`, `archief2`, `old`, etc.
-- **CHECK:** Bij twijfel, check eerst wat bestaat met `ls docs/`
+**➡️ Zie:** `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` sectie "FORBIDDEN PATTERNS" en "APPROVAL LADDER"
 
-### 🔍 VOORDAT je een document/bestand maakt
-
-**VERPLICHTE CHECKS:**
-
-1. **Zoek eerst:** `grep -r "onderwerp" docs/` OF `ls docs/**/*term*.md`
-2. **Check overzichtsbronnen:**
-   - `docs/portal/index.html` voor EPIC/US/REQ overzicht en filters
-   - `docs/INDEX.md` voor algemeen overzicht
-   - `docs/guidelines/CANONICAL_LOCATIONS.md` voor juiste locaties
-3. **Check archief:** `ls docs/archief/` voor oude versies
-4. **Backlog ID uniekheid:** Controleer dat de beoogde `id: US-XXX` nog niet bestaat in de héle backlog:
-   - `rg -n "^id: US-XXX$" docs/backlog` of gebruik de ID‑checker script (portal)
-   - Kies een vrij nummer en zet het in de frontmatter en H1‑kop
-5. **Update bestaand:** Als het bestaat, UPDATE dat document, maak GEEN nieuw
-
-### ⚠️ Workflow voor nieuwe documenten
-
-```bash
-# STAP 1: Check of het al bestaat
-grep -r "mijn onderwerp" docs/
-ls docs/**/*relevante-term*.md
-
-# STAP 2: Check overzicht (Portal/Index)
-# Open docs/portal/index.html en gebruik zoek/filter
-grep -i "mijn onderwerp" docs/INDEX.md || true
-
-# STAP 3: Als het NIET bestaat, check canonieke locatie (EPIC → US → BUG)
-cat docs/guidelines/CANONICAL_LOCATIONS.md
-
-# STAP 4: Maak aan op JUISTE locatie met frontmatter
-# STAP 5: Update INDEX.md
-```
-
-### 🔴 Voorkom Duplicaten & Rommel
-
-**Deze fouten leiden tot projectrommel:**
-
-- ❌ Nieuwe epic/story docs maken buiten de canonieke EPIC-XXX structuur/Portal om
-- ❌ Archive/archief2/old directories maken i.p.v. `/docs/archief/` gebruiken
-- ❌ Duplicate documenten met licht verschillende namen
-- ❌ Documenten op verkeerde locaties maken
-
-**Best practices:**
-
-- ✅ ALTIJD eerst zoeken voordat je maakt
-- ✅ ALTIJD master documenten updaten i.p.v. nieuwe maken
-- ✅ ALTIJD canonieke locaties gebruiken
-- ✅ ALTIJD frontmatter toevoegen aan nieuwe docs
 
 ## Veelgebruikte Development Commando's
 

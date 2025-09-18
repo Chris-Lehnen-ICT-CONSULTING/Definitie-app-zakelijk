@@ -35,6 +35,24 @@
 
 <p>Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Definitie‑app. Het doel is consistente kwaliteit, voorspelbaar gedrag en makkelijk samenwerken tussen mensen en agents.</p>
 
+<h2>🎯 HARMONISATIE: Alle Agents Volgen Unified Rules</h2>
+
+<h3>Verplichte Stappen voor ELKE Agent</h3>
+<ol>
+<li>**Include Preamble**: Start elke agent met `~/.ai-agents/AGENT_PREAMBLE.md`</li>
+<li>**Load Unified Rules**: Laad `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` bij init</li>
+<li>**Run Preflight**: Check met `~/.ai-agents/preflight-checks.sh` voor acties</li>
+<li>**Follow Approval Ladder**: Gebruik approval rules uit unified instructions</li>
+<li>**Enforce Naming**: Gebruik Nederlandse context namen (organisatorische_context)</li>
+</ol>
+
+<h3>Enforcement Tools</h3>
+<ul>
+<li>**Template**: `~/.ai-agents/AGENT_TEMPLATE.md` voor nieuwe agents</li>
+<li>**Validator**: `~/.ai-agents/enforce-harmonization.sh` checkt compliance</li>
+<li>**Preamble**: `~/.ai-agents/AGENT_PREAMBLE.md` moet in elke agent</li>
+</ul>
+
 <h2>Werken met meerdere agents</h2>
 <ul>
 <li>Zie de dedicated gids: [Codex Multi‑Agent Gebruik](../codex-multi-agent-gebruik.md) — parallelle agents (worktrees/patches), selectiecriteria, quick‑checks en scoreboard.</li>
@@ -57,16 +75,83 @@
 </ul>
 
 <h2>Werkstroom Selectie</h2>
+
+<h3>🔄 Workflow Beslisboom (Kies ALTIJD de lichtste)</h3>
+<pre><code>def select_workflow(task: str) -&gt; str:
+    """Deterministische workflow selectie"""
+
+    if all_files_are_markdown():
+        return "DOCUMENT"     # Alleen docs
+
+    elif lines_changed &lt; 50 and no_new_files():
+        return "HOTFIX"       # Kleine fix
+
+    elif creating_new_files() or files_affected &gt; 3:
+        return "FULL_TDD"     # Nieuwe feature
+
+    elif task_contains(["analyze", "investigate", "research"]):
+        return "ANALYSIS"     # Onderzoek
+
+    else:
+        return "ANALYSIS"     # Default veilig</code></pre>
+
+<p>| Workflow | Test Requirement | Documentation |</p>
+<p>|----------|-----------------|---------------|</p>
+<p>| DOCUMENT | Link check only | N/A |</p>
+<p>| HOTFIX | Maintain coverage (≥80%) | Brief comment |</p>
+<p>| ANALYSIS | Not required | Findings summary |</p>
+<p>| FULL_TDD | ≥95% nieuwe code | Full docs |</p>
+
 <ul>
 <li>Gebruik niet standaard de Full TDD workflow voor elke opdracht.</li>
-<li>Kies de lichtste passende workflow met de router of handmatig:</li>
-<li> - Analysis, Review Cycle, Documentation, Debug, Maintenance, Refactor Only, Hotfix, Spike, Full TDD.</li>
 <li>Documentatie: [Werkstroom Library](./WORKFLOW_LIBRARY.md) en Werkstroom Routing</li>
 <li>Router (lokaal): `~/\.claude/agents/workflow-router.md` + config `~/\.claude/agents/workflows/workflows.yaml`</li>
-<li>Router‑commando’s: `ROUTE <beschrijving>`, `START-AS <workflow> <beschrijving>`, `SUGGEST <beschrijving>`</li>
+<li>Router‑commando's: `ROUTE <beschrijving>`, `START-AS <workflow> <beschrijving>`, `SUGGEST <beschrijving>`</li>
 </ul>
 
 <h2>Algemene Richtlijnen</h2>
+
+<h3>🔍 Preflight Checks (Voor ELKE wijziging)</h3>
+<pre><code># 1. Unieke match check
+rg "exact_string_to_change" --files-with-matches | wc -l  # Moet 1 zijn
+
+# 2. Scope check
+echo "Wijziging in: path/to/file.py"
+echo "Impact op: [list affected components]"
+
+# 3. Forbidden patterns
+rg "import streamlit" src/services/ &amp;&amp; echo "❌ BLOCKED"
+rg "asyncio.run\(" src/services/ &amp;&amp; echo "❌ BLOCKED"
+rg "from ui\." src/services/ &amp;&amp; echo "❌ BLOCKED"
+
+# 4. Approval check
+[[ lines &gt; 100 || files &gt; 5 ]] &amp;&amp; echo "⚠️ APPROVAL REQUIRED"
+
+# 5. Run automated preflight
+~/.ai-agents/preflight-checks.sh .</code></pre>
+
+<h3>📝 Naming & Import Canon</h3>
+
+<h4>✅ VERPLICHTE Namen (Canonical)</h4>
+<p>| Concept | MOET zijn | NOOIT |</p>
+<p>|---------|-----------|-------|</p>
+<p>| Context velden | <code>organisatorische_context</code> | <code>organizational_context</code> |</p>
+<p>| Context velden | <code>juridische_context</code> | <code>legal_context</code> |</p>
+<p>| Orchestrator | <code>ValidationOrchestratorV2</code> | <code>ValidationOrchestrator</code> |</p>
+<p>| Generator | <code>UnifiedDefinitionGenerator</code> | <code>DefinitionGenerator</code> |</p>
+<p>| Service | <code>ModularValidationService</code> | <code>ValidationService</code> |</p>
+
+<h4>🚫 VERBODEN Import Patterns</h4>
+<p>| In Directory | Verboden | Alternatief |</p>
+<p>|--------------|----------|-------------|</p>
+<p>| <code>src/services/</code> | <code>import streamlit</code> | Use <code>async_bridge</code> |</p>
+<p>| <code>src/services/</code> | <code>from ui.*</code> | Use service layer |</p>
+<p>| <code>src/services/</code> | <code>asyncio.run()</code> | Use <code>await</code> |</p>
+<p>| <code>src/ui/</code> | <code>from repositories.*</code> | Use service facade |</p>
+<p>| <code>src/ui/</code> | <code>ServiceContainer()</code> | Use <code>get_service_container()</code> |</p>
+
+<p>Voor volledig overzicht: zie <code>~/.ai-agents/quality-gates.yaml</code></p>
+
 <ul>
 <li>Veiligheid: geen secrets loggen; respecteer `vereistes*.txt` en netwerkbeperkingen.</li>
 <li>Stijl: volg bestaande structuur, import‑volgorde, en tooling (ruff/black waar geconfigureerd).</li>
@@ -74,12 +159,35 @@
 <li>Tests: maak/actualiseer tests bij nieuw gedrag; run gerichte suites waar mogelijk.</li>
 </ul>
 
-<h2>No‑Assumptions / Strict Mode</h2>
+<h2>No‑Assumptions / Strict Mode & Approval Ladder</h2>
+
+<h3>🎯 Approval Ladder (Wanneer toestemming vragen)</h3>
+
+<h4>✅ AUTO-APPROVE (Geen bevestiging nodig)</h4>
+<p>| Operatie | Voorwaarde | Voorbeelden |</p>
+<p>|----------|------------|-------------|</p>
+<p>| Lezen/Zoeken | Altijd | <code>grep</code>, <code>rg</code>, <code>find</code>, <code>cat</code> |</p>
+<p>| Tests draaien | < 10 files | <code>pytest tests/unit/</code> |</p>
+<p>| Linting/Formatting | Bestaande files | <code>ruff check</code>, <code>black</code> |</p>
+<p>| Documentatie | < 100 regels EN geen structuur | Typos, comments |</p>
+<p>| Git status/diff | Altijd | <code>git status</code>, <code>git diff</code> |</p>
+
+<h4>🔴 APPROVAL VEREIST (Moet vragen)</h4>
+<p>| Operatie | Trigger | Rationale |</p>
+<p>|----------|---------|-----------|</p>
+<p>| Code patches | > 100 regels OF > 5 files | Grote impact |</p>
+<p>| Verwijderen | > 5 files OF kritieke paden | Data verlies risico |</p>
+<p>| Netwerk calls | Externe APIs | Security/kosten |</p>
+<p>| Schema wijzigingen | Database structuur | Breaking changes |</p>
+<p>| Dependencies | pip install/remove | Supply chain |</p>
+<p>| Git push/deploy | Productie impact | Permanente wijziging |</p>
+
+<h3>Strict Mode Proces</h3>
 <ul>
 <li>Doel: aannames elimineren door beslissingen expliciet te maken en goedkeuring te vragen op tussenstappen.</li>
 <li>Strict proces:</li>
-<li> - Start elk werk met `update_plan` + lijst “open vragen/unknowns”; pauzeer tot goedkeuring.</li>
-<li> - Plaats approval gates: geen codepatch, tests, netwerk of DB‑reset zonder expliciete OK.</li>
+<li> - Start elk werk met `update_plan` + lijst "open vragen/unknowns"; pauzeer tot goedkeuring.</li>
+<li> - Plaats approval gates volgens ladder hierboven.</li>
 <li> - Houd een Decision Log bij: beslissingen (geen aannames), motivatie en akkoordmoment.</li>
 <li>Vereiste input (voorkomt aannames):</li>
 <li> - Doel & scope, Definition of Done, acceptatiecriteria.</li>
@@ -427,6 +535,25 @@
 <li>Documentatie bijgewerkt en indexen geüpdatet?</li>
 </ul>
 
+<h2>Single Source of Truth (SSoT) Matrix</h2>
+
+<p>| Onderwerp | ENIGE Canonieke Bron | Doel |</p>
+<p>|-----------|---------------------|------|</p>
+<p>| <strong>Backlog Structuur</strong> | <code>docs/guidelines/CANONICAL_LOCATIONS.md</code> | EPIC→US→BUG hiërarchie |</p>
+<p>| <strong>Agent Gedrag</strong> | <code>docs/guidelines/AGENTS.md</code> (dit document) | Approval gates, workflows |</p>
+<p>| <strong>Database Schema</strong> | <code>src/database/schema.sql</code> | Tabellen, migraties |</p>
+<p>| <strong>Database Beleid</strong> | <code>docs/guidelines/DATABASE_GUIDELINES.md</code> | Connection, pooling, backup |</p>
+<p>| <strong>Validatieregels</strong> | <code>config/toetsregels/regels/*.json</code> | Regel definities & prioriteit |</p>
+<p>| <strong>Test Strategie</strong> | <code>docs/guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md</code> | Coverage targets, TDD flow |</p>
+<p>| <strong>Documentatie Beleid</strong> | <code>docs/guidelines/DOCUMENTATION_POLICY.md</code> | Formatting, structuur |</p>
+<p>| <strong>Import/Naming Rules</strong> | <code>~/.ai-agents/quality-gates.yaml</code> | Forbidden patterns |</p>
+<p>| <strong>Approval Requirements</strong> | <code>~/.ai-agents/UNIFIED_INSTRUCTIONS.md</code> | Approval ladder detail |</p>
+<p>| <strong>API Configuratie</strong> | <code>config/rate_limit_config.py</code> | Timeouts, rate limits |</p>
+<p>| <strong>Architectuur</strong> | <code>docs/architectuur/SOLUTION_ARCHITECTURE.md</code> | Service design, patterns |</p>
+<p>| <strong>CI/CD Gates</strong> | <code>.github/workflows/epic-010-gates.yml</code> | Automated checks |</p>
+
+<p>⚠️ <strong>NOOIT dupliceren, ALTIJD verwijzen naar canonieke bron</strong></p>
+
 <h2>Verwijzingen</h2>
 <ul>
 <li>Canonical Locations: `docs/CANONICAL_LOCATIONS.md`</li>
@@ -434,14 +561,17 @@
 <li>Architectuur: `docs/architectuur/`</li>
 <li>Testen: `docs/testing/`</li>
 <li>Projectkaders: `README.md`, `CLAUDE.md`</li>
+<li>Harmonisatie Instructies: `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`</li>
+<li>Quality Gates: `~/.ai-agents/quality-gates.yaml`</li>
+<li>Preflight Script: `~/.ai-agents/preflight-checks.sh`</li>
 <li>Claude Code Agents: `~/\.claude/agents/` (inclusief `workflow-router.md` en `workflows/workflows.yaml`)</li>
-<li>- Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`</li>
-<li>- Multi‑Agent Cheatsheet & Prompt Presets: `docs/snippets/CODEX_PROMPT_PRESETS.md`</li>
+<li>Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`</li>
+<li>Multi‑Agent Cheatsheet & Prompt Presets: `docs/snippets/CODEX_PROMPT_PRESETS.md`</li>
 </ul>
 
 <p>---</p>
 
-<p>Laatste update: 05-09-2025</p>
+<p>Laatste update: 18-09-2025 (Harmonisatie update)</p>
 <p>Voor vragen over agents, zie de individuele agent definities in <code>/Users/chrislehnen/.claude/agents/</code>.</p>
 
   </div>
