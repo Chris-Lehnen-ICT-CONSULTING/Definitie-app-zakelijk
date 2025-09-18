@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Complete V1 to V2 Migration</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-204</p>
+<p>epic_id: EPIC-020-PHOENIX</p>
+<p>title: Complete V1 to V2 Migration</p>
+<p>status: OPEN</p>
+<p>priority: HIGH</p>
+<p>story_points: 8</p>
+<p>assignee: team</p>
+<p>created_date: 2025-01-18</p>
+<p>updated_date: 2025-01-18</p>
+<p>labels: [phoenix, migration, refactoring, technical-debt]</p>
+<p>acceptance_criteria:</p>
+<ul>
+<li> - All V1 code paths removed from codebase</li>
+<li> - All imports updated to V2 services</li>
+<li> - No backwards compatibility code remaining</li>
+<li> - All tests passing with V2 implementations</li>
+<li> - Performance metrics maintained or improved</li>
+<p>definition_of_done:</p>
+<li> - Code review completed</li>
+<li> - All unit tests passing</li>
+<li> - Integration tests verified</li>
+<li> - No V1 references in codebase</li>
+<li> - Documentation updated</li>
+<p>dependencies:</p>
+<li> - US-201 (migration preparation)</li>
+<li> - US-202 (V2 service validation)</li>
+<li> - US-203 (data migration)</li>
+<p>---</p>
+</ul>
+
+<h1>US-204: Complete V1 to V2 Migration</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> ontwikkelaar</p>
+<p><strong>Wil ik</strong> alle V1 code paden volledig verwijderd hebben</p>
+<p><strong>Zodat</strong> de codebase alleen moderne V2 implementaties bevat zonder technische schuld</p>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Code Migration</h3>
+<ul>
+<li>[ ] Alle V1 services verwijderd uit `/src/services/`</li>
+<li>[ ] Alle V1 imports vervangen door V2 equivalenten</li>
+<li>[ ] Backwards compatibility code verwijderd</li>
+<li>[ ] Feature flags voor V1/V2 switching verwijderd</li>
+<li>[ ] Legacy configuratie verwijderd</li>
+</ul>
+
+<h3>Service Updates</h3>
+<ul>
+<li>[ ] `AIService` → `AIServiceV2` migratie compleet</li>
+<li>[ ] `PromptService` → `PromptServiceV2` migratie compleet</li>
+<li>[ ] `ValidationService` → `ModularValidationService` migratie compleet</li>
+<li>[ ] `DefinitionGenerator` → `UnifiedDefinitionGenerator` migratie compleet</li>
+<li>[ ] Alle service dependencies bijgewerkt in `ServiceContainer`</li>
+</ul>
+
+<h3>Code Quality</h3>
+<ul>
+<li>[ ] Geen enkele file bevat nog "V1" in class/function namen</li>
+<li>[ ] Geen deprecated imports aanwezig</li>
+<li>[ ] Alle TODO/FIXME comments m.b.t. V1→V2 opgelost</li>
+<li>[ ] Code coverage minimaal 80% behouden</li>
+</ul>
+
+<h3>Testing</h3>
+<ul>
+<li>[ ] Alle unit tests draaien met V2 services</li>
+<li>[ ] Integration tests werken zonder V1 dependencies</li>
+<li>[ ] Smoke tests slagen volledig</li>
+<li>[ ] Performance benchmarks gelijk of beter dan V1</li>
+</ul>
+
+<h2>Technical Implementation Notes</h2>
+
+<h3>Phase 1: Inventory (Day 1)</h3>
+<pre><code># Identificeer alle V1 references
+grep -r "V1\|Legacy\|Deprecated" src/
+grep -r "import.*[Vv]1" src/
+find src -name "*v1*" -o -name "*V1*"</code></pre>
+
+<h3>Phase 2: Service Migration (Day 2-3)</h3>
+<ol>
+<li>Update `ServiceContainer` om alleen V2 services te registreren</li>
+<li>Verwijder alle V1 service files:</li>
+</ol>
+<ul>
+<li>  - `src/services/ai_service.py` → gebruik alleen `ai_service_v2.py`</li>
+<li>  - `src/services/prompt_service.py` → gebruik alleen `prompt_service_v2.py`</li>
+<li>  - `src/services/validation_service.py` → gebruik alleen `modular_validation_service.py`</li>
+<li>  - `src/services/definition_generator.py` → gebruik alleen `unified_definition_generator.py`</li>
+</ul>
+
+<h3>Phase 3: Import Updates (Day 4)</h3>
+<pre><code># Oude imports
+from services.ai_service import AIService
+from services.prompt_service import PromptService
+
+# Nieuwe imports
+from services.ai.ai_service_v2 import AIServiceV2
+from services.prompt.prompt_service_v2 import PromptServiceV2</code></pre>
+
+<h3>Phase 4: Configuration Cleanup (Day 5)</h3>
+<ul>
+<li>Verwijder `DEV_MODE` environment variable checks</li>
+<li>Verwijder conditional service loading</li>
+<li>Update `config/` files voor V2-only configuratie</li>
+<li>Verwijder legacy prompt templates</li>
+</ul>
+
+<h3>Phase 5: Testing & Validation (Day 6-7)</h3>
+<pre><code># Volledige test suite
+pytest tests/ -v --cov=src --cov-report=html
+
+# Specifieke V2 validatie
+pytest tests/services/ -k "v2"
+
+# Performance vergelijking
+python scripts/performance_benchmark.py</code></pre>
+
+<h2>Risks & Mitigations</h2>
+
+<h3>Risk: Hidden Dependencies</h3>
+<p><strong>Mitigation</strong>: Gebruik dependency analyzer tools</p>
+<pre><code>python scripts/analyze_dependencies.py --check-v1-refs</code></pre>
+
+<h3>Risk: Performance Degradation</h3>
+<p><strong>Mitigation</strong>: Run performance benchmarks voor en na migration</p>
+<pre><code>make benchmark-before
+# ... migration ...
+make benchmark-after
+make benchmark-compare</code></pre>
+
+<h3>Risk: Missed V1 References</h3>
+<p><strong>Mitigation</strong>: Comprehensive grep patterns</p>
+<pre><code># Check voor subtiele V1 patterns
+grep -r "version.*1\|v1_\|_v1\|V1_\|_V1" src/
+grep -r "legacy\|deprecated\|old_\|Old" src/ --ignore-case</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] **Code Review**: Minimaal 2 developers hebben code review gedaan</li>
+<li>[ ] **Testing**:</li>
+<li> - Alle unit tests slagen (100%)</li>
+<li> - Integration tests slagen (100%)</li>
+<li> - Smoke tests slagen (100%)</li>
+<li> - Code coverage ≥ 80%</li>
+<li>[ ] **Documentation**:</li>
+<li> - CLAUDE.md bijgewerkt zonder V1 references</li>
+<li> - API documentatie bijgewerkt</li>
+<li> - Migration notes gedocumenteerd in `docs/archief/migrations/`</li>
+<li>[ ] **Performance**:</li>
+<li> - Response tijd ≤ V1 baseline</li>
+<li> - Memory usage ≤ V1 baseline</li>
+<li> - API calls ≤ V1 baseline</li>
+<li>[ ] **Cleanup**:</li>
+<li> - Geen V1 files in repository</li>
+<li> - Geen V1 imports in code</li>
+<li> - Geen compatibility layers</li>
+<li> - Git history shows clear migration commit</li>
+</ul>
+
+<h2>Notes</h2>
+
+<h3>Belangrijke Files om te Checken</h3>
+<ul>
+<li>`/src/services/container.py` - service registratie</li>
+<li>`/src/main.py` - hoofdapplicatie imports</li>
+<li>`/src/ui/tabs/*.py` - UI component imports</li>
+<li>`/tests/` - test imports en mocks</li>
+</ul>
+
+<h3>Cleanup Checklist</h3>
+<pre><code># Files om te verwijderen
+rm src/services/ai_service.py
+rm src/services/prompt_service.py
+rm src/services/validation_service.py
+rm src/services/definition_generator.py
+rm -rf src/services/legacy/
+rm -rf config/v1/
+
+# Directories om te controleren
+ls -la src/services/
+ls -la config/
+grep -r "TODO.*[Vv]1\|FIXME.*[Vv]1" src/</code></pre>
+
+<h3>Success Metrics</h3>
+<ul>
+<li>Zero V1 references in codebase</li>
+<li>All tests green</li>
+<li>Performance within 5% of V1 baseline</li>
+<li>Code coverage maintained above 80%</li>
+<li>No regression bugs reported</li>
+</ul>
+
+<h2>Related Items</h2>
+<ul>
+<li>Parent: [[EPIC-020-PHOENIX]]</li>
+<li>Depends on: [[US-201]], [[US-202]], [[US-203]]</li>
+<li>Blocks: [[US-207]], [[US-208]]</li>
+<li>Related: [[US-205]] (god class refactoring), [[US-206]] (business logic extraction)</li>
+</ul>
+  </div>
+</body>
+</html>

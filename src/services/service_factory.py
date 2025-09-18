@@ -294,7 +294,7 @@ class ServiceAdapter:
             "success": response.success,
             "definitie_origineel": definitie_origineel,
             "definitie_gecorrigeerd": definitie_text,
-            "final_score": validation_details["overall_score"],
+            "final_score": validation_details.get("overall_score", 0.0),
             "validation_details": validation_details,
             "voorbeelden": voorbeelden,
             "metadata": metadata,

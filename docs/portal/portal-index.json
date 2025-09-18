@@ -9630,6 +9630,508 @@
       "rendered_url": "rendered/backlog/requirements/uat/UAT_2025_ACTION_PLAN.html"
     },
     {
+      "id": "EPIC-020",
+      "type": "DOC",
+      "title": "Operation Phoenix: Performance & Architecture Refactoring Roadmap",
+      "path": "../backlog/EPIC-020-PHOENIX/EPIC-020.md",
+      "url": "../backlog/EPIC-020-PHOENIX/EPIC-020.md",
+      "status": "READY",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "Sprint 2025-Q1",
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 2025,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203",
+          "US-204",
+          "US-205",
+          "US-206",
+          "US-207",
+          "US-208",
+          "US-209",
+          "US-210",
+          "US-211",
+          "US-212"
+        ],
+        "epic": [
+          "EPIC-011",
+          "EPIC-016",
+          "EPIC-017",
+          "EPIC-020",
+          "EPIC-021",
+          "EPIC-022"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/EPIC-020.html"
+    },
+    {
+      "id": "US-212",
+      "type": "DOC",
+      "title": "Import Definitions from CSV/JSON",
+      "path": "../backlog/EPIC-020-PHOENIX/US-212/US-212.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-212/US-212.md",
+      "status": "Open",
+      "prioriteit": "MEDIUM",
+      "owner": "developer",
+      "canonical": true,
+      "last_verified": "2025-09-18",
+      "applies_to": "definitie-app@phoenix",
+      "category": "feature",
+      "sprint": "week-4",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 4,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-212.md",
+      "_refs": {
+        "us": [
+          "US-062",
+          "US-212"
+        ],
+        "epic": [
+          "EPIC-005",
+          "EPIC-020"
+        ],
+        "req": [
+          "REQ-020",
+          "REQ-083"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-212/US-212.html"
+    },
+    {
+      "id": "US-201",
+      "type": "DOC",
+      "title": "Fix ServiceContainer Caching to Prevent 6x Re-initialization",
+      "path": "../backlog/EPIC-020-PHOENIX/US-201/US-201.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-201/US-201.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-201.md",
+      "_refs": {
+        "us": [
+          "US-201"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-201/US-201.html"
+    },
+    {
+      "id": "US-206",
+      "type": "DOC",
+      "title": "Extract Business Logic from UI Layer",
+      "path": "../backlog/EPIC-020-PHOENIX/US-206/US-206.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-206/US-206.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-206.md",
+      "_refs": {
+        "us": [
+          "US-204",
+          "US-205",
+          "US-206",
+          "US-207",
+          "US-208"
+        ],
+        "epic": [
+          "EPIC-019",
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-206/US-206.html"
+    },
+    {
+      "id": "US-208",
+      "type": "DOC",
+      "title": "Consolidate validation rules to single source",
+      "path": "../backlog/EPIC-020-PHOENIX/US-208/US-208.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-208/US-208.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-208.md",
+      "_refs": {
+        "us": [
+          "US-208",
+          "US-209"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-208/US-208.html"
+    },
+    {
+      "id": "US-209",
+      "type": "DOC",
+      "title": "Separate validation logic from prompt hints",
+      "path": "../backlog/EPIC-020-PHOENIX/US-209/US-209.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-209/US-209.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-209.md",
+      "_refs": {
+        "us": [
+          "US-208",
+          "US-209"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-209/US-209.html"
+    },
+    {
+      "id": "US-207",
+      "type": "DOC",
+      "title": "Create reusable UI component library",
+      "path": "../backlog/EPIC-020-PHOENIX/US-207/US-207.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-207/US-207.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-207.md",
+      "_refs": {
+        "us": [
+          "US-207",
+          "US-210"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-207/US-207.html"
+    },
+    {
+      "id": "US-210",
+      "type": "DOC",
+      "title": "Implement Plugin Architecture for Web Lookup",
+      "path": "../backlog/EPIC-020-PHOENIX/US-210/US-210.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-210/US-210.md",
+      "status": "Open",
+      "prioriteit": "MEDIUM",
+      "owner": "developer",
+      "canonical": true,
+      "last_verified": "2025-09-18",
+      "applies_to": "definitie-app@phoenix",
+      "category": "feature",
+      "sprint": "week-4",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 4,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-210.md",
+      "_refs": {
+        "us": [
+          "US-210"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": [
+          "REQ-020"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-210/US-210.html"
+    },
+    {
+      "id": "US-211",
+      "type": "DOC",
+      "title": "Document Upload Functionality (PDF/DOCX)",
+      "path": "../backlog/EPIC-020-PHOENIX/US-211/US-211.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-211/US-211.md",
+      "status": "Open",
+      "prioriteit": "MEDIUM",
+      "owner": "developer",
+      "canonical": true,
+      "last_verified": "2025-09-18",
+      "applies_to": "definitie-app@phoenix",
+      "category": "feature",
+      "sprint": "week-4",
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": 4,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-211.md",
+      "_refs": {
+        "us": [
+          "US-211"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": [
+          "REQ-020"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-211/US-211.html"
+    },
+    {
+      "id": "US-205",
+      "type": "DOC",
+      "title": "Split God Class tabbed_interface.py",
+      "path": "../backlog/EPIC-020-PHOENIX/US-205/US-205.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-205/US-205.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-205.md",
+      "_refs": {
+        "us": [
+          "US-204",
+          "US-205",
+          "US-206",
+          "US-207",
+          "US-208"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-205/US-205.html"
+    },
+    {
+      "id": "US-202",
+      "type": "DOC",
+      "title": "Implement Validation Rules Caching to Prevent 45x Reloading",
+      "path": "../backlog/EPIC-020-PHOENIX/US-202/US-202.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-202/US-202.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-202.md",
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-202/US-202.html"
+    },
+    {
+      "id": "US-203",
+      "type": "DOC",
+      "title": "Reduce Prompt Token Count from 7250 to 3000 Through Optimization",
+      "path": "../backlog/EPIC-020-PHOENIX/US-203/US-203.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-203/US-203.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-203.md",
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-203/US-203.html"
+    },
+    {
+      "id": "US-204",
+      "type": "DOC",
+      "title": "Complete V1 to V2 Migration",
+      "path": "../backlog/EPIC-020-PHOENIX/US-204/US-204.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-204/US-204.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-204.md",
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203",
+          "US-204",
+          "US-205",
+          "US-206",
+          "US-207",
+          "US-208"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-204/US-204.html"
+    },
+    {
       "id": null,
       "type": "DOC",
       "title": "README",
@@ -28547,7 +29049,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 420,
+      "DOC": 433,
       "EPIC": 16,
       "US": 184,
       "BUG": 10,
@@ -28557,7 +29059,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-18T14:03:53Z"
+    "generated_at": "2025-09-18T14:11:13Z"
   },
   "sources": [
     "docs"
