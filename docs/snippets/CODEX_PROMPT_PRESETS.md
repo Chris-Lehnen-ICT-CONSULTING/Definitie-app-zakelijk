@@ -151,7 +151,7 @@ Voer een deep‑read uit: kruis IMPLEMENTATION_PLAN_CODEX.md ↔ IMPLEMENTATION_
 ---
 Bronnen:
 - Agents richtlijnen: `docs/guidelines/AGENTS.md`
-- Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`
+- Multi‑Agent gids: `docs/handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md`
 - Projectrichtlijnen: `README.md`, `CLAUDE.md`
 
 ## No‑Assumptions / Strict Mode (Codex)
