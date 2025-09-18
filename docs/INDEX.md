@@ -146,6 +146,7 @@
 ### Workflows & Handleidingen
 - [Frontend Guide](./frontend/AI-FRONTEND-PROMPT-NL.md) ✅
 - See Guidelines & Standards section for development workflows
+- [🚀 Multi‑Agent Quickstart](./handleidingen/ontwikkelaars/MULTIAGENT_QUICKSTART.md) ✅ Script + slash‑commando’s
 - [🧩 Multi‑Agent Handleiding](./handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md) ✅ Parallelle agents, quick‑checks & scoreboard
 - [🧰 Multi‑Agent Cheatsheet & Prompt Presets](./snippets/CODEX_PROMPT_PRESETS.md) ✅ Deep‑analysis prompt, pre‑flight checklist, kerncommando’s
 
