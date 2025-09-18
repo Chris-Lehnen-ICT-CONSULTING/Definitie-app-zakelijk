@@ -863,12 +863,53 @@ class DefinitionGeneratorTab:
 
         # Show detailed results if toggled
         if SessionStateManager.get_value("toon_detailleerde_toetsing", False):
-            # Get all test results from session state
+            # Prefer existing session list; otherwise, derive from V2 validation_result
             beoordeling = SessionStateManager.get_value("beoordeling_gen", [])
+            if not beoordeling and isinstance(validation_result, dict):
+                try:
+                    violations = validation_result.get("violations", []) or []
+                    passed_rules = validation_result.get("passed_rules", []) or []
+
+                    # Unique rule ids for failures
+                    failed_ids = sorted({str(v.get("rule_id") or v.get("code") or "") for v in violations if isinstance(v, dict)})
+                    passed_ids = sorted({str(r) for r in passed_rules})
+                    total = len(set(failed_ids).union(passed_ids))
+                    passed_count = len(passed_ids)
+                    failed_count = len(failed_ids)
+                    pct = (passed_count / total * 100.0) if total > 0 else 0.0
+
+                    lines = []
+                    summary = f"📊 **Toetsing Samenvatting**: {passed_count}/{total} regels geslaagd ({pct:.1f}%)"
+                    if failed_count > 0:
+                        summary += f" | ❌ {failed_count} gefaald"
+                    lines.append(summary)
+
+                    # Violations (sorted)
+                    severity_order = {"critical": 0, "error": 1, "high": 1, "warning": 2, "medium": 2, "low": 3, "info": 4}
+                    def _sev_key(v):
+                        s = str(v.get("severity", "warning")).lower()
+                        return (severity_order.get(s, 2), str(v.get("rule_id") or v.get("code") or ""))
+
+                    for v in sorted(violations, key=_sev_key):
+                        rid = str(v.get("rule_id") or v.get("code") or "")
+                        sev = str(v.get("severity", "warning")).lower()
+                        desc = v.get("description") or v.get("message") or ""
+                        emoji = "❌" if sev in {"critical", "error", "high"} else ("⚠️" if sev in {"warning", "medium", "low"} else "📋")
+                        lines.append(f"{emoji} {rid}: {desc}")
+
+                    # Passed rules (sorted)
+                    for rid in passed_ids:
+                        lines.append(f"✅ {rid}: OK")
+
+                    beoordeling = lines
+                    SessionStateManager.set_value("beoordeling_gen", beoordeling)
+                except Exception as e:
+                    logger.debug(f"Kon beoordeling_gen niet afleiden uit V2-resultaat: {e}")
+
             if beoordeling:
                 st.markdown("### 📋 Alle Toetsregels Resultaten")
                 for regel in beoordeling:
-                    if "✔️" in regel:
+                    if "✔️" in regel or regel.startswith("✅"):
                         st.success(regel)
                     elif "❌" in regel:
                         st.error(regel)
