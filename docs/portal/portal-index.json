@@ -4450,11 +4450,11 @@
       "title": "US-193 — UI toont V2‑validatie (alle toetsregels) i.p.v. legacy validator",
       "path": "../backlog/EPIC-002/US-193/US-193.md",
       "url": "../backlog/EPIC-002/US-193/US-193.md",
-      "status": "TE_DOEN",
+      "status": "IN_PROGRESS",
       "prioriteit": "HOOG",
       "owner": "ui",
       "canonical": true,
-      "last_verified": "16-09-2025",
+      "last_verified": "18-09-2025",
       "applies_to": null,
       "category": null,
       "sprint": "next",
@@ -4484,11 +4484,11 @@
       "title": "US-192 — V2 Validator: JSON‑regel Evaluatie + ESS‑02 + DB‑check CON‑01",
       "path": "../backlog/EPIC-002/US-192/US-192.md",
       "url": "../backlog/EPIC-002/US-192/US-192.md",
-      "status": "TE_DOEN",
+      "status": "IN_PROGRESS",
       "prioriteit": "HOOG",
       "owner": "validation",
       "canonical": true,
-      "last_verified": "2025-09-16",
+      "last_verified": "2025-09-18",
       "applies_to": null,
       "category": null,
       "sprint": "next",
@@ -28526,7 +28526,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-18T11:44:40Z"
+    "generated_at": "2025-09-18T11:55:38Z"
   },
   "sources": [
     "docs"
