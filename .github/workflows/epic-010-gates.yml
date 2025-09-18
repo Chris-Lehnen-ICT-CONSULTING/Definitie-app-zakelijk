@@ -61,11 +61,12 @@ jobs:
           echo "Checking for domein field usage..."
           # Match likely field/attribute names only (avoid comments/docstrings)
           # Scope to services to avoid false positives in domain/analysis modules
+          # Use awk to ignore lines where the code segment (after file:line:) starts with '#'
           VIOLATIONS=$(rg -n -P '(^|[^#])\bdomein\s*[:=]' src/services/ --type py | \
                       grep -v '"""' | \
-                      grep -v -P '^\s*#' | \
                       grep -v "# Legacy" | \
-                      grep -v "# Deprecated" || true)
+                      grep -v "# Deprecated" | \
+                      awk -F':' '{code=substr($0, index($0,$3)); if (code ~ /^\s*#/) next; print $0}' || true)
           
           if [ -n "$VIOLATIONS" ]; then
             echo "❌ FAIL: Domein field usage found"

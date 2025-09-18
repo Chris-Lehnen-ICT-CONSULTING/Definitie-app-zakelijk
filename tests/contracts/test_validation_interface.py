@@ -21,10 +21,14 @@ class SchemaValidator:
     """Helper for JSON schema validation with format checking and extra guards."""
 
     def __init__(self) -> None:
-        schema_path = (
-            Path(__file__).parents[2]
-            / "docs/architecture/contracts/schemas/validation_result.schema.json"
-        )
+        base = Path(__file__).parents[2]
+        # Prefer English path; fallback to Dutch 'architectuur' for repo layout
+        schema_path = base / "docs/architecture/contracts/schemas/validation_result.schema.json"
+        if not schema_path.exists():
+            schema_path = (
+                base
+                / "docs/architectuur/contracts/schemas/validation_result.schema.json"
+            )
         with open(schema_path, encoding="utf-8") as f:
             self.schema = json.load(f)
         self.format_checker = FormatChecker()
