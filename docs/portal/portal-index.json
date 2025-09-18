@@ -4296,7 +4296,7 @@
       "prioriteit": "HOOG",
       "owner": "validation",
       "canonical": true,
-      "last_verified": "16-09-2025",
+      "last_verified": "18-09-2025",
       "applies_to": null,
       "category": null,
       "sprint": "next",
@@ -28526,7 +28526,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-18T11:55:38Z"
+    "generated_at": "2025-09-18T11:57:43Z"
   },
   "sources": [
     "docs"
