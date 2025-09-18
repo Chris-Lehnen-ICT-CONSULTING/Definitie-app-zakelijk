@@ -462,7 +462,8 @@ class ModularValidationService:
             self._maybe_add_duplicate_context_signal(ctx)
 
         # Some rules (e.g., CON-02) use patterns as POSITIVE indicators, not forbidden
-        positive_pattern_rules = {"CON-02"}
+        # Some rules use patterns as POSITIVE indicators (presence is good)
+        positive_pattern_rules = {"CON-02", "ESS-03", "ESS-04", "ESS-05"}
         if hits and code_up not in positive_pattern_rules:
             score = max(0.0, 1.0 - 0.3 * len(hits))
             return score, {
