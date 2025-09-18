@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Brief: V1 → V2 Complete Replacement Strategy</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Project Brief: V1 → V2 Complete Replacement Strategy</h1>
+
+<h2>Executive Summary</h2>
+
+<p><strong>V1 → V2 Complete Replacement</strong>: Strategische migratie van DefinitieAgent's juridische definitie generatie van legacy sync orchestrator (V1) naar moderne 11-fase async orchestrator (V2). <strong>Primair probleem</strong>: Huidige dual-architecture creëert technische schuld en performance bottlenecks. <strong>Target impact</strong>: Juridische professionals die afhankelijk zijn van snelle, betrouwbare definitie generatie. <strong>Key value proposition</strong>: Eliminatie van legacy technical debt, 3-5x performance verbetering voor batch operaties, en unified modern architecture.</p>
+
+<h2>Problem Statement</h2>
+
+<p><strong>Current State en Pain Points:</strong></p>
+
+<p><strong>V1 Orchestrator Productie Context:</strong></p>
+<ul>
+<li>**"Nog niet live"** - DefinitieAgent is nog in development fase</li>
+<li>**V1 = Development baseline** - Huidige sync orchestrator als starting point</li>
+<li>**V2 = Target architecture** - Async 11-fase design als eindstaat</li>
+</ul>
+
+<p><strong>Current State Pain Points:</strong></p>
+<ul>
+<li>**Dual Architecture Complexity**: V1 sync + V2 async exists maar V2 gebruikt legacy fallbacks</li>
+<li>**Technical Debt Accumulation**: V2 orchestrator valt terug op V1 mechanismen in plaats van native async</li>
+<li>**Prestaties Bottleneck**: Sync AI calls blokkeren async pipelines (AsyncGPTClient niet geïntegreerd)</li>
+<li>**Development Inefficiency**: Twee code paths onderhouden (V1 monolith + V2 structured flows)</li>
+</ul>
+
+<p><strong>Impact van Problem (Development Stage):</strong></p>
+<ul>
+<li>**Engineering Velocity**: 40% meer development tijd door dual-path maintenance</li>
+<li>**Code Quality**: Technical debt compounds - V2 zou V1 afhankelijkheden moeten elimineren</li>
+<li>**Testen Complexity**: Dubbele test coverage needed voor sync + async paths</li>
+<li>**Future Scalability**: V1 sync architecture limiteert async performance benefits</li>
+</ul>
+
+<p><strong>Waarom Existing Solutions Falen:</strong></p>
+<ul>
+<li>**Current State**: V2 "exists" maar gebruikt V1 als crutch (legacy fallbacks)</li>
+<li>**Hybrid Approach**: Maakt technical debt erger, niet beter</li>
+<li>**Gradual Migration**: Verlengt dual-maintenance periode onnodig</li>
+</ul>
+
+<p><strong>Urgency - Pre-Production Window:</strong></p>
+<ul>
+<li>**Perfect Timing**: Voor go-live is ideal moment voor architectural consolidation</li>
+<li>**No User Disruption**: Geen production users = geen backward compatibility constraints</li>
+<li>**Clean Start**: V2 kan pure async zijn zonder V1 compatibility layers</li>
+</ul>
+
+<p><strong>Business Problem Statement:</strong></p>
+<p><em>"We hebben een modern async architecture (V2) die nog steeds afhankelijk is van legacy sync code (V1), wat technical debt creëert en async performance benefits teniet doet. Als pre-production development team kunnen we nu kiezen: architectural purity (V2 only) vs complexity (dual maintenance). De window voor clean architecture sluit bij go-live."</em></p>
+
+<h2>Proposed Solution</h2>
+
+<p><strong>Core Concept en Approach:</strong></p>
+
+<p><strong>"V1 Complete Elimination Strategy"</strong> - Volledige deactivering van V1 orchestrator en afhankelijkheden, met V2 als single source of truth voor alle definitie generatie.</p>
+
+<p><strong>Solution Components:</strong></p>
+
+<ol>
+<li>**V2 Orchestrator Stabilization**</li>
+</ol>
+<ul>
+<li>  - Remove all legacy fallback mechanisms (`_get_legacy_ai_service()`)</li>
+<li>  - Implement native `AIServiceV2` bovenop `AsyncGPTClient`</li>
+<li>  - Complete async pipeline zonder sync afhankelijkheden</li>
+</ul>
+
+<ol>
+<li>**Legacy Code Removal**</li>
+</ol>
+<ul>
+<li>  - Deactivate V1 orchestrator (`src/services/definition_orchestrator.py`)</li>
+<li>  - Remove legacy functions (`stuur_prompt_naar_gpt()`)</li>
+<li>  - Clean up dual-path routing in service container</li>
+</ul>
+
+<ol>
+<li>**Architecture Consolidation**</li>
+</ol>
+<ul>
+<li>  - Single async-only service architecture</li>
+<li>  - Unified error handling (no sync/async hybrid patterns)</li>
+<li>  - Streamlined testing approach (async-only test suites)</li>
+</ul>
+
+<p><strong>Key Differentiators van Alternative Approaches:</strong></p>
+
+<p><strong>vs Gradual Migration:</strong></p>
+<ul>
+<li>**No Dual Maintenance** - Eliminates ongoing technical debt accumulation</li>
+<li>**Clean Architecture** - Pure async design without compatibility layers</li>
+<li>**Pre-Production Advantage** - Leverage no-users window for clean transition</li>
+</ul>
+
+<p><strong>vs Hybrid Approach:</strong></p>
+<ul>
+<li>**Prestaties Consistency** - All calls async, no sync bottlenecks</li>
+<li>**Code Clarity** - Single orchestrator, single pattern, single responsibility</li>
+<li>**Testen Simplicity** - Async-only test strategy, no dual-path coverage</li>
+</ul>
+
+<p><strong>Waarom This Solution Succeeds:</strong></p>
+
+<p><strong>Technical Success Factors:</strong></p>
+<ul>
+<li>**AsyncGPTClient Ready** - Proven async foundation already exists</li>
+<li>**V2 Architecture Superior** - 11-fase structured design vs monolithic V1</li>
+<li>**No User Impact** - Pre-production = perfect refactoring window</li>
+</ul>
+
+<p><strong>Business Success Factors:</strong></p>
+<ul>
+<li>**Development Velocity** - Single codebase maintenance</li>
+<li>**Future Scalability** - Native async supports high-throughput scenarios</li>
+<li>**Code Quality** - Eliminates legacy technical debt before production</li>
+</ul>
+
+<p><strong>High-Level Vision:</strong></p>
+<p><em>"DefinitieAgent launches with clean, modern, async-only architecture optimized for juridische professional workflows, with no legacy baggage holding back performance or maintainability."</em></p>
+
+<h2>Target Users</h2>
+
+<h3>Primary User Segment: Development Team</h3>
+
+<p><strong>Demographic Profile:</strong></p>
+<ul>
+<li>**Developers** - Software engineers working on DefinitieAgent</li>
+<li>**DevOps Engineers** - Uitrol and infrastructure team</li>
+<li>**QA Engineers** - Testen and quality assurance team</li>
+</ul>
+
+<p><strong>Current Behaviors en Workflows:</strong></p>
+<ul>
+<li>**Dual-path Development** - Currently maintaining both V1 sync en V2 async code paths</li>
+<li>**Testen Complexity** - Running test suites for both orchestrator versions</li>
+<li>**Code Review Overhead** - Reviewing changes across multiple architectural patterns</li>
+</ul>
+
+<p><strong>Specific Needs en Pain Points:</strong></p>
+<ul>
+<li>**Code Clarity** - Need single, consistent architectural pattern</li>
+<li>**Development Velocity** - Want to eliminate dual-maintenance overhead</li>
+<li>**Technical Debt Management** - Need clean codebase before production launch</li>
+</ul>
+
+<p><strong>Goals They're Trying to Achieve:</strong></p>
+<ul>
+<li>Launch production-ready DefinitieAgent with modern architecture</li>
+<li>Minimize ongoing maintenance complexity</li>
+<li>Establish scalable foundation for future features</li>
+</ul>
+
+<h3>Secondary User Segment: Future End Users (Juridische Professionals)</h3>
+
+<p><strong>Demographic Profile:</strong></p>
+<ul>
+<li>**Legal Professionals** - Advocaten, juristen, legal researchers</li>
+<li>**Prestaties-Sensitive Users** - Need fast, reliable definition generation</li>
+</ul>
+
+<p><strong>Impact of V1 → V2 Decision:</strong></p>
+<ul>
+<li>**Prestaties Expectations** - Will experience either sync limitations (V1) or async benefits (V2)</li>
+<li>**System Reliability** - Will inherit either technical debt (hybrid) or clean architecture (V2-only)</li>
+<li>**Future Feature Capabilities** - V2-only enables advanced async features unavailable in V1</li>
+</ul>
+
+<h2>Goals & Success Metrics</h2>
+
+<h3>Business Objectives</h3>
+
+<ul>
+<li>**Eliminate Technical Debt**: Remove 100% of V1 orchestrator afhankelijkheden before production launch (Target: Complete by Sprint N+2)</li>
+<li>**Optimize Development Velocity**: Reduce codebase maintenance overhead by 40% through single-architecture approach (Measure: Story points per sprint)</li>
+<li>**Establish Prestaties Foundation**: Achieve 3-5x throughput improvement for batch operations via native async architecture (Measure: Requests/second benchmarks)</li>
+<li>**Ensure Production Readiness**: Launch with unified, modern architecture supporting juridische professional workflows (Target: Zero legacy fallbacks in production)</li>
+</ul>
+
+<h3>User Success Metrics</h3>
+
+<ul>
+<li>**Development Team Productivity**: 40% reduction in cross-orchestrator code review time and testing cycles</li>
+<li>**Code Quality Metrics**: Zero dual-path complexity, single async pattern consistency across codebase</li>
+<li>**Future Feature Velocity**: Async-only architecture enables advanced features (bulk processing, real-time updates) unavailable in V1</li>
+<li>**System Reliability**: Unified error handling and monitoring (no sync/async hybrid inconsistencies)</li>
+</ul>
+
+<h3>Key Prestaties Indicators (KPIs)</h3>
+
+<ul>
+<li>**Development Efficiency**: Story completion rate increases 35% after V1 elimination vs dual-maintenance baseline</li>
+<li>**Code Maintainability**: Cyclomatic complexity reduction of 25% through single-orchestrator architecture</li>
+<li>**Prestaties Baseline**: V2-only system achieves <200ms p95 response time for single definitions, <5s for batch operations</li>
+<li>**Production Readiness Score**: 100% async pipeline coverage, zero legacy afhankelijkheden at launch</li>
+<li>**Technical Debt Ratio**: 0% V1 code remaining in production codebase vs current ~45% V1/V2 hybrid</li>
+</ul>
+
+<h2>MVP Scope</h2>
+
+<h3>Core Features (Must Have)</h3>
+
+<ul>
+<li>**V2 Orchestrator Native Implementatie**: Complete AIServiceV2 integration with AsyncGPTClient - eliminates legacy fallbacks, enables true async AI calls</li>
+<li>**V1 Code Deactivation**: Full removal of V1 orchestrator from service container routing - no dual-path execution, single async architecture</li>
+<li>**Legacy Function Cleanup**: Deprecate and remove `stuur_prompt_naar_gpt()` and related sync compatibility layers - clean break from legacy patterns</li>
+<li>**Unified Error Handling**: Single async-only error taxonomy - consistent AIServiceError wrapping of OpenAI exceptions across entire system</li>
+<li>**Prestaties Validation**: Benchmarking suite proving V2 meets/exceeds V1 performance baselines - especially single request latency parity</li>
+</ul>
+
+<h3>Out of Scope for MVP</h3>
+
+<ul>
+<li>V1 Orchestrator backward compatibility layers</li>
+<li>Gradual migration tooling or dual-mode support</li>
+<li>Legacy sync API endpoint preservation</li>
+<li>V1 code archaeological cleanup (keep for reference if needed)</li>
+<li>Advanced async features beyond basic V2 orchestrator functionality</li>
+<li>Prestaties optimizations beyond AsyncGPTClient integration</li>
+</ul>
+
+<h3>MVP Success Criteria</h3>
+
+<p><strong>MVP Success Definition</strong>: <em>"DefinitieAgent development environment runs exclusively on V2 orchestrator with zero V1 afhankelijkheden, achieving equivalent or better performance than V1 baseline, with clean async-only architecture ready for production deployment."</em></p>
+
+<p><strong>Concrete Success Indicators:</strong></p>
+<ul>
+<li>All definition generation requests route through V2 orchestrator only</li>
+<li>Zero legacy fallback code paths executing in test suites</li>
+<li>V2 single-request performance ≥ V1 baseline (target: <200ms p95)</li>
+<li>Async batch operations demonstrate 3x+ throughput improvement</li>
+<li>Codebase complexity metrics show reduction vs hybrid state</li>
+</ul>
+
+<h2>Post-MVP Vision</h2>
+
+<h3>Phase 2 Features</h3>
+
+<p><strong>Advanced Async Capabilities</strong> (Enabled by V2-only architecture):</p>
+<ul>
+<li>**Real-time Definition Streaming**: Progressive definition generation with WebSocket updates</li>
+<li>**Bulk Processing Optimization**: Parallel batch jobs for large document processing</li>
+<li>**Advanced Caching Strategies**: Async-native cache warming and intelligent pre-fetching</li>
+</ul>
+
+<p><strong>AsyncGPTClient Enhancements</strong>:</p>
+<ul>
+<li>**Per-call Token Usage Tracking**: Replace heuristic counting with actual OpenAI usage data</li>
+<li>**Dynamic Rate Limiting**: Smart throttling based on API quota and usage patterns</li>
+<li>**Advanced Error Recovery**: Intelligent retry strategies with exponential backoff refinements</li>
+</ul>
+
+<h3>Long-term Vision (1-2 Year)</h3>
+
+<p><strong>Production-Scale Architecture</strong>:</p>
+<ul>
+<li>**Microservices Evolution**: V2 orchestrator as foundation for service decomposition</li>
+<li>**Multi-model AI Support**: Extend beyond OpenAI to Claude, Gemini, local models via unified async interface</li>
+<li>**Enterprise Integration**: V2's async foundation enables complex workflow orchestration</li>
+</ul>
+
+<p><strong>Prestaties & Scalability</strong>:</p>
+<ul>
+<li>**Horizontal Scaling**: V2 async architecture supports distributed processing</li>
+<li>**Advanced Monitoring**: Comprehensive async pipeline observability</li>
+<li>**Cost Optimization**: Fine-tuned AI service usage based on clean async telemetry</li>
+</ul>
+
+<h3>Expansion Opportunities</h3>
+
+<p><strong>Market Expansion</strong>:</p>
+<ul>
+<li>**International Markets**: V2's async architecture better supports multi-language, multi-jurisdiction processing</li>
+<li>**API Platform**: Clean async architecture as foundation for external developer API</li>
+</ul>
+
+<p><strong>Product Evolution</strong>:</p>
+<ul>
+<li>**AI-Powered Workflows**: V2's structured 11-fase design enables advanced legal workflow automation</li>
+<li>**Real-time Collaboration**: Async foundation supports collaborative definition editing</li>
+<li>**Integration Ecosystem**: V2 enables seamless integration with legal practice management systems</li>
+</ul>
+
+<p><strong>Technology Leadership</strong>:</p>
+<ul>
+<li>**Open Source Components**: AsyncGPTClient and V2 orchestrator patterns as community contributions</li>
+<li>**Industry Best Practices**: V2 architecture as reference implementation for legal tech async patterns</li>
+</ul>
+
+<h2>Technical Considerations</h2>
+
+<h3>Platform Vereisten</h3>
+
+<ul>
+<li>**Target Platforms**: Python-based backend service, async-first architecture</li>
+<li>**Runtime Support**: Python 3.8+, AsyncIO event loop, FastAPI framework compatibility</li>
+<li>**Prestaties Vereisten**: <200ms p95 single requests, >3x batch throughput vs V1, concurrent request handling via AsyncGPTClient semaphore limits</li>
+</ul>
+
+<h3>Technology Preferences</h3>
+
+<ul>
+<li>**AI Service Layer**: AsyncGPTClient as foundation (proven rate limiting, caching, retry logic)</li>
+<li>**Orchestration**: V2's 11-fase structured async pipeline vs V1 monolithic approach</li>
+<li>**Error Handling**: Unified AIServiceError taxonomy (wrap OpenAI exceptions for consistency)</li>
+<li>**Configuration**: Centralized via config_manager (eliminate AsyncGPTClient's separate RateLimitConfig)</li>
+</ul>
+
+<h3>Architecture Considerations</h3>
+
+<ul>
+<li>**Repository Structure**: Clean separation - V1 orchestrator marked deprecated/removed, V2 as primary service</li>
+<li>**Service Architecture**: Single async orchestrator with AIServiceV2 → AsyncGPTClient afhankelijkheid chain</li>
+<li>**Integration Vereisten**:</li>
+<li> - Service container wiring: V2 orchestrator gets AIServiceV2 instead of None/legacy fallback</li>
+<li> - Cache consistency: AsyncGPTClient uses same cache keys as legacy AI service</li>
+<li> - Thread safety: Handle sync cache calls in async context via thread pool</li>
+<li>**Beveiliging/Compliance**: Maintain existing DPIA/AVG compliance, GVI Rode Kabel integration patterns from V2</li>
+</ul>
+
+<h3>V1 Removal Considerations</h3>
+
+<p><strong>Legacy Code Elimination</strong>:</p>
+<ul>
+<li>**Service Container**: Remove V1 orchestrator factory, V2 becomes default</li>
+<li>**API Routing**: All definition endpoints route to V2 only</li>
+<li>**Testen**: Eliminate dual-path test coverage, async-only test suites</li>
+</ul>
+
+<p><strong>Migration Technical Debt</strong>:</p>
+<ul>
+<li>**Cache Migration**: Ensure AsyncGPTClient cache keys compatible with existing cached definitions</li>
+<li>**Configuration Migration**: Merge V1 AI service configs into unified config_manager approach</li>
+<li>**Error Handling Migration**: Replace sync AIServiceError patterns with async equivalents</li>
+</ul>
+
+<h2>Constraints & Assumptions</h2>
+
+<h3>Constraints</h3>
+
+<ul>
+<li>**Budget**: Internal refactoring project - no external costs beyond existing OpenAI API usage</li>
+<li>**Timeline**: Must complete before production launch - estimated 2-3 sprint window for V1 elimination</li>
+<li>**Resources**: Current development team capacity - no additional hiring needed for V1 removal</li>
+<li>**Technical**:</li>
+<li> - AsyncGPTClient current limitations (token heuristics, sync cache calls)</li>
+<li> - V2 orchestrator stability must be proven before V1 removal</li>
+<li> - Existing OpenAI API rate limits and usage patterns</li>
+</ul>
+
+<h3>Key Assumptions</h3>
+
+<ul>
+<li>**V2 Orchestrator Stability**: Current V2 implementation is production-ready with legacy fallbacks removed</li>
+<li>**AsyncGPTClient Reliability**: Existing async client handles production load without regression vs sync calls</li>
+<li>**Prestaties Parity**: V2 + AIServiceV2 achieves equivalent single-request performance to V1 baseline</li>
+<li>**Cache Compatibility**: AsyncGPTClient can use existing cache keys without data migration issues</li>
+<li>**No User Impact**: Pre-production status means no backward compatibility vereistes</li>
+<li>**Development Team Alignment**: Team agrees V1 elimination is preferable to dual-maintenance</li>
+<li>**Testen Coverage**: Current V2 test suite is comprehensive enough to replace V1 test coverage</li>
+<li>**Configuration Migration**: Existing AI service configurations can be successfully merged into unified approach</li>
+</ul>
+
+<h3>Critical Success Afhankelijkheden</h3>
+
+<ul>
+<li>**Technical Validation**: V2 performance benchmarking must confirm assumptions before V1 removal</li>
+<li>**Stability Proof**: V2 orchestrator must demonstrate reliable operation under expected load</li>
+<li>**Rollback Capability**: Ability to restore V1 temporarily if V2 proves unstable post-removal</li>
+</ul>
+
+<h2>Risks & Open Questions</h2>
+
+<h3>Key Risks</h3>
+
+<ul>
+<li>**V2 Prestaties Regression**: V2 orchestrator with AIServiceV2 performs worse than V1 baseline, impacting user experience when launched</li>
+<li>**AsyncGPTClient Stability Issues**: Hidden concurrency bugs or rate limiting failures under production load that weren't apparent with legacy fallbacks</li>
+<li>**Cache Inconsistency**: AsyncGPTClient cache keys conflict with legacy cache, causing corrupt or stale definition responses</li>
+<li>**Rollback Complexity**: If V1 removal causes critical issues, restoring V1 orchestrator may require significant re-integration effort</li>
+<li>**Token Counting Inaccuracy**: Heuristic token estimation (70-85% accuracy) causes budget overruns or unexpected API limiting</li>
+<li>**Development Timeline Pressure**: V1 removal takes longer than expected, delaying production launch timeline</li>
+<li>**Testen Gap**: V2-only architecture reveals edge cases not covered by current test suite</li>
+</ul>
+
+<h3>Open Questions</h3>
+
+<ul>
+<li>How will we handle emergency rollback if V2 proves unstable post-V1 removal?</li>
+<li>What's the exact performance difference between V1 sync calls and V2 + AsyncGPTClient under realistic load?</li>
+<li>Are there V1-specific features or error handling patterns that V2 doesn't replicate?</li>
+<li>How do we ensure AsyncGPTClient's sync cache calls don't cause blocking I/O issues in production?</li>
+<li>What monitoring and alerting do we need to detect V2 performance issues early?</li>
+<li>Should we keep V1 code in repository for reference/rollback, or completely remove it?</li>
+<li>How do we validate that all V1 code paths are truly eliminated from the codebase?</li>
+</ul>
+
+<h3>Areas Needing Further Research</h3>
+
+<ul>
+<li>**V2 Load Testen**: Comprehensive performance benchmarking under simulated production scenarios</li>
+<li>**AsyncGPTClient Concurrency Testen**: Thread safety validation under high concurrent request load</li>
+<li>**Cache Migration Strategy**: Detailed plan for AsyncGPTClient cache key compatibility</li>
+<li>**Error Handling Coverage**: Mapping of V1 error scenarios to V2 equivalents</li>
+<li>**Rollback Procedure**: Step-by-step V1 restoration process if needed</li>
+<li>**Production Monitoring**: Observability strategy for V2-only architecture</li>
+<li>**Token Usage Analysis**: Comparison of heuristic vs actual usage patterns to validate accuracy assumptions</li>
+</ul>
+
+<h2>Next Steps</h2>
+
+<h3>Immediate Actions</h3>
+
+<ol>
+<li>**Technical Validation Sprint**: Architect review of V2 orchestrator stability and AsyncGPTClient production readiness</li>
+<li>**Prestaties Benchmarking**: Execute comprehensive V1 vs V2 performance comparison under realistic load scenarios</li>
+<li>**Risk Mitigation Planning**: Develop detailed rollback procedures and emergency V1 restoration capability</li>
+<li>**Team Alignment Session**: Development team consensus building on V1 elimination approach and timeline</li>
+<li>**Vereisten Documentation Update**: PM to revise PRD removing V1 compatibility vereistes, adding V2-only specifications</li>
+</ol>
+
+<h3>Architect Handoff</h3>
+
+<p><strong>Strategic Analysis Complete</strong> - This Project Brief provides comprehensive business case for V1 → V2 complete replacement strategy.</p>
+
+<p><strong>Key Business Findings:</strong></p>
+<ul>
+<li>**Pre-production window** creates ideal opportunity for clean architectural transition</li>
+<li>**Technical debt elimination** outweighs gradual migration benefits given no-users constraint</li>
+<li>**Prestaties gains** (3-5x batch, async-only architecture) justify replacement approach</li>
+<li>**Development velocity** improvements through single-codebase maintenance</li>
+</ul>
+
+<p><strong>Architect Review Required:</strong></p>
+<ul>
+<li>**Technical feasibility** of V2-only architecture</li>
+<li>**Prestaties validation** strategy and benchmarking approach</li>
+<li>**AsyncGPTClient production readiness** assessment</li>
+<li>**Rollback complexity** and mitigation strategies</li>
+<li>**Implementatie roadmap** refinement</li>
+</ul>
+
+<p><strong>Critical Technical Questions for Architect:</strong></p>
+<ol>
+<li>Is V2 orchestrator stable enough for production without V1 fallback?</li>
+<li>What specific technical risks does V1 removal create?</li>
+<li>How do we ensure AsyncGPTClient performance parity with legacy AI service?</li>
+<li>What's the optimal implementation sequence for V1 elimination?</li>
+</ol>
+
+<p><strong>Post-Architect Next Phase</strong>: PM vereistes update incorporating technical feasibility findings and refined implementation strategy.</p>
+
+<p>---</p>
+
+<p><em>Project Brief Created: 28-08-2025</em></p>
+<p><em>Strategic Analysis: V1 → V2 Complete Replacement</em></p>
+<p><em>Author: Mary - Business Analyst</em></p>
+
+  </div>
+</body>
+</html>

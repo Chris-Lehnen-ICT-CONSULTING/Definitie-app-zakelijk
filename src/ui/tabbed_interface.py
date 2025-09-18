@@ -998,52 +998,14 @@ class TabbedInterface:
                     SessionStateManager.clear_value("regeneration_begrip")
                     SessionStateManager.clear_value("regeneration_category")
 
-                # Store detailed validation results for display (V2 dict format)
+                # V2 validation is already included in agent_result.validation_details
+                # The beoordeling_gen will be generated from V2 ValidationDetailsDict in the UI
                 if isinstance(agent_result, dict):
+                    validation_details = agent_result.get("validation_details", {})
                     logger.info(
-                        f"Attempting to run toets_definitie. agent_result type: {type(agent_result)}"
-                    )
-                    from ai_toetser.modular_toetser import toets_definitie
-                    from toetsregels.modular_loader import load_all_toetsregels
-
-                    # Get detailed validation results with proper context using modular loader
-                    # Dit laadt zowel JSON configs als Python validators
-                    alle_regel_data = load_all_toetsregels()
-
-                    # Converteer naar formaat dat toets_definitie verwacht
-                    toetsregels = {}
-                    for regel_id, regel_data in alle_regel_data.items():
-                        toetsregels[regel_id] = regel_data["config"]
-
-                    logger.info(
-                        f"Loaded {len(toetsregels)} toetsregels via modular loader (JSON + Python modules)"
-                    )
-
-                    # Create contexten dictionary for validation
-                    contexten = {
-                        "organisatorisch": org_context,
-                        "juridisch": jur_context,
-                        "wettelijk": wet_context,  # Use harmonized wet_context variable
-                    }
-
-                    definitie_text = agent_result.get("definitie_gecorrigeerd", "")
-                    logger.info(
-                        f"Using V2 dict format. Keys in agent_result: {list(agent_result.keys())}"
-                    )
-                    logger.info(f"definitie_text: '{definitie_text[:50]}...'")
-
-                    detailed_results = toets_definitie(
-                        definitie=definitie_text,
-                        toetsregels=toetsregels,
-                        begrip=begrip,
-                        marker=auto_categorie.value,
-                        contexten=contexten,
-                        gebruik_logging=True,
-                    )
-
-                    SessionStateManager.set_value("beoordeling_gen", detailed_results)
-                    logger.info(
-                        f"Stored {len(detailed_results)} detailed validation results in session state"
+                        f"V2 validation available - overall_score: {validation_details.get('overall_score', 0.0)}, "
+                        f"violations: {len(validation_details.get('violations', []))}, "
+                        f"passed_rules: {len(validation_details.get('passed_rules', []))}"
                     )
 
                 # Toon document context info als gebruikt

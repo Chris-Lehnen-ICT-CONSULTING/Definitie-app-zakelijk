@@ -46,12 +46,12 @@
 ## 🎯 Quick Links - Essentiële Documenten
 
 ### Product & Vereisten
-- [Product Vereisten (PRD)](./prd.md) ✅
-- [Project Brief](./brief.md) ✅
+- [Product Vereisten (PRD)](./archief/prd.md) ✅ *(gearchiveerd)*
+- [Project Brief](./backlog/brief.md) ✅
 - [Vereisten Compleet](./backlog/requirements/REQUIREMENTS_AND_FEATURES_COMPLETE.md) ✅
 - **[📊 KWALITEITS-VERIFICATIE-RAPPORT](../reports/analysis/KWALITEITS-VERIFICATIE-RAPPORT.md)** 🔥 **NIEUW** - Complete documentatie audit
-- **[🔍 Vertaling Analyse Rapport](./VERTALING-ANALYSE-RAPPORT.md)** 🆕 - Taalstatus & compliance analyse
-- **[🗺️ Traceability Matrix](./TRACEABILITY-MATRIX.md)** 🆕 - Vereisten ↔ Epische Verhalen ↔ Stories mapping
+- **[🔍 Vertaling Analyse Rapport](./archief/2025-09/VERTALING-ANALYSE-RAPPORT.md)** 🆕 - Taalstatus & compliance analyse *(gearchiveerd)*
+- **[🗺️ Traceability Matrix](./archief/2025-09/TRACEABILITY-MATRIX.md)** 🆕 - Vereisten ↔ Epische Verhalen ↔ Stories mapping *(gearchiveerd)*
 
 ### 🗄️ Database
 - **[Database Richtlijnen](./guidelines/DATABASE_GUIDELINES.md)** 🆕 – Enige actieve DB: `data/definities.db`, init/migratie via schema.sql
@@ -104,7 +104,7 @@
 - **[Compliance Gap Analysis](./compliance/COMPLIANCE-GAPS.md)** 🔥 **NIEUW** - Kritieke gaps & resolution roadmap
 
 ### 🔧 Maintenance & Updates
-- **[UPDATE REQUIREMENTS](./UPDATE_REQUIREMENTS.md)** 🆕 Post-consolidation fixes needed
+- **[UPDATE REQUIREMENTS](./archief/2025-09/UPDATE_REQUIREMENTS.md)** 🆕 Post-consolidation fixes needed *(gearchiveerd)*
 
 ### Workflows & Agents
 - **DevOps Pipeline Orchestrator** 🆕 - CI/CD automation agent
