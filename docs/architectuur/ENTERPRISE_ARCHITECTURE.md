@@ -771,7 +771,7 @@ Full Product: Week 20
 
 ### Governance Documents
 <!-- ADR directory niet meer beschikbaar na consolidatie - ADRs zijn geïntegreerd in de canonical architecture documenten -->
-- **Product Vereisten (PRD)**: docs/prd.md
+- **Product Vereisten (PRD)**: docs/archief/prd.md *(gearchiveerd)*
 - **Architecture Viewer**: docs/architectuur/architecture-viewer.html
 - **Compliance (BIO/NORA/WCAG) – status & acties**: docs/SECURITY_AND_FEEDBACK_ANALYSIS.md
  - **Compliance Matrix (Skeleton)**: docs/compliance/COMPLIANCE_MATRIX.md

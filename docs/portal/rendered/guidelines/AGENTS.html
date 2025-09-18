@@ -55,13 +55,16 @@
 
 <h2>Werken met meerdere agents</h2>
 <ul>
-<li>Zie de dedicated gids: [Codex Multi‑Agent Gebruik](../codex-multi-agent-gebruik.md) — parallelle agents (worktrees/patches), selectiecriteria, quick‑checks en scoreboard.</li>
+<li>Zie de dedicated gids: [Codex Multi‑Agent Gebruik](../handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md) — parallelle agents (worktrees/patches), selectiecriteria, quick‑checks en scoreboard.</li>
 </ul>
 
 <h2>Claude Code Agents Locatie</h2>
 <ul>
-<li>Primaire agent‑prompts: `~/\.claude/agents/` (lokaal bij jou)</li>
-<li>Router + workflows: `~/\.claude/agents/workflow-router.md` en `~/\.claude/agents/workflows/workflows.yaml`</li>
+<li>Beschikbare agent‑prompts: `~/.claude/agents/`</li>
+<li> - `code-reviewer.md`</li>
+<li> - `code-simplifier.md`</li>
+<li> - `debug-specialist.md`</li>
+<li> - `full-stack-developer.md`</li>
 <li>Aanroepen via de Task tool in Claude Code; gebruik exacte agent‑namen.</li>
 </ul>
 
@@ -74,39 +77,16 @@
 <li>Minimaal ingrijpen: verander alleen wat nodig is, geen brede refactors zonder opdracht.</li>
 </ul>
 
-<h2>Werkstroom Selectie</h2>
-
-<h3>🔄 Workflow Beslisboom (Kies ALTIJD de lichtste)</h3>
-<pre><code>def select_workflow(task: str) -&gt; str:
-    """Deterministische workflow selectie"""
-
-    if all_files_are_markdown():
-        return "DOCUMENT"     # Alleen docs
-
-    elif lines_changed &lt; 50 and no_new_files():
-        return "HOTFIX"       # Kleine fix
-
-    elif creating_new_files() or files_affected &gt; 3:
-        return "FULL_TDD"     # Nieuwe feature
-
-    elif task_contains(["analyze", "investigate", "research"]):
-        return "ANALYSIS"     # Onderzoek
-
-    else:
-        return "ANALYSIS"     # Default veilig</code></pre>
-
-<p>| Workflow | Test Requirement | Documentation |</p>
-<p>|----------|-----------------|---------------|</p>
-<p>| DOCUMENT | Link check only | N/A |</p>
-<p>| HOTFIX | Maintain coverage (≥80%) | Brief comment |</p>
-<p>| ANALYSIS | Not required | Findings summary |</p>
-<p>| FULL_TDD | ≥95% nieuwe code | Full docs |</p>
+<h2>Agent Keuze (zonder router)</h2>
 
 <ul>
-<li>Gebruik niet standaard de Full TDD workflow voor elke opdracht.</li>
-<li>Documentatie: [Werkstroom Library](./WORKFLOW_LIBRARY.md) en Werkstroom Routing</li>
-<li>Router (lokaal): `~/\.claude/agents/workflow-router.md` + config `~/\.claude/agents/workflows/workflows.yaml`</li>
-<li>Router‑commando's: `ROUTE <beschrijving>`, `START-AS <workflow> <beschrijving>`, `SUGGEST <beschrijving>`</li>
+<li>Kies altijd de lichtste passende agent voor de taak.</li>
+<li>Mapping (richtlijn):</li>
+<li> - `code-reviewer`: reviews van code/diffs, quick assessments, feedback.</li>
+<li> - `debug-specialist`: reproduceren/diagnosticeren van bugs en fouten.</li>
+<li> - `code-simplifier`: kleine refactors/opschoning zonder gedragswijziging.</li>
+<li> - `full-stack-developer`: implementatie van gewenste wijzigingen/kleine features.</li>
+<li>- Gebruik test-/lint‑checks proportioneel aan de wijziging; geen centrale router of automatische workflow vereist.</li>
 </ul>
 
 <h2>Algemene Richtlijnen</h2>
@@ -233,7 +213,37 @@ rg "from ui\." src/services/ &amp;&amp; echo "❌ BLOCKED"
 <li>CI/portal mogen falen bij ID‑duplicaten; corrigeer altijd door te renummeren en referenties bij te werken.</li>
 </ul>
 
-<h2>Specifieke Agents</h2>
+<h2>Specifieke Agents (beschikbaar)</h2>
+
+<h3>code-reviewer</h3>
+<ul>
+<li>Doel: Code‑reviews van commits/diffs, genereren van concrete feedback en verbeterpunten.</li>
+<li>Locatie: `~/.claude/agents/code-reviewer.md`</li>
+<li>Typische inzet: PR‑beoordeling, quick sanity checks, style & security hints.</li>
+</ul>
+
+<h3>full-stack-developer</h3>
+<ul>
+<li>Doel: Implementeren van gewenste wijzigingen/kleine features volgens bestaande projectstandaarden.</li>
+<li>Locatie: `~/.claude/agents/full-stack-developer.md`</li>
+<li>Typische inzet: Code‑aanpassingen met tests waar passend; houdt coverage ≥ bestaande baseline.</li>
+</ul>
+
+<h3>debug-specialist</h3>
+<ul>
+<li>Doel: Reproduceren en diagnosticeren van bugs, minimale fixes voorbereiden.</li>
+<li>Locatie: `~/.claude/agents/debug-specialist.md`</li>
+<li>Typische inzet: Repro‑stappen vastleggen, root cause aanwijzen, fix‑plan voorstellen.</li>
+</ul>
+
+<h3>code-simplifier</h3>
+<ul>
+<li>Doel: Kleine refactors en opschoning zonder gedragswijziging (DRY, leesbaarheid, complexiteit omlaag).</li>
+<li>Locatie: `~/.claude/agents/code-simplifier.md`</li>
+<li>Typische inzet: Extract method, naamgeving verbeteren, dode code verwijderen met tests groen.</li>
+</ul>
+
+<h2>Verouderde Agents (niet geïnstalleerd)</h2>
 
 <h3>workflow-router</h3>
 <ul>
@@ -492,36 +502,18 @@ rg "from ui\." src/services/ &amp;&amp; echo "❌ BLOCKED"
 <li>**Quality Gates**: No multiple canonical:true, complete frontmatter, no broken links</li>
 </ul>
 
-<h2>Workflows Overzicht (Router)</h2>
+<h2>Gebruikspatronen (zonder workflow‑router)</h2>
 <ul>
-<li>Configuratiebron: `~/\.claude/agents/workflows/workflows.yaml`</li>
-<li>Beschikbare workflows (kies de lichtste passende):</li>
-<li> - **analysis**: Onderzoek zonder wijzigingen → rapport + aanbevelingen</li>
-<li> - **review_cycle**: Code review met verdict → optionele refactor‑suggesties</li>
-<li> - **documentation**: Documentupdates/cleanup → frontmatter/canonical/links + verificatie</li>
-<li> - **debug**: Reproduce→Diagnose→Fix→Verify voor bugs</li>
-<li> - **maintenance**: Afhankelijkheden/configs/opschoon → validate light</li>
-<li> - **hotfix**: Versnelde kritieke fix met safety gates en rollback</li>
-<li> - **refactor_only**: Kwaliteitsverbetering zonder gedrag te wijzigen (tests groen)</li>
-<li> - **spike**: Technisch onderzoek/POC met bevindingen</li>
-<li> - **full_tdd**: Volledige TDD→Uitrol (alleen bij end‑to‑end levering)</li>
-</ul>
-
-<h3>Routingregels (samenvatting)</h3>
-<ul>
-<li>Intent “review/diff/PR” → review_cycle</li>
-<li>“analyse/understand/why” → analysis</li>
-<li>“docs/*.md” only → documentation</li>
-<li>“refactor/clean/optimize” zonder feature‑scope → refactor_only</li>
-<li>“hotfix/urgent/incident/p1/p2” → hotfix</li>
-<li>“research/spike/POC/experiment” → spike</li>
-<li>“implement/add/feature/build” → full_tdd</li>
-<li>Anders: default naar full_tdd; overrides toegestaan met `START-AS ...`</li>
+<li>Geen centrale router/workflows in gebruik; kies handmatig de agent:</li>
+<li> - Review/diff/PR → `code-reviewer`</li>
+<li> - Bug reproduceren/diagnosticeren → `debug-specialist`</li>
+<li> - Kleine refactor/opschoning → `code-simplifier`</li>
+<li> - Implementatie/kleine feature → `full-stack-developer`</li>
 </ul>
 
 <h2>Aanroepen en Namen</h2>
 <ul>
-<li>Agent‑namen: gebruik exact de namen hierboven zodat tooling en documentatie overeenkomen.</li>
+<li>Agent‑namen: gebruik exact: `code-reviewer`, `code-simplifier`, `debug-specialist`, `full-stack-developer`.</li>
 <li>Overdracht: leg kort de context, doel, scope, en "done"‑criteria vast voordat je de agent start.</li>
 <li>Artefacten: link naar relevante bestanden (code, config, docs) en verwachte outputlocaties.</li>
 </ul>
@@ -564,8 +556,8 @@ rg "from ui\." src/services/ &amp;&amp; echo "❌ BLOCKED"
 <li>Harmonisatie Instructies: `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`</li>
 <li>Quality Gates: `~/.ai-agents/quality-gates.yaml`</li>
 <li>Preflight Script: `~/.ai-agents/preflight-checks.sh`</li>
-<li>Claude Code Agents: `~/\.claude/agents/` (inclusief `workflow-router.md` en `workflows/workflows.yaml`)</li>
-<li>Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`</li>
+<li>Claude Code Agents (beschikbaar): `~/.claude/agents/` → `code-reviewer.md`, `code-simplifier.md`, `debug-specialist.md`, `full-stack-developer.md`</li>
+<li>Multi‑Agent gids: `docs/handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md`</li>
 <li>Multi‑Agent Cheatsheet & Prompt Presets: `docs/snippets/CODEX_PROMPT_PRESETS.md`</li>
 </ul>
 

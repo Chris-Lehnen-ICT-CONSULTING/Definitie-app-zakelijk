@@ -954,28 +954,30 @@ class ManagementTab:
                     st.warning("⚠️ Voer zowel woord als zin in")
 
         with col2:
-            st.markdown("**Toetsregels Test**")
+            st.markdown("**V2 Validation Service Test**")
 
             try:
-                from toetsregels.loader import load_toetsregels
+                # Use V2 validation service to get rule info
+                container = st.session_state.get('service_container')
+                if container:
+                    validation_service = container.orchestrator()
+                    # Get service info which includes rule count
+                    service_info = validation_service.get_service_info()
+                    st.write(f"📋 **V2 Validation Service:** {service_info.get('service_mode', 'unknown')}")
+                    st.write(f"📋 **Validation Rules Available:** {service_info.get('rule_count', 0)}")
 
-                toetsregels = load_toetsregels().get("regels", {})
+                    # Show sample info from service
+                    st.code(f"Architecture: {service_info.get('architecture', 'unknown')}")
+                    st.code(f"Version: {service_info.get('version', 'unknown')}")
+                else:
+                    st.warning("⚠️ Service container not initialized")
 
-                st.write(f"📋 **Geladen toetsregels:** {len(toetsregels)}")
-
-                # Toon sample toetsregels
-                if toetsregels:
-                    sample_regels = list(toetsregels.items())[:3]
-                    for regel_id, regel_data in sample_regels:
-                        st.code(
-                            f"{regel_id}: {regel_data.get('beschrijving', 'Geen beschrijving')[:50]}..."
-                        )
-
-                if st.button("🔄 Herlaad Toetsregels", key="dev_reload_rules"):
-                    st.success("✅ Toetsregels hergeladen (simulatie)")
+                if st.button("🔄 Refresh Service Info", key="dev_reload_rules"):
+                    st.success("✅ Service info refreshed")
+                    st.rerun()
 
             except Exception as e:
-                st.error(f"❌ Kan toetsregels niet laden: {e}")
+                st.error(f"❌ Cannot access V2 validation service: {e}")
 
     def _render_prompt_testing(self):
         """Render prompt testing interface."""
@@ -1117,12 +1119,9 @@ class ManagementTab:
 
                         result = _R(result)
                     else:
-                        # Use legacy validation
-                        from validation.definitie_validator import (
-                            validate_definitie,
-                        )
-
-                        result = validate_definitie(test_definitie, test_categorie)
+                        # Always use V2 validation service
+                        st.error("❌ V2 validation service (DEV_MODE) is required for validation testing")
+                        return
 
                     st.markdown("**Validatie Resultaten:**")
                     st.metric("Overall Score", f"{result.overall_score:.2f}")
