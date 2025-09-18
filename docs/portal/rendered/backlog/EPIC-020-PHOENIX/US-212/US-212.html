@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Import Definitions from CSV/JSON</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-212</p>
+<p>titel: Import Definitions from CSV/JSON</p>
+<p>epic: EPIC-020-PHOENIX</p>
+<p>status: Open</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 8</p>
+<p>sprint: week-4</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-18</p>
+<p>bijgewerkt: 2025-09-18</p>
+<p>owner: developer</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-020-06</li>
+<li>REQ-083</li>
+<p>related_stories:</p>
+<li>US-062</li>
+<p>applies_to: definitie-app@phoenix</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-18</p>
+<p>---</p>
+</ul>
+
+<h1>US-212: Import Definitions from CSV/JSON</h1>
+
+<p><strong>Epic:</strong> EPIC-020-PHOENIX - Complete Technical Rebuild (Phoenix)</p>
+<p><strong>Week:</strong> 4 - External Integration</p>
+<p><strong>Related:</strong> US-062 (EPIC-005) - Implement Bulk Import Functionality</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> content manager of data migrator</p>
+<p><strong>wil ik</strong> definities kunnen importeren uit CSV en JSON bestanden</p>
+<p><strong>zodat</strong> ik bestaande definitiesets kan migreren en bulk updates kan uitvoeren</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>Deze story bouwt voort op US-062 uit EPIC-005 die de basis bulk import functionaliteit definieert. Voor de Phoenix rebuild moet deze functionaliteit volledig geïmplementeerd worden met robuuste validatie, conflict resolution, en transactionele integriteit.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria (uitbreiding van US-062)</h3>
+<ul>
+<li>[ ] CSV import met configureerbare column mapping</li>
+<li>[ ] JSON import met schema validatie</li>
+<li>[ ] JSON Lines (.jsonl) support voor streaming</li>
+<li>[ ] Excel (.xlsx) import ondersteuning</li>
+<li>[ ] Validatie rapport voor import</li>
+<li>[ ] Preview met eerste 10-20 records</li>
+<li>[ ] Conflict resolution strategies (skip/overwrite/merge/version)</li>
+<li>[ ] Dry-run mode voor validatie zonder import</li>
+<li>[ ] Progress tracking met cancel optie</li>
+<li>[ ] Import history en rollback capability</li>
+<li>[ ] Batch size configuratie voor grote imports</li>
+</ul>
+
+<h3>Technische Criteria</h3>
+<ul>
+<li>[ ] Streaming parser voor grote bestanden (>100MB)</li>
+<li>[ ] Transactionele import (all-or-nothing)</li>
+<li>[ ] Incremental import met checkpoint/resume</li>
+<li>[ ] Memory-efficient processing (<500MB RAM voor 1GB file)</li>
+<li>[ ] Async processing met background jobs</li>
+<li>[ ] Import queue management</li>
+<li>[ ] Automatic format detection</li>
+<li>[ ] Character encoding detection en conversion</li>
+</ul>
+
+<h3>Validatie Criteria</h3>
+<ul>
+<li>[ ] Schema validatie tegen definition model</li>
+<li>[ ] Verplichte velden controle</li>
+<li>[ ] Data type validatie</li>
+<li>[ ] Business rule validatie (via validation service)</li>
+<li>[ ] Duplicate detection (configurable strategies)</li>
+<li>[ ] Referential integrity checks</li>
+<li>[ ] Format consistency checks</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Import Service Architecture</h3>
+<pre><code>class DefinitionImportService:
+    """Service for importing definitions from various formats"""
+
+    async def import_from_file(
+        self,
+        file: UploadedFile,
+        options: ImportOptions
+    ) -&gt; ImportResult:
+        # 1. Detect format
+        # 2. Validate schema
+        # 3. Preview if requested
+        # 4. Process in batches
+        # 5. Apply conflict strategy
+        # 6. Execute import
+        # 7. Generate report
+        pass
+
+    async def validate_import_data(
+        self,
+        data: List[Dict],
+        schema: ImportSchema
+    ) -&gt; ValidationResult:
+        """Validate data against schema and business rules"""
+        pass
+
+    async def preview_import(
+        self,
+        file: UploadedFile,
+        limit: int = 20
+    ) -&gt; PreviewResult:
+        """Generate preview of import data"""
+        pass
+
+class ImportOptions:
+    conflict_strategy: ConflictStrategy
+    batch_size: int = 100
+    dry_run: bool = False
+    validate_only: bool = False
+    column_mapping: Dict[str, str] = None
+    skip_validation: List[str] = []
+    transaction_mode: bool = True</code></pre>
+
+<h3>Format Parsers</h3>
+<pre><code>class CSVImporter:
+    """CSV specific import logic"""
+
+    def detect_delimiter(self, sample: str) -&gt; str
+    def detect_encoding(self, file_bytes: bytes) -&gt; str
+    def parse_with_mapping(
+        self,
+        file: IO,
+        mapping: Dict[str, str]
+    ) -&gt; Iterator[Dict]
+
+class JSONImporter:
+    """JSON/JSONL specific import logic"""
+
+    def validate_schema(self, data: Dict, schema: Dict) -&gt; bool
+    def stream_jsonl(self, file: IO) -&gt; Iterator[Dict]
+    def normalize_structure(self, data: Dict) -&gt; Dict
+
+class ExcelImporter:
+    """Excel specific import logic"""
+
+    def detect_sheet(self, file: IO) -&gt; str
+    def parse_with_headers(self, file: IO) -&gt; Iterator[Dict]
+    def handle_formulas(self, cell_value: Any) -&gt; Any</code></pre>
+
+<h3>Conflict Resolution Strategies</h3>
+<pre><code>class ConflictStrategy(Enum):
+    SKIP = "skip"           # Skip conflicting records
+    OVERWRITE = "overwrite" # Replace existing records
+    MERGE = "merge"         # Merge with existing data
+    VERSION = "version"     # Create new version
+    FAIL = "fail"          # Fail on first conflict
+
+class ConflictResolver:
+    def resolve(
+        self,
+        existing: Definition,
+        new: Definition,
+        strategy: ConflictStrategy
+    ) -&gt; Resolution:
+        """Apply conflict resolution strategy"""
+        pass</code></pre>
+
+<h3>Import Schema Definition</h3>
+<pre><code># import_schema.yaml
+definition_import:
+  required_fields:
+    - term
+    - definition_text
+  optional_fields:
+    - context
+    - examples
+    - category
+    - status
+    - metadata
+  field_mappings:
+    csv:
+      term: ["term", "begrip", "woord"]
+      definition_text: ["definitie", "definition", "omschrijving"]
+    json:
+      term: "$.term"
+      definition_text: "$.definition"
+  validation_rules:
+    - field: term
+      min_length: 2
+      max_length: 200
+    - field: definition_text
+      min_length: 10
+      max_length: 5000</code></pre>
+
+<h3>Database Schema for Import Tracking</h3>
+<pre><code>-- Import jobs table
+CREATE TABLE import_jobs (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    format TEXT NOT NULL,
+    status TEXT DEFAULT 'pending',
+    total_records INTEGER,
+    processed_records INTEGER DEFAULT 0,
+    successful_records INTEGER DEFAULT 0,
+    failed_records INTEGER DEFAULT 0,
+    conflict_strategy TEXT,
+    dry_run BOOLEAN DEFAULT FALSE,
+    start_time TIMESTAMP,
+    end_time TIMESTAMP,
+    error_log TEXT,
+    import_report JSON,
+    rollback_data JSON,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Import record tracking
+CREATE TABLE import_records (
+    id TEXT PRIMARY KEY,
+    job_id TEXT NOT NULL,
+    record_number INTEGER,
+    status TEXT,
+    original_data JSON,
+    processed_data JSON,
+    error_message TEXT,
+    definition_id TEXT,
+    FOREIGN KEY (job_id) REFERENCES import_jobs(id),
+    FOREIGN KEY (definition_id) REFERENCES definitions(id)
+);</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Import service met format detection</li>
+<li>[ ] CSV parser met column mapping</li>
+<li>[ ] JSON/JSONL parser met schema validation</li>
+<li>[ ] Excel parser implementatie</li>
+<li>[ ] Conflict resolution strategies</li>
+<li>[ ] Transaction management</li>
+<li>[ ] Progress tracking UI</li>
+<li>[ ] Preview functionaliteit</li>
+<li>[ ] Import history tracking</li>
+<li>[ ] Rollback mechanism</li>
+<li>[ ] Unit tests voor alle parsers</li>
+<li>[ ] Integration tests voor import flow</li>
+<li>[ ] Performance test (10k records <60s)</li>
+<li>[ ] Error recovery tests</li>
+<li>[ ] Gebruikersdocumentatie</li>
+<li>[ ] Import templates (CSV/JSON)</li>
+</ul>
+
+<h2>UI Mockup Concept</h2>
+
+<pre><code>┌─────────────────────────────────────┐
+│  📥 Import Definities               │
+├─────────────────────────────────────┤
+│                                     │
+│  Step 1: Select File               │
+│  ┌─────────────────────────────┐   │
+│  │ [Choose File] import.csv     │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  Step 2: Configure Import          │
+│  Format: [CSV v] Delimiter: [, v]  │
+│  Conflict: [Skip existing v]       │
+│  □ Dry run (preview only)          │
+│                                     │
+│  Step 3: Column Mapping            │
+│  ┌──────────────┬──────────────┐   │
+│  │ CSV Column   │ Maps To      │   │
+│  ├──────────────┼──────────────┤   │
+│  │ begrip       │ [term     v] │   │
+│  │ omschrijving │ [definitiev] │   │
+│  └──────────────┴──────────────┘   │
+│                                     │
+│  Preview (first 5 records):        │
+│  ┌─────────────────────────────┐   │
+│  │ ✓ Record 1: Valid            │   │
+│  │ ✓ Record 2: Valid            │   │
+│  │ ⚠ Record 3: Duplicate        │   │
+│  │ ✓ Record 4: Valid            │   │
+│  │ ✗ Record 5: Missing field    │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  [Validate] [Import] [Cancel]      │
+└─────────────────────────────────────┘</code></pre>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Data corruption | High | Transactions, validation, backups |</p>
+<p>| Memory overflow | Medium | Streaming, batch processing |</p>
+<p>| Import failures | Medium | Checkpoint/resume, rollback |</p>
+<p>| Encoding issues | Low | Auto-detection, UTF-8 default |</p>
+<p>| Duplicate data | Medium | Duplicate detection, merge strategies |</p>
+
+<h2>Performance Requirements</h2>
+
+<ul>
+<li>Parse speed: >1000 records/second</li>
+<li>Memory usage: <500MB voor 1GB file</li>
+<li>Transaction size: Max 1000 records per transaction</li>
+<li>UI responsiveness: Updates every 100ms during import</li>
+<li>Rollback time: <30s voor 10k records</li>
+</ul>
+
+<h2>Integration met US-062</h2>
+
+<p>Deze story implementeert en uitbreidt de requirements van US-062:</p>
+<ul>
+<li>Alle acceptance criteria van US-062 worden geïmplementeerd</li>
+<li>Extra format support (JSON Lines, auto-detection)</li>
+<li>Verbeterde conflict resolution strategies</li>
+<li>Checkpoint/resume voor grote imports</li>
+<li>Import history en audit trail</li>
+</ul>
+
+<h2>Testing Strategie</h2>
+
+<ol>
+<li>**Unit Tests**: Format parsers, validators</li>
+<li>**Integration Tests**: Complete import flow</li>
+<li>**Performance Tests**: Large file handling</li>
+<li>**Stress Tests**: Memory limits, concurrent imports</li>
+<li>**Data Integrity Tests**: Transaction rollback</li>
+<li>**Format Tests**: Various CSV/JSON formats</li>
+</ol>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Implementeer CSV eerst als meest gebruikte format</li>
+<li>Overweeg Apache Arrow voor zeer grote datasets</li>
+<li>Add support voor API-based imports later</li>
+<li>Consider scheduled/recurring imports</li>
+<li>Implement export van import templates</li>
+<li>Add data transformation rules voor complexe mappings</li>
+</ul>
+  </div>
+</body>
+</html>

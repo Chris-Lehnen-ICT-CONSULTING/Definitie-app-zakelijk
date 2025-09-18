@@ -59,6 +59,10 @@ Slash‑commando’s (conventie in Codex‑chat):
 - `/multi review` → `bash scripts/multiagent.sh review --quick-checks`
 - `/multi teardown` → `bash scripts/multiagent.sh teardown`
 
+Advies‑check (wanneer multi?):
+- `bash scripts/multiagent.sh check` — geeft ‘Advice: YES/NO/MAYBE’ op basis van diff‑omvang en type (docs‑only, tiny, etc.).
+- `init --strict` — stopt bij advies ‘NO’; `init --force` om te forceren.
+
 ### 2) Sequentieel met patches
 Ieder voorstel als patchbestand opslaan en later vergelijken/apply’en.
 

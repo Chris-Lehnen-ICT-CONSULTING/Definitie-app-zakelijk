@@ -30,6 +30,16 @@ bash scripts/multiagent.sh teardown
 bash scripts/multiagent.sh teardown --delete-branches
 ```
 
+## Advies‑check (wanneer multi wél/niet)
+```bash
+# Laat het script adviseren op basis van diff‑omvang en type wijzigingen
+bash scripts/multiagent.sh check
+
+# Init met advies‑gate (aborteert bij 'NO' tenzij je forceert)
+bash scripts/multiagent.sh init -n 2 --strict   # abort bij ontraden
+bash scripts/multiagent.sh init -n 2 --force    # forceer ondanks advies
+```
+
 ## Aanbevolen werkwijze (2 agents)
 1. `init -n 2` → opent `agent-a` (minimal) en `agent-b` (robuust)
 2. Open beide worktrees in aparte terminals/editors en voer je aanpassingen uit
@@ -60,4 +70,3 @@ De assistent herkent ook enkele natuurtaal‑triggers en stelt het bijpassende c
 ## Tips
 - Gebruik per worktree een andere Codex/Claude‑agent (bijv. minimal vs. robuust) voor variatie.
 - Houd patches klein en doelgericht; kies de lichtste oplossing die voldoet.
-
