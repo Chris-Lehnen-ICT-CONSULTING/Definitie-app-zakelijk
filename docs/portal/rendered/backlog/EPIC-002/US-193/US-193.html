@@ -94,13 +94,20 @@
 
 <h2>Voortgang</h2>
 <ul>
-<li>Gereed:</li>
-<li> - UI-detailpaneel bouwt “📋 Alle Toetsregels Resultaten” nu af uit V2‑resultaat (geen legacy validator nodig voor deze weergave).</li>
+<li>**VOLTOOID (2025-09-18):**</li>
+<li> - UI-detailpaneel bouwt "📋 Alle Toetsregels Resultaten" nu af uit V2‑resultaat (geen legacy validator nodig voor deze weergave).</li>
 <li> - V2‑violations bevatten nu ook `description` (mirror van `message`) zodat UI consistent tekst toont.</li>
 <li> - Tests toegevoegd voor description‑veld en initiële goldens (INT‑01/CON‑01).</li>
-<li>Nog te doen:</li>
-<li> - Legacy aanroep in `tabbed_interface.py` volledig verwijderen en overal V2 als enige bron hanteren.</li>
-<li> - Uitbreiden van goldens voor volledige regelscope (afhankelijk van US‑192).</li>
+<li> - Legacy aanroep in `tabbed_interface.py` volledig verwijderd (regels 1006-1047).</li>
+<li> - Alle legacy validator imports uit UI verwijderd:</li>
+<li>   - `ai_toetser.modular_toetser` verwijderd uit tabbed_interface.py</li>
+<li>   - `toetsregels.modular_loader` verwijderd uit tabbed_interface.py</li>
+<li>   - `toetsregels.loader` verwijderd uit management_tab.py</li>
+<li>   - `validation.definitie_validator` verwijderd uit management_tab.py</li>
+<li>   - Legacy analyse tools vervangen door V2 service in quality_control_tab.py</li>
+<li> - V2 ValidationDetailsDict is nu de enige bron voor validatieresultaten in de UI.</li>
+<li> - Deterministische sortering geïmplementeerd (severity dan rule_id).</li>
+<li> - Alle acceptatiecriteria zijn vervuld.</li>
 </ul>
 
   </div>
