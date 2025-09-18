@@ -9,6 +9,7 @@ from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
 
+from ui.cached_services import initialize_services_once
 from ui.helpers.context_adapter import get_context_adapter
 
 
@@ -62,6 +63,9 @@ class SessionStateManager:
         for key, default_value in SessionStateManager.DEFAULT_VALUES.items():
             if key not in st.session_state:  # Controleer of sleutel al bestaat
                 st.session_state[key] = default_value  # Zet standaardwaarde
+
+        # US-202: Initialize services met caching om herinitialisatie te voorkomen
+        initialize_services_once()
 
     @staticmethod
     def get_value(key: str, default: Any = None) -> Any:

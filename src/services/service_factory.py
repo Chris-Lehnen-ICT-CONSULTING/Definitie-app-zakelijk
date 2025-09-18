@@ -9,7 +9,8 @@ import logging
 import os
 from typing import Any
 
-from services.container import ContainerConfigs, ServiceContainer, get_container
+from services.container import ContainerConfigs, ServiceContainer
+from utils.container_manager import get_cached_container
 
 # TYPE_CHECKING import verwijderd - UnifiedDefinitionGenerator niet meer nodig
 # if TYPE_CHECKING:
@@ -126,6 +127,86 @@ class ServiceAdapter:
             "version": "2.0",
         }
 
+    def _safe_float(self, value: Any, default: float = 0.0) -> float:
+        """Safely convert any value to float with fallback.
+
+        Handles None, empty strings, and conversion errors.
+        """
+        if value is None or value == "":
+            return default
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+
+    def _normalize_severity(self, severity: Any) -> str:
+        """Normalize various severity formats to canonical values.
+
+        Maps: error/critical -> high, warning -> medium, other -> low
+        """
+        # Extract string value from enums or objects
+        if hasattr(severity, "value"):
+            severity = severity.value
+        severity = str(severity).lower() if severity else "low"
+
+        # Map to canonical values
+        if severity in ["error", "critical", "high"]:
+            return "high"
+        elif severity in ["warning", "medium"]:
+            return "medium"
+        return "low"
+
+    def _extract_violations(self, source: Any) -> list[dict]:
+        """Extract and normalize violations from dict or object format."""
+        violations = []
+
+        # Handle dict format
+        if isinstance(source, dict):
+            for v in source.get("violations", []):
+                violations.append({
+                    "rule_id": v.get("rule_id", v.get("code", "unknown")),
+                    "severity": self._normalize_severity(v.get("severity")),
+                    "description": v.get("description", v.get("message", "")),
+                    "suggestion": v.get("suggestion"),
+                })
+        # Handle object format
+        elif hasattr(source, "violations") and source.violations:
+            for v in source.violations:
+                violations.append({
+                    "rule_id": getattr(v, "rule_id", "unknown"),
+                    "severity": self._normalize_severity(getattr(v, "severity", None)),
+                    "description": getattr(v, "description", ""),
+                    "suggestion": getattr(v, "suggestion", None),
+                })
+
+        return violations
+
+    def _extract_score(self, result: Any) -> float:
+        """Extract score from various result formats with safe fallback."""
+        # Try modern 'score' field first
+        if hasattr(result, "score"):
+            return self._safe_float(result.score)
+        # Try dict access
+        if isinstance(result, dict) and "score" in result:
+            return self._safe_float(result["score"])
+        # Fallback to deprecated 'overall_score'
+        if hasattr(result, "overall_score"):
+            return self._safe_float(result.overall_score)
+        if isinstance(result, dict) and "overall_score" in result:
+            return self._safe_float(result["overall_score"])
+        return 0.0
+
+    def _extract_is_acceptable(self, result: Any, score: float) -> bool:
+        """Extract acceptance status with fallback to score threshold."""
+        # Try direct fields first
+        for field in ["is_acceptable", "is_valid"]:
+            if hasattr(result, field):
+                return bool(getattr(result, field))
+            if isinstance(result, dict) and field in result:
+                return bool(result[field])
+        # Fallback to score threshold
+        return score >= 0.5
+
     def normalize_validation(self, result: Any) -> dict:
         """Normalize any validation format to canonical V2 dict.
 
@@ -134,7 +215,7 @@ class ServiceAdapter:
         - Legacy ValidationResult objects
         - Ensures severity mapping (error->high, warning->medium, other->low)
         """
-
+        # Handle None case
         if result is None:
             return {
                 "overall_score": 0.0,
@@ -143,85 +224,23 @@ class ServiceAdapter:
                 "passed_rules": [],
             }
 
-        # If already a dict from ModularValidationService
+        # Extract components using helper methods
+        violations = self._extract_violations(result)
+        overall_score = self._extract_score(result)
+        is_acceptable = self._extract_is_acceptable(result, overall_score)
+
+        # Extract passed_rules
+        passed_rules = []
         if isinstance(result, dict):
-            # Map violations to canonical format
-            violations = []
-            for v in result.get("violations", []):
-                severity = v.get("severity", "low")
-                # Map internal severities to canonical
-                if severity in ["error", "critical"]:
-                    severity = "high"
-                elif severity == "warning":
-                    severity = "medium"
-                else:
-                    severity = "low"
-
-                violations.append(
-                    {
-                        "rule_id": v.get("rule_id", v.get("code", "unknown")),
-                        "severity": severity,
-                        "description": v.get("description", v.get("message", "")),
-                        "suggestion": v.get("suggestion"),
-                    }
-                )
-
-            return {
-                "overall_score": float(result.get("overall_score", 0.0)),
-                "is_acceptable": result.get("is_acceptable", False),
-                "violations": violations,
-                "passed_rules": result.get("passed_rules", []),
-            }
-
-        # Legacy object format (shouldn't happen with V2, but be defensive)
-        violations = []
-        if hasattr(result, "violations") and result.violations:
-            for v in result.violations:
-                severity = "low"
-                if hasattr(v, "severity"):
-                    sev_val = (
-                        v.severity.value
-                        if hasattr(v.severity, "value")
-                        else str(v.severity)
-                    )
-                    if sev_val in ["high", "critical", "error"]:
-                        severity = "high"
-                    elif sev_val in ["medium", "warning"]:
-                        severity = "medium"
-
-                violations.append(
-                    {
-                        "rule_id": getattr(v, "rule_id", "unknown"),
-                        "severity": severity,
-                        "description": getattr(v, "description", ""),
-                        "suggestion": getattr(v, "suggestion", None),
-                    }
-                )
-
-        # Use is_acceptable if available, otherwise check is_valid, otherwise use score threshold
-        is_acceptable = False
-        if hasattr(result, "is_acceptable"):
-            is_acceptable = result.is_acceptable
-        elif hasattr(result, "is_valid"):
-            is_acceptable = result.is_valid
-        elif hasattr(result, "score"):
-            is_acceptable = result.score >= 0.5
-        elif hasattr(result, "overall_score"):
-            # Deprecated: overall_score is replaced by score
-            is_acceptable = getattr(result, "overall_score", 0.0) >= 0.5
-
-        overall_score = 0.0
-        if hasattr(result, "score"):
-            overall_score = float(result.score)
-        elif hasattr(result, "overall_score"):
-            # Deprecated: overall_score is replaced by score
-            overall_score = float(getattr(result, "overall_score", 0.0))
+            passed_rules = result.get("passed_rules", [])
+        elif hasattr(result, "passed_rules"):
+            passed_rules = getattr(result, "passed_rules", [])
 
         return {
             "overall_score": overall_score,
             "is_acceptable": is_acceptable,
             "violations": violations,
-            "passed_rules": getattr(result, "passed_rules", []),
+            "passed_rules": passed_rules,
         }
 
     def to_ui_response(self, response, agent_result: dict) -> dict:
@@ -503,7 +522,7 @@ class ServiceFactory:
     """
 
     def __init__(self, container: ServiceContainer | None = None):
-        self._container = container or get_container(_get_environment_config())
+        self._container = container or get_cached_container()
         self._adapter = ServiceAdapter(self._container)
 
     # Legacy Dutch-named wrapper used by some historical tests
@@ -545,7 +564,16 @@ def get_definition_service(
         if cached is not None:
             return cached
 
-    container = get_container(config)
+    # US-201: Gebruik cached container om dubbele initialisatie te voorkomen
+    from utils.container_manager import get_cached_container, get_container_with_config
+
+    if config:
+        # Custom config: maak aparte container
+        container = get_container_with_config(config)
+    else:
+        # Gebruik globale cached container
+        container = get_cached_container()
+
     adapter = ServiceAdapter(container)
     if not is_pytest:
         _SERVICE_ADAPTER_CACHE[key] = adapter

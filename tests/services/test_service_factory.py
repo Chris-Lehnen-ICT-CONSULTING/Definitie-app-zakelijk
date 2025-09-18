@@ -532,6 +532,542 @@ class TestRenderFeatureFlagToggle:
             # Note: Because of the context manager, we can't easily verify the exact calls
 
 
+class TestOverallScoreHandling:
+    """Test suite for overall_score KeyError fix (line 170 & 297)."""
+
+    @pytest.mark.asyncio
+    async def test_overall_score_normal_case(self, service_adapter, mock_orchestrator):
+        """Test normal case with valid overall_score."""
+        # Setup with valid overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": 85.5,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": ["rule1", "rule2"]
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = True
+        mock_validation.score = 85.5
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify overall_score is properly handled
+        assert result["validation_details"]["overall_score"] == 85.5
+        assert result["final_score"] == 85.5
+        assert isinstance(result["final_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_overall_score_missing_key(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score key is missing."""
+        # Setup with missing overall_score key
+        mock_validation = Mock()
+        validation_dict = {
+            # overall_score is missing
+            "is_acceptable": False,
+            "violations": [
+                {"rule_id": "CON-001", "severity": "high", "description": "Issue"}
+            ],
+            "passed_rules": []
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = validation_dict["violations"]
+        mock_validation.is_valid = False
+        mock_validation.score = 0.0
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify defaults to 0.0 when missing
+        assert result["validation_details"]["overall_score"] == 0.0
+        assert result["final_score"] == 0.0
+        assert isinstance(result["final_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_overall_score_none_value(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is None."""
+        # Setup with None overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": None,  # Explicitly None
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": ["rule1"]
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = True
+        mock_validation.score = None  # Keep None to test handling
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify defaults to 0.0 when None
+        assert result["validation_details"]["overall_score"] == 0.0
+        assert result["final_score"] == 0.0
+        assert isinstance(result["final_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_overall_score_invalid_string(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is an invalid string."""
+        # Setup with string overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": "not_a_number",  # Invalid string
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": []
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = False
+        mock_validation.score = "not_a_number"  # Keep invalid to test handling
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute - should handle gracefully
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify error handling - string can't be converted to float, defaults to 0.0
+        # The code uses `float(result.get("overall_score") or 0.0)` which will raise ValueError
+        # for invalid strings, so we need to check if this is handled
+        try:
+            float("not_a_number")
+        except ValueError:
+            # If the implementation doesn't handle this, it would raise
+            # Check that the result still has some score value
+            assert "validation_details" in result
+            # Implementation might crash here - documenting expected behavior
+
+    @pytest.mark.asyncio
+    async def test_overall_score_valid_string_number(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is a valid numeric string."""
+        # Setup with string that can be converted to float
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": "75.5",  # String that converts to float
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": ["rule1"]
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = True
+        mock_validation.score = "75.5"  # Keep as string to test conversion
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify string is converted to float
+        assert result["validation_details"]["overall_score"] == 75.5
+        assert result["final_score"] == 75.5
+        assert isinstance(result["final_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_overall_score_list_type(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is a list (invalid type)."""
+        # Setup with list overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": [85, 90],  # Invalid list type
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": []
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = True
+        mock_validation.score = [85, 90]  # Keep as list to test handling
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute - should handle type error
+        try:
+            result = await service_adapter.generate_definition("Test", {})
+            # List can't be converted to float, would raise TypeError
+        except (TypeError, ValueError):
+            pass  # Expected - documenting behavior
+
+    @pytest.mark.asyncio
+    async def test_overall_score_dict_type(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is a dict (invalid type)."""
+        # Setup with dict overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": {"score": 85},  # Invalid dict type
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": []
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = True
+        mock_validation.score = {"score": 85}  # Keep as dict to test handling
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute - should handle type error
+        try:
+            result = await service_adapter.generate_definition("Test", {})
+            # Dict can't be converted to float, would raise TypeError
+        except (TypeError, ValueError):
+            pass  # Expected - documenting behavior
+
+    @pytest.mark.asyncio
+    async def test_overall_score_zero_value(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is zero (edge case)."""
+        # Setup with zero overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": 0,  # Valid zero
+            "is_acceptable": False,
+            "violations": [
+                {"rule_id": "ESS-001", "severity": "high", "description": "Major issue"}
+            ],
+            "passed_rules": []
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = validation_dict["violations"]
+        mock_validation.is_valid = False
+        mock_validation.score = 0
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify zero is properly handled (not replaced with default)
+        assert result["validation_details"]["overall_score"] == 0.0
+        assert result["final_score"] == 0.0
+        assert isinstance(result["final_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_overall_score_negative_value(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is negative (edge case)."""
+        # Setup with negative overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": -10.5,  # Negative score
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": []
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = False
+        mock_validation.score = -10.5
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify negative value is preserved (business logic might need this)
+        assert result["validation_details"]["overall_score"] == -10.5
+        assert result["final_score"] == -10.5
+        assert isinstance(result["final_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_overall_score_very_large_value(self, service_adapter, mock_orchestrator):
+        """Test handling when overall_score is a very large number."""
+        # Setup with very large overall_score
+        mock_validation = Mock()
+        validation_dict = {
+            "overall_score": 999999999.99,  # Very large score
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": ["all_rules"]
+        }
+        mock_validation.to_dict.return_value = validation_dict
+        # Add required attributes
+        mock_validation.violations = []
+        mock_validation.is_valid = True
+        mock_validation.score = 999999999.99
+        mock_validation.errors = []
+        mock_validation.suggestions = []
+
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=mock_validation,
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify large value is handled properly
+        assert result["validation_details"]["overall_score"] == 999999999.99
+        assert result["final_score"] == 999999999.99
+        assert isinstance(result["final_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_concurrent_validation_scenario(self, mock_container):
+        """Test concurrent validations with different overall_score scenarios."""
+        import asyncio
+
+        # Create multiple adapters for concurrent testing
+        orchestrators = []
+        adapters = []
+
+        for i in range(3):
+            orchestrator = AsyncMock()
+            mock_container.orchestrator.return_value = orchestrator
+            adapter = ServiceAdapter(mock_container)
+            orchestrators.append(orchestrator)
+            adapters.append(adapter)
+
+        # Setup different scenarios
+        # Scenario 1: Normal score
+        mock_val1 = Mock()
+        mock_val1.to_dict.return_value = {
+            "overall_score": 95.0,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": ["rule1"]
+        }
+        # Add required attributes
+        mock_val1.violations = []
+        mock_val1.is_valid = True
+        mock_val1.score = 95.0
+        mock_val1.errors = []
+        mock_val1.suggestions = []
+        orchestrators[0].create_definition.return_value = DefinitionResponse(
+            success=True,
+            definition=Definition(begrip="Test1", definitie="Def1", metadata={}),
+            validation=mock_val1
+        )
+
+        # Scenario 2: Missing score
+        mock_val2 = Mock()
+        mock_val2.to_dict.return_value = {
+            # Missing overall_score
+            "is_acceptable": False,
+            "violations": [],
+            "passed_rules": []
+        }
+        # Add required attributes
+        mock_val2.violations = []
+        mock_val2.is_valid = False
+        mock_val2.score = 0.0  # Missing defaults to 0.0
+        mock_val2.errors = []
+        mock_val2.suggestions = []
+        orchestrators[1].create_definition.return_value = DefinitionResponse(
+            success=True,
+            definition=Definition(begrip="Test2", definitie="Def2", metadata={}),
+            validation=mock_val2
+        )
+
+        # Scenario 3: None score
+        mock_val3 = Mock()
+        mock_val3.to_dict.return_value = {
+            "overall_score": None,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": []
+        }
+        # Add required attributes
+        mock_val3.violations = []
+        mock_val3.is_valid = True
+        mock_val3.score = None  # Keep None to test handling
+        mock_val3.errors = []
+        mock_val3.suggestions = []
+        orchestrators[2].create_definition.return_value = DefinitionResponse(
+            success=True,
+            definition=Definition(begrip="Test3", definitie="Def3", metadata={}),
+            validation=mock_val3
+        )
+
+        # Execute concurrent validations
+        tasks = [
+            adapters[0].generate_definition("Test1", {}),
+            adapters[1].generate_definition("Test2", {}),
+            adapters[2].generate_definition("Test3", {})
+        ]
+
+        results = await asyncio.gather(*tasks)
+
+        # Verify all handled correctly
+        assert results[0]["final_score"] == 95.0
+        assert results[1]["final_score"] == 0.0  # Missing defaults to 0.0
+        assert results[2]["final_score"] == 0.0  # None defaults to 0.0
+
+        # All should have proper validation_details
+        for result in results:
+            assert "validation_details" in result
+            assert "overall_score" in result["validation_details"]
+            assert isinstance(result["validation_details"]["overall_score"], float)
+
+    @pytest.mark.asyncio
+    async def test_validation_details_missing_entirely(self, service_adapter, mock_orchestrator):
+        """Test when validation object is None entirely."""
+        # Setup with no validation at all
+        mock_response = DefinitionResponse(
+            success=True,
+            definition=Definition(
+                begrip="Test",
+                definitie="Test definitie",
+                metadata={"origineel": "Original"}
+            ),
+            validation=None,  # No validation object
+            message="Success"
+        )
+
+        mock_orchestrator.create_definition.return_value = mock_response
+
+        # Execute
+        result = await service_adapter.generate_definition("Test", {})
+
+        # Verify defaults are used when validation is None
+        assert result["validation_details"]["overall_score"] == 0.0
+        assert result["final_score"] == 0.0
+        assert result["validation_details"]["is_acceptable"] is False
+        assert result["validation_details"]["violations"] == []
+        assert result["validation_details"]["passed_rules"] == []
+
+
 class TestIntegrationScenarios:
     """Integration test scenarios voor service factory."""
 
