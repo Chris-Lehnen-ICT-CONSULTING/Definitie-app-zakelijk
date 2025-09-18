@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Multi‑Agent Quickstart (Codex)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>titel: Multi‑Agent Quickstart (Codex)</p>
+<p>status: active</p>
+<p>owner: development</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-09-18</p>
+<p>applies_to: definitie-app@current</p>
+<p>---</p>
+
+<h1>Multi‑Agent Quickstart (Codex)</h1>
+
+<p>Deze quickstart laat zien hoe je parallelle agents met Codex inzet via het script <code>scripts/multiagent.sh</code> en hoe je dit met slash‑commando’s aanstuurt.</p>
+
+<h2>Installatie</h2>
+<p>Niets extra’s nodig. Het script staat in deze repo: <code>scripts/multiagent.sh</code>.</p>
+
+<h2>Basiscommando’s</h2>
+<pre><code># 1) Maak 2 worktrees voor agent-a en agent-b
+bash scripts/multiagent.sh init -n 2
+
+# 2) Statusoverzicht (worktrees + lokale agent branches)
+bash scripts/multiagent.sh status
+
+# 3) Review/vergelijk branches (scoreboard); optioneel met quick checks
+bash scripts/multiagent.sh review --quick-checks
+
+# 4) Opruimen (worktrees weg, branches behouden of verwijderen)
+bash scripts/multiagent.sh teardown
+bash scripts/multiagent.sh teardown --delete-branches</code></pre>
+
+<h2>Aanbevolen werkwijze (2 agents)</h2>
+<ol>
+<li>`init -n 2` → opent `agent-a` (minimal) en `agent-b` (robuust)</li>
+<li>Open beide worktrees in aparte terminals/editors en voer je aanpassingen uit</li>
+<li>`review --quick-checks` → vergelijkt teststatus en timing (zie `reports/agent_scoreboard_*.log`)</li>
+<li>Merge de winnaar naar `main` en ruim op met `teardown`</li>
+</ol>
+
+<h2>Slash‑commando’s (conventie)</h2>
+<p>Gebruik onderstaande commando’s in je chat met Codex. De assistent vertaalt deze naar scriptacties:</p>
+
+<ul>
+<li>`/multi init` → `bash scripts/multiagent.sh init -n 2`</li>
+<li>`/multi status` → `bash scripts/multiagent.sh status`</li>
+<li>`/multi review` → `bash scripts/multiagent.sh review --quick-checks`</li>
+<li>`/multi teardown` → `bash scripts/multiagent.sh teardown`</li>
+<li>`/multi teardown all` → `bash scripts/multiagent.sh teardown --delete-branches`</li>
+</ul>
+
+<p>Optioneel kun je namen meegeven: <code>/multi init agent-a agent-b agent-c</code>.</p>
+
+<h2>Triggers via natuurlijke prompts</h2>
+<p>De assistent herkent ook enkele natuurtaal‑triggers en stelt het bijpassende commando voor:</p>
+<ul>
+<li>“Voer een parallelle multi‑agent code base review uit” → `/multi review`</li>
+<li>“Maak twee parallelle agents aan” → `/multi init`</li>
+<li>“Ruim de multi‑agent worktrees op” → `/multi teardown`</li>
+</ul>
+
+<h2>Integratie met bestaande scripts</h2>
+<ul>
+<li>Scoreboard: `scripts/agent_scoreboard.sh` (vereist `pytest`)</li>
+<li>Quick checks: `scripts/agent_quick_checks.sh` (EPIC‑010 greps + snelle tests)</li>
+</ul>
+
+<h2>Tips</h2>
+<ul>
+<li>Gebruik per worktree een andere Codex/Claude‑agent (bijv. minimal vs. robuust) voor variatie.</li>
+<li>Houd patches klein en doelgericht; kies de lichtste oplossing die voldoet.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>
