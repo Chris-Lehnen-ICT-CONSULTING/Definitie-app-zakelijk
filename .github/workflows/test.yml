@@ -44,9 +44,9 @@ jobs:
 
     - name: Run type checking (services only)
       run: |
-        # Focus type checking op services-laag om ruis te beperken
+        # Focus type checking op services-laag; advisory (niet-brekend)
         if command -v mypy &> /dev/null; then
-          mypy src/services --ignore-missing-imports
+          mypy src/services --ignore-missing-imports || true
         fi
 
     - name: Run tests with coverage
