@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Document Upload Functionality (PDF/DOCX)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-211</p>
+<p>titel: Document Upload Functionality (PDF/DOCX)</p>
+<p>epic: EPIC-020-PHOENIX</p>
+<p>status: Open</p>
+<p>prioriteit: MEDIUM</p>
+<p>story_points: 13</p>
+<p>sprint: week-4</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-18</p>
+<p>bijgewerkt: 2025-09-18</p>
+<p>owner: developer</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-020-05</li>
+<p>applies_to: definitie-app@phoenix</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-18</p>
+<p>---</p>
+</ul>
+
+<h1>US-211: Document Upload Functionality (PDF/DOCX)</h1>
+
+<p><strong>Epic:</strong> EPIC-020-PHOENIX - Complete Technical Rebuild (Phoenix)</p>
+<p><strong>Week:</strong> 4 - External Integration</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> juridisch medewerker</p>
+<p><strong>wil ik</strong> PDF en DOCX documenten kunnen uploaden voor context</p>
+<p><strong>zodat</strong> de AI definitiegenerator relevante context uit bestaande documenten kan gebruiken</p>
+
+<h2>Probleembeschrijving</h2>
+
+<p>Gebruikers werken vaak met bestaande juridische documenten die waardevolle context bevatten voor definitiegeneratie. Het systeem moet in staat zijn om documenten te verwerken, relevante secties te identificeren, en deze als context te gebruiken bij het genereren van definities.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Functionele Criteria</h3>
+<ul>
+<li>[ ] Upload interface voor PDF en DOCX bestanden</li>
+<li>[ ] Drag & drop functionaliteit</li>
+<li>[ ] Multi-file upload ondersteuning</li>
+<li>[ ] Document preview functionaliteit</li>
+<li>[ ] Text extractie uit PDF (inclusief OCR voor scans)</li>
+<li>[ ] Text extractie uit DOCX met behoud van structuur</li>
+<li>[ ] Document sectie selectie voor context</li>
+<li>[ ] Automatische taaldetectie (NL/EN)</li>
+<li>[ ] Document metadata extractie</li>
+<li>[ ] Search binnen geüploade documenten</li>
+</ul>
+
+<h3>Technische Criteria</h3>
+<ul>
+<li>[ ] File size limiet (max 50MB per bestand)</li>
+<li>[ ] Virus scanning voor uploads</li>
+<li>[ ] Secure file storage met encryption</li>
+<li>[ ] Async document processing</li>
+<li>[ ] Progress tracking voor processing</li>
+<li>[ ] Chunking voor grote documenten</li>
+<li>[ ] Text cleaning en normalisatie</li>
+<li>[ ] Document versioning support</li>
+</ul>
+
+<h3>UI/UX Criteria</h3>
+<ul>
+<li>[ ] Upload progress indicator</li>
+<li>[ ] Processing status feedback</li>
+<li>[ ] Document thumbnails/preview</li>
+<li>[ ] Sectie highlighting in preview</li>
+<li>[ ] Context selection interface</li>
+<li>[ ] Document management (view/delete)</li>
+<li>[ ] Error handling met duidelijke messages</li>
+</ul>
+
+<h2>Implementatie Details</h2>
+
+<h3>Document Processing Pipeline</h3>
+<pre><code>class DocumentProcessor:
+    """Processes uploaded documents for context extraction"""
+
+    async def process_document(
+        self,
+        file: UploadedFile,
+        options: ProcessingOptions
+    ) -&gt; ProcessedDocument:
+        # 1. Validate file
+        # 2. Extract text
+        # 3. Clean and normalize
+        # 4. Extract structure
+        # 5. Generate embeddings
+        # 6. Store in database
+        pass
+
+class PDFExtractor:
+    """Extract text from PDF files"""
+
+    def extract_text(self, pdf_bytes: bytes) -&gt; str
+    def extract_with_ocr(self, pdf_bytes: bytes) -&gt; str
+    def extract_metadata(self, pdf_bytes: bytes) -&gt; DocumentMetadata
+    def extract_structure(self, pdf_bytes: bytes) -&gt; DocumentStructure
+
+class DOCXExtractor:
+    """Extract text from DOCX files"""
+
+    def extract_text(self, docx_bytes: bytes) -&gt; str
+    def extract_structured_text(self, docx_bytes: bytes) -&gt; List[Section]
+    def extract_metadata(self, docx_bytes: bytes) -&gt; DocumentMetadata
+    def extract_styles(self, docx_bytes: bytes) -&gt; Dict[str, Any]</code></pre>
+
+<h3>Storage Structure</h3>
+<pre><code>data/
+├── uploads/
+│   ├── temp/           # Temporary uploads
+│   └── processed/      # Processed documents
+│       ├── {user_id}/
+│       │   ├── {doc_id}/
+│       │   │   ├── original.{ext}
+│       │   │   ├── extracted.txt
+│       │   │   ├── metadata.json
+│       │   │   └── embeddings.pkl</code></pre>
+
+<h3>Database Schema</h3>
+<pre><code>-- Document storage
+CREATE TABLE uploaded_documents (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    file_type TEXT NOT NULL,
+    file_size INTEGER NOT NULL,
+    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    processing_status TEXT DEFAULT 'pending',
+    extracted_text TEXT,
+    metadata JSON,
+    language TEXT,
+    word_count INTEGER,
+    page_count INTEGER,
+    error_message TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- Document sections for granular context
+CREATE TABLE document_sections (
+    id TEXT PRIMARY KEY,
+    document_id TEXT NOT NULL,
+    section_type TEXT,  -- 'heading', 'paragraph', 'list', etc.
+    section_number INTEGER,
+    content TEXT NOT NULL,
+    embedding BLOB,
+    relevance_score REAL,
+    FOREIGN KEY (document_id) REFERENCES uploaded_documents(id)
+);</code></pre>
+
+<h3>Processing Libraries</h3>
+<pre><code># requirements.txt additions
+pdfplumber&gt;=0.9.0     # PDF text extraction
+pytesseract&gt;=0.3.10   # OCR for scanned PDFs
+python-docx&gt;=0.8.11   # DOCX processing
+langdetect&gt;=1.0.9     # Language detection
+pypdf&gt;=3.0.0          # PDF manipulation
+pillow&gt;=10.0.0        # Image processing for OCR</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Upload UI component geïmplementeerd</li>
+<li>[ ] PDF extractor met OCR support</li>
+<li>[ ] DOCX extractor met structure preservation</li>
+<li>[ ] Document processing pipeline werkend</li>
+<li>[ ] Database schema en migrations</li>
+<li>[ ] File storage met encryption</li>
+<li>[ ] Virus scanning integratie</li>
+<li>[ ] Document preview functionaliteit</li>
+<li>[ ] Context selection interface</li>
+<li>[ ] Unit tests voor extractors</li>
+<li>[ ] Integration tests voor pipeline</li>
+<li>[ ] Performance test (10MB PDF <30s)</li>
+<li>[ ] Security audit voor file handling</li>
+<li>[ ] Gebruikersdocumentatie</li>
+</ul>
+
+<h2>UI Mockup Concept</h2>
+
+<pre><code>┌─────────────────────────────────────┐
+│  📄 Document Upload &amp; Context       │
+├─────────────────────────────────────┤
+│                                     │
+│  ┌─────────────────────────────┐   │
+│  │   Drop files here or browse  │   │
+│  │   PDF, DOCX (max 50MB)      │   │
+│  └─────────────────────────────┘   │
+│                                     │
+│  Uploaded Documents:               │
+│  ┌──────┬──────────┬──────────┐   │
+│  │ Type │ Name     │ Status    │   │
+│  ├──────┼──────────┼──────────┤   │
+│  │ PDF  │ wet.pdf  │ ✓ Ready  │   │
+│  │ DOCX │ nota.docx│ ⟳ Process│   │
+│  └──────┴──────────┴──────────┘   │
+│                                     │
+│  Selected Context:                 │
+│  ┌─────────────────────────────┐   │
+│  │ wet.pdf - Art. 3.1-3.5      │   │
+│  │ "Deze bepalingen..."         │   │
+│  └─────────────────────────────┘   │
+└─────────────────────────────────────┘</code></pre>
+
+<h2>Risico's</h2>
+
+<p>| Risico | Impact | Mitigatie |</p>
+<p>|--------|--------|-----------|</p>
+<p>| Malicious files | High | Virus scanning, sandboxing |</p>
+<p>| Large file processing | Medium | Async processing, queuing |</p>
+<p>| OCR accuracy | Medium | Manual review option |</p>
+<p>| Storage costs | Low | Retention policy, compression |</p>
+<p>| Privacy concerns | High | Encryption, access control |</p>
+
+<h2>Performance Requirements</h2>
+
+<ul>
+<li>Upload: <2s voor 10MB file</li>
+<li>Text extraction: <30s voor 100 pagina PDF</li>
+<li>OCR processing: <2min voor 20 pagina scan</li>
+<li>Search in documents: <500ms response</li>
+<li>Context retrieval: <1s voor relevante secties</li>
+</ul>
+
+<h2>Security Considerations</h2>
+
+<ul>
+<li>File type validation (magic bytes, not just extension)</li>
+<li>Antivirus scanning met ClamAV of cloud service</li>
+<li>Encrypted storage at rest</li>
+<li>Access control per document</li>
+<li>Audit logging voor document access</li>
+<li>GDPR compliance voor document retention</li>
+</ul>
+
+<h2>Testing Strategie</h2>
+
+<ol>
+<li>**Unit Tests**: Individual extractors</li>
+<li>**Integration Tests**: Full pipeline</li>
+<li>**Performance Tests**: Large file handling</li>
+<li>**Security Tests**: Malicious file handling</li>
+<li>**UI Tests**: Upload and selection flow</li>
+<li>**OCR Tests**: Various scan qualities</li>
+</ol>
+
+<h2>Dependencies on Other Stories</h2>
+
+<ul>
+<li>Requires storage infrastructure from Week 1</li>
+<li>Benefits from caching from Week 2</li>
+<li>Integrates with context management system</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Consider PDF.js voor client-side preview</li>
+<li>Implement progressive loading voor grote documenten</li>
+<li>Add support voor andere formaten later (RTF, TXT, HTML)</li>
+<li>Consider integration met cloud storage (OneDrive, Google Drive)</li>
+<li>Implement smart chunking based on document structure</li>
+</ul>
+  </div>
+</body>
+</html>

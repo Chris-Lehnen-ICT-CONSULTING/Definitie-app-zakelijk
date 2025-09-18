@@ -33,6 +33,7 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 - Quickstart: [Multi‑Agent Quickstart](../handleidingen/ontwikkelaars/MULTIAGENT_QUICKSTART.md) — script + slash‑commando’s.
 - Gids: [Codex Multi‑Agent Gebruik](../handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md) — parallelle agents (worktrees/patches), selectiecriteria, quick‑checks en scoreboard.
 - Script: `scripts/multiagent.sh` — init/status/review/teardown van agent‑worktrees.
+- Advies‑check voor nut/zin: `bash scripts/multiagent.sh check` (NO bij docs‑only/tiny diffs; `--strict` om init te blokkeren; `--force` om te overriden).
 
 ## Claude Code Agents Locatie
 - Beschikbare agent‑prompts: `~/.claude/agents/`

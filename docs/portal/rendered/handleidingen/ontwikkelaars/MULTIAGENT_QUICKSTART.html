@@ -48,6 +48,14 @@ bash scripts/multiagent.sh review --quick-checks
 bash scripts/multiagent.sh teardown
 bash scripts/multiagent.sh teardown --delete-branches</code></pre>
 
+<h2>Advies‑check (wanneer multi wél/niet)</h2>
+<pre><code># Laat het script adviseren op basis van diff‑omvang en type wijzigingen
+bash scripts/multiagent.sh check
+
+# Init met advies‑gate (aborteert bij 'NO' tenzij je forceert)
+bash scripts/multiagent.sh init -n 2 --strict   # abort bij ontraden
+bash scripts/multiagent.sh init -n 2 --force    # forceer ondanks advies</code></pre>
+
 <h2>Aanbevolen werkwijze (2 agents)</h2>
 <ol>
 <li>`init -n 2` → opent `agent-a` (minimal) en `agent-b` (robuust)</li>
@@ -88,7 +96,6 @@ bash scripts/multiagent.sh teardown --delete-branches</code></pre>
 <li>Gebruik per worktree een andere Codex/Claude‑agent (bijv. minimal vs. robuust) voor variatie.</li>
 <li>Houd patches klein en doelgericht; kies de lichtste oplossing die voldoet.</li>
 </ul>
-
 
   </div>
 </body>
