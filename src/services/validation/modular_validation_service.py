@@ -282,6 +282,7 @@ class ModularValidationService:
                                 "code": code,
                                 "severity": "warning",
                                 "message": "",
+                                "description": "",
                                 "rule_id": code,
                                 "category": self._category_for(code),
                             }
@@ -353,6 +354,7 @@ class ModularValidationService:
                 "code": prefix,
                 "severity": "warning" if prefix.startswith("STR-") else "error",
                 "message": message,
+                "description": message,
                 "rule_id": prefix,
                 "category": self._category_for(prefix),
             }
@@ -467,6 +469,7 @@ class ModularValidationService:
                 "code": code,
                 "severity": self._severity_for_json_rule(rule),
                 "message": f"Pattern(s) matched: {', '.join(sorted({h[0] for h in hits}))}",
+                "description": f"Pattern(s) matched: {', '.join(sorted({h[0] for h in hits}))}",
                 "rule_id": code,
                 "category": self._category_for(code),
             }
@@ -478,6 +481,7 @@ class ModularValidationService:
                 "code": code,
                 "severity": self._severity_for_json_rule(rule),
                 "message": "Geen authentieke bron/basis in definitietekst",
+                "description": "Geen authentieke bron/basis in definitietekst",
                 "rule_id": code,
                 "category": self._category_for(code),
             }
@@ -488,6 +492,7 @@ class ModularValidationService:
                 "code": code,
                 "severity": self._severity_for_json_rule(rule),
                 "message": "Ontbreekt uniek identificatiecriterium",
+                "description": "Ontbreekt uniek identificatiecriterium",
                 "rule_id": code,
                 "category": self._category_for(code),
             }
@@ -496,6 +501,7 @@ class ModularValidationService:
                 "code": code,
                 "severity": self._severity_for_json_rule(rule),
                 "message": "Ontbreekt objectief toetsbaar element",
+                "description": "Ontbreekt objectief toetsbaar element",
                 "rule_id": code,
                 "category": self._category_for(code),
             }
@@ -504,6 +510,7 @@ class ModularValidationService:
                 "code": code,
                 "severity": self._severity_for_json_rule(rule),
                 "message": "Ontbreekt onderscheidend kenmerk",
+                "description": "Ontbreekt onderscheidend kenmerk",
                 "rule_id": code,
                 "category": self._category_for(code),
             }
@@ -516,6 +523,7 @@ class ModularValidationService:
                     "code": code,
                     "severity": self._severity_for_json_rule(rule),
                     "message": "Term (lemma) lijkt meervoud (geen plurale tantum)",
+                    "description": "Term (lemma) lijkt meervoud (geen plurale tantum)",
                     "rule_id": code,
                     "category": self._category_for(code),
                 }
@@ -607,6 +615,7 @@ class ModularValidationService:
                 "code": "ESS-02",
                 "severity": "error",
                 "message": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
+                "description": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
                 "rule_id": "ESS-02",
                 "category": self._category_for("ESS-02"),
             }
@@ -615,6 +624,7 @@ class ModularValidationService:
             "code": "ESS-02",
             "severity": "error",
             "message": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
+            "description": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
             "rule_id": "ESS-02",
             "category": self._category_for("ESS-02"),
         }
@@ -670,6 +680,7 @@ class ModularValidationService:
                     "code": "CON-01",
                     "severity": "warning",
                     "message": "Bestaande definitie met dezelfde context gevonden",
+                    "description": "Bestaande definitie met dezelfde context gevonden",
                     "rule_id": "CON-01",
                     "category": self._category_for("CON-01"),
                     "metadata": {"existing_definition_id": found_id, "status": found_status},
