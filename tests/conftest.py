@@ -119,14 +119,22 @@ def benchmark_timer():
     return Timer()
 
 
-# Provide a minimal fallback for the 'benchmark' fixture when pytest-benchmark
-# plugin is not installed. It simply runs the callable once.
-@pytest.fixture
-def benchmark():
-    def run(fn, *args, **kwargs):
-        return fn(*args, **kwargs)
+# Provide a minimal fallback for the 'benchmark' fixture ONLY when
+# pytest-benchmark is not installed. When the plugin is present, its
+# BenchmarkFixture should be used to avoid conflicts.
+try:  # pragma: no cover - import guard for optional plugin
+    import pytest_benchmark  # type: ignore
+    _HAS_BENCHMARK_PLUGIN = True
+except Exception:  # plugin not available
+    _HAS_BENCHMARK_PLUGIN = False
 
-    return run
+if not _HAS_BENCHMARK_PLUGIN:
+    @pytest.fixture
+    def benchmark():
+        def run(fn, *args, **kwargs):
+            return fn(*args, **kwargs)
+
+        return run
 
 
 # Test data fixtures
