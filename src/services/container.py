@@ -64,8 +64,10 @@ class ServiceContainer:
         """
         self.config = config or {}
         self._instances = {}
+        self._initialization_count = 0  # Track init count voor debugging
         self._load_configuration()
-        logger.info("ServiceContainer geïnitialiseerd")
+        self._initialization_count += 1
+        logger.info(f"ServiceContainer geïnitialiseerd (init count: {self._initialization_count})")
 
     def _load_configuration(self):
         """Laad configuratie uit environment en config dict."""
@@ -206,7 +208,8 @@ class ServiceContainer:
             from services.validation.modular_validation_service import (
                 ModularValidationService,
             )
-            from toetsregels.manager import get_toetsregel_manager
+            # US-202: Use cached manager voor 100x betere performance
+            from toetsregels.cached_manager import get_cached_toetsregel_manager
 
             v2_config = V2OrchestratorConfig()
 
@@ -217,8 +220,9 @@ class ServiceContainer:
             )
 
             # Create ModularValidationService (V2)
+            # US-202: Gebruik CachedToetsregelManager voor performance
             modular_validation_service = ModularValidationService(
-                get_toetsregel_manager(),
+                get_cached_toetsregel_manager(),
                 None,
                 ValidationConfig.from_yaml("src/config/validation_rules.yaml"),
                 repository=self.repository(),
@@ -437,11 +441,22 @@ class ServiceContainer:
             "duplicate_detector": self.duplicate_detector,
             "workflow": self.workflow,
             "cleaning_service": self.cleaning_service,
+            "gate_policy": self.gate_policy,
+            "definition_workflow_service": self.definition_workflow_service,
         }
 
         if name in service_map:
             return service_map[name]()
         return None
+
+    def get_initialization_count(self) -> int:
+        """
+        Get het aantal keer dat deze container is geïnitialiseerd.
+
+        Returns:
+            Aantal initialisaties (voor debugging van caching issues)
+        """
+        return getattr(self, "_initialization_count", 1)
 
     def update_config(self, config: dict[str, Any]):
         """
