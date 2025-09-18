@@ -58,6 +58,27 @@ cd ../Definitie-app-agent-c   # Agent C: performance/architectuur</code></pre>
 
 <p>Voordelen: volledige isolatie, parallel draaien van tests, heldere diffs. Nadelen: meer directories.</p>
 
+<h3>Helper script (snelle start)</h3>
+<p>Gebruik <code>scripts/multiagent.sh</code> om worktrees/branches te beheren en te vergelijken zonder handwerk:</p>
+
+<pre><code># 2 agents aanmaken (agent-a, agent-b)
+bash scripts/multiagent.sh init -n 2
+
+# Status en review
+bash scripts/multiagent.sh status
+bash scripts/multiagent.sh review --quick-checks
+
+# Opruimen
+bash scripts/multiagent.sh teardown</code></pre>
+
+<p>Slash‑commando’s (conventie in Codex‑chat):</p>
+<ul>
+<li>`/multi init` → `bash scripts/multiagent.sh init -n 2`</li>
+<li>`/multi status` → `bash scripts/multiagent.sh status`</li>
+<li>`/multi review` → `bash scripts/multiagent.sh review --quick-checks`</li>
+<li>`/multi teardown` → `bash scripts/multiagent.sh teardown`</li>
+</ul>
+
 <h3>2) Sequentieel met patches</h3>
 <p>Ieder voorstel als patchbestand opslaan en later vergelijken/apply’en.</p>
 
