@@ -27856,6 +27856,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Multi‑Agent Quickstart (Codex)",
+      "path": "../handleidingen/ontwikkelaars/MULTIAGENT_QUICKSTART.md",
+      "url": "../handleidingen/ontwikkelaars/MULTIAGENT_QUICKSTART.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "development",
+      "canonical": false,
+      "last_verified": "2025-09-18",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/handleidingen/ontwikkelaars/MULTIAGENT_QUICKSTART.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Codex Multi‑Agent Gebruik",
       "path": "../handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md",
       "url": "../handleidingen/ontwikkelaars/codex-multi-agent-gebruik.md",
@@ -28516,7 +28547,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 419,
+      "DOC": 420,
       "EPIC": 16,
       "US": 184,
       "BUG": 10,
@@ -28526,7 +28557,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-18T13:45:11Z"
+    "generated_at": "2025-09-18T13:55:15Z"
   },
   "sources": [
     "docs"
