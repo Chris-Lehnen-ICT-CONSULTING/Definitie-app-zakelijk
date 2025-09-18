@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Extract Business Logic from UI Layer</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-206</p>
+<p>epic_id: EPIC-020-PHOENIX</p>
+<p>title: Extract Business Logic from UI Layer</p>
+<p>status: OPEN</p>
+<p>priority: HIGH</p>
+<p>story_points: 8</p>
+<p>assignee: team</p>
+<p>created_date: 2025-01-18</p>
+<p>updated_date: 2025-01-18</p>
+<p>labels: [phoenix, refactoring, architecture, separation-of-concerns, business-logic]</p>
+<p>acceptance_criteria:</p>
+<ul>
+<li> - All business logic moved to service layer</li>
+<li> - UI layer only handles presentation</li>
+<li> - Clear separation between UI and business logic</li>
+<li> - All business rules testable without UI</li>
+<li> - No direct database access from UI</li>
+<p>definition_of_done:</p>
+<li> - Code review completed</li>
+<li> - Unit tests for all business logic</li>
+<li> - UI tests simplified</li>
+<li> - Architecture documentation updated</li>
+<li> - No business logic in UI files</li>
+<p>dependencies:</p>
+<li> - US-204 (V1 to V2 migration)</li>
+<li> - US-205 (god class splitting)</li>
+<p>---</p>
+</ul>
+
+<h1>US-206: Extract Business Logic from UI Layer</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> architect</p>
+<p><strong>Wil ik</strong> alle business logica uit de UI laag halen</p>
+<p><strong>Zodat</strong> business rules onafhankelijk van de UI getest en hergebruikt kunnen worden</p>
+
+<h2>Current State Analysis</h2>
+
+<h3>Problems in Current UI Layer</h3>
+<pre><code># Current anti-pattern in UI files:
+def render_validation_tab():
+    # UI rendering
+    st.header("Validatie")
+
+    # PROBLEM: Business logic in UI
+    if len(definition.term) &gt; 100:  # Business rule
+        st.error("Term too long")
+
+    # PROBLEM: Direct service calls
+    results = validator.validate(definition)
+
+    # PROBLEM: Complex calculations in UI
+    score = sum(r.score for r in results) / len(results)  # Business logic
+
+    # PROBLEM: Data transformation in UI
+    formatted_results = [
+        {"rule": r.rule_id, "status": "✓" if r.passed else "✗"}
+        for r in results
+    ]</code></pre>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Separation Requirements</h3>
+<ul>
+<li>[ ] UI files bevatten GEEN business rules</li>
+<li>[ ] UI files bevatten GEEN directe database calls</li>
+<li>[ ] UI files bevatten GEEN complexe calculations</li>
+<li>[ ] UI files bevatten GEEN data transformations</li>
+<li>[ ] UI files bevatten ALLEEN rendering en event binding</li>
+</ul>
+
+<h3>Business Logic Organization</h3>
+<ul>
+<li>[ ] Alle business rules in service layer</li>
+<li>[ ] Alle validaties in dedicated validators</li>
+<li>[ ] Alle calculations in domain models</li>
+<li>[ ] Alle data transformations in mappers/converters</li>
+</ul>
+
+<h3>Testing Requirements</h3>
+<ul>
+<li>[ ] Business logic 100% testbaar zonder Streamlit</li>
+<li>[ ] UI tests focussen alleen op rendering</li>
+<li>[ ] Geen mocking van business logic in UI tests</li>
+<li>[ ] Business logic tests zonder UI dependencies</li>
+</ul>
+
+<h3>Architecture Compliance</h3>
+<ul>
+<li>[ ] Clean Architecture principles gevolgd</li>
+<li>[ ] Dependency flow: UI → Application → Domain</li>
+<li>[ ] No circular dependencies</li>
+<li>[ ] Clear interface boundaries</li>
+</ul>
+
+<h2>Technical Implementation Notes</h2>
+
+<h3>Target Architecture</h3>
+
+<pre><code>src/
+├── domain/                 # Business Logic &amp; Rules
+│   ├── models/
+│   │   ├── definition.py   # Domain model with business rules
+│   │   ├── validation.py   # Validation domain logic
+│   │   └── scoring.py      # Scoring algorithms
+│   ├── rules/
+│   │   ├── term_rules.py   # Term validation rules
+│   │   ├── definition_rules.py  # Definition validation rules
+│   │   └── quality_rules.py     # Quality assessment rules
+│   └── services/
+│       ├── definition_service.py  # Definition business logic
+│       ├── validation_service.py  # Validation orchestration
+│       └── scoring_service.py     # Score calculations
+├── application/            # Application Services
+│   ├── use_cases/
+│   │   ├── generate_definition.py
+│   │   ├── validate_definition.py
+│   │   └── export_definition.py
+│   └── interfaces/
+│       ├── repository_interface.py
+│       └── ai_service_interface.py
+└── ui/                    # Presentation Only
+    ├── presenters/        # UI-specific formatting
+    │   ├── definition_presenter.py
+    │   ├── validation_presenter.py
+    │   └── score_presenter.py
+    └── tabs/
+        └── *.py           # Pure rendering</code></pre>
+
+<h3>Phase 1: Identify Business Logic in UI (Day 1)</h3>
+
+<pre><code># Scan for patterns indicating business logic in UI
+patterns_to_find = [
+    "if .* &gt; .*:",          # Conditional business rules
+    "if .* &lt; .*:",          # Threshold checks
+    "calculate_",           # Calculations
+    "validate_",            # Validations
+    "transform_",           # Data transformations
+    ".save()",              # Direct persistence
+    ".query()",             # Direct queries
+    "SELECT",               # SQL in UI
+    "for .* in .*:",        # Complex iterations
+    "sum(",                 # Aggregations
+    "max(",                 # Business calculations
+    "min(",
+]</code></pre>
+
+<h3>Phase 2: Extract Business Rules (Day 2-3)</h3>
+
+<pre><code># Before: Business logic in UI
+def render_definition():
+    definition = st.session_state.get("definition")
+
+    # Business rule in UI
+    if len(definition.term) &gt; 100:
+        st.error("Term mag niet langer zijn dan 100 karakters")
+
+    # Complex validation in UI
+    if not definition.term[0].isupper():
+        st.warning("Term moet met hoofdletter beginnen")
+
+    # Score calculation in UI
+    score = calculate_quality_score(definition)
+    if score &lt; 0.7:
+        st.error("Kwaliteit onvoldoende")
+
+# After: Clean separation
+# domain/rules/term_rules.py
+class TermRules:
+    MAX_LENGTH = 100
+
+    @staticmethod
+    def validate_length(term: str) -&gt; ValidationResult:
+        if len(term) &gt; TermRules.MAX_LENGTH:
+            return ValidationResult.failure(
+                f"Term mag niet langer zijn dan {TermRules.MAX_LENGTH} karakters"
+            )
+        return ValidationResult.success()
+
+    @staticmethod
+    def validate_capitalization(term: str) -&gt; ValidationResult:
+        if not term[0].isupper():
+            return ValidationResult.warning(
+                "Term moet met hoofdletter beginnen"
+            )
+        return ValidationResult.success()
+
+# domain/services/scoring_service.py
+class ScoringService:
+    def calculate_quality_score(self, definition: Definition) -&gt; QualityScore:
+        # Complex business logic here
+        return QualityScore(value=score, threshold=0.7)
+
+# ui/tabs/definition_tab.py (cleaned)
+def render_definition():
+    definition = st.session_state.get("definition")
+    presenter = DefinitionPresenter(
+        term_validator=container.get(TermRules),
+        scoring_service=container.get(ScoringService)
+    )
+
+    # Pure presentation
+    validation_results = presenter.validate(definition)
+    for result in validation_results:
+        if result.is_error:
+            st.error(result.message)
+        elif result.is_warning:
+            st.warning(result.message)</code></pre>
+
+<h3>Phase 3: Extract Data Transformations (Day 4)</h3>
+
+<pre><code># Before: Data transformation in UI
+def display_validation_results():
+    results = st.session_state.get("validation_results")
+
+    # Data transformation in UI
+    grouped = {}
+    for result in results:
+        category = result.rule_id.split("-")[0]
+        if category not in grouped:
+            grouped[category] = []
+        grouped[category].append({
+            "rule": result.rule_id,
+            "status": "✓" if result.passed else "✗",
+            "score": round(result.score * 100, 2)
+        })
+
+    for category, items in grouped.items():
+        st.subheader(category)
+        st.table(items)
+
+# After: Transformation in service
+# application/transformers/validation_transformer.py
+class ValidationTransformer:
+    def group_by_category(self, results: List[ValidationResult]) -&gt; Dict[str, List[ValidationDisplay]]:
+        grouped = defaultdict(list)
+        for result in results:
+            category = self._extract_category(result.rule_id)
+            grouped[category].append(self._to_display_model(result))
+        return dict(grouped)
+
+    def _to_display_model(self, result: ValidationResult) -&gt; ValidationDisplay:
+        return ValidationDisplay(
+            rule=result.rule_id,
+            status=self._format_status(result.passed),
+            score=self._format_score(result.score)
+        )
+
+# ui/tabs/validation_tab.py (cleaned)
+def display_validation_results():
+    results = st.session_state.get("validation_results")
+    transformer = container.get(ValidationTransformer)
+
+    # Pure presentation
+    grouped_results = transformer.group_by_category(results)
+    for category, items in grouped_results.items():
+        st.subheader(category)
+        st.table([item.to_dict() for item in items])</code></pre>
+
+<h3>Phase 4: Extract Calculations (Day 5)</h3>
+
+<pre><code># Before: Calculations in UI
+def show_statistics():
+    definitions = repository.get_all()
+
+    # Complex calculations in UI
+    total_score = sum(d.score for d in definitions)
+    avg_score = total_score / len(definitions) if definitions else 0
+
+    passed = [d for d in definitions if d.score &gt;= 0.7]
+    pass_rate = len(passed) / len(definitions) * 100
+
+    # Statistical calculations in UI
+    scores = [d.score for d in definitions]
+    std_dev = statistics.stdev(scores) if len(scores) &gt; 1 else 0
+
+    st.metric("Gemiddelde Score", f"{avg_score:.2f}")
+    st.metric("Slagingspercentage", f"{pass_rate:.1f}%")
+    st.metric("Standaardafwijking", f"{std_dev:.3f}")
+
+# After: Calculations in domain service
+# domain/services/statistics_service.py
+class StatisticsService:
+    def calculate_statistics(self, definitions: List[Definition]) -&gt; DefinitionStatistics:
+        if not definitions:
+            return DefinitionStatistics.empty()
+
+        scores = [d.score for d in definitions]
+        return DefinitionStatistics(
+            average_score=self._calculate_average(scores),
+            pass_rate=self._calculate_pass_rate(definitions),
+            standard_deviation=self._calculate_std_dev(scores),
+            total_count=len(definitions),
+            passed_count=self._count_passed(definitions)
+        )
+
+    def _calculate_pass_rate(self, definitions: List[Definition]) -&gt; float:
+        passed = self._count_passed(definitions)
+        return (passed / len(definitions)) * 100 if definitions else 0
+
+# ui/tabs/statistics_tab.py (cleaned)
+def show_statistics():
+    definitions = repository.get_all()
+    stats_service = container.get(StatisticsService)
+
+    # Pure presentation
+    stats = stats_service.calculate_statistics(definitions)
+    st.metric("Gemiddelde Score", f"{stats.average_score:.2f}")
+    st.metric("Slagingspercentage", f"{stats.pass_rate:.1f}%")
+    st.metric("Standaardafwijking", f"{stats.standard_deviation:.3f}")</code></pre>
+
+<h3>Phase 5: Create Use Cases (Day 6)</h3>
+
+<pre><code># application/use_cases/generate_definition.py
+class GenerateDefinitionUseCase:
+    def __init__(self, generator, validator, repository):
+        self.generator = generator
+        self.validator = validator
+        self.repository = repository
+
+    def execute(self, request: GenerateDefinitionRequest) -&gt; GenerateDefinitionResponse:
+        # Validate request
+        validation = self.validator.validate_request(request)
+        if not validation.is_valid:
+            return GenerateDefinitionResponse.failure(validation.errors)
+
+        # Generate definition
+        definition = self.generator.generate(
+            term=request.term,
+            context=request.context
+        )
+
+        # Validate result
+        quality = self.validator.validate_definition(definition)
+
+        # Save if quality sufficient
+        if quality.score &gt;= 0.7:
+            self.repository.save(definition)
+
+        return GenerateDefinitionResponse.success(
+            definition=definition,
+            quality=quality
+        )
+
+# ui/handlers/generation_handler.py (thin UI adapter)
+class GenerationHandler:
+    def __init__(self, use_case: GenerateDefinitionUseCase):
+        self.use_case = use_case
+
+    def handle_generate_click(self, term: str, context: str):
+        request = GenerateDefinitionRequest(term=term, context=context)
+        response = self.use_case.execute(request)
+
+        if response.is_success:
+            st.session_state["definition"] = response.definition
+            st.success("Definitie gegenereerd")
+        else:
+            for error in response.errors:
+                st.error(error)</code></pre>
+
+<h2>Testing Strategy</h2>
+
+<h3>Business Logic Tests (No UI)</h3>
+<pre><code># tests/domain/rules/test_term_rules.py
+def test_term_length_validation():
+    result = TermRules.validate_length("a" * 101)
+    assert not result.is_valid
+    assert "100 karakters" in result.message
+
+# tests/domain/services/test_scoring_service.py
+def test_quality_score_calculation():
+    service = ScoringService()
+    definition = Definition(term="Test", text="Een test")
+    score = service.calculate_quality_score(definition)
+    assert 0 &lt;= score.value &lt;= 1
+
+# tests/application/use_cases/test_generate_definition.py
+def test_generate_definition_use_case():
+    use_case = GenerateDefinitionUseCase(
+        generator=MockGenerator(),
+        validator=MockValidator(),
+        repository=MockRepository()
+    )
+    response = use_case.execute(request)
+    assert response.is_success</code></pre>
+
+<h3>UI Tests (Pure Presentation)</h3>
+<pre><code># tests/ui/test_definition_tab.py
+def test_definition_display():
+    # Only test that UI renders correctly
+    # No business logic testing here
+    with patch('streamlit.write') as mock_write:
+        render_definition(mock_definition)
+        mock_write.assert_called_with(mock_definition.text)</code></pre>
+
+<h2>Migration Checklist</h2>
+
+<h3>Per UI File</h3>
+<ul>
+<li>[ ] Identify all business logic</li>
+<li>[ ] Extract to appropriate service/domain class</li>
+<li>[ ] Replace with service calls</li>
+<li>[ ] Create presenter if needed</li>
+<li>[ ] Update tests</li>
+<li>[ ] Verify functionality unchanged</li>
+</ul>
+
+<h3>Common Patterns to Extract</h3>
+<ul>
+<li>[ ] Validations → Domain Rules</li>
+<li>[ ] Calculations → Domain Services</li>
+<li>[ ] Data transformations → Application Transformers</li>
+<li>[ ] Database queries → Repository Pattern</li>
+<li>[ ] Complex conditions → Business Rules</li>
+<li>[ ] Aggregations → Statistics Services</li>
+</ul>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] **Code Analysis**:</li>
+<li> - Zero business logic in `src/ui/` directory</li>
+<li> - All validations in domain layer</li>
+<li> - All calculations in services</li>
+<li> - All data access through repositories</li>
+</ul>
+
+<ul>
+<li>[ ] **Testing**:</li>
+<li> - 100% test coverage for business logic</li>
+<li> - Business logic tests run without Streamlit</li>
+<li> - UI tests simplified to presentation only</li>
+<li> - Integration tests still passing</li>
+</ul>
+
+<ul>
+<li>[ ] **Architecture**:</li>
+<li> - Clean Architecture boundaries enforced</li>
+<li> - Dependency rules followed (UI → App → Domain)</li>
+<li> - No circular dependencies</li>
+<li> - Clear separation of concerns</li>
+</ul>
+
+<ul>
+<li>[ ] **Documentation**:</li>
+<li> - Architecture diagram updated</li>
+<li> - Domain model documented</li>
+<li> - Business rules catalogued</li>
+<li> - Service interfaces documented</li>
+</ul>
+
+<ul>
+<li>[ ] **Quality Gates**:</li>
+<li> - Pylint score ≥ 9.0</li>
+<li> - Cyclomatic complexity < 10 per function</li>
+<li> - No code duplication</li>
+<li> - Type hints complete</li>
+</ul>
+
+<h2>Success Metrics</h2>
+
+<h3>Before</h3>
+<ul>
+<li>Business logic lines in UI: ~800</li>
+<li>UI test complexity: High</li>
+<li>Business rule testability: 40%</li>
+<li>Mock objects in UI tests: >50</li>
+</ul>
+
+<h3>After</h3>
+<ul>
+<li>Business logic lines in UI: 0</li>
+<li>UI test complexity: Low</li>
+<li>Business rule testability: 100%</li>
+<li>Mock objects in UI tests: <5</li>
+</ul>
+
+<h2>Risks & Mitigations</h2>
+
+<h3>Risk: Over-abstraction</h3>
+<p><strong>Mitigation</strong>:</p>
+<ul>
+<li>Follow YAGNI principle</li>
+<li>Maximum 3 layers of abstraction</li>
+<li>Review each abstraction for value</li>
+</ul>
+
+<h3>Risk: Performance Impact</h3>
+<p><strong>Mitigation</strong>:</p>
+<ul>
+<li>Profile before/after</li>
+<li>Use lazy loading</li>
+<li>Cache expensive operations</li>
+</ul>
+
+<h3>Risk: Increased Complexity</h3>
+<p><strong>Mitigation</strong>:</p>
+<ul>
+<li>Clear naming conventions</li>
+<li>Comprehensive documentation</li>
+<li>Team training on new architecture</li>
+</ul>
+
+<h2>Notes</h2>
+
+<h3>Signs of Business Logic in UI</h3>
+<pre><code># RED FLAGS in UI code:
+- if/else with business conditions
+- Mathematical calculations
+- Data validations
+- String manipulations for business reasons
+- Date calculations
+- Direct database access
+- API calls
+- File I/O for business data
+- Complex loops with business logic
+- Business constants/thresholds</code></pre>
+
+<h3>Extraction Priority</h3>
+<ol>
+<li>**High Priority**: Validations and rules</li>
+<li>**Medium Priority**: Calculations and scoring</li>
+<li>**Low Priority**: Simple formatting</li>
+</ol>
+
+<h3>Architecture Principles</h3>
+<ul>
+<li>UI is a humble object</li>
+<li>Business logic is UI-agnostic</li>
+<li>Domain models are framework-independent</li>
+<li>Use cases orchestrate business operations</li>
+</ul>
+
+<h2>Related Items</h2>
+<ul>
+<li>Parent: [[EPIC-020-PHOENIX]]</li>
+<li>Depends on: [[US-204]] (V2 migration), [[US-205]] (god class split)</li>
+<li>Enables: [[US-207]] (component library), [[US-208]] (UI testing)</li>
+<li>Related: [[EPIC-019]] (validation rules extraction)</li>
+</ul>
+  </div>
+</body>
+</html>

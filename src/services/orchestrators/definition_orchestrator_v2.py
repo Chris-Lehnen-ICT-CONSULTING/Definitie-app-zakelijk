@@ -131,6 +131,45 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             f"caching={self.config.enable_caching}"
         )
 
+    def get_service_info(self) -> dict:
+        """Return service info voor UI quality control."""
+        info = {
+            "service_mode": "orchestrator_v2",
+            "architecture": "microservices",
+            "version": "2.0",
+            "validation_service": "V2"
+        }
+
+        # Get rule count from validation service if available
+        if hasattr(self.validation_service, 'get_stats'):
+            try:
+                stats = self.validation_service.get_stats()
+                info["rule_count"] = stats.get("total_rules", 0)
+            except Exception:
+                info["rule_count"] = 0
+        else:
+            info["rule_count"] = 0
+
+        return info
+
+    def get_stats(self) -> dict:
+        """Get statistics from orchestrator and services."""
+        stats = {
+            "orchestrator": {
+                "requests_processed": 0,
+                "success_rate": 0.0
+            }
+        }
+
+        # Include validation stats if available
+        if hasattr(self.validation_service, 'get_stats'):
+            try:
+                stats["validation"] = self.validation_service.get_stats()
+            except Exception:
+                pass
+
+        return stats
+
     async def create_definition(  # noqa: PLR0912, PLR0915
         self, request: GenerationRequest, context: dict[str, Any] | None = None
     ) -> DefinitionResponseV2:
