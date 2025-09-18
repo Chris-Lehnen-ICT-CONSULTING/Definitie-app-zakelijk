@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-194 — Quality Control: Toetsregels Browser (JSON‑regels browse/filter)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-194</p>
+<p>status: TE_DOEN</p>
+<p>prioriteit: HOOG</p>
+<p>owner: ui</p>
+<p>canonical: true</p>
+<p>sprint: next</p>
+<p>story_points: 5</p>
+<p>last_verified: 2025-09-16</p>
+<p>epic: EPIC-004</p>
+<p>---</p>
+
+<h1>US-194 — Quality Control: Toetsregels Browser (JSON‑regels browse/filter)</h1>
+
+<p>Context</p>
+<p>De Edit‑tab toont alleen violations. Voor experts is een browsable overzicht van álle JSON‑toetsregels (id, naam, uitleg, patronen, voorbeelden) nodig om snel te verifiëren wat geladen is en hoe regels toegepast worden, los van de validatie‑uitkomst.</p>
+
+<p>Doel</p>
+<p>Voeg in de Quality Control‑tab een “Toetsregels Browser” toe met filter en detailweergave van de JSON‑regels, inclusief een snelle ‘probeer op huidige definitie’ check per regel.</p>
+
+<p>Scope</p>
+<ul>
+<li>UI‑laag (Streamlit) binnen Quality Control‑tab:</li>
+<li> - Load regels via `ToetsregelManager` (geen directe file‑IO buiten manager).</li>
+<li> - Filter op prefix/categorie (ARAI/CON/ESS/INT/SAM/STR/VER).</li>
+<li> - Toon per regel: id, naam, uitleg, herkenbaar_patronen, goede_voorbeelden, foute_voorbeelden.</li>
+<li> - Toon “V2 status”: hoe de V2‑validator de regel evalueert (forbidden/required/structure), afgeleid uit onze migratie/mapping.</li>
+<li> - “Probeer op huidige definitie”: voer een ad‑hoc check uit tegen alleen deze regel (via V2‑validator of legacy loader; resultaat inline tonen).</li>
+</ul>
+
+<p>Niet in scope</p>
+<ul>
+<li>Regels wijzigen of nieuwe regels aanmaken (géén .py/.json toevoegen).</li>
+<li>Backend‑services aanpassen (UI only); geen Streamlit in services per CLAUDE.md.</li>
+</ul>
+
+<p>Architectuur/Constraints</p>
+<ul>
+<li>Respecteer CLAUDE.md: geen services in UI‑services importeren, geen asyncio.run in services.</li>
+<li>Gebruik ToetsregelManager als bron; geen direct pad naar bestanden.</li>
+<li>Prestatie: lazy loading + eenvoudige caching; UI blijft responsief.</li>
+</ul>
+
+<p>Acceptatiecriteria</p>
+<ul>
+<li>[ ] Lijst met alle JSON‑regels zichtbaar met filter op prefix.</li>
+<li>[ ] Detailweergave toont id, naam, uitleg, patronen en voorbeelden.</li>
+<li>[ ] “V2 status” zichtbaar per regel (forbidden/required/structure/none) o.b.v. mapping.</li>
+<li>[ ] Knop “Probeer op huidige definitie” valideert alleen die regel en toont resultaat.</li>
+<li>[ ] Geen nieuwe regelbestanden; alle data komt uit ToetsregelManager.</li>
+</ul>
+
+<p>Implementatiestappen</p>
+<p>1) UI‑component in Quality Control‑tab: nieuwe sectie “📋 Toetsregels Browser”.</p>
+<p>2) Load regels: <code>get_toetsregel_manager().get_all_regels()</code> en ordenen op id.</p>
+<p>3) Filtercontrols: multiselect prefix + tekstzoekveld.</p>
+<p>4) Tabel met regels; klik toont detailpaneel.</p>
+<p>5) “V2 status”: mapping tonen op basis van migratieplan (forbidden/required/structure/none).</p>
+<p>6) “Probeer op huidige definitie”: call naar V2‑validator met beperking tot 1 regel (of simuleer door output te filteren op code).</p>
+<p>7) UX: expanders en paging voor performance; simpele cache in UI‑state.</p>
+
+<p>Risico’s & mitigaties</p>
+<ul>
+<li>Te veel regels/tekens → paging/expander, lazy render.</li>
+<li>Onzeker V2‑status per regel → mapping onderhouden in één helper (geen duplicatie).</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

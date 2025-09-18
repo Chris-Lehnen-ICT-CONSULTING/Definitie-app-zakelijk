@@ -20,13 +20,13 @@
     <a class="back" href="../../index.html">← Terug naar Portal</a>
     <p>---</p>
 <p>id: US-193</p>
-<p>status: TE_DOEN</p>
+<p>status: IN_PROGRESS</p>
 <p>prioriteit: HOOG</p>
 <p>owner: ui</p>
 <p>canonical: true</p>
 <p>sprint: next</p>
 <p>story_points: 5</p>
-<p>last_verified: 16-09-2025</p>
+<p>last_verified: 18-09-2025</p>
 <p>---</p>
 
 <h1>US-193 — UI toont V2‑validatie (alle toetsregels) i.p.v. legacy validator</h1>
@@ -89,6 +89,17 @@
 <li>Unit: rendercomponenten voor verschillende severities en met/zonder suggestions/metadata.</li>
 <li>Integratie: orchestrator flow levert V2‑resultaat, UI toont juiste tellingen/kleuren/volgorde.</li>
 <li>Logsanity: geen legacy validator warnings in testlogs.</li>
+</ul>
+
+<h2>Voortgang</h2>
+<ul>
+<li>Gereed:</li>
+<li> - UI-detailpaneel bouwt “📋 Alle Toetsregels Resultaten” nu af uit V2‑resultaat (geen legacy validator nodig voor deze weergave).</li>
+<li> - V2‑violations bevatten nu ook `description` (mirror van `message`) zodat UI consistent tekst toont.</li>
+<li> - Tests toegevoegd voor description‑veld en initiële goldens (INT‑01/CON‑01).</li>
+<li>Nog te doen:</li>
+<li> - Legacy aanroep in `tabbed_interface.py` volledig verwijderen en overal V2 als enige bron hanteren.</li>
+<li> - Uitbreiden van goldens voor volledige regelscope (afhankelijk van US‑192).</li>
 </ul>
 
   </div>
