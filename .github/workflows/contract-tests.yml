@@ -43,6 +43,9 @@ jobs:
     - name: Run contract tests (with JUnit + coverage)
       env:
         PYTHONPATH: src
+        # Provide dummy API keys to satisfy clients; tests only verify structure
+        OPENAI_API_KEY: dummy
+        OPENAI_API_KEY_PROD: dummy
       run: |
         python -m pytest tests/contracts -m contract -v --tb=short \
           --junitxml=pytest.xml --cov=src/services/validation --cov-report=term-missing:skip-covered --cov-report=xml \
