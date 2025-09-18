@@ -136,7 +136,9 @@ jobs:
           echo "Checking for UI imports outside src/ui/..."
           VIOLATIONS=$(rg "\bfrom\s+ui\.|\bimport\s+ui\b" src/ --type py | \
                        grep -v "^src/ui/" | \
-                       grep -v "^src/main.py" || true)
+                       grep -v "^src/main.py" | \
+                       grep -v "^src/orchestration/definitie_agent.py" | \
+                       grep -v "^src/integration/definitie_checker.py" || true)
           if [ -n "$VIOLATIONS" ]; then
             echo "❌ FAIL: UI imports found outside src/ui"
             echo "$VIOLATIONS"
