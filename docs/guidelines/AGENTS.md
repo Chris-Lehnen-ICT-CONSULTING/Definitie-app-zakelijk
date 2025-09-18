@@ -15,6 +15,20 @@ status: active
 
 Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Definitie‑app. Het doel is consistente kwaliteit, voorspelbaar gedrag en makkelijk samenwerken tussen mensen en agents.
 
+## 🎯 HARMONISATIE: Alle Agents Volgen Unified Rules
+
+### Verplichte Stappen voor ELKE Agent
+1. **Include Preamble**: Start elke agent met `~/.ai-agents/AGENT_PREAMBLE.md`
+2. **Load Unified Rules**: Laad `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` bij init
+3. **Run Preflight**: Check met `~/.ai-agents/preflight-checks.sh` voor acties
+4. **Follow Approval Ladder**: Gebruik approval rules uit unified instructions
+5. **Enforce Naming**: Gebruik Nederlandse context namen (organisatorische_context)
+
+### Enforcement Tools
+- **Template**: `~/.ai-agents/AGENT_TEMPLATE.md` voor nieuwe agents
+- **Validator**: `~/.ai-agents/enforce-harmonization.sh` checkt compliance
+- **Preamble**: `~/.ai-agents/AGENT_PREAMBLE.md` moet in elke agent
+
 ## Werken met meerdere agents
 - Zie de dedicated gids: [Codex Multi‑Agent Gebruik](../codex-multi-agent-gebruik.md) — parallelle agents (worktrees/patches), selectiecriteria, quick‑checks en scoreboard.
 
@@ -31,24 +45,118 @@ Dit document beschrijft hoe we gespecialiseerde agents inzetten binnen de Defini
 - Minimaal ingrijpen: verander alleen wat nodig is, geen brede refactors zonder opdracht.
 
 ## Werkstroom Selectie
+
+### 🔄 Workflow Beslisboom (Kies ALTIJD de lichtste)
+```python
+def select_workflow(task: str) -> str:
+    """Deterministische workflow selectie"""
+
+    if all_files_are_markdown():
+        return "DOCUMENT"     # Alleen docs
+
+    elif lines_changed < 50 and no_new_files():
+        return "HOTFIX"       # Kleine fix
+
+    elif creating_new_files() or files_affected > 3:
+        return "FULL_TDD"     # Nieuwe feature
+
+    elif task_contains(["analyze", "investigate", "research"]):
+        return "ANALYSIS"     # Onderzoek
+
+    else:
+        return "ANALYSIS"     # Default veilig
+```
+
+| Workflow | Test Requirement | Documentation |
+|----------|-----------------|---------------|
+| DOCUMENT | Link check only | N/A |
+| HOTFIX | Maintain coverage (≥80%) | Brief comment |
+| ANALYSIS | Not required | Findings summary |
+| FULL_TDD | ≥95% nieuwe code | Full docs |
+
 - Gebruik niet standaard de Full TDD workflow voor elke opdracht.
-- Kies de lichtste passende workflow met de router of handmatig:
-  - Analysis, Review Cycle, Documentation, Debug, Maintenance, Refactor Only, Hotfix, Spike, Full TDD.
 - Documentatie: [Werkstroom Library](./WORKFLOW_LIBRARY.md) en Werkstroom Routing
 - Router (lokaal): `~/\.claude/agents/workflow-router.md` + config `~/\.claude/agents/workflows/workflows.yaml`
-- Router‑commando’s: `ROUTE <beschrijving>`, `START-AS <workflow> <beschrijving>`, `SUGGEST <beschrijving>`
+- Router‑commando's: `ROUTE <beschrijving>`, `START-AS <workflow> <beschrijving>`, `SUGGEST <beschrijving>`
 
 ## Algemene Richtlijnen
+
+### 🔍 Preflight Checks (Voor ELKE wijziging)
+```bash
+# 1. Unieke match check
+rg "exact_string_to_change" --files-with-matches | wc -l  # Moet 1 zijn
+
+# 2. Scope check
+echo "Wijziging in: path/to/file.py"
+echo "Impact op: [list affected components]"
+
+# 3. Forbidden patterns
+rg "import streamlit" src/services/ && echo "❌ BLOCKED"
+rg "asyncio.run\(" src/services/ && echo "❌ BLOCKED"
+rg "from ui\." src/services/ && echo "❌ BLOCKED"
+
+# 4. Approval check
+[[ lines > 100 || files > 5 ]] && echo "⚠️ APPROVAL REQUIRED"
+
+# 5. Run automated preflight
+~/.ai-agents/preflight-checks.sh .
+```
+
+### 📝 Naming & Import Canon
+
+#### ✅ VERPLICHTE Namen (Canonical)
+| Concept | MOET zijn | NOOIT |
+|---------|-----------|-------|
+| Context velden | `organisatorische_context` | `organizational_context` |
+| Context velden | `juridische_context` | `legal_context` |
+| Orchestrator | `ValidationOrchestratorV2` | `ValidationOrchestrator` |
+| Generator | `UnifiedDefinitionGenerator` | `DefinitionGenerator` |
+| Service | `ModularValidationService` | `ValidationService` |
+
+#### 🚫 VERBODEN Import Patterns
+| In Directory | Verboden | Alternatief |
+|--------------|----------|-------------|
+| `src/services/` | `import streamlit` | Use `async_bridge` |
+| `src/services/` | `from ui.*` | Use service layer |
+| `src/services/` | `asyncio.run()` | Use `await` |
+| `src/ui/` | `from repositories.*` | Use service facade |
+| `src/ui/` | `ServiceContainer()` | Use `get_service_container()` |
+
+Voor volledig overzicht: zie `~/.ai-agents/quality-gates.yaml`
+
 - Veiligheid: geen secrets loggen; respecteer `vereistes*.txt` en netwerkbeperkingen.
 - Stijl: volg bestaande structuur, import‑volgorde, en tooling (ruff/black waar geconfigureerd).
 - Documentatie: update relevante docs bij functionele wijzigingen; plaats documenten op de juiste plek (zie `docs/CANONICAL_LOCATIONS.md`).
 - Tests: maak/actualiseer tests bij nieuw gedrag; run gerichte suites waar mogelijk.
 
-## No‑Assumptions / Strict Mode
+## No‑Assumptions / Strict Mode & Approval Ladder
+
+### 🎯 Approval Ladder (Wanneer toestemming vragen)
+
+#### ✅ AUTO-APPROVE (Geen bevestiging nodig)
+| Operatie | Voorwaarde | Voorbeelden |
+|----------|------------|-------------|
+| Lezen/Zoeken | Altijd | `grep`, `rg`, `find`, `cat` |
+| Tests draaien | < 10 files | `pytest tests/unit/` |
+| Linting/Formatting | Bestaande files | `ruff check`, `black` |
+| Documentatie | < 100 regels EN geen structuur | Typos, comments |
+| Git status/diff | Altijd | `git status`, `git diff` |
+
+#### 🔴 APPROVAL VEREIST (Moet vragen)
+| Operatie | Trigger | Rationale |
+|----------|---------|-----------|
+| Code patches | > 100 regels OF > 5 files | Grote impact |
+| Verwijderen | > 5 files OF kritieke paden | Data verlies risico |
+| Netwerk calls | Externe APIs | Security/kosten |
+| Schema wijzigingen | Database structuur | Breaking changes |
+| Dependencies | pip install/remove | Supply chain |
+| Git push/deploy | Productie impact | Permanente wijziging |
+
+### Strict Mode Proces
 - Doel: aannames elimineren door beslissingen expliciet te maken en goedkeuring te vragen op tussenstappen.
 - Strict proces:
-  - Start elk werk met `update_plan` + lijst “open vragen/unknowns”; pauzeer tot goedkeuring.
-  - Plaats approval gates: geen codepatch, tests, netwerk of DB‑reset zonder expliciete OK.
+  - Start elk werk met `update_plan` + lijst "open vragen/unknowns"; pauzeer tot goedkeuring.
+  - Plaats approval gates volgens ladder hierboven.
   - Houd een Decision Log bij: beslissingen (geen aannames), motivatie en akkoordmoment.
 - Vereiste input (voorkomt aannames):
   - Doel & scope, Definition of Done, acceptatiecriteria.
@@ -329,17 +437,39 @@ Opmerking: Dit is een gedragsconventie van de agent (soft‑gate). Voor harde sy
 - Tests/validatie uitgevoerd waar passend?
 - Documentatie bijgewerkt en indexen geüpdatet?
 
+## Single Source of Truth (SSoT) Matrix
+
+| Onderwerp | ENIGE Canonieke Bron | Doel |
+|-----------|---------------------|------|
+| **Backlog Structuur** | `docs/guidelines/CANONICAL_LOCATIONS.md` | EPIC→US→BUG hiërarchie |
+| **Agent Gedrag** | `docs/guidelines/AGENTS.md` (dit document) | Approval gates, workflows |
+| **Database Schema** | `src/database/schema.sql` | Tabellen, migraties |
+| **Database Beleid** | `docs/guidelines/DATABASE_GUIDELINES.md` | Connection, pooling, backup |
+| **Validatieregels** | `config/toetsregels/regels/*.json` | Regel definities & prioriteit |
+| **Test Strategie** | `docs/guidelines/TDD_TO_DEPLOYMENT_WORKFLOW.md` | Coverage targets, TDD flow |
+| **Documentatie Beleid** | `docs/guidelines/DOCUMENTATION_POLICY.md` | Formatting, structuur |
+| **Import/Naming Rules** | `~/.ai-agents/quality-gates.yaml` | Forbidden patterns |
+| **Approval Requirements** | `~/.ai-agents/UNIFIED_INSTRUCTIONS.md` | Approval ladder detail |
+| **API Configuratie** | `config/rate_limit_config.py` | Timeouts, rate limits |
+| **Architectuur** | `docs/architectuur/SOLUTION_ARCHITECTURE.md` | Service design, patterns |
+| **CI/CD Gates** | `.github/workflows/epic-010-gates.yml` | Automated checks |
+
+⚠️ **NOOIT dupliceren, ALTIJD verwijzen naar canonieke bron**
+
 ## Verwijzingen
 - Canonical Locations: `docs/CANONICAL_LOCATIONS.md`
 - Documentatie Index: `docs/INDEX.md`
 - Architectuur: `docs/architectuur/`
 - Testen: `docs/testing/`
 - Projectkaders: `README.md`, `CLAUDE.md`
+- Harmonisatie Instructies: `~/.ai-agents/UNIFIED_INSTRUCTIONS.md`
+- Quality Gates: `~/.ai-agents/quality-gates.yaml`
+- Preflight Script: `~/.ai-agents/preflight-checks.sh`
 - Claude Code Agents: `~/\.claude/agents/` (inclusief `workflow-router.md` en `workflows/workflows.yaml`)
- - Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`
- - Multi‑Agent Cheatsheet & Prompt Presets: `docs/snippets/CODEX_PROMPT_PRESETS.md`
+- Multi‑Agent gids: `docs/codex-multi-agent-gebruik.md`
+- Multi‑Agent Cheatsheet & Prompt Presets: `docs/snippets/CODEX_PROMPT_PRESETS.md`
 
 ---
 
-Laatste update: 05-09-2025
+Laatste update: 18-09-2025 (Harmonisatie update)
 Voor vragen over agents, zie de individuele agent definities in `/Users/chrislehnen/.claude/agents/`.
