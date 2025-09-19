@@ -13,6 +13,7 @@ Centrale wegwijzer voor teststrategie, plannen en coverage, zonder bestaande doc
 - SA Template (Testen Strategy): `docs/architectuur/templates/SOLUTION_ARCHITECTURE_TEMPLATE.md`
 - Refactoring Plan (Testen Strategy): `docs/architectuur/CATEGORY-REFACTORING-PLAN.md`
 - Episch Verhaal 3 Web Lookup (Coverage/Strategy secties): `docs/backlog/stories/epic-3-web-lookup-modernization.md`
+- Verbeterplan test suite: `docs/testing/TEST_SUITE_IMPROVEMENT_PLAN.md`
 
 ## Testplannen en resultaten
 - Validation Orchestrator Testplan: `docs/testing/validation_orchestrator_testplan.md`

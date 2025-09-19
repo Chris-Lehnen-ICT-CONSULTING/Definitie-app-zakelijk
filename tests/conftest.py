@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 import asyncio
 import os
+import builtins
 import socket
 
 # Add src to path for all tests
@@ -35,6 +36,35 @@ except Exception:  # pragma: no cover - inline fallback
             self.cache_resource = _NoOpDec()
 
     sys.modules["streamlit"] = _InlineSt()
+
+# Provide legacy-compatible config helpers in builtins for tests that assume
+# top-level imports (e.g., get_api_config without explicit import).
+try:  # pragma: no cover - integration convenience
+    from config import (
+        get_api_config as _compat_get_api_config,
+        get_cache_config as _compat_get_cache_config,
+        get_paths_config as _compat_get_paths_config,
+        get_default_model as _compat_get_default_model,
+        get_default_temperature as _compat_get_default_temperature,
+    )
+
+    builtins.get_api_config = getattr(  # type: ignore[attr-defined]
+        builtins, "get_api_config", _compat_get_api_config
+    )
+    builtins.get_cache_config = getattr(  # type: ignore[attr-defined]
+        builtins, "get_cache_config", _compat_get_cache_config
+    )
+    builtins.get_paths_config = getattr(  # type: ignore[attr-defined]
+        builtins, "get_paths_config", _compat_get_paths_config
+    )
+    builtins.get_default_model = getattr(  # type: ignore[attr-defined]
+        builtins, "get_default_model", _compat_get_default_model
+    )
+    builtins.get_default_temperature = getattr(  # type: ignore[attr-defined]
+        builtins, "get_default_temperature", _compat_get_default_temperature
+    )
+except Exception:
+    pass
 
 # Import all fixtures from v2_service_mocks to make them globally available
 from fixtures.v2_service_mocks import *

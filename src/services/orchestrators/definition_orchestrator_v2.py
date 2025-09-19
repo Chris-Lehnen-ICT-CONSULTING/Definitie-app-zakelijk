@@ -290,6 +290,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     logger.info(
                         f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
                     )
+                    # Capture debug info from service if available
+                    try:
+                        debug_info = getattr(self.web_lookup_service, "_last_debug", None)
+                    except Exception:
+                        debug_info = None
 
                     # Build provenance records
                     # Convert LookupResults to minimal dicts expected by build_provenance
@@ -330,6 +335,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     context["web_lookup"] = {
                         "sources": provenance_sources,
                         "top_k": top_k,
+                        "debug": debug_info,
                     }
                     logger.info(
                         f"Generation {generation_id}: Web lookup enriched context with {len(provenance_sources)} sources"
@@ -658,6 +664,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "web_lookup_available": self.web_lookup_service is not None,
                     "web_lookup_timeout": WEB_LOOKUP_TIMEOUT,
                     "web_sources_count": len(provenance_sources),
+                    "web_lookup_debug": debug_info,
+                    "web_lookup_debug_available": debug_info is not None,
                     # Add voorbeelden to metadata so UI can display them
                     "voorbeelden": voorbeelden if voorbeelden else {},
                     # Store the prompt text for debug UI
