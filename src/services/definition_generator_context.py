@@ -117,43 +117,43 @@ class HybridContextManager:
 
     def _init_web_lookup(self):
         """Initialiseer web lookup component."""
-        if self.config.enable_web_lookup:
-            try:
-                # Legacy import replaced with modern service
-                # from web_lookup import zoek_definitie_combinatie  # DEPRECATED
-                from services.modern_web_lookup_service import ModernWebLookupService
+        # Web lookup always initialized when available - no flag
+        try:
+            # Legacy import replaced with modern service
+            # from web_lookup import zoek_definitie_combinatie  # DEPRECATED
+            from services.modern_web_lookup_service import ModernWebLookupService
 
-                # Create compatibility wrapper for legacy interface
-                async def web_lookup_wrapper(term: str) -> str:
-                    """Wrapper to maintain legacy interface"""
-                    from services.interfaces import LookupRequest
+            # Create compatibility wrapper for legacy interface
+            async def web_lookup_wrapper(term: str) -> str:
+                """Wrapper to maintain legacy interface"""
+                from services.interfaces import LookupRequest
 
-                    service = ModernWebLookupService()
-                    request = LookupRequest(term=term, max_results=5)
-                    results = await service.lookup(request)
+                service = ModernWebLookupService()
+                request = LookupRequest(term=term, max_results=5)
+                results = await service.lookup(request)
 
-                    # Format results as string for legacy compatibility
-                    if results:
-                        labels: list[str] = []
-                        for r in results[:3]:
-                            meta = getattr(r, "metadata", {}) or {}
-                            label = (
-                                meta.get("wikipedia_title")
-                                or meta.get("dc_title")
-                                or getattr(r, "term", None)
-                                or (meta.get("title") if isinstance(meta.get("title"), str) else None)
-                                or r.source.name
-                            )
-                            labels.append(f"{label} ({r.source.name})")
+                # Format results as string for legacy compatibility
+                if results:
+                    labels: list[str] = []
+                    for r in results[:3]:
+                        meta = getattr(r, "metadata", {}) or {}
+                        label = (
+                            meta.get("wikipedia_title")
+                            or meta.get("dc_title")
+                            or getattr(r, "term", None)
+                            or (meta.get("title") if isinstance(meta.get("title"), str) else None)
+                            or r.source.name
+                        )
+                        labels.append(f"{label} ({r.source.name})")
 
-                        return f"Web informatie voor {term}: " + "; ".join(labels)
-                    return ""
+                    return f"Web informatie voor {term}: " + "; ".join(labels)
+                return ""
 
-                self._web_lookup = web_lookup_wrapper
-                logger.info("Web lookup component geïnitialiseerd")
-            except ImportError:
-                logger.warning("Web lookup niet beschikbaar")
-                self._web_lookup = None
+            self._web_lookup = web_lookup_wrapper
+            logger.info("Web lookup component geïnitialiseerd")
+        except ImportError:
+            logger.warning("Web lookup niet beschikbaar")
+            self._web_lookup = None
 
     def _init_hybrid_engine(self):
         """Initialiseer hybrid context engine."""
@@ -188,8 +188,8 @@ class HybridContextManager:
         sources = []
         confidence_scores = {}
 
-        # Web lookup bron (definitie_generator pattern)
-        if self._web_lookup and self.config.enable_web_lookup:
+        # Web lookup bron (always when service available - no flag)
+        if self._web_lookup:
             web_source = await self._get_web_context(request.begrip)
             if web_source:
                 sources.append(web_source)
@@ -233,7 +233,7 @@ class HybridContextManager:
                     if confidence_scores
                     else 0.0
                 ),
-                "web_lookup_enabled": self.config.enable_web_lookup,
+                "web_lookup_available": self._web_lookup is not None,
                 "hybrid_engine_available": self._hybrid_engine is not None,
             },
         )

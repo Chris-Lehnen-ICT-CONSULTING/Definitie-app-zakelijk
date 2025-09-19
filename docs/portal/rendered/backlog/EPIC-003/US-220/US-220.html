@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verwijder enable_web_lookup Feature Flag</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden: [US-135]</p>
+<p>aangemaakt: 19-09-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 19-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-003</p>
+<p>id: US-220</p>
+<p>last_verified: 19-09-2025</p>
+<p>owner: development-team</p>
+<p>prioriteit: HOOG</p>
+<p>sprint: backlog</p>
+<p>status: Todo</p>
+<p>story_points: 5</p>
+<p>titel: Verwijder enable_web_lookup Feature Flag</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: technical-debt</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-017</li>
+<li>REQ-020</li>
+<li>REQ-021</li>
+<p>---</p>
+</ul>
+
+<h1>US-220: Verwijder enable_web_lookup Feature Flag</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> ontwikkelaar</p>
+<p><strong>wil ik</strong> dat de web lookup functionaliteit altijd actief is zonder feature flag</p>
+<p><strong>zodat</strong> de code eenvoudiger wordt en er geen inconsistente configuratie meer mogelijk is</p>
+
+<h2>Context</h2>
+
+<p>De <code>enable_web_lookup</code> flag wordt op 4+ verschillende plekken gebruikt met inconsistente defaults:</p>
+<ul>
+<li>`orchestrator_v2.py`: `getattr(self.config, "enable_web_lookup", True)`</li>
+<li>`definition_orchestrator.py`: `if self.config.enable_web_lookup`</li>
+<li>`definition_generator_context.py`: `if self.config.enable_web_lookup`</li>
+<li>Meerdere config files met `enable_web_lookup: bool = True`</li>
+</ul>
+
+<p>Dit is een single-user applicatie waar web lookup altijd moet draaien voor context verrijking.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Criterion 1: Flag Verwijdering</h3>
+<p><strong>gegeven</strong> de enable_web_lookup flag bestaat op meerdere plekken</p>
+<p><strong>wanneer</strong> de refactoring is voltooid</p>
+<p><strong>dan</strong> is er geen enkele referentie meer naar enable_web_lookup in de codebase</p>
+
+<h3>Criterion 2: Service Altijd Actief</h3>
+<p><strong>gegeven</strong> de web lookup service is geïnjecteerd</p>
+<p><strong>wanneer</strong> een definitie wordt gegenereerd</p>
+<p><strong>dan</strong> wordt web lookup altijd uitgevoerd (met timeout protection)</p>
+
+<h3>Criterion 3: Graceful Failure</h3>
+<p><strong>gegeven</strong> web lookup wordt altijd uitgevoerd</p>
+<p><strong>wanneer</strong> de lookup faalt of timeout</p>
+<p><strong>dan</strong> gaat de definitie generatie gewoon door zonder web context</p>
+
+<h3>Criterion 4: Performance Garanties</h3>
+<p><strong>gegeven</strong> web lookup draait zonder flag</p>
+<p><strong>wanneer</strong> een lookup wordt uitgevoerd</p>
+<p><strong>dan</strong> duurt dit maximaal 1.5 seconden (hard timeout)</p>
+
+<h2>Technische Implementatie</h2>
+
+<h3>Te Wijzigen Bestanden</h3>
+
+<ol>
+<li>**src/services/orchestrators/definition_orchestrator_v2.py**</li>
+</ol>
+<ul>
+<li>  - Regel 249-250: Verwijder `getattr(self.config, "enable_web_lookup", True)` check</li>
+<li>  - Behoud alleen: `if self.web_lookup_service:`</li>
+</ul>
+
+<ol>
+<li>**src/services/definition_orchestrator.py**</li>
+</ol>
+<ul>
+<li>  - Regel 527: Verwijder `if self.config.enable_web_lookup and WEB_LOOKUP_AVAILABLE:`</li>
+<li>  - Vervang door: `if self.web_lookup_service:`</li>
+</ul>
+
+<ol>
+<li>**src/services/definition_generator_context.py**</li>
+</ol>
+<ul>
+<li>  - Regel 120, 192: Verwijder `enable_web_lookup` checks</li>
+<li>  - Service wordt altijd gebruikt indien aanwezig</li>
+</ul>
+
+<ol>
+<li>**src/services/definition_generator_config.py**</li>
+</ol>
+<ul>
+<li>  - Regel 90: Verwijder `enable_web_lookup: bool = True`</li>
+<li>  - Regel 238: Verwijder `self.context.enable_web_lookup = False`</li>
+</ul>
+
+<ol>
+<li>**src/services/interfaces.py**</li>
+</ol>
+<ul>
+<li>  - Regel 1166: Verwijder `enable_web_lookup: bool = True` uit OrchestratorConfig</li>
+</ul>
+
+<ol>
+<li>**Service Factory Updates**</li>
+</ol>
+<ul>
+<li>  - Ensure web_lookup_service wordt ALTIJD geïnjecteerd</li>
+<li>  - Gebruik DisabledWebLookupService als fallback indien nodig</li>
+</ul>
+
+<h3>Implementatie Strategie</h3>
+
+<pre><code># VOOR (met flag):
+if getattr(self.config, "enable_web_lookup", True) and self.web_lookup_service:
+    try:
+        web_results = await self.web_lookup_service.lookup(lookup_request)
+    except Exception:
+        pass  # Silent fail
+
+# NA (zonder flag):
+if self.web_lookup_service:  # Service bestaat = gebruik het
+    try:
+        web_results = await asyncio.wait_for(
+            self.web_lookup_service.lookup(lookup_request),
+            timeout=1.5  # Hard timeout
+        )
+        # Process results...
+    except asyncio.TimeoutError:
+        logger.warning(f"Web lookup timeout for {term}")
+    except Exception as e:
+        logger.error(f"Web lookup failed: {e}")
+        # Continue zonder web context</code></pre>
+
+<h2>Test Coverage Vereisten</h2>
+
+<h3>Unit Tests aan te passen</h3>
+<ul>
+<li>`tests/services/test_definition_orchestrator.py`</li>
+<li>`tests/services/test_orchestrator_v2.py`</li>
+<li>`tests/services/test_definition_context.py`</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>Test dat web lookup altijd wordt aangeroepen</li>
+<li>Test timeout behavior (1.5 sec max)</li>
+<li>Test graceful failure handling</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] Alle references naar `enable_web_lookup` verwijderd</li>
+<li>[ ] Web lookup service wordt altijd geïnjecteerd</li>
+<li>[ ] Timeout protection geïmplementeerd (1.5 sec)</li>
+<li>[ ] Error handling verbeterd (geen silent failures)</li>
+<li>[ ] Alle tests aangepast en groen</li>
+<li>[ ] Performance metrics toegevoegd voor monitoring</li>
+<li>[ ] Documentatie bijgewerkt</li>
+</ul>
+
+<h2>Impact Analyse</h2>
+
+<h3>Positief</h3>
+<ul>
+<li>**Code Simpliciteit**: -50 regels conditional logic</li>
+<li>**Consistentie**: Geen conflicterende configuraties meer</li>
+<li>**Performance**: Altijd predictable timeout behavior</li>
+<li>**Debugging**: Betere error logging, geen silent failures</li>
+</ul>
+
+<h3>Risico's</h3>
+<ul>
+<li>**Performance**: Elke generatie doet nu web lookup (mitigatie: 1.5 sec timeout)</li>
+<li>**Network Load**: Meer API calls (mitigatie: caching strategy)</li>
+<li>**Test Updates**: 15+ tests moeten aangepast worden</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>US-135: Modern Web Lookup Implementatie (moet eerst stabiel zijn)</li>
+<li>Caching strategy moet robuust zijn</li>
+<li>Monitoring moet actief zijn voor metrics</li>
+</ul>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Dit is deel 1 van de feature flag cleanup initiative</li>
+<li>Start met web_lookup omdat dit high-impact maar low-risk is</li>
+<li>Success metrics: Response tijd blijft <3 sec totaal</li>
+</ul>
+
+<p>---</p>
+
+<p><em>Deze story is onderdeel van de Technical Debt reductie in EPIC-003</em></p>
+  </div>
+</body>
+</html>

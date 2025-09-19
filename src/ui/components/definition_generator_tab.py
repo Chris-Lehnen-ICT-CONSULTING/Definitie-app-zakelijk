@@ -386,7 +386,7 @@ class DefinitionGeneratorTab:
             # Render prompt debug section
             from ui.components.prompt_debug_section import PromptDebugSection
 
-            if is_dict:
+            if isinstance(agent_result, dict):
                 # New service format - extraheer prompt uit metadata
                 class PromptContainer:
                     """Wrapper om prompt_template beschikbaar te maken voor PromptDebugSection."""
@@ -514,6 +514,42 @@ class DefinitionGeneratorTab:
                                         st.code(prompt, language="text")
                 except Exception:
                     pass
+
+        # Prompt Debug Section — always render (not only on errors)
+        try:
+            from ui.components.prompt_debug_section import PromptDebugSection
+
+            # Prefer prompt from agent_result.metadata, fallback to saved_record.metadata
+            prompt_template: str | None = None
+            if isinstance(agent_result, dict):
+                meta = agent_result.get("metadata") or {}
+                if isinstance(meta, dict):
+                    prompt_template = (
+                        meta.get("prompt_text")
+                        or meta.get("prompt_template")
+                        or None
+                    )
+
+            if not prompt_template and saved_record and getattr(saved_record, "metadata", None):
+                meta = saved_record.metadata if isinstance(saved_record.metadata, dict) else {}
+                prompt_template = meta.get("prompt_text") or meta.get("prompt_template") or None
+
+            # Example prompts captured during generation (optional)
+            voorbeelden_prompts = (
+                generation_result.get("voorbeelden_prompts") if generation_result else None
+            )
+
+            # Only render if we have at least the main prompt or example prompts
+            if prompt_template or voorbeelden_prompts:
+                class _PromptContainer:
+                    def __init__(self, text: str | None):
+                        # PromptDebugSection expects attribute prompt_template
+                        self.prompt_template = text or ""
+
+                PromptDebugSection.render(_PromptContainer(prompt_template), voorbeelden_prompts)
+        except Exception as e:
+            # Never break the page on debug issues
+            logger.debug(f"Prompt debug section render skipped: {e}")
 
         # Category change regeneration preview (op logische locatie)
         category_change_state = generation_result.get("category_change_state")

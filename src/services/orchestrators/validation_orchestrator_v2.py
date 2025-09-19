@@ -97,8 +97,6 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                     context_dict["locale"] = context.locale
                 if context.feature_flags:
                     context_dict["feature_flags"] = dict(context.feature_flags)
-            else:
-                context_dict = {}
 
             # Enrich with definition contexts for rules that require them (e.g., CON-01)
             try:

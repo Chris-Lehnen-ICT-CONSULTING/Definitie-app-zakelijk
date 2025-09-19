@@ -245,10 +245,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 2.5: Web Lookup Context Enrichment (Epic 3)
             # =====================================
             provenance_sources = []
-            if (
-                getattr(self.config, "enable_web_lookup", True)
-                and self.web_lookup_service
-            ):
+            web_lookup_status = "not_available"  # Track status for metadata
+
+            # Web lookup runs ALWAYS when service is available (no feature flag)
+            if self.web_lookup_service:
                 logger.info(
                     f"Generation {generation_id}: Starting web lookup for term: {sanitized_request.begrip}"
                 )
@@ -259,12 +259,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     lookup_request = LookupRequest(
                         term=sanitized_request.begrip,
                         sources=None,
-                        max_results=5,
+                        max_results=3,  # Reduced from 5 for performance
                         include_examples=False,
-                        timeout=self.config.timeout_seconds,
+                        timeout=1.5,  # Hard limit 1.5 seconds instead of config
                     )
 
-                    web_results = await self.web_lookup_service.lookup(lookup_request)
+                    # Add timeout protection for web lookup
+                    import asyncio
+                    web_results = await asyncio.wait_for(
+                        self.web_lookup_service.lookup(lookup_request),
+                        timeout=1.5  # Ensure max 1.5 seconds
+                    )
                     logger.info(
                         f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
                     )
@@ -312,10 +317,29 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     logger.info(
                         f"Generation {generation_id}: Web lookup enriched context with {len(provenance_sources)} sources"
                     )
-                except Exception as e:
+                    web_lookup_status = "success" if provenance_sources else "no_results"
+
+                except asyncio.TimeoutError:
                     logger.warning(
-                        f"Generation {generation_id}: Web lookup enrichment failed: {e!s}"
+                        f"Generation {generation_id}: Web lookup timeout after 1.5 seconds - "
+                        f"proceeding WITHOUT external context"
                     )
+                    web_lookup_status = "timeout"
+                    # Continue without web context - definition generation proceeds
+
+                except Exception as e:
+                    logger.error(
+                        f"Generation {generation_id}: Web lookup failed: {type(e).__name__}: {e!s} - "
+                        f"proceeding WITHOUT external context"
+                    )
+                    web_lookup_status = "error"
+                    # Continue without web context - definition generation proceeds
+            else:
+                # Log that web lookup service is NOT available
+                logger.warning(
+                    f"Generation {generation_id}: Web lookup service not available - "
+                    f"proceeding WITHOUT external context enrichment"
+                )
 
             # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
@@ -611,8 +635,11 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "generated_at": datetime.now(UTC).isoformat(),
                     "orchestrator_version": "v2.0",
                     "ontological_category_used": sanitized_request.ontologische_categorie,
-                    # Epic 3: provenance sources (MVP, no DB schema changes)
+                    # Epic 3: Web lookup metadata
                     "sources": provenance_sources,
+                    "web_lookup_status": web_lookup_status,
+                    "web_lookup_available": self.web_lookup_service is not None,
+                    "web_sources_count": len(provenance_sources),
                     # Add voorbeelden to metadata so UI can display them
                     "voorbeelden": voorbeelden if voorbeelden else {},
                     # Store the prompt text for debug UI
@@ -696,6 +723,10 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "orchestrator_version": "v2.0",
                     "phases_completed": 11,
                     "enhanced": was_enhanced,
+                    # Web lookup status for transparency
+                    "web_lookup_status": web_lookup_status,
+                    "web_lookup_available": self.web_lookup_service is not None,
+                    "web_sources_count": len(provenance_sources),
                 },
             )
 
