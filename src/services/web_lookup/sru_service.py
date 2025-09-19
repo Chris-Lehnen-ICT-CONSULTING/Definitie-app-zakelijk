@@ -87,6 +87,18 @@ class SRUService:
                     "https://data.rechtspraak.nl/uitspraken/sru",
                 ],
             ),
+            "wetgeving_nl": SRUConfig(
+                name="Wetgeving.nl",
+                base_url="https://wetten.overheid.nl/SRU/Search",
+                default_collection="",
+                record_schema="dc",
+                confidence_weight=0.9,
+                is_juridical=True,
+                alt_base_urls=[
+                    "https://wetten.overheid.nl/sru/Search",
+                    "https://wetten.overheid.nl/sru",
+                ],
+            ),
             "overheid_zoek": SRUConfig(
                 name="Overheid.nl Zoekservice",
                 base_url="https://zoekservice.overheid.nl/sru/Search",
