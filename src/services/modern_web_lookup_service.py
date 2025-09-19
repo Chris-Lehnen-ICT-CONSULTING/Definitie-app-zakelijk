@@ -442,6 +442,19 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     max_records=3,
                 )
 
+                # Verzamel attempts metadata van SRU-service en voeg toe aan debug
+                try:
+                    for att in sru_service.get_attempts() or []:
+                        rec = {
+                            "provider": source.name,
+                            "api_type": "sru",
+                            "term": term,
+                        }
+                        rec.update(att)
+                        self._debug_attempts.append(rec)
+                except Exception:
+                    pass
+
                 if results:
                     result = results[0]  # Take best result
                     # Apply source confidence weight

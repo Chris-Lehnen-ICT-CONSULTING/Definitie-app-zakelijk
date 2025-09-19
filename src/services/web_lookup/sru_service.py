@@ -56,6 +56,7 @@ class SRUService:
     def __init__(self):
         self.session: aiohttp.ClientSession | None = None
         self.endpoints = self._setup_endpoints()
+        self._attempts: list[dict] = []
 
         # User agent voor SRU requests
         self.headers = {
@@ -160,8 +161,10 @@ class SRUService:
         logger.info(f"SRU search voor '{term}' in {config.name}")
 
         try:
+            # reset per-call attempts
+            self._attempts = []
             # Helper om 1 query (string) tegen alle endpoints te proberen
-            async def _try_query(query_str: str) -> list[LookupResult]:
+            async def _try_query(query_str: str, strategy: str) -> list[LookupResult]:
                 from urllib.parse import urlencode, quote_plus
 
                 # Primary URL
@@ -186,9 +189,18 @@ class SRUService:
                 last_text: str | None = None
                 for u in urls:
                     async with self.session.get(u) as response:
+                        attempt_rec: dict = {
+                            "endpoint": config.name,
+                            "url": u,
+                            "query": query_str,
+                            "strategy": strategy,
+                            "status": response.status,
+                        }
                         if response.status == 200:
                             xml_content = await response.text()
                             parsed = self._parse_sru_response(xml_content, term, config)
+                            attempt_rec["records"] = len(parsed or [])
+                            self._attempts.append(attempt_rec)
                             if parsed:
                                 return parsed
                         else:
@@ -196,8 +208,10 @@ class SRUService:
                             try:
                                 txt = await response.text()
                                 last_text = txt[:200]
+                                attempt_rec["body_preview"] = last_text
                             except Exception:
                                 last_text = None
+                            self._attempts.append(attempt_rec)
                 # Nothing found for this query across endpoints
                 if last_status and last_status != 200:
                     logger.error(
@@ -208,14 +222,14 @@ class SRUService:
 
             # Query 1: onze standaard DC-velden (exact/contains per server-choice)
             base_query = self._build_cql_query(term, collection or config.default_collection)
-            results = await _try_query(base_query)
+            results = await _try_query(base_query, strategy="dc")
             if results:
                 return results
 
             # Query 2: serverChoice (breder) — verhoogt trefkans bij Rechtspraak
             escaped = term.replace('"', '\\"')
             sc_query = f'cql.serverChoice all "{escaped}"'
-            results = await _try_query(sc_query)
+            results = await _try_query(sc_query, strategy="serverChoice")
             if results:
                 return results
 
@@ -223,9 +237,9 @@ class SRUService:
             if " " in term and "-" not in term:
                 hyphen = term.replace(" ", "-")
                 hy_query = f'cql.serverChoice all "{hyphen.replace("\"", "\\\"")}"'
-                results = await _try_query(hy_query)
-                if results:
-                    return results
+                results = await _try_query(hy_query, strategy="hyphen")
+            if results:
+                return results
 
             # Geen resultaten
             return []
@@ -233,6 +247,10 @@ class SRUService:
         except Exception as e:
             logger.error(f"SRU search error voor {term} in {config.name}: {e}")
             return []
+
+    def get_attempts(self) -> list[dict]:
+        """Return attempts metadata for last search call."""
+        return list(self._attempts)
 
     def _build_query_url(
         self,
