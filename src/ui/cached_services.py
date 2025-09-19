@@ -12,6 +12,7 @@ from typing import Any
 
 import streamlit as st
 
+from ui.session_state import SessionStateManager
 from utils.container_manager import (
     get_cached_container,
     get_container_with_config,
@@ -47,19 +48,20 @@ def initialize_services_once():
     Deze functie zorgt ervoor dat de service container slechts één keer
     wordt aangemaakt en in session state wordt opgeslagen.
     """
-    if "service_container" not in st.session_state:
+    if SessionStateManager.get_value("service_container") is None:
         logger.info("📦 Initializing service container in session state")
 
         # Gebruik de gecachte container
-        st.session_state.service_container = get_cached_service_container()
+        SessionStateManager.set_value("service_container", get_cached_service_container())
 
         # Track initialization stats
-        if "service_init_count" not in st.session_state:
-            st.session_state.service_init_count = 0
-        st.session_state.service_init_count += 1
+        if SessionStateManager.get_value("service_init_count") is None:
+            SessionStateManager.set_value("service_init_count", 0)
+        current_count = SessionStateManager.get_value("service_init_count")
+        SessionStateManager.set_value("service_init_count", current_count + 1)
 
         logger.info(
-            f"✅ Services initialized (count: {st.session_state.service_init_count})"
+            f"✅ Services initialized (count: {SessionStateManager.get_value('service_init_count')})"
         )
     else:
         # Container bestaat al, log alleen als debug
@@ -80,7 +82,7 @@ def get_service(service_name: str):
     initialize_services_once()
 
     # Haal service op uit container
-    container = st.session_state.service_container
+    container = SessionStateManager.get_value("service_container")
     return container.get_service(service_name)
 
 
@@ -96,12 +98,12 @@ def clear_service_cache():
     clear_manager_cache()
 
     # Verwijder uit session state
-    if "service_container" in st.session_state:
-        del st.session_state.service_container
+    if SessionStateManager.get_value("service_container") is not None:
+        SessionStateManager.clear_value("service_container")
 
     # Reset init count
-    if "service_init_count" in st.session_state:
-        st.session_state.service_init_count = 0
+    if SessionStateManager.get_value("service_init_count") is not None:
+        SessionStateManager.set_value("service_init_count", 0)
 
     logger.info("✅ Service cache cleared")
 
@@ -114,12 +116,12 @@ def get_service_stats() -> dict[str, Any]:
         Dictionary met stats
     """
     stats = {
-        "container_exists": "service_container" in st.session_state,
-        "init_count": st.session_state.get("service_init_count", 0),
+        "container_exists": SessionStateManager.get_value("service_container") is not None,
+        "init_count": SessionStateManager.get_value("service_init_count", 0),
     }
 
-    if "service_container" in st.session_state:
-        container = st.session_state.service_container
+    if SessionStateManager.get_value("service_container") is not None:
+        container = SessionStateManager.get_value("service_container")
         stats["container_init_count"] = container.get_initialization_count()
         stats["services_loaded"] = len(container._instances)
 

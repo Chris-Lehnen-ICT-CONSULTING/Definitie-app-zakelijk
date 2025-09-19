@@ -4744,6 +4744,99 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Test Suite Recovery Solution Plan",
+      "path": "../refactor/SOLUTION_PLAN.md",
+      "url": "../refactor/SOLUTION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/refactor/SOLUTION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DRY Helpers Implementation Status Report",
+      "path": "../refactor/DRY_HELPERS_IMPLEMENTATION_STATUS.md",
+      "url": "../refactor/DRY_HELPERS_IMPLEMENTATION_STATUS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/refactor/DRY_HELPERS_IMPLEMENTATION_STATUS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "DRY Helpers Simplification Action Plan",
+      "path": "../refactor/DRY_HELPERS_ACTION_PLAN.md",
+      "url": "../refactor/DRY_HELPERS_ACTION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/refactor/DRY_HELPERS_ACTION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Documentation Link Fixes Compliance Report",
       "path": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
       "url": "../reports/LINK_FIXES_COMPLIANCE_REPORT.md",
@@ -15182,6 +15275,90 @@
       "rendered_url": "rendered/code-analyse/quality/TECHNICAL_DEBT_ASSESSMENT_2025.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "🔍 WEB LOOKUP FUNCTIONALITEIT - UITGEBREIDE ANALYSE RAPPORT",
+      "path": "../backlog/EPIC-003/WEB-LOOKUP-ANALYSIS-REPORT.md",
+      "url": "../backlog/EPIC-003/WEB-LOOKUP-ANALYSIS-REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-015",
+          "US-016",
+          "US-017",
+          "US-018",
+          "US-019",
+          "US-020",
+          "US-079",
+          "US-080",
+          "US-081",
+          "US-082",
+          "US-083",
+          "US-084",
+          "US-135"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-021",
+          "REQ-039",
+          "REQ-040"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/WEB-LOOKUP-ANALYSIS-REPORT.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🚀 WEB LOOKUP - GEDETAILLEERD OPLOSSINGSPLAN",
+      "path": "../backlog/EPIC-003/WEB-LOOKUP-SOLUTION-PLAN.md",
+      "url": "../backlog/EPIC-003/WEB-LOOKUP-SOLUTION-PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/WEB-LOOKUP-SOLUTION-PLAN.html"
+    },
+    {
       "id": "EPIC-003",
       "type": "EPIC",
       "title": "Content Verrijking / Web Lookup",
@@ -20363,6 +20540,52 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "EPIC-020 Documentation Status Report",
+      "path": "../backlog/EPIC-020-PHOENIX/DOCUMENTATION_STATUS.md",
+      "url": "../backlog/EPIC-020-PHOENIX/DOCUMENTATION_STATUS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202",
+          "US-203",
+          "US-204",
+          "US-205",
+          "US-206",
+          "US-207",
+          "US-208",
+          "US-209",
+          "US-210",
+          "US-211",
+          "US-212"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/DOCUMENTATION_STATUS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "README",
       "path": "../backlog/dashboard/README.md",
       "url": "../backlog/dashboard/README.md",
@@ -22837,6 +23060,40 @@
       "rendered_url": "rendered/backlog/EPIC-012/US-175/CFR-BUG-022/README.html"
     },
     {
+      "id": "CFR-BUG-026",
+      "type": "BUG",
+      "title": "Importpad inconsistenties (ModernWebLookupService) en package‑exports → fragiele tests",
+      "path": "../backlog/EPIC-012/US-074/CFR-BUG-026/README.md",
+      "url": "../backlog/EPIC-012/US-074/CFR-BUG-026/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-19",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-012",
+      "parent_us": "US-074",
+      "_refs": {
+        "us": [
+          "US-074",
+          "US-219"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-012/US-074/CFR-BUG-026/README.html"
+    },
+    {
       "id": "US-130",
       "type": "US",
       "title": "Portal Publicatie/Hosting",
@@ -25007,6 +25264,39 @@
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-207/US-207.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-207: God Class Refactoring - BREAKDOWN",
+      "path": "../backlog/EPIC-020-PHOENIX/US-207/US-207-BREAKDOWN.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-207/US-207-BREAKDOWN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-207-BREAKDOWN.md",
+      "_refs": {
+        "us": [
+          "US-207"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-207/US-207-BREAKDOWN.html"
+    },
+    {
       "id": "US-210",
       "type": "DOC",
       "title": "Implement Plugin Architecture for Web Lookup",
@@ -25118,6 +25408,43 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-205/US-205.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-205: Token Optimization & Caching Implementation",
+      "path": "../backlog/EPIC-020-PHOENIX/US-205/US-205-TOKEN.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-205/US-205-TOKEN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-205-TOKEN.md",
+      "_refs": {
+        "us": [
+          "US-203",
+          "US-205",
+          "US-207"
+        ],
+        "epic": [
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-205/US-205-TOKEN.html"
     },
     {
       "id": null,
@@ -25302,7 +25629,7 @@
       "title": "Complete V1 to V2 Migration",
       "path": "../backlog/EPIC-020-PHOENIX/US-204/US-204.md",
       "url": "../backlog/EPIC-020-PHOENIX/US-204/US-204.md",
-      "status": "OPEN",
+      "status": "IN_PROGRESS",
       "prioriteit": null,
       "owner": null,
       "canonical": false,
@@ -25311,7 +25638,7 @@
       "category": null,
       "sprint": null,
       "story_points": "8",
-      "completion": null,
+      "completion": "20%",
       "target_release": null,
       "planning": {
         "sprint_number": null,
@@ -25337,6 +25664,39 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-204/US-204.html"
+    },
+    {
+      "id": "CFR-BUG-024",
+      "type": "BUG",
+      "title": "MockStreamlit mist cache decorators (cache_data/cache_resource) → import/cascade test failures",
+      "path": "../backlog/EPIC-020-PHOENIX/US-201/CFR-BUG-024/README.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-201/CFR-BUG-024/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": "platform",
+      "canonical": false,
+      "last_verified": "2025-09-19",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-201",
+      "_refs": {
+        "us": [
+          "US-201"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-201/CFR-BUG-024/README.html"
     },
     {
       "id": null,
@@ -26981,6 +27341,118 @@
       "linked_reqs": null
     },
     {
+      "id": "US-213",
+      "type": "US",
+      "title": "US-213 — Volledige adoptie van dry_helpers module door gehele codebase",
+      "path": "../backlog/EPIC-002/US-213/US-213.md",
+      "url": "../backlog/EPIC-002/US-213/US-213.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "backend",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "future",
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-213.md",
+      "_refs": {
+        "us": [
+          "US-193",
+          "US-213"
+        ],
+        "epic": [
+          "EPIC-002"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-213/US-213.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-214",
+      "type": "US",
+      "title": "US-214 — Implementeer Type Hints voor ValidationDetailsDict en gerelateerde types",
+      "path": "../backlog/EPIC-002/US-214/US-214.md",
+      "url": "../backlog/EPIC-002/US-214/US-214.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "backend",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "next",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-214.md",
+      "_refs": {
+        "us": [
+          "US-193",
+          "US-214"
+        ],
+        "epic": [
+          "EPIC-002"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-214/US-214.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-215",
+      "type": "US",
+      "title": "US-215 — Herstel Debug Informatie Verlies in Refactored Code",
+      "path": "../backlog/EPIC-002/US-215/US-215.md",
+      "url": "../backlog/EPIC-002/US-215/US-215.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "backend",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "next",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-215.md",
+      "_refs": {
+        "us": [
+          "US-193",
+          "US-213",
+          "US-215"
+        ],
+        "epic": [
+          "EPIC-002"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-215/US-215.html",
+      "linked_reqs": null
+    },
+    {
       "id": "US-011",
       "type": "US",
       "title": "Production Rollout",
@@ -27166,6 +27638,82 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-002/US-013/US-013.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-217",
+      "type": "US",
+      "title": "US-217 — Implementeer Consistente Error Handling Patterns",
+      "path": "../backlog/EPIC-002/US-217/US-217.md",
+      "url": "../backlog/EPIC-002/US-217/US-217.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "backend",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "next",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-217.md",
+      "_refs": {
+        "us": [
+          "US-193",
+          "US-213",
+          "US-217"
+        ],
+        "epic": [
+          "EPIC-002"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-217/US-217.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-216",
+      "type": "US",
+      "title": "US-216 — Creëer ValidationDisplayHelper Class voor UI Consistency",
+      "path": "../backlog/EPIC-002/US-216/US-216.md",
+      "url": "../backlog/EPIC-002/US-216/US-216.md",
+      "status": "TODO",
+      "prioriteit": "MEDIUM",
+      "owner": "frontend",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": "next",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-216.md",
+      "_refs": {
+        "us": [
+          "US-193",
+          "US-214",
+          "US-216"
+        ],
+        "epic": [
+          "EPIC-002"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-216/US-216.html",
       "linked_reqs": null
     },
     {
@@ -27450,6 +27998,40 @@
       },
       "rendered_url": "rendered/backlog/EPIC-002/US-009/US-009.html",
       "linked_reqs": null
+    },
+    {
+      "id": "CFR-BUG-025",
+      "type": "BUG",
+      "title": "ValidationResult interface mismatch (TypedDict vs dataclass vs varianten) → inconsistent gebruik",
+      "path": "../backlog/EPIC-002/US-192/CFR-BUG-025/README.md",
+      "url": "../backlog/EPIC-002/US-192/CFR-BUG-025/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": "validation",
+      "canonical": false,
+      "last_verified": "2025-09-19",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-192",
+      "_refs": {
+        "us": [
+          "US-192",
+          "US-193"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-192/CFR-BUG-025/README.html"
     },
     {
       "id": "US-139",
@@ -28689,6 +29271,44 @@
       "linked_reqs": null
     },
     {
+      "id": null,
+      "type": "US",
+      "title": "US-214: Web Lookup Interface Unification",
+      "path": "../backlog/EPIC-003/US-214/US-214.md",
+      "url": "../backlog/EPIC-003/US-214/US-214.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-214.md",
+      "_refs": {
+        "us": [
+          "US-214",
+          "US-215",
+          "US-217",
+          "US-218"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-214/US-214.html"
+    },
+    {
       "id": "US-089",
       "type": "US",
       "title": "Provider Metrics (Latency/Hit‑Ratio)",
@@ -28839,6 +29459,43 @@
       "linked_reqs": null
     },
     {
+      "id": null,
+      "type": "US",
+      "title": "US-215: Web Lookup Configuration Consolidation",
+      "path": "../backlog/EPIC-003/US-215/US-215.md",
+      "url": "../backlog/EPIC-003/US-215/US-215.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-215.md",
+      "_refs": {
+        "us": [
+          "US-214",
+          "US-215",
+          "US-217"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-215/US-215.html"
+    },
+    {
       "id": "US-020",
       "type": "US",
       "title": "Web Lookup fallback & timeouts + provenance‑afdwinging",
@@ -28915,6 +29572,84 @@
       ]
     },
     {
+      "id": null,
+      "type": "US",
+      "title": "US-219: Basic Web Lookup Test Coverage",
+      "path": "../backlog/EPIC-003/US-219/US-219.md",
+      "url": "../backlog/EPIC-003/US-219/US-219.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-219.md",
+      "_refs": {
+        "us": [
+          "US-214",
+          "US-215",
+          "US-216",
+          "US-217",
+          "US-218",
+          "US-219"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-219/US-219.html"
+    },
+    {
+      "id": null,
+      "type": "US",
+      "title": "US-217: Web Lookup Dependency Injection Implementation",
+      "path": "../backlog/EPIC-003/US-217/US-217.md",
+      "url": "../backlog/EPIC-003/US-217/US-217.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-217.md",
+      "_refs": {
+        "us": [
+          "US-214",
+          "US-215",
+          "US-217",
+          "US-219"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-217/US-217.html"
+    },
+    {
       "id": "US-082",
       "type": "US",
       "title": "EUR-Lex EU Recht Integratie",
@@ -28953,6 +29688,79 @@
       "linked_reqs": [
         "REQ-015"
       ]
+    },
+    {
+      "id": null,
+      "type": "US",
+      "title": "US-216: Web Lookup Test Interface Fix",
+      "path": "../backlog/EPIC-003/US-216/US-216.md",
+      "url": "../backlog/EPIC-003/US-216/US-216.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-216.md",
+      "_refs": {
+        "us": [
+          "US-216",
+          "US-219"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-216/US-216.html"
+    },
+    {
+      "id": null,
+      "type": "US",
+      "title": "US-218: True Async Web Lookup Implementation",
+      "path": "../backlog/EPIC-003/US-218/US-218.md",
+      "url": "../backlog/EPIC-003/US-218/US-218.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-218.md",
+      "_refs": {
+        "us": [
+          "US-214",
+          "US-217",
+          "US-218"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-218/US-218.html"
     },
     {
       "id": "US-015",
@@ -29220,21 +30028,55 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-003/US-135/CFR-BUG-015/CFR-BUG-015.html"
+    },
+    {
+      "id": "CFR-BUG-028",
+      "type": "BUG",
+      "title": "Ontbrekende testbestanden/fixtures voor ModernWebLookupService en providers",
+      "path": "../backlog/EPIC-003/US-219/CFR-BUG-028/README.md",
+      "url": "../backlog/EPIC-003/US-219/CFR-BUG-028/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": "qa-team",
+      "canonical": false,
+      "last_verified": "2025-09-19",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-219",
+      "_refs": {
+        "us": [
+          "US-074",
+          "US-219"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-219/CFR-BUG-028/README.html"
     }
   ],
   "aggregate": {
     "counts": {
-      "DOC": 438,
+      "DOC": 446,
       "ARCH": 23,
       "COMP": 5,
       "TEST": 23,
       "GUIDE": 11,
       "EPIC": 16,
       "REQ": 99,
-      "US": 184,
-      "BUG": 10
+      "US": 195,
+      "BUG": 14
     },
-    "generated_at": "2025-09-18T14:59:59Z"
+    "generated_at": "2025-09-19T08:26:23Z"
   },
   "sources": [
     "docs"

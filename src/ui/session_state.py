@@ -9,7 +9,6 @@ from typing import Any, ClassVar  # Type hints voor betere code documentatie
 
 import streamlit as st  # Streamlit framework voor web interface
 
-from ui.cached_services import initialize_services_once
 from ui.helpers.context_adapter import get_context_adapter
 
 
@@ -65,6 +64,8 @@ class SessionStateManager:
                 st.session_state[key] = default_value  # Zet standaardwaarde
 
         # US-202: Initialize services met caching om herinitialisatie te voorkomen
+        # Import hier om circulaire import te voorkomen
+        from ui.cached_services import initialize_services_once
         initialize_services_once()
 
     @staticmethod
@@ -79,7 +80,7 @@ class SessionStateManager:
         Returns:
             Sessie status waarde of standaardwaarde
         """
-        # Haal waarde op uit sessie status, gebruik default als niet gevonden
+        # Direct access to avoid circular dependency
         return st.session_state.get(key, default)
 
     @staticmethod
@@ -91,7 +92,7 @@ class SessionStateManager:
             key: Sessie status sleutel
             value: Waarde om te zetten
         """
-        # Zet de waarde direct in de sessie status
+        # Direct access to avoid circular dependency
         st.session_state[key] = value
 
     @staticmethod
@@ -296,22 +297,3 @@ class SessionStateManager:
         definitie = st.session_state.get("definitie_gecorrigeerd", "")
         # Controleer of het een string is en minimaal 3 karakters bevat
         return isinstance(definitie, str) and len(definitie.strip()) > 3
-
-
-# Convenience wrapper functions expected by tests and some UI modules
-def get_session_value(key: str, default: Any = None) -> Any:
-    """Shorthand to get a value from Streamlit session state.
-
-    Provided for backward compatibility with test fixtures expecting
-    module-level helpers.
-    """
-    return SessionStateManager.get_value(key, default)
-
-
-def set_session_value(key: str, value: Any) -> None:
-    """Shorthand to set a value in Streamlit session state.
-
-    Provided for backward compatibility with test fixtures expecting
-    module-level helpers.
-    """
-    SessionStateManager.set_value(key, value)

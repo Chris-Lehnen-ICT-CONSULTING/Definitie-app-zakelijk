@@ -561,7 +561,7 @@ class ManagementTab:
 
     def _reset_database(self):
         """Reset database (met bevestiging)."""
-        if st.session_state.get("confirm_reset_db", False):
+        if SessionStateManager.get_value("confirm_reset_db", False):
             try:
                 # Backup current data first
                 backup_path = (
@@ -573,13 +573,13 @@ class ManagementTab:
                 setup_database(include_test_data=False)
 
                 st.success(f"✅ Database gereset! Backup opgeslagen als {backup_path}")
-                st.session_state["confirm_reset_db"] = False
+                SessionStateManager.set_value("confirm_reset_db", False)
 
             except Exception as e:
                 st.error(f"❌ Reset mislukt: {e!s}")
         else:
             st.warning("⚠️ Dit zal alle data wissen! Klik nogmaals om te bevestigen.")
-            st.session_state["confirm_reset_db"] = True
+            SessionStateManager.set_value("confirm_reset_db", True)
 
     def _load_test_data(self):
         """Laad test data in database."""
@@ -863,17 +863,17 @@ class ManagementTab:
         """Verwijder definitie (met bevestiging)."""
         confirm_key = f"confirm_delete_{definitie_id}"
 
-        if st.session_state.get(confirm_key, False):
+        if SessionStateManager.get_value(confirm_key, False):
             try:
                 # Implementeer delete functionaliteit
                 st.warning("🗑️ Delete functionaliteit nog niet geïmplementeerd")
-                st.session_state[confirm_key] = False
+                SessionStateManager.set_value(confirm_key, False)
 
             except Exception as e:
                 st.error(f"❌ Verwijderen mislukt: {e!s}")
         else:
             st.warning("⚠️ Definitie verwijderen? Klik nogmaals om te bevestigen.")
-            st.session_state[confirm_key] = True
+            SessionStateManager.set_value(confirm_key, True)
 
     def _render_developer_tools(self):
         """Render developer testing en debug tools."""
@@ -958,7 +958,7 @@ class ManagementTab:
 
             try:
                 # Use V2 validation service to get rule info
-                container = st.session_state.get('service_container')
+                container = SessionStateManager.get_value('service_container')
                 if container:
                     validation_service = container.orchestrator()
                     # Get service info which includes rule count
