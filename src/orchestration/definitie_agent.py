@@ -91,7 +91,7 @@ class DefinitieAgent:
     ) -> AgentResult:
         # Lazy imports to avoid circular dependencies at import time
         from services.service_factory import get_definition_service
-        from ui.helpers.async_bridge import run_async
+        import asyncio
 
         # Build legacy-style context dict expected by ServiceAdapter
         context_dict = {
@@ -114,10 +114,11 @@ class DefinitieAgent:
 
         # Obtain V2 adapter and generate definition asynchronously via run_async
         adapter = get_definition_service()
-        v2_result = run_async(
-            adapter.generate_definition(begrip, context_dict, **extra_kwargs),
-            timeout=120
-        )
+        async def _task():
+            return await adapter.generate_definition(begrip, context_dict, **extra_kwargs)
+
+        # Run coroutine synchronously without UI bridge
+        v2_result = asyncio.run(asyncio.wait_for(_task(), timeout=120))
 
         success = bool(v2_result.get("success"))
         final_def = (

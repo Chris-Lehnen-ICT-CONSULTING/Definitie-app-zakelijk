@@ -732,9 +732,9 @@ class DefinitionGeneratorTab:
                 # Fallback naar env als metadata geen timeout bevat
                 if timeout_meta is None:
                     try:
-                        timeout_meta = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "6.0"))
+                        timeout_meta = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0"))
                     except Exception:
-                        timeout_meta = 6.0
+                        timeout_meta = 10.0
                 st.caption(
                     f"Web lookup: {status_text} ({avail_text}) — timeout {float(timeout_meta):.1f}s"
                 )
