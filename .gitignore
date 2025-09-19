@@ -127,6 +127,16 @@ data/definities.db
 *.db-shm
 *.db-wal
 
+# 💚 Stronger DB ignore rules
+# Ignore any root-level SQLite databases and derivatives
+/*.db
+/*.sqlite
+/*.sqlite3
+# Ignore any SQLite databases under data/
+data/*.db
+data/*.sqlite
+data/*.sqlite3
+
 # 💚 Test en debug bestanden
 *_test_summary.md
 STREAMLIT_APP_TEST_SUMMARY.md

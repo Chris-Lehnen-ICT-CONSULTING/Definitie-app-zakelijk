@@ -342,11 +342,7 @@ class DefinitionGeneratorTab:
             st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
             logger.exception("Validation section rendering failed")
 
-        # Store prompt_text in session state if available
-        if isinstance(agent_result, dict) and agent_result.get("prompt_text"):
-            SessionStateManager.set_value(
-                "prompt_text", agent_result["prompt_text"]
-            )
+        # GEEN SESSION STATE VOOR PROMPTS! Prompts komen DIRECT uit agent_result!
 
         # Voorbeelden sectie - direct vanuit agent_result tonen, GEEN session state!
         try:
@@ -437,19 +433,22 @@ class DefinitionGeneratorTab:
                     else None
                 )
 
-                # Render de debug sectie (altijd tonen; met fallback)
+                # Render de debug sectie ALLEEN als we een prompt hebben uit agent_result
                 try:
                     if prompt_template:
                         prompt_container = PromptContainer(prompt_template)
                         PromptDebugSection.render(prompt_container, voorbeelden_prompts)
                     else:
-                        # Als er nog steeds geen prompt is, toon de debug sectie met lege prompt
+                        # GEEN FALLBACK NAAR SESSION STATE!
+                        # Als de prompt niet in agent_result zit, toon melding
                         with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
-                            st.info(
-                                "Geen prompt informatie beschikbaar voor deze generatie."
+                            st.warning(
+                                "⚠️ Prompt informatie niet beschikbaar in generation result. "
+                                "Dit betekent dat de orchestrator de prompt niet correct doorgeeft."
                             )
                             st.caption(
-                                "Dit kan gebeuren bij oudere generaties of wanneer de prompt niet is opgeslagen."
+                                "De prompt moet in agent_result['prompt_text'] of "
+                                "agent_result['metadata']['prompt_template'] zitten."
                             )
 
                             # Als er wel voorbeelden prompts zijn, toon die alsnog

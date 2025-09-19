@@ -12,7 +12,16 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from services.interfaces import GenerationRequest
 from services.prompts.prompt_service_v2 import PromptServiceV2
 from services.definition_generator_context import EnrichedContext
-import tiktoken
+
+# Optional dependency: skip this debug script if tiktoken is unavailable
+try:  # pragma: no cover - debug utility
+    import tiktoken  # type: ignore
+except Exception:  # pragma: no cover - safe skip during collection
+    import pytest
+    pytest.skip(
+        "tiktoken not installed; skipping prompt token analysis debug script",
+        allow_module_level=True,
+    )
 
 async def analyze_prompt_tokens():
     """Analyseer de token distributie in gegenereerde prompts."""

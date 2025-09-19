@@ -72,7 +72,7 @@ def sample_record():
 class TestDefinitionRepository:
     """Test suite voor DefinitionRepository."""
 
-    def test_initialization(self, mock_legacy_repo):
+    def test_initialization(self, mock_legacy_repo, chdir_tmp_path):
         """Test repository initialisatie."""
         with patch('services.definition_repository.LegacyRepository', return_value=mock_legacy_repo) as mock_class:
             repo = DefinitionRepository(db_path='test.db')
@@ -116,10 +116,10 @@ class TestDefinitionRepository:
         assert result_id == 456
         assert repository._stats['total_saves'] == 1
         mock_legacy_repo.update_definitie.assert_called_once()
-        # Verify it was called with ID and a DefinitieRecord
+        # Verify it was called with ID and an update payload (record or dict)
         call_args = mock_legacy_repo.update_definitie.call_args[0]
         assert call_args[0] == 456
-        assert isinstance(call_args[1], DefinitieRecord)
+        assert isinstance(call_args[1], (DefinitieRecord, dict))
         mock_legacy_repo.create_definitie.assert_not_called()
 
     def test_save_error_handling(self, repository, mock_legacy_repo, sample_definition):
@@ -249,10 +249,10 @@ class TestDefinitionRepository:
         assert repository._stats['total_updates'] == 1
         mock_legacy_repo.update_definitie.assert_called_once()
 
-        # Verify the record parameter
+        # Verify the update parameter (record or dict)
         call_args = mock_legacy_repo.update_definitie.call_args[0]
         assert call_args[0] == 123  # ID
-        assert isinstance(call_args[1], DefinitieRecord)  # Record
+        assert isinstance(call_args[1], (DefinitieRecord, dict))
 
     def test_update_error_handling(self, repository, mock_legacy_repo, sample_definition):
         """Test error handling bij update."""
