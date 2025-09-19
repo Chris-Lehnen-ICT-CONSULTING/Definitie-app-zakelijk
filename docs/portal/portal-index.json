@@ -16395,6 +16395,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "AI Toetser Validators Module Removal",
+      "path": "../refactor-log/ai_toetser_validators_removal.md",
+      "url": "../refactor-log/ai_toetser_validators_removal.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/refactor-log/ai_toetser_validators_removal.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Logische Prompt Blokken - Business Perspectief",
       "path": "../archief/LOGICAL_PROMPT_BLOCKS_BUSINESS_VIEW.md",
       "url": "../archief/LOGICAL_PROMPT_BLOCKS_BUSINESS_VIEW.md",
@@ -30359,7 +30390,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 446,
+      "DOC": 447,
       "EPIC": 16,
       "US": 200,
       "BUG": 14,
@@ -30369,7 +30400,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T14:00:59Z"
+    "generated_at": "2025-09-19T14:02:30Z"
   },
   "sources": [
     "docs"
