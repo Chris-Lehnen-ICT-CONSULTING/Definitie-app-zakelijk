@@ -739,6 +739,29 @@ class DefinitionGeneratorTab:
                     f"Web lookup: {status_text} ({avail_text}) — timeout {float(timeout_meta):.1f}s"
                 )
 
+            # SRU/WL debug: toon lookup attempts (endpoints/termen)
+            # Zoek debug-informatie in metadata (saved_record of agent_result)
+            debug_info = None
+            if saved_record and getattr(saved_record, "metadata", None):
+                m = saved_record.metadata
+                if isinstance(m, dict):
+                    debug_info = m.get("web_lookup_debug")
+            if debug_info is None:
+                if isinstance(agent_result, dict):
+                    m = agent_result.get("metadata")
+                    if isinstance(m, dict):
+                        debug_info = m.get("web_lookup_debug")
+                elif hasattr(agent_result, "metadata") and isinstance(
+                    getattr(agent_result, "metadata"), dict
+                ):
+                    debug_info = agent_result.metadata.get("web_lookup_debug")
+
+            if st.checkbox(
+                "🐛 SRU/WL debug: Toon lookup attempts (JSON)",
+                key="debug_web_lookup_attempts",
+            ):
+                st.json(debug_info or {})
+
             # Debug toggle: toon ruwe web_lookup data (JSON)
             if st.checkbox(
                 "🐛 Debug: Toon ruwe web_lookup data (JSON)",

@@ -416,6 +416,8 @@ class ServiceAdapter:
                 "web_lookup_available",
                 "web_lookup_timeout",
                 "web_sources_count",
+                "web_lookup_debug",
+                "web_lookup_debug_available",
             ):
                 v = safe_dict_get(md, k)
                 if v is not None:

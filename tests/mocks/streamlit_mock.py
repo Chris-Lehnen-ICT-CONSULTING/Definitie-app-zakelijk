@@ -73,6 +73,7 @@ class MockStreamlit:
         self.text_area = _noop
         self.selectbox = _noop
         self.multiselect = _noop
+        self.checkbox = _noop
         self.button = _noop
         self.file_uploader = _noop
         self.set_page_config = _noop
