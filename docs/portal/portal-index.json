@@ -28357,6 +28357,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "V1→V2 Migration Test Strategy and Verification Plan",
+      "path": "../testing/V2_MIGRATION_TEST_VERIFICATION_PLAN.md",
+      "url": "../testing/V2_MIGRATION_TEST_VERIFICATION_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/V2_MIGRATION_TEST_VERIFICATION_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "Story 2.3 Test Implementatie Report",
       "path": "../testing/story-2.3-test-implementation.md",
       "url": "../testing/story-2.3-test-implementation.md",
@@ -28446,6 +28477,37 @@
         "req": []
       },
       "rendered_url": "rendered/testing/golden-dataset-validation.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
+      "title": "V1→V2 Migration Complete - Test Summary",
+      "path": "../testing/V2_MIGRATION_COMPLETE_SUMMARY.md",
+      "url": "../testing/V2_MIGRATION_COMPLETE_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/V2_MIGRATION_COMPLETE_SUMMARY.html"
     },
     {
       "id": null,
@@ -30427,11 +30489,11 @@
       "BUG": 14,
       "REQ": 99,
       "ARCH": 23,
-      "TEST": 27,
+      "TEST": 29,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T14:09:38Z"
+    "generated_at": "2025-09-19T14:19:11Z"
   },
   "sources": [
     "docs"
