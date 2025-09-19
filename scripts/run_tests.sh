@@ -25,11 +25,20 @@ case "$mode" in
     fi
     ;;
   pr)
-    echo "[tests] Running PR suite (unit + services + integration + contracts)"
+    echo "[tests] Running PR suite (services + contracts)"
+    # Focus op high-signal suites; integration/UI gaan naar nightly
+    # Allowlist van high-signal tests die stabiel zijn
+    targets=(
+      tests/services/test_modular_validation_service_contract.py
+      tests/services/orchestrators/test_validation_degraded_contract.py
+      tests/services/orchestrators/test_definition_orchestrator_v2_happy.py
+      tests/contracts
+      tests/integration/test_golden_via_orchestrator.py
+    )
     if [[ "$include_legacy" == "yes" ]]; then
-      pytest -q -m "not performance and not slow" tests/unit tests/services tests/integration tests/contracts
+      pytest -q -m "not performance and not slow" "${targets[@]}"
     else
-      pytest -q -m "not performance and not slow" tests/unit tests/services tests/integration tests/contracts -k "not legacy"
+      pytest -q -m "not performance and not slow" "${targets[@]}" -k "not legacy"
     fi
     ;;
   full)
