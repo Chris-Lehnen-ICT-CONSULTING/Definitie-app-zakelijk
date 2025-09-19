@@ -9,8 +9,6 @@ import logging
 from functools import wraps
 from typing import Any, Callable, TypeVar, cast
 
-import streamlit as st
-
 # Type variables for generic functions
 T = TypeVar("T")
 F = TypeVar("F", bound=Callable[..., Any])
@@ -78,8 +76,7 @@ def error_handler(
                     msg = error_message or f"Error in {func.__name__}"
                     logger.error(f"{msg}: {e}")
 
-                if show_st_error:
-                    st.error(f"{error_message or 'An error occurred'}: {e!s}")
+                # UI-presentatie wordt niet door utils verzorgd; UI kan dit afhandelen
 
                 return default_return
         return cast(F, wrapper)
@@ -111,7 +108,6 @@ def handle_service_error(
     if logger:
         logger.error(error_msg, exc_info=True)
 
-    if show_ui:
-        st.error(error_msg)
+    # UI-presentatie niet in utils; UI-laag kan kiezen om dit te tonen
 
     return default_return
