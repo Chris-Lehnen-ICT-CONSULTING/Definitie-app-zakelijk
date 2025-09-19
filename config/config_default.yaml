@@ -143,7 +143,8 @@ paths:
   reports_dir: "reports"
 
   # Specific file paths
-  toetsregels_file: "config/toetsregels.json"
+  # Historische instelling; ToetsregelManager laadt per-bestand uit src/toetsregels/regels/
+  toetsregels_file: "src/toetsregels/regels"
   verboden_woorden_file: "config/verboden_woorden.json"
   context_mapping_file: "config/context_wet_mapping.json"
   rate_limit_history_file: "cache/rate_limit_history.json"

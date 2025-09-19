@@ -1,9 +1,9 @@
 """
 Integration tests for EPIC-CFR: Context Flow Requirements.
-Tests all three critical user stories:
-- US-041: Fix Context Field Mapping to Prompts
-- US-042: Fix "Anders..." Custom Context Option
-- US-043: Remove Legacy Context Routes
+Tests all three critical user stories (canonical docs):
+- docs/backlog/EPIC-010/US-041/US-041.md (Context Field Mapping to Prompts)
+- docs/backlog/EPIC-010/US-042/US-042.md ("Anders..." Custom Context Option)
+- docs/backlog/EPIC-010/US-043/US-043.md (Remove Legacy Context Routes)
 """
 
 import pytest

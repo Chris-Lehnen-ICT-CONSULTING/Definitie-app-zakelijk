@@ -5,7 +5,6 @@ from toetsregels.manager import get_toetsregel_manager
 
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="SAM-02 has no forbidden patterns; needs V2 mapping logic", strict=False)
 async def test_sam02_qualification_no_repetition_should_flag_conflict():
     """Golden (latent): SAM-02 should flag repetition/conflict, not yet enforced in V2."""
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
@@ -23,7 +22,6 @@ async def test_sam02_qualification_no_repetition_should_flag_conflict():
 
 
 @pytest.mark.asyncio
-@pytest.mark.xfail(reason="SAM-04 has no forbidden patterns; needs V2 mapping logic", strict=False)
 async def test_sam04_compound_head_mismatch_should_fail():
     """Golden (latent): SAM-04 composition must start with specialising component."""
     svc = ModularValidationService(get_toetsregel_manager(), None, None)
@@ -35,4 +33,3 @@ async def test_sam04_compound_head_mismatch_should_fail():
         context={},
     )
     assert any(v.get("code") == "SAM-04" for v in res.get("violations", []))
-

@@ -1,14 +1,13 @@
----
 canonical: true
-status: draft
+status: active
 owner: QA Lead
 last_verified: 2025-09-19
 applies_to: definitie-app@current
 ---
 
-# Test Suite Improvement Plan
+# Test Suite Improvement Plan (Gealigneerd met huidige implementatie)
 
-Doel: de testsuite versnellen, stabiliseren en moderniseren richting de v2‑architectuur met duidelijke CI‑profielen, dekkingsdoelen en gefaseerde afbouw van legacy paden.
+Doel: de testsuite versnellen, stabiliseren en moderniseren richting de v2‑architectuur met duidelijke CI‑profielen, consistente dekkingsdoelen en gefaseerde afbouw van legacy paden — in lijn met de huidige stand van de code en tests.
 
 ## Samenvatting
 - PR‑suite toont nog brede failures in integratie en legacy‑tests; unit/services + toegevoegde prompt/web‑lookup/mappers tests draaien groen.
@@ -20,30 +19,33 @@ Doel: de testsuite versnellen, stabiliseren en moderniseren richting de v2‑arc
   - Runner script met profielen: `fast`, `pr`, `full`, `perf`.
 
 ## Huidige Stand (bevindingen)
-- Veel integratietests verwachten legacy symbolen/paden (bijv. `ai_toetser.validators`), of methoden die in v2 (nog) niet bestaan.
-- Config‑tests verwachten environment‑afhankelijke defaults (temperatuur) die afwijken van de huidige implementatie.
-- Sanitizer/validators hebben strengere of afwijkende semantiek dan tests aannemen (bijv. `<script>` stripping, path‑sanitization).
+- Integratie-/unit‑tests verwachten deels legacy importpaden (bijv. `ai_toetser.validators`), of symbolen die (nog) niet bestaan in de V2 structuur.
+- Config‑tests veronderstellen environment‑afhankelijke defaults die afwijken van de huidige implementatie.
+- Sanitizer/validators hanteren strengere/afwijkende semantiek dan sommige tests aannemen (o.a. `<script>`‑stripping, normalisatie).
+- Markers en coverage‑doelen zijn niet uniform geconfigureerd tussen gids/plan/CI.
 
-## Aanbevelingen
-- Snelle feedback
-  - Gebruik profielen:
-    - `./scripts/run_tests.sh fast` (on push: smoke + unit + services)
-    - `./scripts/run_tests.sh pr` (on PR: + integration + contracts, zonder performance)
-    - `./scripts/run_tests.sh full` (nightly)
-    - `./scripts/run_tests.sh perf` (performance/benchmark)
-  - Optioneel: pytest‑xdist (`-n auto`) op snelle suites.
+## Aanbevelingen (geconcretiseerd)
+- Snelle feedback & profielen (convergeren met bestaande runner):
+  - Gebruik `./scripts/run_tests.sh` profielen eenduidig:
+    - `fast` (push): smoke + unit + services, `-m "not performance and not slow"`.
+    - `pr` (pull_request): unit + services + integration + contracts (geen performance).
+    - `full` (nightly): volledige suite (excl. performance tenzij expliciet).
+    - `perf` (nightly/handmatig): performance/benchmark suites.
+  - Optioneel: pytest‑xdist (`-n auto`) voor `fast`/`pr` zodra stabiliteit bevestigd is.
 - Stabiliteit & determinisme
-  - Netwerk dicht (al geblokkeerd); expliciet openen met `ALLOW_NETWORK=1` voor specifieke integraties.
-  - pytest‑randomly toevoegen om volgorde‑afhankelijkheid te vangen.
-  - Markeer echt trage of timing‑gevoelige tests met `@pytest.mark.slow` (standaard uitgesloten).
-- Coverage
-  - Start budget: `--cov-fail-under=40` → 50% → 60% (gefaseerd). Subpakket‑doelen: prompts ≥80%, services/validation ≥70%, web_lookup ≥80%.
-  - Verhoog dekking gericht: prompt‑modules (con/ess/arai/ver), services/validation (edge cases ensure_schema_compliance), web_lookup (suggestions/SRU‑parse met mocks).
-- CI‑profielen
-  - On push: fast
-  - On PR: pr (zonder perf)
-  - Nightly: full + perf; coverage rapportage
-- Documenteer beleid in `docs/testing/TESTING_GUIDE.md` (bijgewerkt) en houd netwerk policy expliciet.
+  - Netwerk dicht (actief in conftest); expliciet openen met `ALLOW_NETWORK=1`.
+  - Voeg `pytest-randomly` toe om volgorde‑afhankelijkheid te detecteren; herstel gevonden issues iteratief.
+  - Markeer trage/timing‑gevoelige tests met `@pytest.mark.slow` en sluit ze uit in `fast/pr`.
+- Coverage (geharmoniseerd met praktijk en CI)
+  - PR‑suite: overall `--cov=src --cov-fail-under=60`, plus subpakket‑gate voor services `--cov=src/services --cov-fail-under=80` (zoals CI al afdwingt).
+  - Nightly: verhoog overall naar 65–70; subpakketten: prompts ≥80%, services/validation ≥80%, web_lookup ≥80%.
+  - Verhoog dekking gericht: prompt‑modules (con/ess/arai/ver), services/validation (edge‑cases `ensure_schema_compliance`), web_lookup (suggestions/SRU‑parse met mocks).
+- CI‑profielen (te implementeren)
+  - push: `fast`
+  - pull_request: `pr` (zonder perf; met contract/JSON‑schema checks)
+  - nightly: `full` + `perf`; coverage‑rapportage.
+  - Let op: workflow laat `scripts/run_tests.sh` aanroepen i.p.v. inline pytest‑commando’s.
+- Documenteer beleid in `docs/testing/TESTING_GUIDE.md` (geüpdatet) en houd netwerkpolicy expliciet.
 
 ## Preflight & Approval Gates (AGENTS‑conform)
 
@@ -92,9 +94,9 @@ Bij migraties: pas tests en paden aan om aan deze canon te voldoen.
 
 ## Legacy Tests Scope
 
-- Verplaats pure legacy tests naar `tests/legacy/`.
-- Sluit `tests/legacy/` uit in PR‑suite (draai alleen in nightly).
-- Markeer resterende legacy‑afhankelijke tests als `xfail` met motivatie totdat de v2‑variant klaar is.
+- Verplaats pure legacy tests naar `tests/legacy/` (niet langer stilzwijgend overslaan via collection‑filters).
+- Sluit `tests/legacy/` uit in `fast/pr`; draai in `full/nightly`.
+- Markeer resterende legacy‑afhankelijke tests als `xfail` met motivatie totdat de V2‑variant klaar is (transparantie in rapportage).
 
 ## Degraded Modes (Cache & Netwerk)
 
@@ -121,9 +123,10 @@ Kandidaten legacy/dead (quarantaine/deprecate):
 - Legacy orchestrators/services:
   - `src/services/{definition_orchestrator,definition_workflow_service,ai_service,ab_testing_framework,feature_flags}.py`
   - Actie: deprecated; importpaden migreren naar v2; daarna verwijderen/archiveren.
-- ai_toetser legacy entry points:
-  - Tests verwachten `ai_toetser.validators` (bestaat niet). Wel aanwezig: `ai_toetser/{modular_toetser,toetser}.py`.
-  - Actie: shim module of tests migreren naar v2.
+- ai_toetser validators API:
+  - Diverse tests verwachten `ai_toetser.validators` (bestaat niet). Wel aanwezig: `ai_toetser/{modular_toetser,toetser}.py` en JSON‑validatoren onder `toetsregels/validators`.
+  - Actie (kortetermijn): introduceer een lichte shim `ai_toetser/validators` die types/exports aanbiedt of update tests naar JSON‑loader/V2‑services.
+  - Actie (langetermijn): consolideer op V2‑importpaden en verwijder shim zodra tests gemigreerd zijn.
 - Web lookup contracts/provenance (lage dekking):
   - `src/services/web_lookup/{contracts,provenance}.py`
   - Actie: aligneren met feitelijke API of verplaatsen naar docs/tools.
@@ -142,27 +145,30 @@ Kandidaten legacy/dead (quarantaine/deprecate):
 
 ## Migratieplan
 1) Quick wins
-   - Mocks consolideren (Streamlit, config builtins). Sanitizer aanscherpen (<script> strippen).
-   - Shim of skips voor legacy imports (ai_toetser.validators) om PR‑suite niet te blokkeren.
+   - Markers uniformeren in `pytest.ini` (unit, integration, contract, smoke, regression, performance, benchmark, acceptance, red_phase, antipattern).
+   - Mocks consolideren (Streamlit, config builtins) — is grotendeels gereed.
+   - Shim of testmigratie voor legacy imports (`ai_toetser.validators`) om PR‑suite niet te blokkeren.
 2) Triage/markering
-   - Verplaats pure legacy tests naar `tests/legacy/` of markeer `xfail` met rationale.
-   - Sluit `tests/legacy/` uit in PR‑suite; run in nightly.
+   - Verplaats pure legacy tests naar `tests/legacy/` en markeer `xfail` met rationale.
+   - Sluit `tests/legacy/` uit in `fast/pr`; run in `full/nightly`.
 3) Implementatie/alignering
-   - Leveren van minimale v2‑interfaces waar tests om vragen (validation schema/dutch validator) of tests aligneren naar v2.
-   - Config‑env gedrag expliciteren en tests bijwerken naar v2‑defaults.
+   - Leveren van minimale V2‑interfaces waar tests om vragen (validation schema/dutch validator) of tests aligneren naar V2.
+   - Config‑env gedrag expliciteren; tests bijwerken naar V2‑defaults.
+   - Pas `tests/ci/test_forbidden_symbols.py` aan: vervang file‑verboden door inhoudelijke pattern‑checks en een expliciete allowlist.
 4) Cleanup
    - Deprecated bestanden verplaatsen naar `archive/legacy/` (of verwijderen) zodra referenties zijn gemigreerd.
-   - Dekkingsbudgets en CI‑gates gefaseerd opschroeven.
+   - Dekkingsbudgets en CI‑gates gefaseerd opschroeven; adopteer `scripts/run_tests.sh` in workflows.
 
 ## Taken (suggestie)
 - [ ] Legacy Map definitief maken met bron→doel + owners
-- [ ] Pytest markers/xfail voor legacy tests
-- [ ] Shim `ai_toetser/validators` (optioneel) of testmigratie
+- [ ] Pytest markers/xfail voor legacy tests en aanmaak `tests/legacy/`
+- [ ] Shim `ai_toetser/validators` (kortetermijn) of testmigratie naar V2‑importpaden
 - [ ] Sanitizer consistentie (moderate/strict strip `<script>`)
-- [ ] CI‑workflows met profielen
-- [ ] Coverage budgets initialiseren en bijsturen
+- [ ] CI‑workflows laten aanroepen: `scripts/run_tests.sh {fast|pr|full|perf}`
+- [ ] Coverage‑budgets harmoniseren (PR: overall 60 + services 80; nightly hoger)
+- [ ] Voeg `pytest-randomly` toe; evalueer optioneel `pytest-xdist`
 
 ## Bijlagen
 - Runner: `./scripts/run_tests.sh {fast|pr|full|perf}`
 - Netwerkpolicy: standaard geblokkeerd; override met `ALLOW_NETWORK=1`.
-- Markers: `unit`, `integration`, `contract`, `regression`, `performance`, `benchmark`, `acceptance`, `red_phase`, `antipattern`.
+- Markers (uniformeren in pytest.ini): `unit`, `integration`, `contract`, `smoke`, `regression`, `performance`, `benchmark`, `acceptance`, `red_phase`, `antipattern`.

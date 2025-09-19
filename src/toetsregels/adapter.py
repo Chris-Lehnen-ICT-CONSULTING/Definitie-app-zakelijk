@@ -6,7 +6,7 @@ Zorgt ervoor dat bestaande code die het oude JSON formaat gebruikt blijft werken
 import logging
 from typing import Any
 
-from config.toetsregel_manager import get_toetsregel_manager
+from toetsregels.manager import get_toetsregel_manager
 
 logger = logging.getLogger(__name__)
 
