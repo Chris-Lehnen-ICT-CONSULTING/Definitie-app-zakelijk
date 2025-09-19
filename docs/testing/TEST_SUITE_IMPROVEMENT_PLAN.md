@@ -45,6 +45,62 @@ Doel: de testsuite versnellen, stabiliseren en moderniseren richting de v2‑arc
   - Nightly: full + perf; coverage rapportage
 - Documenteer beleid in `docs/testing/TESTING_GUIDE.md` (bijgewerkt) en houd netwerk policy expliciet.
 
+## Preflight & Approval Gates (AGENTS‑conform)
+
+Voor elke significante wijziging (verplaatsen/verwijderen van legacy paden; >50 regels of >3 files) voeren we preflight‑checks en approval‑gates uit:
+
+- Preflight checks (uit te voeren vóór patch):
+  - Unieke match: `rg "exact_string_to_change" --files-with-matches | wc -l` (verwacht 1)
+  - Scope/impact: lijst paden + componenten met impact
+  - Forbidden patterns:
+    - Services: geen `from ui.*`, geen `asyncio.run(`
+    - UI: geen directe repository‑imports (gebruik service‑facade)
+  - Automatisch: `~/.ai-agents/preflight-checks.sh .`
+
+- Approval Ladder (wanneer vragen):
+  - Code patches >100 regels of >5 files: approval nodig
+  - Verwijderen/archiveren van paden in kritieke directories: approval nodig + rollbackplan
+  - Dependencies/schema‑wijzigingen: approval nodig
+  - Netwerk/deps install: approval nodig
+
+## Strict Mode & Beslissingslog
+
+Gebruik strict‑mode toggles om aannames te voorkomen tijdens migratie:
+
+- `/strict on patch,test` — blokkeer patches/tests tot expliciet `/approve`
+- `/strict off` — deactiveer strict‑mode
+- `/approve` — volgende geblokkeerde stap
+- `/deny` — afwijzen; herplan/alternatief voorstellen
+
+Houd per fase een korte decisions‑log bij (beslissing, motivatie, akkoordmoment).
+
+## Naming & Import Canon (AGENTS)
+
+Volg de verplichte namen en verboden import‑patronen (uit `docs/guidelines/AGENTS.md`):
+
+- Verplicht (voorbeeld): `ValidationOrchestratorV2`, velden `organisatorische_context`, `juridische_context`.
+- Verboden in `src/services/`: `from ui.*`, `asyncio.run(...)`.
+- UI gebruikt service‑facades i.p.v. repository‑imports.
+
+Bij migraties: pas tests en paden aan om aan deze canon te voldoen.
+
+## Canonical Locations & Archivebeleid
+
+- Houd één bron van waarheid voor actieve code (zie `docs/CANONICAL_LOCATIONS.md`).
+- Legacy/dead code krijgt een quarantaineplek (bijv. `archive/legacy/`), met README (reden, end‑of‑life, vervangende paden).
+- Werk documentatie/links bij en blokkeer nieuwe imports naar legacy via lint/gates.
+
+## Legacy Tests Scope
+
+- Verplaats pure legacy tests naar `tests/legacy/`.
+- Sluit `tests/legacy/` uit in PR‑suite (draai alleen in nightly).
+- Markeer resterende legacy‑afhankelijke tests als `xfail` met motivatie totdat de v2‑variant klaar is.
+
+## Degraded Modes (Cache & Netwerk)
+
+- Cache: bij metadata/persist‑fouten degradeert `FileCache.set()` niet (return True) en wordt het probleem gelogd. Dit is een bewust “degraded mode” besluit om tests niet te blokkeren; herzien zodra cache‑persist kritisch wordt.
+- Netwerk: standaard geblokkeerd in tests (override met `ALLOW_NETWORK=1`).
+
 ## Legacy/Dead Paths – Inventaris
 
 Criteria:
@@ -110,4 +166,3 @@ Kandidaten legacy/dead (quarantaine/deprecate):
 - Runner: `./scripts/run_tests.sh {fast|pr|full|perf}`
 - Netwerkpolicy: standaard geblokkeerd; override met `ALLOW_NETWORK=1`.
 - Markers: `unit`, `integration`, `contract`, `regression`, `performance`, `benchmark`, `acceptance`, `red_phase`, `antipattern`.
-
