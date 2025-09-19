@@ -87,7 +87,7 @@ class ContextConfig:
     """Context processing configuration (from generation)."""
 
     # Context expansion
-    enable_web_lookup: bool = True
+    # enable_web_lookup removed - web lookup runs always when service available
     enable_document_search: bool = False
     enable_rule_interpretation: bool = True
 
@@ -235,7 +235,7 @@ class UnifiedGeneratorConfig:
         elif self.environment == "testing":
             # Testing optimizations
             self.cache.strategy = CacheStrategy.NONE
-            self.context.enable_web_lookup = False
+            # Web lookup always runs when service available - no flag
             self.monitoring.enable_monitoring = False
 
     @classmethod
@@ -304,7 +304,7 @@ class UnifiedGeneratorConfig:
                 "max_entries": self.cache.max_entries,
             },
             "context": {
-                "enable_web_lookup": self.context.enable_web_lookup,
+                # Web lookup always runs when service available - no flag
                 "enable_rule_interpretation": self.context.enable_rule_interpretation,
             },
             "quality": {

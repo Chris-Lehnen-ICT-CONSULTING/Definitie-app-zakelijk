@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verwijder enable_fallback Feature Flags</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden: []</p>
+<p>aangemaakt: 19-09-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 19-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-003</p>
+<p>id: US-224</p>
+<p>last_verified: 19-09-2025</p>
+<p>owner: development-team</p>
+<p>prioriteit: MEDIUM</p>
+<p>sprint: backlog</p>
+<p>status: Todo</p>
+<p>story_points: 8</p>
+<p>titel: Verwijder enable_fallback Feature Flags</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: technical-debt</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-021</li>
+<li>REQ-040</li>
+<p>---</p>
+</ul>
+
+<h1>US-224: Verwijder enable_fallback Feature Flags</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> ontwikkelaar</p>
+<p><strong>wil ik</strong> dat resilience patterns altijd actief zijn zonder feature flags</p>
+<p><strong>zodat</strong> het systeem robuust is tegen failures zonder configuratie complexity</p>
+
+<h2>Context</h2>
+
+<p>De <code>enable_fallback</code> flag komt 10+ keer voor in resilience.py:</p>
+<ul>
+<li>Zonder fallback → API failures = crashes</li>
+<li>Inconsistent gebruik over modules</li>
+<li>Silent failures wanneer uitgeschakeld</li>
+</ul>
+
+<p>Dit moet vervangen worden door proper circuit breaker patterns.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Criterion 1: Circuit Breaker Pattern</h3>
+<p><strong>gegeven</strong> een externe service faalt</p>
+<p><strong>wanneer</strong> de failure threshold bereikt wordt</p>
+<p><strong>dan</strong> schakelt de circuit breaker automatisch over naar fallback</p>
+
+<h3>Criterion 2: Geen Manual Toggle</h3>
+<p><strong>gegeven</strong> resilience is essentieel</p>
+<p><strong>wanneer</strong> het systeem draait</p>
+<p><strong>dan</strong> zijn fallback mechanisms ALTIJD actief</p>
+
+<h3>Criterion 3: Observable Behavior</h3>
+<p><strong>gegeven</strong> een fallback wordt gebruikt</p>
+<p><strong>wanneer</strong> dit gebeurt</p>
+<p><strong>dan</strong> wordt dit gelogd en gemonitord</p>
+
+<h2>Technische Implementatie</h2>
+
+<h3>Te Wijzigen Bestanden</h3>
+
+<ol>
+<li>**src/utils/resilience.py**</li>
+</ol>
+<ul>
+<li>  - 10+ instances van `enable_fallback` verwijderen</li>
+<li>  - Vervangen door circuit breaker pattern</li>
+</ul>
+
+<ol>
+<li>**src/utils/integrated_resilience.py**</li>
+</ol>
+<ul>
+<li>  - Regel 57, 58: Verwijder `enable_monitoring`, `enable_cost_tracking`</li>
+<li>  - Regel 150, 261, 353: Verwijder `enable_fallback` parameters</li>
+</ul>
+
+<ol>
+<li>**src/utils/optimized_resilience.py**</li>
+</ol>
+<ul>
+<li>  - Regel 63, 67, 68, 71: Verwijder enable flags</li>
+<li>  - Implementeer altijd-aan resilience</li>
+</ul>
+
+<h3>Circuit Breaker Implementatie</h3>
+
+<pre><code># VOOR (flag-based):
+if enable_fallback:
+    return fallback_value
+else:
+    raise Exception("Service failed")  # CRASH!
+
+# NA (circuit breaker):
+class CircuitBreaker:
+    def __init__(self, failure_threshold=5, reset_timeout=60):
+        self.failure_count = 0
+        self.failure_threshold = failure_threshold
+        self.state = "CLOSED"  # CLOSED, OPEN, HALF_OPEN
+        self.last_failure_time = None
+
+    async def call(self, func, fallback_func):
+        if self.state == "OPEN":
+            if self._should_attempt_reset():
+                self.state = "HALF_OPEN"
+            else:
+                # Circuit open, use fallback
+                logger.warning(f"Circuit open, using fallback")
+                return await fallback_func()
+
+        try:
+            result = await func()
+            self._on_success()
+            return result
+        except Exception as e:
+            self._on_failure()
+            if self.state == "OPEN":
+                logger.error(f"Circuit opened after {self.failure_count} failures")
+                return await fallback_func()
+            raise</code></pre>
+
+<h3>Monitoring Integration</h3>
+
+<pre><code># Altijd monitoring, geen flag
+class ResilientService:
+    def __init__(self):
+        self.circuit_breaker = CircuitBreaker()
+        self.metrics = MetricsCollector()  # ALTIJD aan
+
+    async def call_external_service(self):
+        start = time.time()
+        try:
+            result = await self.circuit_breaker.call(
+                self._make_api_call,
+                self._get_cached_fallback
+            )
+            self.metrics.record_success(time.time() - start)
+            return result
+        except Exception as e:
+            self.metrics.record_failure(str(e))
+            raise</code></pre>
+
+<h2>Test Coverage Vereisten</h2>
+
+<h3>Critical Tests</h3>
+<ul>
+<li>Test circuit breaker state transitions</li>
+<li>Test automatic fallback activation</li>
+<li>Test recovery behavior</li>
+<li>Test metrics collection</li>
+</ul>
+
+<h3>Performance Tests</h3>
+<ul>
+<li>Fallback response tijd <100ms</li>
+<li>Circuit breaker overhead <10ms</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] Alle `enable_fallback` flags verwijderd</li>
+<li>[ ] Circuit breaker pattern geïmplementeerd</li>
+<li>[ ] Monitoring altijd actief</li>
+<li>[ ] Fallback metrics dashboard</li>
+<li>[ ] Tests voor alle failure scenarios</li>
+<li>[ ] Documentatie over circuit breaker configuratie</li>
+</ul>
+
+<h2>Impact Analyse</h2>
+
+<h3>Positief</h3>
+<ul>
+<li>**Reliability**: Systeem automatisch resilient</li>
+<li>**Observability**: Betere monitoring van failures</li>
+<li>**Simpliciteit**: Geen manual flags meer</li>
+</ul>
+
+<h3>Risico's</h3>
+<ul>
+<li>**Complexity**: Circuit breaker pattern is complexer</li>
+<li>**Testing**: Meer failure scenarios te testen</li>
+<li>**Performance**: Kleine overhead voor monitoring</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>Monitoring infrastructure moet klaar zijn</li>
+<li>Metrics collection moet werken</li>
+<li>Cache voor fallback values</li>
+</ul>
+
+<h2>Migration Strategy</h2>
+
+<ol>
+<li>Implementeer circuit breaker naast bestaande code</li>
+<li>Test uitgebreid in staging</li>
+<li>Migreer service voor service</li>
+<li>Verwijder oude flag-based code</li>
+</ol>
+
+<p>---</p>
+
+<p><em>Deze story verbetert system resilience significant</em></p>
+  </div>
+</body>
+</html>

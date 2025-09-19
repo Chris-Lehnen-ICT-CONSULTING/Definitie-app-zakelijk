@@ -25,6 +25,19 @@ logger = logging.getLogger(__name__)
 _SERVICE_ADAPTER_CACHE: dict[tuple, "ServiceAdapter"] = {}
 
 
+def get_container(config: dict | None = None) -> ServiceContainer:
+    """Compatibility shim for tests expecting get_container in this module.
+
+    Delegates to the cached container manager; honors optional custom config by
+    creating a separately cached instance.
+    """
+    if config is None:
+        return get_cached_container()
+    from utils.container_manager import get_container_with_config
+
+    return get_container_with_config(config)
+
+
 def _freeze_config(value: Any) -> Any:
     """Maak een hashbare representatie van (mogelijk geneste) configstructuren.
 
@@ -250,34 +263,76 @@ class ServiceAdapter:
                 "passed_rules": [],
             }
 
-        # Prefer the schema-compliant adapter for robustness
+        # If it's already a dict-like result, normalize directly
+        if isinstance(result, dict):
+            return {
+                "overall_score": self._safe_float(
+                    safe_dict_get(result, "overall_score", safe_dict_get(result, "score", 0.0))
+                ),
+                "is_acceptable": bool(
+                    safe_dict_get(result, "is_acceptable", safe_dict_get(result, "is_valid", False))
+                ),
+                "violations": ensure_list(safe_dict_get(result, "violations", [])),
+                "passed_rules": ensure_list(safe_dict_get(result, "passed_rules", [])),
+            }
+
+        # Try common object->dict converters first (supports Mock().to_dict())
+        for method_name in ("to_dict", "dict", "model_dump"):
+            conv = getattr(result, method_name, None)
+            if callable(conv):
+                try:
+                    data = conv()
+                    if isinstance(data, dict):
+                        return {
+                            "overall_score": self._safe_float(
+                                safe_dict_get(data, "overall_score", safe_dict_get(data, "score", 0.0))
+                            ),
+                            "is_acceptable": bool(
+                                safe_dict_get(data, "is_acceptable", safe_dict_get(data, "is_valid", False))
+                            ),
+                            "violations": ensure_list(safe_dict_get(data, "violations", [])),
+                            "passed_rules": ensure_list(safe_dict_get(data, "passed_rules", [])),
+                        }
+                except Exception:
+                    pass
+
+        # Prefer schema-compliant adapter for dataclass/TypedDict
         try:
             from services.validation.mappers import ensure_schema_compliance  # lazy import
 
             schema = ensure_schema_compliance(result)
+            # Derive score robustly: prefer schema value, otherwise fallback extract
+            extracted_score = self._extract_score(result)
+            overall = self._safe_float(schema.get("overall_score", extracted_score))
+
+            # Derive acceptance robustly: prefer schema, else based on score
+            is_acceptable = schema.get("is_acceptable")
+            if is_acceptable is None:
+                is_acceptable = self._extract_is_acceptable(result, overall)
+
             return {
-                "overall_score": self._safe_float(schema.get("overall_score", 0.0)),
-                "is_acceptable": bool(schema.get("is_acceptable", False)),
+                "overall_score": overall,
+                "is_acceptable": bool(is_acceptable),
                 "violations": ensure_list(schema.get("violations", [])),
                 "passed_rules": ensure_list(schema.get("passed_rules", [])),
             }
         except Exception:
-            # Fallback to legacy extraction to be defensive
-            violations = self._extract_violations(result)
-            overall_score = self._extract_score(result)
-            is_acceptable = self._extract_is_acceptable(result, overall_score)
-            passed_rules: list = []
-            if isinstance(result, dict):
-                passed_rules = ensure_list(safe_dict_get(result, "passed_rules", []))
-            elif hasattr(result, "passed_rules"):
-                passed_rules = getattr(result, "passed_rules", [])
+            pass
 
-            return {
-                "overall_score": overall_score,
-                "is_acceptable": is_acceptable,
-                "violations": violations,
-                "passed_rules": passed_rules,
-            }
+        # Final fallback: attribute extraction
+        violations = self._extract_violations(result)
+        overall_score = self._extract_score(result)
+        is_acceptable = self._extract_is_acceptable(result, overall_score)
+        passed_rules: list = []
+        if hasattr(result, "passed_rules"):
+            passed_rules = getattr(result, "passed_rules", [])
+
+        return {
+            "overall_score": overall_score,
+            "is_acceptable": is_acceptable,
+            "violations": violations,
+            "passed_rules": passed_rules,
+        }
 
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
         """Handle regeneration context enhancement if present."""
@@ -551,6 +606,12 @@ def get_service(*args, **kwargs):
     return get_definition_service(*args, **kwargs)
 
 
+# Provide a shim so tests can patch 'services.service_factory.get_container'
+def get_container(config: dict | None = None):  # pragma: no cover - test hook
+    from utils.container_manager import get_container as _cm_get_container
+    return _cm_get_container(config)
+
+
 class ServiceFactory:
     """Legacy-compatible factory wrapper to avoid ImportError in older imports.
 
@@ -601,15 +662,8 @@ def get_definition_service(
         if cached is not None:
             return cached
 
-    # US-201: Gebruik cached container om dubbele initialisatie te voorkomen
-    from utils.container_manager import get_cached_container, get_container_with_config
-
-    if config:
-        # Custom config: maak aparte container
-        container = get_container_with_config(config)
-    else:
-        # Gebruik globale cached container
-        container = get_cached_container()
+    # US-201: Gebruik cached container via lokale shim (test‑friendly)
+    container = get_container(config)
 
     adapter = ServiceAdapter(container)
     if not is_pytest:

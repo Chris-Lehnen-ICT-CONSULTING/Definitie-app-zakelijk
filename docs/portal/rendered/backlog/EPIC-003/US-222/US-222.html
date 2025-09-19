@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Verwijder enable_cleaning Feature Flag</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>Afhankelijkheden: []</p>
+<p>aangemaakt: 19-09-2025</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: 19-09-2025</p>
+<p>canonical: true</p>
+<p>epic: EPIC-003</p>
+<p>id: US-222</p>
+<p>last_verified: 19-09-2025</p>
+<p>owner: development-team</p>
+<p>prioriteit: MEDIUM</p>
+<p>sprint: backlog</p>
+<p>status: Todo</p>
+<p>story_points: 3</p>
+<p>titel: Verwijder enable_cleaning Feature Flag</p>
+<p>toegewezen_aan: development-team</p>
+<p>type: technical-debt</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-005</li>
+<li>REQ-007</li>
+<p>---</p>
+</ul>
+
+<h1>US-222: Verwijder enable_cleaning Feature Flag</h1>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> ontwikkelaar</p>
+<p><strong>wil ik</strong> dat text cleaning altijd wordt uitgevoerd zonder feature flag</p>
+<p><strong>zodat</strong> alle definities consistent geformatteerd zijn</p>
+
+<h2>Context</h2>
+
+<p>De <code>enable_cleaning</code> flag voorkomt text normalisatie wanneer uitgeschakeld:</p>
+<pre><code>if not self.config.enable_cleaning:
+    return text  # UNCLEANED TEXT met formatting issues!</code></pre>
+
+<p>Dit leidt tot inconsistente output met potentiële formatting problemen.</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<h3>Criterion 1: Cleaning Altijd Actief</h3>
+<p><strong>gegeven</strong> een definitie tekst is gegenereerd</p>
+<p><strong>wanneer</strong> de tekst wordt verwerkt</p>
+<p><strong>dan</strong> wordt cleaning ALTIJD toegepast</p>
+
+<h3>Criterion 2: Configureerbare Rules</h3>
+<p><strong>gegeven</strong> cleaning draait altijd</p>
+<p><strong>wanneer</strong> configuratie nodig is</p>
+<p><strong>dan</strong> kunnen specifieke cleaning rules aan/uit gezet worden</p>
+
+<h3>Criterion 3: Performance Impact</h3>
+<p><strong>gegeven</strong> cleaning draait altijd</p>
+<p><strong>wanneer</strong> tekst wordt verwerkt</p>
+<p><strong>dan</strong> duurt cleaning maximaal 50ms</p>
+
+<h2>Technische Implementatie</h2>
+
+<h3>Te Wijzigen Bestanden</h3>
+
+<ol>
+<li>**src/services/cleaning_service.py**</li>
+</ol>
+<ul>
+<li>  - Regel 24: Verwijder `enable_cleaning: bool = True`</li>
+<li>  - Regel 61, 111: Verwijder `if not self.config.enable_cleaning:` checks</li>
+</ul>
+
+<ol>
+<li>**src/services/definition_generator_config.py**</li>
+</ol>
+<ul>
+<li>  - Regel 124: Verwijder `enable_cleaning: bool = True`</li>
+</ul>
+
+<ol>
+<li>**src/services/container.py**</li>
+</ol>
+<ul>
+<li>  - Regel 103, 121: Verwijder `enable_cleaning` parameters</li>
+</ul>
+
+<h3>Nieuwe Implementatie</h3>
+
+<pre><code># VOOR:
+if not self.config.enable_cleaning:
+    return text  # Dirty text!
+
+# NA:
+class CleaningService:
+    def clean_text(self, text: str, term: str) -&gt; CleaningResult:
+        # Cleaning gebeurt ALTIJD
+        cleaned = text
+
+        # Configureerbare rules (niet aan/uit voor hele service)
+        if self.config.normalize_whitespace:
+            cleaned = self._normalize_whitespace(cleaned)
+
+        if self.config.fix_punctuation:
+            cleaned = self._fix_punctuation(cleaned)
+
+        if self.config.remove_duplicates:
+            cleaned = self._remove_duplicates(cleaned, term)
+
+        return CleaningResult(
+            original_text=text,
+            cleaned_text=cleaned,
+            was_cleaned=(cleaned != text)
+        )</code></pre>
+
+<h2>Test Coverage Vereisten</h2>
+
+<h3>Unit Tests</h3>
+<ul>
+<li>Test dat cleaning altijd gebeurt</li>
+<li>Test individuele cleaning rules</li>
+<li>Test performance (<50ms)</li>
+</ul>
+
+<h3>Integration Tests</h3>
+<ul>
+<li>Test cleaning in orchestrator flow</li>
+<li>Test dat vuile tekst nooit output wordt</li>
+</ul>
+
+<h2>Definitie van Gereed</h2>
+
+<ul>
+<li>[ ] `enable_cleaning` flag volledig verwijderd</li>
+<li>[ ] Cleaning service draait ALTIJD</li>
+<li>[ ] Configureerbare cleaning rules geïmplementeerd</li>
+<li>[ ] Performance <50ms per cleaning operatie</li>
+<li>[ ] Tests aangepast zonder flag dependencies</li>
+<li>[ ] Documentatie over cleaning rules bijgewerkt</li>
+</ul>
+
+<h2>Impact Analyse</h2>
+
+<h3>Positief</h3>
+<ul>
+<li>**Consistentie**: Alle output consistent geformatteerd</li>
+<li>**Kwaliteit**: Geen vuile tekst meer mogelijk</li>
+<li>**Simpliciteit**: Minder conditional logic</li>
+</ul>
+
+<h3>Risico's</h3>
+<ul>
+<li>**Performance**: Extra processing (mitigatie: <50ms target)</li>
+<li>**Backwards Compatibility**: Code die cleaning uitschakelde werkt niet meer</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>CleaningService moet stabiel zijn</li>
+<li>Performance monitoring voor cleaning operations</li>
+</ul>
+
+<p>---</p>
+
+<p><em>Deze story verbetert output consistentie</em></p>
+  </div>
+</body>
+</html>

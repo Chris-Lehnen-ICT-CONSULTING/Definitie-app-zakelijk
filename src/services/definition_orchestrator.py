@@ -81,7 +81,7 @@ class OrchestratorConfig:
 
     enable_validation: bool = True
     enable_enrichment: bool = True
-    enable_web_lookup: bool = True
+    # enable_web_lookup removed - web lookup runs always when service available
     enable_examples: bool = True
     enable_auto_save: bool = True
     save_drafts: bool = True
@@ -523,8 +523,8 @@ class DefinitionOrchestrator(
         """Verrijk definitie met extra informatie."""
         enrichment_tasks = []
 
-        # Web lookup voor bronnen
-        if self.config.enable_web_lookup and WEB_LOOKUP_AVAILABLE:
+        # Web lookup voor bronnen (always when available, no flag)
+        if WEB_LOOKUP_AVAILABLE:
             enrichment_tasks.append(self._enrich_with_web_lookup(context))
 
         # Genereer voorbeelden
