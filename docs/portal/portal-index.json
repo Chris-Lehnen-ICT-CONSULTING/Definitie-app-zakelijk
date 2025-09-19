@@ -10642,7 +10642,7 @@
       "title": "MockStreamlit mist cache decorators (cache_data/cache_resource) → import/cascade test failures",
       "path": "../backlog/EPIC-020-PHOENIX/US-201/CFR-BUG-024/README.md",
       "url": "../backlog/EPIC-020-PHOENIX/US-201/CFR-BUG-024/README.md",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "prioriteit": null,
       "owner": "platform",
       "canonical": false,
@@ -30305,7 +30305,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T10:16:34Z"
+    "generated_at": "2025-09-19T10:30:36Z"
   },
   "sources": [
     "docs"
