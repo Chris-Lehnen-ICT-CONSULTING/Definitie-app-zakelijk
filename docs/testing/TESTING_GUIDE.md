@@ -41,10 +41,12 @@ Dit document beschrijft de testmethodiek, conventies en praktische instructies v
   `acceptance`, `red_phase`, `antipattern`, `ontological_category`.
 
 ## Uitvoeren
-- Snelpad (groen): `pytest -q tests/smoke tests/unit tests/services`
-- Integratie/contract: `pytest -q tests/integration tests/contracts`
-- Volledig + coverage: `pytest --cov=src --cov-report=term-missing`
-- PER‑007 suite: `pytest -c tests/pytest_per007.ini -m "red_phase or antipattern or acceptance"`
+- Snelpad: `./scripts/run_tests.sh fast` (smoke + unit + services)
+- PR‑suite: `./scripts/run_tests.sh pr` (incl. integration + contracts)
+- Volledig (excl. performance): `./scripts/run_tests.sh full`
+- Performance/benchmark: `./scripts/run_tests.sh perf`
+- Coverage: `pytest --cov=src --cov-report=term-missing`
+- PER‑007: `pytest -c tests/pytest_per007.ini -m "red_phase or antipattern or acceptance"`
 
 ## Coverage
 - Startbudget: `--cov=src --cov-fail-under=60` (stapsgewijs verhogen).
@@ -54,7 +56,7 @@ Dit document beschrijft de testmethodiek, conventies en praktische instructies v
 - Microbenchmarks opt‑in (pytest‑benchmark). Vermijd harde drempels in de standaard CI, gebruik `benchmark_autosave` voor trendvergelijking.
 
 ## Stabiliteit & Isolatie
-- Geen netwerk in tests; externe services mocken.
+- Geen netwerk in tests; externe services mocken. Netwerk is hard‑geblokkeerd in conftest (override met `ALLOW_NETWORK=1`).
 - Gebruik centrale mocks (Streamlit, AI‑clients) i.p.v. ad‑hoc MagicMocks.
 - Vermijd tests onder `src/`; alle tests horen onder `tests/`.
 
@@ -80,4 +82,3 @@ Dit document beschrijft de testmethodiek, conventies en praktische instructies v
 - Parametrized sweep voor alle validatoren in `src/toetsregels/validators/`.
 
 Bijdragen welkom: houd deze gids als bron van waarheid aan en breid uit bij nieuwe domeinen/suites.
-

@@ -1,7 +1,7 @@
 ---
 id: CFR-BUG-019
 titel: Sync-bridges aanwezig in services (event-loop bridging)
-status: OPEN
+status: RESOLVED
 severity: HIGH
 gevonden_op: 2025-09-15
 component: services
@@ -10,24 +10,23 @@ component: services
 # CFR-BUG-019: Sync-bridges aanwezig in services (event-loop bridging)
 
 ## Beschrijving
-Services bevatten sync wrappers met eigen event loops/threads:
-- `src/services/service_factory.py:510-530`
-- `src/services/prompts/prompt_service_v2.py:339-352`
-- `src/services/export_service.py:114-141`
-- `src/services/definition_edit_service.py:470-483`
+Historisch waren er sync‑wrappers met eigen event loops/threads in services. Deze zijn verwijderd.
 
-Dit schendt async‑purisme en verhoogt risico op deadlocks en complex error handling.
+Huidige situatie (gecontroleerd):
+- Geen `run_coroutine_threadsafe`, `new_event_loop`, `run_until_complete`, of `asyncio.run(` in `src/services/**`.
+- `PromptServiceV2.build_prompt` (sync) geeft `NotImplementedError` met instructie om async‑pad te gebruiken via UI‑bridge.
 
 ## Verwacht Gedrag
 Service‑laag is async-only; UI gebruikt `ui/helpers/async_bridge.py` indien sync nodig is.
 
 ## Reproduceren
-`rg -n "(run_coroutine_threadsafe|new_event_loop|run_until_complete)" src/services`
+Controle:
+`rg -n "(run_coroutine_threadsafe|new_event_loop|run_until_complete|asyncio\.run\()" src/services` → geen hits
 
 ## Oplossing
-Onderdeel van [US-171](../US-171.md): verwijder wrappers en gebruik async API’s.
+Onderdeel van [US-171](../US-171.md): wrappers verwijderd; services zijn async‑only, UI gebruikt async‑bridge.
 
 ## Tests
-- Regex‑test op verboden patronen.
-- Unit: async path levert functioneel identieke output.
-
+Bewijs
+- Legacy‑gates en regex‑check: geen hits in `src/services/**`.
+- `scripts/check-legacy-patterns.sh`: Services Architecture Check (asyncio.run in services) → PASS.
