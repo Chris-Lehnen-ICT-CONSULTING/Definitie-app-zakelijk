@@ -14,6 +14,10 @@ import re
 import uuid
 from typing import Any
 
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_list, ensure_dict, ensure_string
+from utils.error_helpers import safe_execute, error_handler
+
 from services.validation.interfaces import CONTRACT_VERSION
 
 from .aggregation import calculate_weighted_score, determine_acceptability
@@ -36,8 +40,8 @@ class ValidationResultWrapper:
     def __getattr__(self, name: str) -> Any:
         # Map is_valid naar is_acceptable voor backwards compatibility
         if name == "is_valid":
-            return self._data.get("is_acceptable", False)
-        return self._data.get(name)
+            return safe_dict_get(self._data, "is_acceptable", False)
+        return safe_dict_get(self._data, name)
 
     def __getitem__(self, key: str) -> Any:
         return self._data[key]
@@ -46,7 +50,7 @@ class ValidationResultWrapper:
         return key in self._data
 
     def get(self, key: str, default: Any = None) -> Any:
-        return self._data.get(key, default)
+        return safe_dict_get(self._data, key, default)
 
     def keys(self):
         return self._data.keys()
@@ -114,8 +118,8 @@ class ModularValidationService:
         if getattr(self.config, "thresholds", None):
             with contextlib.suppress(Exception):
                 self._overall_threshold = float(
-                    self.config.thresholds.get(
-                        "overall_accept", self._overall_threshold
+                    safe_dict_get(
+                        self.config.thresholds, "overall_accept", self._overall_threshold
                     )
                 )
 
@@ -126,56 +130,53 @@ class ModularValidationService:
             # Get all available rules from manager
             all_rules = self.toetsregel_manager.get_all_regels()
 
-            if all_rules:
-                self._internal_rules = list(all_rules.keys())
-                # Keep JSON rule data for evaluation
-                self._json_rules = all_rules
-                self._compiled_json_cache: dict[str, list[re.Pattern[str]]] = {}
-                self._compiled_ess02_cache: dict[str, dict[str, list[re.Pattern[str]]]] = {}
-                self._default_weights = {}
-
-                # Extract weights from rule metadata
-                for rule_id, rule_data in all_rules.items():
-                    # Use priority to determine weight
-                    priority = rule_data.get("prioriteit", "midden")
-                    if priority == "hoog":
-                        weight = 1.0
-                    elif priority == "midden":
-                        weight = 0.7
-                    else:  # laag
-                        weight = 0.4
-
-                    # Override with specific weight if provided
-                    if "weight" in rule_data:
-                        weight = float(rule_data["weight"])
-
-                    self._default_weights[rule_id] = weight
-
-                # Also include baseline internal rules (VAL-*/STR-*) to retain safeguards
-                base_internal = [
-                    "VAL-EMP-001",
-                    "VAL-LEN-001",
-                    "VAL-LEN-002",
-                    "ESS-CONT-001",
-                    "CON-CIRC-001",
-                    "STR-TERM-001",
-                    "STR-ORG-001",
-                ]
-                for rid in base_internal:
-                    if rid not in self._internal_rules:
-                        self._internal_rules.append(rid)
-
-                logger.info(
-                    f"Loaded {len(self._internal_rules)} rules from ToetsregelManager"
-                )
-            else:
-                # Fall back to defaults if no rules available
+            # Early return if no rules
+            if not all_rules:
                 self._set_default_rules()
+                return
+
+            # Initialize rule structures
+            self._internal_rules = list(all_rules.keys())
+            self._json_rules = all_rules
+            self._compiled_json_cache: dict[str, list[re.Pattern[str]]] = {}
+            self._compiled_ess02_cache: dict[str, dict[str, list[re.Pattern[str]]]] = {}
+            self._default_weights = {}
+
+            # Extract weights from rule metadata
+            for rule_id, rule_data in all_rules.items():
+                weight = self._calculate_rule_weight(rule_data)
+                self._default_weights[rule_id] = weight
+
+            # Add baseline internal rules to retain safeguards
+            self._add_baseline_rules()
+
+            logger.info(f"Loaded {len(self._internal_rules)} rules from ToetsregelManager")
 
         except Exception as e:
             logger.warning(f"Could not load rules from ToetsregelManager: {e}")
-            # Fall back to defaults on error
             self._set_default_rules()
+
+    def _calculate_rule_weight(self, rule_data: dict) -> float:
+        """Calculate weight for a rule based on priority or explicit weight."""
+        # Check for explicit weight first
+        if "weight" in rule_data:
+            return float(rule_data["weight"])
+
+        # Use priority to determine weight
+        priority = ensure_string(safe_dict_get(rule_data, "prioriteit", "midden"))
+        priority_weights = {"hoog": 1.0, "midden": 0.7}
+        return priority_weights.get(priority, 0.4)  # default to 0.4 for "laag" or unknown
+
+    def _add_baseline_rules(self) -> None:
+        """Add baseline internal rules (VAL-*/STR-*) to retain safeguards."""
+        base_internal = [
+            "VAL-EMP-001", "VAL-LEN-001", "VAL-LEN-002",
+            "ESS-CONT-001", "CON-CIRC-001",
+            "STR-TERM-001", "STR-ORG-001",
+        ]
+        for rid in base_internal:
+            if rid not in self._internal_rules:
+                self._internal_rules.append(rid)
 
     def _set_default_rules(self) -> None:
         """Set default rules when ToetsregelManager is not available."""
@@ -271,9 +272,9 @@ class ModularValidationService:
                 else:
                     passed_rules.append(code)
             elif isinstance(out, dict):
-                score = float(out.get("score", 0.0) or 0.0)
+                score = float(safe_dict_get(out, "score", 0.0) or 0.0)
                 rule_scores[code] = score
-                vlist = out.get("violations", []) or []
+                vlist = ensure_list(safe_dict_get(out, "violations", []))
                 if vlist:
                     # If a list of violations is returned, extend with minimal mapping
                     for _ in vlist:
@@ -639,56 +640,83 @@ class ModularValidationService:
         if repository or contexts are unavailable).
         """
         try:
+            # Early returns for missing requirements
             if not self._repository:
                 return
+
             md = ctx.metadata or {}
             org = md.get("organisatorische_context") or []
             jur = md.get("juridische_context") or []
-            cat = md.get("categorie") or md.get("ontologische_categorie")
             begrip = getattr(self, "_current_begrip", None)
+
+            # Skip if no context to check
             if not begrip or (not org and not jur):
                 return
-            # Fetch all non-archived and compare
-            if hasattr(self._repository, "_get_all_definitions"):
-                defs = self._repository._get_all_definitions()
-            else:
+
+            # Check for repository method
+            if not hasattr(self._repository, "_get_all_definitions"):
                 return
-            def _norm(lst: list[str]) -> list[str]:
-                try:
-                    return sorted({(x or "").strip().lower() for x in list(lst or [])})
-                except Exception:
-                    return []
-            org_n = _norm(org)
-            jur_n = _norm(jur)
-            found_id = None
-            found_status = None
-            for d in defs:
-                if (d.begrip or "").strip().lower() != str(begrip).strip().lower():
-                    continue
-                if _norm(getattr(d, "organisatorische_context", [])) != org_n:
-                    continue
-                if _norm(getattr(d, "juridische_context", [])) != jur_n:
-                    continue
-                if cat and getattr(d, "categorie", None) and str(d.categorie).lower() != str(cat).lower():
-                    continue
-                found_id = getattr(d, "id", None)
-                found_status = getattr(d, "status", None)
-                break
-            if found_id is not None:
-                # Stash a warning marker to be transformed later in validate_definition
-                warn_list = md.setdefault("__con01_dup_warnings__", [])
-                warn_list.append({
-                    "code": "CON-01",
-                    "severity": "warning",
-                    "message": "Bestaande definitie met dezelfde context gevonden",
-                    "description": "Bestaande definitie met dezelfde context gevonden",
-                    "rule_id": "CON-01",
-                    "category": self._category_for("CON-01"),
-                    "metadata": {"existing_definition_id": found_id, "status": found_status},
-                })
+
+            # Find matching definition
+            found_def = self._find_duplicate_definition(begrip, org, jur, md)
+            if not found_def:
+                return
+
+            # Add warning to metadata
+            self._add_duplicate_warning(md, found_def["id"], found_def["status"])
+
         except Exception:
             # Silent: duplicate signal is best-effort
             return
+
+    def _find_duplicate_definition(self, begrip: str, org: list, jur: list, md: dict) -> dict | None:
+        """Find existing definition with same context."""
+        defs = self._repository._get_all_definitions()
+        cat = md.get("categorie") or md.get("ontologische_categorie")
+
+        org_n = self._normalize_context_list(org)
+        jur_n = self._normalize_context_list(jur)
+        begrip_norm = str(begrip).strip().lower()
+
+        for d in defs:
+            # Check begrip match
+            if (d.begrip or "").strip().lower() != begrip_norm:
+                continue
+
+            # Check context matches
+            if self._normalize_context_list(getattr(d, "organisatorische_context", [])) != org_n:
+                continue
+            if self._normalize_context_list(getattr(d, "juridische_context", [])) != jur_n:
+                continue
+
+            # Check category if provided
+            if cat and getattr(d, "categorie", None):
+                if str(d.categorie).lower() != str(cat).lower():
+                    continue
+
+            return {"id": getattr(d, "id", None), "status": getattr(d, "status", None)}
+
+        return None
+
+    def _normalize_context_list(self, lst: list[str]) -> list[str]:
+        """Normalize a list of context strings for comparison."""
+        try:
+            return sorted({(x or "").strip().lower() for x in list(lst or [])})
+        except Exception:
+            return []
+
+    def _add_duplicate_warning(self, md: dict, found_id: Any, found_status: Any) -> None:
+        """Add duplicate warning to metadata."""
+        warn_list = md.setdefault("__con01_dup_warnings__", [])
+        warn_list.append({
+            "code": "CON-01",
+            "severity": "warning",
+            "message": "Bestaande definitie met dezelfde context gevonden",
+            "description": "Bestaande definitie met dezelfde context gevonden",
+            "rule_id": "CON-01",
+            "category": self._category_for("CON-01"),
+            "metadata": {"existing_definition_id": found_id, "status": found_status},
+        })
 
     def _category_for(self, code: str) -> str:
         if code.startswith("STR-"):

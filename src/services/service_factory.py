@@ -11,6 +11,8 @@ from typing import Any
 
 from services.container import ContainerConfigs, ServiceContainer
 from utils.container_manager import get_cached_container
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_dict, ensure_list, ensure_string
 
 # TYPE_CHECKING import verwijderd - UnifiedDefinitionGenerator niet meer nodig
 # if TYPE_CHECKING:
@@ -162,23 +164,35 @@ class ServiceAdapter:
 
         # Handle dict format
         if isinstance(source, dict):
-            for v in source.get("violations", []):
-                violations.append({
-                    "rule_id": v.get("rule_id", v.get("code", "unknown")),
-                    "severity": self._normalize_severity(v.get("severity")),
-                    "description": v.get("description", v.get("message", "")),
-                    "suggestion": v.get("suggestion"),
-                })
+            violations = self._extract_dict_violations(source)
         # Handle object format
         elif hasattr(source, "violations") and source.violations:
-            for v in source.violations:
-                violations.append({
-                    "rule_id": getattr(v, "rule_id", "unknown"),
-                    "severity": self._normalize_severity(getattr(v, "severity", None)),
-                    "description": getattr(v, "description", ""),
-                    "suggestion": getattr(v, "suggestion", None),
-                })
+            violations = self._extract_object_violations(source)
 
+        return violations
+
+    def _extract_dict_violations(self, source: dict) -> list[dict]:
+        """Extract violations from dict format."""
+        violations = []
+        for v in ensure_list(safe_dict_get(source, "violations", [])):
+            violations.append({
+                "rule_id": safe_dict_get(v, "rule_id", safe_dict_get(v, "code", "unknown")),
+                "severity": self._normalize_severity(safe_dict_get(v, "severity")),
+                "description": safe_dict_get(v, "description", safe_dict_get(v, "message", "")),
+                "suggestion": safe_dict_get(v, "suggestion"),
+            })
+        return violations
+
+    def _extract_object_violations(self, source: Any) -> list[dict]:
+        """Extract violations from object format."""
+        violations = []
+        for v in source.violations:
+            violations.append({
+                "rule_id": getattr(v, "rule_id", "unknown"),
+                "severity": self._normalize_severity(getattr(v, "severity", None)),
+                "description": getattr(v, "description", ""),
+                "suggestion": getattr(v, "suggestion", None),
+            })
         return violations
 
     def _extract_score(self, result: Any) -> float:
@@ -189,11 +203,23 @@ class ServiceAdapter:
         # Try dict access
         if isinstance(result, dict) and "score" in result:
             return self._safe_float(result["score"])
-        # Fallback to deprecated 'overall_score'
-        if hasattr(result, "overall_score"):
-            return self._safe_float(result.overall_score)
+        # Fallback to deprecated key 'overall_score' (dict format only)
         if isinstance(result, dict) and "overall_score" in result:
             return self._safe_float(result["overall_score"])
+        # As a last resort, attempt to convert known result objects to dict-like structures
+        for method_name in ("to_dict", "dict", "model_dump"):
+            try:
+                method = getattr(result, method_name, None)
+                if callable(method):
+                    data = method()
+                    if isinstance(data, dict):
+                        if "score" in data:
+                            return self._safe_float(data["score"])
+                        if "overall_score" in data:
+                            return self._safe_float(data["overall_score"])
+            except Exception:
+                # Ignore conversion issues and fall through to default
+                pass
         return 0.0
 
     def _extract_is_acceptable(self, result: Any, score: float) -> bool:
@@ -232,7 +258,7 @@ class ServiceAdapter:
         # Extract passed_rules
         passed_rules = []
         if isinstance(result, dict):
-            passed_rules = result.get("passed_rules", [])
+            passed_rules = ensure_list(safe_dict_get(result, "passed_rules", []))
         elif hasattr(result, "passed_rules"):
             passed_rules = getattr(result, "passed_rules", [])
 
@@ -242,6 +268,23 @@ class ServiceAdapter:
             "violations": violations,
             "passed_rules": passed_rules,
         }
+
+    def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
+        """Handle regeneration context enhancement if present."""
+        regeneration_context = safe_dict_get(kwargs, "regeneration_context")
+        extra_instructions = ensure_string(safe_dict_get(kwargs, "extra_instructies", ""))
+
+        if not regeneration_context:
+            return extra_instructions
+
+        from services.regeneration_service import RegenerationService
+        # Create temporary service to enhance prompt
+        temp_service = RegenerationService(None)  # No prompt builder needed for enhancement
+        extra_instructions = temp_service.enhance_prompt_with_context(
+            extra_instructions or "", regeneration_context
+        )
+        logger.info(f"Enhanced prompt with regeneration context for '{begrip}'")
+        return extra_instructions
 
     def to_ui_response(self, response, agent_result: dict) -> dict:
         """Convert orchestrator response to canonical UI format.
@@ -256,8 +299,8 @@ class ServiceAdapter:
         if response.success and response.definition:
             definitie_text = response.definition.definitie
             definitie_origineel = (
-                response.definition.metadata.get("definitie_origineel")
-                or response.definition.metadata.get("origineel")
+                safe_dict_get(response.definition.metadata, "definitie_origineel")
+                or safe_dict_get(response.definition.metadata, "origineel")
                 or definitie_text
             )
 
@@ -271,17 +314,17 @@ class ServiceAdapter:
         # REFACTORED: Geen mapping meer nodig, producers leveren al canonieke keys
         voorbeelden = {}
         if response.definition and response.definition.metadata:
-            voorbeelden = response.definition.metadata.get("voorbeelden", {})
+            voorbeelden = ensure_dict(safe_dict_get(response.definition.metadata, "voorbeelden", {}))
             # Direct pass-through - orchestrator heeft al canonieke voorbeelden
 
             # Debug logging point B - ServiceFactory adapter
             if os.getenv("DEBUG_EXAMPLES"):
                 logger.info(
                     "[EXAMPLES-B] Adapter | gen_id=%s | metadata.voorbeelden=%s | ui_keys=%s",
-                    response.definition.metadata.get("generation_id"),
+                    safe_dict_get(response.definition.metadata, "generation_id"),
                     (
                         "present"
-                        if response.definition.metadata.get("voorbeelden")
+                        if safe_dict_get(response.definition.metadata, "voorbeelden")
                         else "missing"
                     ),
                     (
@@ -295,25 +338,25 @@ class ServiceAdapter:
         metadata = {}
         if response.definition and response.definition.metadata:
             metadata = {
-                "prompt_template": response.definition.metadata.get("prompt_template"),
-                "prompt_text": response.definition.metadata.get("prompt_text"),
-                "context": response.definition.metadata.get("context", {}),
-                "generation_id": response.definition.metadata.get("generation_id", ""),
-                "duration": response.definition.metadata.get("processing_time", 0.0),
-                "model": response.definition.metadata.get("model", "gpt-4"),
+                "prompt_template": safe_dict_get(response.definition.metadata, "prompt_template"),
+                "prompt_text": safe_dict_get(response.definition.metadata, "prompt_text"),
+                "context": ensure_dict(safe_dict_get(response.definition.metadata, "context", {})),
+                "generation_id": ensure_string(safe_dict_get(response.definition.metadata, "generation_id", "")),
+                "duration": safe_dict_get(response.definition.metadata, "processing_time", 0.0),
+                "model": ensure_string(safe_dict_get(response.definition.metadata, "model", "gpt-4")),
             }
 
         # Extract sources
         sources = []
         if response.definition and response.definition.metadata:
-            sources = response.definition.metadata.get("sources", [])
+            sources = ensure_list(safe_dict_get(response.definition.metadata, "sources", []))
 
         # Build canonical UI response
         return {
             "success": response.success,
             "definitie_origineel": definitie_origineel,
             "definitie_gecorrigeerd": definitie_text,
-            "final_score": validation_details.get("overall_score", 0.0),
+            "final_score": safe_dict_get(validation_details, "overall_score", 0.0),
             "validation_details": validation_details,
             "voorbeelden": voorbeelden,
             "metadata": metadata,
@@ -327,28 +370,14 @@ class ServiceAdapter:
         Vertaalt de legacy interface naar de nieuwe service calls.
         Deze methode is sync om legacy UI compatibility te behouden.
         """
-
         from services.interfaces import GenerationRequest
 
-        # Handle regeneration context (GVI Rode Kabel integration)
-        regeneration_context = kwargs.get("regeneration_context")
-        extra_instructions = kwargs.get("extra_instructies", "")
-
-        if regeneration_context:
-            from services.regeneration_service import RegenerationService
-
-            # Create temporary service to enhance prompt
-            temp_service = RegenerationService(
-                None
-            )  # No prompt builder needed for enhancement
-            extra_instructions = temp_service.enhance_prompt_with_context(
-                extra_instructions or "", regeneration_context
-            )
-            logger.info(f"Enhanced prompt with regeneration context for '{begrip}'")
+        # Handle regeneration context
+        extra_instructions = self._handle_regeneration_context(begrip, kwargs)
 
         # Converteer legacy context_dict naar GenerationRequest
         # Extract ontologische categorie uit kwargs
-        categorie = kwargs.get("categorie")
+        categorie = safe_dict_get(kwargs, "categorie")
         ontologische_categorie = None
         if categorie:
             # Converteer OntologischeCategorie enum naar string
@@ -360,7 +389,7 @@ class ServiceAdapter:
         import uuid
 
         # Map legacy dictionary to V2 fields and keep legacy string fields populated for compatibility
-        org_list = context_dict.get("organisatorisch", []) or []
+        org_list = ensure_list(safe_dict_get(context_dict, "organisatorisch", []))
         context_text = (
             ", ".join(org_list) if isinstance(org_list, list) else str(org_list or "")
         )
@@ -371,10 +400,10 @@ class ServiceAdapter:
             begrip=begrip,
             # CRITICAL FIX: Use the new list fields for V2 context mapping
             organisatorische_context=org_list,
-            juridische_context=context_dict.get("juridisch", []),
-            wettelijke_basis=context_dict.get("wettelijk", []),
+            juridische_context=ensure_list(safe_dict_get(context_dict, "juridisch", [])),
+            wettelijke_basis=ensure_list(safe_dict_get(context_dict, "wettelijk", [])),
             # Standard fields
-            organisatie=kwargs.get("organisatie", ""),
+            organisatie=ensure_string(safe_dict_get(kwargs, "organisatie", "")),
             extra_instructies=extra_instructions,
             ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
             actor="legacy_ui",  # Track that this comes from legacy UI
@@ -386,33 +415,31 @@ class ServiceAdapter:
         # Handle V2 orchestrator async call properly
         response = await self.orchestrator.create_definition(request)
 
+        # Early return for failure case
+        if not response.success or not response.definition:
+            return self._create_failure_response(response)
+
         # Convert to canonical UI format using normalization
-        if response.success and response.definition:
-            # Use the new canonical conversion
-            ui_response = self.to_ui_response(response, {})
+        ui_response = self.to_ui_response(response, {})
 
-            # Add only minimal legacy compatibility fields
-            # Most consumers should use the V2 fields directly
-            result_dict = {
-                **ui_response,
-                "success": True,
-                "final_definitie": ui_response[
-                    "definitie_gecorrigeerd"
-                ],  # Legacy alias
-                "marker": response.definition.metadata.get("marker", ""),
-                "validation_score": ui_response["final_score"],  # Legacy alias
-                # Ensure prompt fields are available for debug
-                "prompt_text": ui_response["metadata"].get("prompt_text", ""),
-                "prompt_template": ui_response["metadata"].get("prompt_template", ""),
-            }
+        # Add minimal legacy compatibility fields
+        result_dict = {
+            **ui_response,
+            "success": True,
+            "final_definitie": ui_response["definitie_gecorrigeerd"],  # Legacy alias
+            "marker": ensure_string(safe_dict_get(response.definition.metadata, "marker", "")),
+            "validation_score": ui_response["final_score"],  # Legacy alias
+            # Ensure prompt fields are available for debug
+            "prompt_text": ensure_string(safe_dict_get(ui_response["metadata"], "prompt_text", "")),
+            "prompt_template": safe_dict_get(ui_response["metadata"], "prompt_template", ""),
+        }
+        return result_dict
 
-            # Geen extra fallback meer voor prompt_template; UI leest 'prompt_text'
-            return result_dict
+    def _create_failure_response(self, response: Any) -> dict:
+        """Create a standardized failure response."""
         return {
             "success": False,
-            "error_message": (
-                getattr(response, "message", None) or "Generatie mislukt"
-            ),
+            "error_message": getattr(response, "message", None) or "Generatie mislukt",
             "definitie_gecorrigeerd": "Generatie mislukt",
             "voorbeelden": {},
             "metadata": (
@@ -560,7 +587,7 @@ def get_definition_service(
     key = _freeze_config(config)
     is_pytest = os.getenv("PYTEST_CURRENT_TEST") is not None
     if not is_pytest:
-        cached = _SERVICE_ADAPTER_CACHE.get(key)
+        cached = safe_dict_get(_SERVICE_ADAPTER_CACHE, key)
         if cached is not None:
             return cached
 

@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-213 — Volledige adoptie van dry_helpers module door gehele codebase</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-213</p>
+<p>status: TODO</p>
+<p>prioriteit: MEDIUM</p>
+<p>owner: backend</p>
+<p>canonical: true</p>
+<p>sprint: future</p>
+<p>story_points: 13</p>
+<p>created_at: 2025-09-19</p>
+<p>dependencies: [US-193]</p>
+<p>epic: EPIC-002</p>
+<p>---</p>
+
+<h1>US-213 — Volledige adoptie van dry_helpers module door gehele codebase</h1>
+
+<h2>Doel</h2>
+<p>Elimineer alle duplicate code patterns in de codebase door systematische adoptie van de <code>src/utils/dry_helpers.py</code> module, wat resulteert in betere onderhoudbaarheid, consistentie en minder bugs.</p>
+
+<h2>Context</h2>
+<p>Uit de US-193 multi-agent review blijkt dat er 1789+ <code>.get()</code> patterns en andere duplicates in de codebase zijn. De dry_helpers module is gecreëerd met 17 helper functies maar wordt slechts in 5 files gebruikt. Deze US beoogt de volledige adoptie.</p>
+
+<h2>Scope</h2>
+
+<h3>In scope</h3>
+<ul>
+<li>Vervang alle 1789 `.get()` patterns met `safe_dict_get()`</li>
+<li>Vervang 205+ logger initialisaties met `get_logger()`</li>
+<li>Migreer session state access naar dry_helper functies</li>
+<li>Vervang try/except blocks met `error_handler` decorator waar applicable</li>
+<li>Update alle validation result processing naar helper functies</li>
+<li>Creëer migratie script voor automatische conversie</li>
+</ul>
+
+<h3>Niet in scope</h3>
+<ul>
+<li>Nieuwe helper functies toevoegen (aparte US)</li>
+<li>Runtime gedrag wijzigen (alleen refactoring)</li>
+<li>Test files (tenzij ze production patterns gebruiken)</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Functioneel</h3>
+<ul>
+<li>[ ] Alle `.get()` patterns met defaults gebruik dry_helpers</li>
+<li>[ ] Geen duplicate logger initialisaties meer</li>
+<li>[ ] Consistente error handling via helpers</li>
+<li>[ ] Alle tests blijven groen</li>
+<li>[ ] Performance niet negatief beïnvloed (< 5% overhead)</li>
+</ul>
+
+<h3>Technisch</h3>
+<ul>
+<li>[ ] 0 imports van `logging.getLogger()` direct (alleen via helper)</li>
+<li>[ ] < 50 `.get()` calls remaining (alleen waar geen default nodig)</li>
+<li>[ ] dry_helpers geïmporteerd in 150+ files</li>
+<li>[ ] Automated migration script beschikbaar</li>
+<li>[ ] Rollback plan gedocumenteerd</li>
+</ul>
+
+<h2>Implementatie Strategie</h2>
+
+<h3>Phase 1: High-Risk Areas (Week 1)</h3>
+<p><strong>Target: 30 critical files</strong></p>
+<ul>
+<li>`src/services/validation/` - alle validation services</li>
+<li>`src/services/orchestrators/` - orchestration layer</li>
+<li>`src/database/` - data access layer</li>
+<li>**Rationale**: Core business logic, hoogste impact bij bugs</li>
+</ul>
+
+<h3>Phase 2: UI Components (Week 2)</h3>
+<p><strong>Target: 50 UI files</strong></p>
+<ul>
+<li>`src/ui/components/` - alle UI componenten</li>
+<li>`src/ui/tabs/` - tab implementations</li>
+<li>`src/ui/helpers/` - UI helper modules</li>
+<li>**Rationale**: User-facing, veel duplicate patterns</li>
+</ul>
+
+<h3>Phase 3: Toetsregels (Week 3)</h3>
+<p><strong>Target: 100+ regel files</strong></p>
+<ul>
+<li>`src/toetsregels/regels/` - regel implementaties</li>
+<li>`src/toetsregels/validators/` - validators</li>
+<li>**Rationale**: Veel files, relatief simpele patterns</li>
+</ul>
+
+<h3>Phase 4: Remaining Modules (Week 4)</h3>
+<p><strong>Target: Overige ~70 files</strong></p>
+<ul>
+<li>`src/utils/` - utility modules</li>
+<li>`src/config/` - configuratie</li>
+<li>`src/export/` - export functionaliteit</li>
+<li>**Rationale**: Lower risk, cleanup fase</li>
+</ul>
+
+<h2>Migration Script</h2>
+
+<pre><code># scripts/migrate_to_dry_helpers.py
+"""
+Automated migration naar dry_helpers patterns.
+Gebruik: python scripts/migrate_to_dry_helpers.py [--dry-run] [--file FILE]
+"""
+
+REPLACEMENTS = [
+    # Logger pattern
+    (r'logger = logging\.getLogger\(__name__\)',
+     'logger = get_logger(__name__)'),
+
+    # Dict.get with list default
+    (r'(\w+)\.get\(["\'](\w+)["\']\s*,\s*\[\]\)',
+     r'ensure_list(safe_dict_get(\1, "\2", []))'),
+
+    # Dict.get with dict default
+    (r'(\w+)\.get\(["\'](\w+)["\']\s*,\s*\{\}\)',
+     r'ensure_dict(safe_dict_get(\1, "\2", {}))'),
+
+    # Session state patterns
+    (r'st\.session_state\.get\(["\']service_container["\']\)',
+     'safe_get_service_container()'),
+]</code></pre>
+
+<h2>Test Plan</h2>
+
+<h3>Pre-Migration</h3>
+<ol>
+<li>Full test suite groen</li>
+<li>Performance baseline measurement</li>
+<li>Code coverage report</li>
+</ol>
+
+<h3>Per Phase Testing</h3>
+<ol>
+<li>Run migration script op target files</li>
+<li>Unit tests voor gemigreerde modules</li>
+<li>Integration tests voor affected flows</li>
+<li>Manual smoke test van UI</li>
+</ol>
+
+<h3>Post-Migration</h3>
+<ol>
+<li>Full regression test</li>
+<li>Performance comparison</li>
+<li>Code quality metrics (duplication %)</li>
+<li>Static analysis (ruff, mypy)</li>
+</ol>
+
+<h2>Risico's & Mitigatie</h2>
+
+<p>| Risico | Impact | Kans | Mitigatie |</p>
+<p>|--------|--------|------|-----------|</p>
+<p>| Breaking changes | HIGH | MEDIUM | Phased rollout, extensive testing |</p>
+<p>| Performance degradatie | MEDIUM | LOW | Benchmark voor/na, profile hotspots |</p>
+<p>| Merge conflicts | MEDIUM | HIGH | Coordineer met team, kleine batches |</p>
+<p>| Incomplete migration | LOW | MEDIUM | Tracking dashboard, automation |</p>
+
+<h2>Metrics</h2>
+
+<h3>Voor Migration</h3>
+<ul>
+<li>**Duplicate code**: 15% (SonarQube)</li>
+<li>**`.get()` patterns**: 1789</li>
+<li>**Logger patterns**: 205</li>
+<li>**Files using dry_helpers**: 5</li>
+</ul>
+
+<h3>Target na Migration</h3>
+<ul>
+<li>**Duplicate code**: < 5%</li>
+<li>**`.get()` patterns**: < 50</li>
+<li>**Logger patterns**: 0</li>
+<li>**Files using dry_helpers**: 200+</li>
+</ul>
+
+<h2>Dependencies</h2>
+<ul>
+<li>US-193 (voltooid) - Initial dry_helpers creation</li>
+<li>Geen blocking dependencies</li>
+</ul>
+
+<h2>Notities</h2>
+<ul>
+<li>Gebruik automation waar mogelijk om human error te voorkomen</li>
+<li>Communiceer changes breed aan team</li>
+<li>Consider pre-commit hook voor nieuwe code</li>
+<li>Update CLAUDE.md om dry_helpers gebruik te mandateren</li>
+</ul>
+
+<h2>Links</h2>
+<ul>
+<li>[dry_helpers.py source](src/utils/dry_helpers.py)</li>
+<li>Parent issue: US-193</li>
+<li>Python DRY principles: https://en.wikipedia.org/wiki/Don%27t_repeat_yourself</li>
+</ul>
+  </div>
+</body>
+</html>
