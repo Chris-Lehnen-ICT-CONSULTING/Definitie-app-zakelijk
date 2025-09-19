@@ -217,15 +217,32 @@ class ModernWebLookupService(WebLookupServiceInterface):
             return valid_results[: request.max_results]
 
     def _determine_sources(self, request: LookupRequest) -> list[str]:
-        """Bepaal welke bronnen te gebruiken op basis van request."""
+        """Bepaal welke bronnen te gebruiken op basis van request en context."""
         if request.sources:
             return [s for s in request.sources if s in self.sources]
 
-        # Intelligente bron selectie op basis van term
-        term_lower = request.term.lower()
+        term_lower = (request.term or "").lower()
+        context_lower = (request.context or "").lower()
 
-        # Voor juridische termen, prioriteer juridische bronnen
-        if any(word in term_lower for word in ["wet", "artikel", "recht", "wet"]):
+        # Heuristiek: juridische context aanwezig → prioriteer juridische bronnen
+        juridical_keywords = [
+            "strafrecht",
+            "bestuursrecht",
+            "civiel",
+            "jurid",
+            "wetboek",
+            "artikel",
+            "ecli",
+            "rechtbank",
+            "jurisprudentie",
+            "wetgeving",
+        ]
+
+        is_juridical = any(k in term_lower for k in ["wet", "artikel", "recht"]) or any(
+            k in context_lower for k in juridical_keywords
+        )
+
+        if is_juridical:
             return ["overheid", "rechtspraak", "wikipedia", "wiktionary"]
 
         # Voor algemene termen, start met encyclopedische bronnen
