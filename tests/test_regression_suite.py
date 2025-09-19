@@ -321,8 +321,13 @@ class TestCoreFunctionality(unittest.TestCase):
 
     def setUp(self):
         """Setup voor functionaliteit tests."""
-        # Mock Streamlit om tests mogelijk te maken
-        sys.modules["streamlit"] = MagicMock()
+        # Mock Streamlit om tests mogelijk te maken (gebruik centrale mock)
+        try:
+            from mocks.streamlit_mock import get_streamlit_mock
+            sys.modules["streamlit"] = get_streamlit_mock()
+        except Exception:
+            from unittest.mock import MagicMock
+            sys.modules["streamlit"] = MagicMock()
 
     def test_definitie_repository_basic_operations(self):
         """Test basis database operaties."""
