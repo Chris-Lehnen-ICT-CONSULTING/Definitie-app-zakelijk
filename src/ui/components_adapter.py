@@ -152,8 +152,18 @@ class UIComponentsAdapter:
         )
         ui_data["bronnen"] = SessionStateManager.get_value("bronnen", [])
 
-        # Technical
-        ui_data["prompt_text"] = SessionStateManager.get_value("prompt_text")
+        # Technical: haal prompt uit canonieke bron (laatste generation_result)
+        try:
+            last_gen = SessionStateManager.get_value("last_generation_result", {}) or {}
+            agent_result = last_gen.get("agent_result") if isinstance(last_gen, dict) else None
+            meta = agent_result.get("metadata") if isinstance(agent_result, dict) else None
+            prompt_text = None
+            if isinstance(meta, dict):
+                prompt_text = meta.get("prompt_text") or meta.get("prompt_template")
+            ui_data["prompt_text"] = prompt_text
+        except Exception:
+            # Fallback: geen prompt beschikbaar
+            ui_data["prompt_text"] = None
 
         # Filter out None values
         return {k: v for k, v in ui_data.items() if v is not None}

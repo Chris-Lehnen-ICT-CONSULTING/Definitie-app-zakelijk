@@ -177,9 +177,6 @@ class UIComponents:
         # Export button
         UIComponents._render_export_button()
 
-        # Prompt viewer
-        UIComponents._render_prompt_viewer()
-
     @staticmethod
     def _render_examples():
         """Render example sentences and cases."""
@@ -300,18 +297,6 @@ class UIComponents:
 
             render_export_button_new()
 
-    @staticmethod
-    def _render_prompt_viewer():
-        """Render prompt viewer in expandable section."""
-        prompt_text = SessionStateManager.get_value("prompt_text")
-        if prompt_text:
-            with st.expander("📄 Bekijk volledige gegenereerde prompt", expanded=False):
-                st.text_area(
-                    "Prompttekst verstuurd naar GPT",
-                    value=prompt_text,
-                    height=500,
-                    disabled=True,
-                )
 
     @staticmethod
     def render_modified_tab():

@@ -1,0 +1,12 @@
+{
+  "id": "ESS-CONT-001",
+  "naam": "Essentiële inhoud aanwezig",
+  "uitleg": "De definitie bevat voldoende inhoud om de essentie te dekken.",
+  "toetsvraag": "Bevat de definitie voldoende inhoudelijke woorden?",
+  "prioriteit": "hoog",
+  "aanbeveling": "verplicht",
+  "type": "inhoud",
+  "thema": "essentie",
+  "min_words": 6
+}
+
