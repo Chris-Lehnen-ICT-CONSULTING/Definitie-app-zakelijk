@@ -262,9 +262,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     from services.interfaces import LookupRequest
                     from services.web_lookup.provenance import build_provenance
 
+                    # Build a compact context string to guide provider selection
+                    ctx_parts = []
+                    if sanitized_request.organisatorische_context:
+                        ctx_parts.extend(sanitized_request.organisatorische_context)
+                    if sanitized_request.juridische_context:
+                        ctx_parts.extend(sanitized_request.juridische_context)
+                    if sanitized_request.wettelijke_basis:
+                        ctx_parts.extend(sanitized_request.wettelijke_basis)
+                    context_str = " | ".join([str(x) for x in ctx_parts if x]) or None
+
                     lookup_request = LookupRequest(
                         term=sanitized_request.begrip,
                         sources=None,
+                        context=context_str,
                         max_results=3,  # Reduced from 5 for performance
                         include_examples=False,
                         timeout=WEB_LOOKUP_TIMEOUT,  # Configurable via env var

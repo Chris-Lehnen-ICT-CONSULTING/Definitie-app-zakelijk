@@ -89,7 +89,7 @@ class WikipediaService:
         logger.info(f"Wikipedia lookup voor term: {term}")
 
         try:
-            # Zoek naar pagina met beste match
+            # Zoek naar pagina met beste match (kwaliteit > generieke hits)
             page_info = await self._search_page(term)
 
             if not page_info:
@@ -98,6 +98,11 @@ class WikipediaService:
 
             # Haal pagina details op
             page_details = await self._get_page_details(page_info["title"])
+
+            # Sla disambiguation-pagina's over (te weinig inhoudelijk bruikbaar)
+            if page_details and page_details.get("type") == "disambiguation":
+                logger.info("Wikipedia disambiguation page skipped: %s", page_info["title"])
+                return None
 
             if not page_details:
                 logger.warning(
@@ -120,7 +125,7 @@ class WikipediaService:
             )
 
     async def _search_page(self, term: str) -> dict[str, Any] | None:
-        """Zoek naar beste match pagina."""
+        """Zoek naar beste match pagina met eenvoudige scoringsheuristiek."""
         params = {
             "action": "query",
             "format": "json",
@@ -141,14 +146,25 @@ class WikipediaService:
             if not search_results:
                 return None
 
-            # Zoek exacte match of beste partial match
-            for result in search_results:
-                title = result["title"].lower()
-                if title == term.lower():
-                    return result
+            # Kies beste kandidaat: exacte titelmatch > prefixmatch > woordgrensmatch > overige
+            t = term.lower().strip()
 
-            # Return eerste result als fallback
-            return search_results[0]
+            def score(res: dict[str, Any]) -> int:
+                title = str(res.get("title", "")).strip().lower()
+                if title == t:
+                    return 100
+                if title.startswith(t):
+                    return 90
+                # Woordgrensmatch
+                if f" {t} " in f" {title} ":
+                    return 70
+                return 10
+
+            best = max(search_results, key=score)
+            # Als de beste score erg laag is, liever geen Wikipedia-resultaat gebruiken
+            if score(best) < 50:
+                return None
+            return best
 
     async def _get_page_details(self, title: str) -> dict[str, Any] | None:
         """Haal pagina details op via REST API."""
