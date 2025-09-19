@@ -4898,7 +4898,7 @@
       "title": "Sync-bridges aanwezig in services (event-loop bridging)",
       "path": "../backlog/EPIC-010/US-171/CFR-BUG-019/README.md",
       "url": "../backlog/EPIC-010/US-171/CFR-BUG-019/README.md",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "prioriteit": null,
       "owner": null,
       "canonical": false,
@@ -30305,7 +30305,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T12:31:14Z"
+    "generated_at": "2025-09-19T12:38:13Z"
   },
   "sources": [
     "docs"

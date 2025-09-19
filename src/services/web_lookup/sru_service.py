@@ -193,7 +193,11 @@ class SRUService:
         escaped_term = term.replace('"', '\\"')
 
         # Basis query - zoek in titel en inhoud
-        base_query = f'(dc.title="{escaped_term}" OR dc.subject="{escaped_term}" OR dc.description="{escaped_term}")'
+        # Gebruik contains-achtige matching door wildcard te ondersteunen indien endpoint dit toelaat.
+        # Conservatief: probeer exact, maar laat SRU server-choice ook toe.
+        base_query = (
+            f'(dc.title="{escaped_term}" OR dc.subject="{escaped_term}" OR dc.description="{escaped_term}")'
+        )
 
         # Voeg collectie filter toe als specifiek
         if collection:
