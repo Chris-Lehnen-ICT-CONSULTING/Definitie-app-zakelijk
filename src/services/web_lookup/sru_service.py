@@ -6,6 +6,7 @@ als onderdeel van het Strangler Fig pattern voor web lookup modernisering.
 """
 
 import logging
+import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
 from urllib.parse import quote_plus, urlencode
@@ -316,6 +317,50 @@ class SRUService:
 
         return base_query
 
+    # === Legal metadata extraction ===
+    _ART_RE = re.compile(r"(?i)\b(?:artikel|art\.)\s+(\d+[a-z]?)\b")
+
+    def _extract_legal_metadata(self, text: str) -> dict[str, str] | None:
+        """Probeert artikelnummer en wetcode/titel uit tekst te halen.
+
+        Heuristieken:
+        - Artikel: 'Artikel' of 'Art.' gevolgd door nummer (optionele letter)
+        - Wetcode: detecteer Sv/Sr/Awb/Rv op basis van veelvoorkomende namen/afkortingen
+        """
+        if not text:
+            return None
+
+        m = self._ART_RE.search(text)
+        article_number: str | None = m.group(1) if m else None
+
+        low = text.lower()
+        law_code: str | None = None
+        law_title: str | None = None
+
+        if ("wetboek van strafvordering" in low) or (" sv" in f" {low}") or ("strafvordering" in low):
+            law_code = "Sv"
+            law_title = "Wetboek van Strafvordering"
+        elif ("wetboek van strafrecht" in low) or (" sr" in f" {low}") or ("strafrecht" in low):
+            law_code = "Sr"
+            law_title = "Wetboek van Strafrecht"
+        elif ("algemene wet bestuursrecht" in low) or (" awb" in f" {low}") or ("awb" in low):
+            law_code = "Awb"
+            law_title = "Algemene wet bestuursrecht"
+        elif ("burgerlijke rechtsvordering" in low) or (" rv" in f" {low}"):
+            law_code = "Rv"
+            law_title = "Wetboek van Burgerlijke Rechtsvordering"
+
+        if article_number or law_code:
+            out: dict[str, str] = {}
+            if article_number:
+                out["article_number"] = article_number
+            if law_code:
+                out["law_code"] = law_code
+            if law_title:
+                out["law_title"] = law_title
+            return out
+        return None
+
     def _parse_sru_response(
         self, xml_content: str, term: str, config: SRUConfig
     ) -> list[LookupResult]:
@@ -443,6 +488,13 @@ class SRUService:
                 "retrieved_at": datetime.now(UTC).isoformat(),
                 "content_hash": content_hash,
             }
+
+            # Probeer legal metadata toe te voegen (Artikel X Sv/Sr/Awb/Rv)
+            legal_meta = self._extract_legal_metadata(
+                f"{title} {description} {subject}"
+            )
+            if legal_meta:
+                metadata.update(legal_meta)
 
             return LookupResult(
                 term=term,
