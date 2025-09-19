@@ -7,7 +7,7 @@ als onderdeel van het Strangler Fig pattern voor web lookup modernisering.
 
 import logging
 import xml.etree.ElementTree as ET
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from urllib.parse import quote_plus, urlencode
 
 # Probeer aiohttp te importeren, fallback voor testing
@@ -39,6 +39,8 @@ class SRUConfig:
     maximum_records: int = 10
     confidence_weight: float = 1.0
     is_juridical: bool = True
+    # Alternatieve endpoints (fallbacks) voor wanneer het primaire pad 404/5xx geeft
+    alt_base_urls: list[str] = field(default_factory=list)
 
 
 class SRUService:
@@ -73,11 +75,17 @@ class SRUService:
             ),
             "rechtspraak": SRUConfig(
                 name="Rechtspraak.nl",
-                base_url="https://www.rechtspraak.nl/sru/sru",
+                # Primair werkend SRU‑endpoint (Search)
+                base_url="https://zoeken.rechtspraak.nl/SRU/Search",
                 default_collection="",  # Rechtspraak heeft geen collectie parameter
                 record_schema="dc",
                 confidence_weight=0.95,
                 is_juridical=True,
+                alt_base_urls=[
+                    # Alternatieve paden (case‑varianten en data endpoint)
+                    "https://zoeken.rechtspraak.nl/sru/Search",
+                    "https://data.rechtspraak.nl/uitspraken/sru",
+                ],
             ),
             "overheid_zoek": SRUConfig(
                 name="Overheid.nl Zoekservice",
@@ -143,15 +151,48 @@ class SRUService:
             # Bouw SRU query
             query_url = self._build_query_url(term, config, max_records, collection)
 
-            # Uitvoeren request
-            async with self.session.get(query_url) as response:
-                if response.status != 200:
-                    logger.error(f"SRU API error {response.status} voor {config.name}")
-                    return []
+            # Uitvoeren request met fallback op alternatieve endpoints (vooral Rechtspraak)
+            urls_to_try = [query_url]
+            # Indien alternatieve base_urls geconfigureerd zijn, bouw voor elk ook de query_url
+            if config.alt_base_urls:
+                for alt in config.alt_base_urls:
+                    try:
+                        from urllib.parse import urlencode, quote_plus
 
-                # Parse XML response
-                xml_content = await response.text()
-                return self._parse_sru_response(xml_content, term, config)
+                        params = {
+                            "operation": "searchRetrieve",
+                            "version": "1.2",
+                            "recordSchema": config.record_schema,
+                            "maximumRecords": min(max_records, config.maximum_records),
+                            "query": self._build_cql_query(
+                                term, collection or config.default_collection
+                            ),
+                            "startRecord": "1",
+                        }
+                        urls_to_try.append(f"{alt}?{urlencode(params, quote_via=quote_plus)}")
+                    except Exception:
+                        continue
+
+            last_status: int | None = None
+            last_text: str | None = None
+            for u in urls_to_try:
+                async with self.session.get(u) as response:
+                    if response.status == 200:
+                        xml_content = await response.text()
+                        return self._parse_sru_response(xml_content, term, config)
+                    last_status = response.status
+                    # bewaar een stukje response voor debug (niet loggen volledige body)
+                    try:
+                        txt = await response.text()
+                        last_text = txt[:200]
+                    except Exception:
+                        last_text = None
+
+            logger.error(
+                f"SRU API error {last_status} voor {config.name} (alle endpoints geprobeerd)."
+                + (f" Body preview: {last_text}" if last_text else "")
+            )
+            return []
 
         except Exception as e:
             logger.error(f"SRU search error voor {term} in {config.name}: {e}")

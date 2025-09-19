@@ -28357,15 +28357,15 @@
     {
       "id": null,
       "type": "TEST",
-      "title": "Test Suite Improvement Plan",
+      "title": "Test Suite Improvement Plan (Gealigneerd met huidige implementatie)",
       "path": "../testing/TEST_SUITE_IMPROVEMENT_PLAN.md",
       "url": "../testing/TEST_SUITE_IMPROVEMENT_PLAN.md",
-      "status": "draft",
+      "status": null,
       "prioriteit": null,
-      "owner": "QA Lead",
-      "canonical": true,
-      "last_verified": "2025-09-19",
-      "applies_to": "definitie-app@current",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
       "category": null,
       "sprint": null,
       "story_points": null,
@@ -30369,7 +30369,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T13:45:25Z"
+    "generated_at": "2025-09-19T14:00:59Z"
   },
   "sources": [
     "docs"
