@@ -268,8 +268,15 @@ class ServiceContainer:
             Singleton instance van ModernWebLookupService
         """
         if "web_lookup" not in self._instances:
-            self._instances["web_lookup"] = ModernWebLookupService()
-            logger.info("ModernWebLookupService instance aangemaakt")
+            try:
+                self._instances["web_lookup"] = ModernWebLookupService()
+                logger.info("✅ ModernWebLookupService initialized successfully - external context enrichment AVAILABLE")
+            except Exception as e:
+                logger.error(
+                    f"⚠️ ModernWebLookupService initialization FAILED: {type(e).__name__}: {e}\n"
+                    f"Definitions will be generated WITHOUT external context enrichment!"
+                )
+                self._instances["web_lookup"] = None
         return self._instances["web_lookup"]
 
     def duplicate_detector(self) -> DuplicateDetectionService:

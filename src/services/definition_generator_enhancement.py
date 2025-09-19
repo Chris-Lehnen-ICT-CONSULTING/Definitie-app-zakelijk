@@ -196,9 +196,10 @@ class ContextIntegrationEnhancer(EnhancementStrategy):
         # Domein integratie - DISABLED per EPIC-010/US-043 (domein field removed)
         # Domain functionality moved to context-based approach
 
-        # Context integratie
-        if definition.context and "context" not in text.lower():
-            enhanced_text = self._integrate_context(text, definition.context)
+        # Context integratie (legacy-compat context veld kan ontbreken in V2)
+        ctx = getattr(definition, "context", None)
+        if ctx and "context" not in text.lower():
+            enhanced_text = self._integrate_context(text, ctx)
             if enhanced_text != text:
                 results.append(
                     EnhancementResult(
@@ -457,7 +458,6 @@ class DefinitionEnhancer:
             current_definition = Definition(
                 begrip=current_definition.begrip,
                 definitie=current_definition.definitie,
-                context=current_definition.context,
                 # domein removed per EPIC-010/US-043
                 categorie=current_definition.categorie,
                 bron=f"{current_definition.bron} (Enhanced)",
@@ -473,7 +473,6 @@ class DefinitionEnhancer:
         return Definition(
             begrip=definition.begrip,
             definitie=enhancement.enhanced_text,
-            context=definition.context,
             # domein removed per EPIC-010/US-043
             categorie=definition.categorie,
             bron=definition.bron,

@@ -444,6 +444,9 @@ class DefinitieRepository:
             record.updated_at = now
 
             # Insert record - check which columns exist
+            # Ensure NOT NULL columns receive defaults where appropriate
+            wb_value = record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
+
             if self._has_legacy_columns():
                 cursor = conn.execute(
                     """
@@ -464,7 +467,7 @@ class DefinitieRepository:
                         record.categorie,
                         record.organisatorische_context,
                         record.juridische_context,
-                        record.wettelijke_basis,
+                        wb_value,
                         record.status,
                         record.version_number,
                         record.previous_version_id,
@@ -507,7 +510,7 @@ class DefinitieRepository:
                         record.categorie,
                         record.organisatorische_context,
                         record.juridische_context,
-                        record.wettelijke_basis,
+                        wb_value,
                         record.status,
                         record.version_number,
                         record.previous_version_id,
