@@ -1006,6 +1006,10 @@ class DefinitionGeneratorTab:
             rid = str(v.get("rule_id") or v.get("code") or "")
             sev = str(v.get("severity", "warning")).lower()
             desc = v.get("description") or v.get("message") or ""
+            suggestion = v.get("suggestion")
+            if suggestion:
+                # Voeg verbeteradvies toe zonder UI-structuur te wijzigen
+                desc = f"{desc} · Wat verbeteren: {suggestion}"
             emoji = self._get_severity_emoji(sev)
             name, explanation = self._get_rule_display_and_explanation(rid)
             name_part = f" — {name}" if name else ""
