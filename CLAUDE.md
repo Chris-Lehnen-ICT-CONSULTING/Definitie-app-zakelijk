@@ -64,6 +64,25 @@ DefinitieAgent is een AI-gestuurde Nederlandse juridische definitiegenerator die
 - **Focus op: code verbeteren, NIET op compatibiliteit**
 - **Business logica documenteren tijdens refactoring proces**
 
+### 🚫 VERBODEN PATTERNS - ANTI-PATTERNS
+
+#### GOD OBJECT / CATCH-ALL HELPERS
+- **VERBODEN: `dry_helpers.py` of vergelijkbare "alles-in-één" utility modules**
+- **PROBLEEM**: DRY principe ≠ alles in één bestand stoppen
+- **GEVOLG**: Onduidelijke verantwoordelijkheden, verborgen dependencies, moeilijk te testen
+- **OPLOSSING**: Splits naar specifieke modules met duidelijke verantwoordelijkheden:
+  - `utils/type_helpers.py` - Voor type conversies (`ensure_list`, `ensure_dict`)
+  - `utils/dict_helpers.py` - Voor dictionary operations (`safe_dict_get`)
+  - `utils/validation_helpers.py` - Voor validatie utilities
+  - GEEN vage "helpers" modules!
+
+#### SESSION STATE MANAGEMENT
+- **REGEL**: `SessionStateManager` is de ENIGE module die `st.session_state` mag aanraken
+- **VERBODEN**: Directe `st.session_state` toegang in andere modules
+- **VERBODEN**: Session state functies in utility modules
+- **GEVOLG**: Circulaire dependencies, recursie problemen, inconsistente state management
+- **OPLOSSING**: ALLE session state toegang via `SessionStateManager.get_value()` / `set_value()`
+
 
 ### 📁 Document & File Management
 

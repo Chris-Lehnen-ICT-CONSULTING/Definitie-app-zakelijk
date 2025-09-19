@@ -10,6 +10,11 @@ from typing import Any
 
 import streamlit as st
 
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_list, ensure_dict, ensure_string
+from utils.error_helpers import safe_execute
+# Session state functions removed - using SessionStateManager directly
+
 from database.definitie_repository import (
     DefinitieRecord,
     DefinitieStatus,
@@ -136,7 +141,7 @@ class DefinitionGeneratorTab:
             with col3:
                 if st.button("🔄 Genereer Nieuw", key=f"new_{definitie.id}"):
                     # Force new generation
-                    options = SessionStateManager.get_value("generation_options", {})
+                    options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
                     options["force_generate"] = True
                     SessionStateManager.set_value("generation_options", options)
                     self._handle_definition_generation()
@@ -200,132 +205,110 @@ class DefinitionGeneratorTab:
         """Render resultaten van definitie generatie."""
         st.markdown("### 🚀 Generatie Resultaten")
 
-        agent_result = generation_result.get("agent_result")
-        saved_record = generation_result.get("saved_record")
-        generation_result.get("timestamp")
-        determined_category = generation_result.get("determined_category")
+        agent_result = safe_dict_get(generation_result, "agent_result")
+        saved_record = safe_dict_get(generation_result, "saved_record")
+        safe_dict_get(generation_result, "timestamp")
+        determined_category = safe_dict_get(generation_result, "determined_category")
 
-        # Debug: Log de structuur van generation_result
-        logger.debug(f"Generation result keys: {list(generation_result.keys())}")
-        if agent_result and isinstance(agent_result, dict):
-            logger.debug(f"Agent result type: dict, keys: {list(agent_result.keys())}")
-            if "metadata" in agent_result:
-                logger.debug(
-                    f"Agent result metadata keys: {list(agent_result['metadata'].keys()) if isinstance(agent_result['metadata'], dict) else 'Not a dict'}"
-                )
-        elif agent_result:
-            logger.debug(f"Agent result type: {type(agent_result).__name__}")
+        # Debug logging
+        self._log_generation_result_debug(generation_result, agent_result)
 
-        if agent_result:
-            # Check if it's a dict (new service) or object (legacy)
-            is_dict = isinstance(agent_result, dict)
+        if not agent_result:
+            return
 
-            # Success indicator
-            if is_dict:
-                # New service format
-                if agent_result.get("success"):
-                    score = agent_result.get(
-                        "validation_score", agent_result.get("final_score", 0.0)
-                    )
-                    st.success(
-                        f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})"
-                    )
-                else:
-                    reason = agent_result.get("reason", "Onbekende fout")
-                    st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {reason}")
-            elif hasattr(agent_result, "success") and agent_result.success:
-                st.success(
-                    f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})"
-                )
-            else:
-                st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
+        # Show success/warning indicator
+        self._render_generation_status(agent_result)
 
-            # Sla ID van bewaarde definitie op voor Expert-tab prefill
-            if saved_record and getattr(saved_record, 'id', None):
-                try:
-                    SessionStateManager.set_value("selected_review_definition_id", saved_record.id)
-                except Exception:
-                    pass
+        # Sla ID van bewaarde definitie op voor Expert-tab prefill
+        if saved_record and getattr(saved_record, 'id', None):
+            try:
+                SessionStateManager.set_value("selected_review_definition_id", saved_record.id)
+            except Exception:
+                pass
 
-            # Ontologische categorie sectie - prominent weergeven
-            if determined_category:
-                self._render_ontological_category_section(
-                    determined_category, generation_result
-                )
-
-            # Generated definition
-            st.markdown("#### 📝 Gegenereerde Definitie")
-
-            # Debug: toon wat we hebben
-            if st.checkbox(
-                "🐛 Debug: Toon agent_result structuur", key="debug_agent_result"
-            ):
-                st.code(f"Type: {type(agent_result)}")
-                st.code(f"Is dict: {is_dict}")
-                if is_dict:
-                    st.code(f"Keys: {list(agent_result.keys())}")
-                    st.code(
-                        f"Has definitie_origineel: {'definitie_origineel' in agent_result}"
-                    )
-                    st.code(
-                        f"Has definitie_gecorrigeerd: {'definitie_gecorrigeerd' in agent_result}"
-                    )
-                else:
-                    st.code(f"Attributes: {dir(agent_result)}")
-
-            # V2-only: agent_result is a dict
-            definitie_to_show = agent_result.get(
-                "definitie_gecorrigeerd", agent_result.get("definitie", "")
+        # Ontologische categorie sectie - prominent weergeven
+        if determined_category:
+            self._render_ontological_category_section(
+                determined_category, generation_result
             )
-            # Debug logging voor opschoning
-            if (
-                "definitie_origineel" in agent_result
-                and "definitie_gecorrigeerd" in agent_result
-            ):
-                if (
-                    agent_result["definitie_origineel"]
-                    != agent_result["definitie_gecorrigeerd"]
-                ):
-                    logger.info(
-                        f"Opschoning toegepast voor '{generation_result.get('begrip', 'onbekend')}'"
-                    )
-                    logger.debug(
-                        f"Origineel: {agent_result['definitie_origineel'][:100]}..."
-                    )
-                    logger.debug(
-                        f"Opgeschoond: {agent_result['definitie_gecorrigeerd'][:100]}..."
-                    )
-            # Toon ALTIJD beide versies
-            # Nu werkt 'in' operator voor zowel dict als LegacyGenerationResult
-            if (
-                "definitie_origineel" in agent_result
-                and "definitie_gecorrigeerd" in agent_result
-            ):
-                # Toon opschoning status
-                if (
-                    agent_result["definitie_origineel"]
-                    != agent_result["definitie_gecorrigeerd"]
-                ):
-                    st.success("🔧 **Definitie is opgeschoond**")
-                else:
-                    st.info("✅ **Geen opschoning nodig - definitie was al correct**")
 
-                # Toon ALTIJD beide versies
-                st.subheader("1️⃣ Originele AI Definitie")
-                st.info(agent_result["definitie_origineel"])
+        # Generated definition
+        st.markdown("#### 📝 Gegenereerde Definitie")
 
-                st.subheader("2️⃣ Finale Definitie")
-                st.info(agent_result["definitie_gecorrigeerd"])
+        # Debug: toon wat we hebben
+        if st.checkbox(
+            "🐛 Debug: Toon agent_result structuur", key="debug_agent_result"
+        ):
+            is_dict = isinstance(agent_result, dict)
+            st.code(f"Type: {type(agent_result)}")
+            st.code(f"Is dict: {is_dict}")
+            if is_dict:
+                st.code(f"Keys: {list(agent_result.keys())}")
+                st.code(
+                    f"Has definitie_origineel: {'definitie_origineel' in agent_result}"
+                )
+                st.code(
+                    f"Has definitie_gecorrigeerd: {'definitie_gecorrigeerd' in agent_result}"
+                )
             else:
-                # Legacy format - toon enkele definitie
-                st.subheader("📝 Definitie")
-                st.info(definitie_to_show)
+                st.code(f"Attributes: {dir(agent_result)}")
 
-            # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
-            self._render_sources_section(generation_result, agent_result, saved_record)
+        # V2-only: agent_result is a dict
+        definitie_to_show = agent_result.get(
+            "definitie_gecorrigeerd", agent_result.get("definitie", "")
+        ) if isinstance(agent_result, dict) else ""
 
-            # Generation details
-            with st.expander("📊 Generatie Details", expanded=False):
+        # Debug logging voor opschoning
+        if isinstance(agent_result, dict) and (
+            "definitie_origineel" in agent_result
+            and "definitie_gecorrigeerd" in agent_result
+        ):
+            if (
+                agent_result["definitie_origineel"]
+                != agent_result["definitie_gecorrigeerd"]
+            ):
+                logger.info(
+                    f"Opschoning toegepast voor '{generation_result.get('begrip', 'onbekend')}'"
+                )
+                logger.debug(
+                    f"Origineel: {agent_result['definitie_origineel'][:100]}..."
+                )
+                logger.debug(
+                    f"Opgeschoond: {agent_result['definitie_gecorrigeerd'][:100]}..."
+                )
+
+        # Toon ALTIJD beide versies
+        # Nu werkt 'in' operator voor zowel dict als LegacyGenerationResult
+        if isinstance(agent_result, dict) and (
+            "definitie_origineel" in agent_result
+            and "definitie_gecorrigeerd" in agent_result
+        ):
+            # Toon opschoning status
+            if (
+                agent_result["definitie_origineel"]
+                != agent_result["definitie_gecorrigeerd"]
+            ):
+                st.success("🔧 **Definitie is opgeschoond**")
+            else:
+                st.info("✅ **Geen opschoning nodig - definitie was al correct**")
+
+            # Toon ALTIJD beide versies
+            st.subheader("1️⃣ Originele AI Definitie")
+            st.info(agent_result["definitie_origineel"])
+
+            st.subheader("2️⃣ Finale Definitie")
+            st.info(agent_result["definitie_gecorrigeerd"])
+        else:
+            # Legacy format - toon enkele definitie
+            st.subheader("📝 Definitie")
+            st.info(definitie_to_show)
+
+        # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
+        self._render_sources_section(generation_result, agent_result, saved_record)
+
+        # Generation details
+        with st.expander("📊 Generatie Details", expanded=False):
+            if isinstance(agent_result, dict):
                 col1, col2, col3 = st.columns(3)
                 with col1:
                     score = agent_result.get(
@@ -345,27 +328,29 @@ class DefinitionGeneratorTab:
                         violations = len(agent_result["toetsresultaten"])
                         st.metric("Violations", violations)
 
-            # Validation results (dict or object) with section isolation
-            try:
+        # Validation results (dict or object) with section isolation
+        try:
+            if isinstance(agent_result, dict):
                 validation_details = agent_result.get("validation_details")
                 if validation_details is not None:
                     self._render_validation_results(validation_details)
                 else:
                     st.markdown("#### ✅ Kwaliteitstoetsing")
                     st.info("ℹ️ Geen validatiedetails beschikbaar.")
-            except Exception as e:
-                st.markdown("#### ✅ Kwaliteitstoetsing")
-                st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
-                logger.exception("Validation section rendering failed")
+        except Exception as e:
+            st.markdown("#### ✅ Kwaliteitstoetsing")
+            st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
+            logger.exception("Validation section rendering failed")
 
-            # Store prompt_text in session state if available
-            if agent_result.get("prompt_text"):
-                SessionStateManager.set_value(
-                    "prompt_text", agent_result["prompt_text"]
-                )
+        # Store prompt_text in session state if available
+        if isinstance(agent_result, dict) and agent_result.get("prompt_text"):
+            SessionStateManager.set_value(
+                "prompt_text", agent_result["prompt_text"]
+            )
 
-            # Voorbeelden sectie - direct vanuit agent_result tonen, GEEN session state!
-            try:
+        # Voorbeelden sectie - direct vanuit agent_result tonen, GEEN session state!
+        try:
+            if isinstance(agent_result, dict):
                 voorbeelden = agent_result.get("voorbeelden", {})
 
                 # Debug logging point D - UI render
@@ -389,11 +374,12 @@ class DefinitionGeneratorTab:
                 else:
                     st.markdown("#### 📚 Gegenereerde Content")
                     st.info("ℹ️ Geen voorbeelden beschikbaar voor deze generatie.")
-            except Exception as e:
-                st.markdown("#### 📚 Gegenereerde Content")
-                st.error(f"Voorbeeldensectie kon niet worden gerenderd: {e!s}")
-                logger.exception("Examples section rendering failed")
-                # Debug info om te zien wat er mis gaat
+        except Exception as e:
+            st.markdown("#### 📚 Gegenereerde Content")
+            st.error(f"Voorbeeldensectie kon niet worden gerenderd: {e!s}")
+            logger.exception("Examples section rendering failed")
+            # Debug info om te zien wat er mis gaat
+            if isinstance(agent_result, dict):
                 st.code(
                     f"Debug: voorbeelden type = {type(agent_result.get('voorbeelden'))}"
                 )
@@ -682,9 +668,9 @@ class DefinitionGeneratorTab:
         en reageert alleen op het resultaat voor UI updates.
         """
         # Extract benodigde data voor workflow
-        old_category = generation_result.get("determined_category", "proces")
+        old_category = safe_dict_get(generation_result, "determined_category", "proces")
         current_definition = self._extract_definition_from_result(generation_result)
-        begrip = generation_result.get("begrip", "")
+        begrip = ensure_string(safe_dict_get(generation_result, "begrip", ""))
         saved_record = generation_result.get("saved_record")
 
         # Voer workflow uit via orchestration layer
@@ -829,6 +815,132 @@ class DefinitionGeneratorTab:
         }
         return labels.get(self, self.replace("_", " ").title())
 
+    def _log_generation_result_debug(self, generation_result: dict, agent_result: Any) -> None:
+        """Log debug information about generation result structure."""
+        logger.debug(f"Generation result keys: {list(generation_result.keys())}")
+
+        if not agent_result:
+            return
+
+        if isinstance(agent_result, dict):
+            logger.debug(f"Agent result type: dict, keys: {list(agent_result.keys())}")
+            if "metadata" in agent_result and isinstance(agent_result["metadata"], dict):
+                logger.debug(f"Agent result metadata keys: {list(agent_result['metadata'].keys())}")
+        else:
+            logger.debug(f"Agent result type: {type(agent_result).__name__}")
+
+    def _render_generation_status(self, agent_result: Any) -> None:
+        """Render the success/warning status of generation."""
+        is_dict = isinstance(agent_result, dict)
+
+        # Handle dict format (V2)
+        if is_dict:
+            if safe_dict_get(agent_result, "success"):
+                score = self._extract_score_from_result(agent_result)
+                st.success(f"✅ Definitie succesvol gegenereerd! (Score: {score:.2f})")
+            else:
+                reason = ensure_string(safe_dict_get(agent_result, "reason", "Onbekende fout"))
+                st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {reason}")
+        # Handle object format (legacy)
+        elif hasattr(agent_result, "success"):
+            if agent_result.success:
+                st.success(f"✅ Definitie succesvol gegenereerd! (Score: {agent_result.final_score:.2f})")
+            else:
+                st.warning(f"⚠️ Generatie gedeeltelijk succesvol: {agent_result.reason}")
+
+    def _extract_score_from_result(self, agent_result: dict) -> float:
+        """Extract validation score from agent result."""
+        return safe_dict_get(
+            agent_result, "validation_score",
+            safe_dict_get(agent_result, "final_score", 0.0)
+        )
+
+    def _build_detailed_assessment(self, validation_result: dict) -> list[str]:
+        """Build detailed assessment from validation result."""
+        try:
+            violations = validation_result.get("violations", []) or []
+            passed_rules = validation_result.get("passed_rules", []) or []
+
+            # Calculate statistics
+            stats = self._calculate_validation_stats(violations, passed_rules)
+
+            lines = []
+            # Add summary line
+            lines.append(self._format_validation_summary(stats))
+
+            # Add violation lines
+            lines.extend(self._format_violations(violations))
+
+            # Add passed rules
+            lines.extend(self._format_passed_rules(stats["passed_ids"]))
+
+            return lines
+        except Exception as e:
+            logger.debug(f"Kon beoordeling_gen niet afleiden uit V2-resultaat: {e}")
+            return []
+
+    def _calculate_validation_stats(self, violations: list, passed_rules: list) -> dict:
+        """Calculate validation statistics."""
+        failed_ids = sorted({
+            str(v.get("rule_id") or v.get("code") or "")
+            for v in violations if isinstance(v, dict)
+        })
+        passed_ids = sorted({str(r) for r in passed_rules})
+        total = len(set(failed_ids).union(passed_ids))
+        passed_count = len(passed_ids)
+        failed_count = len(failed_ids)
+        pct = (passed_count / total * 100.0) if total > 0 else 0.0
+
+        return {
+            "failed_ids": failed_ids,
+            "passed_ids": passed_ids,
+            "total": total,
+            "passed_count": passed_count,
+            "failed_count": failed_count,
+            "percentage": pct
+        }
+
+    def _format_validation_summary(self, stats: dict) -> str:
+        """Format validation summary line."""
+        summary = f"📊 **Toetsing Samenvatting**: {stats['passed_count']}/{stats['total']} regels geslaagd ({stats['percentage']:.1f}%)"
+        if stats['failed_count'] > 0:
+            summary += f" | ❌ {stats['failed_count']} gefaald"
+        return summary
+
+    def _format_violations(self, violations: list) -> list[str]:
+        """Format violation lines with severity-based sorting and emojis."""
+        lines = []
+        severity_order = {
+            "critical": 0, "error": 1, "high": 1,
+            "warning": 2, "medium": 2, "low": 3, "info": 4
+        }
+
+        def _sev_key(v):
+            s = str(v.get("severity", "warning")).lower()
+            return (severity_order.get(s, 2), str(v.get("rule_id") or v.get("code") or ""))
+
+        for v in sorted(violations, key=_sev_key):
+            rid = str(v.get("rule_id") or v.get("code") or "")
+            sev = str(v.get("severity", "warning")).lower()
+            desc = v.get("description") or v.get("message") or ""
+            emoji = self._get_severity_emoji(sev)
+            lines.append(f"{emoji} {rid}: {desc}")
+
+        return lines
+
+    def _get_severity_emoji(self, severity: str) -> str:
+        """Get emoji for severity level."""
+        if severity in {"critical", "error", "high"}:
+            return "❌"
+        elif severity in {"warning", "medium", "low"}:
+            return "⚠️"
+        else:
+            return "📋"
+
+    def _format_passed_rules(self, passed_ids: list[str]) -> list[str]:
+        """Format passed rule lines."""
+        return [f"✅ {rid}: OK" for rid in passed_ids]
+
     def _render_validation_results(self, validation_result):
         """Render validation resultaten - DICT ONLY.
 
@@ -862,49 +974,16 @@ class DefinitionGeneratorTab:
             )
 
         # Show detailed results if toggled
-        if SessionStateManager.get_value("toon_detailleerde_toetsing", False):
-            # Prefer existing session list; otherwise, derive from V2 validation_result
-            beoordeling = SessionStateManager.get_value("beoordeling_gen", [])
-            if not beoordeling and isinstance(validation_result, dict):
-                try:
-                    violations = validation_result.get("violations", []) or []
-                    passed_rules = validation_result.get("passed_rules", []) or []
+        if not SessionStateManager.get_value("toon_detailleerde_toetsing", False):
+            return
 
-                    # Unique rule ids for failures
-                    failed_ids = sorted({str(v.get("rule_id") or v.get("code") or "") for v in violations if isinstance(v, dict)})
-                    passed_ids = sorted({str(r) for r in passed_rules})
-                    total = len(set(failed_ids).union(passed_ids))
-                    passed_count = len(passed_ids)
-                    failed_count = len(failed_ids)
-                    pct = (passed_count / total * 100.0) if total > 0 else 0.0
+        # Prefer existing session list; otherwise, derive from V2 validation_result
+        beoordeling = SessionStateManager.get_value("beoordeling_gen", [])
 
-                    lines = []
-                    summary = f"📊 **Toetsing Samenvatting**: {passed_count}/{total} regels geslaagd ({pct:.1f}%)"
-                    if failed_count > 0:
-                        summary += f" | ❌ {failed_count} gefaald"
-                    lines.append(summary)
-
-                    # Violations (sorted)
-                    severity_order = {"critical": 0, "error": 1, "high": 1, "warning": 2, "medium": 2, "low": 3, "info": 4}
-                    def _sev_key(v):
-                        s = str(v.get("severity", "warning")).lower()
-                        return (severity_order.get(s, 2), str(v.get("rule_id") or v.get("code") or ""))
-
-                    for v in sorted(violations, key=_sev_key):
-                        rid = str(v.get("rule_id") or v.get("code") or "")
-                        sev = str(v.get("severity", "warning")).lower()
-                        desc = v.get("description") or v.get("message") or ""
-                        emoji = "❌" if sev in {"critical", "error", "high"} else ("⚠️" if sev in {"warning", "medium", "low"} else "📋")
-                        lines.append(f"{emoji} {rid}: {desc}")
-
-                    # Passed rules (sorted)
-                    for rid in passed_ids:
-                        lines.append(f"✅ {rid}: OK")
-
-                    beoordeling = lines
-                    SessionStateManager.set_value("beoordeling_gen", beoordeling)
-                except Exception as e:
-                    logger.debug(f"Kon beoordeling_gen niet afleiden uit V2-resultaat: {e}")
+        if not beoordeling and isinstance(validation_result, dict):
+            beoordeling = self._build_detailed_assessment(validation_result)
+            if beoordeling:
+                SessionStateManager.set_value("beoordeling_gen", beoordeling)
 
             if beoordeling:
                 st.markdown("### 📋 Alle Toetsregels Resultaten")

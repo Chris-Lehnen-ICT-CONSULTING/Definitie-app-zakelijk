@@ -48,7 +48,6 @@ from ui.components.definition_edit_tab import (  # Edit interface voor definitie
     DefinitionEditTab,
 )
 from utils.container_manager import get_cached_container  # Gebruik nieuwe cached container manager
-import streamlit as st
 
 # Importeer alle UI tab componenten voor de verschillende functionaliteiten
 from ui.components.enhanced_context_manager_selector import (
@@ -506,7 +505,7 @@ class TabbedInterface:
     def _dbg(self, label: str) -> None:
         """Render a small debug marker if enabled via sidebar toggle."""
         try:
-            if st.session_state.get("ui_debug_markers", False):
+            if SessionStateManager.get_value("ui_debug_markers", False):
                 st.markdown(
                     f"""
                     <div style="padding:6px; margin:10px 0; border-left: 4px solid #ffcc00;
@@ -1266,7 +1265,7 @@ class TabbedInterface:
             }
 
         # Actieve tab uit session of default
-        default_key = st.session_state.get("active_tab", "generator")
+        default_key = SessionStateManager.get_value("active_tab", "generator")
         if default_key not in tab_keys:
             default_key = tab_keys[0]
 
@@ -1280,7 +1279,7 @@ class TabbedInterface:
             key="main_tabs_radio",
         )
         # Bewaar keuze
-        st.session_state["active_tab"] = selected_key
+        SessionStateManager.set_value("active_tab", selected_key)
 
         # Render alleen de geselecteerde tab
         self._render_tab_content(selected_key)

@@ -1,0 +1,18 @@
+name: No root-level DB files
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  check-root-db-files:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run root-level DB files check
+        env:
+          GITHUB_ACTIONS: "true"
+        run: bash scripts/ci/check_no_root_db_files.sh
+

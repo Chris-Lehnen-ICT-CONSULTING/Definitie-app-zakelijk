@@ -132,7 +132,8 @@ class TestServiceContainer:
     def test_update_config(self):
         """Test config update en reset."""
         # Arrange
-        container = ServiceContainer({'db_path': 'old.db'})
+        # Disable actual DB usage to avoid creating stray files in project root
+        container = ServiceContainer({'db_path': 'old.db', 'use_database': False})
         gen1 = container.generator()
 
         # Act

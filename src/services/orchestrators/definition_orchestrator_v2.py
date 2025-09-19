@@ -23,6 +23,10 @@ from datetime import UTC, datetime
 UTC = UTC  # Python 3.10 compatibility  # noqa: PLW0127
 from typing import TYPE_CHECKING, Any, Optional
 
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_list, ensure_dict, ensure_string
+from utils.error_helpers import safe_execute, error_handler
+
 from services.interfaces import (
     AIServiceInterface as IntelligentAIService,
     CleaningServiceInterface,
@@ -144,7 +148,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
         if hasattr(self.validation_service, 'get_stats'):
             try:
                 stats = self.validation_service.get_stats()
-                info["rule_count"] = stats.get("total_rules", 0)
+                info["rule_count"] = safe_dict_get(stats, "total_rules", 0)
             except Exception:
                 info["rule_count"] = 0
         else:
@@ -273,7 +277,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                             {
                                 "provider": r.source.name.lower(),
                                 "title": (
-                                    r.metadata.get("dc_title")
+                                    safe_dict_get(r.metadata, "dc_title")
                                     if isinstance(r.metadata, dict)
                                     else None
                                 )
@@ -283,7 +287,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                                 "score": float(r.source.confidence or 0.0),
                                 "used_in_prompt": False,
                                 "retrieved_at": (
-                                    r.metadata.get("retrieved_at")
+                                    safe_dict_get(r.metadata, "retrieved_at")
                                     if isinstance(r.metadata, dict)
                                     else None
                                 ),
@@ -350,17 +354,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             generation_result = await self.ai_service.generate_definition(
                 prompt=prompt_result.text,
                 temperature=(
-                    sanitized_request.options.get("temperature", 0.7)
+                    safe_dict_get(sanitized_request.options, "temperature", 0.7)
                     if sanitized_request.options
                     else 0.7
                 ),
                 max_tokens=(
-                    sanitized_request.options.get("max_tokens", 500)
+                    safe_dict_get(sanitized_request.options, "max_tokens", 500)
                     if sanitized_request.options
                     else 500
                 ),
                 model=(
-                    sanitized_request.options.get("model")
+                    safe_dict_get(sanitized_request.options, "model")
                     if sanitized_request.options
                     else None
                 ),
@@ -526,7 +530,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             validation_result = _as_dict(raw_validation)
 
             logger.info(
-                f"Generation {generation_id}: Validation complete (valid: {validation_result.get('is_acceptable', False)})"
+                f"Generation {generation_id}: Validation complete (valid: {safe_dict_get(validation_result, 'is_acceptable', False)})"
             )
 
             # =====================================
@@ -534,13 +538,13 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             was_enhanced = False
             if (
-                not validation_result.get("is_acceptable", False)
+                not safe_dict_get(validation_result, "is_acceptable", False)
                 and self.config.enable_enhancement
                 and self.enhancement_service
             ):
                 enhanced_text = await self.enhancement_service.enhance_definition(
                     cleaned_text,
-                    validation_result.get("violations", []),
+                    ensure_list(safe_dict_get(validation_result, "violations", [])),
                     context=sanitized_request,
                 )
 
@@ -608,7 +612,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 9: Storage (Conditional on Quality Gate)
             # =====================================
             definition_id = None
-            if validation_result.get("is_acceptable", False):
+            if safe_dict_get(validation_result, "is_acceptable", False):
                 definition_id = await self._safe_save_definition(definition)
                 logger.info(
                     f"Generation {generation_id}: Definition saved (ID: {definition_id})"
@@ -626,7 +630,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # PHASE 10: Feedback Loop Update (GVI Rode Kabel)
             # =====================================
             if (
-                not validation_result.get("is_acceptable", False)
+                not safe_dict_get(validation_result, "is_acceptable", False)
                 and self.feedback_engine
             ):
                 await self.feedback_engine.process_validation_feedback(
@@ -649,7 +653,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                 await self.monitoring.complete_generation(
                     generation_id=generation_id,
-                    success=validation_result.get("is_acceptable", False),
+                    success=safe_dict_get(validation_result, "is_acceptable", False),
                     duration=time.time() - start_time,
                     token_count=token_count,
                     components_used=(
@@ -664,7 +668,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             final_duration = time.time() - start_time
             logger.info(
                 f"Generation {generation_id}: Complete in {final_duration:.2f}s, "
-                f"valid={validation_result.get('is_acceptable', False)}"
+                f"valid={safe_dict_get(validation_result, 'is_acceptable', False)}"
             )
 
             return DefinitionResponseV2(
@@ -746,8 +750,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             wettelijke_basis=request.wettelijke_basis or [],
             # EPIC-010: domein field verwijderd
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
-            valid=validation_result.get("is_acceptable", False),
-            validation_violations=validation_result.get("violations", []),
+            valid=safe_dict_get(validation_result, "is_acceptable", False),
+            validation_violations=ensure_list(safe_dict_get(validation_result, "violations", [])),
             metadata=generation_metadata,
             created_by=request.actor,
             created_at=datetime.now(UTC),

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ValidationResult interface mismatch (TypedDict vs dataclass vs varianten) → inconsistent gebruik</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: CFR-BUG-025</p>
+<p>titel: ValidationResult interface mismatch (TypedDict vs dataclass vs varianten) → inconsistent gebruik</p>
+<p>status: OPEN</p>
+<p>severity: HIGH</p>
+<p>component: validation-contract</p>
+<p>owner: validation</p>
+<p>gevonden_op: 2025-09-19</p>
+<p>canonical: false</p>
+<p>last_verified: 2025-09-19</p>
+<p>applies_to: definitie-app@v2</p>
+<p>---</p>
+
+<h1>CFR-BUG-025: ValidationResult interface mismatch</h1>
+
+<h2>Beschrijving</h2>
+<p>Er bestaan meerdere, incompatibele representaties van ValidationResult in de codebase:</p>
+<ul>
+<li>Dataclass: `src/services/interfaces.py:235`</li>
+<li>TypedDict‑contract: `src/services/validation/interfaces.py`</li>
+<li>ASTRA‑variant: `src/services/validation/astra_validator.py`</li>
+<li>Diverse shims/mappers: `src/services/validation/mappers.py`</li>
+</ul>
+
+<p>Dit leidt tot verwarring en fragiele consumer‑code (verschillende velden/typen). Tests en services verwachten soms afwijkende attributen (bijv. <code>is_valid</code> vs <code>is_acceptable</code>, <code>overall_score</code> vs <code>score</code>).</p>
+
+<h2>Verwacht gedrag</h2>
+<p>Eén leidend contract (TypedDict in <code>services.validation.interfaces</code>) met adapters voor legacy/dataclass varianten. Consumenten (orchestrator, UI, services) werken uniform tegen het leidende contract.</p>
+
+<h2>Oplossing</h2>
+<ul>
+<li>Standaardiseer op TypedDict‑contract (schema‑first) als SSoT</li>
+<li>Breid/adopteer bestaande mappers:</li>
+<li> - Dataclass → TypedDict en omgekeerd waar nodig</li>
+<li> - Zorg voor consistente velden: `overall_score`, `is_acceptable`, `violations`, `passed_rules`</li>
+<li>Verwijder directe afhankelijkheden op alternatieve vormen in services; gebruik adapters</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>Orchestrator en services geven/verwachten alleen TypedDict‑vorm naar buiten</li>
+<li>Alle tests passen zonder type/attribuut mismatch</li>
+<li>Mappingtests toegevoegd voor edge cases (ontbrekende velden, alternate names)</li>
+</ul>
+
+<h2>Relatie</h2>
+<ul>
+<li>US-192 (V2 Validator JSON‑regels en contract) — contract leidend</li>
+<li>US-193 (UI toont V2‑validatie) — UI consumeert enkel V2 contract</li>
+</ul>
+
+<h2>Tests</h2>
+<ul>
+<li>Unit: round‑trip mappers (dataclass ↔ TypedDict)</li>
+<li>Integratie: orchestrator.validate_definition levert schema‑conform resultaat, UI render OK</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>EPIC-020 Documentation Status Report</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>EPIC-020 Documentation Status Report</h1>
+
+<p><strong>Date</strong>: 2025-01-18</p>
+<p><strong>Status</strong>: NEEDS ALIGNMENT</p>
+
+<h2>🔴 Critical Issues Found</h2>
+
+<h3>1. User Story Numbering Conflicts</h3>
+
+<p>| US Number | EPIC-020 Says | Actual File Says | Status |</p>
+<p>|-----------|---------------|------------------|--------|</p>
+<p>| US-204 | ❓ Not clear | "Complete V1 to V2 Migration" | ✅ Correct |</p>
+<p>| US-205 | "Token Optimization & Caching" | "Split God Class tabbed_interface.py" | ❌ MISMATCH |</p>
+<p>| US-206 | "Validation Service Consolidation" | ❓ Need to check | ❓ |</p>
+<p>| US-207 | "UI Component Refactoring" | "Create reusable UI component library" | ⚠️ Different focus |</p>
+
+<h3>2. God Class Refactoring Confusion</h3>
+
+<p><strong>Problem</strong>: God class refactoring appears in multiple places:</p>
+<ul>
+<li>US-205.md file says it's about god class refactoring</li>
+<li>US-207 in EPIC says "Split god classes into components"</li>
+<li>But US-207.md says "Create reusable UI component library"</li>
+</ul>
+
+<p><strong>Reality Check</strong>:</p>
+<ul>
+<li>We have 4 MASSIVE god classes (1000-1656 lines each!)</li>
+<li>This needs its own set of stories (US-207A through US-207E)</li>
+</ul>
+
+<h2>✅ What IS Updated</h2>
+
+<h3>Week 1 Status (COMPLETED)</h3>
+<ul>
+<li>✅ US-201: ServiceContainer caching - DONE</li>
+<li>✅ US-202: Validation rules caching - DONE</li>
+<li>✅ US-203: Token analysis - DONE</li>
+<li>✅ US-204: V1→V2 migration plan - READY (50 min work)</li>
+</ul>
+
+<h3>Documentation Created</h3>
+<ul>
+<li>✅ `/US-203/TOKEN_ANALYSIS_REPORT.md` - Complete token analysis</li>
+<li>✅ `/US-204/V1_MIGRATION_STATUS.md` - Migration checklist</li>
+<li>✅ `/US-205/US-205-TOKEN.md` - Real token optimization story</li>
+<li>✅ `/US-207/US-207-BREAKDOWN.md` - God class refactor plan</li>
+</ul>
+
+<h2>🔧 What Needs Fixing</h2>
+
+<h3>Priority 1: Fix Story Numbers</h3>
+<pre><code>Current (WRONG):
+- US-205.md = God class refactoring
+- US-207.md = Component library
+
+Should be:
+- US-205.md = Token Optimization (per EPIC)
+- US-207A-E = God class refactoring (new)
+- US-208.md = Component library (move current US-207)</code></pre>
+
+<h3>Priority 2: Update EPIC-020.md</h3>
+<p>Need to add the god class breakdown:</p>
+<ul>
+<li>US-207A: definition_generator_tab (1656→300)</li>
+<li>US-207B: tabbed_interface (1455→100)</li>
+<li>US-207C: management_tab (1398→300)</li>
+<li>US-207D: orchestration_tab (1000→300)</li>
+<li>US-207E: Bundle medium god classes</li>
+</ul>
+
+<h3>Priority 3: Check Remaining Stories</h3>
+<ul>
+<li>Verify US-206, US-208, US-209 alignment</li>
+<li>Check US-210, US-211, US-212 exist and match</li>
+</ul>
+
+<h2>📋 Action Items</h2>
+
+<ol>
+<li>[ ] Rename/reorganize story files to match EPIC</li>
+<li>[ ] Update EPIC-020 with god class breakdown</li>
+<li>[ ] Create missing story documents</li>
+<li>[ ] Align all story numbers</li>
+<li>[ ] Update progress tracking</li>
+</ol>
+
+<h2>🎯 Recommendation</h2>
+
+<p><strong>STOP</strong> and fix the documentation structure before continuing with implementation:</p>
+
+<ol>
+<li>The numbering conflicts will cause confusion</li>
+<li>The god class refactoring is too big for one story</li>
+<li>We need clear separation between:</li>
+</ol>
+<ul>
+<li>  - Token optimization (backend)</li>
+<li>  - God class refactoring (code structure)</li>
+<li>  - Component library (UI patterns)</li>
+</ul>
+
+<p><strong>Estimated time to fix</strong>: 30 minutes</p>
+
+<h2>Summary Table</h2>
+
+<p>| Week | Original Plan | Current Reality | Action Needed |</p>
+<p>|------|--------------|-----------------|---------------|</p>
+<p>| Week 1 | Quick Wins | 75% DONE ✅ | Complete US-204 |</p>
+<p>| Week 2 | Core Refactoring | CONFUSED ❌ | Fix numbering first |</p>
+<p>| Week 3 | UI & Features | BLOCKED ⚠️ | Needs god class fix |</p>
+<p>| Week 4 | Testing & Polish | NOT STARTED | Dependencies unclear |</p>
+  </div>
+</body>
+</html>
