@@ -65,6 +65,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
         self.sources: dict[str, SourceConfig] = {}
         self._config: dict[str, Any] | None = None
         self._provider_weights: dict[str, float] = {}
+        self._last_debug: dict[str, Any] | None = None
+        self._debug_attempts: list[dict[str, Any]] = []
 
         # Initialize domein components als beschikbaar
         if DOMAIN_AVAILABLE:
@@ -151,6 +153,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
         en intelligent fallback naar legacy implementaties.
         """
         logger.info(f"Starting lookup for term: {request.term}")
+        # reset per-call debug container
+        self._debug_attempts = []
 
         # Bepaal welke bronnen te gebruiken
         sources_to_search = self._determine_sources(request)
@@ -215,12 +219,27 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     final_results.append(picked)
 
             # Limiteer aantal resultaten
+            # Save debug info
+            self._last_debug = {
+                "term": request.term,
+                "context": request.context,
+                "selected_sources": sources_to_search,
+                "attempts": self._debug_attempts,
+                "results": len(final_results[: request.max_results]),
+            }
             return final_results[: request.max_results]
         except Exception as e:
             logger.warning(
                 f"Ranking/dedup failed, falling back to confidence sort: {e}"
             )
             valid_results.sort(key=lambda r: r.source.confidence, reverse=True)
+            self._last_debug = {
+                "term": request.term,
+                "context": request.context,
+                "selected_sources": sources_to_search,
+                "attempts": self._debug_attempts,
+                "results": len(valid_results[: request.max_results]),
+            }
             return valid_results[: request.max_results]
 
     def _determine_sources(self, request: LookupRequest) -> list[str]:
@@ -261,20 +280,38 @@ class ModernWebLookupService(WebLookupServiceInterface):
         """Lookup in een specifieke bron."""
         source_config = self.sources[source_name]
 
+        import time as _t
+        start = _t.time()
+        attempt: dict[str, Any] = {
+            "provider": source_name,
+            "term": term,
+            "api_type": source_config.api_type,
+        }
         try:
             if source_config.api_type == "mediawiki":
-                return await self._lookup_mediawiki(term, source_config, request)
-            if source_config.api_type == "sru":
-                return await self._lookup_sru(term, source_config, request)
-            if source_config.api_type == "scraping":
-                return await self._lookup_scraping(term, source_config, request)
-            logger.warning(f"Unknown API type: {source_config.api_type}")
-            return None
-
+                result = await self._lookup_mediawiki(term, source_config, request)
+            elif source_config.api_type == "sru":
+                result = await self._lookup_sru(term, source_config, request)
+            elif source_config.api_type == "scraping":
+                result = await self._lookup_scraping(term, source_config, request)
+            else:
+                logger.warning(f"Unknown API type: {source_config.api_type}")
+                result = None
+            attempt["success"] = bool(result)
+            attempt["duration_ms"] = int((_t.time() - start) * 1000)
+            if result and getattr(result, "source", None):
+                attempt["url"] = getattr(result.source, "url", "")
+                attempt["confidence"] = getattr(result.source, "confidence", 0.0)
+            return result
         except Exception as e:
             logger.error(f"Error in {source_name} lookup: {e}")
             # Geen legacy fallback in modern-only modus
+            attempt["success"] = False
+            attempt["error"] = str(e)
+            attempt["duration_ms"] = int((_t.time() - start) * 1000)
             return None
+        finally:
+            self._debug_attempts.append(attempt)
 
     async def _lookup_mediawiki(
         self, term: str, source: SourceConfig, request: LookupRequest
@@ -359,9 +396,31 @@ class ModernWebLookupService(WebLookupServiceInterface):
                         if results:
                             r = results[0]
                             r.source.confidence *= source.confidence_weight * 0.95
+                            # record fallback attempt success
+                            self._debug_attempts.append(
+                                {
+                                    "provider": source.name,
+                                    "api_type": "sru",
+                                    "endpoint": endpoint,
+                                    "term": ft,
+                                    "fallback": True,
+                                    "success": True,
+                                }
+                            )
                             return r
                     except Exception as e2:
                         logger.warning(f"SRU fallback term '{ft}' failed: {e2}")
+                        self._debug_attempts.append(
+                            {
+                                "provider": source.name,
+                                "api_type": "sru",
+                                "endpoint": endpoint,
+                                "term": ft,
+                                "fallback": True,
+                                "success": False,
+                                "error": str(e2),
+                            }
+                        )
 
                 return None
 
