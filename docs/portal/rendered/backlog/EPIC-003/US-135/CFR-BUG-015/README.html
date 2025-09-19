@@ -45,7 +45,7 @@
 
 <h2>🔎 Reproduceren</h2>
 <ol>
-<li>Zorg dat web lookup aan staat (default): `enable_web_lookup = True`.</li>
+<li>Web lookup is automatisch actief wanneer de service beschikbaar is (geen feature flag meer nodig).</li>
 <li>Activeer een pad dat `HybridContextManager._init_web_lookup()` gebruikt (bv. contextverrijking in V2‑flow met hybrid/web lookup).</li>
 <li>Trigger generatie met een begrip dat web lookup start.</li>
 <li>Observeer exception: `AttributeError: 'LookupResult' object has no attribute 'title'`.</li>
@@ -123,7 +123,7 @@
 
 <h3>Scope en impact (blast radius)</h3>
 <ul>
-<li>Treft alleen de compat‑tekstoutput in `HybridContextManager` wanneer `enable_web_lookup = True` en er resultaten worden teruggegeven.</li>
+<li>Treft alleen de compat‑tekstoutput in `HybridContextManager` wanneer web lookup resultaten teruggeeft.</li>
 <li>Verbreekt contextverrijking met een exception; downstream generatie kan stoppen.</li>
 <li>Repo‑scan bevestigt dat `.title` alleen hier op `r` (LookupResult) wordt gebruikt; geen andere call sites geraakt.</li>
 </ul>

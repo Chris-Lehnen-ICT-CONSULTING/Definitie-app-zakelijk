@@ -42,6 +42,8 @@ class MockStreamlit:
                 self[name] = value
 
         self.session_state = _SessionState()
+        # Simple message sink used by some UI tests
+        self.messages: list[tuple[str, object]] = []
         self.cache_data = _NoOpDecorator()
         self.cache_resource = _NoOpDecorator()
         # Define common UI callables so tests can patch them
@@ -81,11 +83,12 @@ class MockStreamlit:
         self.rerun = _noop
         self.json = _noop
         self.line_chart = _noop
-        self.success = _noop
-        self.error = _noop
-        self.warning = _noop
-        self.info = _noop
-        self.write = _noop
+        # Capture common UI outputs for assertions in tests
+        self.success = lambda msg=None, *a, **k: self.messages.append(("success", msg))
+        self.error = lambda msg=None, *a, **k: self.messages.append(("error", msg))
+        self.warning = lambda msg=None, *a, **k: self.messages.append(("warning", msg))
+        self.info = lambda msg=None, *a, **k: self.messages.append(("info", msg))
+        self.write = lambda msg=None, *a, **k: self.messages.append(("write", msg))
         self.expander = lambda *a, **k: _Ctx()
         self.sidebar = _Ctx()
         self.tabs = lambda names: [_Ctx() for _ in (names or [])]

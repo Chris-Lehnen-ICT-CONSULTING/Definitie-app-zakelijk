@@ -12,131 +12,17 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 
-# Mock Streamlit before importing UI modules
-class MockStreamlit:
-    """Mock Streamlit for testing."""
+"""UI comprehensive tests use the central Streamlit mock.
 
-    def __init__(self):
-        self.session_state = {}
-        self.widgets = {}
-        self.messages = []
-        self.file_uploads = []
+We reuse the test-wide mock to avoid conflicts with other suites that
+depend on Streamlit caching decorators (cache_data/cache_resource).
+"""
 
-    def text_input(self, label, value="", key=None, **kwargs):
-        if key:
-            self.session_state[key] = value
-        return value
-
-    def text_area(self, label, value="", key=None, **kwargs):
-        if key:
-            self.session_state[key] = value
-        return value
-
-    def selectbox(self, label, options, index=0, key=None, **kwargs):
-        selected = options[index] if options and index < len(options) else None
-        if key:
-            self.session_state[key] = selected
-        return selected
-
-    def multiselect(self, label, options, default=None, key=None, **kwargs):
-        result = default or []
-        if key:
-            self.session_state[key] = result
-        return result
-
-    def button(self, label, key=None, **kwargs):
-        return False  # Default not pressed
-
-    def file_uploader(
-        self, label, type=None, accept_multiple_files=False, key=None, **kwargs
-    ):
-        if accept_multiple_files:
-            return []
-        return None
-
-    def success(self, message):
-        self.messages.append(("success", message))
-
-    def error(self, message):
-        self.messages.append(("error", message))
-
-    def warning(self, message):
-        self.messages.append(("warning", message))
-
-    def info(self, message):
-        self.messages.append(("info", message))
-
-    def write(self, text):
-        self.messages.append(("write", text))
-
-    def markdown(self, text):
-        self.messages.append(("markdown", text))
-
-    def expander(self, label, expanded=False):
-        return MockExpander(label)
-
-    def tabs(self, tab_names):
-        return [MockTab(name) for name in tab_names]
-
-    def columns(self, spec):
-        if isinstance(spec, int):
-            return [MockColumn() for _ in range(spec)]
-        return [MockColumn() for _ in range(len(spec))]
-
-    def download_button(self, label, data, file_name, mime, key=None, **kwargs):
-        return False
-
-
-class MockExpander:
-    def __init__(self, label):
-        self.label = label
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        pass
-
-    def write(self, text):
-        pass
-
-    def success(self, message):
-        pass
-
-    def error(self, message):
-        pass
-
-
-class MockTab:
-    def __init__(self, name):
-        self.name = name
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        pass
-
-
-class MockColumn:
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        pass
-
-    def button(self, label, **kwargs):
-        return False
-
-    def selectbox(self, label, options, **kwargs):
-        return options[0] if options else None
-
-
-# Mock streamlit globally
-mock_st = MockStreamlit()
-
+from mocks.streamlit_mock import get_streamlit_mock
 import sys
 
+# Mock streamlit globally using the shared mock
+mock_st = get_streamlit_mock()
 sys.modules["streamlit"] = mock_st
 
 # Now import UI modules

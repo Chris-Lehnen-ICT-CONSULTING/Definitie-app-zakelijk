@@ -10,14 +10,8 @@ from typing import Any
 
 import streamlit as st
 
-from utils.dict_helpers import safe_dict_get
-from utils.type_helpers import ensure_list, ensure_dict, ensure_string
-from utils.error_helpers import safe_execute
-# Session state functions removed - using SessionStateManager directly
-
 from database.definitie_repository import (
     DefinitieRecord,
-    DefinitieStatus,
     get_definitie_repository,
 )
 from integration.definitie_checker import CheckAction, DefinitieChecker
@@ -26,6 +20,8 @@ from services.category_state_manager import CategoryStateManager
 from services.regeneration_service import RegenerationService
 from services.workflow_service import WorkflowService
 from ui.session_state import SessionStateManager
+from utils.dict_helpers import safe_dict_get
+from utils.type_helpers import ensure_dict, ensure_string
 
 logger = logging.getLogger(__name__)
 
@@ -383,137 +379,6 @@ class DefinitionGeneratorTab:
                     f"Debug: voorbeelden content = {agent_result.get('voorbeelden')}"
                 )
 
-            # Render prompt debug section
-            from ui.components.prompt_debug_section import PromptDebugSection
-
-            if isinstance(agent_result, dict):
-                # New service format - extraheer prompt uit metadata
-                class PromptContainer:
-                    """Wrapper om prompt_template beschikbaar te maken voor PromptDebugSection."""
-
-                    def __init__(self, prompt_template: str):
-                        self.prompt_template = prompt_template
-
-                # Probeer eerst de prompt uit saved_record te halen (meest betrouwbaar)
-                prompt_template = None
-
-                if saved_record and saved_record.metadata:
-                    metadata = saved_record.metadata
-                    if isinstance(metadata, dict) and "prompt_template" in metadata:
-                        prompt_template = metadata["prompt_template"]
-                        logger.debug("Prompt gevonden in saved_record metadata")
-
-                # Als dat niet lukt, probeer uit agent_result
-                if not prompt_template:
-                    if "metadata" in agent_result and isinstance(
-                        agent_result["metadata"], dict
-                    ):
-                        prompt_template = agent_result["metadata"].get(
-                            "prompt_template"
-                        )
-                        if prompt_template:
-                            logger.debug("Prompt gevonden in agent_result metadata")
-                    elif "prompt_template" in agent_result:
-                        prompt_template = agent_result["prompt_template"]
-                        logger.debug("Prompt gevonden direct in agent_result")
-                    elif "prompt_text" in agent_result:
-                        # Support voor nieuwe V2 orchestrator die prompt_text gebruikt
-                        prompt_template = agent_result["prompt_text"]
-                        logger.debug(
-                            "Prompt gevonden als 'prompt_text' in agent_result"
-                        )
-                    elif "prompt" in agent_result:
-                        prompt_template = agent_result["prompt"]
-                        logger.debug("Prompt gevonden als 'prompt' in agent_result")
-
-                # Haal voorbeelden_prompts op voor beide paths
-                voorbeelden_prompts = (
-                    generation_result.get("voorbeelden_prompts")
-                    if generation_result
-                    else None
-                )
-
-                # Render de debug sectie ALLEEN als we een prompt hebben uit agent_result
-                try:
-                    if prompt_template:
-                        prompt_container = PromptContainer(prompt_template)
-                        PromptDebugSection.render(prompt_container, voorbeelden_prompts)
-                    else:
-                        # GEEN FALLBACK NAAR SESSION STATE!
-                        # Als de prompt niet in agent_result zit, toon melding
-                        with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
-                            st.warning(
-                                "⚠️ Prompt informatie niet beschikbaar in generation result. "
-                                "Dit betekent dat de orchestrator de prompt niet correct doorgeeft."
-                            )
-                            st.caption(
-                                "De prompt moet in agent_result['prompt_text'] of "
-                                "agent_result['metadata']['prompt_template'] zitten."
-                            )
-
-                            # Als er wel voorbeelden prompts zijn, toon die alsnog
-                            if voorbeelden_prompts:
-                                st.markdown("#### 🎯 Voorbeelden Generatie Prompts")
-                                tabs = st.tabs(list(voorbeelden_prompts.keys()))
-
-                                for i, (example_type, prompt) in enumerate(
-                                    voorbeelden_prompts.items()
-                                ):
-                                    with tabs[i]:
-                                        st.code(prompt, language="text")
-
-                                        # Download knop per type
-                                        st.download_button(
-                                            label=f"⬇️ Download {example_type} Prompt",
-                                            data=prompt,
-                                            file_name=f"{example_type}_prompt.txt",
-                                            mime="text/plain",
-                                            key=f"download_{example_type}_prompt_fallback",
-                                        )
-                except Exception as e:
-                    with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
-                        st.error(f"Prompt Debug kon niet worden gerenderd: {e!s}")
-                    logger.exception("Prompt debug section rendering failed")
-            else:
-                # Legacy object format is no longer supported. Show prompt if present in saved_record metadata.
-                voorbeelden_prompts = (
-                    generation_result.get("voorbeelden_prompts")
-                    if generation_result
-                    else None
-                )
-                prompt_source = None
-                if saved_record and getattr(saved_record, "metadata", None):
-                    meta = (
-                        saved_record.metadata
-                        if isinstance(saved_record.metadata, dict)
-                        else {}
-                    )
-                    prompt_source = meta.get("prompt_text") or meta.get("prompt_template")
-
-                try:
-                    if prompt_source:
-                        class _PromptContainer:
-                            def __init__(self, text: str):
-                                self.prompt_template = text
-
-                        PromptDebugSection.render(
-                            _PromptContainer(prompt_source), voorbeelden_prompts
-                        )
-                    else:
-                        with st.expander("🔍 Debug: Gebruikte Prompts", expanded=False):
-                            st.info(
-                                "Legacy resultaatvorm gedetecteerd. Geen promptinformatie beschikbaar. Regenereren met V2 wordt aanbevolen."
-                            )
-                            if voorbeelden_prompts:
-                                st.markdown("#### 🎯 Voorbeelden Generatie Prompts")
-                                tabs = st.tabs(list(voorbeelden_prompts.keys()))
-                                for i, (example_type, prompt) in enumerate(
-                                    voorbeelden_prompts.items()
-                                ):
-                                    with tabs[i]:
-                                        st.code(prompt, language="text")
-                except Exception:
-                    pass
 
         # Prompt Debug Section — always render (not only on errors)
         try:
@@ -539,14 +404,14 @@ class DefinitionGeneratorTab:
                 generation_result.get("voorbeelden_prompts") if generation_result else None
             )
 
-            # Only render if we have at least the main prompt or example prompts
-            if prompt_template or voorbeelden_prompts:
-                class _PromptContainer:
-                    def __init__(self, text: str | None):
-                        # PromptDebugSection expects attribute prompt_template
-                        self.prompt_template = text or ""
+            # Always render the debug section
+            class _PromptContainer:
+                def __init__(self, text: str | None):
+                    # PromptDebugSection expects attribute prompt_template
+                    self.prompt_template = text or ""
 
-                PromptDebugSection.render(_PromptContainer(prompt_template), voorbeelden_prompts)
+            container = _PromptContainer(prompt_template) if prompt_template else None
+            PromptDebugSection.render(container, voorbeelden_prompts)
         except Exception as e:
             # Never break the page on debug issues
             logger.debug(f"Prompt debug section render skipped: {e}")
@@ -792,10 +657,135 @@ class DefinitionGeneratorTab:
             # STORY 3.1: Always show sources section with feedback
             st.markdown("#### 📚 Gebruikte Bronnen")
 
-            if not sources:
-                st.info(
-                    "ℹ️ Geen externe bronnen geraadpleegd. Web lookup is uitgeschakeld of er zijn geen relevante bronnen gevonden."
+            # Toon statusinformatie indien beschikbaar
+            status_meta = None
+            available_meta = None
+            if saved_record and getattr(saved_record, "metadata", None):
+                meta = saved_record.metadata
+                if isinstance(meta, dict):
+                    status_meta = meta.get("web_lookup_status")
+                    available_meta = meta.get("web_lookup_available")
+            if status_meta is None:
+                if isinstance(agent_result, dict):
+                    meta = agent_result.get("metadata")
+                    if isinstance(meta, dict):
+                        status_meta = meta.get("web_lookup_status")
+                        available_meta = meta.get("web_lookup_available")
+                elif hasattr(agent_result, "metadata") and isinstance(
+                    getattr(agent_result, "metadata"), dict
+                ):
+                    status_meta = agent_result.metadata.get("web_lookup_status")
+                    available_meta = agent_result.metadata.get("web_lookup_available")
+
+            # Timeout uit metadata of environment
+            timeout_meta = None
+            if saved_record and getattr(saved_record, "metadata", None):
+                m = saved_record.metadata
+                if isinstance(m, dict):
+                    timeout_meta = m.get("web_lookup_timeout")
+            if timeout_meta is None:
+                if isinstance(agent_result, dict):
+                    m = agent_result.get("metadata")
+                    if isinstance(m, dict):
+                        timeout_meta = m.get("web_lookup_timeout")
+                elif hasattr(agent_result, "metadata") and isinstance(
+                    getattr(agent_result, "metadata"), dict
+                ):
+                    timeout_meta = agent_result.metadata.get("web_lookup_timeout")
+
+            if status_meta or available_meta is not None:
+                status_text = status_meta or "onbekend"
+                avail_text = (
+                    "beschikbaar" if (available_meta is True) else "niet beschikbaar"
+                    if (available_meta is False)
+                    else "onbekend"
                 )
+                # Fallback naar env als metadata geen timeout bevat
+                if timeout_meta is None:
+                    try:
+                        timeout_meta = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "3.0"))
+                    except Exception:
+                        timeout_meta = 3.0
+                st.caption(
+                    f"Web lookup: {status_text} ({avail_text}) — timeout {float(timeout_meta):.1f}s"
+                )
+
+            # Debug toggle: toon ruwe web_lookup data (JSON)
+            if st.checkbox(
+                "🐛 Debug: Toon ruwe web_lookup data (JSON)",
+                key="debug_web_lookup_sources_raw",
+            ):
+                # Verzamel ruwe bronnenlijsten van verschillende plekken
+                saved_meta_sources = None
+                agent_meta_sources = None
+                agent_attr_sources = None
+
+                if saved_record and getattr(saved_record, "metadata", None):
+                    m = saved_record.metadata
+                    if isinstance(m, dict):
+                        saved_meta_sources = m.get("sources")
+
+                if isinstance(agent_result, dict):
+                    m = agent_result.get("metadata")
+                    if isinstance(m, dict):
+                        agent_meta_sources = m.get("sources")
+                elif hasattr(agent_result, "metadata") and isinstance(
+                    getattr(agent_result, "metadata"), dict
+                ):
+                    agent_meta_sources = agent_result.metadata.get("sources")
+
+                if hasattr(agent_result, "sources"):
+                    agent_attr_sources = getattr(agent_result, "sources")
+
+                st.json(
+                    {
+                        "web_lookup_status": status_meta,
+                        "web_lookup_available": available_meta,
+                        "web_lookup_timeout": timeout_meta,
+                        "saved_record.metadata.sources": saved_meta_sources,
+                        "agent_result.metadata.sources": agent_meta_sources,
+                        "agent_result.sources": agent_attr_sources,
+                    }
+                )
+
+            if not sources:
+                # Toon specifiekere feedback op basis van metadata indien beschikbaar
+                web_status = None
+                web_available = None
+
+                # Metadata uit saved_record
+                if saved_record and getattr(saved_record, "metadata", None):
+                    meta = saved_record.metadata
+                    if isinstance(meta, dict):
+                        web_status = meta.get("web_lookup_status")
+                        web_available = meta.get("web_lookup_available")
+
+                # Metadata uit agent_result
+                if web_status is None:
+                    if isinstance(agent_result, dict):
+                        meta = agent_result.get("metadata")
+                        if isinstance(meta, dict):
+                            web_status = meta.get("web_lookup_status")
+                            web_available = meta.get("web_lookup_available")
+                    elif hasattr(agent_result, "metadata") and isinstance(
+                        getattr(agent_result, "metadata"), dict
+                    ):
+                        web_status = agent_result.metadata.get("web_lookup_status")
+                        web_available = agent_result.metadata.get(
+                            "web_lookup_available"
+                        )
+
+                # Bepaal bericht
+                if web_available is False or web_status == "not_available":
+                    msg = "ℹ️ Web lookup is niet beschikbaar in deze omgeving."
+                elif web_status == "timeout":
+                    msg = "⏱️ Web lookup time-out — geen bronnen opgehaald."
+                elif web_status == "error":
+                    msg = "⚠️ Web lookup fout — geen bronnen opgehaald."
+                else:
+                    msg = "ℹ️ Geen relevante externe bronnen gevonden."
+
+                st.info(msg)
                 return
 
             for idx, src in enumerate(sources[:5]):  # Toon max 5
