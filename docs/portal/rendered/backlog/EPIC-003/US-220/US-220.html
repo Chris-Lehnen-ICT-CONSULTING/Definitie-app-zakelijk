@@ -73,7 +73,7 @@
 <h3>Criterion 4: Performance Garanties</h3>
 <p><strong>gegeven</strong> web lookup draait zonder flag</p>
 <p><strong>wanneer</strong> een lookup wordt uitgevoerd</p>
-<p><strong>dan</strong> is er een configureerbare timeout actief (default 3.0s via <code>WEB_LOOKUP_TIMEOUT_SECONDS</code>)</p>
+<p><strong>dan</strong> is er een configureerbare timeout actief (default 6.0s via <code>WEB_LOOKUP_TIMEOUT_SECONDS</code>)</p>
 
 <h2>Technische Implementatie</h2>
 
@@ -99,7 +99,7 @@ if self.web_lookup_service:  # Service bestaat = gebruik het
     try:
         web_results = await asyncio.wait_for(
             self.web_lookup_service.lookup(lookup_request),
-            timeout=float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "3.0"))
+            timeout=float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "6.0"))
         )
         # Process results...
     except asyncio.TimeoutError:
@@ -120,7 +120,7 @@ if self.web_lookup_service:  # Service bestaat = gebruik het
 <h3>Integration Tests</h3>
 <ul>
 <li>Test dat web lookup altijd wordt aangeroepen</li>
-<li>Test timeout behavior (configureerbaar; default 3.0s)</li>
+<li>Test timeout behavior (configureerbaar; default 6.0s)</li>
 <li>Test graceful failure handling</li>
 </ul>
 
@@ -146,7 +146,7 @@ if self.web_lookup_service:  # Service bestaat = gebruik het
 
 <h3>Risico's</h3>
 <ul>
-<li>**Performance**: Elke generatie doet nu web lookup (mitigatie: configureerbare timeout; default 3.0s)</li>
+<li>**Performance**: Elke generatie doet nu web lookup (mitigatie: configureerbare timeout; default 6.0s)</li>
 <li>**Network Load**: Meer API calls (mitigatie: caching strategy)</li>
 <li>**Test Updates**: 15+ tests moeten aangepast worden</li>
 </ul>
