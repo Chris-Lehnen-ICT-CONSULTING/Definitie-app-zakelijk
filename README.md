@@ -10,8 +10,8 @@
 [![Security](https://img.shields.io/badge/security-basic%20only-red.svg)](./docs/architectuur/)
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
-> **✅ Status Update (2025-09-12)**: US-064 Definition Edit Interface volledig geïmplementeerd met version history, auto-save en 100% test coverage
 > **✅ Status Update (2025-09-19)**: V1→V2 migratie volledig afgerond, alle legacy code verwijderd, clean V2 architectuur
+> **✅ Status Update (2025-09-12)**: US-064 Definition Edit Interface volledig geïmplementeerd met version history, auto-save en 100% test coverage
 
 ## 🧾 Snelstart Cheatsheet
 
