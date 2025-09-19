@@ -699,6 +699,15 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
         provider_key = self._infer_provider_key(result)
         snippet_src = result.definition or result.context or ""
+        # Verrijk snippet met artikelmetadata indien beschikbaar
+        try:
+            if isinstance(getattr(result, "metadata", None), dict):
+                num = result.metadata.get("article_number")
+                code = result.metadata.get("law_code")
+                if num and code and snippet_src:
+                    snippet_src = f"Artikel {num} {code}: {snippet_src}"
+        except Exception:
+            pass
         snippet = sanitize_snippet(snippet_src, max_length=500)
         url = getattr(result.source, "url", "")
         content = (snippet_src or "").encode("utf-8", errors="ignore")
