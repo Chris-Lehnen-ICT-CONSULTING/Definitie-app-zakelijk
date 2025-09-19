@@ -399,17 +399,27 @@ class ServiceAdapter:
                     ),
                 )
 
-        # Build metadata
+        # Build metadata (include selected web lookup fields for UI status/debugging)
         metadata = {}
         if response.definition and response.definition.metadata:
+            md = response.definition.metadata
             metadata = {
-                "prompt_template": safe_dict_get(response.definition.metadata, "prompt_template"),
-                "prompt_text": safe_dict_get(response.definition.metadata, "prompt_text"),
-                "context": ensure_dict(safe_dict_get(response.definition.metadata, "context", {})),
-                "generation_id": ensure_string(safe_dict_get(response.definition.metadata, "generation_id", "")),
-                "duration": safe_dict_get(response.definition.metadata, "processing_time", 0.0),
-                "model": ensure_string(safe_dict_get(response.definition.metadata, "model", "gpt-4")),
+                "prompt_template": safe_dict_get(md, "prompt_template"),
+                "prompt_text": safe_dict_get(md, "prompt_text"),
+                "context": ensure_dict(safe_dict_get(md, "context", {})),
+                "generation_id": ensure_string(safe_dict_get(md, "generation_id", "")),
+                "duration": safe_dict_get(md, "processing_time", 0.0),
+                "model": ensure_string(safe_dict_get(md, "model", "gpt-4")),
             }
+            for k in (
+                "web_lookup_status",
+                "web_lookup_available",
+                "web_lookup_timeout",
+                "web_sources_count",
+            ):
+                v = safe_dict_get(md, k)
+                if v is not None:
+                    metadata[k] = v
 
         # Extract sources
         sources = []
