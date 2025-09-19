@@ -33,6 +33,7 @@ case "$mode" in
       tests/services/orchestrators/test_validation_degraded_contract.py
       tests/services/orchestrators/test_definition_orchestrator_v2_happy.py
       tests/services/orchestrators/test_definition_orchestrator_v2_failure.py
+      tests/services/orchestrators/test_definition_orchestrator_v2_feedback.py
       tests/contracts
       tests/integration/test_golden_via_orchestrator.py
     )
