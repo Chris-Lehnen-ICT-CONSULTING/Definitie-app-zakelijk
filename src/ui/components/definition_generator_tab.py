@@ -641,9 +641,13 @@ class DefinitionGeneratorTab:
                 if isinstance(metadata, dict):
                     sources = metadata.get("sources")
 
-            # 2) STORY 3.1: Check direct sources attribute (preview fix)
+            # 2) STORY 3.1: Check direct sources key when agent_result is dict
+            if sources is None and isinstance(agent_result, dict):
+                sources = agent_result.get("sources")
+
+            # 2b) Backward: attribute style (should not occur for dict responses)
             if sources is None and hasattr(agent_result, "sources"):
-                sources = agent_result.sources
+                sources = getattr(agent_result, "sources")
 
             # 3) Val terug op agent_result.metadata (legacy support)
             if sources is None and isinstance(agent_result, dict):
@@ -734,6 +738,11 @@ class DefinitionGeneratorTab:
                 ):
                     agent_meta_sources = agent_result.metadata.get("sources")
 
+                # Top-level sources on dict response (canonical)
+                agent_top_sources = None
+                if isinstance(agent_result, dict):
+                    agent_top_sources = agent_result.get("sources")
+
                 if hasattr(agent_result, "sources"):
                     agent_attr_sources = getattr(agent_result, "sources")
 
@@ -745,6 +754,7 @@ class DefinitionGeneratorTab:
                         "saved_record.metadata.sources": saved_meta_sources,
                         "agent_result.metadata.sources": agent_meta_sources,
                         "agent_result.sources": agent_attr_sources,
+                        "agent_result.top_level_sources": agent_top_sources,
                     }
                 )
 
