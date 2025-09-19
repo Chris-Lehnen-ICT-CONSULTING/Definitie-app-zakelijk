@@ -59,10 +59,13 @@ Let op voor ontwikkelaars:
 - Documenten openen via een viewer met “Terug naar Portal”‑knop; Markdown wordt netjes gerenderd met portal‑stijl.
 - Portaldata wordt automatisch gegenereerd vóór commit en in CI gevalideerd (drift‑guard).
 
-### 🌐 Web Lookup Config (Epic 3)
-- De applicatie gebruikt één configbestand: `config/web_lookup_defaults.yaml` (prompt‑augmentatie staat standaard aan).
-- Optioneel kun je een eigen config gebruiken via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
-- Zie ook: [Web Lookup Configuratie](docs/technisch/web_lookup_config.md)
+### 🌐 Web Lookup (Epic 3)
+- Altijd actief: web lookup draait automatisch wanneer de service beschikbaar is (geen feature flag).
+- Timeout: configureer via `WEB_LOOKUP_TIMEOUT_SECONDS` (default: 3.0s). Liever kwaliteit dan snelheid? Verhoog deze waarde.
+- Debug in UI: in Generator‑tab staat een checkbox “🐛 Debug: Toon ruwe web_lookup data (JSON)” onder “📚 Gebruikte Bronnen”.
+- Snelle test: `python scripts/test_web_lookup.py <term>` (respecteert `WEB_LOOKUP_TIMEOUT_SECONDS`).
+- Configbestand: `config/web_lookup_defaults.yaml` (provider‑weights, sanitization, caching). Eigen config via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
+- Documentatie: [Web Lookup Configuratie](docs/technisch/web_lookup_config.md)
 
 ## 🎯 Overzicht
 
@@ -222,6 +225,7 @@ definitie-app/
 
 ### 🧰 Handige scripts
 - `scripts/run_app.sh`: start de app en mapt automatisch `OPENAI_API_KEY` vanuit `OPENAI_API_KEY_PROD` indien nodig.
+- `scripts/test_web_lookup.py`: test web lookup buiten de UI (timeout via `WEB_LOOKUP_TIMEOUT_SECONDS`).
 - `scripts/validation/validation-status-updater.py`: draait component-checks en schrijft status naar `reports/status/validation-status.json`.
 - `make validation-status`: kortere alias voor de status-updater.
 - `scripts/ai-agent-wrapper.py`: snelle AI‑kwaliteitsronde (probeert Ruff/Black/Pytest; auto‑fix waar mogelijk).
