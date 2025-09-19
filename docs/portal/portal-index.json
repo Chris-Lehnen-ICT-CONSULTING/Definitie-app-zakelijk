@@ -28355,6 +28355,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "Test Suite Improvement Plan",
+      "path": "../testing/TEST_SUITE_IMPROVEMENT_PLAN.md",
+      "url": "../testing/TEST_SUITE_IMPROVEMENT_PLAN.md",
+      "status": "draft",
+      "prioriteit": null,
+      "owner": "QA Lead",
+      "canonical": true,
+      "last_verified": "2025-09-19",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/TEST_SUITE_IMPROVEMENT_PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "Golden Dataset voor Validation Testen",
       "path": "../testing/golden-dataset-validation.md",
       "url": "../testing/golden-dataset-validation.md",
@@ -30301,11 +30332,11 @@
       "BUG": 14,
       "REQ": 99,
       "ARCH": 23,
-      "TEST": 24,
+      "TEST": 25,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T12:56:57Z"
+    "generated_at": "2025-09-19T13:06:10Z"
   },
   "sources": [
     "docs"

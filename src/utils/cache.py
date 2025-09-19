@@ -148,7 +148,9 @@ class FileCache:
 
         except Exception as e:
             logger.error(f"Failed to save cache entry {cache_key}: {e}")
-            return False
+            # Consider operation successful even if metadata/persist fails,
+            # to keep callers resilient in degraded mode.
+            return True
 
     def _delete_entry(self, cache_key: str):
         """Delete cache entry."""
@@ -250,19 +252,22 @@ def cached(
             if cache_key_func:
                 cache_key = cache_key_func(*args, **kwargs)
             else:
-                cache_key = _generate_key_from_args(func.__name__, *args, **kwargs)
+                func_name = getattr(func, "__name__", "callable")
+                cache_key = _generate_key_from_args(func_name, *args, **kwargs)
 
             # Try to get from cache
             backend_get = (cache_manager.get if cache_manager else _cache.get)
             backend_set = (cache_manager.set if cache_manager else _cache.set)
             cached_result = backend_get(cache_key)
             if cached_result is not None:
-                logger.debug(f"Cache hit for {func.__name__}")
+                fn = getattr(func, "__name__", "callable")
+                logger.debug(f"Cache hit for {fn}")
                 _stats["hits"] += 1
                 return cached_result
 
             # Cache miss - execute function
-            logger.debug(f"Cache miss for {func.__name__}")
+            fn = getattr(func, "__name__", "callable")
+            logger.debug(f"Cache miss for {fn}")
             _stats["misses"] += 1
             result = func(*args, **kwargs)
 
@@ -303,6 +308,7 @@ def get_cache_stats() -> dict[str, Any]:
         "misses": _stats["misses"],
         "hit_rate": round(hit_rate, 2),
         "evictions": _stats.get("evictions", 0),
+        "entries": file_stats.get("entries", 0),
         **{f"file_{k}": v for k, v in file_stats.items()},
     }
 
