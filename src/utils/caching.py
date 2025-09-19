@@ -8,8 +8,7 @@ import json
 import logging
 import time
 from typing import Any, Callable, Optional
-
-import streamlit as st
+from utils.cache import cached
 
 logger = logging.getLogger(__name__)
 
@@ -27,11 +26,13 @@ def cache_validation_results(ttl: int = 300):
             # Genereer cache key gebaseerd op functie naam en argumenten
             cache_key = _generate_cache_key(func.__name__, args, kwargs)
 
-            # Check Streamlit session state cache
-            if 'validation_cache' not in st.session_state:
-                st.session_state.validation_cache = {}
-
-            cache = st.session_state.validation_cache
+            # Module-level simple cache dict (streamlit-vrij)
+            global _VALIDATION_CACHE
+            try:
+                _VALIDATION_CACHE
+            except NameError:
+                _VALIDATION_CACHE = {}
+            cache = _VALIDATION_CACHE
 
             # Check of resultaat in cache zit en nog geldig is
             if cache_key in cache:
@@ -53,7 +54,7 @@ def cache_validation_results(ttl: int = 300):
     return decorator
 
 
-@st.cache_data(ttl=600)
+@cached(ttl=600)
 def get_cached_validation_rules():
     """
     Get validation rules met Streamlit native caching.
@@ -61,7 +62,11 @@ def get_cached_validation_rules():
     Returns:
         List van validation rules
     """
-    from toetsregels.toetsregel_manager import get_toetsregel_manager
+    try:
+        from toetsregels.manager import get_toetsregel_manager  # canonical path
+    except Exception:
+        # Fallback voor oude padnamen
+        from toetsregels.toetsregel_manager import get_toetsregel_manager  # type: ignore
 
     logger.info("Loading validation rules into cache...")
     manager = get_toetsregel_manager()
@@ -70,7 +75,7 @@ def get_cached_validation_rules():
     return rules
 
 
-@st.cache_data(ttl=300)
+@cached(ttl=300)
 def process_validation_results(validation_details: dict) -> dict:
     """
     Process validation results met caching.

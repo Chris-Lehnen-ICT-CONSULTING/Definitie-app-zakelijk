@@ -14,12 +14,18 @@ import json
 import logging
 import os
 from typing import Any
-
-import streamlit as st
+from functools import lru_cache
 
 from services.container import ContainerConfigs, ServiceContainer
 
 logger = logging.getLogger(__name__)
+
+# Kleine LRU-cache voor custom containers op basis van config-hash
+@lru_cache(maxsize=8)
+def _create_custom_container(_hash: str, _config_json: str) -> ServiceContainer:
+    import json as _json
+    logger.info(f"🔧 Maak custom ServiceContainer (hash: {_hash[:8]}...)")
+    return ServiceContainer(_json.loads(_config_json))
 
 
 def _get_config_hash(config: dict[str, Any]) -> str:
@@ -37,7 +43,7 @@ def _get_config_hash(config: dict[str, Any]) -> str:
     return hashlib.sha256(config_str.encode()).hexdigest()[:16]
 
 
-@st.cache_resource(show_spinner=False)
+@lru_cache(maxsize=1)
 def get_cached_container(_config_hash: str | None = None) -> ServiceContainer:
     """
     Get of create een gecachede ServiceContainer instance.
@@ -99,12 +105,11 @@ def get_container_with_config(config: dict[str, Any] | None = None) -> ServiceCo
     config_hash = _get_config_hash(config)
 
     # Maak nieuwe container met custom config (aparte cache entry)
-    @st.cache_resource(show_spinner=False)
-    def _create_custom_container(_hash: str, _config: dict) -> ServiceContainer:
-        logger.info(f"🔧 Maak custom ServiceContainer (hash: {_hash[:8]}...)")
-        return ServiceContainer(_config)
-
-    return _create_custom_container(config_hash, config)
+    # Gebruik een kleine LRU-cache op basis van hash en een JSON snapshot
+    import json as _json
+    return _create_custom_container(
+        config_hash, _json.dumps(config, sort_keys=True, default=str)
+    )
 
 
 def clear_container_cache():
@@ -116,14 +121,15 @@ def clear_container_cache():
     """
     logger.info("🗑️ Clear ServiceContainer cache")
 
-    # Clear de specifieke cache voor get_cached_container
-    get_cached_container.clear()
-
-    # Clear ook session state services als die bestaan
-    if "service_container" in st.session_state:
-        if hasattr(st.session_state.service_container, "reset"):
-            st.session_state.service_container.reset()
-        del st.session_state.service_container
+    # Clear de caches voor containers
+    try:
+        get_cached_container.cache_clear()
+    except Exception:
+        pass
+    try:
+        _create_custom_container.cache_clear()
+    except Exception:
+        pass
 
     logger.info("✅ Container cache gecleared")
 
@@ -161,7 +167,7 @@ def get_container_stats() -> dict[str, Any]:
 
 
 # Lazy loading helpers voor specifieke services
-@st.cache_resource(show_spinner=False)
+@lru_cache(maxsize=1)
 def get_cached_orchestrator():
     """
     Get de orchestrator service met lazy loading.
@@ -173,7 +179,7 @@ def get_cached_orchestrator():
     return container.orchestrator()
 
 
-@st.cache_resource(show_spinner=False)
+@lru_cache(maxsize=1)
 def get_cached_repository():
     """
     Get de repository service met lazy loading.
@@ -185,7 +191,7 @@ def get_cached_repository():
     return container.repository()
 
 
-@st.cache_resource(show_spinner=False)
+@lru_cache(maxsize=1)
 def get_cached_web_lookup():
     """
     Get de web lookup service met lazy loading.

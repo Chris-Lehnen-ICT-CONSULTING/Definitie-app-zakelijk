@@ -24,7 +24,7 @@ async def main(term: str) -> int:
         print(f"Import error: {e}")
         return 2
 
-    timeout = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "6.0"))
+    timeout = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "10.0"))
     print(f"Testing web lookup for term: '{term}' (timeout={timeout}s)")
 
     service = ModernWebLookupService()

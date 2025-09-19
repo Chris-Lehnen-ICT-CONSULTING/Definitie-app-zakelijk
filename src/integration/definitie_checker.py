@@ -188,8 +188,7 @@ class DefinitieChecker:
             f"Generating new definition for '{begrip}' via V2 service (context: {organisatorische_context})"
         )
         try:
-            from ui.helpers.async_bridge import run_async
-
+            import asyncio
             adapter = self._get_integrated_service()
             context_dict = {
                 "organisatorisch": [organisatorische_context]
@@ -209,10 +208,10 @@ class DefinitieChecker:
             if enable_hybrid:
                 extra_kwargs["enable_hybrid"] = enable_hybrid
 
-            integrated_result = run_async(
-                adapter.generate_definition(begrip, context_dict, **extra_kwargs),
-                timeout=120
-            )
+            async def _task():
+                return await adapter.generate_definition(begrip, context_dict, **extra_kwargs)
+
+            integrated_result = asyncio.run(asyncio.wait_for(_task(), timeout=120))
 
             if isinstance(integrated_result, dict) and integrated_result.get("success"):
                 definitie_text = (
@@ -276,7 +275,7 @@ class DefinitieChecker:
             return success, None
 
         # Regenerate definitie via V2 service
-        from ui.helpers.async_bridge import run_async
+        import asyncio
 
         categorie = OntologischeCategorie(existing.categorie)
         adapter = self._get_integrated_service()
@@ -304,15 +303,15 @@ class DefinitieChecker:
             "wettelijk": [],
         }
 
-        integrated_result = run_async(
-            adapter.generate_definition(
+        async def _task2():
+            return await adapter.generate_definition(
                 begrip=existing.begrip,
                 context_dict=context_dict,
                 categorie=categorie.value,
                 organisatie=(context_dict["organisatorisch"][0] if context_dict["organisatorisch"] else ""),
-            ),
-            timeout=120
-        )
+            )
+
+        integrated_result = asyncio.run(asyncio.wait_for(_task2(), timeout=120))
 
         if isinstance(integrated_result, dict) and integrated_result.get("success"):
             definitie_text = (
