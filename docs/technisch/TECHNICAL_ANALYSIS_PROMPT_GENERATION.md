@@ -232,11 +232,11 @@ def _enhance_prompt_with_rules(self, base_prompt: str, begrip: str) -> str:
     return base_prompt
 ```
 
-### 4. Activate Web Lookup:
+### 4. Web Lookup (altijd actief indien service beschikbaar):
 
 ```python
 # In DefinitionOrchestrator._generate_definition():
-if self.config.enable_web_lookup:
+if self.web_lookup_service:  # service aanwezig → gebruiken
     # Lookup before generation
     web_results = await self._lookup_web_sources(begrip)
     for result in web_results:

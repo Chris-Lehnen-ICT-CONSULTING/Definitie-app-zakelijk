@@ -66,8 +66,8 @@ class PromptServiceV2:
         self.prompt_generator = UnifiedPromptBuilder(unified_config)
 
         # US-043: Initialize HybridContextManager for single context entry point
+        # enable_web_lookup is removed; web lookup runs automatically when available
         context_config = ContextConfig(
-            enable_web_lookup=True,
             enable_rule_interpretation=False,  # Can be enabled later
             context_abbreviations={},
         )

@@ -114,13 +114,6 @@ class FeatureFlags:
         env_var="ENABLE_ASYNC_GENERATION",
     )
 
-    ENABLE_WEB_LOOKUP = FeatureFlag(
-        name="web_lookup",
-        description="Enable web lookup for external sources",
-        status=FeatureStatus.ENABLED,
-        default_enabled=True,
-        env_var="ENABLE_WEB_LOOKUP",
-    )
 
     @classmethod
     def get_all_flags(cls) -> dict[str, FeatureFlag]:

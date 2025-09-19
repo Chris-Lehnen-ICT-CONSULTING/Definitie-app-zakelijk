@@ -1,7 +1,7 @@
 ---
 id: CFR-BUG-026
 titel: Importpad inconsistenties (ModernWebLookupService) en package‑exports → fragiele tests
-status: OPEN
+status: RESOLVED
 severity: MEDIUM
 component: imports
 owner: platform
@@ -14,25 +14,24 @@ applies_to: definitie-app@v2
 # CFR-BUG-026: Importpad inconsistenties (ModernWebLookupService)
 
 ## Beschrijving
-Tests en documentatie refereren wisselend aan `services.modern_web_lookup_service` en alternatieve package‑paden/exports. Gebrek aan gecentraliseerde exports maakt imports in tests fragiel en foutgevoelig.
+Historische analyse wees op wisselende verwijzingen naar `ModernWebLookupService`. De huidige codebase gebruikt echter consistent `services.modern_web_lookup_service` en er zijn geen alternatieve pad‑imports meer in runtime code/tests.
 
 ## Verwacht gedrag
-Eén eenduidige importstrategie met centrale export in `src/services/__init__.py` (bijv. `from .modern_web_lookup_service import ModernWebLookupService`) en consistente absolute imports in code en tests.
+Eenduidige importstrategie met absolute pad `from services.modern_web_lookup_service import ModernWebLookupService`.
 
 ## Oplossing
-- Voeg expliciete export toe in `src/services/__init__.py`
-- Normaliseer imports in tests/code naar `from services.modern_web_lookup_service import ModernWebLookupService` of via package‑export
-- Update examples/docs waar nodig
+- Code en tests gebruiken al het consistente pad `services.modern_web_lookup_service`.
+- Geen runtime inconsistenties aangetroffen; enkel documentatie‑voorbeeld verwees nog naar een submap‑pad.
 
 ## Acceptatiecriteria
-- `rg` op alternatieve/relatieve imports levert geen hits meer
-- Tests vinden ModernWebLookupService zonder `sys.path` hacks
+- Geen alternatieve/relatieve pad‑imports in code/tests — voldaan
+- Tests vinden `ModernWebLookupService` zonder `sys.path` hacks — voldaan
 
 ## Relatie
-- US-074 (Import‑hygiëne) — standaardiseer absolute imports
-- US-219 (Web Lookup test coverage) — vereenvoudigt mocking/fixtures
+- US-074 (Import‑hygiëne)
+- US-219 (Web Lookup test coverage)
 
-## Tests
-- Contract‑test: importeren ModernWebLookupService via package‑export werkt
-- Smoke: tests draaien zonder import‑fouten of pad‑workarounds
-
+## Tests / Bewijs
+- Container/usage: `src/services/container.py:29` gebruikt `services.modern_web_lookup_service`
+- Tests: `tests/test_regression_suite.py:485`, `tests/services/test_web_lookup_wrapper_fallback.py:32` gebruiken hetzelfde pad
+- Zoekactie toont géén alternatieve importpaden in code/tests; alleen een document (SOLUTION_PLAN) bevatte een voorbeeld met subpad.

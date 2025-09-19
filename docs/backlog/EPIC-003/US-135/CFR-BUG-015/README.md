@@ -22,7 +22,7 @@ De compatibele web‑context wrapper in `DefinitionGeneratorContext` gebruikt `r
 - Contractreferentie: `src/services/interfaces.py::LookupResult`
 
 ## 🔎 Reproduceren
-1. Zorg dat web lookup aan staat (default): `enable_web_lookup = True`.
+1. Web lookup is automatisch actief wanneer de service beschikbaar is (geen feature flag meer nodig).
 2. Activeer een pad dat `HybridContextManager._init_web_lookup()` gebruikt (bv. contextverrijking in V2‑flow met hybrid/web lookup).
 3. Trigger generatie met een begrip dat web lookup start.
 4. Observeer exception: `AttributeError: 'LookupResult' object has no attribute 'title'`.
@@ -78,7 +78,7 @@ De compatibele web‑context wrapper in `DefinitionGeneratorContext` gebruikt `r
 - In EPIC‑010 is de moderne web lookup service en compat‑wrapper geïntroduceerd/geüpdatet. De wrapper behield legacy formatting (`r.title`) terwijl het V2‑contract titles naar `metadata` heeft verplaatst. Door dynamische typing werd dit pas runtime zichtbaar.
 
 ### Scope en impact (blast radius)
-- Treft alleen de compat‑tekstoutput in `HybridContextManager` wanneer `enable_web_lookup = True` en er resultaten worden teruggegeven.
+- Treft alleen de compat‑tekstoutput in `HybridContextManager` wanneer web lookup resultaten teruggeeft.
 - Verbreekt contextverrijking met een exception; downstream generatie kan stoppen.
 - Repo‑scan bevestigt dat `.title` alleen hier op `r` (LookupResult) wordt gebruikt; geen andere call sites geraakt.
 
