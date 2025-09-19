@@ -1,0 +1,12 @@
+{
+  "id": "CON-CIRC-001",
+  "naam": "Geen circulaire definitie",
+  "uitleg": "De definitie mag het begrip zelf niet letterlijk bevatten.",
+  "toetsvraag": "Komt het begrip zelf niet letterlijk voor in de definitie?",
+  "prioriteit": "midden",
+  "aanbeveling": "verplicht",
+  "type": "samenhang",
+  "thema": "circulair",
+  "circular_definition": true
+}
+
