@@ -166,3 +166,17 @@ def mock_env_vars(monkeypatch):
     monkeypatch.setenv("APP_ENV", "testing")
     monkeypatch.setenv("LOG_LEVEL", "ERROR")  # Reduce log noise in tests
     return monkeypatch
+
+
+# Opt-in fixture to sandbox relative writes under a temporary directory.
+# Usage: add 'chdir_tmp_path' to your test function signature.
+@pytest.fixture
+def chdir_tmp_path(tmp_path, monkeypatch):
+    """Change CWD to pytest's tmp_path for the duration of a test.
+
+    Useful to prevent accidental creation of files in the repository root
+    by code that uses relative paths.
+    Returns the temporary path for convenience.
+    """
+    monkeypatch.chdir(tmp_path)
+    return tmp_path

@@ -22,12 +22,13 @@
 <p>id: US-204</p>
 <p>epic_id: EPIC-020-PHOENIX</p>
 <p>title: Complete V1 to V2 Migration</p>
-<p>status: OPEN</p>
+<p>status: IN_PROGRESS</p>
 <p>priority: HIGH</p>
 <p>story_points: 8</p>
 <p>assignee: team</p>
 <p>created_date: 2025-01-18</p>
 <p>updated_date: 2025-01-18</p>
+<p>progress: 20%</p>
 <p>labels: [phoenix, migration, refactoring, technical-debt]</p>
 <p>acceptance_criteria:</p>
 <ul>
@@ -40,12 +41,12 @@
 <li> - Code review completed</li>
 <li> - All unit tests passing</li>
 <li> - Integration tests verified</li>
-<li> - No V1 references in codebase</li>
+<li> - No V1 references in codebase (currently: 513)</li>
 <li> - Documentation updated</li>
 <p>dependencies:</p>
-<li> - US-201 (migration preparation)</li>
-<li> - US-202 (V2 service validation)</li>
-<li> - US-203 (data migration)</li>
+<li> - US-201 (COMPLETED - ServiceContainer caching)</li>
+<li> - US-202 (COMPLETED - Validation rules caching)</li>
+<li> - US-203 (COMPLETED - Token analysis)</li>
 <p>---</p>
 </ul>
 
@@ -55,6 +56,30 @@
 <p><strong>Als</strong> ontwikkelaar</p>
 <p><strong>Wil ik</strong> alle V1 code paden volledig verwijderd hebben</p>
 <p><strong>Zodat</strong> de codebase alleen moderne V2 implementaties bevat zonder technische schuld</p>
+
+<h2>📊 Current Status (2025-01-18)</h2>
+
+<h3>Progress Overview</h3>
+<ul>
+<li>**V1/Legacy references gevonden**: 513</li>
+<li>**Feature flags te verwijderen**: 4</li>
+<li>**Legacy functions te verwijderen**: 8</li>
+<li>**Files met V1 imports**: ~20</li>
+<li>**Geschatte tijd**: 50 minuten</li>
+</ul>
+
+<h3>Completed ✅</h3>
+<ul>
+<li>US-201: ServiceContainer caching implemented</li>
+<li>US-202: Validation rules caching implemented</li>
+<li>US-203: Token optimization research completed</li>
+</ul>
+
+<h3>In Progress 🔄</h3>
+<ul>
+<li>Inventory van alle V1 references (513 gevonden)</li>
+<li>Migration plan opgesteld</li>
+</ul>
 
 <h2>Acceptance Criteria</h2>
 
@@ -94,13 +119,47 @@
 
 <h2>Technical Implementation Notes</h2>
 
-<h3>Phase 1: Inventory (Day 1)</h3>
-<pre><code># Identificeer alle V1 references
-grep -r "V1\|Legacy\|Deprecated" src/
-grep -r "import.*[Vv]1" src/
-find src -name "*v1*" -o -name "*V1*"</code></pre>
+<h3>🎯 UPDATED IMPLEMENTATION PLAN (50 min total)</h3>
 
-<h3>Phase 2: Service Migration (Day 2-3)</h3>
+<h4>Quick Win 1: Feature Flags Cleanup (5 min)</h4>
+<pre><code># Files te wijzigen:
+config/feature_flags.py         # Verwijder ENABLE_V1_ORCHESTRATOR
+ui/helpers/feature_toggle.py    # Verwijder render_legacy_warning()</code></pre>
+
+<h4>Quick Win 2: Legacy Functions Removal (15 min)</h4>
+<pre><code># Te verwijderen functies:
+ui/tabbed_interface.py:
+  - _legacy_pattern_matching()
+  - legacy_scores variabelen
+
+ui/session_state.py:
+  - Legacy metadata restoration code
+
+services/validation/config.py:
+  - extract_v1_config()</code></pre>
+
+<h4>Quick Win 3: V1 Service References (10 min)</h4>
+<pre><code># Clean up in services/:
+ai_service_v2.py:
+  - Remove "V1-compatible caching" comments
+  - Remove V1 cache key generation
+
+interfaces.py:
+  - Remove "DEPRECATED" warnings</code></pre>
+
+<h4>Quick Win 4: Import Updates (10 min)</h4>
+<pre><code># Check en fix alle imports
+# OLD: from services.ai_service import AIService
+# NEW: from services.ai.ai_service_v2 import AIServiceV2</code></pre>
+
+<h4>Quick Win 5: Test & Validate (10 min)</h4>
+<pre><code># Verify no V1 references remain
+grep -r "V1\|v1_\|Legacy\|deprecated" src/ --include="*.py"
+
+# Run tests
+pytest tests/ -v</code></pre>
+
+<h3>Phase 2: Service Migration (UPDATED)</h3>
 <ol>
 <li>Update `ServiceContainer` om alleen V2 services te registreren</li>
 <li>Verwijder alle V1 service files:</li>

@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-207: God Class Refactoring - BREAKDOWN</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-207: God Class Refactoring - BREAKDOWN</h1>
+
+<p><strong>Probleem</strong>: US-207 is te groot! We hebben 4 god classes gevonden:</p>
+
+<h2>🔴 God Classes Inventory</h2>
+
+<p>| File | Lines | Complexity | Priority |</p>
+<p>|------|-------|------------|----------|</p>
+<p>| <code>definition_generator_tab.py</code> | <strong>1,656</strong> | EXTREME | HIGH |</p>
+<p>| <code>tabbed_interface.py</code> | <strong>1,455</strong> | EXTREME | HIGH |</p>
+<p>| <code>management_tab.py</code> | <strong>1,398</strong> | HIGH | MEDIUM |</p>
+<p>| <code>orchestration_tab.py</code> | <strong>1,000</strong> | HIGH | MEDIUM |</p>
+<p>| <code>expert_review_tab.py</code> | <strong>905</strong> | MEDIUM | LOW |</p>
+<p>| <code>export_tab.py</code> | <strong>885</strong> | MEDIUM | LOW |</p>
+<p>| <code>web_lookup_tab.py</code> | <strong>876</strong> | MEDIUM | LOW |</p>
+<p>| <code>definition_edit_tab.py</code> | <strong>871</strong> | MEDIUM | LOW |</p>
+
+<h2>📋 Voorgestelde Opsplitsing in Sub-Stories</h2>
+
+<h3>US-207A: Refactor definition_generator_tab.py (1,656 lines → <300)</h3>
+<p><strong>Story Points</strong>: 8</p>
+<p><strong>Priority</strong>: CRITICAL</p>
+<pre><code>Biggest god class - split into:
+- GeneratorUI (rendering) ~200 lines
+- GeneratorLogic (business) ~250 lines
+- GeneratorState (state mgmt) ~150 lines
+- GeneratorHandlers (events) ~200 lines
+- GeneratorValidation (validation) ~150 lines</code></pre>
+
+<h3>US-207B: Refactor tabbed_interface.py (1,455 lines → <100)</h3>
+<p><strong>Story Points</strong>: 5</p>
+<p><strong>Priority</strong>: CRITICAL</p>
+<pre><code>Main orchestrator - split into:
+- TabOrchestrator (main) ~100 lines
+- TabRouter (routing) ~150 lines
+- SessionManager (state) ~200 lines
+- Move all tab logic to respective files</code></pre>
+
+<h3>US-207C: Refactor management_tab.py (1,398 lines → <300)</h3>
+<p><strong>Story Points</strong>: 5</p>
+<p><strong>Priority</strong>: HIGH</p>
+<pre><code>Management features - split into:
+- DefinitionList (display) ~200 lines
+- DefinitionCRUD (operations) ~250 lines
+- SearchFilter (search/filter) ~150 lines
+- BulkOperations (bulk actions) ~150 lines</code></pre>
+
+<h3>US-207D: Refactor orchestration_tab.py (1,000 lines → <300)</h3>
+<p><strong>Story Points</strong>: 3</p>
+<p><strong>Priority</strong>: MEDIUM</p>
+<pre><code>Orchestration logic - split into:
+- OrchestrationUI (display) ~200 lines
+- OrchestrationEngine (logic) ~250 lines
+- OrchestrationMonitor (monitoring) ~150 lines</code></pre>
+
+<h3>US-207E: Refactor Medium God Classes (800-900 lines each)</h3>
+<p><strong>Story Points</strong>: 5</p>
+<p><strong>Priority</strong>: LOW</p>
+<pre><code>Bundle the 4 medium god classes:
+- expert_review_tab.py (905 → ~300)
+- export_tab.py (885 → ~300)
+- web_lookup_tab.py (876 → ~300)
+- definition_edit_tab.py (871 → ~300)</code></pre>
+
+<h2>🎯 Prioritized Execution Plan</h2>
+
+<h3>Sprint 1 (Week 2): Critical Path</h3>
+<ul>
+<li>**US-207A**: definition_generator_tab.py (meest gebruikt)</li>
+<li>**US-207B**: tabbed_interface.py (centrale orchestrator)</li>
+<p><strong>Impact</strong>: 50% UI performance verbetering</p>
+</ul>
+
+<h3>Sprint 2 (Week 3): High Priority</h3>
+<ul>
+<li>**US-207C**: management_tab.py</li>
+<li>**US-207D**: orchestration_tab.py</li>
+<p><strong>Impact</strong>: 30% additional improvement</p>
+</ul>
+
+<h3>Sprint 3 (Week 4): Nice to Have</h3>
+<ul>
+<li>**US-207E**: Bundle remaining medium god classes</li>
+<p><strong>Impact</strong>: Code quality improvement</p>
+</ul>
+
+<h2>📊 Metrics & Benefits per Story</h2>
+
+<p>| Story | Current | Target | Reduction | Time | Value |</p>
+<p>|-------|---------|--------|-----------|------|-------|</p>
+<p>| US-207A | 1,656 | 300 | 82% | 2 days | HIGH - Most used tab |</p>
+<p>| US-207B | 1,455 | 100 | 93% | 1.5 days | HIGH - Central file |</p>
+<p>| US-207C | 1,398 | 300 | 79% | 1.5 days | MEDIUM - Admin features |</p>
+<p>| US-207D | 1,000 | 300 | 70% | 1 day | MEDIUM - Advanced feature |</p>
+<p>| US-207E | 3,537 | 1,200 | 66% | 2 days | LOW - Less critical |</p>
+
+<p><strong>Totaal</strong>: Van 9,046 lines naar ~2,200 lines (76% reductie)</p>
+
+<h2>🏗️ Shared Refactoring Pattern</h2>
+
+<p>Voor elke god class gebruiken we hetzelfde pattern:</p>
+
+<pre><code># BEFORE: god_class_tab.py (1000+ lines)
+class GodClassTab:
+    def __init__(self):
+        # 100+ lines initialization
+    def render(self):
+        # 500+ lines mixed logic
+    def handle_events(self):
+        # 300+ lines event handling
+    # ... etc
+
+# AFTER: Multiple focused files
+# ui/components/[feature]/
+├── __init__.py
+├── ui.py         # Pure rendering (&lt;200 lines)
+├── logic.py      # Business logic (&lt;250 lines)
+├── state.py      # State management (&lt;150 lines)
+├── handlers.py   # Event handlers (&lt;200 lines)
+└── validators.py # Input validation (&lt;150 lines)</code></pre>
+
+<h2>✅ Definition of Done per Story</h2>
+
+<p>Voor ELKE sub-story (US-207A t/m E):</p>
+<ul>
+<li>[ ] Geen enkel nieuw bestand > 300 lines</li>
+<li>[ ] Gemiddelde file size < 200 lines</li>
+<li>[ ] Cyclomatic complexity < 10 per functie</li>
+<li>[ ] Unit tests voor elke nieuwe module</li>
+<li>[ ] Integration test blijft groen</li>
+<li>[ ] Performance gelijk of beter</li>
+<li>[ ] Zero regression bugs</li>
+</ul>
+
+<h2>🚀 Implementation Strategy</h2>
+
+<h3>Phase 1: Setup Structure (Day 1)</h3>
+<pre><code>mkdir -p src/ui/components/{generator,management,orchestration,review,export}</code></pre>
+
+<h3>Phase 2: Extract Without Breaking (Day 2-3)</h3>
+<ol>
+<li>Copy functions to new modules</li>
+<li>Import from new locations</li>
+<li>Test continuously</li>
+<li>Remove from god class</li>
+</ol>
+
+<h3>Phase 3: Refactor & Optimize (Day 4-5)</h3>
+<ol>
+<li>Remove duplication</li>
+<li>Improve interfaces</li>
+<li>Add proper typing</li>
+<li>Documentation</li>
+</ol>
+
+<h2>📈 Expected Outcomes</h2>
+
+<h3>Performance Impact</h3>
+<ul>
+<li>**Streamlit reruns**: 50% faster (less code to reload)</li>
+<li>**Memory usage**: 30% reduction</li>
+<li>**Developer productivity**: 2x faster to find/fix bugs</li>
+</ul>
+
+<h3>Code Quality Impact</h3>
+<ul>
+<li>**Testability**: From 45% to 85% coverage possible</li>
+<li>**Maintainability**: From "impossible" to "easy"</li>
+<li>**Readability**: From "where is X?" to "obviously in Y"</li>
+</ul>
+
+<h2>🎬 Next Steps</h2>
+
+<ol>
+<li>**Get approval** voor opsplitsing in 5 sub-stories</li>
+<li>**Prioritize** based on user impact</li>
+<li>**Start with US-207A** (definition_generator_tab.py)</li>
+<li>**Track metrics** voor elke refactoring</li>
+</ol>
+
+<p>---</p>
+
+<p><strong>Recommendation</strong>: Start met US-207A en US-207B in parallel. Deze twee hebben de grootste impact op performance en zijn onafhankelijk van elkaar.</p>
+  </div>
+</body>
+</html>

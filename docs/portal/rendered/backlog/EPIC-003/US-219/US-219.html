@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-219: Basic Web Lookup Test Coverage</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-219: Basic Web Lookup Test Coverage</h1>
+
+<h2>User Story</h2>
+<p><strong>Als</strong> ontwikkelaar van de DefinitieAgent applicatie</p>
+<p><strong>Wil ik</strong> adequate test coverage voor web lookup functionaliteit</p>
+<p><strong>Zodat</strong> regressies voorkomen worden en kwaliteit geborgd is</p>
+
+<h2>Context</h2>
+<p>Huidige test problemen:</p>
+<ul>
+<li>ModernWebLookupService: 0% coverage</li>
+<li>Wikipedia Service: 59% coverage (target: 80%)</li>
+<li>UI Components: 0% coverage</li>
+<li>Totaal: 65% (target: 80%)</li>
+<li>Missing test categories: performance, load tests</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] ModernWebLookupService heeft >80% coverage</li>
+<li>[ ] Alle providers hebben >80% coverage</li>
+<li>[ ] Integration tests voor complete flow</li>
+<li>[ ] Basic performance tests (<2s requirement)</li>
+<li>[ ] Mock fixtures voor alle externe calls</li>
+<li>[ ] Error scenarios getest</li>
+</ul>
+
+<h2>Technische Details</h2>
+
+<h3>Test Structure (Single-User Focus)</h3>
+<pre><code># tests/unit/web_lookup/test_modern_service.py
+class TestModernWebLookupService:
+    """Unit tests voor web lookup service"""
+
+    @pytest.fixture
+    def mock_providers(self):
+        """Mock providers voor testing"""
+        return [
+            MockWikipediaProvider(),
+            MockSRUProvider()
+        ]
+
+    async def test_parallel_lookup(self, mock_providers):
+        """Test dat providers parallel draaien"""
+        service = ModernWebLookupService(providers=mock_providers)
+        results = await service.lookup("test term")
+        assert len(results) &gt; 0
+        assert all(r.provider_key for r in results)
+
+    async def test_timeout_enforcement(self):
+        """Test timeout budget"""
+        # Test dat slow providers niet alles blokkeren
+
+    async def test_error_handling(self):
+        """Test provider failures"""
+        # Een provider faalt, anderen gaan door</code></pre>
+
+<h3>Performance Test</h3>
+<pre><code>@pytest.mark.performance
+async def test_response_time():
+    """Verify &lt;2s response tijd"""
+    service = ModernWebLookupService()
+    start = time.time()
+    await service.lookup("rechtspraak")
+    duration = time.time() - start
+    assert duration &lt; 2.0, f"Too slow: {duration}s"</code></pre>
+
+<h2>Geschatte Effort</h2>
+<p><strong>2 dagen</strong></p>
+
+<h2>Dependencies</h2>
+<ul>
+<li>US-216 (test interface fix eerst)</li>
+<li>US-214, US-217, US-218 (implementaties om te testen)</li>
+</ul>
+
+<h2>Testing Strategy</h2>
+<ol>
+<li>Unit tests per provider</li>
+<li>Integration tests voor complete flow</li>
+<li>Performance benchmarks</li>
+<li>Error scenario's</li>
+<li>Mock all external calls</li>
+</ol>
+
+<h2>Notes</h2>
+<ul>
+<li>Focus op praktische coverage voor single-user</li>
+<li>Geen load testing nodig</li>
+<li>Simpliciteit boven volledigheid</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] >80% test coverage bereikt</li>
+<li>[ ] Alle tests draaien groen</li>
+<li>[ ] Performance tests validate <2s</li>
+<li>[ ] Integration tests compleet</li>
+<li>[ ] Mock fixtures beschikbaar</li>
+<li>[ ] CI/CD pipeline draait tests</li>
+</ul>
+
+<h2>Linked Items</h2>
+<ul>
+<li>Epic: [[EPIC-003]] - Content Verrijking / Web Lookup</li>
+<li>Depends on: US-216</li>
+<li>Tests: US-214, US-215, US-217, US-218</li>
+</ul>
+  </div>
+</body>
+</html>

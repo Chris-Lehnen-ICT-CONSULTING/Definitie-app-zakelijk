@@ -8,6 +8,13 @@ repos:
         pass_filenames: false
         types: [python]
         stages: [pre-commit]
+      - id: block-root-db-files
+        name: Block root-level *.db files
+        entry: bash scripts/ci/check_no_root_db_files.sh
+        language: system
+        pass_filenames: false
+        always_run: true
+        stages: [pre-commit]
       - id: generate-portal-on-docs-change
         name: Generate portal (docs → portal)
         entry: bash scripts/docs/run_portal_generator.sh
