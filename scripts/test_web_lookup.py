@@ -24,7 +24,7 @@ async def main(term: str) -> int:
         print(f"Import error: {e}")
         return 2
 
-    timeout = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "1.5"))
+    timeout = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "6.0"))
     print(f"Testing web lookup for term: '{term}' (timeout={timeout}s)")
 
     service = ModernWebLookupService()
@@ -55,4 +55,3 @@ if __name__ == "__main__":
         sys.exit(1)
     term = " ".join(sys.argv[1:])
     sys.exit(asyncio.run(main(term)))
-
