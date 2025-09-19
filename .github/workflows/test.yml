@@ -56,7 +56,7 @@ jobs:
       run: |
         bash scripts/run_tests.sh pr
 
-    - name: Services subpackage coverage (advisory 75%)
+    - name: Services subpackage coverage (advisory 80%)
       continue-on-error: true
       run: |
         # Advisory coverage on focused subset to avoid blocking PRs prematurely
@@ -65,10 +65,11 @@ jobs:
           tests/services/orchestrators/test_validation_degraded_contract.py \
           tests/services/orchestrators/test_definition_orchestrator_v2_happy.py \
           tests/services/orchestrators/test_definition_orchestrator_v2_failure.py \
+          tests/services/orchestrators/test_definition_orchestrator_v2_monitoring.py \
           tests/integration/test_golden_via_orchestrator.py \
           --cov=src/services \
           --cov-report=term-missing \
-          --cov-fail-under=75
+          --cov-fail-under=80
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4
