@@ -331,6 +331,11 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 if not (result and result.success):
                     t = (term or "").strip()
                     fallbacks: list[str] = []
+                    # Spatie → koppelstreepje (Wikipedia gebruikt vaak samengestelde woorden)
+                    if " " in t and "-" not in t:
+                        fallbacks.append(t.replace(" ", "-"))
+                        # Titlecase variant kan beter matchen op Wikipedia
+                        fallbacks.append(t.title().replace(" ", "-"))
                     # Algemene suffix-fallback: verwijder "-tekst"
                     if t.lower().endswith("tekst") and len(t) > 6:
                         fallbacks.append(t[: -len("tekst")])
@@ -349,6 +354,19 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     for fb in cleaned_fallbacks:
                         try:
                             fb_res = await wikipedia_lookup(fb)
+                            # Log fallback poging in debug attempts
+                            try:
+                                self._debug_attempts.append(
+                                    {
+                                        "provider": source.name,
+                                        "api_type": "mediawiki",
+                                        "term": fb,
+                                        "fallback": True,
+                                        "success": bool(fb_res and fb_res.success),
+                                    }
+                                )
+                            except Exception:
+                                pass
                             if fb_res and fb_res.success:
                                 # Bewaar originele term in metadata
                                 if isinstance(fb_res.metadata, dict):
@@ -414,13 +432,18 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     return result
 
                 # Heuristische fallback: reduceer specifiek suffix of gebruik veelvoorkomende juridische synoniemen
-                # Voorbeelden: 'vonnistekst' → 'vonnis', 'uitspraak'
+                # Voorbeelden: 'vonnistekst' → 'vonnis', 'uitspraak'; 'rechter commissaris' → 'rechter-commissaris'
                 fallback_terms = []
                 t = (term or "").strip()
                 if t.endswith("tekst") and len(t) > 6:
                     fallback_terms.append(t[:-5])
+                if " " in t and "-" not in t:
+                    fallback_terms.append(t.replace(" ", "-"))
                 # Generieke fallback bij juridische context
                 fallback_terms.extend(["uitspraak"])  # conservatief
+                # Specifieke synoniemen per bekende term
+                if t.lower() == "rechter commissaris":
+                    fallback_terms.append("rechter-commissaris")
 
                 for ft in fallback_terms:
                     try:

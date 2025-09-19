@@ -28481,6 +28481,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "Test Fixes Summary",
+      "path": "../testing/TEST_FIXES_SUMMARY.md",
+      "url": "../testing/TEST_FIXES_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/TEST_FIXES_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "Teststrategie en Richtlijnen",
       "path": "../testing/TESTING_GUIDE.md",
       "url": "../testing/TESTING_GUIDE.md",
@@ -30396,11 +30427,11 @@
       "BUG": 14,
       "REQ": 99,
       "ARCH": 23,
-      "TEST": 26,
+      "TEST": 27,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T14:02:30Z"
+    "generated_at": "2025-09-19T14:09:38Z"
   },
   "sources": [
     "docs"
