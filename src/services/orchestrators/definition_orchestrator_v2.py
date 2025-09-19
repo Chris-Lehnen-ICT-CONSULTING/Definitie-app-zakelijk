@@ -508,17 +508,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 definition=temp_definition,
                 context=validation_context,
             )
-            # Normalize to dict for internal decisions
-            def _as_dict(v):
-                if isinstance(v, dict):
-                    return v
-                # Dataclass-like with attributes (e.g., ValidationResult)
-                is_ok = getattr(v, "is_valid", False)
-                # Prefer 'violations' attribute if present, else fallback to 'errors'
-                vio_list = getattr(v, "violations", None)
+            # Normalize to schema-conform dict for internal decisions
+            try:
+                from services.validation.mappers import ensure_schema_compliance
+                validation_result = ensure_schema_compliance(raw_validation)
+            except Exception:
+                # Defensive fallback to simple mapping
+                is_ok = getattr(raw_validation, "is_valid", False)
+                vio_list = getattr(raw_validation, "violations", None)
                 if vio_list is None:
-                    vio_list = getattr(v, "errors", []) or []
-                return {
+                    vio_list = getattr(raw_validation, "errors", []) or []
+                validation_result = {
                     "is_acceptable": bool(is_ok),
                     "violations": vio_list,
                     "passed_rules": [],
@@ -526,8 +526,6 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "version": "v2",
                     "system": {},
                 }
-
-            validation_result = _as_dict(raw_validation)
 
             logger.info(
                 f"Generation {generation_id}: Validation complete (valid: {safe_dict_get(validation_result, 'is_acceptable', False)})"
@@ -571,7 +569,22 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     definition=enhanced_definition,
                     context=enhanced_context,
                 )
-                validation_result = _as_dict(raw_validation)
+                try:
+                    from services.validation.mappers import ensure_schema_compliance
+                    validation_result = ensure_schema_compliance(raw_validation)
+                except Exception:
+                    is_ok = getattr(raw_validation, "is_valid", False)
+                    vio_list = getattr(raw_validation, "violations", None)
+                    if vio_list is None:
+                        vio_list = getattr(raw_validation, "errors", []) or []
+                    validation_result = {
+                        "is_acceptable": bool(is_ok),
+                        "violations": vio_list,
+                        "passed_rules": [],
+                        "detailed_scores": {},
+                        "version": "v2",
+                        "system": {},
+                    }
 
                 cleaned_text = enhanced_text
                 was_enhanced = True
