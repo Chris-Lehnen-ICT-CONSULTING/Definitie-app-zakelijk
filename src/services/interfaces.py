@@ -1163,7 +1163,7 @@ class OrchestratorConfig:
     enable_feedback_loop: bool = True
     enable_enhancement: bool = True
     enable_caching: bool = True
-    enable_web_lookup: bool = True
+    # enable_web_lookup removed - web lookup runs always when service available
     web_lookup_top_k: int = 3
     max_retries: int = 3
     timeout_seconds: int = 30

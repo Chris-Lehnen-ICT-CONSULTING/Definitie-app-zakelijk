@@ -28005,7 +28005,7 @@
       "title": "ValidationResult interface mismatch (TypedDict vs dataclass vs varianten) → inconsistent gebruik",
       "path": "../backlog/EPIC-002/US-192/CFR-BUG-025/README.md",
       "url": "../backlog/EPIC-002/US-192/CFR-BUG-025/README.md",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "prioriteit": null,
       "owner": "validation",
       "canonical": false,
@@ -29571,6 +29571,45 @@
       "linked_reqs": null
     },
     {
+      "id": "US-224",
+      "type": "US",
+      "title": "Verwijder enable_fallback Feature Flags",
+      "path": "../backlog/EPIC-003/US-224/US-224.md",
+      "url": "../backlog/EPIC-003/US-224/US-224.md",
+      "status": "Todo",
+      "prioriteit": "MEDIUM",
+      "owner": "development-team",
+      "canonical": true,
+      "last_verified": "19-09-2025",
+      "applies_to": "definitie-app@current",
+      "category": "technical-debt",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-224.md",
+      "_refs": {
+        "us": [
+          "US-224"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": [
+          "REQ-021",
+          "REQ-040"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-224/US-224.html",
+      "linked_reqs": null
+    },
+    {
       "id": "US-016",
       "type": "US",
       "title": "SRU Legal Database Integratie",
@@ -30232,10 +30271,10 @@
       "GUIDE": 11,
       "EPIC": 16,
       "REQ": 99,
-      "US": 199,
+      "US": 200,
       "BUG": 14
     },
-    "generated_at": "2025-09-19T08:41:08Z"
+    "generated_at": "2025-09-19T08:53:21Z"
   },
   "sources": [
     "docs"

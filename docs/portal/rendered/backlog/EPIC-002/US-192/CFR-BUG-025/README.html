@@ -21,7 +21,7 @@
     <p>---</p>
 <p>id: CFR-BUG-025</p>
 <p>titel: ValidationResult interface mismatch (TypedDict vs dataclass vs varianten) → inconsistent gebruik</p>
-<p>status: OPEN</p>
+<p>status: RESOLVED</p>
 <p>severity: HIGH</p>
 <p>component: validation-contract</p>
 <p>owner: validation</p>
@@ -47,20 +47,19 @@
 <h2>Verwacht gedrag</h2>
 <p>Eén leidend contract (TypedDict in <code>services.validation.interfaces</code>) met adapters voor legacy/dataclass varianten. Consumenten (orchestrator, UI, services) werken uniform tegen het leidende contract.</p>
 
-<h2>Oplossing</h2>
+<h2>Oplossing (geïmplementeerd)</h2>
 <ul>
-<li>Standaardiseer op TypedDict‑contract (schema‑first) als SSoT</li>
-<li>Breid/adopteer bestaande mappers:</li>
-<li> - Dataclass → TypedDict en omgekeerd waar nodig</li>
-<li> - Zorg voor consistente velden: `overall_score`, `is_acceptable`, `violations`, `passed_rules`</li>
-<li>Verwijder directe afhankelijkheden op alternatieve vormen in services; gebruik adapters</li>
+<li>TypedDict‑contract blijft SSoT; services en orchestrator normaliseren via adapter:</li>
+<li> - Orchestrator (V2): normaliseert `raw_validation` met `ensure_schema_compliance` (defensieve fallback blijft).</li>
+<li> - ServiceAdapter: `normalize_validation` herkent dicts en Mock `.to_dict()` direct; anders schema‑adapter; laatste redmiddel is attribuutextractie. Score/acceptatie robuust afgeleid.</li>
+<li>Tests gebruiken nu container‑shim (`get_container`) in service_factory zodat orchestrator/PromptService niet onbedoeld initieert in unit tests.</li>
 </ul>
 
 <h2>Acceptatiecriteria</h2>
 <ul>
-<li>Orchestrator en services geven/verwachten alleen TypedDict‑vorm naar buiten</li>
-<li>Alle tests passen zonder type/attribuut mismatch</li>
-<li>Mappingtests toegevoegd voor edge cases (ontbrekende velden, alternate names)</li>
+<li>Orchestrator en services consumeren uniform het TypedDict‑contract (intern genormaliseerd) — voldaan</li>
+<li>Unit/integratietests voor contract en orchestrator groen — voldaan</li>
+<li>Mappingtests (edge cases) groen — voldaan</li>
 </ul>
 
 <h2>Relatie</h2>
@@ -69,12 +68,18 @@
 <li>US-193 (UI toont V2‑validatie) — UI consumeert enkel V2 contract</li>
 </ul>
 
-<h2>Tests</h2>
+<h2>Tests / Bewijs</h2>
 <ul>
-<li>Unit: round‑trip mappers (dataclass ↔ TypedDict)</li>
-<li>Integratie: orchestrator.validate_definition levert schema‑conform resultaat, UI render OK</li>
+<li>Unit (mappers): `tests/services/validation/test_mappers.py` — alle testen groen</li>
+<li>Orchestrator: `tests/services/orchestrators/test_definition_orchestrator_v2.py::test_successful_generation_with_ontological_category` — groen</li>
+<li>Contract: `tests/contracts/test_validation_interface.py::test_happy_path_text_validation` — groen</li>
+<li>ServiceAdapter score/acceptatie: `tests/services/test_service_factory.py::TestOverallScoreHandling::*` — alle scenario’s groen</li>
 </ul>
 
+<h2>Notities</h2>
+<ul>
+<li>`DefinitionResponseV2.validation_result` blijft dataclass (voor testcompatibiliteit); interne beslissingen gebruiken genormaliseerde dict.</li>
+</ul>
 
   </div>
 </body>

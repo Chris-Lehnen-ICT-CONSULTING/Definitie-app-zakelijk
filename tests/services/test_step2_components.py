@@ -222,7 +222,6 @@ class TestDefinitionEnhancer:
         original_definition = Definition(
             begrip="testbegrip",
             definitie="Een kort begrip.",  # Very short definition should trigger clarity enhancement
-            context="juridisch",
             categorie="proces",
             bron="test",
             metadata={}
@@ -243,7 +242,6 @@ class TestDefinitionEnhancer:
         definition = Definition(
             begrip="testbegrip",
             definitie="Een zeer korte definitie die mogelijk verbetering nodig heeft.",
-            context="juridisch",
             categorie="proces",
             bron="test",
             metadata={}
@@ -299,7 +297,6 @@ class TestIntegration:
         mock_definition = Definition(
             begrip=request.begrip,
             definitie="Een test definitie die mogelijk verbetering nodig heeft.",
-            context=request.context,  # context is al een string
             categorie="proces",
             bron="test",
             metadata={}
