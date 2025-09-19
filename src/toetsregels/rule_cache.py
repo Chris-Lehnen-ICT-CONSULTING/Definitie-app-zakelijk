@@ -1,11 +1,10 @@
 """
 Rule Cache voor geoptimaliseerde validatieregel loading.
 
-Dit is een vereenvoudigde cache implementatie voor US-202 die:
-- JSON regel files slechts één keer laadt met @st.cache_data
-- Singleton pattern gebruikt voor global instance
-- Minimale memory footprint heeft met alleen essentiële data
-- Direct integreerbaar is met ModularValidationService
+Deze implementatie laadt JSON‑regelbestanden één keer en cachet ze in
+een proces‑lokale cache (TTL via utils.cache). Dit minimaliseert IO,
+behoudt een kleine memory footprint en is direct integreerbaar met
+ModularValidationService — zonder UI/Streamlit‑afhankelijkheid.
 """
 
 import json
@@ -21,7 +20,7 @@ logger = logging.getLogger(__name__)
 @cached(ttl=3600)
 def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
     """
-    Load alle validatieregels van disk met Streamlit caching.
+    Load alle validatieregels van disk met pure‑Python caching.
 
     Deze functie wordt SLECHTS EENMAAL uitgevoerd per uur (ttl=3600).
     Alle volgende calls returnen de gecachte data direct uit memory.
