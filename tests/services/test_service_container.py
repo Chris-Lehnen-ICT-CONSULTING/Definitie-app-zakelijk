@@ -35,7 +35,7 @@ class TestServiceContainer:
         assert isinstance(container.config, dict)
         assert "generator" not in container._instances  # Lazy loading
 
-    def test_container_with_config(self):
+    def test_container_with_config(self, chdir_tmp_path):
         """Test container met custom config."""
         # Arrange
         config = {
@@ -129,16 +129,20 @@ class TestServiceContainer:
         assert validator is None
         assert invalid is None
 
-    def test_update_config(self):
+    def test_update_config(self, chdir_tmp_path):
         """Test config update en reset."""
         # Arrange
         # Disable actual DB usage to avoid creating stray files in project root
         container = ServiceContainer({'db_path': 'old.db', 'use_database': False})
-        gen1 = container.generator()
+        # Patch heavy dependency to avoid reading real files when chdir'ed
+        from unittest.mock import patch, MagicMock
+        with patch("services.validation.config.ValidationConfig.from_yaml", return_value=MagicMock()):
+            gen1 = container.generator()
 
         # Act
         container.update_config({'db_path': 'new.db'})
-        gen2 = container.generator()
+        with patch("services.validation.config.ValidationConfig.from_yaml", return_value=MagicMock()):
+            gen2 = container.generator()
 
         # Assert
         assert container.config['db_path'] == 'new.db'

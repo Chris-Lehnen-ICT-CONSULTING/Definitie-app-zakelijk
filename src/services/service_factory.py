@@ -237,9 +237,9 @@ class ServiceAdapter:
         """Normalize any validation format to canonical V2 dict.
 
         Maps various validation formats to the canonical ValidationDetailsDict:
-        - ModularValidationService dict format
-        - Legacy ValidationResult objects
-        - Ensures severity mapping (error->high, warning->medium, other->low)
+        - Schema-conform TypedDict via ensure_schema_compliance
+        - Legacy ValidationResult dataclass/object via adapter
+        - Ensures severity mapping (error->high, warning->medium, other->low) for legacy items
         """
         # Handle None case
         if result is None:
@@ -250,24 +250,34 @@ class ServiceAdapter:
                 "passed_rules": [],
             }
 
-        # Extract components using helper methods
-        violations = self._extract_violations(result)
-        overall_score = self._extract_score(result)
-        is_acceptable = self._extract_is_acceptable(result, overall_score)
+        # Prefer the schema-compliant adapter for robustness
+        try:
+            from services.validation.mappers import ensure_schema_compliance  # lazy import
 
-        # Extract passed_rules
-        passed_rules = []
-        if isinstance(result, dict):
-            passed_rules = ensure_list(safe_dict_get(result, "passed_rules", []))
-        elif hasattr(result, "passed_rules"):
-            passed_rules = getattr(result, "passed_rules", [])
+            schema = ensure_schema_compliance(result)
+            return {
+                "overall_score": self._safe_float(schema.get("overall_score", 0.0)),
+                "is_acceptable": bool(schema.get("is_acceptable", False)),
+                "violations": ensure_list(schema.get("violations", [])),
+                "passed_rules": ensure_list(schema.get("passed_rules", [])),
+            }
+        except Exception:
+            # Fallback to legacy extraction to be defensive
+            violations = self._extract_violations(result)
+            overall_score = self._extract_score(result)
+            is_acceptable = self._extract_is_acceptable(result, overall_score)
+            passed_rules: list = []
+            if isinstance(result, dict):
+                passed_rules = ensure_list(safe_dict_get(result, "passed_rules", []))
+            elif hasattr(result, "passed_rules"):
+                passed_rules = getattr(result, "passed_rules", [])
 
-        return {
-            "overall_score": overall_score,
-            "is_acceptable": is_acceptable,
-            "violations": violations,
-            "passed_rules": passed_rules,
-        }
+            return {
+                "overall_score": overall_score,
+                "is_acceptable": is_acceptable,
+                "violations": violations,
+                "passed_rules": passed_rules,
+            }
 
     def _handle_regeneration_context(self, begrip: str, kwargs: dict) -> str:
         """Handle regeneration context enhancement if present."""
