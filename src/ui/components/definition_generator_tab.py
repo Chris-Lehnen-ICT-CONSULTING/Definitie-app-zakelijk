@@ -5,10 +5,13 @@ Definition Generator Tab - Main AI definition generation interface.
 
 import logging
 import os
+import re
 from datetime import UTC
 from typing import Any
 
 import streamlit as st
+from pathlib import Path
+import json
 
 from database.definitie_repository import (
     DefinitieRecord,
@@ -294,10 +297,32 @@ class DefinitionGeneratorTab:
 
             st.subheader("2️⃣ Finale Definitie")
             st.info(agent_result["definitie_gecorrigeerd"])
+            # Bewaar finale tekst + begrip voor UI‑uitleg (pass‑rationales)
+            try:
+                SessionStateManager.set_value(
+                    "current_definition_text",
+                    ensure_string(agent_result.get("definitie_gecorrigeerd") or ""),
+                )
+                SessionStateManager.set_value(
+                    "current_begrip",
+                    ensure_string(generation_result.get("begrip", "")),
+                )
+            except Exception:
+                pass
         else:
             # Legacy format - toon enkele definitie
             st.subheader("📝 Definitie")
             st.info(definitie_to_show)
+            try:
+                SessionStateManager.set_value(
+                    "current_definition_text", ensure_string(definitie_to_show)
+                )
+                SessionStateManager.set_value(
+                    "current_begrip",
+                    ensure_string(generation_result.get("begrip", "")),
+                )
+            except Exception:
+                pass
 
         # Bronverantwoording: toon gebruikte web bronnen indien beschikbaar
         self._render_sources_section(generation_result, agent_result, saved_record)
@@ -707,9 +732,9 @@ class DefinitionGeneratorTab:
                 # Fallback naar env als metadata geen timeout bevat
                 if timeout_meta is None:
                     try:
-                        timeout_meta = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "3.0"))
+                        timeout_meta = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "6.0"))
                     except Exception:
-                        timeout_meta = 3.0
+                        timeout_meta = 6.0
                 st.caption(
                     f"Web lookup: {status_text} ({avail_text}) — timeout {float(timeout_meta):.1f}s"
                 )
@@ -959,7 +984,10 @@ class DefinitionGeneratorTab:
             sev = str(v.get("severity", "warning")).lower()
             desc = v.get("description") or v.get("message") or ""
             emoji = self._get_severity_emoji(sev)
-            lines.append(f"{emoji} {rid}: {desc}")
+            name, explanation = self._get_rule_display_and_explanation(rid)
+            name_part = f" — {name}" if name else ""
+            expl_labeled = f" · Wat toetst: {explanation}" if explanation else " · Wat toetst: —"
+            lines.append(f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}")
 
         return lines
 
@@ -973,8 +1001,17 @@ class DefinitionGeneratorTab:
             return "📋"
 
     def _format_passed_rules(self, passed_ids: list[str]) -> list[str]:
-        """Format passed rule lines."""
-        return [f"✅ {rid}: OK" for rid in passed_ids]
+        """Format passed rule lines, inclusief 'Wat toetst' en 'Waarom'."""
+        lines_out: list[str] = []
+        text, begrip = self._get_current_text_and_begrip()
+        for rid in passed_ids:
+            name, explanation = self._get_rule_display_and_explanation(rid)
+            name_part = f" — {name}" if name else ""
+            wat_toetst = f"Wat toetst: {explanation}" if explanation else "Wat toetst: —"
+            reason = self._build_pass_reason(rid, text, begrip)
+            waarom = f" · Waarom geslaagd: {reason}" if reason else ""
+            lines_out.append(f"✅ {rid}{name_part}: OK · {wat_toetst}{waarom}")
+        return lines_out
 
     def _render_validation_results(self, validation_result):
         """Render validation resultaten - DICT ONLY.
@@ -1034,6 +1071,8 @@ class DefinitionGeneratorTab:
             else:
                 st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
 
+        # Geen extra expander; uitleg per regel wordt inline in de bestaande lijst getoond.
+
         # Show only violations summary when collapsed
         if violations:
             st.markdown("**Gevonden Issues (samenvatting):**")
@@ -1058,8 +1097,127 @@ class DefinitionGeneratorTab:
     def _use_existing_definition(self, definitie: DefinitieRecord):
         """Gebruik bestaande definitie."""
         SessionStateManager.set_value("selected_definition", definitie)
-        st.success(f"✅ Definitie {definitie.id} geselecteerd voor gebruik")
-        st.rerun()
+
+    # ============ UI-private utilities (géén aparte helpers/module) ============
+    def _get_current_text_and_begrip(self) -> tuple[str, str]:
+        """Lees huidige definitietekst/begrip uit UI‑state (best effort)."""
+        try:
+            text = ensure_string(
+                SessionStateManager.get_value("current_definition_text", "")
+            )
+            begrip = ensure_string(
+                SessionStateManager.get_value("current_begrip", "")
+            )
+            return text, begrip
+        except Exception:
+            return "", ""
+
+    def _compute_text_metrics(self, text: str) -> dict[str, int]:
+        """Kleine metrics voor pass‑rationales (UI‑only)."""
+        t = ensure_string(text)
+        words = len(t.split()) if t else 0
+        chars = len(t)
+        commas = t.count(",")
+        return {"words": words, "chars": chars, "commas": commas}
+
+    def _build_pass_reason(self, rule_id: str, text: str, begrip: str) -> str:
+        """Beknopte reden waarom regel geslaagd is (heuristiek, UI‑only)."""
+        rid = ensure_string(rule_id).upper()
+        m = self._compute_text_metrics(text)
+        w, c, cm = m.get("words", 0), m.get("chars", 0), m.get("commas", 0)
+
+        try:
+            if rid == "VAL-EMP-001":
+                return f"Niet leeg (tekens={c} > 0)." if c > 0 else ""
+            if rid == "VAL-LEN-001":
+                return (
+                    f"Lengte OK: {w} woorden ≥ 5 en {c} tekens ≥ 15."
+                    if (w >= 5 and c >= 15)
+                    else ""
+                )
+            if rid == "VAL-LEN-002":
+                return (
+                    f"Lengte OK: {w} ≤ 80 en {c} ≤ 600." if (w <= 80 and c <= 600) else ""
+                )
+            if rid == "ESS-CONT-001":
+                return f"Essentie aanwezig: {w} woorden ≥ 6." if w >= 6 else ""
+            if rid == "CON-CIRC-001":
+                gb = ensure_string(begrip)
+                if gb:
+                    found = re.search(rf"\b{re.escape(gb)}\b", ensure_string(text), re.IGNORECASE)
+                    return "Begrip niet in tekst (geen exacte match)." if not found else ""
+                return "Begrip niet opgegeven."
+            if rid == "STR-TERM-001":
+                return (
+                    "Verboden term niet aangetroffen (‘HTTP protocol’)."
+                    if "HTTP protocol" not in ensure_string(text)
+                    else ""
+                )
+            if rid == "STR-ORG-001":
+                redund = bool(
+                    re.search(
+                        r"\bsimpel\b.*\bcomplex\b|\bcomplex\b.*\bsimpel\b",
+                        ensure_string(text),
+                        re.IGNORECASE,
+                    )
+                )
+                return (
+                    "Geen lange komma‑zin (>300 tekens en ≥6 komma’s) en geen redundantiepatroon."
+                    if not (c > 300 and cm >= 6) and not redund
+                    else ""
+                )
+            if rid == "ESS-02":
+                return "Eenduidige ontologische marker aanwezig."
+            if rid == "CON-01":
+                return "Context niet letterlijk benoemd; geen duplicaat gedetecteerd."
+            if rid in {"ESS-03", "ESS-04", "ESS-05"}:
+                return "Vereist element herkend (heuristiek)."
+        except Exception:
+            return ""
+
+        return "Geen issues gemeld door validator."
+    # (Verouderde util-methodes voor aparte expander verwijderd)
+
+    def _get_rule_display_and_explanation(self, rule_id: str) -> tuple[str, str]:
+        """Haal naam/uitleg uit JSON wanneer beschikbaar; anders korte fallback.
+
+        - Leest best-effort `src/toetsregels/regels/<RULE>.json`
+        - Valt terug op ingebouwde korte omschrijving per bekende basisregel
+        - Geen externe helpers; alles local en cached in memory per render
+        """
+        # 1) Probeer JSON (best-effort)
+        try:
+            rules_dir = Path("src/toetsregels/regels")
+            json_path = rules_dir / f"{rule_id}.json"
+            if not json_path.exists():
+                # Sommige ID's gebruiken underscore in id-veld; bestandsnaam is met koppelteken
+                # Probeer varianten (zonder effect als al bestond)
+                alt = rule_id.replace("_", "-")
+                json_path = rules_dir / f"{alt}.json"
+            if json_path.exists():
+                data = json.loads(json_path.read_text(encoding="utf-8"))
+                name = str(data.get("naam") or "").strip()
+                explanation = (
+                    str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+                )
+                if name or explanation:
+                    return name, explanation
+        except Exception:
+            pass
+
+        # 2) Fallback mapping (kernregels) — kort en helder
+        fallback = {
+            "VAL-EMP-001": "Controleert of de definitietekst niet leeg is.",
+            "VAL-LEN-001": "Minimale lengte (woorden/tekens) voor voldoende informatiedichtheid.",
+            "VAL-LEN-002": "Maximale lengte om overdadigheid te voorkomen.",
+            "ESS-CONT-001": "Essentiële inhoud aanwezig (niet te summier).",
+            "CON-CIRC-001": "Detecteert of het begrip letterlijk in de definitie voorkomt.",
+            "STR-TERM-001": "Terminologiekwesties (bijv. ‘HTTP‑protocol’ i.p.v. ‘HTTP protocol’).",
+            "STR-ORG-001": "Lange, komma‑rijke zinnen of redundantie/tegenstrijdigheid.",
+            "ESS-02": "Eenduidige ontologische marker (type/particulier/proces/resultaat).",
+            "CON-01": "Context niet letterlijk benoemen; waarschuwt bij dubbele context.",
+        }
+        return "", fallback.get(rule_id, "Geen beschrijving beschikbaar.")
 
     def _edit_existing_definition(self, definitie: DefinitieRecord):
         """Bewerk bestaande definitie."""

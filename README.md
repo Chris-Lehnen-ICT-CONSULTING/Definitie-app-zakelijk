@@ -61,7 +61,7 @@ Let op voor ontwikkelaars:
 
 ### 🌐 Web Lookup (Epic 3)
 - Altijd actief: web lookup draait automatisch wanneer de service beschikbaar is (geen feature flag).
-- Timeout: configureer via `WEB_LOOKUP_TIMEOUT_SECONDS` (default: 3.0s). Liever kwaliteit dan snelheid? Verhoog deze waarde.
+- Timeout: configureer via `WEB_LOOKUP_TIMEOUT_SECONDS` (default: 6.0s). Liever kwaliteit dan snelheid? Verhoog deze waarde.
 - Debug in UI: in Generator‑tab staat een checkbox “🐛 Debug: Toon ruwe web_lookup data (JSON)” onder “📚 Gebruikte Bronnen”.
 - Snelle test: `python scripts/test_web_lookup.py <term>` (respecteert `WEB_LOOKUP_TIMEOUT_SECONDS`).
 - Configbestand: `config/web_lookup_defaults.yaml` (provider‑weights, sanitization, caching). Eigen config via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
