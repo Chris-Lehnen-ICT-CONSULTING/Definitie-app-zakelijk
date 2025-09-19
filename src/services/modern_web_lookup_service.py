@@ -134,6 +134,13 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 confidence_weight=self._provider_weights.get("rechtspraak", 0.95),
                 is_juridical=True,
             ),
+            "overheid_zoek": SourceConfig(
+                name="Overheid.nl Zoekservice",
+                base_url="https://zoekservice.overheid.nl",
+                api_type="sru",
+                confidence_weight=self._provider_weights.get("overheid", 0.9),
+                is_juridical=True,
+            ),
         }
 
     async def lookup(self, request: LookupRequest) -> list[LookupResult]:
@@ -164,7 +171,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
             if isinstance(result, Exception):
                 logger.warning(f"Source lookup failed: {result}")
                 continue
-            if result is not None:
+            if result is not None and getattr(result, "success", True):
                 valid_results.append(result)
 
         # Ranking & dedup volgens Epic 3
@@ -243,7 +250,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
         )
 
         if is_juridical:
-            return ["overheid", "rechtspraak", "wikipedia", "wiktionary"]
+            return ["overheid", "rechtspraak", "overheid_zoek", "wikipedia", "wiktionary"]
 
         # Voor algemene termen, start met encyclopedische bronnen
         return ["wikipedia", "wiktionary", "overheid", "rechtspraak"]
@@ -309,7 +316,11 @@ class ModernWebLookupService(WebLookupServiceInterface):
             from .web_lookup.sru_service import SRUService
 
             # Map source names to SRU endpoints
-            endpoint_map = {"Overheid.nl": "overheid", "Rechtspraak.nl": "rechtspraak"}
+            endpoint_map = {
+                "Overheid.nl": "overheid",
+                "Rechtspraak.nl": "rechtspraak",
+                "Overheid.nl Zoekservice": "overheid_zoek",
+            }
 
             endpoint = endpoint_map.get(source.name)
             if not endpoint:
@@ -318,10 +329,11 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
             # Perform SRU search
             async with SRUService() as sru_service:
+                # Probeer meerdere records om beste te kiezen
                 results = await sru_service.search(
                     term=term,
                     endpoint=endpoint,
-                    max_records=1,  # Single result for single source lookup
+                    max_records=3,
                 )
 
                 if results:
@@ -329,6 +341,27 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     # Apply source confidence weight
                     result.source.confidence *= source.confidence_weight
                     return result
+
+                # Heuristische fallback: reduceer specifiek suffix of gebruik veelvoorkomende juridische synoniemen
+                # Voorbeelden: 'vonnistekst' → 'vonnis', 'uitspraak'
+                fallback_terms = []
+                t = (term or "").strip()
+                if t.endswith("tekst") and len(t) > 6:
+                    fallback_terms.append(t[:-5])
+                # Generieke fallback bij juridische context
+                fallback_terms.extend(["uitspraak"])  # conservatief
+
+                for ft in fallback_terms:
+                    try:
+                        results = await sru_service.search(
+                            term=ft, endpoint=endpoint, max_records=3
+                        )
+                        if results:
+                            r = results[0]
+                            r.source.confidence *= source.confidence_weight * 0.95
+                            return r
+                    except Exception as e2:
+                        logger.warning(f"SRU fallback term '{ft}' failed: {e2}")
 
                 return None
 
