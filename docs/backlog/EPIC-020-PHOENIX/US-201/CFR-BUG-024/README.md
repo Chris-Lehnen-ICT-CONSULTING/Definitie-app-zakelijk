@@ -1,7 +1,7 @@
 ---
 id: CFR-BUG-024
 titel: MockStreamlit mist cache decorators (cache_data/cache_resource) → import/cascade test failures
-status: OPEN
+status: RESOLVED
 severity: HIGH
 component: testing-infra
 owner: platform
@@ -28,8 +28,8 @@ Test‑mocks bieden no‑op decorators voor `st.cache_data` en `st.cache_resourc
 2) Importeer `src/utils/container_manager.py` in een test
 3) Importerror/AttributeError treedt op, of decoratie wordt als attributetoegang behandeld → failures
 
-## Oplossing
-- Voeg centrale test‑mock toe: `tests/mocks/streamlit_mock.py` met no‑op implementaties:
+## Oplossing (geïmplementeerd)
+- Centrale test‑mock: `tests/mocks/streamlit_mock.py` met no‑op implementaties:
   ```python
   class MockStreamlit:
       def __init__(self):
@@ -39,17 +39,16 @@ Test‑mocks bieden no‑op decorators voor `st.cache_data` en `st.cache_resourc
       def cache_resource(self, **kwargs):
           return lambda f: f
   ```
-- Gebruik de mock vroeg in tests (conftest.py of per test) vóór import van modules die Streamlit gebruiken.
+- Mock vroeg geïnstalleerd in `tests/conftest.py` (voor imports met st.cache_*).
 
 ## Acceptatiecriteria
-- Import van `container_manager` en `rule_cache` werkt in tests zonder echte Streamlit.
-- Geen AttributeError op `cache_data`/`cache_resource` tijdens testcollectie en runtime.
+- Import van `container_manager` en `rule_cache` in tests werkt zonder echte Streamlit — voldaan
+- Geen AttributeError op `cache_data`/`cache_resource` tijdens testcollectie en runtime — voldaan
 
 ## Relatie
 - Gerelateerd aan US-201 (ServiceContainer caching) — decorators geïntroduceerd; tests moeten dit ondersteunen.
 - Zie ook CFR-BUG-023 (UI‑dependencies buiten UI) — architectuurgate; dit bugrapport dekt specifiek test‑mock infra.
 
-## Tests
-- Smoke: import `container_manager` in een test met MockStreamlit → geen error.
-- E2E: volledige testsuite kan verzamelen en doorlopen tot eerste functionele assertions.
-
+## Tests / Bewijs
+- Smoke-collect: UI subset en volledige collect grotendeels groen, cascade import‑errors weg.
+- Subset runs groen: contract/orchestrator/service_factory kernpaden.
