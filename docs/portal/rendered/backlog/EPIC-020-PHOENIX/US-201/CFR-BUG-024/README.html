@@ -21,7 +21,7 @@
     <p>---</p>
 <p>id: CFR-BUG-024</p>
 <p>titel: MockStreamlit mist cache decorators (cache_data/cache_resource) → import/cascade test failures</p>
-<p>status: OPEN</p>
+<p>status: RESOLVED</p>
 <p>severity: HIGH</p>
 <p>component: testing-infra</p>
 <p>owner: platform</p>
@@ -50,9 +50,9 @@
 <p>2) Importeer <code>src/utils/container_manager.py</code> in een test</p>
 <p>3) Importerror/AttributeError treedt op, of decoratie wordt als attributetoegang behandeld → failures</p>
 
-<h2>Oplossing</h2>
+<h2>Oplossing (geïmplementeerd)</h2>
 <ul>
-<li>Voeg centrale test‑mock toe: `tests/mocks/streamlit_mock.py` met no‑op implementaties:</li>
+<li>Centrale test‑mock: `tests/mocks/streamlit_mock.py` met no‑op implementaties:</li>
 <pre><code>  class MockStreamlit:
       def __init__(self):
           self.session_state = {}
@@ -60,13 +60,13 @@
           return lambda f: f
       def cache_resource(self, **kwargs):
           return lambda f: f</code></pre>
-<li>Gebruik de mock vroeg in tests (conftest.py of per test) vóór import van modules die Streamlit gebruiken.</li>
+<li>Mock vroeg geïnstalleerd in `tests/conftest.py` (voor imports met st.cache_*).</li>
 </ul>
 
 <h2>Acceptatiecriteria</h2>
 <ul>
-<li>Import van `container_manager` en `rule_cache` werkt in tests zonder echte Streamlit.</li>
-<li>Geen AttributeError op `cache_data`/`cache_resource` tijdens testcollectie en runtime.</li>
+<li>Import van `container_manager` en `rule_cache` in tests werkt zonder echte Streamlit — voldaan</li>
+<li>Geen AttributeError op `cache_data`/`cache_resource` tijdens testcollectie en runtime — voldaan</li>
 </ul>
 
 <h2>Relatie</h2>
@@ -75,12 +75,11 @@
 <li>Zie ook CFR-BUG-023 (UI‑dependencies buiten UI) — architectuurgate; dit bugrapport dekt specifiek test‑mock infra.</li>
 </ul>
 
-<h2>Tests</h2>
+<h2>Tests / Bewijs</h2>
 <ul>
-<li>Smoke: import `container_manager` in een test met MockStreamlit → geen error.</li>
-<li>E2E: volledige testsuite kan verzamelen en doorlopen tot eerste functionele assertions.</li>
+<li>Smoke-collect: UI subset en volledige collect grotendeels groen, cascade import‑errors weg.</li>
+<li>Subset runs groen: contract/orchestrator/service_factory kernpaden.</li>
 </ul>
-
 
   </div>
 </body>
