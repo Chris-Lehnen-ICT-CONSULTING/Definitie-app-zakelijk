@@ -249,9 +249,9 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # Allow timeout override via env for environments with slower network
             import os
             try:
-                WEB_LOOKUP_TIMEOUT = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "3.0"))
+                WEB_LOOKUP_TIMEOUT = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "6.0"))
             except Exception:
-                WEB_LOOKUP_TIMEOUT = 3.0
+                WEB_LOOKUP_TIMEOUT = 6.0
 
             # Web lookup runs ALWAYS when service is available (no feature flag)
             if self.web_lookup_service:
