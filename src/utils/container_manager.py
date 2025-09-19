@@ -1,12 +1,11 @@
 """
-Container Manager met Streamlit caching voor ServiceContainer.
+Container Manager met pure‑Python caching voor ServiceContainer.
 
-Dit module lost het probleem op waarbij ServiceContainer 6x wordt geïnitialiseerd
-bij elke Streamlit rerun. Door @st.cache_resource te gebruiken wordt de container
-maar 1x geïnitialiseerd per sessie, wat de startup tijd van 6 seconden naar
-1 seconde reduceert (83% verbetering).
+Dit module voorkomt dat ServiceContainer onnodig vaak wordt geïnitialiseerd
+door een proces‑lokale LRU‑cache (singleton) te gebruiken. Dit reduceert
+opstarttijd en houdt het systeem UI‑agnostisch (geen Streamlit‑afhankelijkheid).
 
-US-201: Optimaliseer ServiceContainer caching
+US‑201: Optimaliseer ServiceContainer caching
 """
 
 import hashlib

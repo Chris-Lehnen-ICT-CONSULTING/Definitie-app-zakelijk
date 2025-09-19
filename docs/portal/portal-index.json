@@ -28664,6 +28664,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "Web Lookup Testcases (UI + Script)",
+      "path": "../testing/WEB_LOOKUP_TEST_CASES.md",
+      "url": "../testing/WEB_LOOKUP_TEST_CASES.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "platform",
+      "canonical": true,
+      "last_verified": "2025-09-19",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/WEB_LOOKUP_TEST_CASES.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "Legacy Test Mapping → BUSINESS_RULES & Golden Dataset",
       "path": "../testing/LEGACY_TEST_MAPPING.md",
       "url": "../testing/LEGACY_TEST_MAPPING.md",
@@ -30332,11 +30363,11 @@
       "BUG": 14,
       "REQ": 99,
       "ARCH": 23,
-      "TEST": 25,
+      "TEST": 26,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T13:20:28Z"
+    "generated_at": "2025-09-19T13:24:00Z"
   },
   "sources": [
     "docs"
