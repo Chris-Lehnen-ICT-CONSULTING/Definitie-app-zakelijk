@@ -6,6 +6,8 @@ import sys
 from pathlib import Path
 import pytest
 import asyncio
+import os
+import socket
 
 # Add src to path for all tests
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -220,3 +222,26 @@ def chdir_tmp_path(tmp_path, monkeypatch):
     """
     monkeypatch.chdir(tmp_path)
     return tmp_path
+
+
+# Hard-block all outbound network access during tests unless explicitly allowed.
+# Opt-out by setting environment variable ALLOW_NETWORK=1 when running pytest.
+@pytest.fixture(autouse=True)
+def _disable_network(monkeypatch):
+    if os.getenv("ALLOW_NETWORK") == "1":
+        return
+
+    def _blocked_create_connection(*args, **kwargs):  # pragma: no cover - guard
+        raise RuntimeError(
+            "Network access is disabled in tests. Set ALLOW_NETWORK=1 to override."
+        )
+
+    def _blocked_connect(self, *args, **kwargs):  # pragma: no cover - guard
+        raise RuntimeError(
+            "Network access is disabled in tests. Set ALLOW_NETWORK=1 to override."
+        )
+
+    # Block common socket entry points
+    monkeypatch.setattr(socket, "create_connection", _blocked_create_connection, raising=True)
+    monkeypatch.setattr(socket.socket, "connect", _blocked_connect, raising=True)
+    monkeypatch.setattr(socket.socket, "connect_ex", _blocked_connect, raising=True)
