@@ -11,7 +11,7 @@
 [![License](https://img.shields.io/badge/license-Private-red.svg)]()
 
 > **✅ Status Update (2025-09-12)**: US-064 Definition Edit Interface volledig geïmplementeerd met version history, auto-save en 100% test coverage
-> **✅ Status Update (2025-09-11)**: EPIC-010 Context Flow 100% completed, CI/CD gates geïmplementeerd tegen legacy patterns
+> **✅ Status Update (2025-09-19)**: V1→V2 migratie volledig afgerond, alle legacy code verwijderd, clean V2 architectuur
 
 ## 🧾 Snelstart Cheatsheet
 
@@ -34,9 +34,10 @@ pytest -q
 - Zie CONTRIBUTING.md voor richtlijnen. CI blokkeert PR's met TODO‑achtige comments.
 - Lokale check: `pip install pre-commit && pre-commit install` of `bash scripts/ci/check_no_todo_markers.sh`.
 
-### 🛡️ CI/CD Legacy Pattern Gates (NIEUW - Sept 2025)
-- **GitHub Actions**: `.github/workflows/epic-010-gates.yml` blokkeert legacy patterns
-- **Lokale check**: `bash scripts/check-legacy-patterns.sh` voor het pushen
+### 🛡️ CI/CD Quality Gates (Sept 2025)
+- **GitHub Actions**: Automated quality checks en test suites
+- **V2 Architecture**: Volledig gemigreerd, geen legacy code meer aanwezig
+- **Verificatie**: `bash scripts/testing/verify-v2-migration.sh`
 - **7 patterns geblokkeerd**: generation_result imports, .best_iteration, string context, domein field, asyncio.run in services, streamlit in services
 - **Status**: ✅ Actief sinds 11-09-2025 (EPIC-010 completed)
 
@@ -44,7 +45,7 @@ pytest -q
 - Services async‑only: sync wrappers in services verwijderd. UI gebruikt `src/ui/helpers/async_bridge.py` voor sync↔async bridging.
 - PromptServiceV2: `build_prompt` (sync) verwijderd → gebruik `build_generation_prompt` (async) via UI‑bridge.
 - ExportService: validation‑gate alleen in async pad (`export_definitie_async`). Sync pad faalt wanneer gate is ingeschakeld.
-- Feature flags: `show_legacy_warning` verplaatst naar `ui/helpers/feature_toggle.py`; `config/feature_flags.py` is UI‑vrij.
+- Feature flags: Beheerd via `ui/helpers/feature_toggle.py`; `config/feature_flags.py` is UI‑vrij.
 - CategoryStateManager: nu pure helpers (geen `ui.session_state` import). UI schrijft zelf sessiestatus.
 - Expert‑tab: bij “Vaststellen” kan je nu ketenpartners selecteren; worden persistent opgeslagen in DB en komen mee in export.
 - Integratie: `datum_voorstel` wordt bij create gezet op `datetime.now(UTC)` (geen UI‑dependency meer).
@@ -280,7 +281,7 @@ Week 4-6: **📦 FULL MIGRATION & INTEGRATION**
 Week 9-12: **🎯 PRODUCTION READINESS**
 - Security hardening (OWASP compliance)
 - Advanced monitoring & alerting
-- Complete legacy elimination
+- ✅ Legacy elimination COMPLEET (Sept 2025)
 - Enterprise features planning
 
 
@@ -370,7 +371,7 @@ Zie de documentatie in `docs/guidelines/` voor development guidelines.
 ## 🔧 Development (Updated by Quinn QA)
 
 ### 🧪 Quality-First Aanpak (POST-QUINN REVIEW)
-- **Legacy refactoring = PRIORITEIT 1** (blokkeert alle verbeteringen)
+- **V2 Architecture = COMPLEET** (geen legacy blokkades meer)
 - **Security & Performance** voor production readiness
 - **Test-driven development** voor stability confidence
 - **Code quality gates** via AI review automation
@@ -409,7 +410,7 @@ Zie de documentatie in `docs/guidelines/` voor development guidelines.
 │   └── requirements/       # Requirements & features
 ├── scripts/                # Hulp scripts
 │   ├── analyse/            # Analyse scripts
-│   ├── analysis/           # Engelse legacy scripts
+│   ├── analysis/           # Analyse scripts
 │   ├── hooks/              # Pre-commit hooks
 │   └── maintenance/        # Onderhoud scripts
 ├── reports/                # Gegenereerde rapporten (git-ignored)
@@ -453,7 +454,7 @@ Private project. All rights reserved.
 ---
 
 **DefinitieAgent v2.3** - Features First Development
-*"Legacy code is de specificatie"* 🚀
+*"Clean V2 architecture is de nieuwe standaard"* 🚀
 
 ## 🧭 Docs Integrity & Health Report
 
