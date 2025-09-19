@@ -509,6 +509,55 @@ class ModernWebLookupService(WebLookupServiceInterface):
                             }
                         )
 
+                # Context-aware fallback: combineer term met context hints (indien aanwezig)
+                ctx = (request.context or "").lower() if request else ""
+                context_terms: list[str] = []
+                if ctx:
+                    if "strafrecht" in ctx:
+                        context_terms += ["strafrecht", "wetboek van strafrecht"]
+                    if ("strafvordering" in ctx) or (" sv" in f" {ctx}"):
+                        context_terms += [
+                            "wetboek van strafvordering",
+                        ]
+                    if "bestuursrecht" in ctx:
+                        context_terms += ["awb"]
+
+                for ct in context_terms:
+                    combo = f"{term} {ct}".strip()
+                    try:
+                        results = await sru_service.search(
+                            term=combo, endpoint=endpoint, max_records=3
+                        )
+                        # log attempt
+                        self._debug_attempts.append(
+                            {
+                                "provider": source.name,
+                                "api_type": "sru",
+                                "endpoint": endpoint,
+                                "term": combo,
+                                "fallback": True,
+                                "strategy": "context_combo",
+                                "success": bool(results),
+                            }
+                        )
+                        if results:
+                            r = results[0]
+                            r.source.confidence *= source.confidence_weight * 0.9
+                            return r
+                    except Exception as e3:
+                        self._debug_attempts.append(
+                            {
+                                "provider": source.name,
+                                "api_type": "sru",
+                                "endpoint": endpoint,
+                                "term": combo,
+                                "fallback": True,
+                                "strategy": "context_combo",
+                                "success": False,
+                                "error": str(e3),
+                            }
+                        )
+
                 return None
 
         except ImportError as e:
