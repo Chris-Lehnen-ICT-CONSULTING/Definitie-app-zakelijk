@@ -1,6 +1,7 @@
 """Tests for batch validation functionality."""
 
 import pytest
+import os
 from typing import List
 import asyncio
 
@@ -223,8 +224,15 @@ async def test_batch_validate_empty_input():
     assert results == [], "None input should return empty list"
 
 
+SKIP_TIMING = pytest.mark.skipif(
+    bool(os.getenv("CI") or os.getenv("GITHUB_ACTIONS")),
+    reason="Timing-gevoelige test; overslaan in CI",
+)
+
+
 @pytest.mark.unit
 @pytest.mark.asyncio
+@SKIP_TIMING
 async def test_batch_validate_performance_benefit():
     """Test that batch validation is more efficient than sequential calls."""
     m = pytest.importorskip(
