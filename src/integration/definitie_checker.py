@@ -74,7 +74,6 @@ class DefinitieChecker:
         self.integrated_service = None
         self._service_config = {
             "mode": "AUTO",
-            "enable_web_lookup": True,
             "enable_monitoring": True,
             "enable_validation": True,
         }

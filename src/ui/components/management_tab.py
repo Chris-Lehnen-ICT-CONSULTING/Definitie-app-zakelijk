@@ -1276,7 +1276,7 @@ class ManagementTab:
                             service_config = ServiceConfig(
                                 mode=ServiceMode(service_mode.lower()),
                                 enable_monitoring=True,
-                                enable_web_lookup=False,  # Disable for testing
+                                # Web lookup is automatic when available; no explicit toggle
                             )
 
                             service = get_integrated_service(service_config)

@@ -246,6 +246,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             provenance_sources = []
             web_lookup_status = "not_available"  # Track status for metadata
+            # Allow timeout override via env for environments with slower network
+            import os
+            try:
+                WEB_LOOKUP_TIMEOUT = float(os.getenv("WEB_LOOKUP_TIMEOUT_SECONDS", "3.0"))
+            except Exception:
+                WEB_LOOKUP_TIMEOUT = 3.0
 
             # Web lookup runs ALWAYS when service is available (no feature flag)
             if self.web_lookup_service:
@@ -261,14 +267,14 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         sources=None,
                         max_results=3,  # Reduced from 5 for performance
                         include_examples=False,
-                        timeout=1.5,  # Hard limit 1.5 seconds instead of config
+                        timeout=WEB_LOOKUP_TIMEOUT,  # Configurable via env var
                     )
 
                     # Add timeout protection for web lookup
                     import asyncio
                     web_results = await asyncio.wait_for(
                         self.web_lookup_service.lookup(lookup_request),
-                        timeout=1.5  # Ensure max 1.5 seconds
+                        timeout=WEB_LOOKUP_TIMEOUT
                     )
                     logger.info(
                         f"Generation {generation_id}: Web lookup returned {len(web_results) if web_results else 0} results"
@@ -321,7 +327,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
 
                 except asyncio.TimeoutError:
                     logger.warning(
-                        f"Generation {generation_id}: Web lookup timeout after 1.5 seconds - "
+                        f"Generation {generation_id}: Web lookup timeout after {WEB_LOOKUP_TIMEOUT} seconds - "
                         f"proceeding WITHOUT external context"
                     )
                     web_lookup_status = "timeout"
@@ -639,6 +645,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     "sources": provenance_sources,
                     "web_lookup_status": web_lookup_status,
                     "web_lookup_available": self.web_lookup_service is not None,
+                    "web_lookup_timeout": WEB_LOOKUP_TIMEOUT,
                     "web_sources_count": len(provenance_sources),
                     # Add voorbeelden to metadata so UI can display them
                     "voorbeelden": voorbeelden if voorbeelden else {},

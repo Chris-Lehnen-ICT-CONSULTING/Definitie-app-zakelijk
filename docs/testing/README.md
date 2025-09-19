@@ -5,7 +5,10 @@ Centrale wegwijzer voor teststrategie, plannen en coverage, zonder bestaande doc
 ## Coverage
 - Hoofdrapport: `docs/TEST_COVERAGE_ANALYSIS_UAT.md`
 
-## Teststrategie (referenties)
+## Teststrategie
+- Gids: `docs/testing/TESTING_GUIDE.md` (centrale richtlijn en werkwijze)
+
+## Verdere Referenties
 - Solution Architecture (Testen Strategy): `docs/architectuur/SOLUTION_ARCHITECTURE.md`
 - SA Template (Testen Strategy): `docs/architectuur/templates/SOLUTION_ARCHITECTURE_TEMPLATE.md`
 - Refactoring Plan (Testen Strategy): `docs/architectuur/CATEGORY-REFACTORING-PLAN.md`

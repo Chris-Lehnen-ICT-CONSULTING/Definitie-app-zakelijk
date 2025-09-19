@@ -1588,7 +1588,7 @@
       "title": "Verwijder enable_web_lookup Feature Flag",
       "path": "../backlog/EPIC-003/US-220/US-220.md",
       "url": "../backlog/EPIC-003/US-220/US-220.md",
-      "status": "Todo",
+      "status": "Done",
       "prioriteit": "HOOG",
       "owner": "development-team",
       "canonical": true,
@@ -13713,7 +13713,7 @@
       "title": "Importpad inconsistenties (ModernWebLookupService) en package‑exports → fragiele tests",
       "path": "../backlog/EPIC-012/US-074/CFR-BUG-026/README.md",
       "url": "../backlog/EPIC-012/US-074/CFR-BUG-026/README.md",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "prioriteit": null,
       "owner": "platform",
       "canonical": false,
@@ -28417,6 +28417,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "Teststrategie en Richtlijnen",
+      "path": "../testing/TESTING_GUIDE.md",
+      "url": "../testing/TESTING_GUIDE.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "QA Lead",
+      "canonical": true,
+      "last_verified": "2025-09-19",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/TESTING_GUIDE.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "BDD Test Coverage Report - SMART Criteria Implementatie",
       "path": "../testing/bdd-test-coverage-report.md",
       "url": "../testing/bdd-test-coverage-report.md",
@@ -30270,11 +30301,11 @@
       "BUG": 14,
       "REQ": 99,
       "ARCH": 23,
-      "TEST": 23,
+      "TEST": 24,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T09:06:09Z"
+    "generated_at": "2025-09-19T10:00:24Z"
   },
   "sources": [
     "docs"
