@@ -154,6 +154,69 @@ class ModernWebLookupService(WebLookupServiceInterface):
             ),
         }
 
+    # === Context token parsing helpers ===
+    def _classify_context_tokens(self, context: str | None) -> tuple[list[str], list[str], list[str]]:
+        """Classify context tokens into organisatorisch, juridisch, wettelijk.
+
+        Heuristics based on common abbreviations/keywords in this domain.
+        """
+        if not context:
+            return [], [], []
+        raw = [t.strip() for t in (context or "").split("|")]
+        tokens = [t for t in raw if t]
+
+        org_set = {"om", "zm", "dji", "justid", "kmar", "cjib", "reclassering"}
+        jur_keywords = ["recht", "civiel", "bestuursrecht", "strafrecht", "jurid"]
+        wet_keywords = ["wet", "wetboek", "awb", "sv", "sr", "rv"]
+
+        org: list[str] = []
+        jur: list[str] = []
+        wet: list[str] = []
+
+        def _norm(s: str) -> str:
+            return s.lower().strip().replace("(huidig)", "").strip()
+
+        for t in tokens:
+            n = _norm(t)
+            plain = n.replace("  ", " ")
+            if n in org_set:
+                org.append(t)
+                continue
+            if any(k in plain for k in wet_keywords):
+                wet.append(t)
+                continue
+            if any(k in plain for k in jur_keywords):
+                jur.append(t)
+                continue
+            # default: treat unknowns as org to keep cascade predictable
+            org.append(t)
+
+        # Normalize synonyms for wet targeting
+        mapped_wet: list[str] = []
+        for w in wet:
+            nw = _norm(w)
+            if "wetboek van strafvordering" in nw or nw == "sv" or "sv" in nw:
+                mapped_wet.extend(["Wetboek van Strafvordering", "Sv"])
+            elif "wetboek van strafrecht" in nw or nw == "sr" or "sr" in nw:
+                mapped_wet.extend(["Wetboek van Strafrecht", "Sr"])
+            elif nw == "awb" or "algemene wet bestuursrecht" in nw:
+                mapped_wet.extend(["Algemene wet bestuursrecht", "Awb"])
+            else:
+                mapped_wet.append(w)
+
+        # De-duplicate while preserving order
+        def _dedup(seq: list[str]) -> list[str]:
+            seen: set[str] = set()
+            out: list[str] = []
+            for x in seq:
+                k = x.strip().lower()
+                if k not in seen and k:
+                    seen.add(k)
+                    out.append(x)
+            return out
+
+        return _dedup(org), _dedup(jur), _dedup(mapped_wet)
+
     async def lookup(self, request: LookupRequest) -> list[LookupResult]:
         """
         Zoek een term op in web bronnen.
@@ -340,62 +403,75 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 # Gebruik moderne Wikipedia service
                 from .web_lookup.wikipedia_service import wikipedia_lookup
 
-                # Eerste poging met originele term
-                result = await wikipedia_lookup(term)
+                # Stage-based context backoff: 1) org+jur+wet 2) jur+wet 3) wet 4) term
+                org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
+                stages: list[tuple[str, list[str]]] = []
+                all_tokens = org + jur + wet
+                if all_tokens:
+                    stages.append(("context_full", all_tokens))
+                if jur or wet:
+                    stages.append(("jur_wet", jur + wet))
+                if wet:
+                    stages.append(("wet_only", wet))
+                stages.append(("no_ctx", []))
 
-                # Heuristische fallbacks voor bekende varianten (EPIC-003 tests)
+                t = (term or "").strip()
+                result: LookupResult | None = None
+                for stage_name, toks in stages:
+                    query_term = t if not toks else f"{t} " + " ".join(toks)
+                    try:
+                        res = await wikipedia_lookup(query_term)
+                        # Log attempt
+                        self._debug_attempts.append(
+                            {
+                                "provider": source.name,
+                                "api_type": "mediawiki",
+                                "term": query_term,
+                                "stage": stage_name,
+                                "success": bool(res and res.success),
+                            }
+                        )
+                        if res and res.success:
+                            result = res
+                            break
+                    except Exception:
+                        continue
+
+                # Heuristische fallbacks indien nog niets gevonden (hyphen/titlecase/suffix‑strip)
                 if not (result and result.success):
-                    t = (term or "").strip()
                     fallbacks: list[str] = []
-                    # Spatie → koppelstreepje (Wikipedia gebruikt vaak samengestelde woorden)
                     if " " in t and "-" not in t:
                         fallbacks.append(t.replace(" ", "-"))
-                        # Titlecase variant kan beter matchen op Wikipedia
                         fallbacks.append(t.title().replace(" ", "-"))
-                    # Algemene suffix-fallback: verwijder "-tekst"
                     if t.lower().endswith("tekst") and len(t) > 6:
                         fallbacks.append(t[: -len("tekst")])
-                    # Specifieke bekende gevallen
                     if t.lower() == "vonnistekst":
                         fallbacks.extend(["vonnis", "uitspraak"])  # juridische synoniemen
-                    # Unieke fallbacks opschonen en proberen
-                    seen: set[str] = set()
-                    cleaned_fallbacks = []
-                    for fb in fallbacks:
-                        fb_clean = (fb or "").strip()
-                        if fb_clean and fb_clean.lower() not in seen and fb_clean.lower() != t.lower():
-                            seen.add(fb_clean.lower())
-                            cleaned_fallbacks.append(fb_clean)
 
-                    for fb in cleaned_fallbacks:
+                    seen: set[str] = set()
+                    for fb in fallbacks:
+                        fbq = fb.strip()
+                        if not fbq or fbq.lower() in seen or fbq.lower() == t.lower():
+                            continue
+                        seen.add(fbq.lower())
                         try:
-                            fb_res = await wikipedia_lookup(fb)
-                            # Log fallback poging in debug attempts
-                            try:
-                                self._debug_attempts.append(
-                                    {
-                                        "provider": source.name,
-                                        "api_type": "mediawiki",
-                                        "term": fb,
-                                        "fallback": True,
-                                        "success": bool(fb_res and fb_res.success),
-                                    }
-                                )
-                            except Exception:
-                                pass
+                            fb_res = await wikipedia_lookup(fbq)
+                            self._debug_attempts.append(
+                                {
+                                    "provider": source.name,
+                                    "api_type": "mediawiki",
+                                    "term": fbq,
+                                    "fallback": True,
+                                    "success": bool(fb_res and fb_res.success),
+                                }
+                            )
                             if fb_res and fb_res.success:
-                                # Bewaar originele term in metadata
-                                if isinstance(fb_res.metadata, dict):
-                                    fb_res.metadata.setdefault("original_term", t)
-                                    fb_res.metadata.setdefault("fallback_term", fb)
                                 result = fb_res
                                 break
                         except Exception:
-                            # Stil fallback failure: ga door naar volgende
                             continue
 
                 if result and result.success:
-                    # Update source confidence met configured weight
                     result.source.confidence *= source.confidence_weight
                     return result
 
@@ -433,130 +509,71 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 logger.warning(f"No SRU endpoint mapping for source: {source.name}")
                 return None
 
-            # Perform SRU search
+            # Stage-based SRU search using context backoff
             async with SRUService() as sru_service:
-                # Probeer meerdere records om beste te kiezen
-                results = await sru_service.search(
-                    term=term,
-                    endpoint=endpoint,
-                    max_records=3,
-                )
+                org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
+                stages: list[tuple[str, list[str]]] = []
+                all_tokens = org + jur + wet
+                if all_tokens:
+                    stages.append(("context_full", all_tokens))
+                if jur or wet:
+                    stages.append(("jur_wet", jur + wet))
+                if wet:
+                    stages.append(("wet_only", wet))
+                stages.append(("no_ctx", []))
 
-                # Verzamel attempts metadata van SRU-service en voeg toe aan debug
-                try:
-                    for att in sru_service.get_attempts() or []:
-                        rec = {
+                base = (term or "").strip()
+                for stage_name, toks in stages:
+                    combo_term = base if not toks else f"{base} " + " ".join(toks)
+                    results = await sru_service.search(
+                        term=combo_term,
+                        endpoint=endpoint,
+                        max_records=3,
+                    )
+                    # collect attempts for this stage
+                    try:
+                        for att in sru_service.get_attempts() or []:
+                            rec = {
+                                "provider": source.name,
+                                "api_type": "sru",
+                                "term": combo_term,
+                                "stage": stage_name,
+                            }
+                            rec.update(att)
+                            self._debug_attempts.append(rec)
+                    except Exception:
+                        pass
+
+                    if results:
+                        r = results[0]
+                        r.source.confidence *= source.confidence_weight
+                        return r
+
+                # Heuristische extra fallbacks op basis van term (na stages)
+                extra_terms: list[str] = []
+                if base.endswith("tekst") and len(base) > 6:
+                    extra_terms.append(base[:-5])
+                if " " in base and "-" not in base:
+                    extra_terms.append(base.replace(" ", "-"))
+                for et in extra_terms:
+                    results = await sru_service.search(
+                        term=et, endpoint=endpoint, max_records=3
+                    )
+                    self._debug_attempts.append(
+                        {
                             "provider": source.name,
                             "api_type": "sru",
-                            "term": term,
+                            "endpoint": endpoint,
+                            "term": et,
+                            "fallback": True,
+                            "stage": "post_stages",
+                            "success": bool(results),
                         }
-                        rec.update(att)
-                        self._debug_attempts.append(rec)
-                except Exception:
-                    pass
-
-                if results:
-                    result = results[0]  # Take best result
-                    # Apply source confidence weight
-                    result.source.confidence *= source.confidence_weight
-                    return result
-
-                # Heuristische fallback: reduceer specifiek suffix of gebruik veelvoorkomende juridische synoniemen
-                # Voorbeelden: 'vonnistekst' → 'vonnis', 'uitspraak'; 'rechter commissaris' → 'rechter-commissaris'
-                fallback_terms = []
-                t = (term or "").strip()
-                if t.endswith("tekst") and len(t) > 6:
-                    fallback_terms.append(t[:-5])
-                if " " in t and "-" not in t:
-                    fallback_terms.append(t.replace(" ", "-"))
-                # Generieke fallback bij juridische context
-                fallback_terms.extend(["uitspraak"])  # conservatief
-                # Specifieke synoniemen per bekende term
-                if t.lower() == "rechter commissaris":
-                    fallback_terms.append("rechter-commissaris")
-
-                for ft in fallback_terms:
-                    try:
-                        results = await sru_service.search(
-                            term=ft, endpoint=endpoint, max_records=3
-                        )
-                        if results:
-                            r = results[0]
-                            r.source.confidence *= source.confidence_weight * 0.95
-                            # record fallback attempt success
-                            self._debug_attempts.append(
-                                {
-                                    "provider": source.name,
-                                    "api_type": "sru",
-                                    "endpoint": endpoint,
-                                    "term": ft,
-                                    "fallback": True,
-                                    "success": True,
-                                }
-                            )
-                            return r
-                    except Exception as e2:
-                        logger.warning(f"SRU fallback term '{ft}' failed: {e2}")
-                        self._debug_attempts.append(
-                            {
-                                "provider": source.name,
-                                "api_type": "sru",
-                                "endpoint": endpoint,
-                                "term": ft,
-                                "fallback": True,
-                                "success": False,
-                                "error": str(e2),
-                            }
-                        )
-
-                # Context-aware fallback: combineer term met context hints (indien aanwezig)
-                ctx = (request.context or "").lower() if request else ""
-                context_terms: list[str] = []
-                if ctx:
-                    if "strafrecht" in ctx:
-                        context_terms += ["strafrecht", "wetboek van strafrecht"]
-                    if ("strafvordering" in ctx) or (" sv" in f" {ctx}"):
-                        context_terms += [
-                            "wetboek van strafvordering",
-                        ]
-                    if "bestuursrecht" in ctx:
-                        context_terms += ["awb"]
-
-                for ct in context_terms:
-                    combo = f"{term} {ct}".strip()
-                    try:
-                        results = await sru_service.search(
-                            term=combo, endpoint=endpoint, max_records=3
-                        )
-                        # log attempt
-                        self._debug_attempts.append(
-                            {
-                                "provider": source.name,
-                                "api_type": "sru",
-                                "endpoint": endpoint,
-                                "term": combo,
-                                "fallback": True,
-                                "strategy": "context_combo",
-                                "success": bool(results),
-                            }
-                        )
-                        if results:
-                            r = results[0]
-                            r.source.confidence *= source.confidence_weight * 0.9
-                            return r
-                    except Exception as e3:
-                        self._debug_attempts.append(
-                            {
-                                "provider": source.name,
-                                "api_type": "sru",
-                                "endpoint": endpoint,
-                                "term": combo,
-                                "fallback": True,
-                                "strategy": "context_combo",
-                                "success": False,
-                                "error": str(e3),
-                            }
-                        )
+                    )
+                    if results:
+                        r = results[0]
+                        r.source.confidence *= source.confidence_weight * 0.95
+                        return r
 
                 return None
 
