@@ -593,32 +593,9 @@ class ModularValidationService:
 
         # 1) Forbidden regex patterns
         patterns = rule.get("herkenbaar_patronen", []) or []
-        # Legacy-compatible additional patterns for better detection (from V1 interpreter)
-        additional_map: dict[str, list[str]] = {
-            "CON-01": [
-                r"\b(in de context van|binnen de context|juridische context)\b",
-                r"\b(DJI|OM|KMAR|Openbaar Ministerie)\b",
-                r"\bvolgens het Wetboek van\b",
-            ],
-            "ESS-01": [
-                r"\b(om te|met als doel|bedoeld om|teneinde|zodat)\b",
-                r"\b(gericht op|ten behoeve van)\b",
-            ],
-            "INT-01": [
-                r"\.\s+[A-Z]",
-                r";\s*[a-z]",
-            ],
-            "INT-03": [
-                r"\b(deze|dit|die|daarvan)\b(?!\s+(begrip|definitie|regel))",
-            ],
-            "STR-01": [
-                r"^(is|de|het|een|wordt|betreft)\b",
-            ],
-            "STR-02": [
-                r"\b(proces|activiteit|handeling|zaak|ding)\b(?!\s+\w+)",
-            ],
-        }
-        extra = additional_map.get(code_up, [])
+        # Legacy-compatible additional patterns (centralized)
+        from validation.additional_patterns import get_additional_patterns
+        extra = get_additional_patterns(code_up)
         if extra:
             # Preserve order and de-duplicate
             patterns = list(dict.fromkeys([*patterns, *extra]))
@@ -1044,12 +1021,21 @@ class ModularValidationService:
         })
 
     def _category_for(self, code: str) -> str:
-        if code.startswith("STR-"):
+        c = str(code)
+        if c.startswith("STR-"):
             return "structuur"
-        if code.startswith("CON-"):
+        if c.startswith("CON-"):
             return "samenhang"
-        if code.startswith(("ESS-", "VAL-")):
+        if c.startswith(("ESS-", "VAL-")):
             return "juridisch"
+        if c.startswith("SAM-"):
+            return "samenhang"
+        if c.startswith("ARAI") or c.startswith("ARAI-"):
+            return "taal"
+        if c.startswith("INT-"):
+            return "structuur"
+        if c.startswith("VER-"):
+            return "taal"
         return "system"
 
     def _suggestion_for_internal_rule(self, code: str, ctx: EvaluationContext) -> str | None:
