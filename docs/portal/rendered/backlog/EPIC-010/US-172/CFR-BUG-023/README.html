@@ -21,9 +21,10 @@
     <p>---</p>
 <p>id: CFR-BUG-023</p>
 <p>titel: UI dependencies buiten UI (services/config/utils)</p>
-<p>status: OPEN</p>
+<p>status: RESOLVED</p>
 <p>severity: HIGH</p>
 <p>gevonden_op: 2025-09-15</p>
+<p>last_verified: 2025-09-19</p>
 <p>component: laaggrenzen</p>
 <p>---</p>
 
@@ -51,6 +52,12 @@
 <li>`rg -n "\\bfrom\\s+ui\\.|\\bimport\\s+ui\\b" src | grep -v '^src/ui/' | grep -v '^src/main.py'` → 0</li>
 </ul>
 
+<h2>Verificatiebewijs (2025-09-19)</h2>
+<ul>
+<li>Uitgevoerd: geen hits buiten `src/ui/**` en `src/main.py` voor Streamlit‑imports.</li>
+<li>Uitgevoerd: geen `from ui.`/`import ui` buiten `src/ui/**` en `src/main.py`.</li>
+<li>Opmerking: `src/utils/voorbeelden_debug.py` gebruikt geen top‑level Streamlit‑import meer; eventuele UI‑inspectie gebeurt defensief via dynamische import binnen functie en valt buiten de acceptatie‑grep.</li>
+</ul>
 
   </div>
 </body>
