@@ -97,19 +97,36 @@ def pytest_configure(config):
     config.addinivalue_line(
         "markers", "benchmark: mark test as benchmark (optional plugin)"
     )
+    # Additional suite markers used across the repo
+    config.addinivalue_line(
+        "markers", "acceptance: mark acceptance tests"
+    )
+    config.addinivalue_line(
+        "markers", "red_phase: mark TDD RED phase tests"
+    )
+    config.addinivalue_line(
+        "markers", "antipattern: mark tests that block anti-patterns"
+    )
+    config.addinivalue_line(
+        "markers", "ontological_category: mark ontology category specific tests"
+    )
 
 
 # Configure test collection to ignore certain files
-def pytest_ignore_collect(path, config):
+def pytest_ignore_collect(collection_path: Path, config):
     """Ignore certain test files during collection."""
+    p = str(collection_path).lower()
     # Ignore US-041/042/043 tests until features are implemented
-    if "us041" in str(path).lower():
+    if "us041" in p:
         return True
-    if "us042" in str(path).lower():
+    if "us042" in p:
         return True
-    if "us043" in str(path).lower():
+    if "us043" in p:
         return True
-    if "context_flow" in str(path).lower():
+    if "context_flow" in p:
+        return True
+    # Ignore manual exploratory scripts
+    if "/manual/" in p.replace("\\", "/"):
         return True
     return False
 

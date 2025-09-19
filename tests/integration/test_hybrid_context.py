@@ -1,13 +1,9 @@
 """
-Test script voor hybrid context functionaliteit.
+Integratietest voor hybrid context functionaliteit.
 """
 
 import logging
-import os
 import sys
-
-# Add src to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from document_processing.document_processor import get_document_processor
 from hybrid_context.context_fusion import ContextFusion
