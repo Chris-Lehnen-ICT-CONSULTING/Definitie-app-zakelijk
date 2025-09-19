@@ -20,6 +20,12 @@ from typing import Dict, List, Any
 # Add project root to path
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
+# Output directory configuration: write artifacts under reports/modular_prompts by default
+_PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+_DEFAULT_OUTPUT_DIR = os.path.join(_PROJECT_ROOT, "reports", "modular_prompts")
+OUTPUT_DIR = os.environ.get("MODULAR_PROMPT_OUTPUT_DIR", _DEFAULT_OUTPUT_DIR)
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+
 from src.services.definition_generator_config import UnifiedGeneratorConfig
 from src.services.definition_generator_context import EnrichedContext
 from src.services.prompts.modular_prompt_builder import ModularPromptBuilder, PromptComponentConfig
@@ -203,7 +209,8 @@ def run_test_case(test_case: TestCase) -> TestResult:
 
     # Sla prompt op
     filename = f"prompt_{test_case.name.replace(' ', '_').lower()}.txt"
-    with open(filename, 'w', encoding='utf-8') as f:
+    file_path = os.path.join(OUTPUT_DIR, filename)
+    with open(file_path, 'w', encoding='utf-8') as f:
         f.write(f"# Test Case: {test_case.name}\n")
         f.write(f"# Begrip: {test_case.begrip}\n")
         f.write(f"# Context: {json.dumps(test_case.context)}\n")
@@ -214,7 +221,7 @@ def run_test_case(test_case: TestCase) -> TestResult:
         f.write("# " + "="*50 + "\n\n")
         f.write(prompt)
 
-    print(f"✓ Prompt opgeslagen als: {filename}")
+    print(f"✓ Prompt opgeslagen als: {file_path}")
 
     return result
 
@@ -289,10 +296,11 @@ def main():
         report["results"].append(asdict(result))
 
     # Sla rapport op
-    with open("modular_prompt_test_report.json", 'w', encoding='utf-8') as f:
+    report_path = os.path.join(OUTPUT_DIR, "modular_prompt_test_report.json")
+    with open(report_path, 'w', encoding='utf-8') as f:
         json.dump(report, f, indent=2, ensure_ascii=False)
 
-    print(f"\n✅ Test rapport opgeslagen als: modular_prompt_test_report.json")
+    print(f"\n✅ Test rapport opgeslagen als: {report_path}")
 
     # Analyseer validatieregels
     print("\n📏 Validatieregel Analyse:")

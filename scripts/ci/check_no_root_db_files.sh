@@ -14,7 +14,7 @@ NC="\033[0m"
 REPO_ROOT="$(git rev-parse --show-toplevel 2>/dev/null || pwd)"
 cd "$REPO_ROOT"
 
-echo -e "${YELLOW}🔎 Checking for root-level *.db files...${NC}"
+echo -e "${YELLOW}🔎 Checking for root-level *.db/sqlite files...${NC}"
 
 fail_with_list() {
   echo -e "${RED}❌ Root-level database files are not allowed:${NC}"
@@ -25,20 +25,21 @@ fail_with_list() {
   exit 1
 }
 
+ROOT_PATTERN='^[^/]+\.(db|sqlite|sqlite3)$'
+
 if [[ "${GITHUB_ACTIONS:-}" == "true" ]]; then
   # CI mode: fail if any tracked root-level *.db exists in the repo
-  ROOT_DB_FILES=$(git ls-files | awk '/^[^\/]+\.db$/') || ROOT_DB_FILES=""
+  ROOT_DB_FILES=$(git ls-files | grep -E "$ROOT_PATTERN" || true)
   if [[ -n "$ROOT_DB_FILES" ]]; then
     fail_with_list "$ROOT_DB_FILES"
   fi
 else
   # Local pre-commit: fail only if staged root-level *.db is present
   STAGED_FILES=$(git diff --name-only --cached --diff-filter=ACMR || true)
-  ROOT_DB_STAGED=$(echo "$STAGED_FILES" | awk '/^[^\/]+\.db$/') || ROOT_DB_STAGED=""
+  ROOT_DB_STAGED=$(echo "$STAGED_FILES" | grep -E "$ROOT_PATTERN" || true)
   if [[ -n "$ROOT_DB_STAGED" ]]; then
     fail_with_list "$ROOT_DB_STAGED"
   fi
 fi
 
-echo -e "${GREEN}✅ No root-level *.db files detected.${NC}"
-
+echo -e "${GREEN}✅ No root-level *.db/sqlite files detected.${NC}"

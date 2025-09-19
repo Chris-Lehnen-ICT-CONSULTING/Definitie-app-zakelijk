@@ -10,8 +10,31 @@ import asyncio
 # Add src to path for all tests
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
-# Import all fixtures from v2_service_mocks to make them globally available
+# Install a minimal Streamlit mock BEFORE importing modules that might reference it
+# Ensure tests directory is on sys.path to import our mock module
 sys.path.insert(0, str(Path(__file__).parent))
+try:
+    from mocks.streamlit_mock import get_streamlit_mock  # type: ignore
+    sys.modules["streamlit"] = get_streamlit_mock()
+except Exception:  # pragma: no cover - inline fallback
+    class _NoOpDec:
+        def __call__(self, *args, **kwargs):
+            def _decorator(func):
+                return func
+            return _decorator
+
+        def clear(self):
+            return None
+
+    class _InlineSt:
+        def __init__(self):
+            self.session_state = {}
+            self.cache_data = _NoOpDec()
+            self.cache_resource = _NoOpDec()
+
+    sys.modules["streamlit"] = _InlineSt()
+
+# Import all fixtures from v2_service_mocks to make them globally available
 from fixtures.v2_service_mocks import *
 
 # Configure asyncio for testing
