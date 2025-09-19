@@ -51,8 +51,4 @@ def test_validation_result_degraded_schema():
         correlation_id="00000000-0000-0000-0000-000000000001",
         begrip="testbegrip",
     )
-    # Optional: some implementations include improvement_suggestions with a non-enumerated type
-    # Focus this contract on required structure; drop optional suggestions to avoid false negatives.
-    inst = dict(degraded)
-    inst.pop("improvement_suggestions", None)
-    validate(instance=inst, schema=schema)
+    validate(instance=degraded, schema=schema)

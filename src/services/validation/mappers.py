@@ -227,8 +227,9 @@ def create_degraded_result(
         "category": "system",
     }
 
+    # Align with schema enum: use a permitted type (e.g., 'restructure')
     suggestion: ImprovementSuggestion = {
-        "type": "retry",
+        "type": "restructure",
         "description": "The validation service encountered an error. Please try again.",
         "impact": "high",
     }

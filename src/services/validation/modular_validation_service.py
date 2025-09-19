@@ -162,8 +162,11 @@ class ModularValidationService:
     def _calculate_rule_weight(self, rule_data: dict) -> float:
         """Calculate weight for a rule based on priority or explicit weight."""
         # Check for explicit weight first
-        if "weight" in rule_data:
-            return float(rule_data["weight"])
+        if "weight" in rule_data and rule_data["weight"] is not None:
+            try:
+                return float(rule_data["weight"])
+            except (TypeError, ValueError):
+                logger.debug(f"Invalid weight value: {rule_data.get('weight')}, using priority-based weight")
 
         # Use priority to determine weight
         priority = ensure_string(safe_dict_get(rule_data, "prioriteit", "midden"))
@@ -308,7 +311,10 @@ class ModularValidationService:
         # 4) Regels evalueren in deterministische volgorde
         weights = dict(self._default_weights)
         if getattr(self.config, "weights", None):
-            weights.update({k: float(v) for k, v in self.config.weights.items()})
+            weights.update({
+                k: float(v) if v is not None else self._default_weights.get(k, 0.5)
+                for k, v in self.config.weights.items()
+            })
 
         rule_scores: dict[str, float] = {}
         violations: list[dict[str, Any]] = []
