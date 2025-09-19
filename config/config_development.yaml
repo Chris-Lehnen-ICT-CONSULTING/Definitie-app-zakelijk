@@ -62,7 +62,8 @@ paths:
   logs_dir: log
   rate_limit_history_file: cache/rate_limit_history.json
   reports_dir: reports
-  toetsregels_file: config/toetsregels.json
+  # Historische instelling; ToetsregelManager laadt per-bestand uit src/toetsregels/regels/
+  toetsregels_file: src/toetsregels/regels
   verboden_woorden_file: config/verboden_woorden.json
 rate_limiting:
   adjustment_factor: 0.2

@@ -37,19 +37,23 @@ Dit document beschrijft de testmethodiek, conventies en praktische instructies v
 - Centrale Streamlit‑mock: `tests/mocks/streamlit_mock.py` (cache decorators & UI no‑ops).
 
 ## Markers (beschikbaar)
-- `unit`, `integration`, `regression`, `golden`, `performance`, `benchmark`,
-  `acceptance`, `red_phase`, `antipattern`, `ontological_category`.
+- `unit`, `integration`, `contract`, `smoke`, `regression`, `golden`,
+  `performance`, `benchmark`, `acceptance`, `red_phase`, `antipattern`,
+  `ontological_category`.
 
 ## Uitvoeren
 - Snelpad: `./scripts/run_tests.sh fast` (smoke + unit + services)
-- PR‑suite: `./scripts/run_tests.sh pr` (incl. integration + contracts)
+- PR‑suite: `./scripts/run_tests.sh pr` (incl. integration + contracts; geen performance)
 - Volledig (excl. performance): `./scripts/run_tests.sh full`
 - Performance/benchmark: `./scripts/run_tests.sh perf`
-- Coverage: `pytest --cov=src --cov-report=term-missing`
+- Coverage (overall): `pytest --cov=src --cov-report=term-missing`
+- Subpakket‑coverage (services): `pytest --cov=src/services --cov-report=term-missing`
 - PER‑007: `pytest -c tests/pytest_per007.ini -m "red_phase or antipattern or acceptance"`
 
 ## Coverage
-- Startbudget: `--cov=src --cov-fail-under=60` (stapsgewijs verhogen).
+- PR (overall): `--cov=src --cov-fail-under=60`.
+- PR (services subpakket): `--cov=src/services --cov-fail-under=80` (consistent met CI).
+- Nightly: overall 65–70; subpakketten ≥80% (prompts/services/web_lookup).
 - Rapporteer ontbrekende regels met `--cov-report=term-missing`.
 
 ## Prestaties
@@ -59,6 +63,7 @@ Dit document beschrijft de testmethodiek, conventies en praktische instructies v
 - Geen netwerk in tests; externe services mocken. Netwerk is hard‑geblokkeerd in conftest (override met `ALLOW_NETWORK=1`).
 - Gebruik centrale mocks (Streamlit, AI‑clients) i.p.v. ad‑hoc MagicMocks.
 - Vermijd tests onder `src/`; alle tests horen onder `tests/`.
+- Voeg `pytest-randomly` toe en los volgorde‑afhankelijkheden op zodra gedetecteerd.
 
 ## Schrijven van nieuwe tests
 1. Kies laag (unit → services → integratie). Begin zo laag mogelijk.
@@ -75,6 +80,8 @@ Dit document beschrijft de testmethodiek, conventies en praktische instructies v
 ## Governance
 - Centrale config staat in `pytest.ini` (root); eerdere varianten in `tests/` of `config/` zijn verwijderd.
 - Manual/debug scripts onder `tests/manual/` worden niet verzameld (uitgesloten in `conftest.py`).
+- Uniformeer markers in `pytest.ini` (unit, integration, contract, smoke, regression, performance, benchmark, acceptance, red_phase, antipattern) en voorkom dubbele/impliciete declaraties in fixtures.
+- Voeg contract/JSON‑schema checks toe aan PR‑profiel (`scripts/run_tests.sh pr`).
 
 ## Roadmap (hiaten die we gaan vullen)
 - Unit‑tests voor `services/adapters/*`, `services/policies/approval_gate_policy.py` en prompt‑modules.

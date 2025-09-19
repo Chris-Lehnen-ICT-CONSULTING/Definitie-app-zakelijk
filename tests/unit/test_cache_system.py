@@ -183,19 +183,19 @@ class TestCacheManager:
 
     def test_cache_expiration_in_manager(self):
         """Test cache expiration in manager."""
-        # Set value with short TTL
-        self.cache_manager.set('key1', 'value1', ttl=0.1)
+        # Set value with 1 second TTL for more reliable timing
+        self.cache_manager.set('key1', 'value1', ttl=1)
 
         # Should exist immediately
         result = self.cache_manager.get('key1')
-        assert result == 'value1'
+        assert result == 'value1', "Value should be available immediately after setting"
 
-        # Wait for expiration
-        time.sleep(0.2)
+        # Wait for expiration (add small buffer for timing precision)
+        time.sleep(1.1)
 
         # Should be expired
         result = self.cache_manager.get('key1')
-        assert result is None
+        assert result is None, "Value should be expired after TTL"
 
     def test_cache_delete(self):
         """Test cache deletion."""

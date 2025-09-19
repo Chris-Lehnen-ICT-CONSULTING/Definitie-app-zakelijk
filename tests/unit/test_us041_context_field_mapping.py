@@ -5,11 +5,11 @@ These tests verify that context fields (organisatorische_context, juridische_con
 wettelijke_basis) are correctly propagated from UI through services to AI prompts.
 
 Related Documentation:
-- Epic: docs/backlog/epics/EPIC-010-context-flow-refactoring.md
-- User Story: docs/backlog/stories/US-041.md
+- Epic: docs/backlog/EPIC-010/EPIC-010.md
+- User Story: docs/backlog/EPIC-010/US-041/US-041.md
 - Implementation Plan: docs/implementation/EPIC-010-implementation-plan.md#fase-3
-- Test Strategy: docs/testing/EPIC-010-test-strategy.md
-- Bug Report: docs/backlog/bugs/CFR-BUG-001 (context fields not passed)
+- Test Strategy: docs/testing/EPIC_010_TEST_SUITE_SUMMARY.md
+- Bug Report: docs/backlog/EPIC-010/US-041/CFR-BUG-003/CFR-BUG-003.md
 
 Test Coverage:
 - Context field data flow validation
