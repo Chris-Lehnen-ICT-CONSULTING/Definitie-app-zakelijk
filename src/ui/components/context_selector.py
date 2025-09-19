@@ -172,6 +172,11 @@ class ContextSelector:
                 help="Selecteer één of meerdere organisaties",
                 key="org_context_multiselect",  # US-042: Add key for state management
             )
+            # Defensief: behandel None/andere types als lege lijst of enkel item
+            if not selected_org:
+                selected_org = []
+            elif not isinstance(selected_org, list):
+                selected_org = [selected_org]
 
             # Custom org context
             custom_org = ""
@@ -219,6 +224,10 @@ class ContextSelector:
                 default=default_wet or [],
                 help="Selecteer relevante wetgeving",
             )
+            if not selected_wet:
+                selected_wet = []
+            elif not isinstance(selected_wet, list):
+                selected_wet = [selected_wet]
 
             # Custom legal basis
             custom_wet = ""
@@ -265,6 +274,10 @@ class ContextSelector:
                 default=default_jur or [],
                 help="Selecteer juridische gebieden",
             )
+            if not selected_jur:
+                selected_jur = []
+            elif not isinstance(selected_jur, list):
+                selected_jur = [selected_jur]
 
             # Custom juridical context
             custom_jur = ""
@@ -304,6 +317,8 @@ class ContextSelector:
             except Exception:
                 # Graceful degradation when text_input not available
                 voorsteller = SessionStateManager.get_value("voorsteller", "")
+            if voorsteller is None:
+                voorsteller = ""
 
             try:
                 ketenpartners = st.multiselect(
@@ -313,6 +328,10 @@ class ContextSelector:
                 )
             except Exception:
                 ketenpartners = SessionStateManager.get_value("ketenpartners", [])
+            if not ketenpartners:
+                ketenpartners = []
+            elif not isinstance(ketenpartners, list):
+                ketenpartners = [ketenpartners]
 
             # Store metadata in session
             SessionStateManager.set_value("voorsteller", voorsteller)

@@ -246,6 +246,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             provenance_sources = []
             web_lookup_status = "not_available"  # Track status for metadata
+            debug_info = None  # Ensure defined even when web lookup is unavailable
             # Allow timeout override via env for environments with slower network
             import os
             try:
@@ -892,73 +893,3 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
     # =====================================
     # LEGACY SERVICE FALLBACKS
     # ====================================
-
-    def _get_legacy_validation_service(self):
-        """Get legacy validation service as fallback."""
-        try:
-            # Create a simple validation adapter that works
-            class SimpleValidationAdapter:
-                def validate(self, definition):
-                    """Simple validation that always passes for testing."""
-                    from services.interfaces import ValidationResult
-
-                    # Basic length check
-                    is_valid = len(definition.definitie) > 10
-                    score = 0.8 if is_valid else 0.3
-
-                    return ValidationResult(
-                        is_valid=is_valid,
-                        definition_text=definition.definitie,
-                        score=score,
-                        errors=[] if is_valid else ["Definitie te kort"],
-                        warnings=[],
-                        suggestions=[],
-                    )
-
-            return SimpleValidationAdapter()
-        except Exception as e:
-            logger.warning(f"Legacy validation service not available: {e}")
-            return None
-
-    def _get_legacy_cleaning_service(self):
-        """Get legacy cleaning service as fallback."""
-        try:
-            # Simple cleaning adapter
-            class SimpleCleaningAdapter:
-                def clean_text(self, text: str, term: str):
-                    """Simple text cleaning."""
-                    from services.interfaces import CleaningResult
-
-                    # Basic cleaning: strip whitespace and normalize
-                    cleaned = text.strip()
-                    if not cleaned.endswith("."):
-                        cleaned += "."
-
-                    was_cleaned = cleaned != text
-
-                    return CleaningResult(
-                        original_text=text,
-                        cleaned_text=cleaned,
-                        was_cleaned=was_cleaned,
-                        applied_rules=["normalize_punctuation"] if was_cleaned else [],
-                        improvements=["Added period"] if was_cleaned else [],
-                    )
-
-                async def clean_definition(self, text: str):
-                    """Legacy async interface."""
-                    return self.clean_text(text, "").cleaned_text
-
-            return SimpleCleaningAdapter()
-        except Exception as e:
-            logger.warning(f"Legacy cleaning service not available: {e}")
-            return None
-
-    def _get_legacy_repository(self):
-        """Get legacy repository as fallback."""
-        try:
-            from services.definition_repository import DefinitionRepository
-
-            return DefinitionRepository("data/definities.db")
-        except ImportError:
-            logger.warning("Legacy repository not available")
-            return None

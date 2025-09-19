@@ -334,14 +334,23 @@ class DefinitieRepository:
         schema_path = Path(__file__).parent / "schema.sql"
         if schema_path.exists():
             with self._get_connection() as conn:
-                with open(schema_path, encoding="utf-8") as f:
-                    schema_sql = f.read()
-                    try:
-                        # Use executescript for better multi-statement handling
-                        conn.executescript(schema_sql)
-                    except sqlite3.Error as e:
-                        logger.warning(f"Schema execution warning: {e}")
-                        # Fallback to individual statements if executescript fails
+                # Check if tables already exist before running schema
+                cursor = conn.execute(
+                    "SELECT name FROM sqlite_master WHERE type='table' AND name='definities'"
+                )
+                if not cursor.fetchone():
+                    # Tables don't exist, create them
+                    with open(schema_path, encoding="utf-8") as f:
+                        schema_sql = f.read()
+                        try:
+                            # Use executescript for better multi-statement handling
+                            conn.executescript(schema_sql)
+                            logger.info("Database schema created successfully")
+                        except sqlite3.Error as e:
+                            logger.warning(f"Schema execution warning: {e}")
+                            # Fallback to individual statements if executescript fails
+                else:
+                    logger.debug("Database tables already exist, skipping schema creation")
         else:
             # Fallback schema creation if schema.sql not found
             logger.warning("schema.sql not found, creating basic schema")
