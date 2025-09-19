@@ -135,19 +135,22 @@ class ModularValidationService:
                 self._set_default_rules()
                 return
 
-            # Initialize rule structures
-            self._internal_rules = list(all_rules.keys())
+            # Initialize rule structures (optioneel filter op enabled_codes)
+            all_codes = list(all_rules.keys())
+            # Evalueren van ALLE beschikbare regels (gebruik weights/thresholds uit config waar beschikbaar)
+            self._internal_rules = all_codes
             self._json_rules = all_rules
             self._compiled_json_cache: dict[str, list[re.Pattern[str]]] = {}
             self._compiled_ess02_cache: dict[str, dict[str, list[re.Pattern[str]]]] = {}
             self._default_weights = {}
 
             # Extract weights from rule metadata
-            for rule_id, rule_data in all_rules.items():
-                weight = self._calculate_rule_weight(rule_data)
+            for rule_id in self._internal_rules:
+                rule_data = all_rules.get(rule_id, {})
+                weight = self._calculate_rule_weight(rule_data or {})
                 self._default_weights[rule_id] = weight
 
-            # Add baseline internal rules to retain safeguards
+            # Add baseline internal rules to retain safeguards (no-op if already present via JSON)
             self._add_baseline_rules()
 
             logger.info(f"Loaded {len(self._internal_rules)} rules from ToetsregelManager")
@@ -197,6 +200,58 @@ class ModularValidationService:
             "CON-CIRC-001": 0.8,
             "STR-TERM-001": 0.5,
             "STR-ORG-001": 0.7,
+        }
+        # Gebruik ook het JSON-pad voor deze 7 regels zodat evaluatie generiek verloopt
+        self._json_rules = {
+            "VAL-EMP-001": {
+                "id": "VAL-EMP-001",
+                "prioriteit": "hoog",
+                "aanbeveling": "verplicht",
+                "min_chars": 1,
+            },
+            "VAL-LEN-001": {
+                "id": "VAL-LEN-001",
+                "prioriteit": "midden",
+                "aanbeveling": "verplicht",
+                "min_words": 5,
+                "min_chars": 15,
+            },
+            "VAL-LEN-002": {
+                "id": "VAL-LEN-002",
+                "prioriteit": "laag",
+                "aanbeveling": "aanbevolen",
+                "max_words": 80,
+                "max_chars": 600,
+            },
+            "ESS-CONT-001": {
+                "id": "ESS-CONT-001",
+                "prioriteit": "hoog",
+                "aanbeveling": "verplicht",
+                "min_words": 6,
+            },
+            "CON-CIRC-001": {
+                "id": "CON-CIRC-001",
+                "prioriteit": "midden",
+                "aanbeveling": "verplicht",
+                "circular_definition": True,
+            },
+            "STR-TERM-001": {
+                "id": "STR-TERM-001",
+                "prioriteit": "laag",
+                "aanbeveling": "aanbevolen",
+                "forbidden_phrases": ["HTTP protocol"],
+            },
+            "STR-ORG-001": {
+                "id": "STR-ORG-001",
+                "prioriteit": "midden",
+                "aanbeveling": "aanbevolen",
+                "max_chars": 300,
+                "min_commas": 6,
+                "redundancy_patterns": [
+                    r"\\bsimpel\\b.*\\bcomplex\\b",
+                    r"\\bcomplex\\b.*\\bsimpel\\b",
+                ],
+            },
         }
 
     def _get_rule_evaluation_order(
@@ -429,21 +484,32 @@ class ModularValidationService:
     ) -> tuple[float, dict[str, Any] | None]:
         """Evaluate a JSON-defined rule for a given text.
 
-        Currently supports a focused subset:
-        - CON-01: forbidden explicit context mentions + duplicate context signal
-        - ESS-01: goal/teleology phrasing forbidden
-        - ESS-02: ontological category disambiguation (specialised)
-        - INT-01/INT-03, STR-01/STR-02: structure/forbidden patterns
-        Other rules return pass (1.0).
+        Uitbreide generieke evaluator met ondersteuning voor:
+        - herkenbaar_patronen (forbidden patterns)
+        - required_patterns (vereist tenminste één match)
+        - forbidden_phrases (simpele substrings)
+        - min/max_words, min/max_chars (lengtechecks)
+        - circular_definition (begrip mag niet letterlijk in definitie voorkomen)
+        - STR-ORG heuristiek (min_commas + max_chars) en redundancy_patterns
+        - En een aantal bekende special-cases (ESS-02, CON-02, ESS-03/04/05, VER-01)
         """
         text = ctx.cleaned_text or ""
+        text_norm = text.strip()
+        words = len(text_norm.split()) if text_norm else 0
+        chars = len(text_norm)
         code_up = code.upper()
+        severity = self._severity_for_json_rule(rule)
+        messages: list[str] = []
 
-        # Special: ESS-02
+        # Special: ESS-02 (ontologische categorie eenduidigheid)
         if code_up == "ESS-02":
             return self._eval_ess02(rule, text, ctx)
 
-        # Default path for JSON rules: treat 'herkenbaar_patronen' as forbidden patterns
+        # Duplicate context signal voor CON-01
+        if code_up == "CON-01":
+            self._maybe_add_duplicate_context_signal(ctx)
+
+        # 1) Forbidden regex patterns
         patterns = rule.get("herkenbaar_patronen", []) or []
         compiled = self._compiled_json_cache.get(code_up)
         if compiled is None:
@@ -453,84 +519,106 @@ class ModularValidationService:
                 compiled = []
             self._compiled_json_cache[code_up] = compiled
 
-        hits = []
+        pattern_hits: list[str] = []
         for pat in compiled:
             for m in pat.finditer(text):
-                hits.append((pat.pattern, m.start()))
+                pattern_hits.append(pat.pattern)
 
-        # Duplicate context signal for CON-01
-        if code_up == "CON-01":
-            self._maybe_add_duplicate_context_signal(ctx)
-
-        # Some rules (e.g., CON-02) use patterns as POSITIVE indicators, not forbidden
-        # Some rules use patterns as POSITIVE indicators (presence is good)
+        # Sommige regels gebruiken patterns als POSITIEF signaal (presence is goed)
         positive_pattern_rules = {"CON-02", "ESS-03", "ESS-04", "ESS-05"}
-        if hits and code_up not in positive_pattern_rules:
-            score = max(0.0, 1.0 - 0.3 * len(hits))
-            return score, {
-                "code": code,
-                "severity": self._severity_for_json_rule(rule),
-                "message": f"Pattern(s) matched: {', '.join(sorted({h[0] for h in hits}))}",
-                "description": f"Pattern(s) matched: {', '.join(sorted({h[0] for h in hits}))}",
-                "rule_id": code,
-                "category": self._category_for(code),
-            }
+        if pattern_hits and code_up not in positive_pattern_rules:
+            pat_list = ", ".join(sorted(set(pattern_hits)))
+            messages.append(f"Verboden patroon gedetecteerd: {pat_list}")
 
-        # Required/structure checks for known rules (only if no forbidden pattern hit)
-        # CON-02 – authentic source basis required
+        # 2) Required patterns
+        req_patterns = rule.get("required_patterns", []) or []
+        if req_patterns:
+            try:
+                req_compiled = [re.compile(p, re.IGNORECASE) for p in req_patterns]
+            except re.error:
+                req_compiled = []
+            if not any(rc.search(text) for rc in req_compiled):
+                messages.append("Vereist patroon niet gevonden")
+
+        # 3) Forbidden phrases (substring)
+        for phrase in rule.get("forbidden_phrases", []) or []:
+            if phrase and phrase in text_norm:
+                messages.append(f"Verboden term: '{phrase}'")
+
+        # 4) Numeric constraints
+        min_words = rule.get("min_words")
+        if isinstance(min_words, int) and words < min_words:
+            messages.append(f"Te weinig woorden (min {min_words})")
+
+        max_words = rule.get("max_words")
+        if isinstance(max_words, int) and words > max_words:
+            messages.append(f"Te veel woorden (max {max_words})")
+
+        min_chars = rule.get("min_chars")
+        if isinstance(min_chars, int) and chars < min_chars:
+            messages.append(f"Te weinig tekens (min {min_chars})")
+
+        max_chars = rule.get("max_chars")
+        if isinstance(max_chars, int) and chars > max_chars:
+            messages.append(f"Te veel tekens (max {max_chars})")
+
+        # 5) Circular definition (begrip in definitie)
+        if rule.get("circular_definition"):
+            begrip = getattr(self, "_current_begrip", None)
+            if begrip and re.search(rf"\b{re.escape(str(begrip))}\b", text_norm, re.IGNORECASE):
+                messages.append("Circulaire definitie: begrip komt letterlijk voor")
+
+        # 6) STR-ORG heuristics: min_commas + max_chars als samen-conditie
+        min_commas = rule.get("min_commas")
+        if isinstance(min_commas, int) and isinstance(max_chars, int):
+            if text_norm.count(",") >= min_commas and chars > max_chars:
+                messages.append(
+                    f"Zinsstructuur: veel komma's (≥{min_commas}) en te lang (> {max_chars} tekens)"
+                )
+
+        # 7) Redundancy patterns
+        for rpat in rule.get("redundancy_patterns", []) or []:
+            try:
+                rre = re.compile(rpat, re.IGNORECASE)
+            except re.error:
+                continue
+            if rre.search(text_norm):
+                messages.append("Redundantie/tegenstrijdigheid gedetecteerd")
+                break
+
+        # 8) Bekende specifieke checks (positieve indicatoren of vereisten)
         if code_up == "CON-02" and not self._has_authentic_source_basis(text):
-            return 0.0, {
-                "code": code,
-                "severity": self._severity_for_json_rule(rule),
-                "message": "Geen authentieke bron/basis in definitietekst",
-                "description": "Geen authentieke bron/basis in definitietekst",
-                "rule_id": code,
-                "category": self._category_for(code),
-            }
+            messages.append("Geen authentieke bron/basis in definitietekst")
 
-        # ESS-03/04/05
         if code_up == "ESS-03" and not self._has_unique_identification(text):
-            return 0.0, {
-                "code": code,
-                "severity": self._severity_for_json_rule(rule),
-                "message": "Ontbreekt uniek identificatiecriterium",
-                "description": "Ontbreekt uniek identificatiecriterium",
-                "rule_id": code,
-                "category": self._category_for(code),
-            }
-        if code_up == "ESS-04" and not self._has_testable_element(text):
-            return 0.0, {
-                "code": code,
-                "severity": self._severity_for_json_rule(rule),
-                "message": "Ontbreekt objectief toetsbaar element",
-                "description": "Ontbreekt objectief toetsbaar element",
-                "rule_id": code,
-                "category": self._category_for(code),
-            }
-        if code_up == "ESS-05" and not self._has_distinguishing_feature(text):
-            return 0.0, {
-                "code": code,
-                "severity": self._severity_for_json_rule(rule),
-                "message": "Ontbreekt onderscheidend kenmerk",
-                "description": "Ontbreekt onderscheidend kenmerk",
-                "rule_id": code,
-                "category": self._category_for(code),
-            }
+            messages.append("Ontbreekt uniek identificatiecriterium")
 
-        # VER-01 – lemma in enkelvoud (heuristic) using current begrip
+        if code_up == "ESS-04" and not self._has_testable_element(text):
+            messages.append("Ontbreekt objectief toetsbaar element")
+
+        if code_up == "ESS-05" and not self._has_distinguishing_feature(text):
+            messages.append("Ontbreekt onderscheidend kenmerk")
+
         if code_up == "VER-01":
             begrip = getattr(self, "_current_begrip", "") or ""
             if not self._lemma_is_singular(begrip):
-                return 0.0, {
-                    "code": code,
-                    "severity": self._severity_for_json_rule(rule),
-                    "message": "Term (lemma) lijkt meervoud (geen plurale tantum)",
-                    "description": "Term (lemma) lijkt meervoud (geen plurale tantum)",
-                    "rule_id": code,
-                    "category": self._category_for(code),
-                }
+                messages.append("Term (lemma) lijkt meervoud (geen plurale tantum)")
 
-        # Pass if no issues
+        # Resultaat opbouwen
+        if messages:
+            # Als er ook forbidden pattern hits waren, verlaag de score licht op basis van aantal hits
+            score = 0.0 if not pattern_hits else max(0.0, 1.0 - 0.3 * len(set(pattern_hits)))
+            description = "; ".join(dict.fromkeys(messages))  # unique-preserving
+            return score, {
+                "code": code,
+                "severity": severity,
+                "message": description,
+                "description": description,
+                "rule_id": code,
+                "category": self._category_for(code),
+            }
+
+        # Geen issues → pass
         return 1.0, None
 
     def _severity_for_json_rule(self, rule: dict[str, Any]) -> str:
