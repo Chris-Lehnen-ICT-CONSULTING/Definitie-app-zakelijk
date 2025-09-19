@@ -241,6 +241,22 @@ class SRUService:
             if results:
                 return results
 
+            # Query 4: serverChoice any (OR i.p.v. AND)
+            any_query = f'cql.serverChoice any "{escaped}"'
+            results = await _try_query(any_query, strategy="serverChoice_any")
+            if results:
+                return results
+
+            # Query 5: prefix wildcard (ruimer, laatste redmiddel)
+            # Gebruik een conservatieve prefix (eerste 6 letters) om ruis te beperken
+            base = term.strip().replace("\"", "").replace("'", "")
+            if len(base) >= 6:
+                prefix = base[:6]
+                wc_query = f'cql.serverChoice any "{prefix}*"'
+                results = await _try_query(wc_query, strategy="prefix_wildcard")
+                if results:
+                    return results
+
             # Geen resultaten
             return []
 
