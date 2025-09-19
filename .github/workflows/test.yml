@@ -49,14 +49,18 @@ jobs:
           mypy src/services --ignore-missing-imports || true
         fi
 
-    - name: Run tests with coverage
+    - name: Run PR test suite (profiles)
+      env:
+        PYTEST_ADDOPTS: --cov=src --cov-report=xml --cov-report=term-missing --cov-fail-under=60
       run: |
-        pytest tests/services/ \
+        bash scripts/run_tests.sh pr
+
+    - name: Enforce services subpackage coverage (80%)
+      run: |
+        pytest -q tests/services \
           --cov=src/services \
-          --cov-report=xml \
           --cov-report=term-missing \
-          --cov-fail-under=80 \
-          -v
+          --cov-fail-under=80
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v4

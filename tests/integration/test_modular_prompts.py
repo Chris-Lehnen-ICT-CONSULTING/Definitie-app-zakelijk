@@ -32,7 +32,7 @@ from src.services.prompts.modular_prompt_builder import ModularPromptBuilder, Pr
 
 
 @dataclass
-class TestCase:
+class ValidationTestCase:
     """Test case configuratie."""
     name: str
     begrip: str
@@ -42,7 +42,7 @@ class TestCase:
 
 
 @dataclass
-class TestResult:
+class ValidationTestResult:
     """Test resultaat."""
     test_name: str
     begrip: str
@@ -120,7 +120,7 @@ def expected_sections() -> List[str]:
     ]
 
 
-def run_test_case(test_case: TestCase) -> TestResult:
+def run_test_case(test_case: ValidationTestCase) -> ValidationTestResult:
     """Voer een test case uit."""
     import time
 
@@ -183,7 +183,7 @@ def run_test_case(test_case: TestCase) -> TestResult:
     # Haal metadata op
     metadata = builder.get_component_metadata(test_case.begrip, enriched_context)
 
-    result = TestResult(
+    result = ValidationTestResult(
         test_name=test_case.name,
         begrip=test_case.begrip,
         prompt_length=original_length,
@@ -233,27 +233,27 @@ def main():
 
     # Definieer test cases
     test_cases = [
-        TestCase(
+        ValidationTestCase(
             name="Simple Case",
             begrip="toezicht",
             context={"organisatorisch": ["DJI"]},
             ontologische_categorie="proces"
         ),
-        TestCase(
+        ValidationTestCase(
             name="Compact Mode",
             begrip="toezicht",
             context={"organisatorisch": ["DJI"]},
             ontologische_categorie="proces",
             config_overrides={"compact_mode": True}
         ),
-        TestCase(
+        ValidationTestCase(
             name="No ARAI Rules",
             begrip="toezicht",
             context={"organisatorisch": ["DJI"]},
             ontologische_categorie="proces",
             config_overrides={"include_arai_rules": False}
         ),
-        TestCase(
+        ValidationTestCase(
             name="Complex Context",
             begrip="registratie",
             context={

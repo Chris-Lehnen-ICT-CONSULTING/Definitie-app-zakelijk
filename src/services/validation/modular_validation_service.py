@@ -507,6 +507,80 @@ class ModularValidationService:
         if code_up == "ESS-02":
             return self._eval_ess02(rule, text, ctx)
 
+        # Special: SAM-02 — kwalificatie omvat geen herhaling/conflict
+        if code_up == "SAM-02":
+            head = None
+            try:
+                begrip_full = (getattr(self, "_current_begrip", "") or "").strip().lower()
+                parts = begrip_full.split()
+                if len(parts) >= 2:
+                    head = parts[-1]
+            except Exception:
+                head = None
+
+            # Detect: definitietekst lijkt de basisdefinitie te herhalen of definieert het hoofdbegrip i.p.v. het gekwalificeerde begrip
+            text_l = (text or "").strip().lower()
+            if head:
+                # 1) Definieer niet het hoofdbegrip (bv. "delict: ...") maar het gekwalificeerde begrip
+                if text_l.startswith(f"{head}:"):
+                    msg = "Kwalificatie definieert het hoofdbegrip in plaats van het gekwalificeerde begrip"
+                    return 0.0, {
+                        "code": code_up,
+                        "severity": self._severity_for_json_rule(rule),
+                        "message": msg,
+                        "description": msg,
+                        "rule_id": code_up,
+                        "category": self._category_for(code_up),
+                        "suggestion": "Begin met het gekwalificeerde begrip en gebruik genus+differentia zonder de basisdefinitie te herhalen.",
+                    }
+
+                # 2) Heuristische detectie van herhaling van bekende basisfrase (bv. strafbepaling‑zin)
+                if head in text_l and (
+                    "binnen de grenzen van" in text_l or "wettelijke strafbepaling" in text_l
+                ):
+                    msg = "Kwalificatie bevat (gedeelten van) de basisdefinitie van het hoofdbegrip"
+                    return 0.0, {
+                        "code": code_up,
+                        "severity": self._severity_for_json_rule(rule),
+                        "message": msg,
+                        "description": msg,
+                        "rule_id": code_up,
+                        "category": self._category_for(code_up),
+                        "suggestion": "Gebruik genus+differentia: noem het hoofdbegrip kort (bv. ‘delict’) en voeg alleen het onderscheidende criterium toe.",
+                    }
+
+            # Geen issues gevonden → pass
+            return 1.0, None
+
+        # Special: SAM-04 — samenstelling: definitie start met specialiserend component (genus)
+        if code_up == "SAM-04":
+            text_l = (text or "").strip().lower()
+            # Extract eerste woord na ':'
+            first_token = None
+            if ":" in text_l:
+                try:
+                    body = text_l.split(":", 1)[1].strip()
+                    first_token = (body.split() or [""])[0]
+                except Exception:
+                    first_token = None
+
+            begrip_full = (getattr(self, "_current_begrip", "") or "").strip().lower()
+            # Heuristiek: bij samenstellingen zonder spatie moet het eerste woord een substring van het begrip zijn
+            if first_token and begrip_full and " " not in begrip_full:
+                if first_token not in begrip_full:
+                    msg = "Samenstelling start niet met het specialiserende component (genus)"
+                    return 0.0, {
+                        "code": code_up,
+                        "severity": self._severity_for_json_rule(rule),
+                        "message": msg,
+                        "description": msg,
+                        "rule_id": code_up,
+                        "category": self._category_for(code_up),
+                        "suggestion": "Laat de definitie beginnen met het genus uit de samenstelling (bv. ‘model …’ bij ‘procesmodel’).",
+                    }
+
+            return 1.0, None
+
         # Duplicate context signal voor CON-01
         if code_up == "CON-01":
             self._maybe_add_duplicate_context_signal(ctx)
