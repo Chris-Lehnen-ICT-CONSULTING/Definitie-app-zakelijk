@@ -96,6 +96,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     providers.get("sru_overheid", {}).get("weight", 1.0)
                 ),
                 "wiktionary": float(providers.get("wiktionary", {}).get("weight", 0.9)),
+                # Wetgeving.nl provider gewicht (gelezen uit 'wetgeving_nl')
+                "wetgeving": float(providers.get("wetgeving_nl", {}).get("weight", 0.9)),
             }
         except Exception as e:
             logger.warning(f"Web lookup config not loaded, using defaults: {e}")
@@ -121,6 +123,13 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 api_type="mediawiki",
                 confidence_weight=self._provider_weights.get("wiktionary", 0.9),
                 is_juridical=False,
+            ),
+            "wetgeving": SourceConfig(
+                name="Wetgeving.nl",
+                base_url="https://wetten.overheid.nl/SRU/Search",
+                api_type="sru",
+                confidence_weight=self._provider_weights.get("wetgeving", 0.9),
+                is_juridical=True,
             ),
             "overheid": SourceConfig(
                 name="Overheid.nl",
@@ -269,7 +278,14 @@ class ModernWebLookupService(WebLookupServiceInterface):
         )
 
         if is_juridical:
-            return ["overheid", "rechtspraak", "overheid_zoek", "wikipedia", "wiktionary"]
+            return [
+                "wetgeving",
+                "overheid",
+                "rechtspraak",
+                "overheid_zoek",
+                "wikipedia",
+                "wiktionary",
+            ]
 
         # Voor algemene termen, start met encyclopedische bronnen
         return ["wikipedia", "wiktionary", "overheid", "rechtspraak"]
@@ -408,6 +424,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
             endpoint_map = {
                 "Overheid.nl": "overheid",
                 "Rechtspraak.nl": "rechtspraak",
+                "Wetgeving.nl": "wetgeving_nl",
                 "Overheid.nl Zoekservice": "overheid_zoek",
             }
 
@@ -644,6 +661,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
             return "rechtspraak"
         if "overheid" in name:
             return "overheid"
+        if "wetgeving" in name:
+            return "wetgeving"
         return name or "unknown"
 
     def _determine_source_type(self, text: str) -> BronType:
