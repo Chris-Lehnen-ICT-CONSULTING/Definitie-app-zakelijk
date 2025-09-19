@@ -15641,16 +15641,16 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "📋 COMPLETE V2 Migration Action Plan - Volledig Uitgewerkt",
+      "title": "COMPLETE V2 Migration Action Plan",
       "path": "../planning/COMPLETE_V2_MIGRATION_ACTION_PLAN.md",
       "url": "../planning/COMPLETE_V2_MIGRATION_ACTION_PLAN.md",
-      "status": null,
+      "status": "IN_PROGRESS",
       "prioriteit": null,
       "owner": null,
       "canonical": false,
       "last_verified": null,
       "applies_to": null,
-      "category": null,
+      "category": "planning",
       "sprint": null,
       "story_points": null,
       "completion": null,
@@ -30524,7 +30524,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T14:29:29Z"
+    "generated_at": "2025-09-19T14:33:09Z"
   },
   "sources": [
     "docs"
