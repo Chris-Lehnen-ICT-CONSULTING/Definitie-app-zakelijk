@@ -72,6 +72,14 @@ web_lookup:
       min_score: 0.2
 ```
 
+## Orchestrator‑timeout (globaal)
+
+Naast per‑provider timeouts hanteert de orchestrator een globale wachtduur voor web lookup. Deze is instelbaar via een environment‑variabele:
+
+- `WEB_LOOKUP_TIMEOUT_SECONDS` (float, default: `3.0`)
+
+De orchestrator wacht maximaal deze tijd op de verzamelde resultaten en gaat daarna verder zonder externe context (graceful degrade). Gebruik een hogere waarde wanneer betrouwbaarheid belangrijker is dan snelheid.
+
 ## Aanbevolen gewichten
 
 - Juridisch (SRU/Wetgeving.nl/Rechtspraak): 0.8–1.0
@@ -86,4 +94,3 @@ web_lookup:
 - Sanitization van HTML/markup (XSS‑preventie) vóór parsing
 - Geen PII verzamelen/loggen; AVG/BIR‑conform
 - Eenduidige User‑Agent; volledige provenance; beknopte audit logging
-
