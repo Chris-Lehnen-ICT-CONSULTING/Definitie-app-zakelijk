@@ -3830,7 +3830,7 @@
       "prioriteit": "HOOG",
       "owner": "validation",
       "canonical": true,
-      "last_verified": "2025-09-18",
+      "last_verified": "2025-09-19",
       "applies_to": null,
       "category": null,
       "sprint": "next",
@@ -3846,10 +3846,12 @@
       "parent_us": "US-192.md",
       "_refs": {
         "us": [
+          "US-172",
           "US-192"
         ],
         "epic": [
-          "EPIC-002"
+          "EPIC-002",
+          "EPIC-010"
         ],
         "req": []
       },
@@ -5531,11 +5533,11 @@
       "title": "UI dependencies buiten UI (services/config/utils)",
       "path": "../backlog/EPIC-010/US-172/CFR-BUG-023/README.md",
       "url": "../backlog/EPIC-010/US-172/CFR-BUG-023/README.md",
-      "status": "OPEN",
+      "status": "RESOLVED",
       "prioriteit": null,
       "owner": null,
       "canonical": false,
-      "last_verified": null,
+      "last_verified": "2025-09-19",
       "applies_to": null,
       "category": null,
       "sprint": null,
@@ -30367,7 +30369,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-19T13:24:00Z"
+    "generated_at": "2025-09-19T13:45:25Z"
   },
   "sources": [
     "docs"

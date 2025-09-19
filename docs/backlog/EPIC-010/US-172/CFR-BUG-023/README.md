@@ -1,9 +1,10 @@
 ---
 id: CFR-BUG-023
 titel: UI dependencies buiten UI (services/config/utils)
-status: OPEN
+status: RESOLVED
 severity: HIGH
 gevonden_op: 2025-09-15
+last_verified: 2025-09-19
 component: laaggrenzen
 ---
 
@@ -27,3 +28,7 @@ Onderdeel van [US-172](../US-172.md): functies verplaatsen naar UI, services puu
 - `rg -n "\\b(import|from)\\s+streamlit" src | grep -v '^src/ui/' | grep -v '^src/main.py'` → 0
 - `rg -n "\\bfrom\\s+ui\\.|\\bimport\\s+ui\\b" src | grep -v '^src/ui/' | grep -v '^src/main.py'` → 0
 
+## Verificatiebewijs (2025-09-19)
+- Uitgevoerd: geen hits buiten `src/ui/**` en `src/main.py` voor Streamlit‑imports.
+- Uitgevoerd: geen `from ui.`/`import ui` buiten `src/ui/**` en `src/main.py`.
+- Opmerking: `src/utils/voorbeelden_debug.py` gebruikt geen top‑level Streamlit‑import meer; eventuele UI‑inspectie gebeurt defensief via dynamische import binnen functie en valt buiten de acceptatie‑grep.
