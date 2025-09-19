@@ -899,6 +899,88 @@ class ManagementTab:
         with st.expander("🤖 AI Integration Testing", expanded=False):
             self._render_ai_integration_testing()
 
+        # Web Lookup Health Check
+        with st.expander("🌐 Web Lookup Health Check", expanded=False):
+            self._render_web_lookup_health()
+
+    def _render_web_lookup_health(self):
+        """Kleine health check voor web lookup providers."""
+        try:
+            from ui.helpers.ui_helpers import get_web_lookup
+            from ui.helpers.async_bridge import run_async
+            from services.interfaces import LookupRequest
+
+            wl = get_web_lookup()
+            if wl is None:
+                st.warning("⚠️ Web lookup service niet beschikbaar in container")
+                return
+
+            test_terms = {
+                "wetgeving": st.text_input(
+                    "Term voor Wetgeving.nl", value="Wetboek", key="wl_health_wetgeving"
+                ),
+                "overheid": st.text_input(
+                    "Term voor Overheid.nl", value="ministerie", key="wl_health_overheid"
+                ),
+                "rechtspraak": st.text_input(
+                    "Term voor Rechtspraak.nl", value="ECLI:NL", key="wl_health_rechtspraak"
+                ),
+                "wikipedia": st.text_input(
+                    "Term voor Wikipedia", value="Nederland", key="wl_health_wikipedia"
+                ),
+            }
+
+            if st.button("🔍 Test Providers", key="wl_health_test"):
+                results_rows = []
+                with st.spinner("Testing providers..."):
+                    async def _test(provider: str, term: str) -> dict:
+                        req = LookupRequest(term=term, sources=[provider], max_results=1)
+                        try:
+                            res = await wl.lookup(req)
+                            return {
+                                "provider": provider,
+                                "term": term,
+                                "ok": bool(res),
+                                "records": len(res or []),
+                                "url": (
+                                    getattr(res[0].source, "url", "") if res else ""
+                                ),
+                            }
+                        except Exception as e:
+                            return {
+                                "provider": provider,
+                                "term": term,
+                                "ok": False,
+                                "error": str(e),
+                            }
+
+                    async def _run_all():
+                        items = []
+                        for prov, term in test_terms.items():
+                            items.append(await _test(prov, term))
+                        return items
+
+                    results_rows = run_async(_run_all(), timeout=20) or []
+
+                if results_rows:
+                    try:
+                        import pandas as _pd  # type: ignore
+
+                        st.dataframe(_pd.DataFrame(results_rows))
+                    except Exception:
+                        for r in results_rows:
+                            if r.get("ok"):
+                                st.success(
+                                    f"✅ {r['provider']}: {r['records']} record(s) — {r.get('url','')}"
+                                )
+                            else:
+                                st.error(
+                                    f"❌ {r['provider']}: {r.get('error','geen resultaten')}"
+                                )
+
+        except Exception as e:
+            st.error(f"❌ Web lookup health check mislukt: {e!s}")
+
     def _render_config_testing(self):
         """Render configuration testing interface."""
         st.markdown("##### 🔧 Configuration Testing")
