@@ -891,53 +891,7 @@ Genereer een heldere, precieze definitie die voldoet aan Nederlandse kwaliteitse
 
     # =====================================
     # LEGACY SERVICE FALLBACKS
-    # =====================================
-
-    def _get_legacy_ai_service(self):
-        """Get legacy AI service as fallback."""
-        try:
-            # Use the same AI service as the legacy orchestrator
-            class LegacyAIAdapter:
-                async def generate_definition(
-                    self,
-                    prompt: str,
-                    temperature: float = 0.7,
-                    max_tokens: int = 500,
-                    model: str | None = None,
-                ):
-                    """Use services.ai_service.AIService"""
-                    from config.config_manager import (
-                        get_default_model,
-                        get_default_temperature,
-                    )
-                    from services.ai_service import get_ai_service
-
-                    # Use central config for defaults
-                    if model is None:
-                        model = get_default_model()
-                    if temperature is None:
-                        temperature = get_default_temperature()
-
-                    class MockResponse:
-                        def __init__(self, text):
-                            self.text = text
-                            self.model = model
-                            self.tokens_used = len(text.split()) * 1.3  # Rough estimate
-
-                    ai_service = get_ai_service()
-                    response_text = ai_service.generate_definition(
-                        prompt=prompt,
-                        temperature=temperature,
-                        max_tokens=max_tokens,
-                        model=model,
-                    )
-
-                    return MockResponse(response_text)
-
-            return LegacyAIAdapter()
-        except ImportError as e:
-            logger.warning(f"Legacy AI service not available: {e}")
-            return None
+    # ====================================
 
     def _get_legacy_validation_service(self):
         """Get legacy validation service as fallback."""

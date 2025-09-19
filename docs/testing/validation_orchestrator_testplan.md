@@ -57,9 +57,9 @@ Dit testplan borgt dat de ValidationOrchestratorV2 interface en resultaten volle
 - Memory: geen lek bij 1.000 calls (smoke).
 
 ## CI Integratie
-- Pytest mark: `@pytest.mark.contract` voor schema‑checks.
-- Faal build bij schema‑violatie of ontbrekende verplichte velden.
-- (Optioneel) JSON Schema validatie als pre‑merge stap op sample‑responses.
+- Pytest mark: `@pytest.mark.contract` voor schema‑checks (onderdeel van PR‑profiel: `scripts/run_tests.sh pr`).
+- Faal build bij schema‑violatie of ontbrekende verplichte velden (JSON‑schema: `docs/architectuur/contracts/schemas/validation_result.schema.json`).
+- Optioneel: JSON‑schema validatie als aparte pre‑merge stap op sample‑responses.
 
 ## Relaties
 - Contract: `docs/architectuur/contracts/validation_result_contract.md`
