@@ -762,6 +762,54 @@ class DefinitionGeneratorTab:
             ):
                 st.json(debug_info or {})
 
+            # Extra: overzichtelijke tabel met pogingdetails (provider, strategie, query)
+            if debug_info and isinstance(debug_info, dict):
+                attempts_list = debug_info.get("attempts") or []
+                if attempts_list:
+                    if st.checkbox(
+                        "🐛 SRU/WL debug: Toon pogingdetails (tabel)",
+                        key="debug_web_lookup_attempts_table",
+                    ):
+                        rows = []
+                        for a in attempts_list:
+                            try:
+                                provider = a.get("provider") or a.get("endpoint") or "?"
+                                api = a.get("api_type") or "?"
+                                strategy = a.get("strategy") or ("fallback" if a.get("fallback") else "")
+                                q = a.get("query") or a.get("term") or ""
+                                status = (
+                                    a.get("status")
+                                    if "status" in a
+                                    else ("ok" if a.get("success") else "fail" if "success" in a else "")
+                                )
+                                records = a.get("records")
+                                url = a.get("url") or ""
+                                rows.append(
+                                    {
+                                        "provider": provider,
+                                        "api": api,
+                                        "strategie": strategy,
+                                        "query/term": q,
+                                        "status": status,
+                                        "records": records,
+                                        "url": url,
+                                    }
+                                )
+                            except Exception:
+                                continue
+                        if rows:
+                            try:
+                                import pandas as _pd  # type: ignore
+
+                                st.dataframe(_pd.DataFrame(rows))
+                            except Exception:
+                                # Fallback zonder pandas
+                                for r in rows:
+                                    st.markdown(
+                                        f"- {r['provider']} ({r['api']}): {r['strategie']} — {r['query/term']}"
+                                        f" — status={r['status']} records={r.get('records') or 0}"
+                                    )
+
             # Debug toggle: toon ruwe web_lookup data (JSON)
             if st.checkbox(
                 "🐛 Debug: Toon ruwe web_lookup data (JSON)",
