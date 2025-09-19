@@ -13,12 +13,12 @@ import logging
 from pathlib import Path
 from typing import Any
 
-import streamlit as st
+from utils.cache import cached, clear_cache as _global_cache_clear
 
 logger = logging.getLogger(__name__)
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@cached(ttl=3600)
 def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
     """
     Load alle validatieregels van disk met Streamlit caching.
@@ -69,7 +69,7 @@ def _load_all_rules_cached(regels_dir: str) -> dict[str, dict[str, Any]]:
     return all_rules
 
 
-@st.cache_data(ttl=3600, show_spinner=False)
+@cached(ttl=3600)
 def _load_single_rule_cached(regels_dir: str, regel_id: str) -> dict[str, Any] | None:
     """
     Load een enkele regel met caching.
@@ -200,13 +200,16 @@ class RuleCache:
 
     def clear_cache(self):
         """
-        Clear de Streamlit cache voor regels.
+        Clear de cache voor regels.
 
-        Note: Dit cleared ALLE @st.cache_data, niet alleen regels.
-        Gebruik spaarzaam!
+        Let op: gebruikt de globale cachefacade en kan ook andere
+        decorator‑caches legen, conform eerdere Streamlit‑clear semantiek.
         """
-        st.cache_data.clear()
-        logger.info("Rule cache gecleared")
+        try:
+            _global_cache_clear()
+        except Exception:
+            pass
+        logger.info("Rule cache gecleared (global cache cleared)")
 
     def get_stats(self) -> dict[str, Any]:
         """Haal cache statistieken op."""

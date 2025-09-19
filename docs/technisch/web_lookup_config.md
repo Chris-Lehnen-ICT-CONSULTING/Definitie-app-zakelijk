@@ -76,7 +76,7 @@ web_lookup:
 
 Naast per‑provider timeouts hanteert de orchestrator een globale wachtduur voor web lookup. Deze is instelbaar via een environment‑variabele:
 
-- `WEB_LOOKUP_TIMEOUT_SECONDS` (float, default: `6.0`)
+- `WEB_LOOKUP_TIMEOUT_SECONDS` (float, default: `10.0`)
 
 De orchestrator wacht maximaal deze tijd op de verzamelde resultaten en gaat daarna verder zonder externe context (graceful degrade). Gebruik een hogere waarde wanneer betrouwbaarheid belangrijker is dan snelheid.
 
