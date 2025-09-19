@@ -413,6 +413,7 @@ class ModularValidationService:
                 "description": message,
                 "rule_id": prefix,
                 "category": self._category_for(prefix),
+                "suggestion": self._suggestion_for_internal_rule(prefix, ctx),
             }
 
         # Leegte
@@ -500,6 +501,7 @@ class ModularValidationService:
         code_up = code.upper()
         severity = self._severity_for_json_rule(rule)
         messages: list[str] = []
+        suggestions: list[str] = []
 
         # Special: ESS-02 (ontologische categorie eenduidigheid)
         if code_up == "ESS-02":
@@ -529,6 +531,11 @@ class ModularValidationService:
         if pattern_hits and code_up not in positive_pattern_rules:
             pat_list = ", ".join(sorted(set(pattern_hits)))
             messages.append(f"Verboden patroon gedetecteerd: {pat_list}")
+            suggestions.append(
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="forbidden_patterns", details=pat_list
+                )
+            )
 
         # 2) Required patterns
         req_patterns = rule.get("required_patterns", []) or []
@@ -539,34 +546,69 @@ class ModularValidationService:
                 req_compiled = []
             if not any(rc.search(text) for rc in req_compiled):
                 messages.append("Vereist patroon niet gevonden")
+                suggestions.append(
+                    self._build_suggestion_for_violation(
+                        code_up, rule, text, ctx, reason="required_patterns", details=", ".join(req_patterns)
+                    )
+                )
 
         # 3) Forbidden phrases (substring)
         for phrase in rule.get("forbidden_phrases", []) or []:
             if phrase and phrase in text_norm:
                 messages.append(f"Verboden term: '{phrase}'")
+                suggestions.append(
+                    self._build_suggestion_for_violation(
+                        code_up, rule, text, ctx, reason="forbidden_phrase", details=phrase
+                    )
+                )
 
         # 4) Numeric constraints
         min_words = rule.get("min_words")
         if isinstance(min_words, int) and words < min_words:
             messages.append(f"Te weinig woorden (min {min_words})")
+            suggestions.append(
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="min_words", details=str(min_words)
+                )
+            )
 
         max_words = rule.get("max_words")
         if isinstance(max_words, int) and words > max_words:
             messages.append(f"Te veel woorden (max {max_words})")
+            suggestions.append(
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="max_words", details=str(max_words)
+                )
+            )
 
         min_chars = rule.get("min_chars")
         if isinstance(min_chars, int) and chars < min_chars:
             messages.append(f"Te weinig tekens (min {min_chars})")
+            suggestions.append(
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="min_chars", details=str(min_chars)
+                )
+            )
 
         max_chars = rule.get("max_chars")
         if isinstance(max_chars, int) and chars > max_chars:
             messages.append(f"Te veel tekens (max {max_chars})")
+            suggestions.append(
+                self._build_suggestion_for_violation(
+                    code_up, rule, text, ctx, reason="max_chars", details=str(max_chars)
+                )
+            )
 
         # 5) Circular definition (begrip in definitie)
         if rule.get("circular_definition"):
             begrip = getattr(self, "_current_begrip", None)
             if begrip and re.search(rf"\b{re.escape(str(begrip))}\b", text_norm, re.IGNORECASE):
                 messages.append("Circulaire definitie: begrip komt letterlijk voor")
+                suggestions.append(
+                    self._build_suggestion_for_violation(
+                        code_up, rule, text, ctx, reason="circular", details=str(begrip)
+                    )
+                )
 
         # 6) STR-ORG heuristics: min_commas + max_chars als samen-conditie
         min_commas = rule.get("min_commas")
@@ -574,6 +616,11 @@ class ModularValidationService:
             if text_norm.count(",") >= min_commas and chars > max_chars:
                 messages.append(
                     f"Zinsstructuur: veel komma's (≥{min_commas}) en te lang (> {max_chars} tekens)"
+                )
+                suggestions.append(
+                    self._build_suggestion_for_violation(
+                        code_up, rule, text, ctx, reason="structure_runon", details=f"{min_commas}|{max_chars}"
+                    )
                 )
 
         # 7) Redundancy patterns
@@ -584,31 +631,53 @@ class ModularValidationService:
                 continue
             if rre.search(text_norm):
                 messages.append("Redundantie/tegenstrijdigheid gedetecteerd")
+                suggestions.append(
+                    self._build_suggestion_for_violation(
+                        code_up, rule, text, ctx, reason="redundancy", details=rpat
+                    )
+                )
                 break
 
         # 8) Bekende specifieke checks (positieve indicatoren of vereisten)
         if code_up == "CON-02" and not self._has_authentic_source_basis(text):
             messages.append("Geen authentieke bron/basis in definitietekst")
+            suggestions.append(
+                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="auth_source")
+            )
 
         if code_up == "ESS-03" and not self._has_unique_identification(text):
             messages.append("Ontbreekt uniek identificatiecriterium")
+            suggestions.append(
+                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="unique_id")
+            )
 
         if code_up == "ESS-04" and not self._has_testable_element(text):
             messages.append("Ontbreekt objectief toetsbaar element")
+            suggestions.append(
+                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="testable")
+            )
 
         if code_up == "ESS-05" and not self._has_distinguishing_feature(text):
             messages.append("Ontbreekt onderscheidend kenmerk")
+            suggestions.append(
+                self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="distinguishing")
+            )
 
         if code_up == "VER-01":
             begrip = getattr(self, "_current_begrip", "") or ""
             if not self._lemma_is_singular(begrip):
                 messages.append("Term (lemma) lijkt meervoud (geen plurale tantum)")
+                suggestions.append(
+                    self._build_suggestion_for_violation(code_up, rule, text, ctx, reason="singular", details=begrip)
+                )
 
         # Resultaat opbouwen
         if messages:
             # Als er ook forbidden pattern hits waren, verlaag de score licht op basis van aantal hits
             score = 0.0 if not pattern_hits else max(0.0, 1.0 - 0.3 * len(set(pattern_hits)))
             description = "; ".join(dict.fromkeys(messages))  # unique-preserving
+            suggestion_text = "; ".join([s for s in suggestions if s]).strip() or None
+            # Belangrijk: description blijft gelijk aan message (tests verwachten dit)
             return score, {
                 "code": code,
                 "severity": severity,
@@ -616,6 +685,7 @@ class ModularValidationService:
                 "description": description,
                 "rule_id": code,
                 "category": self._category_for(code),
+                "suggestion": suggestion_text,
             }
 
         # Geen issues → pass
@@ -628,6 +698,61 @@ class ModularValidationService:
         if aan == "verplicht" or pri == "hoog":
             return "error"
         return "warning"
+
+    def _build_suggestion_for_violation(
+        self,
+        code: str,
+        rule: dict[str, Any] | None,
+        text: str,
+        ctx: EvaluationContext,
+        *,
+        reason: str,
+        details: str | None = None,
+    ) -> str:
+        """Genereer concrete NL-suggestie om een violation te herstellen."""
+        c = (code or "").upper()
+        d = (details or "").strip()
+
+        if reason == "forbidden_patterns":
+            return "Herschrijf de zin zodat de gedetecteerde patronen niet voorkomen."
+        if reason == "required_patterns":
+            return "Maak het vereiste element expliciet in de formulering."
+        if reason == "forbidden_phrase":
+            return f"Vervang of verwijder de term ‘{d}’; kies correcte terminologie."
+        if reason == "min_words":
+            return f"Breid de definitie uit tot minimaal {d} woorden met kerninformatie."
+        if reason == "max_words":
+            return f"Verkort de definitie tot maximaal {d} woorden; schrap bijzinnen."
+        if reason == "min_chars":
+            return f"Breid de definitie uit tot minimaal {d} tekens."
+        if reason == "max_chars":
+            return f"Kort de definitie in tot maximaal {d} tekens; maak compacter."
+        if reason == "circular":
+            return f"Vermijd het begrip ‘{d}’ in de definitie; omschrijf zonder het letterlijk te herhalen."
+        if reason == "structure_runon":
+            return "Vereenvoudig de zinsstructuur: minder komma’s en kortere zinsdelen."
+        if reason == "redundancy":
+            return "Verwijder redundante/tegenstrijdige bewoordingen; kies één heldere formulering."
+        if reason == "auth_source" and c == "CON-02":
+            return "Voeg een authentieke bron/basis toe (bijv. ‘volgens’, ‘conform’, of wet/regeling)."
+        if reason == "unique_id" and c == "ESS-03":
+            return "Voeg een uniek identificatiecriterium toe (nummer/code/registratie)."
+        if reason == "testable" and c == "ESS-04":
+            return "Maak een objectief toetsbaar element expliciet (bijv. termijn of meetbare grens)."
+        if reason == "distinguishing" and c == "ESS-05":
+            return "Voeg een onderscheidend kenmerk toe dat het begrip afbakent."
+        if reason == "singular" and c == "VER-01":
+            return "Schrijf het lemma in enkelvoud (tenzij plurale tantum)."
+
+        # Regel-specifieke defaults
+        if c == "INT-01":
+            return "Herschrijf naar één compacte zin; vermijd ‘en/maar/of’ en bijzinnen."
+        if c == "CON-01":
+            return "Noem de context niet expliciet; formuleer context‑neutraal."
+        if c == "ESS-02":
+            return "Maak de ontologische categorie expliciet (type/particulier/proces/resultaat)."
+
+        return "Herschrijf de definitie conform de regelcriteria; maak specifieker."
 
     # ===== Helper checks (JSON required/structure) =====
     def _has_authentic_source_basis(self, text: str) -> bool:
@@ -708,6 +833,7 @@ class ModularValidationService:
                 "description": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
                 "rule_id": "ESS-02",
                 "category": self._category_for("ESS-02"),
+                "suggestion": self._build_suggestion_for_violation("ESS-02", rule, text, ctx, reason="ambigu"),
             }
         # No hits → missing element
         return 0.0, {
@@ -717,6 +843,7 @@ class ModularValidationService:
             "description": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
             "rule_id": "ESS-02",
             "category": self._category_for("ESS-02"),
+            "suggestion": self._build_suggestion_for_violation("ESS-02", rule, text, ctx, reason="missing"),
         }
 
     def _maybe_add_duplicate_context_signal(self, ctx: EvaluationContext) -> None:
@@ -804,6 +931,7 @@ class ModularValidationService:
             "rule_id": "CON-01",
             "category": self._category_for("CON-01"),
             "metadata": {"existing_definition_id": found_id, "status": found_status},
+            "suggestion": "Overweeg de bestaande definitie te hergebruiken of pas de context/lemma aan om duplicatie te voorkomen.",
         })
 
     def _category_for(self, code: str) -> str:
@@ -814,6 +942,26 @@ class ModularValidationService:
         if code.startswith(("ESS-", "VAL-")):
             return "juridisch"
         return "system"
+
+    def _suggestion_for_internal_rule(self, code: str, ctx: EvaluationContext) -> str | None:
+        """Suggesties voor interne baseline regels (VAL-*, STR-*, CON-CIRC-*)."""
+        c = (code or "").upper()
+        if c == "VAL-EMP-001":
+            return "Vul de definitietekst in; tekst mag niet leeg zijn."
+        if c == "VAL-LEN-001":
+            return "Breid uit tot ≥ 5 woorden en ≥ 15 tekens met kerninformatie."
+        if c == "VAL-LEN-002":
+            return "Verkort tot ≤ 80 woorden en ≤ 600 tekens; splits indien nodig."
+        if c == "ESS-CONT-001":
+            return "Voeg essentiële inhoud toe: beschrijf wat het begrip is."
+        if c == "CON-CIRC-001":
+            begrip = getattr(self, "_current_begrip", None) or "het begrip"
+            return f"Vermijd {begrip} letterlijk; omschrijf zonder de term te herhalen."
+        if c == "STR-TERM-001":
+            return "Gebruik correcte terminologie (bijv. ‘HTTP‑protocol’)."
+        if c == "STR-ORG-001":
+            return "Vereenvoudig de zinsstructuur: minder komma’s, kortere zinsdelen."
+        return None
 
     async def batch_validate(
         self,
