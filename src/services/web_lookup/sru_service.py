@@ -319,6 +319,20 @@ class SRUService:
 
     # === Legal metadata extraction ===
     _ART_RE = re.compile(r"(?i)\b(?:artikel|art\.)\s+(\d+[a-z]?)\b")
+    _LID_NUM_RE = re.compile(r"(?i)\blid\s+(\d+)\b")
+    _LID_ORDINAL_RE = re.compile(r"(?i)\b(\d+)(?:e|ste)\s+lid\b")
+    _LID_WORDS = {
+        "eerste": "1",
+        "tweede": "2",
+        "derde": "3",
+        "vierde": "4",
+        "vijfde": "5",
+        "zesde": "6",
+        "zevende": "7",
+        "achtste": "8",
+        "negende": "9",
+        "tiende": "10",
+    }
 
     def _extract_legal_metadata(self, text: str) -> dict[str, str] | None:
         """Probeert artikelnummer en wetcode/titel uit tekst te halen.
@@ -332,6 +346,22 @@ class SRUService:
 
         m = self._ART_RE.search(text)
         article_number: str | None = m.group(1) if m else None
+
+        # Lid extractie (verschillende varianten)
+        law_clause: str | None = None
+        m_lid = self._LID_NUM_RE.search(text)
+        if m_lid:
+            law_clause = m_lid.group(1)
+        else:
+            m_ord = self._LID_ORDINAL_RE.search(text)
+            if m_ord:
+                law_clause = m_ord.group(1)
+            else:
+                low = text.lower()
+                for word, num in self._LID_WORDS.items():
+                    if f" {word} lid" in low:
+                        law_clause = num
+                        break
 
         low = text.lower()
         law_code: str | None = None
@@ -350,7 +380,7 @@ class SRUService:
             law_code = "Rv"
             law_title = "Wetboek van Burgerlijke Rechtsvordering"
 
-        if article_number or law_code:
+        if article_number or law_code or law_clause:
             out: dict[str, str] = {}
             if article_number:
                 out["article_number"] = article_number
@@ -358,6 +388,8 @@ class SRUService:
                 out["law_code"] = law_code
             if law_title:
                 out["law_title"] = law_title
+            if law_clause:
+                out["law_clause"] = law_clause
             return out
         return None
 

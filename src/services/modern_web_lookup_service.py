@@ -704,8 +704,12 @@ class ModernWebLookupService(WebLookupServiceInterface):
             if isinstance(getattr(result, "metadata", None), dict):
                 num = result.metadata.get("article_number")
                 code = result.metadata.get("law_code")
+                clause = result.metadata.get("law_clause")
                 if num and code and snippet_src:
-                    snippet_src = f"Artikel {num} {code}: {snippet_src}"
+                    if clause:
+                        snippet_src = f"Artikel {num} lid {clause} {code}: {snippet_src}"
+                    else:
+                        snippet_src = f"Artikel {num} {code}: {snippet_src}"
         except Exception:
             pass
         snippet = sanitize_snippet(snippet_src, max_length=500)
