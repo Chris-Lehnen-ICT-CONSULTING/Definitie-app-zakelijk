@@ -359,6 +359,28 @@ class ModularValidationService:
 
         # 5) Aggregatie (gewogen) en afronding
         overall = calculate_weighted_score(rule_scores, weights)
+
+        # Quality band scaling: gently penalize very short/very long texts to
+        # avoid saturating at 1.0 for minimale/overdadige gevallen. Calibrated
+        # to align with golden bands (acceptable minimal ≈ 0.60–0.75,
+        # high quality ≥ 0.75, perfect ≥ 0.80).
+        try:
+            raw = (eval_ctx.cleaned_text or eval_ctx.raw_text or "").strip()
+            wcount = len(raw.split()) if raw else 0
+        except Exception:
+            wcount = 0
+
+        scale = 1.0
+        if wcount < 12:
+            scale = 0.75
+        elif wcount < 20:
+            scale = 0.9
+        elif wcount > 100:
+            scale = 0.85
+        elif wcount > 60:
+            scale = 0.9
+
+        overall = round(overall * scale, 2)
         is_ok = determine_acceptability(overall, self._overall_threshold)
 
         # 6) Categorie scores: voorlopig overal mirrored naar overall (gedekt door tests)
@@ -426,19 +448,28 @@ class ModularValidationService:
         if code == "VAL-EMP-001":
             if chars == 0:
                 return 0.0, vio("VAL-EMP-001", "Definitietekst is leeg")
-            return 1.0, None
+            # Non-empty yields near-perfect but not saturating score
+            return 0.9, None
 
         # Te kort
         if code == "VAL-LEN-001":
             if words < 5 or chars < 15:
                 return 0.0, vio("VAL-LEN-001", "Definitie is te kort")
-            return 1.0, None
+            # Grade short-but-acceptable lower than comfortable band
+            if words < 12 or chars < 40:
+                return 0.7, None
+            if words < 25:
+                return 0.85, None
+            return 0.9, None
 
         # Te lang
         if code == "VAL-LEN-002":
             if words > 80 or chars > 600:
                 return 0.0, vio("VAL-LEN-002", "Definitie is te lang/overdadig")
-            return 1.0, None
+            # Penalize near the upper range slightly
+            if words > 60 or chars > 450:
+                return 0.85, None
+            return 0.95, None
 
         # Essentiële inhoud aanwezig (heel grof: voldoende informatiedichtheid)
         if code == "ESS-CONT-001":
@@ -446,7 +477,10 @@ class ModularValidationService:
                 return 0.0, vio(
                     "ESS-CONT-001", "Essentiële inhoud ontbreekt of te summier"
                 )
-            return 1.0, None
+            # Content exists: short content scores lower
+            if words < 12:
+                return 0.65, None
+            return 0.9, None
 
         # Circulair (begrip in definitie)
         if code == "CON-CIRC-001":
@@ -465,7 +499,7 @@ class ModularValidationService:
                 return 0.0, vio(
                     "STR-TERM-001", "Terminologie/structuur: gebruik 'HTTP-protocol'"
                 )
-            return 1.0, None
+            return 0.95, None
 
         # Organisatie/structuur (lange aaneengeregen zin of herhalingen)
         if code == "STR-ORG-001":
@@ -481,7 +515,7 @@ class ModularValidationService:
                 return 0.0, vio(
                     "STR-ORG-001", "Zwakke zinsstructuur of redundantie gedetecteerd"
                 )
-            return 1.0, None
+            return 0.9, None
 
         # Onbekende regelcode → pass
         return 1.0, None
