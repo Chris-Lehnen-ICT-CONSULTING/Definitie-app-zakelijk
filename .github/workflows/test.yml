@@ -56,12 +56,12 @@ jobs:
       run: |
         bash scripts/run_tests.sh pr
 
-    - name: Services subpackage coverage (advisory 80%)
-      continue-on-error: true
+    - name: Services subpackage coverage (80%)
       run: |
         # Advisory coverage on focused subset to avoid blocking PRs prematurely
         pytest -q \
           tests/services/test_modular_validation_service_contract.py \
+          tests/services/test_validation_aggregation_utils.py \
           tests/services/orchestrators/test_validation_degraded_contract.py \
           tests/services/orchestrators/test_definition_orchestrator_v2_happy.py \
           tests/services/orchestrators/test_definition_orchestrator_v2_failure.py \

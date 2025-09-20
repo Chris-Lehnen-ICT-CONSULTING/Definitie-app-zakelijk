@@ -30,6 +30,7 @@ case "$mode" in
     # Allowlist van high-signal tests die stabiel zijn
     targets=(
       tests/services/test_modular_validation_service_contract.py
+      tests/services/test_validation_aggregation_utils.py
       tests/services/orchestrators/test_validation_degraded_contract.py
       tests/services/orchestrators/test_definition_orchestrator_v2_happy.py
       tests/services/orchestrators/test_definition_orchestrator_v2_failure.py
