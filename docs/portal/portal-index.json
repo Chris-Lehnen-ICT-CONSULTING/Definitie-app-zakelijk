@@ -368,6 +368,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Document Processing & Context Flow",
+      "path": "../technisch/document_processing.md",
+      "url": "../technisch/document_processing.md",
+      "status": "active",
+      "prioriteit": "medium",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technisch/document_processing.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Error Catalog - Validation Services",
       "path": "../technisch/error_catalog_validation.md",
       "url": "../technisch/error_catalog_validation.md",
@@ -2808,6 +2839,39 @@
       "linked_reqs": null
     },
     {
+      "id": "CFR-BUG-030",
+      "type": "BUG",
+      "title": "Expert Review‑tab omzeilt gate — ‘Minstens 1 context’ niet afgedwongen bij vaststellen",
+      "path": "../backlog/EPIC-004/US-160/CFR-BUG-030/README.md",
+      "url": "../backlog/EPIC-004/US-160/CFR-BUG-030/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": "frontend-team",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-160",
+      "_refs": {
+        "us": [
+          "US-160"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-160/CFR-BUG-030/README.html"
+    },
+    {
       "id": "US-161",
       "type": "US",
       "title": "Uniforme contextrepresentatie (Context Model V2)",
@@ -2878,6 +2942,40 @@
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-195/US-195.html",
       "linked_reqs": null
+    },
+    {
+      "id": "CFR-BUG-029",
+      "type": "BUG",
+      "title": "Generator‑tab — ‘Minstens 1 context’ niet afgedwongen (kan genereren zonder context)",
+      "path": "../backlog/EPIC-004/US-195/CFR-BUG-029/README.md",
+      "url": "../backlog/EPIC-004/US-195/CFR-BUG-029/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": "frontend-team",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-195",
+      "_refs": {
+        "us": [
+          "US-160",
+          "US-195"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-195/CFR-BUG-029/README.html"
     },
     {
       "id": "US-110",
@@ -4787,6 +4885,340 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-016/US-187/US-187.html"
+    },
+    {
+      "id": "EPIC-018",
+      "type": "EPIC",
+      "title": "Document Context Integratie (Upload, Extractie, Promptgebruik)",
+      "path": "../backlog/EPIC-018/EPIC-018.md",
+      "url": "../backlog/EPIC-018/EPIC-018.md",
+      "status": "Nog te bepalen",
+      "prioriteit": "HOOG",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": "0%",
+      "target_release": "v1.3",
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-018.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-225",
+          "US-227",
+          "US-228",
+          "US-229",
+          "US-230",
+          "US-231",
+          "US-232",
+          "US-233"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": [
+          "REQ-022"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/EPIC-018.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
+      "id": "US-225",
+      "type": "US",
+      "title": "DOCX/PDF extractors beschikbaar en actief",
+      "path": "../backlog/EPIC-018/US-225/US-225.md",
+      "url": "../backlog/EPIC-018/US-225/US-225.md",
+      "status": "Open",
+      "prioriteit": "HOOG",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-225.md",
+      "_refs": {
+        "us": [
+          "US-225"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-225/US-225.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-230",
+      "type": "US",
+      "title": "Extractor unit tests (DOCX/PDF/fallback)",
+      "path": "../backlog/EPIC-018/US-230/US-230.md",
+      "url": "../backlog/EPIC-018/US-230/US-230.md",
+      "status": "Open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-230.md",
+      "_refs": {
+        "us": [
+          "US-230"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-230/US-230.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-231",
+      "type": "US",
+      "title": "Integratietests upload→selectie→generatie",
+      "path": "../backlog/EPIC-018/US-231/US-231.md",
+      "url": "../backlog/EPIC-018/US-231/US-231.md",
+      "status": "Open",
+      "prioriteit": "HOOG",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-231.md",
+      "_refs": {
+        "us": [
+          "US-231"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-231/US-231.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-228",
+      "type": "US",
+      "title": "UI‑feedback dat documentcontext is gebruikt",
+      "path": "../backlog/EPIC-018/US-228/US-228.md",
+      "url": "../backlog/EPIC-018/US-228/US-228.md",
+      "status": "Open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-228.md",
+      "_refs": {
+        "us": [
+          "US-228"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-228/US-228.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-229",
+      "type": "US",
+      "title": "Optioneel — document‑snippets in promptinjectie",
+      "path": "../backlog/EPIC-018/US-229/US-229.md",
+      "url": "../backlog/EPIC-018/US-229/US-229.md",
+      "status": "Open",
+      "prioriteit": "LAAG",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 4,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-229.md",
+      "_refs": {
+        "us": [
+          "US-229"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-229/US-229.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-227",
+      "type": "US",
+      "title": "Documentcontext doorgeven aan service (GenerationRequest)",
+      "path": "../backlog/EPIC-018/US-227/US-227.md",
+      "url": "../backlog/EPIC-018/US-227/US-227.md",
+      "status": "Open",
+      "prioriteit": "HOOG",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-227.md",
+      "_refs": {
+        "us": [
+          "US-227"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-227/US-227.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-233",
+      "type": "US",
+      "title": "Documentatie (usage + troubleshooting)",
+      "path": "../backlog/EPIC-018/US-233/US-233.md",
+      "url": "../backlog/EPIC-018/US-233/US-233.md",
+      "status": "Open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "2",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-233.md",
+      "_refs": {
+        "us": [
+          "US-233"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-233/US-233.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-232",
+      "type": "US",
+      "title": "Monitoring/metrics voor extractie",
+      "path": "../backlog/EPIC-018/US-232/US-232.md",
+      "url": "../backlog/EPIC-018/US-232/US-232.md",
+      "status": "Open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-018",
+      "parent_us": "US-232.md",
+      "_refs": {
+        "us": [
+          "US-232"
+        ],
+        "epic": [
+          "EPIC-018"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-018/US-232/US-232.html",
+      "linked_reqs": null
     },
     {
       "id": null,
@@ -30214,6 +30646,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Documentcontext gebruiken in de prompt (ontwikkelaars)",
+      "path": "../handleidingen/ontwikkelaars/document-context-gebruik.md",
+      "url": "../handleidingen/ontwikkelaars/document-context-gebruik.md",
+      "status": "active",
+      "prioriteit": "medium",
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/handleidingen/ontwikkelaars/document-context-gebruik.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "ADOPTING.md — Portal & Generator Integratie",
       "path": "../handleidingen/ontwikkelaars/ADOPTING.md",
       "url": "../handleidingen/ontwikkelaars/ADOPTING.md",
@@ -31194,17 +31657,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 469,
-      "EPIC": 16,
-      "US": 201,
-      "BUG": 14,
+      "DOC": 471,
+      "EPIC": 17,
+      "US": 209,
+      "BUG": 16,
       "REQ": 99,
       "ARCH": 24,
       "TEST": 27,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T11:35:58Z"
+    "generated_at": "2025-09-22T11:52:13Z"
   },
   "sources": [
     "docs"

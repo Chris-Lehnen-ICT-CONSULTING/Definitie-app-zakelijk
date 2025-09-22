@@ -837,16 +837,42 @@ class ExportTab:
                     st.rerun()
                 return
 
-            # Execute bulk update
+            # Execute bulk update via DefinitionWorkflowService
+            from services.container import get_container
+            container = get_container()
+            workflow = container.definition_workflow_service()
+
             updated_count = 0
+            failed: list[int] = []
             for def_rec in definitions:
-                success = self.repository.change_status(
-                    def_rec.id, DefinitieStatus(new_status), "bulk_operation", reason
-                )
-                if success:
+                try:
+                    if str(new_status).lower() == "established":
+                        # Gate‑enforced path
+                        res = workflow.submit_for_review(
+                            definition_id=def_rec.id,
+                            user="bulk_operation",
+                            notes=reason,
+                        )
+                        ok = bool(getattr(res, "success", False))
+                    else:
+                        ok = bool(
+                            workflow.update_status(
+                                definition_id=def_rec.id,
+                                new_status=str(new_status),
+                                user="bulk_operation",
+                                notes=reason,
+                            )
+                        )
+                except Exception:
+                    ok = False
+                if ok:
                     updated_count += 1
+                else:
+                    failed.append(def_rec.id)
 
             st.success(f"✅ {updated_count} definities bijgewerkt")
+            if failed:
+                st.warning(f"⚠️ {len(failed)} updates mislukt (ids: {', '.join(map(str, failed[:5]))}{'…' if len(failed) > 5 else ''})")
             st.session_state["bulk_update_confirmed"] = False
 
         except Exception as e:
