@@ -427,7 +427,7 @@ class DefinitieRepository:
 
         return statements
 
-    def create_definitie(self, record: DefinitieRecord) -> int:
+    def create_definitie(self, record: DefinitieRecord, allow_duplicate: bool = False) -> int:
         """
         Maak nieuwe definitie aan.
 
@@ -438,20 +438,25 @@ class DefinitieRepository:
             ID van nieuw aangemaakte record
         """
         with self._get_connection() as conn:
-            # Check voor duplicates - inclusief categorie voor category-aware duplicate prevention
-            duplicates = self.find_duplicates(
-                record.begrip,
-                record.organisatorische_context,
-                record.juridische_context or "",
-                categorie=record.categorie,  # Include category in duplicate check
-            )
+            # Check voor duplicates: permit indien expliciet toegestaan
+            if not allow_duplicate:
+                duplicates = self.find_duplicates(
+                    record.begrip,
+                    record.organisatorische_context,
+                    record.juridische_context or "",
+                    categorie=None,  # categorie is geen onderdeel van duplicate-criteria
+                    wettelijke_basis=(
+                        json.loads(record.wettelijke_basis)
+                        if record.wettelijke_basis else []
+                    ),
+                )
 
-            if duplicates and any(
-                d.definitie_record.status != DefinitieStatus.ARCHIVED.value
-                for d in duplicates
-            ):
-                msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
-                raise ValueError(msg)
+                if duplicates and any(
+                    d.definitie_record.status != DefinitieStatus.ARCHIVED.value
+                    for d in duplicates
+                ):
+                    msg = f"Definitie voor '{record.begrip}' bestaat al in deze context"
+                    raise ValueError(msg)
 
             # Set timestamps
             now = datetime.now(UTC)

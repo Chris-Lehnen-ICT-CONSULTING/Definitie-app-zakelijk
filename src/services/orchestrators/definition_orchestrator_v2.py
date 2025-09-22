@@ -683,6 +683,8 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                     # Store the prompt text for debug UI
                     "prompt_text": prompt_result.text if prompt_result else "",
                     "prompt_template": prompt_result.text if prompt_result else "",
+                    # Doorgeven van force_duplicate voor downstream repository
+                    "force_duplicate": bool(safe_dict_get(sanitized_request.options, "force_duplicate", False)) if getattr(sanitized_request, "options", None) else False,
                 },
             )
 

@@ -81,7 +81,14 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             # Maak nieuwe
             # Converteer Definition naar DefinitieRecord
             record = self._definition_to_record(definition)
-            return self.legacy_repo.create_definitie(record)
+            # Bypass duplicate guard indien expliciet toegestaan via metadata
+            allow_duplicate = False
+            try:
+                if definition.metadata and bool(definition.metadata.get("force_duplicate")):
+                    allow_duplicate = True
+            except Exception:
+                allow_duplicate = False
+            return self.legacy_repo.create_definitie(record, allow_duplicate=allow_duplicate)
 
         except Exception as e:
             logger.error(f"Fout bij opslaan definitie: {e}")
