@@ -273,11 +273,17 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                         ctx_parts.extend(sanitized_request.wettelijke_basis)
                     context_str = " | ".join([str(x) for x in ctx_parts if x]) or None
 
+                    # Allow broader result set so UI can show all hits
+                    import os as _os
+                    try:
+                        _max_res = int(_os.getenv("WEB_LOOKUP_MAX_RESULTS", "20"))
+                    except Exception:
+                        _max_res = 20
                     lookup_request = LookupRequest(
                         term=sanitized_request.begrip,
                         sources=None,
                         context=context_str,
-                        max_results=3,  # Reduced from 5 for performance
+                        max_results=_max_res,
                         include_examples=False,
                         timeout=WEB_LOOKUP_TIMEOUT,  # Configurable via env var
                     )
