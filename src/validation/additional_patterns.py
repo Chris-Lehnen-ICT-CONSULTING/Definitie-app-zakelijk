@@ -9,6 +9,20 @@ from __future__ import annotations
 from typing import List
 
 _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
+    # ARAI – taal/algemene formulering
+    "ARAI-01": [
+        r"\bbetekent\b",  # vaak gebruikte verbale kern in foutieve definities
+    ],
+    "ARAI-02": [
+        # Aanvullende containerbegrippen (mild, om vals-positieven te beperken)
+        r"\bcomponent\b(?!\s+dat|\s+van)",
+        r"\bonderdeel\b(?!\s+dat|\s+van)",
+    ],
+    "ARAI-03": [
+        # Enkele subjectieve bijvoeglijke naamwoorden aanvullend op JSON
+        r"\bdoeltreffend\b",
+        r"\bvoldoende\b",
+    ],
     "CON-01": [
         r"\b(in de context van|binnen de context|juridische context)\b",
         r"\b(DJI|OM|KMAR|Openbaar Ministerie)\b",
@@ -44,4 +58,3 @@ def get_additional_patterns(code: str) -> List[str]:
         Lijst van regex strings (kan leeg zijn).
     """
     return list(_ADDITIONAL_PATTERNS.get(str(code).upper(), []))
-
