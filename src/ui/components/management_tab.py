@@ -70,11 +70,11 @@ class ManagementTab:
 
     def render(self):
         """Render management tab."""
-        if not CLI_TOOLS_AVAILABLE:
-            st.error("❌ CLI Management tools niet beschikbaar")
-            return
-
         st.markdown("### 🛠️ Database & System Management")
+        if not CLI_TOOLS_AVAILABLE:
+            st.warning(
+                "⚠️ CLI Management tools niet beschikbaar — database setup/test‑data functies zijn uitgeschakeld."
+            )
 
         # Main interface
         tab1, tab2, tab3, tab4, tab5, tab6 = st.tabs(
@@ -291,38 +291,47 @@ class ManagementTab:
         col1, col2, col3 = st.columns(3)
 
         with col1:
-            if st.button("🔄 Reset Database", key="reset_db_btn"):
-                self._reset_database()
+            if CLI_TOOLS_AVAILABLE:
+                if st.button("🔄 Reset Database", key="reset_db_btn"):
+                    self._reset_database()
+            else:
+                st.button("🔄 Reset Database", disabled=True, key="reset_db_btn_disabled")
 
         with col2:
-            if st.button("📥 Laad Test Data", key="load_test_data_btn"):
-                self._load_test_data()
+            if CLI_TOOLS_AVAILABLE:
+                if st.button("📥 Laad Test Data", key="load_test_data_btn"):
+                    self._load_test_data()
+            else:
+                st.button("📥 Laad Test Data", disabled=True, key="load_test_data_btn_disabled")
 
         with col3:
             if st.button("🧹 Cleanup Database", key="cleanup_db_btn"):
                 self._cleanup_database()
 
-        # Test data preview
-        with st.expander("👀 Preview Test Data", expanded=False):
-            test_records = create_test_data()
+        # Test data preview (alleen als CLI tools beschikbaar)
+        if CLI_TOOLS_AVAILABLE:
+            with st.expander("👀 Preview Test Data", expanded=False):
+                test_records = create_test_data()
 
-            # Create dataframe for display
-            test_df = pd.DataFrame(
-                [
-                    {
-                        "Begrip": rec.begrip,
-                        "Categorie": rec.categorie,
-                        "Context": rec.organisatorische_context,
-                        "Status": rec.status,
-                        "Score": rec.validation_score,
-                        "Definitie": rec.definitie[:50] + "...",
-                    }
-                    for rec in test_records
-                ]
-            )
+                # Create dataframe for display
+                test_df = pd.DataFrame(
+                    [
+                        {
+                            "Begrip": rec.begrip,
+                            "Categorie": rec.categorie,
+                            "Context": rec.organisatorische_context,
+                            "Status": rec.status,
+                            "Score": rec.validation_score,
+                            "Definitie": rec.definitie[:50] + "...",
+                        }
+                        for rec in test_records
+                    ]
+                )
 
-            st.dataframe(test_df, use_container_width=True)
-            st.info(f"📊 {len(test_records)} test records beschikbaar")
+                st.dataframe(test_df, use_container_width=True)
+                st.info(f"📊 {len(test_records)} test records beschikbaar")
+        else:
+            st.info("CLI testdata‑hulpmiddelen niet beschikbaar in deze omgeving.")
 
     def _render_import_export(self):
         """Render import/export interface."""
@@ -1004,6 +1013,9 @@ class ManagementTab:
 
     def _reset_database(self):
         """Reset database (met bevestiging)."""
+        if not CLI_TOOLS_AVAILABLE:
+            st.error("❌ Reset niet beschikbaar: CLI tools ontbreken")
+            return
         if SessionStateManager.get_value("confirm_reset_db", False):
             try:
                 # Backup current data first
@@ -1026,6 +1038,9 @@ class ManagementTab:
 
     def _load_test_data(self):
         """Laad test data in database."""
+        if not CLI_TOOLS_AVAILABLE:
+            st.error("❌ Test data laden niet beschikbaar: CLI tools ontbreken")
+            return
         try:
             test_records = create_test_data()
             added_count = 0
