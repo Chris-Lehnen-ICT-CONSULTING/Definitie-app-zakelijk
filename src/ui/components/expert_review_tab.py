@@ -664,8 +664,42 @@ class ExpertReviewTab:
         st.info("💾 Draft opgeslagen (functionaliteit komt binnenkort)")
 
     def _revalidate_definition(self, definitie: DefinitieRecord):
-        """Re-validate definitie met current rules."""
-        st.info("🔄 Re-validatie gestart (functionaliteit komt binnenkort)")
+        """Re-validate definitie met current rules en toon details (gedeeld)."""
+        try:
+            from services.container import get_container
+            from services.interfaces import Definition
+            from services.validation.interfaces import ValidationContext
+            from ui.helpers.async_bridge import run_async
+            from ui.components.validation_view import render_v2_validation_details
+
+            container = get_container()
+            orch = container.orchestrator()
+
+            # Build Definition from record
+            definition = Definition(
+                begrip=definitie.begrip,
+                definitie=definitie.definitie,
+                organisatorische_context=definitie.get_org_list() if hasattr(definitie, 'get_org_list') else [],
+                juridische_context=definitie.get_jur_list() if hasattr(definitie, 'get_jur_list') else [],
+                wettelijke_basis=definitie.get_wettelijke_basis_list() if hasattr(definitie, 'get_wettelijke_basis_list') else [],
+                categorie=definitie.categorie,
+            )
+            ctx = ValidationContext(
+                correlation_id=None,
+                metadata={
+                    "organisatorische_context": definition.organisatorische_context or [],
+                    "juridische_context": definition.juridische_context or [],
+                    "wettelijke_basis": definition.wettelijke_basis or [],
+                },
+            )
+            v2 = run_async(orch.validation_service.validate_definition(definition, ctx))
+            if isinstance(v2, dict):
+                st.markdown("#### 🔄 Re-validatie Resultaat")
+                render_v2_validation_details(v2)
+            else:
+                st.info("ℹ️ Geen V2 validatieresultaat beschikbaar")
+        except Exception as e:
+            st.error(f"❌ Re-validatie mislukt: {e!s}")
 
     def _clear_review_session(self, definitie_id: int):
         """Clear review session data."""
