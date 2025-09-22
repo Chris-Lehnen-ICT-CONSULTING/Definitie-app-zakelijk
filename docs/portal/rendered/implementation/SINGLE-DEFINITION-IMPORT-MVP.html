@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Single Definition Import (MVP) – Implementatieplan</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>canonical: true</p>
+<p>status: draft</p>
+<p>owner: development</p>
+<p>last_verified: 2025-09-22</p>
+<p>applies_to: definitie-app@current</p>
+<p>---</p>
+
+<h1>Single Definition Import (MVP) – Implementatieplan</h1>
+
+<p>Doel: een veilige, begrijpelijke flow om één definitie via de UI te importeren met V2‑validatie, duplicaatcontrole en logging.</p>
+
+<p>Gerelateerd: EPIC-005 (Export & Import), US-234 (Single Definition Import), REQ-043 (Import), REQ-037 (Batch validatie – component hergebruik).</p>
+
+<h2>MVP Doelstellingen</h2>
+<ul>
+<li>UI‑flow voor één definitie (formulier/JSON)</li>
+<li>Validatie vóór opslag (ValidationOrchestratorV2)</li>
+<li>Duplicaatcontrole op begrip + context</li>
+<li>Opslag als Draft met juiste herkomstmetadata</li>
+<li>Logging naar `import_export_logs`</li>
+</ul>
+
+<p>Niet‑doel (volgende iteraties): CSV/XLSX/JSONL, streaming, jobs/queue, batch‑rapportage.</p>
+
+<h2>Architectuur & Componenten</h2>
+
+<h3>UI (Management tab)</h3>
+<ul>
+<li>Sectie “Enkelvoudige import (MVP)” toevoegen in bestaande Management tab.</li>
+<li>Twee modi:</li>
+<p>  1) Formulier: begrip, definitie, categorie, organisatorische_context[], juridische_context[]?, wettelijke_basis[]?</p>
+<p>  2) JSON‑plakveld (zelfde schema)</p>
+<li>Knoppen: “Valideren”, daarna “Importeer als Draft”.</li>
+<li>Duplicate‑waarschuwing vóór definitieve opslag.</li>
+</ul>
+
+<h3>Service‑laag</h3>
+<ul>
+<li>Nieuwe service: `DefinitionImportService`</li>
+<li> - `validate_single(payload: dict) -> ValidationResult`</li>
+<li> - `import_single(payload: dict, *, allow_duplicate: bool=False) -> ImportResult`</li>
+<li>Hergebruik:</li>
+<li> - `ValidationOrchestratorV2.validate_definition(Definition)`</li>
+<li> - `DefinitionRepository.create_definitie(...)`</li>
+<li>Metadata bij opslag:</li>
+<li> - `source_type = "imported"`, `imported_from = "single_import_ui"`, `created_by = current_user|"ui_user"`</li>
+</ul>
+
+<h3>Datamodel/Contract</h3>
+<p>Input JSON (formulier mapped):</p>
+<pre><code>{
+  "begrip": "string",
+  "definitie": "string",
+  "categorie": "string",
+  "organisatorische_context": ["string"],
+  "juridische_context": ["string"],
+  "wettelijke_basis": ["string"]
+}</code></pre>
+<p>Opmerkingen:</p>
+<ul>
+<li>Lijsten worden opgeslagen volgens V2‑model (repository verwacht JSON/tekst representatie op kolommen; mapping gebeurt in service/repository helpers).</li>
+</ul>
+
+<h2>Flow</h2>
+<p>1) Gebruiker vult formulier of plakt JSON</p>
+<p>2) UI roept <code>validate_single</code> aan → toon score + violations</p>
+<p>3) Duplicate‑check (begrip + context); toon waarschuwing</p>
+<p>4) Gebruiker bevestigt → <code>import_single</code> slaat als Draft op</p>
+<p>5) Resultaat tonen + logging in <code>import_export_logs</code></p>
+
+<h2>Validatie</h2>
+<ul>
+<li>Gebruik `ValidationOrchestratorV2` met contextverrijking uit payload</li>
+<li>Timeouts volgen bestaande instellingen</li>
+<li>Toon samenvatting: acceptable flag/score + violations (code, severity, message)</li>
+</ul>
+
+<h2>Duplicaatstrategie (MVP)</h2>
+<ul>
+<li>Default: blokkeren bij exact duplicaat (toon welke record bestaat)</li>
+<li>Optioneel (feature‑toggle): overschrijven toestaan (buiten MVP veilig uit)</li>
+</ul>
+
+<h2>Veiligheid & UX</h2>
+<ul>
+<li>Input sanitiseren, lengte‑limieten, UTF‑8</li>
+<li>Duidelijke foutmeldingen (wat en waarom)</li>
+<li>Geen secrets/PII in logs; alleen noodzakelijke metadata loggen</li>
+</ul>
+
+<h2>Stappenplan Implementatie</h2>
+<p>1) Service skeleton <code>DefinitionImportService</code> (validate/import_single)</p>
+<p>2) UI‑sectie in Management tab (Form/JSON, validate→preview→import)</p>
+<p>3) Duplicate‑check integreren (repository.find_duplicates)</p>
+<p>4) Logging naar <code>import_export_logs</code></p>
+<p>5) Documentatie en helptekst in UI</p>
+
+<h2>Teststrategie</h2>
+<ul>
+<li>Unit: service.validate_single (happy/invalid/edge cases)</li>
+<li>Unit: service.import_single (nieuw record, duplicate blok, metadata check)</li>
+<li>Integratie: UI → service → repository → logtabel</li>
+<li>Negatief: lege velden, te lange input, invalid JSON</li>
+</ul>
+
+<h2>Rollbackplan</h2>
+<ul>
+<li>Geen migraties; alleen nieuwe service + UI sectie</li>
+<li>Feature‑toggle voor overschrijven uit; alleen Draft‑opslag</li>
+<li>Herstel: verwijder laatste geïmporteerde record via Management tab (admin)</li>
+</ul>
+
+<h2>Bekende risico’s</h2>
+<ul>
+<li>Onbedoelde duplicaten (mitigatie: blokkerende default)</li>
+<li>Validatie‑latentie (mitigatie: behoud timeout; toon spinner)</li>
+<li>Onjuiste mapping (mitigatie: minimale velden, duidelijke types)</li>
+</ul>
+
+<h2>Links</h2>
+<ul>
+<li>EPIC-005: docs/backlog/EPIC-005/EPIC-005.md</li>
+<li>US-234: docs/backlog/EPIC-005/US-234/US-234.md</li>
+<li>Vereisten: docs/backlog/requirements/REQ-043.md, docs/backlog/requirements/REQ-037.md</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

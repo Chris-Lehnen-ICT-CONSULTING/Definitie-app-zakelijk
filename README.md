@@ -32,8 +32,14 @@ pytest -q
 ### 📄 Documenten als context (upload)
 - Voor tekstextractie uit DOCX/PDF installeer lokaal: `pip install python-docx PyPDF2`.
 - Niet ondersteund: legacy `.doc` en OCR voor gescande PDF’s.
-- Upload documenten via de Generator‑tab (expander “📄 Document Upload voor Context Verrijking”), selecteer ze, en genereer: de prompt gebruikt de documentcontext (UI toont indicator).
-- Troubleshooting: zie docs/technisch/document_processing.md en docs/handleidingen/ontwikkelaars/document-context-gebruik.md.
+- Upload documenten via de Generator‑tab (expander “📄 Document Upload voor Context Verrijking”), selecteer ze, en genereer:
+  - De prompt gebruikt een compacte samenvatting (document_context) en (optioneel) snippets uit de documenten.
+  - De UI toont: badge “Documentcontext gebruikt”, metrics en onder “📚 Gebruikte Bronnen” de `documents`‑fragmenten met bronvermelding (p. X/¶ Y) en “→ In prompt”.
+- Snippet‑injectie toggles (env):
+  - `DOCUMENT_SNIPPETS_ENABLED` (default: `true`), `DOCUMENT_SNIPPETS_MAX` (default: `16`),
+  - `DOCUMENT_SNIPPETS_PER_DOC` (default: `4`), `SNIPPET_WINDOW_CHARS` (default: `280`),
+  - `DOCUMENT_SNIPPETS_MAX_CHARS` (default: `800`).
+- Troubleshooting: zie `docs/technisch/document_processing.md` en `docs/handleidingen/ontwikkelaars/document-context-gebruik.md`.
 
 ### 🔒 Codekwaliteit en Backlog‑discipline
 - Geen TODO/FIXME/XXX/TBD/HACK/@todo/@fixme in code — alle werk loopt via backlog.

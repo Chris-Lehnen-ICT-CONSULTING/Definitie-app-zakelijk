@@ -19,6 +19,7 @@ from services.definition_generator_prompts import UnifiedPromptBuilder
 from services.interfaces import GenerationRequest
 from services.web_lookup.config_loader import load_web_lookup_config
 from services.web_lookup.sanitization import sanitize_snippet
+from utils.type_helpers import ensure_string
 
 logger = logging.getLogger(__name__)
 
@@ -145,6 +146,11 @@ class PromptServiceV2:
                 prompt_text, enriched_context
             )
 
+            # EPIC-018/US-229: Optional document snippets injectie
+            prompt_text = self._maybe_augment_with_document_snippets(
+                prompt_text, enriched_context
+            )
+
             # Estimate token count
             token_count = len(prompt_text.split()) * 1.3  # Conservative estimate
 
@@ -186,6 +192,66 @@ class PromptServiceV2:
                 exc_info=True,
             )
             raise
+
+    def _maybe_augment_with_document_snippets(
+        self, prompt_text: str, enriched_context: EnrichedContext
+    ) -> str:
+        """Voeg (optionele) document‑snippets toe aan de prompt.
+
+        Besturing via env‑vars:
+        - DOCUMENT_SNIPPETS_ENABLED (default: true)
+        - DOCUMENT_SNIPPETS_MAX (default: 2)
+        - DOCUMENT_SNIPPETS_MAX_CHARS (default: 800)
+        """
+        try:
+            enabled = os.getenv("DOCUMENT_SNIPPETS_ENABLED", "true").lower() == "true"
+            if not enabled:
+                return prompt_text
+
+            docs_meta = (enriched_context.metadata or {}).get("documents", {})
+            snippets = (docs_meta or {}).get("snippets", [])
+            if not snippets:
+                return prompt_text
+
+            try:
+                max_snippets = int(os.getenv("DOCUMENT_SNIPPETS_MAX", "16"))
+            except Exception:
+                max_snippets = 16
+            try:
+                max_chars = int(os.getenv("DOCUMENT_SNIPPETS_MAX_CHARS", "800"))
+            except Exception:
+                max_chars = 800
+
+            lines: list[str] = ["📄 DOCUMENTCONTEXT (snippets):"]
+            total = 0
+            count = 0
+            for s in snippets:
+                if count >= max_snippets:
+                    break
+                raw = ensure_string(s.get("snippet", ""))
+                title = s.get("title") or s.get("filename") or "document"
+                cite = s.get("citation_label")
+                safe = sanitize_snippet(raw)
+                remaining = max(0, max_chars - total)
+                if remaining <= 0:
+                    break
+                snippet_text = safe[:remaining]
+                # Note: we prefix with a bullet for readability
+                prefix = f"• {title}"
+                if cite:
+                    prefix += f" ({cite})"
+                lines.append(f"{prefix}: {snippet_text}")
+                total += len(snippet_text)
+                count += 1
+
+            if len(lines) <= 1:
+                return prompt_text
+
+            block = "\n".join(lines)
+            # Voeg bovenaan toe (context eerst)
+            return f"{block}\n\n{prompt_text}"
+        except Exception:
+            return prompt_text
 
     def _DEPRECATED_convert_request_to_context(
         self, request: GenerationRequest, extra_context: dict[str, Any] | None = None

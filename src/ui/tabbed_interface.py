@@ -906,6 +906,31 @@ class TabbedInterface:
                 # Haal actuele generation options op (kan force flags bevatten)
                 options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
 
+                # EPIC-018: bouw een samenvatting van documentcontext voor de service
+                doc_summary = None
+                if document_context and document_context.get("document_count", 0) > 0:
+                    doc_summary = self._build_document_context_summary(document_context)
+                # EPIC-018/US-229: bouw snippets op basis van begrip in geselecteerde documenten
+                doc_snippets = []
+                if selected_doc_ids:
+                    # Config via env
+                    try:
+                        per_doc = int(os.getenv("DOCUMENT_SNIPPETS_PER_DOC", "4"))
+                    except Exception:
+                        per_doc = 4
+                    try:
+                        window_chars = int(os.getenv("SNIPPET_WINDOW_CHARS", "280"))
+                    except Exception:
+                        window_chars = 280
+
+                    doc_snippets = self._build_document_snippets(
+                        begrip=begrip,
+                        selected_doc_ids=selected_doc_ids,
+                        max_snippets_total=len(selected_doc_ids) * max(1, per_doc),
+                        per_doc_max=per_doc,
+                        snippet_window=window_chars,
+                    )
+
                 service_result = run_async(
                     self.definition_service.generate_definition(
                         begrip=begrip,
@@ -922,6 +947,9 @@ class TabbedInterface:
                             for k, v in options.items()
                             if k in ("force_generate", "force_duplicate")
                         },
+                        # EPIC-018: doorgeven aan service
+                        document_context=doc_summary,
+                        document_snippets=doc_snippets,
                         # Pass regeneration context for GVI feedback loop
                         regeneration_context=regeneration_context,
                     ),
@@ -1124,6 +1152,127 @@ class TabbedInterface:
             logger.error(f"Fout bij ophalen document context: {e}")
             return None
 
+    def _build_document_context_summary(self, aggregated: dict[str, Any]) -> str:
+        """Bouw een compacte samenvatting uit geaggregeerde documentcontext.
+
+        Opzet: korte lijstjes met top‑items; aantal items gelimiteerd zodat het
+        samenvattend blijft. Dit wordt gebruikt als `document_context` in het
+        GenerationRequest.
+        """
+        try:
+            parts: list[str] = []
+            doc_cnt = int(aggregated.get("document_count", 0) or 0)
+            total_len = int(aggregated.get("total_text_length", 0) or 0)
+            if doc_cnt > 0:
+                parts.append(f"Docs: {doc_cnt} | Tekst: {total_len} chars")
+
+            kws = list(aggregated.get("aggregated_keywords", []) or [])[:10]
+            if kws:
+                parts.append("Keywords: " + ", ".join(kws))
+
+            concepts = list(aggregated.get("aggregated_concepts", []) or [])[:5]
+            if concepts:
+                parts.append("Concepten: " + ", ".join(concepts))
+
+            legal = list(aggregated.get("aggregated_legal_refs", []) or [])[:5]
+            if legal:
+                parts.append("Juridisch: " + ", ".join(legal))
+
+            hints = list(aggregated.get("aggregated_context_hints", []) or [])[:3]
+            if hints:
+                parts.append("Hints: " + "; ".join(hints))
+
+            return " | ".join(parts)
+        except Exception:
+            return ""
+
+    def _build_document_snippets(
+        self,
+        begrip: str,
+        selected_doc_ids: list[str],
+        max_snippets_total: int | None = None,
+        per_doc_max: int = 4,
+        snippet_window: int = 280,
+    ) -> list[dict[str, Any]]:
+        """Zoek op begrip in geselecteerde documenten en bouw korte snippets.
+
+        - Maakt per document maximaal 1 snippet (eerste match)
+        - Beperkt totaal aantal snippets (default 2)
+        - Snippet wordt gesanitized in de prompt‑service; hier beperken we lengte
+        """
+        try:
+            if not begrip or not selected_doc_ids:
+                return []
+
+            processor = get_document_processor()
+            begrip_lower = str(begrip).strip().lower()
+
+            # Stel totaal‑limiet af op aantal documenten × per‑doc‑limiet
+            if max_snippets_total is None:
+                max_snippets_total = max(0, int(len(selected_doc_ids) * max(1, per_doc_max)))
+
+            snippets: list[dict[str, Any]] = []
+            for doc_id in selected_doc_ids:
+                doc = processor.get_document_by_id(doc_id)
+                if not doc or not getattr(doc, "extracted_text", None):
+                    continue
+
+                text = doc.extracted_text
+                haystack = text.lower()
+                # Zoek meerdere matches (max per_doc_max)
+                try:
+                    import re
+
+                    count_for_doc = 0
+                    for m in re.finditer(re.escape(begrip_lower), haystack):
+                        if len(snippets) >= max_snippets_total:
+                            break
+                        if count_for_doc >= max(1, per_doc_max):
+                            break
+
+                        idx = m.start()
+                        start = max(0, idx - snippet_window // 2)
+                        end = min(len(text), idx + len(begrip) + snippet_window // 2)
+                        raw = text[start:end].replace("\n", " ").strip()
+
+                        # Bepaal bronvermelding binnen document (pagina of paragraaf)
+                        citation_label = None
+                        try:
+                            mime = getattr(doc, "mime_type", "") or ""
+                            if mime == "application/pdf":
+                                page_num = text.count("\f", 0, idx) + 1
+                                citation_label = f"p. {page_num}"
+                            elif (
+                                mime
+                                == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            ):
+                                para_num = text.count("\n", 0, idx) + 1
+                                citation_label = f"¶ {para_num}"
+                        except Exception:
+                            citation_label = None
+
+                        snippet = {
+                            "provider": "documents",
+                            "title": getattr(doc, "filename", "document"),
+                            "filename": getattr(doc, "filename", None),
+                            "doc_id": getattr(doc, "id", None),
+                            "snippet": raw,
+                            "score": 1.0,
+                            "used_in_prompt": True,
+                            "citation_label": citation_label,
+                        }
+                        snippets.append(snippet)
+                        count_for_doc += 1
+                        if len(snippets) >= max_snippets_total:
+                            break
+                except Exception:
+                    # Bij een fout in regex/matching: ga door met volgende document
+                    continue
+
+            return snippets[:max_snippets_total]
+        except Exception:
+            return []
+
     def _handle_duplicate_check(self, begrip: str, context_data: dict[str, Any]):
         """Handle duplicate check vanaf hoofdniveau."""
         try:
@@ -1195,6 +1344,13 @@ class TabbedInterface:
         with st.expander("📄 Document Upload voor Context Verrijking", expanded=False):
             st.markdown(
                 "Upload documenten die relevante context bevatten voor de definitie generatie."
+            )
+            # Korte links naar documentatie
+            st.markdown(
+                "- ℹ️ Technisch: [Extractie & flow](docs/technisch/document_processing.md)"
+            )
+            st.markdown(
+                "- 🧑‍💻 Dev how‑to: [document_context gebruiken](docs/handleidingen/ontwikkelaars/document-context-gebruik.md)"
             )
 
             # File uploader

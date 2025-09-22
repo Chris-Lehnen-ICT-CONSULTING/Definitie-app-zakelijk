@@ -22,7 +22,7 @@
 <p>id: US-155</p>
 <p>titel: Expert Approval Interface - Goedkeuren van Definities</p>
 <p>epic: EPIC-004</p>
-<p>status: Open</p>
+<p>status: In uitvoering</p>
 <p>prioriteit: HIGH</p>
 <p>story_points: 5</p>
 <p>sprint: backlog</p>
@@ -37,7 +37,7 @@
 <li>REQ-012</li>
 <p>applies_to: definitie-app@current</p>
 <p>canonical: true</p>
-<p>last_verified: 2025-09-12</p>
+<p>last_verified: 2025-09-22</p>
 <p>---</p>
 </ul>
 
@@ -68,7 +68,7 @@
 <ol>
 <li>**draft** - Initiële status na generatie</li>
 <li>**review** - Na "Submit voor Review" (werkt al)</li>
-<li>**established** - Na goedkeuring door expert (ONTBREEKT IN UI)</li>
+<li>**established** - Na goedkeuring door expert (aanwezig in UI via DefinitionWorkflowService + gate)</li>
 <li>**archived** - Gearchiveerde/verouderde definities</li>
 </ol>
 
@@ -79,24 +79,24 @@
 <li>[x] Backend service bestaat al (DefinitionWorkflowService)</li>
 <li>[ ] Expert Review tab toont direct de laatst gegenereerde definitie (prefill)</li>
 <li>[ ] Prefill toont alle context (organisatorisch, juridisch, wettelijke basis) read‑only</li>
-<li>[ ] Expert Review tab toont "Vaststellen" knop voor definities met status "In review"</li>
-<li>[ ] Expert Review tab toont "Afwijzen" knop met verplicht reden‑veld</li>
-<li>[ ] Na vaststellen wordt status "Vastgesteld" (DB: established)</li>
-<li>[ ] Na afwijzen wordt status terug naar "Concept" (DB: draft) met feedback/reden</li>
+<li>[x] Expert Review tab toont "Vaststellen" knop voor definities met status "In review"</li>
+<li>[x] Expert Review tab toont "Afwijzen" knop met verplicht reden‑veld</li>
+<li>[x] Na vaststellen wordt status "Vastgesteld" (DB: established)</li>
+<li>[x] Na afwijzen wordt status terug naar "Concept" (DB: draft) met feedback/reden</li>
 <li>[ ] Approval metadata wordt vastgelegd (approved_by, approved_at, approval_notes)</li>
 <li>[ ] Audit trail via `definitie_geschiedenis` (status_changed) + metadata snapshot</li>
-<li>[ ] Voor definities met status "Vastgesteld" is er een actie "Maak bewerkbaar" (status terugzetten) met verplicht reden‑veld en logging</li>
+<li>[x] Voor definities met status "Vastgesteld" is er een actie "Maak bewerkbaar" (status terugzetten) met verplicht reden‑veld en logging</li>
 <li>[ ] Zoekfunctie ondersteunt filteren op status, inclusief "Vastgesteld"</li>
 </ul>
 
 <h3>UI/UX Criteria</h3>
 <ul>
 <li>[ ] Duidelijke visuele scheiding tussen Concept / In review / Vastgesteld / Gearchiveerd</li>
-<li>[ ] Alle UI‑labels in het Nederlands; DB‑statuscodes blijven ongewijzigd</li>
-<li>[ ] Approval workflow met confirmatie dialoog</li>
-<li>[ ] Afwijzen verplicht een reden</li>
+<li>[x] Alle UI‑labels in het Nederlands; DB‑statuscodes blijven ongewijzigd</li>
+<li>[x] Approval workflow met gate‑preview en override‑reden (via DefinitionWorkflowService)</li>
+<li>[x] Afwijzen verplicht een reden</li>
 <li>[ ] Optioneel: batch vaststellen voor meerdere definities tegelijk</li>
-<li>[ ] Filter op status in overzichten; "Vastgesteld" zichtbaar/selecteerbaar</li>
+<li>[x] Filter op status in overzichten; "Vastgesteld" zichtbaar/selecteerbaar</li>
 </ul>
 
 <h3>Autorisatie</h3>

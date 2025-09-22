@@ -1,0 +1,20 @@
+{
+  "documents": [
+    {
+      "id": "94ffaddedfcb298a",
+      "filename": "fake.pdf",
+      "mime_type": "application/pdf",
+      "size": 21,
+      "uploaded_at": "2025-09-22T12:31:17.727441+00:00",
+      "extracted_text": "",
+      "text_length": 0,
+      "keywords": [],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [],
+      "processing_status": "error",
+      "error_message": "⚠️ PDF extractie vereist PyPDF2 library (pip install PyPDF2)"
+    }
+  ],
+  "last_updated": "2025-09-22T12:31:17.727569+00:00"
+}

@@ -45,6 +45,7 @@
 <li>UI (EPIC‑004): duplicate pre‑check vóór generatie + dialoog met 2 knoppen.</li>
 <li>Services/DB (alignering): DB‑filtering op `wettelijke_basis` (JSON), checker‑laag borgt orde‑onafhankelijkheid.</li>
 <li>Migrator: normalisatie van `wettelijke_basis` naar unieke, gesorteerde JSON‑array zodat SQL‑vergelijkingen betrouwbaar zijn.</li>
+<li>- Preconditie (CFR‑BUG‑029 opgelost op 2025‑09‑22): in de Generator‑tab is minimaal één context (organisatorisch of juridisch of wettelijk) vereist vóór genereren of opslaan als concept.</li>
 </ul>
 
 <h2>Definitie van Gereed</h2>
@@ -56,6 +57,7 @@
 <li>DB‑laag kan op `wettelijke_basis` filteren; checker doet orde‑onafhankelijke vergelijking als vangnet.</li>
 <li>Migratie uitgevoerd op bestaande database om `wettelijke_basis` te normaliseren.</li>
 <li>Tests aanwezig die 3/3‑context invariant borgen.</li>
+<li>- Generator‑tab valideert dat ≥1 context is ingevuld (CFR‑BUG‑029); UI‑knoppen disabled zonder context + duidelijke melding.</li>
 </ul>
 
 <h2>Acceptatiecriteria</h2>
@@ -112,7 +114,6 @@
 <ul>
 <li>Of CON‑01 bij geforceerde duplicate ‘critical’ moet worden (gate‑block) blijft een optionele vervolgstap (niet in deze US).</li>
 </ul>
-
 
   </div>
 </body>

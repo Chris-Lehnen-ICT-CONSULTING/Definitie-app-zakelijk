@@ -2,12 +2,25 @@
 canonical: true
 status: active
 owner: development
-last_verified: 2025-09-19
+last_verified: 2025-09-22
 applies_to: definitie-app@current
 type: log
 ---
 
 # Refactor Log
+
+## 22-09-2025: Gate‑enforcement en context‑guards in UI + validatie afronding
+
+Wijzigingen (kleine, gerichte updates):
+- Generator‑tab en Bewerk‑tab: UI‑guard toegevoegd — minimaal één context vereist (organisatorisch of juridisch of wettelijk) vóór genereren/opslaan. Knoppen disabled + duidelijke melding. (CFR‑BUG‑029)
+- Expert Review‑tab: “Vaststellen” loopt via DefinitionWorkflowService met gate‑policy (override vereist reden). “Maak bewerkbaar” en “Herstel uit archief” lopen via workflow.update_status. (CFR‑BUG‑030)
+- Export‑tab (bulk): statuswijzigingen via workflow; ESTABLISHED pad via gate‑enforced submit.
+- ModularValidationService: detailed_scores afgerond op 2 decimalen (stabiele UI/tests).
+- ValidationOrchestratorV2: context pass‑through (geen automatische ‘definition’ enrich) conform tests.
+
+Documentatie/bekende punten:
+- Bugdocument aangemaakt voor legacy cleanup (container API `get_instance()`, verwijderen `DefinitionValidatorInterface`, marker in service_factory). Zie: docs/backlog/EPIC-010/US-043/CFR-BUG-031/README.md.
+
 
 ## 19-09-2025: V1→V2 Architecture Migration Complete
 
