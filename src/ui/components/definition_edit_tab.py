@@ -853,6 +853,7 @@ class DefinitionEditTab:
         # Als V2 ruwe data aanwezig is: render gedetailleerde output gelijk aan generatie-tab
         v2 = results.get('raw_v2') if isinstance(results, dict) else None
         if isinstance(v2, dict):
+            st.markdown("#### ✅ Kwaliteitstoetsing")
             from ui.components.validation_view import render_v2_validation_details
             render_v2_validation_details(v2)
         else:
