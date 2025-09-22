@@ -913,13 +913,22 @@ class TabbedInterface:
                 # EPIC-018/US-229: bouw snippets op basis van begrip in geselecteerde documenten
                 doc_snippets = []
                 if selected_doc_ids:
-                    per_doc = 4
+                    # Config via env
+                    try:
+                        per_doc = int(os.getenv("DOCUMENT_SNIPPETS_PER_DOC", "4"))
+                    except Exception:
+                        per_doc = 4
+                    try:
+                        window_chars = int(os.getenv("SNIPPET_WINDOW_CHARS", "280"))
+                    except Exception:
+                        window_chars = 280
+
                     doc_snippets = self._build_document_snippets(
                         begrip=begrip,
                         selected_doc_ids=selected_doc_ids,
-                        max_snippets_total=len(selected_doc_ids) * per_doc,
+                        max_snippets_total=len(selected_doc_ids) * max(1, per_doc),
                         per_doc_max=per_doc,
-                        snippet_window=280,
+                        snippet_window=window_chars,
                     )
 
                 service_result = run_async(

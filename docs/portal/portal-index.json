@@ -10,7 +10,7 @@
       "prioriteit": null,
       "owner": "development",
       "canonical": true,
-      "last_verified": "2025-09-19",
+      "last_verified": "2025-09-22",
       "applies_to": "definitie-app@current",
       "category": "log",
       "sprint": null,
@@ -2260,11 +2260,11 @@
       "title": "Expert Approval Interface - Goedkeuren van Definities",
       "path": "../backlog/EPIC-004/US-155/US-155.md",
       "url": "../backlog/EPIC-004/US-155/US-155.md",
-      "status": "Open",
+      "status": "In uitvoering",
       "prioriteit": "HIGH",
       "owner": "expert-reviewer",
       "canonical": true,
-      "last_verified": "2025-09-12",
+      "last_verified": "2025-09-22",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": "backlog",
@@ -2806,11 +2806,11 @@
       "title": "Validatie‑gate bij Vaststellen (Option B)",
       "path": "../backlog/EPIC-004/US-160/US-160.md",
       "url": "../backlog/EPIC-004/US-160/US-160.md",
-      "status": "Gepland",
+      "status": "In uitvoering",
       "prioriteit": "HOOG",
       "owner": "frontend-team",
       "canonical": true,
-      "last_verified": "2025-09-13",
+      "last_verified": "2025-09-22",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": "backlog",
@@ -31778,7 +31778,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T12:21:18Z"
+    "generated_at": "2025-09-22T12:24:02Z"
   },
   "sources": [
     "docs"
