@@ -420,7 +420,10 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 for stage_name, toks in stages:
                     query_term = t if not toks else f"{t} " + " ".join(toks)
                     try:
-                        res = await wikipedia_lookup(query_term)
+                        res = await asyncio.wait_for(
+                            wikipedia_lookup(query_term),
+                            timeout=float(getattr(request, "timeout", 30) or 30),
+                        )
                         # Log attempt
                         self._debug_attempts.append(
                             {
@@ -455,7 +458,10 @@ class ModernWebLookupService(WebLookupServiceInterface):
                             continue
                         seen.add(fbq.lower())
                         try:
-                            fb_res = await wikipedia_lookup(fbq)
+                            fb_res = await asyncio.wait_for(
+                                wikipedia_lookup(fbq),
+                                timeout=float(getattr(request, "timeout", 30) or 30),
+                            )
                             self._debug_attempts.append(
                                 {
                                     "provider": source.name,
@@ -509,15 +515,10 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 logger.warning(f"No SRU endpoint mapping for source: {source.name}")
                 return None
 
-            # Stage-based SRU search using context backoff
+            # Stage-based SRU search using context backoff (SRU: alleen 'wet' tokens)
             async with SRUService() as sru_service:
                 org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
                 stages: list[tuple[str, list[str]]] = []
-                all_tokens = org + jur + wet
-                if all_tokens:
-                    stages.append(("context_full", all_tokens))
-                if jur or wet:
-                    stages.append(("jur_wet", jur + wet))
                 if wet:
                     stages.append(("wet_only", wet))
                 stages.append(("no_ctx", []))
@@ -525,10 +526,12 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 base = (term or "").strip()
                 for stage_name, toks in stages:
                     combo_term = base if not toks else f"{base} " + " ".join(toks)
-                    results = await sru_service.search(
-                        term=combo_term,
-                        endpoint=endpoint,
-                        max_records=3,
+                    # Respecteer per-request timeout budget
+                    results = await asyncio.wait_for(
+                        sru_service.search(
+                            term=combo_term, endpoint=endpoint, max_records=3
+                        ),
+                        timeout=float(getattr(request, "timeout", 30) or 30),
                     )
                     # collect attempts for this stage
                     try:
@@ -556,8 +559,9 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 if " " in base and "-" not in base:
                     extra_terms.append(base.replace(" ", "-"))
                 for et in extra_terms:
-                    results = await sru_service.search(
-                        term=et, endpoint=endpoint, max_records=3
+                    results = await asyncio.wait_for(
+                        sru_service.search(term=et, endpoint=endpoint, max_records=3),
+                        timeout=float(getattr(request, "timeout", 30) or 30),
                     )
                     self._debug_attempts.append(
                         {
