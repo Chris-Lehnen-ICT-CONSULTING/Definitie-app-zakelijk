@@ -12,7 +12,7 @@ api:
       cost_per_token: 3.0e-05
       max_tokens: 300
       temperature: 0.0
-  openai_api_key: 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
+  openai_api_key: your-api-key-here
   request_timeout: 60.0
   retry_backoff_factor: 1.5
 cache:
@@ -62,7 +62,6 @@ paths:
   logs_dir: log
   rate_limit_history_file: cache/rate_limit_history.json
   reports_dir: reports
-  # Historische instelling; ToetsregelManager laadt per-bestand uit src/toetsregels/regels/
   toetsregels_file: src/toetsregels/regels
   verboden_woorden_file: config/verboden_woorden.json
 rate_limiting:
@@ -120,6 +119,16 @@ ui:
     NP: Nederlands Politie
     OM: Openbaar Ministerie
     ZM: Zittende Magistratuur
+  common_laws:
+  - Wetboek van Strafrecht (Sr)
+  - "Wetboek van Strafvordering (Sv) \u2014 huidig"
+  - "Wetboek van Strafvordering (Sv) \u2014 toekomstig"
+  - Algemene wet bestuursrecht (Awb)
+  - Burgerlijk Wetboek (BW)
+  - Algemene verordening gegevensbescherming (AVG)
+  - Wet politiegegevens (Wpg)
+  - Wet op de identificatieplicht (Wid)
+  - Anders...
   ketenpartners:
   - ZM
   - DJI

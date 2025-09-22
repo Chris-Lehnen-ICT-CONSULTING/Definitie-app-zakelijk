@@ -432,6 +432,21 @@ class DefinitionEditTab:
         examples_state_key = k('examples')
         current_examples = SessionStateManager.get_value(examples_state_key) or {}
 
+        # Nieuw: initialiseer voorbeelden vanuit definitie.metadata.voorbeelden als
+        # er nog niets in de sessie staat (bijv. direct na genereren en openen bewerk‑tab)
+        try:
+            if not current_examples and getattr(definition, 'metadata', None):
+                md = definition.metadata
+                if isinstance(md, dict):
+                    v = md.get('voorbeelden') or {}
+                    if isinstance(v, dict) and any(v.get(k) for k in (
+                        'voorbeeldzinnen', 'praktijkvoorbeelden', 'tegenvoorbeelden', 'synoniemen', 'antoniemen', 'toelichting'
+                    )):
+                        current_examples = v
+                        SessionStateManager.set_value(examples_state_key, current_examples)
+        except Exception:
+            pass
+
         col_left, col_right = st.columns([1, 1])
         with col_left:
             can_call = True
@@ -854,8 +869,11 @@ class DefinitionEditTab:
         v2 = results.get('raw_v2') if isinstance(results, dict) else None
         if isinstance(v2, dict):
             st.markdown("#### ✅ Kwaliteitstoetsing")
-            from ui.components.validation_view import render_v2_validation_details
-            render_v2_validation_details(v2)
+            from ui.components.validation_view import render_validation_detailed_list
+            # Gebruik ID-gescope key_prefix voor stabiele togglestate per definitie
+            def_id = SessionStateManager.get_value('editing_definition_id')
+            kp = f"edit_{def_id}" if def_id else "edit"
+            render_validation_detailed_list(v2, key_prefix=kp, show_toggle=True, gate=None)
         else:
             if results['valid']:
                 st.success(f"✅ Validatie geslaagd! Score: {results['score']:.2f}")

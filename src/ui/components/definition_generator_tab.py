@@ -1222,86 +1222,18 @@ class DefinitionGeneratorTab:
         return lines_out
 
     def _render_validation_results(self, validation_result):
-        """Render validation resultaten - DICT ONLY.
-
-        REFACTORED: Geen object fallbacks meer, alleen dict access.
-        V2 contract garandeert dict format.
-        """
+        """Render validation resultaten via gedeelde renderer (V2 dict)."""
         st.markdown("#### ✅ Kwaliteitstoetsing")
-
-        # Direct dict access - V2 contract garandeert deze structuur
-        overall_score = float(validation_result.get("overall_score", 0.0))
-        violations = validation_result.get("violations", [])
-
-        # Overall score
-        score_color = (
-            "green"
-            if overall_score > 0.8
-            else ("orange" if overall_score > 0.6 else "red")
-        )
-        st.markdown(
-            f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
-            unsafe_allow_html=True,
-        )
-
-        # Toon acceptance gates status (indien aanwezig)
-        gate = validation_result.get("acceptance_gate") or {}
-        if isinstance(gate, dict) and gate:
-            acceptable = bool(gate.get("acceptable", True))
-            gates_failed = gate.get("gates_failed", []) or []
-            gates_passed = gate.get("gates_passed", []) or []
-            if acceptable:
-                msg = "Gates: OK"
-                if gates_passed:
-                    msg += f" · {', '.join(map(str, gates_passed))}"
-                st.success(msg)
-            else:
-                reason = ", ".join(map(str, gates_failed)) if gates_failed else "niet voldaan"
-                st.error(f"Gates: NIET OK · {reason}")
-
-        # Toggle button for detailed results
-        if st.button("📊 Toon/verberg gedetailleerde toetsresultaten"):
-            current_state = SessionStateManager.get_value(
-                "toon_detailleerde_toetsing", False
+        try:
+            from ui.components.validation_view import render_validation_detailed_list
+            render_validation_detailed_list(
+                validation_result,
+                key_prefix="gen",
+                show_toggle=True,
+                gate=validation_result.get("acceptance_gate") if isinstance(validation_result, dict) else None,
             )
-            SessionStateManager.set_value(
-                "toon_detailleerde_toetsing", not current_state
-            )
-
-        # Show detailed results if toggled
-        if not SessionStateManager.get_value("toon_detailleerde_toetsing", False):
-            return
-
-        # Prefer existing session list; otherwise, derive from V2 validation_result
-        beoordeling = SessionStateManager.get_value("beoordeling_gen", [])
-
-        if not beoordeling and isinstance(validation_result, dict):
-            beoordeling = self._build_detailed_assessment(validation_result)
-            if beoordeling:
-                SessionStateManager.set_value("beoordeling_gen", beoordeling)
-
-        if beoordeling:
-            st.markdown("### 📋 Alle Toetsregels Resultaten")
-            for regel in beoordeling:
-                # Print de regel met statuskleur
-                if "✔️" in regel or regel.startswith("✅"):
-                    st.success(regel)
-                elif "❌" in regel:
-                    st.error(regel)
-                elif "🟡" in regel or "⚠️" in regel:
-                    st.warning(regel)
-                else:
-                    st.info(regel)
-
-                # Koppel uitleg expander direct onder deze regel
-                rid = self._extract_rule_id_from_line(regel)
-                if rid:
-                    with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
-                        st.markdown(self._build_rule_hint_markdown(rid))
-        else:
-            st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
-
-        # (Samenvatting bij ingeklapte weergave wordt elders getoond; dit pad is alleen actief wanneer details zichtbaar zijn.)
+        except Exception as e:
+            st.error(f"Validatiesectie kon niet worden gerenderd: {e!s}")
 
     def _extract_rule_id_from_line(self, line: str) -> str:
         """Haal regelcode (bv. CON-01) heuristisch uit een weergegeven lijn."""
