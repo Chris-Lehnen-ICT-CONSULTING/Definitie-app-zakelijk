@@ -369,15 +369,19 @@ class PromptServiceV2:
                 )
                 return prompt_text
 
-            # Select items: used_in_prompt first; stable juridical priority if configured
+            # Select items: if include_all_hits, ignore used_in_prompt and take all
             def _is_auth(src: dict) -> bool:
                 prov = (src.get("provider") or "").lower()
                 url = (src.get("url") or "").lower()
                 return any(x in prov or x in url for x in ("overheid", "rechtspraak"))
 
-            used = [s for s in sources if s.get("used_in_prompt")]
-            # Fallback: use first N sources if nothing marked
-            selected = used if used else sources
+            include_all = bool(aug.get("include_all_hits", False))
+            if include_all:
+                selected = list(sources)
+            else:
+                used = [s for s in sources if s.get("used_in_prompt")]
+                # Fallback: use first N sources if nothing marked
+                selected = used if used else sources
 
             if aug.get("prioritize_juridical", True):
                 # Stable sort: authoritative first, then score desc, then title/url
@@ -401,6 +405,15 @@ class PromptServiceV2:
             max_snippets = int(aug.get("max_snippets", 3))
             max_tokens_per_snippet = int(aug.get("max_tokens_per_snippet", 100))
             total_budget = int(aug.get("total_token_budget", 400))
+
+            # If include_all_hits, relax snippet/budget constraints to allow all
+            if include_all:
+                try:
+                    max_snippets = max(max_snippets, len(selected))
+                except Exception:
+                    max_snippets = len(selected)
+                # Set a generous budget to avoid early truncation; final model limits still apply
+                total_budget = max(total_budget, 5000)
 
             def approx_tokens(s: str) -> int:
                 return max(1, (len(s) + 3) // 4)
