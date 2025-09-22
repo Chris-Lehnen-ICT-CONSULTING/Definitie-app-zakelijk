@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fix: Auto-load Gegenereerde Definitie in Bewerk Tab</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>Fix: Auto-load Gegenereerde Definitie in Bewerk Tab</h1>
+
+<h2>Probleem Beschrijving</h2>
+<p>Wanneer een gebruiker een definitie genereert in het "Definitie Generatie" tabblad en vervolgens naar het "Bewerk" tabblad navigeert, wordt de zojuist gegenereerde definitie niet automatisch geladen. De gebruiker moet eerst handmatig zoeken naar de definitie.</p>
+
+<h2>Root Cause Analyse</h2>
+
+<h3>Hoofdprobleem (CRITICAL BUG)</h3>
+<p>De <code>_edit_definition()</code> methode in <code>definition_generator_tab.py</code> (regel 1305-1307) is een <strong>placeholder implementatie</strong> die alleen "Edit functionality coming soon..." toont in plaats van daadwerkelijk naar de edit tab te navigeren.</p>
+
+<h3>Bijkomende Problemen</h3>
+<ol>
+<li>**Missing Link**: Er wordt geen `editing_definition_id` gezet voor nieuw gegenereerde definities</li>
+<li>**Session State Gap**: `saved_record.id` uit `last_generation_result` wordt niet gebruikt door de Edit tab</li>
+<li>**Tab Switch Detection**: Geen automatische detectie wanneer gebruiker direct op Bewerk tab klikt</li>
+</ol>
+
+<h2>Oplossing Strategie</h2>
+
+<h3>Fase 1: Quick Fix (Minimale wijziging - URGENT)</h3>
+<p><strong>Doel</strong>: Herstel de basis functionaliteit van de "Bewerk" knop</p>
+
+<h4>Stap 1: Fix de placeholder methode</h4>
+<p><strong>Bestand</strong>: <code>src/ui/components/definition_generator_tab.py</code></p>
+<p><strong>Regel</strong>: 1305-1307</p>
+<pre><code># OUDE CODE (BUG):
+def _edit_definition(self, definitie: DefinitieRecord):
+    """Bewerk gegenereerde definitie."""
+    st.info("🔄 Edit functionality coming soon...")
+
+# NIEUWE CODE:
+def _edit_definition(self, definitie: DefinitieRecord):
+    """Bewerk gegenereerde definitie."""
+    SessionStateManager.set_value("editing_definition_id", definitie.id)
+    st.session_state["active_tab"] = "edit"
+    st.success("✏️ Bewerk-tab geopend — laden van definitie…")
+    st.rerun()</code></pre>
+
+<h3>Fase 2: Auto-load bij Tab Switch</h3>
+<p><strong>Doel</strong>: Automatisch laden van laatst gegenereerde definitie bij navigatie naar Bewerk tab</p>
+
+<h4>Stap 2: Sla generated ID op</h4>
+<p><strong>Bestand</strong>: <code>src/ui/tabbed_interface.py</code></p>
+<p><strong>Na regel</strong>: 947</p>
+<pre><code># Voeg toe na het opslaan van last_generation_result:
+if saved_record and hasattr(saved_record, 'id'):
+    SessionStateManager.set_value("last_generated_definition_id", saved_record.id)
+    SessionStateManager.set_value("auto_load_in_edit", True)</code></pre>
+
+<h4>Stap 3: Auto-load in Edit Tab</h4>
+<p><strong>Bestand</strong>: <code>src/ui/components/definition_edit_tab.py</code></p>
+<p><strong>Voor regel</strong>: 55 (in render() method)</p>
+<pre><code># Auto-load laatst gegenereerde definitie indien beschikbaar
+if SessionStateManager.get_value('auto_load_in_edit', False):
+    last_gen_id = SessionStateManager.get_value('last_generated_definition_id')
+    if last_gen_id and not SessionStateManager.get_value('editing_definition_id'):
+        SessionStateManager.set_value('editing_definition_id', last_gen_id)
+        SessionStateManager.set_value('auto_load_in_edit', False)  # Reset flag</code></pre>
+
+<h4>Stap 4: Update Session State Defaults</h4>
+<p><strong>Bestand</strong>: <code>src/ui/session_state.py</code></p>
+<p><strong>In DEFAULT_VALUES dict toevoegen</strong>:</p>
+<pre><code>"last_generated_definition_id": None,
+"auto_load_in_edit": False,</code></pre>
+
+<h3>Fase 3: Verbeteringen (Optional)</h3>
+
+<h4>Consolidatie van Edit Navigation</h4>
+<p>Maak één centrale methode voor navigatie naar edit tab:</p>
+<pre><code>def _navigate_to_edit_tab(self, definition_or_id):
+    """Centrale methode voor navigatie naar edit tab."""
+    definition_id = definition_or_id.id if hasattr(definition_or_id, 'id') else definition_or_id
+    SessionStateManager.set_value("editing_definition_id", definition_id)
+    st.session_state["active_tab"] = "edit"
+    st.success("✏️ Bewerk-tab geopend — laden van definitie…")
+    st.rerun()</code></pre>
+
+<h2>Edge Cases & Mitigatie</h2>
+
+<h3>Edge Case 1: Gebruiker bewerkt al een definitie</h3>
+<p><strong>Probleem</strong>: Auto-load zou huidige werk overschrijven</p>
+<p><strong>Oplossing</strong>: Check of <code>editing_definition_id</code> al gezet is voordat auto-load wordt uitgevoerd</p>
+
+<h3>Edge Case 2: Database ID bestaat niet meer</h3>
+<p><strong>Probleem</strong>: Definitie verwijderd tussen generatie en tab switch</p>
+<p><strong>Oplossing</strong>: Try-catch rond het laden met gebruikersvriendelijke foutmelding</p>
+
+<h3>Edge Case 3: Meerdere generaties achter elkaar</h3>
+<p><strong>Probleem</strong>: Alleen laatste definitie wordt onthouden</p>
+<p><strong>Oplossing</strong>: Dit is acceptabel gedrag - laatste generatie heeft prioriteit</p>
+
+<h2>Test Plan</h2>
+
+<h3>Unit Tests</h3>
+<ol>
+<li>Test dat `_edit_definition()` correct de session state zet</li>
+<li>Test dat auto-load flag correct wordt gezet/gereset</li>
+<li>Test edge cases met missing IDs</li>
+</ol>
+
+<h3>Manual Test Scenarios</h3>
+<ol>
+<li>**Happy Path**: Genereer definitie → Klik "Bewerk" knop → Verify definitie laadt</li>
+<li>**Auto-load**: Genereer definitie → Klik direct op Bewerk tab → Verify auto-load</li>
+<li>**Existing Edit**: Start edit → Genereer nieuwe → Check geen overwrite</li>
+<li>**Error Case**: Genereer → Verwijder uit DB → Navigeer → Check error handling</li>
+</ol>
+
+<h2>Implementatie Volgorde</h2>
+
+<h3>Prioriteit 1 (URGENT - Direct implementeren)</h3>
+<ol>
+<li>Fix de `_edit_definition()` placeholder bug (Stap 1)</li>
+<li>Test dat "Bewerk" knop weer werkt</li>
+</ol>
+
+<h3>Prioriteit 2 (Gebruikerservaring verbetering)</h3>
+<ol>
+<li>Implementeer auto-load mechanisme (Stap 2-4)</li>
+<li>Test complete flow</li>
+</ol>
+
+<h3>Prioriteit 3 (Code kwaliteit)</h3>
+<ol>
+<li>Consolideer navigation methods</li>
+<li>Voeg comprehensive logging toe</li>
+</ol>
+
+<h2>Rollback Plan</h2>
+<p>Als de fix problemen veroorzaakt:</p>
+<ol>
+<li>Revert alleen de auto-load functionaliteit (Stap 2-4)</li>
+<li>Behoud de fix voor de "Bewerk" knop (Stap 1) - dit is een kritieke bug fix</li>
+</ol>
+
+<h2>Geschatte Impact</h2>
+<ul>
+<li>**Gebruikers**: ~100% verbetering in workflow efficiency</li>
+<li>**Code Complexiteit**: Minimaal - alleen session state management</li>
+<li>**Risico**: Laag - geen database of backend wijzigingen</li>
+</ul>
+
+<h2>Approval Required</h2>
+<ul>
+<li>[ ] Code Review door senior developer</li>
+<li>[ ] Test door QA team</li>
+<li>[ ] Sign-off door Product Owner</li>
+</ul>
+
+<p>---</p>
+<p><em>Document aangemaakt: 2025-09-22</em></p>
+<p><em>Status: READY FOR IMPLEMENTATION</em></p>
+  </div>
+</body>
+</html>
