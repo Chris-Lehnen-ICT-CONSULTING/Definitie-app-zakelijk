@@ -121,7 +121,8 @@ class DefinitieChecker:
             begrip=begrip,
             organisatorische_context=organisatorische_context,
             juridische_context=juridische_context,
-            categorie=categorie.value if categorie else None,
+            categorie=None,  # categorie is geen onderdeel van duplicate-criteria
+            wettelijke_basis=wettelijke_basis,
         )
         # Extra filtering: vereis ook match op wettelijke_basis (lijst, order-onafhankelijk)
         if existing:
@@ -141,7 +142,8 @@ class DefinitieChecker:
             begrip=begrip,
             organisatorische_context=organisatorische_context,
             juridische_context=juridische_context,
-            categorie=categorie.value if categorie else None,
+            categorie=None,
+            wettelijke_basis=wettelijke_basis,
         )
         # Extra filtering op wettelijke_basis
         if duplicates:

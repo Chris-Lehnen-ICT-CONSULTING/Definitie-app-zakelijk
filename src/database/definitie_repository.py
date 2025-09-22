@@ -160,7 +160,13 @@ class DefinitieRecord:
 
     def set_wettelijke_basis(self, basis: list[str]):
         """Set wettelijke basis als JSON string."""
-        self.wettelijke_basis = json.dumps(basis, ensure_ascii=False)
+        try:
+            # Normaliseer: unieke, gestripte, lower-preserving volgorde gesorteerd voor consistente opslag
+            norm = sorted({str(x).strip() for x in (basis or [])})
+            self.wettelijke_basis = json.dumps(norm, ensure_ascii=False)
+        except Exception:
+            # Fallback: ruwe dump
+            self.wettelijke_basis = json.dumps(basis or [], ensure_ascii=False)
 
     def get_export_destinations_list(self) -> list[str]:
         """Haal export destinations op als list.
@@ -581,6 +587,7 @@ class DefinitieRepository:
         juridische_context: str = "",
         status: DefinitieStatus | None = None,
         categorie: str | None = None,
+        wettelijke_basis: list[str] | None = None,
     ) -> DefinitieRecord | None:
         """
         Zoek definitie op basis van begrip en context.
@@ -608,10 +615,15 @@ class DefinitieRepository:
                 juridische_context,
             ]
 
-            # Add categorie filter if provided (category-aware duplicate detection)
-            if categorie:
-                query += " AND categorie = ?"
-                params.append(categorie)
+            # Wettelijke basis (als lijst meegegeven): vergelijk als exact JSON string
+            if wettelijke_basis is not None:
+                try:
+                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
+                    wb_json = json.dumps(norm, ensure_ascii=False)
+                except Exception:
+                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
+                params.extend([wb_json, wb_json])
 
             if status:
                 query += " AND status = ?"
@@ -632,6 +644,7 @@ class DefinitieRepository:
         organisatorische_context: str,
         juridische_context: str = "",
         categorie: str | None = None,
+        wettelijke_basis: list[str] | None = None,
     ) -> list[DuplicateMatch]:
         """
         Zoek mogelijke duplicaten voor een begrip.
@@ -662,9 +675,14 @@ class DefinitieRepository:
                 juridische_context,
             ]
 
-            if categorie:
-                exact_query += " AND categorie = ?"
-                exact_params.append(categorie)
+            if wettelijke_basis is not None:
+                try:
+                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
+                    wb_json = json.dumps(norm, ensure_ascii=False)
+                except Exception:
+                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                exact_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
+                exact_params.extend([wb_json, wb_json])
 
             cursor = conn.execute(exact_query, exact_params)
 
@@ -687,9 +705,14 @@ class DefinitieRepository:
                 """
                 fuzzy_params = [f"%{begrip}%", organisatorische_context]
 
-                if categorie:
-                    fuzzy_query += " AND categorie = ?"
-                    fuzzy_params.append(categorie)
+                if wettelijke_basis is not None:
+                    try:
+                        norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
+                        wb_json = json.dumps(norm, ensure_ascii=False)
+                    except Exception:
+                        wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                    fuzzy_query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
+                    fuzzy_params.extend([wb_json, wb_json])
 
                 cursor = conn.execute(fuzzy_query, fuzzy_params)
 
