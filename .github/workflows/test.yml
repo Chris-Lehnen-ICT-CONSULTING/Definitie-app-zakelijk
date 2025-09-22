@@ -66,6 +66,7 @@ jobs:
           tests/services/orchestrators/test_definition_orchestrator_v2_happy.py \
           tests/services/orchestrators/test_definition_orchestrator_v2_failure.py \
           tests/services/orchestrators/test_definition_orchestrator_v2_monitoring.py \
+          tests/services/orchestrators/test_definition_orchestrator_v2_enhancement_success.py \
           tests/integration/test_golden_via_orchestrator.py \
           --cov=src/services \
           --cov-report=term-missing \
