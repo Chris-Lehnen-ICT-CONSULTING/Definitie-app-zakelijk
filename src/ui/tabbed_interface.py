@@ -913,10 +913,12 @@ class TabbedInterface:
                 # EPIC-018/US-229: bouw snippets op basis van begrip in geselecteerde documenten
                 doc_snippets = []
                 if selected_doc_ids:
+                    per_doc = 4
                     doc_snippets = self._build_document_snippets(
                         begrip=begrip,
                         selected_doc_ids=selected_doc_ids,
-                        max_snippets_total=2,
+                        max_snippets_total=len(selected_doc_ids) * per_doc,
+                        per_doc_max=per_doc,
                         snippet_window=280,
                     )
 
@@ -1179,7 +1181,8 @@ class TabbedInterface:
         self,
         begrip: str,
         selected_doc_ids: list[str],
-        max_snippets_total: int = 2,
+        max_snippets_total: int | None = None,
+        per_doc_max: int = 4,
         snippet_window: int = 280,
     ) -> list[dict[str, Any]]:
         """Zoek op begrip in geselecteerde documenten en bouw korte snippets.
@@ -1195,34 +1198,64 @@ class TabbedInterface:
             processor = get_document_processor()
             begrip_lower = str(begrip).strip().lower()
 
+            # Stel totaal‑limiet af op aantal documenten × per‑doc‑limiet
+            if max_snippets_total is None:
+                max_snippets_total = max(0, int(len(selected_doc_ids) * max(1, per_doc_max)))
+
             snippets: list[dict[str, Any]] = []
             for doc_id in selected_doc_ids:
-                if len(snippets) >= max_snippets_total:
-                    break
                 doc = processor.get_document_by_id(doc_id)
                 if not doc or not getattr(doc, "extracted_text", None):
                     continue
 
                 text = doc.extracted_text
                 haystack = text.lower()
-                idx = haystack.find(begrip_lower)
-                if idx == -1:
-                    continue  # geen match in dit document
+                # Zoek meerdere matches (max per_doc_max)
+                try:
+                    import re
 
-                start = max(0, idx - snippet_window // 2)
-                end = min(len(text), idx + len(begrip) + snippet_window // 2)
-                raw = text[start:end].replace("\n", " ").strip()
+                    count_for_doc = 0
+                    for m in re.finditer(re.escape(begrip_lower), haystack):
+                        if len(snippets) >= max_snippets_total:
+                            break
+                        if count_for_doc >= max(1, per_doc_max):
+                            break
 
-                snippet = {
-                    "provider": "documents",
-                    "title": getattr(doc, "filename", "document"),
-                    "filename": getattr(doc, "filename", None),
-                    "doc_id": getattr(doc, "id", None),
-                    "snippet": raw,
-                    "score": 1.0,  # simpele score voor nu
-                    "used_in_prompt": True,  # zal in prompt worden opgenomen
-                }
-                snippets.append(snippet)
+                        idx = m.start()
+                        start = max(0, idx - snippet_window // 2)
+                        end = min(len(text), idx + len(begrip) + snippet_window // 2)
+                        raw = text[start:end].replace("\n", " ").strip()
+
+                        # Bepaal bronvermelding binnen document (pagina of paragraaf)
+                        citation_label = None
+                        try:
+                            mime = getattr(doc, "mime_type", "") or ""
+                            if mime == "application/pdf":
+                                page_num = text.count("\f", 0, idx) + 1
+                                citation_label = f"p. {page_num}"
+                            elif (
+                                mime
+                                == "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                            ):
+                                para_num = text.count("\n", 0, idx) + 1
+                                citation_label = f"¶ {para_num}"
+                        except Exception:
+                            citation_label = None
+
+                        snippet = {
+                            "provider": "documents",
+                            "title": getattr(doc, "filename", "document"),
+                            "filename": getattr(doc, "filename", None),
+                            "doc_id": getattr(doc, "id", None),
+                            "snippet": raw,
+                            "score": 1.0,
+                            "used_in_prompt": True,
+                            "citation_label": citation_label,
+                        }
+                        snippets.append(snippet)
+                        count_for_doc += 1
+                        if len(snippets) >= max_snippets_total:
+                            break
 
             return snippets[:max_snippets_total]
         except Exception:

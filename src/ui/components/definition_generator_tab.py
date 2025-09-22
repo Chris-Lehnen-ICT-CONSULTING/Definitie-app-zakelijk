@@ -1038,6 +1038,15 @@ class DefinitionGeneratorTab:
                         if used:
                             st.info("→ In prompt")
 
+                    # Documentbron: toon bestandsnaam/locatie
+                    if src.get("provider") == "documents":
+                        fname = src.get("title") or src.get("filename")
+                        cite = src.get("citation_label")
+                        if fname or cite:
+                            st.markdown(
+                                f"**Document**: {fname or '(onbekend)'}{f' · Locatie: {cite}' if cite else ''}"
+                            )
+
                     # Show juridical citation if available
                     if legal_meta and legal_meta.get("citation_text"):
                         st.markdown(
