@@ -822,8 +822,10 @@ class TabbedInterface:
 
                 # Gebruik de automatisch bepaalde categorie voor nauwkeuriger check
                 if not is_forced:
-                    primary_org = org_context[0] if org_context else ""
-                    primary_jur = jur_context[0] if jur_context else ""
+                    # DB repository bewaart org/jur als JSON-string; vergelijk exact daarop
+                    import json as _json
+                    primary_org = _json.dumps(sorted(org_context or []), ensure_ascii=False)
+                    primary_jur = _json.dumps(sorted(jur_context or []), ensure_ascii=False)
                     check_result = self.checker.check_before_generation(
                         begrip=begrip,
                         organisatorische_context=primary_org,
@@ -1035,7 +1037,7 @@ class TabbedInterface:
                     SessionStateManager.set_value("edit_wettelijke_basis", wet_context)
 
                     logger.info(
-                        f"Definition {saved_record.id} prepared for edit tab with contexts: "
+                        f"Definition {target_edit_id} prepared for edit tab with contexts: "
                         f"org={len(org_context)} items, jur={len(jur_context)} items, wet={len(wet_context)} items"
                     )
 
@@ -1129,8 +1131,9 @@ class TabbedInterface:
                 jur_context = context_data.get("juridische_context", [])
                 wet_context = context_data.get("wettelijke_basis", [])
 
-                primary_org = org_context[0] if org_context else ""
-                primary_jur = jur_context[0] if jur_context else ""
+                import json as _json
+                primary_org = _json.dumps(sorted(org_context or []), ensure_ascii=False)
+                primary_jur = _json.dumps(sorted(jur_context or []), ensure_ascii=False)
 
                 check_result = self.checker.check_before_generation(
                     begrip=begrip,
