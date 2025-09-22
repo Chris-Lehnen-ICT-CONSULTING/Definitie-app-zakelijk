@@ -725,9 +725,62 @@ class DefinitionEditTab:
 
             if results.get('issues'):
                 with st.expander("Bekijk validatie problemen"):
-                    for issue in results['issues']:
+                    for idx, issue in enumerate(results['issues']):
                         severity_icon = "🔴" if issue['severity'] == 'error' else "🟡"
-                        st.markdown(f"{severity_icon} **{issue['rule']}:** {issue['message']}")
+                        rule_id = str(issue.get('rule') or '')
+                        st.markdown(f"{severity_icon} **{rule_id}:** {issue['message']}")
+
+                        # Hint/uitleg per regel (best-effort uit JSON + link naar handleiding)
+                        with st.expander(f"ℹ️ Toon uitleg voor {rule_id}", expanded=False):
+                            st.markdown(self._build_rule_hint_markdown(rule_id))
+
+    def _build_rule_hint_markdown(self, rule_id: str) -> str:
+        """Bouw korte hint-uitleg voor een toetsregel uit JSON en standaardtekst.
+
+        Toont:
+        - Wat toetst de regel (uitleg/toetsvraag)
+        - Optioneel voorbeelden (goed/fout) als bullets
+        - Link naar uitgebreide handleiding
+        """
+        try:
+            from pathlib import Path
+            import json as _json
+
+            rules_dir = Path("src/toetsregels/regels")
+            json_path = rules_dir / f"{rule_id}.json"
+            if not json_path.exists():
+                alt = rule_id.replace("_", "-")
+                json_path = rules_dir / f"{alt}.json"
+
+            name = explanation = ""
+            good = bad = []
+            if json_path.exists():
+                data = _json.loads(json_path.read_text(encoding="utf-8"))
+                name = str(data.get("naam") or "").strip()
+                explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+                good = list(data.get("goede_voorbeelden") or [])
+                bad = list(data.get("foute_voorbeelden") or [])
+
+            lines = []
+            title = f"**{rule_id}** — {name}" if name else f"**{rule_id}**"
+            lines.append(title)
+            if explanation:
+                lines.append(f"Wat toetst: {explanation}")
+            if good:
+                lines.append("\nGoed voorbeeld:")
+                lines.extend([f"- {g}" for g in good[:2]])
+            if bad:
+                lines.append("\nFout voorbeeld:")
+                lines.extend([f"- {b}" for b in bad[:2]])
+            lines.append(
+                "\nMeer uitleg: [Validatieregels (CON‑01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+            )
+            return "\n".join(lines)
+        except Exception:
+            return (
+                f"Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+                f"(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+            )
 
     def _undo_changes(self):
         """Undo recent changes."""
