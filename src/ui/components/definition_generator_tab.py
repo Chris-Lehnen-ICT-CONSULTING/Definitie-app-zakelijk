@@ -1111,6 +1111,21 @@ class DefinitionGeneratorTab:
             unsafe_allow_html=True,
         )
 
+        # Toon acceptance gates status (indien aanwezig)
+        gate = validation_result.get("acceptance_gate") or {}
+        if isinstance(gate, dict) and gate:
+            acceptable = bool(gate.get("acceptable", True))
+            gates_failed = gate.get("gates_failed", []) or []
+            gates_passed = gate.get("gates_passed", []) or []
+            if acceptable:
+                msg = "Gates: OK"
+                if gates_passed:
+                    msg += f" · {', '.join(map(str, gates_passed))}"
+                st.success(msg)
+            else:
+                reason = ", ".join(map(str, gates_failed)) if gates_failed else "niet voldaan"
+                st.error(f"Gates: NIET OK · {reason}")
+
         # Toggle button for detailed results
         if st.button("📊 Toon/verberg gedetailleerde toetsresultaten"):
             current_state = SessionStateManager.get_value(

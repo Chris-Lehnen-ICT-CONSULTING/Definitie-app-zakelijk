@@ -58,15 +58,6 @@ class CleaningService(CleaningServiceInterface):
         Returns:
             CleaningResult met opschoning details
         """
-        if not self.config.enable_cleaning:
-            logger.debug("Cleaning uitgeschakeld, return origineel")
-            return CleaningResult(
-                original_text=definition.definitie,
-                cleaned_text=definition.definitie,
-                was_cleaned=False,
-                applied_rules=["cleaning_disabled"],
-            )
-
         # Gebruik clean_text voor de daadwerkelijke opschoning
         result = self.clean_text(definition.definitie, definition.begrip)
 
@@ -107,13 +98,6 @@ class CleaningService(CleaningServiceInterface):
         """
 
         original_text = text.strip()
-
-        if not self.config.enable_cleaning:
-            return CleaningResult(
-                original_text=original_text,
-                cleaned_text=original_text,
-                was_cleaned=False,
-            )
 
         try:
             # Initialiseer tracking lijsten
