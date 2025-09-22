@@ -87,16 +87,15 @@ class ModernWebLookupService(WebLookupServiceInterface):
             self._config = load_web_lookup_config()
             wl = self._config.get("web_lookup", {})
             providers = wl.get("providers", {})
-            # Build provider weights mapping using epic keys
+            # Build provider weights mapping using config keys
             self._provider_weights = {
                 "wikipedia": float(providers.get("wikipedia", {}).get("weight", 0.8)),
-                # Map Overheid/Rechtspraak to sru_overheid config by default
                 "overheid": float(providers.get("sru_overheid", {}).get("weight", 1.0)),
+                # Rechtspraak weegt standaard 0.95 tenzij specifiek geconfigureerd
                 "rechtspraak": float(
-                    providers.get("sru_overheid", {}).get("weight", 1.0)
+                    providers.get("rechtspraak_ecli", {}).get("weight", 0.95)
                 ),
                 "wiktionary": float(providers.get("wiktionary", {}).get("weight", 0.9)),
-                # Wetgeving.nl provider gewicht (gelezen uit 'wetgeving_nl')
                 "wetgeving": float(providers.get("wetgeving_nl", {}).get("weight", 0.9)),
             }
         except Exception as e:
@@ -109,6 +108,13 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 "rechtspraak": 0.95,
             }
 
+        # Helper om enabled-vlag te lezen uit config
+        def _is_enabled(key: str, default: bool = True) -> bool:
+            try:
+                return bool(self._config.get("web_lookup", {}).get("providers", {}).get(key, {}).get("enabled", default))
+            except Exception:
+                return default
+
         self.sources = {
             "wikipedia": SourceConfig(
                 name="Wikipedia",
@@ -116,6 +122,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 api_type="mediawiki",
                 confidence_weight=self._provider_weights.get("wikipedia", 0.8),
                 is_juridical=False,
+                enabled=_is_enabled("wikipedia", True),
             ),
             "wiktionary": SourceConfig(
                 name="Wiktionary",
@@ -123,6 +130,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 api_type="mediawiki",
                 confidence_weight=self._provider_weights.get("wiktionary", 0.9),
                 is_juridical=False,
+                enabled=_is_enabled("wiktionary", True),
             ),
             "wetgeving": SourceConfig(
                 name="Wetgeving.nl",
@@ -130,6 +138,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 api_type="sru",
                 confidence_weight=self._provider_weights.get("wetgeving", 0.9),
                 is_juridical=True,
+                enabled=_is_enabled("wetgeving_nl", True),
             ),
             "overheid": SourceConfig(
                 name="Overheid.nl",
@@ -137,6 +146,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 api_type="sru",
                 confidence_weight=self._provider_weights.get("overheid", 1.0),
                 is_juridical=True,
+                enabled=_is_enabled("sru_overheid", True),
             ),
             "rechtspraak": SourceConfig(
                 name="Rechtspraak.nl",
@@ -144,6 +154,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 api_type="sru",
                 confidence_weight=self._provider_weights.get("rechtspraak", 0.95),
                 is_juridical=True,
+                enabled=_is_enabled("rechtspraak_ecli", True),
             ),
             "overheid_zoek": SourceConfig(
                 name="Overheid.nl Zoekservice",
@@ -151,6 +162,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 api_type="sru",
                 confidence_weight=self._provider_weights.get("overheid", 0.9),
                 is_juridical=True,
+                enabled=_is_enabled("sru_overheid", True),
             ),
         }
 
@@ -519,9 +531,15 @@ class ModernWebLookupService(WebLookupServiceInterface):
             async with SRUService() as sru_service:
                 org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
                 stages: list[tuple[str, list[str]]] = []
-                if wet:
+                # Voor Rechtspraak: term‑only eerst (context verlaagt recall)
+                if endpoint == "rechtspraak":
+                    stages.append(("no_ctx", []))
+                # Voor overige SRU‑providers: wet‑only eerst, dan no_ctx
+                if endpoint != "rechtspraak" and wet:
                     stages.append(("wet_only", wet))
-                stages.append(("no_ctx", []))
+                # Voeg altijd een no_ctx fallback toe
+                if ("no_ctx", []) not in stages:
+                    stages.append(("no_ctx", []))
 
                 base = (term or "").strip()
                 for stage_name, toks in stages:
@@ -721,6 +739,17 @@ class ModernWebLookupService(WebLookupServiceInterface):
         content = (snippet_src or "").encode("utf-8", errors="ignore")
         content_hash = sha256(content).hexdigest()
 
+        score = float(getattr(result.source, "confidence", 0.0) or 0.0)
+        # ECLI boost: Rechtspraak met expliciete ECLI krijgt kleine bonus
+        try:
+            if provider_key == "rechtspraak":
+                meta = result.metadata if isinstance(result.metadata, dict) else {}
+                idf = str(meta.get("dc_identifier", ""))
+                if ("ECLI:" in idf) or ("ECLI:" in snippet_src):
+                    score = min(1.0, score + 0.05)
+        except Exception:
+            pass
+
         return {
             "provider": provider_key,
             "source_label": result.source.name,
@@ -732,7 +761,7 @@ class ModernWebLookupService(WebLookupServiceInterface):
             or result.source.name,
             "url": url,
             "snippet": snippet,
-            "score": float(result.source.confidence or 0.0),
+            "score": score,
             "used_in_prompt": False,
             "position_in_prompt": -1,
             "retrieved_at": (

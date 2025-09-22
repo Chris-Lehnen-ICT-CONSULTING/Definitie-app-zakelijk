@@ -429,7 +429,7 @@ class ServiceAdapter:
             sources = ensure_list(safe_dict_get(response.definition.metadata, "sources", []))
 
         # Build canonical UI response
-        return {
+        result = {
             "success": response.success,
             "definitie_origineel": definitie_origineel,
             "definitie_gecorrigeerd": definitie_text,
@@ -439,6 +439,14 @@ class ServiceAdapter:
             "metadata": metadata,
             "sources": sources,
         }
+
+        # Voeg opgeslagen ID toe indien beschikbaar (orchestrator heeft opgeslagen)
+        try:
+            if getattr(response, "definition", None) and getattr(response.definition, "id", None):
+                result["saved_definition_id"] = int(response.definition.id)
+        except Exception:
+            pass
+        return result
 
     async def generate_definition(self, begrip: str, context_dict: dict, **kwargs):
         """
@@ -472,6 +480,9 @@ class ServiceAdapter:
         )
         # EPIC-010: domein field verwijderd - gebruik juridische_context
 
+        # Collect options (feature flags etc.)
+        opts = ensure_dict(safe_dict_get(kwargs, "options", {}))
+
         request = GenerationRequest(
             id=str(uuid.uuid4()),  # Generate unique ID for tracking
             begrip=begrip,
@@ -487,6 +498,7 @@ class ServiceAdapter:
             legal_basis="legitimate_interest",  # Default legal basis for DPIA compliance
             # Populate legacy string context for compatibility with tests/UI
             context=context_text,
+            options=opts or None,
         )
 
         # Handle V2 orchestrator async call properly

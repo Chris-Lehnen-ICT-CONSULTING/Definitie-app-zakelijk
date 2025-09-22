@@ -1,6 +1,8 @@
 import pytest
 
 
+pytestmark = pytest.mark.smoke_web_lookup
+
 @pytest.mark.asyncio
 async def test_web_lookup_health_smoke(monkeypatch):
     """Headless smoketest voor Web Lookup Health Check met mocks (geen netwerk).
@@ -74,4 +76,3 @@ async def test_web_lookup_health_smoke(monkeypatch):
         assert r.source and r.source.name
         # URL en confidence ingevuld door stub
         assert r.source.url and r.source.confidence > 0.0
-
