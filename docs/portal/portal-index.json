@@ -399,7 +399,7 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "Web Lookup Configuratie",
+      "title": "Web Lookup Configuratie (SRU/MediaWiki)",
       "path": "../technisch/web_lookup_config.md",
       "url": "../technisch/web_lookup_config.md",
       "status": null,
@@ -31204,7 +31204,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T11:20:41Z"
+    "generated_at": "2025-09-22T11:23:17Z"
   },
   "sources": [
     "docs"
