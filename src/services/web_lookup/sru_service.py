@@ -7,6 +7,8 @@ als onderdeel van het Strangler Fig pattern voor web lookup modernisering.
 
 import logging
 import asyncio
+import os
+import socket
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -121,7 +123,25 @@ class SRUService:
             raise RuntimeError(msg)
 
         # Voeg lichte DNS-cache toe en expliciete Accept voor XML/SRU
-        connector = aiohttp.TCPConnector(ttl_dns_cache=300)
+        # DNS-resolver hardening: enable DNS cache and threaded resolver; optional IPv4 preference via env
+        try:
+            from aiohttp import resolver as _resolver  # type: ignore
+            _threaded = getattr(_resolver, "ThreadedResolver", None)
+        except Exception:
+            _threaded = None
+
+        family = 0
+        try:
+            if str(os.getenv("SRU_FORCE_IPV4", "")).lower() in {"1", "true", "yes"}:
+                family = socket.AF_INET
+        except Exception:
+            family = 0
+
+        connector = aiohttp.TCPConnector(
+            ttl_dns_cache=300,
+            resolver=_threaded() if _threaded else None,
+            family=family or 0,
+        )
         # SRU-servers verwachten XML responses
         self.headers.setdefault(
             "Accept", "application/xml, text/xml;q=0.9, */*;q=0.8"
@@ -130,6 +150,7 @@ class SRUService:
             headers=self.headers,
             timeout=aiohttp.ClientTimeout(total=30),
             connector=connector,
+            trust_env=True,  # Honor HTTP(S)_PROXY, NO_PROXY etc.
         )
         return self
 
@@ -177,6 +198,32 @@ class SRUService:
             self._attempts = []
             # Helper om 1 query (string) tegen alle endpoints te proberen
             parked_503 = False
+
+            # Rechtspraak.nl: snelle DNS preflight om network issues vroeg te detecteren
+            try:
+                if endpoint == "rechtspraak":
+                    from urllib.parse import urlparse as _urlparse
+
+                    host = _urlparse(config.base_url).hostname or ""
+                    if host:
+                        loop = asyncio.get_running_loop()
+                        # Prefer IPv4 if SRU_FORCE_IPV4 is set
+                        fam = socket.AF_INET if (family or 0) == socket.AF_INET else socket.AF_UNSPEC
+                        await loop.getaddrinfo(host, 443, family=fam)
+            except Exception as ex:
+                # Record a single preflight failure and skip provider gracefully
+                self._attempts.append(
+                    {
+                        "endpoint": config.name,
+                        "url": None,
+                        "query": None,
+                        "strategy": "dns_preflight",
+                        "status": None,
+                        "error": f"dns_preflight_failed: {ex}",
+                    }
+                )
+                logger.warning("SRU DNS preflight failed for %s: %s", config.name, ex)
+                return []
 
             async def _try_query(query_str: str, strategy: str) -> list[LookupResult]:
                 from urllib.parse import urlencode, quote_plus

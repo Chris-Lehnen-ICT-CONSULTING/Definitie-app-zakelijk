@@ -366,10 +366,18 @@ class DefinitionEditTab:
             return f"edit_{def_id}_{name}"
         st.text_input("Reden voor wijziging (optioneel)", key=k("save_reason"))
 
+        # Check ‘minstens 1 context’ voor Save‑actie
+        org_list = SessionStateManager.get_value(k('organisatorische_context')) or []
+        jur_list = SessionStateManager.get_value(k('juridische_context')) or []
+        wet_list = SessionStateManager.get_value(k('wettelijke_basis')) or []
+        can_save = bool(org_list or jur_list or wet_list)
+        if not can_save:
+            st.warning("Minstens één context is vereist (organisatorisch of juridisch of wettelijk) om op te slaan.")
+
         col1, col2, col3, col4 = st.columns(4)
 
         with col1:
-            if st.button("💾 Opslaan", type="primary", key="save_btn"):
+            if st.button("💾 Opslaan", type="primary", key="save_btn", disabled=not can_save):
                 self._save_definition()
 
         with col2:

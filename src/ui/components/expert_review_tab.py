@@ -392,11 +392,19 @@ class ExpertReviewTab:
             disabled = not bool(reason and reason.strip())
             if st.button("Maak bewerkbaar (naar Concept)", key=f"unlock_btn_{definitie.id}", disabled=disabled):
                 user = st.session_state.get('user', 'expert')
-                # Gebruik repository change_status via workflowservice workflow (indien beschikbaar een helper)
-                # Voor nu: direct repository call veilig voor single-user
-                ok = self.repository.change_status(
-                    definitie.id, DefinitieStatus.DRAFT, changed_by=user, notes=reason.strip()
-                )
+                # Gebruik DefinitionWorkflowService voor consistente statuswijziging
+                try:
+                    from services.container import get_container
+                    container = get_container()
+                    workflow = container.definition_workflow_service()
+                    ok = workflow.update_status(
+                        definition_id=definitie.id,
+                        new_status="draft",
+                        user=user,
+                        notes=reason.strip(),
+                    )
+                except Exception:
+                    ok = False
                 if ok:
                     st.success("✅ Status teruggezet naar Concept; bewerken weer mogelijk")
                     st.rerun()
@@ -411,9 +419,18 @@ class ExpertReviewTab:
             disabled = not bool(reason and reason.strip())
             if st.button("Herstel (naar Concept)", key=f"restore_btn_{definitie.id}", disabled=disabled):
                 user = st.session_state.get('user', 'expert')
-                ok = self.repository.change_status(
-                    definitie.id, DefinitieStatus.DRAFT, changed_by=user, notes=reason.strip()
-                )
+                try:
+                    from services.container import get_container
+                    container = get_container()
+                    workflow = container.definition_workflow_service()
+                    ok = workflow.update_status(
+                        definition_id=definitie.id,
+                        new_status="draft",
+                        user=user,
+                        notes=reason.strip(),
+                    )
+                except Exception:
+                    ok = False
                 if ok:
                     st.success("✅ Definitie hersteld uit archief (Concept)")
                     st.rerun()
@@ -561,16 +578,48 @@ class ExpertReviewTab:
 
             # Process decision
             if "Goedkeuren" in decision:
-                success = self.repository.change_status(
-                    definitie.id, DefinitieStatus.ESTABLISHED, reviewer, comments
-                )
+                # Route via DefinitionWorkflowService om gate‑policy te handhaven (US‑160)
+                try:
+                    from services.container import get_container
 
-                if success:
-                    st.success("✅ Definitie goedgekeurd!")
-                    self._clear_review_session(definitie.id)
-                    st.rerun()
-                else:
-                    st.error("❌ Kon definitie niet goedkeuren")
+                    container = get_container()
+                    workflow_service = container.definition_workflow_service()
+
+                    result = workflow_service.submit_for_review(
+                        definition_id=definitie.id,
+                        user=reviewer,
+                        notes=comments or "",
+                    )
+
+                    if getattr(result, "success", False):
+                        st.success("✅ Definitie goedgekeurd!")
+                        # Toon gate‑status informatief
+                        if getattr(result, "gate_status", None):
+                            st.caption(
+                                f"Gate: {result.gate_status}"
+                                + (
+                                    f" — redenen: {', '.join(result.gate_reasons or [])}"
+                                    if getattr(result, "gate_reasons", None)
+                                    else ""
+                                )
+                            )
+                        self._clear_review_session(definitie.id)
+                        st.rerun()
+                    else:
+                        # Toon duidelijke melding incl. gate redenen indien aanwezig
+                        msg = getattr(result, "error_message", "Kon definitie niet goedkeuren") or "Kon definitie niet goedkeuren"
+                        st.error(f"❌ {msg}")
+                        if getattr(result, "gate_status", None):
+                            st.info(
+                                f"Gate: {result.gate_status}"
+                                + (
+                                    f" — redenen: {', '.join(result.gate_reasons or [])}"
+                                    if getattr(result, "gate_reasons", None)
+                                    else ""
+                                )
+                            )
+                except Exception as se:
+                    st.error(f"❌ Gate‑workflow fout: {se!s}")
 
             elif "Wijzigingen Vereist" in decision:
                 # Keep in review status but add feedback

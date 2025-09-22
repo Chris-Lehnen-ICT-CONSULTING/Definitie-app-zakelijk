@@ -1361,11 +1361,12 @@ class ModularValidationService:
         def avg(xs: list[float]) -> float:
             return sum(xs) / len(xs) if xs else default_value
 
+        # Rond scores af op 2 decimalen voor stabiele UI/tests
         return {
-            "taal": avg(buckets.get("taal", [])),
-            "juridisch": avg(buckets.get("juridisch", [])),
-            "structuur": avg(buckets.get("structuur", [])),
-            "samenhang": avg(buckets.get("samenhang", [])),
+            "taal": round(avg(buckets.get("taal", [])), 2),
+            "juridisch": round(avg(buckets.get("juridisch", [])), 2),
+            "structuur": round(avg(buckets.get("structuur", [])), 2),
+            "samenhang": round(avg(buckets.get("samenhang", [])), 2),
         }
 
     def _evaluate_acceptance_gates(self, overall: float, detailed: dict[str, float], violations: list[dict[str, Any]]) -> dict[str, Any]:
