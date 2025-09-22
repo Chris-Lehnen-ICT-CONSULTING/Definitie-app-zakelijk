@@ -475,6 +475,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         # Wettelijke basis (JSON array)
         try:
             wb_list = list(definition.wettelijke_basis or [])
+            # Normaliseer lijst naar gesorteerde, unieke waarden voor consistente opslag
             record.set_wettelijke_basis(wb_list)
         except Exception:
             # Laat default/None staan als iets misgaat
