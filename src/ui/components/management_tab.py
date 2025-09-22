@@ -406,6 +406,11 @@ class ManagementTab:
                         ```
                         """
                     )
+                    st.markdown(
+                        "Meer weten? 📘 Zie: "
+                        "[Single Definition Import (MVP)](docs/portal/rendered/implementation/SINGLE-DEFINITION-IMPORT-MVP.html)"
+                        " — of open `docs/portal/index.html` en zoek op US-234."
+                    )
                     import_service = container.import_service()
 
                     mode = st.radio(
@@ -626,6 +631,11 @@ class ManagementTab:
                         Griffier,"De griffier is …",proces,OM,"Strafrecht","Sv"
                         ```
                         """
+                    )
+                    st.markdown(
+                        "Meer weten? 📘 Zie: "
+                        "[Single Definition Import (MVP)](docs/portal/rendered/implementation/SINGLE-DEFINITION-IMPORT-MVP.html)"
+                        " — of open `docs/portal/index.html` en zoek op US-234."
                     )
                     import_service = container.import_service()
 
