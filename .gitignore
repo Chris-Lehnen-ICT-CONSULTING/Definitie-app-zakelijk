@@ -154,3 +154,4 @@ logs/
 # Generated reports
 reports/
 .env
+/.tmp_test_dbs/
