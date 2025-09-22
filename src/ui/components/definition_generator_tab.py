@@ -1278,6 +1278,7 @@ class DefinitionGeneratorTab:
             if beoordeling:
                 st.markdown("### 📋 Alle Toetsregels Resultaten")
                 for regel in beoordeling:
+                    # Print de regel met statuskleur
                     if "✔️" in regel or regel.startswith("✅"):
                         st.success(regel)
                     elif "❌" in regel:
@@ -1286,36 +1287,25 @@ class DefinitionGeneratorTab:
                         st.warning(regel)
                     else:
                         st.info(regel)
+
+                    # Koppel uitleg expander direct onder deze regel
+                    rid = self._extract_rule_id_from_line(regel)
+                    if rid:
+                        with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
+                            st.markdown(self._build_rule_hint_markdown(rid))
             else:
                 st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
 
-        # Uitleg per regel (zowel gevonden issues als geslaagde regels)
-        try:
-            passed_rules = list(validation_result.get("passed_rules", []) or [])
-        except Exception:
-            passed_rules = []
-
-        # Verzamel alle geëvalueerde regelcodes (violations + passed)
-        all_rids: set[str] = set()
-        for v in violations:
-            rid = str(v.get("rule_id") or v.get("code") or "").strip()
-            if rid:
-                all_rids.add(rid)
-        for rid in passed_rules:
-            r = str(rid or "").strip()
-            if r:
-                all_rids.add(r)
-
-        if all_rids:
-            st.markdown("### ℹ️ Uitleg bij alle geëvalueerde regels")
-            for rid in sorted(all_rids):
-                with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
-                    st.markdown(self._build_rule_hint_markdown(rid))
-
-        # Geen extra expander; uitleg per regel wordt hier met hint-expanders getoond.
-
-        # Show only violations summary when collapsed
         # (Samenvatting bij ingeklapte weergave wordt elders getoond; dit pad is alleen actief wanneer details zichtbaar zijn.)
+
+    def _extract_rule_id_from_line(self, line: str) -> str:
+        """Haal regelcode (bv. CON-01) heuristisch uit een weergegeven lijn."""
+        try:
+            import re as _re
+            m = _re.search(r"([A-Z]{2,5}(?:[-_][A-Z0-9]+)+)", str(line))
+            return m.group(1) if m else ""
+        except Exception:
+            return ""
 
     def _build_rule_hint_markdown(self, rule_id: str) -> str:
         """Bouw korte hint-uitleg voor een toetsregel uit JSON en standaardtekst.
