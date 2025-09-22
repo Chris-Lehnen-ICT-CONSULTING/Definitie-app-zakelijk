@@ -386,7 +386,7 @@ class ManagementTab:
 
                     mode = st.radio(
                         "Modus",
-                        options=["Formulier", "JSON"],
+                        options=["Formulier", "JSON", "Bestand"],
                         horizontal=True,
                         key="single_import_mode",
                     )
@@ -430,7 +430,7 @@ class ManagementTab:
                             "juridische_context": jur_ctx,
                             "wettelijke_basis": wet_basis,
                         }
-                    else:
+                    elif mode == "JSON":
                         import json as _json
                         json_txt = st.text_area(
                             "JSON payload",
@@ -443,6 +443,80 @@ class ManagementTab:
                         except Exception as e:
                             st.error(f"❌ Ongeldige JSON: {e!s}")
                             payload = {}
+                    else:
+                        # Bestand: JSON of CSV met exact één definitie
+                        import json as _json
+                        import io as _io
+
+                        uploaded_single = st.file_uploader(
+                            "Selecteer JSON of CSV (1 record)",
+                            type=["json", "csv"],
+                            key="si_file_uploader",
+                        )
+
+                        if uploaded_single is not None:
+                            fname = (uploaded_single.name or "").lower()
+                            try:
+                                if fname.endswith(".json"):
+                                    data = _json.loads(
+                                        uploaded_single.getvalue().decode("utf-8")
+                                    )
+                                    if isinstance(data, dict) and "definities" in data:
+                                        defs = data.get("definities") or []
+                                        if not defs:
+                                            st.error("❌ Geen definities in JSON")
+                                        else:
+                                            if len(defs) > 1:
+                                                st.warning(
+                                                    "⚠️ Meerdere definities gevonden; eerste wordt gebruikt"
+                                                )
+                                            payload = dict(defs[0])
+                                    elif isinstance(data, dict):
+                                        payload = data
+                                    else:
+                                        st.error(
+                                            "❌ Ongeldig JSON-formaat: verwacht object of export met 'definities'"
+                                        )
+                                elif fname.endswith(".csv"):
+                                    try:
+                                        import pandas as _pd
+
+                                        df = _pd.read_csv(
+                                            _io.BytesIO(uploaded_single.getvalue()),
+                                            nrows=1,
+                                        )
+                                        if df.empty:
+                                            st.error("❌ Leeg CSV-bestand")
+                                        else:
+                                            row = df.iloc[0].to_dict()
+                                            # Verwacht canonieke kolommen; context als komma-gescheiden
+                                            def _split(v):
+                                                if v is None or str(v).strip() == "":
+                                                    return []
+                                                return [
+                                                    s.strip() for s in str(v).split(",") if s.strip()
+                                                ]
+
+                                            payload = {
+                                                "begrip": row.get("begrip", ""),
+                                                "definitie": row.get("definitie", ""),
+                                                "categorie": row.get("categorie"),
+                                                "organisatorische_context": _split(
+                                                    row.get("organisatorische_context", "")
+                                                ),
+                                                "juridische_context": _split(
+                                                    row.get("juridische_context", "")
+                                                ),
+                                                "wettelijke_basis": _split(
+                                                    row.get("wettelijke_basis", "")
+                                                ),
+                                            }
+                                    except Exception as e:
+                                        st.error(f"❌ CSV lezen mislukt: {e!s}")
+                                else:
+                                    st.error("❌ Niet-ondersteund bestandsformaat")
+                            except Exception as e:
+                                st.error(f"❌ Bestand verwerken mislukt: {e!s}")
 
                     colv, coli = st.columns(2)
                     with colv:
