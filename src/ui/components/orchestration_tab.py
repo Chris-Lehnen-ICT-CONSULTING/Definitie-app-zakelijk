@@ -687,6 +687,11 @@ class OrchestrationTab:
                     key="auto_fix",
                 )
 
+            # Korte link naar gebruikersuitleg over validatieregels
+            st.markdown(
+                "- ℹ️ Uitleg: [Validatieregels (CON‑01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+            )
+
         # Performance settings
         with st.expander("🚀 Performance Instellingen", expanded=False):
             col1, col2 = st.columns(2)
