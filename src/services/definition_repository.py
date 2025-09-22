@@ -197,6 +197,25 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             logger.error(f"Fout bij verwijderen definitie {definition_id}: {e}")
             return False
 
+    def hard_delete(self, definition_id: int) -> bool:
+        """
+        Verwijder een definitie permanent (hard delete).
+
+        Args:
+            definition_id: ID van de te verwijderen definitie
+
+        Returns:
+            True indien succesvol, anders False
+        """
+        try:
+            with self._get_connection() as conn:
+                cur = conn.cursor()
+                cur.execute("DELETE FROM definities WHERE id = ?", (definition_id,))
+                return cur.rowcount > 0
+        except Exception as e:
+            logger.error(f"Fout bij hard delete definitie {definition_id}: {e}")
+            return False
+
     # Additional repository methods
 
     def find_by_begrip(self, begrip: str) -> Definition | None:
