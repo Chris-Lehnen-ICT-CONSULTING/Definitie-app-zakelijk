@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Context normalisatie & deduplicatie (base_context)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-242</p>
+<p>titel: Context normalisatie & deduplicatie (base_context)</p>
+<p>canonical: true</p>
+<p>status: proposed</p>
+<p>priority: P0</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@v2</p>
+<p>last_verified: 2025-09-22</p>
+<p>links:</p>
+<ul>
+<li> - EPIC-019</li>
+<li> - EPIC-010</li>
+<p>---</p>
+</ul>
+
+<h1>US-019-05 — Context normalisatie</h1>
+
+<p>Als gebruiker wil ik dat contextwaarden genormaliseerd en ontdubbeld worden, zodat de prompt geen herhalingen bevat en afkortingen correct worden uitgebreid.</p>
+
+<h2>As‑Is</h2>
+<ul>
+<li>Waarden als ‘DJI’ en ‘["DJI"]’ kunnen beide verschijnen.</li>
+<li>Nested lijsten/strings worden niet altijd genormaliseerd.</li>
+</ul>
+
+<p>Bronnen:</p>
+<ul>
+<li>src/services/definition_generator_context.py:246 (_build_base_context)</li>
+<li>src/services/definition_generator_context.py:318 (_expand_abbreviations)</li>
+</ul>
+
+<h2>To‑Be</h2>
+<ul>
+<li>Parse JSON‑achtige strings naar lijsten; flatten nested lists; dedup strings case‑sensitief.</li>
+<li>Afkortingen uitbreiden (CONTEXT_AFKORTINGEN) blijft werken.</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>AC1: Geen dubbele items (“DJI” verschijnt maximaal 1×).</li>
+<li>AC2: JSON‑achtige strings worden herkend en opgesplitst naar items.</li>
+<li>AC3: get_all_context_text() toont schone, gejointe context zonder redundantie.</li>
+</ul>
+
+<h2>Implementatie (richting)</h2>
+<p>1) _build_base_context: uitbreiden van <code>extend_unique</code> met detectie op JSON‑lijst (try <code>json.loads</code> op str)</p>
+<p>2) Flatten logic op gemengde types (list[str] of str) vóór dedup.</p>
+<p>3) Bewaar originele volgorde waar mogelijk (OrderedSet‑achtige aanpak).</p>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: invoer met ‘DJI’ + ‘["DJI"]’ → output bevat 1 item.</li>
+<li>Unit: invoer nested lists → geflat en gededuped.</li>
+<li>Snapshot: contextsecties zonder dubbele bullets.</li>
+</ul>
+
+<h2>Risks / Mitigations</h2>
+<ul>
+<li>Risico: false positive JSON parse op gewone strings</li>
+<li> - Mitigatie: parse alleen wanneer string begint met ‘[’ en eindigt met ‘]’; fallback op raw string.</li>
+</ul>
+
+  </div>
+</body>
+</html>

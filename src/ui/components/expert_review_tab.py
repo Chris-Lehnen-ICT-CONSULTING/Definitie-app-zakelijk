@@ -240,6 +240,19 @@ class ExpertReviewTab:
 
                     ex_key = f"review_examples_{definitie.id}"
                     examples = resolve_examples(ex_key, definitie)
+                    # Fallback: haal voorbeelden rechtstreeks uit DB als resolver niets vindt
+                    if not examples:
+                        try:
+                            db_examples = self.repository.get_voorbeelden_by_type(definitie.id)
+                            # Normaliseer: 'toelichting' als string indien aanwezig
+                            if isinstance(db_examples, dict) and db_examples:
+                                examples = dict(db_examples)
+                                tol = examples.get("toelichting")
+                                if isinstance(tol, list):
+                                    examples["toelichting"] = tol[0] if tol else ""
+                                SessionStateManager.set_value(ex_key, examples)
+                        except Exception:
+                            pass
                     # Fallback: direct DB-load indien resolver leeg teruggeeft
                     if not examples:
                         try:

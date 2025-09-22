@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ErrorPrevention inkorten (top‑10; matrix UI‑only)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-246</p>
+<p>titel: ErrorPrevention inkorten (top‑10; matrix UI‑only)</p>
+<p>canonical: true</p>
+<p>status: proposed</p>
+<p>priority: P1</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@v2</p>
+<p>last_verified: 2025-09-22</p>
+<p>links:</p>
+<ul>
+<li> - EPIC-019</li>
+<p>---</p>
+</ul>
+
+<h1>US-019-09 — ErrorPrevention verkorten</h1>
+
+<p>Als lezer wil ik een korte, impactvolle lijst met veelgemaakte fouten en verboden starters, zodat de prompt niet onnodig lang wordt.</p>
+
+<h2>As‑Is</h2>
+<ul>
+<li>Zeer lange lijst met startwoorden + validatiematrix binnen de prompt.</li>
+</ul>
+
+<p>Bronnen:</p>
+<ul>
+<li>src/services/prompts/modules/error_prevention_module.py:143, 155, 286</li>
+</ul>
+
+<h2>To‑Be</h2>
+<ul>
+<li>Top‑10 verboden starters + basisfouten; validatiematrix alleen UI/debug.</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>AC1: Verboden starters ≤ 10 items (configureerbaar).</li>
+<li>AC2: Validatiematrix niet aanwezig in prompt.</li>
+</ul>
+
+<h2>Implementatie (richting)</h2>
+<p>1) error_prevention_module: parameteriseer lijst (env/Config) en slice tot N.</p>
+<p>2) include_validation_matrix=False standaard; UI/diagnostiek kan apart renderen.</p>
+
+<h2>Testplan</h2>
+<ul>
+<li>Snapshot: lijst kort; geen matrix.</li>
+<li>Tokencount reductie zichtbaar.</li>
+</ul>
+
+<h2>Risks / Mitigations</h2>
+<ul>
+<li>Risico: missende ‘klassieke’ fout in top‑10</li>
+<li> - Mitigatie: lijst onderhoudbaar via config; wissel per domein mogelijk.</li>
+</ul>
+
+  </div>
+</body>
+</html>

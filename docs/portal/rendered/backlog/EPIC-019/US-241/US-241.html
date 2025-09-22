@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Relevantie‑filtering (Top‑N) per regelssectie</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-241</p>
+<p>titel: Relevantie‑filtering (Top‑N) per regelssectie</p>
+<p>canonical: true</p>
+<p>status: proposed</p>
+<p>priority: P0</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@v2</p>
+<p>last_verified: 2025-09-22</p>
+<p>links:</p>
+<ul>
+<li> - EPIC-019</li>
+<p>---</p>
+</ul>
+
+<h1>US-019-04 — Top‑N regels per categorie</h1>
+
+<p>Als lezer wil ik alleen de meest relevante regels zien, zodat de prompt compact blijft en focust op wat nodig is voor het begrip/context.</p>
+
+<h2>As‑Is</h2>
+<ul>
+<li>Alle regels (ARAI/CON/ESS/STR/INT/SAM/VER) worden getoond, ongeacht context/categorie.</li>
+</ul>
+
+<p>Bronnen:</p>
+<ul>
+<li>src/services/prompts/modules/arai_rules_module.py:64 (execute)</li>
+<li>idem: con_rules_module.py, ess_rules_module.py, structure_rules_module.py, integrity_rules_module.py, sam_rules_module.py, ver_rules_module.py</li>
+</ul>
+
+<h2>To‑Be</h2>
+<ul>
+<li>Toon per sectie slechts Top‑N regels (N instelbaar) op basis van begripstype/ontologische categorie/context.</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>AC1: N is centraal configureerbaar (ENV/Config), default N=5.</li>
+<li>AC2: Filtering gebruikt metadata/shared_state (bijv. ontologische categorie, contextscore, woordsoort).</li>
+<li>AC3: Secties tonen maximaal N regels; tokencount reductie zichtbaar.</li>
+</ul>
+
+<h2>Implementatie (richting)</h2>
+<p>1) Voeg helper ‘select_relevant_rules(context, all_rules, N)’ toe (shared util of in module)</p>
+<p>2) Heuristieken (voorbeeld):</p>
+<ul>
+<li>  - Voor ‘proces’: prioriteit aan STR‑01/ESS‑02/ARAI‑01/ARAI‑04/CON‑01</li>
+<li>  - Voor ‘type’: prioriteit aan ESS‑05/STR‑01/ARAI‑02/CON‑01</li>
+<li>  - Context rijk → meer nadruk op CON/ESS, arm → ARAI/STR basis</li>
+<p>3) Pas execute() per module aan om ‘sorted(all_rules, key=score)[:N]’ te formatteren</p>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: mock context (proces/type), assert selectie van regels (IDs) en max N output.</li>
+<li>Snapshot: tokens dalen duidelijk t.o.v. baseline.</li>
+</ul>
+
+<h2>Risks / Mitigations</h2>
+<ul>
+<li>Risico: we laten relevante regel weg</li>
+<li> - Mitigatie: N verhoogbaar via config; documenteer prioriteitsmatrix.</li>
+</ul>
+
+  </div>
+</body>
+</html>
