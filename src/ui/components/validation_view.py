@@ -258,12 +258,27 @@ def render_validation_detailed_list(
             current_state = SessionStateManager.get_value(details_key, False)
             SessionStateManager.set_value(details_key, not current_state)
 
+    # Default to expanded on first render after validation
+    if show_toggle and SessionStateManager.get_value(details_key, None) is None:
+        SessionStateManager.set_value(details_key, True)
+
     show_details = SessionStateManager.get_value(details_key, False) if show_toggle else True
     if not show_details:
         return
 
-    # Build detailed assessment and render with inline rule explanations
+    # Summary (blue info bar) + detailed assessment
+    stats = _calculate_validation_stats(
+        list(validation_result.get("violations") or []),
+        list(validation_result.get("passed_rules") or []),
+    )
+    st.info(
+        f"📊 **Toetsing Samenvatting**: {stats['passed_count']}/{stats['total']} regels geslaagd ({stats['percentage']:.1f}%)"
+        + (f" | ❌ {stats['failed_count']} gefaald" if stats["failed_count"] else "")
+    )
+
     lines = _build_detailed_assessment(validation_result)
+    # Filter out the summary line if present (we render a styled summary above)
+    lines = [ln for ln in lines if not ln.startswith("📊 ")]
     if not lines:
         st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
         return
@@ -284,4 +299,3 @@ def render_validation_detailed_list(
         if rid:
             with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
                 st.markdown(_build_rule_hint_markdown(rid))
-

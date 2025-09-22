@@ -5370,6 +5370,606 @@
       "linked_reqs": null
     },
     {
+      "id": "EPIC-019",
+      "type": "EPIC",
+      "title": "Prompt Compact & Dedup (Token Efficiency)",
+      "path": "../backlog/EPIC-019/EPIC-019.md",
+      "url": "../backlog/EPIC-019/EPIC-019.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-019.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-002",
+          "EPIC-010",
+          "EPIC-018",
+          "EPIC-019",
+          "EPIC-020"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/EPIC-019.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
+      "id": "US-240",
+      "type": "US",
+      "title": "Voorbeelden beperken of uitschakelen (globale switch)",
+      "path": "../backlog/EPIC-019/US-240/US-240.md",
+      "url": "../backlog/EPIC-019/US-240/US-240.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-240.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-240"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-240/US-240.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-247",
+      "type": "US",
+      "title": "Templates versimpelen (1 template + 2 patronen)",
+      "path": "../backlog/EPIC-019/US-247/US-247.md",
+      "url": "../backlog/EPIC-019/US-247/US-247.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-247.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-247"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-247/US-247.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-249",
+      "type": "US",
+      "title": "Web‑snippets — lager budget en dedup met contextsectie",
+      "path": "../backlog/EPIC-019/US-249/US-249.md",
+      "url": "../backlog/EPIC-019/US-249/US-249.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-249.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-249"
+        ],
+        "epic": [
+          "EPIC-018",
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-249/US-249.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-248",
+      "type": "US",
+      "title": "Document‑snippets — scherpere standaardbudgetten",
+      "path": "../backlog/EPIC-019/US-248/US-248.md",
+      "url": "../backlog/EPIC-019/US-248/US-248.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-248.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-248"
+        ],
+        "epic": [
+          "EPIC-018",
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-248/US-248.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-246",
+      "type": "US",
+      "title": "ErrorPrevention inkorten (top‑10; matrix UI‑only)",
+      "path": "../backlog/EPIC-019/US-246/US-246.md",
+      "url": "../backlog/EPIC-019/US-246/US-246.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-246.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-246"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-246/US-246.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-241",
+      "type": "US",
+      "title": "Relevantie‑filtering (Top‑N) per regelssectie",
+      "path": "../backlog/EPIC-019/US-241/US-241.md",
+      "url": "../backlog/EPIC-019/US-241/US-241.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-241.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-241"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-241/US-241.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-239",
+      "type": "US",
+      "title": "Eén bronsectie — geen duplicatie (Context vs Web‑augmentatie)",
+      "path": "../backlog/EPIC-019/US-239/US-239.md",
+      "url": "../backlog/EPIC-019/US-239/US-239.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-239.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-239"
+        ],
+        "epic": [
+          "EPIC-018",
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-239/US-239.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-252",
+      "type": "US",
+      "title": "Token‑budget guards en max‑prompt‑length tuning",
+      "path": "../backlog/EPIC-019/US-252/US-252.md",
+      "url": "../backlog/EPIC-019/US-252/US-252.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-252.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-252"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-252/US-252.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-238",
+      "type": "US",
+      "title": "Dedup ‘BELANGRIJKE VEREISTEN’ vs ‘DEFINITIE KWALITEIT’",
+      "path": "../backlog/EPIC-019/US-238/US-238.md",
+      "url": "../backlog/EPIC-019/US-238/US-238.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-238.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-238"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-238/US-238.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-244",
+      "type": "US",
+      "title": "Metrics uit de prompt (UI/debug‑only)",
+      "path": "../backlog/EPIC-019/US-244/US-244.md",
+      "url": "../backlog/EPIC-019/US-244/US-244.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-244.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-244"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-244/US-244.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-243",
+      "type": "US",
+      "title": "ESS‑02 compact houden (met UI‑injectie categorie)",
+      "path": "../backlog/EPIC-019/US-243/US-243.md",
+      "url": "../backlog/EPIC-019/US-243/US-243.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-243.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-243"
+        ],
+        "epic": [
+          "EPIC-002",
+          "EPIC-010",
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-243/US-243.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-242",
+      "type": "US",
+      "title": "Context normalisatie & deduplicatie (base_context)",
+      "path": "../backlog/EPIC-019/US-242/US-242.md",
+      "url": "../backlog/EPIC-019/US-242/US-242.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-242.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-242"
+        ],
+        "epic": [
+          "EPIC-010",
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-242/US-242.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-245",
+      "type": "US",
+      "title": "Metadata‑blok dedupliceren (één blok + marker)",
+      "path": "../backlog/EPIC-019/US-245/US-245.md",
+      "url": "../backlog/EPIC-019/US-245/US-245.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-245.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-245"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-245/US-245.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-251",
+      "type": "US",
+      "title": "Centraliseer compact‑mode flags (ENV/Config → Adapter)",
+      "path": "../backlog/EPIC-019/US-251/US-251.md",
+      "url": "../backlog/EPIC-019/US-251/US-251.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-251.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-251"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-251/US-251.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-250",
+      "type": "US",
+      "title": "Modulevolgorde optimaliseren (leesbaarheid → naleving)",
+      "path": "../backlog/EPIC-019/US-250/US-250.md",
+      "url": "../backlog/EPIC-019/US-250/US-250.md",
+      "status": "proposed",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-019",
+      "parent_us": "US-250.md",
+      "_refs": {
+        "us": [
+          "US-019",
+          "US-250"
+        ],
+        "epic": [
+          "EPIC-019"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-019/US-250/US-250.html",
+      "linked_reqs": null
+    },
+    {
       "id": null,
       "type": "EPIC",
       "title": "EPIC-017: Iteratieve Verbeteringen (V2 Orchestrator)",
@@ -31942,8 +32542,8 @@
   "aggregate": {
     "counts": {
       "DOC": 475,
-      "EPIC": 17,
-      "US": 212,
+      "EPIC": 18,
+      "US": 227,
       "BUG": 17,
       "REQ": 99,
       "ARCH": 24,
@@ -31951,7 +32551,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T19:02:33Z"
+    "generated_at": "2025-09-22T19:22:33Z"
   },
   "sources": [
     "docs"
