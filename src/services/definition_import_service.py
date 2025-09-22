@@ -76,11 +76,16 @@ class DefinitionImportService:
         payload: Dict[str, Any],
         *,
         allow_duplicate: bool = False,
+        duplicate_strategy: str | None = None,
         created_by: str | None = None,
     ) -> SingleImportResult:
         """Voer de daadwerkelijke import uit na validatie."""
         preview = await self.validate_single(payload)
-        if preview.duplicates and not allow_duplicate:
+
+        # Bepaal strategie: 'skip' (default) of 'overwrite'
+        strategy = (duplicate_strategy or ("overwrite" if allow_duplicate else "skip")).lower()
+
+        if preview.duplicates and strategy == "skip":
             return SingleImportResult(
                 success=False,
                 definition_id=None,
@@ -102,7 +107,16 @@ class DefinitionImportService:
             md.setdefault("created_by", created_by)
         definition.metadata = md
 
-        # Sla op via DefinitionRepository (respecteert metadata → source_type/imported_from)
+        # Sla op via DefinitionRepository
+        # Overwrite: update eerste duplicaat in plaats van nieuw record aan te maken
+        if preview.duplicates and strategy == "overwrite":
+            try:
+                target = preview.duplicates[0]
+                if getattr(target, "id", None):
+                    definition.id = int(target.id)
+            except Exception:
+                # Fallback: laat id None → create
+                pass
         new_id = self._repo.save(definition)
 
         # Eenvoudige logging naar import_export_logs (bestemming=single_import_ui)
@@ -157,4 +171,3 @@ class DefinitionImportService:
             wettelijke_basis=wet_list,
             categorie=str(categorie) if categorie else None,
         )
-

@@ -214,9 +214,9 @@ class PromptServiceV2:
                 return prompt_text
 
             try:
-                max_snippets = int(os.getenv("DOCUMENT_SNIPPETS_MAX", "2"))
+                max_snippets = int(os.getenv("DOCUMENT_SNIPPETS_MAX", "16"))
             except Exception:
-                max_snippets = 2
+                max_snippets = 16
             try:
                 max_chars = int(os.getenv("DOCUMENT_SNIPPETS_MAX_CHARS", "800"))
             except Exception:
@@ -230,13 +230,17 @@ class PromptServiceV2:
                     break
                 raw = ensure_string(s.get("snippet", ""))
                 title = s.get("title") or s.get("filename") or "document"
+                cite = s.get("citation_label")
                 safe = sanitize_snippet(raw)
                 remaining = max(0, max_chars - total)
                 if remaining <= 0:
                     break
                 snippet_text = safe[:remaining]
                 # Note: we prefix with a bullet for readability
-                lines.append(f"• {title}: {snippet_text}")
+                prefix = f"• {title}"
+                if cite:
+                    prefix += f" ({cite})"
+                lines.append(f"{prefix}: {snippet_text}")
                 total += len(snippet_text)
                 count += 1
 
