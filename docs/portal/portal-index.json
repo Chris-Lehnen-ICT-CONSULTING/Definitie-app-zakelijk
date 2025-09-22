@@ -621,6 +621,74 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "US-203-provider-health-metrics",
+      "path": "../backlog/EPIC-003/US-203-provider-health-metrics.md",
+      "url": "../backlog/EPIC-003/US-203-provider-health-metrics.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-203-provider-health-metrics.md",
+      "_refs": {
+        "us": [
+          "US-203"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-203-provider-health-metrics.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-201-mediawiki-query-sanitization",
+      "path": "../backlog/EPIC-003/US-201-mediawiki-query-sanitization.md",
+      "url": "../backlog/EPIC-003/US-201-mediawiki-query-sanitization.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-201-mediawiki-query-sanitization.md",
+      "_refs": {
+        "us": [
+          "US-201"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-201-mediawiki-query-sanitization.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🔍 WEB LOOKUP FUNCTIONALITEIT - UITGEBREIDE ANALYSE RAPPORT",
       "path": "../backlog/EPIC-003/WEB-LOOKUP-ANALYSIS-REPORT.md",
       "url": "../backlog/EPIC-003/WEB-LOOKUP-ANALYSIS-REPORT.md",
@@ -732,6 +800,39 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-003/WEB-LOOKUP-SOLUTION-PLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-202-sru-negotiation-hardening",
+      "path": "../backlog/EPIC-003/US-202-sru-negotiation-hardening.md",
+      "url": "../backlog/EPIC-003/US-202-sru-negotiation-hardening.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-202-sru-negotiation-hardening.md",
+      "_refs": {
+        "us": [
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-202-sru-negotiation-hardening.html"
     },
     {
       "id": "EPIC-003",
@@ -1957,6 +2058,39 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-003/US-135/CFR-BUG-015/CFR-BUG-015.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-204-ui-arrow-typesafety",
+      "path": "../backlog/EPIC-004/US-204-ui-arrow-typesafety.md",
+      "url": "../backlog/EPIC-004/US-204-ui-arrow-typesafety.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-204-ui-arrow-typesafety.md",
+      "_refs": {
+        "us": [
+          "US-204"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-204-ui-arrow-typesafety.html"
     },
     {
       "id": "EPIC-004",
@@ -4242,6 +4376,39 @@
       "rendered_url": "rendered/backlog/EPIC-011/EPIC-011.html",
       "linked_reqs": null,
       "linked_stories": null
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-205-env-ssot",
+      "path": "../backlog/EPIC-011/US-205-env-ssot.md",
+      "url": "../backlog/EPIC-011/US-205-env-ssot.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-011",
+      "parent_us": "US-205-env-ssot.md",
+      "_refs": {
+        "us": [
+          "US-205"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-011/US-205-env-ssot.html"
     },
     {
       "id": "US-055",
@@ -31027,7 +31194,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 464,
+      "DOC": 469,
       "EPIC": 16,
       "US": 201,
       "BUG": 14,
@@ -31037,7 +31204,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T11:16:03Z"
+    "generated_at": "2025-09-22T11:20:41Z"
   },
   "sources": [
     "docs"
