@@ -22,7 +22,8 @@ class CON01Validator:
             config: Dictionary met configuratie uit CON-01.json
         """
         self.config = config
-        self.id = config.get("id", "CON-01")
+        # Normaliseer naar weergave met koppelteken
+        self.id = str(config.get("id", "CON-01")).replace("_", "-")
         self.naam = config.get(
             "naam", "Contextspecifieke formulering zonder expliciete benoeming"
         )
@@ -59,7 +60,17 @@ class CON01Validator:
             Tuple van (succes, melding, score)
         """
         definitie_lc = definitie.lower()
-        contexten = context.get("contexten", {}) if context else {}
+        # Ondersteun zowel legacy 'contexten' als V2 velden op top‑niveau
+        contexten = {}
+        if context:
+            if isinstance(context.get("contexten"), dict):
+                contexten = context.get("contexten") or {}
+            else:
+                contexten = {
+                    "organisatorische_context": context.get("organisatorische_context") or [],
+                    "juridische_context": context.get("juridische_context") or [],
+                    "wettelijke_basis": context.get("wettelijke_basis") or [],
+                }
 
         # 1️⃣ Dynamisch: user-gegeven contexten
         expliciete_hits = []

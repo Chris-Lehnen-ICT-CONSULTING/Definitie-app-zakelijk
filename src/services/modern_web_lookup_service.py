@@ -150,8 +150,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
             ),
             "rechtspraak": SourceConfig(
                 name="Rechtspraak.nl",
-                base_url="https://www.rechtspraak.nl",
-                api_type="sru",
+                base_url="https://data.rechtspraak.nl",
+                api_type="rest",
                 confidence_weight=self._provider_weights.get("rechtspraak", 0.95),
                 is_juridical=True,
                 enabled=_is_enabled("rechtspraak_ecli", True),
@@ -383,6 +383,8 @@ class ModernWebLookupService(WebLookupServiceInterface):
                 result = await self._lookup_mediawiki(term, source_config, request)
             elif source_config.api_type == "sru":
                 result = await self._lookup_sru(term, source_config, request)
+            elif source_config.api_type == "rest":
+                result = await self._lookup_rest(term, source_config, request)
             elif source_config.api_type == "scraping":
                 result = await self._lookup_scraping(term, source_config, request)
             else:
@@ -686,6 +688,43 @@ class ModernWebLookupService(WebLookupServiceInterface):
 
         # Veilige scraping wordt in aparte user story opgepakt (US-014)
         return None
+
+    async def _lookup_rest(
+        self, term: str, source: SourceConfig, request: LookupRequest
+    ) -> LookupResult | None:
+        """Lookup via REST API providers (e.g., Rechtspraak Open Data)."""
+        logger.info(f"REST lookup for {term} in {source.name}")
+        import time as _t
+        start = _t.time()
+        attempt = {
+            "provider": source.name,
+            "api_type": "rest",
+            "term": term,
+        }
+        try:
+            if "rechtspraak" in source.name.lower():
+                from .web_lookup.rechtspraak_rest_service import rechtspraak_lookup
+
+                res = await asyncio.wait_for(
+                    rechtspraak_lookup(term),
+                    timeout=float(getattr(request, "timeout", 30) or 30),
+                )
+                if res and res.success:
+                    res.source.confidence *= source.confidence_weight
+                    attempt["success"] = True
+                    attempt["url"] = getattr(res.source, "url", "")
+                    attempt["confidence"] = getattr(res.source, "confidence", 0.0)
+                    return res
+            attempt["success"] = False
+            return None
+        except Exception as e:
+            attempt["success"] = False
+            attempt["error"] = str(e)
+            logger.warning(f"REST lookup error in {source.name}: {e}")
+            return None
+        finally:
+            attempt["duration_ms"] = int((_t.time() - start) * 1000)
+            self._debug_attempts.append(attempt)
 
     async def _legacy_fallback(
         self, term: str, source_name: str, request: LookupRequest

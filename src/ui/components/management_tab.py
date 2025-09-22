@@ -375,6 +375,449 @@ class ManagementTab:
         # Import section
         st.markdown("##### 📥 Import Definities")
 
+        # Enkelvoudige import (MVP)
+        with st.expander("Enkelvoudige import (MVP)", expanded=False):
+            try:
+                container = st.session_state.get("service_container")
+                if not container:
+                    st.error("❌ Service container niet geïnitialiseerd")
+                else:
+                    # Korte uitleg (inline help)
+                    st.markdown(
+                        """
+                        - Kies een modus:
+                          - Formulier: vul velden in voor 1 definitie
+                          - JSON: plak een payload met canonieke velden
+                          - Bestand: upload JSON of CSV met precies 1 record
+                        - Klik vervolgens op "🔍 Valideren" om score en overtredingen te zien
+                        - Kies eventueel "🔄 Bestaande overschrijven" (anders worden duplicaten overgeslagen)
+                        - Klik op "📥 Importeer als Draft" om op te slaan met herkomst imported
+
+                        Voorbeeld JSON payload:
+                        ```json
+                        {
+                          "begrip": "Griffier",
+                          "definitie": "De griffier is …",
+                          "categorie": "proces",
+                          "organisatorische_context": ["OM"],
+                          "juridische_context": ["Strafrecht"],
+                          "wettelijke_basis": ["Sv"]
+                        }
+                        ```
+                        """
+                    )
+                    st.markdown(
+                        "Meer weten? 📘 Zie: "
+                        "[Single Definition Import (MVP)](docs/portal/rendered/implementation/SINGLE-DEFINITION-IMPORT-MVP.html)"
+                        " — of open `docs/portal/index.html` en zoek op US-234."
+                    )
+                    import_service = container.import_service()
+
+                    mode = st.radio(
+                        "Modus",
+                        options=["Formulier", "JSON", "Bestand"],
+                        horizontal=True,
+                        key="single_import_mode",
+                    )
+
+                    payload: dict = {}
+
+                    if mode == "Formulier":
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            begrip = st.text_input("Begrip", key="si_begrip")
+                            categorie = st.selectbox(
+                                "Categorie",
+                                [c.value for c in OntologischeCategorie],
+                                key="si_categorie",
+                            )
+                            org_ctx = st.text_input(
+                                "Organisatorische context (komma-gescheiden)",
+                                placeholder="DJI, OM",
+                                key="si_org_ctx",
+                            )
+                        with col2:
+                            definitie = st.text_area(
+                                "Definitie", height=140, key="si_definitie"
+                            )
+                            jur_ctx = st.text_input(
+                                "Juridische context (komma-gescheiden)",
+                                placeholder="Strafrecht, Civiel recht",
+                                key="si_jur_ctx",
+                            )
+                            wet_basis = st.text_input(
+                                "Wettelijke basis (komma-gescheiden)",
+                                placeholder="WvSr, Awb",
+                                key="si_wet_basis",
+                            )
+
+                        payload = {
+                            "begrip": begrip,
+                            "definitie": definitie,
+                            "categorie": categorie,
+                            "organisatorische_context": org_ctx,
+                            "juridische_context": jur_ctx,
+                            "wettelijke_basis": wet_basis,
+                        }
+                    elif mode == "JSON":
+                        import json as _json
+                        json_txt = st.text_area(
+                            "JSON payload",
+                            value='{"begrip":"","definitie":"","categorie":"proces","organisatorische_context":[],"juridische_context":[],"wettelijke_basis":[]}',
+                            height=140,
+                            key="si_json_payload",
+                        )
+                        try:
+                            payload = _json.loads(json_txt or "{}")
+                        except Exception as e:
+                            st.error(f"❌ Ongeldige JSON: {e!s}")
+                            payload = {}
+                    else:
+                        # Bestand: JSON of CSV met exact één definitie
+                        import json as _json
+                        import io as _io
+
+                        uploaded_single = st.file_uploader(
+                            "Selecteer JSON of CSV (1 record)",
+                            type=["json", "csv"],
+                            key="si_file_uploader",
+                        )
+
+                        if uploaded_single is not None:
+                            fname = (uploaded_single.name or "").lower()
+                            try:
+                                if fname.endswith(".json"):
+                                    data = _json.loads(
+                                        uploaded_single.getvalue().decode("utf-8")
+                                    )
+                                    if isinstance(data, dict) and "definities" in data:
+                                        defs = data.get("definities") or []
+                                        if not defs:
+                                            st.error("❌ Geen definities in JSON")
+                                        else:
+                                            if len(defs) > 1:
+                                                st.warning(
+                                                    "⚠️ Meerdere definities gevonden; eerste wordt gebruikt"
+                                                )
+                                            payload = dict(defs[0])
+                                    elif isinstance(data, dict):
+                                        payload = data
+                                    else:
+                                        st.error(
+                                            "❌ Ongeldig JSON-formaat: verwacht object of export met 'definities'"
+                                        )
+                                elif fname.endswith(".csv"):
+                                    try:
+                                        import pandas as _pd
+
+                                        df = _pd.read_csv(
+                                            _io.BytesIO(uploaded_single.getvalue()),
+                                            nrows=1,
+                                        )
+                                        if df.empty:
+                                            st.error("❌ Leeg CSV-bestand")
+                                        else:
+                                            row = df.iloc[0].to_dict()
+                                            # Verwacht canonieke kolommen; context als komma-gescheiden
+                                            def _split(v):
+                                                if v is None or str(v).strip() == "":
+                                                    return []
+                                                return [
+                                                    s.strip() for s in str(v).split(",") if s.strip()
+                                                ]
+
+                                            payload = {
+                                                "begrip": row.get("begrip", ""),
+                                                "definitie": row.get("definitie", ""),
+                                                "categorie": row.get("categorie"),
+                                                "organisatorische_context": _split(
+                                                    row.get("organisatorische_context", "")
+                                                ),
+                                                "juridische_context": _split(
+                                                    row.get("juridische_context", "")
+                                                ),
+                                                "wettelijke_basis": _split(
+                                                    row.get("wettelijke_basis", "")
+                                                ),
+                                            }
+                                    except Exception as e:
+                                        st.error(f"❌ CSV lezen mislukt: {e!s}")
+                                else:
+                                    st.error("❌ Niet-ondersteund bestandsformaat")
+                            except Exception as e:
+                                st.error(f"❌ Bestand verwerken mislukt: {e!s}")
+
+                    colv, coli = st.columns(2)
+                    with colv:
+                        if st.button("🔍 Valideren", key="si_validate"):
+                            from ui.helpers.async_bridge import run_async
+
+                            with st.spinner("Valideren..."):
+                                preview = run_async(
+                                    import_service.validate_single(payload)
+                                )
+
+                            # Toon resultaat
+                            st.info(
+                                f"Resultaat: {'✅ acceptabel' if preview.ok else '⚠️ niet-acceptabel'} – score: {preview.validation.get('overall_score', 0):.2f}"
+                            )
+                            vios = preview.validation.get("violations", []) if isinstance(preview.validation, dict) else []
+                            st.write(f"Overtredingen: {len(vios)}")
+                            if vios:
+                                for v in vios[:5]:
+                                    code = v.get("code") or v.get("rule_id") or "—"
+                                    st.write(f"• {code}: {v.get('message','')} ")
+
+                            if preview.duplicates:
+                                st.warning(
+                                    f"⚠️ {len(preview.duplicates)} mogelijke duplicaat/duplicaten gevonden"
+                                )
+                                for d in preview.duplicates[:3]:
+                                    st.write(f"• {getattr(d,'begrip', '?')} – status: {getattr(d,'status','?')}")
+
+                    with coli:
+                        allow_dup = st.checkbox(
+                            "🔄 Bestaande overschrijven toestaan", value=False, key="si_allow_dup"
+                        )
+                        created_by = st.text_input(
+                            "👤 Geïmporteerd door", value="ui_user", key="si_created_by"
+                        )
+                        if st.button("📥 Importeer als Draft", key="si_import"):
+                            from ui.helpers.async_bridge import run_async
+
+                            with st.spinner("Importeren..."):
+                                result = run_async(
+                                    import_service.import_single(
+                                        payload,
+                                        allow_duplicate=allow_dup,
+                                        duplicate_strategy=("overwrite" if allow_dup else "skip"),
+                                        created_by=created_by,
+                                    )
+                                )
+
+                            if result.success and result.definition_id:
+                                st.success(
+                                    f"✅ Geïmporteerd! Nieuw ID: {result.definition_id}"
+                                )
+                            else:
+                                st.error(
+                                    f"❌ Import mislukt: {result.error or 'onbekende fout'}"
+                                )
+
+            except Exception as e:
+                st.error(f"❌ Enkelvoudige import fout: {e!s}")
+
+        # Kleine batch CSV import (≤100 rijen)
+        with st.expander("Kleine batch CSV import (≤100)", expanded=False):
+            try:
+                container = st.session_state.get("service_container")
+                if not container:
+                    st.error("❌ Service container niet geïnitialiseerd")
+                else:
+                    # Korte uitleg (inline help)
+                    st.markdown(
+                        """
+                        - Upload een CSV met canonieke kolommen:
+                          `begrip, definitie, categorie, organisatorische_context, juridische_context, wettelijke_basis`
+                        - Contextkolommen mogen komma‑gescheiden lijsten bevatten (bijv. `OM, DJI`)
+                        - Kies duplicate‑strategie:
+                          - `skip` (standaard): sla duplicaten over
+                          - `overwrite`: update het eerste gevonden duplicaat
+                        - Maximaal 100 rijen per run; elke rij wordt gevalideerd vóór import
+
+                        Voorbeeld CSV:
+                        ```csv
+                        begrip,definitie,categorie,organisatorische_context,juridische_context,wettelijke_basis
+                        Griffier,"De griffier is …",proces,OM,"Strafrecht","Sv"
+                        ```
+                        """
+                    )
+                    st.markdown(
+                        "Meer weten? 📘 Zie: "
+                        "[Single Definition Import (MVP)](docs/portal/rendered/implementation/SINGLE-DEFINITION-IMPORT-MVP.html)"
+                        " — of open `docs/portal/index.html` en zoek op US-234."
+                    )
+                    import_service = container.import_service()
+
+                    uploaded_csv = st.file_uploader(
+                        "Selecteer CSV bestand (canonieke kolommen)",
+                        type=["csv"],
+                        key="batch_csv_uploader",
+                    )
+
+                    col_opts1, col_opts2 = st.columns(2)
+                    with col_opts1:
+                        dup_strategy = st.selectbox(
+                            "Duplicate handling",
+                            options=["skip", "overwrite"],
+                            index=0,
+                            help="Kies 'overwrite' om bestaande records te updaten",
+                            key="batch_dup_strategy",
+                        )
+                    with col_opts2:
+                        created_by = st.text_input(
+                            "👤 Geïmporteerd door", value="ui_user", key="batch_created_by"
+                        )
+
+                    if uploaded_csv is not None and st.button(
+                        "🚀 Verwerk CSV (≤100)", key="batch_process_csv"
+                    ):
+                        import io as _io
+                        import pandas as _pd
+                        from ui.helpers.async_bridge import run_async
+                        import json as _json
+
+                        try:
+                            df = _pd.read_csv(_io.BytesIO(uploaded_csv.getvalue()))
+                        except Exception as e:
+                            st.error(f"❌ CSV lezen mislukt: {e!s}")
+                            df = None
+
+                        if df is not None:
+                            total_rows = int(df.shape[0])
+                            if total_rows > 100:
+                                st.warning(
+                                    f"⚠️ CSV bevat {total_rows} rijen; alleen de eerste 100 worden verwerkt"
+                                )
+                                df = df.head(100)
+
+                            progress = st.progress(0)
+                            status = st.empty()
+
+                            results: list[dict] = []
+                            ok_count = 0
+                            import_count = 0
+                            skip_count = 0
+                            fail_count = 0
+
+                            def _split(v):
+                                if v is None or str(v).strip() == "":
+                                    return []
+                                return [s.strip() for s in str(v).split(",") if s.strip()]
+
+                            for idx, row in df.iterrows():
+                                p = (len(results) + 1) / len(df)
+                                progress.progress(p)
+                                term = str(row.get("begrip", "")).strip()
+                                status.text(f"Verwerken rij {len(results)+1}/{len(df)} — {term or '—'}")
+
+                                payload = {
+                                    "begrip": term,
+                                    "definitie": str(row.get("definitie", "")),
+                                    "categorie": row.get("categorie"),
+                                    "organisatorische_context": _split(row.get("organisatorische_context", "")),
+                                    "juridische_context": _split(row.get("juridische_context", "")),
+                                    "wettelijke_basis": _split(row.get("wettelijke_basis", "")),
+                                }
+
+                                try:
+                                    preview = run_async(import_service.validate_single(payload))
+                                    ok = bool(preview.ok)
+                                    ok_count += int(ok)
+
+                                    # Decide action
+                                    if preview.duplicates and dup_strategy == "skip":
+                                        skip_count += 1
+                                        results.append(
+                                            {
+                                                "row": int(idx) + 1,
+                                                "begrip": term,
+                                                "action": "skipped_duplicate",
+                                                "score": float(preview.validation.get("overall_score", 0) if isinstance(preview.validation, dict) else 0),
+                                                "violations": int(len(preview.validation.get("violations", []))) if isinstance(preview.validation, dict) else 0,
+                                                "error": None,
+                                            }
+                                        )
+                                        continue
+
+                                    # Import (create or overwrite first duplicate)
+                                    result = run_async(
+                                        import_service.import_single(
+                                            payload,
+                                            duplicate_strategy=dup_strategy,
+                                            created_by=created_by,
+                                        )
+                                    )
+
+                                    if result.success:
+                                        import_count += 1
+                                        results.append(
+                                            {
+                                                "row": int(idx) + 1,
+                                                "begrip": term,
+                                                "action": (
+                                                    "updated" if preview.duplicates and dup_strategy == "overwrite" else "imported"
+                                                ),
+                                                "definition_id": result.definition_id,
+                                                "score": float(result.validation.get("overall_score", 0) if isinstance(result.validation, dict) else 0),
+                                                "violations": int(len(result.validation.get("violations", []))) if isinstance(result.validation, dict) else 0,
+                                                "error": None,
+                                            }
+                                        )
+                                    else:
+                                        fail_count += 1
+                                        results.append(
+                                            {
+                                                "row": int(idx) + 1,
+                                                "begrip": term,
+                                                "action": "failed",
+                                                "score": float(preview.validation.get("overall_score", 0) if isinstance(preview.validation, dict) else 0),
+                                                "violations": int(len(preview.validation.get("violations", []))) if isinstance(preview.validation, dict) else 0,
+                                                "error": result.error or "onbekende fout",
+                                            }
+                                        )
+
+                                except Exception as e:
+                                    fail_count += 1
+                                    results.append(
+                                        {
+                                            "row": int(idx) + 1,
+                                            "begrip": term,
+                                            "action": "error",
+                                            "score": 0.0,
+                                            "violations": 0,
+                                            "error": str(e),
+                                        }
+                                    )
+
+                            # Samenvatting
+                            progress.empty()
+                            status.empty()
+                            st.success(
+                                f"✅ Klaar: {import_count} geïmporteerd/geüpdatet, {skip_count} overgeslagen (duplicaat), {fail_count} mislukt. Valide OK: {ok_count}"
+                            )
+
+                            # Download resultaten (JSON/CSV)
+                            try:
+                                json_bytes = _json.dumps(results, ensure_ascii=False, indent=2).encode("utf-8")
+                                st.download_button(
+                                    "⬇️ Download rapport (JSON)",
+                                    data=json_bytes,
+                                    file_name="import_rapport.json",
+                                    mime="application/json",
+                                )
+
+                                # Naar CSV
+                                try:
+                                    import pandas as _pd2
+
+                                    df_res = _pd2.DataFrame(results)
+                                    csv_bytes = df_res.to_csv(index=False).encode("utf-8")
+                                    st.download_button(
+                                        "⬇️ Download rapport (CSV)",
+                                        data=csv_bytes,
+                                        file_name="import_rapport.csv",
+                                        mime="text/csv",
+                                    )
+                                except Exception:
+                                    pass
+
+                            except Exception:
+                                st.info("📄 Rapport generatie niet gelukt")
+
+            except Exception as e:
+                st.error(f"❌ Kleine batch import fout: {e!s}")
+
         uploaded_file = st.file_uploader(
             "Selecteer JSON bestand voor import",
             type=["json"],
