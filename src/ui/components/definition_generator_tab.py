@@ -206,6 +206,7 @@ class DefinitionGeneratorTab:
 
         agent_result = safe_dict_get(generation_result, "agent_result")
         saved_record = safe_dict_get(generation_result, "saved_record")
+        saved_definition_id = safe_dict_get(generation_result, "saved_definition_id")
         safe_dict_get(generation_result, "timestamp")
         determined_category = safe_dict_get(generation_result, "determined_category")
 
@@ -219,9 +220,16 @@ class DefinitionGeneratorTab:
         self._render_generation_status(agent_result)
 
         # Sla ID van bewaarde definitie op voor Expert-tab prefill
-        if saved_record and getattr(saved_record, 'id', None):
+        # Bewaar het ID van de opgeslagen definitie voor de Expert/Bewerk tabs
+        target_id = None
+        if isinstance(saved_definition_id, int) and saved_definition_id > 0:
+            target_id = saved_definition_id
+        elif saved_record and getattr(saved_record, 'id', None):
+            target_id = int(saved_record.id)
+
+        if target_id:
             try:
-                SessionStateManager.set_value("selected_review_definition_id", saved_record.id)
+                SessionStateManager.set_value("selected_review_definition_id", target_id)
             except Exception:
                 pass
 

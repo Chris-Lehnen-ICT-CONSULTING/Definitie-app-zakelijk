@@ -37,11 +37,14 @@ class SRUConfig:
     base_url: str
     default_collection: str
     record_schema: str = "dc"  # Dublin Core default
+    sru_version: str = "1.2"  # SRU protocol version (e.g., 1.2 or 2.0)
     maximum_records: int = 10
     confidence_weight: float = 1.0
     is_juridical: bool = True
     # Alternatieve endpoints (fallbacks) voor wanneer het primaire pad 404/5xx geeft
     alt_base_urls: list[str] = field(default_factory=list)
+    # Extra query parameters (e.g., {"x-connection": "BWB"})
+    extra_params: dict[str, str] = field(default_factory=dict)
 
 
 class SRUService:
@@ -89,17 +92,17 @@ class SRUService:
                     "https://data.rechtspraak.nl/uitspraken/sru",
                 ],
             ),
+            # Basiswettenbestand (BWB) via Zoekservice SRU (x-connection=BWB)
             "wetgeving_nl": SRUConfig(
                 name="Wetgeving.nl",
-                base_url="https://wetten.overheid.nl/SRU/Search",
+                base_url="https://zoekservice.overheid.nl/sru/Search",
                 default_collection="",
                 record_schema="dc",
+                sru_version="2.0",
                 confidence_weight=0.9,
                 is_juridical=True,
-                alt_base_urls=[
-                    "https://wetten.overheid.nl/sru/Search",
-                    "https://wetten.overheid.nl/sru",
-                ],
+                alt_base_urls=[],
+                extra_params={"x-connection": "BWB"},
             ),
             "overheid_zoek": SRUConfig(
                 name="Overheid.nl Zoekservice",
@@ -174,12 +177,15 @@ class SRUService:
                 # Primary URL
                 params = {
                     "operation": "searchRetrieve",
-                    "version": "1.2",
+                    "version": config.sru_version or "1.2",
                     "recordSchema": config.record_schema,
                     "maximumRecords": min(max_records, config.maximum_records),
                     "query": query_str,
                     "startRecord": "1",
                 }
+                # Voeg extra config-parameters toe (zoals x-connection=BWB)
+                for k, v in (config.extra_params or {}).items():
+                    params[k] = v
                 urls: list[str] = [
                     f"{config.base_url}?{urlencode(params, quote_via=quote_plus)}"
                 ]
@@ -250,6 +256,17 @@ class SRUService:
                     ecli_escaped = term.replace('"', '\\"')
                     ecli_query = f'cql.serverChoice any "{ecli_escaped}"'
                     results = await _try_query(ecli_query, strategy="ecli")
+                    if results:
+                        return results
+            except Exception:
+                pass
+
+            # Speciale BWB (Wetgeving) titel-query (SRU 2.0) voor hogere precisie
+            try:
+                if endpoint == "wetgeving_nl" and (config.sru_version or "").startswith("2"):
+                    esc = (term or "").replace('"', '\\"')
+                    bwb_q = f'titel="{esc}"'
+                    results = await _try_query(bwb_q, strategy="titel")
                     if results:
                         return results
             except Exception:

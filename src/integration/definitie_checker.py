@@ -98,6 +98,7 @@ class DefinitieChecker:
         organisatorische_context: str,
         juridische_context: str = "",
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
+        wettelijke_basis: list[str] | None = None,
     ) -> DefinitieCheckResult:
         """
         Check voor bestaande definities voordat generatie start.
@@ -122,7 +123,16 @@ class DefinitieChecker:
             juridische_context=juridische_context,
             categorie=categorie.value if categorie else None,
         )
-
+        # Extra filtering: vereis ook match op wettelijke_basis (lijst, order-onafhankelijk)
+        if existing:
+            try:
+                def _norm(lst: list[str] | None) -> tuple[str, ...]:
+                    return tuple(sorted([str(x).strip().lower() for x in (lst or [])]))
+                if _norm(getattr(existing, "get_wettelijke_basis_list")()) != _norm(wettelijke_basis or []):
+                    existing = None
+            except Exception:
+                # Als er iets misgaat met parsing, behandel als geen exacte match
+                pass
         if existing:
             return self._handle_exact_match(existing)
 
@@ -133,7 +143,19 @@ class DefinitieChecker:
             juridische_context=juridische_context,
             categorie=categorie.value if categorie else None,
         )
-
+        # Extra filtering op wettelijke_basis
+        if duplicates:
+            try:
+                def _norm(lst: list[str] | None) -> tuple[str, ...]:
+                    return tuple(sorted([str(x).strip().lower() for x in (lst or [])]))
+                wb_norm = _norm(wettelijke_basis or [])
+                duplicates = [
+                    d for d in duplicates
+                    if hasattr(d.definitie_record, "get_wettelijke_basis_list") and _norm(d.definitie_record.get_wettelijke_basis_list()) == wb_norm
+                ]
+            except Exception:
+                # Fallback: laat duplicates ongewijzigd
+                pass
         if duplicates:
             return self._handle_duplicates(duplicates)
 
@@ -149,6 +171,7 @@ class DefinitieChecker:
         begrip: str,
         organisatorische_context: str,
         juridische_context: str = "",
+        wettelijke_basis: list[str] | None = None,
         categorie: OntologischeCategorie = OntologischeCategorie.TYPE,
         force_generate: bool = False,
         created_by: str | None = None,
@@ -175,7 +198,7 @@ class DefinitieChecker:
         """
         # Stap 1: Check voor duplicates
         check_result = self.check_before_generation(
-            begrip, organisatorische_context, juridische_context, categorie
+            begrip, organisatorische_context, juridische_context, categorie, wettelijke_basis
         )
 
         # Stap 2: Bepaal actie
@@ -533,12 +556,13 @@ def generate_or_retrieve_definition(
     cat_enum = OntologischeCategorie(categorie)
 
     check_result, agent_result, saved_record = checker.generate_with_check(
-        begrip,
-        organisatorische_context,
-        juridische_context,
-        cat_enum,
-        force_new,
-        created_by,
+        begrip=begrip,
+        organisatorische_context=organisatorische_context,
+        juridische_context=juridische_context,
+        wettelijke_basis=[],
+        categorie=cat_enum,
+        force_generate=force_new,
+        created_by=created_by,
     )
 
     if saved_record:

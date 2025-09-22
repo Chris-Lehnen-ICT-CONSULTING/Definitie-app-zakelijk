@@ -538,9 +538,20 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 corr = uuid.UUID(generation_id)
             except Exception:
                 corr = uuid.uuid4()
+            # Voeg opties toe aan metadata zodat validator context flags kan lezen
+            meta: dict[str, Any] = {"generation_id": generation_id}
+            try:
+                if sanitized_request.options:
+                    # Expliciet doorgeven van force_duplicate voor duplicate-escalatie
+                    if bool(safe_dict_get(sanitized_request.options, "force_duplicate", False)):
+                        meta["force_duplicate"] = True
+                    # Bewaar volledige options voor toekomstig gebruik (niet verplicht)
+                    meta["options"] = dict(sanitized_request.options)
+            except Exception:
+                pass
             validation_context = ValidationContext(
                 correlation_id=corr,
-                metadata={"generation_id": generation_id},
+                metadata=meta,
             )
             # Validate using Definition object per interface contract
             temp_definition = Definition(
@@ -684,6 +695,12 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 logger.info(
                     f"Generation {generation_id}: Definition saved (ID: {definition_id})"
                 )
+                try:
+                    # Zorg dat het ID ook op het Definition‑object staat voor downstream consumers
+                    if definition_id:
+                        definition.id = int(definition_id)
+                except Exception:  # pragma: no cover
+                    pass
             else:
                 # Store failed attempts for feedback learning
                 await self._save_failed_attempt(
