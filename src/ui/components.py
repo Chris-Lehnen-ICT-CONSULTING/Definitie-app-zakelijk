@@ -46,6 +46,15 @@ class UIComponents:
             org_options,
             default=[],
         )
+        # Toon afkortingen-uitleg als beschikbaar
+        try:
+            abbrev = getattr(ui_cfg, "afkortingen", {}) or {}
+            if abbrev:
+                with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
+                    for k in sorted(abbrev.keys()):
+                        st.markdown(f"- **{k}** — {abbrev[k]}")
+        except Exception:
+            pass
 
         custom_context = ""
         if "Anders..." in contextopties:

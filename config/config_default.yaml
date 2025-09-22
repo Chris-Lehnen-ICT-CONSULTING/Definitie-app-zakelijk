@@ -177,14 +177,16 @@ ui:
     - "Internationaal recht"
     - "Anders..."
 
-  # Canonieke lijst met veelgebruikte wetten voor UI-selectie
+  # Canonieke lijst met veelgebruikte wetten voor UI-selectie (uniforme schrijfwijze)
   common_laws:
-    - "Wetboek van Strafvordering (huidig)"
-    - "Wetboek van Strafvordering (toekomstig)"
-    - "Wet op de Identificatieplicht"
-    - "Wet op de politiegegevens"
-    - "Wetboek van Strafrecht"
-    - "Algemene verordening gegevensbescherming"
+    - "Wetboek van Strafrecht (Sr)"
+    - "Wetboek van Strafvordering (Sv) — huidig"
+    - "Wetboek van Strafvordering (Sv) — toekomstig"
+    - "Algemene wet bestuursrecht (Awb)"
+    - "Burgerlijk Wetboek (BW)"
+    - "Algemene verordening gegevensbescherming (AVG)"
+    - "Wet politiegegevens (Wpg)"
+    - "Wet op de identificatieplicht (Wid)"
     - "Anders..."
 
   ketenpartners:
@@ -204,7 +206,7 @@ ui:
     ZM: "Zittende Magistratuur"
     3RO: "Samenwerkingsverband Reclasseringsorganisaties"
     DJI: "Dienst Justitiële Inrichtingen"
-    NP: "Nederlands Politie"
+    NP: "Nationale Politie"
     FIOD: "Fiscale Inlichtingen- en Opsporingsdienst"
     Justid: "Dienst Justitiële Informatievoorziening"
     KMAR: "Koninklijke Marechaussee"
