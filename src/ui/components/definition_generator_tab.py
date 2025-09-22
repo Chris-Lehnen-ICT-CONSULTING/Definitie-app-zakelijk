@@ -948,7 +948,8 @@ class DefinitionGeneratorTab:
                 st.info(msg)
                 return
 
-            for idx, src in enumerate(sources[:5]):  # Toon max 5
+            # Toon alle gevonden bronnen (gebruik expander om het compact te houden)
+            for idx, src in enumerate(sources):
                 # Use source_label if available (Story 3.1), fallback to provider
                 provider_label = src.get("source_label") or self._get_provider_label(
                     src.get("provider", "bron")
