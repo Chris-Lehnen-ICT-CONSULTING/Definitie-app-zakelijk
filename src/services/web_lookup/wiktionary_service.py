@@ -157,7 +157,7 @@ class WiktionaryService:
             return best if score(best) >= 30 else None
 
     async def _get_extract(self, title: str) -> str | None:
-        """Haal een plaintext extract op (introtekst)."""
+        """Haal een korte tekst uit het lemma. Prefer plaintext extract; fallback naar wikitext-parse."""
         params = {
             "action": "query",
             "format": "json",
@@ -168,7 +168,7 @@ class WiktionaryService:
         }
         async with self.session.get(self.api_url, params=params) as resp:
             if resp.status != 200:
-                return None
+                return await self._extract_from_wikitext(title)
             data = await resp.json()
             pages = data.get("query", {}).get("pages", {})
             for page in pages.values():
@@ -179,11 +179,65 @@ class WiktionaryService:
                     # Probeer hoofddefinitie (eerste regel) te pakken
                     first = text.split("\n", 1)[0].strip()
                     return first or text
-            return None
+            # Fallback: parse wikitext en haal eerste definitie
+            return await self._extract_from_wikitext(title)
+
+    async def _extract_from_wikitext(self, title: str) -> str | None:
+        """Fallback: haal wikitext op en parse eerste definitieregel (# ...)."""
+        params = {
+            "action": "parse",
+            "format": "json",
+            "prop": "wikitext",
+            "page": title,
+        }
+        async with self.session.get(self.api_url, params=params) as resp:
+            if resp.status != 200:
+                return None
+            data = await resp.json()
+            wtxt = (
+                data.get("parse", {})
+                .get("wikitext", {})
+                .get("*", "")
+            )
+            if not wtxt:
+                return None
+
+            # Heuristisch: focus op '== Nederlands ==' sectie
+            text = str(wtxt)
+            lower = text.lower()
+            start = lower.find("== nederlands ==")
+            if start != -1:
+                segment = text[start:]
+            else:
+                segment = text
+
+            # Pak eerste regel die met '# ' begint (definitie)
+            first_def: str | None = None
+            for line in segment.splitlines():
+                s = line.strip()
+                if s.startswith("# "):
+                    first_def = s[2:].strip()
+                    break
+            if not first_def:
+                return None
+
+            # Eenvoudige wikimarkup-strip: [[link|label]] / [[link]] / ''italic'' / '''bold'''
+            import re
+
+            def _replace_link(m: re.Match[str]) -> str:
+                inner = m.group(1)
+                if "|" in inner:
+                    return inner.split("|")[-1]
+                return inner
+
+            s = re.sub(r"\[\[([^\]]+)\]\]", _replace_link, first_def)
+            s = re.sub(r"'''+(.*?)'''+", r"\1", s)
+            s = re.sub(r"''(.*?)''", r"\1", s)
+            s = re.sub(r"\{\{[^}]+\}\}", "", s)  # templates verwijderen
+            return s.strip() or None
 
 
 async def wiktionary_lookup(term: str, language: str = "nl") -> LookupResult | None:
     """Standalone lookup helper."""
     async with WiktionaryService(language) as svc:
         return await svc.lookup(term)
-

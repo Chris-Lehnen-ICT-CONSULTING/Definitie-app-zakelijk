@@ -664,16 +664,21 @@ class DefinitionEditTab:
 
                 container = get_container()
                 orch = container.orchestrator()
+                from services.validation.interfaces import ValidationContext
+                vc = ValidationContext(
+                    correlation_id=None,
+                    metadata={
+                        "organisatorische_context": definition.organisatorische_context or [],
+                        "juridische_context": definition.juridische_context or [],
+                        "wettelijke_basis": definition.wettelijke_basis or [],
+                    },
+                )
                 v = run_async(
                     orch.validation_service.validate_text(
                         begrip=definition.begrip,
                         text=definition.definitie,
                         ontologische_categorie=definition.categorie,
-                        context={
-                            "organisatorische_context": definition.organisatorische_context or [],
-                            "juridische_context": definition.juridische_context or [],
-                            "wettelijke_basis": definition.wettelijke_basis or [],
-                        },
+                        context=vc,
                     )
                 )
                 # Normaliseer naar UI‑structuur
