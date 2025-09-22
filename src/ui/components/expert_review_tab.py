@@ -535,6 +535,17 @@ class ExpertReviewTab:
                 SessionStateManager.clear_value("selected_review_definition")
                 st.rerun()
 
+        # Full-width render area for (re-)validation details
+        try:
+            vkey = f"review_v2_validation_{definitie.id}"
+            v2 = SessionStateManager.get_value(vkey)
+            if v2:
+                from ui.components.validation_view import render_v2_validation_details
+                st.markdown("#### ✅ Kwaliteitstoetsing")
+                render_v2_validation_details(v2)
+        except Exception:
+            pass
+
     def _render_review_history(self):
         """Render review geschiedenis."""
         if st.checkbox("📜 Toon Review Geschiedenis", key="show_history"):
@@ -670,7 +681,6 @@ class ExpertReviewTab:
             from services.interfaces import Definition
             from services.validation.interfaces import ValidationContext
             from ui.helpers.async_bridge import run_async
-            from ui.components.validation_view import render_v2_validation_details
 
             container = get_container()
             orch = container.orchestrator()
@@ -693,11 +703,13 @@ class ExpertReviewTab:
                 },
             )
             v2 = run_async(orch.validation_service.validate_definition(definition, ctx))
+            # Sla resultaat op en render buiten de kolommen (full-width)
+            vkey = f"review_v2_validation_{definitie.id}"
             if isinstance(v2, dict):
-                st.markdown("#### 🔄 Re-validatie Resultaat")
-                render_v2_validation_details(v2)
+                SessionStateManager.set_value(vkey, v2)
             else:
-                st.info("ℹ️ Geen V2 validatieresultaat beschikbaar")
+                SessionStateManager.set_value(vkey, None)
+            st.rerun()
         except Exception as e:
             st.error(f"❌ Re-validatie mislukt: {e!s}")
 
