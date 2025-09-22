@@ -55,20 +55,27 @@ def main() -> int:
     conn = sqlite3.connect(str(db_path))
     conn.row_factory = sqlite3.Row
     cur = conn.cursor()
-    cur.execute("SELECT id, organisatorische_context, juridische_context FROM definities")
+    cur.execute("SELECT id, organisatorische_context, juridische_context, wettelijke_basis FROM definities")
     rows = cur.fetchall()
 
     updated = 0
     for row in rows:
         org = _sanitize_list(row["organisatorische_context"])
         jur = _sanitize_list(row["juridische_context"])
+        wet = _sanitize_list(row["wettelijke_basis"])
         org_json = json.dumps(org, ensure_ascii=False)
         jur_json = json.dumps(jur, ensure_ascii=False)
 
-        if org_json != (row["organisatorische_context"] or "") or jur_json != (row["juridische_context"] or ""):
+        wet_json = json.dumps(wet, ensure_ascii=False)
+
+        if (
+            org_json != (row["organisatorische_context"] or "")
+            or jur_json != (row["juridische_context"] or "")
+            or wet_json != (row["wettelijke_basis"] or "")
+        ):
             cur.execute(
-                "UPDATE definities SET organisatorische_context=?, juridische_context=? WHERE id=?",
-                (org_json, jur_json, row["id"]),
+                "UPDATE definities SET organisatorische_context=?, juridische_context=?, wettelijke_basis=? WHERE id=?",
+                (org_json, jur_json, wet_json, row["id"]),
             )
             updated += 1
 
@@ -80,4 +87,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

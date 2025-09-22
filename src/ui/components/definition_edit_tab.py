@@ -333,12 +333,17 @@ class DefinitionEditTab:
             wet_resolved = [v for v in wet_selected if v != "Anders..."] + wet_custom_values
             SessionStateManager.set_value(k('wettelijke_basis'), wet_resolved)
 
-            # Status
+            # Status (toon ook 'imported' indien van toepassing)
             current_status = definition.metadata.get('status', 'draft') if definition.metadata else 'draft'
+            status_options = ["imported", "draft", "review", "established", "archived"]
+            try:
+                status_index = status_options.index(current_status)
+            except ValueError:
+                status_index = status_options.index("draft")
             status = st.selectbox(
                 "Status",
-                ["draft", "review", "established", "archived"],
-                index=["draft", "review", "established", "archived"].index(current_status),
+                status_options,
+                index=status_index,
                 key=k("status"),
                 disabled=True if disabled else False,
                 help="De huidige status van de definitie"
@@ -360,10 +365,13 @@ class DefinitionEditTab:
             elif status_code == 'archived':
                 st.info("📦 Deze definitie is Gearchiveerd en daarom alleen-lezen. Herstel via de Expert-tab om te bewerken.")
 
-        # Persist geselecteerde context lijsten in session voor save via SessionStateManager
-        SessionStateManager.set_value(k("organisatorische_context"), org_selected if 'org_selected' in locals() else [])
-        SessionStateManager.set_value(k("juridische_context"), jur_selected if 'jur_selected' in locals() else [])
-        SessionStateManager.set_value(k("wettelijke_basis"), wet_selected if 'wet_selected' in locals() else [])
+        # Persist context lijsten (gebruik resolved waarden zonder 'Anders...')
+        if 'org_resolved' in locals():
+            SessionStateManager.set_value(k("organisatorische_context"), org_resolved)
+        if 'jur_resolved' in locals():
+            SessionStateManager.set_value(k("juridische_context"), jur_resolved)
+        if 'wet_resolved' in locals():
+            SessionStateManager.set_value(k("wettelijke_basis"), wet_resolved)
 
         # Track changes for auto-save
         self._track_changes()
