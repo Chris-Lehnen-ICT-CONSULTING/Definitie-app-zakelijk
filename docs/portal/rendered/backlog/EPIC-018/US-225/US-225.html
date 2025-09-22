@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>DOCX/PDF extractors beschikbaar en actief</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-225</p>
+<p>titel: DOCX/PDF extractors beschikbaar en actief</p>
+<p>epic: EPIC-018</p>
+<p>status: Open</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 3</p>
+<p>owner: architecture</p>
+<p>aangemaakt: 2025-09-22</p>
+<p>bijgewerkt: 2025-09-22</p>
+<p>canonical: true</p>
+<p>applies_to: definitie-app@current</p>
+<p>last_verified: 2025-09-22</p>
+<p>---</p>
+
+<h1>US-225: DOCX/PDF extractors beschikbaar en actief</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als gebruiker wil ik dat geüploade DOCX/PDF correct worden uitgelezen, zodat de documentcontext bruikbaar is bij genereren.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] DOCX extractie via `python-docx` actief; geen fallbackmelding in resultaten</li>
+<li>[ ] PDF extractie via `PyPDF2` actief; geen fallbackmelding in resultaten</li>
+<li>[ ] “Totale tekst” in UI toont realistische lengte (> 1.000 chars voor grote documenten)</li>
+<li>[ ] Unsupported: `.doc` (legacy) — UI/Docs melden beperking</li>
+</ul>
+
+<h2>Technisch</h2>
+<ul>
+<li>Dependencies vastleggen (requirements)</li>
+<li>Extractor behoudt bestaande interfaces; geen wijziging aan DocumentProcessor‑API</li>
+</ul>
+
+<h2>Tests</h2>
+<ul>
+<li>Unit tests voor DOCX/PDF paden (guarded bij ontbrekende libs)</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

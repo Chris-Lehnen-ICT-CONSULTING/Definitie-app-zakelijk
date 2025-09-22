@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Single Definition Import (MVP)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-234</p>
+<p>titel: Single Definition Import (MVP)</p>
+<p>epic: EPIC-005</p>
+<p>status: Open</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegevoegd_door: development-team</p>
+<p>aangemaakt: 2025-09-22</p>
+<p>bijgewerkt: 2025-09-22</p>
+<p>owner: product</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li>REQ-043</li>
+<li>REQ-037</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-22</p>
+<p>---</p>
+</ul>
+
+<h1>US-234: Single Definition Import (MVP)</h1>
+
+<p>Als data‑beheerder wil ik één definitie kunnen importeren (met validatie en duplicaatcontrole), zodat ik snel een individuele definitie kan toevoegen of bijwerken zonder batch‑import.</p>
+
+<h2>Probleembeschrijving</h2>
+<p>De applicatie biedt nu alleen een eenvoudige JSON‑bestand import (meerdere records) zonder validatie/verrijking. Er is behoefte aan een laagdrempelige, veilige manier om exact één definitie te importeren mét voorafgaande validatie en duidelijke preview/feedback.</p>
+
+<h2>Scope (MVP)</h2>
+<ul>
+<li>Enkelvoudige import via UI (formulier of JSON‑plakveld)</li>
+<li>V2 validatie vóór opslag; toon score en violations</li>
+<li>Duplicaatcontrole op begrip + context; toon keuze of blokkeer</li>
+<li>Opslaan als Draft (default) met herkomstmetadata (IMPORTED)</li>
+<li>Logging naar `import_export_logs`</li>
+</ul>
+
+<p>Niet in scope (dit komt in latere stories): CSV/XLSX/JSONL, streaming, queue/resume/cancel, bulk‑rapportage, mapping UI.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] UI biedt een “Enkelvoudige import” sectie met twee opties:</li>
+<li> - [ ] Formulier met velden: begrip, definitie, categorie, organisatorische_context (lijst), juridische_context (lijst, optioneel), wettelijke_basis (lijst, optioneel)</li>
+<li> - [ ] Alternatief: JSON‑plakveld voor hetzelfde schema</li>
+<li>[ ] Bij submit voert het systeem V2‑validatie uit en toont:</li>
+<li> - [ ] Totale score en indicator acceptabel/niet‑acceptabel</li>
+<li> - [ ] Tabel met violations (code, severity, message)</li>
+<li>[ ] Duplicaatcontrole op begrip + context:</li>
+<li> - [ ] Bij exact duplicaat: waarschuwing en keus: Annuleren of Overschrijven (MVP mag overschrijven uitzetten als we ‘nieuw versienummer’ nog niet hebben)</li>
+<li>[ ] Opslaan pas na expliciete bevestiging (“Importeer als Draft”)</li>
+<li>[ ] Na opslag:</li>
+<li> - [ ] Record heeft `source_type=imported` en `imported_from="single_import_ui"`</li>
+<li> - [ ] Validatieresultaat is opgeslagen (score en issues) zoals ondersteund door repository</li>
+<li> - [ ] Operatie gelogd in `import_export_logs` met `operatie_type='import'`</li>
+</ul>
+
+<h2>UI Voorstel</h2>
+<ul>
+<li>Locatie: Management tab → sectie “📥 Import Definities” uitbreiden met blok “Enkelvoudige import (MVP)”</li>
+<li>Componenten:</li>
+<li> - Radio: [Formulier, JSON]</li>
+<li> - Bij Formulier: invoervelden + “Valideren” knop → previewpaneel met validatieresultaten → “Importeer als Draft”</li>
+<li> - Bij JSON: groot tekstgebied, validatieknop idem</li>
+<li> - Duplicate‑waarschuwing inline vóór bevestiging</li>
+</ul>
+
+<h2>Technisch Ontwerp (MVP)</h2>
+<ul>
+<li>Service: `DefinitionImportService` (nieuw, eenvoudige variant)</li>
+<li> - `validate_single(payload: dict) -> ValidationResult`</li>
+<li> - `import_single(payload: dict, *, allow_duplicate: bool=False) -> ImportResult`</li>
+<li> - Roept onder water aan:</li>
+<li>   - `ValidationOrchestratorV2.validate_definition(Definition)`</li>
+<li>   - `DefinitionRepository.create_definitie(...)` (of update bij overschrijven – optioneel buiten MVP)</li>
+<li>Contract input (JSON/form):</li>
+<pre><code>{
+  "begrip": "string",
+  "definitie": "string",
+  "categorie": "string",
+  "organisatorische_context": ["string"],
+  "juridische_context": ["string"],
+  "wettelijke_basis": ["string"]
+}</code></pre>
+<li>Default status: `draft`</li>
+<li>Herkomst metadata bij opslag:</li>
+<li> - `source_type = "imported"`, `imported_from = "single_import_ui"`, `created_by = current_user|"ui_user"`</li>
+</ul>
+
+<h2>Beveiliging & Kwaliteit</h2>
+<ul>
+<li>Geen secrets/PII in logs</li>
+<li>Inputlengte‑limieten en UTF‑8 validatie</li>
+<li>Validatie timeouts respecteren (via bestaande orchestrator)</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>[ ] Documentatie (dit bestand) en implementatieplan bijgewerkt</li>
+<li>[ ] UI bevat een werkende flow voor enkelvoudige import (zonder batch)</li>
+<li>[ ] Validatie vóór opslag, violations zichtbaar</li>
+<li>[ ] Duplicaatcontrole met duidelijke feedback</li>
+<li>[ ] Succes/foutmeldingen voor de gebruiker</li>
+<li>[ ] Logging naar `import_export_logs`</li>
+</ul>
+
+<h2>Relaties</h2>
+<ul>
+<li>EPIC: EPIC-005 (Export & Import)</li>
+<li>Vereisten: REQ-043 (Import), REQ-037 (Batch validatie – deels relevant voor validatiecomponent)</li>
+<li>Gerelateerd: US-062 (Bulk Import), US-138 (Import Validation)</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Document Processing & Context Flow</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>aangemaakt: '2025-09-22'</p>
+<p>applies_to: definitie-app@current</p>
+<p>bijgewerkt: '2025-09-22'</p>
+<p>canonical: true</p>
+<p>last_verified: 2025-09-22</p>
+<p>owner: architecture</p>
+<p>prioriteit: medium</p>
+<p>status: active</p>
+<p>---</p>
+
+<h1>Document Processing & Context Flow</h1>
+
+<p>Dit document beschrijft de extractie‑ en contextverwerkingsflow van geüploade documenten.</p>
+
+<h2>Ondersteunde formaten en dependencies</h2>
+
+<ul>
+<li>TXT (geen extra deps)</li>
+<li>DOCX → python‑docx (vereist)</li>
+<li>PDF → PyPDF2 (vereist)</li>
+<li>MD/CSV/JSON/HTML/RTF (basisextractie)</li>
+</ul>
+
+<p>Niet ondersteund (nu):</p>
+<ul>
+<li>Legacy `.doc`</li>
+<li>OCR voor gescande PDF’s (zie EPIC‑020‑PHOENIX/US‑211)</li>
+</ul>
+
+<h2>Dataflow</h2>
+
+<p>1) UI upload: Streamlit <code>file_uploader</code> → bytes + bestandsnaam</p>
+<p>2) Extractie: <code>extract_text_from_file(...)</code> (op basis van MIME) → tekst of fallbackmelding</p>
+<p>3) Analyse: <code>DocumentProcessor</code> → keywords, concepten, juridische verwijzingen, hints</p>
+<p>4) Aggregatie (bij selectie): <code>get_aggregated_context(ids)</code> → compactte samenvatting</p>
+<p>5) Promptgebruik:</p>
+<ul>
+<li>  - Contextsectie: samenvatting als `document_context` in `GenerationRequest` → HybridContextManager → ContextAwarenessModule</li>
+<li>  - Optioneel snippets: korte “Bron”‑regels binnen tokenbudget</li>
+</ul>
+
+<h2>Beperkingen & foutafhandeling</h2>
+
+<ul>
+<li>Bij ontbrekende libs levert extractie een korte waarschuwingstekst; dit is géén geldige documentcontext</li>
+<li>Logging bevat alleen type/duur/status/length, geen content (AVG)</li>
+</ul>
+
+<h2>Integratiepunten</h2>
+
+<ul>
+<li>UI: selectie van documenten + weergave “Totale tekst”</li>
+<li>ServiceFactory: doorgeven `document_context` naar `GenerationRequest`</li>
+<li>PromptServiceV2: HybridContextManager (documentbron) + optionele snippet‑injectie</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

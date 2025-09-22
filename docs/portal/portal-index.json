@@ -3229,7 +3229,8 @@
           "US-065",
           "US-137",
           "US-138",
-          "US-139"
+          "US-139",
+          "US-234"
         ],
         "epic": [
           "EPIC-005"
@@ -3379,6 +3380,47 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-005/US-138/US-138.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-234",
+      "type": "US",
+      "title": "Single Definition Import (MVP)",
+      "path": "../backlog/EPIC-005/US-234/US-234.md",
+      "url": "../backlog/EPIC-005/US-234/US-234.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "product",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-005",
+      "parent_us": "US-234.md",
+      "_refs": {
+        "us": [
+          "US-062",
+          "US-138",
+          "US-234"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-037",
+          "REQ-043"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-005/US-234/US-234.html",
       "linked_reqs": null
     },
     {
@@ -30220,6 +30262,44 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Single Definition Import (MVP) – Implementatieplan",
+      "path": "../implementation/SINGLE-DEFINITION-IMPORT-MVP.md",
+      "url": "../implementation/SINGLE-DEFINITION-IMPORT-MVP.md",
+      "status": "draft",
+      "prioriteit": null,
+      "owner": "development",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-234"
+        ],
+        "epic": [
+          "EPIC-005"
+        ],
+        "req": [
+          "REQ-037",
+          "REQ-043"
+        ]
+      },
+      "rendered_url": "rendered/implementation/SINGLE-DEFINITION-IMPORT-MVP.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "EPIC-010 Implementatieplan - Context Flow & Orchestration Fixes",
       "path": "../implementation/EPIC-010-action-plan.md",
       "url": "../implementation/EPIC-010-action-plan.md",
@@ -31657,9 +31737,9 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 471,
+      "DOC": 472,
       "EPIC": 17,
-      "US": 209,
+      "US": 210,
       "BUG": 16,
       "REQ": 99,
       "ARCH": 24,
@@ -31667,7 +31747,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T11:52:13Z"
+    "generated_at": "2025-09-22T11:57:38Z"
   },
   "sources": [
     "docs"
