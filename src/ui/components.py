@@ -7,7 +7,6 @@ import os
 from datetime import datetime
 from typing import Any
 
-import pandas as pd
 import streamlit as st
 
 from config.verboden_woorden import (
@@ -16,6 +15,7 @@ from config.verboden_woorden import (
     sla_verboden_woorden_op,
 )
 from ui.session_state import SessionStateManager
+from config.config_manager import get_config, ConfigSection
 from utils.exceptions import log_and_display_error
 
 
@@ -37,24 +37,13 @@ class UIComponents:
             "Voer een term in waarvoor een definitie moet worden gegenereerd"
         )
 
-        # Organizational context
+        ui_cfg = get_config(ConfigSection.UI)
+
+        # Organizational context (from config)
+        org_options = list(getattr(ui_cfg, "organizational_contexts", []) or [])
         contextopties = st.multiselect(
             "Organisatorische context (meerdere mogelijk)",
-            [
-                "OM",
-                "ZM",
-                "Reclassering",
-                "DJI",
-                "NP",
-                "Justid",
-                "KMAR",
-                "FIOD",
-                "CJIB",
-                "Strafrechtketen",
-                "Migratieketen",
-                "Justitie en Veiligheid",
-                "Anders...",
-            ],
+            org_options,
             default=[],
         )
 
@@ -68,17 +57,11 @@ class UIComponents:
         if custom_context.strip():
             contexten_compleet.append(custom_context.strip())
 
-        # Juridical context
+        # Juridical context (from config)
+        legal_options = list(getattr(ui_cfg, "legal_contexts", []) or [])
         juridische_opties = st.multiselect(
             "Juridische context (meerdere mogelijk)",
-            [
-                "Strafrecht",
-                "Civiel recht",
-                "Bestuursrecht",
-                "Internationaal recht",
-                "Europees recht",
-                "Anders...",
-            ],
+            legal_options,
             default=[],
         )
 
@@ -93,18 +76,11 @@ class UIComponents:
         if custom_juridisch.strip():
             juridische_contexten.append(custom_juridisch.strip())
 
-        # Legal basis
+        # Legal basis (from config)
+        law_options = list(getattr(ui_cfg, "common_laws", []) or [])
         wetopties = st.multiselect(
             "Wettelijke basis (meerdere mogelijk)",
-            [
-                "Wetboek van Strafvordering (huidig)",
-                "Wetboek van Strafvordering (toekomstig)",
-                "Wet op de Identificatieplicht",
-                "Wet op de politiegegevens",
-                "Wetboek van Strafrecht",
-                "Algemene verordening gegevensbescherming",
-                "Anders...",
-            ],
+            law_options,
             default=[],
         )
 

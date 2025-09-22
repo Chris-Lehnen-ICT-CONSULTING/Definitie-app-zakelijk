@@ -152,6 +152,19 @@ class UIConfig:
         ]
     )
 
+    # Veelgebruikte wetten voor UI-selecties
+    common_laws: list[str] = field(
+        default_factory=lambda: [
+            "Wetboek van Strafvordering (huidig)",
+            "Wetboek van Strafvordering (toekomstig)",
+            "Wet op de Identificatieplicht",
+            "Wet op de politiegegevens",
+            "Wetboek van Strafrecht",
+            "Algemene verordening gegevensbescherming",
+            "Anders...",
+        ]
+    )
+
     ketenpartners: list[str] = field(
         default_factory=lambda: [
             "ZM",
