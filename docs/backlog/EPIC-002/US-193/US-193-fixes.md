@@ -1,4 +1,5 @@
 # US-193 KeyError Fix: Debugging Analysis Report
+<!-- moved from project root to canonical docs location -->
 
 ## Executive Summary
 

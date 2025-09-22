@@ -3852,6 +3852,73 @@
       "linked_reqs": null
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-193 Post-Implementation Status Update",
+      "path": "../backlog/EPIC-002/US-193/US-193-fixes-STATUS.md",
+      "url": "../backlog/EPIC-002/US-193/US-193-fixes-STATUS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-193-fixes-STATUS.md",
+      "_refs": {
+        "us": [
+          "US-193",
+          "US-201"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-193/US-193-fixes-STATUS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "US-193 KeyError Fix: Debugging Analysis Report",
+      "path": "../backlog/EPIC-002/US-193/US-193-fixes.md",
+      "url": "../backlog/EPIC-002/US-193/US-193-fixes.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-002",
+      "parent_us": "US-193-fixes.md",
+      "_refs": {
+        "us": [
+          "US-193"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-002/US-193/US-193-fixes.html"
+    },
+    {
       "id": "US-192",
       "type": "US",
       "title": "US-192 — V2 Validator: JSON‑regel Evaluatie + ESS‑02 + DB‑check CON‑01",
@@ -10635,6 +10702,40 @@
       "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-201/PERFORMANCE_ANALYSIS_REPORT.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-201: ServiceContainer Caching Implementatie Rapport",
+      "path": "../backlog/EPIC-020-PHOENIX/US-201/US-201-IMPLEMENTATION-REPORT.md",
+      "url": "../backlog/EPIC-020-PHOENIX/US-201/US-201-IMPLEMENTATION-REPORT.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-020-PHOENIX",
+      "parent_us": "US-201-IMPLEMENTATION-REPORT.md",
+      "_refs": {
+        "us": [
+          "US-201",
+          "US-202"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-020-PHOENIX/US-201/US-201-IMPLEMENTATION-REPORT.html"
+    },
+    {
       "id": "US-201",
       "type": "DOC",
       "title": "Fix ServiceContainer Caching to Prevent 6x Re-initialization",
@@ -15668,6 +15769,37 @@
         "req": []
       },
       "rendered_url": "rendered/code-analyse/quality/TECHNICAL_DEBT_ASSESSMENT_2025.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Legacy Code Removal Plan",
+      "path": "../planning/LEGACY_REMOVAL_PLAN.md",
+      "url": "../planning/LEGACY_REMOVAL_PLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/LEGACY_REMOVAL_PLAN.html"
     },
     {
       "id": null,
@@ -30133,6 +30265,72 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "CHANGELOG",
+      "path": "../reports/CHANGELOG.md",
+      "url": "../reports/CHANGELOG.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-064"
+        ],
+        "epic": [
+          "EPIC-010"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/CHANGELOG.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Code Simplification Analysis & Implementation Summary",
+      "path": "../reports/SIMPLIFICATION_SUMMARY.md",
+      "url": "../reports/SIMPLIFICATION_SUMMARY.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/SIMPLIFICATION_SUMMARY.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Documentation Compliance Report",
       "path": "../reports/README_FIXES_REPORT.md",
       "url": "../reports/README_FIXES_REPORT.md",
@@ -30222,6 +30420,37 @@
         "req": []
       },
       "rendered_url": "rendered/reports/PER-007-validation-report.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "Test Suite Code Review",
+      "path": "../reviews/TEST_SUITE_CODE_REVIEW.md",
+      "url": "../reviews/TEST_SUITE_CODE_REVIEW.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/TEST_SUITE_CODE_REVIEW.html"
     },
     {
       "id": null,
@@ -30351,6 +30580,37 @@
         "req": []
       },
       "rendered_url": "rendered/reviews/2025-09-16_codex_review.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
+      "title": "🔬 Pytest Test Failure Analysis Report",
+      "path": "../reviews/TEST_FAILURE_ANALYSIS.md",
+      "url": "../reviews/TEST_FAILURE_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reviews/TEST_FAILURE_ANALYSIS.html"
     },
     {
       "id": null,
@@ -30638,7 +30898,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 453,
+      "DOC": 461,
       "EPIC": 16,
       "US": 200,
       "BUG": 14,
@@ -30648,7 +30908,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T07:33:44Z"
+    "generated_at": "2025-09-22T07:41:14Z"
   },
   "sources": [
     "docs"
