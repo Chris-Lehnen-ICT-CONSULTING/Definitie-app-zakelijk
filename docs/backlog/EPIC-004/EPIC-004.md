@@ -25,6 +25,7 @@ stories:
 - US-071
 - US-110
 - US-235
+- US-236
 target_release: v1.2
 titel: User Interface
 vereisten:
