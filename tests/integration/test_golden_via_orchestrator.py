@@ -9,7 +9,6 @@ def _load_cases():
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(reason="Golden acceptability bands require further calibration; DI mapping fixed")
 @pytest.mark.asyncio
 async def test_golden_definitions_via_orchestrator():
     from services.container import ServiceContainer, ContainerConfigs
@@ -19,6 +18,7 @@ async def test_golden_definitions_via_orchestrator():
     # Gebruik de door DI geleverde ValidationOrchestratorV2 rechtstreeks
     val_orch = getattr(orch, "validation_service")
 
+    mismatches = []
     for case in _load_cases():
         res = await val_orch.validate_text(
             begrip=case["begrip"],
@@ -30,9 +30,9 @@ async def test_golden_definitions_via_orchestrator():
         assert isinstance(res, dict)
         exp = case["expected"]
 
-        assert res["is_acceptable"] is exp["is_acceptable"]
-
-        # Minimale runner: focus op acceptability + violation-prefixen; score-bands worden elders getest
+        if res["is_acceptable"] is not exp["is_acceptable"]:
+            mismatches.append((case.get("id"), res["overall_score"], res.get("violations", [])))
+            continue
 
         # violations: allow prefix matching for stability
         expected_codes = exp.get("violations", [])
@@ -43,4 +43,8 @@ async def test_golden_definitions_via_orchestrator():
                 return any(c.startswith(prefix) for c in actual_codes)
 
             for code in expected_codes:
-                assert _prefix_present(code), f"Expected prefix '{code}' not in {actual_codes}"
+                if not _prefix_present(code):
+                    mismatches.append((case.get("id"), actual_codes, f"missing prefix {code}"))
+                    break
+
+    assert not mismatches, f"Golden mismatches: {mismatches}"

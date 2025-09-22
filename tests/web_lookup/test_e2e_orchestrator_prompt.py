@@ -26,8 +26,18 @@ class _StubCleaningService:
 
 
 class _StubValidationService:
-    async def validate_text(self, begrip: str, text: str, ontologische_categorie=None, context=None):
-        return {"is_acceptable": True, "overall_score": 0.9, "violations": []}
+    async def validate_definition(self, definition, context=None):
+        from services.validation.interfaces import CONTRACT_VERSION
+        # Return a schema-like ValidationResult dict
+        return {
+            "version": CONTRACT_VERSION,
+            "overall_score": 0.9,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": [],
+            "detailed_scores": {},
+            "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+        }
 
 
 class _StubRepository:
@@ -104,7 +114,7 @@ async def test_e2e_orchestrator_prompt_augmentation(monkeypatch):
         validation_service=validation_service,
         cleaning_service=cleaning_service,
         repository=repository,
-        config=OrchestratorConfig(enable_web_lookup=True, web_lookup_top_k=2),
+        config=OrchestratorConfig(web_lookup_top_k=2),
         web_lookup_service=web_lookup_service,
     )
 

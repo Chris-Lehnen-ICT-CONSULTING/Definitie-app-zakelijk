@@ -165,8 +165,11 @@ class SRUService:
             # reset per-call attempts
             self._attempts = []
             # Helper om 1 query (string) tegen alle endpoints te proberen
+            parked_503 = False
+
             async def _try_query(query_str: str, strategy: str) -> list[LookupResult]:
                 from urllib.parse import urlencode, quote_plus
+                nonlocal parked_503
 
                 # Primary URL
                 params = {
@@ -213,6 +216,12 @@ class SRUService:
                             except Exception:
                                 last_text = None
                             self._attempts.append(attempt_rec)
+                            # Specifiek gedrag voor Wetgeving.nl: bij 503 niet blijven hangen
+                            if config.name == "Wetgeving.nl" and response.status == 503:
+                                attempt_rec["parked"] = True
+                                attempt_rec["reason"] = "503 service unavailable"
+                                parked_503 = True
+                                return []
                 # Nothing found for this query across endpoints
                 if last_status and last_status != 200:
                     logger.error(
@@ -233,6 +242,8 @@ class SRUService:
             results = await _try_query(sc_query, strategy="serverChoice")
             if results:
                 return results
+            if parked_503 and config.name == "Wetgeving.nl":
+                return []
 
             # Query 3: hyphen-variant bij samengestelde termen
             if " " in term and "-" not in term:
@@ -241,12 +252,16 @@ class SRUService:
                 results = await _try_query(hy_query, strategy="hyphen")
             if results:
                 return results
+            if parked_503 and config.name == "Wetgeving.nl":
+                return []
 
             # Query 4: serverChoice any (OR i.p.v. AND)
             any_query = f'cql.serverChoice any "{escaped}"'
             results = await _try_query(any_query, strategy="serverChoice_any")
             if results:
                 return results
+            if parked_503 and config.name == "Wetgeving.nl":
+                return []
 
             # Query 5: prefix wildcard (ruimer, laatste redmiddel)
             # Gebruik een conservatieve prefix (eerste 6 letters) om ruis te beperken
@@ -257,6 +272,8 @@ class SRUService:
                 results = await _try_query(wc_query, strategy="prefix_wildcard")
                 if results:
                     return results
+                if parked_503 and config.name == "Wetgeving.nl":
+                    return []
 
             # Geen resultaten
             return []
