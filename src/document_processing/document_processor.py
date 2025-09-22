@@ -373,31 +373,45 @@ class DocumentProcessor:
         if not text:
             return []
 
-        # Gebruik bestaande juridische lookup als beschikbaar
+        # Probeer domeinpatronen; val terug op regex wanneer niets gevonden of bij fouten
         try:
-            # Legacy import replaced with modern service
-            # from web_lookup.juridische_lookup import zoek_wetsartikelstructuur  # DEPRECATED
-            from services.modern_web_lookup_service import ModernWebLookupService
+            from domain.juridisch.patronen import JuridischePatronen
 
-            # Use modern service for juridical lookups
-            async def zoek_wetsartikelstructuur(artikel_ref):
-                """Modern replacement for juridical lookup"""
-                service = ModernWebLookupService()
-                from services.interfaces import LookupRequest
+            gevonden = JuridischePatronen.zoek_alle_verwijzingen(text)
 
-                request = LookupRequest(term=artikel_ref, max_results=1)
-                results = await service.lookup(request)
-                # Return first juridical result if found
-                for result in results:
-                    if result.source.is_juridical:
-                        return result
-                return None
+            # Converteer naar leesbare weergave
+            refs: list[str] = []
+            for v in (gevonden or []):
+                try:
+                    parts: list[str] = []
+                    if getattr(v, "wet", None):
+                        parts.append(str(v.wet))
+                    if getattr(v, "boek", None):
+                        parts.append(f"Boek {v.boek}")
+                    if getattr(v, "artikel", None):
+                        parts.append(f"artikel {v.artikel}")
+                    if getattr(v, "lid", None):
+                        parts.append(f"lid {v.lid}")
+                    if getattr(v, "sub", None):
+                        parts.append(f"onder {v.sub}")
+                    label = ", ".join(parts) if parts else str(getattr(v, "herkend_via", "")).strip()
+                    if label:
+                        refs.append(label)
+                except Exception:
+                    # Veilig overslaan van onverwachte vormen
+                    continue
 
-            verwijzingen = zoek_wetsartikelstructuur(text, log_jsonl=False)
-            return [ref.get("match", "") for ref in verwijzingen if ref.get("match")]
+            # Dedupliceer en beperk aantal
+            refs = list(dict.fromkeys(refs))[:10]
+            if refs:
+                return refs
 
-        except ImportError:
-            # Fallback: simpele regex patterns voor juridische verwijzingen
+        except Exception:
+            # Domeinmodule niet beschikbaar of faalde; ga door naar regex fallback
+            pass
+
+        # Fallback: simpele regex patterns voor juridische verwijzingen
+        try:
             import re
 
             patterns = [
@@ -405,17 +419,23 @@ class DocumentProcessor:
                 r"art\.\s+\d+[a-z]*",
                 r"lid\s+\d+",
                 r"wetboek\s+van\s+\w+",
-                r"wet\s+\w+",
+                r"wet\s+[\w\-]+",
                 r"besluit\s+\w+",
                 r"verordening\s+\w+",
             ]
 
-            references = []
+            references: list[str] = []
             for pattern in patterns:
                 matches = re.findall(pattern, text, re.IGNORECASE)
                 references.extend(matches)
 
-            return list(set(references))[:10]  # Beperk en dedupliceer
+            # Dedupliceer, normaliseer en limiteren
+            cleaned = [ref.strip() for ref in references if ref and ref.strip()]
+            unique_cleaned = list(dict.fromkeys(cleaned))[:10]
+            return unique_cleaned
+        except Exception:
+            # Als zelfs fallback faalt, geef leeg resultaat terug
+            return []
 
     def _generate_context_hints(
         self, text: str, keywords: list[str], concepts: list[str]

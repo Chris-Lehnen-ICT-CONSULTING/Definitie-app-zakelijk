@@ -113,7 +113,10 @@ docs/archief_backup_*/
 archive/
 archived/
 archief/
+# Allow curated handovers under docs/archief/handovers
 docs/archief/
+!docs/archief/handovers/
+!docs/archief/handovers/**
 qa.qaLocation/
 
 # 💚 Upload folders
