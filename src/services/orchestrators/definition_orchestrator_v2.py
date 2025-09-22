@@ -372,6 +372,37 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
                 )
 
             # =====================================
+            # PHASE 2.9: Merge document snippets into provenance sources (EPIC-018)
+            # =====================================
+            try:
+                docs_ctx = ensure_dict(safe_dict_get(context, "documents", {})) if context else {}
+                doc_snippets = ensure_list(safe_dict_get(docs_ctx, "snippets", []))
+                if doc_snippets:
+                    normalized_docs = []
+                    for s in doc_snippets:
+                        try:
+                            normalized_docs.append(
+                                {
+                                    "provider": "documents",
+                                    "title": ensure_string(safe_dict_get(s, "title") or safe_dict_get(s, "filename") or "document"),
+                                    "url": safe_dict_get(s, "url"),
+                                    "snippet": ensure_string(safe_dict_get(s, "snippet", "")),
+                                    "score": float(safe_dict_get(s, "score", 0.0) or 0.0),
+                                    "used_in_prompt": True,
+                                    "doc_id": safe_dict_get(s, "doc_id"),
+                                    "source_label": "Geüpload document",
+                                }
+                            )
+                        except Exception:
+                            continue
+                    if normalized_docs:
+                        provenance_sources = normalized_docs + (provenance_sources or [])
+                        context = context or {}
+                        context["documents"] = {"snippets": normalized_docs}
+            except Exception:
+                pass
+
+            # =====================================
             # PHASE 3: Intelligent Prompt Generation (with ontological category fix)
             # =====================================
             prompt_result = await self.prompt_service.build_generation_prompt(

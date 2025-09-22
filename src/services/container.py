@@ -247,6 +247,8 @@ class ServiceContainer:
                 validation_service=modular_validation_service,
                 cleaning_service=cleaning_service,
             )
+            # Expose validation orchestrator separately for services that need direct validation
+            self._instances["validation_orchestrator"] = validation_orchestrator
 
             self._instances["orchestrator"] = DefinitionOrchestratorV2(
                 # Required V2 services
@@ -268,6 +270,22 @@ class ServiceContainer:
             logger.info("DefinitionOrchestratorV2 instance created")
 
         return self._instances["orchestrator"]
+
+    def validation_orchestrator(self):
+        """
+        Get of create de ValidationOrchestratorV2 instance.
+
+        Returns:
+            Singleton instance van ValidationOrchestratorV2
+        """
+        # If already created (via orchestrator setup), return it
+        if "validation_orchestrator" in self._instances:
+            return self._instances["validation_orchestrator"]
+        # Ensure orchestrator path has initialized validation orchestrator
+        _ = self.orchestrator()
+        if "validation_orchestrator" in self._instances:
+            return self._instances["validation_orchestrator"]
+        raise RuntimeError("Validation orchestrator not available")
 
     def web_lookup(self) -> WebLookupServiceInterface:
         """
@@ -429,6 +447,24 @@ class ServiceContainer:
             logger.info("ExportService instance aangemaakt")
         return self._instances["export_service"]
 
+    def import_service(self):
+        """
+        Get of create DefinitionImportService instance (Single Import MVP).
+
+        Returns:
+            Singleton instance van DefinitionImportService
+        """
+        if "import_service" not in self._instances:
+            from services.definition_import_service import DefinitionImportService
+
+            repo = self.repository()
+            validator = self.validation_orchestrator()
+            self._instances["import_service"] = DefinitionImportService(
+                repository=repo, validation_orchestrator=validator
+            )
+            logger.info("DefinitionImportService instance aangemaakt (MVP)")
+        return self._instances["import_service"]
+
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
@@ -459,6 +495,7 @@ class ServiceContainer:
             "cleaning_service": self.cleaning_service,
             "gate_policy": self.gate_policy,
             "definition_workflow_service": self.definition_workflow_service,
+            "import_service": self.import_service,
         }
 
         if name in service_map:

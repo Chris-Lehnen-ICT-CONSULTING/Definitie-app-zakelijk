@@ -3,6 +3,10 @@ Service Factory met Feature Flags.
 
 Dit module biedt de integratie tussen de nieuwe services en de legacy code,
 met feature flags voor geleidelijke migratie.
+
+Legacy validator removed (US-043):
+- Er is geen legacy validatorpad meer; validatie loopt via V2 (ValidationOrchestratorV2/ModularValidationService).
+- Tests controleren op afwezigheid van `container.validator()` en verwachten deze marker.
 """
 
 import logging
@@ -483,6 +487,9 @@ class ServiceAdapter:
         # Collect options (feature flags etc.)
         opts = ensure_dict(safe_dict_get(kwargs, "options", {}))
 
+        # Document context (EPIC-018): compacte samenvatting door UI aangeleverd
+        doc_context = ensure_string(safe_dict_get(kwargs, "document_context", "")).strip()
+
         request = GenerationRequest(
             id=str(uuid.uuid4()),  # Generate unique ID for tracking
             begrip=begrip,
@@ -499,10 +506,26 @@ class ServiceAdapter:
             # Populate legacy string context for compatibility with tests/UI
             context=context_text,
             options=opts or None,
+            document_context=(doc_context or None),
         )
 
+        # Compose additional context (documents/web lookup augmentation, etc.)
+        extra_context: dict[str, Any] = {}
+        # EPIC-018: document snippets meegeven aan orchestrator context
+        doc_snippets_kw = safe_dict_get(kwargs, "document_snippets", None)
+        if doc_snippets_kw:
+            try:
+                # Ensure list of dicts
+                from utils.type_helpers import ensure_list, ensure_dict
+
+                snippets_list = [ensure_dict(x) for x in ensure_list(doc_snippets_kw)]
+                if snippets_list:
+                    extra_context["documents"] = {"snippets": snippets_list}
+            except Exception:
+                pass
+
         # Handle V2 orchestrator async call properly
-        response = await self.orchestrator.create_definition(request)
+        response = await self.orchestrator.create_definition(request, context=extra_context or None)
 
         # Early return for failure case
         if not response.success or not response.definition:

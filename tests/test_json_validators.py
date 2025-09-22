@@ -17,7 +17,7 @@ def test_load_all_validators():
     assert len(regel_ids) >= 45, f"Verwacht minstens 45 validators, gevonden: {len(regel_ids)}"
 
     # Check dat belangrijke validators aanwezig zijn
-    expected = ["CON-01", "ESS-01", "STR-01", "INT-01", "SAM-01", "VER-01", "ARAI01"]
+    expected = ["CON-01", "ESS-01", "STR-01", "INT-01", "SAM-01", "VER-01", "ARAI-01"]
     for regel_id in expected:
         assert regel_id in regel_ids, f"Validator {regel_id} ontbreekt"
 
