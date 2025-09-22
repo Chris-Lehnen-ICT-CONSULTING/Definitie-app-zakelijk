@@ -62,6 +62,15 @@ class DefinitionGeneratorTab:
         check_result = SessionStateManager.get_value("last_check_result")
         generation_result = SessionStateManager.get_value("last_generation_result")
 
+        # Vroegtijdige guard: minsténs 1 context vereist (UI‑melding)
+        try:
+            if not self._has_min_one_context():
+                st.warning(
+                    "Minstens één context is vereist (organisatorisch of juridisch of wettelijk) om te genereren of op te slaan."
+                )
+        except Exception:
+            pass
+
         if check_result:
             self._render_duplicate_check_results(check_result)
 
@@ -138,7 +147,14 @@ class DefinitionGeneratorTab:
                     self._edit_existing_definition(definitie)
 
             with col3:
-                if st.button("🔄 Genereer Nieuw", key=f"new_{definitie.id}"):
+                can_generate = self._has_min_one_context()
+                if not can_generate:
+                    st.caption("Minstens één context vereist om nieuw te genereren.")
+                if st.button(
+                    "🔄 Genereer Nieuw",
+                    key=f"new_{definitie.id}",
+                    disabled=not can_generate,
+                ):
                     # Force new generation
                     options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
                     options["force_generate"] = True
@@ -199,6 +215,34 @@ class DefinitionGeneratorTab:
         if hasattr(def_record, "get_wettelijke_basis_list"):
             wet_list = def_record.get_wettelijke_basis_list() or []
         return ", ".join(org_list), ", ".join(jur_list), ", ".join(wet_list)
+
+    # ===== Context guards (minstens 1 vereist) =====
+    def _get_global_context_lists(self) -> dict[str, list[str]]:
+        """Lees globale UI‑context en normaliseer naar lijsten."""
+        try:
+            ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
+        except Exception:
+            ctx = {}
+        org_list = ctx.get("organisatorische_context", []) or []
+        jur_list = ctx.get("juridische_context", []) or []
+        wet_list = ctx.get("wettelijke_basis", []) or []
+        return {
+            "organisatorische_context": list(org_list),
+            "juridische_context": list(jur_list),
+            "wettelijke_basis": list(wet_list),
+        }
+
+    def _has_min_one_context(self) -> bool:
+        """True wanneer minstens één van de drie contextlijsten een waarde bevat."""
+        try:
+            ctx = self._get_global_context_lists()
+            return bool(
+                ctx.get("organisatorische_context")
+                or ctx.get("juridische_context")
+                or ctx.get("wettelijke_basis")
+            )
+        except Exception:
+            return False
 
     def _render_generation_results(self, generation_result):
         """Render resultaten van definitie generatie."""
@@ -671,7 +715,10 @@ class DefinitionGeneratorTab:
                     definitie_text = agent_result.get("definitie_gecorrigeerd") or agent_result.get("definitie", "")
                     if definitie_text and not acceptable:
                         st.warning("❗ Deze generatie voldoet niet aan de kwaliteitsdrempel.")
-                        if st.button("💾 Bewaar als concept en bewerk"):
+                        can_save = self._has_min_one_context()
+                        if not can_save:
+                            st.caption("Minstens één context vereist om als concept op te slaan.")
+                        if st.button("💾 Bewaar als concept en bewerk", disabled=not can_save):
                             from utils.container_manager import get_cached_container
                             from services.interfaces import Definition
                             container = get_cached_container()
@@ -684,6 +731,13 @@ class DefinitionGeneratorTab:
                             jur_list = ctx.get("juridische_context", []) or []
                             wet_list = ctx.get("wettelijke_basis", []) or []
                             categorie = ensure_string(safe_dict_get(generation_result, "determined_category", "")) or None
+
+                            # Defensieve guard (naast disabled UI)
+                            if not (org_list or jur_list or wet_list):
+                                st.error(
+                                    "Kan niet opslaan: voeg minimaal één context toe (organisatorisch of juridisch of wettelijk)."
+                                )
+                                return
 
                             new_def = Definition(
                                 begrip=begrip_val,
@@ -1810,6 +1864,33 @@ class DefinitionGeneratorTab:
             context_dict = self._extract_context_from_generation_result(
                 generation_result
             )
+
+            # Combine met globale UI‑context en voer guard uit
+            try:
+                ui_ctx = self._get_global_context_lists()
+                org_combined = list(ui_ctx.get("organisatorische_context", [])) or list(
+                    context_dict.get("organisatorisch", [])
+                )
+                jur_combined = list(ui_ctx.get("juridische_context", [])) or list(
+                    context_dict.get("juridisch", [])
+                )
+                wet_combined = list(ui_ctx.get("wettelijke_basis", [])) or list(
+                    context_dict.get("wettelijk", [])
+                )
+                if not (org_combined or jur_combined or wet_combined):
+                    progress_bar.empty()
+                    status_text.empty()
+                    st.error(
+                        "Context vereist: voeg minimaal één context toe (organisatorisch of juridisch of wettelijk) voordat je regenereert."
+                    )
+                    return
+            except Exception:
+                progress_bar.empty()
+                status_text.empty()
+                st.error(
+                    "Kon context niet bepalen. Voeg minimaal één context toe en probeer opnieuw."
+                )
+                return
 
             # Step 4: Generate new definition
             status_text.text("🤖 Generating new definition...")

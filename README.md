@@ -29,6 +29,12 @@ make validation-status
 pytest -q
 ```
 
+### 📄 Documenten als context (upload)
+- Voor tekstextractie uit DOCX/PDF installeer lokaal: `pip install python-docx PyPDF2`.
+- Niet ondersteund: legacy `.doc` en OCR voor gescande PDF’s.
+- Upload documenten via de Generator‑tab (expander “📄 Document Upload voor Context Verrijking”), selecteer ze, en genereer: de prompt gebruikt de documentcontext (UI toont indicator).
+- Troubleshooting: zie docs/technisch/document_processing.md en docs/handleidingen/ontwikkelaars/document-context-gebruik.md.
+
 ### 🔒 Codekwaliteit en Backlog‑discipline
 - Geen TODO/FIXME/XXX/TBD/HACK/@todo/@fixme in code — alle werk loopt via backlog.
 - Zie CONTRIBUTING.md voor richtlijnen. CI blokkeert PR's met TODO‑achtige comments.
