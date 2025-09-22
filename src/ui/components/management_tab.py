@@ -202,10 +202,21 @@ class ManagementTab:
             )
 
         with col2:
+            # Lokale statuslabels (NL)
+            _status_labels = {
+                "imported": "Geïmporteerd",
+                "draft": "Concept",
+                "review": "In review",
+                "established": "Vastgesteld",
+                "archived": "Gearchiveerd",
+                "Alle": "Alle",
+            }
+            status_options = ["Alle"] + [s.value for s in DefinitieStatus]
             status_filter = st.selectbox(
                 "📊 Status Filter",
-                ["Alle"] + [s.value for s in DefinitieStatus],
+                status_options,
                 key="mgmt_status_filter",
+                format_func=lambda v: _status_labels.get(v, v),
             )
 
         with col3:
@@ -344,10 +355,20 @@ class ManagementTab:
             col1, col2 = st.columns(2)
 
             with col1:
+                _status_labels = {
+                    "imported": "Geïmporteerd",
+                    "draft": "Concept",
+                    "review": "In review",
+                    "established": "Vastgesteld",
+                    "archived": "Gearchiveerd",
+                    "Alle": "Alle",
+                }
+                export_status_options = ["Alle"] + [s.value for s in DefinitieStatus]
                 export_status = st.selectbox(
                     "📊 Status Filter",
-                    ["Alle"] + [s.value for s in DefinitieStatus],
+                    export_status_options,
                     key="export_status_filter",
+                    format_func=lambda v: _status_labels.get(v, v),
                 )
 
                 export_context = st.text_input(
