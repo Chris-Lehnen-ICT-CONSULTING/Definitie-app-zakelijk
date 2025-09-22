@@ -244,6 +244,15 @@ class DefinitionEditTab:
                 disabled=disabled,
                 help="Selecteer één of meer organisaties; kies Anders... voor eigen waarden (komma‑gescheiden)",
             )
+            # Afkortingen-uitleg uit config (indien aanwezig)
+            try:
+                abbrev = getattr(ui_cfg, 'afkortingen', {}) or {}
+                if abbrev:
+                    with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
+                        for ak in sorted(abbrev.keys()):
+                            st.markdown(f"- **{ak}** — {abbrev[ak]}")
+            except Exception:
+                pass
             org_custom_values = []
             if "Anders..." in org_selected:
                 org_custom_raw = st.text_input(
