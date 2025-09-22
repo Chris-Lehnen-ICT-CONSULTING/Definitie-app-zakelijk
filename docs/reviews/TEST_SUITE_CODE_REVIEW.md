@@ -1,4 +1,5 @@
 # Test Suite Code Review
+<!-- moved from project root to canonical docs location -->
 
 ## Code Quality Score: 4/10
 

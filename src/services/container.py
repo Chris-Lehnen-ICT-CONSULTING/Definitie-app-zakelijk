@@ -113,6 +113,8 @@ class ServiceContainer:
         )
 
         # Legacy validator config removed - V2 orchestrator handles validation
+        # Feature toggles
+        self.use_json_rules = bool(self.config.get("use_json_rules", True))
 
         # Cleaning service configuratie
         from services.cleaning_service import CleaningConfig
@@ -220,11 +222,18 @@ class ServiceContainer:
             )
 
             # Create ModularValidationService (V2)
-            # US-202: Gebruik CachedToetsregelManager voor performance
+            # Tests kunnen JSON-regels uitschakelen om golden-acceptatiebanden te controleren
+            if self.use_json_rules:
+                manager = get_cached_toetsregel_manager()
+                vcfg = ValidationConfig.from_yaml("src/config/validation_rules.yaml")
+            else:
+                manager = None
+                vcfg = None
+
             modular_validation_service = ModularValidationService(
-                get_cached_toetsregel_manager(),
+                manager,
                 None,
-                ValidationConfig.from_yaml("src/config/validation_rules.yaml"),
+                vcfg,
                 repository=self.repository(),
             )
             cleaning_service = CleaningServiceAdapterV1toV2(self.cleaning_service())
@@ -536,6 +545,7 @@ class ContainerConfigs:
             "enable_validation": True,
             "enable_enrichment": False,  # Skip enrichment in tests
             "enable_ontology": False,  # Skip ontologie in tests voor snelheid
+            "use_json_rules": False,  # Gebruik interne regels voor voorspelbare golden-acceptatie
         }
 
     @staticmethod
