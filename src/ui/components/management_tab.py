@@ -518,6 +518,7 @@ class ManagementTab:
                                 elif fname.endswith(".csv"):
                                     try:
                                         import pandas as _pd
+                                        import math as _math
 
                                         df = _pd.read_csv(
                                             _io.BytesIO(uploaded_single.getvalue()),
@@ -528,12 +529,21 @@ class ManagementTab:
                                         else:
                                             row = df.iloc[0].to_dict()
                                             # Verwacht canonieke kolommen; context als komma-gescheiden
+                                            def _is_empty_cell(v) -> bool:
+                                                try:
+                                                    if v is None:
+                                                        return True
+                                                    if isinstance(v, float) and _math.isnan(v):
+                                                        return True
+                                                    s = str(v).strip().lower()
+                                                    return s in ("", "nan", "none", "null")
+                                                except Exception:
+                                                    return False
+
                                             def _split(v):
-                                                if v is None or str(v).strip() == "":
+                                                if _is_empty_cell(v):
                                                     return []
-                                                return [
-                                                    s.strip() for s in str(v).split(",") if s.strip()
-                                                ]
+                                                return [s.strip() for s in str(v).split(",") if s.strip() and s.strip().lower() not in ("nan", "none", "null")]
 
                                             payload = {
                                                 "begrip": row.get("begrip", ""),
@@ -673,6 +683,7 @@ class ManagementTab:
                     ):
                         import io as _io
                         import pandas as _pd
+                        import math as _math
                         from ui.helpers.async_bridge import run_async
                         import json as _json
 
@@ -699,10 +710,21 @@ class ManagementTab:
                             skip_count = 0
                             fail_count = 0
 
+                            def _is_empty_cell(v) -> bool:
+                                try:
+                                    if v is None:
+                                        return True
+                                    if isinstance(v, float) and _math.isnan(v):
+                                        return True
+                                    s = str(v).strip().lower()
+                                    return s in ("", "nan", "none", "null")
+                                except Exception:
+                                    return False
+
                             def _split(v):
-                                if v is None or str(v).strip() == "":
+                                if _is_empty_cell(v):
                                     return []
-                                return [s.strip() for s in str(v).split(",") if s.strip()]
+                                return [s.strip() for s in str(v).split(",") if s.strip() and s.strip().lower() not in ("nan", "none", "null")]
 
                             for idx, row in df.iterrows():
                                 p = (len(results) + 1) / len(df)
