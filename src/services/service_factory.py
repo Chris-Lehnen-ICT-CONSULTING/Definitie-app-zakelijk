@@ -515,9 +515,7 @@ class ServiceAdapter:
         doc_snippets_kw = safe_dict_get(kwargs, "document_snippets", None)
         if doc_snippets_kw:
             try:
-                # Ensure list of dicts
-                from utils.type_helpers import ensure_list, ensure_dict
-
+                # Ensure list of dicts (gebruik module-level helpers)
                 snippets_list = [ensure_dict(x) for x in ensure_list(doc_snippets_kw)]
                 if snippets_list:
                     extra_context["documents"] = {"snippets": snippets_list}
