@@ -66,5 +66,30 @@ def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
     except Exception:
         pass
 
-    return {}
+    # 4) Database fallback via repository (Expert/Edit)
+    try:
+        if definition is not None and hasattr(definition, "id") and int(getattr(definition, "id")) > 0:
+            from database.definitie_repository import get_definitie_repository
 
+            repo = get_definitie_repository()
+            vdb = repo.get_voorbeelden_by_type(int(definition.id))
+            if isinstance(vdb, dict) and any(vdb.values()):
+                # Canonicalize keys best-effort (repo gebruikt al canonieke namen)
+                canon = {}
+                key_map = {
+                    "voorbeeldzinnen": "voorbeeldzinnen",
+                    "praktijkvoorbeelden": "praktijkvoorbeelden",
+                    "tegenvoorbeelden": "tegenvoorbeelden",
+                    "synoniemen": "synoniemen",
+                    "antoniemen": "antoniemen",
+                    "toelichting": "toelichting",
+                }
+                for k, v in vdb.items():
+                    tgt = key_map.get(k, k)
+                    canon[tgt] = v
+                SessionStateManager.set_value(state_key, canon)
+                return canon
+    except Exception:
+        pass
+
+    return {}
