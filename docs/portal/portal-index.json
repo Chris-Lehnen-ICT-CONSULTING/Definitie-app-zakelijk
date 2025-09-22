@@ -2710,6 +2710,42 @@
       "linked_reqs": null
     },
     {
+      "id": "US-195",
+      "type": "US",
+      "title": "Duplicate‑gate bij genereren definitie met 3‑contextkeuze",
+      "path": "../backlog/EPIC-004/US-195/US-195.md",
+      "url": "../backlog/EPIC-004/US-195/US-195.md",
+      "status": "IN_UITVOERING",
+      "prioriteit": "hoog",
+      "owner": "development",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-195.md",
+      "_refs": {
+        "us": [
+          "US-195"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-195/US-195.html",
+      "linked_reqs": null
+    },
+    {
       "id": "US-110",
       "type": "US",
       "title": "Persistente bronverantwoording (web sources) en generatie‑metadata voor definities",
@@ -30962,7 +30998,7 @@
     "counts": {
       "DOC": 463,
       "EPIC": 16,
-      "US": 200,
+      "US": 201,
       "BUG": 14,
       "REQ": 99,
       "ARCH": 24,
@@ -30970,7 +31006,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T09:33:41Z"
+    "generated_at": "2025-09-22T09:39:47Z"
   },
   "sources": [
     "docs"
