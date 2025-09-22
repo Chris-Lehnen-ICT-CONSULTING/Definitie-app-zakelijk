@@ -27,6 +27,8 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
         r"\b(in de context van|binnen de context|juridische context)\b",
         r"\b(DJI|OM|KMAR|Openbaar Ministerie)\b",
         r"\bvolgens het Wetboek van\b",
+        r"\bin het strafrecht\b",
+        r"\bin de strafrechtelijke context\b",
     ],
     "ESS-01": [
         r"\b(om te|met als doel|bedoeld om|teneinde|zodat)\b",
@@ -44,6 +46,11 @@ _ADDITIONAL_PATTERNS: dict[str, list[str]] = {
     ],
     "STR-02": [
         r"\b(proces|activiteit|handeling|zaak|ding)\b(?!\s+\w+)",  # Vage termen zonder specificatie
+    ],
+    # SAM – samenhang/kwalificaties
+    "SAM-01": [
+        r"\binstitutioneel\b",
+        r"\bfunctioneel\b",
     ],
 }
 
