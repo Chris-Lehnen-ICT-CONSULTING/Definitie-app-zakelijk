@@ -910,6 +910,15 @@ class TabbedInterface:
                 doc_summary = None
                 if document_context and document_context.get("document_count", 0) > 0:
                     doc_summary = self._build_document_context_summary(document_context)
+                # EPIC-018/US-229: bouw snippets op basis van begrip in geselecteerde documenten
+                doc_snippets = []
+                if selected_doc_ids:
+                    doc_snippets = self._build_document_snippets(
+                        begrip=begrip,
+                        selected_doc_ids=selected_doc_ids,
+                        max_snippets_total=2,
+                        snippet_window=280,
+                    )
 
                 service_result = run_async(
                     self.definition_service.generate_definition(
@@ -929,6 +938,7 @@ class TabbedInterface:
                         },
                         # EPIC-018: doorgeven aan service
                         document_context=doc_summary,
+                        document_snippets=doc_snippets,
                         # Pass regeneration context for GVI feedback loop
                         regeneration_context=regeneration_context,
                     ),
@@ -1164,6 +1174,59 @@ class TabbedInterface:
             return " | ".join(parts)
         except Exception:
             return ""
+
+    def _build_document_snippets(
+        self,
+        begrip: str,
+        selected_doc_ids: list[str],
+        max_snippets_total: int = 2,
+        snippet_window: int = 280,
+    ) -> list[dict[str, Any]]:
+        """Zoek op begrip in geselecteerde documenten en bouw korte snippets.
+
+        - Maakt per document maximaal 1 snippet (eerste match)
+        - Beperkt totaal aantal snippets (default 2)
+        - Snippet wordt gesanitized in de prompt‑service; hier beperken we lengte
+        """
+        try:
+            if not begrip or not selected_doc_ids:
+                return []
+
+            processor = get_document_processor()
+            begrip_lower = str(begrip).strip().lower()
+
+            snippets: list[dict[str, Any]] = []
+            for doc_id in selected_doc_ids:
+                if len(snippets) >= max_snippets_total:
+                    break
+                doc = processor.get_document_by_id(doc_id)
+                if not doc or not getattr(doc, "extracted_text", None):
+                    continue
+
+                text = doc.extracted_text
+                haystack = text.lower()
+                idx = haystack.find(begrip_lower)
+                if idx == -1:
+                    continue  # geen match in dit document
+
+                start = max(0, idx - snippet_window // 2)
+                end = min(len(text), idx + len(begrip) + snippet_window // 2)
+                raw = text[start:end].replace("\n", " ").strip()
+
+                snippet = {
+                    "provider": "documents",
+                    "title": getattr(doc, "filename", "document"),
+                    "filename": getattr(doc, "filename", None),
+                    "doc_id": getattr(doc, "id", None),
+                    "snippet": raw,
+                    "score": 1.0,  # simpele score voor nu
+                    "used_in_prompt": True,  # zal in prompt worden opgenomen
+                }
+                snippets.append(snippet)
+
+            return snippets[:max_snippets_total]
+        except Exception:
+            return []
 
     def _handle_duplicate_check(self, begrip: str, context_data: dict[str, Any]):
         """Handle duplicate check vanaf hoofdniveau."""
