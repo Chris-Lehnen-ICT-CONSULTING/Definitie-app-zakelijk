@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dedup ‘BELANGRIJKE VEREISTEN’ vs ‘DEFINITIE KWALITEIT’</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-238</p>
+<p>titel: Dedup ‘BELANGRIJKE VEREISTEN’ vs ‘DEFINITIE KWALITEIT’</p>
+<p>canonical: true</p>
+<p>status: proposed</p>
+<p>priority: P0</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@v2</p>
+<p>last_verified: 2025-09-22</p>
+<p>links:</p>
+<ul>
+<li> - EPIC-019</li>
+<p>---</p>
+</ul>
+
+<h1>US-019-01 — Deduplicatie basisvereisten</h1>
+
+<p>Als lezer van de prompt wil ik elke basisrichtlijn precies één keer zien, zodat de instructies compact, eenduidig en zonder redundantie zijn.</p>
+
+<h2>As‑Is</h2>
+<ul>
+<li>ExpertiseModule schrijft een sectie “BELANGRIJKE VEREISTEN”.</li>
+<li>OutputSpecificationModule schrijft “📝 DEFINITIE KWALITEIT”.</li>
+<li>Inhoud overlapt grotendeels → tokenverspilling.</li>
+</ul>
+
+<p>Bronnen:</p>
+<ul>
+<li>src/services/prompts/modules/expertise_module.py:187</li>
+<li>src/services/prompts/modules/output_specification_module.py:139</li>
+</ul>
+
+<h2>To‑Be</h2>
+<ul>
+<li>Slechts één generieke kwaliteitssectie in de prompt (OutputSpecification leidend).</li>
+<li>ExpertiseModule bevat geen duplicerende kwaliteitslijst (optioneel: behoud korte taak/rol).</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>AC1: In een gegenereerde prompt komt slechts één generieke kwaliteitssectie voor.</li>
+<li>AC2: De resterende kwaliteitssectie bevat alle noodzakelijke bullets (geen inhoudsverlies).</li>
+<li>AC3: Tokenvergelijking toont reductie t.o.v. huidige prompt (≥ 3–5% absolute winst).</li>
+</ul>
+
+<h2>Implementatie (richting)</h2>
+<p>1) ExpertiseModule: verwijder of gate de methode <code>_build_basic_requirements()</code> (config flag)</p>
+<ul>
+<li>  - src/services/prompts/modules/expertise_module.py:187</li>
+<li>  - Voeg ENV ‘PROMPT_DEDUP_BASIC_REQ=true’ of gebruik bestaande compact flags.</li>
+<p>2) OutputSpecificationModule blijft bron voor generieke kwaliteitsrichtlijnen</p>
+<li>  - src/services/prompts/modules/output_specification_module.py:139, 167</li>
+<p>3) ModularPromptAdapter: map flags → module configs (examples off, compact)</p>
+<li>  - src/services/prompts/modular_prompt_adapter.py:139</li>
+</ul>
+
+<h2>Testplan</h2>
+<ul>
+<li>Unit: render prompt voor begrip ‘semantiek’ en assert dat “BELANGRIJKE VEREISTEN” niet voorkomt, “📝 DEFINITIE KWALITEIT” wel.</li>
+<li>Snapshot: diff op promptstring vóór/na wijziging → geen verlies van plicht‑bullets.</li>
+<li>Tokenmeting: verslag met oude vs nieuwe tokencount (min 5 cases).</li>
+</ul>
+
+<h2>Risks / Mitigations</h2>
+<ul>
+<li>Risico: verlies van een specifieke bullet uit ExpertiseModule</li>
+<li> - Mitigatie: expliciet vergelijken en zo nodig één bullet toevoegen in OutputSpecification.</li>
+</ul>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Prompt Compact & Dedup (Token Efficiency)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-019</p>
+<p>titel: Prompt Compact & Dedup (Token Efficiency)</p>
+<p>canonical: true</p>
+<p>status: proposed</p>
+<p>priority: HIGH</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@v2</p>
+<p>last_verified: 2025-09-22</p>
+<p>tags:</p>
+<ul>
+<li> - prompts</li>
+<li> - performance</li>
+<li> - token-efficiency</li>
+<li> - architecture</li>
+<p>depends_on:</p>
+<li> - EPIC-010</li>
+<li> - EPIC-018</li>
+<li> - EPIC-002</li>
+<li> - EPIC-020</li>
+<p>---</p>
+</ul>
+
+<h1>EPIC-019 — Prompt Compact & Dedup (Token Efficiency)</h1>
+
+<p>Doel: 60–80% reductie van prompttokens zonder kwaliteitsverlies door systematische deduplicatie, compacte instructies en context‑/categorie‑afhankelijke selectie van regels en voorbeelden.</p>
+
+<h2>Probleemschets</h2>
+<ul>
+<li>Duplicatie tussen secties (BELANGRIJKE VEREISTEN vs. DEFINITIE KWALITEIT; dubbele bronsecties).</li>
+<li>Overmaat aan voorbeelden in Grammar/Templates/Toetsregels.</li>
+<li>Regels worden altijd volledig getoond i.p.v. relevantie‑gefilterd (Top‑N).</li>
+<li>Contextwaarden bevatten duplicaten of niet‑genormaliseerde input (bv. 'DJI' en '["DJI"]').</li>
+<li>Metrics/validatiematrix/metadata‑blokken in prompt i.p.v. UI.</li>
+<li>Web/doc‑snippets overschrijden budget; dubbele bronsecties bij augmentation.</li>
+</ul>
+
+<h2>Scope</h2>
+<p>In scope:</p>
+<ul>
+<li>Promptinhoud en volgorde; compact‑mode/flags; filtering en budgetten.</li>
+<li>Module‑specifieke aanpassingen (Expertise/OutputSpec/Grammar/Context/ESS‑02/Templates/Regelmodules/ErrorPrevention/Metrics/DefinitionTask).</li>
+<li>Contextnormalisatie (PromptServiceV2/ContextManager).</li>
+</ul>
+
+<p>Out of scope:</p>
+<ul>
+<li>Validatorlogica (ESS‑02 validatieregel valt onder EPIC‑002; hier alleen promptweergave).</li>
+<li>Nieuwe UI‑features (behalve flags/instellingen doorgegeven als config/ENV).</li>
+</ul>
+
+<h2>KPI’s / DoD</h2>
+<ul>
+<li>Tokenreductie ≥ 60% t.o.v. huidige voorbeeldprompt.</li>
+<li>Geen gedupliceerde secties of metadata in de prompt.</li>
+<li>Voorbeelden: standaard uit of max 1 per sectie (configureerbaar).</li>
+<li>Top‑N regels per categorie; N centraal instelbaar.</li>
+<li>Snippetbudgetten gehandhaafd; geen dubbele bronsecties.</li>
+</ul>
+
+<h2>User Stories (prioriteit)</h2>
+<p>P0 (Hoog):</p>
+<ul>
+<li>US‑019‑01 Dedup basisvereisten vs. definitiekwaliteit</li>
+<li>US‑019‑02 Eén bronsectie (geen duplicatie)</li>
+<li>US‑019‑03 Voorbeelden beperken/globale switch</li>
+<li>US‑019‑04 Relevantie‑filtering (Top‑N) per regelssectie</li>
+<li>US‑019‑05 Context normalisatie/deduplicatie</li>
+</ul>
+
+<p>P1 (Middel):</p>
+<ul>
+<li>US‑019‑06 ESS‑02 compact (met UI‑injectie)</li>
+<li>US‑019‑07 Metrics uit prompt (UI‑only)</li>
+<li>US‑019‑08 Metadata‑blok dedupliceren</li>
+<li>US‑019‑09 ErrorPrevention inkorten (top‑10, matrix UI‑only)</li>
+<li>US‑019‑10 Templates versimpelen (1 template + 2 patronen)</li>
+<li>US‑019‑11 Document‑snippets budget verlagen</li>
+<li>US‑019‑12 Web‑snippets budget verlagen en dedup met contextsectie</li>
+</ul>
+
+<p>P2 (Laag):</p>
+<ul>
+<li>US‑019‑13 Modulevolgorde optimaliseren</li>
+<li>US‑019‑14 Centraliseer compact‑mode flags (ENV/Config)</li>
+<li>US‑019‑15 Token‑budget guards en max‑prompt‑length tuning</li>
+</ul>
+
+<h2>Afhankelijkheden</h2>
+<ul>
+<li>EPIC‑010 (V2/gates; contextvelden en ontologie doorgeven): hergebruiken (US‑041/US‑049/US‑179).</li>
+<li>EPIC‑018 (documentcontext/snippets): budgetten afstemmen (US‑229).</li>
+<li>EPIC‑002 (Validator V2; ESS‑02): consistentie met validatieregel (US‑191).</li>
+<li>EPIC‑020 (Phoenix): sluit aan op algemene token optimalisatie.</li>
+</ul>
+
+<h2>Acceptatie</h2>
+<ul>
+<li>Review door Product Owner + Architectuur (compactheid/helderheid).</li>
+<li>Testlogs tonen tokenreductie en sectie‑deduplicatie op 5 representatieve gevallen.</li>
+</ul>
+
+<h2>Bijlagen</h2>
+<ul>
+<li>Broncode referenties in US documenten.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>

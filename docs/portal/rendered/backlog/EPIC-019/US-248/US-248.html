@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Document‑snippets — scherpere standaardbudgetten</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-248</p>
+<p>titel: Document‑snippets — scherpere standaardbudgetten</p>
+<p>canonical: true</p>
+<p>status: proposed</p>
+<p>priority: P1</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@v2</p>
+<p>last_verified: 2025-09-22</p>
+<p>links:</p>
+<ul>
+<li> - EPIC-019</li>
+<li> - EPIC-018</li>
+<p>---</p>
+</ul>
+
+<h1>US-019-11 — Document‑snippets budget</h1>
+
+<p>Als productteam wil ik lagere standaardbudgetten voor document‑snippets, zodat prompts korter worden zonder context te verliezen.</p>
+
+<h2>As‑Is</h2>
+<ul>
+<li>Defaults: max 16 snippets, max 800 chars (te ruim voor meeste prompts).</li>
+</ul>
+
+<p>Bronnen:</p>
+<ul>
+<li>src/services/prompts/prompt_service_v2.py:216–223 (_maybe_augment_with_document_snippets)</li>
+</ul>
+
+<h2>To‑Be</h2>
+<ul>
+<li>Defaults: max 3 snippets; totaal ~300–400 chars.</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>AC1: Standaard config beperkt snippets zichtbaar.</li>
+<li>AC2: UI kan hoger budget afdwingen, maar blijft binnen hard limit.</li>
+</ul>
+
+<h2>Implementatie (richting)</h2>
+<p>1) Verlaag standaardwaarden in <code>_maybe_augment_with_document_snippets</code> (env default waarden).</p>
+<p>2) Documenteer override via ENV.</p>
+
+<h2>Testplan</h2>
+<ul>
+<li>Snapshot: ≤3 snippets; ≤400 chars totaal.</li>
+</ul>
+
+<h2>Risks / Mitigations</h2>
+<ul>
+<li>Risico: te weinig context in lastige cases</li>
+<li> - Mitigatie: UI setting om tijdelijk op te schalen.</li>
+</ul>
+
+  </div>
+</body>
+</html>
