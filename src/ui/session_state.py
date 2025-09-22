@@ -49,6 +49,16 @@ class SessionStateManager:
         "ketenpartners": [],
         # External sources manager
         "external_source_manager": None,
+        # Edit tab state variables voor auto-load functionaliteit
+        "editing_definition_id": None,      # ID van definitie om te bewerken
+        "editing_definition": None,          # Definitie object
+        "edit_session": None,               # Edit sessie metadata
+        "edit_search_results": None,        # Zoekresultaten in edit tab
+        "last_auto_save": None,             # Auto-save timestamp
+        # Edit tab context behoud
+        "edit_organisatorische_context": None,  # Org context voor edit
+        "edit_juridische_context": None,        # Jur context voor edit
+        "edit_wettelijke_basis": None,          # Wet context voor edit
     }
 
     @staticmethod
