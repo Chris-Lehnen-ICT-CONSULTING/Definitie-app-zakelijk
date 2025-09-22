@@ -1039,7 +1039,7 @@ class ManagementTab:
                 st.write(f"**Definitie:** {definitie.definitie}")
 
                 # Quick actions
-                action_col1, action_col2, action_col3 = st.columns(3)
+                action_col1, action_col2, action_col3, action_col4 = st.columns(4)
 
                 with action_col1:
                     if st.button("✏️ Bewerk", key=f"edit_{definitie.id}"):
@@ -1051,8 +1051,12 @@ class ManagementTab:
                             self._approve_definition(definitie.id)
 
                 with action_col3:
-                    if st.button("🗑️ Verwijder", key=f"delete_{definitie.id}"):
-                        self._delete_definition(definitie.id)
+                    if st.button("❌ Archiveer", key=f"archive_{definitie.id}"):
+                        self._archive_definition(definitie.id)
+
+                with action_col4:
+                    if st.button("🗑️ Permanent verwijderen", key=f"hard_delete_{definitie.id}"):
+                        self._hard_delete_definition(definitie.id)
 
     def _reset_database(self):
         """Reset database (met bevestiging)."""
@@ -1360,20 +1364,59 @@ class ManagementTab:
         except Exception as e:
             st.error(f"❌ Goedkeuring mislukt: {e!s}")
 
-    def _delete_definition(self, definitie_id: int):
-        """Verwijder definitie (met bevestiging)."""
-        confirm_key = f"confirm_delete_{definitie_id}"
+    def _archive_definition(self, definitie_id: int):
+        """Archiveer (soft-delete) definitie met bevestiging."""
+        confirm_key = f"confirm_archive_{definitie_id}"
 
         if SessionStateManager.get_value(confirm_key, False):
             try:
-                # Implementeer delete functionaliteit
-                st.warning("🗑️ Delete functionaliteit nog niet geïmplementeerd")
+                ok = self.repository.change_status(
+                    definitie_id,
+                    DefinitieStatus.ARCHIVED,
+                    "ui_admin",
+                    "Gearchiveerd via Management UI",
+                )
+                if ok:
+                    st.success("✅ Gearchiveerd")
+                else:
+                    st.error("❌ Archiveren mislukt")
                 SessionStateManager.set_value(confirm_key, False)
-
+                st.rerun()
             except Exception as e:
-                st.error(f"❌ Verwijderen mislukt: {e!s}")
+                st.error(f"❌ Archiveren mislukt: {e!s}")
         else:
-            st.warning("⚠️ Definitie verwijderen? Klik nogmaals om te bevestigen.")
+            st.warning("⚠️ Archiveren? Klik nogmaals om te bevestigen.")
+            SessionStateManager.set_value(confirm_key, True)
+
+    def _hard_delete_definition(self, definitie_id: int):
+        """Verwijder definitie permanent (hard delete) met bevestiging."""
+        confirm_key = f"confirm_hard_delete_{definitie_id}"
+
+        if SessionStateManager.get_value(confirm_key, False):
+            try:
+                # Gebruik services repository voor hard delete
+                try:
+                    from services.container import get_container
+
+                    srepo = get_container().repository()
+                    ok = False
+                    if hasattr(srepo, "hard_delete"):
+                        ok = bool(srepo.hard_delete(definitie_id))
+                    else:
+                        ok = False
+                except Exception:
+                    ok = False
+
+                if ok:
+                    st.success("✅ Permanent verwijderd")
+                else:
+                    st.error("❌ Permanent verwijderen mislukt")
+                SessionStateManager.set_value(confirm_key, False)
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Hard delete mislukt: {e!s}")
+        else:
+            st.error("🚨 Permanent verwijderen? Dit kan niet ongedaan worden gemaakt. Klik nogmaals om te bevestigen.")
             SessionStateManager.set_value(confirm_key, True)
 
     def _render_developer_tools(self):
