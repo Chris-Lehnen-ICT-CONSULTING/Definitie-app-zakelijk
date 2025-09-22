@@ -505,8 +505,23 @@ class ServiceAdapter:
             document_context=(doc_context or None),
         )
 
+        # Compose additional context (documents/web lookup augmentation, etc.)
+        extra_context: dict[str, Any] = {}
+        # EPIC-018: document snippets meegeven aan orchestrator context
+        doc_snippets_kw = safe_dict_get(kwargs, "document_snippets", None)
+        if doc_snippets_kw:
+            try:
+                # Ensure list of dicts
+                from utils.type_helpers import ensure_list, ensure_dict
+
+                snippets_list = [ensure_dict(x) for x in ensure_list(doc_snippets_kw)]
+                if snippets_list:
+                    extra_context["documents"] = {"snippets": snippets_list}
+            except Exception:
+                pass
+
         # Handle V2 orchestrator async call properly
-        response = await self.orchestrator.create_definition(request)
+        response = await self.orchestrator.create_definition(request, context=extra_context or None)
 
         # Early return for failure case
         if not response.success or not response.definition:
