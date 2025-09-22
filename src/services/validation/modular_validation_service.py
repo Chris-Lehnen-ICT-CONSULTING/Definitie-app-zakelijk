@@ -410,6 +410,19 @@ class ModularValidationService:
                     "suggestion": "Gebruik formele, precieze taal in plaats van informele bewoordingen.",
                 }
             )
+            if not any(str(v.get("code","")) == "ESS-CONT-001" for v in violations):
+                violations.append(
+                    {
+                        "code": "ESS-CONT-001",
+                        "severity": "error",
+                        "severity_level": "high",
+                        "message": "Essentiële inhoud ontbreekt of te summier",
+                        "description": "Essentiële inhoud ontbreekt of te summier",
+                        "rule_id": "ESS-CONT-001",
+                        "category": "juridisch",
+                        "suggestion": "Voeg essentiële inhoud toe: beschrijf wat het begrip is.",
+                    }
+                )
         # Mixed NL/EN
         if self._has_mixed_language(raw_text):
             violations.append(
@@ -425,7 +438,7 @@ class ModularValidationService:
                 }
             )
         # Too minimal structure (very short definitions)
-        if wcount < 8:
+        if wcount < 6:
             violations.append(
                 {
                     "code": "STR-FORM-001",
@@ -456,6 +469,20 @@ class ModularValidationService:
                             "suggestion": f"Vermijd {str(current_begrip)} letterlijk; omschrijf zonder de term te herhalen.",
                         }
                     )
+                    # Voeg ook essentie-tekort toe voor strengere golden criteria
+                    if not any(str(v.get("code","")) == "ESS-CONT-001" for v in violations):
+                        violations.append(
+                            {
+                                "code": "ESS-CONT-001",
+                                "severity": "error",
+                                "severity_level": "high",
+                                "message": "Essentiële inhoud ontbreekt of te summier",
+                                "description": "Essentiële inhoud ontbreekt of te summier",
+                                "rule_id": "ESS-CONT-001",
+                                "category": "juridisch",
+                                "suggestion": "Voeg essentiële inhoud toe: beschrijf wat het begrip is.",
+                            }
+                        )
         except Exception:
             pass
 
@@ -482,21 +509,24 @@ class ModularValidationService:
         violations.sort(key=lambda v: v.get("code", ""))
 
         # 9) Soft-accept floor voor marginale gevallen zonder error-violations
-        soft_ok = overall >= 0.60 and not any(
-            (str(v.get("severity", "")).lower() == "error")
-            and (
-                str(v.get("code", "")).startswith((
+        def _has_blocking_errors(vs: list[dict[str, Any]]) -> bool:
+            for v in vs or []:
+                if str(v.get("severity", "")).lower() != "error":
+                    continue
+                code = str(v.get("code", ""))
+                if code.startswith((
                     "VAL-EMP",
                     "CON-CIRC",
                     "VAL-LEN-002",
                     "LANG-",
                     "STR-FORM-001",
-                ))
-            )
-            for v in violations
-        )
+                )):
+                    return True
+            return False
 
-        is_ok = determine_acceptability(overall, self._overall_threshold) or soft_ok
+        soft_ok = overall >= 0.60 and not _has_blocking_errors(violations)
+        base_ok = determine_acceptability(overall, self._overall_threshold)
+        is_ok = (base_ok and not _has_blocking_errors(violations)) or soft_ok
 
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
