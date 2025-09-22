@@ -561,6 +561,7 @@ class ManagementTab:
                                     import_service.import_single(
                                         payload,
                                         allow_duplicate=allow_dup,
+                                        duplicate_strategy=("overwrite" if allow_dup else "skip"),
                                         created_by=created_by,
                                     )
                                 )
@@ -576,6 +577,194 @@ class ManagementTab:
 
             except Exception as e:
                 st.error(f"❌ Enkelvoudige import fout: {e!s}")
+
+        # Kleine batch CSV import (≤100 rijen)
+        with st.expander("Kleine batch CSV import (≤100)", expanded=False):
+            try:
+                container = st.session_state.get("service_container")
+                if not container:
+                    st.error("❌ Service container niet geïnitialiseerd")
+                else:
+                    import_service = container.import_service()
+
+                    uploaded_csv = st.file_uploader(
+                        "Selecteer CSV bestand (canonieke kolommen)",
+                        type=["csv"],
+                        key="batch_csv_uploader",
+                    )
+
+                    col_opts1, col_opts2 = st.columns(2)
+                    with col_opts1:
+                        dup_strategy = st.selectbox(
+                            "Duplicate handling",
+                            options=["skip", "overwrite"],
+                            index=0,
+                            help="Kies 'overwrite' om bestaande records te updaten",
+                            key="batch_dup_strategy",
+                        )
+                    with col_opts2:
+                        created_by = st.text_input(
+                            "👤 Geïmporteerd door", value="ui_user", key="batch_created_by"
+                        )
+
+                    if uploaded_csv is not None and st.button(
+                        "🚀 Verwerk CSV (≤100)", key="batch_process_csv"
+                    ):
+                        import io as _io
+                        import pandas as _pd
+                        from ui.helpers.async_bridge import run_async
+                        import json as _json
+
+                        try:
+                            df = _pd.read_csv(_io.BytesIO(uploaded_csv.getvalue()))
+                        except Exception as e:
+                            st.error(f"❌ CSV lezen mislukt: {e!s}")
+                            df = None
+
+                        if df is not None:
+                            total_rows = int(df.shape[0])
+                            if total_rows > 100:
+                                st.warning(
+                                    f"⚠️ CSV bevat {total_rows} rijen; alleen de eerste 100 worden verwerkt"
+                                )
+                                df = df.head(100)
+
+                            progress = st.progress(0)
+                            status = st.empty()
+
+                            results: list[dict] = []
+                            ok_count = 0
+                            import_count = 0
+                            skip_count = 0
+                            fail_count = 0
+
+                            def _split(v):
+                                if v is None or str(v).strip() == "":
+                                    return []
+                                return [s.strip() for s in str(v).split(",") if s.strip()]
+
+                            for idx, row in df.iterrows():
+                                p = (len(results) + 1) / len(df)
+                                progress.progress(p)
+                                term = str(row.get("begrip", "")).strip()
+                                status.text(f"Verwerken rij {len(results)+1}/{len(df)} — {term or '—'}")
+
+                                payload = {
+                                    "begrip": term,
+                                    "definitie": str(row.get("definitie", "")),
+                                    "categorie": row.get("categorie"),
+                                    "organisatorische_context": _split(row.get("organisatorische_context", "")),
+                                    "juridische_context": _split(row.get("juridische_context", "")),
+                                    "wettelijke_basis": _split(row.get("wettelijke_basis", "")),
+                                }
+
+                                try:
+                                    preview = run_async(import_service.validate_single(payload))
+                                    ok = bool(preview.ok)
+                                    ok_count += int(ok)
+
+                                    # Decide action
+                                    if preview.duplicates and dup_strategy == "skip":
+                                        skip_count += 1
+                                        results.append(
+                                            {
+                                                "row": int(idx) + 1,
+                                                "begrip": term,
+                                                "action": "skipped_duplicate",
+                                                "score": float(preview.validation.get("overall_score", 0) if isinstance(preview.validation, dict) else 0),
+                                                "violations": int(len(preview.validation.get("violations", []))) if isinstance(preview.validation, dict) else 0,
+                                                "error": None,
+                                            }
+                                        )
+                                        continue
+
+                                    # Import (create or overwrite first duplicate)
+                                    result = run_async(
+                                        import_service.import_single(
+                                            payload,
+                                            duplicate_strategy=dup_strategy,
+                                            created_by=created_by,
+                                        )
+                                    )
+
+                                    if result.success:
+                                        import_count += 1
+                                        results.append(
+                                            {
+                                                "row": int(idx) + 1,
+                                                "begrip": term,
+                                                "action": (
+                                                    "updated" if preview.duplicates and dup_strategy == "overwrite" else "imported"
+                                                ),
+                                                "definition_id": result.definition_id,
+                                                "score": float(result.validation.get("overall_score", 0) if isinstance(result.validation, dict) else 0),
+                                                "violations": int(len(result.validation.get("violations", []))) if isinstance(result.validation, dict) else 0,
+                                                "error": None,
+                                            }
+                                        )
+                                    else:
+                                        fail_count += 1
+                                        results.append(
+                                            {
+                                                "row": int(idx) + 1,
+                                                "begrip": term,
+                                                "action": "failed",
+                                                "score": float(preview.validation.get("overall_score", 0) if isinstance(preview.validation, dict) else 0),
+                                                "violations": int(len(preview.validation.get("violations", []))) if isinstance(preview.validation, dict) else 0,
+                                                "error": result.error or "onbekende fout",
+                                            }
+                                        )
+
+                                except Exception as e:
+                                    fail_count += 1
+                                    results.append(
+                                        {
+                                            "row": int(idx) + 1,
+                                            "begrip": term,
+                                            "action": "error",
+                                            "score": 0.0,
+                                            "violations": 0,
+                                            "error": str(e),
+                                        }
+                                    )
+
+                            # Samenvatting
+                            progress.empty()
+                            status.empty()
+                            st.success(
+                                f"✅ Klaar: {import_count} geïmporteerd/geüpdatet, {skip_count} overgeslagen (duplicaat), {fail_count} mislukt. Valide OK: {ok_count}"
+                            )
+
+                            # Download resultaten (JSON/CSV)
+                            try:
+                                json_bytes = _json.dumps(results, ensure_ascii=False, indent=2).encode("utf-8")
+                                st.download_button(
+                                    "⬇️ Download rapport (JSON)",
+                                    data=json_bytes,
+                                    file_name="import_rapport.json",
+                                    mime="application/json",
+                                )
+
+                                # Naar CSV
+                                try:
+                                    import pandas as _pd2
+
+                                    df_res = _pd2.DataFrame(results)
+                                    csv_bytes = df_res.to_csv(index=False).encode("utf-8")
+                                    st.download_button(
+                                        "⬇️ Download rapport (CSV)",
+                                        data=csv_bytes,
+                                        file_name="import_rapport.csv",
+                                        mime="text/csv",
+                                    )
+                                except Exception:
+                                    pass
+
+                            except Exception:
+                                st.info("📄 Rapport generatie niet gelukt")
+
+            except Exception as e:
+                st.error(f"❌ Kleine batch import fout: {e!s}")
 
         uploaded_file = st.file_uploader(
             "Selecteer JSON bestand voor import",
