@@ -6,6 +6,7 @@ als onderdeel van het Strangler Fig pattern voor web lookup modernisering.
 """
 
 import logging
+import asyncio
 import re
 import xml.etree.ElementTree as ET
 from dataclasses import dataclass, field
@@ -97,7 +98,7 @@ class SRUService:
                 name="Wetgeving.nl",
                 base_url="https://zoekservice.overheid.nl/sru/Search",
                 default_collection="",
-                record_schema="dc",
+                record_schema="oai_dc",
                 sru_version="2.0",
                 confidence_weight=0.9,
                 is_juridical=True,
@@ -120,8 +121,16 @@ class SRUService:
             msg = "aiohttp is vereist voor SRU service"
             raise RuntimeError(msg)
 
+        # Voeg lichte DNS-cache toe en expliciete Accept voor XML/SRU
+        connector = aiohttp.TCPConnector(ttl_dns_cache=300)
+        # SRU-servers verwachten XML responses
+        self.headers.setdefault(
+            "Accept", "application/xml, text/xml;q=0.9, */*;q=0.8"
+        )
         self.session = aiohttp.ClientSession(
-            headers=self.headers, timeout=aiohttp.ClientTimeout(total=30)
+            headers=self.headers,
+            timeout=aiohttp.ClientTimeout(total=30),
+            connector=connector,
         )
         return self
 
@@ -175,73 +184,148 @@ class SRUService:
                 nonlocal parked_503
 
                 # Primary URL
-                params = {
+                base_params = {
                     "operation": "searchRetrieve",
                     "version": config.sru_version or "1.2",
-                    "recordSchema": config.record_schema,
                     "maximumRecords": min(max_records, config.maximum_records),
                     "query": query_str,
                     "startRecord": "1",
                 }
+                # SRU 2.0 servers zijn soms strikt in packing/accept
+                if (config.sru_version or "").startswith("2"):
+                    base_params["recordPacking"] = "xml"
+                    base_params["httpAccept"] = "application/xml"
                 # Voeg extra config-parameters toe (zoals x-connection=BWB)
                 for k, v in (config.extra_params or {}).items():
-                    params[k] = v
-                urls: list[str] = [
-                    f"{config.base_url}?{urlencode(params, quote_via=quote_plus)}"
-                ]
-                for alt in (config.alt_base_urls or []):
-                    try:
-                        urls.append(f"{alt}?{urlencode(params, quote_via=quote_plus)}")
-                    except Exception:
-                        continue
+                    base_params[k] = v
+
+                # Bepaal volgorde van schemas om te proberen (vooral relevant voor SRU 2.0/BWB)
+                schemas_to_try: list[str] = [config.record_schema or "dc"]
+                if (config.sru_version or "").startswith("2"):
+                    for extra in ("oai_dc", "srw_dc", "dc"):
+                        if extra not in schemas_to_try:
+                            schemas_to_try.append(extra)
 
                 last_status: int | None = None
                 last_text: str | None = None
-                for u in urls:
+                # Parse subset van SRU diagnostics voor betere logging
+                def _extract_diag(xml_text: str) -> dict:
                     try:
-                        async with self.session.get(u) as response:
-                            attempt_rec: dict = {
-                                "endpoint": config.name,
-                                "url": u,
-                                "query": query_str,
-                                "strategy": strategy,
-                                "status": response.status,
-                            }
-                            if response.status == 200:
-                                xml_content = await response.text()
-                                parsed = self._parse_sru_response(xml_content, term, config)
-                                attempt_rec["records"] = len(parsed or [])
-                                self._attempts.append(attempt_rec)
-                                if parsed:
-                                    return parsed
-                            else:
-                                last_status = response.status
-                                try:
-                                    txt = await response.text()
-                                    last_text = txt[:200]
-                                    attempt_rec["body_preview"] = last_text
-                                except Exception:
-                                    last_text = None
-                                self._attempts.append(attempt_rec)
-                                # Specifiek gedrag voor Wetgeving.nl: bij 503 niet blijven hangen
-                                if config.name == "Wetgeving.nl" and response.status == 503:
-                                    attempt_rec["parked"] = True
-                                    attempt_rec["reason"] = "503 service unavailable"
-                                    parked_503 = True
-                                    return []
-                    except Exception as ex:
-                        # Log exception as attempt with error info
-                        self._attempts.append(
-                            {
-                                "endpoint": config.name,
-                                "url": u,
-                                "query": query_str,
-                                "strategy": strategy,
-                                "status": None,
-                                "error": str(ex),
-                            }
-                        )
-                        continue
+                        r = ET.fromstring(xml_text)
+                        ns = {"srw": "http://docs.oasis-open.org/ns/search-ws/sruResponse"}
+                        d = r.find(".//srw:diagnostics", ns)
+                        if d is None:
+                            return {}
+                        first = None
+                        for n in d:
+                            first = n
+                            break
+                        if first is None:
+                            return {}
+                        # Probeer message/details/uri te lezen (namespaces tolerant)
+                        def _txt(tag: str) -> str | None:
+                            el = first.find(f"srw:{tag}", ns)
+                            if el is not None and el.text:
+                                return el.text.strip()
+                            for e in first:
+                                t = e.tag
+                                if "}" in t:
+                                    t = t.split("}", 1)[1]
+                                if t.lower() == tag and e.text:
+                                    return e.text.strip()
+                            return None
+
+                        return {
+                            "diag_uri": _txt("uri"),
+                            "diag_message": _txt("message"),
+                            "diag_details": _txt("details"),
+                        }
+                    except Exception:
+                        return {}
+
+                # Doorloop schemas (indien van toepassing) en probeer primary + alternatieve URLs
+                for schema in schemas_to_try:
+                    params = dict(base_params)
+                    params["recordSchema"] = schema
+                    urls: list[str] = [
+                        f"{config.base_url}?{urlencode(params, quote_via=quote_plus)}"
+                    ]
+                    for alt in (config.alt_base_urls or []):
+                        try:
+                            urls.append(
+                                f"{alt}?{urlencode(params, quote_via=quote_plus)}"
+                            )
+                        except Exception:
+                            continue
+
+                    for u in urls:
+                        # Kleine retry op connectieproblemen met jitter
+                        for attempt in range(1, 3 + 1):
+                            try:
+                                async with self.session.get(u) as response:
+                                    attempt_rec: dict = {
+                                        "endpoint": config.name,
+                                        "url": u,
+                                        "query": query_str,
+                                        "strategy": strategy,
+                                        "status": response.status,
+                                        "recordSchema": schema,
+                                    }
+                                    if response.status == 200:
+                                        xml_content = await response.text()
+                                        parsed = self._parse_sru_response(
+                                            xml_content, term, config
+                                        )
+                                        attempt_rec["records"] = len(parsed or [])
+                                        self._attempts.append(attempt_rec)
+                                        if parsed:
+                                            return parsed
+                                    else:
+                                        last_status = response.status
+                                        try:
+                                            txt = await response.text()
+                                            last_text = txt[:200]
+                                            attempt_rec["body_preview"] = last_text
+                                            attempt_rec.update(_extract_diag(txt))
+                                        except Exception:
+                                            last_text = None
+                                        self._attempts.append(attempt_rec)
+                                        # Specifiek gedrag voor Wetgeving.nl: bij 503 niet blijven hangen
+                                        if (
+                                            config.name == "Wetgeving.nl"
+                                            and response.status == 503
+                                        ):
+                                            attempt_rec["parked"] = True
+                                            attempt_rec["reason"] = (
+                                                "503 service unavailable"
+                                            )
+                                            parked_503 = True
+                                            return []
+                                        # Bij 406 en SRU 2.0: probeer volgende schema
+                                        if (
+                                            response.status == 406
+                                            and (config.sru_version or "").startswith(
+                                                "2"
+                                            )
+                                        ):
+                                            break  # switch schema
+                                    break  # geen retry nodig bij HTTP-status
+                            except Exception as ex:
+                                # Retry alleen voor connectieproblemen, anders registreren en doorgaan
+                                if attempt >= 3:
+                                    self._attempts.append(
+                                        {
+                                            "endpoint": config.name,
+                                            "url": u,
+                                            "query": query_str,
+                                            "strategy": strategy,
+                                            "status": None,
+                                            "error": str(ex),
+                                            "recordSchema": schema,
+                                        }
+                                    )
+                                    break
+                                await asyncio.sleep(min(0.2 * attempt, 1.0))
                 # Nothing found for this query across endpoints
                 if last_status and last_status != 200:
                     logger.error(
@@ -261,16 +345,7 @@ class SRUService:
             except Exception:
                 pass
 
-            # Speciale BWB (Wetgeving) titel-query (SRU 2.0) voor hogere precisie
-            try:
-                if endpoint == "wetgeving_nl" and (config.sru_version or "").startswith("2"):
-                    esc = (term or "").replace('"', '\\"')
-                    bwb_q = f'titel="{esc}"'
-                    results = await _try_query(bwb_q, strategy="titel")
-                    if results:
-                        return results
-            except Exception:
-                pass
+            # BWB titel-index alleen gebruiken indien expliciet ondersteund (niet zonder explain)
 
             # Query 1: onze standaard DC-velden (exact/contains per server-choice)
             base_query = self._build_cql_query(term, collection or config.default_collection)
