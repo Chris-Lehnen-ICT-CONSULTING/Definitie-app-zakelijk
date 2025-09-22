@@ -69,6 +69,8 @@ web_lookup:
 
   prompt_augmentation:
     enabled: true
+    # Include all hits in the prompt initially (overridden by token budget safeguards in code)
+    include_all_hits: true
     max_snippets: 3
     max_tokens_per_snippet: 100
     total_token_budget: 400
