@@ -1272,11 +1272,33 @@ class DefinitionGeneratorTab:
         if not SessionStateManager.get_value("toon_detailleerde_toetsing", False):
             return
 
-        # Gebruik gedeelde render voor V2 details (zelfde layout als Edit/Expert)
-        try:
-            from ui.components.validation_view import render_v2_validation_details
-            render_v2_validation_details(validation_result)
-        except Exception:
+        # Prefer existing session list; otherwise, derive from V2 validation_result
+        beoordeling = SessionStateManager.get_value("beoordeling_gen", [])
+
+        if not beoordeling and isinstance(validation_result, dict):
+            beoordeling = self._build_detailed_assessment(validation_result)
+            if beoordeling:
+                SessionStateManager.set_value("beoordeling_gen", beoordeling)
+
+        if beoordeling:
+            st.markdown("### 📋 Alle Toetsregels Resultaten")
+            for regel in beoordeling:
+                # Print de regel met statuskleur
+                if "✔️" in regel or regel.startswith("✅"):
+                    st.success(regel)
+                elif "❌" in regel:
+                    st.error(regel)
+                elif "🟡" in regel or "⚠️" in regel:
+                    st.warning(regel)
+                else:
+                    st.info(regel)
+
+                # Koppel uitleg expander direct onder deze regel
+                rid = self._extract_rule_id_from_line(regel)
+                if rid:
+                    with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
+                        st.markdown(self._build_rule_hint_markdown(rid))
+        else:
             st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
 
         # (Samenvatting bij ingeklapte weergave wordt elders getoond; dit pad is alleen actief wanneer details zichtbaar zijn.)
