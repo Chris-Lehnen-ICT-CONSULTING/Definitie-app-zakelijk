@@ -37,6 +37,7 @@ class DefinitieStatus(Enum):
     tijdens de levenscyclus van concept tot definitieve vaststelling.
     """
 
+    IMPORTED = "imported"  # Geïmporteerde definitie, klaar voor toetsing
     DRAFT = "draft"  # Concept definitie, nog in bewerking
     REVIEW = "review"  # Definitie is ingediend voor review door experts
     ESTABLISHED = "established"  # Definitief vastgestelde definitie, klaar voor gebruik
