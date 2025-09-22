@@ -705,6 +705,7 @@ class DefinitionEditTab:
                         "valid": bool(v.get("is_acceptable", False)),
                         "score": float(v.get("overall_score", 0.0) or 0.0),
                         "issues": normalized_issues,
+                        "raw_v2": v,
                     }
 
             if results:
@@ -733,6 +734,29 @@ class DefinitionEditTab:
                         # Hint/uitleg per regel (best-effort uit JSON + link naar handleiding)
                         with st.expander(f"ℹ️ Toon uitleg voor {rule_id}", expanded=False):
                             st.markdown(self._build_rule_hint_markdown(rule_id))
+
+        # Uitleg bij alle geëvalueerde regels (indien raw V2 resultaat aanwezig), ook bij geslaagde validatie
+        try:
+            v2 = results.get('raw_v2') if isinstance(results, dict) else None
+            if isinstance(v2, dict):
+                violations = list(v2.get('violations') or [])
+                passed = list(v2.get('passed_rules') or [])
+                all_rids: set[str] = set()
+                for v in violations:
+                    rid = str(v.get('rule_id') or v.get('code') or '').strip()
+                    if rid:
+                        all_rids.add(rid)
+                for rid in passed:
+                    r = str(rid or '').strip()
+                    if r:
+                        all_rids.add(r)
+                if all_rids:
+                    st.markdown("### ℹ️ Uitleg bij alle geëvalueerde regels")
+                    for rid in sorted(all_rids):
+                        with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
+                            st.markdown(self._build_rule_hint_markdown(rid))
+        except Exception:
+            pass
 
     def _build_rule_hint_markdown(self, rule_id: str) -> str:
         """Bouw korte hint-uitleg voor een toetsregel uit JSON en standaardtekst.

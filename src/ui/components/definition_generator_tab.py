@@ -1289,13 +1289,26 @@ class DefinitionGeneratorTab:
             else:
                 st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
 
-        # Uitleg per gevonden regel (hint-expanders)
-        if violations:
-            st.markdown("### ℹ️ Uitleg bij gevonden regels")
-            for v in violations:
-                rid = str(v.get("rule_id") or v.get("code") or "")
-                if not rid:
-                    continue
+        # Uitleg per regel (zowel gevonden issues als geslaagde regels)
+        try:
+            passed_rules = list(validation_result.get("passed_rules", []) or [])
+        except Exception:
+            passed_rules = []
+
+        # Verzamel alle geëvalueerde regelcodes (violations + passed)
+        all_rids: set[str] = set()
+        for v in violations:
+            rid = str(v.get("rule_id") or v.get("code") or "").strip()
+            if rid:
+                all_rids.add(rid)
+        for rid in passed_rules:
+            r = str(rid or "").strip()
+            if r:
+                all_rids.add(r)
+
+        if all_rids:
+            st.markdown("### ℹ️ Uitleg bij alle geëvalueerde regels")
+            for rid in sorted(all_rids):
                 with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
                     st.markdown(self._build_rule_hint_markdown(rid))
 
