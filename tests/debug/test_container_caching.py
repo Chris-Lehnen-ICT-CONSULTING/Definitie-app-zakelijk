@@ -188,7 +188,11 @@ def test_multiple_reruns():
     total_time_without_cache = init_times[0] * 6
     total_time_with_cache = sum(init_times)
     time_saved = total_time_without_cache - total_time_with_cache
-    percentage_saved = (time_saved / total_time_without_cache) * 100
+    percentage_saved = (
+        (time_saved / total_time_without_cache) * 100
+        if total_time_without_cache > 0
+        else 0.0
+    )
 
     print(f"\nPerformance winst:")
     print(f"   Zonder cache: {total_time_without_cache:.2f}s (6x init)")

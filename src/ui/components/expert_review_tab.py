@@ -231,6 +231,52 @@ class ExpertReviewTab:
                 st.write(f"**Wettelijke basis:** {wb_val or '—'}")
                 st.write(f"**Categorie:** {definitie.categorie}")
 
+                # Voorbeelden (hergebruik resolutie)
+                try:
+                    from ui.helpers.examples import resolve_examples
+
+                    ex_key = f"review_examples_{definitie.id}"
+                    examples = resolve_examples(ex_key, definitie)
+                    if examples:
+                        st.markdown("#### 📚 Gegenereerde Content")
+
+                        def _render_list(title: str, key_name: str, empty_msg: str = "—"):
+                            st.markdown(f"**{title}**")
+                            items = []
+                            try:
+                                val = examples.get(key_name)
+                                if isinstance(val, list):
+                                    items = val
+                                elif isinstance(val, str) and val.strip():
+                                    items = [s.strip() for s in val.split(",") if s.strip()]
+                            except Exception:
+                                items = []
+                            if items:
+                                for it in items:
+                                    st.markdown(f"- {str(it)}")
+                            else:
+                                st.caption(empty_msg)
+
+                        _render_list("📄 Voorbeeldzinnen", "voorbeeldzinnen", "Geen voorbeeldzinnen")
+                        _render_list("💼 Praktijkvoorbeelden", "praktijkvoorbeelden", "Geen praktijkvoorbeelden")
+                        _render_list("❌ Tegenvoorbeelden", "tegenvoorbeelden", "Geen tegenvoorbeelden")
+                        _render_list("🔄 Synoniemen", "synoniemen", "Geen synoniemen")
+                        _render_list("↔️ Antoniemen", "antoniemen", "Geen antoniemen")
+
+                        st.markdown("**📝 Toelichting**")
+                        toel = ""
+                        try:
+                            val = examples.get("toelichting")
+                            toel = val if isinstance(val, str) else ""
+                        except Exception:
+                            toel = ""
+                        if toel:
+                            st.info(toel)
+                        else:
+                            st.caption("Geen toelichting")
+                except Exception:
+                    pass
+
             with col2:
                 st.markdown("#### Metadata")
                 st.write(f"**ID:** {definitie.id}")

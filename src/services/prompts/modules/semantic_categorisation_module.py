@@ -5,6 +5,19 @@ Deze module is verantwoordelijk voor:
 1. ESS-02 basis instructies
 2. Category-specific guidance voor type/proces/resultaat/exemplaar
 3. Dynamische categorie bepaling
+
+Toelichting (ESS-02 vs. UI-injectie van categorie)
+- De app/UI bepaalt de ontologische categorie (bv. type/proces/resultaat/exemplaar) en injecteert die in de
+  promptcontext/metadata.
+- ESS-02 maakt deze categorie zichtbaar en dwingend voor het taalmodel door:
+  - Expliciete, categorie-specifieke schrijfaanwijzingen en voorbeeldformuleringen te geven.
+  - De categorie door te zetten naar shared state zodat andere modules (bijv. TemplateModule en
+    DefinitionTaskModule) automatisch de juiste templates, patronen en “focus”-regels kiezen.
+  - Veilige basisinstructies te tonen als de categorie ontbreekt, zodat het model alsnog goede keuzes kan maken.
+- Zonder ESS-02 blijft de categorie alleen metadata; met ESS-02 krijgt het model concrete guidance om de categorie
+  ondubbelzinnig in de definitie tot uitdrukking te brengen (consistent over de hele prompt).
+- Compacte modus (optioneel): beperk ESS-02 tot de verplichte keuze tussen de vier categorieën plus korte hints,
+  zonder uitgebreide voorbeelden, om tokens te besparen.
 """
 
 import logging
