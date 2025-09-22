@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 from typing import Any, Dict, Optional
 
 import streamlit as st
-from config.context_options import ORGANIZATIONS, LEGAL_DOMAINS, COMMON_LAWS
+from config.config_manager import get_config, ConfigSection
 
 from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import DefinitionEditService
@@ -228,7 +228,8 @@ class DefinitionEditTab:
 
         with col1:
             # Organisatorische context (multiselect met Anders...)
-            org_options = list(ORGANIZATIONS)
+            ui_cfg = get_config(ConfigSection.UI)
+            org_options = list(getattr(ui_cfg, 'organizational_contexts', []) or [])
             # Bepaal bron (generator-tab of definitie) en splits in bekende/overige waarden
             edit_org_from_generator = SessionStateManager.get_value('edit_organisatorische_context')
             current_org = edit_org_from_generator if (edit_org_from_generator and isinstance(edit_org_from_generator, list)) else (getattr(definition, 'organisatorische_context', []) or [])
@@ -270,7 +271,7 @@ class DefinitionEditTab:
         with col2:
             # Juridische context
             # Juridische context (multiselect met Anders...)
-            jur_options = list(LEGAL_DOMAINS)
+            jur_options = list(getattr(ui_cfg, 'legal_contexts', []) or [])
             edit_jur_from_generator = SessionStateManager.get_value('edit_juridische_context')
             current_jur = edit_jur_from_generator if (edit_jur_from_generator and isinstance(edit_jur_from_generator, list)) else (getattr(definition, 'juridische_context', []) or [])
             jur_known = [v for v in current_jur if v in jur_options]
@@ -297,7 +298,7 @@ class DefinitionEditTab:
             SessionStateManager.set_value(k('juridische_context'), jur_resolved)
 
             # Wettelijke basis (multiselect met Anders...)
-            wet_options = list(COMMON_LAWS)
+            wet_options = list(getattr(ui_cfg, 'common_laws', []) or [])
             edit_wet_from_generator = SessionStateManager.get_value('edit_wettelijke_basis')
             current_wet = edit_wet_from_generator if (edit_wet_from_generator and isinstance(edit_wet_from_generator, list)) else (getattr(definition, 'wettelijke_basis', []) or [])
             wet_known = [v for v in current_wet if v in wet_options]
