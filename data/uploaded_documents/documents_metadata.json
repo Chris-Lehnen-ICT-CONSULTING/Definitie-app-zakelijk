@@ -133,7 +133,136 @@
       ],
       "processing_status": "success",
       "error_message": null
+    },
+    {
+      "id": "3ed01d2fa16aac5f",
+      "filename": "test_authenticatie.txt",
+      "mime_type": "text/plain",
+      "size": 479,
+      "uploaded_at": "2025-09-22T15:27:00.501081+00:00",
+      "extracted_text": "\n        Definitie van Authenticatie\n\n        Authenticatie is het proces waarbij de identiteit van een gebruiker wordt geverifieerd.\n        Dit gebeurt door controle van inloggegevens zoals gebruikersnaam en wachtwoord.\n\n        Juridische context:\n        Dit proces is essentieel voor compliance met de AVG en Wet op de Identificatieplicht.\n\n        Organisatorische context:\n        Binnen de strafrechtketen gebruikt het OM authenticatie voor toegang tot systemen.\n        ",
+      "text_length": 479,
+      "keywords": [
+        "authenticatie",
+        "proces",
+        "context",
+        "definitie",
+        "waarbij",
+        "identiteit",
+        "gebruiker",
+        "geverifieerd",
+        "gebeurt",
+        "controle",
+        "inloggegevens",
+        "zoals",
+        "gebruikersnaam",
+        "wachtwoord",
+        "juridische",
+        "essentieel",
+        "compliance",
+        "identificatieplicht",
+        "organisatorische",
+        "binnen"
+      ],
+      "key_concepts": [
+        "Definitie",
+        "Authenticatie",
+        "Juridische context",
+        "Juridische",
+        "Identificatieplicht",
+        "Organisatorische context",
+        "Organisatorische",
+        "Binnen"
+      ],
+      "legal_references": [
+        "Wet op"
+      ],
+      "context_hints": [
+        "Compact document - specifieke context",
+        "Document bevat definities",
+        "Document beschrijft processen",
+        "Bevat 8 geïdentificeerde concepten"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "f983b1de53a6906a",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2025-09-22T18:33:20.399487+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "3c9a2ff59f685415",
+      "filename": "tmp1n0ms933.txt",
+      "mime_type": "text/plain",
+      "size": 80,
+      "uploaded_at": "2025-09-22T18:47:42.476256+00:00",
+      "extracted_text": "Dit is een Nederlandse wet artikel over identiteitsbehandeling en authenticatie.",
+      "text_length": 80,
+      "keywords": [
+        "nederlandse",
+        "artikel",
+        "identiteitsbehandeling",
+        "authenticatie"
+      ],
+      "key_concepts": [
+        "Nederlandse"
+      ],
+      "legal_references": [
+        "wet artikel"
+      ],
+      "context_hints": [
+        "Compact document - specifieke context",
+        "Juridische context aanwezig",
+        "Bevat 1 geïdentificeerde concepten"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "18434694ce217aa8",
+      "filename": "test.txt",
+      "mime_type": "text/plain",
+      "size": 2300,
+      "uploaded_at": "2025-09-22T18:47:42.663759+00:00",
+      "extracted_text": "Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. Test document content. ",
+      "text_length": 2300,
+      "keywords": [
+        "test",
+        "document",
+        "content"
+      ],
+      "key_concepts": [
+        "Test"
+      ],
+      "legal_references": [],
+      "context_hints": [
+        "Middelgroot document - relevante context informatie",
+        "Bevat 1 geïdentificeerde concepten"
+      ],
+      "processing_status": "success",
+      "error_message": null
     }
   ],
-  "last_updated": "2025-09-22T13:32:24.007608+00:00"
+  "last_updated": "2025-09-22T18:47:42.663872+00:00"
 }

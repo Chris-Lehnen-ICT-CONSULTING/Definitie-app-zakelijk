@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Gedeelde Validatie‑weergave (V2) voor Generatie, Bewerk en Expert Review</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-236</p>
+<p>titel: Gedeelde Validatie‑weergave (V2) voor Generatie, Bewerk en Expert Review</p>
+<p>epic: EPIC-004</p>
+<p>status: Open</p>
+<p>prioriteit: HOOG</p>
+<p>story_points: 5</p>
+<p>owner: product</p>
+<p>aangemaakt: 2025-09-22</p>
+<p>bijgewerkt: 2025-09-22</p>
+<p>canonical: true</p>
+<p>applies_to: definitie-app@current</p>
+<p>last_verified: 2025-09-22</p>
+<p>---</p>
+
+<h1>US-236: Gedeelde Validatie‑weergave (V2) voor Generatie, Bewerk en Expert Review</h1>
+
+<h2>Gebruikersverhaal</h2>
+<p>Als gebruiker wil ik in alle relevante tabbladen (Definitie‑generatie, Bewerk, Expert Review) dezelfde, rijke validatie‑weergave zien, zodat ik regels en uitleg overal eenduidig kan beoordelen en geen informatieverlies optreedt.</p>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Eén gedeelde renderer toont V2‑validatie identiek aan het Generatie‑tabblad, incl.:</li>
+<li> - Gate‑status (Gates: OK/NIET OK + passed/failed gates)</li>
+<li> - Toggle “📊 Toon/verberg gedetailleerde toetsresultaten”</li>
+<li> - Gedetailleerde regels met kleur/icoon (✅/⚠️/❌), sorting en inline uitleg‑expander per regel (“Wat toetst” + voorbeelden)</li>
+<li>[ ] Generatie‑tab gebruikt de gedeelde renderer zonder zichtbaar verschil in output of functionaliteit.</li>
+<li>[ ] Bewerk‑ en Expert‑tab gebruiken dezelfde renderer, full‑width onder de acties (Edit: onder “Kwaliteitstoetsing”, Expert: onder review‑knoppen), zonder informatieverlies.</li>
+<li>[ ] Session‑state keys zijn gescheiden per context (gen, edit_{id}, review_{id}) voor toggle/caching.</li>
+<li>[ ] Geen regressie in gate‑status weergave of performantie.</li>
+</ul>
+
+<h2>Implementatieplan (samenvatting)</h2>
+<ul>
+<li>Extractie (zonder gedrag te wijzigen) van de bewezen Generatie‑weergave naar `ui/components/validation_view.py`:</li>
+<li> - Helpers: `_rule_sort_key`, `_extract_rule_id_from_line`, `_build_rule_hint_markdown`.</li>
+<li> - Publieke functie: `render_validation_detailed_list(validation_result: dict, key_prefix: str, show_toggle: bool = True, gate: dict | None = None)`.</li>
+<li>Generator aansluiten met `key_prefix='gen'` en `show_toggle=True`, gate doorgeven.</li>
+<li>Edit aansluiten met `key_prefix='edit_{id}'`, `show_toggle=True`, gate=None.</li>
+<li>Expert aansluiten met `key_prefix='review_{id}'`, `show_toggle=True`, gate=None; re‑validatie slaat V2‑resultaat in session en render full‑width.</li>
+<li>Verificatie: visuele 1:1 vergelijking Generatie vóór/na; Edit/Expert weergave gelijk aan Generatie.</li>
+</ul>
+
+<h2>Testscenario’s</h2>
+<p>1) Generatie — toggle on/off</p>
+<ul>
+<li>  - Als ik de toggle activeer, zie ik exact dezelfde lijst als vóór de refactor (zelfde regels, volgorde, iconen, uitleg).</li>
+<p>2) Bewerk — lege context (CON‑01) en uitleg</p>
+<li>  - Bij validatie toont de weergave “Wat toetst” en “Waarom niet geslaagd” per regel; link naar handleiding zichtbaar.</li>
+<p>3) Expert — Re‑validate full‑width</p>
+<li>  - Na re‑validatie verschijnt dezelfde lijst full‑width onder de knoppen; geen kolom‑insnoering.</li>
+<p>4) Gate‑status (Generatie)</p>
+<li>  - Gate‑weergave blijft ongewijzigd (OK/Niet OK + gate details).</li>
+</ul>
+
+<h2>Uitvoer/Deliverables</h2>
+<ul>
+<li>Gedeeld component `ui/components/validation_view.py`</li>
+<li>Generator/ Edit/ Expert aangepast om de gedeelde renderer te gebruiken</li>
+<li>Korte handleidingupdate (UI consistentie)</li>
+</ul>
+
+<h2>Risico’s & mitigaties</h2>
+<ul>
+<li>Visuele regressie → Gefaseerde aansluiting, 1:1 verificatie in Generatie vóór/na.</li>
+<li>State‑collisie → `key_prefix` per context (gen/edit_{id}/review_{id}).</li>
+<li>Performantie → Session‑caching van gedetailleerde regels behouden.</li>
+</ul>
+
+<h2>Definition of Done</h2>
+<ul>
+<li>Eén renderer, drie tabbladen consistent, geen informatieverlies, gate‑status behouden, toggle werkt identiek, tests/visuele checks akkoord.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>
