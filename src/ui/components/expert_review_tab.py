@@ -240,6 +240,7 @@ class ExpertReviewTab:
 
                     ex_key = f"review_examples_{definitie.id}"
                     examples = resolve_examples(ex_key, definitie)
+                    used_db_fallback = False
                     # Fallback: haal voorbeelden rechtstreeks uit DB als resolver niets vindt
                     if not examples:
                         try:
@@ -251,6 +252,7 @@ class ExpertReviewTab:
                                 if isinstance(tol, list):
                                     examples["toelichting"] = tol[0] if tol else ""
                                 SessionStateManager.set_value(ex_key, examples)
+                                used_db_fallback = True
                         except Exception:
                             pass
                     # Fallback: direct DB-load indien resolver leeg teruggeeft
@@ -266,6 +268,8 @@ class ExpertReviewTab:
                         st.markdown("#### 📚 Gegenereerde Content")
                         from ui.components.examples_renderer import render_examples_expandable
                         render_examples_expandable(examples)
+                        if used_db_fallback:
+                            st.caption("(Getoond uit database — laatste opgeslagen versie)")
 
                     # Bewerken van voorbeelden (muteerbaar in review)
                     with st.expander("✏️ Bewerk Voorbeelden", expanded=False):
