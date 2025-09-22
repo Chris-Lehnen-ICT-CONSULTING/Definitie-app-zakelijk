@@ -375,6 +375,134 @@ class ManagementTab:
         # Import section
         st.markdown("##### 📥 Import Definities")
 
+        # Enkelvoudige import (MVP)
+        with st.expander("Enkelvoudige import (MVP)", expanded=False):
+            try:
+                container = st.session_state.get("service_container")
+                if not container:
+                    st.error("❌ Service container niet geïnitialiseerd")
+                else:
+                    import_service = container.import_service()
+
+                    mode = st.radio(
+                        "Modus",
+                        options=["Formulier", "JSON"],
+                        horizontal=True,
+                        key="single_import_mode",
+                    )
+
+                    payload: dict = {}
+
+                    if mode == "Formulier":
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            begrip = st.text_input("Begrip", key="si_begrip")
+                            categorie = st.selectbox(
+                                "Categorie",
+                                [c.value for c in OntologischeCategorie],
+                                key="si_categorie",
+                            )
+                            org_ctx = st.text_input(
+                                "Organisatorische context (komma-gescheiden)",
+                                placeholder="DJI, OM",
+                                key="si_org_ctx",
+                            )
+                        with col2:
+                            definitie = st.text_area(
+                                "Definitie", height=140, key="si_definitie"
+                            )
+                            jur_ctx = st.text_input(
+                                "Juridische context (komma-gescheiden)",
+                                placeholder="Strafrecht, Civiel recht",
+                                key="si_jur_ctx",
+                            )
+                            wet_basis = st.text_input(
+                                "Wettelijke basis (komma-gescheiden)",
+                                placeholder="WvSr, Awb",
+                                key="si_wet_basis",
+                            )
+
+                        payload = {
+                            "begrip": begrip,
+                            "definitie": definitie,
+                            "categorie": categorie,
+                            "organisatorische_context": org_ctx,
+                            "juridische_context": jur_ctx,
+                            "wettelijke_basis": wet_basis,
+                        }
+                    else:
+                        import json as _json
+                        json_txt = st.text_area(
+                            "JSON payload",
+                            value='{"begrip":"","definitie":"","categorie":"proces","organisatorische_context":[],"juridische_context":[],"wettelijke_basis":[]}',
+                            height=140,
+                            key="si_json_payload",
+                        )
+                        try:
+                            payload = _json.loads(json_txt or "{}")
+                        except Exception as e:
+                            st.error(f"❌ Ongeldige JSON: {e!s}")
+                            payload = {}
+
+                    colv, coli = st.columns(2)
+                    with colv:
+                        if st.button("🔍 Valideren", key="si_validate"):
+                            from ui.helpers.async_bridge import run_async
+
+                            with st.spinner("Valideren..."):
+                                preview = run_async(
+                                    import_service.validate_single(payload)
+                                )
+
+                            # Toon resultaat
+                            st.info(
+                                f"Resultaat: {'✅ acceptabel' if preview.ok else '⚠️ niet-acceptabel'} – score: {preview.validation.get('overall_score', 0):.2f}"
+                            )
+                            vios = preview.validation.get("violations", []) if isinstance(preview.validation, dict) else []
+                            st.write(f"Overtredingen: {len(vios)}")
+                            if vios:
+                                for v in vios[:5]:
+                                    code = v.get("code") or v.get("rule_id") or "—"
+                                    st.write(f"• {code}: {v.get('message','')} ")
+
+                            if preview.duplicates:
+                                st.warning(
+                                    f"⚠️ {len(preview.duplicates)} mogelijke duplicaat/duplicaten gevonden"
+                                )
+                                for d in preview.duplicates[:3]:
+                                    st.write(f"• {getattr(d,'begrip', '?')} – status: {getattr(d,'status','?')}")
+
+                    with coli:
+                        allow_dup = st.checkbox(
+                            "🔄 Bestaande overschrijven toestaan", value=False, key="si_allow_dup"
+                        )
+                        created_by = st.text_input(
+                            "👤 Geïmporteerd door", value="ui_user", key="si_created_by"
+                        )
+                        if st.button("📥 Importeer als Draft", key="si_import"):
+                            from ui.helpers.async_bridge import run_async
+
+                            with st.spinner("Importeren..."):
+                                result = run_async(
+                                    import_service.import_single(
+                                        payload,
+                                        allow_duplicate=allow_dup,
+                                        created_by=created_by,
+                                    )
+                                )
+
+                            if result.success and result.definition_id:
+                                st.success(
+                                    f"✅ Geïmporteerd! Nieuw ID: {result.definition_id}"
+                                )
+                            else:
+                                st.error(
+                                    f"❌ Import mislukt: {result.error or 'onbekende fout'}"
+                                )
+
+            except Exception as e:
+                st.error(f"❌ Enkelvoudige import fout: {e!s}")
+
         uploaded_file = st.file_uploader(
             "Selecteer JSON bestand voor import",
             type=["json"],
