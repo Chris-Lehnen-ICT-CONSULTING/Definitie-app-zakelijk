@@ -17,6 +17,7 @@ from services.definition_edit_repository import DefinitionEditRepository
 from services.definition_edit_service import DefinitionEditService
 from services.validation.modular_validation_service import ModularValidationService
 from ui.session_state import SessionStateManager
+from ui.helpers.async_bridge import run_async
 
 logger = logging.getLogger(__name__)
 
@@ -110,6 +111,7 @@ class DefinitionEditTab:
             if SessionStateManager.get_value('editing_definition_id'):
                 self._render_editor()
                 self._render_action_buttons()
+                self._render_examples_section()
 
         with col2:
             # Sidebar with metadata and history
@@ -410,6 +412,107 @@ class DefinitionEditTab:
         with col4:
             if st.button("❌ Annuleren", key="cancel_btn"):
                 self._cancel_edit()
+
+    def _render_examples_section(self):
+        """Render sectie voor AI-gegenereerde voorbeelden (edit-tab)."""
+        def_id = SessionStateManager.get_value('editing_definition_id')
+        if not def_id:
+            return
+
+        definition = SessionStateManager.get_value('editing_definition')
+        if not definition:
+            return
+
+        def k(name: str) -> str:
+            return f"edit_{def_id}_{name}"
+
+        st.markdown("### 📚 Gegenereerde Content")
+
+        # Toon debug weergave van huidige voorbeelden (indien aanwezig)
+        examples_state_key = k('examples')
+        current_examples = SessionStateManager.get_value(examples_state_key) or {}
+
+        col_left, col_right = st.columns([1, 1])
+        with col_left:
+            can_call = True
+            import os as _os
+            if not (_os.getenv('OPENAI_API_KEY') or _os.getenv('OPENAI_API_KEY_PROD')):
+                st.info("ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld.")
+                can_call = False
+            if st.button("✨ Genereer voorbeelden (AI)", disabled=not can_call, key=k('gen_examples')):
+                try:
+                    begrip = SessionStateManager.get_value(k('begrip')) or definition.begrip or ''
+                    definitie_text = SessionStateManager.get_value(k('definitie')) or definition.definitie or ''
+                    org_ctx = SessionStateManager.get_value(k('organisatorische_context')) or []
+                    jur_ctx = SessionStateManager.get_value(k('juridische_context')) or []
+                    wet_ctx = SessionStateManager.get_value(k('wettelijke_basis')) or []
+
+                    context_dict = {
+                        'organisatorisch': list(org_ctx),
+                        'juridisch': list(jur_ctx),
+                        'wettelijk': list(wet_ctx),
+                    }
+
+                    with st.spinner("🧠 Voorbeelden genereren met AI..."):
+                        from voorbeelden.unified_voorbeelden import genereer_alle_voorbeelden_async
+
+                        result = run_async(
+                            genereer_alle_voorbeelden_async(
+                                begrip=begrip,
+                                definitie=definitie_text,
+                                context_dict=context_dict,
+                            ),
+                            timeout=90,
+                        )
+                        SessionStateManager.set_value(examples_state_key, result or {})
+                        current_examples = result or {}
+                        st.success("✅ Voorbeelden gegenereerd!")
+                except Exception as e:
+                    st.error(f"❌ Fout bij genereren voorbeelden: {e}")
+
+        with col_right:
+            if st.checkbox("🔍 Debug: Voorbeelden Content", key=k('debug_examples')):
+                st.code(current_examples)
+
+        # Render per onderdeel
+        def _render_list(title: str, key_name: str, empty_msg: str = "—"):
+            st.markdown(f"#### {title}")
+            items = []
+            try:
+                val = current_examples.get(key_name)
+                if isinstance(val, list):
+                    items = val
+            except Exception:
+                items = []
+            if items:
+                for it in items:
+                    st.markdown(f"- {str(it)}")
+            else:
+                st.info(empty_msg)
+
+        # Voorbeeldzinnen
+        _render_list("📄 Voorbeeldzinnen", "voorbeeldzinnen", "Geen voorbeeldzinnen")
+        # Praktijkvoorbeelden
+        _render_list("💼 Praktijkvoorbeelden", "praktijkvoorbeelden", "Geen praktijkvoorbeelden")
+        # Tegenvoorbeelden
+        _render_list("❌ Tegenvoorbeelden", "tegenvoorbeelden", "Geen tegenvoorbeelden")
+        # Synoniemen
+        _render_list("🔄 Synoniemen", "synoniemen", "Geen synoniemen")
+        # Antoniemen
+        _render_list("↔️ Antoniemen", "antoniemen", "Geen antoniemen")
+
+        # Toelichting (string)
+        st.markdown("#### 📝 Toelichting")
+        toel = ""
+        try:
+            val = current_examples.get("toelichting")
+            toel = val if isinstance(val, str) else ""
+        except Exception:
+            toel = ""
+        if toel:
+            st.info(toel)
+        else:
+            st.info("Geen toelichting")
 
     def _render_metadata_panel(self):
         """Render metadata panel."""
@@ -747,25 +850,16 @@ class DefinitionEditTab:
 
     def _show_validation_results(self, results: Dict[str, Any]):
         """Show validation results."""
-        if results['valid']:
-            st.success(f"✅ Validatie geslaagd! Score: {results['score']:.2f}")
+        # Als V2 ruwe data aanwezig is: render gedetailleerde output gelijk aan generatie-tab
+        v2 = results.get('raw_v2') if isinstance(results, dict) else None
+        if isinstance(v2, dict):
+            from ui.components.validation_view import render_v2_validation_details
+            render_v2_validation_details(v2)
         else:
-            st.warning(f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}")
-
-            if results.get('issues'):
-                with st.expander("Bekijk validatie problemen"):
-                    issues_sorted = sorted(
-                        list(results['issues']),
-                        key=lambda it: self._rule_sort_key(str(it.get('rule') or '')),
-                    )
-                    for idx, issue in enumerate(issues_sorted):
-                        severity_icon = "🔴" if issue['severity'] == 'error' else "🟡"
-                        rule_id = str(issue.get('rule') or '')
-                        st.markdown(f"{severity_icon} **{rule_id}:** {issue['message']}")
-
-                        # Hint/uitleg per regel (best-effort uit JSON + link naar handleiding)
-                        with st.expander(f"ℹ️ Toon uitleg voor {rule_id}", expanded=False):
-                            st.markdown(self._build_rule_hint_markdown(rule_id))
+            if results['valid']:
+                st.success(f"✅ Validatie geslaagd! Score: {results['score']:.2f}")
+            else:
+                st.warning(f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}")
 
         # Uitleg bij alle geëvalueerde regels (indien raw V2 resultaat aanwezig), ook bij geslaagde validatie
         try:
@@ -837,6 +931,75 @@ class DefinitionEditTab:
                 f"Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
                 f"(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
+
+    def _render_v2_validation_details(self, validation_result: dict) -> None:
+        """Render V2 validatie details: score, samenvatting, violations en geslaagde regels."""
+        try:
+            overall_score = float(validation_result.get("overall_score", 0.0))
+            violations = list(validation_result.get("violations") or [])
+            passed_rules = list(validation_result.get("passed_rules") or [])
+
+            score_color = "green" if overall_score > 0.8 else ("orange" if overall_score > 0.6 else "red")
+            st.markdown(
+                f"**Overall Score:** <span style='color: {score_color}'>{overall_score:.2f}</span>",
+                unsafe_allow_html=True,
+            )
+
+            # Samenvatting
+            failed_ids = sorted({str(v.get('rule_id') or v.get('code') or '') for v in violations if isinstance(v, dict)})
+            passed_ids = sorted({str(r) for r in passed_rules})
+            total = len(set(failed_ids).union(passed_ids))
+            passed_count = len(passed_ids)
+            failed_count = len(failed_ids)
+            pct = (passed_count / total * 100.0) if total > 0 else 0.0
+            st.markdown(f"📊 **Toetsing Samenvatting**: {passed_count}/{total} regels geslaagd ({pct:.1f}%)" + (f" | ❌ {failed_count} gefaald" if failed_count else ""))
+
+            # Violations
+            if violations:
+                st.markdown("#### ❌ Gevallen regels")
+                def _v_key(v):
+                    rid = str(v.get("rule_id") or v.get("code") or "")
+                    return self._rule_sort_key(rid)
+
+                for v in sorted(violations, key=_v_key):
+                    rid = str(v.get("rule_id") or v.get("code") or "")
+                    sev = str(v.get("severity", "warning")).lower()
+                    desc = v.get("description") or v.get("message") or ""
+                    suggestion = v.get("suggestion")
+                    if suggestion:
+                        desc = f"{desc} · Wat verbeteren: {suggestion}"
+                    emoji = "❌" if sev in {"critical", "error", "high"} else "⚠️"
+                    name, explanation = self._get_rule_info(rid)
+                    name_part = f" — {name}" if name else ""
+                    expl_labeled = f" · Wat toetst: {explanation}" if explanation else " · Wat toetst: —"
+                    st.markdown(f"{emoji} {rid}{name_part}: Waarom niet geslaagd: {desc}{expl_labeled}")
+
+            # Geslaagde regels
+            if passed_ids:
+                with st.expander("✅ Geslaagde regels", expanded=False):
+                    for rid in sorted(passed_ids, key=self._rule_sort_key):
+                        name, explanation = self._get_rule_info(rid)
+                        name_part = f" — {name}" if name else ""
+                        wat_toetst = f"Wat toetst: {explanation}" if explanation else "Wat toetst: —"
+                        st.markdown(f"✅ {rid}{name_part}: OK · {wat_toetst}")
+        except Exception as e:
+            st.warning(f"Kon gedetailleerde validatie niet tonen: {e!s}")
+
+    def _get_rule_info(self, rule_id: str) -> tuple[str, str]:
+        """Haal (naam, uitleg) op voor een regel uit JSON, indien beschikbaar."""
+        try:
+            from pathlib import Path
+            import json as _json
+            rid = (rule_id or "").replace("_", "-")
+            json_path = Path("src/toetsregels/regels") / f"{rid}.json"
+            if not json_path.exists():
+                return "", ""
+            data = _json.loads(json_path.read_text(encoding="utf-8"))
+            name = str(data.get("naam") or "").strip()
+            explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+            return name, explanation
+        except Exception:
+            return "", ""
 
     def _rule_sort_key(self, rule_id: str):
         """Zelfde groeperings- en sorteersleutel als generator-tab."""

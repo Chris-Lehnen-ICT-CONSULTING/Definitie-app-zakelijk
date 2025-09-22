@@ -2,7 +2,7 @@
 aangemaakt: 01-01-2025
 applies_to: definitie-app@current
 astra_compliance: true
-bijgewerkt: 05-09-2025
+bijgewerkt: 22-09-2025
 canonical: true
 completion: 30%
 id: EPIC-004
@@ -24,6 +24,7 @@ stories:
 - US-154
 - US-071
 - US-110
+- US-235
 target_release: v1.2
 titel: User Interface
 vereisten:
