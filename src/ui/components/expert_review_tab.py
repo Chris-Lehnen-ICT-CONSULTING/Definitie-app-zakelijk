@@ -247,7 +247,8 @@ class ExpertReviewTab:
                             db_examples = self.repository.get_voorbeelden_by_type(definitie.id)
                             # Normaliseer: 'toelichting' als string indien aanwezig
                             if isinstance(db_examples, dict) and db_examples:
-                                examples = dict(db_examples)
+                                from ui.helpers.examples import canonicalize_examples
+                                examples = canonicalize_examples(dict(db_examples))
                                 tol = examples.get("toelichting")
                                 if isinstance(tol, list):
                                     examples["toelichting"] = tol[0] if tol else ""

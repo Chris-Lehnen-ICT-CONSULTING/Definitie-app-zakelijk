@@ -14,6 +14,94 @@ from typing import Any, Dict
 from ui.session_state import SessionStateManager
 
 
+def _to_list(val: Any) -> list[str]:
+    if isinstance(val, list):
+        return [str(x).strip() for x in val if str(x).strip()]
+    if isinstance(val, str):
+        s = val.strip()
+        if not s:
+            return []
+        # support comma-separated strings
+        return [p.strip() for p in s.split(",") if p.strip()]
+    return []
+
+
+def canonicalize_examples(raw: Dict[str, Any] | None) -> Dict[str, Any]:
+    """Map diverse voorbeeld-type keys naar de canonieke UI-sleutels.
+
+    Returns dict met keys: voorbeeldzinnen, praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen, toelichting.
+    """
+    data = raw or {}
+    out: Dict[str, Any] = {
+        "voorbeeldzinnen": [],
+        "praktijkvoorbeelden": [],
+        "tegenvoorbeelden": [],
+        "synoniemen": [],
+        "antoniemen": [],
+        "toelichting": "",
+    }
+
+    # Key aliases per categorie
+    aliases = {
+        "voorbeeldzinnen": {
+            "voorbeeldzinnen",
+            "zinnen",
+            "voorbeeldzin",
+            "sentences",
+            "sentence",
+            "example_sentences",
+        },
+        "praktijkvoorbeelden": {
+            "praktijkvoorbeelden",
+            "praktijk",
+            "praktijkvoorbeeld",
+            "practical_examples",
+            "practical",
+        },
+        "tegenvoorbeelden": {
+            "tegenvoorbeelden",
+            "tegen",
+            "counterexamples",
+            "counter",
+        },
+        "synoniemen": {"synoniemen", "synonym", "synonyms"},
+        "antoniemen": {"antoniemen", "antonym", "antonyms"},
+        "toelichting": {"toelichting", "uitleg", "notes", "comment", "explanation"},
+    }
+
+    # Lower-case keys for robust matching
+    lower_map = {str(k).strip().lower(): v for k, v in (data or {}).items()}
+
+    # Collect lists
+    for canon, keys in aliases.items():
+        if canon == "toelichting":
+            continue
+        items: list[str] = []
+        for k in keys:
+            if k in lower_map:
+                items.extend(_to_list(lower_map[k]))
+        # de-dup preserve order
+        seen: set[str] = set()
+        deduped: list[str] = []
+        for it in items:
+            if it not in seen:
+                seen.add(it)
+                deduped.append(it)
+        out[canon] = deduped
+
+    # Toelichting als string (neem eerste uit lijst indien nodig)
+    for k in aliases["toelichting"]:
+        if k in lower_map:
+            val = lower_map[k]
+            if isinstance(val, list):
+                out["toelichting"] = str(val[0]).strip() if val else ""
+            elif isinstance(val, str):
+                out["toelichting"] = val.strip()
+            break
+
+    return out
+
+
 def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
     """Return examples dict using common resolution order.
 
@@ -24,11 +112,11 @@ def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
     Returns:
         Dict with keys: voorbeeldzinnen, praktijkvoorbeelden, tegenvoorbeelden, synoniemen, antoniemen, toelichting
     """
-    # 1) Session state
+    # 1) Session state (al gecanonicaliseerd in eerdere stap of direct opslaan)
     try:
         sess_val = SessionStateManager.get_value(state_key)
         if isinstance(sess_val, dict) and sess_val:
-            return sess_val  # already cached for this tab
+            return canonicalize_examples(sess_val)
     except Exception:
         pass
 
@@ -38,18 +126,18 @@ def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
             md = definition.metadata
             if isinstance(md, dict):
                 v = md.get("voorbeelden") or {}
-                if isinstance(v, dict) and any(
-                    v.get(k) for k in (
+                if isinstance(v, dict):
+                    canon = canonicalize_examples(v)
+                    if any(canon.get(k) for k in (
                         "voorbeeldzinnen",
                         "praktijkvoorbeelden",
                         "tegenvoorbeelden",
                         "synoniemen",
                         "antoniemen",
                         "toelichting",
-                    )
-                ):
-                    SessionStateManager.set_value(state_key, v)
-                    return v
+                    )):
+                        SessionStateManager.set_value(state_key, canon)
+                        return canon
     except Exception:
         pass
 
@@ -61,8 +149,9 @@ def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
             if isinstance(ar, dict):
                 v = ar.get("voorbeelden") or {}
                 if isinstance(v, dict) and v:
-                    SessionStateManager.set_value(state_key, v)
-                    return v
+                    canon = canonicalize_examples(v)
+                    SessionStateManager.set_value(state_key, canon)
+                    return canon
     except Exception:
         pass
 
