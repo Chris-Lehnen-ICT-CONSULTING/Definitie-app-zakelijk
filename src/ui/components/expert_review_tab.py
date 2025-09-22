@@ -540,9 +540,9 @@ class ExpertReviewTab:
             vkey = f"review_v2_validation_{definitie.id}"
             v2 = SessionStateManager.get_value(vkey)
             if v2:
-                from ui.components.validation_view import render_v2_validation_details
+                from ui.components.validation_view import render_validation_detailed_list
                 st.markdown("#### ✅ Kwaliteitstoetsing")
-                render_v2_validation_details(v2)
+                render_validation_detailed_list(v2, key_prefix=f"review_{definitie.id}", show_toggle=True, gate=None)
         except Exception:
             pass
 
