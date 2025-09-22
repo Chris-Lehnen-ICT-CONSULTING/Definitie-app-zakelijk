@@ -262,7 +262,60 @@
       ],
       "processing_status": "success",
       "error_message": null
+    },
+    {
+      "id": "ffd429b2730c02ca",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2025-09-22T18:55:50.888932+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "7aeab5ceadcb2bf5",
+      "filename": "tmpoj7tq0mf.txt",
+      "mime_type": "text/plain",
+      "size": 80,
+      "uploaded_at": "2025-09-22T18:56:41.531300+00:00",
+      "extracted_text": "Dit is een Nederlandse wet artikel over identiteitsbehandeling en authenticatie.",
+      "text_length": 80,
+      "keywords": [
+        "nederlandse",
+        "artikel",
+        "identiteitsbehandeling",
+        "authenticatie"
+      ],
+      "key_concepts": [
+        "Nederlandse"
+      ],
+      "legal_references": [
+        "wet artikel"
+      ],
+      "context_hints": [
+        "Compact document - specifieke context",
+        "Juridische context aanwezig",
+        "Bevat 1 geïdentificeerde concepten"
+      ],
+      "processing_status": "success",
+      "error_message": null
     }
   ],
-  "last_updated": "2025-09-22T18:47:42.663872+00:00"
+  "last_updated": "2025-09-22T18:56:41.531446+00:00"
 }
