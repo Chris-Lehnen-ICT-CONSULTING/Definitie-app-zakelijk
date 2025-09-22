@@ -134,3 +134,81 @@ def genereer_tegenvoorbeelden(
         voorbeelden.append("\n".join(current).strip())
 
     return voorbeelden
+
+
+def genereer_synoniemen(
+    begrip: str, definitie: str, context_dict: dict[str, list[str]], aantal: int = 8
+) -> list[str]:
+    """Genereer synoniemen/naambeschrijvingen die passen bij de definitie/context."""
+    prompt = (
+        f"Geef {aantal} synoniemen of naambeschrijvingen voor het begrip '{begrip}'.\n"
+        f"Definitie: {definitie.strip()}\n"
+        "Beperk je tot termen die in juridische/overheidscontext gangbaar zijn.\n"
+        "Geef één term per regel, zonder nummering of uitleg."
+    )
+    try:
+        resp = _client.chat.completions.create(
+            model=None,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            max_tokens=200,
+        )
+        blob = (resp.choices[0].message.content or "").strip()
+    except OpenAIError as e:
+        return [f"❌ Fout bij genereren synoniemen: {e}"]
+
+    out: list[str] = []
+    for line in blob.splitlines():
+        term = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
+        if term:
+            out.append(term)
+    return out or [blob]
+
+
+def genereer_antoniemen(
+    begrip: str, definitie: str, context_dict: dict[str, list[str]], aantal: int = 5
+) -> list[str]:
+    """Genereer antoniemen of contrasterende termen voor het begrip."""
+    prompt = (
+        f"Geef {aantal} antoniemen of contrasterende termen bij '{begrip}'.\n"
+        f"Definitie: {definitie.strip()}\n"
+        "Alleen juridische/overheidsrelevante tegenhangers. Eén term per regel, geen uitleg."
+    )
+    try:
+        resp = _client.chat.completions.create(
+            model=None,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.5,
+            max_tokens=150,
+        )
+        blob = (resp.choices[0].message.content or "").strip()
+    except OpenAIError as e:
+        return [f"❌ Fout bij genereren antoniemen: {e}"]
+
+    out: list[str] = []
+    for line in blob.splitlines():
+        term = re.sub(r"^\s*(?:\d+\.|-)\s*", "", line).strip()
+        if term:
+            out.append(term)
+    return out or [blob]
+
+
+def genereer_toelichting(
+    begrip: str, definitie: str, context_dict: dict[str, list[str]], max_zinnen: int = 3
+) -> str:
+    """Genereer een korte toelichting (2–3 zinnen) bij de definitie."""
+    prompt = (
+        f"Schrijf een korte toelichting (max {max_zinnen} zinnen) bij de definitie van '{begrip}'.\n"
+        f"Definitie: {definitie.strip()}\n"
+        "Toelichting moet bondig zijn, geen herhaling van de definitie, en toepasbaarheid verduidelijken."
+    )
+    try:
+        resp = _client.chat.completions.create(
+            model=None,
+            messages=[{"role": "user", "content": prompt}],
+            temperature=0.4,
+            max_tokens=220,
+        )
+        return (resp.choices[0].message.content or "").strip()
+    except OpenAIError as e:
+        return f"❌ Fout bij genereren toelichting: {e}"
