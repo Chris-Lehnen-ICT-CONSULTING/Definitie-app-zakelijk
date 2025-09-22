@@ -49,8 +49,24 @@ def to_list(val: Any) -> list[str]:
 
 
 def normalize_row(d: dict[str, Any]) -> dict[str, str]:
-    begrip = d.get("begrip") or d.get("term") or d.get("naam") or ""
-    definitie = d.get("definitie") or d.get("omschrijving") or d.get("description") or ""
+    # Begrip (fallbacks incl. SBB export kolommen)
+    begrip = (
+        d.get("begrip")
+        or d.get("term")
+        or d.get("naam")
+        or d.get("NLSBBNaamBegrip")
+        or d.get("NLSBBVoorkeursterm")
+        or d.get("Titel")
+        or ""
+    )
+    # Definitie (fallbacks incl. SBB export kolom)
+    definitie = (
+        d.get("definitie")
+        or d.get("omschrijving")
+        or d.get("description")
+        or d.get("NLSBBDefinitie")
+        or ""
+    )
     categorie = d.get("categorie") or d.get("category") or "proces"
 
     org = d.get("organisatorische_context") or d.get("context") or d.get("organisatie") or []
@@ -61,9 +77,21 @@ def normalize_row(d: dict[str, Any]) -> dict[str, str]:
     jur_list = to_list(jur)
     wet_list = to_list(wet)
 
+    def _clean_lang_tags(s: Any) -> str:
+        t = str(s or "").strip()
+        # Verwijder eventuele taal-tag aan het eind (bijv. @nl)
+        if t.endswith("@nl"):
+            t = t[:-3].strip()
+        # Unescape dubbele aanhalingstekens uit bron
+        t = t.replace('""', '"')
+        # Verwijder omringende quotes als het hele veld ermee omkleed is
+        if len(t) >= 2 and t[0] == '"' and t[-1] == '"':
+            t = t[1:-1].strip()
+        return t
+
     return {
-        "begrip": str(begrip).strip(),
-        "definitie": str(definitie).strip(),
+        "begrip": _clean_lang_tags(begrip),
+        "definitie": _clean_lang_tags(definitie),
         "categorie": str(categorie).strip() or "proces",
         "organisatorische_context": ", ".join(org_list),
         "juridische_context": ", ".join(jur_list),
@@ -133,4 +161,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
