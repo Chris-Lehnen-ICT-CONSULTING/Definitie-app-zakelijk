@@ -297,24 +297,91 @@ class SRUService:
 
     def _build_cql_query(self, term: str, collection: str) -> str:
         """
-        Bouw CQL (Contextual Query Language) query.
+        Bouw een SRU CQL‑query op basis van de zoekterm en (indien aanwezig)
+        afgeleide wettelijke context. Deze versie vermijdt één grote gequote
+        frase en gebruikt in plaats daarvan AND/OR‑blokken:
 
-        CQL is de standaard query taal voor SRU.
+        (cql.serverChoice any "<term>") AND (
+            cql.serverChoice any "Wetboek van Strafvordering" OR cql.serverChoice any "Sv"
+        )
+
+        Wanneer geen wettelijke context kan worden herkend, valt de builder
+        terug op de eerdere DC‑velden (title/subject/description).
         """
-        # Escape speciale karakters in term
-        escaped_term = term.replace('"', '\\"')
 
-        # Basis query - zoek in titel en inhoud
-        # Gebruik contains-achtige matching door wildcard te ondersteunen indien endpoint dit toelaat.
-        # Conservatief: probeer exact, maar laat SRU server-choice ook toe.
+        # Interne helpers
+        def _escape(s: str) -> str:
+            return (s or "").replace('"', '\\"').strip()
+
+        def _detect_wet_variants(text: str) -> list[str]:
+            """Herken wet‑synoniemen (Sv/Sr/Awb/Rv en uitgeschreven varianten)."""
+            t = (text or "").lower()
+            variants: list[str] = []
+            # Voluit namen en gebruikelijke afkortingen
+            if ("wetboek van strafvordering" in t) or (" sv" in f" {t}") or ("strafvordering" in t):
+                variants.extend(["Wetboek van Strafvordering", "Sv"])
+            if ("wetboek van strafrecht" in t) or (" sr" in f" {t}"):
+                variants.extend(["Wetboek van Strafrecht", "Sr"])
+            if ("algemene wet bestuursrecht" in t) or (" awb" in f" {t}"):
+                variants.extend(["Algemene wet bestuursrecht", "Awb"])
+            # Burgerlijke Rechtsvordering (Rv)
+            if ("burgerlijke rechtsvordering" in t) or (" rv" in f" {t}"):
+                variants.extend(["Wetboek van Burgerlijke Rechtsvordering", "Rv"])
+
+            # De‑dupe while preserving order (case‑insensitive)
+            seen: set[str] = set()
+            out: list[str] = []
+            for v in variants:
+                k = v.lower()
+                if k not in seen:
+                    seen.add(k)
+                    out.append(v)
+            return out
+
+        def _strip_org_tokens(text: str) -> str:
+            """Verwijder bekende organisatorische tokens die trefkans verlagen in SRU."""
+            org_tokens = {"om", "zm", "justid", "dji", "cjib", "kmar", "reclassering"}
+            parts = [p for p in (text or "").split() if p]
+            kept: list[str] = []
+            for p in parts:
+                if p.lower() in org_tokens:
+                    continue
+                kept.append(p)
+            return " ".join(kept)
+
+        # Stap 1: haal wet‑varianten uit de term, strip org‑tokens uit basisterm
+        wet_variants = _detect_wet_variants(term)
+        base_term = _strip_org_tokens(term)
+        # Verwijder wet‑varianten uit de basisterm om ruis te beperken
+        if wet_variants:
+            bt = base_term
+            for v in wet_variants:
+                if not v:
+                    continue
+                import re as _re
+                # case‑insensitive vervanging, als los woord of frase
+                pattern = _re.compile(r"\b" + _re.escape(v) + r"\b", _re.IGNORECASE)
+                bt = pattern.sub(" ", bt)
+            base_term = " ".join(bt.split())
+
+        # Als we wet‑context hebben, bouw een AND/OR query met serverChoice any
+        if wet_variants:
+            term_block = f'cql.serverChoice any "{_escape(base_term)}"'
+            wet_block_parts = [f'cql.serverChoice any "{_escape(w)}"' for w in wet_variants]
+            wet_block = " OR ".join(wet_block_parts)
+            query = f'({term_block}) AND ({wet_block})'
+            # Voeg collectie filter toe indien aanwezig (alleen voor overheid.nl verzameling)
+            if collection:
+                query = f'{query} AND overheidnl.collection="{_escape(collection)}"'
+            return query
+
+        # Geen herkende wet‑context ⇒ val terug op eerdere DC‑velden‑query (behaviour‑preserving)
+        escaped_term = _escape(term)
         base_query = (
             f'(dc.title="{escaped_term}" OR dc.subject="{escaped_term}" OR dc.description="{escaped_term}")'
         )
-
-        # Voeg collectie filter toe als specifiek
         if collection:
-            base_query = f'{base_query} AND overheidnl.collection="{collection}"'
-
+            base_query = f'{base_query} AND overheidnl.collection="{_escape(collection)}"'
         return base_query
 
     # === Legal metadata extraction ===
