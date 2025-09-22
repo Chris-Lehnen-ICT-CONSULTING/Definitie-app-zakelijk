@@ -2162,7 +2162,8 @@
           "US-110",
           "US-136",
           "US-153",
-          "US-154"
+          "US-154",
+          "US-235"
         ],
         "epic": [
           "EPIC-004"
@@ -3198,6 +3199,42 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-064/IMPLEMENTATION_PLAN.html"
+    },
+    {
+      "id": "US-235",
+      "type": "US",
+      "title": "Per-onderdeel “↻ Vernieuw” knoppen voor voorbeelden in Bewerk‑tab",
+      "path": "../backlog/EPIC-004/US-235/US-235.md",
+      "url": "../backlog/EPIC-004/US-235/US-235.md",
+      "status": "Open",
+      "prioriteit": "GEMIDDELD",
+      "owner": "product",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-235.md",
+      "_refs": {
+        "us": [
+          "US-235"
+        ],
+        "epic": [
+          "EPIC-004"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-235/US-235.html",
+      "linked_reqs": null
     },
     {
       "id": "EPIC-005",
@@ -31801,7 +31838,7 @@
     "counts": {
       "DOC": 473,
       "EPIC": 17,
-      "US": 210,
+      "US": 211,
       "BUG": 17,
       "REQ": 99,
       "ARCH": 24,
@@ -31809,7 +31846,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T14:50:56Z"
+    "generated_at": "2025-09-22T15:07:51Z"
   },
   "sources": [
     "docs"
