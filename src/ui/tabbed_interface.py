@@ -946,6 +946,23 @@ class TabbedInterface:
                     },
                 )
 
+                # Koppel gegenereerde definitie aan edit tab voor auto-load
+                # Dit zorgt ervoor dat de definitie klaarstaat als gebruiker naar Bewerk navigeert
+                if saved_record and hasattr(saved_record, 'id'):
+                    # Sla definitie ID op voor edit tab
+                    SessionStateManager.set_value("editing_definition_id", saved_record.id)
+
+                    # Sla ook de contexten op voor de edit tab
+                    # Gebruik de context uit de generation call, niet uit saved_record
+                    SessionStateManager.set_value("edit_organisatorische_context", org_context)
+                    SessionStateManager.set_value("edit_juridische_context", jur_context)
+                    SessionStateManager.set_value("edit_wettelijke_basis", wet_context)
+
+                    logger.info(
+                        f"Definition {saved_record.id} prepared for edit tab with contexts: "
+                        f"org={len(org_context)} items, jur={len(jur_context)} items, wet={len(wet_context)} items"
+                    )
+
                 # Debug logging point C2 - Post-store
                 if os.getenv("DEBUG_EXAMPLES"):
                     stored = SessionStateManager.get_value("last_generation_result", {})

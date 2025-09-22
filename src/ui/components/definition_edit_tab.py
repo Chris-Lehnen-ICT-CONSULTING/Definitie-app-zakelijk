@@ -62,7 +62,27 @@ class DefinitionEditTab:
                 if session and session.get('success'):
                     SessionStateManager.set_value('editing_definition', session.get('definition'))
                     SessionStateManager.set_value('edit_session', session)
-        except Exception:
+
+                    # Check of er contexten zijn meegegeven vanuit de generator tab
+                    # Dit zorgt ervoor dat de contexten automatisch ingevuld worden
+                    edit_org_context = SessionStateManager.get_value('edit_organisatorische_context')
+                    edit_jur_context = SessionStateManager.get_value('edit_juridische_context')
+                    edit_wet_context = SessionStateManager.get_value('edit_wettelijke_basis')
+
+                    if edit_org_context or edit_jur_context or edit_wet_context:
+                        # Log dat we contexten hebben gevonden
+                        logger.info(f"Loading contexts from generator tab for definition {target_id}")
+
+                        # Toon melding aan gebruiker
+                        st.info("📋 Contexten van gegenereerde definitie zijn automatisch ingevuld")
+
+                        # Clear de tijdelijke context variabelen na gebruik
+                        # Dit voorkomt dat oude contexten blijven hangen
+                        SessionStateManager.clear_value('edit_organisatorische_context')
+                        SessionStateManager.clear_value('edit_juridische_context')
+                        SessionStateManager.clear_value('edit_wettelijke_basis')
+        except Exception as e:
+            logger.error(f"Error in edit tab auto-load: {e}")
             pass
 
         # Main layout
@@ -194,7 +214,12 @@ class DefinitionEditTab:
         with col1:
             # Organisatorische context (multiselect met Anders...)
             org_options = list(ORGANIZATIONS)
-            current_org = getattr(definition, 'organisatorische_context', []) or []
+            # Check eerst voor contexten van generator tab, dan pas definitie object
+            edit_org_from_generator = SessionStateManager.get_value('edit_organisatorische_context')
+            if edit_org_from_generator and isinstance(edit_org_from_generator, list):
+                current_org = edit_org_from_generator
+            else:
+                current_org = getattr(definition, 'organisatorische_context', []) or []
             org_selected = st.multiselect(
                 "Organisatorische Context",
                 options=[*org_options, "Anders..."],
