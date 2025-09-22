@@ -689,25 +689,24 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             # =====================================
             # PHASE 9: Storage (Conditional on Quality Gate)
             # =====================================
-            definition_id = None
-            if safe_dict_get(validation_result, "is_acceptable", False):
-                definition_id = await self._safe_save_definition(definition)
-                logger.info(
-                    f"Generation {generation_id}: Definition saved (ID: {definition_id})"
-                )
-                try:
-                    # Zorg dat het ID ook op het Definition‑object staat voor downstream consumers
-                    if definition_id:
-                        definition.id = int(definition_id)
-                except Exception:  # pragma: no cover
-                    pass
-            else:
-                # Store failed attempts for feedback learning
+            # Opslag ONGEACHT scores: altijd opslaan (als draft/review) en ID teruggeven
+            definition_id = await self._safe_save_definition(definition)
+            logger.info(
+                f"Generation {generation_id}: Definition saved (ID: {definition_id})"
+            )
+            try:
+                if definition_id:
+                    definition.id = int(definition_id)
+            except Exception:  # pragma: no cover
+                pass
+
+            # Optioneel: sla mislukte poging ook op voor feedback‑learning
+            if not safe_dict_get(validation_result, "is_acceptable", False):
                 await self._save_failed_attempt(
                     definition, validation_result, generation_id
                 )
                 logger.warning(
-                    f"Generation {generation_id}: Failed attempt stored for feedback learning"
+                    f"Generation {generation_id}: Stored as saved definition and logged failed attempt for learning"
                 )
 
             # =====================================
