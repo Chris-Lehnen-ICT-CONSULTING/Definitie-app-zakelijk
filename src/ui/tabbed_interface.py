@@ -35,6 +35,7 @@ from domain.ontological_categories import (
 )
 from integration.definitie_checker import (  # Definitie integratie controle
     DefinitieChecker,
+    CheckAction,
 )
 
 # Nieuwe services imports

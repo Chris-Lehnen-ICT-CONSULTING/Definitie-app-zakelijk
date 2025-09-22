@@ -68,6 +68,12 @@ Let op voor ontwikkelaars:
 - Configbestand: `config/web_lookup_defaults.yaml` (provider‑weights, sanitization, caching). Eigen config via `WEB_LOOKUP_CONFIG=/pad/naar/config.yaml`.
 - Documentatie: [Web Lookup Configuratie](docs/technisch/web_lookup_config.md)
 
+### ✏️ Auto‑load Bewerk‑tab (V2)
+
+- Acceptabel resultaat (quality gate OK): de orchestrator slaat automatisch op als concept en levert het ID terug; de Bewerk‑tab laadt direct met deze definitie.
+- Niet‑acceptabel resultaat: wordt niet opgeslagen. In de Generator‑tab verschijnt de knop “Bewaar als concept en bewerk” om expliciet als draft op te slaan en direct te bewerken.
+- Geen dubbele opslag: de UI gebruikt het ID uit de orchestrator (`saved_definition_id`); er is geen fallback‑insert meer in de UI.
+
 ## 🎯 Overzicht
 
 DefinitieAgent is een AI-applicatie voor het genereren van hoogwaardige Nederlandse definities volgens strenge overheidsstandaarden. Het systeem gebruikt GPT-4 met 45 kwaliteitsregels en biedt een modulaire architectuur voor uitbreidbaarheid.
