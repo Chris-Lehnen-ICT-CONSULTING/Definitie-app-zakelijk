@@ -12,6 +12,7 @@ from database.definitie_repository import (
     DefinitieStatus,
 )
 from ui.session_state import SessionStateManager
+from config.config_manager import get_config, ConfigSection
 
 
 class ExpertReviewTab:
@@ -88,6 +89,16 @@ class ExpertReviewTab:
                     key="review_org_filter",
                     help="Filter op organisaties (één of meer)",
                 )
+                # Toon afkortingen-uitleg uit config (indien aanwezig)
+                try:
+                    ui_cfg = get_config(ConfigSection.UI)
+                    abbrev = getattr(ui_cfg, 'afkortingen', {}) or {}
+                    if abbrev:
+                        with st.expander("ℹ️ Afkortingen (uitleg)", expanded=False):
+                            for ak in sorted(abbrev.keys()):
+                                st.markdown(f"- **{ak}** — {abbrev[ak]}")
+                except Exception:
+                    pass
             with col_jur:
                 jur_filter = st.multiselect(
                     "Juridisch",
