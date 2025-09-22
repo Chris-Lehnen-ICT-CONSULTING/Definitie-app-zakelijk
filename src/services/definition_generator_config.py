@@ -210,33 +210,12 @@ class UnifiedGeneratorConfig:
     enable_batch_processing: bool = False
     enable_feedback_learning: bool = True
 
-    # Environment-based overrides
-    environment: str = field(
-        default_factory=lambda: os.getenv("ENVIRONMENT", "development")
-    )
-
     def __post_init__(self):
-        """Apply environment-specific configurations."""
-        if self.environment == "production":
-            # Production optimizations
-            self.monitoring.enable_monitoring = True
-            self.monitoring.log_prompts = False
-            self.monitoring.log_responses = False
-            self.cache.strategy = CacheStrategy.REDIS
-            self.gpt.retry_count = 5
-
-        elif self.environment == "development":
-            # Development optimizations
-            self.monitoring.log_level = "DEBUG"
-            self.monitoring.log_errors = True
-            self.cache.strategy = CacheStrategy.MEMORY
-            self.compatibility.legacy_method_warnings = True
-
-        elif self.environment == "testing":
-            # Testing optimizations
-            self.cache.strategy = CacheStrategy.NONE
-            # Web lookup always runs when service available - no flag
-            self.monitoring.enable_monitoring = False
+        """Apply fixed defaults (single-environment setup)."""
+        self.monitoring.log_level = "DEBUG"
+        self.monitoring.log_errors = True
+        self.cache.strategy = CacheStrategy.MEMORY
+        self.compatibility.legacy_method_warnings = True
 
     @classmethod
     def from_environment(cls) -> "UnifiedGeneratorConfig":
