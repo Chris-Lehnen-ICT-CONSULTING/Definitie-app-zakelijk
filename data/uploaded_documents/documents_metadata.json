@@ -103,7 +103,62 @@
       ],
       "processing_status": "success",
       "error_message": null
+    },
+    {
+      "id": "8c279b32401fb084",
+      "filename": "test.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36635,
+      "uploaded_at": "2025-09-22T12:31:18.261238+00:00",
+      "extracted_text": "Dit is een test. BegripX komt hier voor.\nNog een paragraaf met BegripX en extra tekst.",
+      "text_length": 86,
+      "keywords": [
+        "begripx",
+        "test",
+        "komt",
+        "hier",
+        "paragraaf",
+        "extra",
+        "tekst"
+      ],
+      "key_concepts": [],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context"
+      ],
+      "processing_status": "success",
+      "error_message": null
+    },
+    {
+      "id": "6723c417bab13063",
+      "filename": "security.docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 36634,
+      "uploaded_at": "2025-09-22T12:31:18.730116+00:00",
+      "extracted_text": "Intro. Authenticatie is vereist in stap 1.\nParagraaf 2 bespreekt Authenticatie opnieuw.",
+      "text_length": 87,
+      "keywords": [
+        "authenticatie",
+        "intro",
+        "vereist",
+        "stap",
+        "paragraaf",
+        "bespreekt",
+        "opnieuw"
+      ],
+      "key_concepts": [
+        "Intro",
+        "Authenticatie",
+        "Paragraaf"
+      ],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context",
+        "Bevat 3 geïdentificeerde concepten"
+      ],
+      "processing_status": "success",
+      "error_message": null
     }
   ],
-  "last_updated": "2025-09-22T11:26:02.475504+00:00"
+  "last_updated": "2025-09-22T12:31:18.730210+00:00"
 }
