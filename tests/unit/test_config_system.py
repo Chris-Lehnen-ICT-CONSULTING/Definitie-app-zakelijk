@@ -19,26 +19,32 @@ from config.config_manager import (
     reload_config,
     set_config,
 )
+from config import (
+    get_api_config,
+    get_cache_config,
+    get_paths_config,
+    get_default_model,
+    get_default_temperature,
+    get_openai_api_key,
+)
 
 
 class TestConfigManager:
     """Test suite for ConfigManager class."""
 
     def test_environment_detection(self):
-        """Test automatic environment detection."""
-        # Test default environment
+        """Environment is fixed to development regardless of ENVIRONMENT var."""
         with patch.dict(os.environ, {}, clear=True):
             config_manager = ConfigManager()
             assert config_manager.environment == Environment.DEVELOPMENT
 
-        # Test environment variable detection
         with patch.dict(os.environ, {"ENVIRONMENT": "production"}):
             config_manager = ConfigManager()
-            assert config_manager.environment == Environment.PRODUCTION
+            assert config_manager.environment == Environment.DEVELOPMENT
 
         with patch.dict(os.environ, {"ENVIRONMENT": "testing"}):
             config_manager = ConfigManager()
-            assert config_manager.environment == Environment.TESTING
+            assert config_manager.environment == Environment.DEVELOPMENT
 
     def test_config_loading_hierarchy(self):
         """Test configuration loading hierarchy (default -> env -> env vars)."""
@@ -112,7 +118,7 @@ class TestConfigManager:
         assert "api_key_configured" in env_info
         assert "directories_created" in env_info
 
-        assert env_info["environment"] in ["development", "testing", "production"]
+        assert env_info["environment"] == "development"
         assert isinstance(env_info["config_loaded"], bool)
 
 
@@ -311,55 +317,23 @@ class TestConfigurationPersistence:
 
 
 class TestEnvironmentSpecificConfiguration:
-    """Test suite for environment-specific configuration."""
+    """Environment-specific settings are unified; only development is used."""
 
-    def test_development_environment(self):
-        """Test development environment configuration."""
-        with patch.dict(os.environ, {"ENVIRONMENT": "development"}):
-            config_manager = ConfigManager()
-
-            # Development should have more verbose logging
-            logging_config = config_manager.get_config(ConfigSection.LOGGING)
-            assert logging_config.level in ["DEBUG", "INFO"]
-
-            # Development should have relaxed rate limiting
-            rate_config = config_manager.get_config(ConfigSection.RATE_LIMITING)
-            assert rate_config.requests_per_minute > 30  # More permissive
-
-    def test_testing_environment(self):
-        """Test testing environment configuration."""
-        with patch.dict(os.environ, {"ENVIRONMENT": "testing"}):
-            config_manager = ConfigManager()
-
-            # Testing should have deterministic settings
-            api_config = config_manager.get_config(ConfigSection.API)
-            assert api_config.default_temperature == 0.0  # Deterministic
-
-            # Testing should have disabled caching
-            cache_config = config_manager.get_config(ConfigSection.CACHE)
-            assert cache_config.enabled is False
-
-    def test_production_environment(self):
-        """Test production environment configuration."""
-        with patch.dict(os.environ, {"ENVIRONMENT": "production"}):
-            config_manager = ConfigManager()
-
-            # Production should have strict settings
-            api_config = config_manager.get_config(ConfigSection.API)
-            assert api_config.default_temperature <= 0.01  # Very deterministic
-
-            # Production should have enabled monitoring
-            monitoring_config = config_manager.get_config(ConfigSection.MONITORING)
-            assert monitoring_config.enabled is True
+    def test_single_environment_defaults(self):
+        config_manager = ConfigManager()
+        # Values come from development config; ensure types are sensible
+        api_config = config_manager.get_config(ConfigSection.API)
+        assert isinstance(api_config.default_temperature, (int, float))
+        logging_config = config_manager.get_config(ConfigSection.LOGGING)
+        assert isinstance(logging_config.level, str)
 
 
 class TestConfigurationErrorHandling:
     """Test suite for configuration error handling."""
 
     def test_invalid_environment_variable(self):
-        """Test handling of invalid environment variables."""
+        """ENVIRONMENT is ignored; always development."""
         with patch.dict(os.environ, {"ENVIRONMENT": "invalid_env"}):
-            # Should fall back to development
             config_manager = ConfigManager()
             assert config_manager.environment == Environment.DEVELOPMENT
 
@@ -438,30 +412,10 @@ class TestConfigurationIntegration:
         assert direct_config.request_timeout == adapter_config.request_timeout
 
     def test_environment_configuration_isolation(self):
-        """Test that environment configurations are properly isolated."""
-        # This test ensures that changing environment affects configuration
-        original_env = os.environ.get("ENVIRONMENT", "development")
-
-        try:
-            # Test development configuration
-            os.environ["ENVIRONMENT"] = "development"
-            config_manager_dev = ConfigManager()
-            dev_api_config = config_manager_dev.get_config(ConfigSection.API)
-
-            # Test production configuration
-            os.environ["ENVIRONMENT"] = "production"
-            config_manager_prod = ConfigManager()
-            prod_api_config = config_manager_prod.get_config(ConfigSection.API)
-
-            # They should have different values for some settings
-            assert (
-                dev_api_config.default_temperature
-                != prod_api_config.default_temperature
-            )
-
-        finally:
-            # Restore original environment
-            os.environ["ENVIRONMENT"] = original_env
+        """No isolation check: single environment only (development)."""
+        config_manager = ConfigManager()
+        api_config = config_manager.get_config(ConfigSection.API)
+        assert isinstance(api_config.default_temperature, (int, float))
 
 
 if __name__ == "__main__":
