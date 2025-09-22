@@ -3,6 +3,10 @@ Service Factory met Feature Flags.
 
 Dit module biedt de integratie tussen de nieuwe services en de legacy code,
 met feature flags voor geleidelijke migratie.
+
+Legacy validator removed (US-043):
+- Er is geen legacy validatorpad meer; validatie loopt via V2 (ValidationOrchestratorV2/ModularValidationService).
+- Tests controleren op afwezigheid van `container.validator()` en verwachten deze marker.
 """
 
 import logging

@@ -75,6 +75,23 @@
 <li>PromptServiceV2: HybridContextManager (documentbron) + optionele snippet‑injectie</li>
 </ul>
 
+<h2>Snippet‑injectie (EPIC‑018)</h2>
+
+<ul>
+<li>Doel: korte fragmenten uit geüploade documenten toevoegen aan de prompt met bronvermelding.</li>
+<li>Matching: case‑insensitive zoek op het ingevoerde begrip in de geselecteerde documenten.</li>
+<li>Locatiebepaling:</li>
+<li> - PDF: pagina via form feed scheiding tussen pagina’s in de geëxtraheerde tekst → label “p. X”.</li>
+<li> - DOCX: paragraaf benaderd via newline‑tellingen → label “¶ Y”.</li>
+<li>Grenzen en toggles (env):</li>
+<li> - `DOCUMENT_SNIPPETS_ENABLED` (default: `true`)</li>
+<li> - `DOCUMENT_SNIPPETS_MAX` totaal in prompt (default: `16`)</li>
+<li> - `DOCUMENT_SNIPPETS_PER_DOC` per document (default: `4`)</li>
+<li> - `SNIPPET_WINDOW_CHARS` venstergrootte per match (default: `280`)</li>
+<li> - `DOCUMENT_SNIPPETS_MAX_CHARS` totaal aantal tekens over alle snippets (default: `800`)</li>
+<li>Sanitization: fragmenten worden geschoond via de bestaande `sanitize_snippet` logica voordat ze in de prompt worden geplaatst.</li>
+<li>UI: onder “📚 Gebruikte Bronnen” verschijnen `documents`‑bronnen met bestandsnaam en “Locatie: p. X/¶ Y” en de badge “→ In prompt”.</li>
+</ul>
 
   </div>
 </body>

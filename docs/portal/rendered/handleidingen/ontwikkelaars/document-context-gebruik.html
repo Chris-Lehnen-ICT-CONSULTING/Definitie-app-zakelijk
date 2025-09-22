@@ -69,6 +69,22 @@ request.document_context = summary  # korte samenvatting</code></pre>
 <li>Geen `.doc` en geen OCR; zie Phoenix‑EPIC voor uitgebreidere scope</li>
 </ul>
 
+<h2>Configuratie (env)</h2>
+
+<ul>
+<li>`DOCUMENT_SNIPPETS_ENABLED` (true|false): schakel snippet‑injectie in/uit (default: true)</li>
+<li>`DOCUMENT_SNIPPETS_MAX` (int): maximaal aantal snippets in de prompt over alle documenten (default: 16)</li>
+<li>`DOCUMENT_SNIPPETS_PER_DOC` (int): maximaal aantal matches per document (default: 4)</li>
+<li>`SNIPPET_WINDOW_CHARS` (int): vensterlengte rondom de match (default: 280)</li>
+<li>`DOCUMENT_SNIPPETS_MAX_CHARS` (int): totaal aantal tekens over alle snippets (default: 800)</li>
+</ul>
+
+<p>Voorbeeld (shell):</p>
+<pre><code>export DOCUMENT_SNIPPETS_ENABLED=true
+export DOCUMENT_SNIPPETS_PER_DOC=4
+export SNIPPET_WINDOW_CHARS=280
+export DOCUMENT_SNIPPETS_MAX=16
+export DOCUMENT_SNIPPETS_MAX_CHARS=800</code></pre>
 
   </div>
 </body>

@@ -49,3 +49,19 @@ Converteer (sanitized) fragmenten naar hetzelfde schema als web_lookup sources e
 - Installeer extractie‑libs: `pip install python-docx PyPDF2`
 - Geen `.doc` en geen OCR; zie Phoenix‑EPIC voor uitgebreidere scope
 
+## Configuratie (env)
+
+- `DOCUMENT_SNIPPETS_ENABLED` (true|false): schakel snippet‑injectie in/uit (default: true)
+- `DOCUMENT_SNIPPETS_MAX` (int): maximaal aantal snippets in de prompt over alle documenten (default: 16)
+- `DOCUMENT_SNIPPETS_PER_DOC` (int): maximaal aantal matches per document (default: 4)
+- `SNIPPET_WINDOW_CHARS` (int): vensterlengte rondom de match (default: 280)
+- `DOCUMENT_SNIPPETS_MAX_CHARS` (int): totaal aantal tekens over alle snippets (default: 800)
+
+Voorbeeld (shell):
+```bash
+export DOCUMENT_SNIPPETS_ENABLED=true
+export DOCUMENT_SNIPPETS_PER_DOC=4
+export SNIPPET_WINDOW_CHARS=280
+export DOCUMENT_SNIPPETS_MAX=16
+export DOCUMENT_SNIPPETS_MAX_CHARS=800
+```

@@ -382,6 +382,30 @@ class ManagementTab:
                 if not container:
                     st.error("❌ Service container niet geïnitialiseerd")
                 else:
+                    # Korte uitleg (inline help)
+                    st.markdown(
+                        """
+                        - Kies een modus:
+                          - Formulier: vul velden in voor 1 definitie
+                          - JSON: plak een payload met canonieke velden
+                          - Bestand: upload JSON of CSV met precies 1 record
+                        - Klik vervolgens op "🔍 Valideren" om score en overtredingen te zien
+                        - Kies eventueel "🔄 Bestaande overschrijven" (anders worden duplicaten overgeslagen)
+                        - Klik op "📥 Importeer als Draft" om op te slaan met herkomst imported
+
+                        Voorbeeld JSON payload:
+                        ```json
+                        {
+                          "begrip": "Griffier",
+                          "definitie": "De griffier is …",
+                          "categorie": "proces",
+                          "organisatorische_context": ["OM"],
+                          "juridische_context": ["Strafrecht"],
+                          "wettelijke_basis": ["Sv"]
+                        }
+                        ```
+                        """
+                    )
                     import_service = container.import_service()
 
                     mode = st.radio(
@@ -585,6 +609,24 @@ class ManagementTab:
                 if not container:
                     st.error("❌ Service container niet geïnitialiseerd")
                 else:
+                    # Korte uitleg (inline help)
+                    st.markdown(
+                        """
+                        - Upload een CSV met canonieke kolommen:
+                          `begrip, definitie, categorie, organisatorische_context, juridische_context, wettelijke_basis`
+                        - Contextkolommen mogen komma‑gescheiden lijsten bevatten (bijv. `OM, DJI`)
+                        - Kies duplicate‑strategie:
+                          - `skip` (standaard): sla duplicaten over
+                          - `overwrite`: update het eerste gevonden duplicaat
+                        - Maximaal 100 rijen per run; elke rij wordt gevalideerd vóór import
+
+                        Voorbeeld CSV:
+                        ```csv
+                        begrip,definitie,categorie,organisatorische_context,juridische_context,wettelijke_basis
+                        Griffier,"De griffier is …",proces,OM,"Strafrecht","Sv"
+                        ```
+                        """
+                    )
                     import_service = container.import_service()
 
                     uploaded_csv = st.file_uploader(
