@@ -9,7 +9,7 @@ def _load_cases():
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(reason="Golden acceptability bands nog niet getuned in ModularValidationService")
+@pytest.mark.xfail(reason="Golden acceptability mapping via DI service not aligned yet")
 @pytest.mark.asyncio
 async def test_golden_definitions_via_orchestrator():
     from services.container import ServiceContainer, ContainerConfigs
