@@ -2214,6 +2214,39 @@
       ]
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "US-237-reset-examples-to-db",
+      "path": "../backlog/EPIC-004/US-237-reset-examples-to-db.md",
+      "url": "../backlog/EPIC-004/US-237-reset-examples-to-db.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-004",
+      "parent_us": "US-237-reset-examples-to-db.md",
+      "_refs": {
+        "us": [
+          "US-237"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-004/US-237-reset-examples-to-db.html"
+    },
+    {
       "id": "US-021",
       "type": "US",
       "title": "Tab Activation (7/10 tabs needed)",
@@ -31908,7 +31941,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 474,
+      "DOC": 475,
       "EPIC": 17,
       "US": 212,
       "BUG": 17,
@@ -31918,7 +31951,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T18:59:08Z"
+    "generated_at": "2025-09-22T19:02:33Z"
   },
   "sources": [
     "docs"
