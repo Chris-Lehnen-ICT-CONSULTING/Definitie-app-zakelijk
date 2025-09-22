@@ -88,9 +88,8 @@ class SRUService:
                 confidence_weight=0.95,
                 is_juridical=True,
                 alt_base_urls=[
-                    # Alternatieve paden (case‑varianten en data endpoint)
+                    # Alleen case‑variant als fallback; data.rechtspraak endpoint verwijderd (404‑ruis)
                     "https://zoeken.rechtspraak.nl/sru/Search",
-                    "https://data.rechtspraak.nl/uitspraken/sru",
                 ],
             ),
             # Basiswettenbestand (BWB) via Zoekservice SRU (x-connection=BWB)
