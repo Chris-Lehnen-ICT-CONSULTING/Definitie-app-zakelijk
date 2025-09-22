@@ -726,7 +726,11 @@ class DefinitionEditTab:
 
             if results.get('issues'):
                 with st.expander("Bekijk validatie problemen"):
-                    for idx, issue in enumerate(results['issues']):
+                    issues_sorted = sorted(
+                        list(results['issues']),
+                        key=lambda it: self._rule_sort_key(str(it.get('rule') or '')),
+                    )
+                    for idx, issue in enumerate(issues_sorted):
                         severity_icon = "🔴" if issue['severity'] == 'error' else "🟡"
                         rule_id = str(issue.get('rule') or '')
                         st.markdown(f"{severity_icon} **{rule_id}:** {issue['message']}")
@@ -752,7 +756,7 @@ class DefinitionEditTab:
                         all_rids.add(r)
                 if all_rids:
                     st.markdown("### ℹ️ Uitleg bij alle geëvalueerde regels")
-                    for rid in sorted(all_rids):
+                    for rid in sorted(all_rids, key=self._rule_sort_key):
                         with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
                             st.markdown(self._build_rule_hint_markdown(rid))
         except Exception:
@@ -805,6 +809,32 @@ class DefinitionEditTab:
                 f"Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
                 f"(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
             )
+
+    def _rule_sort_key(self, rule_id: str):
+        """Zelfde groeperings- en sorteersleutel als generator-tab."""
+        rid = (rule_id or "").upper().replace("_", "-")
+        prefix = rid.split("-", 1)[0] if "-" in rid else rid[:4]
+        order = {
+            "CON": 0,
+            "ESS": 1,
+            "STR": 2,
+            "INT": 3,
+            "SAM": 4,
+            "ARAI": 5,
+            "VER": 6,
+            "VAL": 7,
+        }
+        grp = order.get(prefix, 99)
+        num = 9999
+        try:
+            tail = rid.split("-", 1)[1] if "-" in rid else ""
+            import re as _re
+            m = _re.search(r"(\d+)", tail)
+            if m:
+                num = int(m.group(1))
+        except Exception:
+            num = 9999
+        return (grp, num, rid)
 
     def _undo_changes(self):
         """Undo recent changes."""

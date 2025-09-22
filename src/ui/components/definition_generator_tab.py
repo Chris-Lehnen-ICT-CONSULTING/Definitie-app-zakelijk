@@ -1175,16 +1175,12 @@ class DefinitionGeneratorTab:
     def _format_violations(self, violations: list) -> list[str]:
         """Format violation lines with severity-based sorting and emojis."""
         lines = []
-        severity_order = {
-            "critical": 0, "error": 1, "high": 1,
-            "warning": 2, "medium": 2, "low": 3, "info": 4
-        }
 
-        def _sev_key(v):
-            s = str(v.get("severity", "warning")).lower()
-            return (severity_order.get(s, 2), str(v.get("rule_id") or v.get("code") or ""))
+        def _v_key(v):
+            rid = str(v.get("rule_id") or v.get("code") or "")
+            return self._rule_sort_key(rid)
 
-        for v in sorted(violations, key=_sev_key):
+        for v in sorted(violations, key=_v_key):
             rid = str(v.get("rule_id") or v.get("code") or "")
             sev = str(v.get("severity", "warning")).lower()
             desc = v.get("description") or v.get("message") or ""
@@ -1213,7 +1209,7 @@ class DefinitionGeneratorTab:
         """Format passed rule lines, inclusief 'Wat toetst' en 'Waarom'."""
         lines_out: list[str] = []
         text, begrip = self._get_current_text_and_begrip()
-        for rid in passed_ids:
+        for rid in sorted(passed_ids, key=self._rule_sort_key):
             name, explanation = self._get_rule_display_and_explanation(rid)
             name_part = f" — {name}" if name else ""
             wat_toetst = f"Wat toetst: {explanation}" if explanation else "Wat toetst: —"
@@ -1312,6 +1308,39 @@ class DefinitionGeneratorTab:
             return m.group(1) if m else ""
         except Exception:
             return ""
+
+    def _rule_sort_key(self, rule_id: str):
+        """Groeperings- en sorteersleutel voor regelcodes.
+
+        Volgorde van groepen: CON → ESS → STR → INT → SAM → ARAI → VER → VAL → overige.
+        Binnen een groep sorteren we op nummer indien aanwezig (01, 02, ...),
+        daarna op volledige code voor stabiele weergave.
+        """
+        rid = (rule_id or "").upper().replace("_", "-")
+        prefix = rid.split("-", 1)[0] if "-" in rid else rid[:4]
+        order = {
+            "CON": 0,
+            "ESS": 1,
+            "STR": 2,
+            "INT": 3,
+            "SAM": 4,
+            "ARAI": 5,
+            "VER": 6,
+            "VAL": 7,
+        }
+        grp = order.get(prefix, 99)
+        # Probeer een numeriek onderdeel na de eerste '-' te parsen
+        num = 9999
+        try:
+            tail = rid.split("-", 1)[1] if "-" in rid else ""
+            # Neem eerste aaneengesloten cijferreeks als nummer
+            import re as _re
+            m = _re.search(r"(\d+)", tail)
+            if m:
+                num = int(m.group(1))
+        except Exception:
+            num = 9999
+        return (grp, num, rid)
 
     def _build_rule_hint_markdown(self, rule_id: str) -> str:
         """Bouw korte hint-uitleg voor een toetsregel uit JSON en standaardtekst.
