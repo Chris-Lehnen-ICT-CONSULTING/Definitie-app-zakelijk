@@ -235,6 +235,40 @@
         }
       }
     }
+  ,
+    "acceptance_gate": {
+      "type": "object",
+      "description": "Acceptance gate evaluation for establishment decision",
+      "properties": {
+        "status": {
+          "type": "string",
+          "enum": ["pass", "blocked", "override_required"],
+          "description": "Gate decision status"
+        },
+        "acceptable": {
+          "type": "boolean",
+          "description": "Whether the definition meets minimum thresholds"
+        },
+        "gates_passed": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "gates_failed": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "reasons": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "thresholds": {
+          "type": "object",
+          "description": "Thresholds used for the decision",
+          "additionalProperties": { "type": "number" }
+        }
+      },
+      "additionalProperties": false
+    }
   },
   "additionalProperties": false
 }

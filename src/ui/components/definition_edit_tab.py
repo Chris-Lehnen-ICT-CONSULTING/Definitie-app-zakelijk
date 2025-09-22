@@ -430,22 +430,8 @@ class DefinitionEditTab:
 
         # Toon debug weergave van huidige voorbeelden (indien aanwezig)
         examples_state_key = k('examples')
-        current_examples = SessionStateManager.get_value(examples_state_key) or {}
-
-        # Nieuw: initialiseer voorbeelden vanuit definitie.metadata.voorbeelden als
-        # er nog niets in de sessie staat (bijv. direct na genereren en openen bewerk‑tab)
-        try:
-            if not current_examples and getattr(definition, 'metadata', None):
-                md = definition.metadata
-                if isinstance(md, dict):
-                    v = md.get('voorbeelden') or {}
-                    if isinstance(v, dict) and any(v.get(k) for k in (
-                        'voorbeeldzinnen', 'praktijkvoorbeelden', 'tegenvoorbeelden', 'synoniemen', 'antoniemen', 'toelichting'
-                    )):
-                        current_examples = v
-                        SessionStateManager.set_value(examples_state_key, current_examples)
-        except Exception:
-            pass
+        from ui.helpers.examples import resolve_examples
+        current_examples = resolve_examples(examples_state_key, definition)
 
         col_left, col_right = st.columns([1, 1])
         with col_left:
