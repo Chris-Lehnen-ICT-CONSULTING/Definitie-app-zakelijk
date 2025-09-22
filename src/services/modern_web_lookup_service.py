@@ -494,8 +494,80 @@ class ModernWebLookupService(WebLookupServiceInterface):
                     return result
 
             elif source.name == "Wiktionary":
-                logger.info(f"Wiktionary lookup voor {term} - nog niet geïmplementeerd")
-                return None
+                # Gebruik moderne Wiktionary service (vergelijkbare stage-logica)
+                from .web_lookup.wiktionary_service import wiktionary_lookup
+
+                org, jur, wet = self._classify_context_tokens(getattr(request, "context", None))
+                stages: list[tuple[str, list[str]]] = []
+                all_tokens = org + jur + wet
+                if all_tokens:
+                    stages.append(("context_full", all_tokens))
+                if jur or wet:
+                    stages.append(("jur_wet", jur + wet))
+                if wet:
+                    stages.append(("wet_only", wet))
+                stages.append(("no_ctx", []))
+
+                base = (term or "").strip()
+                result: LookupResult | None = None
+                for stage_name, toks in stages:
+                    q = base if not toks else f"{base} " + " ".join(toks)
+                    try:
+                        res = await asyncio.wait_for(
+                            wiktionary_lookup(q),
+                            timeout=float(getattr(request, "timeout", 30) or 30),
+                        )
+                        self._debug_attempts.append(
+                            {
+                                "provider": source.name,
+                                "api_type": "mediawiki",
+                                "term": q,
+                                "stage": stage_name,
+                                "success": bool(res and res.success),
+                            }
+                        )
+                        if res and res.success:
+                            result = res
+                            break
+                    except Exception:
+                        continue
+
+                if not (result and result.success):
+                    # Heuristische fallbacks: koppeltekens en suffixstrip
+                    fallbacks: list[str] = []
+                    if " " in base and "-" not in base:
+                        fallbacks.append(base.replace(" ", "-"))
+                    if base.lower().endswith("tekst") and len(base) > 6:
+                        fallbacks.append(base[: -len("tekst")])
+                    seen: set[str] = set()
+                    for fb in fallbacks:
+                        fbq = fb.strip()
+                        if not fbq or fbq.lower() in seen:
+                            continue
+                        seen.add(fbq.lower())
+                        try:
+                            fb_res = await asyncio.wait_for(
+                                wiktionary_lookup(fbq),
+                                timeout=float(getattr(request, "timeout", 30) or 30),
+                            )
+                            self._debug_attempts.append(
+                                {
+                                    "provider": source.name,
+                                    "api_type": "mediawiki",
+                                    "term": fbq,
+                                    "fallback": True,
+                                    "success": bool(fb_res and fb_res.success),
+                                }
+                            )
+                            if fb_res and fb_res.success:
+                                result = fb_res
+                                break
+                        except Exception:
+                            continue
+
+                if result and result.success:
+                    result.source.confidence *= source.confidence_weight
+                    return result
 
         except ImportError as e:
             logger.warning(f"Modern MediaWiki service niet beschikbaar: {e}")
