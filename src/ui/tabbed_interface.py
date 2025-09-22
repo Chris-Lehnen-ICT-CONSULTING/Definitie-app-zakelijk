@@ -851,9 +851,16 @@ class TabbedInterface:
                                 st.rerun()
                         with c2:
                             if st.button("🚀 Genereer nieuwe definitie", key="btn_force_generate"):
+                                # Forceer generatie en duid duplicaat als geaccepteerd voor doorlopen
                                 options["force_generate"] = True
                                 options["force_duplicate"] = True
                                 SessionStateManager.set_value("generation_options", options)
+                                # Wis duplicate‑check resultaat zodat bestaande definitie niet meer wordt getoond
+                                try:
+                                    SessionStateManager.clear_value("last_check_result")
+                                    SessionStateManager.clear_value("selected_definition")
+                                except Exception:
+                                    pass
                                 # Ga door met geforceerde generatie (buiten gate)
                             else:
                                 # Niet gekozen → stop huidige generatie
