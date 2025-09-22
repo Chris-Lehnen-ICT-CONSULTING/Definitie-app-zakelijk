@@ -1573,98 +1573,30 @@ class DefinitionGeneratorTab:
             except ImportError:
                 pass
 
-        # Voorbeeldzinnen
-        voorbeeldzinnen = voorbeelden.get("voorbeeldzinnen", [])
-        if voorbeeldzinnen:
-            with st.expander("📄 Voorbeeldzinnen", expanded=True):
-                for voorbeeld in voorbeeldzinnen:
-                    st.write(f"• {voorbeeld}")
+        # Uniforme rendering van voorbeelden (generator-stijl met expanders)
+        from ui.components.examples_renderer import render_examples_expandable
+        render_examples_expandable(voorbeelden)
 
-        # Praktijkvoorbeelden
-        praktijkvoorbeelden = voorbeelden.get("praktijkvoorbeelden", [])
-        if praktijkvoorbeelden:
-            with st.expander("💼 Praktijkvoorbeelden", expanded=True):
-                for voorbeeld in praktijkvoorbeelden:
-                    st.info(voorbeeld)
-
-        # Tegenvoorbeelden
-        tegenvoorbeelden = voorbeelden.get("tegenvoorbeelden", [])
-        if tegenvoorbeelden:
-            with st.expander("❌ Tegenvoorbeelden", expanded=False):
-                for voorbeeld in tegenvoorbeelden:
-                    st.warning(voorbeeld)
-
-        # Synoniemen met voorkeursterm selectie
-        if voorbeelden.get("synoniemen"):
-            with st.expander("🔄 Synoniemen", expanded=False):
-                synoniemen_lijst = voorbeelden["synoniemen"]
-
-                # Handle case where synoniemen might be a single comma-separated string
-                all_synoniemen = []
-                for syn in synoniemen_lijst:
-                    if isinstance(syn, str) and "," in syn:
-                        # Split comma-separated items
-                        items = [item.strip() for item in syn.split(",")]
-                        all_synoniemen.extend(items)
-                    else:
-                        all_synoniemen.append(syn)
-
-                # Update the list for display and selection
-                synoniemen_lijst = all_synoniemen
-
-                # Toon synoniemen verticaal
-                for syn in synoniemen_lijst:
-                    st.write(f"• {syn}")
-
-                # Voorkeursterm selectie
-                if len(synoniemen_lijst) > 0:
-                    st.markdown("---")
-
-                    # Haal het oorspronkelijke begrip op uit de session state
-                    oorspronkelijk_begrip = SessionStateManager.get_value("begrip", "")
-
-                    # Maak opties lijst met oorspronkelijke begrip als eerste optie
-                    voorkeursterm_opties = ["(geen voorkeursterm)"]
-                    if (
-                        oorspronkelijk_begrip
-                        and oorspronkelijk_begrip not in synoniemen_lijst
-                    ):
-                        voorkeursterm_opties.append(oorspronkelijk_begrip)
-                    voorkeursterm_opties.extend(synoniemen_lijst)
-
-                    voorkeursterm = st.selectbox(
-                        "Selecteer voorkeursterm:",
-                        options=voorkeursterm_opties,
-                        key="voorkeursterm_selectie",
-                    )
-
-                    if voorkeursterm != "(geen voorkeursterm)":
-                        SessionStateManager.set_value("voorkeursterm", voorkeursterm)
-                        st.info(f"✅ Voorkeursterm: **{voorkeursterm}**")
-
-        # Antoniemen
-        if voorbeelden.get("antoniemen"):
-            with st.expander("↔️ Antoniemen", expanded=False):
-                antoniemen_lijst = voorbeelden["antoniemen"]
-
-                # Handle case where antoniemen might be a single comma-separated string
-                all_antoniemen = []
-                for ant in antoniemen_lijst:
-                    if isinstance(ant, str) and "," in ant:
-                        # Split comma-separated items
-                        items = [item.strip() for item in ant.split(",")]
-                        all_antoniemen.extend(items)
-                    else:
-                        all_antoniemen.append(ant)
-
-                # Toon antoniemen verticaal
-                for ant in all_antoniemen:
-                    st.write(f"• {ant}")
-
-        # Toelichting
-        if voorbeelden.get("toelichting"):
-            with st.expander("💡 Toelichting", expanded=True):
-                st.write(voorbeelden["toelichting"])
+        # Extra: voorkeursterm selectie (behoud, aanvullend op uniforme rendering)
+        synoniemen_lijst = []
+        try:
+            from ui.components.examples_renderer import _as_list  # type: ignore
+            synoniemen_lijst = _as_list(voorbeelden.get("synoniemen"))
+        except Exception:
+            synoniemen_lijst = []
+        if synoniemen_lijst:
+            st.markdown("---")
+            oorspronkelijk_begrip = SessionStateManager.get_value("begrip", "")
+            opties = ["(geen voorkeursterm)"]
+            if oorspronkelijk_begrip and oorspronkelijk_begrip not in synoniemen_lijst:
+                opties.append(oorspronkelijk_begrip)
+            opties.extend(synoniemen_lijst)
+            voorkeursterm = st.selectbox(
+                "Selecteer voorkeursterm:", options=opties, key="voorkeursterm_selectie"
+            )
+            if voorkeursterm != "(geen voorkeursterm)":
+                SessionStateManager.set_value("voorkeursterm", voorkeursterm)
+                st.info(f"✅ Voorkeursterm: **{voorkeursterm}**")
 
     def _trigger_regeneration_with_category(
         self,

@@ -475,45 +475,9 @@ class DefinitionEditTab:
             if st.checkbox("🔍 Debug: Voorbeelden Content", key=k('debug_examples')):
                 st.code(current_examples)
 
-        # Render per onderdeel
-        def _render_list(title: str, key_name: str, empty_msg: str = "—"):
-            st.markdown(f"#### {title}")
-            items = []
-            try:
-                val = current_examples.get(key_name)
-                if isinstance(val, list):
-                    items = val
-            except Exception:
-                items = []
-            if items:
-                for it in items:
-                    st.markdown(f"- {str(it)}")
-            else:
-                st.info(empty_msg)
-
-        # Voorbeeldzinnen
-        _render_list("📄 Voorbeeldzinnen", "voorbeeldzinnen", "Geen voorbeeldzinnen")
-        # Praktijkvoorbeelden
-        _render_list("💼 Praktijkvoorbeelden", "praktijkvoorbeelden", "Geen praktijkvoorbeelden")
-        # Tegenvoorbeelden
-        _render_list("❌ Tegenvoorbeelden", "tegenvoorbeelden", "Geen tegenvoorbeelden")
-        # Synoniemen
-        _render_list("🔄 Synoniemen", "synoniemen", "Geen synoniemen")
-        # Antoniemen
-        _render_list("↔️ Antoniemen", "antoniemen", "Geen antoniemen")
-
-        # Toelichting (string)
-        st.markdown("#### 📝 Toelichting")
-        toel = ""
-        try:
-            val = current_examples.get("toelichting")
-            toel = val if isinstance(val, str) else ""
-        except Exception:
-            toel = ""
-        if toel:
-            st.info(toel)
-        else:
-            st.info("Geen toelichting")
+        # Uniforme weergave zoals Generator‑tab
+        from ui.components.examples_renderer import render_examples_expandable
+        render_examples_expandable(current_examples)
 
     def _render_metadata_panel(self):
         """Render metadata panel."""
@@ -866,28 +830,8 @@ class DefinitionEditTab:
             else:
                 st.warning(f"⚠️ Validatie problemen gevonden. Score: {results['score']:.2f}")
 
-        # Uitleg bij alle geëvalueerde regels (indien raw V2 resultaat aanwezig), ook bij geslaagde validatie
-        try:
-            v2 = results.get('raw_v2') if isinstance(results, dict) else None
-            if isinstance(v2, dict):
-                violations = list(v2.get('violations') or [])
-                passed = list(v2.get('passed_rules') or [])
-                all_rids: set[str] = set()
-                for v in violations:
-                    rid = str(v.get('rule_id') or v.get('code') or '').strip()
-                    if rid:
-                        all_rids.add(rid)
-                for rid in passed:
-                    r = str(rid or '').strip()
-                    if r:
-                        all_rids.add(r)
-                if all_rids:
-                    st.markdown("### ℹ️ Uitleg bij alle geëvalueerde regels")
-                    for rid in sorted(all_rids, key=self._rule_sort_key):
-                        with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
-                            st.markdown(self._build_rule_hint_markdown(rid))
-        except Exception:
-            pass
+        # Let op: Geen extra 'Uitleg bij alle regels' sectie meer.
+        # De gedeelde renderer toont inline uitleg per regel om duplicatie te voorkomen.
 
     def _build_rule_hint_markdown(self, rule_id: str) -> str:
         """Bouw korte hint-uitleg voor een toetsregel uit JSON en standaardtekst.

@@ -215,6 +215,9 @@ class ExpertReviewTab:
         # Review acties (US-155): Vaststellen / Afwijzen / Maak bewerkbaar
         self._render_review_actions(selected_def)
 
+        # Review formulier met Re-validate knop en validatieweergave
+        self._render_review_form(selected_def)
+
     def _render_definition_details(self, definitie: DefinitieRecord):
         """Render uitgebreide definitie details."""
         with st.expander("📋 Definitie Details", expanded=True):
@@ -237,43 +240,19 @@ class ExpertReviewTab:
 
                     ex_key = f"review_examples_{definitie.id}"
                     examples = resolve_examples(ex_key, definitie)
+                    # Fallback: direct DB-load indien resolver leeg teruggeeft
+                    if not examples:
+                        try:
+                            examples = self.repository.get_voorbeelden_by_type(definitie.id)
+                            if isinstance(examples, dict) and examples:
+                                SessionStateManager.set_value(ex_key, examples)
+                        except Exception:
+                            examples = {}
+
                     if examples:
                         st.markdown("#### 📚 Gegenereerde Content")
-
-                        def _render_list(title: str, key_name: str, empty_msg: str = "—"):
-                            st.markdown(f"**{title}**")
-                            items = []
-                            try:
-                                val = examples.get(key_name)
-                                if isinstance(val, list):
-                                    items = val
-                                elif isinstance(val, str) and val.strip():
-                                    items = [s.strip() for s in val.split(",") if s.strip()]
-                            except Exception:
-                                items = []
-                            if items:
-                                for it in items:
-                                    st.markdown(f"- {str(it)}")
-                            else:
-                                st.caption(empty_msg)
-
-                        _render_list("📄 Voorbeeldzinnen", "voorbeeldzinnen", "Geen voorbeeldzinnen")
-                        _render_list("💼 Praktijkvoorbeelden", "praktijkvoorbeelden", "Geen praktijkvoorbeelden")
-                        _render_list("❌ Tegenvoorbeelden", "tegenvoorbeelden", "Geen tegenvoorbeelden")
-                        _render_list("🔄 Synoniemen", "synoniemen", "Geen synoniemen")
-                        _render_list("↔️ Antoniemen", "antoniemen", "Geen antoniemen")
-
-                        st.markdown("**📝 Toelichting**")
-                        toel = ""
-                        try:
-                            val = examples.get("toelichting")
-                            toel = val if isinstance(val, str) else ""
-                        except Exception:
-                            toel = ""
-                        if toel:
-                            st.info(toel)
-                        else:
-                            st.caption("Geen toelichting")
+                        from ui.components.examples_renderer import render_examples_expandable
+                        render_examples_expandable(examples)
 
                     # Bewerken van voorbeelden (muteerbaar in review)
                     with st.expander("✏️ Bewerk Voorbeelden", expanded=False):
@@ -684,6 +663,39 @@ class ExpertReviewTab:
         try:
             vkey = f"review_v2_validation_{definitie.id}"
             v2 = SessionStateManager.get_value(vkey)
+            if not v2:
+                # Probeer bestaande DB-validatie te mappen naar V2-formaat
+                issues = definitie.get_validation_issues_list() if hasattr(definitie, 'get_validation_issues_list') else []
+                if issues:
+                    try:
+                        score = float(getattr(definitie, 'validation_score', 0.0) or 0.0)
+                    except Exception:
+                        score = 0.0
+                    # Map DB issues → V2 violations
+                    mapped = []
+                    for it in issues:
+                        try:
+                            mapped.append({
+                                "code": it.get("code") or it.get("rule_id") or "",
+                                "severity": it.get("severity", "warning"),
+                                "message": it.get("message") or it.get("description") or "",
+                                "description": it.get("description") or it.get("message") or "",
+                                "rule_id": it.get("rule_id") or it.get("code") or "",
+                                "category": it.get("category", "system"),
+                            })
+                        except Exception:
+                            pass
+                    v2 = {
+                        "version": "1.0.0",
+                        "overall_score": score,
+                        "is_acceptable": bool(score >= 0.75),
+                        "violations": mapped,
+                        "passed_rules": [],
+                        "detailed_scores": {},
+                        "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+                    }
+                    SessionStateManager.set_value(vkey, v2)
+
             if v2:
                 from ui.components.validation_view import render_validation_detailed_list
                 st.markdown("#### ✅ Kwaliteitstoetsing")
