@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ESS‑02 compact houden (met UI‑injectie categorie)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-243</p>
+<p>titel: ESS‑02 compact houden (met UI‑injectie categorie)</p>
+<p>canonical: true</p>
+<p>status: proposed</p>
+<p>priority: P1</p>
+<p>owner: architecture</p>
+<p>applies_to: definitie-app@v2</p>
+<p>last_verified: 2025-09-22</p>
+<p>links:</p>
+<ul>
+<li> - EPIC-019</li>
+<li> - EPIC-002</li>
+<li> - EPIC-010</li>
+<p>---</p>
+</ul>
+
+<h1>US-019-06 — ESS‑02 compact</h1>
+
+<p>Als team willen we ESS‑02 compact tonen (verplichte keuze + korte hints), aangezien de UI de ontologische categorie reeds injecteert en andere modules die doorzetten.</p>
+
+<h2>As‑Is</h2>
+<ul>
+<li>ESS‑02 bevat uitgebreid basistekst + categorie‑specifieke guidance met voorbeelden.</li>
+</ul>
+
+<p>Bronnen:</p>
+<ul>
+<li>src/services/prompts/modules/semantic_categorisation_module.py:112</li>
+<li>src/services/prompts/prompt_service_v2.py:114 (injectie ontologische_categorie)</li>
+</ul>
+
+<h2>To‑Be</h2>
+<ul>
+<li>Compacte ESS‑02: bulletkeuze + korte, categorie‑specifieke hints; voorbeelden uit.</li>
+<li>Doorzetting naar Template/DefinitionTask blijft werken.</li>
+</ul>
+
+<h2>Acceptance Criteria</h2>
+<ul>
+<li>AC1: ESS‑02 ≤ ~12 regels; geen uitgebreide voorbeelden.</li>
+<li>AC2: “Focus: dit is een {categorie}” blijft in DefinitionTask.</li>
+<li>AC3: TemplateModule krijgt juiste `semantic_category`.</li>
+</ul>
+
+<h2>Implementatie (richting)</h2>
+<p>1) semantic_categorisation_module: default <code>detailed_guidance=False</code>; compacte strings.</p>
+<p>2) Flag via ModularPromptAdapter mapping (compact‑mode/global flags).</p>
+<p>3) Niet wijzigen aan validator ESS‑02 (valt onder EPIC‑002); alleen promptweergave.</p>
+
+<h2>Testplan</h2>
+<ul>
+<li>Snapshot: ESS‑02 voor categorie ‘type’ toont korte hints; geen voorbeelden.</li>
+<li>Keten: Template en DefinitionTask ontvangen juiste categorie in shared/metadata.</li>
+</ul>
+
+<h2>Risks / Mitigations</h2>
+<ul>
+<li>Risico: te weinig guidance in edge cases zonder categorie</li>
+<li> - Mitigatie: behoud korte basis ESS‑02 bij ontbrekende categorie.</li>
+</ul>
+
+  </div>
+</body>
+</html>
