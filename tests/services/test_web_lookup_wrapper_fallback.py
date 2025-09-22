@@ -9,7 +9,7 @@ from services.interfaces import GenerationRequest, LookupResult, WebSource
 @pytest.mark.asyncio
 async def test_web_lookup_wrapper_title_fallbacks():
     """Ensure web lookup wrapper formats labels without relying on r.title."""
-    config = ContextConfig(enable_web_lookup=True)
+    config = ContextConfig()
     manager = HybridContextManager(config)
 
     # Prepare results without a 'title' attribute; use metadata/term instead
@@ -45,4 +45,3 @@ async def test_web_lookup_wrapper_title_fallbacks():
     assert "TermOnly (Overheid.nl)" in content
     # r2 uses dc_title from metadata
     assert "Wetboek (Wikipedia)" in content
-

@@ -1,4 +1,5 @@
 # Legacy Code Removal Plan
+<!-- moved from project root to canonical docs location -->
 
 ## Directories marked for removal:
 

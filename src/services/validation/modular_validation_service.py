@@ -115,11 +115,19 @@ class ModularValidationService:
             }
         # Acceptatiedrempel (overschrijfbaar via config.thresholds.overall_accept)
         self._overall_threshold: float = 0.75
+        # Categorie-acceptatiedrempel (nieuw; overschrijfbaar via config.thresholds.category_accept)
+        self._category_threshold: float = 0.70
         if getattr(self.config, "thresholds", None):
             with contextlib.suppress(Exception):
                 self._overall_threshold = float(
                     safe_dict_get(
                         self.config.thresholds, "overall_accept", self._overall_threshold
+                    )
+                )
+            with contextlib.suppress(Exception):
+                self._category_threshold = float(
+                    safe_dict_get(
+                        self.config.thresholds, "category_accept", self._category_threshold
                     )
                 )
 
@@ -381,15 +389,9 @@ class ModularValidationService:
             scale = 0.9
 
         overall = round(overall * scale, 2)
-        is_ok = determine_acceptability(overall, self._overall_threshold)
 
-        # 6) Categorie scores: voorlopig overal mirrored naar overall (gedekt door tests)
-        detailed = {
-            "taal": overall,
-            "juridisch": overall,
-            "structuur": overall,
-            "samenhang": overall,
-        }
+        # 6) Categorie scores: bereken echte per-categorie scores
+        detailed = self._calculate_category_scores(rule_scores, default_value=overall)
 
         # 7) Voeg eventuele CON-01 duplicate warnings toe (best-effort)
         try:
@@ -405,14 +407,18 @@ class ModularValidationService:
         # 8) Violations deterministisch sorteren op code
         violations.sort(key=lambda v: v.get("code", ""))
 
-        # 9) Schema-achtige dict output
+        # 9) Acceptance gates (critical/overall/category)
+        gate = self._evaluate_acceptance_gates(overall, detailed, violations)
+
+        # 10) Schema-achtige dict output
         result: dict[str, Any] = {
             "version": CONTRACT_VERSION,
             "overall_score": overall,
-            "is_acceptable": is_ok,
+            "is_acceptable": bool(gate.get("acceptable", True)),
             "violations": violations,
             "passed_rules": passed_rules,
             "detailed_scores": detailed,
+            "acceptance_gate": gate,
             "system": {"correlation_id": correlation_id},
         }
         # Return plain dict voor JSON serialisatie
@@ -437,6 +443,7 @@ class ModularValidationService:
             return {
                 "code": prefix,
                 "severity": "warning" if prefix.startswith("STR-") else "error",
+                "severity_level": "low" if prefix.startswith("STR-") else "high",
                 "message": message,
                 "description": message,
                 "rule_id": prefix,
@@ -801,6 +808,7 @@ class ModularValidationService:
             return score, {
                 "code": code,
                 "severity": severity,
+                "severity_level": self._severity_level_for_json_rule(rule),
                 "message": description,
                 "description": description,
                 "rule_id": code,
@@ -811,13 +819,22 @@ class ModularValidationService:
         # Geen issues → pass
         return 1.0, None
 
-    def _severity_for_json_rule(self, rule: dict[str, Any]) -> str:
-        # Map JSON aanbeveling/prioriteit naar severity string
+    def _severity_level_for_json_rule(self, rule: dict[str, Any]) -> str:
+        """Map JSON aanbeveling/prioriteit naar severity-level (critical/high/medium/low)."""
         aan = str(rule.get("aanbeveling", "")).lower()
         pri = str(rule.get("prioriteit", "")).lower()
-        if aan == "verplicht" or pri == "hoog":
-            return "error"
-        return "warning"
+        if aan == "verplicht" and pri == "hoog":
+            return "critical"
+        if aan == "verplicht":
+            return "high"
+        if pri == "hoog":
+            return "medium"
+        return "low"
+
+    def _severity_for_json_rule(self, rule: dict[str, Any]) -> str:
+        """Compatibele severity (error/warning) afgeleid van severity-level."""
+        lvl = self._severity_level_for_json_rule(rule)
+        return "error" if lvl in ("critical", "high") else "warning"
 
     def _build_suggestion_for_violation(
         self,
@@ -949,6 +966,7 @@ class ModularValidationService:
             return 0.0, {
                 "code": "ESS-02",
                 "severity": "error",
+                "severity_level": "high",
                 "message": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
                 "description": f"Ambigu: meerdere categorieën herkend ({', '.join(sorted(hits.keys()))})",
                 "rule_id": "ESS-02",
@@ -959,6 +977,7 @@ class ModularValidationService:
         return 0.0, {
             "code": "ESS-02",
             "severity": "error",
+            "severity_level": "high",
             "message": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
             "description": "Geen duidelijke ontologische marker (type/particulier/proces/resultaat)",
             "rule_id": "ESS-02",
@@ -1091,6 +1110,67 @@ class ModularValidationService:
         if c == "STR-ORG-001":
             return "Vereenvoudig de zinsstructuur: minder komma’s, kortere zinsdelen."
         return None
+
+    def _calculate_category_scores(self, rule_scores: dict[str, float], default_value: float) -> dict[str, float]:
+        """Bereken echte categorie-scores op basis van rule_scores en regelprefix.
+
+        Categorieën: taal (ARAI/VER), juridisch (ESS/VAL), structuur (STR/INT), samenhang (CON/SAM).
+        """
+        from collections import defaultdict
+
+        buckets: dict[str, list[float]] = defaultdict(list)
+        for rid, score in (rule_scores or {}).items():
+            try:
+                cat = self._category_for(str(rid))
+                buckets[cat].append(float(score or 0.0))
+            except Exception:
+                continue
+
+        def avg(xs: list[float]) -> float:
+            return sum(xs) / len(xs) if xs else default_value
+
+        return {
+            "taal": avg(buckets.get("taal", [])),
+            "juridisch": avg(buckets.get("juridisch", [])),
+            "structuur": avg(buckets.get("structuur", [])),
+            "samenhang": avg(buckets.get("samenhang", [])),
+        }
+
+    def _evaluate_acceptance_gates(self, overall: float, detailed: dict[str, float], violations: list[dict[str, Any]]) -> dict[str, Any]:
+        """Evalueer acceptance gates (critical/overall/category)."""
+        critical = 0
+        for v in violations or []:
+            lvl = str(v.get("severity_level", ""))
+            if lvl.lower() == "critical":
+                critical += 1
+
+        gates_passed: list[str] = []
+        gates_failed: list[str] = []
+
+        if critical == 0:
+            gates_passed.append("no_critical_violations")
+        else:
+            gates_failed.append(f"critical_violations={critical}")
+
+        if float(overall) >= float(self._overall_threshold):
+            gates_passed.append(f"overall>={self._overall_threshold}")
+        else:
+            gates_failed.append(f"overall<{self._overall_threshold}")
+
+        for cat in ("taal", "juridisch", "structuur", "samenhang"):
+            val = float(detailed.get(cat, self._category_threshold))
+            if val < float(self._category_threshold):
+                gates_failed.append(f"{cat}<{self._category_threshold}")
+
+        return {
+            "acceptable": len(gates_failed) == 0,
+            "gates_passed": gates_passed,
+            "gates_failed": gates_failed,
+            "thresholds": {
+                "overall": self._overall_threshold,
+                "category": self._category_threshold,
+            },
+        }
 
     async def batch_validate(
         self,

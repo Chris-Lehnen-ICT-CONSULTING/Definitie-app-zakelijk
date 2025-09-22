@@ -1,4 +1,5 @@
 # US-201: ServiceContainer Caching Implementatie Rapport
+<!-- moved from project root to canonical docs location -->
 
 ## 🎯 Doel
 Los het probleem op waarbij ServiceContainer 6x wordt geïnitialiseerd bij elke Streamlit rerun, wat resulteert in 6 seconden startup tijd in plaats van de gewenste 1 seconde.

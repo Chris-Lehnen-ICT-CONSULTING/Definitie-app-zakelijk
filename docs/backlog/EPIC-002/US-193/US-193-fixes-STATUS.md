@@ -1,4 +1,5 @@
 # US-193 Post-Implementation Status Update
+<!-- moved from project root to canonical docs location -->
 ## Complete lijst van 23 gevonden issues - STATUS UPDATE
 
 **Laatste update:** 18 september 2025

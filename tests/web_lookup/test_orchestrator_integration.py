@@ -31,8 +31,17 @@ class _StubAIService:
 
 
 class _StubValidationService:
-    async def validate_text(self, begrip: str, text: str, ontologische_categorie=None, context=None):
-        return {"is_acceptable": True, "overall_score": 0.9, "violations": []}
+    async def validate_definition(self, definition, context=None):
+        from services.validation.interfaces import CONTRACT_VERSION
+        return {
+            "version": CONTRACT_VERSION,
+            "overall_score": 0.9,
+            "is_acceptable": True,
+            "violations": [],
+            "passed_rules": [],
+            "detailed_scores": {},
+            "system": {"correlation_id": "00000000-0000-0000-0000-000000000000"},
+        }
 
 
 class _StubCleaningService:
@@ -82,7 +91,7 @@ async def test_orchestrator_includes_provenance_sources_in_metadata():
         validation_service=_StubValidationService(),
         cleaning_service=_StubCleaningService(),
         repository=_StubRepository(),
-        config=OrchestratorConfig(enable_web_lookup=True, web_lookup_top_k=1),
+        config=OrchestratorConfig(web_lookup_top_k=1),
         web_lookup_service=_StubWebLookupService(),
     )
 
