@@ -15860,6 +15860,37 @@
     {
       "id": null,
       "type": "ARCH",
+      "title": "V2 Validator Technical Enhancement Proposal",
+      "path": "../architectuur/v2_validator_enhancement_proposal.md",
+      "url": "../architectuur/v2_validator_enhancement_proposal.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/architectuur/v2_validator_enhancement_proposal.html"
+    },
+    {
+      "id": null,
+      "type": "ARCH",
       "title": "ValidationResult Contract",
       "path": "../architectuur/contracts/validation_result_contract.md",
       "url": "../architectuur/contracts/validation_result_contract.md",
@@ -29259,6 +29290,37 @@
     },
     {
       "id": null,
+      "type": "DOC",
+      "title": "V2 Validator Enhancement Plan - Final Consolidated Version",
+      "path": "../implementation/v2-validator-enhancement-plan.md",
+      "url": "../implementation/v2-validator-enhancement-plan.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/implementation/v2-validator-enhancement-plan.html"
+    },
+    {
+      "id": null,
       "type": "GUIDE",
       "title": "Implementation Roadmap & Test Strategy - \"Anders...\" Option Fix",
       "path": "../implementation/ANDERS-OPTION-IMPLEMENTATION-ROADMAP.md",
@@ -30545,17 +30607,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 451,
+      "DOC": 452,
       "EPIC": 16,
       "US": 200,
       "BUG": 14,
       "REQ": 99,
-      "ARCH": 23,
+      "ARCH": 24,
       "TEST": 27,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T07:10:05Z"
+    "generated_at": "2025-09-22T07:21:07Z"
   },
   "sources": [
     "docs"

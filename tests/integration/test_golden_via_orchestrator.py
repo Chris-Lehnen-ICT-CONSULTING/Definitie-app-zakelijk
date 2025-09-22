@@ -9,17 +9,15 @@ def _load_cases():
 
 
 @pytest.mark.integration
-@pytest.mark.xfail(reason="Golden acceptability mapping via DI service not aligned yet")
+@pytest.mark.xfail(reason="Golden acceptability bands require further calibration; DI mapping fixed")
 @pytest.mark.asyncio
 async def test_golden_definitions_via_orchestrator():
     from services.container import ServiceContainer, ContainerConfigs
 
     container = ServiceContainer(ContainerConfigs.testing())
     orch = container.orchestrator()
-
-    # Bouw een ValidationOrchestratorV2 bovenop de DI-geïnjecteerde validation_service
-    from services.orchestrators.validation_orchestrator_v2 import ValidationOrchestratorV2
-    val_orch = ValidationOrchestratorV2(validation_service=getattr(orch, "validation_service"))
+    # Gebruik de door DI geleverde ValidationOrchestratorV2 rechtstreeks
+    val_orch = getattr(orch, "validation_service")
 
     for case in _load_cases():
         res = await val_orch.validate_text(
