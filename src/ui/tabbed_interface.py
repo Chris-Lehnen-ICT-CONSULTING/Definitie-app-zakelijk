@@ -77,6 +77,7 @@ from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
 from ui.session_state import (  # Sessie state management voor UI persistentie
     SessionStateManager,
 )
+from utils.type_helpers import ensure_dict
 
 # Hybrid context imports - optionele module voor hybride context verrijking
 try:
