@@ -16,6 +16,11 @@ test:
 	@echo "[test] Running pytest (quiet)"
 	@pytest -q
 
+.PHONY: smoke-web-lookup
+smoke-web-lookup:
+	@echo "[smoke] Running Web Lookup smoke tests"
+	@PYTHONPATH=src pytest -q -m smoke_web_lookup
+
 status: validation-status
 
 validation-status:

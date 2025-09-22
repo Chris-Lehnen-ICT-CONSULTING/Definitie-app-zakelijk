@@ -21,7 +21,7 @@ web_lookup:
       min_score: 0.3
 
     sru_overheid:
-      enabled: true
+      enabled: false
       weight: 1.0  # Highest for juridisch
       timeout: 5
       cache_ttl: 3600
