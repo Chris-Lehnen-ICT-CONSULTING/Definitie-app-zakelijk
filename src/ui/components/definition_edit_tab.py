@@ -53,7 +53,22 @@ class DefinitionEditTab:
         # Auto-start bewerksessie als er al een target ID is gezet (bijv. via generator-tab)
         try:
             target_id = SessionStateManager.get_value('editing_definition_id')
-            if target_id and not SessionStateManager.get_value('editing_definition'):
+            current_definition = SessionStateManager.get_value('editing_definition')
+
+            # Check of we een nieuwe definitie moeten laden
+            # Dit gebeurt als:
+            # 1. Er is een target_id EN geen huidige definitie, OF
+            # 2. Er is een target_id EN het is een andere definitie dan de huidige
+            should_load = False
+            if target_id and not current_definition:
+                should_load = True
+                logger.info(f"Loading definition {target_id} - no current definition")
+            elif target_id and current_definition and hasattr(current_definition, 'id'):
+                if current_definition.id != target_id:
+                    should_load = True
+                    logger.info(f"Loading definition {target_id} - different from current {current_definition.id}")
+
+            if should_load:
                 # Probeer sessie te starten zodat geschiedenis/auto-save beschikbaar zijn
                 session = self.edit_service.start_edit_session(
                     target_id,
