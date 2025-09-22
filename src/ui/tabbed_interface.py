@@ -826,12 +826,13 @@ class TabbedInterface:
                     import json as _json
                     primary_org = _json.dumps(sorted(org_context or []), ensure_ascii=False)
                     primary_jur = _json.dumps(sorted(jur_context or []), ensure_ascii=False)
+                    wet_norm = sorted({str(x).strip() for x in (wet_context or [])})
                     check_result = self.checker.check_before_generation(
                         begrip=begrip,
                         organisatorische_context=primary_org,
                         juridische_context=primary_jur,
                         categorie=auto_categorie,
-                        wettelijke_basis=wet_context,
+                        wettelijke_basis=wet_norm,
                     )
 
                     # Als we NIET mogen doorgaan, toon keuzes en stop generatie
@@ -1134,13 +1135,14 @@ class TabbedInterface:
                 import json as _json
                 primary_org = _json.dumps(sorted(org_context or []), ensure_ascii=False)
                 primary_jur = _json.dumps(sorted(jur_context or []), ensure_ascii=False)
+                wet_norm = sorted({str(x).strip() for x in (wet_context or [])})
 
                 check_result = self.checker.check_before_generation(
                     begrip=begrip,
                     organisatorische_context=primary_org,
                     juridische_context=primary_jur,
                     categorie=OntologischeCategorie.PROCES,  # Default
-                    wettelijke_basis=wet_context,
+                    wettelijke_basis=wet_norm,
                 )
 
                 SessionStateManager.set_value("last_check_result", check_result)
