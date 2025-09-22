@@ -472,6 +472,25 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             logger.error(f"Error fetching all definitions: {e}")
             return []
 
+    # ===== Examples (voorbeelden) helpers - delegated to legacy repo =====
+    def get_voorbeelden_by_type(self, definitie_id: int) -> dict[str, list[str]]:
+        """Haal voorbeelden per type op via legacy repository.
+
+        Args:
+            definitie_id: ID van de definitie
+
+        Returns:
+            Dict met keys: 'voorbeeldzinnen', 'praktijkvoorbeelden', 'tegenvoorbeelden',
+            'synoniemen', 'antoniemen' indien aanwezig; lege dict bij afwezigheid/fout.
+        """
+        try:
+            return self.legacy_repo.get_voorbeelden_by_type(definitie_id)  # type: ignore[attr-defined]
+        except Exception as e:
+            logger.warning(
+                f"Legacy voorbeelden by type unavailable for definitie {definitie_id}: {e}"
+            )
+            return {}
+
     # Private helper methods
 
     def _definition_to_record(self, definition: Definition) -> DefinitieRecord:
