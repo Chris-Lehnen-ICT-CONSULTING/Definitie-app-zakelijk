@@ -24,12 +24,13 @@ logger = logging.getLogger(__name__)  # Logger instantie voor deze module
 
 
 class Environment(Enum):
-    """Omgeving types voor configuratie bepaling."""
+    """Omgevingstype (vast: development).
 
-    DEVELOPMENT = "development"  # Ontwikkel omgeving voor lokale ontwikkeling
-    TESTING = "testing"  # Test omgeving voor geautomatiseerde tests
-    STAGING = "staging"  # Pre-productie omgeving voor laatste verificatie
-    PRODUCTION = "production"  # Live productie omgeving voor eindgebruikers
+    Historisch was dit dynamisch via ENVIRONMENT; we hanteren nu één omgeving
+    zodat gedrag voorspelbaar is. De enum blijft bestaan voor type-compatibiliteit.
+    """
+
+    DEVELOPMENT = "development"
 
 
 class ConfigSection(Enum):
@@ -393,9 +394,10 @@ class ConfigManager:
         environment: Environment = Environment.DEVELOPMENT,
         config_dir: str = "config",
     ):
-        self.environment = environment
+        # Forceer vaste omgeving (development) ongeacht ENVIRONMENT variabele
+        self.environment = Environment.DEVELOPMENT
         self.config_dir = Path(config_dir)
-        self.config_file = self.config_dir / f"config_{environment.value}.yaml"
+        self.config_file = self.config_dir / f"config_{self.environment.value}.yaml"
         self.default_config_file = self.config_dir / "config_default.yaml"
 
         # Configuration sections
@@ -472,12 +474,7 @@ class ConfigManager:
         if tokens := os.getenv("OPENAI_DEFAULT_MAX_TOKENS"):
             self.api.default_max_tokens = int(tokens)
 
-        # Omgeving-specifieke instellingen
-        if env := os.getenv("ENVIRONMENT"):
-            try:
-                self.environment = Environment(env.lower())
-            except ValueError:
-                logger.warning(f"Ongeldige omgeving: {env}")
+        # ENVIRONMENT wordt genegeerd; we hanteren één vaste omgeving
 
         # Cache configuratie
         if cache_dir := os.getenv("CACHE_DIR"):
@@ -672,15 +669,8 @@ def get_config_manager(environment: Environment | None = None) -> ConfigManager:
     global _config_manager
 
     if _config_manager is None:
-        # Determine environment
-        if environment is None:
-            env_str = os.getenv("ENVIRONMENT", "development").lower()
-            try:
-                environment = Environment(env_str)
-            except ValueError:
-                environment = Environment.DEVELOPMENT
-
-        _config_manager = ConfigManager(environment)
+        # Eén vaste omgeving; negeer meegegeven/omgevingswaarde
+        _config_manager = ConfigManager(Environment.DEVELOPMENT)
 
     return _config_manager
 
