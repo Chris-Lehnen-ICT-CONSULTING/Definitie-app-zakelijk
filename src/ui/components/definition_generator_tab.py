@@ -263,6 +263,16 @@ class DefinitionGeneratorTab:
         # Show success/warning indicator
         self._render_generation_status(agent_result)
 
+        # EPIC-018: Badge/indicator voor gebruikte documentcontext
+        try:
+            doc_ctx = safe_dict_get(generation_result, "document_context")
+            if isinstance(doc_ctx, dict) and int(doc_ctx.get("document_count", 0) or 0) > 0:
+                st.info(
+                    f"📄 Documentcontext gebruikt: {int(doc_ctx['document_count'])} document(en)"
+                )
+        except Exception:
+            pass
+
         # Sla ID van bewaarde definitie op voor Expert-tab prefill
         # Bewaar het ID van de opgeslagen definitie voor de Expert/Bewerk tabs
         target_id = None

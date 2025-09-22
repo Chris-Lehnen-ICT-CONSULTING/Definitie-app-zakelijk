@@ -106,7 +106,8 @@ class DocumentProcessor:
             # Extraheer tekst
             extracted_text = extract_text_from_file(file_content, filename, mime_type)
 
-            if extracted_text is None:
+            # Behandel mislukte of placeholder/warning extracties als error
+            if extracted_text is None or self._is_placeholder_text(extracted_text):
                 # Fout bij extractie
                 doc = ProcessedDocument(
                     id=doc_id,
@@ -121,7 +122,12 @@ class DocumentProcessor:
                     legal_references=[],
                     context_hints=[],
                     processing_status="error",
-                    error_message="Tekst extractie gefaald",
+                    # Toon een duidelijke melding wanneer een dependency ontbreekt of type unsupported is
+                    error_message=(
+                        extracted_text
+                        if isinstance(extracted_text, str) and extracted_text
+                        else "Tekst extractie gefaald"
+                    ),
                 )
             else:
                 # Analyseer geëxtraheerde tekst
@@ -271,6 +277,22 @@ class DocumentProcessor:
         hasher.update(content)
         hasher.update(filename.encode("utf-8"))
         return hasher.hexdigest()[:16]
+
+    def _is_placeholder_text(self, text: str) -> bool:
+        """Detecteer placeholder/warning teksten die geen echte extractie zijn.
+
+        Volgens de technische handleiding leveren ontbrekende libs een korte
+        waarschuwingstekst terug; dit mag niet als geldige documentcontext tellen.
+
+        We herkennen dit aan het standaard '⚠️' prefix dat door de extractors
+        wordt gebruikt en behandelen dat als error.
+        """
+        if not text:
+            return True
+        t = text.strip()
+        if t.startswith("⚠️"):
+            return True
+        return False
 
     def _extract_keywords(self, text: str) -> list[str]:
         """Extraheer keywords uit tekst."""

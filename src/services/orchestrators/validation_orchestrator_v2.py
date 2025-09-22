@@ -160,12 +160,12 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 if context.feature_flags:
                     context_dict["feature_flags"] = dict(context.feature_flags)
 
-            # Call underlying service
+            # Call underlying service (geen automatische enrich met 'definition')
             result = await self.validation_service.validate_definition(
                 begrip=definition.begrip,
                 text=text,
                 ontologische_categorie=definition.ontologische_categorie,
-                context=self._enrich_context_with_definition_fields(context_dict, definition),
+                context=context_dict,
             )
 
             # Ensure result is schema-compliant

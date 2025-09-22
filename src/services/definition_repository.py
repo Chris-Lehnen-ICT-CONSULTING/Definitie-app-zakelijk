@@ -458,6 +458,17 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def _definition_to_record(self, definition: Definition) -> DefinitieRecord:
         """Converteer Definition naar DefinitieRecord."""
         import json as _json
+        # Bepaal bron type op basis van metadata (import vs generated)
+        source_type_value = SourceType.GENERATED.value
+        try:
+            if definition.metadata and definition.metadata.get("source_type"):
+                # Alleen toestaan als waarde overeenkomt met bekende SourceType opties
+                st_val = str(definition.metadata.get("source_type")).lower()
+                if st_val in {"generated", "imported", "manual"}:
+                    source_type_value = st_val
+        except Exception:
+            pass
+
         record = DefinitieRecord(
             id=definition.id,
             begrip=definition.begrip,
@@ -474,7 +485,7 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 if definition.metadata
                 else DefinitieStatus.DRAFT.value
             ),
-            source_type=SourceType.GENERATED.value,
+            source_type=source_type_value,
             created_at=definition.created_at,
             updated_at=definition.updated_at,
         )
@@ -496,6 +507,12 @@ class DefinitionRepository(DefinitionRepositoryInterface):
                 record.source_reference = definition.metadata["source_reference"]
             if "created_by" in definition.metadata:
                 record.created_by = definition.metadata["created_by"]
+            # Herkomst voor import
+            if "imported_from" in definition.metadata:
+                try:
+                    record.imported_from = str(definition.metadata["imported_from"])  # type: ignore[attr-defined]
+                except Exception:
+                    pass
 
         # Voeg toelichting toe aan definitie tekst indien aanwezig
         if definition.toelichting:

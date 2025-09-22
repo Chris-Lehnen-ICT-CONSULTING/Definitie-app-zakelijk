@@ -5527,6 +5527,37 @@
       "linked_reqs": null
     },
     {
+      "id": "CFR-BUG-031",
+      "type": "BUG",
+      "title": "Legacy cleanup – container API, validator interface en service_factory marker (tests failing)",
+      "path": "../backlog/EPIC-010/US-043/CFR-BUG-031/README.md",
+      "url": "../backlog/EPIC-010/US-043/CFR-BUG-031/README.md",
+      "status": "OPEN",
+      "prioriteit": null,
+      "owner": "architecture",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 3
+      },
+      "parent_epic": "EPIC-010",
+      "parent_us": "US-043",
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-010/US-043/CFR-BUG-031/README.html"
+    },
+    {
       "id": null,
       "type": "US",
       "title": "US-044: Multi-language Support",
@@ -31740,14 +31771,14 @@
       "DOC": 472,
       "EPIC": 17,
       "US": 210,
-      "BUG": 16,
+      "BUG": 17,
       "REQ": 99,
       "ARCH": 24,
       "TEST": 27,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T11:57:38Z"
+    "generated_at": "2025-09-22T12:09:37Z"
   },
   "sources": [
     "docs"
