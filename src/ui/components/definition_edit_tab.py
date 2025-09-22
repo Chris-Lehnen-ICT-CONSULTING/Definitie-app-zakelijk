@@ -254,7 +254,12 @@ class DefinitionEditTab:
             # Juridische context
             # Juridische context (multiselect met Anders...)
             jur_options = list(LEGAL_DOMAINS)
-            current_jur = getattr(definition, 'juridische_context', []) or []
+            # Check eerst voor contexten van generator tab, dan pas definitie object
+            edit_jur_from_generator = SessionStateManager.get_value('edit_juridische_context')
+            if edit_jur_from_generator and isinstance(edit_jur_from_generator, list):
+                current_jur = edit_jur_from_generator
+            else:
+                current_jur = getattr(definition, 'juridische_context', []) or []
             jur_selected = st.multiselect(
                 "Juridische Context",
                 options=[*jur_options, "Anders..."],
@@ -276,7 +281,12 @@ class DefinitionEditTab:
 
             # Wettelijke basis (multiselect met Anders...)
             wet_options = list(COMMON_LAWS)
-            current_wet = getattr(definition, 'wettelijke_basis', []) or []
+            # Check eerst voor contexten van generator tab, dan pas definitie object
+            edit_wet_from_generator = SessionStateManager.get_value('edit_wettelijke_basis')
+            if edit_wet_from_generator and isinstance(edit_wet_from_generator, list):
+                current_wet = edit_wet_from_generator
+            else:
+                current_wet = getattr(definition, 'wettelijke_basis', []) or []
             wet_selected = st.multiselect(
                 "Wettelijke Basis",
                 options=[*wet_options, "Anders..."],
