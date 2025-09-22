@@ -6,6 +6,7 @@
   "toetsvraag": "Is de betekenis van het begrip contextspecifiek geformuleerd, zonder dat de context letterlijk of verwijzend in de definitie wordt genoemd?",
   "herkenbaar_patronen": [
     "\\b(in de context van)\\b",
+    "\\b(in het kader van)\\b",
     "\\bbinnen de context\\b",
     "\\bvolgens de .*context\\b",
     "\\bjuridisch(e)?\\b",

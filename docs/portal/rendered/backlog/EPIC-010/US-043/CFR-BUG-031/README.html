@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Legacy cleanup – container API, validator interface en service_factory marker (tests failing)</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: CFR-BUG-031</p>
+<p>titel: Legacy cleanup – container API, validator interface en service_factory marker (tests failing)</p>
+<p>status: OPEN</p>
+<p>severity: HIGH</p>
+<p>component: core-infra</p>
+<p>owner: architecture</p>
+<p>gevonden_op: 2025-09-22</p>
+<p>canonical: false</p>
+<p>applies_to: definitie-app@current</p>
+<p>---</p>
+
+<h1>CFR-BUG-031: Legacy cleanup — container API, validator interface en service_factory marker</h1>
+
+<h2>Symptomen (tests die falen)</h2>
+<ul>
+<li>tests/test_legacy_validation_removed_simple.py::test_service_factory_get_stats_no_validator → AttributeError: `ServiceContainer.get_instance()` ontbreekt.</li>
+<li>tests/test_legacy_validation_removed_simple.py::test_no_validator_in_service_factory_source → verwacht tekst “Legacy validator removed” in `services/service_factory.py` (marker ontbreekt).</li>
+<li>tests/test_legacy_validation_removed_simple.py::test_orchestrator_handles_validation → idem `get_instance()` ontbreekt.</li>
+<li>tests/test_legacy_validation_removed_simple.py::test_no_validator_interface_in_interfaces → `DefinitionValidatorInterface` bestaat nog in `services/interfaces.py` (zou verwijderd moeten zijn).</li>
+</ul>
+
+<h2>Root causes</h2>
+<p>1) Container API is niet volledig gelijkgetrokken met tests: <code>ServiceContainer.get_instance()</code> ontbreekt (we hebben <code>get_container()</code> module‑functie).</p>
+<p>2) Legacy validator interface blijft aanwezig: <code>DefinitionValidatorInterface</code> staat nog in <code>src/services/interfaces.py:308</code> ondanks migratie naar V2.</p>
+<p>3) Service factory mist expliciete marker/tekst “Legacy validator removed” (tests controleren hierop als regressie‑guard).</p>
+<p>4) Consistentie: enkele niet‑UI paden gebruiken nog <code>repository.change_status(...)</code> direct (bijv. <code>src/integration/definitie_checker.py:373</code>). Voor ESTABLISHED zou dit via <code>DefinitionWorkflowService</code> moeten lopen (gate‑enforcement).</p>
+
+<h2>Geimpacteerde bestanden</h2>
+<ul>
+<li>src/services/container.py — voeg `@classmethod get_instance()` toe (delegate naar globale container), geen gedrag wijzigen verder.</li>
+<li>src/services/interfaces.py — verwijder class `DefinitionValidatorInterface` (of zet onder guarded legacy stub die tests passeert door afwezigheid van class).</li>
+<li>src/services/service_factory.py — voeg duidelijke marker (docstring/comment) “Legacy validator removed” toe; verifieer dat geen `container.validator()` referenties bestaan.</li>
+<li>src/integration/definitie_checker.py — vervang directe `repository.change_status(...)` door `DefinitionWorkflowService` voor status “established” (consistentie met gate‑beleid).</li>
+</ul>
+
+<h2>Acceptatiecriteria</h2>
+<ul>
+<li>[ ] Tests `test_legacy_validation_removed_simple.py` en `test_legacy_validation_removed.py` slagen zonder aanpassing van tests.</li>
+<li>[ ] `ServiceContainer.get_instance()` retourneert dezelfde singleton als `get_container()` (zonder dubbele initialisatie).</li>
+<li>[ ] `services/interfaces.py` bevat geen `class DefinitionValidatorInterface`.</li>
+<li>[ ] `services/service_factory.py` bevat een duidelijke marker “Legacy validator removed” en geen legacy validator calls.</li>
+<li>[ ] (Optioneel) Integratiepad naar ESTABLISHED gebruikt `DefinitionWorkflowService` i.p.v. directe repo‑calls.</li>
+</ul>
+
+<h2>Aanpak (kleine PR)</h2>
+<p>1) Container: implementeer <code>@classmethod get_instance(cls) -> ServiceContainer:</code> dat <code>return get_container()</code> doet.</p>
+<p>2) Interfaces: verwijder de classdefinitie van <code>DefinitionValidatorInterface</code> en update docstring bovenin met verwijzing naar V2 contract (<code>services/validation/interfaces.py</code>).</p>
+<p>3) Service factory: voeg korte docstringregel “Legacy validator removed (US‑043)” en check dat er geen <code>container.validator()</code> in de code staat.</p>
+<p>4) Integratie: in <code>src/integration/definitie_checker.py</code> gebruik <code>DefinitionWorkflowService.submit_for_review(...)</code> voor ESTABLISHED (gate‑enforcement), en <code>workflow.update_status(...)</code> voor niet‑gate statussen.</p>
+
+<h2>Gerelateerde US/EPIC</h2>
+<ul>
+<li>EPIC‑010 / US‑043 — Remove Legacy Context Routes (breder legacy‑opruimwerk, tests refereren hiernaar)</li>
+<li>EPIC‑012 — Legacy Orchestrator Refactoring (achtergrond refactor)</li>
+</ul>
+
+<h2>Testen</h2>
+<ul>
+<li>Draai minimaal:</li>
+<li> - `pytest -q tests/test_legacy_validation_removed_simple.py`</li>
+<li> - `pytest -q tests/test_legacy_validation_removed.py`</li>
+<li> - rook: `tests/services/test_container_wiring_v2_cutover.py`</li>
+</ul>
+
+<h2>Opmerkingen</h2>
+<ul>
+<li>In `docs/migration/remove-legacy-validation-plan.md` staat dat de interface verwijderd is; deze bug brengt code in lijn met documentatie en tests.</li>
+</ul>
+
+
+  </div>
+</body>
+</html>
