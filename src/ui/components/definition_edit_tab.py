@@ -138,6 +138,7 @@ class DefinitionEditTab:
             # Status filter (NL labels → codes)
             status_options = {
                 "Alle": None,
+                "Geïmporteerd": "imported",
                 "Concept": "draft",
                 "In review": "review",
                 "Vastgesteld": "established",
@@ -517,12 +518,20 @@ class DefinitionEditTab:
     def _render_status_badge(self, status: str):
         """Render a status badge."""
         colors = {
+            'imported': '🔵',
             'draft': '🟡',
             'review': '🟠',
             'established': '🟢',
             'archived': '⚫'
         }
-        st.markdown(f"{colors.get(status, '⚪')} {status}")
+        labels_nl = {
+            'imported': 'Geïmporteerd',
+            'draft': 'Concept',
+            'review': 'In review',
+            'established': 'Vastgesteld',
+            'archived': 'Gearchiveerd',
+        }
+        st.markdown(f"{colors.get(status, '⚪')} {labels_nl.get(status, status)}")
 
     # Action methods
 
@@ -534,6 +543,7 @@ class DefinitionEditTab:
             # Map label → code (als we labels doorgeven)
             status_label_to_code = {
                 "Alle": None,
+                "Geïmporteerd": "imported",
                 "Concept": "draft",
                 "In review": "review",
                 "Vastgesteld": "established",
