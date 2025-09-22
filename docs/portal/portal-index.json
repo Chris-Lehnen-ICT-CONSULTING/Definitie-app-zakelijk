@@ -15804,6 +15804,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Implementatieplan: Auto-load Gegenereerde Definitie in Bewerk Tab",
+      "path": "../planning/IMPLEMENTATION-PLAN-AUTO-LOAD-EDIT-TAB.md",
+      "url": "../planning/IMPLEMENTATION-PLAN-AUTO-LOAD-EDIT-TAB.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/IMPLEMENTATION-PLAN-AUTO-LOAD-EDIT-TAB.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Fix: Auto-load Gegenereerde Definitie in Bewerk Tab",
       "path": "../planning/FIX-AUTO-LOAD-EDIT-TAB.md",
       "url": "../planning/FIX-AUTO-LOAD-EDIT-TAB.md",
@@ -30929,7 +30960,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 462,
+      "DOC": 463,
       "EPIC": 16,
       "US": 200,
       "BUG": 14,
@@ -30939,7 +30970,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T08:10:18Z"
+    "generated_at": "2025-09-22T08:15:19Z"
   },
   "sources": [
     "docs"

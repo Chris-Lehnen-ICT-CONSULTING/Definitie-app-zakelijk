@@ -192,36 +192,50 @@ class SRUService:
                 last_status: int | None = None
                 last_text: str | None = None
                 for u in urls:
-                    async with self.session.get(u) as response:
-                        attempt_rec: dict = {
-                            "endpoint": config.name,
-                            "url": u,
-                            "query": query_str,
-                            "strategy": strategy,
-                            "status": response.status,
-                        }
-                        if response.status == 200:
-                            xml_content = await response.text()
-                            parsed = self._parse_sru_response(xml_content, term, config)
-                            attempt_rec["records"] = len(parsed or [])
-                            self._attempts.append(attempt_rec)
-                            if parsed:
-                                return parsed
-                        else:
-                            last_status = response.status
-                            try:
-                                txt = await response.text()
-                                last_text = txt[:200]
-                                attempt_rec["body_preview"] = last_text
-                            except Exception:
-                                last_text = None
-                            self._attempts.append(attempt_rec)
-                            # Specifiek gedrag voor Wetgeving.nl: bij 503 niet blijven hangen
-                            if config.name == "Wetgeving.nl" and response.status == 503:
-                                attempt_rec["parked"] = True
-                                attempt_rec["reason"] = "503 service unavailable"
-                                parked_503 = True
-                                return []
+                    try:
+                        async with self.session.get(u) as response:
+                            attempt_rec: dict = {
+                                "endpoint": config.name,
+                                "url": u,
+                                "query": query_str,
+                                "strategy": strategy,
+                                "status": response.status,
+                            }
+                            if response.status == 200:
+                                xml_content = await response.text()
+                                parsed = self._parse_sru_response(xml_content, term, config)
+                                attempt_rec["records"] = len(parsed or [])
+                                self._attempts.append(attempt_rec)
+                                if parsed:
+                                    return parsed
+                            else:
+                                last_status = response.status
+                                try:
+                                    txt = await response.text()
+                                    last_text = txt[:200]
+                                    attempt_rec["body_preview"] = last_text
+                                except Exception:
+                                    last_text = None
+                                self._attempts.append(attempt_rec)
+                                # Specifiek gedrag voor Wetgeving.nl: bij 503 niet blijven hangen
+                                if config.name == "Wetgeving.nl" and response.status == 503:
+                                    attempt_rec["parked"] = True
+                                    attempt_rec["reason"] = "503 service unavailable"
+                                    parked_503 = True
+                                    return []
+                    except Exception as ex:
+                        # Log exception as attempt with error info
+                        self._attempts.append(
+                            {
+                                "endpoint": config.name,
+                                "url": u,
+                                "query": query_str,
+                                "strategy": strategy,
+                                "status": None,
+                                "error": str(ex),
+                            }
+                        )
+                        continue
                 # Nothing found for this query across endpoints
                 if last_status and last_status != 200:
                     logger.error(
@@ -229,6 +243,17 @@ class SRUService:
                         + (f" Body preview: {last_text}" if last_text else "")
                     )
                 return []
+
+            # ECLI quick path voor Rechtspraak (sneller en preciezer)
+            try:
+                if endpoint == "rechtspraak" and re.search(r"ECLI:[A-Z0-9:]+", term or ""):
+                    ecli_escaped = term.replace('"', '\\"')
+                    ecli_query = f'cql.serverChoice any "{ecli_escaped}"'
+                    results = await _try_query(ecli_query, strategy="ecli")
+                    if results:
+                        return results
+            except Exception:
+                pass
 
             # Query 1: onze standaard DC-velden (exact/contains per server-choice)
             base_query = self._build_cql_query(term, collection or config.default_collection)
@@ -484,11 +509,13 @@ class SRUService:
         try:
             root = ET.fromstring(xml_content)
 
-            # SRU namespace handling
+            # SRU namespace handling (tolerant: probeer bekende namespaces en fallback op local-name)
             namespaces = {
                 "srw": "http://www.loc.gov/zing/srw/",
                 "dc": "http://purl.org/dc/elements/1.1/",
                 "dcterms": "http://purl.org/dc/terms/",
+                # 'gzd' schema voor Overheid.nl Zoekservice - URI varieert; we gebruiken desnoods local-name fallback
+                "gzd": "http://overheid.nl/gzd",
             }
 
             # Find records
@@ -522,45 +549,34 @@ class SRUService:
     ) -> LookupResult | None:
         """Parse een individueel SRU record."""
         try:
-            # Extract Dublin Core metadata
-            title_elem = record.find(".//dc:title", namespaces)
-            description_elem = record.find(".//dc:description", namespaces)
-            identifier_elem = record.find(".//dc:identifier", namespaces)
-            subject_elem = record.find(".//dc:subject", namespaces)
-            type_elem = record.find(".//dc:type", namespaces)
-            date_elem = record.find(".//dc:date", namespaces)
+            # Tolerante extractie van metadata: probeer bekende namespaces, anders local-name fallback
+            def _find_text_local(element: ET.Element, local: str) -> str:
+                # 1) Zoek via bekende namespaces
+                for ns in ("dc", "dcterms", "gzd"):
+                    try:
+                        el = element.find(f".//{ns}:{local}", namespaces)
+                        if el is not None and el.text:
+                            return el.text.strip()
+                    except Exception:
+                        continue
+                # 2) Fallback: loop alle subelements en match op lokale tagnaam
+                for el in element.iter():
+                    try:
+                        tag = el.tag
+                        if "}" in tag:
+                            tag = tag.split("}", 1)[1]
+                        if tag.lower() == local.lower() and el.text:
+                            return el.text.strip()
+                    except Exception:
+                        continue
+                return ""
 
-            # Extract values
-            title = (
-                title_elem.text.strip()
-                if title_elem is not None and title_elem.text
-                else ""
-            )
-            description = (
-                description_elem.text.strip()
-                if description_elem is not None and description_elem.text
-                else ""
-            )
-            identifier = (
-                identifier_elem.text.strip()
-                if identifier_elem is not None and identifier_elem.text
-                else ""
-            )
-            subject = (
-                subject_elem.text.strip()
-                if subject_elem is not None and subject_elem.text
-                else ""
-            )
-            doc_type = (
-                type_elem.text.strip()
-                if type_elem is not None and type_elem.text
-                else ""
-            )
-            date = (
-                date_elem.text.strip()
-                if date_elem is not None and date_elem.text
-                else ""
-            )
+            title = _find_text_local(record, "title")
+            description = _find_text_local(record, "description")
+            identifier = _find_text_local(record, "identifier")
+            subject = _find_text_local(record, "subject")
+            doc_type = _find_text_local(record, "type")
+            date = _find_text_local(record, "date")
 
             # Skip als geen titel of beschrijving
             if not title and not description:
