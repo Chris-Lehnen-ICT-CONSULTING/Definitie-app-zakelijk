@@ -229,30 +229,32 @@ class DefinitionEditTab:
         with col1:
             # Organisatorische context (multiselect met Anders...)
             org_options = list(ORGANIZATIONS)
-            # Check eerst voor contexten van generator tab, dan pas definitie object
+            # Bepaal bron (generator-tab of definitie) en splits in bekende/overige waarden
             edit_org_from_generator = SessionStateManager.get_value('edit_organisatorische_context')
-            if edit_org_from_generator and isinstance(edit_org_from_generator, list):
-                current_org = edit_org_from_generator
-            else:
-                current_org = getattr(definition, 'organisatorische_context', []) or []
+            current_org = edit_org_from_generator if (edit_org_from_generator and isinstance(edit_org_from_generator, list)) else (getattr(definition, 'organisatorische_context', []) or [])
+            org_known = [v for v in current_org if v in org_options]
+            org_other = [v for v in current_org if v not in org_options]
+            org_default = org_known + (["Anders..."] if org_other else [])
             org_selected = st.multiselect(
                 "Organisatorische Context",
                 options=[*org_options, "Anders..."],
-                default=[v for v in current_org if v in org_options],
+                default=org_default,
                 key=k("org_multiselect"),
                 disabled=disabled,
-                help="Selecteer één of meer organisaties; kies Anders... om eigen waarde toe te voegen",
+                help="Selecteer één of meer organisaties; kies Anders... voor eigen waarden (komma‑gescheiden)",
             )
+            org_custom_values = []
             if "Anders..." in org_selected:
-                org_custom = st.text_input(
-                    "Andere organisatie",
+                org_custom_raw = st.text_input(
+                    "Andere organisatie(s) (komma‑gescheiden)",
+                    value=", ".join(org_other) if org_other else "",
                     key=k("org_custom"),
                     disabled=disabled,
-                    help="Voeg een eigen organisatie toe",
                 )
-                if org_custom and org_custom.strip():
-                    if org_custom not in org_options:
-                        org_selected = [v for v in org_selected if v != "Anders..."] + [org_custom.strip()]
+                org_custom_values = [v.strip() for v in org_custom_raw.split(",") if v.strip()]
+            # Schrijf de samengevoegde lijst naar session state voor save‑flow
+            org_resolved = [v for v in org_selected if v != "Anders..."] + org_custom_values
+            SessionStateManager.set_value(k('organisatorische_context'), org_resolved)
 
             # Category
             categorie = st.selectbox(
@@ -269,57 +271,57 @@ class DefinitionEditTab:
             # Juridische context
             # Juridische context (multiselect met Anders...)
             jur_options = list(LEGAL_DOMAINS)
-            # Check eerst voor contexten van generator tab, dan pas definitie object
             edit_jur_from_generator = SessionStateManager.get_value('edit_juridische_context')
-            if edit_jur_from_generator and isinstance(edit_jur_from_generator, list):
-                current_jur = edit_jur_from_generator
-            else:
-                current_jur = getattr(definition, 'juridische_context', []) or []
+            current_jur = edit_jur_from_generator if (edit_jur_from_generator and isinstance(edit_jur_from_generator, list)) else (getattr(definition, 'juridische_context', []) or [])
+            jur_known = [v for v in current_jur if v in jur_options]
+            jur_other = [v for v in current_jur if v not in jur_options]
+            jur_default = jur_known + (["Anders..."] if jur_other else [])
             jur_selected = st.multiselect(
                 "Juridische Context",
                 options=[*jur_options, "Anders..."],
-                default=[v for v in current_jur if v in jur_options],
+                default=jur_default,
                 key=k("jur_multiselect"),
                 disabled=disabled,
-                help="Selecteer relevante rechtsgebieden; kies Anders... om eigen waarde toe te voegen",
+                help="Selecteer rechtsgebieden; kies Anders... voor eigen waarden (komma‑gescheiden)",
             )
+            jur_custom_values = []
             if "Anders..." in jur_selected:
-                jur_custom = st.text_input(
-                    "Ander rechtsgebied",
+                jur_custom_raw = st.text_input(
+                    "Andere rechtsgebieden (komma‑gescheiden)",
+                    value=", ".join(jur_other) if jur_other else "",
                     key=k("jur_custom"),
                     disabled=disabled,
-                    help="Voeg een eigen rechtsgebied toe",
                 )
-                if jur_custom and jur_custom.strip():
-                    if jur_custom not in jur_options:
-                        jur_selected = [v for v in jur_selected if v != "Anders..."] + [jur_custom.strip()]
+                jur_custom_values = [v.strip() for v in jur_custom_raw.split(",") if v.strip()]
+            jur_resolved = [v for v in jur_selected if v != "Anders..."] + jur_custom_values
+            SessionStateManager.set_value(k('juridische_context'), jur_resolved)
 
             # Wettelijke basis (multiselect met Anders...)
             wet_options = list(COMMON_LAWS)
-            # Check eerst voor contexten van generator tab, dan pas definitie object
             edit_wet_from_generator = SessionStateManager.get_value('edit_wettelijke_basis')
-            if edit_wet_from_generator and isinstance(edit_wet_from_generator, list):
-                current_wet = edit_wet_from_generator
-            else:
-                current_wet = getattr(definition, 'wettelijke_basis', []) or []
+            current_wet = edit_wet_from_generator if (edit_wet_from_generator and isinstance(edit_wet_from_generator, list)) else (getattr(definition, 'wettelijke_basis', []) or [])
+            wet_known = [v for v in current_wet if v in wet_options]
+            wet_other = [v for v in current_wet if v not in wet_options]
+            wet_default = wet_known + (["Anders..."] if wet_other else [])
             wet_selected = st.multiselect(
                 "Wettelijke Basis",
                 options=[*wet_options, "Anders..."],
-                default=[v for v in current_wet if v in wet_options],
+                default=wet_default,
                 key=k("wet_multiselect"),
                 disabled=disabled,
-                help="Selecteer toepasselijke wetten; kies Anders... om eigen waarde toe te voegen",
+                help="Selecteer wetten; kies Anders... voor eigen waarden (komma‑gescheiden)",
             )
+            wet_custom_values = []
             if "Anders..." in wet_selected:
-                wet_custom = st.text_input(
-                    "Andere wet",
+                wet_custom_raw = st.text_input(
+                    "Andere wetten (komma‑gescheiden)",
+                    value=", ".join(wet_other) if wet_other else "",
                     key=k("wet_custom"),
                     disabled=disabled,
-                    help="Voeg een eigen wet toe",
                 )
-                if wet_custom and wet_custom.strip():
-                    if wet_custom not in wet_options:
-                        wet_selected = [v for v in wet_selected if v != "Anders..."] + [wet_custom.strip()]
+                wet_custom_values = [v.strip() for v in wet_custom_raw.split(",") if v.strip()]
+            wet_resolved = [v for v in wet_selected if v != "Anders..."] + wet_custom_values
+            SessionStateManager.set_value(k('wettelijke_basis'), wet_resolved)
 
             # Status
             current_status = definition.metadata.get('status', 'draft') if definition.metadata else 'draft'
