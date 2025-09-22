@@ -76,7 +76,34 @@
       ],
       "processing_status": "success",
       "error_message": null
+    },
+    {
+      "id": "7cb0d9b21c9c5461",
+      "filename": "Wetboek van Strafvordering (Boek 2) (36327) (ongecorrigeerd).docx",
+      "mime_type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "size": 108718,
+      "uploaded_at": "2025-09-22T11:26:02.475438+00:00",
+      "extracted_text": "⚠️ Word extractie vereist python-docx library (pip install python-docx)",
+      "text_length": 71,
+      "keywords": [
+        "pythondocx",
+        "word",
+        "extractie",
+        "vereist",
+        "library",
+        "install"
+      ],
+      "key_concepts": [
+        "Word"
+      ],
+      "legal_references": [],
+      "context_hints": [
+        "Compact document - specifieke context",
+        "Bevat 1 geïdentificeerde concepten"
+      ],
+      "processing_status": "success",
+      "error_message": null
     }
   ],
-  "last_updated": "2025-08-14T10:35:05.830359"
+  "last_updated": "2025-09-22T11:26:02.475504+00:00"
 }
