@@ -483,6 +483,9 @@ class ServiceAdapter:
         # Collect options (feature flags etc.)
         opts = ensure_dict(safe_dict_get(kwargs, "options", {}))
 
+        # Document context (EPIC-018): compacte samenvatting door UI aangeleverd
+        doc_context = ensure_string(safe_dict_get(kwargs, "document_context", "")).strip()
+
         request = GenerationRequest(
             id=str(uuid.uuid4()),  # Generate unique ID for tracking
             begrip=begrip,
@@ -499,6 +502,7 @@ class ServiceAdapter:
             # Populate legacy string context for compatibility with tests/UI
             context=context_text,
             options=opts or None,
+            document_context=(doc_context or None),
         )
 
         # Handle V2 orchestrator async call properly

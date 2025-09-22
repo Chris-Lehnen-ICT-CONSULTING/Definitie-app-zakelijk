@@ -429,6 +429,24 @@ class ServiceContainer:
             logger.info("ExportService instance aangemaakt")
         return self._instances["export_service"]
 
+    def import_service(self):
+        """
+        Get of create DefinitionImportService instance (Single Import MVP).
+
+        Returns:
+            Singleton instance van DefinitionImportService
+        """
+        if "import_service" not in self._instances:
+            from services.definition_import_service import DefinitionImportService
+
+            repo = self.repository()
+            validator = self.orchestrator()
+            self._instances["import_service"] = DefinitionImportService(
+                repository=repo, validation_orchestrator=validator
+            )
+            logger.info("DefinitionImportService instance aangemaakt (MVP)")
+        return self._instances["import_service"]
+
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
 
     # Utility methods
@@ -459,6 +477,7 @@ class ServiceContainer:
             "cleaning_service": self.cleaning_service,
             "gate_policy": self.gate_policy,
             "definition_workflow_service": self.definition_workflow_service,
+            "import_service": self.import_service,
         }
 
         if name in service_map:

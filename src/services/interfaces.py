@@ -168,6 +168,8 @@ class GenerationRequest:
     organisatorische_context: list[str] | None = (
         None  # Organisatorische context (DJI, OM, etc.)
     )
+    # Document context (EPIC-018): compacte samenvatting van geselecteerde documenten
+    document_context: str | None = None
 
 
 @dataclass

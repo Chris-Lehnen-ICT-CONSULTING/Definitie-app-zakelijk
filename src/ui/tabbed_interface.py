@@ -906,6 +906,11 @@ class TabbedInterface:
                 # Haal actuele generation options op (kan force flags bevatten)
                 options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
 
+                # EPIC-018: bouw een samenvatting van documentcontext voor de service
+                doc_summary = None
+                if document_context and document_context.get("document_count", 0) > 0:
+                    doc_summary = self._build_document_context_summary(document_context)
+
                 service_result = run_async(
                     self.definition_service.generate_definition(
                         begrip=begrip,
@@ -922,6 +927,8 @@ class TabbedInterface:
                             for k, v in options.items()
                             if k in ("force_generate", "force_duplicate")
                         },
+                        # EPIC-018: doorgeven aan service
+                        document_context=doc_summary,
                         # Pass regeneration context for GVI feedback loop
                         regeneration_context=regeneration_context,
                     ),
@@ -1124,6 +1131,40 @@ class TabbedInterface:
             logger.error(f"Fout bij ophalen document context: {e}")
             return None
 
+    def _build_document_context_summary(self, aggregated: dict[str, Any]) -> str:
+        """Bouw een compacte samenvatting uit geaggregeerde documentcontext.
+
+        Opzet: korte lijstjes met top‑items; aantal items gelimiteerd zodat het
+        samenvattend blijft. Dit wordt gebruikt als `document_context` in het
+        GenerationRequest.
+        """
+        try:
+            parts: list[str] = []
+            doc_cnt = int(aggregated.get("document_count", 0) or 0)
+            total_len = int(aggregated.get("total_text_length", 0) or 0)
+            if doc_cnt > 0:
+                parts.append(f"Docs: {doc_cnt} | Tekst: {total_len} chars")
+
+            kws = list(aggregated.get("aggregated_keywords", []) or [])[:10]
+            if kws:
+                parts.append("Keywords: " + ", ".join(kws))
+
+            concepts = list(aggregated.get("aggregated_concepts", []) or [])[:5]
+            if concepts:
+                parts.append("Concepten: " + ", ".join(concepts))
+
+            legal = list(aggregated.get("aggregated_legal_refs", []) or [])[:5]
+            if legal:
+                parts.append("Juridisch: " + ", ".join(legal))
+
+            hints = list(aggregated.get("aggregated_context_hints", []) or [])[:3]
+            if hints:
+                parts.append("Hints: " + "; ".join(hints))
+
+            return " | ".join(parts)
+        except Exception:
+            return ""
+
     def _handle_duplicate_check(self, begrip: str, context_data: dict[str, Any]):
         """Handle duplicate check vanaf hoofdniveau."""
         try:
@@ -1195,6 +1236,13 @@ class TabbedInterface:
         with st.expander("📄 Document Upload voor Context Verrijking", expanded=False):
             st.markdown(
                 "Upload documenten die relevante context bevatten voor de definitie generatie."
+            )
+            # Korte links naar documentatie
+            st.markdown(
+                "- ℹ️ Technisch: [Extractie & flow](docs/technisch/document_processing.md)"
+            )
+            st.markdown(
+                "- 🧑‍💻 Dev how‑to: [document_context gebruiken](docs/handleidingen/ontwikkelaars/document-context-gebruik.md)"
             )
 
             # File uploader
