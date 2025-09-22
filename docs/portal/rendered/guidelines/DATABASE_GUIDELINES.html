@@ -57,10 +57,31 @@
 <li>Versiebeheer/audit: `version_number`, `previous_version_id`, triggers op `definitie_geschiedenis`.</li>
 </ul>
 
+<h2>Uniciteit & Duplicates (canoniek)</h2>
+<ul>
+<li>Duplicate‑criteria = exact dezelfde combinatie van:</li>
+<li> - `begrip` +</li>
+<li> - `organisatorische_context` (JSON‑lijst, orde‑onafhankelijk) +</li>
+<li> - `juridische_context` (JSON‑lijst, orde‑onafhankelijk) +</li>
+<li> - `wettelijke_basis` (JSON‑lijst, orde‑onafhankelijk)</li>
+<li>De ontologische `categorie` maakt géén deel uit van deze duplicate‑check.</li>
+<li>Implementatie:</li>
+<li> - DB‑laag filtert op bovenstaande velden (JSON string‑vergelijking)</li>
+<li> - Checker‑laag handhaaft orde‑onafhankelijkheid (veiligheidsnet bij oude/onnormale data)</li>
+</ul>
+
 <h2>Normalisatie (vervolgwerk)</h2>
 <ul>
 <li>Normalisatie naar relationele tabellen is niet vereist; het JSON‑array patroon is de canonieke opslag per veld.</li>
 <li>Zie [US‑110](../backlog/EPIC-004/US-110/US-110.md) voor bronverantwoording/generatie‑metadata tabellen.</li>
+</ul>
+
+<h3>JSON‑array normalisatie (praktisch)</h3>
+<ul>
+<li>Opslag: lijsten worden genormaliseerd naar unieke, gesorteerde waarden vóór opslag.</li>
+<li>Migratie bestaande data: draai normalisatie over alle rijen:</li>
+<li> - `python src/database/migrate_database.py data/definities.db`</li>
+<li> - Dit herschrijft `wettelijke_basis` naar een unieke, gesorteerde JSON‑array (orde‑onafhankelijk vergelijken in SQL).</li>
 </ul>
 
   </div>

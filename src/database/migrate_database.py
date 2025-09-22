@@ -8,6 +8,7 @@ voor backward compatibility met de UI.
 import logging
 import sqlite3
 from pathlib import Path
+import json
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -61,6 +62,57 @@ def get_missing_columns(conn: sqlite3.Connection) -> list[tuple[str, str]]:
     return missing
 
 
+def _normalize_list_json(raw: str | None) -> str:
+    """Normalize a TEXT column that stores a JSON list: unique + sorted.
+
+    - Accepts None, empty, JSON strings, or plain strings.
+    - Returns a JSON array string with unique, sorted, stripped elements.
+    """
+    if not raw:
+        return json.dumps([], ensure_ascii=False)
+    try:
+        data = json.loads(raw)
+        if isinstance(data, list):
+            items = {str(x).strip() for x in data}
+            return json.dumps(sorted(items), ensure_ascii=False)
+        # Non-list JSON → wrap as single element
+        return json.dumps([str(data).strip()], ensure_ascii=False)
+    except Exception:
+        # Not JSON → wrap raw as single element
+        return json.dumps([str(raw).strip()], ensure_ascii=False)
+
+
+def _normalize_wettelijke_basis(conn: sqlite3.Connection) -> int:
+    """Normalize all bestaande wettelijke_basis waarden (TEXT JSON) in definities.
+
+    Returns aantal gewijzigde rijen.
+    """
+    try:
+        cur = conn.cursor()
+        cur.execute("SELECT id, wettelijke_basis FROM definities")
+        rows = cur.fetchall()
+        changed = 0
+        for row in rows:
+            _id, raw = row[0], row[1]
+            new_val = _normalize_list_json(raw)
+            # Update only when changed to reduce write load
+            if new_val != (raw or json.dumps([], ensure_ascii=False)):
+                cur.execute(
+                    "UPDATE definities SET wettelijke_basis = ? WHERE id = ?",
+                    (new_val, _id),
+                )
+                changed += 1
+        conn.commit()
+        if changed:
+            logger.info(f"✅ Genormaliseerd: {changed} rijen voor wettelijke_basis")
+        else:
+            logger.info("ℹ️  Geen normalisaties nodig voor wettelijke_basis")
+        return changed
+    except Exception as e:
+        logger.warning(f"Normalisatie wettelijk mislukt: {e}")
+        return 0
+
+
 def migrate_database(db_path: str = "data/definities.db"):
     """
     Voer database migratie uit.
@@ -83,11 +135,12 @@ def migrate_database(db_path: str = "data/definities.db"):
             # Check welke kolommen ontbreken
             missing_columns = get_missing_columns(conn)
 
+            # Altijd normalisatie uitvoeren; ook als er geen kolommen ontbreken
+            columns_added = False
             if not missing_columns:
-                logger.info("Database is al up-to-date, geen migratie nodig")
-                return True
-
-            logger.info(f"Ontbrekende kolommen gevonden: {missing_columns}")
+                logger.info("Database schema OK; voer normalisatie uit…")
+            else:
+                logger.info(f"Ontbrekende kolommen gevonden: {missing_columns}")
 
             # Voeg ontbrekende kolommen toe - Use whitelist for security
             allowed_columns = {
@@ -106,6 +159,7 @@ def migrate_database(db_path: str = "data/definities.db"):
                         sql = f"ALTER TABLE definities ADD COLUMN {column_name} {column_type}"
                         conn.execute(sql)
                         logger.info(f"✅ Kolom toegevoegd: {column_name}")
+                        columns_added = True
 
                         # Set default waarde voor datum_voorstel
                         if column_name == "datum_voorstel":
@@ -138,7 +192,10 @@ def migrate_database(db_path: str = "data/definities.db"):
             # Commit changes
             conn.commit()
 
-            logger.info("✅ Database migratie succesvol!")
+            # Normaliseer wettelijke_basis voor betrouwbare duplicate‑check op DB‑laag
+            _normalize_wettelijke_basis(conn)
+
+            logger.info("✅ Database migratie + normalisatie succesvol!")
             return True
 
     except Exception as e:

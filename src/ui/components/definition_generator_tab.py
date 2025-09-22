@@ -647,7 +647,7 @@ class DefinitionGeneratorTab:
             # Error is al getoond, log voor debugging
             logger.error(f"Category change workflow error: {result.error}")
 
-        # Action buttons alleen als er een saved_record is
+        # Action buttons
         if saved_record:
             col1, col2, col3 = st.columns(3)
 
@@ -662,6 +662,52 @@ class DefinitionGeneratorTab:
             with col3:
                 if st.button("📤 Exporteer"):
                     self._export_definition(saved_record)
+        else:
+            # Geen saved_record beschikbaar: bied optie om als concept op te slaan wanneer niet acceptabel
+            try:
+                if isinstance(agent_result, dict):
+                    vdet = agent_result.get("validation_details") or {}
+                    acceptable = bool(vdet.get("is_acceptable", False))
+                    definitie_text = agent_result.get("definitie_gecorrigeerd") or agent_result.get("definitie", "")
+                    if definitie_text and not acceptable:
+                        st.warning("❗ Deze generatie voldoet niet aan de kwaliteitsdrempel.")
+                        if st.button("💾 Bewaar als concept en bewerk"):
+                            from utils.container_manager import get_cached_container
+                            from services.interfaces import Definition
+                            container = get_cached_container()
+                            repo = container.repository()
+
+                            begrip_val = ensure_string(generation_result.get("begrip", ""))
+                            # Haal contextlijsten uit globale context (zoals gebruikt bij generatie)
+                            ctx = ensure_dict(SessionStateManager.get_value("global_context", {}))
+                            org_list = ctx.get("organisatorische_context", []) or []
+                            jur_list = ctx.get("juridische_context", []) or []
+                            wet_list = ctx.get("wettelijke_basis", []) or []
+                            categorie = ensure_string(safe_dict_get(generation_result, "determined_category", "")) or None
+
+                            new_def = Definition(
+                                begrip=begrip_val,
+                                definitie=definitie_text,
+                                organisatorische_context=list(org_list),
+                                juridische_context=list(jur_list),
+                                wettelijke_basis=list(wet_list),
+                                categorie=categorie,
+                                created_by="legacy_ui",
+                                metadata={"status": "draft"},
+                            )
+                            try:
+                                new_id = repo.save(new_def)
+                                # Zet auto-load voor Bewerk‑tab
+                                SessionStateManager.set_value("editing_definition_id", int(new_id))
+                                SessionStateManager.set_value("edit_organisatorische_context", org_list)
+                                SessionStateManager.set_value("edit_juridische_context", jur_list)
+                                SessionStateManager.set_value("edit_wettelijke_basis", wet_list)
+                                SessionStateManager.set_value("selected_review_definition_id", int(new_id))
+                                st.success("✅ Concept opgeslagen. Open de Bewerk‑tab om te bewerken.")
+                            except Exception as se:
+                                st.error(f"Opslaan mislukt: {se}")
+            except Exception as e:
+                logger.warning(f"Could not render save-as-draft option: {e}")
 
     def _render_sources_section(self, generation_result, agent_result, saved_record):
         """Render sectie met gebruikte bronnen (provenance)."""
