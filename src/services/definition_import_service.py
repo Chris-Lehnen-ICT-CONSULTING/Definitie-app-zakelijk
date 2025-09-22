@@ -100,7 +100,7 @@ class DefinitionImportService:
         definition = self._payload_to_definition(payload)
         # Zet status/metadata voor import herkomst
         md = dict(definition.metadata or {})
-        md.setdefault("status", "draft")
+        md.setdefault("status", "imported")
         md.setdefault("source_type", "imported")
         md.setdefault("imported_from", "single_import_ui")
         if created_by:

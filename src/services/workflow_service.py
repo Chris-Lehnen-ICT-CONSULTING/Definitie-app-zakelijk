@@ -43,6 +43,7 @@ class CategoryChangeResult:
 class DefinitionStatus(Enum):
     """Status van een definitie in het systeem."""
 
+    IMPORTED = "imported"
     DRAFT = "draft"
     REVIEW = "review"
     ESTABLISHED = "established"
@@ -71,6 +72,11 @@ class WorkflowService:
 
     # Toegestane status transities
     ALLOWED_TRANSITIONS = {
+        DefinitionStatus.IMPORTED.value: [
+            DefinitionStatus.REVIEW.value,
+            DefinitionStatus.DRAFT.value,
+            DefinitionStatus.ARCHIVED.value,
+        ],
         DefinitionStatus.DRAFT.value: [
             DefinitionStatus.REVIEW.value,
             DefinitionStatus.ARCHIVED.value,
