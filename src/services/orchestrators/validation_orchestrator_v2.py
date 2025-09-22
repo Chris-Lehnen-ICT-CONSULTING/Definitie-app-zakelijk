@@ -165,7 +165,7 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 begrip=definition.begrip,
                 text=text,
                 ontologische_categorie=definition.ontologische_categorie,
-                context=context_dict,
+                context=self._enrich_context_with_definition_fields(context_dict, definition),
             )
 
             # Ensure result is schema-compliant
@@ -207,3 +207,44 @@ class ValidationOrchestratorV2(ValidationOrchestratorInterface):
                 )
             )
         return results
+
+    # Internal helpers
+    def _enrich_context_with_definition_fields(self, ctx: dict | None, definition: Definition) -> dict:
+        """Add definition fields to context metadata for richer validation.
+
+        Minimale verrijking zonder complexe regels: dit stelt de validator in staat
+        duplicaten en context‑afhankelijke checks beter te signaleren.
+        """
+        enriched: dict = dict(ctx or {})
+
+        # Top-level context velden (compatibel met validator meta‑checks)
+        try:
+            if definition.organisatorische_context:
+                enriched["organisatorische_context"] = list(definition.organisatorische_context)
+            if definition.juridische_context:
+                enriched["juridische_context"] = list(definition.juridische_context)
+            if definition.wettelijke_basis:
+                enriched["wettelijke_basis"] = list(definition.wettelijke_basis)
+            if definition.categorie:
+                enriched["categorie"] = definition.categorie
+        except Exception:
+            pass
+
+        # Gebundelde definition metadata onder sleutel 'definition'
+        try:
+            def_meta = {
+                "begrip": definition.begrip,
+                "synoniemen": list(definition.synoniemen or []),
+                "toelichting": definition.toelichting or "",
+                "gerelateerde_begrippen": list(definition.gerelateerde_begrippen or []),
+                "ontologische_categorie": definition.ontologische_categorie,
+            }
+            base = enriched.get("definition")
+            if isinstance(base, dict):
+                base.update({k: v for k, v in def_meta.items() if v})
+            else:
+                enriched["definition"] = {k: v for k, v in def_meta.items() if v}
+        except Exception:
+            pass
+
+        return enriched

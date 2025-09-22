@@ -872,7 +872,32 @@ class TabbedInterface:
                 # Converteer naar checker formaat voor UI compatibility variabelen
                 check_result = None
                 agent_result = service_result
+
+                # Voor auto-load in edit tab: sla de gegenereerde definitie op in de database
                 saved_record = None
+                if isinstance(service_result, dict) and service_result.get('success'):
+                    try:
+                        # Sla de definitie op in de database zodat edit tab hem kan laden
+                        definitie_text = service_result.get('definitie_gecorrigeerd') or service_result.get('definitie', '')
+                        if definitie_text and begrip:
+                            # Gebruik de repository om de definitie op te slaan
+                            # Context moet JSON string zijn voor de database
+                            import json
+                            saved_record = self.repository.create_definitie(
+                                begrip=begrip,
+                                definitie=definitie_text,
+                                organisatorische_context=json.dumps(org_context) if org_context else '[]',
+                                juridische_context=json.dumps(jur_context) if jur_context else '[]',
+                                wettelijke_basis=json.dumps(wet_context) if wet_context else '[]',
+                                categorie=auto_categorie.value,
+                                status='draft',
+                                validation_score=service_result.get('validation_score', 0.0),
+                                metadata=service_result.get('metadata', {})
+                            )
+                            logger.info(f"Auto-saved generated definition with ID: {saved_record.id if saved_record else 'None'}")
+                    except Exception as e:
+                        logger.error(f"Failed to auto-save definition: {e}")
+                        # Continue without saving - edit tab won't auto-load but app won't crash
 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
@@ -948,6 +973,12 @@ class TabbedInterface:
 
                 # Koppel gegenereerde definitie aan edit tab voor auto-load
                 # Dit zorgt ervoor dat de definitie klaarstaat als gebruiker naar Bewerk navigeert
+                logger.info(f"DEBUG: saved_record = {saved_record}, type = {type(saved_record)}")
+                if saved_record:
+                    logger.info(f"DEBUG: saved_record has id? {hasattr(saved_record, 'id')}")
+                    if hasattr(saved_record, 'id'):
+                        logger.info(f"DEBUG: saved_record.id = {saved_record.id}")
+
                 if saved_record and hasattr(saved_record, 'id'):
                     # Sla definitie ID op voor edit tab
                     SessionStateManager.set_value("editing_definition_id", saved_record.id)

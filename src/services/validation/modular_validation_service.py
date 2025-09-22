@@ -486,13 +486,17 @@ class ModularValidationService:
         except Exception:
             pass
 
-        # 6) Categorie scores: voorlopig overal mirrored naar overall (eenvoudig en voorspelbaar)
-        detailed = {
-            "taal": overall,
-            "juridisch": overall,
-            "structuur": overall,
-            "samenhang": overall,
-        }
+        # 6) Categorie-scores: bereken op basis van rule_scores (geen mirror)
+        try:
+            detailed = self._calculate_category_scores(rule_scores, default_value=overall)
+        except Exception:
+            # Conservatieve fallback bij onverwachte fout
+            detailed = {
+                "taal": overall,
+                "juridisch": overall,
+                "structuur": overall,
+                "samenhang": overall,
+            }
 
         # 7) Voeg eventuele CON-01 duplicate warnings toe (best-effort)
         try:
@@ -508,25 +512,19 @@ class ModularValidationService:
         # 8) Violations deterministisch sorteren op code
         violations.sort(key=lambda v: v.get("code", ""))
 
-        # 9) Soft-accept floor voor marginale gevallen zonder error-violations
-        def _has_blocking_errors(vs: list[dict[str, Any]]) -> bool:
-            for v in vs or []:
-                if str(v.get("severity", "")).lower() != "error":
-                    continue
-                code = str(v.get("code", ""))
-                if code.startswith((
-                    "VAL-EMP",
-                    "CON-CIRC",
-                    "VAL-LEN-002",
-                    "LANG-",
-                    "STR-FORM-001",
-                )):
-                    return True
-            return False
-
-        soft_ok = overall >= 0.60 and not _has_blocking_errors(violations)
-        base_ok = determine_acceptability(overall, self._overall_threshold)
-        is_ok = (base_ok and not _has_blocking_errors(violations)) or soft_ok
+        # 9) Acceptance gates bepalen acceptatie (kritiek/overall/categorieën)
+        try:
+            acceptance_gate = self._evaluate_acceptance_gates(overall, detailed, violations)
+            is_ok = bool(acceptance_gate.get("acceptable", False))
+        except Exception:
+            # Fallback op basis-acceptatie als gate-evaluatie faalt
+            acceptance_gate = {
+                "acceptable": determine_acceptability(overall, self._overall_threshold),
+                "gates_passed": [],
+                "gates_failed": [],
+                "thresholds": {"overall": self._overall_threshold, "category": self._category_threshold},
+            }
+            is_ok = bool(acceptance_gate["acceptable"])  # type: ignore[index]
 
         # 10) Schema-achtige dict output
         result: dict[str, Any] = {
@@ -538,6 +536,9 @@ class ModularValidationService:
             "detailed_scores": detailed,
             "system": {"correlation_id": correlation_id},
         }
+        # Voeg acceptance_gate toe aan resultaat voor UI/clients
+        if acceptance_gate:
+            result["acceptance_gate"] = acceptance_gate
         # Return plain dict voor JSON serialisatie
         # De orchestrator verwacht een dict, niet een wrapper
         return result
