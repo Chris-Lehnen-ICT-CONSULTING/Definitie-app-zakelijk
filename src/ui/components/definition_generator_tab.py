@@ -1289,28 +1289,68 @@ class DefinitionGeneratorTab:
             else:
                 st.warning("⚠️ Geen gedetailleerde toetsresultaten beschikbaar.")
 
-        # Geen extra expander; uitleg per regel wordt inline in de bestaande lijst getoond.
+        # Uitleg per gevonden regel (hint-expanders)
+        if violations:
+            st.markdown("### ℹ️ Uitleg bij gevonden regels")
+            for v in violations:
+                rid = str(v.get("rule_id") or v.get("code") or "")
+                if not rid:
+                    continue
+                with st.expander(f"ℹ️ Toon uitleg voor {rid}", expanded=False):
+                    st.markdown(self._build_rule_hint_markdown(rid))
+
+        # Geen extra expander; uitleg per regel wordt hier met hint-expanders getoond.
 
         # Show only violations summary when collapsed
-        if violations:
-            st.markdown("**Gevonden Issues (samenvatting):**")
-            for violation in violations[:5]:  # Toon max 5
-                # Direct dict access - V2 contract garandeert dict format
-                severity = violation.get("severity", "info").lower()
-                rule_id = violation.get("rule_id", "onbekend")
-                description = violation.get("description", "")
+        # (Samenvatting bij ingeklapte weergave wordt elders getoond; dit pad is alleen actief wanneer details zichtbaar zijn.)
 
-                severity_emoji = {
-                    "critical": "🚨",
-                    "high": "⚠️",
-                    "medium": "🔶",
-                    "low": "i️",
-                    "info": "📋",
-                }
-                emoji = severity_emoji.get(severity, "📋")
-                st.write(f"{emoji} {rule_id}: {description}")
-        else:
-            st.success("🎉 Geen kwaliteitsissues gevonden!")
+    def _build_rule_hint_markdown(self, rule_id: str) -> str:
+        """Bouw korte hint-uitleg voor een toetsregel uit JSON en standaardtekst.
+
+        Toont:
+        - Wat toetst de regel (uitleg/toetsvraag)
+        - Optioneel voorbeelden (goed/fout) als bullets
+        - Link naar uitgebreide handleiding
+        """
+        try:
+            from pathlib import Path
+            import json as _json
+
+            rules_dir = Path("src/toetsregels/regels")
+            json_path = rules_dir / f"{rule_id}.json"
+            if not json_path.exists():
+                alt = rule_id.replace("_", "-")
+                json_path = rules_dir / f"{alt}.json"
+
+            name = explanation = ""
+            good = bad = []
+            if json_path.exists():
+                data = _json.loads(json_path.read_text(encoding="utf-8"))
+                name = str(data.get("naam") or "").strip()
+                explanation = str(data.get("uitleg") or data.get("toetsvraag") or "").strip()
+                good = list(data.get("goede_voorbeelden") or [])
+                bad = list(data.get("foute_voorbeelden") or [])
+
+            lines = []
+            title = f"**{rule_id}** — {name}" if name else f"**{rule_id}**"
+            lines.append(title)
+            if explanation:
+                lines.append(f"Wat toetst: {explanation}")
+            if good:
+                lines.append("\nGoed voorbeeld:")
+                lines.extend([f"- {g}" for g in good[:2]])
+            if bad:
+                lines.append("\nFout voorbeeld:")
+                lines.extend([f"- {b}" for b in bad[:2]])
+            lines.append(
+                "\nMeer uitleg: [Validatieregels (CON‑01 e.a.)](docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+            )
+            return "\n".join(lines)
+        except Exception:
+            return (
+                f"Meer uitleg: [Validatieregels (CON‑01 e.a.)]"
+                f"(docs/handleidingen/gebruikers/uitleg-validatieregels.md)"
+            )
 
     def _use_existing_definition(self, definitie: DefinitieRecord):
         """Gebruik bestaande definitie."""
