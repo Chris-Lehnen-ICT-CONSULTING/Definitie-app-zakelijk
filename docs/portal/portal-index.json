@@ -15672,6 +15672,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "V2 Validator Verbeterplan (JSON‑Centrisch) — Review Versie",
+      "path": "../planning/V2_VALIDATOR_VOLLEDIG_IMPLEMENTATIEPLAN.md",
+      "url": "../planning/V2_VALIDATOR_VOLLEDIG_IMPLEMENTATIEPLAN.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/planning/V2_VALIDATOR_VOLLEDIG_IMPLEMENTATIEPLAN.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Validation Orchestrator V2 - Rollout Runbook",
       "path": "../workflows/validation_orchestrator_rollout.md",
       "url": "../workflows/validation_orchestrator_rollout.md",
@@ -30607,7 +30638,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 452,
+      "DOC": 453,
       "EPIC": 16,
       "US": 200,
       "BUG": 14,
@@ -30617,7 +30648,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T07:21:07Z"
+    "generated_at": "2025-09-22T07:33:44Z"
   },
   "sources": [
     "docs"
