@@ -704,6 +704,24 @@ class ModularValidationService:
         if code_up == "ESS-02":
             return self._eval_ess02(rule, text, ctx)
 
+        # Special: VER-03 — werkwoord-term in infinitief (controleer begrip/lemma)
+        if code_up == "VER-03":
+            lemma = str(getattr(self, "_current_begrip", "") or "").strip()
+            if lemma and re.search(r".+[td]$", lemma.lower()):
+                msg = "Werkwoord-term niet in infinitief (eindigt op -t/-d)"
+                return 0.0, {
+                    "code": code_up,
+                    "severity": self._severity_for_json_rule(rule),
+                    "severity_level": self._severity_level_for_json_rule(rule),
+                    "message": msg,
+                    "description": msg,
+                    "rule_id": code_up,
+                    "category": self._category_for(code_up),
+                    "suggestion": "Gebruik de onbepaalde wijs (infinitief), bijv. ‘beoordelen’ i.p.v. ‘beoordeelt’.",
+                }
+            # Geen issue
+            return 1.0, None
+
         # Special: SAM-02 — kwalificatie omvat geen herhaling/conflict
         if code_up == "SAM-02":
             head = None
