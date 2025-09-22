@@ -289,7 +289,10 @@ class DefinitionGeneratorTab:
 
         if target_id:
             try:
+                # Voor Expert/Bewerk tabs
                 SessionStateManager.set_value("selected_review_definition_id", target_id)
+                # Zorg dat de Bewerk‑tab direct kan auto‑laden
+                SessionStateManager.set_value("editing_definition_id", target_id)
             except Exception:
                 pass
 
