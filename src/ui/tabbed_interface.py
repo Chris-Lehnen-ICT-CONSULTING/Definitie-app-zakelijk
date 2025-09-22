@@ -786,7 +786,12 @@ class TabbedInterface:
                 st.rerun()
 
     def _handle_definition_generation(self, begrip: str, context_data: dict[str, Any]):
-        """Handle definitie generatie vanaf hoofdniveau met hybrid context ondersteuning."""
+        """Handle definitie generatie met voorafgaande duplicate-check en keuze.
+
+        Simpel gehouden: als er een bestaande definitie wordt gevonden, onderbreken
+        we de generatie en tonen we twee opties: (1) Toon bestaande definitie, (2) Genereer nieuw.
+        Bij optie (2) forceren we generatie en markeren we dit zodat CON-01 als error verschijnt.
+        """
         try:
             with st.spinner("🔄 Genereren van definitie met hybride context..."):
                 # EPIC-010: Consistente context variabelen voor alle 3 types
@@ -808,6 +813,46 @@ class TabbedInterface:
                 selected_doc_ids = SessionStateManager.get_value(
                     "selected_documents", []
                 )
+
+                # DUPLICATE GATE: Voer duplicate-check uit vóór generatie (tenzij geforceerd)
+                options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
+                is_forced = bool(options.get("force_generate"))
+
+                # Gebruik de automatisch bepaalde categorie voor nauwkeuriger check
+                if not is_forced:
+                    primary_org = org_context[0] if org_context else ""
+                    primary_jur = jur_context[0] if jur_context else ""
+                    check_result = self.checker.check_before_generation(
+                        begrip=begrip,
+                        organisatorische_context=primary_org,
+                        juridische_context=primary_jur,
+                        categorie=auto_categorie,
+                        wettelijke_basis=wet_context,
+                    )
+
+                    # Als we NIET mogen doorgaan, toon keuzes en stop generatie
+                    if check_result.action != CheckAction.PROCEED:
+                        SessionStateManager.set_value("last_check_result", check_result)
+                        st.warning("⚠️ Bestaande definitie gevonden. Kies een optie:")
+                        c1, c2 = st.columns(2)
+                        with c1:
+                            if st.button("👁️ Toon bestaande definitie", key="btn_show_existing"):
+                                if check_result.existing_definitie:
+                                    SessionStateManager.set_value(
+                                        "selected_definition", check_result.existing_definitie
+                                    )
+                                # Wis eventuele vorige generatie-output
+                                SessionStateManager.clear_value("last_generation_result")
+                                st.rerun()
+                        with c2:
+                            if st.button("🚀 Genereer nieuwe definitie", key="btn_force_generate"):
+                                options["force_generate"] = True
+                                options["force_duplicate"] = True
+                                SessionStateManager.set_value("generation_options", options)
+                                # Ga door met geforceerde generatie (buiten gate)
+                            else:
+                                # Niet gekozen → stop huidige generatie
+                                return
 
                 # Check of hybrid context gebruikt moet worden
                 use_hybrid = HYBRID_CONTEXT_AVAILABLE and (
@@ -853,6 +898,9 @@ class TabbedInterface:
                 # Altijd V2-servicepad gebruiken (geen legacy fallback)
                 from ui.helpers.async_bridge import run_async
 
+                # Haal actuele generation options op (kan force flags bevatten)
+                options = ensure_dict(SessionStateManager.get_value("generation_options", {}))
+
                 service_result = run_async(
                     self.definition_service.generate_definition(
                         begrip=begrip,
@@ -863,6 +911,12 @@ class TabbedInterface:
                         },
                         organisatie=primary_org,
                         categorie=auto_categorie,
+                        # Geef opties door zodat validator duplicate kan escaleren
+                        options={
+                            k: v
+                            for k, v in options.items()
+                            if k in ("force_generate", "force_duplicate")
+                        },
                         # Pass regeneration context for GVI feedback loop
                         regeneration_context=regeneration_context,
                     ),
@@ -873,31 +927,12 @@ class TabbedInterface:
                 check_result = None
                 agent_result = service_result
 
-                # Voor auto-load in edit tab: sla de gegenereerde definitie op in de database
+                # Voor auto-load in de Bewerk-tab: gebruik ID uit service‑resultaat; geen extra DB‑save
                 saved_record = None
+                saved_definition_id = None
                 if isinstance(service_result, dict) and service_result.get('success'):
-                    try:
-                        # Sla de definitie op in de database zodat edit tab hem kan laden
-                        definitie_text = service_result.get('definitie_gecorrigeerd') or service_result.get('definitie', '')
-                        if definitie_text and begrip:
-                            # Gebruik de repository om de definitie op te slaan
-                            # Context moet JSON string zijn voor de database
-                            import json
-                            saved_record = self.repository.create_definitie(
-                                begrip=begrip,
-                                definitie=definitie_text,
-                                organisatorische_context=json.dumps(org_context) if org_context else '[]',
-                                juridische_context=json.dumps(jur_context) if jur_context else '[]',
-                                wettelijke_basis=json.dumps(wet_context) if wet_context else '[]',
-                                categorie=auto_categorie.value,
-                                status='draft',
-                                validation_score=service_result.get('validation_score', 0.0),
-                                metadata=service_result.get('metadata', {})
-                            )
-                            logger.info(f"Auto-saved generated definition with ID: {saved_record.id if saved_record else 'None'}")
-                    except Exception as e:
-                        logger.error(f"Failed to auto-save definition: {e}")
-                        # Continue without saving - edit tab won't auto-load but app won't crash
+                    # Orchestrator (V2) slaat zelf op en ServiceAdapter levert saved_definition_id terug
+                    saved_definition_id = service_result.get('saved_definition_id')
 
                 # Capture voorbeelden prompts voor debug
                 voorbeelden_prompts = None
@@ -961,6 +996,7 @@ class TabbedInterface:
                         "check_result": check_result,
                         "agent_result": agent_result,
                         "saved_record": saved_record,
+                        "saved_definition_id": saved_definition_id,
                         "determined_category": auto_categorie.value,
                         "category_reasoning": category_reasoning,
                         "category_scores": category_scores,
@@ -979,9 +1015,16 @@ class TabbedInterface:
                     if hasattr(saved_record, 'id'):
                         logger.info(f"DEBUG: saved_record.id = {saved_record.id}")
 
-                if saved_record and hasattr(saved_record, 'id'):
+                # Bepaal te openen definitie‑ID voor de Bewerk‑tab
+                target_edit_id = None
+                if saved_definition_id:
+                    target_edit_id = int(saved_definition_id)
+                elif saved_record and hasattr(saved_record, 'id'):
+                    target_edit_id = int(saved_record.id)
+
+                if target_edit_id:
                     # Sla definitie ID op voor edit tab
-                    SessionStateManager.set_value("editing_definition_id", saved_record.id)
+                    SessionStateManager.set_value("editing_definition_id", target_edit_id)
 
                     # Sla ook de contexten op voor de edit tab
                     # Gebruik de context uit de generation call, niet uit saved_record
@@ -1012,6 +1055,14 @@ class TabbedInterface:
                             else "missing"
                         ),
                     )
+
+                # Reset force flag na generatie om onbedoelde effecten te vermijden
+                try:
+                    if options.get("force_generate"):
+                        options.pop("force_generate", None)
+                        SessionStateManager.set_value("generation_options", options)
+                except Exception:
+                    pass
 
                 # Clear regeneration context after successful generation (GVI cleanup)
                 if regeneration_context:
@@ -1074,6 +1125,7 @@ class TabbedInterface:
             with st.spinner("🔍 Controleren op duplicates..."):
                 org_context = context_data.get("organisatorische_context", [])
                 jur_context = context_data.get("juridische_context", [])
+                wet_context = context_data.get("wettelijke_basis", [])
 
                 primary_org = org_context[0] if org_context else ""
                 primary_jur = jur_context[0] if jur_context else ""
@@ -1083,6 +1135,7 @@ class TabbedInterface:
                     organisatorische_context=primary_org,
                     juridische_context=primary_jur,
                     categorie=OntologischeCategorie.PROCES,  # Default
+                    wettelijke_basis=wet_context,
                 )
 
                 SessionStateManager.set_value("last_check_result", check_result)

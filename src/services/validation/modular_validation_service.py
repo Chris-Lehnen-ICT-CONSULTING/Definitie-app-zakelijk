@@ -1196,10 +1196,12 @@ class ModularValidationService:
             md = ctx.metadata or {}
             org = md.get("organisatorische_context") or []
             jur = md.get("juridische_context") or []
+            wet = md.get("wettelijke_basis") or []
             begrip = getattr(self, "_current_begrip", None)
 
             # Skip if no context to check
-            if not begrip or (not org and not jur):
+            # Minimaal één van de drie contextlijsten moet aanwezig zijn
+            if not begrip or (not org and not jur and not wet):
                 return
 
             # Check for repository method
@@ -1207,7 +1209,7 @@ class ModularValidationService:
                 return
 
             # Find matching definition
-            found_def = self._find_duplicate_definition(begrip, org, jur, md)
+            found_def = self._find_duplicate_definition(begrip, org, jur, wet, md)
             if not found_def:
                 return
 
@@ -1218,13 +1220,22 @@ class ModularValidationService:
             # Silent: duplicate signal is best-effort
             return
 
-    def _find_duplicate_definition(self, begrip: str, org: list, jur: list, md: dict) -> dict | None:
-        """Find existing definition with same context."""
+    def _find_duplicate_definition(self, begrip: str, org: list, jur: list, wet: list, md: dict) -> dict | None:
+        """Find existing definition with same context (drie lijsten).
+
+        Vereist exacte match op:
+        - begrip
+        - organisatorische_context (genormaliseerd)
+        - juridische_context (genormaliseerd)
+        - wettelijke_basis (genormaliseerd)
+        - categorie (indien opgegeven in md en aanwezig bij candidate)
+        """
         defs = self._repository._get_all_definitions()
         cat = md.get("categorie") or md.get("ontologische_categorie")
 
         org_n = self._normalize_context_list(org)
         jur_n = self._normalize_context_list(jur)
+        wet_n = self._normalize_context_list(wet)
         begrip_norm = str(begrip).strip().lower()
 
         for d in defs:
@@ -1236,6 +1247,8 @@ class ModularValidationService:
             if self._normalize_context_list(getattr(d, "organisatorische_context", [])) != org_n:
                 continue
             if self._normalize_context_list(getattr(d, "juridische_context", [])) != jur_n:
+                continue
+            if self._normalize_context_list(getattr(d, "wettelijke_basis", [])) != wet_n:
                 continue
 
             # Check category if provided
@@ -1257,9 +1270,16 @@ class ModularValidationService:
     def _add_duplicate_warning(self, md: dict, found_id: Any, found_status: Any) -> None:
         """Add duplicate warning to metadata."""
         warn_list = md.setdefault("__con01_dup_warnings__", [])
+        # Escaleer naar error wanneer generation geforceerd is (force_duplicate)
+        force_dup = False
+        try:
+            force_dup = bool(md.get("force_duplicate") or (isinstance(md.get("options"), dict) and md.get("options", {}).get("force_duplicate")))
+        except Exception:
+            force_dup = False
         warn_list.append({
             "code": "CON-01",
-            "severity": "warning",
+            "severity": "error" if force_dup else "warning",
+            "severity_level": "high" if force_dup else "medium",
             "message": "Bestaande definitie met dezelfde context gevonden",
             "description": "Bestaande definitie met dezelfde context gevonden",
             "rule_id": "CON-01",
