@@ -30887,6 +30887,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Uitleg Validatieregels (CON-01 e.a.)",
+      "path": "../handleidingen/gebruikers/uitleg-validatieregels.md",
+      "url": "../handleidingen/gebruikers/uitleg-validatieregels.md",
+      "status": "active",
+      "prioriteit": null,
+      "owner": "validation",
+      "canonical": true,
+      "last_verified": "2025-09-22",
+      "applies_to": "definitie-app@v2",
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/handleidingen/gebruikers/uitleg-validatieregels.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "🚀 Plan: Legacy Validation Verwijderen",
       "path": "../migration/remove-legacy-validation-plan.md",
       "url": "../migration/remove-legacy-validation-plan.md",
@@ -31768,7 +31799,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 472,
+      "DOC": 473,
       "EPIC": 17,
       "US": 210,
       "BUG": 17,
@@ -31778,7 +31809,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-22T12:39:45Z"
+    "generated_at": "2025-09-22T13:14:44Z"
   },
   "sources": [
     "docs"
