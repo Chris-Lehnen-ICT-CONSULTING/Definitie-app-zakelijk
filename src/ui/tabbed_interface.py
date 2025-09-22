@@ -1265,6 +1265,9 @@ class TabbedInterface:
                         count_for_doc += 1
                         if len(snippets) >= max_snippets_total:
                             break
+                except Exception:
+                    # Bij een fout in regex/matching: ga door met volgende document
+                    continue
 
             return snippets[:max_snippets_total]
         except Exception:
