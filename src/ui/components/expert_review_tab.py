@@ -146,15 +146,30 @@ class ExpertReviewTab:
                             return ""
 
                     rows = []
+                    def _status_label(code: str | None, source: str | None) -> str:
+                        if (source or '').lower() == 'imported':
+                            return 'Geïmporteerd'
+                        mapping = {
+                            'draft': 'Concept',
+                            'review': 'In review',
+                            'established': 'Vastgesteld',
+                            'archived': 'Gearchiveerd',
+                        }
+                        return mapping.get((code or '').lower(), code or '')
+                    def _source_label(src: str | None) -> str:
+                        m = {'imported': 'Geïmporteerd', 'generated': 'Gegenereerd', 'manual': 'Handmatig'}
+                        return m.get((src or '').lower(), src or '')
                     for d in filtered_reviews:
                         org, jur, wet = self._format_record_context(d)
+                        status_disp = _status_label(d.status, getattr(d, 'source_type', None))
                         rows.append(
                             {
                                 "ID": d.id,
                                 "Begrip": d.begrip,
                                 "Categorie": d.categorie or "",
                                 "UFO-categorie": getattr(d, "ufo_categorie", None) or "",
-                                "Status": d.status,
+                                "Status": status_disp,
+                                "Herkomst": _source_label(getattr(d, 'source_type', None)),
                                 "Score": (f"{d.validation_score:.2f}" if d.validation_score is not None else ""),
                                 "Organisatorische context": org,
                                 "Juridische context": jur,
@@ -167,7 +182,7 @@ class ExpertReviewTab:
                     df.insert(0, "Selecteer", df["ID"].apply(lambda x: bool(prev_selected_id == x)))
                     edited = st.data_editor(
                         df[[
-                            "Selecteer","ID","Begrip","Categorie","UFO-categorie","Status","Score","Organisatorische context","Juridische context","Wettelijke basis"
+                            "Selecteer","ID","Begrip","Categorie","UFO-categorie","Status","Herkomst","Score","Organisatorische context","Juridische context","Wettelijke basis"
                         ]],
                         use_container_width=True,
                         height=420,
@@ -183,6 +198,7 @@ class ExpertReviewTab:
                             "Categorie": st.column_config.TextColumn(disabled=True),
                             "UFO-categorie": st.column_config.TextColumn(disabled=True),
                             "Status": st.column_config.TextColumn(disabled=True),
+                            "Herkomst": st.column_config.TextColumn(disabled=True),
                             "Score": st.column_config.TextColumn(disabled=True),
                             "Organisatorische context": st.column_config.TextColumn(disabled=True),
                             "Juridische context": st.column_config.TextColumn(disabled=True),
