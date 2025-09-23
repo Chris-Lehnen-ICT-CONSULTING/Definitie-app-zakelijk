@@ -793,6 +793,11 @@ class ManagementTab:
                                     "organisatorische_context": _split(row.get("organisatorische_context", "")),
                                     "juridische_context": _split(row.get("juridische_context", "")),
                                     "wettelijke_basis": _split(row.get("wettelijke_basis", "")),
+                                    "UFO_Categorie": row.get("UFO_Categorie"),
+                                    "Voorkeursterm": row.get("Voorkeursterm"),
+                                    "Synoniemen": row.get("Synoniemen"),
+                                    "Toelichting": row.get("Toelichting"),
+                                    "Toelichting (optioneel)": row.get("Toelichting (optioneel)"),
                                 }
 
                                 try:
@@ -809,7 +814,8 @@ class ManagementTab:
                                     )
 
                                     # Only check for duplicates, skip validation
-                                    duplicates = repo.find_duplicates(definition) or []
+                                    # Get repository from import service
+                                    duplicates = import_service._repo.find_duplicates(definition) or []
                                     ok = True  # Assume valid for import
                                     ok_count += 1
 
