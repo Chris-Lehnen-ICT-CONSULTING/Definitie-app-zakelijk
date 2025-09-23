@@ -102,7 +102,7 @@ def canonicalize_examples(raw: Dict[str, Any] | None) -> Dict[str, Any]:
     return out
 
 
-def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
+def resolve_examples(state_key: str, definition: Any | None, *, repository: Any | None = None) -> Dict[str, Any]:
     """Return examples dict using common resolution order.
 
     Args:
@@ -158,9 +158,12 @@ def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
     # 4) Database fallback via repository (Expert/Edit)
     try:
         if definition is not None and hasattr(definition, "id") and int(getattr(definition, "id")) > 0:
-            from database.definitie_repository import get_definitie_repository
-
-            repo = get_definitie_repository()
+            # Gebruik meegegeven repository indien beschikbaar, anders shared repo
+            if repository is None:
+                from database.definitie_repository import get_definitie_repository
+                repo = get_definitie_repository()
+            else:
+                repo = repository
             vdb = repo.get_voorbeelden_by_type(int(definition.id))
             if isinstance(vdb, dict) and any(vdb.values()):
                 # Canonicaliseer DB-keys naar UI‑canoniek (sentence→voorbeeldzinnen, etc.)
