@@ -16944,68 +16944,6 @@
     {
       "id": null,
       "type": "DOC",
-      "title": "UFO Classifier Comprehensive Debug Report",
-      "path": "../backlog/EPIC-014/US-300/UFO_CLASSIFIER_COMPREHENSIVE_DEBUG_REPORT.md",
-      "url": "../backlog/EPIC-014/US-300/UFO_CLASSIFIER_COMPREHENSIVE_DEBUG_REPORT.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/UFO_CLASSIFIER_COMPREHENSIVE_DEBUG_REPORT.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "UFO Classifier v5.0.0 - Debug Analysis Report",
-      "path": "../backlog/EPIC-014/US-300/UFO_CLASSIFIER_DEBUG_REPORT.md",
-      "url": "../backlog/EPIC-014/US-300/UFO_CLASSIFIER_DEBUG_REPORT.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/UFO_CLASSIFIER_DEBUG_REPORT.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
       "title": "UFO Classifier Implementatie - Samenvatting",
       "path": "../backlog/EPIC-014/US-300/IMPLEMENTATION_SUMMARY.md",
       "url": "../backlog/EPIC-014/US-300/IMPLEMENTATION_SUMMARY.md",
@@ -17068,134 +17006,6 @@
       "rendered_url": "rendered/backlog/EPIC-014/US-300/IMPLEMENTATION-SUMMARY.html"
     },
     {
-      "id": "US-300-FINAL-REVIEW",
-      "type": "DOC",
-      "title": "Consolidated Multi-Agent Review - UFO Classifier",
-      "path": "../backlog/EPIC-014/US-300/FINAL_CONSOLIDATED_REVIEW.md",
-      "url": "../backlog/EPIC-014/US-300/FINAL_CONSOLIDATED_REVIEW.md",
-      "status": "COMPLETE",
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [
-          "US-300"
-        ],
-        "epic": [
-          "EPIC-014"
-        ],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/FINAL_CONSOLIDATED_REVIEW.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "UFO Classifier Risk Assessment Report",
-      "path": "../backlog/EPIC-014/US-300/RISK_ASSESSMENT_REPORT.md",
-      "url": "../backlog/EPIC-014/US-300/RISK_ASSESSMENT_REPORT.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/RISK_ASSESSMENT_REPORT.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "UFO Classifier v5.0.0 - Complexiteitsanalyse",
-      "path": "../backlog/EPIC-014/US-300/UFO_COMPLEXITY_ANALYSIS.md",
-      "url": "../backlog/EPIC-014/US-300/UFO_COMPLEXITY_ANALYSIS.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/UFO_COMPLEXITY_ANALYSIS.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "UFO Classifier Test Suite Assessment Report",
-      "path": "../backlog/EPIC-014/US-300/UFO_TEST_SUITE_ASSESSMENT.md",
-      "url": "../backlog/EPIC-014/US-300/UFO_TEST_SUITE_ASSESSMENT.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/UFO_TEST_SUITE_ASSESSMENT.html"
-    },
-    {
       "id": "US-300-IMPLEMENTATION",
       "type": "DOC",
       "title": "UFO Classification Service - Technisch Implementatieplan",
@@ -17229,68 +17039,6 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-014/US-300/US-300-IMPLEMENTATION-PLAN.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "UFO Classifier: Origineel vs Simplified - Vergelijking",
-      "path": "../backlog/EPIC-014/US-300/SIMPLIFICATION_COMPARISON.md",
-      "url": "../backlog/EPIC-014/US-300/SIMPLIFICATION_COMPARISON.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/SIMPLIFICATION_COMPARISON.html"
-    },
-    {
-      "id": null,
-      "type": "DOC",
-      "title": "UFO Classifier v5.0.0 - Comprehensive Debug Analysis Report",
-      "path": "../backlog/EPIC-014/US-300/UFO_CLASSIFIER_DEBUG_REPORT_FINAL.md",
-      "url": "../backlog/EPIC-014/US-300/UFO_CLASSIFIER_DEBUG_REPORT_FINAL.md",
-      "status": null,
-      "prioriteit": null,
-      "owner": null,
-      "canonical": false,
-      "last_verified": null,
-      "applies_to": null,
-      "category": null,
-      "sprint": null,
-      "story_points": null,
-      "completion": null,
-      "target_release": null,
-      "planning": {
-        "sprint_number": null,
-        "priority_rank": 5,
-        "type_rank": 9
-      },
-      "parent_epic": "EPIC-014",
-      "parent_us": "US-300",
-      "_refs": {
-        "us": [],
-        "epic": [],
-        "req": []
-      },
-      "rendered_url": "rendered/backlog/EPIC-014/US-300/UFO_CLASSIFIER_DEBUG_REPORT_FINAL.html"
     },
     {
       "id": "US-300",
@@ -33092,7 +32840,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 490,
+      "DOC": 482,
       "EPIC": 18,
       "US": 229,
       "BUG": 17,
@@ -33102,7 +32850,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-23T19:07:00Z"
+    "generated_at": "2025-09-23T15:35:45Z"
   },
   "sources": [
     "docs"
