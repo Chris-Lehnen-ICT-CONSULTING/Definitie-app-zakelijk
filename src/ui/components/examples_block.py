@@ -44,7 +44,9 @@ def render_examples_block(
 
     # Resolve current examples (session/metadata/last_generation_result/DB)
     examples_state_key = k("examples")
-    current_examples: Dict[str, Any] = resolve_examples(examples_state_key, definition)
+    current_examples: Dict[str, Any] = resolve_examples(
+        examples_state_key, definition, repository=repository
+    )
 
     # Optional: generate via AI (Edit tab only)
     if allow_generate:
