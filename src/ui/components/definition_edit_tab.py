@@ -126,7 +126,7 @@ class DefinitionEditTab:
         """Render definition selection interface."""
         st.markdown("### 📋 Selecteer Definitie")
 
-        col1, col2, col3 = st.columns([2, 1, 1])
+        col1, col2, col3, col4 = st.columns([2, 1, 1, 1])
 
         with col1:
             # Search box
@@ -153,10 +153,19 @@ class DefinitionEditTab:
             )
 
         with col3:
+            max_results = st.selectbox(
+                "Max resultaten",
+                options=[10, 25, 50, 100, 200],
+                index=2,
+                key="edit_max_results",
+                help="Aantal resultaten om op te halen en te tonen"
+            )
+
+        with col4:
             # Search button
             if st.button("🔍 Zoek", key="edit_search_btn"):
                 # Gebruik het geselecteerde label als filter (mapping gebeurt in zoekfunctie)
-                self._search_definitions(search_term, status_label)
+                self._search_definitions(search_term, status_label, max_results)
 
         # Display search results
         if SessionStateManager.get_value('edit_search_results') is not None:
@@ -172,20 +181,66 @@ class DefinitionEditTab:
 
         st.markdown(f"**{len(results)} resultaten gevonden:**")
 
-        for idx, definition in enumerate(results[:10]):  # Limit to 10 results
-            col1, col2, col3 = st.columns([3, 1, 1])
+        # Kies weergave: interactieve lijst (standaard) of tabel
+        show_table = st.checkbox(
+            "Toon tabelweergave",
+            value=False,
+            key="edit_show_table",
+            help="Schakel in voor een compacte tabelweergave (selecteren gebeurt via de lijstweergave)",
+        )
 
-            with col1:
-                st.markdown(f"**{definition.begrip}**")
-                st.caption(f"{definition.definitie[:100]}...")
+        if show_table:
+            # Tabelweergave (alleen lezen)
+            try:
+                import pandas as pd  # Lazy import voor UI
 
-            with col2:
-                status = definition.metadata.get('status', 'draft') if definition.metadata else 'draft'
-                self._render_status_badge(status)
+                def _join_list(v):
+                    try:
+                        return ", ".join([str(x) for x in (v or [])])
+                    except Exception:
+                        return ""
 
-            with col3:
-                if st.button("✏️ Bewerk", key=f"edit_btn_{definition.id}"):
-                    self._start_edit_session(definition.id)
+                rows = []
+                for d in results:
+                    status = (d.metadata.get('status') if d.metadata else None) or 'draft'
+                    score = (d.metadata.get('validation_score') if d.metadata else None)
+                    rows.append({
+                        "ID": d.id,
+                        "Begrip": d.begrip,
+                        "Categorie": d.categorie or "",
+                        "UFO-categorie": getattr(d, 'ufo_categorie', None) or "",
+                        "Status": status,
+                        "Score": score if score is not None else "",
+                        "Organisatorische context": _join_list(getattr(d, 'organisatorische_context', [])),
+                        "Juridische context": _join_list(getattr(d, 'juridische_context', [])),
+                        "Wettelijke basis": _join_list(getattr(d, 'wettelijke_basis', [])),
+                    })
+
+                df = pd.DataFrame(rows)
+                st.dataframe(df, use_container_width=True, height=400)
+                st.caption("Selecteren doe je onderaan via de lijstweergave.")
+            except Exception as e:
+                st.warning(f"Kon tabelweergave niet renderen: {e!s}")
+
+        # Interactieve lijstweergave met direct selecteerbare items
+        for d in results:
+            with st.container():
+                c1, c2 = st.columns([4, 1])
+                with c1:
+                    status = (d.metadata.get('status') if d.metadata else None) or 'draft'
+                    st.markdown(f"**[{d.id}] {d.begrip}** — {d.categorie or ''} · {status}")
+                    # Kleine contextregel
+                    try:
+                        org = ", ".join(getattr(d, 'organisatorische_context', []) or [])
+                        jur = ", ".join(getattr(d, 'juridische_context', []) or [])
+                        if org or jur:
+                            st.caption(f"Org: {org or '—'} · Jur: {jur or '—'}")
+                    except Exception:
+                        pass
+                with c2:
+                    if st.button("✏️ Bewerk", key=f"edit_btn_{d.id}"):
+                        self._start_edit_session(int(d.id))
+            st.markdown("---")
 
     def _render_editor(self):
         """Render the rich text editor."""
@@ -611,7 +666,7 @@ class DefinitionEditTab:
 
     # Action methods
 
-    def _search_definitions(self, search_term: str, status_filter: str):
+    def _search_definitions(self, search_term: str, status_filter: str, limit: int = 50):
         """Search for definitions."""
         try:
             # Build filters
@@ -633,7 +688,7 @@ class DefinitionEditTab:
             results = self.repository.search_with_filters(
                 search_term=search_term,
                 **filters,
-                limit=20
+                limit=int(limit or 50)
             )
 
             SessionStateManager.set_value('edit_search_results', results)
