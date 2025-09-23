@@ -32628,6 +32628,42 @@
       "linked_reqs": null
     },
     {
+      "id": null,
+      "type": "US",
+      "title": "US-301: Verwijder redundante single import functionaliteit",
+      "path": "../backlog/EPIC-003/US-301/US-301.md",
+      "url": "../backlog/EPIC-003/US-301/US-301.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-003",
+      "parent_us": "US-301.md",
+      "_refs": {
+        "us": [
+          "US-234",
+          "US-301"
+        ],
+        "epic": [
+          "EPIC-003"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-003/US-301/US-301.html"
+    },
+    {
       "id": "US-135",
       "type": "US",
       "title": "Modern Web Lookup Implementatie",
@@ -32780,10 +32816,10 @@
       "GUIDE": 11,
       "EPIC": 18,
       "REQ": 99,
-      "US": 228,
+      "US": 229,
       "BUG": 17
     },
-    "generated_at": "2025-09-23T13:38:47Z"
+    "generated_at": "2025-09-23T13:42:45Z"
   },
   "sources": [
     "docs"
