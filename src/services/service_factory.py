@@ -501,6 +501,7 @@ class ServiceAdapter:
             organisatie=ensure_string(safe_dict_get(kwargs, "organisatie", "")),
             extra_instructies=extra_instructions,
             ontologische_categorie=ontologische_categorie,  # Categorie uit 6-stappen protocol
+            ufo_categorie=ensure_string(safe_dict_get(kwargs, "ufo_categorie", "")) or None,
             actor="legacy_ui",  # Track that this comes from legacy UI
             legal_basis="legitimate_interest",  # Default legal basis for DPIA compliance
             # Populate legacy string context for compatibility with tests/UI
