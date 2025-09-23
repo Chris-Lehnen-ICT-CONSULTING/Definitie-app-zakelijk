@@ -1,0 +1,1891 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UFO Classification Service - Technisch Implementatieplan</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-300-IMPLEMENTATION</p>
+<p>epic: EPIC-014</p>
+<p>titel: UFO Classification Service - Technisch Implementatieplan</p>
+<p>status: DRAFT</p>
+<p>owner: developer-implementer</p>
+<p>created: 2025-01-23</p>
+<p>---</p>
+
+<h1>UFO Classification Service - Technisch Implementatieplan</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Dit document beschrijft het technische implementatieplan voor de automatische UFO-categorie detectie service (US-300). De service classificeert juridische begrippen volgens het OntoUML/UFO metamodel met een rules-based engine, feature extractie pipeline en confidence scoring mechanisme.</p>
+
+<h3>Kernprincipes</h3>
+<ul>
+<li>**Rule-first aanpak**: Deterministische regels met uitlegbaarheid</li>
+<li>**Performance**: <10ms per classificatie</li>
+<li>**Adapter pattern**: Voorbereid op toekomstige ML integratie</li>
+<li>**Nederlandse juridische context**: Domeinspecifieke woordenlijsten en patronen</li>
+<li>**Dependency Injection**: Volledige integratie met ServiceContainer</li>
+</ul>
+
+<h2>1. Service Architecture Design</h2>
+
+<h3>1.1 Interface Definitie</h3>
+
+<pre><code># src/services/interfaces.py - Toevoeging
+
+from typing import TypedDict, Literal
+from dataclasses import dataclass
+from enum import Enum
+
+class UFOCategory(str, Enum):
+    """Primaire UFO categorieën."""
+    KIND = "Kind"
+    EVENT = "Event"
+    ROLE = "Role"
+    PHASE = "Phase"
+    RELATOR = "Relator"
+    MODE = "Mode"
+    QUANTITY = "Quantity"
+    QUALITY = "Quality"
+
+class UFOSecondaryTag(str, Enum):
+    """Secundaire UFO tags."""
+    SUBKIND = "Subkind"
+    CATEGORY = "Category"
+    MIXIN = "Mixin"
+    ROLE_MIXIN = "RoleMixin"
+    PHASE_MIXIN = "PhaseMixin"
+    ABSTRACT = "Abstract"
+    RELATIE = "Relatie"
+    EVENT_COMPOSITION = "Event Composition"
+
+class UFOClassificationInput(TypedDict):
+    """Input contract voor UFO classificatie."""
+    begrip: str
+    definitie: str
+    organisatorische_context: list[str]
+    juridische_context: list[str]
+    wettelijke_basis: list[str]
+
+class UFOFeature(TypedDict):
+    """Geëxtraheerde feature voor classificatie."""
+    type: Literal["linguistic", "semantic", "domain", "relational"]
+    name: str
+    value: float | bool | str
+    weight: float
+
+@dataclass
+class UFOClassificationResult:
+    """Output contract voor UFO classificatie."""
+    primary_category: UFOCategory
+    secondary_tags: list[UFOSecondaryTag]
+    confidence: float  # 0.0 - 1.0
+    explanation: list[str]  # Gehitste regels/patronen
+    features: list[UFOFeature]  # Voor debugging/uitleg
+    processing_time_ms: float
+    
+    @property
+    def needs_review(self) -&gt; bool:
+        """True als confidence &lt; 0.6."""
+        return self.confidence &lt; 0.6
+    
+    @property
+    def is_high_confidence(self) -&gt; bool:
+        """True als confidence &gt;= 0.8."""
+        return self.confidence &gt;= 0.8
+
+class UFOClassificationServiceInterface(ABC):
+    """Interface voor UFO classification service."""
+    
+    @abstractmethod
+    def classify(self, input_data: UFOClassificationInput) -&gt; UFOClassificationResult:
+        """Classificeer een begrip naar UFO categorie."""
+        pass
+    
+    @abstractmethod
+    def classify_batch(self, inputs: list[UFOClassificationInput]) -&gt; list[UFOClassificationResult]:
+        """Classificeer meerdere begrippen tegelijk."""
+        pass
+    
+    @abstractmethod
+    def get_supported_categories(self) -&gt; list[UFOCategory]:
+        """Geef lijst van ondersteunde categorieën."""
+        pass
+    
+    @abstractmethod
+    def explain_classification(self, result: UFOClassificationResult) -&gt; dict[str, Any]:
+        """Geef uitgebreide uitleg voor een classificatie."""
+        pass</code></pre>
+
+<h3>1.2 Service Implementatie Skeleton</h3>
+
+<pre><code># src/services/ufo_classification_service.py
+
+import time
+import logging
+from typing import Any
+from dataclasses import dataclass, field
+
+from services.interfaces import (
+    UFOClassificationServiceInterface,
+    UFOClassificationInput,
+    UFOClassificationResult,
+    UFOCategory,
+    UFOSecondaryTag,
+    UFOFeature
+)
+from services.ufo.feature_extractor import UFOFeatureExtractor
+from services.ufo.rule_engine import UFORuleEngine
+from services.ufo.confidence_scorer import UFOConfidenceScorer
+from utils.caching import cached_property
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class UFOClassificationConfig:
+    """Configuratie voor UFO Classification Service."""
+    enable_caching: bool = True
+    cache_ttl_seconds: int = 3600
+    min_confidence_threshold: float = 0.3
+    auto_approve_threshold: float = 0.8
+    max_processing_time_ms: float = 10.0
+    rule_config_path: str = "config/ufo_rules.yaml"
+    domain_lexicon_path: str = "config/ufo_lexicons/"
+
+class UFOClassificationService(UFOClassificationServiceInterface):
+    """Hoofdservice voor UFO classificatie.
+    
+    Deze service coördineert:
+    - Feature extractie uit begrip/definitie
+    - Rule engine evaluatie
+    - Confidence scoring
+    - Caching voor performance
+    """
+    
+    def __init__(self, config: UFOClassificationConfig | None = None):
+        self.config = config or UFOClassificationConfig()
+        self._init_components()
+        self._cache = {} if self.config.enable_caching else None
+        logger.info("UFOClassificationService initialized with config: %s", self.config)
+    
+    def _init_components(self):
+        """Initialiseer sub-componenten."""
+        self.feature_extractor = UFOFeatureExtractor(
+            lexicon_path=self.config.domain_lexicon_path
+        )
+        self.rule_engine = UFORuleEngine(
+            config_path=self.config.rule_config_path
+        )
+        self.confidence_scorer = UFOConfidenceScorer()
+    
+    def classify(self, input_data: UFOClassificationInput) -&gt; UFOClassificationResult:
+        """Classificeer een begrip naar UFO categorie.
+        
+        Stappen:
+        1. Check cache
+        2. Extract features
+        3. Apply rules
+        4. Calculate confidence
+        5. Determine secondary tags
+        6. Build result
+        """
+        start_time = time.perf_counter()
+        
+        # Cache check
+        cache_key = self._get_cache_key(input_data)
+        if self._cache is not None and cache_key in self._cache:
+            cached_result = self._cache[cache_key]
+            logger.debug("Cache hit for begrip: %s", input_data['begrip'])
+            return cached_result
+        
+        try:
+            # Feature extractie
+            features = self.feature_extractor.extract(input_data)
+            
+            # Rule evaluation
+            rule_results = self.rule_engine.evaluate(features, input_data)
+            
+            # Confidence scoring
+            category_scores = self.confidence_scorer.calculate_scores(
+                rule_results, features
+            )
+            
+            # Bepaal primaire categorie en confidence
+            primary_category, confidence = self._select_primary_category(category_scores)
+            
+            # Bepaal secundaire tags
+            secondary_tags = self._determine_secondary_tags(
+                primary_category, features, rule_results
+            )
+            
+            # Bouw explanation
+            explanation = self._build_explanation(rule_results, features)
+            
+            # Processing time
+            processing_time_ms = (time.perf_counter() - start_time) * 1000
+            
+            # Bouw resultaat
+            result = UFOClassificationResult(
+                primary_category=primary_category,
+                secondary_tags=secondary_tags,
+                confidence=confidence,
+                explanation=explanation,
+                features=features,
+                processing_time_ms=processing_time_ms
+            )
+            
+            # Cache result
+            if self._cache is not None:
+                self._cache[cache_key] = result
+            
+            # Log als processing time te hoog is
+            if processing_time_ms &gt; self.config.max_processing_time_ms:
+                logger.warning(
+                    "Processing time exceeded for '%s': %.2fms",
+                    input_data['begrip'], processing_time_ms
+                )
+            
+            return result
+            
+        except Exception as e:
+            logger.error("Classification failed for '%s': %s", input_data['begrip'], e)
+            # Return fallback met lage confidence
+            return UFOClassificationResult(
+                primary_category=UFOCategory.KIND,  # Default fallback
+                secondary_tags=[],
+                confidence=0.0,
+                explanation=[f"Classificatie mislukt: {str(e)}"],
+                features=[],
+                processing_time_ms=(time.perf_counter() - start_time) * 1000
+            )
+    
+    def classify_batch(self, inputs: list[UFOClassificationInput]) -&gt; list[UFOClassificationResult]:
+        """Classificeer meerdere begrippen tegelijk."""
+        results = []
+        for input_data in inputs:
+            results.append(self.classify(input_data))
+        return results
+    
+    def get_supported_categories(self) -&gt; list[UFOCategory]:
+        """Geef lijst van ondersteunde categorieën."""
+        return list(UFOCategory)
+    
+    def explain_classification(self, result: UFOClassificationResult) -&gt; dict[str, Any]:
+        """Geef uitgebreide uitleg voor een classificatie."""
+        return {
+            "primary_category": result.primary_category.value,
+            "confidence": result.confidence,
+            "confidence_level": self._get_confidence_level(result.confidence),
+            "needs_review": result.needs_review,
+            "explanation": result.explanation,
+            "top_features": self._get_top_features(result.features, n=5),
+            "secondary_tags": [tag.value for tag in result.secondary_tags],
+            "processing_time_ms": result.processing_time_ms
+        }
+    
+    # Private helper methods
+    
+    def _get_cache_key(self, input_data: UFOClassificationInput) -&gt; str:
+        """Genereer cache key voor input."""
+        return f"{input_data['begrip']}:{input_data['definitie'][:100]}"
+    
+    def _select_primary_category(self, scores: dict[UFOCategory, float]) -&gt; tuple[UFOCategory, float]:
+        """Selecteer categorie met hoogste score."""
+        if not scores:
+            return UFOCategory.KIND, 0.0
+        
+        max_category = max(scores, key=scores.get)
+        confidence = scores[max_category]
+        
+        # Apply minimum threshold
+        if confidence &lt; self.config.min_confidence_threshold:
+            return UFOCategory.KIND, confidence  # Default met lage confidence
+        
+        return max_category, confidence
+    
+    def _determine_secondary_tags(self, primary: UFOCategory, features: list[UFOFeature], 
+                                   rule_results: dict) -&gt; list[UFOSecondaryTag]:
+        """Bepaal secundaire tags gebaseerd op primaire categorie en features."""
+        tags = []
+        
+        # Logic voor secondary tags gebaseerd op primary category
+        if primary == UFOCategory.KIND:
+            if self._has_feature(features, "is_specialized"):
+                tags.append(UFOSecondaryTag.SUBKIND)
+            if self._has_feature(features, "is_abstract"):
+                tags.append(UFOSecondaryTag.ABSTRACT)
+        
+        elif primary == UFOCategory.EVENT:
+            if self._has_feature(features, "is_composite"):
+                tags.append(UFOSecondaryTag.EVENT_COMPOSITION)
+        
+        elif primary == UFOCategory.ROLE:
+            if self._has_feature(features, "has_mixin_properties"):
+                tags.append(UFOSecondaryTag.ROLE_MIXIN)
+        
+        return tags
+    
+    def _has_feature(self, features: list[UFOFeature], name: str) -&gt; bool:
+        """Check of feature aanwezig is en True."""
+        for feature in features:
+            if feature['name'] == name and feature['value']:
+                return True
+        return False
+    
+    def _build_explanation(self, rule_results: dict, features: list[UFOFeature]) -&gt; list[str]:
+        """Bouw explanation strings."""
+        explanations = []
+        
+        # Voeg gehitste regels toe
+        for rule_id, rule_data in rule_results.items():
+            if rule_data.get('matched'):
+                explanations.append(f"Regel '{rule_id}': {rule_data.get('description', '')}")
+        
+        # Voeg belangrijke features toe
+        top_features = self._get_top_features(features, n=3)
+        for feature in top_features:
+            explanations.append(f"Feature '{feature['name']}': {feature['value']}")
+        
+        return explanations
+    
+    def _get_top_features(self, features: list[UFOFeature], n: int = 5) -&gt; list[UFOFeature]:
+        """Geef top N features gesorteerd op weight."""
+        sorted_features = sorted(features, key=lambda f: f['weight'], reverse=True)
+        return sorted_features[:n]
+    
+    def _get_confidence_level(self, confidence: float) -&gt; str:
+        """Vertaal confidence naar level."""
+        if confidence &gt;= 0.8:
+            return "high"
+        elif confidence &gt;= 0.6:
+            return "medium"
+        elif confidence &gt;= 0.3:
+            return "low"
+        else:
+            return "very_low"</code></pre>
+
+<h2>2. Detection Engine Implementation</h2>
+
+<h3>2.1 Rule Engine</h3>
+
+<pre><code># src/services/ufo/rule_engine.py
+
+import yaml
+import logging
+from typing import Any
+from dataclasses import dataclass
+from pathlib import Path
+
+from services.interfaces import UFOCategory, UFOFeature, UFOClassificationInput
+
+logger = logging.getLogger(__name__)
+
+@dataclass
+class UFORule:
+    """Een enkele classificatieregel."""
+    id: str
+    category: UFOCategory
+    description: str
+    priority: int  # Hogere prioriteit = belangrijker
+    conditions: list[dict]  # Lijst van condities
+    weight: float  # Bijdrage aan score
+    conflicts_with: list[str] = None  # Rule IDs die conflicteren
+
+class UFORuleEngine:
+    """Rule-based engine voor UFO classificatie.
+    
+    Laadt regels uit YAML configuratie en evalueert ze tegen features.
+    """
+    
+    def __init__(self, config_path: str):
+        self.config_path = Path(config_path)
+        self.rules = self._load_rules()
+        logger.info("Loaded %d UFO classification rules", len(self.rules))
+    
+    def _load_rules(self) -&gt; list[UFORule]:
+        """Laad regels uit YAML configuratie."""
+        rules = []
+        
+        if not self.config_path.exists():
+            logger.warning("Rule config not found at %s, using defaults", self.config_path)
+            return self._get_default_rules()
+        
+        with open(self.config_path, 'r', encoding='utf-8') as f:
+            config = yaml.safe_load(f)
+        
+        for rule_data in config.get('rules', []):
+            rules.append(UFORule(
+                id=rule_data['id'],
+                category=UFOCategory(rule_data['category']),
+                description=rule_data['description'],
+                priority=rule_data.get('priority', 1),
+                conditions=rule_data['conditions'],
+                weight=rule_data.get('weight', 1.0),
+                conflicts_with=rule_data.get('conflicts_with', [])
+            ))
+        
+        return sorted(rules, key=lambda r: r.priority, reverse=True)
+    
+    def evaluate(self, features: list[UFOFeature], input_data: UFOClassificationInput) -&gt; dict:
+        """Evalueer alle regels tegen features.
+        
+        Returns:
+            Dict met rule_id -&gt; {matched: bool, score: float, category: str, description: str}
+        """
+        results = {}
+        matched_rules = set()
+        
+        for rule in self.rules:
+            matched = self._evaluate_rule(rule, features, input_data)
+            
+            # Check voor conflicten
+            if matched and rule.conflicts_with:
+                for conflict_id in rule.conflicts_with:
+                    if conflict_id in matched_rules:
+                        logger.debug(
+                            "Rule %s conflicts with already matched rule %s",
+                            rule.id, conflict_id
+                        )
+                        matched = False
+                        break
+            
+            results[rule.id] = {
+                'matched': matched,
+                'score': rule.weight if matched else 0.0,
+                'category': rule.category.value,
+                'description': rule.description
+            }
+            
+            if matched:
+                matched_rules.add(rule.id)
+        
+        return results
+    
+    def _evaluate_rule(self, rule: UFORule, features: list[UFOFeature], 
+                       input_data: UFOClassificationInput) -&gt; bool:
+        """Evalueer een enkele regel."""
+        for condition in rule.conditions:
+            if not self._evaluate_condition(condition, features, input_data):
+                return False
+        return True
+    
+    def _evaluate_condition(self, condition: dict, features: list[UFOFeature], 
+                           input_data: UFOClassificationInput) -&gt; bool:
+        """Evalueer een enkele conditie.
+        
+        Condition types:
+        - feature: Check feature waarde
+        - keyword: Check voor keyword in definitie
+        - pattern: Regex pattern match
+        - context: Check context velden
+        """
+        cond_type = condition.get('type')
+        
+        if cond_type == 'feature':
+            return self._check_feature_condition(condition, features)
+        elif cond_type == 'keyword':
+            return self._check_keyword_condition(condition, input_data)
+        elif cond_type == 'pattern':
+            return self._check_pattern_condition(condition, input_data)
+        elif cond_type == 'context':
+            return self._check_context_condition(condition, input_data)
+        else:
+            logger.warning("Unknown condition type: %s", cond_type)
+            return False
+    
+    def _check_feature_condition(self, condition: dict, features: list[UFOFeature]) -&gt; bool:
+        """Check feature-based condition."""
+        feature_name = condition.get('feature')
+        operator = condition.get('operator', '==')
+        value = condition.get('value')
+        
+        for feature in features:
+            if feature['name'] == feature_name:
+                return self._compare_values(feature['value'], operator, value)
+        
+        return False
+    
+    def _check_keyword_condition(self, condition: dict, input_data: UFOClassificationInput) -&gt; bool:
+        """Check keyword presence in definitie."""
+        keywords = condition.get('keywords', [])
+        text = input_data['definitie'].lower()
+        
+        match_type = condition.get('match', 'any')  # any or all
+        
+        if match_type == 'all':
+            return all(keyword.lower() in text for keyword in keywords)
+        else:
+            return any(keyword.lower() in text for keyword in keywords)
+    
+    def _check_pattern_condition(self, condition: dict, input_data: UFOClassificationInput) -&gt; bool:
+        """Check regex pattern in definitie."""
+        import re
+        pattern = condition.get('pattern')
+        text = input_data['definitie']
+        
+        try:
+            return bool(re.search(pattern, text, re.IGNORECASE))
+        except re.error as e:
+            logger.error("Invalid regex pattern %s: %s", pattern, e)
+            return False
+    
+    def _check_context_condition(self, condition: dict, input_data: UFOClassificationInput) -&gt; bool:
+        """Check context fields."""
+        context_field = condition.get('field')  # e.g., 'juridische_context'
+        check_type = condition.get('check', 'not_empty')  # not_empty, contains, etc.
+        
+        field_value = input_data.get(context_field, [])
+        
+        if check_type == 'not_empty':
+            return bool(field_value)
+        elif check_type == 'contains':
+            target = condition.get('value', '')
+            if isinstance(field_value, list):
+                return any(target in item for item in field_value)
+            return target in str(field_value)
+        
+        return False
+    
+    def _compare_values(self, actual: Any, operator: str, expected: Any) -&gt; bool:
+        """Vergelijk waarden met operator."""
+        if operator == '==':
+            return actual == expected
+        elif operator == '!=':
+            return actual != expected
+        elif operator == '&gt;':
+            return actual &gt; expected
+        elif operator == '&lt;':
+            return actual &lt; expected
+        elif operator == '&gt;=':
+            return actual &gt;= expected
+        elif operator == '&lt;=':
+            return actual &lt;= expected
+        elif operator == 'in':
+            return actual in expected
+        elif operator == 'not_in':
+            return actual not in expected
+        else:
+            logger.warning("Unknown operator: %s", operator)
+            return False
+    
+    def _get_default_rules(self) -&gt; list[UFORule]:
+        """Geef default rules als config niet gevonden."""
+        return [
+            # Kind rules
+            UFORule(
+                id="kind_zelfstandig",
+                category=UFOCategory.KIND,
+                description="Zelfstandig naamwoord zonder drager",
+                priority=10,
+                conditions=[
+                    {"type": "feature", "feature": "has_noun", "value": True},
+                    {"type": "feature", "feature": "requires_bearer", "value": False}
+                ],
+                weight=2.0
+            ),
+            UFORule(
+                id="kind_keywords",
+                category=UFOCategory.KIND,
+                description="Bevat Kind-specifieke keywords",
+                priority=5,
+                conditions=[
+                    {"type": "keyword", "keywords": ["persoon", "organisatie", "zaak", "object"], "match": "any"}
+                ],
+                weight=1.5
+            ),
+            
+            # Event rules
+            UFORule(
+                id="event_werkwoord",
+                category=UFOCategory.EVENT,
+                description="Werkwoord of nominalisatie met tijd",
+                priority=10,
+                conditions=[
+                    {"type": "feature", "feature": "has_verb", "value": True},
+                    {"type": "feature", "feature": "has_temporal", "value": True}
+                ],
+                weight=2.0
+            ),
+            UFORule(
+                id="event_keywords",
+                category=UFOCategory.EVENT,
+                description="Bevat Event-specifieke keywords",
+                priority=5,
+                conditions=[
+                    {"type": "keyword", "keywords": ["proces", "handeling", "uitvoering", "gebeurtenis"], "match": "any"}
+                ],
+                weight=1.5
+            ),
+            
+            # Role rules
+            UFORule(
+                id="role_context",
+                category=UFOCategory.ROLE,
+                description="Rol in context",
+                priority=8,
+                conditions=[
+                    {"type": "keyword", "keywords": ["rol", "functie", "hoedanigheid", "als"], "match": "any"},
+                    {"type": "feature", "feature": "requires_bearer", "value": True}
+                ],
+                weight=2.0
+            ),
+            
+            # Relator rules
+            UFORule(
+                id="relator_binding",
+                category=UFOCategory.RELATOR,
+                description="Bindend object tussen partijen",
+                priority=9,
+                conditions=[
+                    {"type": "feature", "feature": "has_multiple_participants", "value": True},
+                    {"type": "keyword", "keywords": ["overeenkomst", "contract", "vergunning"], "match": "any"}
+                ],
+                weight=2.5,
+                conflicts_with=["kind_zelfstandig"]
+            )
+        ]</code></pre>
+
+<h3>2.2 Feature Extractor</h3>
+
+<pre><code># src/services/ufo/feature_extractor.py
+
+import re
+import json
+import logging
+from pathlib import Path
+from typing import Any
+
+from services.interfaces import UFOFeature, UFOClassificationInput
+from utils.nlp_helpers import get_pos_tags, get_lemmas, extract_noun_phrases
+
+logger = logging.getLogger(__name__)
+
+class UFOFeatureExtractor:
+    """Extract features uit begrip en definitie voor classificatie.
+    
+    Features:
+    - Linguistic: POS tags, lemmas, syntactische structuur
+    - Semantic: betekenis indicators (drager, tijd, relaties)
+    - Domain: juridische domein-specifieke termen
+    - Relational: relaties tussen entiteiten
+    """
+    
+    def __init__(self, lexicon_path: str):
+        self.lexicon_path = Path(lexicon_path)
+        self.lexicons = self._load_lexicons()
+        self._compile_patterns()
+    
+    def _load_lexicons(self) -&gt; dict[str, list[str]]:
+        """Laad domein-specifieke woordenlijsten."""
+        lexicons = {}
+        
+        if not self.lexicon_path.exists():
+            logger.warning("Lexicon path not found: %s", self.lexicon_path)
+            return self._get_default_lexicons()
+        
+        # Laad per categorie
+        for category_file in self.lexicon_path.glob("*.json"):
+            category = category_file.stem
+            with open(category_file, 'r', encoding='utf-8') as f:
+                lexicons[category] = json.load(f)
+                logger.info("Loaded %d terms for category %s", len(lexicons[category]), category)
+        
+        return lexicons
+    
+    def _compile_patterns(self):
+        """Compileer regex patterns voor hergebruik."""
+        self.patterns = {
+            'temporal': re.compile(
+                r'\b(tijdens|gedurende|voor|na|bij|op|van|tot|doorlooptijd|periode|termijn)\b',
+                re.IGNORECASE
+            ),
+            'role_indicator': re.compile(
+                r'\b(als|in de rol van|functie van|hoedanigheid van|namens)\b',
+                re.IGNORECASE
+            ),
+            'relation_indicator': re.compile(
+                r'\b(tussen|met|van.*?tot|relatie|verband|binding)\b',
+                re.IGNORECASE
+            ),
+            'quantity_indicator': re.compile(
+                r'\b(\d+|aantal|percentage|hoeveelheid|bedrag|€|%|km|kg|m²)\b',
+                re.IGNORECASE
+            ),
+            'quality_indicator': re.compile(
+                r'\b(kwaliteit|eigenschap|mate van|graad van|niveau|score)\b',
+                re.IGNORECASE
+            )
+        }
+    
+    def extract(self, input_data: UFOClassificationInput) -&gt; list[UFOFeature]:
+        """Extract alle features uit input."""
+        features = []
+        
+        # Linguistic features
+        features.extend(self._extract_linguistic_features(input_data))
+        
+        # Semantic features
+        features.extend(self._extract_semantic_features(input_data))
+        
+        # Domain features
+        features.extend(self._extract_domain_features(input_data))
+        
+        # Relational features
+        features.extend(self._extract_relational_features(input_data))
+        
+        return features
+    
+    def _extract_linguistic_features(self, input_data: UFOClassificationInput) -&gt; list[UFOFeature]:
+        """Extract taalkundige features."""
+        features = []
+        text = input_data['definitie']
+        
+        # POS tags
+        pos_tags = get_pos_tags(text)
+        
+        # Tel verschillende POS types
+        noun_count = sum(1 for _, tag in pos_tags if tag.startswith('N'))
+        verb_count = sum(1 for _, tag in pos_tags if tag.startswith('V'))
+        adj_count = sum(1 for _, tag in pos_tags if tag.startswith('A'))
+        
+        features.append(UFOFeature(
+            type="linguistic",
+            name="has_noun",
+            value=noun_count &gt; 0,
+            weight=1.0
+        ))
+        
+        features.append(UFOFeature(
+            type="linguistic",
+            name="has_verb",
+            value=verb_count &gt; 0,
+            weight=1.0
+        ))
+        
+        features.append(UFOFeature(
+            type="linguistic",
+            name="noun_verb_ratio",
+            value=noun_count / max(verb_count, 1),
+            weight=0.5
+        ))
+        
+        # Check voor nominalisaties (werkwoorden als zelfstandig naamwoord)
+        nominalization_patterns = ['tie', 'ing', 'atie', 'age', 'ment']
+        has_nominalization = any(
+            word.endswith(tuple(nominalization_patterns)) 
+            for word in text.lower().split()
+        )
+        
+        features.append(UFOFeature(
+            type="linguistic",
+            name="has_nominalization",
+            value=has_nominalization,
+            weight=0.8
+        ))
+        
+        return features
+    
+    def _extract_semantic_features(self, input_data: UFOClassificationInput) -&gt; list[UFOFeature]:
+        """Extract semantische features."""
+        features = []
+        text = input_data['definitie'].lower()
+        
+        # Temporal indicators
+        has_temporal = bool(self.patterns['temporal'].search(text))
+        features.append(UFOFeature(
+            type="semantic",
+            name="has_temporal",
+            value=has_temporal,
+            weight=1.5
+        ))
+        
+        # Bearer requirement (needs a carrier)
+        bearer_keywords = ['van', 'door', 'bij', 'voor een']
+        requires_bearer = any(kw in text for kw in bearer_keywords)
+        features.append(UFOFeature(
+            type="semantic",
+            name="requires_bearer",
+            value=requires_bearer,
+            weight=1.2
+        ))
+        
+        # Multiple participants
+        participant_indicators = ['tussen', 'partijen', 'deelnemers', 'betrokkenen']
+        has_multiple = any(ind in text for ind in participant_indicators)
+        features.append(UFOFeature(
+            type="semantic",
+            name="has_multiple_participants",
+            value=has_multiple,
+            weight=1.3
+        ))
+        
+        # Abstract vs concrete
+        abstract_indicators = ['concept', 'begrip', 'abstractie', 'categorie', 'type']
+        is_abstract = any(ind in text for ind in abstract_indicators)
+        features.append(UFOFeature(
+            type="semantic",
+            name="is_abstract",
+            value=is_abstract,
+            weight=0.9
+        ))
+        
+        return features
+    
+    def _extract_domain_features(self, input_data: UFOClassificationInput) -&gt; list[UFOFeature]:
+        """Extract domein-specifieke features."""
+        features = []
+        text = input_data['definitie'].lower()
+        begrip = input_data['begrip'].lower()
+        
+        # Check tegen lexicons
+        for category, terms in self.lexicons.items():
+            term_matches = sum(
+                1 for term in terms 
+                if term.lower() in text or term.lower() in begrip
+            )
+            
+            if term_matches &gt; 0:
+                features.append(UFOFeature(
+                    type="domain",
+                    name=f"matches_{category}_terms",
+                    value=term_matches,
+                    weight=1.5
+                ))
+        
+        # Juridische context specifiek
+        juridisch_context = input_data.get('juridische_context', [])
+        if juridisch_context:
+            features.append(UFOFeature(
+                type="domain",
+                name="has_juridische_context",
+                value=True,
+                weight=0.8
+            ))
+            
+            # Check voor specifieke juridische domeinen
+            if any('straf' in ctx.lower() for ctx in juridisch_context):
+                features.append(UFOFeature(
+                    type="domain",
+                    name="is_strafrecht",
+                    value=True,
+                    weight=0.6
+                ))
+            
+            if any('bestuurs' in ctx.lower() for ctx in juridisch_context):
+                features.append(UFOFeature(
+                    type="domain",
+                    name="is_bestuursrecht",
+                    value=True,
+                    weight=0.6
+                ))
+        
+        return features
+    
+    def _extract_relational_features(self, input_data: UFOClassificationInput) -&gt; list[UFOFeature]:
+        """Extract relationele features."""
+        features = []
+        text = input_data['definitie'].lower()
+        
+        # Role indicators
+        has_role_indicator = bool(self.patterns['role_indicator'].search(text))
+        features.append(UFOFeature(
+            type="relational",
+            name="has_role_indicator",
+            value=has_role_indicator,
+            weight=1.8
+        ))
+        
+        # Relation indicators
+        has_relation = bool(self.patterns['relation_indicator'].search(text))
+        features.append(UFOFeature(
+            type="relational",
+            name="has_relation_indicator",
+            value=has_relation,
+            weight=1.4
+        ))
+        
+        # Quantity indicators
+        has_quantity = bool(self.patterns['quantity_indicator'].search(text))
+        features.append(UFOFeature(
+            type="relational",
+            name="has_quantity_indicator",
+            value=has_quantity,
+            weight=1.6
+        ))
+        
+        # Quality indicators
+        has_quality = bool(self.patterns['quality_indicator'].search(text))
+        features.append(UFOFeature(
+            type="relational",
+            name="has_quality_indicator",
+            value=has_quality,
+            weight=1.6
+        ))
+        
+        # Composite/specialization indicators
+        specialization_keywords = ['soort', 'type van', 'variant van', 'vorm van']
+        is_specialized = any(kw in text for kw in specialization_keywords)
+        features.append(UFOFeature(
+            type="relational",
+            name="is_specialized",
+            value=is_specialized,
+            weight=1.1
+        ))
+        
+        composite_keywords = ['bestaat uit', 'bevat', 'omvat', 'inclusief']
+        is_composite = any(kw in text for kw in composite_keywords)
+        features.append(UFOFeature(
+            type="relational",
+            name="is_composite",
+            value=is_composite,
+            weight=1.0
+        ))
+        
+        return features
+    
+    def _get_default_lexicons(self) -&gt; dict[str, list[str]]:
+        """Default lexicons als bestanden niet gevonden."""
+        return {
+            "kind": [
+                "persoon", "natuurlijk persoon", "rechtspersoon", "organisatie",
+                "zaak", "object", "document", "dossier", "systeem"
+            ],
+            "event": [
+                "proces", "procedure", "handeling", "gebeurtenis", "uitvoering",
+                "behandeling", "zitting", "hoorzitting", "arrestatie", "veroordeling"
+            ],
+            "role": [
+                "verdachte", "beklaagde", "getuige", "rechter", "officier",
+                "advocaat", "curator", "bewindvoerder", "gemachtigde"
+            ],
+            "phase": [
+                "voorlopig", "definitief", "concept", "afgerond", "lopend",
+                "gesloten", "actief", "inactief", "gearchiveerd"
+            ],
+            "relator": [
+                "overeenkomst", "contract", "vergunning", "machtiging", "mandaat",
+                "volmacht", "dagvaarding", "vonnis", "beschikking"
+            ],
+            "mode": [
+                "status", "toestand", "conditie", "situatie", "positie",
+                "locatie", "adres", "woonplaats"
+            ],
+            "quantity": [
+                "aantal", "hoeveelheid", "bedrag", "percentage", "ratio",
+                "duur", "termijn", "periode"
+            ],
+            "quality": [
+                "kwaliteit", "ernst", "zwaarte", "betrouwbaarheid", "waarschijnlijkheid",
+                "relevantie", "belangrijkheid", "prioriteit"
+            ]
+        }</code></pre>
+
+<h3>2.3 Confidence Scorer</h3>
+
+<pre><code># src/services/ufo/confidence_scorer.py
+
+import numpy as np
+import logging
+from typing import Any
+
+from services.interfaces import UFOCategory, UFOFeature
+
+logger = logging.getLogger(__name__)
+
+class UFOConfidenceScorer:
+    """Calculate confidence scores voor UFO classificaties.
+    
+    Gebruikt softmax voor probability distribution over categorieën.
+    """
+    
+    def __init__(self, temperature: float = 1.0):
+        """Initialize scorer.
+        
+        Args:
+            temperature: Softmax temperature (lower = more confident)
+        """
+        self.temperature = temperature
+    
+    def calculate_scores(self, rule_results: dict, features: list[UFOFeature]) -&gt; dict[UFOCategory, float]:
+        """Bereken confidence scores per categorie.
+        
+        Returns:
+            Dict met UFOCategory -&gt; confidence score (0-1)
+        """
+        # Aggregate scores per category
+        category_scores = {}
+        
+        for rule_id, rule_data in rule_results.items():
+            if not rule_data['matched']:
+                continue
+            
+            category = UFOCategory(rule_data['category'])
+            score = rule_data['score']
+            
+            if category not in category_scores:
+                category_scores[category] = 0.0
+            
+            category_scores[category] += score
+        
+        # Add feature-based adjustments
+        category_scores = self._adjust_with_features(category_scores, features)
+        
+        # Apply softmax for probability distribution
+        if category_scores:
+            category_scores = self._apply_softmax(category_scores)
+        
+        return category_scores
+    
+    def _adjust_with_features(self, scores: dict[UFOCategory, float], 
+                              features: list[UFOFeature]) -&gt; dict[UFOCategory, float]:
+        """Adjust scores based on features."""
+        adjusted_scores = scores.copy()
+        
+        # Feature-based adjustments
+        for feature in features:
+            if feature['type'] == 'domain' and feature['value']:
+                # Domain matches boost confidence
+                category = self._get_category_from_feature(feature)
+                if category and category in adjusted_scores:
+                    adjusted_scores[category] *= (1 + feature['weight'] * 0.1)
+        
+        return adjusted_scores
+    
+    def _get_category_from_feature(self, feature: UFOFeature) -&gt; UFOCategory | None:
+        """Map feature to category."""
+        feature_name = feature['name']
+        
+        mapping = {
+            'matches_kind_terms': UFOCategory.KIND,
+            'matches_event_terms': UFOCategory.EVENT,
+            'matches_role_terms': UFOCategory.ROLE,
+            'matches_phase_terms': UFOCategory.PHASE,
+            'matches_relator_terms': UFOCategory.RELATOR,
+            'matches_mode_terms': UFOCategory.MODE,
+            'matches_quantity_terms': UFOCategory.QUANTITY,
+            'matches_quality_terms': UFOCategory.QUALITY
+        }
+        
+        return mapping.get(feature_name)
+    
+    def _apply_softmax(self, scores: dict[UFOCategory, float]) -&gt; dict[UFOCategory, float]:
+        """Apply softmax to convert scores to probabilities."""
+        if not scores:
+            return {}
+        
+        # Convert to numpy array
+        categories = list(scores.keys())
+        values = np.array([scores[cat] for cat in categories])
+        
+        # Apply softmax with temperature
+        exp_values = np.exp(values / self.temperature)
+        probabilities = exp_values / np.sum(exp_values)
+        
+        # Convert back to dict
+        return {cat: float(prob) for cat, prob in zip(categories, probabilities)}</code></pre>
+
+<h2>3. Integration Points</h2>
+
+<h3>3.1 ServiceContainer Integration</h3>
+
+<pre><code># src/services/container.py - Additions
+
+from services.ufo_classification_service import (
+    UFOClassificationService,
+    UFOClassificationConfig
+)
+
+class ServiceContainer:
+    # ... existing code ...
+    
+    def ufo_classifier(self) -&gt; UFOClassificationServiceInterface:
+        """Get or create UFOClassificationService instance."""
+        if "ufo_classifier" not in self._instances:
+            config = UFOClassificationConfig(
+                enable_caching=self.config.get("ufo_enable_caching", True),
+                rule_config_path=self.config.get(
+                    "ufo_rule_config", "config/ufo_rules.yaml"
+                ),
+                domain_lexicon_path=self.config.get(
+                    "ufo_lexicon_path", "config/ufo_lexicons/"
+                )
+            )
+            self._instances["ufo_classifier"] = UFOClassificationService(config)
+            logger.info("UFOClassificationService instance created")
+        return self._instances["ufo_classifier"]</code></pre>
+
+<h3>3.2 UI Integration</h3>
+
+<pre><code># src/ui/components/ufo_category_widget.py
+
+import streamlit as st
+from services.interfaces import (
+    UFOClassificationInput,
+    UFOClassificationResult,
+    UFOCategory
+)
+from utils.session_state import SessionStateManager
+from utils.container_manager import get_cached_container
+
+def render_ufo_category_widget(begrip: str, definitie: str, 
+                               context: dict, current_category: str | None = None):
+    """Render UFO category widget met auto-suggestie."""
+    
+    container = get_cached_container()
+    classifier = container.ufo_classifier()
+    
+    # Prepare input
+    input_data = UFOClassificationInput(
+        begrip=begrip,
+        definitie=definitie,
+        organisatorische_context=context.get('organisatorische_context', []),
+        juridische_context=context.get('juridische_context', []),
+        wettelijke_basis=context.get('wettelijke_basis', [])
+    )
+    
+    # Get classification
+    result = classifier.classify(input_data)
+    
+    # Display suggestion
+    col1, col2, col3 = st.columns([2, 1, 1])
+    
+    with col1:
+        if result.is_high_confidence:
+            st.success(f"🎯 Voorgestelde categorie: **{result.primary_category.value}** ({result.confidence:.0%} zekerheid)")
+        elif result.needs_review:
+            st.warning(f"⚠️ Onzekere suggestie: **{result.primary_category.value}** ({result.confidence:.0%} zekerheid)")
+        else:
+            st.info(f"💡 Voorgestelde categorie: **{result.primary_category.value}** ({result.confidence:.0%} zekerheid)")
+    
+    with col2:
+        if st.button("❓ Waarom?", key="ufo_explain"):
+            with st.expander("Uitleg classificatie", expanded=True):
+                for explanation in result.explanation:
+                    st.write(f"• {explanation}")
+                
+                if result.secondary_tags:
+                    st.write("**Secundaire tags:**")
+                    for tag in result.secondary_tags:
+                        st.write(f"• {tag.value}")
+    
+    with col3:
+        # Manual override
+        categories = [cat.value for cat in UFOCategory]
+        
+        # Set default based on suggestion or current
+        default_index = 0
+        if current_category and current_category in categories:
+            default_index = categories.index(current_category)
+        elif result.confidence &gt; 0.5:
+            default_index = categories.index(result.primary_category.value)
+        
+        selected = st.selectbox(
+            "UFO Categorie:",
+            options=categories,
+            index=default_index,
+            key="ufo_category_select",
+            help="Selecteer de juiste UFO categorie (OntoUML/UFO metamodel)"
+        )
+    
+    # Store selection with metadata
+    SessionStateManager.set_value("selected_ufo_category", selected)
+    SessionStateManager.set_value("ufo_suggestion", {
+        "suggested": result.primary_category.value,
+        "confidence": result.confidence,
+        "was_accepted": selected == result.primary_category.value,
+        "manual_override": selected != result.primary_category.value
+    })
+    
+    return selected, result</code></pre>
+
+<h2>4. Configuration Files</h2>
+
+<h3>4.1 UFO Rules Configuration</h3>
+
+<pre><code># config/ufo_rules.yaml
+
+rules:
+  # Kind Rules
+  - id: kind_independent_entity
+    category: Kind
+    description: Zelfstandige entiteit zonder drager
+    priority: 10
+    weight: 2.5
+    conditions:
+      - type: feature
+        feature: has_noun
+        value: true
+      - type: feature
+        feature: requires_bearer
+        operator: "=="
+        value: false
+      - type: keyword
+        keywords: ["zelfstandig", "onafhankelijk", "autonoom"]
+        match: any
+
+  - id: kind_juridisch_object
+    category: Kind
+    description: Juridisch object of entiteit
+    priority: 9
+    weight: 2.0
+    conditions:
+      - type: keyword
+        keywords: ["persoon", "rechtspersoon", "organisatie", "zaak", "dossier"]
+        match: any
+      - type: context
+        field: juridische_context
+        check: not_empty
+
+  # Event Rules
+  - id: event_temporal_process
+    category: Event
+    description: Proces met tijdsaspect
+    priority: 10
+    weight: 2.5
+    conditions:
+      - type: feature
+        feature: has_temporal
+        value: true
+      - type: keyword
+        keywords: ["proces", "procedure", "uitvoering", "behandeling"]
+        match: any
+
+  - id: event_juridisch_handeling
+    category: Event
+    description: Juridische handeling of gebeurtenis
+    priority: 9
+    weight: 2.2
+    conditions:
+      - type: pattern
+        pattern: "(zitting|hoorzitting|arrestatie|veroordeling|dagvaarding)"
+      - type: feature
+        feature: has_verb
+        value: true
+
+  # Role Rules
+  - id: role_function_context
+    category: Role
+    description: Functie of rol in context
+    priority: 9
+    weight: 2.3
+    conditions:
+      - type: feature
+        feature: has_role_indicator
+        value: true
+      - type: keyword
+        keywords: ["verdachte", "getuige", "rechter", "advocaat"]
+        match: any
+
+  # Relator Rules
+  - id: relator_binding_agreement
+    category: Relator
+    description: Bindende overeenkomst tussen partijen
+    priority: 10
+    weight: 2.8
+    conditions:
+      - type: feature
+        feature: has_multiple_participants
+        value: true
+      - type: keyword
+        keywords: ["overeenkomst", "contract", "vergunning", "mandaat"]
+        match: any
+    conflicts_with: [kind_independent_entity]
+
+  # Mode Rules
+  - id: mode_dependent_property
+    category: Mode
+    description: Afhankelijke eigenschap of toestand
+    priority: 7
+    weight: 1.8
+    conditions:
+      - type: feature
+        feature: requires_bearer
+        value: true
+      - type: keyword
+        keywords: ["status", "toestand", "conditie", "situatie"]
+        match: any
+
+  # Quantity Rules
+  - id: quantity_measurable
+    category: Quantity
+    description: Meetbare grootheid
+    priority: 8
+    weight: 2.0
+    conditions:
+      - type: feature
+        feature: has_quantity_indicator
+        value: true
+      - type: pattern
+        pattern: "(\\d+|aantal|percentage|bedrag|€|%)"
+
+  # Quality Rules
+  - id: quality_gradation
+    category: Quality
+    description: Kwalitatieve eigenschap met gradatie
+    priority: 8
+    weight: 2.0
+    conditions:
+      - type: feature
+        feature: has_quality_indicator
+        value: true
+      - type: keyword
+        keywords: ["ernst", "zwaarte", "betrouwbaarheid", "kwaliteit"]
+        match: any
+
+  # Phase Rules
+  - id: phase_lifecycle_stage
+    category: Phase
+    description: Stadium in levenscyclus
+    priority: 8
+    weight: 1.9
+    conditions:
+      - type: keyword
+        keywords: ["voorlopig", "definitief", "concept", "afgerond", "actief"]
+        match: any
+      - type: feature
+        feature: has_temporal
+        value: true</code></pre>
+
+<h2>5. Testing Strategy</h2>
+
+<h3>5.1 Unit Tests</h3>
+
+<pre><code># tests/services/test_ufo_classification_service.py
+
+import pytest
+from unittest.mock import Mock, patch
+
+from services.ufo_classification_service import (
+    UFOClassificationService,
+    UFOClassificationConfig
+)
+from services.interfaces import (
+    UFOClassificationInput,
+    UFOCategory
+)
+
+class TestUFOClassificationService:
+    """Test suite voor UFO Classification Service."""
+    
+    @pytest.fixture
+    def service(self):
+        """Create service instance voor tests."""
+        config = UFOClassificationConfig(
+            enable_caching=False,  # Disable voor tests
+            max_processing_time_ms=100.0
+        )
+        return UFOClassificationService(config)
+    
+    @pytest.fixture
+    def sample_inputs(self):
+        """Sample inputs voor verschillende categorieën."""
+        return {
+            'kind': UFOClassificationInput(
+                begrip="Rechtspersoon",
+                definitie="Een juridische entiteit met rechten en plichten, zoals een bedrijf of stichting.",
+                organisatorische_context=["Juridische Zaken"],
+                juridische_context=["Burgerlijk Wetboek"],
+                wettelijke_basis=["BW Boek 2"]
+            ),
+            'event': UFOClassificationInput(
+                begrip="Hoorzitting",
+                definitie="Een formele bijeenkomst waarbij partijen worden gehoord door de rechter.",
+                organisatorische_context=["Rechtbank"],
+                juridische_context=["Procesrecht"],
+                wettelijke_basis=["Rv art. 87"]
+            ),
+            'role': UFOClassificationInput(
+                begrip="Verdachte",
+                definitie="Een persoon die ervan wordt verdacht een strafbaar feit te hebben gepleegd.",
+                organisatorische_context=["OM"],
+                juridische_context=["Strafrecht"],
+                wettelijke_basis=["Sr art. 27"]
+            ),
+            'relator': UFOClassificationInput(
+                begrip="Arbeidsovereenkomst",
+                definitie="Een overeenkomst waarbij de werknemer zich verbindt arbeid te verrichten voor de werkgever.",
+                organisatorische_context=["HR"],
+                juridische_context=["Arbeidsrecht"],
+                wettelijke_basis=["BW art. 7:610"]
+            )
+        }
+    
+    def test_classify_kind(self, service, sample_inputs):
+        """Test classificatie van Kind categorie."""
+        result = service.classify(sample_inputs['kind'])
+        
+        assert result.primary_category == UFOCategory.KIND
+        assert result.confidence &gt; 0.7
+        assert len(result.explanation) &gt; 0
+        assert result.processing_time_ms &lt; 100.0
+    
+    def test_classify_event(self, service, sample_inputs):
+        """Test classificatie van Event categorie."""
+        result = service.classify(sample_inputs['event'])
+        
+        assert result.primary_category == UFOCategory.EVENT
+        assert result.confidence &gt; 0.7
+        assert "temporal" in str(result.features).lower()
+    
+    def test_classify_role(self, service, sample_inputs):
+        """Test classificatie van Role categorie."""
+        result = service.classify(sample_inputs['role'])
+        
+        assert result.primary_category == UFOCategory.ROLE
+        assert result.confidence &gt; 0.6
+        assert result.needs_review == (result.confidence &lt; 0.6)
+    
+    def test_classify_relator(self, service, sample_inputs):
+        """Test classificatie van Relator categorie."""
+        result = service.classify(sample_inputs['relator'])
+        
+        assert result.primary_category == UFOCategory.RELATOR
+        assert result.confidence &gt; 0.7
+        assert any("participants" in str(f) for f in result.features)
+    
+    def test_batch_classification(self, service, sample_inputs):
+        """Test batch classificatie."""
+        inputs = list(sample_inputs.values())
+        results = service.classify_batch(inputs)
+        
+        assert len(results) == len(inputs)
+        assert all(r.processing_time_ms &lt; 100.0 for r in results)
+    
+    def test_caching(self):
+        """Test dat caching werkt."""
+        config = UFOClassificationConfig(enable_caching=True)
+        service = UFOClassificationService(config)
+        
+        input_data = UFOClassificationInput(
+            begrip="Test",
+            definitie="Test definitie",
+            organisatorische_context=[],
+            juridische_context=[],
+            wettelijke_basis=[]
+        )
+        
+        # Eerste call
+        result1 = service.classify(input_data)
+        time1 = result1.processing_time_ms
+        
+        # Tweede call (cached)
+        result2 = service.classify(input_data)
+        time2 = result2.processing_time_ms
+        
+        assert result1.primary_category == result2.primary_category
+        assert result1.confidence == result2.confidence
+        # Cached call should be faster (but not always guaranteed in tests)
+    
+    def test_low_confidence_fallback(self, service):
+        """Test fallback bij lage confidence."""
+        input_data = UFOClassificationInput(
+            begrip="Vague",
+            definitie="Een zeer vage en onduidelijke omschrijving.",
+            organisatorische_context=[],
+            juridische_context=[],
+            wettelijke_basis=[]
+        )
+        
+        result = service.classify(input_data)
+        
+        assert result.needs_review
+        assert result.confidence &lt; 0.6
+    
+    def test_performance_constraint(self, service, sample_inputs):
+        """Test dat performance constraint gehaald wordt."""
+        for input_data in sample_inputs.values():
+            result = service.classify(input_data)
+            assert result.processing_time_ms &lt; 10.0, (
+                f"Performance constraint violated: {result.processing_time_ms}ms"
+            )
+    
+    def test_explain_classification(self, service, sample_inputs):
+        """Test explanation functionaliteit."""
+        result = service.classify(sample_inputs['kind'])
+        explanation = service.explain_classification(result)
+        
+        assert 'primary_category' in explanation
+        assert 'confidence' in explanation
+        assert 'confidence_level' in explanation
+        assert 'needs_review' in explanation
+        assert 'explanation' in explanation
+        assert 'top_features' in explanation
+        assert len(explanation['top_features']) &lt;= 5</code></pre>
+
+<h3>5.2 Integration Tests</h3>
+
+<pre><code># tests/integration/test_ufo_integration.py
+
+import pytest
+from services.container import ServiceContainer
+from services.interfaces import UFOClassificationInput
+
+class TestUFOIntegration:
+    """Integration tests voor UFO classificatie in de applicatie."""
+    
+    @pytest.fixture
+    def container(self):
+        """Create container met alle services."""
+        return ServiceContainer({
+            "ufo_enable_caching": False,
+            "db_path": ":memory:"
+        })
+    
+    def test_service_registration(self, container):
+        """Test dat UFO service correct geregistreerd is."""
+        classifier = container.ufo_classifier()
+        assert classifier is not None
+        
+        # Test singleton
+        classifier2 = container.ufo_classifier()
+        assert classifier is classifier2
+    
+    def test_orchestrator_integration(self, container):
+        """Test integratie met DefinitionOrchestrator."""
+        orchestrator = container.orchestrator()
+        
+        # Mock de UFO classifier integration
+        # Dit zou in de orchestrator moeten worden toegevoegd
+        pass
+    
+    def test_repository_storage(self, container):
+        """Test dat UFO categorie opgeslagen wordt in repository."""
+        repository = container.repository()
+        classifier = container.ufo_classifier()
+        
+        # Classify
+        input_data = UFOClassificationInput(
+            begrip="Test Begriff",
+            definitie="Test definitie voor opslag.",
+            organisatorische_context=["Test Org"],
+            juridische_context=[],
+            wettelijke_basis=[]
+        )
+        
+        result = classifier.classify(input_data)
+        
+        # Save with UFO category
+        definition_data = {
+            "begrip": input_data['begrip'],
+            "definitie": input_data['definitie'],
+            "ufo_categorie": result.primary_category.value,
+            "ufo_confidence": result.confidence,
+            "organisatorische_context": input_data['organisatorische_context'],
+            "juridische_context": input_data['juridische_context'],
+            "wettelijke_basis": input_data['wettelijke_basis']
+        }
+        
+        saved_id = repository.save_definition(definition_data)
+        assert saved_id is not None
+        
+        # Verify storage
+        loaded = repository.get_definition(saved_id)
+        assert loaded['ufo_categorie'] == result.primary_category.value</code></pre>
+
+<h2>6. Performance Optimizations</h2>
+
+<h3>6.1 Caching Strategy</h3>
+
+<pre><code># src/utils/ufo_cache.py
+
+import time
+import hashlib
+from typing import Any
+from functools import lru_cache
+
+class UFOCache:
+    """Specialized cache voor UFO classificatie."""
+    
+    def __init__(self, max_size: int = 1000, ttl_seconds: int = 3600):
+        self.max_size = max_size
+        self.ttl_seconds = ttl_seconds
+        self._cache = {}
+        self._access_times = {}
+    
+    def get(self, key: str) -&gt; Any | None:
+        """Get item from cache if valid."""
+        if key not in self._cache:
+            return None
+        
+        # Check TTL
+        if time.time() - self._access_times[key] &gt; self.ttl_seconds:
+            del self._cache[key]
+            del self._access_times[key]
+            return None
+        
+        return self._cache[key]
+    
+    def set(self, key: str, value: Any):
+        """Set item in cache."""
+        # Enforce max size
+        if len(self._cache) &gt;= self.max_size:
+            # Remove oldest
+            oldest_key = min(self._access_times, key=self._access_times.get)
+            del self._cache[oldest_key]
+            del self._access_times[oldest_key]
+        
+        self._cache[key] = value
+        self._access_times[key] = time.time()
+    
+    def clear(self):
+        """Clear cache."""
+        self._cache.clear()
+        self._access_times.clear()
+
+# Lazy loading voor lexicons
+@lru_cache(maxsize=10)
+def load_lexicon_lazy(path: str) -&gt; dict:
+    """Lazy load lexicon with caching."""
+    import json
+    with open(path, 'r', encoding='utf-8') as f:
+        return json.load(f)</code></pre>
+
+<h2>7. Monitoring & Audit</h2>
+
+<h3>7.1 Audit Logger</h3>
+
+<pre><code># src/services/ufo/audit_logger.py
+
+import json
+import logging
+from datetime import datetime
+from pathlib import Path
+
+class UFOAuditLogger:
+    """Audit logger voor UFO classificaties."""
+    
+    def __init__(self, log_path: str = "logs/ufo_audit.jsonl"):
+        self.log_path = Path(log_path)
+        self.log_path.parent.mkdir(parents=True, exist_ok=True)
+        self.logger = logging.getLogger(__name__)
+    
+    def log_classification(self, input_data: dict, result: dict, 
+                          manual_override: bool = False):
+        """Log een classificatie voor audit."""
+        entry = {
+            "timestamp": datetime.now().isoformat(),
+            "begrip": input_data.get('begrip'),
+            "auto_category": result.get('primary_category'),
+            "confidence": result.get('confidence'),
+            "manual_override": manual_override,
+            "processing_time_ms": result.get('processing_time_ms')
+        }
+        
+        # Write to JSONL
+        with open(self.log_path, 'a', encoding='utf-8') as f:
+            f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+    
+    def get_statistics(self) -&gt; dict:
+        """Get classification statistics."""
+        if not self.log_path.exists():
+            return {}
+        
+        stats = {
+            'total': 0,
+            'manual_overrides': 0,
+            'avg_confidence': 0.0,
+            'categories': {}
+        }
+        
+        confidences = []
+        
+        with open(self.log_path, 'r', encoding='utf-8') as f:
+            for line in f:
+                entry = json.loads(line)
+                stats['total'] += 1
+                
+                if entry.get('manual_override'):
+                    stats['manual_overrides'] += 1
+                
+                confidence = entry.get('confidence', 0)
+                confidences.append(confidence)
+                
+                category = entry.get('auto_category')
+                if category:
+                    stats['categories'][category] = \
+                        stats['categories'].get(category, 0) + 1
+        
+        if confidences:
+            stats['avg_confidence'] = sum(confidences) / len(confidences)
+        
+        return stats</code></pre>
+
+<h2>8. Migration & Deployment</h2>
+
+<h3>8.1 Database Migration</h3>
+
+<pre><code>-- migrations/add_ufo_classification_metadata.sql
+
+-- Add UFO classification metadata columns
+ALTER TABLE definities 
+ADD COLUMN ufo_confidence DECIMAL(3,2),
+ADD COLUMN ufo_auto_classified BOOLEAN DEFAULT FALSE,
+ADD COLUMN ufo_classification_date TIMESTAMP;
+
+-- Add index for UFO queries
+CREATE INDEX idx_definities_ufo_confidence ON definities(ufo_confidence);
+CREATE INDEX idx_definities_ufo_auto ON definities(ufo_auto_classified);
+
+-- Create audit table for UFO classifications
+CREATE TABLE ufo_classification_audit (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    definitie_id INTEGER REFERENCES definities(id),
+    auto_category VARCHAR(50),
+    selected_category VARCHAR(50),
+    confidence DECIMAL(3,2),
+    manual_override BOOLEAN,
+    explanation TEXT,
+    classified_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    classified_by VARCHAR(255)
+);
+
+CREATE INDEX idx_ufo_audit_definitie ON ufo_classification_audit(definitie_id);
+CREATE INDEX idx_ufo_audit_date ON ufo_classification_audit(classified_at);</code></pre>
+
+<h3>8.2 Batch Migration Script</h3>
+
+<pre><code># scripts/migrate_ufo_categories.py
+
+#!/usr/bin/env python3
+"""
+Batch migration script voor bestaande definities.
+
+Classificeert alle bestaande definities zonder UFO categorie.
+"""
+
+import logging
+import argparse
+from tqdm import tqdm
+
+from services.container import ServiceContainer
+from services.interfaces import UFOClassificationInput
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--batch-size', type=int, default=100)
+    parser.add_argument('--confidence-threshold', type=float, default=0.6)
+    parser.add_argument('--dry-run', action='store_true')
+    args = parser.parse_args()
+    
+    container = ServiceContainer()
+    repository = container.repository()
+    classifier = container.ufo_classifier()
+    
+    # Get definitions without UFO category
+    definitions = repository.get_definitions_without_ufo_category()
+    
+    logger.info(f"Found {len(definitions)} definitions to classify")
+    
+    results = []
+    needs_review = []
+    
+    for definition in tqdm(definitions, desc="Classifying"):
+        input_data = UFOClassificationInput(
+            begrip=definition['begrip'],
+            definitie=definition['definitie'],
+            organisatorische_context=definition.get('organisatorische_context', []),
+            juridische_context=definition.get('juridische_context', []),
+            wettelijke_basis=definition.get('wettelijke_basis', [])
+        )
+        
+        result = classifier.classify(input_data)
+        
+        if result.confidence &lt; args.confidence_threshold:
+            needs_review.append({
+                'id': definition['id'],
+                'begrip': definition['begrip'],
+                'suggested': result.primary_category.value,
+                'confidence': result.confidence
+            })
+        
+        if not args.dry_run:
+            repository.update_ufo_category(
+                definition['id'],
+                result.primary_category.value,
+                result.confidence,
+                auto_classified=True
+            )
+        
+        results.append(result)
+    
+    # Report
+    logger.info(f"Classification complete:")
+    logger.info(f"- Total: {len(results)}")
+    logger.info(f"- Needs review: {len(needs_review)}")
+    
+    if needs_review:
+        logger.info("\nDefinitions needing review:")
+        for item in needs_review[:10]:  # First 10
+            logger.info(f"  - {item['begrip']}: {item['suggested']} ({item['confidence']:.2f})")
+
+if __name__ == '__main__':
+    main()</code></pre>
+
+<h2>9. Rollout Plan</h2>
+
+<h3>Phase 1: Foundation (Week 1-2)</h3>
+<ul>
+<li>Implement core service architecture</li>
+<li>Create rule engine with basic rules</li>
+<li>Add feature extraction pipeline</li>
+<li>Integrate with ServiceContainer</li>
+</ul>
+
+<h3>Phase 2: UI Integration (Week 2-3)</h3>
+<ul>
+<li>Add UFO widget to Generator tab</li>
+<li>Integrate with Edit tab</li>
+<li>Add to Expert Review tab</li>
+<li>Implement audit logging</li>
+</ul>
+
+<h3>Phase 3: Optimization (Week 3-4)</h3>
+<ul>
+<li>Performance tuning</li>
+<li>Cache implementation</li>
+<li>Batch processing</li>
+<li>Migration of existing data</li>
+</ul>
+
+<h3>Phase 4: Validation (Week 4)</h3>
+<ul>
+<li>User acceptance testing</li>
+<li>Performance benchmarks</li>
+<li>Fine-tune rules and thresholds</li>
+<li>Documentation</li>
+</ul>
+
+<h2>10. Success Metrics</h2>
+
+<ul>
+<li>**Performance**: 95% of classifications < 10ms</li>
+<li>**Accuracy**: 80% precision on test set</li>
+<li>**Coverage**: 100% of new definitions get classification</li>
+<li>**User Satisfaction**: <20% manual overrides after tuning</li>
+<li>**System Load**: <5% CPU increase from classification</li>
+</ul>
+
+<h2>Conclusie</h2>
+
+<p>Dit implementatieplan biedt een complete technische roadmap voor de UFO Classification Service. De modulaire architectuur met dependency injection maakt toekomstige uitbreidingen mogelijk, terwijl de rule-based aanpak direct waarde levert zonder ML-complexiteit. De service is volledig geïntegreerd met de bestaande architectuur en voldoet aan alle performance eisen.</p>
+  </div>
+</body>
+</html>
