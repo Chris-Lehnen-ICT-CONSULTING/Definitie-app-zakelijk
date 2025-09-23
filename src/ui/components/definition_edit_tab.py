@@ -280,6 +280,26 @@ class DefinitionEditTab:
                 help="Ontologische categorie van het begrip"
             )
 
+            # UFO‑categorie selectie (onder ontologische categorie)
+            ufo_opties = [
+                "",
+                "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
+                "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+            ]
+            try:
+                current_ufo = getattr(definition, 'ufo_categorie', None) or ""
+                ufo_default_index = (ufo_opties.index(current_ufo) if current_ufo in ufo_opties else 0)
+            except Exception:
+                ufo_default_index = 0
+            ufo_selected = st.selectbox(
+                "UFO‑categorie",
+                options=ufo_opties,
+                index=ufo_default_index,
+                key=k("ufo_categorie"),
+                disabled=disabled,
+                help="Selecteer de UFO‑categorie (OntoUML/UFO metamodel)",
+            )
+
         with col2:
             # Juridische context
             # Juridische context (multiselect met Anders...)
@@ -658,6 +678,7 @@ class DefinitionEditTab:
                 'juridische_context': jur_list,
                 'wettelijke_basis': wet_list,
                 'categorie': SessionStateManager.get_value(k('categorie')),
+                'ufo_categorie': (SessionStateManager.get_value(k('ufo_categorie')) or None),
                 'toelichting': SessionStateManager.get_value(k('toelichting')),
                 'status': SessionStateManager.get_value(k('status')),
             }

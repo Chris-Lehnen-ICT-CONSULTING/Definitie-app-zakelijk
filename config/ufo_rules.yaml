@@ -1,0 +1,341 @@
+# UFO Classification Rules Configuration
+# Version: 1.0.0
+# Last Updated: 2025-09-23
+#
+# Dit bestand definieert de classificatie regels voor UFO/OntoUML categorieën.
+# Regels worden in volgorde van prioriteit geëvalueerd.
+
+metadata:
+  version: "1.0.0"
+  description: "UFO/OntoUML classificatie regels voor Nederlandse juridische begrippen"
+  confidence_thresholds:
+    high: 0.8
+    medium: 0.5
+    low: 0.3
+  default_category: "Kind"
+
+# Hoofdcategorieën met hun detectie regels
+categories:
+  Kind:
+    priority: 10
+    description: "Zelfstandige entiteiten die onafhankelijk kunnen bestaan"
+    rules:
+      - id: kind_substantive_entity
+        conditions:
+          must_have_any:
+            - "persoon"
+            - "mens"
+            - "organisatie"
+            - "voorwerp"
+            - "document"
+          must_not_have:
+            - "eigenschap van"
+            - "kenmerk van"
+            - "toestand van"
+        confidence_boost: 0.4
+        explanation: "Zelfstandig naamwoord zonder drager-indicatie"
+
+      - id: kind_legal_entity
+        conditions:
+          must_have_any:
+            - "rechtspersoon"
+            - "natuurlijk persoon"
+            - "natuurlijke persoon"
+            - "vennootschap"
+            - "stichting"
+        confidence_boost: 0.5
+        explanation: "Juridische entiteit"
+
+  Event:
+    priority: 9
+    description: "Tijdsgebonden processen of gebeurtenissen"
+    rules:
+      - id: event_process
+        conditions:
+          must_have_any:
+            - "proces"
+            - "procedure"
+            - "handeling"
+            - "gebeurtenis"
+            - "activiteit"
+          temporal_markers:
+            - "tijdens"
+            - "gedurende"
+            - "doorlooptijd"
+        confidence_boost: 0.35
+        explanation: "Proces of gebeurtenis met tijdsaanduiding"
+
+      - id: event_legal_process
+        conditions:
+          must_have_any:
+            - "zitting"
+            - "verhoor"
+            - "arrestatie"
+            - "vervolging"
+            - "berechting"
+        confidence_boost: 0.45
+        explanation: "Juridisch proces"
+
+  Role:
+    priority: 8
+    description: "Contextuele rollen die een drager vereisen"
+    rules:
+      - id: role_contextual
+        conditions:
+          role_markers:
+            - "als"
+            - "in de hoedanigheid van"
+            - "in de rol van"
+            - "fungerend als"
+          requires_bearer: true
+        confidence_boost: 0.4
+        explanation: "Contextuele rol aanduiding"
+
+      - id: role_legal_function
+        conditions:
+          must_have_any:
+            - "verdachte"
+            - "getuige"
+            - "rechter"
+            - "advocaat"
+            - "officier"
+          context: "legal"
+        confidence_boost: 0.45
+        explanation: "Juridische functie of rol"
+
+  Phase:
+    priority: 7
+    description: "Levensfasen of stadia van entiteiten"
+    rules:
+      - id: phase_lifecycle
+        conditions:
+          must_have_any:
+            - "fase"
+            - "stadium"
+            - "status"
+          lifecycle_markers:
+            - "nieuw"
+            - "lopend"
+            - "afgerond"
+            - "gesloten"
+        confidence_boost: 0.35
+        explanation: "Levenscyclus fase"
+
+      - id: phase_temporal_state
+        conditions:
+          must_have_any:
+            - "voorlopig"
+            - "definitief"
+            - "concept"
+            - "in onderzoek"
+            - "in behandeling"
+        confidence_boost: 0.4
+        explanation: "Temporele staat aanduiding"
+
+  Relator:
+    priority: 8
+    description: "Relaties tussen meerdere entiteiten"
+    rules:
+      - id: relator_contract
+        conditions:
+          must_have_any:
+            - "overeenkomst"
+            - "contract"
+            - "convenant"
+            - "vergunning"
+            - "mandaat"
+          participants_min: 2
+        confidence_boost: 0.45
+        explanation: "Contractuele binding"
+
+      - id: relator_legal_relation
+        conditions:
+          must_have_any:
+            - "huwelijk"
+            - "voogdij"
+            - "curatele"
+            - "dagvaarding"
+          requires_multiple_parties: true
+        confidence_boost: 0.5
+        explanation: "Juridische relatie"
+
+  Mode:
+    priority: 6
+    description: "Eigenschappen of toestanden met drager"
+    rules:
+      - id: mode_state
+        conditions:
+          must_have_any:
+            - "toestand"
+            - "staat"
+            - "conditie"
+            - "situatie"
+          requires_bearer: true
+        confidence_boost: 0.35
+        explanation: "Toestand met drager"
+
+      - id: mode_attribute
+        conditions:
+          must_have_any:
+            - "eigenschap"
+            - "kenmerk"
+            - "attribuut"
+          not_measurable: true
+        confidence_boost: 0.3
+        explanation: "Niet-meetbare eigenschap"
+
+  Quantity:
+    priority: 6
+    description: "Meetbare grootheden"
+    rules:
+      - id: quantity_unit
+        conditions:
+          has_unit:
+            - "euro"
+            - "EUR"
+            - "procent"
+            - "%"
+            - "kilogram"
+            - "meter"
+        confidence_boost: 0.5
+        explanation: "Bevat meeteenheid"
+
+      - id: quantity_measure
+        conditions:
+          must_have_any:
+            - "aantal"
+            - "hoeveelheid"
+            - "bedrag"
+            - "duur"
+            - "lengte"
+          measurable: true
+        confidence_boost: 0.4
+        explanation: "Meetbare grootheid"
+
+  Quality:
+    priority: 5
+    description: "Kwalitatieve eigenschappen"
+    rules:
+      - id: quality_gradation
+        conditions:
+          must_have_any:
+            - "kwaliteit"
+            - "graad"
+            - "niveau"
+            - "mate"
+            - "schaal"
+          qualitative: true
+        confidence_boost: 0.35
+        explanation: "Kwalitatieve gradatie"
+
+      - id: quality_evaluation
+        conditions:
+          must_have_any:
+            - "betrouwbaarheid"
+            - "waarschijnlijkheid"
+            - "relevantie"
+            - "ernst"
+            - "zwaarte"
+        confidence_boost: 0.4
+        explanation: "Evaluatieve eigenschap"
+
+# Secundaire categorieën (tags)
+secondary_categories:
+  Subkind:
+    applies_to: ["Kind"]
+    markers:
+      - "soort"
+      - "type"
+      - "variant"
+
+  Category:
+    applies_to: ["Kind", "Subkind"]
+    markers:
+      - "categorie"
+      - "klasse"
+      - "groep"
+
+  Mixin:
+    applies_to: ["Kind", "Role", "Phase"]
+    markers:
+      - "verschillende"
+      - "diverse"
+      - "meerdere types"
+
+  RoleMixin:
+    applies_to: ["Role"]
+    markers:
+      - "verschillende rollen"
+      - "meerdere functies"
+
+  PhaseMixin:
+    applies_to: ["Phase"]
+    markers:
+      - "verschillende fasen"
+      - "meerdere stadia"
+
+  Abstract:
+    applies_to: ["all"]
+    markers:
+      - "abstract"
+      - "algemeen"
+      - "generiek"
+      - "niet-concreet"
+
+# Conflictoplossing regels
+conflict_resolution:
+  - rule: "kind_over_mode"
+    when:
+      both_match: ["Kind", "Mode"]
+    prefer: "Kind"
+    unless:
+      has_explicit: "eigenschap van"
+
+  - rule: "event_over_phase"
+    when:
+      both_match: ["Event", "Phase"]
+    prefer: "Event"
+    unless:
+      has_explicit: "status"
+
+  - rule: "relator_over_event"
+    when:
+      both_match: ["Relator", "Event"]
+    prefer: "Relator"
+    if:
+      has_multiple_parties: true
+
+# Domein-specifieke aanpassingen
+domain_adjustments:
+  legal:
+    boost_categories:
+      Role: 0.1
+      Relator: 0.15
+      Event: 0.1
+    special_terms:
+      "zaak": "Kind"  # In juridische context is 'zaak' meestal een Kind
+      "procedure": "Event"
+      "bevoegdheid": "Mode"
+
+  administrative:
+    boost_categories:
+      Event: 0.1
+      Phase: 0.1
+    special_terms:
+      "aanvraag": "Event"
+      "besluit": "Kind"
+      "vergunning": "Relator"
+
+# Validatie instellingen
+validation:
+  min_confidence_for_auto: 0.5
+  require_manual_review_below: 0.3
+  max_secondary_tags: 3
+  enable_explanation: true
+
+# Logging en audit
+audit:
+  log_all_classifications: true
+  log_low_confidence: true
+  log_user_overrides: true
+  store_matched_patterns: true

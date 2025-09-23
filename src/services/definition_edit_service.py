@@ -441,6 +441,7 @@ class DefinitionEditService:
             juridische_context=updates.get('juridische_context', getattr(definition, 'juridische_context', [])),
             wettelijke_basis=updates.get('wettelijke_basis', getattr(definition, 'wettelijke_basis', [])),
             categorie=updates.get('categorie', definition.categorie),
+            ufo_categorie=updates.get('ufo_categorie', getattr(definition, 'ufo_categorie', None)),
             created_at=definition.created_at,
             updated_at=datetime.now(),
             metadata=definition.metadata or {}
