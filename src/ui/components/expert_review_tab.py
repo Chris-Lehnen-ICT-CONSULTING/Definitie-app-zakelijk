@@ -163,8 +163,10 @@ class ExpertReviewTab:
                         )
 
                     df = pd.DataFrame(rows)
+                    prev_selected_id = SessionStateManager.get_value("review_selected_id")
+                    df.insert(0, "Selecteer", df["ID"].apply(lambda x: bool(prev_selected_id == x)))
                     edited = st.data_editor(
-                        df.assign(Selecteer=False)[[
+                        df[[
                             "Selecteer","ID","Begrip","Categorie","UFO-categorie","Status","Score","Organisatorische context","Juridische context","Wettelijke basis"
                         ]],
                         use_container_width=True,
@@ -188,11 +190,27 @@ class ExpertReviewTab:
                         },
                     )
 
-                    selected_rows = edited[edited["Selecteer"] == True] if not edited.empty else edited.head(0)
+                    # Enforce enkelvoudige selectie
+                    try:
+                        true_ids = [int(r["ID"]) for _, r in edited.iterrows() if bool(r.get("Selecteer"))]
+                    except Exception:
+                        true_ids = []
+
+                    selected_id = prev_selected_id
+                    if len(true_ids) == 1:
+                        selected_id = true_ids[0]
+                    elif len(true_ids) >= 2:
+                        if prev_selected_id in true_ids:
+                            selected_id = prev_selected_id
+                        else:
+                            selected_id = true_ids[0]
+                        st.caption("Er kan maar één rij geselecteerd zijn; selectie gecorrigeerd.")
+                    SessionStateManager.set_value("review_selected_id", selected_id)
+
                     btn_col, _ = st.columns([1,3])
                     with btn_col:
-                        if st.button("👁️ Open geselecteerde", key="review_open_selected_table", disabled=len(selected_rows) != 1):
-                            sel_id = int(selected_rows.iloc[0]["ID"])  # type: ignore[index]
+                        if st.button("👁️ Open geselecteerde", key="review_open_selected_table", disabled=selected_id is None):
+                            sel_id = int(selected_id)
                             chosen = next((x for x in filtered_reviews if x.id == sel_id), None)
                             if chosen:
                                 SessionStateManager.set_value("selected_review_definition", chosen)
