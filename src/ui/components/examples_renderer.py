@@ -9,6 +9,7 @@ from __future__ import annotations
 from typing import Any, Dict, Iterable
 
 import streamlit as st
+from ui.session_state import SessionStateManager
 
 
 def _as_list(val: Any) -> list[str]:
@@ -97,6 +98,36 @@ def render_examples_expandable(examples: Dict[str, Any] | None) -> None:
         with st.expander("🔄 Synoniemen", expanded=False):
             for s in syn:
                 st.write(f"• {s}")
+
+            # Voorkeursterm selectie geïntegreerd in Synoniemen‑sectie
+            try:
+                begrip = SessionStateManager.get_value("begrip", "")
+            except Exception:
+                begrip = ""
+
+            opties: list[str] = []
+            # Plaats een placeholder-optie bovenaan
+            opties.append("")
+            if begrip and begrip not in syn:
+                opties.append(begrip)
+            opties.extend(syn)
+
+            # Bestaande keuze als default (indien aanwezig)
+            current_choice = SessionStateManager.get_value("voorkeursterm", "")
+            try:
+                default_index = opties.index(current_choice) if current_choice in opties else 0
+            except ValueError:
+                default_index = 0
+
+            keuze = st.selectbox(
+                "Selecteer de voorkeurs-term (lemma)",
+                opties,
+                index=default_index,
+                format_func=lambda x: x if x else "-- kies hier je voorkeurs-term --",
+                help="Laat leeg als je nog geen voorkeurs-term wilt vastleggen",
+                key="voorkeursterm_selectie_synoniemen",
+            )
+            SessionStateManager.set_value("voorkeursterm", keuze or "")
 
     ant = _as_list(data.get("antoniemen"))
     if ant:
