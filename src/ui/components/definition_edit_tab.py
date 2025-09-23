@@ -268,25 +268,26 @@ class DefinitionEditTab:
             except Exception as e:
                 st.warning(f"Kon tabelweergave niet renderen: {e!s}")
 
-        # Interactieve lijstweergave met direct selecteerbare items
-        for d in results:
-            with st.container():
-                c1, c2 = st.columns([4, 1])
-                with c1:
-                    status = (d.metadata.get('status') if d.metadata else None) or 'draft'
-                    st.markdown(f"**[{d.id}] {d.begrip}** — {d.categorie or ''} · {status}")
-                    # Kleine contextregel
-                    try:
-                        org = ", ".join(getattr(d, 'organisatorische_context', []) or [])
-                        jur = ", ".join(getattr(d, 'juridische_context', []) or [])
-                        if org or jur:
-                            st.caption(f"Org: {org or '—'} · Jur: {jur or '—'}")
-                    except Exception:
-                        pass
-                with c2:
-                    if st.button("✏️ Bewerk", key=f"edit_btn_{d.id}"):
-                        self._start_edit_session(int(d.id))
-            st.markdown("---")
+        # Interactieve lijstweergave met direct selecteerbare items (alleen tonen als tabel uit staat)
+        if not show_table:
+            for d in results:
+                with st.container():
+                    c1, c2 = st.columns([4, 1])
+                    with c1:
+                        status = (d.metadata.get('status') if d.metadata else None) or 'draft'
+                        st.markdown(f"**[{d.id}] {d.begrip}** — {d.categorie or ''} · {status}")
+                        # Kleine contextregel
+                        try:
+                            org = ", ".join(getattr(d, 'organisatorische_context', []) or [])
+                            jur = ", ".join(getattr(d, 'juridische_context', []) or [])
+                            if org or jur:
+                                st.caption(f"Org: {org or '—'} · Jur: {jur or '—'}")
+                        except Exception:
+                            pass
+                    with c2:
+                        if st.button("✏️ Bewerk", key=f"edit_btn_{d.id}"):
+                            self._start_edit_session(int(d.id))
+                st.markdown("---")
 
     def _render_editor(self):
         """Render the rich text editor."""
