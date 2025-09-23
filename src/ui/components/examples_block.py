@@ -129,11 +129,7 @@ def render_examples_block(
     # Get voorkeursterm from DB if available
     if repository is not None and definition.id:
         try:
-            voorbeelden_records = repository.get_voorbeelden(definition.id, voorbeeld_type="synonyms")
-            for record in voorbeelden_records:
-                if record.is_voorkeursterm:
-                    voorkeursterm_display = record.voorbeeld_tekst
-                    break
+            voorkeursterm_display = repository.get_voorkeursterm(definition.id)
         except Exception:
             pass
 
@@ -216,11 +212,7 @@ def render_examples_block(
             # Get current voorkeursterm from DB
             if repository is not None and definition.id:
                 try:
-                    voorbeelden_records = repository.get_voorbeelden(definition.id, voorbeeld_type="synonyms")
-                    for record in voorbeelden_records:
-                        if record.is_voorkeursterm:
-                            current_voorkeursterm = record.voorbeeld_tekst
-                            break
+                    current_voorkeursterm = repository.get_voorkeursterm(definition.id)
                 except Exception:
                     pass
 

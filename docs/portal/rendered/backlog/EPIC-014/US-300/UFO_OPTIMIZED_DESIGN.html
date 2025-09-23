@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>UFO Categorie Detector - Geoptimaliseerd Ontwerp</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>UFO Categorie Detector - Geoptimaliseerd Ontwerp</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Dit document presenteert een geoptimaliseerde beslisboom en pattern matching strategie voor automatische UFO-categorie detectie in Nederlandse juridische begrippen. De aanpak reduceert complexiteit van O(n×m) naar O(log n) door gebruik van voorgecompileerde patterns en efficiënte datastructuren.</p>
+
+<h2>1. Vereenvoudigde Beslisboom</h2>
+
+<h3>Hoofdbeslissing: 3-Fase Classificatie</h3>
+
+<pre><code>FASE 1: SUBSTANTIALITEIT CHECK
+├─ Is_Zelfstandig() → KIND
+└─ Heeft_Drager()
+   ├─ JA → FASE 2
+   └─ NEE → FASE 3
+
+FASE 2: DRAGER-AFHANKELIJK
+├─ Is_Tijdsgebonden() → EVENT
+├─ Is_Contextueel() → ROLE/PHASE
+└─ Is_Attribuut() → MODE/QUALITY/QUANTITY
+
+FASE 3: RELATIE-GEBASEERD
+├─ Heeft_Meerdere_Deelnemers() → RELATOR
+└─ Is_Abstract() → CATEGORY/MIXIN/ABSTRACT</code></pre>
+
+<h3>Geoptimaliseerde Beslisregels</h3>
+
+<pre><code># Pseudo-code voor hoofdclassificatie
+def classify_ufo_optimized(concept: ConceptData) -&gt; UFOResult:
+    # Pre-computed features (cached)
+    features = FEATURE_CACHE.get_or_compute(concept.id,
+                                           lambda: extract_features_batch(concept))
+
+    # Level 1: Quick substantiality check (O(1) lookup)
+    if SUBSTANTIVE_PATTERNS.matches(features.lemma):
+        return UFOResult(category="Kind", confidence=0.9,
+                        reason="Zelfstandig naamwoord patroon")
+
+    # Level 2: Dependency check (O(log n) tree traversal)
+    if features.has_bearer:
+        return classify_dependent(features)
+
+    # Level 3: Relation check (O(1) with pre-indexed relations)
+    if features.participant_count &gt;= 2:
+        return classify_relational(features)
+
+    # Fallback: Abstract classification
+    return classify_abstract(features)</code></pre>
+
+<h2>2. Geoptimaliseerde Pattern Matching</h2>
+
+<h3>2.1 Datastructuur: Trie-Based Pattern Matcher</h3>
+
+<pre><code>class UFOPatternMatcher:
+    def __init__(self):
+        # Pre-compiled patterns per category
+        self.tries = {
+            'Kind': TrieNode(),
+            'Event': TrieNode(),
+            'Role': TrieNode(),
+            # ... etc
+        }
+
+        # Bloom filter for quick negative matches
+        self.bloom_filters = {
+            category: BloomFilter(capacity=10000, error_rate=0.001)
+            for category in UFO_CATEGORIES
+        }
+
+        # Compiled regex patterns (cached)
+        self.regex_cache = {}
+
+    def compile_patterns(self):
+        """One-time compilation at startup"""
+        for category, patterns in PATTERN_CONFIG.items():
+            # Add to trie
+            for pattern in patterns['exact_match']:
+                self.tries[category].insert(pattern)
+
+            # Add to bloom filter
+            for pattern in patterns['all_patterns']:
+                self.bloom_filters[category].add(pattern)
+
+            # Compile regex patterns
+            if patterns.get('regex'):
+                self.regex_cache[category] = re.compile(
+                    '|'.join(patterns['regex']),
+                    re.IGNORECASE
+                )</code></pre>
+
+<h3>2.2 Feature Extraction Pipeline</h3>
+
+<pre><code>class FeatureExtractor:
+    def __init__(self):
+        # Pre-load NLP models
+        self.nlp = spacy.load("nl_core_news_sm", disable=["ner", "parser"])
+        self.lemmatizer = DutchLemmatizer()  # Custom optimized lemmatizer
+
+        # Cache for expensive computations
+        self.cache = LRUCache(maxsize=1000)
+
+    def extract_features_batch(self, concepts: List[Concept]) -&gt; List[Features]:
+        """Batch processing for efficiency"""
+        # Process all texts in one NLP call
+        texts = [c.definition for c in concepts]
+        docs = list(self.nlp.pipe(texts, batch_size=50))
+
+        features = []
+        for doc, concept in zip(docs, concepts):
+            # Use cached result if available
+            cache_key = hash(concept.definition)
+            if cache_key in self.cache:
+                features.append(self.cache[cache_key])
+                continue
+
+            # Extract features
+            feat = Features(
+                lemma=self._extract_lemma(doc),
+                pos_tags=self._extract_pos(doc),
+                has_bearer=self._check_bearer(doc),
+                is_temporal=self._check_temporal(doc),
+                participant_count=self._count_participants(doc),
+                semantic_markers=self._extract_markers(doc)
+            )
+
+            self.cache[cache_key] = feat
+            features.append(feat)
+
+        return features</code></pre>
+
+<h2>3. Nederlandse Taal Optimalisaties</h2>
+
+<h3>3.1 Gegroepeerde Woordenlijsten</h3>
+
+<pre><code>DUTCH_PATTERNS = {
+    'Kind': {
+        'core_nouns': {
+            'persoon', 'mens', 'individu',
+            'organisatie', 'bedrijf', 'instelling',
+            'voorwerp', 'object', 'zaak',
+            'document', 'dossier', 'akte'
+        },
+        'legal_entities': {
+            'rechtspersoon', 'natuurlijk persoon',
+            'vennootschap', 'stichting', 'vereniging'
+        }
+    },
+
+    'Event': {
+        'process_markers': {
+            'proces', 'procedure', 'handeling',
+            'gebeurtenis', 'activiteit', 'verloop'
+        },
+        'temporal_markers': {
+            'tijdens', 'gedurende', 'vanaf', 'tot',
+            'doorlooptijd', 'termijn', 'periode'
+        },
+        'legal_processes': {
+            'zitting', 'verhoor', 'onderzoek',
+            'arrestatie', 'vervolging', 'berechting'
+        }
+    },
+
+    'Role': {
+        'role_markers': {
+            'als', 'in de hoedanigheid van',
+            'in de rol van', 'fungerend als'
+        },
+        'legal_roles': {
+            'verdachte', 'getuige', 'rechter',
+            'officier', 'advocaat', 'curator'
+        }
+    },
+
+    'Relator': {
+        'contract_types': {
+            'overeenkomst', 'contract', 'convenant',
+            'vergunning', 'machtiging', 'mandaat'
+        },
+        'legal_relations': {
+            'huwelijk', 'voogdij', 'curatele',
+            'dagvaarding', 'vonnis', 'beschikking'
+        }
+    }
+}
+
+# Synoniem mapping voor snelle lookups
+SYNONYM_MAP = build_synonym_map(DUTCH_PATTERNS)  # O(1) lookup</code></pre>
+
+<h3>3.2 Lemmatisering Cache</h3>
+
+<pre><code>class DutchLemmatizer:
+    def __init__(self):
+        # Pre-load common lemma mappings
+        self.lemma_cache = {
+            'personen': 'persoon',
+            'organisaties': 'organisatie',
+            'zittingen': 'zitting',
+            'verdachten': 'verdachte',
+            # ... thousands more pre-computed
+        }
+
+        # Suffix rules for unknown words
+        self.suffix_rules = [
+            (r'eren$', 'eer'),    # adviseren → adviseer
+            (r'ingen$', 'ing'),   # handelingen → handeling
+            (r'heden$', 'heid'),  # mogelijkheden → mogelijkheid
+        ]
+
+    def lemmatize(self, word: str) -&gt; str:
+        # O(1) cache lookup
+        if word in self.lemma_cache:
+            return self.lemma_cache[word]
+
+        # Apply suffix rules
+        for pattern, replacement in self.suffix_rules:
+            if re.search(pattern, word):
+                return re.sub(pattern, replacement, word)
+
+        return word</code></pre>
+
+<h2>4. Performance Optimalisatie Strategie</h2>
+
+<h3>4.1 Lookup Table Approach</h3>
+
+<pre><code>class UFOClassifier:
+    def __init__(self):
+        # Pre-compute decision matrix
+        self.decision_matrix = {
+            # (has_bearer, is_temporal, participant_count, is_abstract): category
+            (False, False, 0, False): 'Kind',
+            (False, True, 0, False): 'Event',
+            (True, False, 0, False): 'Mode',
+            (True, False, 0, True): 'Quality',
+            (False, False, 2, False): 'Relator',
+            # ... complete matrix
+        }
+
+        # Secondary classification rules
+        self.refinement_rules = {
+            'Mode': self._refine_mode,
+            'Quality': self._refine_quality,
+            # ...
+        }
+
+    def classify(self, features: Features) -&gt; UFOResult:
+        # O(1) primary classification
+        key = (
+            features.has_bearer,
+            features.is_temporal,
+            features.participant_count,
+            features.is_abstract
+        )
+
+        primary = self.decision_matrix.get(key, 'Unknown')
+
+        # Apply refinement if needed
+        if primary in self.refinement_rules:
+            primary = self.refinement_rules[primary](features)
+
+        return UFOResult(
+            category=primary,
+            confidence=self._calculate_confidence(features, primary),
+            explanation=self._generate_explanation(features, primary)
+        )</code></pre>
+
+<h3>4.2 Batch Processing</h3>
+
+<pre><code>class BatchUFOProcessor:
+    def __init__(self, batch_size=100):
+        self.batch_size = batch_size
+        self.classifier = UFOClassifier()
+        self.executor = ThreadPoolExecutor(max_workers=4)
+
+    def process_concepts(self, concepts: List[Concept]) -&gt; List[UFOResult]:
+        results = []
+
+        # Process in batches
+        for i in range(0, len(concepts), self.batch_size):
+            batch = concepts[i:i+self.batch_size]
+
+            # Parallel feature extraction
+            futures = [
+                self.executor.submit(self._process_single, concept)
+                for concept in batch
+            ]
+
+            # Collect results
+            for future in futures:
+                results.append(future.result())
+
+        return results</code></pre>
+
+<h2>5. Maintenance-Vriendelijke Regel Structuur</h2>
+
+<h3>5.1 Declaratieve Regel Configuratie</h3>
+
+<pre><code># config/ufo_rules.yaml
+rules:
+  - id: kind_substantive
+    category: Kind
+    priority: 10
+    conditions:
+      pos_tag: ["NOUN"]
+      not_has: ["bearer_markers"]
+      semantic: ["concrete", "independent"]
+    confidence_boost: 0.3
+    explanation: "Zelfstandig naamwoord zonder drager"
+
+  - id: event_temporal
+    category: Event
+    priority: 8
+    conditions:
+      any_of:
+        - pos_tag: ["VERB"]
+        - has_pattern: "temporal_markers"
+      semantic: ["process", "activity"]
+    confidence_boost: 0.25
+    explanation: "Tijdsgebonden proces of gebeurtenis"
+
+  - id: role_contextual
+    category: Role
+    priority: 7
+    conditions:
+      has_pattern: "role_markers"
+      requires: ["bearer"]
+    confidence_boost: 0.2
+    explanation: "Contextuele rol met drager"</code></pre>
+
+<h3>5.2 Rule Engine</h3>
+
+<pre><code>class RuleEngine:
+    def __init__(self, config_path='config/ufo_rules.yaml'):
+        self.rules = self._load_rules(config_path)
+        self._compile_rules()
+
+    def _compile_rules(self):
+        """Pre-compile rules for efficiency"""
+        for rule in self.rules:
+            # Convert conditions to efficient checkers
+            rule['compiled'] = self._compile_conditions(rule['conditions'])
+
+    def evaluate(self, features: Features) -&gt; List[RuleMatch]:
+        matches = []
+
+        for rule in self.rules:
+            if rule['compiled'](features):
+                matches.append(RuleMatch(
+                    rule_id=rule['id'],
+                    category=rule['category'],
+                    confidence=rule['confidence_boost'],
+                    explanation=rule['explanation']
+                ))
+
+        # Sort by priority
+        return sorted(matches, key=lambda m: m.confidence, reverse=True)</code></pre>
+
+<h2>6. Performance Benchmarks (Verwacht)</h2>
+
+<h3>Baseline (Huidige Aanpak)</h3>
+<ul>
+<li>Gemiddelde classificatie tijd: ~50ms</li>
+<li>Memory footprint: ~100MB</li>
+<li>Accuracy: Onbekend (geen metrics)</li>
+</ul>
+
+<h3>Geoptimaliseerde Aanpak</h3>
+<ul>
+<li>**Classificatie tijd: < 5ms** (10x verbetering)</li>
+<li> - Feature extraction: 2ms (cached)</li>
+<li> - Pattern matching: 1ms (trie/bloom)</li>
+<li> - Rule evaluation: 1ms (compiled)</li>
+<li> - Result generation: 1ms</li>
+</ul>
+
+<ul>
+<li>**Memory footprint: ~50MB** (2x verbetering)</li>
+<li> - Trie structures: 10MB</li>
+<li> - Bloom filters: 5MB</li>
+<li> - Cache: 20MB (LRU, bounded)</li>
+<li> - Rules & patterns: 15MB</li>
+</ul>
+
+<ul>
+<li>**Throughput**</li>
+<li> - Single: 200 classifications/sec</li>
+<li> - Batch (100): 2000 classifications/sec</li>
+</ul>
+
+<ul>
+<li>**Accuracy (Expected)**</li>
+<li> - High confidence (>0.8): 85% precision</li>
+<li> - Medium confidence (0.5-0.8): 70% precision</li>
+<li> - Low confidence (<0.5): Manual review</li>
+</ul>
+
+<h2>7. Implementatie Roadmap</h2>
+
+<h3>Fase 1: Core Engine (Week 1)</h3>
+<ol>
+<li>Implement TrieNode en BloomFilter structures</li>
+<li>Build FeatureExtractor met caching</li>
+<li>Create RuleEngine met YAML config</li>
+<li>Unit tests voor alle componenten</li>
+</ol>
+
+<h3>Fase 2: Pattern Library (Week 2)</h3>
+<ol>
+<li>Compile Nederlandse woordenlijsten</li>
+<li>Create synonym mappings</li>
+<li>Build lemmatizer cache</li>
+<li>Integration tests</li>
+</ol>
+
+<h3>Fase 3: UI Integration (Week 3)</h3>
+<ol>
+<li>Service layer implementation</li>
+<li>UI componenten voor suggesties</li>
+<li>Audit logging</li>
+<li>End-to-end tests</li>
+</ol>
+
+<h3>Fase 4: Optimization (Week 4)</h3>
+<ol>
+<li>Performance profiling</li>
+<li>Cache tuning</li>
+<li>Batch processing optimization</li>
+<li>Production readiness</li>
+</ol>
+
+<h2>8. Code Snippets</h2>
+
+<h3>Minimale Implementatie</h3>
+
+<pre><code>from typing import Dict, List, Optional, Tuple
+from dataclasses import dataclass
+from enum import Enum
+import re
+
+class UFOCategory(Enum):
+    KIND = "Kind"
+    EVENT = "Event"
+    ROLE = "Role"
+    PHASE = "Phase"
+    RELATOR = "Relator"
+    MODE = "Mode"
+    QUANTITY = "Quantity"
+    QUALITY = "Quality"
+    CATEGORY = "Category"
+    MIXIN = "Mixin"
+    ABSTRACT = "Abstract"
+
+@dataclass
+class UFOResult:
+    category: UFOCategory
+    confidence: float
+    explanation: List[str]
+    secondary_tags: List[str] = None
+
+class MinimalUFOClassifier:
+    """Minimal implementation for quick start"""
+
+    def __init__(self):
+        # Simple pattern matching
+        self.patterns = {
+            UFOCategory.KIND: [
+                r'\b(persoon|mens|organisatie|voorwerp|document)\b',
+                r'\b(rechtspersoon|natuurlijk\s+persoon)\b'
+            ],
+            UFOCategory.EVENT: [
+                r'\b(proces|procedure|gebeurtenis|activiteit)\b',
+                r'\b(tijdens|gedurende|doorlooptijd|termijn)\b'
+            ],
+            UFOCategory.ROLE: [
+                r'\b(als|in\s+de\s+rol\s+van|fungerend\s+als)\b',
+                r'\b(verdachte|getuige|rechter|advocaat)\b'
+            ],
+            UFOCategory.RELATOR: [
+                r'\b(overeenkomst|contract|vergunning|mandaat)\b',
+                r'\b(huwelijk|voogdij|dagvaarding)\b'
+            ]
+        }
+
+        # Compile patterns
+        self.compiled = {
+            cat: re.compile('|'.join(patterns), re.IGNORECASE)
+            for cat, patterns in self.patterns.items()
+        }
+
+    def classify(self, text: str) -&gt; UFOResult:
+        scores = {}
+        explanations = {}
+
+        # Score each category
+        for category, pattern in self.compiled.items():
+            matches = pattern.findall(text)
+            if matches:
+                scores[category] = len(matches) / len(text.split())
+                explanations[category] = f"Gevonden: {', '.join(set(matches))}"
+
+        if not scores:
+            return UFOResult(
+                category=UFOCategory.KIND,
+                confidence=0.3,
+                explanation=["Geen specifieke patronen gevonden, default KIND"]
+            )
+
+        # Get best match
+        best_category = max(scores, key=scores.get)
+        confidence = min(scores[best_category] * 10, 1.0)  # Normalize
+
+        return UFOResult(
+            category=best_category,
+            confidence=confidence,
+            explanation=[explanations[best_category]]
+        )</code></pre>
+
+<h2>9. Testing Strategy</h2>
+
+<h3>Unit Tests</h3>
+<pre><code>def test_kind_classification():
+    classifier = MinimalUFOClassifier()
+    result = classifier.classify("Een persoon is een natuurlijk mens")
+    assert result.category == UFOCategory.KIND
+    assert result.confidence &gt; 0.7
+
+def test_event_classification():
+    classifier = MinimalUFOClassifier()
+    result = classifier.classify("Het proces van arrestatie tijdens het onderzoek")
+    assert result.category == UFOCategory.EVENT
+    assert result.confidence &gt; 0.6
+
+def test_role_classification():
+    classifier = MinimalUFOClassifier()
+    result = classifier.classify("Een verdachte in de rol van getuige")
+    assert result.category == UFOCategory.ROLE
+    assert result.confidence &gt; 0.5</code></pre>
+
+<h3>Integration Tests</h3>
+<pre><code>def test_batch_processing():
+    processor = BatchUFOProcessor()
+    concepts = load_test_concepts()  # 1000 test cases
+
+    start = time.time()
+    results = processor.process_concepts(concepts)
+    duration = time.time() - start
+
+    assert len(results) == len(concepts)
+    assert duration &lt; 5.0  # Should process 1000 in &lt; 5 seconds
+    assert all(r.confidence &gt;= 0 for r in results)</code></pre>
+
+<h2>10. Maintenance Guidelines</h2>
+
+<h3>Adding New Rules</h3>
+<ol>
+<li>Add pattern to `config/ufo_rules.yaml`</li>
+<li>Update word lists in `config/dutch_patterns.yaml`</li>
+<li>Run validation: `python scripts/validate_rules.py`</li>
+<li>Test coverage: `pytest tests/ufo_classification/`</li>
+</ol>
+
+<h3>Performance Monitoring</h3>
+<pre><code># Log slow classifications
+if classification_time &gt; 10:  # ms
+    logger.warning(f"Slow classification: {concept.id} took {classification_time}ms")
+
+# Track accuracy
+if user_override:
+    metrics.record_override(
+        suggested=result.category,
+        corrected=user_choice,
+        confidence=result.confidence
+    )</code></pre>
+
+<h3>Regular Maintenance</h3>
+<ul>
+<li>Weekly: Review low-confidence classifications</li>
+<li>Monthly: Update word lists based on overrides</li>
+<li>Quarterly: Retrain confidence thresholds</li>
+</ul>
+
+<h2>Conclusie</h2>
+
+<p>Deze geoptimaliseerde aanpak reduceert complexiteit significant door:</p>
+<ol>
+<li>**Vereenvoudigde beslisboom** met max 3 niveaus</li>
+<li>**Efficiënte datastructuren** (Trie, Bloom filter, LRU cache)</li>
+<li>**Pre-compiled patterns** en lookup tables</li>
+<li>**Batch processing** capabilities</li>
+<li>**Declaratieve regel configuratie** voor easy maintenance</li>
+</ol>
+
+<p>De verwachte performance verbetering is 10x voor individuele classificaties en 20x voor batch processing, met behoud van 85% accuracy voor high-confidence predictions.</p>
+  </div>
+</body>
+</html>

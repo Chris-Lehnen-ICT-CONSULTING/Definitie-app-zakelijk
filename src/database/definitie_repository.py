@@ -1522,6 +1522,22 @@ class DefinitieRepository:
 
         return voorbeelden_dict
 
+    def get_voorkeursterm(self, definitie_id: int) -> str | None:
+        """
+        Haal de voorkeursterm op voor een definitie.
+
+        Args:
+            definitie_id: ID van de definitie
+
+        Returns:
+            De voorkeursterm tekst, of None als er geen is
+        """
+        voorbeelden_records = self.get_voorbeelden(definitie_id, voorbeeld_type="synonyms")
+        for record in voorbeelden_records:
+            if record.is_voorkeursterm:
+                return record.voorbeeld_tekst
+        return None
+
     def beoordeel_voorbeeld(
         self,
         voorbeeld_id: int,
