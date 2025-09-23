@@ -191,6 +191,7 @@ class DefinitionWorkflowService:
         user: str,
         notes: str = "",
         ketenpartners: list[str] | None = None,
+        user_role: str | None = None,
     ) -> WorkflowResult:
         """
         Approve een definitie.
@@ -219,7 +220,7 @@ class DefinitionWorkflowService:
             # Valideer transitie via workflow service (naar ESTABLISHED)
             current_status = definition.status
             if not self.workflow_service.can_change_status(
-                current_status, "established"
+                current_status, "established", user_role
             ):
                 return WorkflowResult(
                     success=False,

@@ -74,6 +74,11 @@ class DefinitieRecord:
     juridische_context: str | None = ""  # Juridische context
     # Wettelijke basis (JSON array als TEXT)
     wettelijke_basis: str | None = None
+    # UFO-categorie (OntoUML/UFO metamodel)
+    ufo_categorie: str | None = None
+
+    # Procesmatige velden
+    toelichting_proces: str | None = None  # Procesmatige toelichting/opmerkingen (review/validatie notities)
 
     # Status en versioning - Houdt bij in welke fase de definitie zich bevindt
     status: str = DefinitieStatus.DRAFT.value  # Huidige status van de definitie
@@ -473,14 +478,15 @@ class DefinitieRepository:
                     """
                     INSERT INTO definities (
                         begrip, definitie, categorie, organisatorische_context, juridische_context,
-                        wettelijke_basis, status, version_number, previous_version_id,
+                        wettelijke_basis, ufo_categorie, toelichting_proces,
+                        status, version_number, previous_version_id,
                         validation_score, validation_date, validation_issues,
                         source_type, source_reference, imported_from,
                         created_at, updated_at, created_by, updated_by,
                         approved_by, approved_at, approval_notes,
                         last_exported_at, export_destinations,
                         datum_voorstel, ketenpartners
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     (
                         record.begrip,
@@ -489,6 +495,8 @@ class DefinitieRepository:
                         record.organisatorische_context,
                         record.juridische_context,
                         wb_value,
+                        record.ufo_categorie,
+                        record.toelichting_proces,
                         record.status,
                         record.version_number,
                         record.previous_version_id,
@@ -517,13 +525,14 @@ class DefinitieRepository:
                     """
                     INSERT INTO definities (
                         begrip, definitie, categorie, organisatorische_context, juridische_context,
-                        wettelijke_basis, status, version_number, previous_version_id,
+                        wettelijke_basis, ufo_categorie, toelichting_proces,
+                        status, version_number, previous_version_id,
                         validation_score, validation_date, validation_issues,
                         source_type, source_reference, imported_from,
                         created_at, updated_at, created_by, updated_by,
                         approved_by, approved_at, approval_notes,
                         last_exported_at, export_destinations
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                     (
                         record.begrip,
@@ -532,6 +541,8 @@ class DefinitieRepository:
                         record.organisatorische_context,
                         record.juridische_context,
                         wb_value,
+                        record.ufo_categorie,
+                        record.toelichting_proces,
                         record.status,
                         record.version_number,
                         record.previous_version_id,
@@ -765,6 +776,7 @@ class DefinitieRepository:
                 "bron",
                 "status",
                 "categorie",
+                "ufo_categorie",
                 "ontologie",
                 "validated",
                 "validation_notes",
@@ -777,6 +789,8 @@ class DefinitieRepository:
                 "organisatorische_context",
                 "juridische_context",
                 "wettelijke_basis",
+                # procesmatige velden
+                "toelichting_proces",
                 # version_number niet direct setbaar; wordt atomisch verhoogd
                 # aanvullende legacy/meta velden
                 "ketenpartners",
@@ -1091,6 +1105,8 @@ class DefinitieRepository:
 
     def _row_to_record(self, row: sqlite3.Row) -> DefinitieRecord:
         """Converteer database row naar DefinitieRecord."""
+        # sqlite3.Row supports keys() to introspect available columns
+        _keys = set(row.keys()) if hasattr(row, "keys") else set()
         return DefinitieRecord(
             id=row["id"],
             begrip=row["begrip"],
@@ -1099,6 +1115,8 @@ class DefinitieRepository:
             organisatorische_context=row["organisatorische_context"],
             juridische_context=row["juridische_context"],
             wettelijke_basis=row.get("wettelijke_basis") if isinstance(row, dict) else row["wettelijke_basis"],
+            ufo_categorie=(row["ufo_categorie"] if "ufo_categorie" in _keys else None),
+            toelichting_proces=(row["toelichting_proces"] if "toelichting_proces" in _keys else None),
             status=row["status"],
             version_number=row["version_number"],
             previous_version_id=row["previous_version_id"],
@@ -1216,6 +1234,7 @@ class DefinitieRepository:
         generation_model: str | None = None,
         generation_params: dict[str, Any] | None = None,
         gegenereerd_door: str = "system",
+        voorkeursterm: str | None = None,
     ) -> list[int]:
         """
         Sla voorbeelden op voor een definitie.
@@ -1226,6 +1245,7 @@ class DefinitieRepository:
             generation_model: Model gebruikt voor generatie
             generation_params: Parameters gebruikt voor generatie
             gegenereerd_door: Wie heeft de voorbeelden gegenereerd
+            voorkeursterm: Optionele voorkeursterm (wordt opgeslagen als synoniem met is_voorkeursterm=TRUE)
 
         Returns:
             List van IDs van de opgeslagen voorbeelden
@@ -1310,6 +1330,11 @@ class DefinitieRepository:
                         if not voorbeeld_tekst.strip():  # Skip lege voorbeelden
                             continue
 
+                        # Check of dit de voorkeursterm is (alleen voor synoniemen)
+                        is_voorkeursterm_value = False
+                        if norm_type == "synonyms" and voorkeursterm and voorbeeld_tekst.strip() == voorkeursterm.strip():
+                            is_voorkeursterm_value = True
+
                         # Maak VoorbeeldenRecord
                         record = VoorbeeldenRecord(
                             definitie_id=definitie_id,
@@ -1345,7 +1370,8 @@ class DefinitieRepository:
                                 UPDATE definitie_voorbeelden
                                 SET voorbeeld_tekst = ?, actief = TRUE,
                                     gegenereerd_door = ?, generation_model = ?,
-                                    generation_parameters = ?, bijgewerkt_op = CURRENT_TIMESTAMP
+                                    generation_parameters = ?, is_voorkeursterm = ?,
+                                    bijgewerkt_op = CURRENT_TIMESTAMP
                                 WHERE id = ?
                             """,
                                 (
@@ -1353,6 +1379,7 @@ class DefinitieRepository:
                                     record.gegenereerd_door,
                                     record.generation_model,
                                     record.generation_parameters,
+                                    is_voorkeursterm_value,
                                     existing[0],
                                 ),
                             )
@@ -1364,8 +1391,8 @@ class DefinitieRepository:
                                 INSERT INTO definitie_voorbeelden (
                                     definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
                                     gegenereerd_door, generation_model, generation_parameters, actief,
-                                    aangemaakt_op, bijgewerkt_op
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                                    is_voorkeursterm, aangemaakt_op, bijgewerkt_op
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                             """,
                                 (
                                     record.definitie_id,
@@ -1376,6 +1403,7 @@ class DefinitieRepository:
                                     record.generation_model,
                                     record.generation_parameters,
                                     record.actief,
+                                    is_voorkeursterm_value,
                                 ),
                             )
                             saved_ids.append(cursor.lastrowid)

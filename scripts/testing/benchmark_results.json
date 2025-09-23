@@ -1,0 +1,88 @@
+{
+  "single_classification": {
+    "iterations": 1000,
+    "mean_ms": 0.0067354957573115826,
+    "median_ms": 0.005541020072996616,
+    "stdev_ms": 0.00606326985708289,
+    "min_ms": 0.0036249402910470963,
+    "max_ms": 0.08591695223003626,
+    "p95_ms": 0.008537824032828212,
+    "p99_ms": 0.03764719585888088
+  },
+  "batch_classification": {
+    "10": {
+      "mean_ms": 0.053270801436156034,
+      "median_ms": 0.051332986913621426,
+      "per_item_ms": 0.0053270801436156034,
+      "throughput_per_sec": 187720.0967585366
+    },
+    "50": {
+      "mean_ms": 0.27439980767667294,
+      "median_ms": 0.2648750087246299,
+      "per_item_ms": 0.005487996153533459,
+      "throughput_per_sec": 182215.87115292487
+    },
+    "100": {
+      "mean_ms": 0.5650542094372213,
+      "median_ms": 0.5538960103876889,
+      "per_item_ms": 0.005650542094372213,
+      "throughput_per_sec": 176974.17049524732
+    },
+    "500": {
+      "mean_ms": 2.7818416943773627,
+      "median_ms": 2.7754170005209744,
+      "per_item_ms": 0.005563683388754725,
+      "throughput_per_sec": 179737.04291318814
+    }
+  },
+  "accuracy": {
+    "overall_accuracy": 0.7777777777777778,
+    "high_confidence_accuracy": 0.4444444444444444,
+    "mean_confidence": 0.7461944444444444,
+    "median_confidence": 0.823375,
+    "category_accuracy": {
+      "Kind": {
+        "accuracy": 0.8,
+        "total_samples": 5
+      },
+      "Event": {
+        "accuracy": 0.6,
+        "total_samples": 5
+      },
+      "Role": {
+        "accuracy": 1.0,
+        "total_samples": 5
+      },
+      "Phase": {
+        "accuracy": 0.75,
+        "total_samples": 4
+      },
+      "Relator": {
+        "accuracy": 0.8,
+        "total_samples": 5
+      },
+      "Mode": {
+        "accuracy": 0.75,
+        "total_samples": 4
+      },
+      "Quantity": {
+        "accuracy": 0.5,
+        "total_samples": 4
+      },
+      "Quality": {
+        "accuracy": 1.0,
+        "total_samples": 4
+      }
+    }
+  },
+  "memory_usage": {
+    "current_mb": 0.04255485534667969,
+    "peak_mb": 0.043468475341796875
+  },
+  "caching": {
+    "no_cache_mean_ms": 0.024589920649304986,
+    "cached_mean_ms": 0.005411312449723482,
+    "speedup_factor": 4.544169437224333,
+    "cache_info": "CacheInfo(hits=101, misses=1, maxsize=1024, currsize=1)"
+  }
+}

@@ -512,6 +512,8 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             begrip=definition.begrip,
             definitie=definition.definitie,
             categorie=definition.categorie or "proces",
+            ufo_categorie=getattr(definition, "ufo_categorie", None),
+            toelichting_proces=getattr(definition, "toelichting_proces", None),
             organisatorische_context=_json.dumps(
                 definition.organisatorische_context or [], ensure_ascii=False
             ),
@@ -586,11 +588,13 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             begrip=record.begrip,
             definitie=definitie_text,
             toelichting=toelichting,
+            toelichting_proces=getattr(record, 'toelichting_proces', None),
             bron=record.source_reference,
             organisatorische_context=_parse_list(record.organisatorische_context),
             juridische_context=_parse_list(record.juridische_context),
             wettelijke_basis=record.get_wettelijke_basis_list(),
             categorie=record.categorie,
+            ufo_categorie=getattr(record, "ufo_categorie", None),
             created_at=record.created_at,
             updated_at=record.updated_at,
             metadata={
@@ -723,6 +727,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
             updates["definitie"] = definition.definitie
         if definition.categorie is not None:
             updates["categorie"] = definition.categorie
+        # UFO-categorie (inclusief None om te kunnen leegmaken)
+        updates["ufo_categorie"] = getattr(definition, "ufo_categorie", None)
+        # Procesmatige velden
+        updates["toelichting_proces"] = getattr(definition, "toelichting_proces", None)
         # Contextvelden (JSON strings)
         updates["organisatorische_context"] = _json.dumps(
             definition.organisatorische_context or [], ensure_ascii=False

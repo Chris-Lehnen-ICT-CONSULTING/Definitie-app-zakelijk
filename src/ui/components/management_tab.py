@@ -657,15 +657,22 @@ class ManagementTab:
                     # Korte uitleg (inline help)
                     st.markdown(
                         """
-                        - Upload een CSV met canonieke kolommen:
-                          `begrip, definitie, categorie, organisatorische_context, juridische_context, wettelijke_basis`
-                        - Contextkolommen mogen komma‑gescheiden lijsten bevatten (bijv. `OM, DJI`)
-                        - Kies duplicate‑strategie:
-                          - `skip` (standaard): sla duplicaten over
-                          - `overwrite`: update het eerste gevonden duplicaat
-                        - Maximaal 100 rijen per run; elke rij wordt gevalideerd vóór import
+                        **Ondersteunde kolommen:**
+                        - **Verplicht**: `begrip, definitie, categorie, organisatorische_context, juridische_context, wettelijke_basis`
+                        - **Optioneel**: `UFO_Categorie, Voorkeursterm, Synoniemen, Toelichting, Toelichting (optioneel)`
 
-                        Voorbeeld CSV:
+                        **Kolom mapping:**
+                        - `Voorkeursterm` → Primaire synoniem in voorbeelden tabel
+                        - `Synoniemen` → Alternatieve termen (komma-gescheiden)
+                        - `Toelichting` → AI-toelichting op definitie
+                        - `Toelichting (optioneel)` → Procesmatige notities
+
+                        **Opties:**
+                        - Contextkolommen: komma-gescheiden lijsten (bijv. `OM, DJI`)
+                        - Duplicate-strategie: `skip` of `overwrite`
+                        - Max 100 rijen per import
+
+                        **Voorbeeld CSV:**
                         ```csv
                         begrip,definitie,categorie,organisatorische_context,juridische_context,wettelijke_basis
                         Griffier,"De griffier is …",proces,OM,"Strafrecht","Sv"

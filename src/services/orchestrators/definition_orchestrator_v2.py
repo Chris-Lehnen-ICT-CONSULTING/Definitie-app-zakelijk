@@ -876,6 +876,7 @@ class DefinitionOrchestratorV2(DefinitionOrchestratorInterface):
             wettelijke_basis=request.wettelijke_basis or [],
             # EPIC-010: domein field verwijderd
             ontologische_categorie=request.ontologische_categorie,  # V2: Properly set
+            ufo_categorie=getattr(request, "ufo_categorie", None),
             valid=safe_dict_get(validation_result, "is_acceptable", False),
             validation_violations=ensure_list(safe_dict_get(validation_result, "violations", [])),
             metadata=generation_metadata,

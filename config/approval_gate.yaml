@@ -15,8 +15,8 @@ soft_requirements:
   allow_high_issues_with_override: true   # enkel 'high' issues -> override toegestaan
   missing_wettelijke_basis_soft: true     # ontbrekende wettelijke_basis => override toegestaan
   # Nieuw: sta override toe zelfs bij 'blocked' (harde) gevallen met verplichte reden
-  # Gebruik met beleid; standaard false in code, kan hier expliciet aangezet worden.
-  allow_hard_override: false
+  # Gebruik met beleid; hier expliciet AANgezet.
+  allow_hard_override: true
 
 # Cache & reload behavior
 cache:

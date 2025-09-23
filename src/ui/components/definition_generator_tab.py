@@ -302,6 +302,12 @@ class DefinitionGeneratorTab:
                 determined_category, generation_result
             )
 
+        # UFO-categorie selector (onder ontologische categorie)
+        try:
+            self._render_ufo_category_selector(generation_result)
+        except Exception:
+            logger.debug("UFO-categorie selector render skipped due to error", exc_info=True)
+
         # Generated definition
         st.markdown("#### 📝 Gegenereerde Definitie")
 
@@ -644,6 +650,66 @@ class DefinitionGeneratorTab:
         # Toon categorie selector als gevraagd
         if SessionStateManager.get_value("show_category_selector", False):
             self._render_category_selector(determined_category, generation_result)
+
+    def _render_ufo_category_selector(self, generation_result: dict[str, Any]) -> None:
+        """Render de UFO-categorie selectie en opslagknop.
+
+        Toont een selectbox met UFO-categorieën en biedt een knop om de keuze
+        op te slaan bij het opgeslagen record (indien beschikbaar).
+        """
+        st.markdown("#### 🧭 UFO‑categorie")
+        ufo_opties = [
+            "",
+            "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
+            "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+        ]
+
+        saved_record = safe_dict_get(generation_result, "saved_record")
+        saved_definition_id = safe_dict_get(generation_result, "saved_definition_id")
+        target_id = None
+        if isinstance(saved_definition_id, int) and saved_definition_id > 0:
+            target_id = saved_definition_id
+        elif saved_record and getattr(saved_record, 'id', None):
+            target_id = int(saved_record.id)
+
+        current_ufo = None
+        try:
+            if target_id:
+                repo = get_definitie_repository()
+                rec = repo.get_definitie(target_id)
+                current_ufo = getattr(rec, "ufo_categorie", None) if rec else None
+        except Exception:
+            current_ufo = None
+
+        try:
+            default_index = ufo_opties.index(current_ufo or "") if (current_ufo or "") in ufo_opties else 0
+        except Exception:
+            default_index = 0
+
+        def _persist_ufo_selection(key: str, def_id: int | None):
+            try:
+                if not def_id:
+                    return
+                value = st.session_state.get(key)
+                if value == "":
+                    value = None
+                repo = get_definitie_repository()
+                user = st.session_state.get('user', 'system')
+                _ = repo.update_definitie(int(def_id), {"ufo_categorie": value}, updated_by=user)
+            except Exception:
+                # Zwijgende fout om UI niet te verstoren; logs via Streamlit niet nodig
+                pass
+
+        key_sel = f"ufo_select_{target_id or 'new'}"
+        st.selectbox(
+            "Selecteer UFO‑categorie",
+            options=ufo_opties,
+            index=default_index,
+            key=key_sel,
+            help="Kies de UFO‑categorie volgens het OntoUML/UFO metamodel",
+            on_change=_persist_ufo_selection,
+            args=(key_sel, target_id),
+        )
 
     def _maybe_persist_examples(self, definitie_id: int, agent_result: dict[str, Any]) -> None:
         """Sla gegenereerde voorbeelden automatisch op in de DB.

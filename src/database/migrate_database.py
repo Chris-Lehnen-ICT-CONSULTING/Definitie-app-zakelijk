@@ -59,6 +59,10 @@ def get_missing_columns(conn: sqlite3.Connection) -> list[tuple[str, str]]:
     if not check_column_exists(conn, "definities", "wettelijke_basis"):
         missing.append(("wettelijke_basis", "TEXT"))
 
+    # Check UFO-categorie (OntoUML/UFO metamodel)
+    if not check_column_exists(conn, "definities", "ufo_categorie"):
+        missing.append(("ufo_categorie", "TEXT"))
+
     return missing
 
 
@@ -143,11 +147,12 @@ def migrate_database(db_path: str = "data/definities.db"):
                 logger.info(f"Ontbrekende kolommen gevonden: {missing_columns}")
 
             # Voeg ontbrekende kolommen toe - Use whitelist for security
-            allowed_columns = {
-                "datum_voorstel": "TIMESTAMP",
-                "ketenpartners": "TEXT",
-                "wettelijke_basis": "TEXT",
-            }
+    allowed_columns = {
+        "datum_voorstel": "TIMESTAMP",
+        "ketenpartners": "TEXT",
+        "wettelijke_basis": "TEXT",
+        "ufo_categorie": "TEXT",
+    }
 
             for column_name, column_type in missing_columns:
                 # Security check: only allow predefined columns
