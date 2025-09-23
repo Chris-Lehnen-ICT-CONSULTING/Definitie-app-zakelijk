@@ -847,6 +847,17 @@ class DefinitionEditTab:
                 'status': SessionStateManager.get_value(k('status')),
             }
 
+            # Strip eventuele voorloop "Ontologische categorie: <x>" uit definitietekst
+            try:
+                import re as _re
+                _def = updates.get('definitie') or ''
+                m = _re.match(r"^\s*Ontologische\s*categorie\s*:\s*(type|proces|resultaat|exemplaar)\s*[-–—:]?\s*",
+                               str(_def), flags=_re.IGNORECASE)
+                if m:
+                    updates['definitie'] = str(_def)[m.end():].lstrip()
+            except Exception:
+                pass
+
             # Add version number for optimistic locking
             editing_definition = SessionStateManager.get_value('editing_definition')
             if editing_definition and editing_definition.metadata:
@@ -893,9 +904,20 @@ class DefinitionEditTab:
             def k(name: str) -> str:
                 return f"edit_{def_id}_{name}"
 
+            # Strip eventuele voorloop prefix uit definitie vóór validatie
+            import re as _re
+            _def_for_validation = SessionStateManager.get_value(k('definitie'), '')
+            try:
+                m = _re.match(r"^\s*Ontologische\s*categorie\s*:\s*(type|proces|resultaat|exemplaar)\s*[-–—:]?\s*",
+                               str(_def_for_validation), flags=_re.IGNORECASE)
+                if m:
+                    _def_for_validation = str(_def_for_validation)[m.end():].lstrip()
+            except Exception:
+                pass
+
             definition = Definition(
                 begrip=SessionStateManager.get_value(k('begrip'), ''),
-                definitie=SessionStateManager.get_value(k('definitie'), ''),
+                definitie=_def_for_validation,
                 organisatorische_context=SessionStateManager.get_value(k('organisatorische_context')) or [],
                 juridische_context=SessionStateManager.get_value(k('juridische_context')) or [],
                 wettelijke_basis=SessionStateManager.get_value(k('wettelijke_basis')) or [],
