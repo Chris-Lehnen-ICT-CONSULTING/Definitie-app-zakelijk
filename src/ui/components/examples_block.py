@@ -113,7 +113,39 @@ def render_examples_block(
     _render_list("📄 Voorbeeldzinnen", "voorbeeldzinnen", "Geen voorbeeldzinnen")
     _render_list("💼 Praktijkvoorbeelden", "praktijkvoorbeelden", "Geen praktijkvoorbeelden")
     _render_list("❌ Tegenvoorbeelden", "tegenvoorbeelden", "Geen tegenvoorbeelden")
-    _render_list("🔄 Synoniemen", "synoniemen", "Geen synoniemen")
+
+    # Special handling for synoniemen with voorkeursterm
+    st.markdown("#### 🔄 Synoniemen")
+    synoniemen = []
+    voorkeursterm_display = None
+
+    try:
+        val = current_examples.get("synoniemen")
+        if isinstance(val, list):
+            synoniemen = val
+    except Exception:
+        synoniemen = []
+
+    # Get voorkeursterm from DB if available
+    if repository is not None and definition.id:
+        try:
+            voorbeelden_records = repository.get_voorbeelden(definition.id, voorbeeld_type="synonyms")
+            for record in voorbeelden_records:
+                if record.is_voorkeursterm:
+                    voorkeursterm_display = record.voorbeeld_tekst
+                    break
+        except Exception:
+            pass
+
+    if synoniemen:
+        for syn in synoniemen:
+            if syn == voorkeursterm_display:
+                st.markdown(f"- {syn} ⭐ *(voorkeursterm)*")
+            else:
+                st.markdown(f"- {syn}")
+    else:
+        st.info("Geen synoniemen")
+
     _render_list("↔️ Antoniemen", "antoniemen", "Geen antoniemen")
 
     st.markdown("#### 📝 Toelichting")
@@ -176,6 +208,44 @@ def render_examples_block(
                 value=", ".join(_get_list("synoniemen")),
                 key=k("syn_edit"),
             )
+
+            # Voorkeursterm selector voor Expert Review en Edit tabs
+            synoniemen_list = [s.strip() for s in (syn or "").split(",") if s.strip()]
+            current_voorkeursterm = None
+
+            # Get current voorkeursterm from DB
+            if repository is not None and definition.id:
+                try:
+                    voorbeelden_records = repository.get_voorbeelden(definition.id, voorbeeld_type="synonyms")
+                    for record in voorbeelden_records:
+                        if record.is_voorkeursterm:
+                            current_voorkeursterm = record.voorbeeld_tekst
+                            break
+                except Exception:
+                    pass
+
+            # Show selector if there are synoniemen
+            selected_voorkeursterm = None
+            if synoniemen_list:
+                voorkeursterm_options = ["Geen voorkeursterm"] + synoniemen_list
+
+                # Find current selection
+                default_index = 0
+                if current_voorkeursterm and current_voorkeursterm in synoniemen_list:
+                    default_index = synoniemen_list.index(current_voorkeursterm) + 1
+
+                selected_voorkeursterm = st.selectbox(
+                    "⭐ Voorkeursterm selecteren",
+                    options=voorkeursterm_options,
+                    index=default_index,
+                    key=k("voorkeursterm_select"),
+                    help="Selecteer welk synoniem de voorkeursterm is"
+                )
+
+                # Convert "Geen voorkeursterm" to None
+                if selected_voorkeursterm == "Geen voorkeursterm":
+                    selected_voorkeursterm = None
+
             ant = st.text_input(
                 "↔️ Antoniemen (komma-gescheiden)",
                 value=", ".join(_get_list("antoniemen")),
@@ -208,7 +278,7 @@ def render_examples_block(
                         if tol and tol.strip():
                             new_examples["toelichting"] = [tol.strip()]
 
-                        # Persist in DB
+                        # Persist in DB with voorkeursterm
                         reviewer = SessionStateManager.get_value("reviewer_name") or "expert"
                         repository.save_voorbeelden(
                             definitie_id=int(definition.id),
@@ -216,6 +286,7 @@ def render_examples_block(
                             gegenereerd_door=str(reviewer or "expert"),
                             generation_model="manual",
                             generation_params=None,
+                            voorkeursterm=selected_voorkeursterm,
                         )
 
                         # Update session state (flatten explanation back to str)

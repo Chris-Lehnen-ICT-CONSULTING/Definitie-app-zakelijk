@@ -779,13 +779,15 @@ class DefinitionGeneratorTab:
                 SessionStateManager.set_value(flag_key, True)
                 return
 
-            # Sla op
+            # Sla op met voorkeursterm uit session state
+            voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
             repo.save_voorbeelden(
                 definitie_id=definitie_id,
                 voorbeelden_dict=to_save,
                 generation_model="ai",
                 generation_params=meta if isinstance(meta, dict) else None,
                 gegenereerd_door=ensure_string(meta.get("model") or "ai"),
+                voorkeursterm=voorkeursterm if voorkeursterm else None,
             )
             SessionStateManager.set_value(flag_key, True)
             logger.info("Voorbeelden automatisch opgeslagen voor definitie %s", definitie_id)
@@ -827,12 +829,14 @@ class DefinitionGeneratorTab:
                 return False
 
             repo = get_definitie_repository()
+            voorkeursterm = SessionStateManager.get_value("voorkeursterm", "")
             repo.save_voorbeelden(
                 definitie_id=definitie_id,
                 voorbeelden_dict=to_save,
                 generation_model="ai",
                 generation_params=ensure_dict(agent_result.get("metadata", {})) if isinstance(agent_result, dict) else None,
                 gegenereerd_door=ensure_string((agent_result.get("metadata", {}) or {}).get("model") if isinstance(agent_result, dict) else "ai"),
+                voorkeursterm=voorkeursterm if voorkeursterm else None,
             )
             return True
         except Exception as e:
