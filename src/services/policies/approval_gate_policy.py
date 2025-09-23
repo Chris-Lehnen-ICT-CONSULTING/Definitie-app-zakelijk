@@ -39,6 +39,8 @@ DEFAULT_POLICY = {
     "soft_requirements": {
         "allow_high_issues_with_override": True,
         "missing_wettelijke_basis_soft": True,
+        # Nieuw: sta override toe zelfs bij hard blocks (alleen met gemotiveerde reden)
+        "allow_hard_override": False,
     },
     "cache": {
         "ttl_seconds": 60,
