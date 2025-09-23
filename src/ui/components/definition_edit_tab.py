@@ -451,14 +451,41 @@ class DefinitionEditTab:
         if not definition:
             return
 
-        # Gebruik het gedeelde voorbeelden-blok (zelfde logica als Expert/Bewerk)
+        # Toon voorbeelden sectie met mooie layout zoals in Generator tab
+        st.markdown("### 📚 Voorbeelden & Synoniemen")
+
+        # Gebruik het gedeelde voorbeelden-blok
         from ui.components.examples_block import render_examples_block
-        render_examples_block(
-            definition,
-            state_prefix=f"edit_{def_id}",
-            allow_generate=True,
-            allow_edit=False,
-        )
+        from database.definitie_repository import DefinitieRepository
+
+        # Get repository voor edit functionaliteit
+        repo = DefinitieRepository()
+
+        # Render voorbeelden met edit mogelijkheid
+        with st.expander("📋 Voorbeelden Details", expanded=True):
+            render_examples_block(
+                definition,
+                state_prefix=f"edit_{def_id}",
+                allow_generate=True,
+                allow_edit=True,  # Enable editing including voorkeursterm selector
+                repository=repo,  # Pass repository for saving
+            )
+
+        # Extra prominente voorkeursterm weergave als er synoniemen zijn
+        try:
+            if repo and definition.id:
+                voorbeelden_dict = repo.get_voorbeelden_by_type(definition.id)
+                synoniemen = voorbeelden_dict.get('synonyms', [])
+
+                if synoniemen:
+                    st.markdown("### 🔁 Voorkeursterm Status")
+                    voorkeursterm = repo.get_voorkeursterm(definition.id)
+                    if voorkeursterm:
+                        st.success(f"✅ Huidige voorkeursterm: **{voorkeursterm}**")
+                    else:
+                        st.info("ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen.")
+        except Exception as e:
+            logger.debug(f"Could not show voorkeursterm status: {e}")
 
     def _render_metadata_panel(self):
         """Render metadata panel."""
