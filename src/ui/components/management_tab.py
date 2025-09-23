@@ -796,20 +796,33 @@ class ManagementTab:
                                 }
 
                                 try:
-                                    preview = run_async(import_service.validate_single(payload))
-                                    ok = bool(preview.ok)
-                                    ok_count += int(ok)
+                                    # Create definition for duplicate check (skip validation for performance)
+                                    from services.interfaces import Definition
+
+                                    definition = Definition(
+                                        begrip=str(payload.get("begrip", "")).strip(),
+                                        definitie=str(payload.get("definitie", "")).strip(),
+                                        categorie=payload.get("categorie") or "proces",
+                                        organisatorische_context=payload.get("organisatorische_context", []),
+                                        juridische_context=payload.get("juridische_context", []),
+                                        wettelijke_basis=payload.get("wettelijke_basis", []),
+                                    )
+
+                                    # Only check for duplicates, skip validation
+                                    duplicates = repo.find_duplicates(definition) or []
+                                    ok = True  # Assume valid for import
+                                    ok_count += 1
 
                                     # Decide action
-                                    if preview.duplicates and dup_strategy == "skip":
+                                    if duplicates and dup_strategy == "skip":
                                         skip_count += 1
                                         results.append(
                                             {
                                                 "row": int(idx) + 1,
                                                 "begrip": term,
                                                 "action": "skipped_duplicate",
-                                                "score": float(preview.validation.get("overall_score", 0) if isinstance(preview.validation, dict) else 0),
-                                                "violations": int(len(preview.validation.get("violations", []))) if isinstance(preview.validation, dict) else 0,
+                                                "score": 0.0,  # No validation during import
+                                                "violations": 0,  # No validation during import
                                                 "error": None,
                                             }
                                         )
@@ -831,11 +844,11 @@ class ManagementTab:
                                                 "row": int(idx) + 1,
                                                 "begrip": term,
                                                 "action": (
-                                                    "updated" if preview.duplicates and dup_strategy == "overwrite" else "imported"
+                                                    "updated" if duplicates and dup_strategy == "overwrite" else "imported"
                                                 ),
                                                 "definition_id": result.definition_id,
-                                                "score": float(result.validation.get("overall_score", 0) if isinstance(result.validation, dict) else 0),
-                                                "violations": int(len(result.validation.get("violations", []))) if isinstance(result.validation, dict) else 0,
+                                                "score": 0.0,  # No validation during import
+                                                "violations": 0,  # No validation during import
                                                 "error": None,
                                             }
                                         )
@@ -846,8 +859,8 @@ class ManagementTab:
                                                 "row": int(idx) + 1,
                                                 "begrip": term,
                                                 "action": "failed",
-                                                "score": float(preview.validation.get("overall_score", 0) if isinstance(preview.validation, dict) else 0),
-                                                "violations": int(len(preview.validation.get("violations", []))) if isinstance(preview.validation, dict) else 0,
+                                                "score": 0.0,  # No validation during import
+                                                "violations": 0,  # No validation during import
                                                 "error": result.error or "onbekende fout",
                                             }
                                         )
