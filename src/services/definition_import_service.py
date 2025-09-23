@@ -14,6 +14,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Any, Dict
+import pandas as pd
 
 from services.interfaces import Definition
 from services.validation.interfaces import ValidationResult
@@ -198,7 +199,12 @@ class DefinitionImportService:
             return []
 
         # Helper om tekst te normaliseren (verwijder triple quotes en taal-tags)
-        def _clean_text(text: str) -> str:
+        def _clean_text(text: str | float | None) -> str:
+            # Handle NaN, None, and other non-string values
+            if text is None or (isinstance(text, float) and pd.isna(text)):
+                return ""
+            # Convert to string if not already
+            text = str(text).strip() if text else ""
             if not text:
                 return ""
             # Verwijder @nl tags
