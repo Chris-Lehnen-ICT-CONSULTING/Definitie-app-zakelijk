@@ -753,6 +753,28 @@ class TabbedInterface:
             )
             SessionStateManager.set_value("ketenpartners", ketenpartners)
 
+        # UFO‑categorie (optioneel) — wordt automatisch meegestuurd bij generatie
+        # en opgeslagen met de definitie
+        st.markdown("#### 🧭 UFO‑categorie (optioneel)")
+        ufo_opties = [
+            "",  # leeg = geen voorkeur; service bepaalt of laat leeg
+            "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
+            "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+        ]
+        ufo_default = SessionStateManager.get_value("ufo_categorie", "")
+        try:
+            default_index = ufo_opties.index(ufo_default) if ufo_default in ufo_opties else 0
+        except Exception:
+            default_index = 0
+        ufo_selected = st.selectbox(
+            "UFO‑categorie",
+            options=ufo_opties,
+            index=default_index,
+            key="meta_ufo_categorie",
+            help="Kies desgewenst een UFO‑categorie; deze wordt automatisch opgeslagen bij generatie",
+        )
+        SessionStateManager.set_value("ufo_categorie", ufo_selected)
+
     def _render_quick_generate_button(self, begrip: str, context_data: dict[str, Any]):
         """Render snelle genereer definitie knop."""
         col1, col2, col3 = st.columns([2, 1, 1])
@@ -948,6 +970,7 @@ class TabbedInterface:
                         },
                         organisatie=primary_org,
                         categorie=auto_categorie,
+                        ufo_categorie=(SessionStateManager.get_value("ufo_categorie") or None),
                         # Geef opties door zodat validator duplicate kan escaleren
                         options={
                             k: v

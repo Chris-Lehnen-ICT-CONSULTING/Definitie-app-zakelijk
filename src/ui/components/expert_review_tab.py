@@ -234,6 +234,40 @@ class ExpertReviewTab:
                 st.write(f"**Wettelijke basis:** {wb_val or '—'}")
                 st.write(f"**Categorie:** {definitie.categorie}")
 
+                # UFO‑categorie select (onder ontologische categorie)
+                st.markdown("**UFO‑categorie**")
+                ufo_opties = [
+                    "",
+                    "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
+                    "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+                ]
+                try:
+                    current_ufo = getattr(definitie, 'ufo_categorie', None) or ""
+                    ufo_default_index = (
+                        ufo_opties.index(current_ufo) if current_ufo in ufo_opties else 0
+                    )
+                except Exception:
+                    ufo_default_index = 0
+                ufo_selected = st.selectbox(
+                    "Selecteer UFO‑categorie",
+                    options=ufo_opties,
+                    index=ufo_default_index,
+                    key=f"review_ufo_{definitie.id}",
+                    help="Kies de UFO‑categorie (OntoUML/UFO)",
+                )
+
+                # Procesmatige toelichting veld (review/validatie notities)
+                st.markdown("**Toelichting (optioneel)**")
+                toelichting_proces_val = getattr(definitie, 'toelichting_proces', '') or ''
+                toelichting_proces = st.text_area(
+                    "Procesmatige opmerkingen/notities",
+                    value=toelichting_proces_val,
+                    height=100,
+                    key=f"review_toelichting_proces_{definitie.id}",
+                    help="Opmerkingen over het review/validatie proces (niet over de definitie zelf)",
+                    disabled=False  # Altijd bewerkbaar in expert review
+                )
+
                 # Voorbeelden blok (gedeeld met Edit-tab)
                 from ui.components.examples_block import render_examples_block
                 render_examples_block(
@@ -382,11 +416,31 @@ class ExpertReviewTab:
                     help=approve_help,
                 ):
                     user = st.session_state.get('user', 'expert')
+                    # Neem gewijzigde UFO‑categorie automatisch mee bij vaststellen
+                    try:
+                        selected_ufo = st.session_state.get(f"review_ufo_{definitie.id}")
+                        current_ufo = getattr(definitie, 'ufo_categorie', None)
+                        # Leeg ("") betekent verwijderen (NULL)
+                        if selected_ufo == "" and current_ufo is not None:
+                            _ = self.repository.update_definitie(
+                                definitie.id,
+                                {"ufo_categorie": None},
+                                updated_by=user,
+                            )
+                        elif selected_ufo not in (None, "") and selected_ufo != current_ufo:
+                            _ = self.repository.update_definitie(
+                                definitie.id,
+                                {"ufo_categorie": selected_ufo},
+                                updated_by=user,
+                            )
+                    except Exception:
+                        pass
                     res = workflow.approve(
                         definition_id=definitie.id,
                         user=user,
                         notes=notes or "",
                         ketenpartners=geselecteerd,
+                        user_role="reviewer",
                     )
                     if res.success:
                         st.success("✅ Definitie vastgesteld")
@@ -633,15 +687,30 @@ class ExpertReviewTab:
             return
 
         try:
+            # Check voor aangepaste velden
+            updates = {}
+
             # Check voor aangepaste definitie
             edited_def = SessionStateManager.get_value(
                 f"edited_definition_{definitie.id}"
             )
-
             if edited_def and edited_def != definitie.definitie:
-                # Update definitie met wijzigingen
+                updates["definitie"] = edited_def
+
+            # Check voor aangepaste UFO categorie
+            ufo_selected = st.session_state.get(f"review_ufo_{definitie.id}")
+            if ufo_selected and ufo_selected != getattr(definitie, 'ufo_categorie', ''):
+                updates["ufo_categorie"] = ufo_selected if ufo_selected else None
+
+            # Check voor aangepaste procesmatige toelichting
+            toelichting_proces = st.session_state.get(f"review_toelichting_proces_{definitie.id}")
+            if toelichting_proces != getattr(definitie, 'toelichting_proces', ''):
+                updates["toelichting_proces"] = toelichting_proces if toelichting_proces else None
+
+            # Update alles in één keer indien er wijzigingen zijn
+            if updates:
                 self.repository.update_definitie(
-                    definitie.id, {"definitie": edited_def}, reviewer
+                    definitie.id, updates, reviewer
                 )
 
             # Process decision

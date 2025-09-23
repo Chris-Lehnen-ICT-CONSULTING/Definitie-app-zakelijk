@@ -30,6 +30,15 @@ CREATE TABLE definities (
     juridische_context TEXT NOT NULL DEFAULT '[]',       -- JSON array
     wettelijke_basis TEXT NOT NULL DEFAULT '[]',         -- JSON array
 
+    -- UFO-categorie (OntoUML/UFO metamodel) — optioneel selectievak in UI
+    ufo_categorie TEXT CHECK (ufo_categorie IN (
+        'Kind','Event','Role','Phase','Relator','Mode','Quantity','Quality',
+        'Subkind','Category','Mixin','RoleMixin','PhaseMixin','Abstract','Relatie','Event Composition'
+    )),
+
+    -- Procesmatige velden
+    toelichting_proces TEXT, -- Procesmatige toelichting/opmerkingen (voor review/validatie notities)
+
     -- Status management
     status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'established', 'archived')),
 
@@ -258,6 +267,9 @@ CREATE TABLE definitie_voorbeelden (
     voorbeeld_type VARCHAR(50) NOT NULL CHECK (voorbeeld_type IN ('sentence', 'practical', 'counter', 'synonyms', 'antonyms', 'explanation')),
     voorbeeld_tekst TEXT NOT NULL,
     voorbeeld_volgorde INTEGER DEFAULT 1,
+
+    -- Voorkeursterm indicator (voor type='synonyms')
+    is_voorkeursterm BOOLEAN NOT NULL DEFAULT FALSE,
 
     -- Generation metadata
     gegenereerd_door VARCHAR(50) DEFAULT 'system',
