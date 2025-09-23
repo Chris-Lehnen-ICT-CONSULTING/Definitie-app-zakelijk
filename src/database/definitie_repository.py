@@ -227,6 +227,7 @@ class VoorbeeldenRecord:
     voorbeeld_type: str = ""  # sentence, practical, counter, etc.
     voorbeeld_tekst: str = ""
     voorbeeld_volgorde: int = 1
+    is_voorkeursterm: bool = False  # Indicates if this synonym is the preferred term
 
     # Generation metadata
     gegenereerd_door: str = "system"
@@ -474,6 +475,7 @@ class DefinitieRepository:
             wb_value = record.wettelijke_basis if record.wettelijke_basis is not None else "[]"
 
             if self._has_legacy_columns():
+                # Voor databases met legacy kolommen - inclusief toelichting_proces
                 cursor = conn.execute(
                     """
                     INSERT INTO definities (
@@ -496,7 +498,7 @@ class DefinitieRepository:
                         record.juridische_context,
                         wb_value,
                         record.ufo_categorie,
-                        record.toelichting_proces,
+                        record.toelichting_proces,  # Nu correct opgeslagen
                         record.status,
                         record.version_number,
                         record.previous_version_id,
@@ -1443,7 +1445,7 @@ class DefinitieRepository:
 
             query = """
                 SELECT id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                       gegenereerd_door, generation_model, generation_parameters, actief,
+                       is_voorkeursterm, gegenereerd_door, generation_model, generation_parameters, actief,
                        beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door,
                        beoordeeld_op, aangemaakt_op, bijgewerkt_op
                 FROM definitie_voorbeelden
@@ -1471,6 +1473,7 @@ class DefinitieRepository:
                     voorbeeld_type=row["voorbeeld_type"],
                     voorbeeld_tekst=row["voorbeeld_tekst"],
                     voorbeeld_volgorde=row["voorbeeld_volgorde"],
+                    is_voorkeursterm=bool(row["is_voorkeursterm"]),
                     gegenereerd_door=row["gegenereerd_door"],
                     generation_model=row["generation_model"],
                     generation_parameters=row["generation_parameters"],

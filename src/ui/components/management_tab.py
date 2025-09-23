@@ -540,10 +540,22 @@ class ManagementTab:
                                     try:
                                         import pandas as _pd
                                         import math as _math
+                                        import csv as _csv
+
+                                        # Detect delimiter
+                                        csv_bytes = uploaded_single.getvalue()
+                                        try:
+                                            sample = csv_bytes[:1024].decode('utf-8-sig')
+                                            sniffer = _csv.Sniffer()
+                                            delimiter = sniffer.sniff(sample).delimiter
+                                        except Exception:
+                                            delimiter = ';'  # Default to semicolon for European CSV
 
                                         df = _pd.read_csv(
-                                            _io.BytesIO(uploaded_single.getvalue()),
+                                            _io.BytesIO(csv_bytes),
                                             nrows=1,
+                                            sep=delimiter,
+                                            encoding='utf-8-sig'
                                         )
                                         if df.empty:
                                             st.error("❌ Leeg CSV-bestand")
@@ -714,9 +726,23 @@ class ManagementTab:
                         import math as _math
                         from ui.helpers.async_bridge import run_async
                         import json as _json
+                        import csv as _csv
+
+                        # Detect delimiter
+                        csv_bytes = uploaded_csv.getvalue()
+                        try:
+                            sample = csv_bytes[:1024].decode('utf-8-sig')
+                            sniffer = _csv.Sniffer()
+                            delimiter = sniffer.sniff(sample).delimiter
+                        except Exception:
+                            delimiter = ';'  # Default to semicolon for European CSV
 
                         try:
-                            df = _pd.read_csv(_io.BytesIO(uploaded_csv.getvalue()))
+                            df = _pd.read_csv(
+                                _io.BytesIO(csv_bytes),
+                                sep=delimiter,
+                                encoding='utf-8-sig'
+                            )
                         except Exception as e:
                             st.error(f"❌ CSV lezen mislukt: {e!s}")
                             df = None
