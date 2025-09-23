@@ -359,59 +359,26 @@ class DefinitionGeneratorTab:
             "definitie_origineel" in agent_result
             and "definitie_gecorrigeerd" in agent_result
         ):
-            # Split "Ontologische categorie: <x>" van definitietekst (indien aanwezig)
-            import re as _re
-
-            def _split_cat(def_text: str) -> tuple[str | None, str]:
-                try:
-                    s = ensure_string(def_text or "").strip()
-                    m = _re.match(
-                        r"^\s*Ontologische\s*categorie\s*:\s*(type|proces|resultaat|exemplaar)\s*[-–—:]?\s*",
-                        s,
-                        flags=_re.IGNORECASE,
-                    )
-                    if not m:
-                        return None, s
-                    cat = m.group(1).lower()
-                    rest = s[m.end():].lstrip()
-                    return cat, rest
-                except Exception:
-                    return None, ensure_string(def_text or "").strip()
-
-            def _norm_txt(x: str) -> str:
-                return " ".join(ensure_string(x or "").split()).strip().lower()
-
-            orig_cat, orig_def = _split_cat(agent_result.get("definitie_origineel") or "")
-            final_cat, final_def = _split_cat(agent_result.get("definitie_gecorrigeerd") or "")
-
             # Toon opschoning status
-            if _norm_txt(orig_def) != _norm_txt(final_def):
+            if (
+                agent_result["definitie_origineel"]
+                != agent_result["definitie_gecorrigeerd"]
+            ):
                 st.success("🔧 **Definitie is opgeschoond**")
             else:
                 st.info("✅ **Geen opschoning nodig - definitie was al correct**")
 
-            # Origineel: in expander als gelijk aan finale
-            same_after_split = _norm_txt(orig_def) == _norm_txt(final_def)
-            if same_after_split:
-                with st.expander("1️⃣ Originele AI Definitie", expanded=False):
-                    if orig_cat:
-                        st.caption(f"Ontologische categorie: {orig_cat}")
-                    st.info(orig_def)
-            else:
-                st.subheader("1️⃣ Originele AI Definitie")
-                if orig_cat:
-                    st.caption(f"Ontologische categorie: {orig_cat}")
-                st.info(orig_def)
+            # Toon ALTIJD beide versies
+            st.subheader("1️⃣ Originele AI Definitie")
+            st.info(agent_result["definitie_origineel"])
 
             st.subheader("2️⃣ Finale Definitie")
-            if final_cat:
-                st.caption(f"Ontologische categorie: {final_cat}")
-            st.info(final_def)
+            st.info(agent_result["definitie_gecorrigeerd"])
             # Bewaar finale tekst + begrip voor UI‑uitleg (pass‑rationales)
             try:
                 SessionStateManager.set_value(
                     "current_definition_text",
-                    ensure_string(final_def or ""),
+                    ensure_string(agent_result.get("definitie_gecorrigeerd") or ""),
                 )
                 SessionStateManager.set_value(
                     "current_begrip",
@@ -1007,12 +974,6 @@ class DefinitionGeneratorTab:
                     vdet = agent_result.get("validation_details") or {}
                     acceptable = bool(vdet.get("is_acceptable", False))
                     definitie_text = agent_result.get("definitie_gecorrigeerd") or agent_result.get("definitie", "")
-                    # Strip eventuele voorloop "Ontologische categorie: <x>" uit de definitietekst vóór opslag
-                    import re as _re
-                    m = _re.match(r"^\s*Ontologische\s*categorie\s*:\s*(type|proces|resultaat|exemplaar)\s*[-–—:]?\s*",
-                                   ensure_string(definitie_text or ""), flags=_re.IGNORECASE)
-                    if m:
-                        definitie_text = ensure_string(definitie_text or "")[m.end():].lstrip()
                     if definitie_text and not acceptable:
                         st.warning("❗ Deze generatie voldoet niet aan de kwaliteitsdrempel.")
                         can_save = self._has_min_one_context()
