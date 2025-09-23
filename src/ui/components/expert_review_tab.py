@@ -804,15 +804,6 @@ class ExpertReviewTab:
                 f"edited_definition_{definitie.id}"
             )
             if edited_def and edited_def != definitie.definitie:
-                # Strip eventuele voorloop "Ontologische categorie: <x>" uit definitie
-                try:
-                    import re as _re
-                    m = _re.match(r"^\s*Ontologische\s*categorie\s*:\s*(type|proces|resultaat|exemplaar)\s*[-–—:]?\s*",
-                                   str(edited_def), flags=_re.IGNORECASE)
-                    if m:
-                        edited_def = str(edited_def)[m.end():].lstrip()
-                except Exception:
-                    pass
                 updates["definitie"] = edited_def
 
             # Check voor aangepaste UFO categorie
