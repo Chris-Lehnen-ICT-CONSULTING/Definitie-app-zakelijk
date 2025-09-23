@@ -201,9 +201,30 @@ class DefinitionEditTab:
                         return ""
 
                 rows = []
+                def _status_label(code: str | None, source_type: str | None) -> str:
+                    # Toon 'Geïmporteerd' als herkomst imported is, anders vertaal status
+                    if (source_type or "").lower() == "imported":
+                        return "Geïmporteerd"
+                    mapping = {
+                        "draft": "Concept",
+                        "review": "In review",
+                        "established": "Vastgesteld",
+                        "archived": "Gearchiveerd",
+                    }
+                    return mapping.get((code or '').lower(), code or '')
+
+                def _source_label(src: str | None) -> str:
+                    m = {
+                        "imported": "Geïmporteerd",
+                        "generated": "Gegenereerd",
+                        "manual": "Handmatig",
+                    }
+                    return m.get((src or '').lower(), src or '')
                 prev_selected_id = SessionStateManager.get_value("edit_selected_id")
                 for d in results:
                     status = (d.metadata.get('status') if d.metadata else None) or 'draft'
+                    source_type = (d.metadata.get('source_type') if d.metadata else None)
+                    status_disp = _status_label(status, source_type)
                     score = (d.metadata.get('validation_score') if d.metadata else None)
                     rows.append({
                         "Selecteer": bool(prev_selected_id == d.id),
@@ -211,7 +232,8 @@ class DefinitionEditTab:
                         "Begrip": d.begrip,
                         "Categorie": d.categorie or "",
                         "UFO-categorie": getattr(d, 'ufo_categorie', None) or "",
-                        "Status": status,
+                        "Status": status_disp,
+                        "Herkomst": _source_label(source_type),
                         "Score": score if score is not None else "",
                         "Organisatorische context": _join_list(getattr(d, 'organisatorische_context', [])),
                         "Juridische context": _join_list(getattr(d, 'juridische_context', [])),
@@ -235,6 +257,7 @@ class DefinitionEditTab:
                         "Categorie": st.column_config.TextColumn(disabled=True),
                         "UFO-categorie": st.column_config.TextColumn(disabled=True),
                         "Status": st.column_config.TextColumn(disabled=True),
+                        "Herkomst": st.column_config.TextColumn(disabled=True),
                         "Score": st.column_config.TextColumn(disabled=True),
                         "Organisatorische context": st.column_config.TextColumn(disabled=True),
                         "Juridische context": st.column_config.TextColumn(disabled=True),
@@ -270,12 +293,21 @@ class DefinitionEditTab:
 
         # Interactieve lijstweergave met direct selecteerbare items (alleen tonen als tabel uit staat)
         if not show_table:
+            # Alternatieve lijstweergave met NL-statuslabels
             for d in results:
                 with st.container():
                     c1, c2 = st.columns([4, 1])
                     with c1:
                         status = (d.metadata.get('status') if d.metadata else None) or 'draft'
-                        st.markdown(f"**[{d.id}] {d.begrip}** — {d.categorie or ''} · {status}")
+                        source_type = (d.metadata.get('source_type') if d.metadata else None)
+                        mapping = {
+                            "draft": "Concept",
+                            "review": "In review",
+                            "established": "Vastgesteld",
+                            "archived": "Gearchiveerd",
+                        }
+                        status_disp = "Geïmporteerd" if (source_type or '').lower() == 'imported' else mapping.get((status or '').lower(), status or '')
+                        st.markdown(f"**[{d.id}] {d.begrip}** — {d.categorie or ''} · {status_disp}")
                         # Kleine contextregel
                         try:
                             org = ", ".join(getattr(d, 'organisatorische_context', []) or [])
