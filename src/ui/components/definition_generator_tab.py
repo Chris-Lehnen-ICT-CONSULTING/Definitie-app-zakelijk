@@ -459,6 +459,50 @@ class DefinitionGeneratorTab:
 
                 if voorbeelden:
                     self._render_voorbeelden_section(voorbeelden)
+                    # Persistente opslag van voorbeelden in DB (automatisch) wanneer een record is opgeslagen
+                    try:
+                        saved_id = None
+                        if isinstance(saved_record, DefinitieRecord) and getattr(saved_record, 'id', None):
+                            saved_id = int(saved_record.id)
+                        elif isinstance(saved_definition_id, int) and saved_definition_id > 0:
+                            saved_id = int(saved_definition_id)
+
+                        if saved_id:
+                            self._maybe_persist_examples(saved_id, agent_result)
+                    except Exception as e:
+                        logger.warning(f"Automatisch opslaan van voorbeelden overgeslagen: {e}")
+
+                    # Handmatige opslagknop (forceren)
+                    try:
+                        col_left, col_right = st.columns([1, 3])
+                        with col_left:
+                            can_save_examples = True
+                            saved_id_btn = None
+                            if isinstance(saved_record, DefinitieRecord) and getattr(saved_record, 'id', None):
+                                saved_id_btn = int(saved_record.id)
+                            elif isinstance(saved_definition_id, int) and saved_definition_id > 0:
+                                saved_id_btn = int(saved_definition_id)
+                            else:
+                                can_save_examples = False
+
+                            help_text = None
+                            if not can_save_examples:
+                                help_text = "Sla eerst de definitie op om voorbeelden te kunnen bewaren."
+
+                            if st.button(
+                                "💾 Voorbeelden naar DB opslaan (forceren)",
+                                key="force_save_examples",
+                                disabled=not can_save_examples,
+                                help=help_text,
+                            ):
+                                if saved_id_btn:
+                                    ok = self._persist_examples_manual(saved_id_btn, agent_result)
+                                    if ok:
+                                        st.success("✅ Voorbeelden opgeslagen in database")
+                                    else:
+                                        st.info("ℹ️ Geen op te slaan voorbeelden of al up-to-date")
+                    except Exception as e:
+                        logger.debug(f"Render force-save examples knop overgeslagen: {e}")
                 else:
                     st.markdown("#### 📚 Gegenereerde Content")
                     st.info("ℹ️ Geen voorbeelden beschikbaar voor deze generatie.")
@@ -600,6 +644,134 @@ class DefinitionGeneratorTab:
         # Toon categorie selector als gevraagd
         if SessionStateManager.get_value("show_category_selector", False):
             self._render_category_selector(determined_category, generation_result)
+
+    def _maybe_persist_examples(self, definitie_id: int, agent_result: dict[str, Any]) -> None:
+        """Sla gegenereerde voorbeelden automatisch op in de DB.
+
+        - Vermijdt dubbele opslag door te keyen op generation_id
+        - Slaat alleen op wanneer er daadwerkelijk content is
+        - Vergelijkt met huidige actieve DB‑voorbeelden om onnodige writes te vermijden
+        """
+        try:
+            meta = ensure_dict(agent_result.get("metadata", {})) if isinstance(agent_result, dict) else {}
+            gen_id = meta.get("generation_id")
+            flag_key = f"examples_saved_for_gen_{gen_id}" if gen_id else f"examples_saved_for_def_{definitie_id}"
+            if SessionStateManager.get_value(flag_key):
+                return
+
+            raw = ensure_dict(agent_result.get("voorbeelden", {})) if isinstance(agent_result, dict) else {}
+            if not raw:
+                return
+
+            # Canonicaliseer en normaliseer naar lists
+            from ui.helpers.examples import canonicalize_examples
+
+            canon = canonicalize_examples(raw)
+
+            def _as_list(v: Any) -> list[str]:
+                if isinstance(v, list):
+                    return [str(x).strip() for x in v if str(x).strip()]
+                if isinstance(v, str) and v.strip():
+                    return [v.strip()]
+                return []
+
+            to_save: dict[str, list[str]] = {
+                "voorbeeldzinnen": _as_list(canon.get("voorbeeldzinnen")),
+                "praktijkvoorbeelden": _as_list(canon.get("praktijkvoorbeelden")),
+                "tegenvoorbeelden": _as_list(canon.get("tegenvoorbeelden")),
+                "synoniemen": _as_list(canon.get("synoniemen")),
+                "antoniemen": _as_list(canon.get("antoniemen")),
+            }
+            # Toelichting optioneel opslaan als één regel (repository ondersteunt explanation)
+            if isinstance(canon.get("toelichting"), str) and canon.get("toelichting").strip():
+                to_save["toelichting"] = [canon.get("toelichting").strip()]  # type: ignore[index]
+
+            # Controleer of er iets nieuws is
+            total_new = sum(len(v) for v in to_save.values())
+            if total_new == 0:
+                return
+
+            # Vergelijk met huidige actieve voorbeelden; sla alleen op als er verschil is
+            repo = get_definitie_repository()
+            current = repo.get_voorbeelden_by_type(definitie_id)
+
+            def _norm(d: dict[str, list[str]]) -> dict[str, set[str]]:
+                return {k: set([str(x).strip() for x in (d.get(k) or [])]) for k in d.keys()}
+
+            # Map DB keys naar canonical UI keys voor vergelijking
+            # DB keys zijn al canonicalized in helpers.resolve_examples pad, maar hier gebruiken we direct:
+            current_canon = {
+                "voorbeeldzinnen": current.get("sentence", []) or current.get("voorbeeldzinnen", []),
+                "praktijkvoorbeelden": current.get("practical", []) or current.get("praktijkvoorbeelden", []),
+                "tegenvoorbeelden": current.get("counter", []) or current.get("tegenvoorbeelden", []),
+                "synoniemen": current.get("synonyms", []) or current.get("synoniemen", []),
+                "antoniemen": current.get("antonyms", []) or current.get("antoniemen", []),
+                "toelichting": current.get("explanation", []) or current.get("toelichting", []),
+            }
+
+            if _norm(current_canon) == _norm(to_save):
+                SessionStateManager.set_value(flag_key, True)
+                return
+
+            # Sla op
+            repo.save_voorbeelden(
+                definitie_id=definitie_id,
+                voorbeelden_dict=to_save,
+                generation_model="ai",
+                generation_params=meta if isinstance(meta, dict) else None,
+                gegenereerd_door=ensure_string(meta.get("model") or "ai"),
+            )
+            SessionStateManager.set_value(flag_key, True)
+            logger.info("Voorbeelden automatisch opgeslagen voor definitie %s", definitie_id)
+        except Exception as e:
+            logger.warning("Automatisch opslaan voorbeelden mislukt: %s", e)
+
+    def _persist_examples_manual(self, definitie_id: int, agent_result: dict[str, Any]) -> bool:
+        """Forceer het opslaan van voorbeelden in de DB (handmatige actie).
+
+        Returns True als er iets is opgeslagen, False als er niets te doen was.
+        """
+        try:
+            raw = ensure_dict(agent_result.get("voorbeelden", {})) if isinstance(agent_result, dict) else {}
+            if not raw:
+                return False
+
+            from ui.helpers.examples import canonicalize_examples
+            canon = canonicalize_examples(raw)
+
+            def _as_list(v: Any) -> list[str]:
+                if isinstance(v, list):
+                    return [str(x).strip() for x in v if str(x).strip()]
+                if isinstance(v, str) and v.strip():
+                    return [v.strip()]
+                return []
+
+            to_save: dict[str, list[str]] = {
+                "voorbeeldzinnen": _as_list(canon.get("voorbeeldzinnen")),
+                "praktijkvoorbeelden": _as_list(canon.get("praktijkvoorbeelden")),
+                "tegenvoorbeelden": _as_list(canon.get("tegenvoorbeelden")),
+                "synoniemen": _as_list(canon.get("synoniemen")),
+                "antoniemen": _as_list(canon.get("antoniemen")),
+            }
+            if isinstance(canon.get("toelichting"), str) and canon.get("toelichting").strip():
+                to_save["toelichting"] = [canon.get("toelichting").strip()]  # type: ignore[index]
+
+            total_new = sum(len(v) for v in to_save.values())
+            if total_new == 0:
+                return False
+
+            repo = get_definitie_repository()
+            repo.save_voorbeelden(
+                definitie_id=definitie_id,
+                voorbeelden_dict=to_save,
+                generation_model="ai",
+                generation_params=ensure_dict(agent_result.get("metadata", {})) if isinstance(agent_result, dict) else None,
+                gegenereerd_door=ensure_string((agent_result.get("metadata", {}) or {}).get("model") if isinstance(agent_result, dict) else "ai"),
+            )
+            return True
+        except Exception as e:
+            logger.warning("Force opslaan voorbeelden mislukt: %s", e)
+            return False
 
     def _generate_category_reasoning(self, category: str) -> str:
         """Genereer uitleg waarom deze categorie gekozen is."""
