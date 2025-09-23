@@ -163,19 +163,8 @@ def resolve_examples(state_key: str, definition: Any | None) -> Dict[str, Any]:
             repo = get_definitie_repository()
             vdb = repo.get_voorbeelden_by_type(int(definition.id))
             if isinstance(vdb, dict) and any(vdb.values()):
-                # Canonicalize keys best-effort (repo gebruikt al canonieke namen)
-                canon = {}
-                key_map = {
-                    "voorbeeldzinnen": "voorbeeldzinnen",
-                    "praktijkvoorbeelden": "praktijkvoorbeelden",
-                    "tegenvoorbeelden": "tegenvoorbeelden",
-                    "synoniemen": "synoniemen",
-                    "antoniemen": "antoniemen",
-                    "toelichting": "toelichting",
-                }
-                for k, v in vdb.items():
-                    tgt = key_map.get(k, k)
-                    canon[tgt] = v
+                # Canonicaliseer DB-keys naar UI‑canoniek (sentence→voorbeeldzinnen, etc.)
+                canon = canonicalize_examples(vdb)
                 SessionStateManager.set_value(state_key, canon)
                 return canon
     except Exception:

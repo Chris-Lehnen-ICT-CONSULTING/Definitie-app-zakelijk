@@ -1577,27 +1577,6 @@ class DefinitionGeneratorTab:
         from ui.components.examples_renderer import render_examples_expandable
         render_examples_expandable(voorbeelden)
 
-        # Extra: voorkeursterm selectie (behoud, aanvullend op uniforme rendering)
-        synoniemen_lijst = []
-        try:
-            from ui.components.examples_renderer import _as_list  # type: ignore
-            synoniemen_lijst = _as_list(voorbeelden.get("synoniemen"))
-        except Exception:
-            synoniemen_lijst = []
-        if synoniemen_lijst:
-            st.markdown("---")
-            oorspronkelijk_begrip = SessionStateManager.get_value("begrip", "")
-            opties = ["(geen voorkeursterm)"]
-            if oorspronkelijk_begrip and oorspronkelijk_begrip not in synoniemen_lijst:
-                opties.append(oorspronkelijk_begrip)
-            opties.extend(synoniemen_lijst)
-            voorkeursterm = st.selectbox(
-                "Selecteer voorkeursterm:", options=opties, key="voorkeursterm_selectie"
-            )
-            if voorkeursterm != "(geen voorkeursterm)":
-                SessionStateManager.set_value("voorkeursterm", voorkeursterm)
-                st.info(f"✅ Voorkeursterm: **{voorkeursterm}**")
-
     def _trigger_regeneration_with_category(
         self,
         begrip: str,

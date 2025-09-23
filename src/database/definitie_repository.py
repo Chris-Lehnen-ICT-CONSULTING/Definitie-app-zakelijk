@@ -1247,8 +1247,47 @@ class DefinitieRepository:
                     (definitie_id,),
                 )
 
+                # Helper: normaliseer voorbeeld_type naar schema‑waarden
+                def _normalize_type(tp: str) -> str:
+                    t = (tp or "").strip().lower()
+                    mapping = {
+                        # Voorbeeldzinnen
+                        "voorbeeldzinnen": "sentence",
+                        "zinnen": "sentence",
+                        "voorbeeldzin": "sentence",
+                        "sentences": "sentence",
+                        "sentence": "sentence",
+                        "example_sentences": "sentence",
+                        # Praktijkvoorbeelden
+                        "praktijkvoorbeelden": "practical",
+                        "praktijk": "practical",
+                        "praktijkvoorbeeld": "practical",
+                        "practical_examples": "practical",
+                        "practical": "practical",
+                        # Tegenvoorbeelden
+                        "tegenvoorbeelden": "counter",
+                        "tegen": "counter",
+                        "counterexamples": "counter",
+                        "counter": "counter",
+                        # Synoniemen / Antoniemen
+                        "synoniemen": "synonyms",
+                        "synonym": "synonyms",
+                        "synonyms": "synonyms",
+                        "antoniemen": "antonyms",
+                        "antonym": "antonyms",
+                        "antonyms": "antonyms",
+                        # Toelichting
+                        "toelichting": "explanation",
+                        "uitleg": "explanation",
+                        "notes": "explanation",
+                        "comment": "explanation",
+                        "explanation": "explanation",
+                    }
+                    return mapping.get(t, t)
+
                 # Voeg nieuwe voorbeelden toe
                 for voorbeeld_type, examples in voorbeelden_dict.items():
+                    norm_type = _normalize_type(voorbeeld_type)
                     if not examples:  # Skip lege lists
                         continue
 
@@ -1259,7 +1298,7 @@ class DefinitieRepository:
                         # Maak VoorbeeldenRecord
                         record = VoorbeeldenRecord(
                             definitie_id=definitie_id,
-                            voorbeeld_type=voorbeeld_type,
+                            voorbeeld_type=norm_type,
                             voorbeeld_tekst=voorbeeld_tekst.strip(),
                             voorbeeld_volgorde=idx,
                             gegenereerd_door=gegenereerd_door,

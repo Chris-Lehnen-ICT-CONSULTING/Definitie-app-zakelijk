@@ -403,7 +403,13 @@ class DefinitionEditTab:
 
         with col2:
             if st.button("✅ Valideren", key="validate_btn"):
-                self._validate_definition()
+                results = self._validate_definition()
+                if results:
+                    # Sla op in session en render buiten kolommen (full-width)
+                    SessionStateManager.set_value('edit_last_validation', results)
+                    st.rerun()
+                else:
+                    st.info("Validatie service niet beschikbaar")
 
         with col3:
             if st.button("↩️ Ongedaan maken", key="undo_btn"):
@@ -413,71 +419,26 @@ class DefinitionEditTab:
             if st.button("❌ Annuleren", key="cancel_btn"):
                 self._cancel_edit()
 
+        # Full-width panel (onder de knoppen) voor validatieresultaten
+        self._render_fullwidth_validation_results()
+
     def _render_examples_section(self):
         """Render sectie voor AI-gegenereerde voorbeelden (edit-tab)."""
         def_id = SessionStateManager.get_value('editing_definition_id')
         if not def_id:
             return
-
         definition = SessionStateManager.get_value('editing_definition')
         if not definition:
             return
 
-        def k(name: str) -> str:
-            return f"edit_{def_id}_{name}"
-
-        st.markdown("### 📚 Gegenereerde Content")
-
-        # Toon debug weergave van huidige voorbeelden (indien aanwezig)
-        examples_state_key = k('examples')
-        from ui.helpers.examples import resolve_examples
-        current_examples = resolve_examples(examples_state_key, definition)
-
-        col_left, col_right = st.columns([1, 1])
-        with col_left:
-            can_call = True
-            import os as _os
-            if not (_os.getenv('OPENAI_API_KEY') or _os.getenv('OPENAI_API_KEY_PROD')):
-                st.info("ℹ️ Geen OPENAI_API_KEY gevonden — voorbeelden genereren is uitgeschakeld.")
-                can_call = False
-            if st.button("✨ Genereer voorbeelden (AI)", disabled=not can_call, key=k('gen_examples')):
-                try:
-                    begrip = SessionStateManager.get_value(k('begrip')) or definition.begrip or ''
-                    definitie_text = SessionStateManager.get_value(k('definitie')) or definition.definitie or ''
-                    org_ctx = SessionStateManager.get_value(k('organisatorische_context')) or []
-                    jur_ctx = SessionStateManager.get_value(k('juridische_context')) or []
-                    wet_ctx = SessionStateManager.get_value(k('wettelijke_basis')) or []
-
-                    context_dict = {
-                        'organisatorisch': list(org_ctx),
-                        'juridisch': list(jur_ctx),
-                        'wettelijk': list(wet_ctx),
-                    }
-
-                    with st.spinner("🧠 Voorbeelden genereren met AI..."):
-                        from voorbeelden.unified_voorbeelden import genereer_alle_voorbeelden_async
-
-                        result = run_async(
-                            genereer_alle_voorbeelden_async(
-                                begrip=begrip,
-                                definitie=definitie_text,
-                                context_dict=context_dict,
-                            ),
-                            timeout=90,
-                        )
-                        SessionStateManager.set_value(examples_state_key, result or {})
-                        current_examples = result or {}
-                        st.success("✅ Voorbeelden gegenereerd!")
-                except Exception as e:
-                    st.error(f"❌ Fout bij genereren voorbeelden: {e}")
-
-        with col_right:
-            if st.checkbox("🔍 Debug: Voorbeelden Content", key=k('debug_examples')):
-                st.code(current_examples)
-
-        # Uniforme weergave zoals Generator‑tab
-        from ui.components.examples_renderer import render_examples_expandable
-        render_examples_expandable(current_examples)
+        # Gebruik het gedeelde voorbeelden-blok (zelfde logica als Expert/Bewerk)
+        from ui.components.examples_block import render_examples_block
+        render_examples_block(
+            definition,
+            state_prefix=f"edit_{def_id}",
+            allow_generate=True,
+            allow_edit=False,
+        )
 
     def _render_metadata_panel(self):
         """Render metadata panel."""
@@ -720,7 +681,9 @@ class DefinitionEditTab:
 
                 # Show validation results if available
                 if result.get('validation'):
-                    self._show_validation_results(result['validation'])
+                    # Sla op in session en render buiten kolommen (full-width)
+                    SessionStateManager.set_value('edit_last_validation', result['validation'])
+                    st.rerun()
 
                 # Refresh definition
                 self._refresh_current_definition()
@@ -737,7 +700,7 @@ class DefinitionEditTab:
             logger.error(f"Save error: {e}")
 
     def _validate_definition(self):
-        """Validate the current definition."""
+        """Validate the current definition and return results (do not render here)."""
         try:
             # Create definition object from current state
             from services.interfaces import Definition
@@ -804,14 +767,22 @@ class DefinitionEditTab:
                         "raw_v2": v,
                     }
 
-            if results:
-                self._show_validation_results(results)
-            else:
-                st.info("Validatie service niet beschikbaar")
+            return results
 
         except Exception as e:
             st.error(f"Fout bij validatie: {str(e)}")
             logger.error(f"Validation error: {e}")
+            return None
+
+    def _render_fullwidth_validation_results(self) -> None:
+        """Render opgeslagen validatieresultaten buiten de knoppenkolommen (volle breedte)."""
+        try:
+            results = SessionStateManager.get_value('edit_last_validation')
+            if results:
+                st.markdown("#### ✅ Kwaliteitstoetsing")
+                self._show_validation_results(results)
+        except Exception:
+            pass
 
     def _show_validation_results(self, results: Dict[str, Any]):
         """Show validation results."""

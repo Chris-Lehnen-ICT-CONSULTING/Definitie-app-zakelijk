@@ -234,144 +234,15 @@ class ExpertReviewTab:
                 st.write(f"**Wettelijke basis:** {wb_val or '—'}")
                 st.write(f"**Categorie:** {definitie.categorie}")
 
-                # Voorbeelden (hergebruik resolutie)
-                try:
-                    from ui.helpers.examples import resolve_examples
-
-                    ex_key = f"review_examples_{definitie.id}"
-                    examples = resolve_examples(ex_key, definitie)
-                    used_db_fallback = False
-                    # Fallback: haal voorbeelden rechtstreeks uit DB als resolver niets vindt
-                    if not examples:
-                        try:
-                            db_examples = self.repository.get_voorbeelden_by_type(definitie.id)
-                            # Normaliseer: 'toelichting' als string indien aanwezig
-                            if isinstance(db_examples, dict) and db_examples:
-                                from ui.helpers.examples import canonicalize_examples
-                                examples = canonicalize_examples(dict(db_examples))
-                                tol = examples.get("toelichting")
-                                if isinstance(tol, list):
-                                    examples["toelichting"] = tol[0] if tol else ""
-                                SessionStateManager.set_value(ex_key, examples)
-                                used_db_fallback = True
-                        except Exception:
-                            pass
-                    # Fallback: direct DB-load indien resolver leeg teruggeeft
-                    if not examples:
-                        try:
-                            examples = self.repository.get_voorbeelden_by_type(definitie.id)
-                            if isinstance(examples, dict) and examples:
-                                SessionStateManager.set_value(ex_key, examples)
-                        except Exception:
-                            examples = {}
-
-                    if examples:
-                        st.markdown("#### 📚 Gegenereerde Content")
-                        from ui.components.examples_renderer import render_examples_expandable
-                        render_examples_expandable(examples)
-                        if used_db_fallback:
-                            st.caption("(Getoond uit database — laatste opgeslagen versie)")
-
-                    # Bewerken van voorbeelden (muteerbaar in review)
-                    with st.expander("✏️ Bewerk Voorbeelden", expanded=False):
-                        # Prefill: als resolver leeg is, haal DB-voorbeelden op per type
-                        if not examples:
-                            try:
-                                db_examples = self.repository.get_voorbeelden_by_type(definitie.id)
-                                if isinstance(db_examples, dict) and db_examples:
-                                    examples = db_examples
-                                    SessionStateManager.set_value(ex_key, examples)
-                            except Exception:
-                                pass
-
-                        def _get_list(name: str) -> list[str]:
-                            val = examples.get(name)
-                            if isinstance(val, list):
-                                return val
-                            if isinstance(val, str) and val.strip():
-                                return [s.strip() for s in val.split(",") if s.strip()]
-                            return []
-
-                        vz = st.text_area(
-                            "📄 Voorbeeldzinnen (één per regel)",
-                            value="\n".join(_get_list("voorbeeldzinnen")),
-                            height=120,
-                            key=f"vz_{definitie.id}",
-                        )
-                        pv = st.text_area(
-                            "💼 Praktijkvoorbeelden (één per regel)",
-                            value="\n".join(_get_list("praktijkvoorbeelden")),
-                            height=120,
-                            key=f"pv_{definitie.id}",
-                        )
-                        tv = st.text_area(
-                            "❌ Tegenvoorbeelden (één per regel)",
-                            value="\n".join(_get_list("tegenvoorbeelden")),
-                            height=120,
-                            key=f"tv_{definitie.id}",
-                        )
-                        syn = st.text_input(
-                            "🔄 Synoniemen (komma-gescheiden)",
-                            value=", ".join(_get_list("synoniemen")),
-                            key=f"syn_{definitie.id}",
-                        )
-                        ant = st.text_input(
-                            "↔️ Antoniemen (komma-gescheiden)",
-                            value=", ".join(_get_list("antoniemen")),
-                            key=f"ant_{definitie.id}",
-                        )
-                        tol = st.text_area(
-                            "📝 Toelichting (korte tekst)",
-                            value=str(examples.get("toelichting") or ""),
-                            height=80,
-                            key=f"tol_{definitie.id}",
-                        )
-
-                        col_s1, col_s2 = st.columns([1, 3])
-                        with col_s1:
-                            if st.button("💾 Voorbeelden opslaan", key=f"save_ex_{definitie.id}"):
-                                try:
-                                    def _split_lines(text: str) -> list[str]:
-                                        return [ln.strip() for ln in (text or "").splitlines() if ln.strip()]
-
-                                    def _split_csv(text: str) -> list[str]:
-                                        return [p.strip() for p in (text or "").split(",") if p.strip()]
-
-                                    new_examples: dict[str, list[str]] = {
-                                        "voorbeeldzinnen": _split_lines(vz),
-                                        "praktijkvoorbeelden": _split_lines(pv),
-                                        "tegenvoorbeelden": _split_lines(tv),
-                                        "synoniemen": _split_csv(syn),
-                                        "antoniemen": _split_csv(ant),
-                                    }
-                                    if tol and tol.strip():
-                                        new_examples["toelichting"] = [tol.strip()]
-
-                                    # Persist to DB via repository helper
-                                    reviewer = SessionStateManager.get_value("reviewer_name") or "expert"
-                                    self.repository.save_voorbeelden(
-                                        definitie_id=definitie.id,
-                                        voorbeelden_dict=new_examples,
-                                        gegenereerd_door=str(reviewer or "expert"),
-                                        generation_model="manual",
-                                        generation_params=None,
-                                    )
-
-                                    # Update in-session examples (flatten toelichting back to str)
-                                    updated = {
-                                        "voorbeeldzinnen": new_examples.get("voorbeeldzinnen", []),
-                                        "praktijkvoorbeelden": new_examples.get("praktijkvoorbeelden", []),
-                                        "tegenvoorbeelden": new_examples.get("tegenvoorbeelden", []),
-                                        "synoniemen": new_examples.get("synoniemen", []),
-                                        "antoniemen": new_examples.get("antoniemen", []),
-                                        "toelichting": tol.strip() if tol and tol.strip() else "",
-                                    }
-                                    SessionStateManager.set_value(ex_key, updated)
-                                    st.success("✅ Voorbeelden opgeslagen")
-                                except Exception as e:
-                                    st.error(f"❌ Opslaan mislukt: {e}")
-                except Exception:
-                    pass
+                # Voorbeelden blok (gedeeld met Edit-tab)
+                from ui.components.examples_block import render_examples_block
+                render_examples_block(
+                    definitie,
+                    state_prefix=f"review_{definitie.id}",
+                    allow_generate=False,
+                    allow_edit=True,
+                    repository=self.repository,
+                )
 
             with col2:
                 st.markdown("#### Metadata")

@@ -89,20 +89,23 @@ class ModularValidationService:
         self.config = config
         self._repository = repository
 
+        # Baseline interne regels (altijd beschikbaar voor policies zoals scoring‑uitsluiting)
+        self._baseline_internal: list[str] = [
+            "VAL-EMP-001",
+            "VAL-LEN-001",
+            "VAL-LEN-002",
+            "ESS-CONT-001",
+            "CON-CIRC-001",
+            "STR-TERM-001",
+            "STR-ORG-001",
+        ]
+
         # Load rules from ToetsregelManager if available, otherwise use defaults
         if self.toetsregel_manager is not None:
             self._load_rules_from_manager()
         else:
             # Interne default regelset (fallback als geen ToetsregelManager)
-            self._internal_rules: list[str] = [
-                "VAL-EMP-001",
-                "VAL-LEN-001",
-                "VAL-LEN-002",
-                "ESS-CONT-001",
-                "CON-CIRC-001",
-                "STR-TERM-001",
-                "STR-ORG-001",
-            ]
+            self._internal_rules: list[str] = list(self._baseline_internal)
             # Default gewichten (overschrijfbaar via config.weights)
             self._default_weights: dict[str, float] = {
                 "VAL-EMP-001": 1.0,
@@ -183,26 +186,13 @@ class ModularValidationService:
 
     def _add_baseline_rules(self) -> None:
         """Add baseline internal rules (VAL-*/STR-*) to retain safeguards."""
-        base_internal = [
-            "VAL-EMP-001", "VAL-LEN-001", "VAL-LEN-002",
-            "ESS-CONT-001", "CON-CIRC-001",
-            "STR-TERM-001", "STR-ORG-001",
-        ]
-        for rid in base_internal:
+        for rid in self._baseline_internal:
             if rid not in self._internal_rules:
                 self._internal_rules.append(rid)
 
     def _set_default_rules(self) -> None:
         """Set default rules when ToetsregelManager is not available."""
-        self._internal_rules = [
-            "VAL-EMP-001",
-            "VAL-LEN-001",
-            "VAL-LEN-002",
-            "ESS-CONT-001",
-            "CON-CIRC-001",
-            "STR-TERM-001",
-            "STR-ORG-001",
-        ]
+        self._internal_rules = list(self._baseline_internal)
         self._default_weights = {
             "VAL-EMP-001": 1.0,
             "VAL-LEN-001": 0.9,
@@ -323,6 +313,20 @@ class ModularValidationService:
                 k: float(v) if v is not None else self._default_weights.get(k, 0.5)
                 for k, v in self.config.weights.items()
             })
+
+        # Exclude certain rules from scoring (weight=0):
+        # - Interne baseline regels (self._baseline_internal)
+        # - ARAI* taalregels (AR**/ARAI**)
+        try:
+            for code in list(weights.keys()):
+                cu = str(code).upper()
+                if code in self._baseline_internal:
+                    weights[code] = 0.0
+                elif cu.startswith("ARAI") or cu.startswith("AR-") or cu.startswith("AR"):
+                    # Beperk tot ARAI‑familie; AR‑prefix meegenomen voor compat
+                    weights[code] = 0.0
+        except Exception:
+            pass
 
         rule_scores: dict[str, float] = {}
         violations: list[dict[str, Any]] = []
@@ -1353,7 +1357,12 @@ class ModularValidationService:
         buckets: dict[str, list[float]] = defaultdict(list)
         for rid, score in (rule_scores or {}).items():
             try:
-                cat = self._category_for(str(rid))
+                r = str(rid)
+                ru = r.upper()
+                # Skip interne regels en ARAI* bij categorie-aggregatie
+                if r in self._baseline_internal or ru.startswith("ARAI") or ru.startswith("AR-") or ru.startswith("AR"):
+                    continue
+                cat = self._category_for(r)
                 buckets[cat].append(float(score or 0.0))
             except Exception:
                 continue
