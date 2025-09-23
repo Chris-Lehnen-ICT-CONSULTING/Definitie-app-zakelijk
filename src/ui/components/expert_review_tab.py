@@ -127,8 +127,51 @@ class ExpertReviewTab:
             # Display review queue
             st.markdown(f"**{len(filtered_reviews)} definities wachten op review:**")
 
-            for definitie in filtered_reviews:
-                self._render_review_queue_item(definitie)
+            # Tabelweergave (alleen lezen) of interactieve lijst
+            show_table = st.checkbox(
+                "Toon tabelweergave",
+                value=False,
+                key="review_show_table",
+                help="Schakel in voor een compacte tabel; selecteren doe je in de lijstweergave",
+            )
+
+            if show_table:
+                try:
+                    import pandas as pd
+
+                    def _join_list(v):
+                        try:
+                            return ", ".join([str(x) for x in (v or [])])
+                        except Exception:
+                            return ""
+
+                    rows = []
+                    for d in filtered_reviews:
+                        org, jur, wet = self._format_record_context(d)
+                        rows.append(
+                            {
+                                "ID": d.id,
+                                "Begrip": d.begrip,
+                                "Categorie": d.categorie or "",
+                                "UFO-categorie": getattr(d, "ufo_categorie", None) or "",
+                                "Status": d.status,
+                                "Score": (f"{d.validation_score:.2f}" if d.validation_score is not None else ""),
+                                "Organisatorische context": org,
+                                "Juridische context": jur,
+                                "Wettelijke basis": wet,
+                            }
+                        )
+
+                    df = pd.DataFrame(rows)
+                    st.dataframe(df, use_container_width=True, height=400)
+                    st.caption("Selecteren doe je hieronder via de lijstweergave.")
+                except Exception as e:
+                    st.warning(f"Kon tabelweergave niet renderen: {e!s}")
+
+            # Kaartweergave (fallback of aanvullend)
+            if not show_table:
+                for definitie in filtered_reviews:
+                    self._render_review_queue_item(definitie)
 
         except Exception as e:
             st.error(f"❌ Kon review queue niet laden: {e!s}")
