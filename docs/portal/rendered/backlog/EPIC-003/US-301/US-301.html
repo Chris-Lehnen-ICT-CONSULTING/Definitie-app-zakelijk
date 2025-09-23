@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>US-301: Verwijder redundante single import functionaliteit</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <h1>US-301: Verwijder redundante single import functionaliteit</h1>
+
+<p><strong>Epic</strong>: EPIC-003 - Import/Export</p>
+<p><strong>Status</strong>: TODO</p>
+<p><strong>Prioriteit</strong>: Low</p>
+<p><strong>Geschatte effort</strong>: 2 uur</p>
+
+<h2>Achtergrond</h2>
+
+<p>De applicatie heeft momenteel twee separate import mechanismen:</p>
+<ol>
+<li>**Single import** (≤1 definitie) - voor preview en validatie</li>
+<li>**Batch import** (≤100 definities) - voor daadwerkelijke import</li>
+</ol>
+
+<p>Analyse toont aan dat de single import functionaliteit redundant is omdat:</p>
+<ul>
+<li>Batch import kan ook 1 record verwerken</li>
+<li>Validatie wordt toch niet uitgevoerd tijdens import (performance optimalisatie)</li>
+<li>Het verwart gebruikers met twee vergelijkbare opties</li>
+<li>Code duplicatie voor dezelfde functionaliteit</li>
+</ul>
+
+<h2>User Story</h2>
+
+<p><strong>Als</strong> gebruiker van de Definitie-app</p>
+<p><strong>Wil ik</strong> één duidelijke import optie</p>
+<p><strong>Zodat</strong> ik niet hoef te kiezen tussen twee vergelijkbare functies</p>
+
+<h2>Acceptatiecriteria</h2>
+
+<ol>
+<li>**UI Vereenvoudiging**</li>
+</ol>
+<ul>
+<li>  - [ ] Single import sectie volledig verwijderd uit Management tab</li>
+<li>  - [ ] Alleen batch import sectie blijft over</li>
+<li>  - [ ] Label aangepast naar "CSV Import (max 100 definities)"</li>
+</ul>
+
+<ol>
+<li>**Code Cleanup**</li>
+</ol>
+<ul>
+<li>  - [ ] `_render_single_import()` methode verwijderd</li>
+<li>  - [ ] `validate_single()` calls verwijderd uit UI (blijft in service voor andere gebruik)</li>
+<li>  - [ ] Gerelateerde UI componenten opgeruimd</li>
+</ul>
+
+<ol>
+<li>**Functionaliteit Behoud**</li>
+</ol>
+<ul>
+<li>  - [ ] Batch import werkt nog steeds voor 1-100 records</li>
+<li>  - [ ] CSV met nieuwe velden (UFO_Categorie, Voorkeursterm, etc.) blijft werken</li>
+<li>  - [ ] Duplicate strategy (skip/overwrite) blijft functioneel</li>
+<li>  - [ ] Import rapport generatie blijft intact</li>
+</ul>
+
+<ol>
+<li>**Gebruikerservaring**</li>
+</ol>
+<ul>
+<li>  - [ ] Duidelijke instructies bij import sectie</li>
+<li>  - [ ] Error handling blijft robuust</li>
+<li>  - [ ] Performance blijft optimaal (geen validatie tijdens import)</li>
+</ul>
+
+<h2>Technische Details</h2>
+
+<h3>Te verwijderen code locaties:</h3>
+<ul>
+<li>`src/ui/components/management_tab.py`:</li>
+<li> - Regel ~430-680: Single import sectie</li>
+<li> - `_render_single_import()` methode indien apart</li>
+</ul>
+
+<h3>Aan te passen:</h3>
+<ul>
+<li>Import sectie titel naar "CSV/JSON Import"</li>
+<li>Help text consolideren</li>
+<li>Eventuele verwijzingen in documentatie</li>
+</ul>
+
+<h3>Te behouden:</h3>
+<ul>
+<li>`DefinitionImportService.validate_single()` - kan nuttig zijn voor andere doeleinden</li>
+<li>`DefinitionImportService.import_single()` - gebruikt door batch import</li>
+</ul>
+
+<h2>Risico's</h2>
+
+<ul>
+<li>**Laag**: Functionaliteit wordt niet verwijderd, alleen UI duplicatie</li>
+<li>Gebruikers die gewend waren aan single import moeten wennen aan batch import</li>
+</ul>
+
+<h2>Test Scenario's</h2>
+
+<ol>
+<li>**Import van 1 record**</li>
+</ol>
+<ul>
+<li>  - Upload CSV met 1 definitie</li>
+<li>  - Verificeer succesvolle import</li>
+<li>  - Check rapport generatie</li>
+</ul>
+
+<ol>
+<li>**Import van meerdere records**</li>
+</ol>
+<ul>
+<li>  - Upload CSV met 36 definities</li>
+<li>  - Verificeer performance (< 5 seconden)</li>
+<li>  - Check alle records geïmporteerd</li>
+</ul>
+
+<ol>
+<li>**Nieuwe velden**</li>
+</ol>
+<ul>
+<li>  - Test met UFO_Categorie, Voorkeursterm, Synoniemen</li>
+<li>  - Verificeer correct opgeslagen in database</li>
+</ul>
+
+<ol>
+<li>**Error handling**</li>
+</ol>
+<ul>
+<li>  - Test met ongeldige CSV</li>
+<li>  - Test met lege CSV</li>
+<li>  - Verificeer duidelijke foutmeldingen</li>
+</ul>
+
+<h2>Notities</h2>
+
+<ul>
+<li>Single import was oorspronkelijk bedoeld voor preview/validatie</li>
+<li>Sinds validatie is uitgeschakeld voor performance, heeft preview geen toegevoegde waarde</li>
+<li>Batch import biedt al duplicate detectie wat voldoende preview is</li>
+</ul>
+
+<h2>Referenties</h2>
+
+<ul>
+<li>Performance optimalisatie: Commit 7d3a641</li>
+<li>CSV import uitbreiding: Commit 01c01b5</li>
+<li>Import rapport functionaliteit: US-234</li>
+</ul>
+  </div>
+</body>
+</html>
