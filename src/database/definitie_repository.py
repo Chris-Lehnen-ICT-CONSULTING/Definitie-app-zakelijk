@@ -1232,12 +1232,27 @@ class DefinitieRepository:
         """
         logger.info(f"Saving voorbeelden voor definitie {definitie_id}")
 
+        # Safety guard: doe niets als er geen nieuwe voorbeelden zijn doorgegeven
+        try:
+            total_new = 0
+            for _k, _v in (voorbeelden_dict or {}).items():
+                if isinstance(_v, list):
+                    total_new += len([x for x in _v if str(x).strip()])
+            if total_new == 0:
+                logger.info(
+                    "No new examples provided for definitie %s — skipping overwrite", definitie_id
+                )
+                return []
+        except Exception:
+            # In geval van unexpected structuur proberen we alsnog door te gaan
+            pass
+
         with self._get_connection() as conn:
             try:
                 cursor = conn.cursor()
                 saved_ids = []
 
-                # Verwijder bestaande voorbeelden voor deze definitie (indien gewenst)
+                # Zet bestaande voorbeelden inactief (we vervangen door nieuwe set)
                 cursor.execute(
                     """
                     UPDATE definitie_voorbeelden
