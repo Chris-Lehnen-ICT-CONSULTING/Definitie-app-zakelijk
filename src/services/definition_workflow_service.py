@@ -592,6 +592,17 @@ class DefinitionWorkflowService:
         )
 
         if hard_block:
+            # Optioneel: sta override toe voor hard blocks indien policy dit toestaat
+            try:
+                allow_hard_override = bool(
+                    getattr(policy, "soft_requirements", {}).get("allow_hard_override", False)
+                )
+            except Exception:
+                allow_hard_override = False
+
+            if allow_hard_override:
+                # Converteer naar override_required met bestaande redenen (UI vereist reden/notities)
+                return {"status": "override_required", "reasons": reasons}
             return {"status": "blocked", "reasons": reasons}
 
         # 4) Soft conditions
