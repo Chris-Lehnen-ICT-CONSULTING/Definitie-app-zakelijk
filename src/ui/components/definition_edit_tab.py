@@ -181,16 +181,16 @@ class DefinitionEditTab:
 
         st.markdown(f"**{len(results)} resultaten gevonden:**")
 
-        # Kies weergave: interactieve lijst (standaard) of tabel
+        # Kies weergave: interactieve lijst of tabel (selecteerbaar)
         show_table = st.checkbox(
             "Toon tabelweergave",
-            value=False,
+            value=True,
             key="edit_show_table",
-            help="Schakel in voor een compacte tabelweergave (selecteren gebeurt via de lijstweergave)",
+            help="Schakel in voor compacte tabelweergave met selecteerbare rijen",
         )
 
         if show_table:
-            # Tabelweergave (alleen lezen)
+            # Tabelweergave (selecteerbaar via checkbox kolom)
             try:
                 import pandas as pd  # Lazy import voor UI
 
@@ -205,6 +205,7 @@ class DefinitionEditTab:
                     status = (d.metadata.get('status') if d.metadata else None) or 'draft'
                     score = (d.metadata.get('validation_score') if d.metadata else None)
                     rows.append({
+                        "Selecteer": False,
                         "ID": d.id,
                         "Begrip": d.begrip,
                         "Categorie": d.categorie or "",
@@ -217,8 +218,36 @@ class DefinitionEditTab:
                     })
 
                 df = pd.DataFrame(rows)
-                st.dataframe(df, use_container_width=True, height=400)
-                st.caption("Selecteren doe je onderaan via de lijstweergave.")
+                edited = st.data_editor(
+                    df,
+                    use_container_width=True,
+                    height=420,
+                    hide_index=True,
+                    column_config={
+                        "Selecteer": st.column_config.CheckboxColumn(
+                            "Selecteer",
+                            help="Kies één rij en klik op 'Bewerk geselecteerde'",
+                            default=False,
+                        ),
+                        "ID": st.column_config.TextColumn(disabled=True),
+                        "Begrip": st.column_config.TextColumn(disabled=True),
+                        "Categorie": st.column_config.TextColumn(disabled=True),
+                        "UFO-categorie": st.column_config.TextColumn(disabled=True),
+                        "Status": st.column_config.TextColumn(disabled=True),
+                        "Score": st.column_config.TextColumn(disabled=True),
+                        "Organisatorische context": st.column_config.TextColumn(disabled=True),
+                        "Juridische context": st.column_config.TextColumn(disabled=True),
+                        "Wettelijke basis": st.column_config.TextColumn(disabled=True),
+                    },
+                )
+
+                # Haal selectie op
+                selected_rows = edited[edited["Selecteer"] == True] if not edited.empty else edited.head(0)
+                col_sel, _ = st.columns([1, 3])
+                with col_sel:
+                    if st.button("✏️ Bewerk geselecteerde", key="edit_btn_selected_table", disabled=len(selected_rows) != 1):
+                        sel_id = int(selected_rows.iloc[0]["ID"])  # type: ignore[index]
+                        self._start_edit_session(sel_id)
             except Exception as e:
                 st.warning(f"Kon tabelweergave niet renderen: {e!s}")
 
@@ -681,7 +710,10 @@ class DefinitionEditTab:
                 "Gearchiveerd": "archived",
             }
             status_code = status_label_to_code.get(status_filter, status_filter)
-            if status_code and status_code != "Alle":
+            # Speciale case: 'Geïmporteerd' is herkomst (source_type), geen status in schema
+            if status_code == "imported":
+                filters['source_type'] = 'imported'
+            elif status_code and status_code != "Alle":
                 filters['status'] = status_code
 
             # Search
