@@ -22873,6 +22873,41 @@
       "linked_reqs": null
     },
     {
+      "id": "US-300-ANALYSIS",
+      "type": "DOC",
+      "title": "Multi-Agent Analysis Report - UFO Classification Implementation",
+      "path": "../backlog/EPIC-014/US-300/IMPLEMENTATION_ANALYSIS_REPORT.md",
+      "url": "../backlog/EPIC-014/US-300/IMPLEMENTATION_ANALYSIS_REPORT.md",
+      "status": "COMPLETE",
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-014",
+      "parent_us": "US-300",
+      "_refs": {
+        "us": [
+          "US-300"
+        ],
+        "epic": [
+          "EPIC-014"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-014/US-300/IMPLEMENTATION_ANALYSIS_REPORT.html"
+    },
+    {
       "id": null,
       "type": "US",
       "title": "US-157: Implementeer Weighted Score Calculator",
@@ -32738,7 +32773,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 480,
+      "DOC": 481,
       "ARCH": 24,
       "COMP": 5,
       "TEST": 27,
@@ -32748,7 +32783,7 @@
       "US": 228,
       "BUG": 17
     },
-    "generated_at": "2025-09-23T12:17:24Z"
+    "generated_at": "2025-09-23T13:21:55Z"
   },
   "sources": [
     "docs"
