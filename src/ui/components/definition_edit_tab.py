@@ -190,7 +190,7 @@ class DefinitionEditTab:
         )
 
         if show_table:
-            # Tabelweergave (selecteerbaar via checkbox kolom)
+            # Tabelweergave (selecteerbaar via checkbox kolom, enkelvoudige selectie)
             try:
                 import pandas as pd  # Lazy import voor UI
 
@@ -201,11 +201,12 @@ class DefinitionEditTab:
                         return ""
 
                 rows = []
+                prev_selected_id = SessionStateManager.get_value("edit_selected_id")
                 for d in results:
                     status = (d.metadata.get('status') if d.metadata else None) or 'draft'
                     score = (d.metadata.get('validation_score') if d.metadata else None)
                     rows.append({
-                        "Selecteer": False,
+                        "Selecteer": bool(prev_selected_id == d.id),
                         "ID": d.id,
                         "Begrip": d.begrip,
                         "Categorie": d.categorie or "",
@@ -241,13 +242,29 @@ class DefinitionEditTab:
                     },
                 )
 
-                # Haal selectie op
-                selected_rows = edited[edited["Selecteer"] == True] if not edited.empty else edited.head(0)
+                # Enforce enkelvoudige selectie: kies vorige selectie als aanwezig, anders de eerste True
+                try:
+                    true_ids = [int(r["ID"]) for _, r in edited.iterrows() if bool(r.get("Selecteer"))]
+                except Exception:
+                    true_ids = []
+
+                selected_id = prev_selected_id
+                if len(true_ids) == 1:
+                    selected_id = true_ids[0]
+                elif len(true_ids) >= 2:
+                    # Behoud vorige selectie indien nog aanwezig, anders pak de eerste
+                    if prev_selected_id in true_ids:
+                        selected_id = prev_selected_id
+                    else:
+                        selected_id = true_ids[0]
+                    st.caption("Er kan maar één rij geselecteerd zijn; selectie gecorrigeerd.")
+                # Update session state
+                SessionStateManager.set_value("edit_selected_id", selected_id)
+
                 col_sel, _ = st.columns([1, 3])
                 with col_sel:
-                    if st.button("✏️ Bewerk geselecteerde", key="edit_btn_selected_table", disabled=len(selected_rows) != 1):
-                        sel_id = int(selected_rows.iloc[0]["ID"])  # type: ignore[index]
-                        self._start_edit_session(sel_id)
+                    if st.button("✏️ Bewerk geselecteerde", key="edit_btn_selected_table", disabled=selected_id is None):
+                        self._start_edit_session(int(selected_id))
             except Exception as e:
                 st.warning(f"Kon tabelweergave niet renderen: {e!s}")
 
