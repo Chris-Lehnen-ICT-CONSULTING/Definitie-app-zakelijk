@@ -496,7 +496,6 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def _definition_to_record(self, definition: Definition) -> DefinitieRecord:
         """Converteer Definition naar DefinitieRecord."""
         import json as _json
-        import re as _re
         # Bepaal bron type op basis van metadata (import vs generated)
         source_type_value = SourceType.GENERATED.value
         try:
@@ -508,20 +507,10 @@ class DefinitionRepository(DefinitionRepositoryInterface):
         except Exception:
             pass
 
-        # Strip eventuele voorloop "Ontologische categorie: <x>" uit definitietekst
-        _def_text = definition.definitie
-        try:
-            m = _re.match(r"^\s*Ontologische\s*categorie\s*:\s*(type|proces|resultaat|exemplaar)\s*[-–—:]?\s*",
-                           str(_def_text or ""), flags=_re.IGNORECASE)
-            if m:
-                _def_text = str(_def_text)[m.end():].lstrip()
-        except Exception:
-            pass
-
         record = DefinitieRecord(
             id=definition.id,
             begrip=definition.begrip,
-            definitie=_def_text,
+            definitie=definition.definitie,
             categorie=definition.categorie or "proces",
             ufo_categorie=getattr(definition, "ufo_categorie", None),
             toelichting_proces=getattr(definition, "toelichting_proces", None),
@@ -731,20 +720,11 @@ class DefinitionRepository(DefinitionRepositoryInterface):
     def _definition_to_updates(self, definition: Definition) -> dict[str, Any]:
         """Converteer Definition naar updates‑dict voor legacy update_definitie()."""
         import json as _json
-        import re as _re
         updates: dict[str, Any] = {}
         if definition.begrip is not None:
             updates["begrip"] = definition.begrip
         if definition.definitie is not None:
-            _def = definition.definitie
-            try:
-                m = _re.match(r"^\s*Ontologische\s*categorie\s*:\s*(type|proces|resultaat|exemplaar)\s*[-–—:]?\s*",
-                               str(_def or ""), flags=_re.IGNORECASE)
-                if m:
-                    _def = str(_def)[m.end():].lstrip()
-            except Exception:
-                pass
-            updates["definitie"] = _def
+            updates["definitie"] = definition.definitie
         if definition.categorie is not None:
             updates["categorie"] = definition.categorie
         # UFO-categorie (inclusief None om te kunnen leegmaken)
