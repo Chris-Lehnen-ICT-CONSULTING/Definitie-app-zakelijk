@@ -127,12 +127,12 @@ class ExpertReviewTab:
             # Display review queue
             st.markdown(f"**{len(filtered_reviews)} definities wachten op review:**")
 
-            # Tabelweergave (alleen lezen) of interactieve lijst
+            # Tabelweergave (selecteerbaar) of interactieve lijst
             show_table = st.checkbox(
                 "Toon tabelweergave",
-                value=False,
+                value=True,
                 key="review_show_table",
-                help="Schakel in voor een compacte tabel; selecteren doe je in de lijstweergave",
+                help="Schakel in voor compacte tabelweergave met selecteerbare rijen",
             )
 
             if show_table:
@@ -163,8 +163,40 @@ class ExpertReviewTab:
                         )
 
                     df = pd.DataFrame(rows)
-                    st.dataframe(df, use_container_width=True, height=400)
-                    st.caption("Selecteren doe je hieronder via de lijstweergave.")
+                    edited = st.data_editor(
+                        df.assign(Selecteer=False)[[
+                            "Selecteer","ID","Begrip","Categorie","UFO-categorie","Status","Score","Organisatorische context","Juridische context","Wettelijke basis"
+                        ]],
+                        use_container_width=True,
+                        height=420,
+                        hide_index=True,
+                        column_config={
+                            "Selecteer": st.column_config.CheckboxColumn(
+                                "Selecteer",
+                                help="Kies één rij en klik op 'Open geselecteerde'",
+                                default=False,
+                            ),
+                            "ID": st.column_config.TextColumn(disabled=True),
+                            "Begrip": st.column_config.TextColumn(disabled=True),
+                            "Categorie": st.column_config.TextColumn(disabled=True),
+                            "UFO-categorie": st.column_config.TextColumn(disabled=True),
+                            "Status": st.column_config.TextColumn(disabled=True),
+                            "Score": st.column_config.TextColumn(disabled=True),
+                            "Organisatorische context": st.column_config.TextColumn(disabled=True),
+                            "Juridische context": st.column_config.TextColumn(disabled=True),
+                            "Wettelijke basis": st.column_config.TextColumn(disabled=True),
+                        },
+                    )
+
+                    selected_rows = edited[edited["Selecteer"] == True] if not edited.empty else edited.head(0)
+                    btn_col, _ = st.columns([1,3])
+                    with btn_col:
+                        if st.button("👁️ Open geselecteerde", key="review_open_selected_table", disabled=len(selected_rows) != 1):
+                            sel_id = int(selected_rows.iloc[0]["ID"])  # type: ignore[index]
+                            chosen = next((x for x in filtered_reviews if x.id == sel_id), None)
+                            if chosen:
+                                SessionStateManager.set_value("selected_review_definition", chosen)
+                                st.rerun()
                 except Exception as e:
                     st.warning(f"Kon tabelweergave niet renderen: {e!s}")
 

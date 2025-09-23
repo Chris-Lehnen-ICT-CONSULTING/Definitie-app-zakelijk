@@ -282,6 +282,7 @@ class DefinitionEditRepository(DefinitionRepository):
                            context_filter: str = None,
                            date_from: datetime = None,
                            date_to: datetime = None,
+                           source_type: str = None,
                            limit: int = 50) -> List[Definition]:
         """
         Geavanceerd zoeken met meerdere filters.
@@ -293,6 +294,7 @@ class DefinitionEditRepository(DefinitionRepository):
             context_filter: Filter op organisatorische context
             date_from: Filter vanaf datum
             date_to: Filter tot datum
+            source_type: Filter op herkomst (generated/imported/manual)
             limit: Maximum aantal resultaten
             
         Returns:
@@ -318,6 +320,10 @@ class DefinitionEditRepository(DefinitionRepository):
                 if status:
                     query += " AND status = ?"
                     params.append(status)
+
+                if source_type:
+                    query += " AND source_type = ?"
+                    params.append(source_type)
                 
                 if context_filter:
                     query += " AND organisatorische_context LIKE ?"
