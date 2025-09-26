@@ -1,462 +1,409 @@
 """
-Unit tests voor UFO Classifier Service.
+Tests voor UFO Classifier Service.
 
-Test de automatische classificatie van begrippen volgens UFO/OntoUML categorieën.
+Test de complete UFO classificatie functionaliteit inclusief:
+- Alle 16 UFO categorieën
+- Disambiguatie voor complexe termen
+- Confidence berekeningen
+- Pattern matching
+- Juridische domein aanpassingen
 """
 
 import pytest
-from unittest.mock import MagicMock, patch
+from pathlib import Path
+from unittest.mock import patch, Mock
 
 from src.services.ufo_classifier_service import (
-    UFOCategory,
-    UFOClassificationResult,
     UFOClassifierService,
-    PatternMatcher,
-    get_ufo_classifier
+    UFOClassificationResult,
+    UFOCategory,
+    PatternMatch,
+    DisambiguationNote
 )
 
 
-class TestPatternMatcher:
-    """Test de PatternMatcher class."""
-
-    def test_pattern_initialization(self):
-        """Test dat patterns correct worden geïnitialiseerd."""
-        matcher = PatternMatcher()
-
-        assert UFOCategory.KIND in matcher.patterns
-        assert UFOCategory.EVENT in matcher.patterns
-        assert UFOCategory.ROLE in matcher.patterns
-
-        # Check dat er daadwerkelijk patterns zijn
-        kind_patterns = matcher.patterns[UFOCategory.KIND]
-        assert 'core_nouns' in kind_patterns
-        assert 'persoon' in kind_patterns['core_nouns']
-
-    def test_pattern_compilation(self):
-        """Test dat regex patterns correct worden gecompileerd."""
-        matcher = PatternMatcher()
-
-        assert UFOCategory.KIND in matcher.compiled_patterns
-        assert hasattr(matcher.compiled_patterns[UFOCategory.KIND], 'findall')
-
-    def test_find_matches_simple(self):
-        """Test pattern matching met simpele tekst."""
-        matcher = PatternMatcher()
-        text = "Een persoon is een natuurlijk mens"
-
-        matches = matcher.find_matches(text)
-
-        assert UFOCategory.KIND in matches
-        assert 'persoon' in matches[UFOCategory.KIND]
-        assert 'mens' in matches[UFOCategory.KIND]
-
-    def test_find_matches_event(self):
-        """Test pattern matching voor events."""
-        matcher = PatternMatcher()
-        text = "Het proces van arrestatie tijdens het onderzoek"
-
-        matches = matcher.find_matches(text)
-
-        assert UFOCategory.EVENT in matches
-        assert 'proces' in matches[UFOCategory.EVENT]
-        assert 'tijdens' in matches[UFOCategory.EVENT]
-        assert 'onderzoek' in matches[UFOCategory.EVENT]
-
-    def test_find_matches_role(self):
-        """Test pattern matching voor rollen."""
-        matcher = PatternMatcher()
-        text = "De verdachte in de rol van getuige"
-
-        matches = matcher.find_matches(text)
-
-        assert UFOCategory.ROLE in matches
-        assert 'verdachte' in matches[UFOCategory.ROLE]
-        assert 'in de rol van' in matches[UFOCategory.ROLE]
-        assert 'getuige' in matches[UFOCategory.ROLE]
-
-    def test_find_matches_case_insensitive(self):
-        """Test dat matching case-insensitive is."""
-        matcher = PatternMatcher()
-        text = "Een PERSOON is een Natuurlijk MENS"
-
-        matches = matcher.find_matches(text)
-
-        assert UFOCategory.KIND in matches
-        assert 'persoon' in matches[UFOCategory.KIND]
-        assert 'mens' in matches[UFOCategory.KIND]
-
-    def test_find_matches_caching(self):
-        """Test dat resultaten gecached worden."""
-        matcher = PatternMatcher()
-        text = "Een persoon is een mens"
-
-        # Eerste call
-        matches1 = matcher.find_matches(text)
-        # Tweede call (zou uit cache moeten komen)
-        matches2 = matcher.find_matches(text)
-
-        assert matches1 == matches2
-
-
 class TestUFOClassifierService:
-    """Test de UFOClassifierService class."""
+    """Test suite voor UFO Classifier Service."""
 
     @pytest.fixture
     def classifier(self):
-        """Maak een classifier instance voor tests."""
+        """Maak een UFO classifier instance voor tests."""
         return UFOClassifierService()
 
+    @pytest.fixture
+    def sample_definitions(self):
+        """Sample definities voor verschillende UFO categorieën."""
+        return {
+            "Kind": {
+                "term": "rechtspersoon",
+                "definition": "Een rechtspersoon is een zelfstandige juridische entiteit die rechten en plichten kan hebben, zoals een BV, NV of stichting."
+            },
+            "Event": {
+                "term": "arrestatie",
+                "definition": "Een arrestatie is de handeling waarbij een opsporingsambtenaar iemand van zijn vrijheid berooft tijdens het onderzoek naar een strafbaar feit."
+            },
+            "Role": {
+                "term": "verdachte",
+                "definition": "Een persoon die in de hoedanigheid van verdachte wordt aangemerkt wanneer er redelijke verdenking bestaat dat hij een strafbaar feit heeft gepleegd."
+            },
+            "Phase": {
+                "term": "voorlopige hechtenis",
+                "definition": "De fase waarin een verdachte in afwachting van zijn berechting in detentie wordt gehouden."
+            },
+            "Relator": {
+                "term": "koopovereenkomst",
+                "definition": "Een overeenkomst tussen koper en verkoper waarbij de verkoper zich verbindt een zaak te geven en de koper om daarvoor een prijs in geld te betalen."
+            },
+            "Mode": {
+                "term": "bevoegdheid",
+                "definition": "De eigenschap van een persoon of organisatie om bepaalde rechtshandelingen te mogen verrichten."
+            },
+            "Quantity": {
+                "term": "koopsom",
+                "definition": "Het bedrag in euro's dat de koper aan de verkoper verschuldigd is voor de gekochte zaak."
+            },
+            "Quality": {
+                "term": "betrouwbaarheid",
+                "definition": "De mate waarin een getuigenverklaring als waarheidsgetrouw kan worden beschouwd."
+            }
+        }
+
     def test_initialization(self, classifier):
-        """Test dat de service correct wordt geïnitialiseerd."""
-        assert classifier.pattern_matcher is not None
-        assert classifier.decision_weights is not None
-        assert UFOCategory.KIND in classifier.decision_weights
+        """Test dat de classifier correct initialiseert."""
+        assert classifier is not None
+        assert len(classifier.domain_lexicons) > 0
+        assert len(classifier.compiled_patterns) > 0
+        assert classifier.stats["total_classifications"] == 0
 
-    def test_classify_kind(self, classifier):
-        """Test classificatie van KIND categorie."""
-        term = "Persoon"
-        definition = "Een persoon is een natuurlijk mens met rechtspersoonlijkheid"
+    def test_classify_kind(self, classifier, sample_definitions):
+        """Test classificatie van Kind entiteit."""
+        sample = sample_definitions["Kind"]
+        result = classifier.classify(sample["term"], sample["definition"])
 
-        result = classifier.classify(term, definition)
-
-        assert result.primary_category == UFOCategory.KIND
+        assert result.primary_category == "Kind"
         assert result.confidence > 0.5
-        assert len(result.explanation) > 0
-        assert 'persoon' in str(result.matched_patterns).lower()
+        assert len(result.matched_patterns) > 0
+        assert len(result.all_scores) == 8  # Minimaal 8 hoofdcategorieën
+        assert result.detailed_explanation != ""
 
-    def test_classify_event(self, classifier):
-        """Test classificatie van EVENT categorie."""
-        term = "Arrestatie"
-        definition = "Het proces waarbij een verdachte tijdens het onderzoek wordt aangehouden"
+    def test_classify_event(self, classifier, sample_definitions):
+        """Test classificatie van Event."""
+        sample = sample_definitions["Event"]
+        result = classifier.classify(sample["term"], sample["definition"])
 
-        result = classifier.classify(term, definition)
-
-        assert result.primary_category == UFOCategory.EVENT
+        assert result.primary_category == "Event"
         assert result.confidence > 0.5
-        assert 'proces' in str(result.explanation).lower() or 'gebeurtenis' in str(result.explanation).lower()
+        assert any(p.category == "Event" for p in result.matched_patterns)
+        assert "handeling" in result.detailed_explanation.lower()
 
-    def test_classify_role(self, classifier):
-        """Test classificatie van ROLE categorie."""
-        term = "Verdachte"
-        definition = "Een persoon in de hoedanigheid van mogelijke dader van een strafbaar feit"
+    def test_classify_role(self, classifier, sample_definitions):
+        """Test classificatie van Role."""
+        sample = sample_definitions["Role"]
+        result = classifier.classify(sample["term"], sample["definition"])
 
-        result = classifier.classify(term, definition)
+        assert result.primary_category == "Role"
+        assert result.confidence > 0.5
+        assert any("hoedanigheid" in p.matched_text for p in result.matched_patterns)
 
-        assert result.primary_category == UFOCategory.ROLE
+    def test_classify_phase(self, classifier, sample_definitions):
+        """Test classificatie van Phase."""
+        sample = sample_definitions["Phase"]
+        result = classifier.classify(sample["term"], sample["definition"])
+
+        assert result.primary_category == "Phase"
         assert result.confidence > 0.4
-        assert any('rol' in exp.lower() or 'hoedanigheid' in exp.lower() for exp in result.explanation)
+        assert "fase" in result.detailed_explanation.lower()
 
-    def test_classify_relator(self, classifier):
-        """Test classificatie van RELATOR categorie."""
-        term = "Huwelijk"
-        definition = "Een overeenkomst tussen twee personen voor het aangaan van een levensgemeenschap"
+    def test_classify_relator(self, classifier, sample_definitions):
+        """Test classificatie van Relator."""
+        sample = sample_definitions["Relator"]
+        result = classifier.classify(sample["term"], sample["definition"])
 
-        result = classifier.classify(term, definition)
+        assert result.primary_category == "Relator"
+        assert result.confidence > 0.5
+        assert any(p.category == "Relator" for p in result.matched_patterns)
+        assert "tussen" in result.detailed_explanation.lower()
 
-        assert result.primary_category == UFOCategory.RELATOR
+    def test_classify_mode(self, classifier, sample_definitions):
+        """Test classificatie van Mode."""
+        sample = sample_definitions["Mode"]
+        result = classifier.classify(sample["term"], sample["definition"])
+
+        assert result.primary_category == "Mode"
         assert result.confidence > 0.4
-        assert 'huwelijk' in str(result.matched_patterns).lower() or 'overeenkomst' in str(result.matched_patterns).lower()
+        assert "eigenschap" in result.detailed_explanation.lower()
 
-    def test_classify_mode(self, classifier):
-        """Test classificatie van MODE categorie."""
-        term = "Gezondheid"
-        definition = "De toestand van fysiek en mentaal welzijn van een persoon"
+    def test_classify_quantity(self, classifier, sample_definitions):
+        """Test classificatie van Quantity."""
+        sample = sample_definitions["Quantity"]
+        result = classifier.classify(sample["term"], sample["definition"])
 
-        result = classifier.classify(term, definition)
+        assert result.primary_category == "Quantity"
+        assert result.confidence > 0.5
+        assert any("euro" in str(p.matched_text).lower() for p in result.matched_patterns)
 
-        assert result.primary_category == UFOCategory.MODE
-        assert result.confidence > 0.3
-        assert 'toestand' in str(result.matched_patterns).lower()
+    def test_classify_quality(self, classifier, sample_definitions):
+        """Test classificatie van Quality."""
+        sample = sample_definitions["Quality"]
+        result = classifier.classify(sample["term"], sample["definition"])
 
-    def test_classify_quantity(self, classifier):
-        """Test classificatie van QUANTITY categorie."""
-        term = "Bedrag"
-        definition = "Het aantal euro's dat betaald moet worden"
+        assert result.primary_category == "Quality"
+        assert result.confidence > 0.4
+        assert "mate" in result.detailed_explanation.lower()
 
-        result = classifier.classify(term, definition)
+    def test_disambiguation_zaak(self, classifier):
+        """Test disambiguatie voor de term 'zaak'."""
+        # Test rechtszaak -> Event
+        result1 = classifier.classify(
+            "rechtszaak",
+            "Een rechtszaak is een procedure voor de rechter waarin een juridisch geschil wordt beslecht."
+        )
+        assert result1.primary_category == "Event"
 
-        assert result.primary_category in [UFOCategory.QUANTITY, UFOCategory.MODE]
-        if result.primary_category == UFOCategory.QUANTITY:
-            assert 'euro' in str(result.matched_patterns).lower() or 'aantal' in str(result.matched_patterns).lower()
+        # Test roerende zaak -> Kind
+        result2 = classifier.classify(
+            "roerende zaak",
+            "Een roerende zaak is een fysiek voorwerp dat verplaatst kan worden, zoals een auto of meubel."
+        )
+        assert result2.primary_category == "Kind"
 
-    def test_classify_quality(self, classifier):
-        """Test classificatie van QUALITY categorie."""
-        term = "Betrouwbaarheid"
-        definition = "De mate waarin iets of iemand te vertrouwen is"
+        # Check voor disambiguation notes
+        if "zaak" in result2.detailed_explanation.lower():
+            assert len(result2.disambiguation_notes) > 0
 
-        result = classifier.classify(term, definition)
+    def test_disambiguation_huwelijk(self, classifier):
+        """Test disambiguatie voor de term 'huwelijk'."""
+        # Test huwelijksvoltrekking -> Event
+        result1 = classifier.classify(
+            "huwelijksvoltrekking",
+            "De ceremonie waarbij twee personen voor de wet in het huwelijk treden."
+        )
+        assert result1.primary_category == "Event"
 
-        assert result.primary_category == UFOCategory.QUALITY
-        assert result.confidence > 0.3
-        assert 'mate' in str(result.matched_patterns).lower() or 'betrouwbaarheid' in str(result.matched_patterns).lower()
+        # Test huwelijk als relatie -> Relator
+        result2 = classifier.classify(
+            "huwelijk",
+            "Een huwelijk is een wettelijke verbintenis tussen twee personen met wederzijdse rechten en plichten."
+        )
+        assert result2.primary_category == "Relator"
 
-    def test_classify_with_context(self, classifier):
-        """Test classificatie met context informatie."""
-        term = "Zaak"
-        definition = "Een juridische aangelegenheid"
-        context = {'domain': 'legal'}
-
-        result = classifier.classify(term, definition, context)
-
-        assert result.primary_category in [UFOCategory.KIND, UFOCategory.EVENT]
-        assert result.confidence > 0.2
-
-    def test_classify_unknown(self, classifier):
-        """Test classificatie van onbekende termen."""
-        term = "XYZ123"
-        definition = "Een compleet onbekend begrip zonder herkenbare patronen qwerty"
-
-        result = classifier.classify(term, definition)
-
-        assert result.primary_category == UFOCategory.UNKNOWN
-        assert result.confidence < 0.3
+    def test_disambiguation_overeenkomst(self, classifier):
+        """Test disambiguatie voor de term 'overeenkomst'."""
+        result = classifier.classify(
+            "overeenkomst",
+            "Een contract waarbij partijen zich over en weer verbinden tot het verrichten van prestaties."
+        )
+        assert result.primary_category == "Relator"
+        assert result.confidence > 0.5
 
     def test_secondary_tags(self, classifier):
-        """Test detectie van secundaire tags."""
-        term = "Type persoon"
-        definition = "Een abstract type dat verschillende soorten personen beschrijft"
-
-        result = classifier.classify(term, definition)
+        """Test dat secundaire tags correct worden toegepast."""
+        result = classifier.classify(
+            "bijzondere overeenkomst",
+            "Een specifiek type contract met bijzondere voorwaarden die afwijken van het algemene contractenrecht."
+        )
 
         assert len(result.secondary_tags) > 0
-        assert UFOCategory.ABSTRACT in result.secondary_tags or UFOCategory.SUBKIND in result.secondary_tags
+        # Mogelijk Subkind, Category of Abstract tag
+        assert any(tag in ["Subkind", "Category", "Abstract"] for tag in result.secondary_tags)
 
-    def test_confidence_levels(self, classifier):
-        """Test verschillende confidence niveaus."""
-        # Hoge confidence
-        result1 = classifier.classify(
-            "Rechtspersoon",
-            "Een juridische entiteit met rechtspersoonlijkheid"
+    def test_domain_adjustments(self, classifier):
+        """Test domein-specifieke aanpassingen."""
+        # Strafrecht context
+        strafrecht_context = {
+            "juridische_context": ["Strafrecht"]
+        }
+
+        result = classifier.classify(
+            "verdachte",
+            "Persoon tegen wie een verdenking van een strafbaar feit bestaat.",
+            context=strafrecht_context
         )
-        assert result1.confidence > 0.6
 
-        # Lage confidence
-        result2 = classifier.classify(
-            "Iets",
-            "Een vage omschrijving"
+        assert result.primary_category == "Role"
+        # Check dat strafrecht boost is toegepast
+        assert "strafrecht" in result.detailed_explanation.lower() or result.confidence > 0.5
+
+    def test_low_confidence_manual_override(self, classifier):
+        """Test dat lage confidence een manual override vereist."""
+        # Gebruik een vage definitie die lage confidence zou moeten geven
+        result = classifier.classify(
+            "iets",
+            "Dit is een ding."
         )
-        assert result2.confidence < 0.5
 
-    def test_explanation_generation(self, classifier):
-        """Test dat uitleg correct wordt gegenereerd."""
-        term = "Contract"
-        definition = "Een overeenkomst tussen partijen"
+        if result.confidence < 0.3:
+            assert result.manual_override_required
+            assert result.override_reason is not None
 
-        result = classifier.classify(term, definition)
+    def test_all_categories_evaluated(self, classifier):
+        """Test dat alle categorieën worden geëvalueerd."""
+        result = classifier.classify(
+            "test begrip",
+            "Een test definitie voor het controleren van de volledige evaluatie."
+        )
 
-        assert len(result.explanation) >= 2
-        assert any('zekerheid' in exp.lower() for exp in result.explanation)
-        assert any('overeenkomst' in exp.lower() or 'contract' in exp.lower() or 'relatie' in exp.lower()
-                   for exp in result.explanation)
+        # Check dat alle hoofdcategorieën een score hebben
+        assert len(result.all_scores) >= 8
+        assert UFOCategory.KIND.value in result.all_scores
+        assert UFOCategory.EVENT.value in result.all_scores
+        assert UFOCategory.ROLE.value in result.all_scores
+        assert UFOCategory.PHASE.value in result.all_scores
+        assert UFOCategory.RELATOR.value in result.all_scores
+        assert UFOCategory.MODE.value in result.all_scores
+        assert UFOCategory.QUANTITY.value in result.all_scores
+        assert UFOCategory.QUALITY.value in result.all_scores
 
-    def test_batch_classify(self, classifier):
-        """Test batch classificatie."""
-        items = [
-            ("Persoon", "Een natuurlijk mens", None),
-            ("Proces", "Een gebeurtenis die plaatsvindt", None),
-            ("Verdachte", "Iemand in de rol van mogelijke dader", {'domain': 'legal'})
+    def test_decision_path_complete(self, classifier):
+        """Test dat het volledige beslispad wordt vastgelegd."""
+        result = classifier.classify(
+            "verdachte",
+            "Een persoon die verdacht wordt van het plegen van een strafbaar feit."
+        )
+
+        assert len(result.decision_path) >= 9  # Alle 9 stappen
+        assert "1. Kind evaluatie" in result.decision_path[0]
+        assert "9. Subcategorieën" in result.decision_path[8]
+
+    def test_pattern_matching(self, classifier):
+        """Test pattern matching functionaliteit."""
+        result = classifier.classify(
+            "koopsom",
+            "Het bedrag van 50.000 euro dat betaald moet worden voor de woning."
+        )
+
+        assert len(result.matched_patterns) > 0
+        # Check voor euro pattern match
+        assert any("euro" in p.matched_text or "€" in p.pattern_text
+                  for p in result.matched_patterns)
+
+    def test_processing_time_tracked(self, classifier):
+        """Test dat processing tijd wordt bijgehouden."""
+        result = classifier.classify(
+            "test",
+            "Een simpele test definitie."
+        )
+
+        assert result.processing_time_ms > 0
+        assert result.processing_time_ms < 1000  # Moet onder 1 seconde zijn
+
+    def test_statistics_updated(self, classifier):
+        """Test dat statistieken worden bijgewerkt."""
+        initial_total = classifier.stats["total_classifications"]
+
+        classifier.classify("test1", "Definitie 1")
+        classifier.classify("test2", "Definitie 2")
+
+        assert classifier.stats["total_classifications"] == initial_total + 2
+        assert classifier.stats["successful_classifications"] > initial_total
+
+    def test_batch_classify(self, classifier, sample_definitions):
+        """Test batch classificatie functionaliteit."""
+        definitions = [
+            (sample["term"], sample["definition"])
+            for sample in sample_definitions.values()
         ]
 
-        results = classifier.batch_classify(items)
+        results = classifier.batch_classify(definitions)
 
-        assert len(results) == 3
-        assert results[0].primary_category == UFOCategory.KIND
-        assert results[1].primary_category == UFOCategory.EVENT
-        assert results[2].primary_category == UFOCategory.ROLE
-
-    def test_batch_classify_with_error(self, classifier):
-        """Test batch classificatie met fout handling."""
-        items = [
-            ("Persoon", "Een natuurlijk mens", None),
-            (None, None, None),  # Dit zou een error moeten geven
-            ("Proces", "Een gebeurtenis", None)
-        ]
-
-        results = classifier.batch_classify(items)
-
-        assert len(results) == 3
-        assert results[0].primary_category == UFOCategory.KIND
-        assert results[1].primary_category == UFOCategory.UNKNOWN
-        assert results[1].confidence == 0.0
-        assert results[2].primary_category == UFOCategory.EVENT
-
-    def test_get_category_examples(self, classifier):
-        """Test ophalen van voorbeelden per categorie."""
-        examples = classifier.get_category_examples(UFOCategory.KIND)
-
-        assert isinstance(examples, dict)
-        assert 'core_nouns' in examples
-        assert 'legal_entities' in examples
-        assert len(examples['core_nouns']) <= 5  # Max 5 voorbeelden
-
-    def test_explain_classification(self, classifier):
-        """Test uitgebreide uitleg generatie."""
-        term = "Contract"
-        definition = "Een overeenkomst tussen twee partijen"
-
-        result = classifier.classify(term, definition)
-        explanation = classifier.explain_classification(result)
-
-        assert isinstance(explanation, str)
-        assert 'UFO Categorie:' in explanation
-        assert 'Zekerheid:' in explanation
-        assert str(result.primary_category.value) in explanation
+        assert len(results) == len(definitions)
+        assert all(isinstance(r, UFOClassificationResult) for r in results)
+        assert all(r.primary_category in [cat.value for cat in UFOCategory]
+                  for r in results)
 
     def test_to_dict_serialization(self, classifier):
-        """Test serialisatie naar dictionary."""
-        term = "Persoon"
-        definition = "Een natuurlijk mens"
+        """Test dat resultaten correct serialiseren naar dict."""
+        result = classifier.classify(
+            "rechtspersoon",
+            "Een juridische entiteit met rechtspersoonlijkheid."
+        )
 
-        result = classifier.classify(term, definition)
         result_dict = result.to_dict()
 
-        assert isinstance(result_dict, dict)
-        assert 'primary_category' in result_dict
-        assert 'confidence' in result_dict
-        assert 'explanation' in result_dict
-        assert 'secondary_tags' in result_dict
-        assert 'matched_patterns' in result_dict
+        assert "primary_category" in result_dict
+        assert "confidence" in result_dict
+        assert "all_scores" in result_dict
+        assert "matched_patterns" in result_dict
+        assert "detailed_explanation" in result_dict
+        assert isinstance(result_dict["matched_patterns"], list)
 
-        assert isinstance(result_dict['primary_category'], str)
-        assert isinstance(result_dict['confidence'], float)
-        assert isinstance(result_dict['explanation'], list)
-
-
-class TestSingletonPattern:
-    """Test de singleton pattern voor de classifier."""
-
-    def test_get_ufo_classifier_singleton(self):
-        """Test dat get_ufo_classifier een singleton retourneert."""
-        classifier1 = get_ufo_classifier()
-        classifier2 = get_ufo_classifier()
-
-        assert classifier1 is classifier2
-
-    def test_singleton_initialization(self):
-        """Test dat de singleton correct wordt geïnitialiseerd."""
-        # Reset de global instance
-        import src.services.ufo_classifier_service as module
-        module._classifier_instance = None
-
-        classifier = get_ufo_classifier()
-
-        assert classifier is not None
-        assert isinstance(classifier, UFOClassifierService)
-
-
-class TestPerformance:
-    """Performance tests voor de classifier."""
-
-    def test_classification_speed(self):
-        """Test dat classificatie snel genoeg is."""
-        import time
-
-        classifier = UFOClassifierService()
-        term = "Persoon"
-        definition = "Een natuurlijk mens met rechtspersoonlijkheid"
-
-        # Warm up (eerste call kan trager zijn)
-        classifier.classify(term, definition)
-
-        # Measure
-        start = time.time()
-        for _ in range(100):
-            classifier.classify(term, definition)
-        duration = time.time() - start
-
-        # Should be less than 1 second for 100 classifications
-        assert duration < 1.0, f"100 classificaties duurde {duration:.2f} seconden"
-
-    def test_batch_performance(self):
-        """Test batch processing performance."""
-        import time
-
-        classifier = UFOClassifierService()
-        items = [
-            (f"Term{i}", f"Definitie {i} met wat tekst", None)
-            for i in range(100)
+    def test_complex_legal_definitions(self, classifier):
+        """Test complexe juridische definities."""
+        complex_definitions = [
+            {
+                "term": "dwangsom",
+                "definition": "Een geldsom die een schuldenaar moet betalen indien hij niet of niet tijdig aan een rechterlijke uitspraak voldoet.",
+                "expected": ["Quantity", "Relator"]  # Kan beide zijn
+            },
+            {
+                "term": "curator",
+                "definition": "Persoon die door de rechtbank is aangesteld om het beheer te voeren over het vermogen van een failliet verklaarde.",
+                "expected": ["Role"]
+            },
+            {
+                "term": "bestuursorgaan",
+                "definition": "Een orgaan van een rechtspersoon die krachtens publiekrecht is ingesteld of een ander persoon of college met enig openbaar gezag bekleed.",
+                "expected": ["Kind", "Role"]  # Kan beide aspecten hebben
+            }
         ]
 
-        start = time.time()
-        results = classifier.batch_classify(items)
-        duration = time.time() - start
+        for test_case in complex_definitions:
+            result = classifier.classify(test_case["term"], test_case["definition"])
+            assert result.primary_category in test_case["expected"]
+            assert result.confidence > 0.3
 
-        assert len(results) == 100
-        assert duration < 2.0, f"100 batch classificaties duurde {duration:.2f} seconden"
+    def test_confidence_thresholds(self, classifier):
+        """Test confidence drempel configuratie."""
+        # Hoge confidence
+        result_high = classifier.classify(
+            "rechtspersoon",
+            "Een rechtspersoon is een zelfstandige juridische entiteit zoals een BV, NV of stichting met volledige rechtsbevoegdheid."
+        )
+        assert result_high.confidence > 0.6
 
-    def test_caching_effectiveness(self):
-        """Test dat caching werkt voor herhaalde calls."""
-        import time
+        # Lage confidence (vage definitie)
+        result_low = classifier.classify(
+            "dinges",
+            "Dat ding daar."
+        )
+        assert result_low.confidence < 0.6
 
-        classifier = UFOClassifierService()
-        text = "Een persoon is een natuurlijk mens"
-
-        # Eerste call
-        start1 = time.time()
-        classifier.pattern_matcher.find_matches(text)
-        duration1 = time.time() - start1
-
-        # Tweede call (cached)
-        start2 = time.time()
-        classifier.pattern_matcher.find_matches(text)
-        duration2 = time.time() - start2
-
-        # Cached call zou sneller moeten zijn
-        assert duration2 <= duration1
-
-
-class TestEdgeCases:
-    """Test edge cases en speciale situaties."""
-
-    def test_empty_input(self):
-        """Test met lege input."""
-        classifier = UFOClassifierService()
-
+    def test_empty_input_handling(self, classifier):
+        """Test handling van lege input."""
         result = classifier.classify("", "")
+        assert result.primary_category == "Kind"  # Default
+        assert result.confidence == 0.0
 
-        assert result.primary_category == UFOCategory.UNKNOWN
-        assert result.confidence < 0.3
+    def test_very_long_definition(self, classifier):
+        """Test handling van zeer lange definities."""
+        long_definition = " ".join([
+            "Een zeer uitgebreide definitie die veel verschillende aspecten belicht"
+        ] * 50)
 
-    def test_very_long_input(self):
-        """Test met zeer lange input."""
-        classifier = UFOClassifierService()
-        long_text = " ".join(["Een persoon is een natuurlijk mens"] * 100)
+        result = classifier.classify("lang begrip", long_definition)
+        assert result is not None
+        assert result.processing_time_ms < 2000  # Max 2 seconden
 
-        result = classifier.classify("Persoon", long_text)
-
-        assert result.primary_category == UFOCategory.KIND
-        assert result.confidence > 0.5
-
-    def test_special_characters(self):
-        """Test met speciale karakters."""
-        classifier = UFOClassifierService()
-
+    def test_special_characters_handling(self, classifier):
+        """Test handling van speciale karakters."""
         result = classifier.classify(
-            "Test@#$%",
-            "Een definitie met speciale !@#$%^&*() karakters"
+            "test-begrip",
+            "Een definitie met speciale karakters zoals €, %, & en @."
         )
+        assert result is not None
+        assert result.primary_category in [cat.value for cat in UFOCategory]
 
-        assert result.primary_category in [UFOCategory.UNKNOWN, UFOCategory.KIND]
+    def test_get_statistics(self, classifier):
+        """Test statistieken ophalen."""
+        # Doe enkele classificaties
+        classifier.classify("test1", "Definitie 1")
+        classifier.classify("test2", "Definitie 2")
 
-    def test_mixed_languages(self):
-        """Test met gemixte talen."""
-        classifier = UFOClassifierService()
+        stats = classifier.get_statistics()
 
-        result = classifier.classify(
-            "Person",
-            "A person is een natuurlijk mens with rights"
-        )
-
-        # Zou nog steeds moeten werken op Nederlandse termen
-        assert result.primary_category == UFOCategory.KIND
-
-    def test_numeric_input(self):
-        """Test met numerieke input."""
-        classifier = UFOClassifierService()
-
-        result = classifier.classify(
-            "100",
-            "Het aantal van 100 euro"
-        )
-
-        assert result.primary_category in [UFOCategory.QUANTITY, UFOCategory.MODE]
+        assert "total_classifications" in stats
+        assert "success_rate" in stats
+        assert "average_confidence" in stats
+        assert "most_common_category" in stats
+        assert stats["total_classifications"] >= 2
+        assert 0 <= stats["success_rate"] <= 1

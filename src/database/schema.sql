@@ -40,7 +40,7 @@ CREATE TABLE definities (
     toelichting_proces TEXT, -- Procesmatige toelichting/opmerkingen (voor review/validatie notities)
 
     -- Status management
-    status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('draft', 'review', 'established', 'archived')),
+    status VARCHAR(50) NOT NULL DEFAULT 'draft' CHECK (status IN ('imported', 'draft', 'review', 'established', 'archived')),
 
     -- Versioning
     version_number INTEGER NOT NULL DEFAULT 1,
@@ -75,9 +75,10 @@ CREATE TABLE definities (
     datum_voorstel DATE,
     ketenpartners TEXT, -- JSON array van ketenpartner namen
 
-    -- Category-aware unique constraint voor begrip + context + categorie combinatie (per versie)
-    -- This allows multiple definitions for the same begrip+context with different categories
-    UNIQUE(begrip, organisatorische_context, juridische_context, categorie, status)
+    -- Voorkeursterm op definitie‑niveau (single source of truth)
+    voorkeursterm TEXT
+
+    -- (UNIQUE constraint tijdelijk uitgeschakeld i.v.m. importstrategie)
 );
 
 -- Index voor snelle lookups
@@ -268,8 +269,7 @@ CREATE TABLE definitie_voorbeelden (
     voorbeeld_tekst TEXT NOT NULL,
     voorbeeld_volgorde INTEGER DEFAULT 1,
 
-    -- Voorkeursterm indicator (voor type='synonyms')
-    is_voorkeursterm BOOLEAN NOT NULL DEFAULT FALSE,
+    -- Voorkeursterm indicator verwijderd; voorkeursterm wordt op definitie‑niveau opgeslagen
 
     -- Generation metadata
     gegenereerd_door VARCHAR(50) DEFAULT 'system',

@@ -655,6 +655,48 @@ class DefinitieRepository:
 
             if row:
                 return self._row_to_record(row)
+
+            # Geen directe begrip-hit: probeer exacte synoniem‑match (case-insensitive)
+            syn_query = """
+                SELECT d.*
+                FROM definities d
+                JOIN definitie_voorbeelden v ON v.definitie_id = d.id
+                WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
+                  AND v.voorbeeld_type = 'synonyms'
+                  AND v.actief = TRUE
+                  AND d.organisatorische_context = ?
+                  AND (d.juridische_context = ? OR (d.juridische_context IS NULL AND ? = ''))
+            """
+            syn_params = [
+                begrip,
+                organisatorische_context,
+                juridische_context,
+                juridische_context,
+            ]
+
+            if wettelijke_basis is not None:
+                try:
+                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
+                    wb_json = json.dumps(norm, ensure_ascii=False)
+                except Exception:
+                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
+                syn_params.extend([wb_json, wb_json])
+
+            if status:
+                syn_query += " AND d.status = ?"
+                syn_params.append(status.value)
+            else:
+                # Exclude archived by default for synonym path to mimic duplicate-gate behavior
+                syn_query += " AND d.status != 'archived'"
+
+            syn_query += " ORDER BY d.version_number DESC LIMIT 1"
+
+            cursor = conn.execute(syn_query, syn_params)
+            row = cursor.fetchone()
+            if row:
+                return self._row_to_record(row)
+
             return None
 
     def find_duplicates(
@@ -715,6 +757,44 @@ class DefinitieRepository:
                     )
                 )
 
+            # Exact synoniem‑match (case-insensitive) — zelfde contextfilters
+            syn_query = """
+                SELECT d.*
+                FROM definities d
+                JOIN definitie_voorbeelden v ON v.definitie_id = d.id
+                WHERE LOWER(v.voorbeeld_tekst) = LOWER(?)
+                  AND v.voorbeeld_type = 'synonyms'
+                  AND v.actief = TRUE
+                  AND d.organisatorische_context = ?
+                  AND (d.juridische_context = ? OR (d.juridische_context IS NULL AND ? = ''))
+                  AND d.status != 'archived'
+            """
+            syn_params = [
+                begrip,
+                organisatorische_context,
+                juridische_context,
+                juridische_context,
+            ]
+            if wettelijke_basis is not None:
+                try:
+                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
+                    wb_json = json.dumps(norm, ensure_ascii=False)
+                except Exception:
+                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                syn_query += " AND (d.wettelijke_basis = ? OR (d.wettelijke_basis IS NULL AND ? = '[]'))"
+                syn_params.extend([wb_json, wb_json])
+
+            cursor = conn.execute(syn_query, syn_params)
+            for row in cursor.fetchall():
+                record = self._row_to_record(row)
+                matches.append(
+                    DuplicateMatch(
+                        definitie_record=record,
+                        match_score=1.0,
+                        match_reasons=["Exact match: synoniem + context"],
+                    )
+                )
+
             # Fuzzy match op begrip (alleen als geen exact match)
             if not matches:
                 fuzzy_query = """
@@ -750,6 +830,44 @@ class DefinitieRepository:
                         )
 
         return sorted(matches, key=lambda x: x.match_score, reverse=True)
+
+    def count_exact_by_context(
+        self,
+        *,
+        begrip: str,
+        organisatorische_context: str,
+        juridische_context: str = "",
+        wettelijke_basis: list[str] | None = None,
+    ) -> int:
+        """Tel definities met exact zelfde begrip + context (jur optional empty), status != archived.
+
+        - Wettelijke_basis wordt orde‑onafhankelijk vergeleken via genormaliseerde JSON string.
+        - Gebruik voor validatieregels (CON‑01) om meervoud te signaleren.
+        """
+        with self._get_connection() as conn:
+            query = (
+                "SELECT COUNT(*) AS cnt FROM definities "
+                "WHERE begrip = ? AND organisatorische_context = ? "
+                "AND (juridische_context = ? OR (juridische_context IS NULL AND ? = '')) "
+                "AND status != 'archived'"
+            )
+            params: list = [
+                begrip,
+                organisatorische_context,
+                juridische_context,
+                juridische_context,
+            ]
+            if wettelijke_basis is not None:
+                try:
+                    norm = sorted({str(x).strip() for x in (wettelijke_basis or [])})
+                    wb_json = json.dumps(norm, ensure_ascii=False)
+                except Exception:
+                    wb_json = json.dumps(wettelijke_basis or [], ensure_ascii=False)
+                query += " AND (wettelijke_basis = ? OR (wettelijke_basis IS NULL AND ? = '[]'))"
+                params.extend([wb_json, wb_json])
+            cur = conn.execute(query, params)
+            row = cur.fetchone()
+            return int(row[0]) if row else 0
 
     def update_definitie(
         self, definitie_id: int, updates: dict[str, Any], updated_by: str | None = None
@@ -1332,10 +1450,7 @@ class DefinitieRepository:
                         if not voorbeeld_tekst.strip():  # Skip lege voorbeelden
                             continue
 
-                        # Check of dit de voorkeursterm is (alleen voor synoniemen)
-                        is_voorkeursterm_value = False
-                        if norm_type == "synonyms" and voorkeursterm and voorbeeld_tekst.strip() == voorkeursterm.strip():
-                            is_voorkeursterm_value = True
+                        # Voorkeursterm wordt alleen op definitie‑niveau opgeslagen; flags op rij‑niveau niet meer gebruikt
 
                         # Maak VoorbeeldenRecord
                         record = VoorbeeldenRecord(
@@ -1372,7 +1487,7 @@ class DefinitieRepository:
                                 UPDATE definitie_voorbeelden
                                 SET voorbeeld_tekst = ?, actief = TRUE,
                                     gegenereerd_door = ?, generation_model = ?,
-                                    generation_parameters = ?, is_voorkeursterm = ?,
+                                    generation_parameters = ?,
                                     bijgewerkt_op = CURRENT_TIMESTAMP
                                 WHERE id = ?
                             """,
@@ -1381,7 +1496,6 @@ class DefinitieRepository:
                                     record.gegenereerd_door,
                                     record.generation_model,
                                     record.generation_parameters,
-                                    is_voorkeursterm_value,
                                     existing[0],
                                 ),
                             )
@@ -1393,8 +1507,8 @@ class DefinitieRepository:
                                 INSERT INTO definitie_voorbeelden (
                                     definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
                                     gegenereerd_door, generation_model, generation_parameters, actief,
-                                    is_voorkeursterm, aangemaakt_op, bijgewerkt_op
-                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+                                    aangemaakt_op, bijgewerkt_op
+                                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
                             """,
                                 (
                                     record.definitie_id,
@@ -1405,7 +1519,6 @@ class DefinitieRepository:
                                     record.generation_model,
                                     record.generation_parameters,
                                     record.actief,
-                                    is_voorkeursterm_value,
                                 ),
                             )
                             saved_ids.append(cursor.lastrowid)
@@ -1415,6 +1528,30 @@ class DefinitieRepository:
                         )
 
                 conn.commit()
+
+                # Voorkeursterm persistency (Single Source: definities.voorkeursterm TEXT):
+                # - Sla gekozen term op in definities.voorkeursterm (None = geen).
+                try:
+                    if voorkeursterm:
+                        # Single source: zet tekstkolom
+                        cursor.execute(
+                            "UPDATE definities SET voorkeursterm = ? WHERE id = ?",
+                            (
+                                voorkeursterm.strip(),
+                                definitie_id,
+                            ),
+                        )
+                        conn.commit()
+                    else:
+                        # Clear voorkeursterm
+                        cursor.execute(
+                            "UPDATE definities SET voorkeursterm = NULL WHERE id = ?",
+                            (definitie_id,),
+                        )
+                        conn.commit()
+                except Exception:
+                    # Soft-fail: laat eerdere per‑row set gelden
+                    pass
                 logger.info(f"Successfully saved {len(saved_ids)} voorbeelden")
                 return saved_ids
 
@@ -1445,7 +1582,7 @@ class DefinitieRepository:
 
             query = """
                 SELECT id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
-                       is_voorkeursterm, gegenereerd_door, generation_model, generation_parameters, actief,
+                       gegenereerd_door, generation_model, generation_parameters, actief,
                        beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door,
                        beoordeeld_op, aangemaakt_op, bijgewerkt_op
                 FROM definitie_voorbeelden
@@ -1473,7 +1610,7 @@ class DefinitieRepository:
                     voorbeeld_type=row["voorbeeld_type"],
                     voorbeeld_tekst=row["voorbeeld_tekst"],
                     voorbeeld_volgorde=row["voorbeeld_volgorde"],
-                    is_voorkeursterm=bool(row["is_voorkeursterm"]),
+                    is_voorkeursterm=False,
                     gegenereerd_door=row["gegenereerd_door"],
                     generation_model=row["generation_model"],
                     generation_parameters=row["generation_parameters"],
@@ -1532,10 +1669,22 @@ class DefinitieRepository:
         Returns:
             De voorkeursterm tekst, of None als er geen is
         """
-        voorbeelden_records = self.get_voorbeelden(definitie_id, voorbeeld_type="synonyms")
-        for record in voorbeelden_records:
-            if record.is_voorkeursterm:
-                return record.voorbeeld_tekst
+        # 0) Single source: tekstkolom op definitie
+        with self._get_connection() as conn:
+            try:
+                cur = conn.execute(
+                    "SELECT voorkeursterm FROM definities WHERE id = ?",
+                    (definitie_id,),
+                )
+                row = cur.fetchone()
+                if row:
+                    vt = row[0]
+                    if vt and str(vt).strip():
+                        return str(vt)
+            except Exception:
+                pass
+
+        # 1) Geen voorkeursterm opgeslagen
         return None
 
     def beoordeel_voorbeeld(

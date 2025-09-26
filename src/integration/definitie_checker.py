@@ -135,7 +135,7 @@ class DefinitieChecker:
                 # Als er iets misgaat met parsing, behandel als geen exacte match
                 pass
         if existing:
-            return self._handle_exact_match(existing)
+            return self._handle_exact_match(existing, search_term=begrip)
 
         # Zoek duplicates/fuzzy matches - inclusief categorie
         duplicates = self.repository.find_duplicates(
@@ -421,26 +421,42 @@ class DefinitieChecker:
         """
         return self.repository.import_from_json(file_path, import_by)
 
-    def _handle_exact_match(self, existing: DefinitieRecord) -> DefinitieCheckResult:
+    def _handle_exact_match(self, existing: DefinitieRecord, search_term: str | None = None) -> DefinitieCheckResult:
         """Behandel exact match scenario."""
+        # Bepaal of de hit via synoniem tot stand kwam (i.p.v. exact begrip)
+        via_synoniem = False
+        try:
+            if search_term and search_term.strip():
+                via_synoniem = search_term.strip().lower() != (existing.begrip or "").strip().lower()
+        except Exception:
+            via_synoniem = False
+
+        # Bouw een iets rijkere uitleg
+        def _msg(prefix: str) -> str:
+            if via_synoniem and search_term:
+                return (
+                    f"{prefix} voor '{existing.begrip}' (ID: {existing.id}). "
+                    f"Gevonden via synoniem ‘{search_term}’ met gelijke context."
+                )
+            return f"{prefix} voor '{existing.begrip}' (ID: {existing.id})"
         if existing.status == DefinitieStatus.ESTABLISHED.value:
             return DefinitieCheckResult(
                 action=CheckAction.USE_EXISTING,
                 existing_definitie=existing,
-                message=f"Vastgestelde definitie bestaat al voor '{existing.begrip}' (ID: {existing.id})",
+                message=_msg("Vastgestelde definitie bestaat al"),
                 confidence=1.0,
             )
         if existing.status == DefinitieStatus.DRAFT.value:
             return DefinitieCheckResult(
                 action=CheckAction.UPDATE_EXISTING,
                 existing_definitie=existing,
-                message=f"Draft definitie bestaat voor '{existing.begrip}' (ID: {existing.id}). Overweeg update.",
+                message=_msg("Draft definitie bestaat") + ". Overweeg update.",
                 confidence=1.0,
             )
         return DefinitieCheckResult(
             action=CheckAction.USER_CHOICE,
             existing_definitie=existing,
-            message=f"Definitie in status '{existing.status}' bestaat voor '{existing.begrip}' (ID: {existing.id})",
+            message=_msg(f"Definitie in status '{existing.status}' bestaat"),
             confidence=0.8,
         )
 
