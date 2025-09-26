@@ -425,6 +425,79 @@ def migrate_database(db_path: str = "data/definities.db"):
             except Exception as e:
                 logger.warning(f"Kolom‑opruiming overgeslagen/mislukt: {e}")
 
+            # Correcteer eventueel FK die nog naar 'definities_old' wijst
+            try:
+                cur = conn.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='definitie_voorbeelden'")
+                row = cur.fetchone()
+                table_sql = row[0] if row else ""
+                if "definities_old" in (table_sql or ""):
+                    logger.info("🔧 Corrigeer FK: rebuild 'definitie_voorbeelden' met FK naar 'definities'")
+                    conn.execute("PRAGMA foreign_keys=OFF")
+                    conn.execute("ALTER TABLE definitie_voorbeelden RENAME TO definitie_voorbeelden_old2")
+                    conn.executescript(
+                        """
+                        CREATE TABLE definitie_voorbeelden (
+                            id INTEGER PRIMARY KEY AUTOINCREMENT,
+                            definitie_id INTEGER NOT NULL REFERENCES definities(id) ON DELETE CASCADE,
+                            voorbeeld_type VARCHAR(50) NOT NULL CHECK (voorbeeld_type IN ('sentence', 'practical', 'counter', 'synonyms', 'antonyms', 'explanation')),
+                            voorbeeld_tekst TEXT NOT NULL,
+                            voorbeeld_volgorde INTEGER DEFAULT 1,
+                            gegenereerd_door VARCHAR(50) DEFAULT 'system',
+                            generation_model VARCHAR(50),
+                            generation_parameters TEXT,
+                            actief BOOLEAN NOT NULL DEFAULT TRUE,
+                            beoordeeld BOOLEAN NOT NULL DEFAULT FALSE,
+                            beoordeeling VARCHAR(50),
+                            beoordeeling_notities TEXT,
+                            beoordeeld_door VARCHAR(255),
+                            beoordeeld_op TIMESTAMP,
+                            aangemaakt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            bijgewerkt_op TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                            UNIQUE(definitie_id, voorbeeld_type, voorbeeld_volgorde)
+                        );
+                        """
+                    )
+                    # Copy data
+                    conn.execute(
+                        """
+                        INSERT INTO definitie_voorbeelden (
+                            id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
+                            gegenereerd_door, generation_model, generation_parameters, actief,
+                            beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
+                            aangemaakt_op, bijgewerkt_op
+                        )
+                        SELECT
+                            id, definitie_id, voorbeeld_type, voorbeeld_tekst, voorbeeld_volgorde,
+                            gegenereerd_door, generation_model, generation_parameters, actief,
+                            beoordeeld, beoordeeling, beoordeeling_notities, beoordeeld_door, beoordeeld_op,
+                            aangemaakt_op, bijgewerkt_op
+                        FROM definitie_voorbeelden_old2
+                        """
+                    )
+                    # Recreate indexes + trigger
+                    try:
+                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_definitie_id ON definitie_voorbeelden(definitie_id)")
+                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_type ON definitie_voorbeelden(voorbeeld_type)")
+                        conn.execute("CREATE INDEX IF NOT EXISTS idx_voorbeelden_actief ON definitie_voorbeelden(actief)")
+                        conn.executescript(
+                            """
+                            CREATE TRIGGER IF NOT EXISTS update_voorbeelden_timestamp
+                                AFTER UPDATE ON definitie_voorbeelden
+                                FOR EACH ROW
+                                WHEN NEW.bijgewerkt_op = OLD.bijgewerkt_op
+                            BEGIN
+                                UPDATE definitie_voorbeelden SET bijgewerkt_op = CURRENT_TIMESTAMP WHERE id = NEW.id;
+                            END;
+                            """
+                        )
+                    except sqlite3.Error as e:
+                        logger.warning(f"Indexes/triggers hercreatie mislukt (FK fix): {e}")
+                    conn.execute("DROP TABLE definitie_voorbeelden_old2")
+                    conn.execute("PRAGMA foreign_keys=ON")
+                    logger.info("✅ FK naar 'definities' hersteld op 'definitie_voorbeelden'")
+            except Exception as e:
+                logger.warning(f"FK correctie check overslagen/mislukt: {e}")
+
             # Normaliseer wettelijke_basis voor betrouwbare duplicate‑check op DB‑laag
             _normalize_wettelijke_basis(conn)
 
