@@ -10,6 +10,7 @@ Priority order:
 from __future__ import annotations
 
 from typing import Any, Dict
+import re
 
 from ui.session_state import SessionStateManager
 
@@ -21,8 +22,15 @@ def _to_list(val: Any) -> list[str]:
         s = val.strip()
         if not s:
             return []
-        # support comma-separated strings
-        return [p.strip() for p in s.split(",") if p.strip()]
+        # Support diverse scheiders: komma, puntkomma, pipe, nieuwe regel,
+        # en bullet/asterisk/hyphen varianten met spaties eromheen
+        parts = re.split(r"(?:,|;|\||\r?\n|\s+[•*\-–—]\s+)+", s)
+        out: list[str] = []
+        for p in parts:
+            t = str(p).strip().lstrip("*•-–— ")
+            if t:
+                out.append(t)
+        return out
     return []
 
 
