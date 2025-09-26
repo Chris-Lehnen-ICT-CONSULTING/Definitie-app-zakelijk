@@ -617,7 +617,16 @@ class DefinitionEditTab:
                     if voorkeursterm:
                         st.success(f"✅ Huidige voorkeursterm: **{voorkeursterm}**")
                     else:
-                        st.info("ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen.")
+                        # Consistent met generator-tab: als gebruiker 'begrip' selecteert is er geen DB-flag.
+                        try:
+                            from ui.session_state import SessionStateManager as _SSM
+                            sess_vt = _SSM.get_value("voorkeursterm", "")
+                            if sess_vt and str(sess_vt).strip() == str(getattr(definition, 'begrip', '') or ''):
+                                st.success(f"✅ Huidige voorkeursterm: **{getattr(definition, 'begrip', '')}**")
+                            else:
+                                st.info("ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen.")
+                        except Exception:
+                            st.info("ℹ️ Geen voorkeursterm geselecteerd. Gebruik de selector hierboven om er een te kiezen.")
         except Exception as e:
             logger.debug(f"Could not show voorkeursterm status: {e}")
 

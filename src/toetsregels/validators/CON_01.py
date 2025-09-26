@@ -7,6 +7,12 @@ Gemigreerd van legacy core.py
 
 import logging
 import re
+from typing import Any
+
+try:
+    from database.definitie_repository import DefinitieRepository
+except Exception:  # pragma: no cover
+    DefinitieRepository = None  # type: ignore
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +67,7 @@ class CON01Validator:
         """
         definitie_lc = definitie.lower()
         # Ondersteun zowel legacy 'contexten' als V2 velden op top‑niveau
-        contexten = {}
+        contexten: dict[str, Any] = {}
         if context:
             if isinstance(context.get("contexten"), dict):
                 contexten = context.get("contexten") or {}
@@ -71,6 +77,37 @@ class CON01Validator:
                     "juridische_context": context.get("juridische_context") or [],
                     "wettelijke_basis": context.get("wettelijke_basis") or [],
                 }
+
+        # 0️⃣ Extra check: er mag niet meer dan 1 definitie bestaan met exact zelfde begrip + context (synoniemen tellen niet mee)
+        try:
+            if DefinitieRepository and begrip:
+                repo = DefinitieRepository()
+
+                def _as_str_one(val: Any) -> str:
+                    if isinstance(val, list):
+                        return str(val[0]) if val else ""
+                    return str(val or "")
+
+                org = _as_str_one(contexten.get("organisatorische_context", []))
+                jur = _as_str_one(contexten.get("juridische_context", []))
+                wet = contexten.get("wettelijke_basis", [])
+                wet_list = wet if isinstance(wet, list) else []
+
+                if org or jur or wet_list:
+                    cnt = repo.count_exact_by_context(
+                        begrip=begrip,
+                        organisatorische_context=org,
+                        juridische_context=jur,
+                        wettelijke_basis=wet_list,
+                    )
+                    if cnt > 1:
+                        return (
+                            False,
+                            f"❌ {self.id}: er bestaan meerdere definities voor dit begrip met dezelfde context (aantal: {cnt}). Consolidatie of hergebruik aanbevolen.",
+                            0.0,
+                        )
+        except Exception:  # Soft‑fail
+            pass
 
         # 1️⃣ Dynamisch: user-gegeven contexten
         expliciete_hits = []
