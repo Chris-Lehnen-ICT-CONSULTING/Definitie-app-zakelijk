@@ -1,41 +1,78 @@
-# UFO Classification Rules Configuration
-# Version: 1.0.0
+# UFO Classification Rules Configuration - Comprehensive Edition
+# Version: 2.0.0
 # Last Updated: 2025-09-23
 #
-# Dit bestand definieert de classificatie regels voor UFO/OntoUML categorieën.
-# Regels worden in volgorde van prioriteit geëvalueerd.
+# Dit bestand definieert een uitgebreid rule-based systeem voor UFO/OntoUML categorieën.
+# 100+ regels voor Nederlandse juridische begrippen, alle 16 categorieën volledig gedekt.
+# Focus op thoroughness - performance is geen concern voor single-user applicatie.
 
 metadata:
-  version: "1.0.0"
-  description: "UFO/OntoUML classificatie regels voor Nederlandse juridische begrippen"
+  version: "2.0.0"
+  description: "Comprehensive UFO/OntoUML classificatie regels - 100+ patterns voor Nederlandse juridische begrippen"
   confidence_thresholds:
-    high: 0.8
-    medium: 0.5
-    low: 0.3
+    very_high: 0.9    # Zeer zeker
+    high: 0.8          # Hoge zekerheid
+    medium: 0.6        # Redelijke zekerheid
+    low: 0.4           # Lage zekerheid
+    very_low: 0.2      # Zeer onzeker
   default_category: "Kind"
+  enable_all_checks: true  # Altijd alle 16 categorieën checken
+  performance_mode: false  # Kwaliteit over snelheid
 
-# Hoofdcategorieën met hun detectie regels
+# ============================================================================
+# HOOFDCATEGORIEËN - Alle 16 UFO categorieën volledig uitgewerkt
+# ============================================================================
+
 categories:
+  # ===========================================================================
+  # KIND - Zelfstandige entiteiten (highest priority)
+  # ===========================================================================
   Kind:
-    priority: 10
+    priority: 100  # Hoogste prioriteit
     description: "Zelfstandige entiteiten die onafhankelijk kunnen bestaan"
+    decision_criteria:
+      - "Is het een zelfstandig 'ding' dat zonder drager kan bestaan?"
+      - "Kan het object onafhankelijk geïdentificeerd worden?"
+      - "Heeft het een eigen identiteit door de tijd heen?"
+
     rules:
-      - id: kind_substantive_entity
+      # Basis substantieven
+      - id: kind_basic_nouns
         conditions:
           must_have_any:
             - "persoon"
             - "mens"
-            - "organisatie"
-            - "voorwerp"
-            - "document"
+            - "individu"
+            - "burger"
+            - "inwoner"
           must_not_have:
             - "eigenschap van"
             - "kenmerk van"
-            - "toestand van"
-        confidence_boost: 0.4
-        explanation: "Zelfstandig naamwoord zonder drager-indicatie"
+            - "rol als"
+        confidence_boost: 0.5
+        explanation: "Basis zelfstandig naamwoord"
 
-      - id: kind_legal_entity
+      # Organisaties en instellingen
+      - id: kind_organizations
+        conditions:
+          must_have_any:
+            - "organisatie"
+            - "bedrijf"
+            - "onderneming"
+            - "instelling"
+            - "instantie"
+            - "departement"
+            - "ministerie"
+            - "dienst"
+          context_clues:
+            - "opgericht"
+            - "gevestigd"
+            - "statutair"
+        confidence_boost: 0.45
+        explanation: "Organisatie of instelling"
+
+      # Juridische entiteiten
+      - id: kind_legal_entities
         conditions:
           must_have_any:
             - "rechtspersoon"
@@ -43,14 +80,123 @@ categories:
             - "natuurlijke persoon"
             - "vennootschap"
             - "stichting"
-        confidence_boost: 0.5
-        explanation: "Juridische entiteit"
+            - "vereniging"
+            - "coöperatie"
+            - "nv"
+            - "bv"
+            - "vof"
+        confidence_boost: 0.55
+        explanation: "Juridische entiteit met rechtspersoonlijkheid"
 
+      # Fysieke objecten
+      - id: kind_physical_objects
+        conditions:
+          must_have_any:
+            - "voorwerp"
+            - "object"
+            - "zaak"
+            - "goed"
+            - "artikel"
+            - "product"
+            - "apparaat"
+            - "machine"
+            - "instrument"
+          physical_markers:
+            - "tastbaar"
+            - "fysiek"
+            - "materieel"
+            - "concreet"
+        confidence_boost: 0.4
+        explanation: "Fysiek object"
+
+      # Documenten
+      - id: kind_documents
+        conditions:
+          must_have_any:
+            - "document"
+            - "dossier"
+            - "akte"
+            - "stuk"
+            - "bescheid"
+            - "brief"
+            - "rapport"
+            - "verslag"
+            - "nota"
+            - "memo"
+          document_types:
+            - "schriftelijk"
+            - "digitaal"
+            - "elektronisch"
+        confidence_boost: 0.4
+        explanation: "Document of schriftelijk stuk"
+
+      # Onroerende zaken
+      - id: kind_real_estate
+        conditions:
+          must_have_any:
+            - "gebouw"
+            - "pand"
+            - "woning"
+            - "kantoor"
+            - "fabriek"
+            - "terrein"
+            - "perceel"
+            - "grond"
+            - "onroerende zaak"
+        confidence_boost: 0.45
+        explanation: "Onroerend goed"
+
+      # Voertuigen
+      - id: kind_vehicles
+        conditions:
+          must_have_any:
+            - "voertuig"
+            - "auto"
+            - "motorfiets"
+            - "vrachtwagen"
+            - "bus"
+            - "fiets"
+            - "vaartuig"
+            - "schip"
+            - "boot"
+            - "luchtvaartuig"
+            - "vliegtuig"
+            - "helikopter"
+        confidence_boost: 0.4
+        explanation: "Vervoermiddel"
+
+      # Levende wezens
+      - id: kind_living_beings
+        conditions:
+          must_have_any:
+            - "dier"
+            - "plant"
+            - "organisme"
+            - "levensvorm"
+            - "wezen"
+            - "flora"
+            - "fauna"
+        biological_markers:
+            - "levend"
+            - "biologisch"
+            - "organisch"
+        confidence_boost: 0.4
+        explanation: "Levend wezen"
+
+  # ===========================================================================
+  # EVENT - Tijdsgebonden processen (high priority)
+  # ===========================================================================
   Event:
-    priority: 9
+    priority: 95
     description: "Tijdsgebonden processen of gebeurtenissen"
+    decision_criteria:
+      - "Is het tijdsgebonden (heeft het een begin en einde)?"
+      - "Is het een gebeurtenis of proces dat plaatsvindt?"
+      - "Verandert het door de tijd?"
+
     rules:
-      - id: event_process
+      # Algemene processen
+      - id: event_general_process
         conditions:
           must_have_any:
             - "proces"
@@ -58,165 +204,931 @@ categories:
             - "handeling"
             - "gebeurtenis"
             - "activiteit"
+            - "actie"
+            - "operatie"
+            - "verrichting"
+            - "uitvoering"
+          temporal_required: true
+        confidence_boost: 0.4
+        explanation: "Algemeen proces of gebeurtenis"
+
+      # Temporele markers
+      - id: event_temporal_explicit
+        conditions:
           temporal_markers:
             - "tijdens"
             - "gedurende"
-            - "doorlooptijd"
-        confidence_boost: 0.35
-        explanation: "Proces of gebeurtenis met tijdsaanduiding"
+            - "doorheen"
+            - "in de loop van"
+            - "vanaf"
+            - "tot"
+            - "tussen"
+            - "van ... tot"
+          verb_forms:
+            - "vindt plaats"
+            - "gebeurt"
+            - "wordt uitgevoerd"
+            - "wordt verricht"
+        confidence_boost: 0.5
+        explanation: "Expliciete tijdsaanduiding"
 
-      - id: event_legal_process
+      # Juridische processen
+      - id: event_legal_proceedings
         conditions:
           must_have_any:
+            - "rechtszaak"
             - "zitting"
             - "verhoor"
-            - "arrestatie"
-            - "vervolging"
-            - "berechting"
-        confidence_boost: 0.45
+            - "onderzoek"
+            - "hoorzitting"
+            - "pleidooi"
+            - "uitspraak"
+            - "vonnis"
+          process_verbs:
+            - "voeren"
+            - "houden"
+            - "afnemen"
+            - "uitspreken"
+        confidence_boost: 0.5
         explanation: "Juridisch proces"
 
+      # Strafrechtelijke processen
+      - id: event_criminal_process
+        conditions:
+          must_have_any:
+            - "arrestatie"
+            - "aanhouding"
+            - "inverzekeringstelling"
+            - "vervolging"
+            - "berechting"
+            - "dagvaarding"
+            - "betekening"
+            - "tenuitvoerlegging"
+            - "executie"
+        confidence_boost: 0.5
+        explanation: "Strafrechtelijk proces"
+
+      # Bestuursrechtelijke processen
+      - id: event_administrative_process
+        conditions:
+          must_have_any:
+            - "aanvraagprocedure"
+            - "bezwaarprocedure"
+            - "beroepsprocedure"
+            - "vergunningverlening"
+            - "handhavingsprocedure"
+            - "toezicht"
+            - "controle"
+            - "inspectie"
+        confidence_boost: 0.45
+        explanation: "Bestuursrechtelijk proces"
+
+      # Transacties en handelingen
+      - id: event_transactions
+        conditions:
+          must_have_any:
+            - "transactie"
+            - "overdracht"
+            - "levering"
+            - "betaling"
+            - "storting"
+            - "uitbetaling"
+            - "verkoop"
+            - "aankoop"
+            - "ruil"
+            - "schenking"
+          transaction_verbs:
+            - "overdragen"
+            - "leveren"
+            - "betalen"
+            - "verkopen"
+            - "kopen"
+        confidence_boost: 0.45
+        explanation: "Transactie of handeling"
+
+      # Onderzoeksactiviteiten
+      - id: event_investigation
+        conditions:
+          must_have_any:
+            - "opsporingsonderzoek"
+            - "gerechtelijk onderzoek"
+            - "doorzoeking"
+            - "fouillering"
+            - "observatie"
+            - "infiltratie"
+            - "verhoor"
+            - "confrontatie"
+            - "reconstructie"
+        confidence_boost: 0.45
+        explanation: "Onderzoeksactiviteit"
+
+      # Levenscyclus gebeurtenissen
+      - id: event_lifecycle
+        conditions:
+          must_have_any:
+            - "geboorte"
+            - "overlijden"
+            - "oprichting"
+            - "ontbinding"
+            - "fusie"
+            - "splitsing"
+            - "faillissement"
+            - "liquidatie"
+          lifecycle_nature: true
+        confidence_boost: 0.5
+        explanation: "Levenscyclus gebeurtenis"
+
+  # ===========================================================================
+  # ROLE - Contextuele rollen (high priority)
+  # ===========================================================================
   Role:
-    priority: 8
+    priority: 90
     description: "Contextuele rollen die een drager vereisen"
+    decision_criteria:
+      - "Is het een rol die een entiteit kan aannemen?"
+      - "Vereist het een drager (persoon/organisatie)?"
+      - "Is het contextafhankelijk?"
+
     rules:
-      - id: role_contextual
+      # Expliciete rol markers
+      - id: role_explicit_markers
         conditions:
           role_markers:
             - "als"
             - "in de hoedanigheid van"
+            - "in hoedanigheid van"
             - "in de rol van"
             - "fungerend als"
+            - "optredend als"
+            - "handelend als"
+            - "in functie van"
+            - "werkzaam als"
+            - "dienst doend als"
           requires_bearer: true
-        confidence_boost: 0.4
-        explanation: "Contextuele rol aanduiding"
+        confidence_boost: 0.5
+        explanation: "Expliciete rol aanduiding"
 
-      - id: role_legal_function
+      # Juridische functies
+      - id: role_legal_functions
         conditions:
           must_have_any:
             - "verdachte"
+            - "beklaagde"
+            - "gedaagde"
+            - "eiser"
+            - "verweerder"
             - "getuige"
+            - "deskundige"
+            - "tolk"
             - "rechter"
+            - "raadsheer"
+            - "kantonrechter"
+            - "kinderrechter"
+            - "officier van justitie"
             - "advocaat"
-            - "officier"
-          context: "legal"
-        confidence_boost: 0.45
+            - "procureur"
+            - "notaris"
+            - "deurwaarder"
+            - "griffier"
+          legal_context: true
+        confidence_boost: 0.5
         explanation: "Juridische functie of rol"
 
+      # Vertegenwoordiging rollen
+      - id: role_representation
+        conditions:
+          must_have_any:
+            - "vertegenwoordiger"
+            - "gemachtigde"
+            - "gevolmachtigde"
+            - "lasthebber"
+            - "mandataris"
+            - "tussenpersoon"
+            - "bemiddelaar"
+            - "mediator"
+            - "arbiter"
+            - "curator"
+            - "bewindvoerder"
+            - "voogd"
+            - "mentor"
+          representation_nature: true
+        confidence_boost: 0.45
+        explanation: "Vertegenwoordigingsrol"
+
+      # Bestuursrollen
+      - id: role_administrative
+        conditions:
+          must_have_any:
+            - "aanvrager"
+            - "verzoeker"
+            - "indiener"
+            - "melder"
+            - "vergunninghouder"
+            - "geadresseerde"
+            - "belanghebbende"
+            - "derde-belanghebbende"
+            - "toezichthouder"
+            - "handhaver"
+            - "inspecteur"
+            - "ambtenaar"
+          administrative_context: true
+        confidence_boost: 0.45
+        explanation: "Bestuursrechtelijke rol"
+
+      # Contractuele rollen
+      - id: role_contractual
+        conditions:
+          must_have_any:
+            - "contractpartij"
+            - "wederpartij"
+            - "koper"
+            - "verkoper"
+            - "huurder"
+            - "verhuurder"
+            - "pachter"
+            - "verpachter"
+            - "bruiklener"
+            - "uitlener"
+            - "schuldenaar"
+            - "schuldeiser"
+            - "debiteur"
+            - "crediteur"
+          contractual_relationship: true
+        confidence_boost: 0.45
+        explanation: "Contractuele rol"
+
+      # Arbeidsrollen
+      - id: role_employment
+        conditions:
+          must_have_any:
+            - "werkgever"
+            - "werknemer"
+            - "opdrachtgever"
+            - "opdrachtnemer"
+            - "aannemer"
+            - "onderaannemer"
+            - "zelfstandige"
+            - "zzp-er"
+            - "freelancer"
+            - "stagiair"
+            - "leerling"
+            - "trainee"
+            - "medewerker"
+            - "manager"
+            - "directeur"
+          employment_context: true
+        confidence_boost: 0.45
+        explanation: "Arbeidsrechtelijke rol"
+
+      # Familierollen
+      - id: role_family
+        conditions:
+          must_have_any:
+            - "ouder"
+            - "vader"
+            - "moeder"
+            - "kind"
+            - "zoon"
+            - "dochter"
+            - "echtgenoot"
+            - "echtgenote"
+            - "partner"
+            - "erfgenaam"
+            - "erflater"
+          family_context: true
+        confidence_boost: 0.4
+        explanation: "Familierol"
+
+  # ===========================================================================
+  # PHASE - Levensfasen (medium-high priority)
+  # ===========================================================================
   Phase:
-    priority: 7
+    priority: 85
     description: "Levensfasen of stadia van entiteiten"
+    decision_criteria:
+      - "Is het een levensfase van een entiteit?"
+      - "Vertegenwoordigt het een overgang binnen dezelfde identiteit?"
+      - "Is het een temporele staat?"
+
     rules:
-      - id: phase_lifecycle
+      # Algemene fase markers
+      - id: phase_general_markers
         conditions:
           must_have_any:
             - "fase"
             - "stadium"
             - "status"
-          lifecycle_markers:
-            - "nieuw"
-            - "lopend"
-            - "afgerond"
-            - "gesloten"
-        confidence_boost: 0.35
+            - "staat"
+            - "toestand"
+            - "periode"
+            - "etappe"
+            - "stap"
+          phase_indicators:
+            - "in"
+            - "tijdens"
+            - "gedurende"
+        confidence_boost: 0.4
+        explanation: "Algemene fase aanduiding"
+
+      # Levenscyclus fasen
+      - id: phase_lifecycle_stages
+        conditions:
+          must_have_any:
+            - "beginfase"
+            - "startfase"
+            - "initiële fase"
+            - "tussenfase"
+            - "middenfase"
+            - "eindfase"
+            - "slotfase"
+            - "laatste fase"
+          lifecycle_nature: true
+        confidence_boost: 0.45
         explanation: "Levenscyclus fase"
 
-      - id: phase_temporal_state
+      # Status indicators
+      - id: phase_status_indicators
+        conditions:
+          status_terms:
+            - "nieuw"
+            - "lopend"
+            - "actief"
+            - "inactief"
+            - "afgerond"
+            - "gesloten"
+            - "beëindigd"
+            - "voltooid"
+            - "hangend"
+            - "in onderzoek"
+            - "in behandeling"
+            - "in beraad"
+            - "in beroep"
+          temporal_state: true
+        confidence_boost: 0.45
+        explanation: "Status indicatie"
+
+      # Juridische statussen
+      - id: phase_legal_status
         conditions:
           must_have_any:
             - "voorlopig"
+            - "tijdelijk"
             - "definitief"
+            - "permanent"
+            - "onherroepelijk"
             - "concept"
-            - "in onderzoek"
-            - "in behandeling"
-        confidence_boost: 0.4
-        explanation: "Temporele staat aanduiding"
+            - "draft"
+            - "proef"
+            - "test"
+            - "pilot"
+          legal_status_nature: true
+        confidence_boost: 0.45
+        explanation: "Juridische status"
 
+      # Geldigheid fasen
+      - id: phase_validity
+        conditions:
+          must_have_any:
+            - "geldig"
+            - "ongeldig"
+            - "rechtsgeldig"
+            - "nietig"
+            - "vervallen"
+            - "verlopen"
+            - "verstreken"
+            - "geschorst"
+            - "opgeschort"
+            - "uitgesteld"
+            - "aangehouden"
+          validity_phase: true
+        confidence_boost: 0.45
+        explanation: "Geldigheidsfase"
+
+      # Publicatie fasen
+      - id: phase_publication
+        conditions:
+          must_have_any:
+            - "gepubliceerd"
+            - "bekendgemaakt"
+            - "openbaar"
+            - "vertrouwelijk"
+            - "geheim"
+            - "geclassificeerd"
+            - "onder embargo"
+            - "vrijgegeven"
+          publication_state: true
+        confidence_boost: 0.4
+        explanation: "Publicatiefase"
+
+      # Ontwikkelingsfasen
+      - id: phase_development
+        conditions:
+          must_have_any:
+            - "ontwikkeling"
+            - "groei"
+            - "rijping"
+            - "volwassenheid"
+            - "verval"
+            - "achteruitgang"
+            - "transformatie"
+            - "transitie"
+          development_phase: true
+        confidence_boost: 0.4
+        explanation: "Ontwikkelingsfase"
+
+  # ===========================================================================
+  # RELATOR - Bemiddelende relaties (medium-high priority)
+  # ===========================================================================
   Relator:
-    priority: 8
-    description: "Relaties tussen meerdere entiteiten"
+    priority: 88
+    description: "Relaties die meerdere entiteiten verbinden"
+    decision_criteria:
+      - "Medieert het een relatie tussen entiteiten?"
+      - "Vereist het meerdere deelnemers?"
+      - "Is het een binding tussen partijen?"
+
     rules:
-      - id: relator_contract
+      # Contracten en overeenkomsten
+      - id: relator_contracts
         conditions:
           must_have_any:
             - "overeenkomst"
             - "contract"
             - "convenant"
-            - "vergunning"
-            - "mandaat"
+            - "afspraak"
+            - "akkoord"
+            - "verdrag"
+            - "protocol"
+            - "memorandum"
+            - "intentieverklaring"
+          multi_party_indicators:
+            - "tussen"
+            - "partijen"
+            - "onderling"
+            - "wederzijds"
           participants_min: 2
-        confidence_boost: 0.45
+        confidence_boost: 0.5
         explanation: "Contractuele binding"
 
-      - id: relator_legal_relation
+      # Specifieke contracttypes
+      - id: relator_specific_contracts
+        conditions:
+          must_have_any:
+            - "koopovereenkomst"
+            - "huurovereenkomst"
+            - "arbeidsovereenkomst"
+            - "aannemingsovereenkomst"
+            - "lastgevingsovereenkomst"
+            - "bruikleenovereenkomst"
+            - "bewaargeving"
+            - "borgtocht"
+            - "vaststellingsovereenkomst"
+            - "dading"
+          contract_nature: true
+        confidence_boost: 0.5
+        explanation: "Specifiek contracttype"
+
+      # Vergunningen en machtigingen
+      - id: relator_permits
+        conditions:
+          must_have_any:
+            - "vergunning"
+            - "ontheffing"
+            - "vrijstelling"
+            - "machtiging"
+            - "mandaat"
+            - "volmacht"
+            - "lastgeving"
+            - "opdracht"
+            - "concessie"
+            - "licentie"
+            - "octrooi"
+            - "patent"
+          authorization_nature: true
+        confidence_boost: 0.45
+        explanation: "Vergunning of machtiging"
+
+      # Juridische relaties
+      - id: relator_legal_relations
         conditions:
           must_have_any:
             - "huwelijk"
+            - "geregistreerd partnerschap"
+            - "samenwoning"
             - "voogdij"
             - "curatele"
-            - "dagvaarding"
-          requires_multiple_parties: true
+            - "bewind"
+            - "mentorschap"
+            - "gezag"
+            - "ouderlijk gezag"
+            - "adoptie"
+            - "erkenning"
+          legal_binding: true
         confidence_boost: 0.5
         explanation: "Juridische relatie"
 
+      # Zakelijke rechten
+      - id: relator_property_rights
+        conditions:
+          must_have_any:
+            - "eigendom"
+            - "eigendomsrecht"
+            - "hypotheek"
+            - "hypotheekrecht"
+            - "pandrecht"
+            - "vruchtgebruik"
+            - "erfpacht"
+            - "opstal"
+            - "erfdienstbaarheid"
+            - "kwalitatieve verplichting"
+            - "retentierecht"
+            - "voorrecht"
+          property_relation: true
+        confidence_boost: 0.45
+        explanation: "Zakelijk recht"
+
+      # Verbintenissen
+      - id: relator_obligations
+        conditions:
+          must_have_any:
+            - "verbintenis"
+            - "verplichting"
+            - "schuld"
+            - "vordering"
+            - "aansprakelijkheid"
+            - "garantie"
+            - "zekerheidsstelling"
+            - "hoofdelijkheid"
+            - "borgtocht"
+          obligation_nature: true
+        confidence_boost: 0.45
+        explanation: "Verbintenis of verplichting"
+
+      # Samenwerkingsverbanden
+      - id: relator_partnerships
+        conditions:
+          must_have_any:
+            - "samenwerking"
+            - "partnership"
+            - "alliantie"
+            - "coalitie"
+            - "joint venture"
+            - "consortium"
+            - "maatschap"
+            - "vennootschap"
+          collaboration_nature: true
+        confidence_boost: 0.45
+        explanation: "Samenwerkingsverband"
+
+      # Procedurele relaties
+      - id: relator_procedural
+        conditions:
+          must_have_any:
+            - "dagvaarding"
+            - "oproeping"
+            - "aanzegging"
+            - "sommatie"
+            - "ingebrekestelling"
+            - "aanmaning"
+            - "waarschuwing"
+          procedural_link: true
+        confidence_boost: 0.4
+        explanation: "Procedurele relatie"
+
+  # ===========================================================================
+  # MODE - Intrinsieke eigenschappen (medium priority)
+  # ===========================================================================
   Mode:
-    priority: 6
-    description: "Eigenschappen of toestanden met drager"
+    priority: 75
+    description: "Eigenschappen of toestanden die een drager vereisen"
+    decision_criteria:
+      - "Is het een intrinsieke eigenschap met drager?"
+      - "Kan het niet zelfstandig bestaan?"
+      - "Is het afhankelijk van een entiteit?"
+
     rules:
-      - id: mode_state
+      # Toestanden
+      - id: mode_states
         conditions:
           must_have_any:
             - "toestand"
             - "staat"
             - "conditie"
             - "situatie"
+            - "gesteldheid"
+            - "hoedanigheid"
+            - "omstandigheid"
+          state_of_indicators:
+            - "van"
+            - "waarin"
+            - "waarbij"
           requires_bearer: true
-        confidence_boost: 0.35
+        confidence_boost: 0.4
         explanation: "Toestand met drager"
 
-      - id: mode_attribute
+      # Eigenschappen
+      - id: mode_properties
         conditions:
           must_have_any:
             - "eigenschap"
             - "kenmerk"
             - "attribuut"
+            - "aspect"
+            - "karakteristiek"
+            - "specificatie"
+            - "kwalificatie"
+          property_markers:
+            - "van"
+            - "behorend bij"
+            - "eigen aan"
           not_measurable: true
-        confidence_boost: 0.3
+        confidence_boost: 0.4
         explanation: "Niet-meetbare eigenschap"
 
+      # Fysieke eigenschappen
+      - id: mode_physical_properties
+        conditions:
+          must_have_any:
+            - "kleur"
+            - "vorm"
+            - "textuur"
+            - "geur"
+            - "smaak"
+            - "temperatuur"
+            - "dichtheid"
+            - "hardheid"
+          physical_property: true
+        confidence_boost: 0.4
+        explanation: "Fysieke eigenschap"
+
+      # Locatie en positie
+      - id: mode_location
+        conditions:
+          must_have_any:
+            - "locatie"
+            - "plaats"
+            - "positie"
+            - "ligging"
+            - "standplaats"
+            - "adres"
+            - "woonplaats"
+            - "vestigingsplaats"
+          spatial_property: true
+        confidence_boost: 0.4
+        explanation: "Locatie of positie"
+
+      # Mentale/emotionele toestanden
+      - id: mode_mental_states
+        conditions:
+          must_have_any:
+            - "gemoedstoestand"
+            - "stemming"
+            - "humeur"
+            - "emotie"
+            - "gevoel"
+            - "bewustzijn"
+            - "bewustheid"
+            - "alertheid"
+            - "concentratie"
+          mental_state: true
+        confidence_boost: 0.4
+        explanation: "Mentale of emotionele toestand"
+
+      # Vermogens en capaciteiten
+      - id: mode_capabilities
+        conditions:
+          must_have_any:
+            - "vermogen"
+            - "capaciteit"
+            - "bekwaamheid"
+            - "competentie"
+            - "vaardigheid"
+            - "kunde"
+            - "expertise"
+            - "kennis"
+            - "ervaring"
+          capability_nature: true
+        confidence_boost: 0.4
+        explanation: "Vermogen of capaciteit"
+
+      # Juridische bevoegdheden
+      - id: mode_legal_capabilities
+        conditions:
+          must_have_any:
+            - "bevoegdheid"
+            - "handelingsbekwaamheid"
+            - "handelingsbevoegdheid"
+            - "wilsbekwaamheid"
+            - "procesbekwaamheid"
+            - "beschikkingsbevoegdheid"
+            - "beheersbevoegdheid"
+          legal_capability: true
+        confidence_boost: 0.45
+        explanation: "Juridische bevoegdheid"
+
+      # Gezondheid en conditie
+      - id: mode_health
+        conditions:
+          must_have_any:
+            - "gezondheid"
+            - "gezondheidstoestand"
+            - "conditie"
+            - "fitheid"
+            - "vitaliteit"
+            - "welzijn"
+            - "welbevinden"
+          health_related: true
+        confidence_boost: 0.4
+        explanation: "Gezondheid of conditie"
+
+  # ===========================================================================
+  # QUANTITY - Meetbare grootheden (medium priority)
+  # ===========================================================================
   Quantity:
-    priority: 6
-    description: "Meetbare grootheden"
+    priority: 70
+    description: "Meetbare grootheden en telbare zaken"
+    decision_criteria:
+      - "Is het meetbaar of telbaar?"
+      - "Heeft het een numerieke waarde?"
+      - "Kan het uitgedrukt worden in eenheden?"
+
     rules:
-      - id: quantity_unit
+      # Expliciete meeteenheden
+      - id: quantity_explicit_units
         conditions:
           has_unit:
             - "euro"
             - "EUR"
+            - "€"
+            - "dollar"
+            - "$"
             - "procent"
             - "%"
-            - "kilogram"
-            - "meter"
-        confidence_boost: 0.5
-        explanation: "Bevat meeteenheid"
+            - "promille"
+            - "‰"
+          numeric_value: true
+        confidence_boost: 0.55
+        explanation: "Bevat expliciete meeteenheid"
 
-      - id: quantity_measure
+      # Gewicht eenheden
+      - id: quantity_weight_units
+        conditions:
+          has_unit:
+            - "kilogram"
+            - "kg"
+            - "gram"
+            - "g"
+            - "ton"
+            - "pond"
+            - "ounce"
+            - "milligram"
+            - "mg"
+          weight_measure: true
+        confidence_boost: 0.5
+        explanation: "Gewichtsmeting"
+
+      # Lengte eenheden
+      - id: quantity_length_units
+        conditions:
+          has_unit:
+            - "meter"
+            - "m"
+            - "kilometer"
+            - "km"
+            - "centimeter"
+            - "cm"
+            - "millimeter"
+            - "mm"
+            - "mijl"
+            - "yard"
+            - "voet"
+          length_measure: true
+        confidence_boost: 0.5
+        explanation: "Lengtemeting"
+
+      # Volume eenheden
+      - id: quantity_volume_units
+        conditions:
+          has_unit:
+            - "liter"
+            - "l"
+            - "milliliter"
+            - "ml"
+            - "kubieke meter"
+            - "m³"
+            - "kubieke centimeter"
+            - "cc"
+            - "gallon"
+          volume_measure: true
+        confidence_boost: 0.5
+        explanation: "Volumemeting"
+
+      # Tijd eenheden
+      - id: quantity_time_units
+        conditions:
+          has_unit:
+            - "uur"
+            - "minuut"
+            - "min"
+            - "seconde"
+            - "sec"
+            - "s"
+            - "dag"
+            - "week"
+            - "maand"
+            - "jaar"
+            - "decennium"
+            - "eeuw"
+          time_measure: true
+        confidence_boost: 0.5
+        explanation: "Tijdsmeting"
+
+      # Meetbare begrippen
+      - id: quantity_measurable_concepts
         conditions:
           must_have_any:
             - "aantal"
             - "hoeveelheid"
+            - "kwantiteit"
+            - "volume"
             - "bedrag"
-            - "duur"
-            - "lengte"
+            - "som"
+            - "totaal"
+            - "saldo"
+            - "balans"
           measurable: true
-        confidence_boost: 0.4
-        explanation: "Meetbare grootheid"
+        confidence_boost: 0.45
+        explanation: "Meetbaar begrip"
 
+      # Afmetingen
+      - id: quantity_dimensions
+        conditions:
+          must_have_any:
+            - "lengte"
+            - "breedte"
+            - "hoogte"
+            - "diepte"
+            - "dikte"
+            - "diameter"
+            - "straal"
+            - "omtrek"
+            - "oppervlakte"
+            - "inhoud"
+          dimension_nature: true
+        confidence_boost: 0.45
+        explanation: "Afmeting"
+
+      # Financiële grootheden
+      - id: quantity_financial
+        conditions:
+          must_have_any:
+            - "prijs"
+            - "kosten"
+            - "tarief"
+            - "honorarium"
+            - "vergoeding"
+            - "salaris"
+            - "loon"
+            - "omzet"
+            - "winst"
+            - "verlies"
+            - "budget"
+            - "begroting"
+          financial_nature: true
+        confidence_boost: 0.45
+        explanation: "Financiële grootheid"
+
+      # Telbare zaken
+      - id: quantity_countable
+        conditions:
+          must_have_any:
+            - "stuks"
+            - "exemplaar"
+            - "exemplaren"
+            - "items"
+            - "eenheden"
+            - "personen"
+            - "medewerkers"
+            - "documenten"
+            - "paginas"
+          countable: true
+        confidence_boost: 0.4
+        explanation: "Telbare eenheid"
+
+  # ===========================================================================
+  # QUALITY - Kwalitatieve eigenschappen (medium priority)
+  # ===========================================================================
   Quality:
-    priority: 5
-    description: "Kwalitatieve eigenschappen"
+    priority: 65
+    description: "Kwalitatieve eigenschappen en gradaties"
+    decision_criteria:
+      - "Is het een kwalitatieve eigenschap?"
+      - "Heeft het gradaties of schalen?"
+      - "Is het evaluatief van aard?"
+
     rules:
-      - id: quality_gradation
+      # Gradaties en schalen
+      - id: quality_gradations
         conditions:
           must_have_any:
             - "kwaliteit"
@@ -224,118 +1136,667 @@ categories:
             - "niveau"
             - "mate"
             - "schaal"
-          qualitative: true
-        confidence_boost: 0.35
+            - "gradatie"
+            - "spectrum"
+            - "bereik"
+          gradation_nature: true
+        confidence_boost: 0.4
         explanation: "Kwalitatieve gradatie"
 
-      - id: quality_evaluation
+      # Ernst en intensiteit
+      - id: quality_intensity
+        conditions:
+          must_have_any:
+            - "ernst"
+            - "zwaarte"
+            - "intensiteit"
+            - "sterkte"
+            - "kracht"
+            - "heftigheid"
+            - "felheid"
+          intensity_scale: true
+        confidence_boost: 0.4
+        explanation: "Intensiteit of ernst"
+
+      # Evaluatieve eigenschappen
+      - id: quality_evaluative
         conditions:
           must_have_any:
             - "betrouwbaarheid"
+            - "geloofwaardigheid"
+            - "validiteit"
             - "waarschijnlijkheid"
-            - "relevantie"
-            - "ernst"
-            - "zwaarte"
+            - "kans"
+            - "risico"
+            - "mogelijkheid"
+          evaluative_nature: true
         confidence_boost: 0.4
         explanation: "Evaluatieve eigenschap"
 
-# Secundaire categorieën (tags)
-secondary_categories:
+      # Belangrijkheid en prioriteit
+      - id: quality_importance
+        conditions:
+          must_have_any:
+            - "relevantie"
+            - "belangrijkheid"
+            - "urgentie"
+            - "prioriteit"
+            - "gewicht"
+            - "waarde"
+            - "betekenis"
+          importance_scale: true
+        confidence_boost: 0.4
+        explanation: "Belangrijkheid of prioriteit"
+
+      # Effectiviteit
+      - id: quality_effectiveness
+        conditions:
+          must_have_any:
+            - "effectiviteit"
+            - "efficiëntie"
+            - "rendement"
+            - "productiviteit"
+            - "doelmatigheid"
+            - "doeltreffendheid"
+          performance_quality: true
+        confidence_boost: 0.4
+        explanation: "Effectiviteit of efficiëntie"
+
+      # Kwalitatieve beschrijvingen
+      - id: quality_descriptive
+        conditions:
+          qualitative_terms:
+            - "goed"
+            - "slecht"
+            - "matig"
+            - "voldoende"
+            - "onvoldoende"
+            - "uitstekend"
+            - "prima"
+            - "zwak"
+            - "sterk"
+          descriptive_nature: true
+        confidence_boost: 0.35
+        explanation: "Kwalitatieve beschrijving"
+
+      # Juridische kwaliteiten
+      - id: quality_legal
+        conditions:
+          must_have_any:
+            - "rechtmatigheid"
+            - "wettigheid"
+            - "rechtvaardigheid"
+            - "billijkheid"
+            - "redelijkheid"
+            - "proportionaliteit"
+            - "subsidiariteit"
+          legal_quality: true
+        confidence_boost: 0.4
+        explanation: "Juridische kwaliteit"
+
+      # Schaalbare eigenschappen
+      - id: quality_scalable
+        conditions:
+          scalability_markers:
+            - "meer"
+            - "minder"
+            - "meest"
+            - "minst"
+            - "zeer"
+            - "heel"
+            - "bijzonder"
+            - "uiterst"
+            - "redelijk"
+            - "tamelijk"
+          on_scale: true
+        confidence_boost: 0.35
+        explanation: "Schaalbare eigenschap"
+
+  # ===========================================================================
+  # SUBKIND - Subtypes van Kind (lower priority)
+  # ===========================================================================
   Subkind:
-    applies_to: ["Kind"]
-    markers:
-      - "soort"
-      - "type"
-      - "variant"
+    priority: 60
+    description: "Specifieke subtypes van Kind entiteiten"
+    decision_criteria:
+      - "Is het een specifiek type van een Kind?"
+      - "Behoudt het de essentie van het supertype?"
+      - "Is het een specialisatie?"
 
+    rules:
+      - id: subkind_type_markers
+        conditions:
+          must_have_any:
+            - "soort"
+            - "type"
+            - "variant"
+            - "versie"
+            - "editie"
+            - "model"
+          type_of_indicators:
+            - "van"
+            - "der"
+            - "des"
+          subtype_nature: true
+        confidence_boost: 0.4
+        explanation: "Subtype aanduiding"
+
+      - id: subkind_specific_forms
+        conditions:
+          specific_forms:
+            - "specifieke vorm van"
+            - "bijzondere vorm van"
+            - "speciale variant van"
+            - "bepaald type van"
+          is_specialization: true
+        confidence_boost: 0.45
+        explanation: "Specifieke vorm"
+
+      - id: subkind_regional_variants
+        conditions:
+          regional_markers:
+            - "Nederlandse"
+            - "Europese"
+            - "Amerikaanse"
+            - "Aziatische"
+            - "Afrikaanse"
+          variant_of_kind: true
+        confidence_boost: 0.4
+        explanation: "Regionale variant"
+
+  # ===========================================================================
+  # CATEGORY - Categorisering (lower priority)
+  # ===========================================================================
   Category:
-    applies_to: ["Kind", "Subkind"]
-    markers:
-      - "categorie"
-      - "klasse"
-      - "groep"
+    priority: 55
+    description: "Categorieën voor groepering van entiteiten"
+    decision_criteria:
+      - "Is het een categorisering mechanisme?"
+      - "Groepeert het verschillende soorten?"
+      - "Is het een classificatie systeem?"
 
+    rules:
+      - id: category_classification
+        conditions:
+          must_have_any:
+            - "categorie"
+            - "klasse"
+            - "groep"
+            - "verzameling"
+            - "classificatie"
+            - "indeling"
+            - "typering"
+            - "rubricering"
+            - "taxonomie"
+          classification_nature: true
+        confidence_boost: 0.4
+        explanation: "Classificatie of categorisering"
+
+      - id: category_membership
+        conditions:
+          membership_indicators:
+            - "behoort tot"
+            - "valt onder"
+            - "geclassificeerd als"
+            - "ingedeeld bij"
+          category_membership: true
+        confidence_boost: 0.4
+        explanation: "Categorie lidmaatschap"
+
+  # ===========================================================================
+  # MIXIN - Gemeenschappelijke eigenschappen (lower priority)
+  # ===========================================================================
   Mixin:
-    applies_to: ["Kind", "Role", "Phase"]
-    markers:
-      - "verschillende"
-      - "diverse"
-      - "meerdere types"
+    priority: 50
+    description: "Eigenschappen gedeeld door verschillende types"
+    decision_criteria:
+      - "Deelt het eigenschappen tussen verschillende soorten?"
+      - "Is het type-onafhankelijk?"
+      - "Cross-cutting concern?"
 
+    rules:
+      - id: mixin_shared_properties
+        conditions:
+          must_have_any:
+            - "gemeenschappelijk"
+            - "gedeeld"
+            - "gezamenlijk"
+            - "collectief"
+            - "universeel"
+          cross_type_nature: true
+        confidence_boost: 0.35
+        explanation: "Gedeelde eigenschap"
+
+      - id: mixin_diverse_types
+        conditions:
+          diversity_markers:
+            - "verschillende soorten"
+            - "diverse types"
+            - "meerdere vormen"
+            - "allerlei varianten"
+          applies_to_many: true
+        confidence_boost: 0.35
+        explanation: "Toepasbaar op diverse types"
+
+  # ===========================================================================
+  # ROLEMIXIN - Rol mixins (lower priority)
+  # ===========================================================================
   RoleMixin:
-    applies_to: ["Role"]
-    markers:
-      - "verschillende rollen"
-      - "meerdere functies"
+    priority: 45
+    description: "Eigenschappen gedeeld door verschillende rollen"
+    decision_criteria:
+      - "Deelt het eigenschappen tussen verschillende rollen?"
+      - "Is het rol-overstijgend?"
 
+    rules:
+      - id: rolemixin_multiple_roles
+        conditions:
+          must_have_any:
+            - "verschillende rollen"
+            - "meerdere functies"
+            - "diverse hoedanigheden"
+            - "allerlei posities"
+          role_spanning: true
+        confidence_boost: 0.35
+        explanation: "Rol-overstijgende eigenschap"
+
+      - id: rolemixin_common_role_properties
+        conditions:
+          common_to_roles:
+            - "alle functies"
+            - "elke rol"
+            - "iedere positie"
+          role_independent: true
+        confidence_boost: 0.35
+        explanation: "Gemeenschappelijk voor alle rollen"
+
+  # ===========================================================================
+  # PHASEMIXIN - Fase mixins (lower priority)
+  # ===========================================================================
   PhaseMixin:
-    applies_to: ["Phase"]
-    markers:
-      - "verschillende fasen"
-      - "meerdere stadia"
+    priority: 45
+    description: "Eigenschappen gedeeld door verschillende fasen"
+    decision_criteria:
+      - "Deelt het eigenschappen tussen verschillende fasen?"
+      - "Is het fase-overstijgend?"
 
-  Abstract:
-    applies_to: ["all"]
-    markers:
-      - "abstract"
-      - "algemeen"
-      - "generiek"
-      - "niet-concreet"
+    rules:
+      - id: phasemixin_multiple_phases
+        conditions:
+          must_have_any:
+            - "verschillende fasen"
+            - "meerdere stadia"
+            - "diverse toestanden"
+            - "allerlei perioden"
+          phase_spanning: true
+        confidence_boost: 0.35
+        explanation: "Fase-overstijgende eigenschap"
 
-# Conflictoplossing regels
+      - id: phasemixin_common_phase_properties
+        conditions:
+          common_to_phases:
+            - "alle fasen"
+            - "elke periode"
+            - "ieder stadium"
+          phase_independent: true
+        confidence_boost: 0.35
+        explanation: "Gemeenschappelijk voor alle fasen"
+
+  # ===========================================================================
+  # COLLECTIVE - Collecties als geheel (lower priority)
+  # ===========================================================================
+  Collective:
+    priority: 40
+    description: "Collecties behandeld als één geheel"
+    decision_criteria:
+      - "Is het een collectie die als eenheid functioneert?"
+      - "Heeft het emergente eigenschappen?"
+      - "Meer dan de som der delen?"
+
+    rules:
+      - id: collective_groups
+        conditions:
+          must_have_any:
+            - "collectie"
+            - "verzameling"
+            - "groep"
+            - "set"
+            - "serie"
+            - "bundel"
+            - "pakket"
+            - "assortiment"
+          collective_nature: true
+        confidence_boost: 0.35
+        explanation: "Collectie of verzameling"
+
+      - id: collective_organizations
+        conditions:
+          must_have_any:
+            - "team"
+            - "ploeg"
+            - "commissie"
+            - "raad"
+            - "college"
+            - "bestuur"
+            - "comité"
+            - "werkgroep"
+          organizational_collective: true
+        confidence_boost: 0.4
+        explanation: "Organisatorische collectie"
+
+      - id: collective_military
+        conditions:
+          must_have_any:
+            - "leger"
+            - "vloot"
+            - "korps"
+            - "brigade"
+            - "divisie"
+            - "regiment"
+            - "bataljon"
+            - "compagnie"
+          military_unit: true
+        confidence_boost: 0.4
+        explanation: "Militaire eenheid"
+
+      - id: collective_cultural
+        conditions:
+          must_have_any:
+            - "orkest"
+            - "koor"
+            - "ensemble"
+            - "band"
+            - "gezelschap"
+            - "troep"
+          cultural_group: true
+        confidence_boost: 0.35
+        explanation: "Culturele groep"
+
+  # ===========================================================================
+  # VARIABLECOLLECTION - Variabele collecties (lowest priority)
+  # ===========================================================================
+  VariableCollection:
+    priority: 35
+    description: "Collecties met variabel aantal leden"
+    decision_criteria:
+      - "Kan het aantal leden variëren?"
+      - "Is de grootte dynamisch?"
+      - "Flexibele samenstelling?"
+
+    rules:
+      - id: variablecollection_dynamic
+        conditions:
+          must_have_any:
+            - "variabele collectie"
+            - "dynamische verzameling"
+            - "flexibele groep"
+            - "open verzameling"
+          variable_size_indicators:
+            - "groeiend"
+            - "krimpend"
+            - "fluctuerend"
+            - "wisselend"
+          dynamic_membership: true
+        confidence_boost: 0.35
+        explanation: "Variabele collectie"
+
+      - id: variablecollection_membership_changes
+        conditions:
+          membership_variability:
+            - "leden kunnen toetreden"
+            - "leden kunnen vertrekken"
+            - "wisselende samenstelling"
+            - "veranderlijk aantal"
+          open_membership: true
+        confidence_boost: 0.35
+        explanation: "Veranderlijke ledenaantal"
+
+  # ===========================================================================
+  # FIXEDCOLLECTION - Vaste collecties (lowest priority)
+  # ===========================================================================
+  FixedCollection:
+    priority: 30
+    description: "Collecties met vast aantal leden"
+    decision_criteria:
+      - "Is het aantal leden vast?"
+      - "Is de grootte statisch?"
+      - "Onveranderlijke samenstelling?"
+
+    rules:
+      - id: fixedcollection_static
+        conditions:
+          must_have_any:
+            - "vaste collectie"
+            - "statische verzameling"
+            - "gesloten groep"
+            - "definitieve verzameling"
+          fixed_size_indicators:
+            - "onveranderlijk"
+            - "vastgesteld"
+            - "bepaald"
+            - "gefixeerd"
+          static_membership: true
+        confidence_boost: 0.35
+        explanation: "Vaste collectie"
+
+      - id: fixedcollection_exact_count
+        conditions:
+          exact_count_indicators:
+            - "exact aantal"
+            - "precies"
+            - "altijd"
+            - "vast aantal van"
+          immutable_size: true
+        confidence_boost: 0.35
+        explanation: "Exact vastgesteld aantal"
+
+# ============================================================================
+# CONFLICTOPLOSSING - Uitgebreide disambiguatie regels
+# ============================================================================
+
 conflict_resolution:
+  # Kind vs Mode disambiguatie
   - rule: "kind_over_mode"
     when:
       both_match: ["Kind", "Mode"]
     prefer: "Kind"
     unless:
-      has_explicit: "eigenschap van"
+      has_explicit: ["eigenschap van", "kenmerk van", "toestand van"]
+    confidence_adjustment: 0.1
 
+  # Event vs Phase disambiguatie
   - rule: "event_over_phase"
     when:
       both_match: ["Event", "Phase"]
     prefer: "Event"
     unless:
-      has_explicit: "status"
+      has_explicit: ["status", "staat", "toestand"]
+    confidence_adjustment: 0.1
 
+  # Relator vs Event disambiguatie
   - rule: "relator_over_event"
     when:
       both_match: ["Relator", "Event"]
     prefer: "Relator"
     if:
       has_multiple_parties: true
+      contains: ["tussen", "partijen"]
+    confidence_adjustment: 0.15
 
-# Domein-specifieke aanpassingen
+  # Role vs Kind disambiguatie
+  - rule: "role_over_kind"
+    when:
+      both_match: ["Role", "Kind"]
+    prefer: "Role"
+    if:
+      has_context_markers: ["als", "in de hoedanigheid van"]
+    confidence_adjustment: 0.1
+
+  # Quantity vs Quality disambiguatie
+  - rule: "quantity_over_quality"
+    when:
+      both_match: ["Quantity", "Quality"]
+    prefer: "Quantity"
+    if:
+      has_numeric_value: true
+      has_unit: true
+    confidence_adjustment: 0.15
+
+  # Subkind vs Kind disambiguatie
+  - rule: "subkind_when_specific"
+    when:
+      both_match: ["Kind", "Subkind"]
+    prefer: "Subkind"
+    if:
+      has_type_indicators: ["soort", "type", "variant"]
+    confidence_adjustment: 0.1
+
+  # Complex term disambiguatie
+  - rule: "zaak_disambiguation"
+    term: "zaak"
+    contexts:
+      - pattern: "rechtszaak|strafzaak|civiele zaak"
+        category: "Event"
+        confidence: 0.9
+      - pattern: "roerende zaak|onroerende zaak"
+        category: "Kind"
+        confidence: 0.9
+      - pattern: "zaak van"
+        category: "Abstract"
+        confidence: 0.7
+
+  - rule: "huwelijk_disambiguation"
+    term: "huwelijk"
+    contexts:
+      - pattern: "huwelijksvoltrekking|sluiting"
+        category: "Event"
+        confidence: 0.9
+      - pattern: "huwelijk tussen|huwelijksband"
+        category: "Relator"
+        confidence: 0.9
+      - pattern: "gehuwd|huwelijkse staat"
+        category: "Phase"
+        confidence: 0.8
+
+  - rule: "procedure_disambiguation"
+    term: "procedure"
+    contexts:
+      - pattern: "proceduredocument|handleiding"
+        category: "Kind"
+        confidence: 0.8
+      - pattern: "procedure wordt|vindt plaats"
+        category: "Event"
+        confidence: 0.9
+
+# ============================================================================
+# DOMEIN-SPECIFIEKE AANPASSINGEN
+# ============================================================================
+
 domain_adjustments:
-  legal:
+  # Strafrechtelijk domein
+  criminal_law:
     boost_categories:
-      Role: 0.1
-      Relator: 0.15
-      Event: 0.1
+      Event: 0.15      # Veel processen
+      Role: 0.1        # Verdachte, officier, etc.
+      Phase: 0.1       # Procesfasen
     special_terms:
-      "zaak": "Kind"  # In juridische context is 'zaak' meestal een Kind
-      "procedure": "Event"
-      "bevoegdheid": "Mode"
+      "verdachte": "Role"
+      "dagvaarding": "Relator"
+      "vonnis": "Kind"
+      "zitting": "Event"
+      "strafblad": "Kind"
 
-  administrative:
+  # Bestuursrechtelijk domein
+  administrative_law:
     boost_categories:
-      Event: 0.1
-      Phase: 0.1
+      Event: 0.1       # Procedures
+      Phase: 0.15      # Veel statussen
+      Relator: 0.1     # Vergunningen
     special_terms:
       "aanvraag": "Event"
+      "beschikking": "Kind"
       "besluit": "Kind"
       "vergunning": "Relator"
+      "bezwaar": "Event"
+      "bevoegdheid": "Mode"
 
-# Validatie instellingen
+  # Civielrechtelijk domein
+  civil_law:
+    boost_categories:
+      Relator: 0.15    # Contracten
+      Role: 0.1        # Contractpartijen
+      Kind: 0.05       # Goederen
+    special_terms:
+      "overeenkomst": "Relator"
+      "eigendom": "Relator"
+      "koper": "Role"
+      "verkoper": "Role"
+      "koopsom": "Quantity"
+      "leveringsverplichting": "Mode"
+
+  # Algemeen juridisch
+  general_legal:
+    boost_categories:
+      Kind: 0.05
+      Mode: 0.05
+    special_terms:
+      "rechtspersoon": "Kind"
+      "bevoegdheid": "Mode"
+      "rechtshandeling": "Event"
+      "rechtsverhouding": "Relator"
+
+# ============================================================================
+# VALIDATIE EN KWALITEITSINSTELLINGEN
+# ============================================================================
+
 validation:
-  min_confidence_for_auto: 0.5
-  require_manual_review_below: 0.3
-  max_secondary_tags: 3
-  enable_explanation: true
+  # Confidence thresholds
+  min_confidence_for_auto: 0.6        # Minimum voor automatisch voorstel
+  require_manual_review_below: 0.4    # Verplicht handmatig onder dit niveau
+  force_unknown_below: 0.2            # Forceer "Unknown" categorie
 
-# Logging en audit
+  # Processing settings
+  max_secondary_tags: 5                # Maximum aantal secundaire tags
+  enable_full_explanation: true        # Altijd volledige uitleg
+  check_all_categories: true           # Check altijd alle 16 categorieën
+  apply_all_disambiguation: true       # Pas altijd disambiguatie toe
+
+  # Quality checks
+  require_pattern_match: false         # Pattern match niet verplicht
+  min_patterns_for_high_confidence: 3  # Min patterns voor hoge confidence
+  boost_for_multiple_indicators: 0.1   # Bonus voor meerdere indicatoren
+
+# ============================================================================
+# LOGGING EN AUDIT CONFIGURATIE
+# ============================================================================
+
 audit:
-  log_all_classifications: true
-  log_low_confidence: true
-  log_user_overrides: true
-  store_matched_patterns: true
+  # Logging settings
+  log_all_classifications: true        # Log alle classificaties
+  log_pattern_matches: true            # Log alle pattern matches
+  log_disambiguation: true              # Log disambiguatie beslissingen
+  log_confidence_calculations: true    # Log confidence berekeningen
+  log_user_overrides: true            # Log gebruiker aanpassingen
+
+  # Storage settings
+  store_matched_patterns: true         # Bewaar gematchte patronen
+  store_all_scores: true               # Bewaar alle categorie scores
+  store_disambiguation_notes: true     # Bewaar disambiguatie notities
+  store_processing_time: true          # Meet en bewaar verwerkingstijd
+
+  # Analytics
+  track_accuracy_metrics: true         # Track precisie metrics
+  track_user_satisfaction: true        # Track gebruiker feedback
+  generate_weekly_reports: true        # Genereer wekelijkse rapporten
+
+# ============================================================================
+# PERFORMANCE SETTINGS (Single-user, kwaliteit > snelheid)
+# ============================================================================
+
+performance:
+  mode: "thorough"                     # thorough | balanced | fast
+  max_processing_time_ms: 500          # Max verwerkingstijd
+  enable_caching: true                 # Cache pattern matches
+  cache_size: 1000                     # Cache grootte
+  parallel_processing: false           # Geen parallel processing nodig
+  batch_size: 10                       # Batch grootte voor bulk processing

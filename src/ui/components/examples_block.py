@@ -10,6 +10,7 @@ Shared Examples Block for Edit and Expert tabs.
 from __future__ import annotations
 
 from typing import Any, Dict
+import re
 
 import streamlit as st
 
@@ -117,7 +118,8 @@ def render_examples_block(
     # Special handling for synoniemen with voorkeursterm
     st.markdown("#### 🔄 Synoniemen")
     synoniemen = []
-    voorkeursterm_display = None
+    voorkeursterm_display = None  # Waarde uit DB (synoniem met is_voorkeursterm=True)
+    voorkeursterm_render = None   # Waarde voor weergave (DB of session fallback, kan ook begrip zijn)
 
     try:
         val = current_examples.get("synoniemen")
@@ -133,9 +135,31 @@ def render_examples_block(
         except Exception:
             pass
 
+    # Fallback naar session‑keuze voor directe feedback (zoals generator-tab)
+    try:
+        from ui.session_state import SessionStateManager as _SSM
+        sess_vt = _SSM.get_value("voorkeursterm", "")
+    except Exception:
+        sess_vt = ""
+
+    begrip = getattr(definition, "begrip", "") or ""
+    # Kies render-waarde: DB > session
+    if voorkeursterm_display:
+        voorkeursterm_render = voorkeursterm_display
+    elif sess_vt:
+        voorkeursterm_render = str(sess_vt)
+
+    # Toon actuele voorkeursterm boven de lijst (ook als dit het begrip is)
+    if voorkeursterm_render:
+        if begrip and voorkeursterm_render == begrip:
+            st.success(f"✅ Huidige voorkeursterm: {begrip}")
+        else:
+            st.success(f"✅ Huidige voorkeursterm: {voorkeursterm_render}")
+
     if synoniemen:
         for syn in synoniemen:
-            if syn == voorkeursterm_display:
+            # Markeer voorkeursterm in de lijst (DB-waarde of session fallback)
+            if syn == (voorkeursterm_render or voorkeursterm_display):
                 st.markdown(f"- {syn} ⭐ *(voorkeursterm)*")
             else:
                 st.markdown(f"- {syn}")
@@ -156,7 +180,7 @@ def render_examples_block(
     else:
         st.info("Geen toelichting")
 
-    # Optional: edit + save to DB (Expert tab)
+    # Optional: edit + save to DB (Expert tab / Edit tab)
     if allow_edit and repository is not None:
         # Let op: deze sectie kan binnen een ouder-expander staan (Expert-tab
         # gebruikt "📋 Definitie Details"). Streamlit staat geen geneste
@@ -206,7 +230,16 @@ def render_examples_block(
             )
 
             # Voorkeursterm selector voor Expert Review en Edit tabs
-            synoniemen_list = [s.strip() for s in (syn or "").split(",") if s.strip()]
+            def _split_synonyms(text: str) -> list[str]:
+                parts = re.split(r"(?:,|;|\||\r?\n|\s+[•*\-–—]\s+)+", text or "")
+                out: list[str] = []
+                for p in parts:
+                    t = str(p).strip().lstrip("*•-–— ")
+                    if t:
+                        out.append(t)
+                return out
+
+            synoniemen_list = _split_synonyms(syn or "")
             current_voorkeursterm = None
 
             # Get current voorkeursterm from DB
@@ -216,27 +249,55 @@ def render_examples_block(
                 except Exception:
                     pass
 
-            # Show selector if there are synoniemen
             selected_voorkeursterm = None
+            # Toon selector als er synoniemen zijn, met zelfde gedrag als Generator-tab:
+            # opties: Geen, begrip zelf, en alle synoniemen
             if synoniemen_list:
-                voorkeursterm_options = ["Geen voorkeursterm"] + synoniemen_list
+                begrip = getattr(definition, "begrip", "") or ""
 
-                # Find current selection
+                # Deduplicate while preserving order (na 'Geen voorkeursterm')
+                voorkeursterm_options = ["Geen voorkeursterm"]
+                seen: set[str] = set()
+                for term in ([begrip] if begrip else []) + synoniemen_list:
+                    if term and term not in seen:
+                        voorkeursterm_options.append(term)
+                        seen.add(term)
+
+                # Bepaal default selectie: DB → session → geen
                 default_index = 0
-                if current_voorkeursterm and current_voorkeursterm in synoniemen_list:
-                    default_index = synoniemen_list.index(current_voorkeursterm) + 1
+                try:
+                    target = None
+                    if current_voorkeursterm:
+                        target = current_voorkeursterm
+                    else:
+                        from ui.session_state import SessionStateManager as _SSM
+                        sess_vt = _SSM.get_value("voorkeursterm", "")
+                        target = sess_vt or None
+                    if target and target in voorkeursterm_options:
+                        default_index = voorkeursterm_options.index(target)
+                except Exception:
+                    default_index = 0
 
-                selected_voorkeursterm = st.selectbox(
+                selected = st.selectbox(
                     "⭐ Voorkeursterm selecteren",
                     options=voorkeursterm_options,
-                    index=default_index,
+                    index=min(max(default_index, 0), len(voorkeursterm_options) - 1),
                     key=k("voorkeursterm_select"),
-                    help="Selecteer welk synoniem de voorkeursterm is"
+                    help="Selecteer de voorkeurs-term (kan ook het begrip zelf zijn)"
                 )
 
-                # Convert "Geen voorkeursterm" to None
-                if selected_voorkeursterm == "Geen voorkeursterm":
+                # Normaliseer selectie
+                if selected == "Geen voorkeursterm":
                     selected_voorkeursterm = None
+                else:
+                    selected_voorkeursterm = selected
+
+                # Houd de keuze ook bij in de (globale) session state net als in generator-tab
+                try:
+                    from ui.session_state import SessionStateManager as _SSM
+                    _SSM.set_value("voorkeursterm", selected_voorkeursterm or "")
+                except Exception:
+                    pass
 
             ant = st.text_input(
                 "↔️ Antoniemen (komma-gescheiden)",
@@ -258,7 +319,7 @@ def render_examples_block(
                             return [ln.strip() for ln in (text or "").splitlines() if ln.strip()]
 
                         def _split_csv(text: str) -> list[str]:
-                            return [p.strip() for p in (text or "").split(",") if p.strip()]
+                            return _split_synonyms(text or "")
 
                         new_examples: dict[str, list[str]] = {
                             "voorbeeldzinnen": _split_lines(vz),

@@ -5,6 +5,7 @@ Integreert definitie_manager.py en setup_database.py functionaliteit in de UI.
 
 # Importeer CLI tools voor management functionaliteit
 import asyncio
+import logging
 import os
 import sys  # Systeem interface voor path manipulatie
 import tempfile  # Tijdelijke bestanden voor upload/download operaties
@@ -15,6 +16,8 @@ from pathlib import Path  # Object-georiënteerde bestandspad manipulatie
 
 import pandas as pd  # Data manipulatie en analyse framework
 import streamlit as st  # Streamlit web interface framework
+
+logger = logging.getLogger(__name__)
 
 # Database en core component imports
 from database.definitie_repository import (
@@ -591,6 +594,7 @@ class ManagementTab:
                                                 "wettelijke_basis": _split(
                                                     row.get("wettelijke_basis", "")
                                                 ),
+                                                "UFO_Categorie": row.get("UFO_Categorie"),
                                             }
                                     except Exception as e:
                                         st.error(f"❌ CSV lezen mislukt: {e!s}")
@@ -608,6 +612,18 @@ class ManagementTab:
                                 preview = run_async(
                                     import_service.validate_single(payload)
                                 )
+
+                            # UFO-categorie waarschuwing
+                            try:
+                                norm_def = import_service._payload_to_definition(payload)
+                                raw_ufo = payload.get("UFO_Categorie")
+                                norm_ufo = getattr(norm_def, "ufo_categorie", None)
+                                if raw_ufo and not norm_ufo:
+                                    st.warning(f"UFO_Categorie ongeldig: '{str(raw_ufo).strip()}' → genegeerd")
+                                elif raw_ufo and norm_ufo and str(raw_ufo).strip() != norm_ufo:
+                                    st.info(f"UFO_Categorie genormaliseerd: '{str(raw_ufo).strip()}' → '{norm_ufo}'")
+                            except Exception:
+                                pass
 
                             # Toon resultaat
                             st.info(
@@ -743,6 +759,11 @@ class ManagementTab:
                                 sep=delimiter,
                                 encoding='utf-8-sig'
                             )
+                            # Normaliseer kolomnamen: trim + lowercase
+                            try:
+                                df.rename(columns=lambda c: str(c).strip().lower(), inplace=True)
+                            except Exception:
+                                pass
                         except Exception as e:
                             st.error(f"❌ CSV lezen mislukt: {e!s}")
                             df = None
@@ -780,11 +801,37 @@ class ManagementTab:
                                     return []
                                 return [s.strip() for s in str(v).split(",") if s.strip() and s.strip().lower() not in ("nan", "none", "null")]
 
+                            import time
+                            batch_start_time = time.time()
+
                             for idx, row in df.iterrows():
                                 p = (len(results) + 1) / len(df)
                                 progress.progress(p)
                                 term = str(row.get("begrip", "")).strip()
                                 status.text(f"Verwerken rij {len(results)+1}/{len(df)} — {term or '—'}")
+
+                                # Yield control to Streamlit every 5 rows to prevent WebSocket timeout
+                                if idx > 0 and idx % 5 == 0:
+                                    # Force UI update to maintain WebSocket connection
+                                    st.empty()
+                                    # Small delay to allow event loop to process
+                                    time.sleep(0.01)
+
+                                # Fail-fast: lege/of ontbrekende 'begrip' overslaan met duidelijke melding
+                                if not term:
+                                    fail_count += 1
+                                    results.append(
+                                        {
+                                            "row": int(idx) + 1,
+                                            "begrip": "",
+                                            "action": "failed",
+                                            "score": 0.0,
+                                            "violations": 0,
+                                            "error": "Leeg of ontbrekend veld 'begrip'",
+                                            "warning": None,
+                                        }
+                                    )
+                                    continue
 
                                 payload = {
                                     "begrip": term,
@@ -793,14 +840,18 @@ class ManagementTab:
                                     "organisatorische_context": _split(row.get("organisatorische_context", "")),
                                     "juridische_context": _split(row.get("juridische_context", "")),
                                     "wettelijke_basis": _split(row.get("wettelijke_basis", "")),
-                                    "UFO_Categorie": row.get("UFO_Categorie"),
-                                    "Voorkeursterm": row.get("Voorkeursterm"),
-                                    "Synoniemen": row.get("Synoniemen"),
-                                    "Toelichting": row.get("Toelichting"),
-                                    "Toelichting (optioneel)": row.get("Toelichting (optioneel)"),
+                                    # Map genormaliseerde (lowercase) kolommen naar canonieke payload keys
+                                    "UFO_Categorie": row.get("ufo_categorie"),
+                                    "Voorkeursterm": row.get("voorkeursterm"),
+                                    "Synoniemen": row.get("synoniemen"),
+                                    "Toelichting": row.get("toelichting"),
+                                    "Toelichting (optioneel)": row.get("toelichting (optioneel)"),
                                 }
 
                                 try:
+                                    # Timeout protection for long-running operations
+                                    row_start_time = time.time()
+
                                     # Create definition for duplicate check (skip validation for performance)
                                     from services.interfaces import Definition
 
@@ -812,6 +863,20 @@ class ManagementTab:
                                         juridische_context=payload.get("juridische_context", []),
                                         wettelijke_basis=payload.get("wettelijke_basis", []),
                                     )
+
+                                    # UFO-categorie waarschuwing (invalid of genormaliseerd)
+                                    ufo_warning = None
+                                    try:
+                                        # Gebruik dezelfde normalisatie als de import service
+                                        norm_def = import_service._payload_to_definition(payload)
+                                        raw_ufo = payload.get("UFO_Categorie")
+                                        norm_ufo = getattr(norm_def, "ufo_categorie", None)
+                                        if raw_ufo and not norm_ufo:
+                                            ufo_warning = f"UFO_Categorie ongeldig: '{str(raw_ufo).strip()}' → genegeerd"
+                                        elif raw_ufo and norm_ufo and str(raw_ufo).strip() != norm_ufo:
+                                            ufo_warning = f"UFO_Categorie genormaliseerd: '{str(raw_ufo).strip()}' → '{norm_ufo}'"
+                                    except Exception:
+                                        pass
 
                                     # Only check for duplicates, skip validation
                                     # Get repository from import service
@@ -830,20 +895,29 @@ class ManagementTab:
                                                 "score": 0.0,  # No validation during import
                                                 "violations": 0,  # No validation during import
                                                 "error": None,
+                                                "warning": ufo_warning,
                                             }
                                         )
                                         continue
 
                                     # Import (create or overwrite first duplicate)
-                                    result = run_async(
+                                    # Use shorter timeout for individual operations to prevent WebSocket timeout
+                                    from ui.helpers.async_bridge import run_async_safe
+                                    result = run_async_safe(
                                         import_service.import_single(
                                             payload,
                                             duplicate_strategy=dup_strategy,
                                             created_by=created_by,
-                                        )
+                                        ),
+                                        default=None,
+                                        timeout=3.0  # 3 second timeout per row to prevent hang
                                     )
 
-                                    if result.success:
+                                    # Check if operation took too long
+                                    if time.time() - row_start_time > 5:
+                                        logger.warning(f"Row {idx} took {time.time() - row_start_time:.1f}s - potential timeout risk")
+
+                                    if result and result.success:
                                         import_count += 1
                                         results.append(
                                             {
@@ -856,10 +930,12 @@ class ManagementTab:
                                                 "score": 0.0,  # No validation during import
                                                 "violations": 0,  # No validation during import
                                                 "error": None,
+                                                "warning": ufo_warning,
                                             }
                                         )
                                     else:
                                         fail_count += 1
+                                        error_msg = "timeout/connection error" if result is None else (result.error or "onbekende fout")
                                         results.append(
                                             {
                                                 "row": int(idx) + 1,
@@ -867,7 +943,8 @@ class ManagementTab:
                                                 "action": "failed",
                                                 "score": 0.0,  # No validation during import
                                                 "violations": 0,  # No validation during import
-                                                "error": result.error or "onbekende fout",
+                                                "error": error_msg,
+                                                "warning": ufo_warning,
                                             }
                                         )
 
@@ -881,15 +958,26 @@ class ManagementTab:
                                             "score": 0.0,
                                             "violations": 0,
                                             "error": str(e),
+                                            "warning": None,
                                         }
                                     )
 
                             # Samenvatting
                             progress.empty()
                             status.empty()
+
+                            total_time = time.time() - batch_start_time
                             st.success(
-                                f"✅ Klaar: {import_count} geïmporteerd/geüpdatet, {skip_count} overgeslagen (duplicaat), {fail_count} mislukt. Valide OK: {ok_count}"
+                                f"✅ Klaar in {total_time:.1f}s: {import_count} geïmporteerd/geüpdatet, "
+                                f"{skip_count} overgeslagen (duplicaat), {fail_count} mislukt. Valide OK: {ok_count}"
                             )
+
+                            # Log performance warning if needed
+                            if total_time > 30:
+                                st.warning(
+                                    f"⚠️ Import duurde {total_time:.1f}s. Voor grote bestanden (>50 rijen) "
+                                    "wordt aangeraden om de import op te splitsen in kleinere batches."
+                                )
 
                             # Download resultaten (JSON/CSV)
                             try:

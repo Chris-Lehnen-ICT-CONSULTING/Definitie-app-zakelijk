@@ -53,51 +53,53 @@
 <ul>
 <li>[ ] De app toont automatisch een voorstel voor `ufo_categorie` bij generatie of laden in edit/review, met confidence‑indicatie</li>
 <li>[ ] Gebruiker kan het voorstel overschrijven (manual > auto)</li>
-<li>[ ] Minimaal 80% precisie op interne validatieset voor duidelijke gevallen (≥0.8 confidence)</li>
+<li>[ ] Minimaal **95% precisie** op interne validatieset voor duidelijke gevallen (≥0.8 confidence)</li>
 <li>[ ] Fallback: bij lage confidence (<0.6) verplichte handmatige review</li>
 <li>[ ] Logging: gekozen waarde (auto of handmatig) wordt opgeslagen (auditbaar) zonder PII</li>
-<li>[ ] Performance: <10ms per detectie op gemiddelde definitie (behaald: 0.01ms)</li>
-<li>[ ] Batch processing: >2000 items/sec voor legacy data migration</li>
+<li>[ ] Performance: <500ms per detectie is acceptabel (focus op kwaliteit, niet snelheid)</li>
+<li>[ ] Batch processing: Voor initiële 80+ definities (geen performance vereiste)</li>
 </ul>
 
 <h2>Technische Implementatie</h2>
 
-<h3>Service Architectuur</h3>
+<h3>Service Architectuur (Single-User Focus)</h3>
 <ul>
-<li>**UFOClassificationService**: Singleton service met dependency injection via ServiceContainer</li>
-<li>**Adapter Pattern**: Voorbereid op toekomstige ML-model integratie</li>
-<li>**Rule Engine**: 60+ configureerbare regels via YAML/JSON voor NL juridische context</li>
-<li>**Performance**: 0.01ms gemiddeld, 148,467/sec throughput, 180,000/sec batch mode</li>
+<li>**UFOClassificationService**: Simpele service geïntegreerd met ServiceContainer</li>
+<li>**Rule Engine**: 100+ zorgvuldig gecureerde regels voor Nederlandse juridische context</li>
+<li>**Kwaliteit over snelheid**: Grondige analyse met alle 16 UFO categorieën</li>
+<li>**Performance**: ~100-200ms is prima (gebruiker merkt dit niet bij single-user)</li>
 </ul>
 
 <h3>Interface Design</h3>
 <pre><code>class UFOClassificationService:
     def classify(self, term: str, definition: str, context: Optional[Dict] = None) -&gt; UFOClassification:
         """
+        Grondige UFO classificatie met focus op correctheid.
+
         Returns:
-        - primary_category: Kind/Event/Role/Phase/Relator/Mode/Quantity/Quality
-        - secondary_tags: [Subkind, Mixin, etc.] indien relevant
-        - confidence: 0.0-1.0 score (softmax probability)
-        - explanation: lijst van top-3 gehitste regels/patronen
+        - primary_category: Een van de 16 UFO categorieën
+        - secondary_tags: Alle relevante subcategorieën voor volledigheid
+        - confidence: 0.0-1.0 score (hoe zeker de classificatie is)
+        - detailed_explanation: Uitgebreide uitleg van ALLE overwegingen
+        - matched_patterns: Alle gematchte patronen (niet alleen top-3)
         """</code></pre>
 
-<h3>Beslislogica (geoptimaliseerd)</h3>
+<h3>Beslislogica (Volledig & Zorgvuldig)</h3>
+<p><strong>ALLE 9 stappen worden ALTIJD doorlopen voor maximale accuratesse:</strong></p>
+
 <ol>
 <li>Is het zelfstandig, substantieel "ding" (kan zonder drager bestaan)? → **Kind**</li>
-<li>Anders: is het tijdsgebonden (gebeurtenis/proces)? → **Event**</li>
-<li>Anders: rol of levensfase van een bestaand ding? → **Role** / **Phase**</li>
-<li>Anders: afhankelijk object/eigenschap?</li>
+<li>Is het tijdsgebonden (gebeurtenis/proces)? → **Event**</li>
+<li>Is het een rol die een entiteit kan aannemen? → **Role**</li>
+<li>Is het een levensfase van een entiteit? → **Phase**</li>
+<li>Medieert het een relatie tussen entiteiten? → **Relator**</li>
+<li>Is het een intrinsieke eigenschap met drager? → **Mode**</li>
+<li>Is het een meetbare grootheid? → **Quantity**</li>
+<li>Is het een kwalitatieve eigenschap? → **Quality**</li>
+<li>Verfijn met subcategorieën: **Subkind**, **Category**, **Mixin**, **RoleMixin**, **PhaseMixin**, **Collective**, **VariableCollection**, **FixedCollection**</li>
 </ol>
-<ul>
-<li>  - Tussen entiteiten → **Relator**</li>
-<li>  - Toestand/eigenschap met drager → **Mode**</li>
-<li>  - Meetbare grootheid → **Quantity**</li>
-<li>  - Kwalitatieve eigenschap → **Quality**</li>
-</ul>
-<ol>
-<li>Anders: abstract/afgeleid groeperend type? → **Subkind** / **Category** / **Mixin** / etc.</li>
-<li>Anders: logisch verband of samengesteld event? → **Relatie** / **Event Composition**</li>
-</ol>
+
+<p><strong>Disambiguatie voor complexe termen</strong> wordt altijd toegepast bij termen zoals "zaak", "huwelijk", "overeenkomst"</p>
 
 <h2>Nederlandse Juridische Domeinkennis</h2>
 
@@ -123,56 +125,71 @@
 <li>**Relatie/Event Composition**: predicaten ("X arresteert Y"); samengestelde processen (strafproces = opsporing + vervolging + berechting)</li>
 </ul>
 
-<h3>Feature‑extractie Pipeline</h3>
+<h3>Feature‑extractie Pipeline (Grondig & Volledig)</h3>
 <ul>
-<li>**Linguïstisch**:</li>
-<li> - POS‑tags met spaCy nl_core_news_lg model</li>
-<li> - Lemmata, patronen "X als Y", "X van Y", tijdsindicaties</li>
-<li> - Pre-compiled regex patterns met LRU cache (1024 entries)</li>
-<li>**Semantisch**:</li>
-<li> - Drager analyse, deelnemers detectie, duur/lifecycle checks</li>
-<li> - Context-aware disambiguatie voor ambigue termen</li>
-<li> - Nominalisatie detectie voor Event categorisering</li>
-<li>**Domeinwoordenlijsten**:</li>
-<li> - 500+ juridische termen met lazy loading</li>
-<li> - Bloom filters voor O(1) membership tests</li>
-<li> - Singleton pattern voor memory efficiency (0.04MB footprint)</li>
-<li>**Relationele hints**:</li>
-<li> - Graph-based relation extraction waar applicable</li>
-<li> - Participatie ≥2 → verhoogde Relator‑kans</li>
+<li>**Linguïstisch** (alle features extraheren):</li>
+<li> - POS‑tags met spaCy nl_core_news_lg model (fallback: regex patterns)</li>
+<li> - ALLE lemmata, niet alleen top matches</li>
+<li> - ALLE patronen checken: "X als Y", "X van Y", temporele markers, etc.</li>
+<li> - Volledige morfologische analyse</li>
+<li>**Semantisch** (diepgaande analyse):</li>
+<li> - Uitgebreide drager analyse met meerdere checks</li>
+<li> - Complete deelnemers detectie (niet alleen ≥2)</li>
+<li> - Volledige lifecycle analyse</li>
+<li> - Context-aware disambiguatie voor ALLE ambigue termen</li>
+<li>**Domeinwoordenlijsten** (alles in geheugen voor snelle toegang):</li>
+<li> - 500+ juridische termen volledig geladen</li>
+<li> - Geen lazy loading - alles direct beschikbaar</li>
+<li> - Rijke metadata per term (domein, frequentie, ambiguïteit)</li>
+<li>**Relationele hints** (uitgebreid):</li>
+<li> - Volledige relationele analyse</li>
+<li> - Participatie analyse voor alle aantallen</li>
+<li> - Directionaliteit van relaties</li>
 </ul>
 
 <h2>UX Implementatie</h2>
 
-<pre><code># In Generator/Edit/Expert tabs:
+<pre><code># In Generator/Edit/Expert tabs - met focus op transparantie:
+with st.spinner("🔍 Grondige UFO-analyse bezig (alle 16 categorieën)..."):
+    suggestion = classifier.classify(term, definition)
+
 st.info(f"🤖 Voorgestelde categorie: {suggestion.primary_category} ({suggestion.confidence:.0%})")
 
-if st.button("Waarom?"):
-    st.write("**Gedetecteerde patronen:**")
-    for rule in suggestion.explanation[:3]:
-        st.write(f"- {rule}")
+# Altijd uitgebreide uitleg tonen voor juridische verantwoording
+with st.expander("📋 Volledige analyse", expanded=True):
+    st.write("**Alle overwogen categorieën:**")
+    for category, score in suggestion.all_scores.items():
+        st.write(f"- {category}: {score:.2f}")
+
+    st.write("\n**Gematchte patronen:**")
+    for pattern in suggestion.matched_patterns:  # Alle patronen, niet top-3
+        st.write(f"- {pattern}")
+
+    st.write("\n**Disambiguatie overwegingen:**")
+    for consideration in suggestion.disambiguation_notes:
+        st.write(f"- {consideration}")
 
 # Manual override altijd mogelijk
-selected = st.selectbox("UFO Categorie",
+selected = st.selectbox("UFO Categorie (u kunt wijzigen)",
                         options=UFO_CATEGORIES,
                         index=UFO_CATEGORIES.index(suggestion.primary_category))</code></pre>
 
 <ul>
 <li>**Verplichte review**: Bij confidence <0.6 wordt manual review afgedwongen</li>
-<li>**Badge systeem**: Visuele indicators per categorie voor quick scan</li>
-<li>**Bulk review**: Dedicated scherm voor batch classificatie van lage-confidence items</li>
+<li>**Transparantie**: ALLE overwegingen zijn zichtbaar voor juridische verantwoording</li>
+<li>**Geen haast**: Gebruiker kan rustig alle details bekijken</li>
 </ul>
 
-<h2>Integratiepunten & Dependencies</h2>
+<h2>Integratiepunten & Dependencies (Vereenvoudigd)</h2>
 
 <ul>
-<li>**ServiceContainer**: `container.ufo_classifier()` singleton access</li>
-<li>**CRUD hooks**: on‑create/update async suggestie genereren en opslaan als voorstel</li>
-<li>**Approval flow**: gebruiker bevestigt/overschrijft; audit trail naar `definition_ufo_history` tabel</li>
-<li>**Batch processing**:</li>
-<li> - Reclassificeer bestaande 80+ definities</li>
-<li> - Markeer "needs review" bij confidence <0.6</li>
-<li> - Performance: 180K items/sec in batch mode</li>
+<li>**ServiceContainer**: Simpele integratie via `container.ufo_classifier()`</li>
+<li>**Database updates**: Synchrone updates (geen async nodig voor single-user)</li>
+<li>**Approval flow**: gebruiker bevestigt/overschrijft; simpele audit trail</li>
+<li>**Initiële classificatie**:</li>
+<li> - Classificeer bestaande 80+ definities bij eerste run</li>
+<li> - Markeer items met lage confidence voor review</li>
+<li> - Geen performance vereisten - mag enkele seconden duren</li>
 <li>**Database schema updates**:</li>
 <pre><code>  ALTER TABLE definitions ADD COLUMN ufo_suggestion VARCHAR(50);
   ALTER TABLE definitions ADD COLUMN ufo_confidence REAL;
@@ -217,122 +234,105 @@ rules:
 
 <h2>Test Strategie & Kwaliteitsborging</h2>
 
-<h3>Unit Tests (35+ test cases)</h3>
+<h3>Kwaliteit Tests (Focus op Correctheid)</h3>
 <pre><code># tests/services/test_ufo_classifier_service.py
-def test_kind_detection():
-    result = classify("mens", "Een natuurlijk persoon...")
-    assert result.primary_category == "Kind"
-    assert result.confidence &gt;= 0.8
+def test_all_16_categories():
+    """Test dat ALLE 16 UFO categorieën correct gedetecteerd worden."""
+    test_cases = load_annotated_test_set()  # 100+ handmatig geannoteerde cases
 
-def test_ambiguous_term_low_confidence():
-    result = classify("zaak", "...")
-    assert result.confidence &lt; 0.6  # Forces manual review</code></pre>
+    for term, definition, expected_category in test_cases:
+        result = classify(term, definition)
+        assert result.primary_category == expected_category
+        # Controleer dat ALLE relevante patronen gevonden zijn
+        assert len(result.matched_patterns) &gt; 0
+        assert len(result.all_scores) == 16  # Alle categorieën overwogen
 
-<h3>Performance Benchmarks</h3>
-<p>| Metric | Target | <strong>Behaald</strong> |</p>
-<p>|--------|--------|-------------|</p>
-<p>| Classificatie tijd | <10ms | <strong>0.01ms</strong> ✅ |</p>
-<p>| Throughput | 200/sec | <strong>148,467/sec</strong> ✅ |</p>
-<p>| Batch throughput | 2000/sec | <strong>180,000/sec</strong> ✅ |</p>
-<p>| Memory usage | <100MB | <strong>0.04MB</strong> ✅ |</p>
-<p>| Cache hit rate | >90% | <strong>95%</strong> ✅ |</p>
+def test_disambiguation():
+    """Test disambiguatie voor complexe juridische termen."""
+    # Test "zaak" in verschillende contexten
+    assert classify("zaak", "Een rechtszaak voor de rechter").primary_category == "Event"
+    assert classify("zaak", "Een roerende zaak zoals een auto").primary_category == "Kind"
+    assert classify("zaak", "De zaak van de verdachte").primary_category == "Abstract"</code></pre>
+
+<h3>Kwaliteitsmetrics (Single-User Focus)</h3>
+<p>| Metric | Target | Prioriteit |</p>
+<p>|--------|--------|------------|</p>
+<p>| <strong>Precisie alle categorieën</strong> | ≥95% | KRITIEK |</p>
+<p>| <strong>Disambiguatie correctheid</strong> | ≥90% | KRITIEK |</p>
+<p>| <strong>Uitleg volledigheid</strong> | 100% | HOOG |</p>
+<p>| Classificatie tijd | <500ms | LAAG |</p>
+<p>| Memory usage | <500MB | LAAG |</p>
 
 <h3>Kwaliteitsmetrics</h3>
 <ul>
-<li>**Validatieset**: 100 hand-annotated definities uit productie</li>
-<li>**Precisie**: ≥80% voor high-confidence (≥0.8) suggesties</li>
-<li>**Coverage**: ≥75% van definities krijgt confidence ≥0.6</li>
-<li>**Acceptance rate**: >70% van suggesties geaccepteerd zonder wijziging</li>
+<li>**Validatieset**: 100+ zorgvuldig geannoteerde Nederlandse juridische definities</li>
+<li>**Precisie**: ≥95% voor alle categorieën (geen shortcuts)</li>
+<li>**Disambiguatie**: ≥90% correct voor ambigue termen</li>
+<li>**Uitleg kwaliteit**: Elke classificatie volledig verantwoord</li>
+<li>**Gebruikerstevredenheid**: Correctheid > Snelheid</li>
 </ul>
 
-<h2>Uitrol & Adoptie Strategie</h2>
+<h2>Implementatie Strategie (Single-User)</h2>
 
-<h3>Fase 1: Shadow Mode (Week 1-2)</h3>
+<h3>Direct Live (Week 1)</h3>
 <ul>
-<li>Implementeer UFOClassificationService met rule engine</li>
-<li>Log suggesties zonder UI exposure voor baseline metrics</li>
-<li>Performance tuning en regel-optimalisatie</li>
-<li>**Success criteria**: 1000+ classificaties, >65% precisie</li>
+<li>Implementeer volledige UFOClassificationService</li>
+<li>Integreer direct in alle tabs (Generator/Edit/Expert)</li>
+<li>Classificeer bestaande 80+ definities</li>
+<li>**Focus**: Kwaliteit van classificatie, niet rollout complexity</li>
 </ul>
 
-<h3>Fase 2: Opt-in Beta (Week 3-4)</h3>
+<h3>Iteratieve Verbetering (Ongoing)</h3>
 <ul>
-<li>UI integratie in Generator/Edit/Expert tabs</li>
-<li>Early adopter program (5+ experts)</li>
-<li>Feedback collection en regel refinement</li>
-<li>**Success criteria**: >60% acceptance rate, 0 critical bugs</li>
+<li>Gebruiker geeft feedback via UI</li>
+<li>Regel updates via config files</li>
+<li>Continue verbetering van patterns</li>
+<li>**Success**: Gebruiker vertrouwt de suggesties</li>
 </ul>
 
-<h3>Fase 3: General Availability (Week 5+)</h3>
+<h3>Impact voor Gebruiker</h3>
 <ul>
-<li>Default enabled met opt-out mogelijkheid</li>
-<li>Bulk review interface voor legacy data</li>
-<li>Metrics dashboard (accuracy, coverage, adoption)</li>
-<li>**Success criteria**: >70% acceptance, >4.0/5 satisfaction</li>
+<li>**Tijdsbesparing**: Minder handmatig categoriseren</li>
+<li>**Consistentie**: Elke definitie krijgt dezelfde grondige analyse</li>
+<li>**Leercurve**: Gebruiker leert UFO-categorieën via uitgebreide uitleg</li>
+<li>**Kwaliteit**: Betere juridische onderbouwing door volledige analyse</li>
 </ul>
 
-<h3>Business Impact Projectie</h3>
-<ul>
-<li>**Tijdsbesparing**: 85-90% reductie (van 3 min naar 30 sec per definitie)</li>
-<li>**Productiviteit**: 30-40% verhoging in definities per uur</li>
-<li>**Consistentie**: 90% inter-annotator agreement (vs 60-70% manueel)</li>
-<li>**Training efficiency**: 50% kortere inwerktijd nieuwe gebruikers</li>
-<li>**ROI**: 300-400% binnen 12 maanden</li>
-</ul>
-
-<h2>Risico's, Mitigatie & Change Management</h2>
+<h2>Risico's & Mitigatie (Vereenvoudigd)</h2>
 
 <h3>Technische Risico's</h3>
 <ul>
-<li>**Ambigue termen** ("zaak", "huwelijk"): Context-aware rules + verplichte review bij confidence <0.6</li>
-<li>**Performance degradatie**: Caching strategy + lazy loading + singleton pattern</li>
-<li>**Regel conflicten**: Priority-based resolution + comprehensive test coverage (90%+)</li>
+<li>**Ambigue termen**: Uitgebreide disambiguatie regels + altijd manual override</li>
+<li>**Missende categorieën**: Alle 16 UFO categorieën geïmplementeerd</li>
+<li>**Onjuiste classificatie**: Transparante uitleg + gebruiker kan altijd wijzigen</li>
 </ul>
 
-<h3>Gebruikersrisico's</h3>
+<h3>Maintenance</h3>
 <ul>
-<li>**Weerstand tegen automatisering**: Opt-in approach + transparante explainability</li>
-<li>**Training overhead**: Interactive tutorials + peer mentoring program</li>
-<li>**Onjuiste suggesties**: Conservative thresholds + quick feedback loop</li>
+<li>**Rule updates**: Simpele YAML config files</li>
+<li>**Feedback verwerking**: Direct in config aanpassen</li>
+<li>**Geen monitoring overhead**: Single-user heeft geen monitoring nodig</li>
 </ul>
 
-<h3>Change Management</h3>
-<ul>
-<li>**Communication**: Kick-off presentatie + weekly updates + success stories</li>
-<li>**Training**: 2-hour workshop + hands-on practice + assessment quiz</li>
-<li>**Support**: Dedicated contact + documentation + Slack channel</li>
-<li>**Feedback loop**: In-app reporting + quarterly reviews + continuous improvement</li>
-</ul>
-
-<h3>Maintenance & Evolution</h3>
-<ul>
-<li>**Rule updates**: Git-tracked YAML config met change notifications</li>
-<li>**Model preparation**: Adapter pattern voor future ML integration</li>
-<li>**Monitoring**: Performance alerts + quality degradation detection</li>
-<li>**Versioning**: Semantic versioning voor rule sets + rollback capability</li>
-</ul>
-
-<h2>Continuous Improvement Process</h2>
+<h2>Verbetering Process (Pragmatisch)</h2>
 
 <ol>
-<li>**Data collection** (ongoing): Log alle classificaties met outcomes</li>
-<li>**Pattern analysis** (weekly): Identificeer systematic errors</li>
-<li>**Rule refinement** (bi-weekly): Update YAML config based op feedback</li>
-<li>**A/B testing** (monthly): Test rule improvements op subset</li>
-<li>**Production deployment** (quarterly): Roll out validated improvements</li>
+<li>**Gebruiker feedback**: Direct via UI wanneer classificatie niet klopt</li>
+<li>**Rule updates**: Aanpassen in YAML wanneer nodig</li>
+<li>**Testen**: Rerun op test set van 100+ definities</li>
+<li>**Deploy**: Direct live (geen staged rollout nodig)</li>
 </ol>
 
 <h2>Definition of Done</h2>
 
 <ul>
-<li>[x] Implementatie compleet met 35+ unit tests</li>
-<li>[x] Performance benchmarks behaald (<10ms, >2000/sec batch)</li>
-<li>[ ] UI integratie in alle drie tabs (Generator, Edit, Expert)</li>
-<li>[ ] Documentatie bijgewerkt (architectuur + user guide)</li>
-<li>[ ] Training materialen gereed</li>
-<li>[ ] Audit logging operationeel</li>
-<li>[ ] Batch migration tool voor bestaande data</li>
-<li>[ ] Metrics dashboard beschikbaar</li>
+<li>[ ] UFOClassificationService met alle 16 categorieën</li>
+<li>[ ] Grondige test coverage (focus op correctheid, niet performance)</li>
+<li>[ ] UI integratie in alle drie tabs met uitgebreide uitleg</li>
+<li>[ ] Disambiguatie voor complexe juridische termen</li>
+<li>[ ] 500+ Nederlandse juridische termen geïmplementeerd</li>
+<li>[ ] Initiële classificatie van 80+ bestaande definities</li>
+<li>[ ] YAML config voor rule updates</li>
 <li>[ ] `last_verified` timestamp bijgewerkt</li>
 </ul>
   </div>

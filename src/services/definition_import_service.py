@@ -12,6 +12,8 @@ Let op: Batch/queue/mapping horen NIET bij dit MVP.
 
 from __future__ import annotations
 
+import asyncio
+from concurrent.futures import ThreadPoolExecutor
 from dataclasses import dataclass
 from typing import Any, Dict
 import pandas as pd
@@ -51,6 +53,8 @@ class DefinitionImportService:
         """
         self._repo = repository
         self._validator = validation_orchestrator
+        # Thread pool voor sync database operaties
+        self._executor = ThreadPoolExecutor(max_workers=2)
 
     async def validate_single(self, payload: Dict[str, Any]) -> SingleImportPreview:
         """Valideer één definitie en geef duplicates terug.
@@ -62,7 +66,11 @@ class DefinitionImportService:
         validation = await self._validator.validate_definition(definition)
 
         # Duplicaatcontrole op begrip + context (repository logica)
-        duplicates = self._repo.find_duplicates(definition) or []
+        # Run sync database operation in thread pool to prevent blocking
+        loop = asyncio.get_event_loop()
+        duplicates = await loop.run_in_executor(
+            self._executor, self._repo.find_duplicates, definition
+        ) or []
 
         ok = True
         try:
@@ -81,7 +89,20 @@ class DefinitionImportService:
         created_by: str | None = None,
     ) -> SingleImportResult:
         """Voer de daadwerkelijke import uit na validatie."""
-        preview = await self.validate_single(payload)
+        # Run validation in async context
+        import asyncio
+
+        # Voor kleine timeout safety, gebruik asyncio.wait_for
+        try:
+            preview = await asyncio.wait_for(self.validate_single(payload), timeout=2.0)
+        except asyncio.TimeoutError:
+            return SingleImportResult(
+                success=False,
+                definition_id=None,
+                validation=None,
+                duplicates=[],
+                error="Validatie timeout - probeer opnieuw",
+            )
 
         # Bepaal strategie: 'skip' (default) of 'overwrite'
         strategy = (duplicate_strategy or ("overwrite" if allow_duplicate else "skip")).lower()
@@ -101,8 +122,8 @@ class DefinitionImportService:
         definition = self._payload_to_definition(payload)
         # Zet status/metadata voor import herkomst
         md = dict(definition.metadata or {})
-        md.setdefault("status", "imported")
-        md.setdefault("source_type", "imported")
+        md.setdefault("status", "draft")  # Gebruik 'draft' i.p.v. 'imported' voor DB constraint
+        md.setdefault("source_type", "imported")  # Dit geeft aan dat het geïmporteerd is
         md.setdefault("imported_from", "single_import_ui")
         if created_by:
             md.setdefault("created_by", created_by)
@@ -118,7 +139,12 @@ class DefinitionImportService:
             except Exception:
                 # Fallback: laat id None → create
                 pass
-        new_id = self._repo.save(definition)
+
+        # Run sync save operation in thread pool to prevent blocking
+        loop = asyncio.get_event_loop()
+        new_id = await loop.run_in_executor(
+            self._executor, self._repo.save, definition
+        )
 
         # Sla synoniemen en voorkeursterm op in voorbeelden tabel
         if new_id:
@@ -217,8 +243,81 @@ class DefinitionImportService:
         jur_list = _as_list(jur)
         wet_list = _as_list(wet)
 
-        # Nieuwe velden mapping
-        ufo_categorie = _clean_text(payload.get("UFO_Categorie", payload.get("ufo_categorie", "")))
+        # Nieuwe velden mapping – UFO-categorie valideren/normaliseren naar canonieke waarden
+        import re as _re
+        def _normalize_ufo(val: str | None) -> str | None:
+            if not val:
+                return None
+            v = str(val).strip()
+            if not v:
+                return None
+            # Canonieke waarden zoals toegestaan in schema.sql (CHECK constraint)
+            allowed = [
+                "Kind","Event","Role","Phase","Relator","Mode","Quantity","Quality",
+                "Subkind","Category","Mixin","RoleMixin","PhaseMixin","Abstract","Relatie","Event Composition",
+            ]
+            # Directe match (case-sensitive) of case-insensitive
+            if v in allowed:
+                return v
+            # Case-insensitive exact match
+            for c in allowed:
+                if v.lower() == c.lower():
+                    return c
+            # Normaliseer: verwijder spaties/strepen/underscores/punten
+            def _key(s: str) -> str:
+                return _re.sub(r"[\s_.\-]", "", s.strip().lower())
+            allowed_map = { _key(c): c for c in allowed }
+            # Voeg simpele synoniemen toe
+            allowed_map.update({
+                "relation": "Relatie",
+                "eventcomposition": "Event Composition",
+                "rolemixin": "RoleMixin",
+                "phasemixin": "PhaseMixin",
+                "subkind": "Subkind",
+            })
+            return allowed_map.get(_key(v))
+
+        # Normaliseer categorie naar toegestane waarden
+        def _normalize_categorie(val: str | None) -> str:
+            """Normaliseer categorie naar toegestane database waarden."""
+            if not val:
+                return "type"  # Default categorie
+
+            v = str(val).strip().lower()
+
+            # Mapping van veel voorkomende varianten naar toegestane waarden
+            categorie_mapping = {
+                # Legacy mappings
+                "type": "type",
+                "proces": "proces",
+                "resultaat": "resultaat",
+                "exemplaar": "exemplaar",
+                # Common variations
+                "object": "type",  # object -> type
+                "entiteit": "ENT",
+                "activiteit": "ACT",
+                "relatie": "REL",
+                "attribuut": "ATT",
+                "autorisatie": "AUT",
+                "status": "STA",
+                "overig": "OTH",
+                # Abbreviations
+                "ent": "ENT",
+                "act": "ACT",
+                "rel": "REL",
+                "att": "ATT",
+                "aut": "AUT",
+                "sta": "STA",
+                "oth": "OTH",
+            }
+
+            return categorie_mapping.get(v, "type")  # Default to "type" if not found
+
+        # Normaliseer categorie
+        categorie_normalized = _normalize_categorie(categorie)
+
+        ufo_categorie_raw = _clean_text(payload.get("UFO_Categorie", payload.get("ufo_categorie", "")))
+        ufo_categorie = _normalize_ufo(ufo_categorie_raw)
         voorkeursterm = _clean_text(payload.get("Voorkeursterm", payload.get("voorkeursterm", "")))
 
         # Synoniemen (komma-gescheiden naar lijst)
@@ -257,17 +356,20 @@ class DefinitionImportService:
             organisatorische_context=org_list,
             juridische_context=jur_list,
             wettelijke_basis=wet_list,
-            categorie=str(categorie) if categorie else None,
+            categorie=categorie_normalized,  # Gebruik genormaliseerde categorie
             ufo_categorie=ufo_categorie if ufo_categorie else None,
             synoniemen=synoniemen_list if synoniemen_list else None,  # Tijdelijk, wordt later naar voorbeelden geschreven
             toelichting=toelichting_definitie if toelichting_definitie else None,
-            toelichting_proces=toelichting_proces if toelichting_proces else None,
         )
 
-        # Store voorkeursterm temporarily in metadata for later processing
+        # Store voorkeursterm en proces-toelichting tijdelijk in metadata voor latere verwerking
         if voorkeursterm:
             if not definition.metadata:
                 definition.metadata = {}
             definition.metadata['voorkeursterm'] = voorkeursterm
+        if toelichting_proces:
+            if not definition.metadata:
+                definition.metadata = {}
+            definition.metadata['toelichting_proces'] = toelichting_proces
 
         return definition

@@ -32,20 +32,23 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
     Example:
         result = run_async(service.async_method(args))
     """
+    import threading
+    from concurrent.futures import ThreadPoolExecutor
+
+    # Check if we're in the main thread with a running event loop (Streamlit)
     try:
-        # Try to get existing event loop
-        loop = asyncio.get_event_loop()
-        if loop.is_running():
-            # We're in an async context, use run_coroutine_threadsafe
-            future = asyncio.run_coroutine_threadsafe(coro, loop)
+        loop = asyncio.get_running_loop()
+        # We're in an async context with a running loop
+        # Use a thread pool to run the coroutine in isolation
+        with ThreadPoolExecutor(max_workers=1) as executor:
+            future = executor.submit(asyncio.run, coro)
             return future.result(timeout=timeout) if timeout else future.result()
     except RuntimeError:
-        # No event loop, create one
+        # No running loop, we can safely use asyncio.run
         pass
 
-    # Run in new event loop
+    # No running loop - create new one
     if timeout:
-
         async def with_timeout():
             return await asyncio.wait_for(coro, timeout)
 
@@ -53,18 +56,26 @@ def run_async(coro: Coroutine[Any, Any, T], timeout: float | None = None) -> T:
     return asyncio.run(coro)
 
 
-def run_async_safe(coro: Coroutine[Any, Any, T], default: T | None = None) -> T | None:
-    """Run an async coroutine safely, returning default on error.
+def run_async_safe(
+    coro: Coroutine[Any, Any, T],
+    default: T | None = None,
+    timeout: float | None = 5.0  # Default 5 second timeout for safety
+) -> T | None:
+    """Run an async coroutine safely, returning default on error or timeout.
 
     Args:
         coro: The coroutine to run
-        default: Default value to return on error
+        default: Default value to return on error or timeout
+        timeout: Timeout in seconds (default 5.0, None for no timeout)
 
     Returns:
         The result of the coroutine or default value
     """
     try:
-        return run_async(coro)
+        return run_async(coro, timeout=timeout)
+    except asyncio.TimeoutError:
+        logger.warning(f"Async operation timed out after {timeout}s")
+        return default
     except Exception as e:
         logger.warning(f"Async operation failed: {e}")
         return default

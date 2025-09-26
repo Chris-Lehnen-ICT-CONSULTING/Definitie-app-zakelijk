@@ -1,0 +1,380 @@
+# UFO Classifier Configuration - Production v5.0
+# =============================================
+# Configuration for Dutch legal term classification
+# Focus: 95% precision for single-user application
+
+version: "5.0.0"
+name: "UFO Legal Term Classifier"
+description: "Production-ready classifier for Dutch legal terminology"
+
+# Performance settings
+performance:
+  max_text_length: 10000
+  cache_size: 1024
+  batch_size: 100
+  timeout_ms: 1000
+  min_confidence: 0.1
+  max_confidence: 1.0
+  default_confidence: 0.3
+
+# UFO Categories (valid OntoUML categories only)
+categories:
+  - name: "Kind"
+    description: "Independent entities (persons, organizations, documents)"
+    weight: 1.0
+
+  - name: "Event"
+    description: "Occurrences and happenings (procedures, transactions)"
+    weight: 1.0
+
+  - name: "Role"
+    description: "Roles played by entities (defendant, owner, witness)"
+    weight: 0.95
+
+  - name: "Phase"
+    description: "Temporal states (preliminary, final, pending)"
+    weight: 0.9
+
+  - name: "Relator"
+    description: "Relationships and connections (contracts, ownership)"
+    weight: 0.95
+
+  - name: "Mode"
+    description: "Intrinsic properties (authority, obligation, intention)"
+    weight: 0.85
+
+  - name: "Quantity"
+    description: "Measurable amounts (amounts, periods, percentages)"
+    weight: 0.9
+
+  - name: "Quality"
+    description: "Attributes and characteristics (valid, legal, guilty)"
+    weight: 0.85
+
+  - name: "Collective"
+    description: "Collections and groups (board, committee, society)"
+    weight: 0.8
+
+  - name: "Unknown"
+    description: "Fallback category when classification uncertain"
+    weight: 0.3
+
+# Pattern definitions for each category
+patterns:
+  Kind:
+    keywords:
+      - persoon
+      - organisatie
+      - instantie
+      - rechter
+      - advocaat
+      - notaris
+      - ambtenaar
+      - rechtbank
+      - griffie
+      - ministerie
+      - gemeente
+      - provincie
+      - overheid
+      - document
+      - akte
+      - vonnis
+      - beschikking
+      - uitspraak
+      - besluit
+      - zaak
+      - dossier
+      - proces-verbaal
+      - rapport
+      - verslag
+
+  Event:
+    keywords:
+      - gebeurtenis
+      - voorval
+      - incident
+      - feit
+      - handeling
+      - actie
+      - procedure
+      - proces
+      - zitting
+      - hoorzitting
+      - behandeling
+      - overtreding
+      - misdrijf
+      - delict
+      - strafbaar feit
+      - transactie
+      - overdracht
+      - levering
+      - betaling
+      - start
+      - begin
+      - einde
+      - afloop
+      - voltooiing
+
+  Role:
+    keywords:
+      - verdachte
+      - beklaagde
+      - gedaagde
+      - eiser
+      - verzoeker
+      - getuige
+      - deskundige
+      - tolk
+      - curator
+      - bewindvoerder
+      - eigenaar
+      - huurder
+      - verhuurder
+      - koper
+      - verkoper
+      - schuldenaar
+      - schuldeiser
+      - crediteur
+      - debiteur
+      - voogd
+      - ouder
+      - kind
+      - echtgenoot
+      - partner
+
+  Phase:
+    keywords:
+      - fase
+      - stadium
+      - status
+      - toestand
+      - situatie
+      - voorlopig
+      - definitief
+      - onherroepelijk
+      - voorwaardelijk
+      - hangende
+      - lopende
+      - afgerond
+      - gesloten
+      - open
+      - minnelijk
+      - gerechtelijk
+      - buitengerechtelijk
+
+  Relator:
+    keywords:
+      - overeenkomst
+      - contract
+      - verbintenis
+      - afspraak
+      - relatie
+      - verhouding
+      - band
+      - connectie
+      - link
+      - huwelijk
+      - partnerschap
+      - samenleving
+      - eigendom
+      - bezit
+      - recht
+      - aanspraak
+      - vordering
+      - volmacht
+      - machtiging
+      - toestemming
+      - instemming
+
+  Mode:
+    keywords:
+      - bevoegdheid
+      - competentie
+      - capaciteit
+      - vermogen
+      - verplichting
+      - plicht
+      - verbod
+      - gebod
+      - intentie
+      - bedoeling
+      - opzet
+      - voornemen
+      - geloof
+      - overtuiging
+      - mening
+      - standpunt
+
+  Quantity:
+    keywords:
+      - bedrag
+      - som
+      - totaal
+      - aantal
+      - hoeveelheid
+      - termijn
+      - periode
+      - duur
+      - tijd
+      - percentage
+      - promille
+      - fractie
+      - deel
+      - rente
+      - interest
+      - rendement
+      - opbrengst
+      - euro
+      - gulden
+      - dollar
+      - valuta
+      - munt
+
+  Quality:
+    keywords:
+      - eigenschap
+      - kenmerk
+      - karakteristiek
+      - attribuut
+      - geldig
+      - ongeldig
+      - nietig
+      - vernietigbaar
+      - rechtmatig
+      - onrechtmatig
+      - wettig
+      - onwettig
+      - schuldig
+      - onschuldig
+      - aansprakelijk
+      - bevoegd
+      - onbevoegd
+      - competent
+      - incompetent
+
+  Collective:
+    keywords:
+      - verzameling
+      - collectie
+      - groep
+      - set
+      - serie
+      - bestuur
+      - directie
+      - raad
+      - commissie
+      - college
+      - team
+      - afdeling
+      - department
+      - divisie
+      - maatschap
+      - vennootschap
+      - coöperatie
+      - vereniging
+      - gemeenschap
+      - samenleving
+      - maatschappij
+
+# Disambiguation rules for ambiguous terms
+disambiguation:
+  zaak:
+    - pattern: "rechts|procedure|behandel"
+      category: "Event"
+      boost: 0.3
+    - pattern: "dossier|nummer|registr"
+      category: "Kind"
+      boost: 0.3
+    - pattern: "eigendom|goed|object"
+      category: "Relator"
+      boost: 0.3
+
+  procedure:
+    - pattern: "volg|doorloop|stap"
+      category: "Event"
+      boost: 0.3
+    - pattern: "regel|voorschrift|protocol"
+      category: "Kind"
+      boost: 0.3
+
+  huwelijk:
+    - pattern: "sluit|voltrek|vier"
+      category: "Event"
+      boost: 0.3
+    - pattern: "staat|band|relatie"
+      category: "Relator"
+      boost: 0.3
+
+  eigendom:
+    - pattern: "verkrijg|overdra|verlies"
+      category: "Event"
+      boost: 0.3
+    - pattern: "recht|aanspraak|titel"
+      category: "Relator"
+      boost: 0.3
+    - pattern: "goed|object|zaak"
+      category: "Kind"
+      boost: 0.3
+
+  besluit:
+    - pattern: "neem|maak|uitvoer"
+      category: "Event"
+      boost: 0.3
+    - pattern: "document|schriftelijk"
+      category: "Kind"
+      boost: 0.3
+
+  verzoek:
+    - pattern: "indien|doe|richt"
+      category: "Event"
+      boost: 0.3
+    - pattern: "schriftelijk|document"
+      category: "Kind"
+      boost: 0.3
+
+# Scoring configuration
+scoring:
+  base_pattern_score: 0.4
+  disambiguation_boost: 0.3
+  ambiguity_penalty: 0.8
+  secondary_threshold: 0.2
+  max_secondary_categories: 3
+
+# Validation rules
+validation:
+  require_term: true
+  require_definition: true
+  min_term_length: 2
+  min_definition_length: 5
+  max_term_length: 200
+  max_definition_length: 10000
+
+# Logging configuration
+logging:
+  level: "INFO"
+  enable_debug: false
+  log_classifications: true
+  log_disambiguation: true
+  log_performance: true
+
+# Feature flags
+features:
+  enable_disambiguation: true
+  enable_secondary_categories: true
+  enable_explanation: true
+  enable_caching: true
+  enable_batch_processing: true
+  enable_unicode_normalization: true
+
+# Quality thresholds
+quality:
+  target_precision: 0.95
+  min_acceptable_confidence: 0.5
+  disambiguation_required_confidence: 0.7
+
+# Integration settings
+integration:
+  use_singleton: true
+  enable_service_container: true
+  database_storage: true
+  audit_trail: true
