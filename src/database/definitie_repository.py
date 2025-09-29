@@ -94,6 +94,9 @@ class DefinitieRecord:
     source_reference: str | None = None  # Referentie naar originele bron
     imported_from: str | None = None  # Van welk systeem geïmporteerd
 
+    # Voorkeursterm (single source of truth op definitie‑niveau)
+    voorkeursterm: str | None = None
+
     # Metadata - Algemene record informatie
     created_at: datetime | None = None  # Wanneer record is aangemaakt
     updated_at: datetime | None = None  # Laatste wijziging
@@ -114,6 +117,9 @@ class DefinitieRecord:
     # Export - Export tracking informatie
     last_exported_at: datetime | None = None  # Laatste export datum
     export_destinations: str | None = None  # JSON string met export bestemmingen
+
+    # Deprecated (aanwezig in sommige databases, niet meer gebruikt)
+    voorkeursterm_is_begrip: bool | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Converteer naar dictionary voor JSON serialization.

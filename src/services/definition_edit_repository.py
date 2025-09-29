@@ -304,6 +304,28 @@ class DefinitionEditRepository(DefinitionRepository):
             with self._get_connection() as conn:
                 cursor = conn.cursor()
                 
+                # Fast path: geen filters/zoekterm → haal laatste definities (excl. archived)
+                if not any([search_term, categorie, status, context_filter, date_from, date_to, source_type]):
+                    try:
+                        cursor.execute(
+                            """
+                            SELECT * FROM definities
+                            WHERE status != 'archived'
+                            ORDER BY updated_at DESC
+                            LIMIT ?
+                            """,
+                            (limit,),
+                        )
+                        definitions = []
+                        for row in cursor.fetchall():
+                            record = self._row_to_record(row, cursor.description)
+                            definition = self._record_to_definition(record)
+                            if definition:
+                                definitions.append(definition)
+                        return definitions
+                    except Exception as e:
+                        logger.warning(f"Fallback listing failed, falling back to dynamic query: {e}")
+
                 # Build dynamic query
                 query = "SELECT * FROM definities WHERE 1=1"
                 params = []
