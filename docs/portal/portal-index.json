@@ -151,6 +151,40 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "History Tab Removal Migration Guide",
+      "path": "../migrations/history_tab_removal.md",
+      "url": "../migrations/history_tab_removal.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-411",
+          "US-412"
+        ],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/migrations/history_tab_removal.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Backend Refactor Checklist (Q1 2025)",
       "path": "../tasks/backend-refactor-checklist.md",
       "url": "../tasks/backend-refactor-checklist.md",
@@ -6048,6 +6082,94 @@
       "linked_reqs": null
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "History Feature Roadmap",
+      "path": "../backlog/EPIC-021/HISTORY_FEATURE_ROADMAP.md",
+      "url": "../backlog/EPIC-021/HISTORY_FEATURE_ROADMAP.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-411",
+          "US-412"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/HISTORY_FEATURE_ROADMAP.html"
+    },
+    {
+      "id": "EPIC-021-TRACEABILITY",
+      "type": "DOC",
+      "title": "History & Audit Trail Requirements Traceability Matrix",
+      "path": "../backlog/EPIC-021/TRACEABILITY-MATRIX.md",
+      "url": "../backlog/EPIC-021/TRACEABILITY-MATRIX.md",
+      "status": "Active",
+      "prioriteit": null,
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "traceability-matrix",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-068",
+          "US-400",
+          "US-401",
+          "US-402",
+          "US-403",
+          "US-404",
+          "US-405",
+          "US-406",
+          "US-407",
+          "US-408",
+          "US-409",
+          "US-410",
+          "US-411"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-100",
+          "REQ-101",
+          "REQ-102",
+          "REQ-103"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/TRACEABILITY-MATRIX.html"
+    },
+    {
       "id": "EPIC-021",
       "type": "EPIC",
       "title": "Definitie Geschiedenis & Audit Trail Management",
@@ -6084,7 +6206,8 @@
           "US-408",
           "US-409",
           "US-410",
-          "US-411"
+          "US-411",
+          "US-412"
         ],
         "epic": [
           "EPIC-004",
@@ -6096,6 +6219,129 @@
       "rendered_url": "rendered/backlog/EPIC-021/EPIC-021.html",
       "linked_reqs": null,
       "linked_stories": null
+    },
+    {
+      "id": "EPIC-021-README",
+      "type": "DOC",
+      "title": "History & Audit Trail Documentation Overview",
+      "path": "../backlog/EPIC-021/README.md",
+      "url": "../backlog/EPIC-021/README.md",
+      "status": "Complete Documentation",
+      "prioriteit": null,
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "overview",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-068",
+          "US-400",
+          "US-401",
+          "US-402",
+          "US-403",
+          "US-404",
+          "US-405",
+          "US-406",
+          "US-407",
+          "US-408",
+          "US-409",
+          "US-410",
+          "US-411"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-100",
+          "REQ-101",
+          "REQ-102",
+          "REQ-103"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/README.html"
+    },
+    {
+      "id": "EPIC-021-IMPLEMENTATION",
+      "type": "GUIDE",
+      "title": "History & Audit Trail Implementation Plan",
+      "path": "../backlog/EPIC-021/IMPLEMENTATION-PLAN.md",
+      "url": "../backlog/EPIC-021/IMPLEMENTATION-PLAN.md",
+      "status": "Ready for Implementation",
+      "prioriteit": null,
+      "owner": "tech-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "implementation-plan",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/IMPLEMENTATION-PLAN.html"
+    },
+    {
+      "id": "US-411",
+      "type": "US",
+      "title": "Modern Inline History Implementation",
+      "path": "../backlog/EPIC-021/US-411/US-411.md",
+      "url": "../backlog/EPIC-021/US-411/US-411.md",
+      "status": "Backlog",
+      "prioriteit": "MEDIUM",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "user-story",
+      "sprint": null,
+      "story_points": "13",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": "US-411.md",
+      "_refs": {
+        "us": [
+          "US-411",
+          "US-412"
+        ],
+        "epic": [
+          "EPIC-004",
+          "EPIC-021"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/US-411/US-411.html",
+      "linked_reqs": null
     },
     {
       "id": "US-403",
@@ -6179,6 +6425,43 @@
       "linked_reqs": [
         "REQ-101"
       ]
+    },
+    {
+      "id": "US-412",
+      "type": "US",
+      "title": "Remove Unused History Tab",
+      "path": "../backlog/EPIC-021/US-412/US-412.md",
+      "url": "../backlog/EPIC-021/US-412/US-412.md",
+      "status": "Ready",
+      "prioriteit": "HIGH",
+      "owner": "tech-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "user-story",
+      "sprint": null,
+      "story_points": "2",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": "US-412.md",
+      "_refs": {
+        "us": [
+          "US-411",
+          "US-412"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/US-412/US-412.html",
+      "linked_reqs": null
     },
     {
       "id": "US-400",
@@ -8220,6 +8503,43 @@
       "linked_stories": null
     },
     {
+      "id": "REQ-105",
+      "type": "REQ",
+      "title": "Import (Individueel & Bulk) uit Externe Bronnen",
+      "path": "../backlog/requirements/REQ-105.md",
+      "url": "../backlog/requirements/REQ-105.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "functional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-105"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-105.html",
+      "linked_epics": null,
+      "linked_stories": null
+    },
+    {
       "id": "REQ-014",
       "type": "REQ",
       "title": "NORA StEnaarden",
@@ -8657,6 +8977,43 @@
       "linked_epics": [
         "EPIC-006"
       ],
+      "linked_stories": null
+    },
+    {
+      "id": "REQ-104",
+      "type": "REQ",
+      "title": "Zoeken in Externe Bronnen (Multi‑bron)",
+      "path": "../backlog/requirements/REQ-104.md",
+      "url": "../backlog/requirements/REQ-104.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "functional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-104"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-104.html",
+      "linked_epics": null,
       "linked_stories": null
     },
     {
@@ -9271,6 +9628,50 @@
       "linked_epics": null,
       "linked_stories": [
         "US-170"
+      ]
+    },
+    {
+      "id": "REQ-110",
+      "type": "REQ",
+      "title": "Quality Control Dashboard Requirements",
+      "path": "../backlog/requirements/REQ-110.md",
+      "url": "../backlog/requirements/REQ-110.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "quality-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "requirement",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-420",
+          "US-421",
+          "US-422"
+        ],
+        "epic": [
+          "EPIC-002",
+          "EPIC-023"
+        ],
+        "req": [
+          "REQ-110"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-110.html",
+      "linked_epics": null,
+      "linked_stories": [
+        "US-420"
       ]
     },
     {
@@ -10654,6 +11055,43 @@
       "linked_stories": null
     },
     {
+      "id": "REQ-107",
+      "type": "REQ",
+      "title": "Security & Compliance voor Externe Bronnen",
+      "path": "../backlog/requirements/REQ-107.md",
+      "url": "../backlog/requirements/REQ-107.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "nonfunctional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-107"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-107.html",
+      "linked_epics": null,
+      "linked_stories": null
+    },
+    {
       "id": "REQ-057",
       "type": "REQ",
       "title": "Mobile Responsive Interface",
@@ -11014,6 +11452,43 @@
       "linked_epics": [
         "EPIC-005"
       ],
+      "linked_stories": null
+    },
+    {
+      "id": "REQ-103",
+      "type": "REQ",
+      "title": "Externe Bronnen Beheer UI",
+      "path": "../backlog/requirements/REQ-103.md",
+      "url": "../backlog/requirements/REQ-103.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "functional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-103"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-103.html",
+      "linked_epics": null,
       "linked_stories": null
     },
     {
@@ -11478,6 +11953,43 @@
       "linked_epics": [
         "EPIC-005"
       ],
+      "linked_stories": null
+    },
+    {
+      "id": "REQ-102",
+      "type": "REQ",
+      "title": "External Sources Adapter Framework",
+      "path": "../backlog/requirements/REQ-102.md",
+      "url": "../backlog/requirements/REQ-102.md",
+      "status": "Backlog",
+      "prioriteit": "HOOG",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "functional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-102"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-102.html",
+      "linked_epics": null,
       "linked_stories": null
     },
     {
@@ -12027,6 +12539,43 @@
       "linked_epics": [
         "EPIC-007"
       ],
+      "linked_stories": null
+    },
+    {
+      "id": "REQ-106",
+      "type": "REQ",
+      "title": "Bronconfiguratie Export & Import",
+      "path": "../backlog/requirements/REQ-106.md",
+      "url": "../backlog/requirements/REQ-106.md",
+      "status": "Backlog",
+      "prioriteit": "GEMIDDELD",
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "functional",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-106"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-106.html",
+      "linked_epics": null,
       "linked_stories": null
     },
     {
@@ -15966,6 +16515,411 @@
         "req": []
       },
       "rendered_url": "rendered/backlog/EPIC-012/US-175/CFR-BUG-022/README.html"
+    },
+    {
+      "id": "EPIC-023",
+      "type": "EPIC",
+      "title": "Quality Control & System Health Dashboard",
+      "path": "../backlog/EPIC-023/EPIC-023.md",
+      "url": "../backlog/EPIC-023/EPIC-023.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "quality-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "epic",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-023.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-413",
+          "US-414",
+          "US-415",
+          "US-416",
+          "US-417"
+        ],
+        "epic": [
+          "EPIC-002",
+          "EPIC-023"
+        ],
+        "req": [
+          "REQ-110",
+          "REQ-111",
+          "REQ-112"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-023/EPIC-023.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
+      "id": "US-420",
+      "type": "US",
+      "title": "Toetsregels Usage Analysis Dashboard",
+      "path": "../backlog/EPIC-023/US-420/US-420.md",
+      "url": "../backlog/EPIC-023/US-420/US-420.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "development-team",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "user-story",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-023",
+      "parent_us": "US-420.md",
+      "_refs": {
+        "us": [
+          "US-420"
+        ],
+        "epic": [
+          "EPIC-023"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-023/US-420/US-420.html",
+      "linked_reqs": [
+        "REQ-110"
+      ]
+    },
+    {
+      "id": "US-417",
+      "type": "US",
+      "title": "Quality Report Export",
+      "path": "../backlog/EPIC-023/US-417/US-417.md",
+      "url": "../backlog/EPIC-023/US-417/US-417.md",
+      "status": "Open",
+      "prioriteit": "MEDIUM",
+      "owner": "development-team",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "user-story",
+      "sprint": "backlog",
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-023",
+      "parent_us": "US-417.md",
+      "_refs": {
+        "us": [
+          "US-417"
+        ],
+        "epic": [
+          "EPIC-023"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-023/US-417/US-417.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "EPIC-022",
+      "type": "EPIC",
+      "title": "Externe Bronnen Integratie & Import",
+      "path": "../backlog/EPIC-022/EPIC-022.md",
+      "url": "../backlog/EPIC-022/EPIC-022.md",
+      "status": "TE_DOEN",
+      "prioriteit": "HOOG",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "epic",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": "v1.5",
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-022.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-413",
+          "US-414",
+          "US-415",
+          "US-416",
+          "US-417",
+          "US-418"
+        ],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-043",
+          "REQ-102",
+          "REQ-103",
+          "REQ-104",
+          "REQ-105",
+          "REQ-106",
+          "REQ-107"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-022/EPIC-022.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
+      "id": "US-416",
+      "type": "US",
+      "title": "Bulk import met opties en voortgang",
+      "path": "../backlog/EPIC-022/US-416/US-416.md",
+      "url": "../backlog/EPIC-022/US-416/US-416.md",
+      "status": "TE_DOEN",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-022",
+      "parent_us": "US-416.md",
+      "_refs": {
+        "us": [
+          "US-416"
+        ],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-105",
+          "REQ-107"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-022/US-416/US-416.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-418",
+      "type": "US",
+      "title": "Configuratie exporteren/importeren (JSON)",
+      "path": "../backlog/EPIC-022/US-418/US-418.md",
+      "url": "../backlog/EPIC-022/US-418/US-418.md",
+      "status": "TE_DOEN",
+      "prioriteit": "GEMIDDELD",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-022",
+      "parent_us": "US-418.md",
+      "_refs": {
+        "us": [
+          "US-418"
+        ],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-106",
+          "REQ-107"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-022/US-418/US-418.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-417",
+      "type": "US",
+      "title": "Handmatige bronconfiguratie (ID/naam/type/verbinding)",
+      "path": "../backlog/EPIC-022/US-417/US-417.md",
+      "url": "../backlog/EPIC-022/US-417/US-417.md",
+      "status": "TE_DOEN",
+      "prioriteit": "GEMIDDELD",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "3",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-022",
+      "parent_us": "US-417.md",
+      "_refs": {
+        "us": [
+          "US-417"
+        ],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-102",
+          "REQ-106",
+          "REQ-107"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-022/US-417/US-417.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-415",
+      "type": "US",
+      "title": "Individuele import uit zoekresultaten",
+      "path": "../backlog/EPIC-022/US-415/US-415.md",
+      "url": "../backlog/EPIC-022/US-415/US-415.md",
+      "status": "TE_DOEN",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-022",
+      "parent_us": "US-415.md",
+      "_refs": {
+        "us": [
+          "US-415"
+        ],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-105",
+          "REQ-107"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-022/US-415/US-415.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-414",
+      "type": "US",
+      "title": "Multi‑bron zoek UI met filters",
+      "path": "../backlog/EPIC-022/US-414/US-414.md",
+      "url": "../backlog/EPIC-022/US-414/US-414.md",
+      "status": "TE_DOEN",
+      "prioriteit": "GEMIDDELD",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 3,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-022",
+      "parent_us": "US-414.md",
+      "_refs": {
+        "us": [
+          "US-414"
+        ],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-102",
+          "REQ-104"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-022/US-414/US-414.html",
+      "linked_reqs": null
+    },
+    {
+      "id": "US-413",
+      "type": "US",
+      "title": "Bronbeheer UI (registreren, testen, verwijderen)",
+      "path": "../backlog/EPIC-022/US-413/US-413.md",
+      "url": "../backlog/EPIC-022/US-413/US-413.md",
+      "status": "TE_DOEN",
+      "prioriteit": "HOOG",
+      "owner": "developer-implementer",
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 2,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-022",
+      "parent_us": "US-413.md",
+      "_refs": {
+        "us": [
+          "US-413"
+        ],
+        "epic": [
+          "EPIC-022"
+        ],
+        "req": [
+          "REQ-102",
+          "REQ-103"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-022/US-413/US-413.html",
+      "linked_reqs": null
     },
     {
       "id": "EPIC-013",
@@ -31277,6 +32231,37 @@
     {
       "id": null,
       "type": "TEST",
+      "title": "History Tab Removal - Verification Plan & Checklist",
+      "path": "../testing/HISTORY_REMOVAL_VERIFICATION.md",
+      "url": "../testing/HISTORY_REMOVAL_VERIFICATION.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/testing/HISTORY_REMOVAL_VERIFICATION.html"
+    },
+    {
+      "id": null,
+      "type": "TEST",
       "title": "Vereisten Test Plan met SMART Criteria & BDD Scenario's",
       "path": "../testing/requirements-test-plan.md",
       "url": "../testing/requirements-test-plan.md",
@@ -32589,6 +33574,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "History Tab Removal - Complete Summary",
+      "path": "../technical/history_tab_removal_summary.md",
+      "url": "../technical/history_tab_removal_summary.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/technical/history_tab_removal_summary.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "Test Suite Recovery Solution Plan",
       "path": "../refactor/SOLUTION_PLAN.md",
       "url": "../refactor/SOLUTION_PLAN.md",
@@ -33470,17 +34486,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 491,
-      "EPIC": 19,
-      "US": 234,
+      "DOC": 496,
+      "EPIC": 21,
+      "US": 244,
       "BUG": 17,
-      "REQ": 101,
+      "GUIDE": 12,
+      "REQ": 108,
       "ARCH": 24,
-      "TEST": 27,
-      "COMP": 5,
-      "GUIDE": 11
+      "TEST": 28,
+      "COMP": 5
     },
-    "generated_at": "2025-09-29T09:40:13Z"
+    "generated_at": "2025-09-29T10:53:38Z"
   },
   "sources": [
     "docs"
@@ -33789,6 +34805,9 @@
       ],
       "REQ-097": [
         "US-170"
+      ],
+      "REQ-110": [
+        "US-420"
       ],
       "REQ-088": [
         "US-051",
