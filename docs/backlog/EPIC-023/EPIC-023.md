@@ -2,11 +2,13 @@
 id: EPIC-023
 titel: Quality Control & System Health Dashboard
 type: epic
-status: Open
-prioriteit: HIGH
-business_value: HIGH
+status: Deferred
+prioriteit: LOW
+business_value: MEDIUM
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
+uitgesteld: 2025-09-29
+reden_uitstel: Geen huidige behoefte aan deze functionaliteit
 owner: quality-lead
 stakeholders:
   - business-analyst
@@ -177,3 +179,27 @@ Quality Control System
 - Should integrate with future monitoring solutions
 - Consider adding API endpoints for external monitoring
 - May need performance optimization for large rule sets
+
+## Status Update - 2025-09-29
+
+### Implementatie Verwijderd
+De Quality Control tab implementatie is verwijderd uit de codebase omdat:
+1. Er is momenteel geen behoefte aan deze functionaliteit
+2. De focus ligt op andere prioriteiten
+3. De functionaliteit kan later opnieuw worden geïmplementeerd indien nodig
+
+### Wat is gedocumenteerd
+- Volledige requirements (REQ-110, REQ-111, REQ-112)
+- User stories (US-420 t/m US-424)
+- Traceability matrix met 100% dekking
+- BUG-001: Export functionaliteit issue (opgelost voordat tab werd verwijderd)
+
+### Verwijderde bestanden
+- `src/ui/components/quality_control_tab.py` (420 regels code)
+- Verwijzingen uit `src/ui/tabbed_interface.py`
+
+### Toekomstige implementatie
+Als de Quality Control functionaliteit in de toekomst nodig is:
+1. Gebruik de gedocumenteerde requirements als basis
+2. Implementeer volgens de user stories
+3. Refereer aan de traceability matrix voor complete dekking
