@@ -2668,7 +2668,9 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-004/US-068/US-068.html",
-      "linked_reqs": null
+      "linked_reqs": [
+        "REQ-100"
+      ]
     },
     {
       "id": "US-025",
@@ -6046,6 +6048,221 @@
       "linked_reqs": null
     },
     {
+      "id": "EPIC-021",
+      "type": "EPIC",
+      "title": "Definitie Geschiedenis & Audit Trail Management",
+      "path": "../backlog/EPIC-021/EPIC-021.md",
+      "url": "../backlog/EPIC-021/EPIC-021.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "epic",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 1
+      },
+      "parent_epic": "EPIC-021.md",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-400",
+          "US-401",
+          "US-402",
+          "US-403",
+          "US-404",
+          "US-405",
+          "US-406",
+          "US-407",
+          "US-408",
+          "US-409",
+          "US-410",
+          "US-411"
+        ],
+        "epic": [
+          "EPIC-004",
+          "EPIC-016",
+          "EPIC-021"
+        ],
+        "req": []
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/EPIC-021.html",
+      "linked_reqs": null,
+      "linked_stories": null
+    },
+    {
+      "id": "US-403",
+      "type": "US",
+      "title": "Rollback to Previous Version",
+      "path": "../backlog/EPIC-021/US-403/US-403.md",
+      "url": "../backlog/EPIC-021/US-403/US-403.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": "US-403.md",
+      "_refs": {
+        "us": [
+          "US-400",
+          "US-401",
+          "US-403"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-101"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/US-403/US-403.html",
+      "linked_reqs": [
+        "REQ-101"
+      ]
+    },
+    {
+      "id": "US-402",
+      "type": "US",
+      "title": "Version Comparison and Diff Viewer",
+      "path": "../backlog/EPIC-021/US-402/US-402.md",
+      "url": "../backlog/EPIC-021/US-402/US-402.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "product-owner",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": "US-402.md",
+      "_refs": {
+        "us": [
+          "US-400",
+          "US-402"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-101"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/US-402/US-402.html",
+      "linked_reqs": [
+        "REQ-101"
+      ]
+    },
+    {
+      "id": "US-400",
+      "type": "US",
+      "title": "Implement Version Control System for Definitions",
+      "path": "../backlog/EPIC-021/US-400/US-400.md",
+      "url": "../backlog/EPIC-021/US-400/US-400.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "tech-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "8",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": "US-400.md",
+      "_refs": {
+        "us": [
+          "US-400"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-100",
+          "REQ-101"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/US-400/US-400.html",
+      "linked_reqs": [
+        "REQ-101"
+      ]
+    },
+    {
+      "id": "US-401",
+      "type": "US",
+      "title": "Enhanced Audit Trail with Cryptographic Integrity",
+      "path": "../backlog/EPIC-021/US-401/US-401.md",
+      "url": "../backlog/EPIC-021/US-401/US-401.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "security-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": "definitie-app@current",
+      "category": "feature",
+      "sprint": "backlog",
+      "story_points": "5",
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 2
+      },
+      "parent_epic": "EPIC-021",
+      "parent_us": "US-401.md",
+      "_refs": {
+        "us": [
+          "US-401"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-100",
+          "REQ-103"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-021/US-401/US-401.html",
+      "linked_reqs": [
+        "REQ-100"
+      ]
+    },
+    {
       "id": null,
       "type": "EPIC",
       "title": "EPIC-017: Iteratieve Verbeteringen (V2 Orchestrator)",
@@ -7461,6 +7678,51 @@
       "linked_stories": null
     },
     {
+      "id": "REQ-101",
+      "type": "REQ",
+      "title": "Version Control Requirements",
+      "path": "../backlog/requirements/REQ-101.md",
+      "url": "../backlog/requirements/REQ-101.md",
+      "status": "Draft",
+      "prioriteit": "HIGH",
+      "owner": null,
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-400",
+          "US-402",
+          "US-403"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-101"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-101.html",
+      "linked_epics": null,
+      "linked_stories": [
+        "US-400",
+        "US-402",
+        "US-403"
+      ]
+    },
+    {
       "id": "REQ-086",
       "type": "REQ",
       "title": "Multi-tenant Data Isolation",
@@ -8727,6 +8989,51 @@
       ],
       "linked_stories": [
         "US-016"
+      ]
+    },
+    {
+      "id": "REQ-100",
+      "type": "REQ",
+      "title": "Audit Trail Requirements",
+      "path": "../backlog/requirements/REQ-100.md",
+      "url": "../backlog/requirements/REQ-100.md",
+      "status": "Draft",
+      "prioriteit": "HIGH",
+      "owner": null,
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-068",
+          "US-401",
+          "US-404",
+          "US-405"
+        ],
+        "epic": [
+          "EPIC-021"
+        ],
+        "req": [
+          "REQ-100"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-100.html",
+      "linked_epics": null,
+      "linked_stories": [
+        "US-068",
+        "US-401"
       ]
     },
     {
@@ -33164,16 +33471,16 @@
   "aggregate": {
     "counts": {
       "DOC": 491,
-      "EPIC": 18,
-      "US": 230,
+      "EPIC": 19,
+      "US": 234,
       "BUG": 17,
-      "REQ": 99,
+      "REQ": 101,
       "ARCH": 24,
       "TEST": 27,
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-29T09:18:47Z"
+    "generated_at": "2025-09-29T09:40:13Z"
   },
   "sources": [
     "docs"
@@ -33456,6 +33763,11 @@
       ]
     },
     "req_to_us": {
+      "REQ-101": [
+        "US-400",
+        "US-402",
+        "US-403"
+      ],
       "REQ-092": [
         "US-055",
         "US-135"
@@ -33470,6 +33782,10 @@
       ],
       "REQ-040": [
         "US-016"
+      ],
+      "REQ-100": [
+        "US-068",
+        "US-401"
       ],
       "REQ-097": [
         "US-170"
