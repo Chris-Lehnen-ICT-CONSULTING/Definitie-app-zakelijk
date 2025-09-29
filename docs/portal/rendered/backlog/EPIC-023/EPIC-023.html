@@ -22,11 +22,13 @@
 <p>id: EPIC-023</p>
 <p>titel: Quality Control & System Health Dashboard</p>
 <p>type: epic</p>
-<p>status: Open</p>
-<p>prioriteit: HIGH</p>
-<p>business_value: HIGH</p>
+<p>status: Deferred</p>
+<p>prioriteit: LOW</p>
+<p>business_value: MEDIUM</p>
 <p>aangemaakt: 2025-09-29</p>
 <p>bijgewerkt: 2025-09-29</p>
+<p>uitgesteld: 2025-09-29</p>
+<p>reden_uitstel: Geen huidige behoefte aan deze functionaliteit</p>
 <p>owner: quality-lead</p>
 <p>stakeholders:</p>
 <ul>
@@ -229,6 +231,38 @@
 <li>Consider adding API endpoints for external monitoring</li>
 <li>May need performance optimization for large rule sets</li>
 </ul>
+
+<h2>Status Update - 2025-09-29</h2>
+
+<h3>Implementatie Verwijderd</h3>
+<p>De Quality Control tab implementatie is verwijderd uit de codebase omdat:</p>
+<ol>
+<li>Er is momenteel geen behoefte aan deze functionaliteit</li>
+<li>De focus ligt op andere prioriteiten</li>
+<li>De functionaliteit kan later opnieuw worden geïmplementeerd indien nodig</li>
+</ol>
+
+<h3>Wat is gedocumenteerd</h3>
+<ul>
+<li>Volledige requirements (REQ-110, REQ-111, REQ-112)</li>
+<li>User stories (US-420 t/m US-424)</li>
+<li>Traceability matrix met 100% dekking</li>
+<li>BUG-001: Export functionaliteit issue (opgelost voordat tab werd verwijderd)</li>
+</ul>
+
+<h3>Verwijderde bestanden</h3>
+<ul>
+<li>`src/ui/components/quality_control_tab.py` (420 regels code)</li>
+<li>Verwijzingen uit `src/ui/tabbed_interface.py`</li>
+</ul>
+
+<h3>Toekomstige implementatie</h3>
+<p>Als de Quality Control functionaliteit in de toekomst nodig is:</p>
+<ol>
+<li>Gebruik de gedocumenteerde requirements als basis</li>
+<li>Implementeer volgens de user stories</li>
+<li>Refereer aan de traceability matrix voor complete dekking</li>
+</ol>
   </div>
 </body>
 </html>
