@@ -16,7 +16,6 @@ stories:
 - US-139
 - US-062
 - US-065
-- US-234
 target_release: v1.3
 titel: Export & Import
 vereisten:
@@ -251,21 +250,3 @@ Upload File
 ---
 
 *This epic is part of the DefinitieAgent project and folLAAGs ASTRA/NORA/BIR guidelines for justice domain systems.*
-### US-234: Single Definition Import (MVP)
-**Status:** Open
-**Prioriteit:** HOOG
-**Verhaalpunten:** 5
-
-**Gebruikersverhaal:**
-Als data‑beheerder
-wil ik één definitie kunnen importeren met voorafgaande validatie
-zodat ik snel en veilig een individuele definitie kan toevoegen of bijwerken
-
-**Acceptatiecriteria (MVP):**
-1. UI voor enkelvoudige import (formulier of JSON‑plakveld)
-2. V2‑validatie vóór opslag; toon score en violations
-3. Duplicaatcontrole op begrip + context met duidelijke waarschuwing
-4. Opslag als Draft met herkomstmetadata (IMPORTED)
-5. Logging naar import_export_logs
-
-**Opmerking:** Bulk‑features (CSV/XLSX/JSONL, queue/resume) horen niet bij dit MVP en volgen in US‑062/US‑212.
