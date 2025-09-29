@@ -2,9 +2,12 @@
 """Direct test van smart rate limiter zonder dependencies."""
 
 import asyncio
+import pytest
 import sys
 import time
 sys.path.insert(0, 'src')
+
+pytestmark = [pytest.mark.performance, pytest.mark.integration]
 
 async def test_direct_rate_limiter():
     """Test smart rate limiter direct."""

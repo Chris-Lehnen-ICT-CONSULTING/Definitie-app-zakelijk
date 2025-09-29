@@ -28,11 +28,11 @@
 <p>canonical: true</p>
 <p>epic: EPIC-005</p>
 <p>id: US-138</p>
-<p>last_verified: 05-09-2025</p>
+<p>last_verified: 06-10-2025</p>
 <p>owner: developer-implementer</p>
 <p>prioriteit: HOOG</p>
 <p>sprint: backlog</p>
-<p>status: Nog te bepalen</p>
+<p>status: IN_UITVOERING</p>
 <p>story_points: 5</p>
 <p>titel: Import validatie</p>
 <p>toegewezen_aan: unassigned</p>
@@ -114,6 +114,12 @@
 <li>HOOGlights specific issues in content</li>
 <li>Offers correction suggestions</li>
 <li>AlLAAGs partial import where possible</li>
+</ul>
+
+<h2>Statusupdate 2025-10-06</h2>
+<ul>
+<li>`DefinitionImportService.validate_single` (`src/services/definition_import_service.py`) levert validatie en duplicaatdetectie voor enkelvoudige import; de management-tab toont deze resultaten in de “Enkelvoudige import (MVP)” flow (`src/ui/components/management_tab.py:352`).</li>
+<li>Formaatdetectie, volledige schema validatie, 45-regel businessvalidatie en similarity-gebaseerde duplicate workflows ontbreken nog; deze story blijft open voor uitbreidingen richting batch-import (`US-062`) en admin duplicate scans.</li>
 </ul>
 
 <h2>Domain vereisten</h2>

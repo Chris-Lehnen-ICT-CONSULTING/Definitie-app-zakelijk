@@ -18,27 +18,48 @@ Comprehensive test suite for the modern web lookup implementation using Strangle
 
 ## 🏃‍♀️ Quick Start
 
-### Run All Tests
+### Make Targets (aanbevolen)
 ```bash
-# Basic test run
-python run_tests.py
+# Snelle default subset (fail-fast)
+make test
 
-# With coverage report
-RUN_COVERAGE=1 python run_tests.py
+# Volledige suite
+make test-all
 
-# Include integration tests (requires network)
-RUN_INTEGRATION_TESTS=1 python run_tests.py
+# Gerichte suites
+make test-unit
+make test-integration
+make test-acceptance
+make test-performance
+make test-smoke
+
+# Parallel en coverage
+make test-parallel
+make test-cov
+make test-cov-ci
 ```
 
-### Run Specific Test Files
+Tip: versnel lokale runs met geaccelereerde async-sleeps:
 ```bash
-# pytest directly
-pytest tests/test_modern_web_lookup_service.py -v
-pytest tests/test_wikipedia_service.py -v
-
-# With async support
-pytest tests/ --asyncio-mode=auto -v
+FAST_SLEEP=1 make test
 ```
+
+### Direct pytest
+```bash
+# Snelle subset (zelfde filter als make test)
+pytest -q -m "not (integration or performance or benchmark or acceptance or slow or regression)" --maxfail=1
+
+# Alleen integratie
+pytest -q -m integration
+
+# Selecteer op naam
+pytest -q -k "wikipedia and not slow"
+
+# Parallel
+pytest -q -n auto
+```
+
+Note: outbound netwerktoegang is standaard geblokkeerd in tests. Voor tests die echte netwerktoegang vereisen: `ALLOW_NETWORK=1 pytest -m integration` (of combineer met bovenstaande make targets).
 
 ## 📁 Test Structure
 
@@ -46,7 +67,6 @@ pytest tests/ --asyncio-mode=auto -v
 tests/
 ├── test_modern_web_lookup_service.py  # 27 tests - Core service
 ├── test_wikipedia_service.py          # 20 tests - Wikipedia API
-├── run_tests.py                       # Test runner script
 └── README.md                          # This file
 ```
 
@@ -169,9 +189,7 @@ markers =
 ```
 
 ### Environment Variables
-- `RUN_INTEGRATION_TESTS=1` - Enable integration tests
-- `RUN_COVERAGE=1` - Generate coverage report
-- `PYTEST_CURRENT_TEST` - Current test identifier
+- `ALLOW_NETWORK=1` - Sta netwerkverkeer toe in tests (anders geblokkeerd)
 
 ## 🐛 Debugging Tests
 
@@ -315,9 +333,15 @@ with patch.object(service, 'method_name', return_value=expected_value):
 
 **🏃‍♀️ Quick Commands:**
 ```bash
-# Standard test run
-python run_tests.py
+# Snelle default subset
+make test
 
-# Full testing with coverage and integration
-RUN_INTEGRATION_TESTS=1 RUN_COVERAGE=1 python run_tests.py
+# Volledige suite
+make test-all
+
+# Integratie met netwerk
+ALLOW_NETWORK=1 make test-integration
+
+# Coverage lokaal
+make test-cov
 ```

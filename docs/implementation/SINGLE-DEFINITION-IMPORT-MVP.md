@@ -10,7 +10,7 @@ applies_to: definitie-app@current
 
 Doel: een veilige, begrijpelijke flow om één definitie via de UI te importeren met V2‑validatie, duplicaatcontrole en logging.
 
-Gerelateerd: EPIC-005 (Export & Import), US-234 (Single Definition Import), REQ-043 (Import), REQ-037 (Batch validatie – component hergebruik).
+Gerelateerd: EPIC-005 (Export & Import), beheerimport flows in de Management tab, REQ-043 (Import), REQ-037 (Batch validatie – component hergebruik).
 
 ## MVP Doelstellingen
 - UI‑flow voor één definitie (formulier/JSON)
@@ -102,6 +102,4 @@ Opmerkingen:
 
 ## Links
 - EPIC-005: docs/backlog/EPIC-005/EPIC-005.md
-- US-234: docs/backlog/EPIC-005/US-234/US-234.md
 - Vereisten: docs/backlog/requirements/REQ-043.md, docs/backlog/requirements/REQ-037.md
-
