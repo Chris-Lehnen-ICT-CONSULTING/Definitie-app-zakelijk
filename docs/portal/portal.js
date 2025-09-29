@@ -238,6 +238,7 @@
     }
 
     // view handling
+    let displayDocs = filtered.slice(); // docs contributing to counts/stats
     const view = getView();
     document.body.setAttribute('data-view', view);
     if(viewTabs){
@@ -314,6 +315,7 @@
     if(view==='planning'){
       const allowed = new Set(['EPIC','US','BUG']);
       let v = filtered.filter(d=>allowed.has(String(d.type).toUpperCase()));
+      displayDocs = v.slice();
       if(v.length === 0){
         const empty = document.createElement('div');
         empty.className = 'meta';
@@ -406,6 +408,7 @@
         if(wantPrio && pr !== String(wantPrio).toUpperCase()) return false;
         return true;
       }).sort(cmpPlanning);
+      displayDocs = v.slice();
       const h = document.createElement('h3'); h.className='group'; h.textContent=`Mijn Werk (${owner||'alle owners'}) – ${v.length} items`;
       list.appendChild(h);
       v.forEach(d=>{
@@ -429,6 +432,7 @@
       });
     } else if(view==='requirements'){
       const v = filtered.filter(d=>String(d.type).toUpperCase()==='REQ');
+      displayDocs = v.slice();
       v.forEach(d => {
         const li=document.createElement('li'); li.className='doc-item';
         li.setAttribute('role','listitem');
@@ -491,15 +495,19 @@
         if(spEl2){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(spEl2); }
         if(relEl2){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(relEl2); }
         if(canonEl2){ if(meta.childNodes.length) meta.appendChild(document.createTextNode(' ')); meta.appendChild(canonEl2); }
-        const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.url||d.path, d.title||d.id||d.path); link.textContent='open';
+        const link=document.createElement('a'); link.className='link'; link.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path); link.textContent='open';
         link.setAttribute('aria-label',`Open ${d.title||d.id||d.path}`);
         li.append(type,title,meta,link); list.appendChild(li);
       });
     }
-    const c = data.aggregate && data.aggregate.counts || {};
-    // counts shown reflect current view selection
-    const shown = list.querySelectorAll('li.doc-item').length;
-    stats.textContent=`Items: ${shown}  |  (REQ:${c.REQ||0} EPIC:${c.EPIC||0} US:${c.US||0} BUG:${c.BUG||0} ARCH:${c.ARCH||0} GUIDE:${c.GUIDE||0} TEST:${c.TEST||0} COMP:${c.COMP||0} DOC:${c.DOC||0})`;
+    // Dynamic type counts for current view's displayed set (not global aggregate)
+    const dynCounts = { REQ:0, EPIC:0, US:0, BUG:0, ARCH:0, GUIDE:0, TEST:0, COMP:0, DOC:0 };
+    displayDocs.forEach(d=>{
+      const t = String(d && d.type || 'DOC').toUpperCase();
+      dynCounts[t] = (dynCounts[t]||0) + 1;
+    });
+    const shown = displayDocs.length;
+    stats.textContent=`Items: ${shown}  |  (REQ:${dynCounts.REQ||0} EPIC:${dynCounts.EPIC||0} US:${dynCounts.US||0} BUG:${dynCounts.BUG||0} ARCH:${dynCounts.ARCH||0} GUIDE:${dynCounts.GUIDE||0} TEST:${dynCounts.TEST||0} COMP:${dynCounts.COMP||0} DOC:${dynCounts.DOC||0})`;
   }
 
   // ---- Chip deeplink helpers (US-086) ----
