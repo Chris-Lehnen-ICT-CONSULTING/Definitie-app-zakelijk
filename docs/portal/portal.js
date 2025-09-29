@@ -624,6 +624,23 @@
       const b=document.createElement('span'); b.className='badge'; b.textContent='canonical'; badgeContainer.appendChild(b);
     }
 
+    // Dropdown selections for type and status (avoid duplicates if present as query tokens)
+    const toLower = (v)=>String(v||'').toLowerCase();
+    const typeSel = (typeof tf!== 'undefined' && tf && tf.value) ? String(tf.value) : '';
+    if(typeSel){
+      const existingTypes = (parsed.filters && parsed.filters.type) ? parsed.filters.type.map(toLower) : [];
+      if(!existingTypes.includes(typeSel.toLowerCase())){
+        const b=document.createElement('span'); b.className='badge'; b.textContent = `type:${typeSel}`; badgeContainer.appendChild(b);
+      }
+    }
+    const statusSel = (typeof sf!=='undefined' && sf && sf.value) ? String(sf.value) : '';
+    if(statusSel){
+      const existingStatuses = (parsed.filters && parsed.filters.status) ? parsed.filters.status.map(toLower) : [];
+      if(!existingStatuses.includes(statusSel.toLowerCase())){
+        const b=document.createElement('span'); b.className='badge'; b.textContent = `status:${statusSel}`; badgeContainer.appendChild(b);
+      }
+    }
+
     // Clear button (query)
     const clear = document.createElement('button');
     clear.className = 'clear-query';
