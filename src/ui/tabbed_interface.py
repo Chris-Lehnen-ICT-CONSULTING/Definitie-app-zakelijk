@@ -58,9 +58,8 @@ from ui.components.expert_review_tab import (  # Expert review en validatie tab
     ExpertReviewTab,
 )
 from ui.components.export_tab import ExportTab  # Export functionaliteit tab
-from ui.components.external_sources_tab import (  # Externe bronnen beheer
-    ExternalSourcesTab,
-)
+# External Sources tab verwijderd - zie EPIC-022 voor toekomstige implementatie
+# Business kennis bewaard in docs/backlog/EPIC-022/BUSINESS-KNOWLEDGE.md
 from ui.components.management_tab import ManagementTab  # Systeem management tools
 from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
 
@@ -181,7 +180,7 @@ class TabbedInterface:
         self.expert_tab = ExpertReviewTab(self.repository)
         self.export_tab = ExportTab(self.repository)
         # Quality Control tab verwijderd - zie EPIC-023 voor toekomstige implementatie
-        self.external_tab = ExternalSourcesTab(self.repository)
+        # External Sources tab verwijderd - 95% overlap met Export tab
         self.monitoring_tab = MonitoringTab(self.repository)
         self.web_lookup_tab = WebLookupTab(self.repository)
         # Legacy OrchestrationTab - alleen laden als feature flag aan staat
@@ -223,11 +222,12 @@ class TabbedInterface:
             #     "icon": "🔧",
             #     "description": "Toetsregels analyse en system health",
             # },
-            "external": {
-                "title": "🔌 Externe Bronnen",
-                "icon": "🔌",
-                "description": "Import van externe definitie bronnen",
-            },
+            # External Sources tab verwijderd - zie EPIC-022
+            # "external": {
+            #     "title": "🔌 Externe Bronnen",
+            #     "icon": "🔌",
+            #     "description": "Import van externe definitie bronnen",
+            # },
             "monitoring": {
                 "title": "📈 Monitoring",
                 "icon": "📈",
@@ -1604,8 +1604,9 @@ class TabbedInterface:
             # Quality Control tab verwijderd - zie EPIC-023
             # elif tab_key == "quality":
             #     self.quality_tab.render()
-            elif tab_key == "external":
-                self.external_tab.render()
+            # External Sources tab verwijderd
+            # elif tab_key == "external":
+            #     self.external_tab.render()
             elif tab_key == "monitoring":
                 self.monitoring_tab.render()
             elif tab_key == "web_lookup":
