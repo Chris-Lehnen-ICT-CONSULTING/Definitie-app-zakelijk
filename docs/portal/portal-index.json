@@ -32627,6 +32627,37 @@
     {
       "id": null,
       "type": "DOC",
+      "title": "Import & Dependency Analysis Report",
+      "path": "../reports/IMPORT_DEPENDENCY_ANALYSIS.md",
+      "url": "../reports/IMPORT_DEPENDENCY_ANALYSIS.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [],
+        "epic": [],
+        "req": []
+      },
+      "rendered_url": "rendered/reports/IMPORT_DEPENDENCY_ANALYSIS.html"
+    },
+    {
+      "id": null,
+      "type": "DOC",
       "title": "CSV Import Timeout Fix Report",
       "path": "../reports/CSV_IMPORT_FIX_REPORT.md",
       "url": "../reports/CSV_IMPORT_FIX_REPORT.md",
@@ -33132,7 +33163,7 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 490,
+      "DOC": 491,
       "EPIC": 18,
       "US": 230,
       "BUG": 17,
@@ -33142,7 +33173,7 @@
       "COMP": 5,
       "GUIDE": 11
     },
-    "generated_at": "2025-09-29T08:56:35Z"
+    "generated_at": "2025-09-29T09:18:47Z"
   },
   "sources": [
     "docs"
