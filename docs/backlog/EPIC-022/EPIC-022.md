@@ -2,10 +2,10 @@
 id: EPIC-022
 titel: Externe Bronnen Integratie & Import
 type: epic
-status: TE_DOEN
-prioriteit: HOOG
+status: DEFERRED
+prioriteit: LOW
 owner: product-owner
-applies_to: definitie-app@current
+applies_to: definitie-app@future
 last_verified: 2025-09-29
 stakeholders:
   - juridisch-professional
@@ -14,7 +14,9 @@ stakeholders:
   - security-officer
 aangemaakt: 2025-09-29
 bijgewerkt: 2025-09-29
-target_release: v1.5
+uitgesteld: 2025-09-29
+reden_uitstel: Functionaliteit heeft 95% overlap met Export tab, geen meerwaarde voor single-user applicatie
+target_release: TBD
 canonical: true
 stories:
   - US-413
@@ -81,3 +83,30 @@ Out of scope:
 - Adapter‑framework gedocumenteerd; mock + file adapter beschikbaar
 - Importrapport en ‑geschiedenis zichtbaar; export/import config werkt
 - Portal (docs/portal) toont EPIC + stories en traceability naar REQs
+
+## Status Update - 2025-09-29
+
+### Implementatie Verwijderd
+De External Sources tab implementatie is verwijderd uit de codebase omdat:
+1. **95% overlap** met bestaande Export tab functionaliteit
+2. **85% overlap** met Web Lookup tab voor externe bronnen
+3. **Geen meerwaarde** voor single-user applicatie
+4. **1291 regels code** zonder realistische use cases
+
+### Wat is gedocumenteerd
+- **Business kennis bewaard** in `BUSINESS-KNOWLEDGE.md`
+- **Status mapping logica** voor toekomstig gebruik
+- **Import validatie regels** gedocumenteerd
+- **Mock data voorbeelden** als referentie bewaard
+
+### Verwijderde bestanden
+- `src/ui/components/external_sources_tab.py` (734 regels)
+- `src/external/external_source_adapter.py` (557 regels)
+- Verwijzingen uit `src/ui/tabbed_interface.py`
+
+### Toekomstige implementatie
+Als External Sources functionaliteit in de toekomst nodig is:
+1. **Use case**: Multi-user deployment of enterprise integratie
+2. **Focus**: Juridische databases (Rechtspraak.nl, EUR-Lex)
+3. **Basis**: Gebruik bewaard business kennis document
+4. **Pattern**: Hergebruik Web Lookup adapter pattern (al werkend)

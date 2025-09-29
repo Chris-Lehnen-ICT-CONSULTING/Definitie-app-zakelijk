@@ -10,6 +10,8 @@ applies_to: definitie-app@current
 
 Doel: een veilige, begrijpelijke flow om één definitie via de UI te importeren met V2‑validatie, duplicaatcontrole en logging.
 
+> ⚠️ **Legacy**: de enkelvoudige import blijft beschikbaar voor compatibiliteit, maar de bulk-import flow kan eveneens één record verwerken en is de aanbevolen route voor nieuwe processen.
+
 Gerelateerd: EPIC-005 (Export & Import), beheerimport flows in de Management tab, REQ-043 (Import), REQ-037 (Batch validatie – component hergebruik).
 
 ## MVP Doelstellingen

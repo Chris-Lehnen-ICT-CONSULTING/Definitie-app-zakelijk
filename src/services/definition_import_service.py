@@ -1,13 +1,11 @@
 """
-DefinitionImportService - Enkelvoudige import (MVP)
+DefinitionImportService - Enkelvoudige import (legacy-MVP).
 
-Biedt een kleine serviceschil voor:
-- Validatie van één definitie (V2 orchestrator)
-- Duplicaatcontrole via DefinitionRepository
-- Opslag als Draft met herkomstmetadata (source_type=imported)
-- Eenvoudige import logging
-
-Let op: Batch/queue/mapping horen NIET bij dit MVP.
+Deze service bestaat nog voor backwards compatibility met de oude
+“Enkelvoudige import” flow in de Management-tab. Nieuwe implementaties
+moeten de bulk-import route gebruiken (US-062/US-212), die ook scenario's
+met één record ondersteunt. De service blijft beschikbaar zolang de UI
+expander zichtbaar is, maar wordt niet verder uitgebreid.
 """
 
 from __future__ import annotations

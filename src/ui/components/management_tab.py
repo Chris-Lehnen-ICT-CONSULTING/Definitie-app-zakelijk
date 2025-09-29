@@ -442,6 +442,10 @@ class ManagementTab:
                     st.markdown(
                         "Meer weten? 📘 Open `docs/portal/index.html` en zoek naar de importhandleiding in het beheerhoofdstuk."
                     )
+                    st.warning(
+                        "⚠️ Enkelvoudige import is verouderd. Gebruik bij voorkeur de CSV-bulkimport "
+                        "(die ook één record ondersteunt) voor nieuwe workflows."
+                    )
                     import_service = container.import_service()
 
                     mode = st.radio(

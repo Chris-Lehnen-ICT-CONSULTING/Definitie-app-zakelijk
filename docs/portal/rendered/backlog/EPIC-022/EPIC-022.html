@@ -22,10 +22,10 @@
 <p>id: EPIC-022</p>
 <p>titel: Externe Bronnen Integratie & Import</p>
 <p>type: epic</p>
-<p>status: TE_DOEN</p>
-<p>prioriteit: HOOG</p>
+<p>status: DEFERRED</p>
+<p>prioriteit: LOW</p>
 <p>owner: product-owner</p>
-<p>applies_to: definitie-app@current</p>
+<p>applies_to: definitie-app@future</p>
 <p>last_verified: 2025-09-29</p>
 <p>stakeholders:</p>
 <ul>
@@ -35,7 +35,9 @@
 <li> - security-officer</li>
 <p>aangemaakt: 2025-09-29</p>
 <p>bijgewerkt: 2025-09-29</p>
-<p>target_release: v1.5</p>
+<p>uitgesteld: 2025-09-29</p>
+<p>reden_uitstel: Functionaliteit heeft 95% overlap met Export tab, geen meerwaarde voor single-user applicatie</p>
+<p>target_release: TBD</p>
 <p>canonical: true</p>
 <p>stories:</p>
 <li> - US-413</li>
@@ -115,6 +117,41 @@
 <li>Importrapport en ‑geschiedenis zichtbaar; export/import config werkt</li>
 <li>Portal (docs/portal) toont EPIC + stories en traceability naar REQs</li>
 </ul>
+
+<h2>Status Update - 2025-09-29</h2>
+
+<h3>Implementatie Verwijderd</h3>
+<p>De External Sources tab implementatie is verwijderd uit de codebase omdat:</p>
+<ol>
+<li>**95% overlap** met bestaande Export tab functionaliteit</li>
+<li>**85% overlap** met Web Lookup tab voor externe bronnen</li>
+<li>**Geen meerwaarde** voor single-user applicatie</li>
+<li>**1291 regels code** zonder realistische use cases</li>
+</ol>
+
+<h3>Wat is gedocumenteerd</h3>
+<ul>
+<li>**Business kennis bewaard** in `BUSINESS-KNOWLEDGE.md`</li>
+<li>**Status mapping logica** voor toekomstig gebruik</li>
+<li>**Import validatie regels** gedocumenteerd</li>
+<li>**Mock data voorbeelden** als referentie bewaard</li>
+</ul>
+
+<h3>Verwijderde bestanden</h3>
+<ul>
+<li>`src/ui/components/external_sources_tab.py` (734 regels)</li>
+<li>`src/external/external_source_adapter.py` (557 regels)</li>
+<li>Verwijzingen uit `src/ui/tabbed_interface.py`</li>
+</ul>
+
+<h3>Toekomstige implementatie</h3>
+<p>Als External Sources functionaliteit in de toekomst nodig is:</p>
+<ol>
+<li>**Use case**: Multi-user deployment of enterprise integratie</li>
+<li>**Focus**: Juridische databases (Rechtspraak.nl, EUR-Lex)</li>
+<li>**Basis**: Gebruik bewaard business kennis document</li>
+<li>**Pattern**: Hergebruik Web Lookup adapter pattern (al werkend)</li>
+</ol>
 
   </div>
 </body>
