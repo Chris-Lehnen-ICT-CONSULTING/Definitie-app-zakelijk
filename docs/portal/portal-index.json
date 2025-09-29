@@ -3444,11 +3444,11 @@
       "title": "Batch Operations",
       "path": "../backlog/EPIC-005/US-139/US-139.md",
       "url": "../backlog/EPIC-005/US-139/US-139.md",
-      "status": "Nog te bepalen",
+      "status": "IN_UITVOERING",
       "prioriteit": "LAAG",
       "owner": "developer-implementer",
       "canonical": true,
-      "last_verified": "05-09-2025",
+      "last_verified": "06-10-2025",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": "backlog",
@@ -3486,11 +3486,11 @@
       "title": "Export Formats (JSON, PDF, DOCX)",
       "path": "../backlog/EPIC-005/US-137/US-137.md",
       "url": "../backlog/EPIC-005/US-137/US-137.md",
-      "status": "Nog te bepalen",
+      "status": "IN_UITVOERING",
       "prioriteit": "GEMIDDELD",
       "owner": "developer-implementer",
       "canonical": true,
-      "last_verified": "05-09-2025",
+      "last_verified": "06-10-2025",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": "backlog",
@@ -3527,11 +3527,11 @@
       "title": "Import validatie",
       "path": "../backlog/EPIC-005/US-138/US-138.md",
       "url": "../backlog/EPIC-005/US-138/US-138.md",
-      "status": "Nog te bepalen",
+      "status": "IN_UITVOERING",
       "prioriteit": "HOOG",
       "owner": "developer-implementer",
       "canonical": true,
-      "last_verified": "05-09-2025",
+      "last_verified": "06-10-2025",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": "backlog",
@@ -3548,6 +3548,7 @@
       "_refs": {
         "us": [
           "US-021",
+          "US-062",
           "US-138"
         ],
         "epic": [
@@ -3567,11 +3568,11 @@
       "title": "Single Definition Import (MVP)",
       "path": "../backlog/EPIC-005/US-234/US-234.md",
       "url": "../backlog/EPIC-005/US-234/US-234.md",
-      "status": "Open",
+      "status": "IN_UITVOERING",
       "prioriteit": "HIGH",
       "owner": "product",
       "canonical": true,
-      "last_verified": "2025-09-22",
+      "last_verified": "06-10-2025",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": "backlog",
@@ -3608,11 +3609,11 @@
       "title": "Implement Bulk Import Functionality",
       "path": "../backlog/EPIC-005/US-062/US-062.md",
       "url": "../backlog/EPIC-005/US-062/US-062.md",
-      "status": "Open",
+      "status": "IN_UITVOERING",
       "prioriteit": "HIGH",
       "owner": "developer",
       "canonical": true,
-      "last_verified": "2025-09-11",
+      "last_verified": "06-10-2025",
       "applies_to": "definitie-app@current",
       "category": "feature",
       "sprint": "backlog",
@@ -8239,6 +8240,45 @@
       "linked_stories": null
     },
     {
+      "id": "REQ-111",
+      "type": "REQ",
+      "title": "System Health Monitoring Requirements",
+      "path": "../backlog/requirements/REQ-111.md",
+      "url": "../backlog/requirements/REQ-111.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "operations-team",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "requirement",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-421"
+        ],
+        "epic": [
+          "EPIC-023"
+        ],
+        "req": [
+          "REQ-111"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-111.html",
+      "linked_epics": null,
+      "linked_stories": null
+    },
+    {
       "id": "REQ-051",
       "type": "REQ",
       "title": "Multi-language Support",
@@ -8536,7 +8576,9 @@
         ]
       },
       "rendered_url": "rendered/backlog/requirements/REQ-105.html",
-      "linked_epics": null,
+      "linked_epics": [
+        "EPIC-022"
+      ],
       "linked_stories": null
     },
     {
@@ -9013,7 +9055,9 @@
         ]
       },
       "rendered_url": "rendered/backlog/requirements/REQ-104.html",
-      "linked_epics": null,
+      "linked_epics": [
+        "EPIC-022"
+      ],
       "linked_stories": null
     },
     {
@@ -11088,7 +11132,9 @@
         ]
       },
       "rendered_url": "rendered/backlog/requirements/REQ-107.html",
-      "linked_epics": null,
+      "linked_epics": [
+        "EPIC-022"
+      ],
       "linked_stories": null
     },
     {
@@ -11450,7 +11496,8 @@
       },
       "rendered_url": "rendered/backlog/requirements/REQ-043.html",
       "linked_epics": [
-        "EPIC-005"
+        "EPIC-005",
+        "EPIC-022"
       ],
       "linked_stories": null
     },
@@ -11488,7 +11535,9 @@
         ]
       },
       "rendered_url": "rendered/backlog/requirements/REQ-103.html",
-      "linked_epics": null,
+      "linked_epics": [
+        "EPIC-022"
+      ],
       "linked_stories": null
     },
     {
@@ -11989,7 +12038,9 @@
         ]
       },
       "rendered_url": "rendered/backlog/requirements/REQ-102.html",
-      "linked_epics": null,
+      "linked_epics": [
+        "EPIC-022"
+      ],
       "linked_stories": null
     },
     {
@@ -12305,6 +12356,46 @@
       "linked_stories": null
     },
     {
+      "id": "REQ-112",
+      "type": "REQ",
+      "title": "Validation Consistency & Coverage Requirements",
+      "path": "../backlog/requirements/REQ-112.md",
+      "url": "../backlog/requirements/REQ-112.md",
+      "status": "Open",
+      "prioriteit": "HIGH",
+      "owner": "quality-lead",
+      "canonical": true,
+      "last_verified": null,
+      "applies_to": null,
+      "category": "requirement",
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 4
+      },
+      "parent_epic": null,
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-421",
+          "US-422"
+        ],
+        "epic": [
+          "EPIC-023"
+        ],
+        "req": [
+          "REQ-112"
+        ]
+      },
+      "rendered_url": "rendered/backlog/requirements/REQ-112.html",
+      "linked_epics": null,
+      "linked_stories": null
+    },
+    {
       "id": "REQ-052",
       "type": "REQ",
       "title": "Real-time validatie Feedback",
@@ -12575,7 +12666,9 @@
         ]
       },
       "rendered_url": "rendered/backlog/requirements/REQ-106.html",
-      "linked_epics": null,
+      "linked_epics": [
+        "EPIC-022"
+      ],
       "linked_stories": null
     },
     {
@@ -16517,6 +16610,50 @@
       "rendered_url": "rendered/backlog/EPIC-012/US-175/CFR-BUG-022/README.html"
     },
     {
+      "id": null,
+      "type": "DOC",
+      "title": "Traceability Matrix - EPIC-023: Quality Control & System Health Dashboard",
+      "path": "../backlog/EPIC-023/TRACEABILITY-MATRIX.md",
+      "url": "../backlog/EPIC-023/TRACEABILITY-MATRIX.md",
+      "status": null,
+      "prioriteit": null,
+      "owner": null,
+      "canonical": false,
+      "last_verified": null,
+      "applies_to": null,
+      "category": null,
+      "sprint": null,
+      "story_points": null,
+      "completion": null,
+      "target_release": null,
+      "planning": {
+        "sprint_number": null,
+        "priority_rank": 5,
+        "type_rank": 9
+      },
+      "parent_epic": "EPIC-023",
+      "parent_us": null,
+      "_refs": {
+        "us": [
+          "US-420",
+          "US-421",
+          "US-422",
+          "US-423",
+          "US-424"
+        ],
+        "epic": [
+          "EPIC-002",
+          "EPIC-023"
+        ],
+        "req": [
+          "REQ-110",
+          "REQ-111",
+          "REQ-112"
+        ]
+      },
+      "rendered_url": "rendered/backlog/EPIC-023/TRACEABILITY-MATRIX.html"
+    },
+    {
       "id": "EPIC-023",
       "type": "EPIC",
       "title": "Quality Control & System Health Dashboard",
@@ -16683,8 +16820,23 @@
         ]
       },
       "rendered_url": "rendered/backlog/EPIC-022/EPIC-022.html",
-      "linked_reqs": null,
-      "linked_stories": null
+      "linked_reqs": [
+        "REQ-043",
+        "REQ-102",
+        "REQ-103",
+        "REQ-104",
+        "REQ-105",
+        "REQ-106",
+        "REQ-107"
+      ],
+      "linked_stories": [
+        "US-413",
+        "US-414",
+        "US-415",
+        "US-416",
+        "US-417",
+        "US-418"
+      ]
     },
     {
       "id": "US-416",
@@ -34486,17 +34638,17 @@
   ],
   "aggregate": {
     "counts": {
-      "DOC": 496,
+      "DOC": 497,
       "EPIC": 21,
       "US": 244,
       "BUG": 17,
       "GUIDE": 12,
-      "REQ": 108,
+      "REQ": 110,
       "ARCH": 24,
       "TEST": 28,
       "COMP": 5
     },
-    "generated_at": "2025-09-29T10:53:38Z"
+    "generated_at": "2025-09-29T10:55:06Z"
   },
   "sources": [
     "docs"
@@ -34670,7 +34822,8 @@
         "EPIC-005"
       ],
       "REQ-043": [
-        "EPIC-005"
+        "EPIC-005",
+        "EPIC-022"
       ],
       "REQ-083": [
         "EPIC-005"
@@ -34776,6 +34929,24 @@
       ],
       "REQ-094": [
         "EPIC-013"
+      ],
+      "REQ-102": [
+        "EPIC-022"
+      ],
+      "REQ-103": [
+        "EPIC-022"
+      ],
+      "REQ-104": [
+        "EPIC-022"
+      ],
+      "REQ-105": [
+        "EPIC-022"
+      ],
+      "REQ-106": [
+        "EPIC-022"
+      ],
+      "REQ-107": [
+        "EPIC-022"
       ]
     },
     "req_to_us": {

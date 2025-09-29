@@ -481,4 +481,27 @@
     ],
     "referenced_by": []
   }
+  ,
+  "EPIC-022": {
+    "title": "EPIC-022: Externe Bronnen Integratie & Import",
+    "stories": [
+      "US-413",
+      "US-414",
+      "US-415",
+      "US-416",
+      "US-417",
+      "US-418"
+    ],
+    "requirements": [
+      "REQ-043",
+      "REQ-102",
+      "REQ-103",
+      "REQ-104",
+      "REQ-105",
+      "REQ-106",
+      "REQ-107"
+    ],
+    "dependencies": [],
+    "referenced_by": []
+  }
 }
