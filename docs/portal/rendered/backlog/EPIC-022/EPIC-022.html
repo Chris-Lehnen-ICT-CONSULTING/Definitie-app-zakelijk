@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Externe Bronnen Integratie & Import</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: EPIC-022</p>
+<p>titel: Externe Bronnen Integratie & Import</p>
+<p>type: epic</p>
+<p>status: TE_DOEN</p>
+<p>prioriteit: HOOG</p>
+<p>owner: product-owner</p>
+<p>stakeholders:</p>
+<ul>
+<li> - juridisch-professional</li>
+<li> - data-steward</li>
+<li> - integratie-specialist</li>
+<li> - security-officer</li>
+<p>aangemaakt: 2025-09-29</p>
+<p>bijgewerkt: 2025-09-29</p>
+<p>target_release: v1.5</p>
+<p>canonical: true</p>
+<p>stories:</p>
+<li> - US-413</li>
+<li> - US-414</li>
+<li> - US-415</li>
+<li> - US-416</li>
+<li> - US-417</li>
+<li> - US-418</li>
+<p>vereisten:</p>
+<li> - REQ-043</li>
+<li> - REQ-102</li>
+<li> - REQ-103</li>
+<li> - REQ-104</li>
+<li> - REQ-105</li>
+<li> - REQ-106</li>
+<li> - REQ-107</li>
+<p>---</p>
+</ul>
+
+
+
+<h1>EPIC-022: Externe Bronnen Integratie & Import</h1>
+
+<h2>Executive Summary</h2>
+
+<p>Deze epic levert de volledige ‘🔌 Externe Bronnen’ functionaliteit in de UI, inclusief beheer van bronnen, zoeken in alle geregistreerde bronnen, (bulk) importeren van definities met validatie en mapping, en configuratie‑export/import. De implementatie rust op een adapter‑framework (ExternalSourceAdapter) zodat nieuwe bronnen eenvoudig zijn toe te voegen (mock, file system, REST API, etc.).</p>
+
+<h2>Businesswaarde</h2>
+
+<ul>
+<li>Verkort doorlooptijd om bestaande definities te benutten (migratie en hergebruik)</li>
+<li>Borgt kwaliteit door importvalidatie en status‑mapping naar interne workflow</li>
+<li>Verlaagt implementatierisico via mock/file‑adapters en duidelijke configuratie</li>
+<li>Schaalbaar: toevoeging van nieuwe bronnen zonder UI‑aanpassingen</li>
+</ul>
+
+<h2>Scope</h2>
+
+<p>In scope:</p>
+<ul>
+<li>UI‑tab ‘Externe Bronnen’ met subviews: Bronnen • Zoeken • Import • Configuratie</li>
+<li>Adapter framework (registratie, test, connect/disconnect, search API)</li>
+<li>Individuele en bulk import (met opties, geschiedenis, voortgang)</li>
+<li>Configuratiebeheer (handmatige bronconfiguratie, export/import JSON)</li>
+<li>Basis NFR’s: timeouts, retries, rate limits, audit/trace voor import</li>
+</ul>
+
+<p>Out of scope:</p>
+<ul>
+<li>Provider‑specifieke deep features (worden later per provider uitgewerkt)</li>
+<li>Volledige enterprise secrets‑vault integratie (future EPIC)</li>
+</ul>
+
+<h2>Succescriteria (SMART)</h2>
+
+<ul>
+<li>Specifiek: 100% van tabfuncties beschikbaar en gedekt door stories/REQs</li>
+<li>Meetbaar: zoek in ≤ 3s over ≥ 2 bronnen; bulk import 100 items ≤ 30s</li>
+<li>Acceptabel: validatiefouten duidelijk zichtbaar; rollback bij mislukte batch</li>
+<li>Relevant: sluit aan op migratie‑ en verrijkingsdoelen (EPIC‑003)</li>
+<li>Tijdgebonden: MVP in release v1.5</li>
+</ul>
+
+<h2>Relaties</h2>
+
+<ul>
+<li>Ondersteunt: REQ‑043 (Import from External Sources)</li>
+<li>Aanvullend op: EPIC‑003 (Web Lookup) — verrijking vs. importeren</li>
+<li>Beleid/Compliance: REQ‑092 (External Sources Governance Policy), EPIC‑006 (Beveiliging)</li>
+</ul>
+
+<h2>Definition of Done (EPIC)</h2>
+
+<ul>
+<li>Alle stories voltooid en gedemonstreerd in UI</li>
+<li>Adapter‑framework gedocumenteerd; mock + file adapter beschikbaar</li>
+<li>Importrapport en ‑geschiedenis zichtbaar; export/import config werkt</li>
+<li>Portal (docs/portal) toont EPIC + stories en traceability naar REQs</li>
+</ul>
+
+
+  </div>
+</body>
+</html>
