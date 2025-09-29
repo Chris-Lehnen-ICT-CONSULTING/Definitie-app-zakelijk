@@ -1,8 +1,8 @@
 ---
 canonical: true
-status: draft
+status: archived
 owner: development
-last_verified: 2025-09-22
+last_verified: 06-10-2025
 applies_to: definitie-app@current
 ---
 
@@ -23,15 +23,11 @@ Gerelateerd: EPIC-005 (Export & Import), beheerimport flows in de Management tab
 
 Niet‑doel (volgende iteraties): CSV/XLSX/JSONL, streaming, jobs/queue, batch‑rapportage.
 
-## Architectuur & Componenten
+## Architectuur & Componenten (historisch)
 
 ### UI (Management tab)
-- Sectie “Enkelvoudige import (MVP)” toevoegen in bestaande Management tab.
-- Twee modi:
-  1) Formulier: begrip, definitie, categorie, organisatorische_context[], juridische_context[]?, wettelijke_basis[]?
-  2) JSON‑plakveld (zelfde schema)
-- Knoppen: “Valideren”, daarna “Importeer als Draft”.
-- Duplicate‑waarschuwing vóór definitieve opslag.
+- (Historisch) Sectie “Enkelvoudige import (MVP)” in de Management tab.
+- De huidige UI gebruikt uitsluitend de CSV-bulkimport (≤100) die ook één record kan verwerken.
 
 ### Service‑laag
 - Nieuwe service: `DefinitionImportService`

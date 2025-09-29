@@ -1,11 +1,11 @@
 """
 DefinitionImportService - Enkelvoudige import (legacy-MVP).
 
-Deze service bestaat nog voor backwards compatibility met de oude
-“Enkelvoudige import” flow in de Management-tab. Nieuwe implementaties
-moeten de bulk-import route gebruiken (US-062/US-212), die ook scenario's
-met één record ondersteunt. De service blijft beschikbaar zolang de UI
-expander zichtbaar is, maar wordt niet verder uitgebreid.
+Deze service blijft beschikbaar als hulpmiddel voor de CSV-bulkimport
+(≤100) die per rij validatie en opslag uitvoert. De oorspronkelijke
+“Enkelvoudige import”-sectie in de Management-tab is verwijderd; gebruik
+de bulkimport voor alle scenario's, ook wanneer slechts één record wordt
+geüpload.
 """
 
 from __future__ import annotations

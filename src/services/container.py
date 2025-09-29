@@ -449,7 +449,7 @@ class ServiceContainer:
 
     def import_service(self):
         """
-        Get of create DefinitionImportService instance (Single Import MVP).
+        Get or create DefinitionImportService instance (CSV batch helper).
 
         Returns:
             Singleton instance van DefinitionImportService
@@ -462,7 +462,7 @@ class ServiceContainer:
             self._instances["import_service"] = DefinitionImportService(
                 repository=repo, validation_orchestrator=validator
             )
-            logger.info("DefinitionImportService instance aangemaakt (MVP)")
+            logger.info("DefinitionImportService instance aangemaakt (CSV helper)")
         return self._instances["import_service"]
 
     # UI-services worden niet in de servicescontainer opgebouwd. Gebruik UI-container.
