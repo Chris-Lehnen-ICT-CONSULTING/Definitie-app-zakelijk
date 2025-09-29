@@ -30,11 +30,11 @@
 <p>canonical: true</p>
 <p>epic: EPIC-005</p>
 <p>id: US-139</p>
-<p>last_verified: 05-09-2025</p>
+<p>last_verified: 06-10-2025</p>
 <p>owner: developer-implementer</p>
 <p>prioriteit: LAAG</p>
 <p>sprint: backlog</p>
-<p>status: Nog te bepalen</p>
+<p>status: IN_UITVOERING</p>
 <p>story_points: 8</p>
 <p>titel: Batch Operations</p>
 <p>toegewezen_aan: unassigned</p>
@@ -115,6 +115,12 @@
 <li>Implements rate limiting</li>
 <li>HEnles memory efficiently</li>
 <li>Completes within 1 minute for 100 items</li>
+</ul>
+
+<h2>Statusupdate 2025-10-06</h2>
+<ul>
+<li>Management-tab toont bulkacties (approve/status update/delete) in de sectie “📦 Bulk Operaties”; de knoppen roepen placeholder-methoden `_bulk_approve_interface`, `_bulk_status_update_interface` en `_bulk_delete_interface` aan (`src/ui/components/management_tab.py:1045`).</li>
+<li>Er is nog geen batch-service of workflowkoppeling; deze story moet de backend en UI-acties opleveren inclusief progressie, transacties en rapportage.</li>
 </ul>
 
 <h2>Domain vereisten</h2>

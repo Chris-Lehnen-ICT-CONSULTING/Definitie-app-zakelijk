@@ -440,9 +440,7 @@ class ManagementTab:
                         """
                     )
                     st.markdown(
-                        "Meer weten? 📘 Zie: "
-                        "[Single Definition Import (MVP)](docs/portal/rendered/implementation/SINGLE-DEFINITION-IMPORT-MVP.html)"
-                        " — of open `docs/portal/index.html` en zoek op US-234."
+                        "Meer weten? 📘 Open `docs/portal/index.html` en zoek naar de importhandleiding in het beheerhoofdstuk."
                     )
                     import_service = container.import_service()
 
@@ -708,9 +706,7 @@ class ManagementTab:
                         """
                     )
                     st.markdown(
-                        "Meer weten? 📘 Zie: "
-                        "[Single Definition Import (MVP)](docs/portal/rendered/implementation/SINGLE-DEFINITION-IMPORT-MVP.html)"
-                        " — of open `docs/portal/index.html` en zoek op US-234."
+                        "Meer weten? 📘 Open `docs/portal/index.html` en zoek naar de importhandleiding in het beheerhoofdstuk."
                     )
                     import_service = container.import_service()
 

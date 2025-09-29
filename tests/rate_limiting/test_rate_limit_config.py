@@ -2,11 +2,14 @@
 """Test script voor rate limit configuratie verificatie."""
 
 import asyncio
+import pytest
 import sys
 sys.path.insert(0, 'src')
 
 from config.rate_limit_config import get_rate_limit_config, get_endpoint_timeout, get_all_endpoints
 from utils.smart_rate_limiter import get_smart_limiter
+
+pytestmark = [pytest.mark.integration]
 
 async def test_config_loading():
     """Test dat configuraties correct worden geladen."""

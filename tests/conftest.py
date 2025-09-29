@@ -10,8 +10,7 @@ import os
 import builtins
 import socket
 
-# Add src to path for all tests
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# 'src' staat al op PYTHONPATH via pytest.ini; dubbele insert niet nodig.
 
 # Install a minimal Streamlit mock BEFORE importing modules that might reference it
 # Ensure tests directory is on sys.path to import our mock module
@@ -101,47 +100,8 @@ def in_memory_db():
     return ":memory:"
 
 
-# Mark configurations for different test types
-def pytest_configure(config):
-    """Register custom markers."""
-    config.addinivalue_line(
-        "markers", "unit: mark test as a unit test"
-    )
-    config.addinivalue_line(
-        "markers", "integration: mark test as an integration test"
-    )
-    config.addinivalue_line(
-        "markers", "smoke: mark test as a smoke test"
-    )
-    config.addinivalue_line(
-        "markers", "slow: mark test as slow running"
-    )
-    config.addinivalue_line(
-        "markers", "contract: mark test as a contract test"
-    )
-    config.addinivalue_line(
-        "markers", "tdd: mark test as TDD (expected to fail until implemented)"
-    )
-    config.addinivalue_line(
-        "markers", "flaky: mark test as flaky (may fail intermittently)"
-    )
-    # Optional benchmark marker when pytest-benchmark plugin is absent
-    config.addinivalue_line(
-        "markers", "benchmark: mark test as benchmark (optional plugin)"
-    )
-    # Additional suite markers used across the repo
-    config.addinivalue_line(
-        "markers", "acceptance: mark acceptance tests"
-    )
-    config.addinivalue_line(
-        "markers", "red_phase: mark TDD RED phase tests"
-    )
-    config.addinivalue_line(
-        "markers", "antipattern: mark tests that block anti-patterns"
-    )
-    config.addinivalue_line(
-        "markers", "ontological_category: mark ontology category specific tests"
-    )
+# Marker-registratie is gecentreerd in pytest.ini (strict-markers).
+# Dubbele registraties hier zijn verwijderd om drift te voorkomen.
 
 
 # Configure test collection to ignore certain files
@@ -155,10 +115,11 @@ def pytest_ignore_collect(collection_path: Path, config):
         return True
     if "us043" in p:
         return True
-    if "context_flow" in p:
-        return True
     # Ignore manual exploratory scripts
     if "/manual/" in p.replace("\\", "/"):
+        return True
+    # Ignore ad-hoc debug tests (niet bedoeld voor standaard runs)
+    if "/debug/" in p.replace("\\", "/"):
         return True
     return False
 
@@ -275,3 +236,28 @@ def _disable_network(monkeypatch):
     monkeypatch.setattr(socket, "create_connection", _blocked_create_connection, raising=True)
     monkeypatch.setattr(socket.socket, "connect", _blocked_connect, raising=True)
     monkeypatch.setattr(socket.socket, "connect_ex", _blocked_connect, raising=True)
+
+
+# Opt-in versnellen van asyncio.sleep om lokale testruns te versnellen.
+# Activeer met FAST_SLEEP=1; wordt automatisch overgeslagen voor performance/benchmark/slow tests
+# via test-markers in individuele tests (geen globale patch).
+@pytest.fixture(autouse=True)
+def _fast_asyncio_sleep(monkeypatch, request):
+    import os as _os
+    if _os.getenv("FAST_SLEEP") != "1":
+        return
+
+    # Niet versnellen voor performance/benchmark/slow gemarkeerde tests
+    if any(request.node.get_closest_marker(m) for m in ("performance", "benchmark", "slow")):
+        return
+
+    import asyncio as _asyncio
+    _orig_sleep = _asyncio.sleep
+
+    async def _quick_sleep(delay, *args, **kwargs):
+        # Eén event loop yield om scheduling-semantiek te behouden
+        if delay and delay > 0:
+            await _orig_sleep(0)
+        return None
+
+    monkeypatch.setattr(_asyncio, "sleep", _quick_sleep, raising=True)

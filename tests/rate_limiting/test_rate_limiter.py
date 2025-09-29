@@ -2,10 +2,13 @@
 """Test script om te checken of rate limiter endpoints correct werken."""
 
 import asyncio
+import pytest
 import sys
 sys.path.insert(0, 'src')
 
 from utils.integrated_resilience import IntegratedResilienceSystem
+
+pytestmark = [pytest.mark.performance, pytest.mark.integration]
 
 async def test_endpoints():
     """Test verschillende endpoints."""

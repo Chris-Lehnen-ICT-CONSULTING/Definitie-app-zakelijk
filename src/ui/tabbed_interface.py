@@ -61,7 +61,6 @@ from ui.components.export_tab import ExportTab  # Export functionaliteit tab
 from ui.components.external_sources_tab import (  # Externe bronnen beheer
     ExternalSourcesTab,
 )
-from ui.components.history_tab import HistoryTab  # Historie overzicht tab
 from ui.components.management_tab import ManagementTab  # Systeem management tools
 from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
 
@@ -69,9 +68,7 @@ from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statisti
 # from ui.components.orchestration_tab import (  # Orchestratie en automatisering
 #     OrchestrationTab,
 # )
-from ui.components.quality_control_tab import (  # Kwaliteitscontrole dashboard
-    QualityControlTab,
-)
+# Quality Control tab verwijderd - functionaliteit gedocumenteerd in EPIC-023
 from ui.components.web_lookup_tab import WebLookupTab  # Web lookup interface
 
 # Importeer core services en utilities
@@ -182,9 +179,8 @@ class TabbedInterface:
             validation_service=validation_service
         )  # Edit tab with validator
         self.expert_tab = ExpertReviewTab(self.repository)
-        self.history_tab = HistoryTab(self.repository)
         self.export_tab = ExportTab(self.repository)
-        self.quality_tab = QualityControlTab(self.repository)
+        # Quality Control tab verwijderd - zie EPIC-023 voor toekomstige implementatie
         self.external_tab = ExternalSourcesTab(self.repository)
         self.monitoring_tab = MonitoringTab(self.repository)
         self.web_lookup_tab = WebLookupTab(self.repository)
@@ -216,21 +212,17 @@ class TabbedInterface:
                 "icon": "👨‍💼",
                 "description": "Review en goedkeuring van definities",
             },
-            "history": {
-                "title": "📜 Geschiedenis",
-                "icon": "📜",
-                "description": "Bekijk historie van definities en wijzigingen",
-            },
             "export": {
                 "title": "📤 Export & Beheer",
                 "icon": "📤",
                 "description": "Exporteer en beheer definities",
             },
-            "quality": {
-                "title": "🔧 Kwaliteitscontrole",
-                "icon": "🔧",
-                "description": "Toetsregels analyse en system health",
-            },
+            # Quality Control tab verwijderd - zie EPIC-023
+            # "quality": {
+            #     "title": "🔧 Kwaliteitscontrole",
+            #     "icon": "🔧",
+            #     "description": "Toetsregels analyse en system health",
+            # },
             "external": {
                 "title": "🔌 Externe Bronnen",
                 "icon": "🔌",
@@ -1607,12 +1599,11 @@ class TabbedInterface:
                 self.edit_tab.render()
             elif tab_key == "expert":
                 self.expert_tab.render()
-            elif tab_key == "history":
-                self.history_tab.render()
             elif tab_key == "export":
                 self.export_tab.render()
-            elif tab_key == "quality":
-                self.quality_tab.render()
+            # Quality Control tab verwijderd - zie EPIC-023
+            # elif tab_key == "quality":
+            #     self.quality_tab.render()
             elif tab_key == "external":
                 self.external_tab.render()
             elif tab_key == "monitoring":

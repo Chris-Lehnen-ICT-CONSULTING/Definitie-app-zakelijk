@@ -243,7 +243,7 @@ def create_test_validation_result(
 ) -> dict:
     """Create a test validation result matching contract."""
     return {
-        "version": ValidationContract.VERSION,
+        "version": CONTRACT_VERSION,
         "overall_score": score,
         "is_acceptable": is_valid,
         "violations": violations or [],

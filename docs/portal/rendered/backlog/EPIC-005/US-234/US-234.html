@@ -22,7 +22,7 @@
 <p>id: US-234</p>
 <p>titel: Single Definition Import (MVP)</p>
 <p>epic: EPIC-005</p>
-<p>status: Open</p>
+<p>status: IN_UITVOERING</p>
 <p>prioriteit: HIGH</p>
 <p>story_points: 5</p>
 <p>sprint: backlog</p>
@@ -37,7 +37,7 @@
 <li>REQ-037</li>
 <p>applies_to: definitie-app@current</p>
 <p>canonical: true</p>
-<p>last_verified: 2025-09-22</p>
+<p>last_verified: 06-10-2025</p>
 <p>---</p>
 </ul>
 
@@ -125,13 +125,18 @@
 <li>[ ] Logging naar `import_export_logs`</li>
 </ul>
 
+<h2>Statusupdate 2025-10-06</h2>
+<ul>
+<li>Management-tab biedt formulier-, JSON- en bestandsimport (`src/ui/components/management_tab.py:352`) en gebruikt `DefinitionImportService` (`src/services/definition_import_service.py`) voor validatie en opslag van enkelvoudige definities.</li>
+<li>Persistente opslag van validatiescores en -issues ontbreekt nog; breid `DefinitionImportService` uit zodat metadata (`validation_score`, `validation_issues`) richting `DefinitionRepository` wordt weggeschreven.</li>
+</ul>
+
 <h2>Relaties</h2>
 <ul>
 <li>EPIC: EPIC-005 (Export & Import)</li>
 <li>Vereisten: REQ-043 (Import), REQ-037 (Batch validatie – deels relevant voor validatiecomponent)</li>
 <li>Gerelateerd: US-062 (Bulk Import), US-138 (Import Validation)</li>
 </ul>
-
 
   </div>
 </body>

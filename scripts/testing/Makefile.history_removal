@@ -1,0 +1,83 @@
+# Makefile for History Tab Removal Verification
+# Include this in your main Makefile or run standalone with: make -f scripts/testing/Makefile.history_removal verify
+
+.PHONY: verify-history-removal baseline-history test-history-removal clean-history-verification help
+
+# Colors for output
+RED := \033[0;31m
+GREEN := \033[0;32m
+YELLOW := \033[1;33m
+BLUE := \033[0;34m
+NC := \033[0m # No Color
+
+help:
+	@echo "$(BLUE)History Tab Removal Verification Targets:$(NC)"
+	@echo "  baseline-history      - Capture baseline metrics (run BEFORE removal)"
+	@echo "  verify-history-removal - Run complete verification suite (run AFTER removal)"
+	@echo "  test-history-removal  - Run only the Python tests"
+	@echo "  clean-history-verification - Clean verification artifacts"
+
+# Capture baseline metrics before removal
+baseline-history:
+	@echo "$(BLUE)Capturing baseline metrics...$(NC)"
+	@python scripts/testing/verify_history_removal.py --baseline
+	@echo "$(GREEN)Baseline captured successfully$(NC)"
+
+# Main verification target
+verify-history-removal: test-imports test-database test-ui test-history-removal
+	@echo "$(BLUE)================================$(NC)"
+	@echo "$(BLUE)Running Complete Verification...$(NC)"
+	@echo "$(BLUE)================================$(NC)"
+	@bash scripts/testing/verify_history_removal.sh
+	@python scripts/testing/verify_history_removal.py --verify
+	@echo "$(GREEN)✅ Verification complete! Check reports for details.$(NC)"
+
+# Quick import test
+test-imports:
+	@echo "$(YELLOW)Testing Python imports...$(NC)"
+	@python -c "from src.ui.tabbed_interface import TabbedInterface; print('✅ TabbedInterface imports')"
+	@python -c "from src.main import main; print('✅ Main imports')"
+	@python -c "from database.definitie_repository import get_definitie_repository; print('✅ Repository imports')"
+
+# Database integrity test
+test-database:
+	@echo "$(YELLOW)Testing database integrity...$(NC)"
+	@if [ -f data/definities.db ]; then \
+		sqlite3 data/definities.db "SELECT COUNT(*) FROM definitie_geschiedenis;" > /dev/null 2>&1 && \
+		echo "✅ History table accessible" || echo "⚠️ History table issue"; \
+	else \
+		echo "⚠️ Database not found"; \
+	fi
+
+# UI structure test
+test-ui:
+	@echo "$(YELLOW)Testing UI structure...$(NC)"
+	@python -c "\
+	from unittest.mock import patch; \
+	with patch('streamlit.session_state', {}): \
+	    from src.ui.tabbed_interface import TabbedInterface; \
+	    ti = TabbedInterface(); \
+	    assert not hasattr(ti, 'history_tab') or ti.history_tab is None; \
+	    print('✅ History tab removed from UI')"
+
+# Run Python test suite
+test-history-removal:
+	@echo "$(YELLOW)Running Python tests...$(NC)"
+	@pytest tests/test_history_removal.py -v --tb=short || true
+
+# Clean verification artifacts
+clean-history-verification:
+	@echo "$(YELLOW)Cleaning verification artifacts...$(NC)"
+	@rm -f baseline_history_removal.txt baseline_history_removal.json
+	@rm -f history_removal_report_*.json
+	@rm -f history_removal_verification_*.log
+	@rm -f .history_removal_verified
+	@echo "$(GREEN)Cleaned verification files$(NC)"
+
+# Quick check for history references
+check-history-refs:
+	@echo "$(YELLOW)Checking for 'history' references...$(NC)"
+	@echo "Files with 'HistoryTab':"
+	@grep -r "HistoryTab" src/ --include="*.py" -l 2>/dev/null | wc -l
+	@echo "Files with 'history_tab':"
+	@grep -r "history_tab" src/ --include="*.py" -l 2>/dev/null | wc -l

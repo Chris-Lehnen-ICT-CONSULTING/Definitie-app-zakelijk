@@ -2,6 +2,7 @@
 """Finale test voor rate limiter met endpoint-specifieke configuraties."""
 
 import asyncio
+import pytest
 import sys
 import time
 sys.path.insert(0, 'src')
@@ -9,6 +10,8 @@ sys.path.insert(0, 'src')
 from utils.integrated_resilience import get_integrated_system
 from utils.smart_rate_limiter import RequestPriority
 
+@pytest.mark.performance
+@pytest.mark.integration
 async def test_final_rate_limiting():
     """Test finale rate limiting met realistische scenario's."""
     print("🧪 Final Rate Limiting Test")

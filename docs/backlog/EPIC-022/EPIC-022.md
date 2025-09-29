@@ -5,6 +5,8 @@ type: epic
 status: TE_DOEN
 prioriteit: HOOG
 owner: product-owner
+applies_to: definitie-app@current
+last_verified: 2025-09-29
 stakeholders:
   - juridisch-professional
   - data-steward
@@ -79,4 +81,3 @@ Out of scope:
 - Adapter‑framework gedocumenteerd; mock + file adapter beschikbaar
 - Importrapport en ‑geschiedenis zichtbaar; export/import config werkt
 - Portal (docs/portal) toont EPIC + stories en traceability naar REQs
-

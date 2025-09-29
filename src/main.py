@@ -25,6 +25,15 @@ from utils.exceptions import log_and_display_error  # Foutafhandeling utilities
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
+try:
+    # Voeg PII/redactie filter toe aan root logger
+    from utils.logging_filters import PIIRedactingFilter
+
+    _root = logging.getLogger()
+    if not any(isinstance(f, PIIRedactingFilter) for f in _root.filters):
+        _root.addFilter(PIIRedactingFilter())
+except Exception:  # Fail-safe: logging mag nooit breken
+    pass
 
 # Initialiseer logger - Stel logging in voor deze module
 logger = logging.getLogger(__name__)  # Verkrijg logger instantie voor dit bestand
