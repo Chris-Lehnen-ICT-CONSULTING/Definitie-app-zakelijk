@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Enhanced Audit Trail with Cryptographic Integrity</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-401</p>
+<p>titel: Enhanced Audit Trail with Cryptographic Integrity</p>
+<p>epic: EPIC-021</p>
+<p>status: Open</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-29</p>
+<p>bijgewerkt: 2025-09-29</p>
+<p>owner: security-lead</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li> - REQ-100</li>
+<li> - REQ-103</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>---</p>
+</ul>
+
+<h1>US-401: Enhanced Audit Trail with Cryptographic Integrity</h1>
+
+<p><strong>Epic:</strong> EPIC-021 - Definitie Geschiedenis & Audit Trail Management</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> compliance officer</p>
+<p><strong>wil ik</strong> een tamper-proof audit trail met volledige attributie</p>
+<p><strong>zodat</strong> ik kan aantonen dat alle wijzigingen traceerbaar en integer zijn</p>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Functional Requirements</h3>
+
+<ul>
+<li>[ ] **Complete Activity Logging**</li>
+<li> - Log all CRUD operations on definitions</li>
+<li> - Log validation rule changes</li>
+<li> - Log approval/rejection actions</li>
+<li> - Log export/import actions</li>
+<li> - Log user authentication events</li>
+<li> - Log configuration changes</li>
+</ul>
+
+<ul>
+<li>[ ] **Detailed Attribution**</li>
+<li> - Capture user identity (authenticated)</li>
+<li> - Capture session ID</li>
+<li> - Capture IP address</li>
+<li> - Capture user agent</li>
+<li> - Capture timestamp (microsecond precision)</li>
+<li> - Capture action context</li>
+</ul>
+
+<ul>
+<li>[ ] **Change Details**</li>
+<li> - Store old value (before change)</li>
+<li> - Store new value (after change)</li>
+<li> - Store change delta/diff</li>
+<li> - Store reason for change</li>
+<li> - Store related entity IDs</li>
+</ul>
+
+<ul>
+<li>[ ] **Cryptographic Integrity**</li>
+<li> - Sign each audit entry</li>
+<li> - Chain entries cryptographically</li>
+<li> - Verify integrity on read</li>
+<li> - Detect tampering attempts</li>
+</ul>
+
+<h3>Technical Requirements</h3>
+
+<ul>
+<li>[ ] **Audit Service Implementation**</li>
+<pre><code>  class EnhancedAuditService:
+      def log_action(
+          self,
+          entity_type: str,
+          entity_id: int,
+          action: str,
+          old_value: Optional[dict],
+          new_value: Optional[dict],
+          context: AuditContext
+      ) -&gt; AuditEntry
+
+      def verify_integrity(
+          self,
+          start_date: datetime,
+          end_date: datetime
+      ) -&gt; IntegrityReport
+
+      def query_audit_log(
+          self,
+          filters: AuditFilters,
+          pagination: PaginationParams
+      ) -&gt; AuditQueryResult</code></pre>
+</ul>
+
+<ul>
+<li>[ ] **Database Schema**</li>
+<pre><code>  CREATE TABLE audit_log_v2 (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+
+      -- Entity information
+      entity_type VARCHAR(50) NOT NULL,
+      entity_id INTEGER NOT NULL,
+      entity_name VARCHAR(255),
+
+      -- Action details
+      action VARCHAR(50) NOT NULL,
+      action_category VARCHAR(50),
+      old_value JSON,
+      new_value JSON,
+      change_delta JSON,
+
+      -- Attribution
+      user_id VARCHAR(255) NOT NULL,
+      user_name VARCHAR(255),
+      user_role VARCHAR(100),
+      session_id VARCHAR(255) NOT NULL,
+      ip_address VARCHAR(45),
+      user_agent TEXT,
+
+      -- Context
+      reason TEXT,
+      correlation_id VARCHAR(255),
+      parent_audit_id INTEGER,
+
+      -- Integrity
+      timestamp TIMESTAMP(6) DEFAULT CURRENT_TIMESTAMP(6),
+      previous_hash VARCHAR(64),
+      entry_hash VARCHAR(64) NOT NULL,
+      signature VARCHAR(512),
+
+      -- Indexes
+      INDEX idx_entity_lookup (entity_type, entity_id, timestamp),
+      INDEX idx_user_activity (user_id, timestamp),
+      INDEX idx_action_type (action, timestamp),
+      INDEX idx_correlation (correlation_id),
+      INDEX idx_timestamp (timestamp),
+
+      FOREIGN KEY (parent_audit_id) REFERENCES audit_log_v2(id)
+  );</code></pre>
+</ul>
+
+<ul>
+<li>[ ] **API Endpoints**</li>
+<li> - GET /api/audit/query</li>
+<li> - GET /api/audit/verify</li>
+<li> - GET /api/audit/export</li>
+<li> - GET /api/audit/stats</li>
+<li> - POST /api/audit/annotate</li>
+</ul>
+
+<h3>Security Requirements</h3>
+
+<ul>
+<li>[ ] Audit entries are immutable (no UPDATE/DELETE)</li>
+<li>[ ] Cryptographic chain prevents entry removal</li>
+<li>[ ] Failed integrity checks trigger alerts</li>
+<li>[ ] Role-based access to audit logs</li>
+<li>[ ] Audit the audit queries themselves</li>
+</ul>
+
+<h2>Implementation Details</h2>
+
+<h3>Cryptographic Chain Implementation</h3>
+
+<pre><code>import hashlib
+import hmac
+import json
+from datetime import datetime
+from typing import Optional, Dict, Any
+
+class CryptographicAuditChain:
+    def __init__(self, secret_key: bytes):
+        self.secret_key = secret_key
+
+    def create_entry_hash(
+        self,
+        entry_data: dict,
+        previous_hash: Optional[str] = None
+    ) -&gt; tuple[str, str]:
+        """Create hash and signature for audit entry"""
+
+        # Prepare data for hashing
+        hash_data = {
+            'timestamp': entry_data['timestamp'],
+            'entity_type': entry_data['entity_type'],
+            'entity_id': entry_data['entity_id'],
+            'action': entry_data['action'],
+            'user_id': entry_data['user_id'],
+            'old_value': entry_data.get('old_value'),
+            'new_value': entry_data.get('new_value'),
+            'previous_hash': previous_hash
+        }
+
+        # Create deterministic JSON
+        json_data = json.dumps(hash_data, sort_keys=True, default=str)
+
+        # Calculate hash
+        entry_hash = hashlib.sha256(json_data.encode()).hexdigest()
+
+        # Create HMAC signature
+        signature = hmac.new(
+            self.secret_key,
+            entry_hash.encode(),
+            hashlib.sha256
+        ).hexdigest()
+
+        return entry_hash, signature
+
+    def verify_chain(
+        self,
+        entries: list[dict]
+    ) -&gt; tuple[bool, list[str]]:
+        """Verify integrity of audit chain"""
+
+        errors = []
+        previous_hash = None
+
+        for i, entry in enumerate(entries):
+            # Recalculate hash
+            expected_hash, expected_sig = self.create_entry_hash(
+                entry,
+                previous_hash
+            )
+
+            # Verify hash matches
+            if entry['entry_hash'] != expected_hash:
+                errors.append(f"Entry {i}: Hash mismatch")
+
+            # Verify signature
+            if entry['signature'] != expected_sig:
+                errors.append(f"Entry {i}: Signature invalid")
+
+            # Verify chain continuity
+            if entry['previous_hash'] != previous_hash:
+                errors.append(f"Entry {i}: Chain broken")
+
+            previous_hash = entry['entry_hash']
+
+        return len(errors) == 0, errors</code></pre>
+
+<h3>Audit Context Capture</h3>
+
+<pre><code>from dataclasses import dataclass
+from typing import Optional
+import socket
+
+@dataclass
+class AuditContext:
+    user_id: str
+    user_name: str
+    user_role: str
+    session_id: str
+    ip_address: str
+    user_agent: str
+    reason: Optional[str] = None
+    correlation_id: Optional[str] = None
+
+class AuditContextCapture:
+    @staticmethod
+    def from_request(request) -&gt; AuditContext:
+        """Capture audit context from HTTP request"""
+        return AuditContext(
+            user_id=request.user.id,
+            user_name=request.user.name,
+            user_role=request.user.role,
+            session_id=request.session.id,
+            ip_address=request.remote_addr,
+            user_agent=request.headers.get('User-Agent', ''),
+            correlation_id=request.headers.get('X-Correlation-ID')
+        )</code></pre>
+
+<h2>Test Scenarios</h2>
+
+<h3>Unit Tests</h3>
+
+<pre><code>def test_audit_entry_creation():
+    """Test creating audit entries with all fields"""
+    service = EnhancedAuditService()
+    entry = service.log_action(
+        entity_type='definition',
+        entity_id=1,
+        action='UPDATE',
+        old_value={'term': 'old'},
+        new_value={'term': 'new'},
+        context=mock_context
+    )
+    assert entry.entry_hash is not None
+    assert entry.signature is not None
+
+def test_cryptographic_chain():
+    """Test chain integrity verification"""
+    chain = CryptographicAuditChain(secret_key)
+    entries = create_test_entries()
+    is_valid, errors = chain.verify_chain(entries)
+    assert is_valid
+
+def test_tampering_detection():
+    """Test that tampering is detected"""
+    entries = create_test_entries()
+    # Tamper with entry
+    entries[1]['new_value'] = {'tampered': True}
+    is_valid, errors = chain.verify_chain(entries)
+    assert not is_valid
+    assert 'Hash mismatch' in errors[0]</code></pre>
+
+<h3>Integration Tests</h3>
+
+<ul>
+<li>Test high-volume audit logging performance</li>
+<li>Test query performance with millions of entries</li>
+<li>Test integrity verification speed</li>
+<li>Test concurrent audit writes</li>
+<li>Test audit export functionality</li>
+</ul>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Enhanced audit service implemented</li>
+<li>[ ] Cryptographic chaining functional</li>
+<li>[ ] Database migration completed</li>
+<li>[ ] API endpoints implemented</li>
+<li>[ ] Unit tests passing (>95% coverage)</li>
+<li>[ ] Integration tests passing</li>
+<li>[ ] Security review completed</li>
+<li>[ ] Performance benchmarks met</li>
+<li>[ ] Documentation updated</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>Cryptographic libraries (hashlib, hmac)</li>
+<li>Database migration tools</li>
+<li>Session management system</li>
+<li>User authentication system</li>
+</ul>
+
+<h2>Risks</h2>
+
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| Performance overhead | HIGH | Async logging, batching |</p>
+<p>| Storage growth | HIGH | Archiving, compression |</p>
+<p>| Key management | CRITICAL | Secure key storage, rotation |</p>
+<p>| Chain corruption | HIGH | Regular verification, backups |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Consider implementing audit log streaming for real-time monitoring</li>
+<li>Evaluate using blockchain for immutable audit trail</li>
+<li>Plan for key rotation without breaking chain</li>
+<li>Consider implementing audit log replication for redundancy</li>
+</ul>
+  </div>
+</body>
+</html>

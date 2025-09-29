@@ -25,8 +25,8 @@ OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 # Componentstatus genereren
 make validation-status
 
-# Tests draaien (quiet)
-pytest -q
+# Tests draaien (snelle subset, fail-fast)
+make test
 ```
 
 ### 📄 Documenten als context (upload)
@@ -143,6 +143,51 @@ OPENAI_API_KEY="$OPENAI_API_KEY_PROD" streamlit run src/main.py
 ```
 
 Let op: we laden geen `.env`; stel je sleutel in via je shell of VS Code.
+
+## 🧪 Testing
+
+Snelle default dev-loop (fail-fast, snelle subset):
+
+```bash
+make test
+# Equivalent pytest-filter:
+pytest -q -m "not (integration or performance or benchmark or acceptance or slow or regression)" --maxfail=1
+```
+
+Volledige suite en gerichte profielen:
+
+```bash
+make test-all          # alles
+make test-unit         # unit
+make test-integration  # integratie
+make test-acceptance   # acceptatie
+make test-performance  # performance/benchmark
+make test-smoke        # smoke
+```
+
+Parallel en coverage:
+
+```bash
+make test-parallel     # snelle subset parallel (-n auto)
+make test-cov          # coverage (term-missing)
+make test-cov-ci       # coverage + threshold (85%)
+```
+
+Netwerkpolicy (tests): outbound netwerktoegang is standaard geblokkeerd. Sta toe met `ALLOW_NETWORK=1` (alleen waar nodig):
+
+```bash
+ALLOW_NETWORK=1 make test-integration
+```
+
+Markers (strict): unit, integration, performance, benchmark, acceptance, smoke, regression, slow, tdd, flaky, golden, contract, smoke_web_lookup, asyncio.
+
+Voorbeelden:
+
+```bash
+pytest -q -m integration
+pytest -q -k "ufo and not slow"
+pytest -q -n auto
+```
 
 ## 🧭 Nieuwe UI‑navigatie
 

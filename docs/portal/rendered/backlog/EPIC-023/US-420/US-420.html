@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Toetsregels Usage Analysis Dashboard</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-420</p>
+<p>titel: Toetsregels Usage Analysis Dashboard</p>
+<p>epic: EPIC-023</p>
+<p>type: user-story</p>
+<p>status: Open</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>aangemaakt: 2025-09-29</p>
+<p>bijgewerkt: 2025-09-29</p>
+<p>owner: development-team</p>
+<p>tags:</p>
+<ul>
+<li> - toetsregels</li>
+<li> - analysis</li>
+<li> - quality-control</li>
+<p>---</p>
+</ul>
+
+<h1>US-420: Toetsregels Usage Analysis Dashboard</h1>
+
+<h2>User Story</h2>
+<p><strong>Als een</strong> kwaliteitsmanager</p>
+<p><strong>wil ik</strong> inzicht in het gebruik van toetsregels via een dashboard</p>
+<p><strong>zodat</strong> ik kan zien welke regels actief zijn en hoe ze presteren</p>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Functional Requirements</h3>
+<ul>
+<li>[ ] Analyse toont totaal aantal geladen regels</li>
+<li>[ ] Service mode, architecture en version worden getoond</li>
+<li>[ ] Analyse resultaten worden gecached in session state</li>
+<li>[ ] Timestamp van laatste analyse is zichtbaar</li>
+<li>[ ] Vorige analyse resultaten kunnen bekeken worden</li>
+<li>[ ] Refresh knop voor nieuwe analyse</li>
+</ul>
+
+<h3>Technical Requirements</h3>
+<ul>
+<li>[ ] Integratie met V2 ValidationService</li>
+<li>[ ] get_service_info() methode wordt gebruikt</li>
+<li>[ ] Results opslaan via SessionStateManager</li>
+<li>[ ] Error handling voor service unavailable</li>
+<li>[ ] Async processing voor zware analyses</li>
+</ul>
+
+<h2>Implementation Details</h2>
+
+<h3>Analysis Metrics</h3>
+<ul>
+<li>Total rules loaded</li>
+<li>Rules per category</li>
+<li>Active vs inactive rules</li>
+<li>Performance per rule (avg execution time)</li>
+<li>Success/failure rates</li>
+<li>Coverage percentages</li>
+</ul>
+
+<h3>Dashboard Layout</h3>
+<pre><code>┌─────────────────────────────────┐
+│    Toetsregels Analysis         │
+├─────────┬───────────────────────┤
+│ Summary │ Details               │
+│         │                       │
+│ Total:45│ ARAI: 8 rules         │
+│ Active:42│ CON: 6 rules         │
+│ Coverage:│ ESS: 5 rules         │
+│   93%   │ ...                   │
+└─────────┴───────────────────────┘</code></pre>
+
+<h2>Test Scenarios</h2>
+
+<ol>
+<li>**Initial Load**</li>
+</ol>
+<ul>
+<li>  - Dashboard loads with cached data</li>
+<li>  - Shows last analysis timestamp</li>
+<li>  - Refresh button visible</li>
+</ul>
+
+<ol>
+<li>**New Analysis**</li>
+</ol>
+<ul>
+<li>  - Click refresh</li>
+<li>  - Loading indicator shown</li>
+<li>  - New data displayed</li>
+<li>  - Cache updated</li>
+</ul>
+
+<ol>
+<li>**Service Error**</li>
+</ol>
+<ul>
+<li>  - Service unavailable</li>
+<li>  - Error message shown</li>
+<li>  - Previous data still visible</li>
+<li>  - Retry option available</li>
+</ul>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Dashboard component implemented</li>
+<li>[ ] All metrics calculated correctly</li>
+<li>[ ] Caching working properly</li>
+<li>[ ] Error handling comprehensive</li>
+<li>[ ] UI responsive and clear</li>
+<li>[ ] Documentation updated</li>
+</ul>
+  </div>
+</body>
+</html>

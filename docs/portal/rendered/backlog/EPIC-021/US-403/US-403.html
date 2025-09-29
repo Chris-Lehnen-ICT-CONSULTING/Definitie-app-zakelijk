@@ -1,0 +1,485 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rollback to Previous Version</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: US-403</p>
+<p>titel: Rollback to Previous Version</p>
+<p>epic: EPIC-021</p>
+<p>status: Open</p>
+<p>prioriteit: HIGH</p>
+<p>story_points: 5</p>
+<p>sprint: backlog</p>
+<p>toegewezen_aan: development-team</p>
+<p>aangemaakt: 2025-09-29</p>
+<p>bijgewerkt: 2025-09-29</p>
+<p>owner: product-owner</p>
+<p>type: feature</p>
+<p>vereisten:</p>
+<ul>
+<li> - REQ-101</li>
+<p>applies_to: definitie-app@current</p>
+<p>canonical: true</p>
+<p>---</p>
+</ul>
+
+<h1>US-403: Rollback to Previous Version</h1>
+
+<p><strong>Epic:</strong> EPIC-021 - Definitie Geschiedenis & Audit Trail Management</p>
+
+<h2>Gebruikersverhaal</h2>
+
+<p><strong>Als een</strong> content beheerder</p>
+<p><strong>wil ik</strong> definities kunnen terugdraaien naar een eerdere versie</p>
+<p><strong>zodat</strong> ik ongewenste wijzigingen ongedaan kan maken</p>
+
+<h2>Acceptance Criteria</h2>
+
+<h3>Functional Requirements</h3>
+
+<ul>
+<li>[ ] **Rollback Options**</li>
+<li> - One-click rollback to previous version</li>
+<li> - Rollback to any historical version</li>
+<li> - Selective field rollback</li>
+<li> - Bulk rollback for multiple definitions</li>
+<li> - Rollback with new version creation</li>
+</ul>
+
+<ul>
+<li>[ ] **Rollback Validation**</li>
+<li> - Preview changes before rollback</li>
+<li> - Validation check on target version</li>
+<li> - Conflict detection</li>
+<li> - Dependency checking</li>
+<li> - Impact analysis</li>
+</ul>
+
+<ul>
+<li>[ ] **Rollback Tracking**</li>
+<li> - Create audit entry for rollback</li>
+<li> - Track reason for rollback</li>
+<li> - Maintain rollback history</li>
+<li> - Link to original version</li>
+<li> - Preserve rollback chain</li>
+</ul>
+
+<ul>
+<li>[ ] **Safety Features**</li>
+<li> - Confirmation dialog</li>
+<li> - Rollback preview</li>
+<li> - Undo rollback option</li>
+<li> - Rollback approval workflow (optional)</li>
+<li> - Backup before rollback</li>
+</ul>
+
+<h3>Technical Requirements</h3>
+
+<ul>
+<li>[ ] **Rollback Service**</li>
+<pre><code>  class RollbackService:
+      def rollback_to_version(
+          self,
+          definition_id: int,
+          target_version_id: int,
+          reason: str,
+          user: User
+      ) -&gt; RollbackResult
+
+      def preview_rollback(
+          self,
+          definition_id: int,
+          target_version_id: int
+      ) -&gt; RollbackPreview
+
+      def undo_rollback(
+          self,
+          rollback_id: int
+      ) -&gt; bool</code></pre>
+</ul>
+
+<ul>
+<li>[ ] **Database Support**</li>
+<pre><code>  -- Rollback tracking table
+  CREATE TABLE rollback_history (
+      id INTEGER PRIMARY KEY,
+      definition_id INTEGER NOT NULL,
+      from_version_id INTEGER NOT NULL,
+      to_version_id INTEGER NOT NULL,
+      rollback_version_id INTEGER NOT NULL,
+      reason TEXT NOT NULL,
+      performed_by VARCHAR(255) NOT NULL,
+      performed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      undone BOOLEAN DEFAULT FALSE,
+      FOREIGN KEY (definition_id) REFERENCES definities(id),
+      FOREIGN KEY (from_version_id) REFERENCES definitie_versies(id),
+      FOREIGN KEY (to_version_id) REFERENCES definitie_versies(id),
+      FOREIGN KEY (rollback_version_id) REFERENCES definitie_versies(id)
+  );</code></pre>
+</ul>
+
+<h2>Implementation Details</h2>
+
+<h3>Rollback Service Implementation</h3>
+
+<pre><code>from dataclasses import dataclass
+from typing import Optional, Dict, List
+from datetime import datetime
+
+@dataclass
+class RollbackResult:
+    success: bool
+    new_version_id: int
+    rollback_id: int
+    changes_made: Dict[str, any]
+    warnings: List[str]
+
+@dataclass
+class RollbackPreview:
+    current_version: dict
+    target_version: dict
+    changes: dict
+    impacts: List[str]
+    warnings: List[str]
+
+class RollbackService:
+    def __init__(
+        self,
+        version_service: VersionControlService,
+        audit_service: AuditService,
+        validation_service: ValidationService
+    ):
+        self.version_service = version_service
+        self.audit_service = audit_service
+        self.validation_service = validation_service
+
+    def rollback_to_version(
+        self,
+        definition_id: int,
+        target_version_id: int,
+        reason: str,
+        user: User,
+        create_new_version: bool = True
+    ) -&gt; RollbackResult:
+        """Rollback definition to a previous version"""
+
+        try:
+            # Get current and target versions
+            current = self.version_service.get_current_version(definition_id)
+            target = self.version_service.get_version(target_version_id)
+
+            # Validate target version
+            validation_result = self._validate_rollback(
+                current,
+                target,
+                definition_id
+            )
+
+            if not validation_result.is_valid:
+                return RollbackResult(
+                    success=False,
+                    warnings=validation_result.errors
+                )
+
+            # Perform rollback
+            if create_new_version:
+                # Create new version with target content
+                new_version = self.version_service.create_version(
+                    definition_id=definition_id,
+                    content=target.content,
+                    metadata={
+                        'type': 'rollback',
+                        'from_version': current.id,
+                        'to_version': target.id,
+                        'reason': reason,
+                        'performed_by': user.id
+                    }
+                )
+            else:
+                # Direct update (dangerous)
+                new_version = self._direct_rollback(
+                    definition_id,
+                    target
+                )
+
+            # Record rollback in history
+            rollback_id = self._record_rollback(
+                definition_id,
+                current.id,
+                target.id,
+                new_version.id,
+                reason,
+                user
+            )
+
+            # Create audit entry
+            self.audit_service.log_action(
+                entity_type='definition',
+                entity_id=definition_id,
+                action='ROLLBACK',
+                old_value=current.content,
+                new_value=target.content,
+                context={
+                    'reason': reason,
+                    'from_version': current.id,
+                    'to_version': target.id
+                }
+            )
+
+            # Calculate changes
+            changes = self._calculate_changes(current, target)
+
+            return RollbackResult(
+                success=True,
+                new_version_id=new_version.id,
+                rollback_id=rollback_id,
+                changes_made=changes,
+                warnings=validation_result.warnings
+            )
+
+        except Exception as e:
+            self.audit_service.log_action(
+                entity_type='definition',
+                entity_id=definition_id,
+                action='ROLLBACK_FAILED',
+                context={'error': str(e), 'reason': reason}
+            )
+            raise
+
+    def preview_rollback(
+        self,
+        definition_id: int,
+        target_version_id: int
+    ) -&gt; RollbackPreview:
+        """Preview rollback changes before execution"""
+
+        current = self.version_service.get_current_version(definition_id)
+        target = self.version_service.get_version(target_version_id)
+
+        # Calculate what will change
+        changes = self._calculate_changes(current, target)
+
+        # Analyze impacts
+        impacts = self._analyze_impacts(definition_id, changes)
+
+        # Check for warnings
+        warnings = self._check_warnings(current, target)
+
+        return RollbackPreview(
+            current_version=current.content,
+            target_version=target.content,
+            changes=changes,
+            impacts=impacts,
+            warnings=warnings
+        )
+
+    def _validate_rollback(
+        self,
+        current: Version,
+        target: Version,
+        definition_id: int
+    ) -&gt; ValidationResult:
+        """Validate if rollback is safe"""
+
+        errors = []
+        warnings = []
+
+        # Check version exists and belongs to definition
+        if target.definition_id != definition_id:
+            errors.append("Target version doesn't belong to this definition")
+
+        # Check if target is not corrupted
+        if not self._verify_version_integrity(target):
+            errors.append("Target version integrity check failed")
+
+        # Run validation rules on target content
+        validation = self.validation_service.validate(target.content)
+        if validation.has_critical_errors():
+            warnings.append("Target version has validation errors")
+
+        # Check for dependent changes
+        dependents = self._check_dependents(definition_id, current, target)
+        if dependents:
+            warnings.append(f"Rollback affects {len(dependents)} dependent definitions")
+
+        return ValidationResult(
+            is_valid=len(errors) == 0,
+            errors=errors,
+            warnings=warnings
+        )
+
+    def _record_rollback(
+        self,
+        definition_id: int,
+        from_version: int,
+        to_version: int,
+        new_version: int,
+        reason: str,
+        user: User
+    ) -&gt; int:
+        """Record rollback in history table"""
+
+        query = """
+            INSERT INTO rollback_history
+            (definition_id, from_version_id, to_version_id,
+             rollback_version_id, reason, performed_by)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """
+
+        return self.db.execute(
+            query,
+            (definition_id, from_version, to_version, new_version, reason, user.id)
+        ).lastrowid</code></pre>
+
+<h3>UI Component</h3>
+
+<pre><code>class RollbackUI:
+    def render_rollback_interface(self, definition_id: int):
+        """Render rollback UI"""
+
+        st.header("⏮ Terugdraaien naar Eerdere Versie")
+
+        # Get version history
+        versions = self.version_service.list_versions(definition_id)
+
+        # Version selector
+        selected_version = st.selectbox(
+            "Selecteer versie om naar terug te draaien",
+            versions,
+            format_func=lambda v: f"v{v.number} - {v.date} - {v.author}"
+        )
+
+        # Rollback reason
+        reason = st.text_area(
+            "Reden voor terugdraaien",
+            placeholder="Beschrijf waarom deze rollback nodig is..."
+        )
+
+        # Preview button
+        if st.button("Preview Wijzigingen"):
+            preview = self.rollback_service.preview_rollback(
+                definition_id,
+                selected_version.id
+            )
+
+            # Show preview
+            self._show_rollback_preview(preview)
+
+        # Rollback button with confirmation
+        col1, col2 = st.columns([3, 1])
+        with col2:
+            if st.button("🔄 Terugdraaien", type="primary", disabled=not reason):
+                if st.checkbox("Ik begrijp de gevolgen van deze actie"):
+                    result = self.rollback_service.rollback_to_version(
+                        definition_id,
+                        selected_version.id,
+                        reason,
+                        st.session_state.user
+                    )
+
+                    if result.success:
+                        st.success(f"Succesvol teruggedraaid naar versie {selected_version.number}")
+                        st.info(f"Nieuwe versie {result.new_version_id} aangemaakt")
+                    else:
+                        st.error("Terugdraaien mislukt")
+                        for warning in result.warnings:
+                            st.warning(warning)</code></pre>
+
+<h2>Test Scenarios</h2>
+
+<pre><code>def test_simple_rollback():
+    """Test basic rollback functionality"""
+    # Create versions
+    v1 = create_version(content={'term': 'v1'})
+    v2 = create_version(content={'term': 'v2'})
+    v3 = create_version(content={'term': 'v3'})
+
+    # Rollback from v3 to v1
+    result = service.rollback_to_version(
+        definition_id=1,
+        target_version_id=v1.id,
+        reason="Test rollback"
+    )
+
+    assert result.success
+    assert get_current_content()['term'] == 'v1'
+
+def test_rollback_with_validation():
+    """Test rollback with validation checks"""
+    # Create invalid version
+    invalid = create_version(content={'term': ''})  # Invalid
+
+    # Attempt rollback
+    result = service.rollback_to_version(
+        definition_id=1,
+        target_version_id=invalid.id,
+        reason="Test"
+    )
+
+    assert not result.success
+    assert 'validation errors' in result.warnings[0]
+
+def test_rollback_chain():
+    """Test multiple rollbacks create proper chain"""
+    # Perform multiple rollbacks
+    # Verify chain integrity
+    # Test undo functionality</code></pre>
+
+<h2>Definition of Done</h2>
+
+<ul>
+<li>[ ] Rollback service implemented</li>
+<li>[ ] Preview functionality working</li>
+<li>[ ] UI component complete</li>
+<li>[ ] Audit logging integrated</li>
+<li>[ ] Validation checks in place</li>
+<li>[ ] Unit tests passing (>90% coverage)</li>
+<li>[ ] Integration tests passing</li>
+<li>[ ] User documentation written</li>
+<li>[ ] Security review completed</li>
+</ul>
+
+<h2>Dependencies</h2>
+
+<ul>
+<li>Version Control Service (US-400)</li>
+<li>Audit Service (US-401)</li>
+<li>Validation Service</li>
+</ul>
+
+<h2>Risks</h2>
+
+<p>| Risk | Impact | Mitigation |</p>
+<p>|------|--------|------------|</p>
+<p>| Data loss from bad rollback | CRITICAL | Always create new version, never overwrite |</p>
+<p>| Cascading effects | HIGH | Impact analysis, warnings |</p>
+<p>| Rollback loops | MEDIUM | Track rollback history, prevent cycles |</p>
+<p>| Performance with large content | MEDIUM | Optimize version storage, use deltas |</p>
+
+<h2>Notes</h2>
+
+<ul>
+<li>Consider implementing rollback approval workflow for critical definitions</li>
+<li>Plan for partial rollbacks (specific fields only)</li>
+<li>Evaluate need for scheduled/automated rollbacks</li>
+<li>Consider integration with backup/restore system</li>
+</ul>
+  </div>
+</body>
+</html>

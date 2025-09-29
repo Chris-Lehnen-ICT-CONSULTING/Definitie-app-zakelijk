@@ -2,12 +2,15 @@
 """Simpele test voor rate limiter met mock API calls."""
 
 import asyncio
+import pytest
 import sys
 import time
 sys.path.insert(0, 'src')
 
 from utils.integrated_resilience import get_integrated_system, with_full_resilience
 from utils.smart_rate_limiter import RequestPriority
+
+pytestmark = [pytest.mark.performance, pytest.mark.integration, pytest.mark.slow]
 
 async def test_rate_limiter():
     """Test rate limiter met gesimuleerde API calls."""

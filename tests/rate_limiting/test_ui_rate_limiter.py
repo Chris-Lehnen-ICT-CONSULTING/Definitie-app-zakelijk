@@ -184,3 +184,4 @@ with st.sidebar:
 
 if __name__ == "__main__":
     st.write("Run with: `streamlit run test_ui_rate_limiter.py`")
+pytestmark = [pytest.mark.performance, pytest.mark.integration, pytest.mark.slow]

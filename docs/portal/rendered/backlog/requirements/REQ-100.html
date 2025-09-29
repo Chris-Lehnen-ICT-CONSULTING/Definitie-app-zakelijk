@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Audit Trail Requirements</title>
+  <link rel="stylesheet" href="../portal.css" />
+  <style>
+    .doc { max-width: 900px; margin: 16px auto 48px auto; padding: 0 16px; }
+    .doc h1,.doc h2,.doc h3,.doc h4{ color:#223 }
+    .doc p{ line-height:1.6; color:#222 }
+    .doc a{ color:#1d4ed8; text-decoration: underline; }
+    .doc pre{ background:#0b1020; color:#e6edf3; padding:12px; overflow:auto; border-radius:8px }
+    .doc code{ background:#f0f2f5; padding:2px 6px; border-radius:4px }
+    .back{ display:inline-block; margin:12px 0; padding:6px 10px; border:1px solid #ccd; border-radius:6px; text-decoration:none; color:#223; background:#f8f9fb }
+  </style>
+</head>
+<body>
+  <div class="doc">
+    <a class="back" href="../../index.html">← Terug naar Portal</a>
+    <p>---</p>
+<p>id: REQ-100</p>
+<p>titel: Audit Trail Requirements</p>
+<p>categorie: Compliance</p>
+<p>prioriteit: HIGH</p>
+<p>status: Draft</p>
+<p>versie: 1.0</p>
+<p>aangemaakt: 2025-09-29</p>
+<p>bijgewerkt: 2025-09-29</p>
+<p>eigenaar: compliance-officer</p>
+<p>gerelateerde_epics:</p>
+<ul>
+<li> - EPIC-021</li>
+<p>gerelateerde_stories:</p>
+<li> - US-068</li>
+<li> - US-401</li>
+<li> - US-404</li>
+<li> - US-405</li>
+<p>canonical: true</p>
+<p>---</p>
+</ul>
+
+<h1>REQ-100: Audit Trail Requirements</h1>
+
+<h2>1. Executive Summary</h2>
+
+<p>Dit document definieert de requirements voor een complete, tamper-proof audit trail binnen het DefinitieAgent systeem. Het audit trail systeem moet voldoen aan juridische en compliance vereisten voor traceerbaarheid en verantwoording.</p>
+
+<h2>2. Business Requirements</h2>
+
+<h3>2.1 Compliance Drivers</h3>
+
+<ul>
+<li>**Wettelijke vereisten**: Voldoen aan Nederlandse en EU wetgeving voor data traceerbaarheid</li>
+<li>**ISO 27001**: Information security management requirements</li>
+<li>**GDPR**: Accountability principe (Artikel 5.2)</li>
+<li>**Juridische sector standaarden**: Voldoen aan beroepsstandaarden voor juridische documentatie</li>
+</ul>
+
+<h3>2.2 Business Objectives</h3>
+
+<p>| Objective | Description | Success Criteria |</p>
+<p>|-----------|-------------|------------------|</p>
+<p>| Volledige traceerbaarheid | Alle wijzigingen zijn traceerbaar | 100% audit coverage |</p>
+<p>| Compliance aantoonbaarheid | Kunnen aantonen van compliance | Audit reports beschikbaar |</p>
+<p>| Forensische analyse | Onderzoek mogelijk bij incidenten | Volledige audit historie |</p>
+<p>| Verantwoording | Accountability voor alle acties | User attribution compleet |</p>
+
+<h2>3. Functional Requirements</h2>
+
+<h3>3.1 Audit Scope</h3>
+
+<p><strong>[REQ-100.1]</strong> Het systeem MOET alle volgende acties loggen:</p>
+<ul>
+<li>Create, Read, Update, Delete (CRUD) operaties op definities</li>
+<li>Validatie regel wijzigingen</li>
+<li>Approval/rejection acties</li>
+<li>Export/import operaties</li>
+<li>Gebruiker authenticatie events</li>
+<li>Configuratie wijzigingen</li>
+<li>Toegangspogingen (succesvol en gefaald)</li>
+</ul>
+
+<p><strong>[REQ-100.2]</strong> Voor elke gelogde actie MOET het systeem vastleggen:</p>
+<ul>
+<li>Wie (user ID, naam, rol)</li>
+<li>Wat (actie type, entity type, entity ID)</li>
+<li>Wanneer (timestamp met microseconde precisie)</li>
+<li>Waar (IP adres, session ID, user agent)</li>
+<li>Waarom (reden/context indien beschikbaar)</li>
+<li>Hoe (oude waarde, nieuwe waarde, delta)</li>
+</ul>
+
+<h3>3.2 Data Integrity</h3>
+
+<p><strong>[REQ-100.3]</strong> Audit entries MOETEN immutable zijn:</p>
+<ul>
+<li>Geen UPDATE operaties toegestaan</li>
+<li>Geen DELETE operaties toegestaan</li>
+<li>Alleen INSERT (append-only)</li>
+</ul>
+
+<p><strong>[REQ-100.4]</strong> Cryptografische integriteit:</p>
+<ul>
+<li>Elke entry krijgt een SHA-256 hash</li>
+<li>Entries worden cryptografisch geketend</li>
+<li>HMAC signature voor tamper detection</li>
+<li>Chain verificatie moet mogelijk zijn</li>
+</ul>
+
+<p><strong>[REQ-100.5]</strong> Timestamp requirements:</p>
+<ul>
+<li>UTC timestamps verplicht</li>
+<li>Microseconde precisie (6 decimalen)</li>
+<li>NTP synchronisatie vereist</li>
+<li>Timezone informatie bewaren voor display</li>
+</ul>
+
+<h3>3.3 Query Capabilities</h3>
+
+<p><strong>[REQ-100.6]</strong> Het systeem MOET queries ondersteunen op:</p>
+<ul>
+<li>Datum/tijd range</li>
+<li>Gebruiker ID/naam</li>
+<li>Entity type en ID</li>
+<li>Actie type</li>
+<li>IP adres range</li>
+<li>Correlation ID</li>
+<li>Full-text search in audit data</li>
+</ul>
+
+<p><strong>[REQ-100.7]</strong> Performance requirements voor queries:</p>
+<ul>
+<li>Response tijd < 2 seconden voor 95% van queries</li>
+<li>Pagination voor grote resultaat sets</li>
+<li>Export mogelijkheid voor alle query resultaten</li>
+</ul>
+
+<h3>3.4 Retention & Archiving</h3>
+
+<p><strong>[REQ-100.8]</strong> Retention policies:</p>
+<ul>
+<li>Minimum retentie: 7 jaar voor juridische definities</li>
+<li>Configureerbare retentie per entity type</li>
+<li>Automatische archivering na X dagen</li>
+<li>Legal hold capability voor specifieke records</li>
+</ul>
+
+<p><strong>[REQ-100.9]</strong> Archive requirements:</p>
+<ul>
+<li>Compressed storage voor oude entries</li>
+<li>Retrievable binnen 24 uur</li>
+<li>Integrity verification van archives</li>
+<li>Separate archive voor verwijderde entiteiten (GDPR)</li>
+</ul>
+
+<h2>4. Non-Functional Requirements</h2>
+
+<h3>4.1 Performance</h3>
+
+<p><strong>[REQ-100.10]</strong> Performance specificaties:</p>
+<ul>
+<li>Audit logging mag maximaal 50ms overhead toevoegen</li>
+<li>Bulk insert capability voor batch operaties</li>
+<li>Async logging voor non-critical paths</li>
+<li>Write-through cache voor recent entries</li>
+</ul>
+
+<h3>4.2 Scalability</h3>
+
+<p><strong>[REQ-100.11]</strong> Scalability requirements:</p>
+<ul>
+<li>Support voor 1M+ audit entries per maand</li>
+<li>Horizontale scaling mogelijk</li>
+<li>Partitioning strategie voor grote tables</li>
+<li>Archive strategie voor oude data</li>
+</ul>
+
+<h3>4.3 Security</h3>
+
+<p><strong>[REQ-100.12]</strong> Security requirements:</p>
+<ul>
+<li>Role-based access control voor audit logs</li>
+<li>Audit van audit queries (meta-auditing)</li>
+<li>Encryption at rest voor audit data</li>
+<li>Secure key management voor signatures</li>
+<li>PII masking in exports waar nodig</li>
+</ul>
+
+<h3>4.4 Availability</h3>
+
+<p><strong>[REQ-100.13]</strong> Availability requirements:</p>
+<ul>
+<li>99.9% uptime voor audit service</li>
+<li>Graceful degradation bij failures</li>
+<li>Buffer voor offline audit entries</li>
+<li>Automatic retry met backoff</li>
+</ul>
+
+<h2>5. Technical Requirements</h2>
+
+<h3>5.1 Database Schema</h3>
+
+<p><strong>[REQ-100.14]</strong> Minimum database velden:</p>
+
+<pre><code>CREATE TABLE audit_log (
+    id BIGINT PRIMARY KEY AUTO_INCREMENT,
+    entity_type VARCHAR(50) NOT NULL,
+    entity_id BIGINT NOT NULL,
+    action VARCHAR(50) NOT NULL,
+    action_category VARCHAR(50),
+    old_value JSON,
+    new_value JSON,
+    change_delta JSON,
+    user_id VARCHAR(255) NOT NULL,
+    user_name VARCHAR(255),
+    user_role VARCHAR(100),
+    session_id VARCHAR(255) NOT NULL,
+    ip_address VARCHAR(45),
+    user_agent TEXT,
+    reason TEXT,
+    correlation_id VARCHAR(255),
+    timestamp TIMESTAMP(6) NOT NULL,
+    previous_hash VARCHAR(64),
+    entry_hash VARCHAR(64) NOT NULL,
+    signature VARCHAR(512) NOT NULL,
+    metadata JSON
+);</code></pre>
+
+<h3>5.2 API Requirements</h3>
+
+<p><strong>[REQ-100.15]</strong> REST API endpoints:</p>
+<ul>
+<li>GET /api/audit/query - Query audit logs</li>
+<li>GET /api/audit/{id} - Get specific entry</li>
+<li>GET /api/audit/verify - Verify integrity</li>
+<li>GET /api/audit/export - Export audit data</li>
+<li>POST /api/audit/archive - Trigger archiving</li>
+</ul>
+
+<h3>5.3 Integration Requirements</h3>
+
+<p><strong>[REQ-100.16]</strong> Integraties:</p>
+<ul>
+<li>Syslog forwarding capability</li>
+<li>SIEM integration ready</li>
+<li>Webhook notifications voor critical events</li>
+<li>Export naar standard formats (CEF, LEEF)</li>
+</ul>
+
+<h2>6. Compliance Matrix</h2>
+
+<p>| Regulation | Requirement | Implementation |</p>
+<p>|------------|------------|----------------|</p>
+<p>| GDPR Art. 5.2 | Accountability | Complete audit trail |</p>
+<p>| GDPR Art. 17 | Right to erasure | Audit exempt, maar PII masking |</p>
+<p>| ISO 27001 A.12.4 | Event logging | Comprehensive logging |</p>
+<p>| NEN 7510 | Healthcare info security | Role-based access |</p>
+
+<h2>7. Testing Requirements</h2>
+
+<p><strong>[REQ-100.17]</strong> Test scenarios:</p>
+<ul>
+<li>Integrity verification tests</li>
+<li>Performance benchmarks</li>
+<li>Security penetration tests</li>
+<li>Failover/recovery tests</li>
+<li>Compliance validation tests</li>
+</ul>
+
+<h2>8. Acceptance Criteria</h2>
+
+<ul>
+<li>[ ] Alle acties worden gelogd volgens REQ-100.1</li>
+<li>[ ] Complete attributie volgens REQ-100.2</li>
+<li>[ ] Immutability gegarandeerd (REQ-100.3)</li>
+<li>[ ] Cryptografische chain werkend (REQ-100.4)</li>
+<li>[ ] Query performance binnen specs (REQ-100.7)</li>
+<li>[ ] Retention policies geïmplementeerd (REQ-100.8)</li>
+<li>[ ] Security requirements voldaan (REQ-100.12)</li>
+<li>[ ] API endpoints functioneel (REQ-100.15)</li>
+<li>[ ] Compliance matrix gedekt (Section 6)</li>
+<li>[ ] Alle tests geslaagd (REQ-100.17)</li>
+</ul>
+
+<h2>9. Dependencies</h2>
+
+<ul>
+<li>Cryptographic library voor hashing/signing</li>
+<li>Time synchronization service (NTP)</li>
+<li>Archive storage solution</li>
+<li>Key management system</li>
+</ul>
+
+<h2>10. Risks & Mitigations</h2>
+
+<p>| Risk | Impact | Probability | Mitigation |</p>
+<p>|------|--------|-------------|------------|</p>
+<p>| Storage explosion | HIGH | HIGH | Archiving, compression, retention policies |</p>
+<p>| Performance degradation | HIGH | MEDIUM | Async logging, indexing, caching |</p>
+<p>| Key compromise | CRITICAL | LOW | HSM usage, key rotation, multi-sig |</p>
+<p>| Audit tampering | CRITICAL | LOW | Cryptographic chain, immutability |</p>
+
+<h2>11. Future Considerations</h2>
+
+<ul>
+<li>Blockchain integration voor ultimate immutability</li>
+<li>Machine learning voor anomaly detection</li>
+<li>Real-time streaming van audit events</li>
+<li>Distributed audit trail over multiple regions</li>
+<li>Zero-knowledge proofs voor privacy-preserving audit</li>
+</ul>
+  </div>
+</body>
+</html>
