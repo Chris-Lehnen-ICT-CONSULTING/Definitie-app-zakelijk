@@ -167,6 +167,16 @@ class DefinitionEditTab:
                 # Gebruik het geselecteerde label als filter (mapping gebeurt in zoekfunctie)
                 self._search_definitions(search_term, status_label, max_results)
 
+        # Auto-load: toon standaard de meest recente definities wanneer er nog niet gezocht is
+        try:
+            current_results = SessionStateManager.get_value('edit_search_results')
+        except Exception:
+            current_results = None
+
+        if (not current_results) and (not search_term) and status_label == "Alle":
+            # Haal de laatste N definities op zonder filters (discovery)
+            self._search_definitions("", "Alle", max_results)
+
         # Display search results
         if SessionStateManager.get_value('edit_search_results') is not None:
             self._render_search_results()
