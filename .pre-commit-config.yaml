@@ -1,6 +1,13 @@
 repos:
   - repo: local
     hooks:
+      - id: fix-requirements-frontmatter
+        name: Normalize requirements frontmatter (policy)
+        entry: python3 scripts/docs/fix_requirements_frontmatter.py
+        language: system
+        pass_filenames: false
+        files: ^docs/backlog/requirements/REQ-.*\.md$
+        stages: [pre-commit]
       - id: no-todo-markers
         name: Block TODO/FIXME markers in code
         entry: bash scripts/ci/check_no_todo_markers.sh
