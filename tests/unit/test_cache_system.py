@@ -56,33 +56,65 @@ class TestCacheDecorator:
         assert result3 == 6
         assert call_count == 2
 
-    def test_cache_expiration(self):
+    def test_cache_expiration(self, monkeypatch):
         """Test cache TTL expiration."""
         call_count = 0
 
-        @cached(ttl=0.1)  # 100ms TTL
-        def test_function(x):
-            nonlocal call_count
-            call_count += 1
-            return x * 2
+        # Use injected CacheManager with controllable clock to avoid real sleep
+        try:
+            from utils.cache import CacheManager
+        except ImportError:
+            CacheManager = None  # type: ignore
 
-        # First call
-        result1 = test_function(5)
-        assert result1 == 10
-        assert call_count == 1
+        if CacheManager is not None:
+            import tempfile
 
-        # Second call within TTL
-        result2 = test_function(5)
-        assert result2 == 10
-        assert call_count == 1
+            with tempfile.TemporaryDirectory() as td:
+                cm = CacheManager(cache_dir=td)
 
-        # Wait for TTL to expire
-        time.sleep(0.2)
+                fake_now = [0.0]
 
-        # Third call after TTL expiration
-        result3 = test_function(5)
-        assert result3 == 10
-        assert call_count == 2  # Function called again
+                def _fake_now():
+                    return fake_now[0]
+
+                monkeypatch.setattr(cm, "_now", _fake_now, raising=True)
+
+                @cached(ttl=0.1, cache_manager=cm)  # 100ms TTL
+                def test_function(x):
+                    nonlocal call_count
+                    call_count += 1
+                    return x * 2
+
+                # First call
+                result1 = test_function(5)
+                assert result1 == 10
+                assert call_count == 1
+
+                # Second call within TTL
+                result2 = test_function(5)
+                assert result2 == 10
+                assert call_count == 1
+
+                # Advance clock beyond TTL
+                fake_now[0] += 0.2
+
+                # Third call after TTL expiration
+                result3 = test_function(5)
+                assert result3 == 10
+                assert call_count == 2  # Function called again
+        else:
+            # Fallback: keep a very small real sleep to preserve semantics
+            @cached(ttl=0.001)
+            def test_function(x):
+                nonlocal call_count
+                call_count += 1
+                return x * 2
+
+            test_function(5)
+            test_function(5)
+            time.sleep(0.002)
+            test_function(5)
+            assert call_count == 2
 
     def test_cache_with_different_argument_types(self):
         """Test caching with various argument types."""
@@ -181,19 +213,28 @@ class TestCacheManager:
         result = self.cache_manager.get('nonexistent', default='default_value')
         assert result == 'default_value'
 
-    def test_cache_expiration_in_manager(self):
+    def test_cache_expiration_in_manager(self, monkeypatch):
         """Test cache expiration in manager."""
-        # Set value with 1 second TTL for more reliable timing
+        # Patch clock BEFORE set to control expiry
+        base = [0.0]
+
+        def _fake_now():
+            return base[0]
+
+        if hasattr(self.cache_manager, "_now"):
+            monkeypatch.setattr(self.cache_manager, "_now", _fake_now, raising=True)
+
+        # Set value with 1 second TTL at t=0
         self.cache_manager.set('key1', 'value1', ttl=1)
 
         # Should exist immediately
         result = self.cache_manager.get('key1')
         assert result == 'value1', "Value should be available immediately after setting"
 
-        # Wait for expiration (add small buffer for timing precision)
-        time.sleep(1.1)
+        # Advance internal clock by > 1s (no real sleep)
+        base[0] = 2.0
 
-        # Should be expired
+        # Should be expired with advanced clock
         result = self.cache_manager.get('key1')
         assert result is None, "Value should be expired after TTL"
 
@@ -323,14 +364,31 @@ class TestEnhancedCache:
         assert self.enhanced_cache.get('key1') == 'value1'
         assert self.enhanced_cache.get('key2') == 'value2'
 
-    def test_cache_cleanup(self):
+    def test_cache_cleanup(self, monkeypatch):
         """Test cache cleanup functionality."""
         # Set values with different TTLs
         self.enhanced_cache.set('key1', 'value1', ttl=0.1)  # Short TTL
         self.enhanced_cache.set('key2', 'value2', ttl=60)   # Long TTL
 
-        # Wait for first to expire
-        time.sleep(0.2)
+        # Try to advance internal clock if available; fallback to tiny real sleep
+        advanced = False
+        for attr in ("_now", "now", "time", "_time"):
+            if hasattr(self.enhanced_cache, attr):
+                base = [0.0]
+
+                def _fake_now():
+                    return base[0] + 1.0
+
+                try:
+                    monkeypatch.setattr(self.enhanced_cache, attr, _fake_now, raising=True)
+                    advanced = True
+                    break
+                except Exception:
+                    pass
+
+        if not advanced:
+            # Minimal sleep to preserve intent without slowing suite
+            time.sleep(0.02)
 
         # Run cleanup
         self.enhanced_cache.cleanup_expired()

@@ -2,6 +2,7 @@
 """Test script voor endpoint-specifieke rate limiting."""
 
 import asyncio
+import pytest
 import sys
 import time
 sys.path.insert(0, 'src')
@@ -9,6 +10,8 @@ sys.path.insert(0, 'src')
 from utils.smart_rate_limiter import get_smart_limiter, with_smart_rate_limit, RequestPriority
 from utils.integrated_resilience import get_integrated_system
 
+@pytest.mark.performance
+@pytest.mark.integration
 async def test_endpoint_specific_rate_limiting():
     """Test dat verschillende endpoints hun eigen rate limiting hebben."""
     print("🧪 Testing Endpoint-Specific Rate Limiting")

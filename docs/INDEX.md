@@ -77,6 +77,7 @@
   - **[🔍 Check Script](../scripts/check-legacy-patterns.sh)** **NIEUW** - Lokale verificatie voor developers
 - **[🧭 EPIC-013: Documentatie‑Portal](./backlog/EPIC-013/EPIC-013.md)** **HOOG** - Eén centrale, interactieve portal (auto‑sync, herbruikbaar)
   - Zoekoperators (MVP) beschikbaar — zie [Portal README](./portal/README.md)
+- **[🔌 EPIC-022: Externe Bronnen Integratie & Import](./backlog/EPIC-022/EPIC-022.md)** **HOOG** - Beheer, zoeken en importeren vanuit externe bronnen (adapter‑framework)
 - **[🎯 EPIC-014: Business Logic Refactoring](./backlog/EPIC-014/EPIC-014.md)** **NIEUW** - Implementatie van geëxtraheerde business logic (15 stories)
 - **[⚙️ EPIC-016: Beheer & Configuratie Console](./backlog/EPIC-016/EPIC-016.md)** — Beheer UI voor gate‑policy, validatieregels, contextopties, audit, import/export
 - **[🔁 EPIC-017: Iteratieve Verbeteringen (V2)](./backlog/EPIC-017/EPIC-017.md)** — Iteratiecontroller, FeedbackBuilder V2 en UI wiring

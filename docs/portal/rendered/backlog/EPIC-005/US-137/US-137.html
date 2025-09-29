@@ -29,11 +29,11 @@
 <p>canonical: true</p>
 <p>epic: EPIC-005</p>
 <p>id: US-137</p>
-<p>last_verified: 05-09-2025</p>
+<p>last_verified: 06-10-2025</p>
 <p>owner: developer-implementer</p>
 <p>prioriteit: GEMIDDELD</p>
 <p>sprint: backlog</p>
-<p>status: Nog te bepalen</p>
+<p>status: IN_UITVOERING</p>
 <p>story_points: 8</p>
 <p>titel: Export Formats (JSON, PDF, DOCX)</p>
 <p>toegewezen_aan: unassigned</p>
@@ -205,6 +205,12 @@
 <li>[ ] Prestaties benchmarks met (< 2s for export)</li>
 <li>[ ] beveiliging review Voltooid</li>
 <li>[ ] Accessibility vereisten met</li>
+</ul>
+
+<h2>Statusupdate 2025-10-06</h2>
+<ul>
+<li>Management-tab exportsectie (`src/ui/components/management_tab.py:352`) gebruikt `ExportService` (`src/services/export_service.py`) om JSON-, TXT- en CSV-export te leveren.</li>
+<li>PDF/DOCX-export en exportconfiguratie (AC2/AC3/AC4) zijn nog niet geïmplementeerd; breid `ExportService` uit met `ExportFormat.PDF/DOCX` handlers en UI-opties.</li>
 </ul>
 
 <h2>Links</h2>

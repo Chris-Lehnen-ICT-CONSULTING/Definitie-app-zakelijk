@@ -22,7 +22,7 @@
 <p>id: US-062</p>
 <p>titel: Implement Bulk Import Functionality</p>
 <p>epic: EPIC-005</p>
-<p>status: Open</p>
+<p>status: IN_UITVOERING</p>
 <p>prioriteit: HIGH</p>
 <p>story_points: 8</p>
 <p>note: Uitbreiding van US-023 Batch Operations</p>
@@ -37,7 +37,7 @@
 <li>REQ-083</li>
 <p>applies_to: definitie-app@current</p>
 <p>canonical: true</p>
-<p>last_verified: 2025-09-11</p>
+<p>last_verified: 06-10-2025</p>
 <p>---</p>
 </ul>
 
@@ -131,6 +131,12 @@
 <p>| Data corruption | High | Transaction + validation |</p>
 <p>| UI freeze tijdens import | Medium | Async processing |</p>
 <p>| Incomplete imports | High | Rollback mechanism |</p>
+
+<h2>Statusupdate 2025-10-06</h2>
+<ul>
+<li>Management-tab bevat een “Kleine batch CSV import (≤100)” workflow (`src/ui/components/management_tab.py:620`) die `DefinitionImportService` hergebruikt voor sequentiële import en rapportdownload.</li>
+<li>JSON/XLSX-ondersteuning, streaming, transactionele verwerking en conflictstrategieën ontbreken nog; de bulkservice en UI moeten worden uitgebreid voordat de acceptatiecriteria gehaald worden.</li>
+</ul>
 
 <h2>Notes</h2>
 
