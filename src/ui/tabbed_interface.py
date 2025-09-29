@@ -57,10 +57,8 @@ from ui.components.enhanced_context_manager_selector import (
 from ui.components.expert_review_tab import (  # Expert review en validatie tab
     ExpertReviewTab,
 )
-from ui.components.export_tab import ExportTab  # Export functionaliteit tab
-# External Sources tab verwijderd - zie EPIC-022 voor toekomstige implementatie
-# Business kennis bewaard in docs/backlog/EPIC-022/BUSINESS-KNOWLEDGE.md
-from ui.components.management_tab import ManagementTab  # Systeem management tools
+# Geconsolideerde import/export/beheer tab (vervangt Export en Management tabs)
+from ui.components.tabs.import_export_beheer import ImportExportBeheerTab
 from ui.components.monitoring_tab import MonitoringTab  # Monitoring en statistieken
 
 # TIJDELIJK UITGESCHAKELD - OrchestrationTab heeft compatibility issues
@@ -178,7 +176,8 @@ class TabbedInterface:
             validation_service=validation_service
         )  # Edit tab with validator
         self.expert_tab = ExpertReviewTab(self.repository)
-        self.export_tab = ExportTab(self.repository)
+        # Nieuwe geconsolideerde tab vervangt Export en Management tabs
+        self.import_export_beheer_tab = ImportExportBeheerTab(self.repository)
         # Quality Control tab verwijderd - zie EPIC-023 voor toekomstige implementatie
         # External Sources tab verwijderd - 95% overlap met Export tab
         self.monitoring_tab = MonitoringTab(self.repository)
@@ -192,7 +191,6 @@ class TabbedInterface:
                 self.orchestration_tab = OrchestrationTab(self.repository)
             except ImportError:
                 st.warning("OrchestrationTab module not available")
-        self.management_tab = ManagementTab(self.repository)
 
         # Tab configuration
         self.tab_config = {
@@ -211,10 +209,10 @@ class TabbedInterface:
                 "icon": "👨‍💼",
                 "description": "Review en goedkeuring van definities",
             },
-            "export": {
-                "title": "📤 Export & Beheer",
-                "icon": "📤",
-                "description": "Exporteer en beheer definities",
+            "import_export_beheer": {
+                "title": "📦 Import, Export & Beheer",
+                "icon": "📦",
+                "description": "Geconsolideerde import, export en database beheer",
             },
             # Quality Control tab verwijderd - zie EPIC-023
             # "quality": {
@@ -244,11 +242,7 @@ class TabbedInterface:
             #     "icon": "🤖",
             #     "description": "Intelligente definitie orchestratie en iteratieve verbetering",
             # },
-            "management": {
-                "title": "🛠️ Management",
-                "icon": "🛠️",
-                "description": "Database beheer, import/export en system administratie",
-            },
+            # Management tab geconsolideerd in import_export_beheer
         }
 
     def render(self):
@@ -1599,8 +1593,8 @@ class TabbedInterface:
                 self.edit_tab.render()
             elif tab_key == "expert":
                 self.expert_tab.render()
-            elif tab_key == "export":
-                self.export_tab.render()
+            elif tab_key == "import_export_beheer":
+                self.import_export_beheer_tab.render()
             # Quality Control tab verwijderd - zie EPIC-023
             # elif tab_key == "quality":
             #     self.quality_tab.render()
@@ -1617,8 +1611,7 @@ class TabbedInterface:
                     self.orchestration_tab.render()
                 else:
                     st.info("Legacy orchestration tab is not available.")
-            elif tab_key == "management":
-                self.management_tab.render()
+            # Management tab geconsolideerd in import_export_beheer
         except Exception as e:
             # Log de echte error voor debugging
             logger.error(f"Error in tab {tab_key}: {e!s}", exc_info=True)
