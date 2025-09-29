@@ -61,6 +61,7 @@
   const q = document.getElementById('q');
   const tf = document.getElementById('typeFilter');
   const sf = document.getElementById('statusFilter');
+  const onlyCanonical = document.getElementById('onlyCanonical');
   const stats = document.getElementById('stats');
   const sortSel = document.getElementById('sortSelect');
   const sprintSel = document.getElementById('sprintFilter');
@@ -70,6 +71,7 @@
   const workPriority = document.getElementById('workPriority');
   const workOnlyUs = document.getElementById('workOnlyUs');
   const toolbar = document.querySelector('.toolbar');
+  const copyLinkBtn = document.getElementById('copyLinkBtn');
   // Create badge container once, placed just under toolbar
   const badgeContainer = document.createElement('div');
   badgeContainer.id = 'queryBadges';
@@ -81,6 +83,22 @@
   const docs = (data.documents||[]).slice();
   const idMap = {};
   docs.forEach(d=>{ if(d && d.id) idMap[String(d.id)] = d; });
+
+  // --- Highlight helpers ---
+  function escapeHtml(s){
+    return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+  function escapeRegExp(s){ return String(s||'').replace(/[.*+?^${}()|[\]\\]/g,'\\$&'); }
+  function highlightText(text, tokens){
+    let out = escapeHtml(text||'');
+    const toks = Array.from(new Set((tokens||[]).map(t=>String(t||'').trim()).filter(Boolean)));
+    toks.sort((a,b)=>b.length-a.length);
+    for(const t of toks){
+      const re = new RegExp('('+escapeRegExp(t)+')','ig');
+      out = out.replace(re,'<mark>$1</mark>');
+    }
+    return out;
+  }
 
   function viewerHref(path, title){
     const base = new URL('viewer.html', location.href);
@@ -192,6 +210,9 @@
     updateBadgeUI(parsed);
     const t = tf.value;
     const s = sf.value;
+    // Sync type/status into hash for deeplinks
+    setHashParam('type', t||'');
+    setHashParam('status', s||'');
     // Base filtering: free-text + dropdown type/status
     let filtered = docs.filter(d => match(d,plainQuery) && (!t||d.type===t) && (!s||String(d.status||'')===s));
 
@@ -200,6 +221,16 @@
     if(sprintFilterVal){
       const want = sprintFilterVal.toLowerCase();
       filtered = filtered.filter(d => String(d.sprint||'').toLowerCase() === want);
+    }
+    // Reflect sprint selection in hash
+    setHashParam('sprint', sprintFilterVal||'');
+
+    // Canonical toggle
+    if(onlyCanonical && onlyCanonical.checked){
+      filtered = filtered.filter(d => !!d.canonical);
+      setHashParam('canonical', '1');
+    } else {
+      setHashParam('canonical', '');
     }
 
     // Token-based filtering (AND across keys, OR within a key)
@@ -260,6 +291,7 @@
         sprints.forEach(sp=>{
           const opt=document.createElement('option'); opt.value=sp; opt.textContent=sp; sprintSel.appendChild(opt);
         });
+        const hs = getHashParam('sprint'); if(hs){ sprintSel.value = hs; }
       }
       // Only show sprint filter if we actually have sprints
       const showSprint = (view==='planning') && sprints.length>0;
@@ -437,7 +469,13 @@
         const li=document.createElement('li'); li.className='doc-item';
         li.setAttribute('role','listitem');
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'REQ';
-        const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
+        const title=document.createElement('div'); title.className='title';
+        const tl=document.createElement('a'); tl.className='title-link'; tl.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path);
+        const displayTitle=(d.title||d.id||d.path);
+        const highlightTokens = (parsed.text||[]).concat(parsed.filters.title||[]);
+        tl.innerHTML = highlightText(displayTitle, highlightTokens);
+        if(d.id) attachAltClickFilter(tl, d.id);
+        title.appendChild(tl);
         const meta=document.createElement('div'); meta.className='meta';
         const statusEl = makeStatusBadge(d.status);
         const prioEl = makePrioBadge(d.prioriteit);
@@ -480,7 +518,13 @@
         const li=document.createElement('li'); li.className='doc-item';
         li.setAttribute('role','listitem');
         const type=document.createElement('span'); type.className='badge type'; type.textContent=d.type||'DOC';
-        const title=document.createElement('div'); title.className='title'; title.textContent=(d.title||d.id||d.path);
+        const title=document.createElement('div'); title.className='title';
+        const tl=document.createElement('a'); tl.className='title-link'; tl.href=viewerHref(d.rendered_url||d.url||d.path, d.title||d.id||d.path);
+        const displayTitle=(d.title||d.id||d.path);
+        const highlightTokens = (parsed.text||[]).concat(parsed.filters.title||[]);
+        tl.innerHTML = highlightText(displayTitle, highlightTokens);
+        if(d.id) attachAltClickFilter(tl, d.id);
+        title.appendChild(tl);
         const meta=document.createElement('div'); meta.className='meta';
         const statusEl = makeStatusBadge(d.status);
         const prioEl = makePrioBadge(d.prioriteit);
@@ -542,7 +586,8 @@
     const hasTokens = (parsed.text && parsed.text.length) || Object.values(parsed.filters||{}).some(a=>Array.isArray(a)&&a.length);
     // Also consider active sprint dropdown as a token-equivalent
     const activeSprintDropdown = (sprintSel && sprintSel.value) ? sprintSel.value : '';
-    if(!hasTokens && !activeSprintDropdown){
+    const canonicalActive = !!(onlyCanonical && onlyCanonical.checked);
+    if(!hasTokens && !activeSprintDropdown && !canonicalActive){
       badgeContainer.style.display = 'none';
       return;
     }
@@ -574,6 +619,10 @@
         const sb = document.createElement('span'); sb.className='badge'; sb.textContent = `sprint:${activeSprintDropdown}`; badgeContainer.appendChild(sb);
       }
     }
+    // Canonical badge when active
+    if(canonicalActive){
+      const b=document.createElement('span'); b.className='badge'; b.textContent='canonical'; badgeContainer.appendChild(b);
+    }
 
     // Clear button (query)
     const clear = document.createElement('button');
@@ -602,6 +651,7 @@
       if(workStatus) workStatus.value='';
       if(workPriority) workPriority.value='';
       if(workOnlyUs) workOnlyUs.checked=false;
+      if(onlyCanonical) onlyCanonical.checked=false;
       // Hash params
       setHashParam('q',''); setHashParam('view', getView());
       setHashParam('owner',''); setHashParam('wstatus',''); setHashParam('wprio',''); setHashParam('wonlyus','');
@@ -653,7 +703,12 @@
       const e = epics[eid];
       const eHeader = document.createElement('div'); eHeader.className='planning-epic';
       const eBadge = document.createElement('span'); eBadge.className='badge type'; eBadge.textContent='EPIC';
-      const eTitle = document.createElement('a'); eTitle.textContent=(e.epic&&(e.epic.title||e.epic.id))||eid; eTitle.href=viewerHref((e.epic&&(e.epic.rendered_url||e.epic.url))||'#', (e.epic&&e.epic.title)||eid); attachAltClickFilter(eTitle, (e.epic&&e.epic.id)||eid||'');
+      const eTitle = document.createElement('a');
+      const eTitleText=(e.epic&&(e.epic.title||e.epic.id))||eid;
+      const highlightTokensE = (q && q.value) ? parseQuery((q.value||'')).text.concat((parseQuery((q.value||''))).filters.title||[]) : [];
+      eTitle.innerHTML = highlightText(eTitleText, highlightTokensE);
+      eTitle.href=viewerHref((e.epic&&(e.epic.rendered_url||e.epic.url))||'#', (e.epic&&e.epic.title)||eid);
+      attachAltClickFilter(eTitle, (e.epic&&e.epic.id)||eid||'');
       // Counts per epic
       const usCount = Object.keys(e.us||{}).length;
       const bugCount = Object.values(e.us||{}).reduce((acc, u)=>acc + ((u.bugs&&u.bugs.length)||0), 0);
@@ -664,7 +719,12 @@
         const u=e.us[uid];
         const li=document.createElement('div'); li.className='planning-us';
         const uBadge=document.createElement('span'); uBadge.className='badge type'; uBadge.textContent='US';
-        const uLink=document.createElement('a'); uLink.textContent=u.us.title||u.us.id; uLink.href=viewerHref(u.us.rendered_url||u.us.url, u.us.title||u.us.id); attachAltClickFilter(uLink, u.us.id||'');
+        const uLink=document.createElement('a');
+        const uTitleText=u.us.title||u.us.id;
+        const highlightTokensU = (q && q.value) ? parseQuery((q.value||'')).text.concat((parseQuery((q.value||''))).filters.title||[]) : [];
+        uLink.innerHTML = highlightText(uTitleText, highlightTokensU);
+        uLink.href=viewerHref(u.us.rendered_url||u.us.url, u.us.title||u.us.id);
+        attachAltClickFilter(uLink, u.us.id||'');
         const uMeta=document.createElement('span'); uMeta.className='meta';
         const statusTxt = String(u.us.status||'');
         const prioTxt = String(u.us.prioriteit||'');
@@ -702,6 +762,9 @@
   try {
     const initialQ = getHashParam('q');
     if(initialQ) q.value = initialQ;
+    const initialType = getHashParam('type'); if(initialType && tf) tf.value = initialType;
+    const initialStatus = getHashParam('status'); if(initialStatus && sf) sf.value = initialStatus;
+    const initCanon = getHashParam('canonical'); if(initCanon && onlyCanonical) onlyCanonical.checked = (initCanon==='1');
   } catch(e){}
 
   q.addEventListener('input',render); tf.addEventListener('change',render); sf.addEventListener('change',render);
@@ -711,6 +774,36 @@
   if(workStatus) workStatus.addEventListener('change', render);
   if(workPriority) workPriority.addEventListener('change', render);
   if(workOnlyUs) workOnlyUs.addEventListener('change', render);
+  if(onlyCanonical) onlyCanonical.addEventListener('change', render);
+  if(copyLinkBtn){
+    copyLinkBtn.addEventListener('click', async ()=>{
+      try {
+        // Ensure hash reflects current inputs
+        render();
+        await navigator.clipboard.writeText(location.href);
+        const old = copyLinkBtn.textContent; copyLinkBtn.textContent = 'Gekopieerd!';
+        setTimeout(()=>{ copyLinkBtn.textContent = old; }, 1200);
+      } catch(e){}
+    });
+  }
+  // Keyboard shortcuts: '/', 'Esc', '[', ']', 's'
+  document.addEventListener('keydown', (e)=>{
+    const tag = (e.target && e.target.tagName || '').toLowerCase();
+    const typing = tag==='input' || tag==='textarea' || tag==='select' || e.isComposing;
+    if(!typing && e.key === '/' && !e.metaKey && !e.ctrlKey){ e.preventDefault(); if(q) q.focus(); }
+    if(!typing && e.key === 'Escape'){ if(q && q.value){ q.value=''; render(); } }
+    if(!typing && (e.key === '[' || e.key === ']')){
+      const order = ['all','planning','requirements','req-matrix','work'];
+      const v=getView(); let i=order.indexOf(v); if(i<0) i=0;
+      i = e.key===']' ? (i+1)%order.length : (i-1+order.length)%order.length;
+      setHashParam('view', order[i]);
+    }
+    if(!typing && e.key.toLowerCase() === 's'){
+      if(sprintSel && sprintSel.parentElement && sprintSel.parentElement.style.display !== 'none'){
+        sprintSel.focus();
+      }
+    }
+  });
   window.addEventListener('hashchange', render);
   render();
 })();
