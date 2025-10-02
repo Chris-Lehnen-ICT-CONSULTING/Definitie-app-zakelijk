@@ -78,3 +78,24 @@ dashboard:
 	@echo "[dashboard] Generating static requirements dashboard..."
 	$(PY) scripts/generate_requirements_dashboard.py
 	@echo "[dashboard] Open file://$$(pwd)/docs/backlog/dashboard/index.html in your browser"
+
+# Workflow automation tools (EPIC-025 US-431)
+.PHONY: wip phase workflow-guard install-post-commit
+
+wip:
+	@echo "[wip] Showing work in progress..."
+	@bash scripts/wip_tracker.sh
+
+phase:
+	@echo "[phase] Showing TDD phase..."
+	@$(PY) scripts/phase-tracker.py
+
+workflow-guard:
+	@echo "[workflow-guard] Checking TDD workflow compliance..."
+	@$(PY) scripts/workflow-guard.py
+
+install-post-commit:
+	@echo "[install-post-commit] Installing post-commit review reminder..."
+	@cp scripts/hooks/post-commit-review-reminder .git/hooks/post-commit
+	@chmod +x .git/hooks/post-commit
+	@echo "[install-post-commit] Post-commit hook installed successfully"
